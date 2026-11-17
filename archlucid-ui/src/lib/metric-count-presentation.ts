@@ -1,12 +1,16 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { reviewsHubInventoryFilterHref } from "@/app/(operator)/architecture/reviews/_sections/reviews-hub-inventory-filters";
 import { OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF } from "@/lib/operator/operator-home-metric-hrefs";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import { resolveGlobalSearchDeskArchitectureId } from "@/lib/global-search-desk-architecture-id";
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import {
   matchesGovernanceFindingsRunScope,
   matchesRiskRegisterFilter,
   type RiskRegisterFilter,
 } from "@/lib/architecture/architecture-risk-register-page";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 
 /** Canonical home-surface noun for committed review records (P2-14). */
@@ -34,6 +38,8 @@ export type MetricCountPresentation = {
   readonly count: number;
   readonly noun: string;
   readonly dimensions: readonly MetricCountScopeDimension[];
+  /** Extra scope fragments appended after dimension-derived scope (SelfDescribingMetricCount, TB-2152). */
+  readonly supplementalScopeLabels?: readonly string[];
   readonly href: string;
 };
 
@@ -97,8 +103,26 @@ export function formatMetricCountScopeLabel(
   return parts.join(" · ");
 }
 
+export function formatMetricCountScopeLabelFromPresentation(presentation: MetricCountPresentation): string {
+  const fromDimensions = formatMetricCountScopeLabel(presentation.dimensions, { noun: presentation.noun });
+  const supplemental =
+    presentation.supplementalScopeLabels?.map((label) => label.trim()).filter((label) => label.length > 0) ?? [];
+
+  if (supplemental.length === 0) {
+    return fromDimensions;
+  }
+
+  const supplementalJoined = supplemental.join(" · ");
+
+  if (fromDimensions.length === 0) {
+    return supplementalJoined;
+  }
+
+  return `${fromDimensions} · ${supplementalJoined}`;
+}
+
 export function formatMetricCountHeadline(presentation: MetricCountPresentation): string {
-  const scope = formatMetricCountScopeLabel(presentation.dimensions, { noun: presentation.noun });
+  const scope = formatMetricCountScopeLabelFromPresentation(presentation);
 
   if (scope.length === 0) {
     return `${presentation.count} ${presentation.noun}`;
@@ -110,6 +134,7 @@ export function formatMetricCountHeadline(presentation: MetricCountPresentation)
 export function buildGovernanceFindingsQueueHref(input?: {
   readonly runId?: string | null;
   readonly filter?: RiskRegisterFilter;
+  readonly basePath?: string;
 }): string {
   const params = new URLSearchParams();
 
@@ -123,14 +148,18 @@ export function buildGovernanceFindingsQueueHref(input?: {
 
   const query = params.toString();
 
-  return query.length > 0 ? `/governance/findings?${query}` : "/governance/findings";
+  const basePath = input?.basePath?.trim() || "/governance/findings";
+
+  return query.length > 0 ? `${basePath}?${query}` : basePath;
 }
 
 export function buildReviewDetailFindingsTabHref(runId: string): string {
   const trimmedRunId = runId.trim();
-  const params = new URLSearchParams({ reviewTab: "findings" });
+  const architectureId = resolveGlobalSearchDeskArchitectureId({ runId: trimmedRunId });
 
-  return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?${params.toString()}`;
+  return buildReviewDetailTabHref(trimmedRunId, "findings", {
+    architectureId,
+  });
 }
 
 export function buildArchitectureClarificationsTabHref(runId: string): string {
@@ -177,6 +206,7 @@ export function reviewFindingsGovernanceQueuePresentation(
     readonly architectureId: string;
     readonly isWorkingMode: boolean;
   },
+  productLine: ProductLineId = "architecture",
 ): MetricCountPresentation {
   const trimmedRunId = runId.trim();
 
@@ -189,16 +219,24 @@ export function reviewFindingsGovernanceQueuePresentation(
       runId: trimmedRunId,
       filter: "all",
       isWorkingMode: workingInstrument?.isWorkingMode === true,
+      productLine,
     }),
   };
 }
 
-export function workspaceOpenFindingsPresentation(count: number): MetricCountPresentation {
+export function workspaceOpenFindingsPresentation(
+  count: number,
+  productLine: ProductLineId = "architecture",
+): MetricCountPresentation {
   return {
     count,
     noun: count === 1 ? "open finding" : "open findings",
     dimensions: [{ kind: "governance-filter", filter: "open" }],
-    href: buildGovernanceFindingsQueueHref({ filter: "open" }),
+    supplementalScopeLabels: ["this workspace", "open"],
+    href: buildGovernanceFindingsQueueHref({
+      filter: "open",
+      basePath: findingsPathForProductLine(productLine),
+    }),
   };
 }
 
@@ -251,8 +289,10 @@ export function governanceRegisterMetricPresentation(input: {
   readonly noun: string;
   readonly filter: RiskRegisterFilter;
   readonly runId?: string | null;
+  readonly productLine?: ProductLineId;
 }): MetricCountPresentation {
   const scopedRunId = input.runId?.trim() ?? "";
+  const productLine = input.productLine ?? "architecture";
 
   return {
     count: input.count,
@@ -264,6 +304,7 @@ export function governanceRegisterMetricPresentation(input: {
     href: buildGovernanceFindingsQueueHref({
       runId: scopedRunId.length > 0 ? scopedRunId : null,
       filter: input.filter,
+      basePath: findingsPathForProductLine(productLine),
     }),
   };
 }

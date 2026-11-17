@@ -37,6 +37,7 @@ internal static class SecureNowAnalysisRun
         cancellationToken.ThrowIfCancellationRequested();
 
         RunState? run = Current.Value;
+
         if (run is null || !run.Active)
             return await ReadAsync(repository, scope, snapshotId, cancellationToken).ConfigureAwait(false);
 
@@ -128,7 +129,9 @@ internal static class SecureNowAnalysisRun
                 }
                 else
                 {
-                    run.Remove(entry);
+                    // Oversized snapshots skip LRU retention but stay in the run index so
+                    // subsequent engines coalesce on the same in-memory load.
+                    entry.EstimatedBytes = 0;
                 }
             }
             entry.Completion.TrySetResult(loaded);
@@ -252,9 +255,11 @@ internal static class SecureNowAnalysisRun
             if (!Contains(entry))
                 return;
             Entries[entry.Repository].Remove(entry.Key);
+
             if (Entries[entry.Repository].Count == 0)
                 Entries.Remove(entry.Repository);
             TrackedCount--;
+
             if (entry.Node is not null)
             {
                 Lru.Remove(entry.Node);

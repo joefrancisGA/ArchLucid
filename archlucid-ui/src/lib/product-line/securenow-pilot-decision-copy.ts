@@ -1,6 +1,30 @@
 import { SECURENOW_REMEDIATION_INSTANCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { SECURENOW_REMEDIATION_FACTORY_PATH } from "@/lib/governance/governance-route-paths";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { SECURENOW_INVESTIGATION_EFFORT_PATH } from "@/lib/product-line/securenow-investigation-effort-copy";
+import { securenowInternalDocHref } from "@/lib/product-line/securenow-internal-doc-href";
+
+export const SECURENOW_PILOT_DECISION_EXTEND_ROI_LEAD =
+  "Extend keeps bounded scope open. Use the synthetic ROI worksheet for sponsor rehearsal — not tenant ROI." as const;
+
+export const SECURENOW_PILOT_DECISION_EXTEND_ROI_LINK_LABEL = "Open investigation effort worksheet" as const;
+
+export const SECURENOW_PILOT_DECISION_EXTEND_ROI_HREF = SECURENOW_INVESTIGATION_EFFORT_PATH;
+
+export const SECURENOW_PILOT_DECISION_PROCEED_COMMERCIAL_LEAD =
+  "Proceed is a human commercial discussion — not billing, not beta GO, and not a countersigned order." as const;
+
+export const SECURENOW_PILOT_DECISION_PROCEED_QUOTE_HREF = "/administration/securenow-quote-packet" as const;
+
+export const SECURENOW_PILOT_DECISION_PROCEED_QUOTE_LABEL = "Open quote packet (SN-EVAL)" as const;
+
+export const SECURENOW_PILOT_DECISION_PROCEED_REVIEWER_HREF =
+  "/administration/securenow-reviewer-packet#procurement-index" as const;
+
+export const SECURENOW_PILOT_DECISION_PROCEED_REVIEWER_LABEL = "Reviewer packet procurement index" as const;
+
+export const SECURENOW_PILOT_DECISION_STOP_DRAFT_LEAD =
+  "Stop preserves evidence. Save the disposition to open the draft ITSM handoff — nothing sends automatically." as const;
 
 export const SECURENOW_PILOT_DECISION_HEADING = "Pilot decision preparation" as const;
 
@@ -28,8 +52,8 @@ export const SECURENOW_DECISION_CYCLE_HEADING = "Decision cycle" as const;
 export const SECURENOW_DECISION_CYCLE_LEAD =
   "A person writes the qualify start, the close, and one stall step in the decision cycle log. SecureNow beta remains NO_GO." as const;
 
-export const SECURENOW_DECISION_CYCLE_LOG_PATH =
-  "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/DECISION_CYCLE_LOG.md" as const;
+/** In-app route for the internal SecureNow decision cycle log (no GitHub blob links in operator UI). */
+export const SECURENOW_DECISION_CYCLE_LOG_PATH = securenowInternalDocHref("DECISION_CYCLE_LOG.md");
 
 export type SecureNowDecisionCycleStallStep = {
   readonly label: string;

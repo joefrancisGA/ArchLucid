@@ -78,8 +78,8 @@ public sealed partial class SqlLlmTenantBudgetRepository
         using IDbConnection connection =
             await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
-        int affected = await connection
-            .ExecuteAsync(
+        LlmTenantBudgetStateReadModel? reserved = await connection
+            .QuerySingleOrDefaultAsync<LlmTenantBudgetStateReadModel>(
                 new CommandDefinition(
                     LlmTenantBudgetSql.ReserveDaily,
                     new
@@ -93,7 +93,7 @@ public sealed partial class SqlLlmTenantBudgetRepository
                     cancellationToken: cancellationToken))
             .ConfigureAwait(false);
 
-        if (affected != 1)
+        if (reserved is null)
             return await ClassifyDailyReserveFailureAsync(
                 request.TenantId,
                 utcDay,
@@ -102,12 +102,7 @@ public sealed partial class SqlLlmTenantBudgetRepository
                 request.HardCapTokens.Value,
                 cancellationToken).ConfigureAwait(false);
 
-        LlmTenantBudgetStateReadModel model =
-            await SelectDailyAsync(connection, request.TenantId, utcDay, cancellationToken).ConfigureAwait(false)
-            ?? throw new InvalidOperationException("Daily budget row missing after reserve.");
-
-        return new LlmTenantBudgetReserveResult { NewState = model };
-
+        return new LlmTenantBudgetReserveResult { NewState = reserved };
     }
 
     private async Task<LlmTenantBudgetReserveResult> ClassifyDailyReserveFailureAsync(

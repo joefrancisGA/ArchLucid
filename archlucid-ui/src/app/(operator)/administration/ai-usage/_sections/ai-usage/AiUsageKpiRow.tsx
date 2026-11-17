@@ -4,6 +4,10 @@ import { cn } from "@/lib/utils";
 
 import type { AiUsageKpiSummary } from "@/lib/ai-usage-dashboard-model";
 import { formatCostReportingEstimatedUsd } from "@/app/(operator)/administration/ai-usage/_sections/cost-reporting-page-helpers";
+import {
+  AMOUNT_NOT_RETURNED,
+  PERCENT_NOT_RETURNED,
+} from "@/lib/amount-display-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type Props = {
@@ -13,7 +17,7 @@ type Props = {
 
 function formatOptionalUsd(value: number | null, currency: string, approximate = false): string {
   if (value === null) {
-    return "Amount not returned";
+    return AMOUNT_NOT_RETURNED;
   }
 
   const formatted = formatCostReportingEstimatedUsd(value, currency);
@@ -23,7 +27,7 @@ function formatOptionalUsd(value: number | null, currency: string, approximate =
 
 function formatOptionalPercent(value: number | null): string {
   if (value === null) {
-    return "Percent not returned";
+    return PERCENT_NOT_RETURNED;
   }
 
   return `${value}%`;

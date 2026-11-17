@@ -43,6 +43,6 @@ describe("loadArchitectureGraphViewModel", () => {
     }
 
     expect(r.graph.nodes).toHaveLength(1);
-    expect(r.note).toContain("paginated");
+    expect(r.note).toContain("merged after the single-response size limit");
   });
 });

@@ -1,5 +1,20 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { render, screen, within } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  usePathname: (): string => "/help/caiq-sig-response",
+  useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: (): URLSearchParams => new URLSearchParams(),
+}));
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WhereToGoNextPreferenceProvider")>();
+
+  return {
+    ...actual,
+    useWhereToGoNextVisible: () => true,
+  };
+});
 import {
   expectClaimDisciplineBandContent,
   expectClaimDisciplineHeading,
@@ -32,9 +47,11 @@ describe("CaiqSigResponseHelpEvidenceOrientationStrip", () => {
       CAIQ_SIG_RESPONSE_HELP_CLAIM_SCOPE,
     );
 
+    const sourcesRegion = within(screen.getByTestId("caiq-sig-response-help-sources"));
+
     for (const link of CAIQ_SIG_RESPONSE_HELP_SOURCES) {
-      expectFollowUpLink(screen, link);
-      expect(screen.getByText(link.when)).toBeInTheDocument();
+      expectFollowUpLink(sourcesRegion, link);
+      expect(sourcesRegion.getByText(link.when)).toBeInTheDocument();
     }
   });
 });

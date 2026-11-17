@@ -5,7 +5,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { BarChart3, Search, Shield } from "lucide-react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OPERATOR_HOME_SECTION_HEADING, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { AUDIT_TRAIL_LABEL } from "@/lib/usability/canonical-product-terms";
 
@@ -40,6 +42,8 @@ function LayerCard({ icon, title, items, href }: LayerCardProps) {
  * roadmap vocabulary (Planning, Value report, etc.) once a committed manifest exists.
  */
 export function HomeMaturityLayerCards() {
+  const { productLine } = useProductLine();
+  const enterpriseControlsHref = findingsPathForProductLine(productLine);
   const demoUi = isNextPublicDemoMode();
 
   const advancedItems = demoUi
@@ -69,7 +73,7 @@ export function HomeMaturityLayerCards() {
           icon={<Shield className="h-5 w-5 text-violet-600 dark:text-violet-400" aria-hidden />}
           title="Enterprise Controls"
           items={["Approval", "Policy packs", AUDIT_TRAIL_LABEL, "Alerts"]}
-          href="/governance/findings"
+          href={enterpriseControlsHref}
         />
         <LayerCard
           icon={<Search className="h-5 w-5 text-amber-600 dark:text-amber-400" aria-hidden />}

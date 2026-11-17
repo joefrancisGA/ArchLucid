@@ -134,7 +134,21 @@ export function useGuidedIntakePriorRunPrefill(options: Options): GuidedIntakePr
   };
 
   useEffect(() => {
-    if (!enabled || priorRunId === null || appliedRef.current) {
+    appliedRef.current = false;
+    setPriorRunPrefillCopiedFromLine(null);
+  }, [priorRunId, enabled]);
+
+  useEffect(() => {
+    if (!enabled || priorRunId === null) {
+
+      if (priorRunId === null) {
+        setPriorAttachedFileNames([]);
+      }
+
+      return;
+    }
+
+    if (appliedRef.current) {
       return;
     }
 
@@ -159,7 +173,7 @@ export function useGuidedIntakePriorRunPrefill(options: Options): GuidedIntakePr
           : GUIDED_INTAKE_PRIOR_RUN_PREFILL_NO_FIELDS_COPIED,
       );
     }).catch(() => {
-      if (cancelled || !appliedRef.current) {
+      if (cancelled || appliedRef.current) {
         return;
       }
 
@@ -170,7 +184,7 @@ export function useGuidedIntakePriorRunPrefill(options: Options): GuidedIntakePr
     return () => {
       cancelled = true;
     };
-  }, [enabled, priorRunId]);
+  }, [enabled, priorRunId, setPriorAttachedFileNames]);
 
   return { priorRunPrefillCopiedFromLine };
 }

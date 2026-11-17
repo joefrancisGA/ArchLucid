@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +25,10 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+import {
+  graphReviewRunExplanationHref,
+  resolveGraphReviewDeskArchitectureId,
+} from "@/lib/graph-finding-deep-links";
 import type { ManifestSummary } from "@/types/authority";
 
 export type ManifestTopDecisionsCardProps = {
@@ -45,6 +49,7 @@ function isShowcaseManifest(summary: ManifestSummary): boolean {
  * when decisionCount is non-zero (API does not yet return individual decision bullets on ManifestSummary — see backlog).
  */
 export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
+  const { summary, buyerPolishedLayout } = props;
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -55,6 +60,18 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
   );
   const [showAllOpen, setShowAllOpenState] = useState(() =>
     parseManifestTopDecisionsShowAllOpenFromSearch(manifestTopDecisionsShowAllOpenParam),
+  );
+  const deskArchitectureId = useMemo(
+    () =>
+      resolveGraphReviewDeskArchitectureId(summary.runId, {
+        pathname,
+        search: searchParams.toString(),
+      }),
+    [pathname, searchParams, summary.runId],
+  );
+  const runExplanationHref = useMemo(
+    () => graphReviewRunExplanationHref(summary.runId, deskArchitectureId),
+    [deskArchitectureId, summary.runId],
   );
   const syncOpenAreaKeyToUrl = useCallback(
     (areaKey: string | null) => {
@@ -88,7 +105,6 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
     },
     [syncShowAllOpenToUrl],
   );
-  const { summary, buyerPolishedLayout } = props;
   const buyer = buyerPolishedLayout ?? false;
 
   useEffect(() => {
@@ -153,7 +169,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
             </ul>
           ) : null}
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/architecture/reviews/${encodeURIComponent(summary.runId)}#run-explanation`}>
+            <Link href={runExplanationHref}>
               {buyer ? "View on review" : "Open decisions on run"}
             </Link>
           </Button>

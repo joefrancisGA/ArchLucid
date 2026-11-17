@@ -1,13 +1,20 @@
+import { securenowInternalDocHref } from "@/lib/product-line/securenow-internal-doc-href";
+
 export const SECURENOW_QUOTE_PACKET_HEADING = "Quote packet" as const;
 
 export const SECURENOW_QUOTE_PACKET_LEAD =
-  "SKU identifiers and the quote sequence. Not an approved offer. SecureNow beta remains NO_GO." as const;
+  "SKU identifiers and the quote sequence. The owner accepts SN-EVAL orders at the published price by signed quote. SecureNow beta remains NO_GO." as const;
 
 export const SECURENOW_QUOTE_PACKET_GUARDRAIL =
-  "Fees stay in the private price sheet. This page does not publish a price." as const;
+  "Published list prices are quote-only. Seller, tax, and payout identity stay in the private price sheet." as const;
 
 export const SECURENOW_QUOTE_PACKET_COMMERCE_LIMIT =
   "This page cannot authorize commerce." as const;
+
+export const SECURENOW_QUOTE_PACKET_SN_EVAL_HEADING = "SN-EVAL acceptance" as const;
+
+export const SECURENOW_QUOTE_PACKET_SN_EVAL_BODY =
+  "SN-EVAL controlled-pilot acceptance language anchors here. Quote and order form bind acceptance — this page is not a countersigned order." as const;
 
 export const SECURENOW_QUOTE_PACKET_SKUS = [
   ["SN-EVAL", "45-day evaluation; up to 2 Azure subscriptions and 4 successful snapshots"],
@@ -35,18 +42,18 @@ export const SECURENOW_QUOTE_PACKET_SEQUENCE = [
 export const SECURENOW_QUOTE_PACKET_LINKS = [
   {
     label: "SKU and meter card",
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/SKU_METER_CARD.md",
+    href: securenowInternalDocHref("SKU_METER_CARD.md"),
   },
   {
     label: "Quote-to-pilot checklist",
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/QUOTE_TO_PILOT_CHECKLIST.md",
+    href: securenowInternalDocHref("QUOTE_TO_PILOT_CHECKLIST.md"),
   },
   {
     label: "Quote cover",
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/QUOTE_COVER.md",
+    href: securenowInternalDocHref("QUOTE_COVER.md"),
   },
   {
     label: "Order form",
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ORDER_FORM_TEMPLATE.md",
+    href: securenowInternalDocHref("ORDER_FORM_TEMPLATE.md"),
   },
 ] as const;

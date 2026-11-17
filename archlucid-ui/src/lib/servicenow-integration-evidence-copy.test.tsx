@@ -1,9 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import {
-  expectFollowUpLink,
-  whereToGoNextFollowUpLinksForTests,
-} from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it, vi } from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { ServiceNowIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -12,6 +9,14 @@ import {
   SERVICENOW_INTEGRATION_SOURCES,
   SERVICENOW_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/servicenow-integration-evidence-copy";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => SERVICENOW_INTEGRATION_CANONICAL_PATH,
+}));
 
 describe("servicenow-integration-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -26,9 +31,11 @@ describe("servicenow-integration-evidence-copy", () => {
 
     const sources = screen.getByTestId("servicenow-integration-sources");
 
-    for (const link of whereToGoNextFollowUpLinksForTests(SERVICENOW_INTEGRATION_SOURCES)) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sources),
+      SERVICENOW_INTEGRATION_SOURCES,
+      SERVICENOW_INTEGRATION_CANONICAL_PATH,
+    );
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${SERVICENOW_INTEGRATION_CANONICAL_PATH}$`, "i") }),

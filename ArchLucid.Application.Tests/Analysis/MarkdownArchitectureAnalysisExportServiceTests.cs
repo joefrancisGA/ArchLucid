@@ -45,7 +45,7 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
 
         md.Should().StartWith("# ArchLucid Analysis Report");
         md.Should().Contain("## Agent Execution Traces");
-        md.Should().Contain("No execution traces");
+        md.Should().Contain("Execution traces were not stored for this run.");
         md.Should().NotContain("```");
     }
 
@@ -83,7 +83,7 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         md.Should().Contain(ArchitectureEvidenceRequestExport.TraceUserPromptStoredEmptyCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.TraceRawResponseStoredEmptyCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.ParsedResultNotStoredCopy);
-        md.Should().Contain("No error was stored because parsing succeeded.");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceErrorNotStoredBecauseParseSucceededCopy);
         md.Should().NotContain("```text");
     }
 

@@ -73,6 +73,7 @@ describe("OperatorHomeExploreSampleSection", () => {
     }
 
     expect(screen.getByText(OPERATOR_HOME_EXPLORE_SAMPLE_LEAD)).toBeInTheDocument();
+    expect(screen.getByTestId("first-review-sample-sealed-package-checklist")).toBeInTheDocument();
     expect(screen.getByTestId("golden-sponsor-package-walkthrough")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA })).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-explore-run-sample-review")).toBeNull();

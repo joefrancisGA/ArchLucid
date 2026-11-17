@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -29,6 +29,7 @@ import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
 } from "@/lib/showcase-static-demo";
 import type { ManifestSummary } from "@/types/authority";
+import { resolveSealedCollateralReviewDeskHref } from "@/lib/architecture/resolve-sealed-collateral-review-desk-href";
 import { manifestSummarySealedVersionForCopyGuard } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import {
   manifestVerificationAppendixDisclosureHrefFromSearch,
@@ -59,6 +60,16 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
   const detailOpenDefault = !(buyerPolishedLayout ?? false) || isCuratedDemo;
   const appendixOpen = urlAppendixOpen ?? detailOpenDefault;
   const isBuyerPolished = buyerPolishedLayout ?? false;
+  const relatedFindingHref = useMemo(
+    () =>
+      resolveSealedCollateralReviewDeskHref({
+        runId: summary.runId,
+        pathname,
+        findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+        findingIdOnPath: true,
+      }),
+    [pathname, summary.runId],
+  );
 
   const setAppendixOpen = useCallback(
     (open: boolean) => {
@@ -213,7 +224,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           <Link
             className={OPERATOR_LINK.nav}
-            href={`/architecture/reviews/${encodeURIComponent(summary.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
+            href={relatedFindingHref}
           >
             PHI Minimization Risk
           </Link>

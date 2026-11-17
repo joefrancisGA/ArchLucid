@@ -1,5 +1,6 @@
 import type { ArchitectureReviewRecurrenceSchedule } from "@/lib/api/governance-stickiness-api";
 import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 
 export const RECURRENCE_SCHEDULE_LAST_VIEWED_STORAGE_KEY = "archlucid_recurrence_schedule_continue_last_v1";
 
@@ -47,25 +48,24 @@ function compareSoonestNextRun(
   left: ArchitectureReviewRecurrenceSchedule,
   right: ArchitectureReviewRecurrenceSchedule,
 ): number {
-  const leftNext = left.nextRunUtc?.trim() ?? "";
-  const rightNext = right.nextRunUtc?.trim() ?? "";
+  const leftNext = parseIsoUtcMs(left.nextRunUtc ?? "");
+  const rightNext = parseIsoUtcMs(right.nextRunUtc ?? "");
+  const leftHasNext = !Number.isNaN(leftNext);
+  const rightHasNext = !Number.isNaN(rightNext);
 
-  if (leftNext.length > 0 && rightNext.length > 0) {
-    return leftNext.localeCompare(rightNext);
+  if (leftHasNext && rightHasNext) {
+    return leftNext - rightNext;
   }
 
-  if (leftNext.length > 0) {
-    return -1;
+  if (leftHasNext !== rightHasNext) {
+    return leftHasNext ? -1 : 1;
   }
 
-  if (rightNext.length > 0) {
-    return 1;
-  }
-
-  const leftLast = left.lastTriggeredUtc?.trim() ?? "";
-  const rightLast = right.lastTriggeredUtc?.trim() ?? "";
-
-  return rightLast.localeCompare(leftLast);
+  const leftLast = parseIsoUtcMs(left.lastTriggeredUtc ?? "");
+  const rightLast = parseIsoUtcMs(right.lastTriggeredUtc ?? "");
+  if (Number.isNaN(leftLast)) return Number.isNaN(rightLast) ? 0 : 1;
+  if (Number.isNaN(rightLast)) return -1;
+  return rightLast - leftLast;
 }
 
 /** Resolves the recurrence schedule to pin as Continue last viewed. */

@@ -1,3 +1,5 @@
+import { resolveShowcaseOperatorFindingHref } from "@/lib/showcase-operator-review-href";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   AI_KNOWLEDGE_ASSISTANT_SAMPLE_DEFINITION,
@@ -34,7 +36,7 @@ export function isShowcaseCreatedPrimaryFindingRoute(runId: string, findingId: s
 export function showcaseSampleCreatedPackageHref(
   runId: string = SHOWCASE_SAMPLE_CREATED_REGISTRY.runId,
 ): string {
-  return `/architecture/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`;
+  return resolveScopedInsightOpenReviewHrefWithDeskContinuity(canonicalizeDemoRunId(runId));
 }
 
 export function showcaseCreatedPrimaryFindingDetailHref(
@@ -44,5 +46,5 @@ export function showcaseCreatedPrimaryFindingDetailHref(
   const effectiveRunId = canonicalizeDemoRunId(runId);
   const effectiveFindingId = findingId.trim();
 
-  return `/architecture/reviews/${encodeURIComponent(effectiveRunId)}/findings/${encodeURIComponent(effectiveFindingId)}`;
+  return resolveShowcaseOperatorFindingHref(effectiveRunId, effectiveFindingId);
 }

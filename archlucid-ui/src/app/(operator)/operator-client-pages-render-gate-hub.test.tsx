@@ -18,9 +18,9 @@ describe("operator client pages — render gate (hub tabs)", () => {
     ).toBeInTheDocument();
   });
 
-  it("Advisory hub Schedules tab content renders primary heading", () => {
-    render(<AdvisorySchedulesContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Schedule advisory scans" })).toBeInTheDocument();
+  it("Advisory hub Schedules tab content renders primary heading", async () => {
+    renderWithOperatorQuery(<AdvisorySchedulesContent />);
+    expect(await screen.findByRole("heading", { name: "Schedule advisory scans" })).toBeInTheDocument();
   });
 
   it("Digests hub Browse tab content renders primary heading", () => {

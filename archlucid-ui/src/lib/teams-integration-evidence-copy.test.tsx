@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it , vi} from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { TeamsIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -9,6 +9,10 @@ import {
   TEAMS_INTEGRATION_SOURCES,
   TEAMS_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/teams-integration-evidence-copy";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 describe("teams-integration-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -23,9 +27,7 @@ describe("teams-integration-evidence-copy", () => {
 
     const sources = screen.getByTestId("teams-integration-sources");
 
-    for (const link of TEAMS_INTEGRATION_SOURCES) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), TEAMS_INTEGRATION_SOURCES, TEAMS_INTEGRATION_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${TEAMS_INTEGRATION_CANONICAL_PATH}$`, "i") }),

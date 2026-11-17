@@ -48,8 +48,12 @@ public sealed class ArchitectureManifestGovernanceExportTests
             RequiredControls = ["MFA"],
         };
 
-        ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(governance).Should().Be("Moderate");
-        ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(governance).Should().Be("Moderate");
+        ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(governance)
+            .Should()
+            .Be(ArchitectureManifestGovernanceExport.RiskClassificationNotStoredLabel);
+        ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(governance)
+            .Should()
+            .Be(ArchitectureManifestGovernanceExport.CostClassificationNotStoredLabel);
     }
 
     [Fact]

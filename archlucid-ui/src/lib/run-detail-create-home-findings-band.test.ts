@@ -36,7 +36,7 @@ describe("create-home findings band regression (TB-1855)", () => {
     const ref = findUiRouteTrafficRow("REF");
 
     expect(ref).toBeDefined();
-    expect(ref?.path).toBe("/architecture/reviews/[reviewId]?reviewTab=findings");
+    expect(ref?.path).toBe("/architecture/reviews/[reviewId]?archTab=findings");
     expect(ref?.section).toBe("Tab surface");
 
     for (const phrase of REF_TRAFFIC_HONESTY_PHRASES) {

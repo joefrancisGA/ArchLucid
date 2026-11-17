@@ -70,14 +70,26 @@ public sealed class ArchitectureRunArchiveService(
         }
 
         RunArchiveByIdsResult batch = await _runRepository
-            .ArchiveRunsByIdsAsync([runId], cancellationToken)
+            .ArchiveUnsealedRunAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
 
         if (batch.SucceededRunIds.Count == 0)
-            return ArchitectureRunArchiveOutcome.NotFound;
+        {
+            RunRecord? latest = await _runRepository
+                .GetByIdIncludingArchivedAsync(scope, runId, cancellationToken)
+                .ConfigureAwait(false);
+
+            return latest switch
+            {
+                { ArchivedUtc: not null } => ArchitectureRunArchiveOutcome.AlreadyArchived,
+                { GoldenManifestId: not null } => ArchitectureRunArchiveOutcome.SealedReviewBlocked,
+                _ => ArchitectureRunArchiveOutcome.NotFound,
+            };
+        }
 
         string actor = _actorContext.GetActor();
 
+        // The archive has committed, so request cancellation must not skip its audit event.
         await DurableAuditLogRetry.LogOrThrowAsync(
             ct => _auditService.LogAsync(
                 new AuditEvent
@@ -95,7 +107,7 @@ public sealed class ArchitectureRunArchiveService(
                 ct),
             _logger,
             $"ArchitectureReviewArchived:{runId:D}",
-            cancellationToken,
+            CancellationToken.None,
             auditEventTypeForMetrics: AuditEventTypes.ArchitectureReviewArchived).ConfigureAwait(false);
 
         return ArchitectureRunArchiveOutcome.Archived;

@@ -53,32 +53,35 @@ export function useArchitectureDraftRequirementsImport(
       setImporting(true);
 
       void (async () => {
-        let nextOverview = overviewRef.current;
-
         try {
           for (const file of added) {
             const key = architectureDraftRequirementsFileKey(file);
-            importedFileKeysRef.current.add(key);
-
-            const extracted = await buildArchitectureIntakeInferenceCorpus({
-              briefText: "",
-              evidenceFiles: [file],
-            });
-
-            if (extracted.trim().length === 0) {
-              setImportError(architectureDraftRequirementsImportEmptyMessage(file.name));
+            if (importedFileKeysRef.current.has(key)) {
               continue;
             }
 
-            nextOverview = appendArchitectureDraftRequirementsImport(nextOverview, file.name, extracted);
-            overviewRef.current = nextOverview;
-            onOverviewChange(nextOverview);
-          }
-        } catch {
-          const failed = added[added.length - 1];
+            importedFileKeysRef.current.add(key);
 
-          if (failed !== undefined) {
-            setImportError(architectureDraftRequirementsImportErrorMessage(failed.name));
+            try {
+              const extracted = await buildArchitectureIntakeInferenceCorpus({
+                briefText: "",
+                evidenceFiles: [file],
+                includeFileNameTokens: false,
+              });
+
+              if (extracted.trim().length === 0) {
+                importedFileKeysRef.current.delete(key);
+                setImportError(architectureDraftRequirementsImportEmptyMessage(file.name));
+                continue;
+              }
+
+              const nextOverview = appendArchitectureDraftRequirementsImport(overviewRef.current, file.name, extracted);
+              overviewRef.current = nextOverview;
+              onOverviewChange(nextOverview);
+            } catch {
+              importedFileKeysRef.current.delete(key);
+              setImportError(architectureDraftRequirementsImportErrorMessage(file.name));
+            }
           }
         } finally {
           setImporting(false);

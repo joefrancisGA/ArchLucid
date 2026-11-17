@@ -80,6 +80,23 @@ describe("review-assumption-ack-sync", () => {
     expect(readAcknowledgedAssumptionIds(RUN_ID)).toEqual(new Set(["local-only", "server-only"]));
   });
 
+  it("preserves a local uncheck when an in-flight hydration returns the old acknowledgement", async () => {
+    const previousServerResponse = {
+      evaluationVersion: "assumption-acknowledgement-v1",
+      acknowledgedUtc: "2026-09-11T00:00:00Z",
+      actorUserId: "user-1",
+      acknowledgedAssumptionIds: ["unchecked-locally", "server-only"],
+    };
+    writeAcknowledgedAssumptionIds(RUN_ID, new Set(["unchecked-locally"]));
+    vi.mocked(getReviewAssumptionAcknowledgement).mockResolvedValue(previousServerResponse);
+
+    const hydration = hydrateAcknowledgedAssumptionIdsFromServer(RUN_ID);
+    writeAcknowledgedAssumptionIds(RUN_ID, new Set(["checked-locally"]));
+
+    expect(await hydration).toEqual(new Set(["checked-locally", "server-only"]));
+    expect(readAcknowledgedAssumptionIds(RUN_ID)).toEqual(new Set(["checked-locally", "server-only"]));
+  });
+
   it("returns null and leaves the cache untouched when the run is not server-backed", async () => {
     writeAcknowledgedAssumptionIds("run-1", new Set(["local-only"]));
 

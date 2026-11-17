@@ -29,6 +29,12 @@ import {
 } from "@/lib/findings/finding-explain-audit-disclosure-url";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { ARCHLUCID_HOSTED_SAAS_OPENAI_COPY } from "@/lib/getting-started-help-guide-content";
+import {
+  ARCH_REVIEW_EXPLANATION_CITATION_DISCIPLINE,
+  ARCH_REVIEW_EXPLANATION_CITATION_REJECTION_TAG,
+} from "@/lib/reviews/review-explanation-citation-rejection-copy";
+import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingConfidenceLevel, FindingEvidenceChain, FindingLlmAudit } from "@/types/explanation";
 
@@ -154,6 +160,13 @@ export function FindingExplainPanel({
     <MutationErrorBoundary title="Finding explain panel failed to render">
     <div className="space-y-4 border-t border-neutral-200 pt-4 dark:border-neutral-700">
       <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Explain this finding</h4>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="finding-explain-hosted-openai">
+        {ARCHLUCID_HOSTED_SAAS_OPENAI_COPY}
+      </p>
+      <div data-testid="finding-explain-citation-discipline" className="space-y-1">
+        <StatusTag kind="neutral" label={ARCH_REVIEW_EXPLANATION_CITATION_REJECTION_TAG} />
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{ARCH_REVIEW_EXPLANATION_CITATION_DISCIPLINE}</p>
+      </div>
       {(confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low") ? (
         <div className="mt-1">
           <FindingConfidenceBadge level={confidenceLevel} />

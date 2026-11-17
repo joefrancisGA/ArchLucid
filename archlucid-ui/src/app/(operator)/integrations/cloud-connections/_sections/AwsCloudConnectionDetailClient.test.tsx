@@ -25,6 +25,11 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: (): boolean => true,
+  useProductionEvalChrome: (): boolean => false,
+}));
+
 vi.mock("@/lib/api/aws-cloud-connections-api", () => ({
   listAwsTier2Connections: vi.fn(async () => []),
   triggerAwsTier2HostedRun: vi.fn(),
@@ -32,7 +37,6 @@ vi.mock("@/lib/api/aws-cloud-connections-api", () => ({
 
 import { AwsCloudConnectionDetailClient } from "./AwsCloudConnectionDetailClient";
 import { AWS_CLOUD_CONNECTION_BANNED_COPY } from "@/lib/aws-cloud-connection-copy";
-import { CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE } from "@/lib/cloud-provider-connection-evidence-copy";
 
 describe("AwsCloudConnectionDetailClient", () => {
   it("mounts live Validate and Recent activity panels instead of static stubs (TB-1762)", () => {
@@ -82,9 +86,7 @@ describe("AwsCloudConnectionDetailClient", () => {
     );
 
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Help");
-    expect(screen.getByTestId("cloud-connections-aws-claim-discipline")).toHaveTextContent(
-      CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("cloud-connections-aws-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("cloud-connections-aws-sources")).toBeInTheDocument();
     const sources = screen.getByTestId("cloud-connections-aws-sources");
     expect(within(sources).getByRole("link", { name: "Open Cloud connections" })).toHaveAttribute(

@@ -20,6 +20,9 @@ DEFAULT_NEW_HIT_PCT = "0.02%"
 # falls back to suggest_row_id(). Add an entry only to keep an ID stable across a path rename, and keep
 # values unique 3-letter uppercase IDs (guarded by tests/test_archlucid_ui_route_catalog.py).
 PREFERRED_NEW_ROW_IDS: dict[str, str] = {
+    # Keep new SecureNow workbook rows stable without colliding with historical SEX/EXX assertions.
+    "/administration/securenow-accelerator-index": "SAI",
+    "/administration/securenow-pilot-spine": "SPN",
     "/internal/validate-route": "REP",
     "/shell/contextual-help-drawer": "HCD",
     "/help/choose-your-next-step": "HPX",
@@ -238,7 +241,12 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 # /settings/exec-digest retired from the workbook (EEX removed); migration still maps to DIS.
 # Batch C folded FIR `/help/first-pilot-path` into COR — permanent redirect only (no traffic-tracked bookmark).
 # Legacy bookmark paths migrate in WORKBOOK_PATH_MIGRATIONS only — not scored workbook rows.
-TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset()
+TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset(
+    {
+        # HPO workbook row scores the retired pilot-outcomes help alias (HPI folded); not an App Router page.
+        "/help/pilot-outcomes",
+    }
+)
 
 # Operator-shell overlays scored in the workbook but not App Router pages.
 SHELL_OVERLAY_TRAFFIC_ENTRIES: dict[str, str] = {

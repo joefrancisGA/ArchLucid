@@ -20,6 +20,8 @@ export type PolicyAtCommitScopeSummaryProps = {
   readonly snapshot: CompareEffectiveGovernanceAtCommitSnapshot | null | undefined;
   readonly testIdPrefix?: string;
   readonly compact?: boolean;
+  /** Product-line-aware policy pack hub for committed pack detail links. */
+  readonly policyPacksHubPath?: string;
 };
 
 function formatCoverageRow(row: CompareEffectiveCoverageAssignmentAtCommitRow): string {
@@ -110,7 +112,10 @@ export function PolicyAtCommitScopeSummary(
       {packAssignments.length > 0 ? (
         <ul className="m-0 list-none space-y-1 p-0" data-testid={`${testIdPrefix}-packs`}>
           {packAssignments.map((row) => {
-            const packDetailHref = policyPackBuyerGovernanceDetailHref(row.policyPackId);
+            const packDetailHref = policyPackBuyerGovernanceDetailHref(
+              row.policyPackId,
+              props.policyPacksHubPath,
+            );
 
             return (
               <li

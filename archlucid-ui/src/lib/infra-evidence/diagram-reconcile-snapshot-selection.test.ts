@@ -40,7 +40,7 @@ describe("diagram-reconcile-snapshot-selection", () => {
       urlSnapshotId: "",
     });
 
-    expect(summary?.capturedLabel).toBe("Captured time was not stored");
+    expect(summary?.capturedLabel).toBe("Captured time was stored empty.");
     expect(summary?.ageLabel).toBe("Age unavailable");
     expect(summary?.selectionMarker).toBeNull();
   });

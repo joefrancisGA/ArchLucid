@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it , vi} from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { TenantHealthEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -9,6 +9,10 @@ import {
   TENANT_HEALTH_SOURCES,
   TENANT_HEALTH_SOURCES_INTRO,
 } from "@/lib/tenant-health-evidence-copy";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 describe("tenant-health-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -23,9 +27,7 @@ describe("tenant-health-evidence-copy", () => {
 
     const sources = screen.getByTestId("tenant-health-sources");
 
-    for (const link of TENANT_HEALTH_SOURCES) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), TENANT_HEALTH_SOURCES, TENANT_HEALTH_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${TENANT_HEALTH_CANONICAL_PATH}$`, "i") }),

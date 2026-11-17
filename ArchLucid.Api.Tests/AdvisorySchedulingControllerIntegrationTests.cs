@@ -99,7 +99,7 @@ public sealed class AdvisorySchedulingControllerIntegrationTests
         HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        Guid missing = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid missing = HarnessWellKnownGuids.UnknownRunForEvidenceChain;
 
         HttpResponseMessage response =
             await client.GetAsync($"/v1/advisory-scheduling/schedules/{missing:D}/executions");
@@ -114,7 +114,7 @@ public sealed class AdvisorySchedulingControllerIntegrationTests
         HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        Guid missing = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid missing = HarnessWellKnownGuids.UnknownRunForReviewSubresource;
 
         HttpResponseMessage response = await client.GetAsync($"/v1/advisory-scheduling/digests/{missing:D}");
 

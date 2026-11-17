@@ -14,6 +14,20 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
 }));
 
+vi.mock("@/lib/audit/audit-export-career-posture", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/audit/audit-export-career-posture")>();
+
+  return {
+    ...actual,
+    resolveAuditExportCareerBlockedReason: () => null,
+    resolveAuditExportCareerPosture: () => ({
+      structuralExecutionMode: "live",
+      workingCareerRehearsalDoor: "live",
+      rehearsalIncomplete: false,
+    }),
+  };
+});
+
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { downloadAuditExportCsv } from "@/lib/api";
 import { ApiRequestError } from "@/lib/api-request-error";
@@ -25,6 +39,7 @@ const mockDownloadAuditExportCsv = vi.mocked(downloadAuditExportCsv);
 
 function mockPrincipal(roleClaimValues: string[], primaryAppRole: "Admin" | "Operator" | "Reader" | "Auditor"): void {
   mockUseOperatorNavAuthority.mockReturnValue({
+    isAuthorityLoading: false,
     currentPrincipal: {
       roleClaimValues,
       primaryAppRole,
@@ -51,6 +66,10 @@ describe("RunScopedAuditExportButton", () => {
         expect.objectContaining({
           runId: "run-123",
           maxRows: 10_000,
+          auditExportPosture: expect.objectContaining({
+            structuralExecutionMode: expect.any(String),
+            workingCareerRehearsalDoor: expect.any(String),
+          }),
         }),
       );
     });

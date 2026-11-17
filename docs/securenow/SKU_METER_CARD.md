@@ -2,7 +2,7 @@
 
 # SecureNow SKU and meter card
 
-This card names the owner-approved SKU identifiers and their operational meters. Fee figures, currency, tax posture, and credit treatment live only in [`PRIVATE_PRICE_SHEET.md`](PRIVATE_PRICE_SHEET.md).
+This card names the owner-approved SKU identifiers and their operational meters. Fee figures live only in [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) §9. Currency, tax posture, and payout identity stay in [`PRIVATE_PRICE_SHEET.md`](PRIVATE_PRICE_SHEET.md).
 
 | SKU | Offer shape | Meter summary |
 | --- | --- | --- |

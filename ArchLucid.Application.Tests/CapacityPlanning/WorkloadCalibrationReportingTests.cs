@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Application.CapacityPlanning;
 using FluentAssertions;
 
@@ -35,6 +37,26 @@ public sealed class WorkloadCalibrationReportingTests
             "MemoryIsTruePeak":true,"MeasurementScope":"ISOLATED_OPERATION","Unknown":9}
             """;
         WorkloadCalibrationImport.Parse(extra, "x", "rev").Accepted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Markdown_report_is_independent_of_current_culture()
+    {
+        var report = WorkloadForecastReport.Build([new("rev1", "review", "cpu", "seconds", 1.625m, 2m)], 10m);
+        CultureInfo original = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+            string us = WorkloadForecastReport.ToMarkdown(report);
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("fr-FR");
+
+            WorkloadForecastReport.ToMarkdown(report).Should().Be(us);
+            us.Should().Contain("| 1.625 | 2 | 0.375 | 18.750 |");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = original;
+        }
     }
 
     [Fact]

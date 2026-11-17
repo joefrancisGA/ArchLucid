@@ -65,7 +65,9 @@ describe("architecture-draft-clone-snapshot", () => {
   });
 
   it("exports the secondary CTA label for spawned snapshots", () => {
-    expect(ARCHITECTURE_DRAFT_CLONE_SNAPSHOT_LABEL).toBe("Start a new draft from this snapshot");
+    expect(ARCHITECTURE_DRAFT_CLONE_SNAPSHOT_LABEL).toBe(
+      "Start a new architecture draft from this snapshot",
+    );
   });
 
   it("SN-008 / CE-001: spawn-locked desk action uses Sketch a change label and confirm gate", async () => {

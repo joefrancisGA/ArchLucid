@@ -1,20 +1,14 @@
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { cn } from "@/lib/utils";
 
 import { SignedRecordsListEmptyValue } from "./signed-records-list-empty-value";
-import { SIGNED_RECORDS_LIST_VERSION_UNKNOWN } from "./signed-records-list-copy";
 
 export function formatSignedRecordsListSealedTimestamp(isoUtc: string): {
   readonly display: string;
   readonly dateTime: string;
 } | null {
-  const trimmed = isoUtc.trim();
-
-  if (trimmed.length === 0) {
-    return null;
-  }
-
-  const parsed = Date.parse(trimmed);
+  const parsed = parseIsoUtcMs(isoUtc);
 
   if (Number.isNaN(parsed)) {
     return null;

@@ -90,6 +90,7 @@ function snapshot(overrides: Record<string, unknown> = {}) {
 
 describe("SecureNowHomeEnvironmentContext", () => {
   beforeEach(() => {
+    window.localStorage.clear();
     listTier2Connections.mockReset();
     listTier2Connections.mockResolvedValue([]);
     attackPathReports.fetchSecurityEvidencePathAttackPathReport.mockReset();
@@ -129,11 +130,9 @@ describe("SecureNowHomeEnvironmentContext", () => {
     );
     expect(screen.queryByText("Inventory capture completed.")).not.toBeInTheDocument();
     expect(screen.queryByText("Inventory capture failed.")).not.toBeInTheDocument();
+    const nextStepLink = await screen.findByRole("link", { name: "One ranked path" });
     expect(screen.getByTestId("securenow-home-next-step")).toHaveTextContent("One ranked path");
-    expect(screen.getByRole("link", { name: "One ranked path" })).toHaveAttribute(
-      "href",
-      "/security/remediation-factory",
-    );
+    expect(nextStepLink).toHaveAttribute("href", "/security/remediation-factory");
   });
 
   it("links the next step to the first loaded ranked path id", async () => {
@@ -199,6 +198,38 @@ describe("SecureNowHomeEnvironmentContext", () => {
     expect(link).toHaveAttribute("href", "/integrations/cloud-connections");
   });
 
+  it("links a pending capture to cloud connections with the in-progress description", async () => {
+    snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
+      items: [snapshot({ captureStatus: "Pending" })],
+      totalCount: 1,
+      page: 1,
+      pageSize: 20,
+      hasMore: false,
+    });
+    renderContext();
+
+    const gap = await screen.findByRole("link", { name: "Inventory capture is still running." });
+
+    expect(gap).toHaveAttribute("href", "/integrations/cloud-connections");
+    expect(screen.getByTestId("securenow-home-setup-step-capture")).toBeInTheDocument();
+  });
+
+  it("links a partial capture to cloud connections with the gaps description", async () => {
+    snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
+      items: [snapshot({ captureStatus: "Partial" })],
+      totalCount: 1,
+      page: 1,
+      pageSize: 20,
+      hasMore: false,
+    });
+    renderContext();
+
+    const gap = await screen.findByRole("link", { name: "Inventory capture completed with gaps." });
+
+    expect(gap).toHaveAttribute("href", "/integrations/cloud-connections");
+    expect(screen.getByTestId("securenow-home-setup-step-capture")).toBeInTheDocument();
+  });
+
   it("links a failed capture to cloud connections with the blocked description", async () => {
     snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
       items: [snapshot({ captureStatus: "Failed" })],
@@ -233,6 +264,10 @@ describe("SecureNowHomeEnvironmentContext", () => {
       "href",
       "/administration/securenow-first-hour",
     );
+    expect(screen.getByTestId("securenow-home-collection-check-link")).toHaveAttribute(
+      "href",
+      "/administration/securenow-self-service#collection",
+    );
     expect(screen.getByRole("link", { name: "Scope and freshness" })).toHaveAttribute(
       "href",
       "/integrations/cloud-connections",
@@ -249,6 +284,10 @@ describe("SecureNowHomeEnvironmentContext", () => {
     expect(screen.getByRole("link", { name: "Check cloud connections" })).toHaveAttribute(
       "href",
       "/integrations/cloud-connections",
+    );
+    expect(screen.getByRole("link", { name: "Collection check" })).toHaveAttribute(
+      "href",
+      "/administration/securenow-self-service#collection",
     );
   });
 
@@ -300,12 +339,19 @@ describe("SecureNowHomeEnvironmentContext", () => {
     renderContext();
 
     await waitFor(() => {
-      expect(screen.getByTestId("securenow-capture-delta")).toHaveTextContent("Added: path-added");
+      expect(screen.getByTestId("securenow-capture-delta")).toHaveTextContent("1 added, 1 gone, 1 unchanged");
     });
 
     const delta = screen.getByTestId("securenow-capture-delta");
-    expect(delta).toHaveTextContent("Gone: path-gone");
-    expect(delta).toHaveTextContent("Unchanged: path-shared");
+    expect(delta).toHaveTextContent("Added:");
+    expect(screen.getByRole("link", { name: "path-added" })).toHaveAttribute(
+      "href",
+      "/security/remediation-factory?pathId=path-added",
+    );
+    expect(screen.getByRole("link", { name: "path-gone" })).toHaveAttribute(
+      "href",
+      "/security/remediation-factory?pathId=path-gone",
+    );
     expect(delta).toHaveTextContent("This is not a usage claim.");
   });
 });

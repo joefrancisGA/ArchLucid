@@ -196,6 +196,7 @@ export function TerraformWorkbenchScopePicker(props: TerraformWorkbenchScopePick
         onKeyDown={handleKeyDown}
         onChange={(event) => {
           setQuery(event.target.value);
+          setOptions([]);
           setOpen(true);
           setActiveIndex(-1);
           setInvalidEnterMessage(null);

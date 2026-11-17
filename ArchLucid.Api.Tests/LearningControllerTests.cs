@@ -1,14 +1,10 @@
 ﻿using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
 
 using ArchLucid.Api.Models.Learning;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
 using FluentAssertions;
-
-using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
 namespace ArchLucid.Api.Tests;
 
@@ -23,12 +19,9 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/themes");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        LearningThemesListResponse body =
+            await response.ReadJsonForTestAsync<LearningThemesListResponse>(JsonOptions);
 
-        LearningThemesListResponse? body =
-            await response.Content.ReadFromJsonAsync<LearningThemesListResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
         body.Themes.Should().NotBeNull();
         body.Themes.Should().BeEmpty();
     }
@@ -38,12 +31,10 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/themes?maxThemes=0");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
-        problem.Detail.Should().Contain("maxThemes");
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.BadRequest,
+            ProblemTypes.ValidationFailed,
+            detailContains: "maxThemes");
     }
 
     [SkippableFact]
@@ -51,12 +42,9 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/plans");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        LearningPlansListResponse body =
+            await response.ReadJsonForTestAsync<LearningPlansListResponse>(JsonOptions);
 
-        LearningPlansListResponse? body =
-            await response.Content.ReadFromJsonAsync<LearningPlansListResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
         body.Plans.Should().NotBeNull();
         body.Plans.Should().BeEmpty();
     }
@@ -66,11 +54,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/plans/not-a-guid");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        await response.AssertProblemForTestAsync(HttpStatusCode.BadRequest, ProblemTypes.ValidationFailed);
     }
 
     [SkippableFact]
@@ -79,11 +63,9 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         HttpResponseMessage response =
             await Client.GetAsync("/v1/learning/plans/00000000-0000-0000-0000-000000000001");
 
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.LearningImprovementPlanNotFound);
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.NotFound,
+            ProblemTypes.LearningImprovementPlanNotFound);
     }
 
     [SkippableFact]
@@ -91,11 +73,8 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/summary");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        LearningSummaryResponse body = await response.ReadJsonForTestAsync<LearningSummaryResponse>(JsonOptions);
 
-        LearningSummaryResponse? body = await response.Content.ReadFromJsonAsync<LearningSummaryResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
         body.ThemeCount.Should().Be(0);
         body.PlanCount.Should().Be(0);
         body.TotalThemeEvidenceSignals.Should().Be(0);
@@ -108,13 +87,10 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/list-bundle");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        LearningPlanningListBundleResponse body =
+            await response.ReadJsonForTestAsync<LearningPlanningListBundleResponse>(JsonOptions);
 
-        LearningPlanningListBundleResponse? body =
-            await response.Content.ReadFromJsonAsync<LearningPlanningListBundleResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
-        body!.Summary.ThemeCount.Should().Be(0);
+        body.Summary.ThemeCount.Should().Be(0);
         body.Summary.PlanCount.Should().Be(0);
         body.Themes.Themes.Should().BeEmpty();
         body.Plans.Plans.Should().BeEmpty();
@@ -125,12 +101,10 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/list-bundle?maxThemes=0");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
-        problem.Detail.Should().Contain("maxThemes");
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.BadRequest,
+            ProblemTypes.ValidationFailed,
+            detailContains: "maxThemes");
     }
 
     [SkippableFact]
@@ -138,11 +112,9 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/summary?maxPlans=abc");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Detail.Should().Contain("maxPlans");
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.BadRequest,
+            detailContains: "maxPlans");
     }
 
     [SkippableFact]
@@ -150,12 +122,10 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/summary?maxThemes=0");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
-        problem.Detail.Should().Contain("maxThemes");
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.BadRequest,
+            ProblemTypes.ValidationFailed,
+            detailContains: "maxThemes");
     }
 
     [SkippableFact]
@@ -163,12 +133,10 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/plans?maxPlans=-1");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
-        problem.Detail.Should().Contain("maxPlans");
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.BadRequest,
+            ProblemTypes.ValidationFailed,
+            detailContains: "maxPlans");
     }
 
     [SkippableFact]
@@ -176,13 +144,12 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report?format=json");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        LearningPlanningReportDocument doc =
+            await response.ReadJsonForTestAsync<LearningPlanningReportDocument>(JsonOptions);
 
-        LearningPlanningReportDocument? doc =
-            await response.Content.ReadFromJsonAsync<LearningPlanningReportDocument>(JsonOptions);
-
-        doc.Should().NotBeNull();
         doc.Summary.ThemeCount.Should().Be(0);
+        doc.Summary.PlanCount.Should().Be(0);
+        doc.GeneratedUtc.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromMinutes(5));
         doc.Themes.Should().BeEmpty();
         doc.Plans.Should().BeEmpty();
     }
@@ -192,12 +159,9 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report?format=markdown");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        LearningPlanningReportExportResponse body =
+            await response.ReadJsonForTestAsync<LearningPlanningReportExportResponse>(JsonOptions);
 
-        LearningPlanningReportExportResponse? body =
-            await response.Content.ReadFromJsonAsync<LearningPlanningReportExportResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
         body.Format.Should().Be("markdown");
         body.FileName.Should().Be("learning-planning-report-59r.md");
         body.Content.Should().NotBeNullOrWhiteSpace();
@@ -209,11 +173,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report?format=xml");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        await response.AssertProblemForTestAsync(HttpStatusCode.BadRequest, ProblemTypes.ValidationFailed);
     }
 
     [SkippableFact]
@@ -233,12 +193,12 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report/file?format=json");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
 
-        string text = await response.Content.ReadAsStringAsync();
-        using JsonDocument doc = JsonDocument.Parse(text);
-        doc.RootElement.GetProperty("summary").GetProperty("themeCount").GetInt32().Should().Be(0);
+        LearningPlanningReportDocument doc =
+            await response.ReadJsonForTestAsync<LearningPlanningReportDocument>(JsonOptions);
+
+        doc.Summary.ThemeCount.Should().Be(0);
     }
 
     [SkippableFact]
@@ -246,27 +206,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report/file?format=yaml");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
-    }
-
-    [SkippableFact]
-    public async Task GetPlanningReport_Json_empty_scope_exposes_expected_arrays_and_counts()
-    {
-        HttpResponseMessage response = await Client.GetAsync("/v1/learning/report?format=json");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        string text = await response.Content.ReadAsStringAsync();
-        using JsonDocument doc = JsonDocument.Parse(text);
-
-        doc.RootElement.GetProperty("summary").GetProperty("planCount").GetInt32().Should().Be(0);
-        doc.RootElement.GetProperty("themes").GetArrayLength().Should().Be(0);
-        doc.RootElement.GetProperty("plans").GetArrayLength().Should().Be(0);
-        doc.RootElement.TryGetProperty("generatedUtc", out JsonElement _).Should().BeTrue();
+        await response.AssertProblemForTestAsync(HttpStatusCode.BadRequest, ProblemTypes.ValidationFailed);
     }
 
     [SkippableFact]
@@ -275,10 +215,8 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         HttpResponseMessage response =
             await Client.GetAsync("/v1/learning/report?format=json&maxReportSignalLinks=0");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Detail.Should().Contain("maxReportSignalLinks");
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.BadRequest,
+            detailContains: "maxReportSignalLinks");
     }
 }

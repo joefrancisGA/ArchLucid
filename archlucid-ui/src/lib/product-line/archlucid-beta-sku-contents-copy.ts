@@ -1,17 +1,18 @@
+import { ARCHLUCID_BETA_PACKAGING_LEAD } from "@/lib/buyer-copy/archlucid-commercial-order-acceptance-copy";
+
 export const ARCHLUCID_BETA_SKU_CONTENTS_HEADING = "Beta evaluation contents" as const;
 
-export const ARCHLUCID_BETA_SKU_CONTENTS_LEAD =
-  "What a controlled ArchLucid evaluation includes and what it does not. Tier list prices are sales-led; no checkout fee is published here." as const;
+export const ARCHLUCID_BETA_SKU_CONTENTS_LEAD = ARCHLUCID_BETA_PACKAGING_LEAD;
 
 export const ARCHLUCID_BETA_SKU_CONTENTS_INCLUDES = [
   "Guided architecture review intake, evidence upload, and policy-pack assignment",
   "Simulator or platform Azure OpenAI execution with PilotStrict citation gates on Real mode",
-  "Governed findings, dispositions, append-only audit, and exportable review packages",
-  "Sales-led quote request and order-form path for paid pilots",
+  "Governed findings, dispositions, append-only audit, and exportable review evidence",
+  "Signed quote for pilots, tiers, design partner, Enterprise evaluation, or trial-to-paid at published list prices",
 ] as const;
 
 export const ARCHLUCID_BETA_SKU_CONTENTS_EXCLUDES = [
-  "Live Stripe checkout, self-serve conversion, or a public fee on this page",
+  "Self-serve Stripe checkout before engineering publishes a Price",
   "CPA-issued SOC 2 report, third-party pen-test publication, or a sealed tenant review done for you",
   "Automatic changes in your cloud — recommendations stay advisory until you act",
 ] as const;

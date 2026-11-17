@@ -6,6 +6,7 @@ using System.Text.Json;
 using ArchLucid.Api.Routing;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Notifications.Teams;
 
 using FluentAssertions;
 
@@ -86,7 +87,8 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
         parsed0.IsConfigured.Should().BeFalse();
         parsed0.EnabledTriggers.Should().Contain("com.archlucid.authority.run.completed");
         parsed0.EnabledTriggers.Should().Contain("com.archlucid.seat.reservation.released");
-        parsed0.EnabledTriggers.Should().HaveCount(12, "fresh tenants default to the v1 all-on catalog");
+        parsed0.EnabledTriggers.Should().BeEquivalentTo(TeamsNotificationTriggerCatalog.All,
+            "fresh tenants default to the canonical all-on trigger catalog");
 
         TeamsIncomingWebhookConnectionUpsertRequest putBody = new()
         {

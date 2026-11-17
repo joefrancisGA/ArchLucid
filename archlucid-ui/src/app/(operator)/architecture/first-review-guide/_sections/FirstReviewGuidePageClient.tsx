@@ -1,10 +1,14 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { FirstReviewOpenGateStarter } from "@/components/architecture/FirstReviewOpenGateStarter";
+import { FirstReviewSampleSealedPackageChecklist } from "@/components/architecture/FirstReviewSampleSealedPackageChecklist";
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
@@ -25,7 +29,6 @@ import {
   FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL,
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -51,20 +54,44 @@ import {
 } from "@/lib/first-review-guide-evidence-copy";
 import {
   FIRST_REVIEW_GUIDE_FIRST_VIEWPORT_TEST_ID,
+  FIRST_REVIEW_GUIDE_ONE_PREREQUISITE_SECTION_TITLE,
   FIRST_REVIEW_GUIDE_PRIMARY_CONTENT_ID,
+  FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_BODY,
+  FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_SECTION_TITLE,
   FIRST_REVIEW_GUIDE_SKIP_LINK_LABEL,
   FIRST_REVIEW_GUIDE_SKIP_TARGET_ID,
 } from "@/lib/first-review-guide-page-copy";
 import { formatConversationListDate } from "@/lib/locale-datetime";
 import { resolveFirstReviewGuideWalkthroughNextStep } from "@/lib/first-review-guide-walkthrough-next-step";
+import {
+  FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_BODY,
+  FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_CTA_LABEL,
+  FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_HREF,
+} from "@/lib/first-review-guide-after-prerequisites-copy";
+import { FIRST_REVIEW_TENANT_REVIEW_EVIDENCE_SEAL_LINE } from "@/lib/architecture/first-review-tenant-review-seal-discipline-copy";
+import { formatFirstReviewGuidePrerequisitesCombinedHelper } from "@/lib/architecture/first-review-guide-prerequisites-combined-copy";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { FIRST_REVIEW_PARTIAL_CAPTURE_BEFORE_START_LINE } from "@/lib/architecture/first-review-partial-capture-copy";
+import { FIRST_REVIEW_PARTIAL_CAPTURE_DISABLED_CTA_LINE } from "@/lib/architecture/first-review-partial-capture-disabled-cta-copy";
 
 import { FirstReviewGuideBuyerChrome } from "./FirstReviewGuideBuyerChrome";
+import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
 
 import { FirstReviewGuideProgressSummary } from "./FirstReviewGuideProgressSummary";
 import { FirstReviewGuideRequiredSetupPanel } from "./FirstReviewGuideRequiredSetupPanel";
 import { FirstReviewGuideSupportPanel } from "./FirstReviewGuideSupportPanel";
 import { FirstReviewGuideWalkthrough } from "./FirstReviewGuideWalkthrough";
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
+import { ArchLucidBetaSkuContentsSection } from "@/components/product-line/ArchLucidBetaSkuContentsSection";
+import { ArchLucidProcurementTrustStrip } from "@/components/product-line/ArchLucidProcurementTrustStrip";
+import { ArchLucidProcurementEvidenceHomeSection } from "@/components/procurement/ArchLucidProcurementEvidenceHomeSection";
+import { FirstReviewOpenGateStarterShortcut } from "@/components/usability/FirstReviewOpenGateStarterShortcut";
 import { OnboardingSampleReviewShortcut } from "@/components/usability/OnboardingSampleReviewShortcut";
 import type { OnboardingPageViewModel } from "./onboarding-page-view-model";
 
@@ -218,16 +245,35 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
     () => (guide.onePrerequisite === null ? resolveFirstReviewGuideWalkthroughNextStep(guide.steps) : null),
     [guide.onePrerequisite, guide.steps],
   );
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
+  const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   useDeepLinkHashScroll(FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID, isFirstReviewGuideProgressDeepLinkHash);
-  const primaryDisabledReason: WhyDisabledCtaReason | null =
-    guide.headerActions.primaryDisabledReason !== null &&
-    guide.headerActions.primaryDisabledReason.trim().length > 0
-      ? {
-          kind: "role",
-          message: guide.headerActions.primaryDisabledReason,
-        }
-      : null;
+  const primaryDisabledReason: WhyDisabledCtaReason | null = useMemo(() => {
+    const baseReason = guide.headerActions.primaryDisabledReason?.trim() ?? "";
+
+    if (isSecureNowProductLine(productLine) && partialCapture && guide.headerActions.primaryDisabled) {
+      const message =
+        baseReason.length > 0
+          ? `${FIRST_REVIEW_PARTIAL_CAPTURE_DISABLED_CTA_LINE} ${baseReason}`
+          : FIRST_REVIEW_PARTIAL_CAPTURE_DISABLED_CTA_LINE;
+
+      return { kind: "role", message };
+    }
+
+    if (baseReason.length > 0) {
+      return { kind: "role", message: baseReason };
+    }
+
+    return null;
+  }, [
+    guide.headerActions.primaryDisabled,
+    guide.headerActions.primaryDisabledReason,
+    partialCapture,
+    productLine,
+  ]);
 
   const firstReviewGuideHeaderChildren =
     guide.isError ? (
@@ -296,7 +342,9 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
           data-testid="first-review-one-prerequisite"
         >
           <h2 id="first-review-one-prerequisite-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            One next prerequisite
+            {guide.onePrerequisite !== null
+              ? FIRST_REVIEW_GUIDE_ONE_PREREQUISITE_SECTION_TITLE
+              : FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_SECTION_TITLE}
           </h2>
           {guide.onePrerequisite !== null ? (
             <>
@@ -307,7 +355,31 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
             </>
           ) : (
             <>
-              <p className={OPERATOR_TYPOGRAPHY.helper}>Sample package and policy pack are selected.</p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-prerequisites-complete-body">
+                {FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_BODY}
+              </p>
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="first-review-tenant-review-seal-discipline"
+              >
+                {formatFirstReviewGuidePrerequisitesCombinedHelper({
+                  sealLine: FIRST_REVIEW_TENANT_REVIEW_EVIDENCE_SEAL_LINE,
+                  walkthroughStepTitle: walkthroughNextStep?.title ?? null,
+                  sampleSpineActive:
+                    guide.latestRunHref !== null
+                    && guide.latestRunHref.includes(encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)),
+                })}
+              </p>
+              {isSecureNowProductLine(productLine) && partialCapture ? (
+                <SecureNowPartialCaptureRecoveryParagraph
+                  testId="first-review-partial-capture-before-start"
+                  partialCaptureSnapshotId={partialCaptureSnapshotId}
+                  returnPath={partialCaptureReturnPath}
+                  middleLine={FIRST_REVIEW_PARTIAL_CAPTURE_BEFORE_START_LINE}
+                  cloudConnectionsTestId="first-review-partial-capture-cloud"
+                  extractUploadTestId="first-review-partial-capture-extract"
+                />
+              ) : null}
               {walkthroughNextStep !== null ? (
                 <div className="space-y-1" data-testid="first-review-walkthrough-next-step">
                   <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
@@ -319,7 +391,14 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
                     </Link>
                   ) : null}
                 </div>
-              ) : null}
+              ) : (
+                <div className="space-y-1" data-testid="first-review-after-prerequisites-next-step">
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_BODY}</p>
+                  <Link className={OPERATOR_LINK.inline} href={FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_HREF}>
+                    {FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_CTA_LABEL}
+                  </Link>
+                </div>
+              )}
             </>
           )}
         </section>
@@ -346,37 +425,47 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
     </OperatorPageHeader>
   );
 
-  const firstReviewGuideChecklistBody = (
-    <>
-      {guide.sealedReviewRecord === null && !buyerPolishedShell ? <OnboardingSampleReviewShortcut /> : null}
+  const firstReviewGuideProgressSection = (
+    <section
+      aria-labelledby="first-review-guide-progress-heading"
+      className="space-y-4"
+      data-testid="onboarding-progress"
+    >
+      <div className="space-y-2">
+        <h2 id="first-review-guide-progress-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+          {FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE}
+        </h2>
 
-      {model.fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={model.fromRegistration} /> : null}
-
-      <section
-        aria-labelledby="first-review-guide-progress-heading"
-        className="space-y-4"
-        data-testid="onboarding-progress"
-      >
-        <div className="space-y-2">
-          <h2 id="first-review-guide-progress-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-            {FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE}
-          </h2>
-
-          <FirstReviewGuideProgressSummary
-            progress={guide.progress}
-            isPending={guide.isPending}
-            isError={guide.isError}
-          />
-        </div>
-
-        <FirstReviewGuideWalkthrough
-          steps={guide.steps}
+        <FirstReviewGuideProgressSummary
+          progress={guide.progress}
           isPending={guide.isPending}
           isError={guide.isError}
-          announceProgress={guide.hasLoadedContext}
-          progressPhase={guide.progress.phase}
         />
-      </section>
+      </div>
+
+      <FirstReviewGuideWalkthrough
+        steps={guide.steps}
+        isPending={guide.isPending}
+        isError={guide.isError}
+        announceProgress={guide.hasLoadedContext}
+        progressPhase={guide.progress.phase}
+      />
+    </section>
+  );
+
+  const firstReviewGuideChecklistBody = (
+    <>
+      {guide.sealedReviewRecord === null && !buyerPolishedShell ? <FirstReviewOpenGateStarterShortcut /> : null}
+
+      {firstReviewGuideProgressSection}
+
+      {guide.sealedReviewRecord === null && !buyerPolishedShell ? <OnboardingSampleReviewShortcut /> : null}
+
+      {guide.sealedReviewRecord === null && !buyerPolishedShell ? <ArchLucidBetaSkuContentsSection showQuoteLink /> : null}
+
+      {guide.sealedReviewRecord === null && !buyerPolishedShell ? <ArchLucidProcurementEvidenceHomeSection /> : null}
+
+      {model.fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={model.fromRegistration} /> : null}
     </>
   );
 
@@ -384,6 +473,9 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
       <div className={OPERATOR_LAYOUT.sectionStack}>
         {!buyerPolishedShell ? firstReviewGuidePageHeader : null}
+        <FirstReviewOpenGateStarter />
+        <FirstReviewSampleSealedPackageChecklist />
+        {!buyerPolishedShell ? <ArchLucidProcurementTrustStrip /> : null}
         {firstReviewGuideChecklistBody}
       </div>
 
@@ -425,6 +517,8 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
               )}
             >
               <FirstReviewGuideBuyerChrome />
+              <OperatorHomeWorkingOpenGateStrip />
+              <ArchLucidProcurementTrustStrip />
               {firstReviewGuideWorkspaceGrid}
             </div>
           </div>

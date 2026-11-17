@@ -66,3 +66,8 @@ describe("OperatorWelcomeOnboarding", () => {
     expect(navigationMock.replace).not.toHaveBeenCalled();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

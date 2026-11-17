@@ -14,7 +14,7 @@ export function formatArtifactCreatedUtcForDisplay(createdUtc: string | null | u
   }
 
   try {
-    const formatted = new Date(createdUtc).toLocaleString();
+    const formatted = new Date(createdUtc).toLocaleString(undefined, { timeZone: "UTC" });
 
     if (formatted === "Invalid Date") {
       return ARTIFACT_CREATED_DATE_NOT_READABLE;

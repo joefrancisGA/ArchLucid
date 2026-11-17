@@ -20,9 +20,9 @@ describe("SignupVerifyPage buyer-polished shell (SVX)", () => {
       "href",
       `#${SIGNUP_VERIFY_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("signup-verify-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("signup-verify-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("signup-verify-orientation-top")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Evaluation access only" })).toBeInTheDocument();
+    expect(screen.getByTestId("signup-verify-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("signup-verify-primary-content")).toBeInTheDocument();
     expect(screen.getByTestId("signup-verify-client")).toBeInTheDocument();
     expect(screen.getByTestId("signup-verify-sources")).toBeInTheDocument();

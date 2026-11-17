@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
 
@@ -16,51 +15,21 @@ public sealed class ArchitectureCompareTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task CompareManifests_ReturnsDiff()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-COMPARE-001")));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        string leftVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
-
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
         const string requestedReplayManifestVersion = "v1-replay";
 
-        var replayRequest = new
-        {
-            commitReplay = true, executionMode = "Current", manifestVersionOverride = requestedReplayManifestVersion
-        };
-
-        HttpResponseMessage replayResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/replay",
-            JsonContent(replayRequest));
-
-        await replayResponse.EnsureSuccessForTestAsync();
-        ReplayRunResponseDto? replayPayload =
-            await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
-        replayPayload.Should().NotBeNull();
-        replayPayload.Manifest.Should().NotBeNull();
-        string rightVersion = replayPayload.Manifest!.Metadata.ManifestVersion;
+        string rightVersion = await Replay.CommitReplayManifestVersionAsync(
+            finalized.RunId,
+            requestedReplayManifestVersion);
         rightVersion.Should().Be(requestedReplayManifestVersion);
 
         HttpResponseMessage compareResponse = await Client.GetAsync(
-            $"/v1/architecture/manifest/compare?leftVersion={Uri.EscapeDataString(leftVersion)}&rightVersion={Uri.EscapeDataString(rightVersion)}");
+            $"/v1/architecture/manifest/compare?leftVersion={Uri.EscapeDataString(finalized.ManifestVersion)}&rightVersion={Uri.EscapeDataString(rightVersion)}");
 
-        compareResponse.StatusCode.Should().Be(HttpStatusCode.OK, await compareResponse.Content.ReadAsStringAsync());
-
-        ManifestCompareResponse? payload =
-            await compareResponse.Content.ReadFromJsonAsync<ManifestCompareResponse>(JsonOptions);
-        payload.Should().NotBeNull();
+        ManifestCompareResponse payload =
+            await compareResponse.ReadJsonForTestAsync<ManifestCompareResponse>(JsonOptions);
         payload.Diff.Should().NotBeNull();
-        payload.Diff.LeftManifestVersion.Should().Be(leftVersion);
+        payload.Diff.LeftManifestVersion.Should().Be(finalized.ManifestVersion);
         payload.Diff.RightManifestVersion.Should().Be(rightVersion);
     }
 }

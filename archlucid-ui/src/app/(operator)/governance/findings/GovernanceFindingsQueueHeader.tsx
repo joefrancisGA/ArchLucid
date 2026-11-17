@@ -1,11 +1,17 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { AlertsFindingsVocabularyRail } from "@/components/AlertsFindingsVocabularyRail";
 import { DecisionRegisterFindingsVocabularyRail } from "@/components/DecisionRegisterFindingsVocabularyRail";
 import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
 import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
 import { GovernanceFindingsAssignedToMeBreadcrumb } from "@/components/governance/findings/GovernanceFindingsAssignedToMeBreadcrumb";
 import { GovernanceFindingsQueueBreadcrumb } from "@/components/governance/findings/GovernanceFindingsQueueBreadcrumb";
+import { SecureNowFindingsQueueAssignedPacksLine } from "@/components/governance/findings/SecureNowFindingsQueueAssignedPacksLine";
+import { SecureNowFindingsQueueOpenGateStrip } from "@/components/governance/findings/SecureNowFindingsQueueOpenGateStrip";
+import { SecureNowFindingsWk21HonestyStrip } from "@/components/governance/findings/SecureNowFindingsWk21HonestyStrip";
+import { SecureNowReaderScopeWorkbenchStrip } from "@/components/product-line/SecureNowReaderScopeWorkbenchStrip";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -16,7 +22,7 @@ import { FindingsKeyboardTriageCoach } from "@/components/usability/FindingsKeyb
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
@@ -39,6 +45,15 @@ import { GOVERNANCE_ARCHITECTURE_FINDINGS_AUDIENCE_LINE } from "@/lib/governance
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_PAGE_SHORTCUTS } from "@/lib/governance/governance-findings-queue-path-inspect-page-shortcuts";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import Link from "next/link";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import {
+  isPositiveFiniteCount,
+  resolveSecureNowFindingsQueueOpenGate,
+} from "@/lib/product-line/securenow-findings-queue-open-gate";
 import { FINDINGS_PAGE_SHORTCUTS } from "@/lib/shortcut-registry";
 
 export type GovernanceFindingsQueueHeaderProps = {
@@ -121,6 +136,34 @@ export function GovernanceFindingsQueueHeader({
     ? "governance-assigned-to-me-claim-discipline"
     : "governance-findings-claim-discipline";
   const secureNowProductLine = isSecureNowProductLine(productLine);
+  const partialCapture = useLatestSnapshotCaptureIsPartial(secureNowProductLine && !isAssignedToMe);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(secureNowProductLine && !isAssignedToMe && partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
+  const secureNowFindingsOpenGates = useMemo(
+    () =>
+      secureNowProductLine
+        ? resolveSecureNowFindingsQueueOpenGate(productLine, {
+            isAssignedToMe,
+            pendingOwner: registerSummary.pendingOwner,
+            openRisks: registerSummary.openRisks,
+            overdueReview: registerSummary.overdueReview,
+            scopeParams: {
+              runId: scopedRunId,
+              architectureId: scopedArchitectureId,
+            },
+          })
+        : [],
+    [
+      secureNowProductLine,
+      productLine,
+      isAssignedToMe,
+      registerSummary.pendingOwner,
+      registerSummary.openRisks,
+      registerSummary.overdueReview,
+      scopedRunId,
+      scopedArchitectureId,
+    ],
+  );
   const findingsDeskShortcutEntries = [
     ...FINDINGS_PAGE_SHORTCUTS.filter(
       (entry) => operateEnabled || !["alt+1", "alt+2", "alt+3"].includes(entry.key),
@@ -168,7 +211,7 @@ export function GovernanceFindingsQueueHeader({
           isAssignedToMe ? (
             <GovernanceFindingsAssignedToMeBreadcrumb />
           ) : buyerPolishedShell ? (
-            <GovernanceFindingsQueueBreadcrumb />
+            <GovernanceFindingsQueueBreadcrumb productLine={productLine} />
           ) : undefined
         }
         statusBadge={assignedToMeStatusBadge}
@@ -193,41 +236,50 @@ export function GovernanceFindingsQueueHeader({
                 variant="inline"
                 testId="architecture-risk-register-summary-open"
                 presentation={governanceRegisterMetricPresentation({
-                  count: registerSummary.openRisks,
-                  noun: registerSummary.openRisks === 1 ? "open finding" : "open findings",
+                  count: isPositiveFiniteCount(registerSummary.openRisks) ? registerSummary.openRisks : 0,
+                  noun:
+                    isPositiveFiniteCount(registerSummary.openRisks) && registerSummary.openRisks === 1
+                      ? "open finding"
+                      : "open findings",
                   filter: "open",
                   runId: scopedRunId,
+                  productLine,
                 })}
               />
               <SelfDescribingMetricCount
                 variant="inline"
                 testId="architecture-risk-register-summary-expiring"
                 presentation={governanceRegisterMetricPresentation({
-                  count: registerSummary.expiringExceptions,
+                  count: isPositiveFiniteCount(registerSummary.expiringExceptions)
+                    ? registerSummary.expiringExceptions
+                    : 0,
                   noun:
                     registerSummary.expiringExceptions === 1 ? "expiring exception" : "expiring exceptions",
                   filter: "expiring-soon",
                   runId: scopedRunId,
+                  productLine,
                 })}
               />
               <SelfDescribingMetricCount
                 variant="inline"
                 testId="architecture-risk-register-summary-owner"
                 presentation={governanceRegisterMetricPresentation({
-                  count: registerSummary.pendingOwner,
+                  count: isPositiveFiniteCount(registerSummary.pendingOwner) ? registerSummary.pendingOwner : 0,
                   noun: registerSummary.pendingOwner === 1 ? "pending owner" : "pending owners",
                   filter: "no-owner",
                   runId: scopedRunId,
+                  productLine,
                 })}
               />
               <SelfDescribingMetricCount
                 variant="inline"
                 testId="architecture-risk-register-summary-overdue"
                 presentation={governanceRegisterMetricPresentation({
-                  count: registerSummary.overdueReview,
+                  count: isPositiveFiniteCount(registerSummary.overdueReview) ? registerSummary.overdueReview : 0,
                   noun: registerSummary.overdueReview === 1 ? "overdue review" : "overdue reviews",
                   filter: "overdue-review",
                   runId: scopedRunId,
+                  productLine,
                 })}
               />
             </>
@@ -261,6 +313,30 @@ export function GovernanceFindingsQueueHeader({
           )
         }
       />
+      {secureNowProductLine ? (
+        <div className="mt-2 space-y-1">
+          {!isAssignedToMe ? (
+            <>
+              <SecureNowFindingsQueueAssignedPacksLine />
+              <SecureNowFindingsWk21HonestyStrip />
+            </>
+          ) : (
+            <SecureNowReaderScopeWorkbenchStrip testId="securenow-assigned-to-me-reader-scope" />
+          )}
+          {secureNowFindingsOpenGates.length > 0 ? (
+            <SecureNowFindingsQueueOpenGateStrip openGates={secureNowFindingsOpenGates} />
+          ) : null}
+          {partialCapture ? (
+            <SecureNowPartialCaptureRecoveryParagraph
+              testId="governance-findings-header-partial-capture"
+              partialCaptureSnapshotId={partialCaptureSnapshotId}
+              returnPath={partialCaptureReturnPath}
+              cloudConnectionsTestId="governance-findings-header-partial-capture-cloud-connections"
+              extractUploadTestId="governance-findings-header-partial-capture-extract-upload"
+            />
+          ) : null}
+        </div>
+      ) : null}
       {showFindingsDeskShortcutRow ? (
         <p
           className={cn("m-0 mt-2 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}

@@ -14,6 +14,7 @@ import {
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { findingDerivationFromGovernanceQueueRow } from "@/lib/findings/finding-derivation-sentence";
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import {
   governanceFindingInspectHref,
   governanceFindingQueuePrimaryInspectHref,
@@ -39,6 +40,10 @@ import {
   governanceFindingQueueRowHasStoredRunId,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
+import {
+  GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED,
+  GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
+} from "@/components/governance/findings/governance-findings-row-omission-copy";
 
 export type GovernanceFindingsQueueAssignedToMeRowCellsProps = {
   readonly row: GovernanceFindingQueueRow;
@@ -144,7 +149,9 @@ export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFin
         ) : (
           <span className="space-y-0.5">
             <span className="block">{row.runLabel}</span>
-            <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>Review id was not stored.</span>
+            <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>
+              {buyerFacingReviewLinkLabelFromRunId(row.runId)}
+            </span>
           </span>
         )}
       </EnterpriseTableCell>
@@ -158,7 +165,13 @@ export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFin
         {governanceQueueDispositionLabel(row)}
       </EnterpriseTableCell>
       <EnterpriseTableCell>
-        <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
+        {row.status === GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED
+        || row.status === GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED
+        || row.status.toLowerCase().includes("was not stored") ? (
+          <span className="text-al-text-secondary">{row.status}</span>
+        ) : (
+          <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
+        )}
       </EnterpriseTableCell>
     </>
   );

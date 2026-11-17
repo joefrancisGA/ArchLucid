@@ -34,4 +34,14 @@ describe("resolveContinueLastDecisionRegisterEntry", () => {
 
     expect(match?.decisionId).toBe("decision-new");
   });
+
+  it("orders fallback decisions by instant and ignores unreadable timestamps", () => {
+    const latest = decision({ decisionId: "latest", recordedAtUtc: "2026-02-01T10:00:00Z" });
+    const earlier = decision({ decisionId: "earlier", recordedAtUtc: "2026-02-01T11:00:00+02:00" });
+    const unreadable = decision({ decisionId: "unreadable", recordedAtUtc: "unreadable" });
+
+    expect(resolveContinueLastDecisionRegisterEntry([earlier, latest])).toBe(latest);
+    expect(resolveContinueLastDecisionRegisterEntry([unreadable, earlier, latest])).toBe(latest);
+    expect(resolveContinueLastDecisionRegisterEntry([unreadable])).toBeNull();
+  });
 });

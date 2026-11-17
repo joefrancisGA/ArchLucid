@@ -33,7 +33,10 @@ public sealed partial class AuditController
 
         AuditEventFilter filter = new()
         {
-            Take = clampedTake + 1, BeforeUtc = cursorPair?.OccurredUtc, BeforeEventId = cursorPair?.EventId
+            Take = clampedTake + 1,
+            AllowListLookaheadRow = true,
+            BeforeUtc = cursorPair?.OccurredUtc,
+            BeforeEventId = cursorPair?.EventId
         };
 
         IReadOnlyList<AuditEvent> rows =
@@ -41,7 +44,7 @@ public sealed partial class AuditController
 
         CursorPagedResponse<AuditEvent> page = ToCursorPage(rows, clampedTake);
         string fingerprint = $"audit|take={clampedTake}|cursor={cursor}";
-        string etag = ConditionalGetNegotiation.ComputeAuditPageEtag(page.Items, fingerprint);
+        string etag = ConditionalGetNegotiation.ComputeAuditPageEtag(page.Items, $"{fingerprint}|hasMore={page.HasMore}");
 
         return this.OkWithConditionalEtag(page, etag);
     }
@@ -124,6 +127,7 @@ public sealed partial class AuditController
             ActorUserId = actorUserId,
             RunId = runId,
             Take = clampedTake + 1,
+            AllowListLookaheadRow = true,
             IncludeDataJson = includeDataJson,
         };
 
@@ -137,7 +141,7 @@ public sealed partial class AuditController
         CursorPagedResponse<AuditEvent> page = ToCursorPage(rows, clampedTake);
         string fingerprint =
             $"audit-search|take={clampedTake}|cursor={cursor}|eventType={eventType}|from={fromUtc:O}|to={toUtc:O}|before={effectiveBeforeUtc:O}|beforeId={effectiveBeforeEventId}|corr={correlationId}|actor={actorUserId}|run={runId}|data={includeDataJson}";
-        string etag = ConditionalGetNegotiation.ComputeAuditPageEtag(page.Items, fingerprint);
+        string etag = ConditionalGetNegotiation.ComputeAuditPageEtag(page.Items, $"{fingerprint}|hasMore={page.HasMore}");
 
         return this.OkWithConditionalEtag(page, etag);
     }

@@ -1,6 +1,5 @@
 using System.Net.Http.Json;
 
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Api.Tests.Security;
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.TestSupport;
@@ -41,12 +40,13 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
             GreenfieldIntegrationTenantScope.WireScope(client, scope);
 
             string requestId = testTag[..Math.Min(testTag.Length, 32)];
-            HttpResponseMessage create = await PostArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest(requestId));
+            HttpResponseMessage create = await client.PostGreenfieldArchitectureRequestForTestAsync(
+                TestRequestFactory.CreateArchitectureRequest(requestId),
+                "tb294-val-");
             await create.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
             string realRunId = created!.Run.RunId;
-            realRunId.Should().NotBe(ContosoRetailDemoIdentifiers.RunBaseline);
-            realRunId.Should().NotBe(ContosoRetailDemoIdentifiers.RunHardened);
+            HarnessDemoBaselineSupport.AssertRunIdIsNotShowcase(realRunId);
 
             await ArchitectureRequestConcurrencyTestSupport.PostExecuteAndCommitUnderGreenfieldBootstrapBudgetAsync(
                 client,
@@ -55,10 +55,8 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
             string markdown = await GreenfieldCommittedRunReadinessPoll.WaitUntilFirstValueReportMarkdownReadyAsync(client, realRunId);
 
             markdown.Should().Contain(realRunId, because: "report must anchor on the committed integration run");
-            markdown.Should().NotContain(ContosoRetailDemoIdentifiers.RunBaseline);
-            markdown.Should().NotContain(ContosoRetailDemoIdentifiers.RunHardened);
-            markdown.Should().NotContain(ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("D"));
-            markdown.Should().NotContain(ContosoRetailDemoIdentifiers.AuthorityRunHardenedId.ToString("D"));
+            HarnessDemoBaselineSupport.AssertTextExcludesShowcaseRunKeys(markdown);
+            HarnessDemoBaselineSupport.AssertTextExcludesShowcaseAuthorityRunGuids(markdown);
         }
         catch (WarmupTimedOutException)
         {
@@ -72,12 +70,4 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
         }
     }
 
-    private static Task<HttpResponseMessage> PostArchitectureRequestAsync(HttpClient client, object body)
-    {
-        string idempotencyKey = "tb294-val-" + Guid.NewGuid().ToString("N");
-        return ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestWithGreenfieldTransientRetryAsync(
-            client,
-            body,
-            idempotencyKey);
-    }
 }

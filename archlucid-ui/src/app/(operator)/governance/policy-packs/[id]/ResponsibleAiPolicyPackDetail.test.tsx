@@ -24,18 +24,15 @@ describe("ResponsibleAiPolicyPackDetail", () => {
       />,
     );
 
-    expect(screen.getByTestId("governance-policy-pack-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Assign to workspace" })).toHaveAttribute(
+    expect(screen.queryByTestId("governance-policy-pack-breadcrumb")).not.toBeInTheDocument();
+    expect(screen.getByTestId("policy-pack-detail-title")).toBeInTheDocument();
+    expect(screen.getByTestId("policy-pack-primary-action")).toHaveAttribute(
       "href",
       `/governance/policy-packs?packId=${BUNDLED_RESPONSIBLE_AI_POLICY_PACK_ID}`,
     );
     expect(screen.getByRole("link", { name: "Start review with this pack" })).toHaveAttribute(
       "href",
       `/architecture/reviews/new?packId=${BUNDLED_RESPONSIBLE_AI_POLICY_PACK_ID}`,
-    );
-    expect(screen.getByRole("link", { name: "Open policy pack library" })).toHaveAttribute(
-      "href",
-      "/governance/policy-packs",
     );
     expect(screen.getByTestId("policy-pack-provenance-tag")).toHaveTextContent("Bundled default (platform)");
     expect(screen.queryByTestId("policy-pack-sample-tag")).not.toBeInTheDocument();
@@ -85,6 +82,7 @@ describe("ResponsibleAiPolicyPackDetail", () => {
     expect(screen.getByText("Enabled")).toBeInTheDocument();
     expect(screen.getByText("Workspace")).toBeInTheDocument();
     expect(screen.getByText("Ai Gov 001")).toBeInTheDocument();
+    expect(screen.getByText("Severity was not stored.")).toBeInTheDocument();
     expect(screen.getByTestId("policy-pack-rules-source-qualifier")).toHaveTextContent(
       "Published pack lists rule keys only; severity is not specified in pack metadata.",
     );

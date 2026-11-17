@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
@@ -25,9 +26,19 @@ import {
   SECURENOW_COLLECTION_READER_ROLE_LINE,
   shouldShowSecureNowCollectionMissingBlock,
 } from "@/lib/product-line/securenow-collection-missing-reason";
+import { SecureNowCollectionPrimaryBlockerLine } from "@/components/product-line/SecureNowCollectionPrimaryBlockerLine";
 import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
+import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/SecureNowPilotWalkthroughBanner";
+import { SecureNowCloudConnectionsPartialCaptureStrip } from "@/components/product-line/SecureNowCloudConnectionsPartialCaptureStrip";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
+import { SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF } from "@/lib/product-line/securenow-self-service-home-copy";
+import { CLOUD_CONNECTIONS_READER_PULL_HONESTY_LINE } from "@/lib/integrations/cloud-connections-reader-pull-honesty-copy";
+import {
+  CLOUD_CONNECTIONS_RETURN_PATH_HONESTY_LINE,
+  formatCloudConnectionsReturnLinkLabel,
+} from "@/lib/integrations/cloud-connections-return-path-honesty-copy";
+import { resolveSecureNowReturnPathFromSearch } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
 
 import { CloudConnectionsProviderList } from "./CloudConnectionsProviderList";
 import {
@@ -43,12 +54,13 @@ import {
 import type { CloudConnectionsPageViewModel } from "./use-cloud-connections-page";
 
 const SECURENOW_FIRST_HOUR_HREF = "/administration/securenow-first-hour" as const;
-const SECURENOW_COLLECTION_SELF_SERVICE_HREF = "/administration/securenow-self-service#collection" as const;
 
 export type CloudConnectionsPageShellProps = CloudConnectionsPageViewModel;
 
 export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps) {
   const { showConnectionContent, cloudConnectSteps, cloudConnectEmphasizedStepId, productLine } = props;
+  const searchParams = useSearchParams();
+  const secureNowReturnPath = resolveSecureNowReturnPathFromSearch(searchParams);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const collectionMissingInput = {
     hasConfiguredProvider: props.hasConfiguredProvider,
@@ -99,6 +111,9 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
       <h2 id="cloud-connections-collection-status-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
         Collection status: Missing
       </h2>
+      <div className="mt-2">
+        <SecureNowCollectionPrimaryBlockerLine input={collectionMissingInput} testIdPrefix="cloud-connections" />
+      </div>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)} data-testid="cloud-connections-collection-missing-detail">
         {collectionMissingDetail}
       </p>
@@ -130,7 +145,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
           First hour
         </Link>
         <Link
-          href={SECURENOW_COLLECTION_SELF_SERVICE_HREF}
+          href={SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF}
           className={OPERATOR_LINK.inline}
           data-testid="cloud-connections-collection-missing-collection-check-link"
         >
@@ -164,6 +179,18 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
 
   const providerList = <CloudConnectionsProviderList {...props} />;
 
+  const returnPathStrip =
+    secureNowReturnPath !== null ? (
+      <div className="space-y-1" data-testid="cloud-connections-return-path">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link className={OPERATOR_LINK.inline} href={secureNowReturnPath}>
+            {formatCloudConnectionsReturnLinkLabel(secureNowReturnPath)}
+          </Link>
+        </p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_RETURN_PATH_HONESTY_LINE}</p>
+      </div>
+    ) : null;
+
   if (!buyerPolishedShell) {
     return (
       <OperatorPageContainer
@@ -188,10 +215,20 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
           }
         />
 
+        <SecureNowPilotWalkthroughBanner productLine={productLine} />
+        {returnPathStrip}
+        {productLine === "security" && showCollectionReady ? <SecureNowCloudConnectionsPartialCaptureStrip /> : null}
+
         {collectionStatus}
         {collectionInProgress}
         {collectionReady}
         {checklist}
+        <p
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="cloud-connections-reader-pull-honesty"
+        >
+          {CLOUD_CONNECTIONS_READER_PULL_HONESTY_LINE}
+        </p>
         {orientationStrip}
         {providerList}
       </OperatorPageContainer>
@@ -253,10 +290,20 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
             </p>
           </section>
 
+          <SecureNowPilotWalkthroughBanner productLine={productLine} />
+          {returnPathStrip}
+          {productLine === "security" && showCollectionReady ? <SecureNowCloudConnectionsPartialCaptureStrip /> : null}
+
           {collectionStatus}
           {collectionInProgress}
           {collectionReady}
           {checklist}
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="cloud-connections-reader-pull-honesty"
+          >
+            {CLOUD_CONNECTIONS_READER_PULL_HONESTY_LINE}
+          </p>
           {providerList}
         </div>
 

@@ -43,12 +43,12 @@ describe("GraphBuyerCanvasToolbar", () => {
 
     const toolbar = screen.getByRole("group", { name: GRAPH_CANVAS_CONTROLS_GROUP_LABEL });
     const highlight = within(toolbar).getByRole("button", { name: BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA });
-    const focus = within(toolbar).getByRole("button", {
+    const focus = within(toolbar).getByRole("link", {
       name: BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA,
     });
 
     expect(highlight).toBeDisabled();
-    expect(focus).toBeDisabled();
+    expect(focus).toHaveAttribute("aria-disabled", "true");
     expect(highlight).toHaveAttribute("aria-describedby", "graph-buyer-canvas-selection-required-hint");
     expect(focus).toHaveAttribute("aria-describedby", "graph-buyer-canvas-selection-required-hint");
     expect(screen.getByTestId("graph-buyer-canvas-selection-required-hint")).toHaveTextContent(

@@ -1,12 +1,13 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { cn } from "@/lib/utils";
 
 import { ExpertIntakePostureToggle, useExpertIntakePostureEnabled } from "@/components/reviews/ExpertIntakePostureToggle";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { FirstPilotIntakeFields } from "./FirstPilotIntakeFields";
@@ -21,7 +22,7 @@ export type { FirstPilotIntakeWizardProps };
 export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const wizard = useFirstPilotIntakeWizard(props);
   const expertIntakePosture = useExpertIntakePostureEnabled();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
 
   return (
     <div className="space-y-5" data-testid="first-pilot-intake-wizard">

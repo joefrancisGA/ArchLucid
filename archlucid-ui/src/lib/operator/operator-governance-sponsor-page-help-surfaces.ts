@@ -17,7 +17,7 @@ export const OPERATOR_GOVERNANCE_SPONSOR_PAGE_HELP_TB1668_SURFACES: readonly Ope
     {
       id: "governance-workflow",
       pathname: "/governance/approval-queue",
-      modulePath: "app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx",
+      modulePath: "app/(operator)/governance/_sections/GovernanceWorkflowPageShell.tsx",
       notes: "Approval queue — governance-approval help topic.",
     },
     {
@@ -47,7 +47,7 @@ export const OPERATOR_GOVERNANCE_SPONSOR_PAGE_HELP_TB1668_SURFACES: readonly Ope
     {
       id: "governance-decision-register",
       pathname: "/governance/decision-register",
-      modulePath: "app/(operator)/governance/decision-register/DecisionRegisterClient.tsx",
+      modulePath: "app/(operator)/governance/decision-register/DecisionRegisterPageShell.tsx",
       notes: "Decision register — decision-register specialty help topic.",
     },
     {

@@ -2,7 +2,7 @@
  * TB-2300 — Package Evidence ≠ Evidence graph vocabulary rail.
  *
  * Why two surfaces exist:
- * - Package Evidence (`?archTab=evidence` / `?reviewTab=evidence`) is capture and
+ * - Package Evidence (`?reviewTab=evidence`) is capture and
  *   inventory of evidence for one architecture package.
  * - Evidence graph (`/insights/evidence-graph`) is the cross-package provenance
  *   and linkage explorer.

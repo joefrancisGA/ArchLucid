@@ -12,7 +12,9 @@ import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-wee
 import { FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE } from "@/lib/buyer/buyer-polish-copy";
 import { formatStepProgressCompleteLabel } from "@/lib/step-progress-label";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { resolveShowcaseOperatorReviewHref } from "@/lib/showcase-operator-review-href";
 
 import { hasSealedReviewRecord } from "@/lib/first-review-guide-persistence";
 
@@ -90,7 +92,7 @@ function reviewDetailHref(runId: string, scope: FirstReviewGuideHrefScope): stri
   const trimmedRunId = runId.trim();
 
   if (trimmedRunId === SHOWCASE_STATIC_DEMO_RUN_ID) {
-    return reviewDetailPath(trimmedRunId);
+    return resolveShowcaseOperatorReviewHref(trimmedRunId);
   }
 
   if (scope.workingMode && scope.architectureId !== null) {
@@ -100,20 +102,37 @@ function reviewDetailHref(runId: string, scope: FirstReviewGuideHrefScope): stri
   return reviewDetailPath(trimmedRunId);
 }
 
+function guideArchitectureIdForTabHref(scope: FirstReviewGuideHrefScope): string | null {
+  if (scope.workingMode && scope.architectureId !== null) {
+    return scope.architectureId;
+  }
+
+  return null;
+}
+
 function reviewFindingsHref(runId: string, scope: FirstReviewGuideHrefScope): string {
-  return `${reviewDetailHref(runId, scope)}?reviewTab=findings`;
+  return buildReviewDetailTabHref(runId, "findings", {
+    architectureId: guideArchitectureIdForTabHref(scope),
+  });
 }
 
 function reviewDecisionsHref(runId: string, scope: FirstReviewGuideHrefScope): string {
-  return `${reviewDetailHref(runId, scope)}?reviewTab=decisions-remediation`;
+  return buildReviewDetailTabHref(runId, "decisions-remediation", {
+    architectureId: guideArchitectureIdForTabHref(scope),
+  });
 }
 
 function reviewFinalizeHref(runId: string, scope: FirstReviewGuideHrefScope): string {
-  return `${reviewDetailHref(runId, scope)}${BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR}`;
+  return buildReviewDetailTabHref(runId, "overview", {
+    architectureId: guideArchitectureIdForTabHref(scope),
+    hash: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR,
+  });
 }
 
 function reviewShareHref(runId: string, scope: FirstReviewGuideHrefScope): string {
-  return `${reviewDetailHref(runId, scope)}?reviewTab=review-package`;
+  return buildReviewDetailTabHref(runId, "review-package", {
+    architectureId: guideArchitectureIdForTabHref(scope),
+  });
 }
 
 export function resolveFirstReviewGuideRunHref(
@@ -198,8 +217,13 @@ function resolveStepAction(
         return { label: null, href: null };
       }
 
-      if (latestRunHref !== null) {
-        return { label: "Add evidence", href: `${latestRunHref}?reviewTab=evidence` };
+      if (latestRunId !== null) {
+        return {
+          label: "Add evidence",
+          href: buildReviewDetailTabHref(latestRunId, "evidence", {
+            architectureId: guideArchitectureIdForTabHref(hrefScope),
+          }),
+        };
       }
 
       return { label: "Open evidence intake", href: REVIEWS_NEW_GUIDED_INTAKE_HREF };

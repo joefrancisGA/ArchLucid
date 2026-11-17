@@ -2,7 +2,8 @@
 
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -25,6 +26,9 @@ export function GovernanceInteractiveQuickstartContent({
   hideFirst30DaysLink = false,
   className,
 }: GovernanceInteractiveQuickstartContentProps): React.JSX.Element {
+  const { productLine } = useProductLine();
+  const policyPacksHref = policyPacksPathForProductLine(productLine);
+
   return (
     <div className={cn("space-y-3", className)} data-testid="governance-interactive-quickstart">
       <div>
@@ -37,7 +41,7 @@ export function GovernanceInteractiveQuickstartContent({
       </div>
       <ol className={cn("m-0 list-decimal space-y-2 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         <li>
-          <Link href={GOVERNANCE_POLICY_PACKS_PATH} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+          <Link href={policyPacksHref} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             Open policy packs
           </Link>
           {" — assign or publish the rule set that governs your scope."}
@@ -61,7 +65,7 @@ export function GovernanceInteractiveQuickstartContent({
       )}
       <div className="flex flex-wrap gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <Button asChild size="sm" variant="secondary">
-          <Link href={GOVERNANCE_POLICY_PACKS_PATH}>Policy packs</Link>
+          <Link href={policyPacksHref}>Policy packs</Link>
         </Button>
         <Button asChild size="sm" variant="outline">
           <Link href={ARCHITECTURES_NEW_PATH}>{CREATE_ARCHITECTURE_LABEL}</Link>

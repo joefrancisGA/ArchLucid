@@ -12,6 +12,7 @@ describe("DriftChangesTableHead", () => {
         <DriftChangesTableHead
           tableFilterState={DEFAULT_DRIFT_TABLE_FILTER_STATE}
           hasActiveFilters={false}
+          showDiffColumns
           onSortColumn={vi.fn()}
           onTableFiltersChange={vi.fn()}
           onClearFilters={vi.fn()}

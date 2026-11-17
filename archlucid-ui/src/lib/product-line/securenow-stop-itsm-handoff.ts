@@ -17,6 +17,13 @@ export const SECURENOW_PILOT_STOP_ITSM_DRAFT_DISCIPLINE =
 export const SECURENOW_PILOT_STOP_ITSM_FINDING_EXPORT_DRAFT_DISCIPLINE =
   "Draft only. Open the create dialog when you are ready — nothing is sent until you confirm." as const;
 
+export function formatSecureNowItsmDraftContextLine(input: {
+  readonly findingId: string;
+  readonly providerLabel: string;
+}): string {
+  return `Draft for finding ${input.findingId.trim()}. Configured ITSM product: ${input.providerLabel.trim()}. Nothing is sent until you confirm in the dialog.`;
+}
+
 export function formatSecureNowPilotStopItsmDraftBody(pathId: string, rationale: string): string {
   return `SecureNow pilot Stop disposition\nPath: ${pathId.trim()}\nRationale: ${rationale.trim()}`;
 }

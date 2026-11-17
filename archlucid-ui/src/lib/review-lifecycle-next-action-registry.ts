@@ -78,7 +78,7 @@ export const REVIEW_LIFECYCLE_NEXT_ACTION_REGISTRY: readonly ReviewLifecycleNext
     label: "Validate replay",
     description: "Re-check a single finalized architecture package.",
     surfaces: ["operator-home"],
-    phases: ["post-finalize"],
+    phases: ["post-finalize", "in-review"],
   },
   {
     id: "schedule-recurrence",

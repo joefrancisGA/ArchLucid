@@ -19,7 +19,15 @@ describe("governance overview findings naming guard (GOP P0-3)", () => {
 
   it("keeps overview panel and copy aligned to findings queue route", () => {
     const panelSource = readFileSync(
-      join(process.cwd(), "src", "app", "(operator)", "governance", "_sections", "GovernanceOverviewPanel.tsx"),
+      join(
+        process.cwd(),
+        "src",
+        "app",
+        "(operator)",
+        "governance",
+        "_sections",
+        "GovernanceOverviewSummaryPanelShell.tsx",
+      ),
       "utf8",
     );
     const copySource = readFileSync(

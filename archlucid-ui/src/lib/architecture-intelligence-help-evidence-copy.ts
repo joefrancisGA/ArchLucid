@@ -5,6 +5,8 @@ import {
   ARCHITECTURE_INTELLIGENCE_SOURCES,
   ARCHITECTURE_INTELLIGENCE_SOURCES_INTRO,
 } from "@/lib/architecture/architecture-intelligence-evidence-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 import { AI_USAGE_HELP_CANONICAL_PATH } from "@/lib/ai-usage-help-evidence-copy";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_CANONICAL_PATH } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
@@ -44,6 +46,12 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_SOURCES: readonly EvidenceOrientatio
     when: "Monitor estimated AI spend when reasoning runs add model activity",
   },
 ] as const;
+
+export function resolveArchitectureIntelligenceHelpSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceOrientationLink[] {
+  return remapEvidenceSourceFindingsQueueHref(ARCHITECTURE_INTELLIGENCE_HELP_SOURCES, productLine);
+}
 
 const ARCHITECTURE_INTELLIGENCE_HELP_EXCLUDED_ORIENTATION_HREFS = new Set<string>([
   ARCHITECTURE_INTELLIGENCE_HELP_CANONICAL_PATH,

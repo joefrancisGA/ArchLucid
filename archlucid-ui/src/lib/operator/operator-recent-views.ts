@@ -5,6 +5,9 @@
 import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
 import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
@@ -314,11 +317,11 @@ export function recentViewLabelFromPathname(pathname: string, search = ""): stri
     return OPERATOR_NAV_LINK_LABELS.evidenceGraph;
   }
 
-  if (path === GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH) {
+  if (path === GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH || path === SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH) {
     return OPERATOR_NAV_LINK_LABELS.assignedToMeFindings;
   }
 
-  if (path === "/governance/findings") {
+  if (path === GOVERNANCE_FINDINGS_PATH || path === SECURENOW_FINDINGS_PATH) {
     return OPERATOR_NAV_LINK_LABELS.findings;
   }
 

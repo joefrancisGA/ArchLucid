@@ -7,6 +7,12 @@ const mockFetchConnection = vi.fn();
 const mockProbeHealth = vi.fn();
 const mockUpsertSettings = vi.fn();
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/integrations/servicenow",
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 let canMutate = true;
 const featureMocks = vi.hoisted(() => ({
   showOperatorNav: false,
@@ -21,6 +27,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: (): boolean => false,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => true,
+  useProductionEvalChrome: () => false,
+}));
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => canMutate,
@@ -40,6 +51,12 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
   fetchTenantItsmConnectorConnection: (...args: unknown[]) => mockFetchConnection(...args),
   probeItsmIntegrationHealth: (...args: unknown[]) => mockProbeHealth(...args),
   upsertTenantItsmOutboundSettings: (...args: unknown[]) => mockUpsertSettings(...args),
+}));
+
+vi.mock("@/lib/auth/livelihood-mutation-401-resume-wrappers", () => ({
+  saveItsmConnectorWith401Resume: async (
+    input: { body: Record<string, unknown> },
+  ): Promise<unknown> => mockUpsertSettings(input.body),
 }));
 
 import { ServiceNowIntegrationPageClient } from "./ServiceNowIntegrationPageClient";
@@ -184,7 +201,7 @@ describe("ServiceNowIntegrationPageClient", () => {
 
     const sources = screen.getByTestId("servicenow-integration-sources");
 
-    for (const link of whereToGoNextFollowUpLinksForTests(SERVICENOW_INTEGRATION_SOURCES)) {
+    for (const link of whereToGoNextFollowUpLinksForTests(SERVICENOW_INTEGRATION_SOURCES, "/integrations/servicenow")) {
       expectFollowUpLink(within(sources), link);
     }
 

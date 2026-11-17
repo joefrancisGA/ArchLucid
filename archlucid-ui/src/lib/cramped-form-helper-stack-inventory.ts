@@ -19,8 +19,8 @@ export const CRAMPED_FORM_HELPER_STACK_INVENTORY: readonly CrampedFormHelperStac
     id: "alert-rules-create",
     surface: "/governance/alert-rules (create form)",
     componentOrModule: "components/alerts/AlertRulesContent.tsx",
-    disposition: "applied",
-    notes: "TB-2004 apply — OPERATOR_FORM_FIELD_STACK_CLASS on create fields; do not reopen TB-1479 voids.",
+    disposition: "deferred",
+    notes: "Alert rules create defers TB-2000 stacks — apply only if helper readability regresses.",
   },
   {
     id: "policy-pack-nl-builder",
@@ -49,6 +49,13 @@ export const CRAMPED_FORM_HELPER_STACK_INVENTORY: readonly CrampedFormHelperStac
     componentOrModule: "components/operator/OperatorWelcomeOnboarding.tsx",
     disposition: "deferred",
     notes: "space-y-1 chrome only; apply if instructional paragraphs wrap.",
+  },
+  {
+    id: "governance-submit-section",
+    surface: "/governance approval submit fields",
+    componentOrModule: "app/(operator)/governance/_sections/GovernanceWorkflowSubmitSection.tsx",
+    disposition: "applied",
+    notes: "TB-2004 apply — OPERATOR_FORM_FIELD_STACK_CLASS on submit stacks.",
   },
 ] as const;
 

@@ -4,7 +4,7 @@ namespace ArchLucid.Core.InfraEvidence;
 
 /// <summary>
 /// Counts distinct cloud-resource and control pairs that recurred inside a snapshot window.
-/// A pair counts when a finding in the window is Recurred, or Open while a Closed finding shares the pair.
+/// A pair counts when a finding in the window is Recurred, or Open after an earlier Closed finding shares the pair.
 /// </summary>
 public static class SecureNowOutcomeRecurrenceCounter
 {
@@ -22,10 +22,10 @@ public static class SecureNowOutcomeRecurrenceCounter
                 && !string.IsNullOrWhiteSpace(finding.ControlId))
             .ToList();
 
-        HashSet<(Guid CloudResourceId, string ControlId)> closedPairs = scoped
+        Dictionary<(Guid CloudResourceId, string ControlId), DateTime> firstClosedUpdateByPair = scoped
             .Where(finding => finding.Status == OperationalSecurityFindingStatus.Closed)
-            .Select(finding => (finding.CloudResourceId!.Value, finding.ControlId!))
-            .ToHashSet();
+            .GroupBy(finding => (finding.CloudResourceId!.Value, finding.ControlId!))
+            .ToDictionary(group => group.Key, group => group.Min(finding => finding.UpdatedUtc));
 
         HashSet<(Guid CloudResourceId, string ControlId)> recurrencePairs = [];
 
@@ -46,7 +46,8 @@ public static class SecureNowOutcomeRecurrenceCounter
             }
 
             if (finding.Status == OperationalSecurityFindingStatus.Open
-                && closedPairs.Contains(pair))
+                && firstClosedUpdateByPair.TryGetValue(pair, out DateTime firstClosedUpdateUtc)
+                && firstClosedUpdateUtc < finding.UpdatedUtc)
             {
                 recurrencePairs.Add(pair);
             }

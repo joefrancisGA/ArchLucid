@@ -37,6 +37,7 @@ import {
   SYSTEM_HEALTH_SKIP_LINK_LABEL,
   SYSTEM_HEALTH_SKIP_TARGET_ID,
 } from "@/lib/system-health-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -74,7 +75,12 @@ describe("System health buyer-polished shell (ADY)", () => {
     expect(firstViewport).toContainElement(demoOverall);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(SYSTEM_HEALTH_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(SYSTEM_HEALTH_SOURCES),
+      "/",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

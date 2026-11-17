@@ -3,6 +3,7 @@ using ArchLucid.ArtifactSynthesis.Graphviz;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.KnowledgeGraph;
 
@@ -29,7 +30,7 @@ public sealed class DiagramAstGraphvizDotEmitterTests
         CountNodeLabelStatements(dot).Should().Be(11);
         CountOccurrences(dot, "->").Should().Be(6);
         CountOccurrences(dot, "label=\"peering\"").Should().Be(0);
-        dot.Should().Contain("Peering is connected");
+        dot.Should().Contain(InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored);
         dot.Should().NotContain("alpack_");
         dot.Should().NotContain("~~~");
         dot.Should().Contain("digraph Inventory");

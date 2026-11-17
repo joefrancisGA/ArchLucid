@@ -5,16 +5,6 @@ namespace ArchLucid.Decisioning.Analysis;
 /// </summary>
 internal static class DeclarationSecurityEnabledToken
 {
-    public static bool IsPublicNetworkEnabled(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return false;
-
-        string normalized = value.Trim();
-
-        if (string.Equals(normalized, "enabled", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        return string.Equals(normalized, "true", StringComparison.OrdinalIgnoreCase);
-    }
+    public static bool IsPublicNetworkEnabled(string? value) =>
+        DecisioningDeclarationTruthyToken.IsTruthy(value);
 }

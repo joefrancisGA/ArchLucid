@@ -27,9 +27,10 @@ public sealed class AlertTeamsWebhookDeliveryChannel(IChatOpsWebhookDeliveryServ
         {
             SeverityLabel = payload.Alert.Severity,
             Title = payload.Alert.Title,
-            SupportingParagraph =
-                $"Category: {WebUtility.HtmlEncode(payload.Alert.Category)}\nTrigger: {WebUtility.HtmlEncode(payload.Alert.TriggerValue)}",
-            Body = WebUtility.HtmlEncode(payload.Alert.Description ?? string.Empty),
+            SupportingParagraph = ChatOpsAlertEvaluationFragments.BuildTeamsCategoryTriggerParagraph(
+                payload.Alert.Category,
+                payload.Alert.TriggerValue),
+            Body = ChatOpsAlertEvaluationFragments.BuildTeamsDescriptionBody(payload.Alert.Description),
         };
 
         string destination = ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow(

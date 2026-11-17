@@ -50,6 +50,13 @@ public static class AzureInventoryArmNestedObjectPropertyReader
 
     public static string? TryReadScalarString(JsonElement value)
     {
+        // JSON null is an omitted optional field. GetRawText() would return the word null
+        // and persist a fake ARM id or Service Bus forward target.
+        if (value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+        {
+            return null;
+        }
+
         if (value.ValueKind is JsonValueKind.String)
         {
             string? text = value.GetString();
@@ -162,8 +169,24 @@ public static class AzureInventoryArmNestedObjectPropertyReader
     {
         foreach (JsonProperty property in referenceObject.EnumerateObject())
         {
-            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase)
-                || property.Value.ValueKind is not JsonValueKind.String)
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (property.Value.ValueKind is JsonValueKind.Object)
+            {
+                string? fromNestedReference = TryReadArmIdFromReferenceObject(property.Value);
+
+                if (!string.IsNullOrWhiteSpace(fromNestedReference))
+                {
+                    return fromNestedReference;
+                }
+
+                continue;
+            }
+
+            if (property.Value.ValueKind is not JsonValueKind.String)
             {
                 continue;
             }

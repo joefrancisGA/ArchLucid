@@ -83,6 +83,9 @@ describe("package-print-view (TB-2205)", () => {
     expect(buildPackagePrintPath("abc/def")).toBe("/architecture/reviews/abc%2Fdef/print");
     expect(buildPackagePrintBackHref("abc")).toBe("/architecture/reviews/abc?reviewTab=review-package");
     expect(buildPackagePrintPath("  ")).toBe("/architecture/reviews/print");
+    expect(buildPackagePrintPath("run-1", { architectureId: "arch-desk" })).toBe(
+      "/architecture/architectures/arch-desk/reviews/run-1/print",
+    );
   });
 
   it("labels omitted governance warning flags on finalized print status (P-09)", () => {

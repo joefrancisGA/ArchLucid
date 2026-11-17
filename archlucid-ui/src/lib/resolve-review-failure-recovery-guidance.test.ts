@@ -63,7 +63,7 @@ describe("resolveReviewFailureRecoveryGuidance", () => {
         'Architecture review intake for "ArchLucid".\n\nAttached files:\n- handbook.docx',
     });
 
-    expect(guidance?.headline).toBe("Execution failed before the first pipeline stage");
+    expect(guidance?.headline).toBe("Execution failed before the first assessment stage");
     expect(guidance?.recoverySteps.join(" ")).toContain("administrator handoff");
     expect(guidance?.recoverySteps.join(" ")).not.toContain("Confirm intake fields");
     expect(guidance?.intactSummary).toContain("submitted intake package");
@@ -86,7 +86,7 @@ describe("resolveReviewFailureRecoveryGuidance", () => {
       canConfigureWorkspaceAi: true,
     });
 
-    expect(guidance?.headline).toBe("Execution failed before the first pipeline stage");
+    expect(guidance?.headline).toBe("Execution failed before the first assessment stage");
     expect(guidance?.recoverySteps.join(" ")).not.toContain("intake fields");
     expect(guidance?.recoverySteps.join(" ")).toContain("Re-run review");
     expect(guidance?.recoverySteps.join(" ")).toContain("background review processing");
@@ -107,7 +107,7 @@ describe("resolveReviewFailureRecoveryGuidance", () => {
       canConfigureWorkspaceAi: true,
     });
 
-    expect(guidance?.headline).toBe("Execution failed before the first pipeline stage");
+    expect(guidance?.headline).toBe("Execution failed before the first assessment stage");
     expect(guidance?.recoverySteps.join(" ")).not.toContain("intake fields");
     expect(guidance?.recoverySteps.join(" ")).toContain("Re-run review");
     expect(guidance?.suggestSupportTicket).toBe(false);

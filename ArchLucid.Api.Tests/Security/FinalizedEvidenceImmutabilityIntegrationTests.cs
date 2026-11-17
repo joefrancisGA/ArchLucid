@@ -1,9 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
-
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -22,22 +18,25 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
     [SkippableFact]
     public async Task Committed_run_rejects_agent_result_submission_and_preserves_golden_manifest_fingerprint()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TB322-IMMUT-001")));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(FinalizedEvidenceImmutabilityIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        await ExecuteForTestAsync(runId);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
 
-        string fingerprintBefore = await GoldenManifestRawFingerprintAsync(runId);
+        string fingerprintBefore = await HarnessAuthorityGoldenManifestFingerprintSupport.GetWireGoldenManifestSha256HexAsync(
+            Client,
+            runId,
+            JsonOptions);
 
-        HttpResponseMessage secondCommit = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage secondCommit = await Client.PostFinalizeForTestAsync(Factory, runId);
         secondCommit.StatusCode.Should().Be(HttpStatusCode.OK);
-        string fingerprintAfterSecondCommit = await GoldenManifestRawFingerprintAsync(runId);
+        string fingerprintAfterSecondCommit = await HarnessAuthorityGoldenManifestFingerprintSupport.GetWireGoldenManifestSha256HexAsync(
+            Client,
+            runId,
+            JsonOptions);
         fingerprintAfterSecondCommit.Should().Be(fingerprintBefore);
 
         AgentResult forgedResult = new()
@@ -55,55 +54,38 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
             JsonContent(new { result = forgedResult }));
         submitResponse.StatusCode.Should().BeOneOf(HttpStatusCode.BadRequest, HttpStatusCode.Conflict);
 
-        string fingerprintAfterSubmitAttempt = await GoldenManifestRawFingerprintAsync(runId);
+        string fingerprintAfterSubmitAttempt = await HarnessAuthorityGoldenManifestFingerprintSupport.GetWireGoldenManifestSha256HexAsync(
+            Client,
+            runId,
+            JsonOptions);
         fingerprintAfterSubmitAttempt.Should().Be(fingerprintBefore);
     }
 
     [SkippableFact]
     public async Task Committed_run_execute_is_idempotent_and_does_not_change_stored_results()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TB322-EXEC-IDEM")));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(FinalizedEvidenceImmutabilityIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage firstExecute = await Client.PostExecuteForTestAsync(runId);
 
-        if (await firstExecute.IsAuthorityPipelineCompleteExecuteConflictAsync())
-            Skip.If(true, "authority-pipeline complete on create; execute idempotency test not applicable.");
+        await HarnessSkipWhen.AuthorityPipelineCompleteOnCreateAsync(firstExecute);
 
         ExecuteRunResponseDto? firstPayload =
-            await firstExecute.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(JsonOptions);
+            await firstExecute.ReadJsonForTestAsync<ExecuteRunResponseDto>(JsonOptions);
         firstPayload.Should().NotBeNull();
 
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
 
-        HttpResponseMessage secondExecute = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
+        HttpResponseMessage secondExecute = await Client.PostAsync(
+            IntegrationTestRunLifecycleSupport.ExecuteReviewRelativeUrl(runId),
+            null);
         (await secondExecute.IsAuthorityPipelineCompleteExecuteConflictAsync()).Should().BeTrue();
 
-        HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
-        await getRunResponse.EnsureSuccessForTestAsync();
-        GetRunResponseDto? getRunPayload =
-            await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
-        getRunPayload!.Results.Should().HaveCount(firstPayload!.Results.Count);
+        GetRunResponseDto getRunPayload = await Client.GetRunReviewForTestAsync(runId, JsonOptions);
+        getRunPayload.Results.Should().HaveCount(firstPayload!.Results.Count);
     }
 
-    private async Task<string> GoldenManifestRawFingerprintAsync(string runId)
-    {
-        HttpResponseMessage detailResponse = await Client.GetAsync($"/v1/authority/reviews/{runId}");
-        await detailResponse.EnsureSuccessForTestAsync();
-        string body = await detailResponse.Content.ReadAsStringAsync();
-
-        using JsonDocument document = JsonDocument.Parse(body);
-
-        if (!document.RootElement.TryGetProperty("goldenManifest", out JsonElement golden))
-            throw new InvalidOperationException("Response missing goldenManifest (committed run expected).");
-
-        byte[] utf8 = Encoding.UTF8.GetBytes(golden.GetRawText());
-
-        return Convert.ToHexString(SHA256.HashData(utf8));
-    }
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { PreferencesSaveChecklist } from "@/components/preferences/PreferencesSaveChecklist";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -16,7 +18,6 @@ import {
   PREFERENCES_WHERE_TO_GO_NEXT_HEADING,
 } from "@/lib/where-to-go-next-preference-copy";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { PREFERENCES_HELP_TOPIC_LABEL } from "@/lib/preferences-settings-evidence-copy";
 import {
@@ -39,7 +40,7 @@ import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { cn } from "@/lib/utils";
 
 export function PreferencesSettingsPageView() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const { productLine } = useProductLine();
   const { mounted: appearanceMounted, accountSyncState: appearanceAccountSyncState } = useUserAppearancePreference();
   const {

@@ -360,7 +360,7 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
                                  AND {VisibleExplorerAzureResourceIdPredicate}
                                  {workQueueFilter}
                                  {PersistenceTenantScope.AndTripleWhere(scope)}
-                               ORDER BY LastSeenUtc DESC
+                               ORDER BY LastSeenUtc DESC, CloudResourceId ASC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """;
 

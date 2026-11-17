@@ -19,7 +19,7 @@ public sealed class CommitRunRequiresCommitPermissionTests(OperatorWithoutCommit
     public async Task CommitRun_returns_403_when_commit_run_permission_claim_missing()
     {
         HttpResponseMessage response = await _client.PostAsync(
-            $"/v1/architecture/review/{Guid.NewGuid():D}/finalize",
+            IntegrationTestRunLifecycleSupport.FinalizeReviewRelativeUrl(Guid.NewGuid().ToString("D")),
             null);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);

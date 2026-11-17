@@ -23,6 +23,7 @@ import {
   parseReviewShareLinkOpenFromSearch,
   reviewShareLinkPanelsHrefFromSearch,
 } from "@/lib/reviews/review-share-link-panels-url";
+import { resolveReviewUrlStatePathname } from "@/lib/architecture/review-url-state-pathname";
 
 type ShareableReviewLinkButtonProps = {
   readonly runId: string;
@@ -32,7 +33,7 @@ type ShareableReviewLinkButtonProps = {
 
 /** Copy a read-only showcase link for sponsors who will not log in. */
 export function ShareableReviewLinkButton(props: ShareableReviewLinkButtonProps) {
-  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const pathname = resolveReviewUrlStatePathname(usePathname(), props.runId);
   const [open, setOpenState] = useState(() =>
     parseReviewShareLinkOpenFromSearch(null),
   );

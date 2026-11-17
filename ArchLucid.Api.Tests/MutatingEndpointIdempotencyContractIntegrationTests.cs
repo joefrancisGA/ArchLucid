@@ -19,19 +19,17 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         string idempotencyKey = "tb323-create-" + Guid.NewGuid().ToString("N");
         object body = TestRequestFactory.CreateArchitectureRequest("REQ-TB323-CREATE");
 
-        using HttpRequestMessage first = new(HttpMethod.Post, "/v1/architecture/request");
-        first.Content = JsonContent(body);
-        first.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+        using HttpRequestMessage first =
+            IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body), idempotencyKey);
 
         HttpResponseMessage firstResponse = await Client.SendAsync(first);
         firstResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         CreateRunResponseDto? firstPayload =
-            await firstResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            await firstResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         firstPayload.Should().NotBeNull();
 
-        using HttpRequestMessage second = new(HttpMethod.Post, "/v1/architecture/request");
-        second.Content = JsonContent(body);
-        second.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+        using HttpRequestMessage second =
+            IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body), idempotencyKey);
 
         HttpResponseMessage secondResponse = await Client.SendAsync(second);
         secondResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -40,7 +38,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         replayValues.Should().Contain("true");
 
         CreateRunResponseDto? secondPayload =
-            await secondResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            await secondResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         secondPayload.Should().NotBeNull();
         secondPayload!.Run.RunId.Should().Be(firstPayload!.Run.RunId);
     }
@@ -48,30 +46,25 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
     [SkippableFact]
     public async Task CommitRun_same_idempotency_key_replays_without_new_manifest_version()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TB323-COMMIT")));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(MutatingEndpointIdempotencyContractIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
+        await ExecuteForTestAsync(runId);
 
         string idempotencyKey = "tb323-commit-" + Guid.NewGuid().ToString("N");
         object commitBody = new { notifySponsor = false };
 
-        using HttpRequestMessage firstCommit = new(HttpMethod.Post, $"/v1/architecture/review/{runId}/finalize");
+        using HttpRequestMessage firstCommit = IntegrationTestRunLifecycleSupport.CreateFinalizeReviewRequest(runId);
         firstCommit.Content = JsonContent(commitBody);
         firstCommit.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
-        HttpResponseMessage firstCommitResponse = await Client.SendAsync(firstCommit);
-        firstCommitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        CommitRunResponseDto? firstCommitPayload =
-            await firstCommitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        HttpResponseMessage firstCommitResponse = await Client.SendAsync(firstCommit);        CommitRunResponseDto? firstCommitPayload =
+            await firstCommitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         firstCommitPayload.Should().NotBeNull();
         string firstManifestVersion = firstCommitPayload!.Manifest.Metadata.ManifestVersion;
 
-        using HttpRequestMessage secondCommit = new(HttpMethod.Post, $"/v1/architecture/review/{runId}/finalize");
+        using HttpRequestMessage secondCommit = IntegrationTestRunLifecycleSupport.CreateFinalizeReviewRequest(runId);
         secondCommit.Content = JsonContent(commitBody);
         secondCommit.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
@@ -82,7 +75,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         replayValues.Should().Contain("true");
 
         CommitRunResponseDto? secondCommitPayload =
-            await secondCommitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+            await secondCommitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         secondCommitPayload.Should().NotBeNull();
         secondCommitPayload!.Manifest.Metadata.ManifestVersion.Should().Be(firstManifestVersion);
     }
@@ -90,18 +83,14 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
     [SkippableFact]
     public async Task Governance_approval_submit_same_idempotency_key_replays_without_duplicate_request_id()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TB323-GOV")));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(MutatingEndpointIdempotencyContractIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        await ExecuteForTestAsync(runId);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
+                CommitRunResponseDto? commitPayload =
+            await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
         string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 

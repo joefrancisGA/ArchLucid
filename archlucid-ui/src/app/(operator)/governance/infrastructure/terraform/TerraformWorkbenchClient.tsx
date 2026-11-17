@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { InfraAuditLineageUnavailableBanner } from "@/components/infra-evidence/InfraAuditLineageUnavailableBanner";
@@ -23,6 +24,13 @@ import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/compon
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { buildAdvisoryTerraformResourceSnippet } from "@/lib/infra-evidence/build-advisory-terraform-resource-snippet";
+import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
+import { TERRAFORM_ADVISORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-evidence/terraform-advisory-snapshot-honesty-copy";
+import { TERRAFORM_WORKBENCH_MAPPING_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/terraform-workbench-mapping-empty-partial-capture-copy";
+import { TERRAFORM_WORKBENCH_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/infra-evidence-workbench-partial-capture-copy";
+import { SecureNowInfraPartialCaptureStrip } from "@/components/product-line/SecureNowInfraPartialCaptureStrip";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { downloadInfraEvidenceTerraformAdvisoryZip } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import {
   formatInfraEvidenceHubApiError,
@@ -145,7 +153,14 @@ export function TerraformWorkbenchClient() {
   );
   const isUnscoped = urlCloudResourceId.length === 0;
 
-  const [hub, setHub] = useState<CloudResourceEvidenceHubResponse | null>(null);
+  const [loadedHub, setLoadedHub] = useState<{
+    cloudResourceId: string;
+    snapshotId: string;
+    response: CloudResourceEvidenceHubResponse;
+  } | null>(null);
+  const hub = loadedHub?.cloudResourceId === urlCloudResourceId && loadedHub.snapshotId === urlSnapshotId
+    ? loadedHub.response
+    : null;
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [exportBusy, setExportBusy] = useState(false);
@@ -308,7 +323,7 @@ export function TerraformWorkbenchClient() {
 
   useEffect(() => {
     if (urlCloudResourceId.length === 0) {
-      setHub(null);
+      setLoadedHub(null);
       setLoadError(null);
       setLoading(false);
 
@@ -327,11 +342,11 @@ export function TerraformWorkbenchClient() {
         });
 
         if (!cancelled) {
-          setHub(response);
+          setLoadedHub({ cloudResourceId: urlCloudResourceId, snapshotId: urlSnapshotId, response });
         }
       } catch (error: unknown) {
         if (!cancelled) {
-          setHub(null);
+          setLoadedHub(null);
           setLoadError(formatInfraEvidenceHubApiError(error));
         }
       } finally {
@@ -499,6 +514,18 @@ export function TerraformWorkbenchClient() {
       >
         <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-terraform-selection-announcer" />
 
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-terraform-advisory-snapshot-honesty">
+          {TERRAFORM_ADVISORY_SNAPSHOT_HONESTY_LINE}
+        </p>
+        {isSecureNowProductLine(productLine) ? (
+          <SecureNowInfraPartialCaptureStrip
+            testId="infra-terraform-partial-capture"
+            middleLine={TERRAFORM_WORKBENCH_PARTIAL_CAPTURE_LINE}
+            cloudConnectionsTestId="infra-terraform-partial-capture-cloud"
+            extractUploadTestId="infra-terraform-partial-capture-extract"
+          />
+        ) : null}
+
         {hasStaleAuditUrlParams && urlCloudResourceId.length === 0 ? (
           <InfraAuditLineageUnavailableBanner
             degradedReason="Audit scope in the URL could not be resolved."
@@ -568,13 +595,14 @@ export function TerraformWorkbenchClient() {
         ) : null}
 
         {loadError != null ? (
-          <EnterpriseCompactEmptyState
-            role="alert"
-            title="Terraform mapping unavailable"
-            description={loadError}
-            testId="infra-terraform-load-error-panel"
-            footer={
-              <div className="flex flex-wrap gap-2">
+          <div className="space-y-2" data-testid="infra-terraform-load-error">
+            <EnterpriseCompactEmptyState
+              role="alert"
+              title="Terraform mapping unavailable"
+              description={loadError}
+              testId="infra-terraform-load-error-panel"
+              footer={
+                <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -590,9 +618,15 @@ export function TerraformWorkbenchClient() {
                 <Button asChild variant="outline" size="sm" data-testid="infra-terraform-open-resources-recovery">
                   <Link href={resourcesPath}>{GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_RESOURCES_ACTION}</Link>
                 </Button>
-              </div>
-            }
-          />
+                </div>
+              }
+            />
+            <OperatorErrorRecoveryContract
+              presentation={errorRecoveryContractForScenario("api-problem", {
+                failureSummary: loadError,
+              })}
+            />
+          </div>
         ) : null}
 
         {urlCloudResourceId.length > 0 && loadError == null ? (
@@ -679,6 +713,16 @@ export function TerraformWorkbenchClient() {
               </div>
             }
             testId="infra-terraform-empty-state"
+            footer={
+              isSecureNowProductLine(productLine) ? (
+                <SecureNowInfraPartialCaptureStrip
+                  testId="infra-terraform-mapping-empty-partial-capture"
+                  middleLine={TERRAFORM_WORKBENCH_MAPPING_EMPTY_PARTIAL_CAPTURE_LINE}
+                  cloudConnectionsTestId="infra-terraform-mapping-empty-partial-cloud"
+                  extractUploadTestId="infra-terraform-mapping-empty-partial-extract"
+                />
+              ) : undefined
+            }
             actions={
               driftWorkbenchHref != null
                 ? [
@@ -720,6 +764,9 @@ export function TerraformWorkbenchClient() {
             {advisorySnippet != null ? (
               <div className="mt-4">
                 <h3 className="text-sm font-medium">Advisory snippet preview</h3>
+                <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-terraform-plan-not-apply">
+                  {TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE}
+                </p>
                 <pre
                   tabIndex={0}
                   role="region"

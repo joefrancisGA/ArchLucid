@@ -89,9 +89,9 @@ public sealed class TenantIsolationSmokeTests
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         string requestId = "REQ-TNTISO-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await PostArchitectureRequestAsync(
-            clientA,
-            TestRequestFactory.CreateArchitectureRequest(requestId));
+        HttpResponseMessage create = await clientA.PostGreenfieldArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest(requestId),
+            "tenant-iso-smoke-");
         await create.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
         string runId = created!.Run.RunId;
@@ -129,9 +129,9 @@ public sealed class TenantIsolationSmokeTests
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         string requestId = "REQ-TNTROI-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await PostArchitectureRequestAsync(
-            clientA,
-            TestRequestFactory.CreateArchitectureRequest(requestId));
+        HttpResponseMessage create = await clientA.PostGreenfieldArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest(requestId),
+            "tenant-iso-smoke-");
         await create.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
         string runId = created!.Run.RunId;
@@ -196,17 +196,17 @@ public sealed class TenantIsolationSmokeTests
         WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
         string reqA = "REQ-ADMARCH-A-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage createA = await PostArchitectureRequestAsync(
-            clientA,
-            TestRequestFactory.CreateArchitectureRequest(reqA));
+        HttpResponseMessage createA = await clientA.PostGreenfieldArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest(reqA),
+            "tenant-iso-smoke-");
         await createA.EnsureSuccessForTestAsync();
         CreateRunResponseDto? createdA = await createA.Content.ReadFromJsonAsync<CreateRunResponseDto>();
         string runIdA = createdA!.Run.RunId;
 
         string reqB = "REQ-ADMARCH-B-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage createB = await PostArchitectureRequestAsync(
-            clientB,
-            TestRequestFactory.CreateArchitectureRequest(reqB));
+        HttpResponseMessage createB = await clientB.PostGreenfieldArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest(reqB),
+            "tenant-iso-smoke-");
         await createB.EnsureSuccessForTestAsync();
         CreateRunResponseDto? createdB = await createB.Content.ReadFromJsonAsync<CreateRunResponseDto>();
         string runIdB = createdB!.Run.RunId;
@@ -240,9 +240,9 @@ public sealed class TenantIsolationSmokeTests
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         string requestId = "REQ-TNTPROV-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await PostArchitectureRequestAsync(
-            clientA,
-            TestRequestFactory.CreateArchitectureRequest(requestId));
+        HttpResponseMessage create = await clientA.PostGreenfieldArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest(requestId),
+            "tenant-iso-smoke-");
         await create.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
         string runId = created!.Run.RunId;
@@ -272,9 +272,9 @@ public sealed class TenantIsolationSmokeTests
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         string requestId = "REQ-TNTROI2-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await PostArchitectureRequestAsync(
-            clientA,
-            TestRequestFactory.CreateArchitectureRequest(requestId));
+        HttpResponseMessage create = await clientA.PostGreenfieldArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest(requestId),
+            "tenant-iso-smoke-");
         await create.EnsureSuccessForTestAsync();
 
         using HttpClient clientB = factory.CreateClient();
@@ -304,9 +304,9 @@ public sealed class TenantIsolationSmokeTests
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         string requestId = "REQ-TNTAUD-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await PostArchitectureRequestAsync(
-            clientA,
-            TestRequestFactory.CreateArchitectureRequest(requestId));
+        HttpResponseMessage create = await clientA.PostGreenfieldArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest(requestId),
+            "tenant-iso-smoke-");
         await create.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
         string runId = created!.Run.RunId;
@@ -318,15 +318,6 @@ public sealed class TenantIsolationSmokeTests
         await audit.EnsureSuccessForTestAsync();
         string auditJson = await audit.Content.ReadAsStringAsync();
         auditJson.Should().NotContain(runId, "tenant B audit listing must not surface tenant A run identifiers.");
-    }
-
-    private static Task<HttpResponseMessage> PostArchitectureRequestAsync(HttpClient client, object body)
-    {
-        string idempotencyKey = "tenant-iso-smoke-" + Guid.NewGuid().ToString("N");
-        return ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestWithGreenfieldTransientRetryAsync(
-            client,
-            body,
-            idempotencyKey);
     }
 
     private static async Task<Guid?> TryGetAnyGoldenManifestIdForTenantAsync(string connectionString, Guid tenantId)

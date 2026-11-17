@@ -6,6 +6,8 @@ import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapHubPolicyAndFindingsEvidenceSources } from "@/lib/product-line/securenow-compliance-routes";
 
 export const GOVERNANCE_SETUP_CANONICAL_PATH = GOVERNANCE_SETUP_HREF;
 
@@ -33,3 +35,9 @@ const GOVERNANCE_SETUP_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([GOVE
 export const GOVERNANCE_SETUP_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = GOVERNANCE_SETUP_SOURCES.filter(
   (source) => !GOVERNANCE_SETUP_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
 );
+
+export function resolveGovernanceSetupOrientationSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapHubPolicyAndFindingsEvidenceSources(GOVERNANCE_SETUP_ORIENTATION_SOURCES, productLine);
+}

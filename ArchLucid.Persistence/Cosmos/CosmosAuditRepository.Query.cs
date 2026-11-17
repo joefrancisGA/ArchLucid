@@ -64,7 +64,7 @@ public sealed partial class CosmosAuditRepository
     {
         ArgumentNullException.ThrowIfNull(filter);
 
-        int take = Math.Clamp(filter.Take <= 0 ? 100 : filter.Take, 1, 500);
+        int take = filter.ResolveListFetchSize();
         Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
         string tid = tenantId.ToString("D");
         string wid = workspaceId.ToString("D");

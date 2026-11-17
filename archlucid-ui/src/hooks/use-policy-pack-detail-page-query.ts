@@ -20,7 +20,7 @@ async function fetchPolicyPackDetailPage(policyPackId: string): Promise<PolicyPa
   const trimmed = policyPackId.trim();
   const [packs, selection] = await Promise.all([
     listPolicyPacks(),
-    listPolicyPackWorkspaceSelection().catch(() => [] as PolicyPackWorkspaceSelectionItem[]),
+    listPolicyPackWorkspaceSelection(),
   ]);
   const match = packs.find((pack) => pack.policyPackId.trim() === trimmed) ?? null;
   let packContent: PolicyPackContentDocument | null = null;

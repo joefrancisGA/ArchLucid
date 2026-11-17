@@ -45,6 +45,11 @@ public interface IProjectScopedOperationalSecurityFindingRepository
         int pageSize,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByCloudResourceIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid cloudResourceId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdInScopeAsync(
         ProjectScopeKey scope,
         Guid pathId,
@@ -140,6 +145,20 @@ public interface IProjectScopedRemediationInstanceRepository
         ProjectScopeKey scope,
         Guid findingId,
         CancellationToken cancellationToken = default);
+
+    async Task<IReadOnlyList<RemediationInstanceRecord>> ListByControlIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid controlId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        IReadOnlyList<RemediationInstanceRecord> rows = await ListByScopeAsync(scope, cancellationToken);
+
+        return rows
+            .Where(row => row.ControlId == controlId)
+            .ToList();
+    }
 }
 
 public interface IProjectScopedAuditAssessmentRepository

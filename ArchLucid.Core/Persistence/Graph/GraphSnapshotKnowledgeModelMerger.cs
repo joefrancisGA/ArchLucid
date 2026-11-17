@@ -94,17 +94,17 @@ public static class GraphSnapshotKnowledgeModelMerger
 
     private static void CoalesceGraphNode(GraphNode existing, GraphNode incoming)
     {
-        if (!string.IsNullOrWhiteSpace(incoming.Label))
+        if (string.IsNullOrWhiteSpace(existing.Label) && !string.IsNullOrWhiteSpace(incoming.Label))
         {
             existing.Label = incoming.Label;
         }
 
-        if (!string.IsNullOrWhiteSpace(incoming.NodeType))
+        if (string.IsNullOrWhiteSpace(existing.NodeType) && !string.IsNullOrWhiteSpace(incoming.NodeType))
         {
             existing.NodeType = incoming.NodeType;
         }
 
-        if (!string.IsNullOrWhiteSpace(incoming.Category))
+        if (string.IsNullOrWhiteSpace(existing.Category) && !string.IsNullOrWhiteSpace(incoming.Category))
         {
             existing.Category = incoming.Category;
         }
@@ -147,7 +147,7 @@ public static class GraphSnapshotKnowledgeModelMerger
             existing.Label = incoming.Label;
         }
 
-        if (!string.IsNullOrWhiteSpace(incoming.EdgeId))
+        if (string.IsNullOrWhiteSpace(existing.EdgeId) && !string.IsNullOrWhiteSpace(incoming.EdgeId))
         {
             existing.EdgeId = incoming.EdgeId;
         }

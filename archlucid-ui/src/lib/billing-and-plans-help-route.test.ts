@@ -13,13 +13,16 @@ import {
   MARKETING_ROBOTS_DISALLOW_PREFIXES,
   MARKETING_SITEMAP_PATHNAMES,
 } from "@/lib/marketing/public-marketing-seo-paths";
+import { listPageHelpTopicSlugs } from "@/lib/usability/page-help-topic-rows";
 
 const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
-
-const PRODUCT_BILLING_HELP_SURFACES = [
-  "archlucid-ui/src/lib/help/help-center-catalog.ts",
-  "archlucid-ui/src/lib/usability/page-help-topic-rows.ts",
-] as const;
+const HELP_TOPIC_VIEW_RESOLVER_ADMIN = join(
+  process.cwd(),
+  "src",
+  "lib",
+  "help",
+  "help-topic-view-resolver-admin.tsx",
+);
 
 describe("billing-and-plans-help-route (HBX)", () => {
   it("marks the specialty guide as noindex with honest metadata", () => {
@@ -30,9 +33,10 @@ describe("billing-and-plans-help-route (HBX)", () => {
 
   it("routes the canonical slug through HelpBillingAndPlansGuideView instead of bare markdown", () => {
     const pageSource = readFileSync(HELP_TOPIC_PAGE, "utf8");
+    const resolverSource = readFileSync(HELP_TOPIC_VIEW_RESOLVER_ADMIN, "utf8");
 
-    expect(pageSource).toContain('loaded.entry.slug === "billing-and-plans"');
-    expect(pageSource).toContain("HelpBillingAndPlansGuideView");
+    expect(resolverSource).toContain('loaded.entry.slug === "billing-and-plans"');
+    expect(resolverSource).toContain("HelpBillingAndPlansGuideView");
     expect(pageSource).toContain("BILLING_AND_PLANS_HELP_ROUTE_METADATA");
   });
 
@@ -42,13 +46,7 @@ describe("billing-and-plans-help-route (HBX)", () => {
   });
 
   it("keeps product handoffs on canonical /help/billing-and-plans and /settings/billing", () => {
-    const repoRoot = join(process.cwd(), "..");
-
     expect(BILLING_HELP_PRIMARY_ACTIONS.manageBilling.href).toBe(SETTINGS_BILLING_PATH);
-
-    for (const relativePath of PRODUCT_BILLING_HELP_SURFACES) {
-      const source = readFileSync(join(repoRoot, relativePath), "utf8");
-      expect(source).toContain("billing-and-plans");
-    }
+    expect(listPageHelpTopicSlugs()).toContain("billing-and-plans");
   });
 });

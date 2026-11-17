@@ -44,3 +44,8 @@ describe("AlertRulesBuyerChrome", () => {
     expect(container).toBeEmptyDOMElement();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

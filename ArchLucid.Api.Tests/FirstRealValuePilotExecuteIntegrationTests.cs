@@ -1,8 +1,6 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Contracts.Pilots;
@@ -19,10 +17,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class FirstRealValuePilotExecuteIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
-    };
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     private sealed class AuditEventCursorPage
     {
@@ -33,54 +28,38 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         } = [];
     }
 
-    private static StringContent JsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
-
     [SkippableFact]
     public async Task ExecuteRun_WithPilotTryRealHeader_emitsFirstRealValueAuditEvents()
     {
         await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync(factory);
 
-        HttpResponseMessage createResponse = await client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PILOT-REAL-1")));
+        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(FirstRealValuePilotExecuteIntegrationTests))));
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+                CreateRunResponseDto? created =
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         string runId = created.Run.RunId;
         bool parsed = Guid.TryParse(runId, out Guid runGuid);
         parsed.Should().BeTrue();
 
-        using HttpRequestMessage execute = new(HttpMethod.Post, $"/v1/architecture/review/{runId}/execute");
+        using HttpRequestMessage execute = IntegrationTestRunLifecycleSupport.CreateExecuteReviewRequest(runId);
         execute.Headers.TryAddWithoutValidation(PilotTryRealModeHeaders.PilotTryRealMode, "1");
 
         HttpResponseMessage executeResponse = await client.SendAsync(execute);
 
-        if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
-            Skip.If(true, "authority-pipeline complete on create; pilot execute audit test not applicable.");
+        await HarnessSkipWhen.AuthorityPipelineCompleteOnCreateForPilotAsync(executeResponse);
 
         executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         HttpResponseMessage auditStarted = await client.GetAsync(
-            $"/v1/audit/search?eventType={Uri.EscapeDataString(AuditEventTypes.FirstRealValueRunStarted)}&runId={runGuid}&take=10");
-
-        auditStarted.StatusCode.Should().Be(HttpStatusCode.OK);
-        AuditEventCursorPage? startedPage = await auditStarted.Content.ReadFromJsonAsync<AuditEventCursorPage>(
+            $"/v1/audit/search?eventType={Uri.EscapeDataString(AuditEventTypes.FirstRealValueRunStarted)}&runId={runGuid}&take=10");        AuditEventCursorPage? startedPage = await auditStarted.ReadJsonForTestAsync<AuditEventCursorPage>(
             JsonOptions);
         startedPage.Should().NotBeNull();
         startedPage.Items.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunStarted);
 
         HttpResponseMessage auditCompleted = await client.GetAsync(
-            $"/v1/audit/search?eventType={Uri.EscapeDataString(AuditEventTypes.FirstRealValueRunCompleted)}&runId={runGuid}&take=10");
-
-        auditCompleted.StatusCode.Should().Be(HttpStatusCode.OK);
-        AuditEventCursorPage? completedPage = await auditCompleted.Content.ReadFromJsonAsync<AuditEventCursorPage>(
+            $"/v1/audit/search?eventType={Uri.EscapeDataString(AuditEventTypes.FirstRealValueRunCompleted)}&runId={runGuid}&take=10");        AuditEventCursorPage? completedPage = await auditCompleted.ReadJsonForTestAsync<AuditEventCursorPage>(
             JsonOptions);
         completedPage.Should().NotBeNull();
         completedPage.Items.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunCompleted);

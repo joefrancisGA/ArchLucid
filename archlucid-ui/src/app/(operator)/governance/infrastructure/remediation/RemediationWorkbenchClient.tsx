@@ -79,6 +79,13 @@ import {
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { REMEDIATION_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-remediation-page-shortcuts";
+import { REMEDIATION_WORKBENCH_WORKFLOW_HONESTY_LINE } from "@/lib/infra-evidence/remediation-workbench-workflow-honesty-copy";
+import { REMEDIATION_WORKBENCH_EXECUTE_ADVISORY_HONESTY_LINE } from "@/lib/infra-evidence/remediation-workbench-execute-advisory-honesty-copy";
+import { RemediationWorkbenchWavesEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchWavesEmptyPartialHonesty";
+import { REMEDIATION_WORKBENCH_EXECUTE_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/remediation-workbench-partial-capture-honesty-copy";
+import { SecureNowRemediationWorkbenchPartialCaptureStrip } from "@/components/product-line/SecureNowRemediationWorkbenchPartialCaptureStrip";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   fetchInfraEvidenceSnapshots,
@@ -116,6 +123,7 @@ import {
 import {
   REMEDIATION_EXECUTE_DISCLAIMER,
   REMEDIATION_WORKBENCH_COLUMNS,
+  parseRemediationInstanceStatusFilter,
   remediationInstanceStatusLabel,
   type RemediationInstanceDetail,
   type RemediationInstanceSummary,
@@ -227,6 +235,7 @@ function buildDiagramHubHref(context: {
 export function RemediationWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
   const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const nowMs = useOperatorRelativeFreshnessNowMs();
   const router = useRouter();
   const pathname = usePathname() ?? "";
@@ -339,7 +348,12 @@ export function RemediationWorkbenchClient() {
 
   const [instances, setInstances] = useState<RemediationInstanceSummary[]>([]);
   const [selectedInstanceId, setSelectedInstanceId] = useState(urlInstanceId);
-  const [detail, setDetail] = useState<RemediationInstanceDetail | null>(null);
+  const [loadedDetail, setLoadedDetail] = useState<{
+    instanceId: string;
+    data: RemediationInstanceDetail;
+  } | null>(null);
+  const detail = loadedDetail?.instanceId === selectedInstanceId ? loadedDetail.data : null;
+  const detailRequestVersion = useRef(0);
   const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState("");
   const [waves, setWaves] = useState<Array<{ waveId: string; name: string }>>([]);
@@ -499,8 +513,10 @@ export function RemediationWorkbenchClient() {
   }, [selectedSnapshotId, selectedWaveId, urlCloudResourceId, urlFindingId]);
 
   const loadDetail = useCallback(async (instanceId: string) => {
+    const requestVersion = ++detailRequestVersion.current;
     if (instanceId.length === 0) {
-      setDetail(null);
+      setLoadedDetail(null);
+      setDetailLoading(false);
       return;
     }
 
@@ -508,12 +524,18 @@ export function RemediationWorkbenchClient() {
 
     try {
       const response = await fetchRemediationInstanceDetail(instanceId);
-      setDetail(response);
+      if (requestVersion === detailRequestVersion.current) {
+        setLoadedDetail({ instanceId, data: response });
+      }
     } catch (error: unknown) {
-      setLoadError(formatRemediationWorkbenchApiError(error));
-      setDetail(null);
+      if (requestVersion === detailRequestVersion.current) {
+        setLoadError(formatRemediationWorkbenchApiError(error));
+        setLoadedDetail(null);
+      }
     } finally {
-      setDetailLoading(false);
+      if (requestVersion === detailRequestVersion.current) {
+        setDetailLoading(false);
+      }
     }
   }, []);
 
@@ -903,6 +925,11 @@ export function RemediationWorkbenchClient() {
       >
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-remediation-selection-announcer" />
 
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-workflow-honesty">
+        {REMEDIATION_WORKBENCH_WORKFLOW_HONESTY_LINE}
+      </p>
+      {isSecureNowProductLine(productLine) ? <SecureNowRemediationWorkbenchPartialCaptureStrip /> : null}
+
       <RemediationWorkbenchContextStrip
         freshnessLabel={freshnessLabel}
         lastRefreshedAt={lastRefreshedAt}
@@ -1176,7 +1203,15 @@ export function RemediationWorkbenchClient() {
             <OperatorErrorRecoveryContract presentation={loadRecovery} />
           </div>
         ) : (
-          <p className="m-0 text-sm text-destructive" role="alert">{loadError}</p>
+          <div className="space-y-2" data-testid="infra-remediation-load-error-panel" role="alert">
+            <OperatorSectionLoadFailure
+              message={loadError}
+              onRetry={() => void loadWorkbench()}
+              retrying={loading}
+              testId="infra-remediation-load-error-panel"
+            />
+            <OperatorErrorRecoveryContract presentation={loadRecovery} />
+          </div>
         )
       ) : null}
 
@@ -1189,7 +1224,15 @@ export function RemediationWorkbenchClient() {
         <>
           {urlStatus.length > 0 ? (
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-status-filter">
-              Showing remediation instances with status: {remediationInstanceStatusLabel(urlStatus as RemediationInstanceSummary["status"])}.
+              {(() => {
+                const parsedStatus = parseRemediationInstanceStatusFilter(urlStatus);
+
+                if (parsedStatus == null) {
+                  return "Status filter was not recognized; showing all instances in scope.";
+                }
+
+                return `Showing remediation instances with status: ${remediationInstanceStatusLabel(parsedStatus)}.`;
+              })()}
             </p>
           ) : null}
           <section
@@ -1523,6 +1566,20 @@ export function RemediationWorkbenchClient() {
                   </Button>
                 ) : null}
               </div>
+              <p
+                className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="infra-remediation-execute-advisory-honesty"
+              >
+                {REMEDIATION_WORKBENCH_EXECUTE_ADVISORY_HONESTY_LINE}
+              </p>
+              {isSecureNowProductLine(productLine) && partialCapture ? (
+                <p
+                  className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="infra-remediation-execute-partial-capture-honesty"
+                >
+                  {REMEDIATION_WORKBENCH_EXECUTE_PARTIAL_CAPTURE_LINE}
+                </p>
+              ) : null}
               {buyerPolishedShell ? (
                 <div className="space-y-1">
                   <WhyDisabledCtaHint
@@ -1595,6 +1652,7 @@ export function RemediationWorkbenchClient() {
               {productLine === "security" ? SECURENOW_REMEDIATION_WAVES_EMPTY_LABEL : REMEDIATION_WAVES_EMPTY_LABEL}
             </p>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{REMEDIATION_WAVES_EMPTY_HELPER}</p>
+            {isSecureNowProductLine(productLine) ? <RemediationWorkbenchWavesEmptyPartialHonesty /> : null}
           </div>
         ) : (
           <ul className="m-0 grid gap-2 pl-5">

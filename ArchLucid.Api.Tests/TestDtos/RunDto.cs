@@ -25,4 +25,22 @@ public sealed class RunDto
         get;
         set;
     }
+
+    public string? PinnedPolicyPackIdsJson
+    {
+        get;
+        set;
+    }
+
+    public string? PinnedEvidencePackagePinsJson
+    {
+        get;
+        set;
+    }
+
+    public string? PinnedEvidencePackagePinsHashSha256
+    {
+        get;
+        set;
+    }
 }

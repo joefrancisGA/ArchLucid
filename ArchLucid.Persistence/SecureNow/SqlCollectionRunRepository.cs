@@ -14,29 +14,29 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
         ArgumentNullException.ThrowIfNull(collectionRun);
 
         const string sql = """
-                           UPDATE dbo.SecureNowCollectionRuns
-                           SET AgentVersion = @AgentVersion,
-                               Schedule = @Schedule,
-                               StartedUtc = @StartedUtc,
-                               FinishedUtc = @FinishedUtc,
-                               Status = @Status,
-                               SubscriptionsCoveredJson = @SubscriptionsCoveredJson,
-                               ErrorSummary = @ErrorSummary,
-                               ZipPath = @ZipPath,
-                               ZipSha256 = @ZipSha256,
-                               ImportedSnapshotId = @ImportedSnapshotId
-                           WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId
-                             AND ProjectId = @ProjectId AND RunId = @RunId;
-
-                           IF @@ROWCOUNT = 0
-                           BEGIN
-                               INSERT INTO dbo.SecureNowCollectionRuns
-                               (TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, Schedule, StartedUtc, FinishedUtc,
-                                Status, SubscriptionsCoveredJson, ErrorSummary, ZipPath, ZipSha256, ImportedSnapshotId)
-                               VALUES
-                               (@TenantId, @WorkspaceId, @ProjectId, @RunId, @AgentVersion, @Schedule, @StartedUtc, @FinishedUtc,
-                                @Status, @SubscriptionsCoveredJson, @ErrorSummary, @ZipPath, @ZipSha256, @ImportedSnapshotId);
-                           END;
+                           MERGE dbo.SecureNowCollectionRuns WITH (HOLDLOCK) AS target
+                           USING (SELECT @TenantId AS TenantId, @WorkspaceId AS WorkspaceId,
+                                         @ProjectId AS ProjectId, @RunId AS RunId) AS source
+                              ON target.TenantId = source.TenantId
+                             AND target.WorkspaceId = source.WorkspaceId
+                             AND target.ProjectId = source.ProjectId
+                             AND target.RunId = source.RunId
+                           WHEN MATCHED AND (@Status <> @RunningStatus OR target.Status = @RunningStatus) THEN
+                               UPDATE SET AgentVersion = @AgentVersion,
+                                          Schedule = @Schedule,
+                                          StartedUtc = @StartedUtc,
+                                          FinishedUtc = @FinishedUtc,
+                                          Status = @Status,
+                                          SubscriptionsCoveredJson = @SubscriptionsCoveredJson,
+                                          ErrorSummary = @ErrorSummary,
+                                          ZipPath = @ZipPath,
+                                          ZipSha256 = @ZipSha256,
+                                          ImportedSnapshotId = @ImportedSnapshotId
+                           WHEN NOT MATCHED BY TARGET THEN
+                               INSERT (TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, Schedule, StartedUtc, FinishedUtc,
+                                       Status, SubscriptionsCoveredJson, ErrorSummary, ZipPath, ZipSha256, ImportedSnapshotId)
+                               VALUES (@TenantId, @WorkspaceId, @ProjectId, @RunId, @AgentVersion, @Schedule, @StartedUtc, @FinishedUtc,
+                                       @Status, @SubscriptionsCoveredJson, @ErrorSummary, @ZipPath, @ZipSha256, @ImportedSnapshotId);
                            """;
 
         using System.Data.IDbConnection connection =
@@ -54,6 +54,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
                 collectionRun.StartedUtc,
                 collectionRun.FinishedUtc,
                 Status = (int)collectionRun.Status,
+                RunningStatus = (int)CollectionRunStatus.Running,
                 collectionRun.SubscriptionsCoveredJson,
                 collectionRun.ErrorSummary,
                 collectionRun.ZipPath,
@@ -114,7 +115,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
         return rows.Select(static row => row.ToModel()).ToArray();
     }
 
-    public async Task<bool> HasImportedHashAsync(
+    public async Task<Guid?> FindImportedSnapshotIdByHashAsync(
         ScopeContext scope,
         byte[] zipSha256,
         CancellationToken cancellationToken = default)
@@ -122,15 +123,15 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(zipSha256);
         const string sql = """
-                           SELECT CAST(CASE WHEN EXISTS
-                             (SELECT 1 FROM dbo.SecureNowCollectionRuns
-                              WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId
-                                AND Status = @Status AND ZipSha256 = @ZipSha256)
-                             THEN 1 ELSE 0 END AS BIT);
+                           SELECT TOP (1) ImportedSnapshotId
+                           FROM dbo.SecureNowCollectionRuns
+                           WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId
+                             AND Status = @Status AND ZipSha256 = @ZipSha256 AND ImportedSnapshotId IS NOT NULL
+                           ORDER BY StartedUtc DESC, RunId DESC;
                            """;
         using System.Data.IDbConnection connection =
             await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        return await connection.ExecuteScalarAsync<bool>(new CommandDefinition(
+        return await connection.ExecuteScalarAsync<Guid?>(new CommandDefinition(
             sql,
             new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, Status = (int)CollectionRunStatus.Imported, ZipSha256 = zipSha256 },
             cancellationToken: cancellationToken));

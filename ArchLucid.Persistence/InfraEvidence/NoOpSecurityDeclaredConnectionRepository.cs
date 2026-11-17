@@ -4,8 +4,8 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public sealed class NoOpSecurityDeclaredConnectionRepository : ISecurityDeclaredConnectionRepository
 {
-    public Task InsertAsync(SecurityDeclaredConnectionRecord record, CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+    public Task<bool> TryInsertActiveAsync(SecurityDeclaredConnectionRecord record, CancellationToken cancellationToken = default) =>
+        Task.FromResult(true);
 
     public Task<SecurityDeclaredConnectionRecord?> TryGetByIdAsync(
         Guid tenantId,

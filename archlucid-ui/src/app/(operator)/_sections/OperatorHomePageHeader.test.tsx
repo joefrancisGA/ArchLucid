@@ -53,7 +53,7 @@ describe("OperatorHomePageHeader", () => {
     expect(screen.getByTestId("operator-home-working-primary-cta")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-data-currency")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Help");
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Home");
     expect(screen.getByTestId("operator-home-data-currency")).toContainElement(
       screen.getByTestId("operator-home-refresh-button"),
     );

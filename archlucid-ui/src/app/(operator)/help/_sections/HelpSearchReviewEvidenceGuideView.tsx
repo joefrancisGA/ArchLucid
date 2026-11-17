@@ -9,6 +9,7 @@ import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHo
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { Button } from "@/components/ui/button";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
@@ -32,8 +33,8 @@ import {
   SEARCH_REVIEW_EVIDENCE_HELP_OVERVIEW,
   SEARCH_REVIEW_EVIDENCE_HELP_PAGE_EYEBROW,
   SEARCH_REVIEW_EVIDENCE_HELP_PAGE_TITLE,
-  SEARCH_REVIEW_EVIDENCE_HELP_PRECONDITION,
   SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION,
+  resolveSearchReviewEvidenceHelpPrecondition,
   SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_CONTENT_ID,
   SEARCH_REVIEW_EVIDENCE_HELP_SKIP_LINK_LABEL,
   SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE,
@@ -64,7 +65,9 @@ export function HelpSearchReviewEvidenceGuideView(
   props: HelpSearchReviewEvidenceGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
+  const { productLine } = useProductLine();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const searchPrecondition = resolveSearchReviewEvidenceHelpPrecondition(productLine);
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-search-review-evidence",
     SEARCH_REVIEW_EVIDENCE_HELP_GUIDE_HEADINGS,
@@ -107,7 +110,7 @@ export function HelpSearchReviewEvidenceGuideView(
           <div data-testid="help-search-review-evidence-orientation-top">
             <SponsorSendPathHonestyPanel testIdPrefix="help-search-review-evidence" showSsoOptional={false} />
 
-            <SearchReviewEvidenceHelpEvidenceOrientationStrip />
+            <SearchReviewEvidenceHelpEvidenceOrientationStrip productLineId={productLine} />
           </div>
 
           <p className={readingBodyClass} data-testid="help-search-review-evidence-overview">
@@ -139,7 +142,7 @@ export function HelpSearchReviewEvidenceGuideView(
               className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-search-review-evidence-precondition"
             >
-              {SEARCH_REVIEW_EVIDENCE_HELP_PRECONDITION}
+              {searchPrecondition}
             </p>
           </section>
 

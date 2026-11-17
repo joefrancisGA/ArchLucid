@@ -238,6 +238,28 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc27Tests
     }
 
     [Fact]
+    public void WordDocumentBuilder_strips_xml_invalid_control_characters_from_all_plain_text_surfaces()
+    {
+        Body body = new();
+
+        WordDocumentBuilder.AddParagraph(body, "A\u0001B");
+        WordDocumentBuilder.AddHeading(body, "C\u0002D");
+        WordDocumentBuilder.AddBodyText(body, "E\u0003F");
+        WordDocumentBuilder.AddBulletList(body, ["G\u0004H"]);
+        WordDocumentBuilder.AddSimpleTable(body, [("I\u0005J", "K\u0006L")], headerRow: true);
+
+        // Serializing the actual OpenXml structure fails if any XML-invalid
+        // control character was passed through to a Text node.
+        string xml = body.OuterXml;
+
+        xml.Should().Contain("AB").And.Contain("CD").And.Contain("EF");
+        xml.Should().Contain("GH").And.Contain("IJ").And.Contain("KL");
+        xml.Should().NotContain("\u0001").And.NotContain("\u0002")
+            .And.NotContain("\u0003").And.NotContain("\u0004")
+            .And.NotContain("\u0005").And.NotContain("\u0006");
+    }
+
+    [Fact]
     public void WordDocumentBuilder_simple_table_supports_header_and_empty_noop()
     {
         Body emptyBody = new();

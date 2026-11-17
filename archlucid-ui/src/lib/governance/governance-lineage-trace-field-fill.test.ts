@@ -4,7 +4,7 @@ import { formatGovernanceLineageTraceFieldFill } from "@/lib/governance/governan
 
 describe("formatGovernanceLineageTraceFieldFill", () => {
   it("uses trace field-fill semantics for missing ratios", () => {
-    expect(formatGovernanceLineageTraceFieldFill(null)).toContain("Not recorded");
+    expect(formatGovernanceLineageTraceFieldFill(null)).toContain("was not stored");
   });
 
   it("includes percent when ratio is recorded", () => {

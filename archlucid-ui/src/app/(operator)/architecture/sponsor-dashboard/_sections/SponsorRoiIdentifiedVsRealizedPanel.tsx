@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { Button } from "@/components/ui/button";
 import { RoiDispositionTrainingTooltip } from "@/components/roi/RoiDispositionTrainingTooltip";
 import { RoiHeadlineMathTooltip } from "@/components/roi/RoiHeadlineMathTooltip";
 import {
@@ -8,9 +10,10 @@ import {
   SPONSOR_ROI_IDENTIFIED_PENDING_LABEL,
   SPONSOR_ROI_REALIZED_COMMITTED_DESCRIPTION,
   SPONSOR_ROI_REALIZED_COMMITTED_LABEL,
+  SPONSOR_ROI_REALIZED_NOT_STORED_CTA,
   SPONSOR_ROI_REALIZED_NOT_STORED_LABEL,
   type SponsorRoiIdentifiedVsRealizedBuckets,
-} from "@/lib/sponsor-roi-identified-vs-realized";
+} from "@/lib/sponsor/sponsor-roi-identified-vs-realized";
 import { presentSponsorEstimatedSavings } from "@/lib/sponsor-estimated-savings-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
@@ -26,6 +29,7 @@ import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/prod
 type SponsorRoiIdentifiedVsRealizedPanelProps = {
   readonly summary: SponsorRoiSummary;
   readonly buckets: SponsorRoiIdentifiedVsRealizedBuckets;
+  readonly dispositionReviewHref?: string | null;
 };
 
 export function SponsorRoiIdentifiedVsRealizedPanel(
@@ -132,6 +136,15 @@ export function SponsorRoiIdentifiedVsRealizedPanel(
           </div>
           {realizedSavings.footnote ? (
             <p className={cn("mt-2 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>{realizedSavings.footnote}</p>
+          ) : null}
+          {!buckets.hasBasisBreakdown && props.dispositionReviewHref !== null && props.dispositionReviewHref !== undefined ? (
+            <div className="mt-3">
+              <Button asChild type="button" size="sm" variant="outline">
+                <Link href={props.dispositionReviewHref} data-testid="exec-roi-realized-not-stored-open-review">
+                  {SPONSOR_ROI_REALIZED_NOT_STORED_CTA}
+                </Link>
+              </Button>
+            </div>
           ) : null}
           <p className={cn("mt-2 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
             {SPONSOR_ROI_REALIZED_COMMITTED_DESCRIPTION}

@@ -1,8 +1,9 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpPathChooserHeaderActionsProps = {
@@ -12,7 +13,7 @@ type HelpPathChooserHeaderActionsProps = {
 /** Header actions for `/help/choose-your-next-step` (HPX). */
 export function HelpPathChooserHeaderActions(props: HelpPathChooserHeaderActionsProps): React.JSX.Element | null {
   const { entry } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
 
   if (buyerPolishedShell) {
     return null;

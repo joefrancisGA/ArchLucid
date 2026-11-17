@@ -112,6 +112,7 @@ export function FindingInspectView({
     findingsQueueRunId,
     architectureId: parentArchitectureId,
     isWorkingMode,
+    productLine,
   });
 
   if (failure || !payload) {

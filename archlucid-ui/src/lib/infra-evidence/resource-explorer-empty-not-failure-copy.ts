@@ -1,0 +1,2 @@
+export const RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE =
+  "An empty table with no load error means no rows matched filters in this snapshot — not proof the subscription has zero resources." as const;

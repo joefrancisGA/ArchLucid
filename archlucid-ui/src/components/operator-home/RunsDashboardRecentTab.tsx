@@ -15,11 +15,7 @@ import {
 import type { RunsDashboardLoadPhase } from "@/components/operator-home/runs-dashboard-load-phase";
 import { Button } from "@/components/ui/button";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
-import {
-  getCanonicalReviewWorkspaceHref,
-  getShowcaseManifestHref,
-  getShowcaseWalkthroughHref,
-} from "@/lib/buyer/buyer-safe-review-navigation";
+import { getShowcaseManifestHref, getShowcaseWalkthroughHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
   OPERATOR_CARD,
@@ -35,6 +31,7 @@ import {
   SHOWCASE_BUYER_REVIEW_TITLE,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
 } from "@/lib/showcase-static-demo";
+import { resolveOperatorHomeReviewHref } from "@/lib/operator/resolve-operator-home-review-href";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { RunSummary } from "@/types/authority";
 
@@ -184,20 +181,23 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
                   <Link href={getShowcaseWalkthroughHref()}>Showcase walkthrough</Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="h-8">
-                  <Link href={getCanonicalReviewWorkspaceHref(props.showcaseDemoRun.runId)}>Technical workspace</Link>
+                  <Link href={resolveOperatorHomeReviewHref(props.showcaseDemoRun, drafts)}>Technical workspace</Link>
                 </Button>
               </>
             ) : (
               <>
                 <Button asChild variant={showcaseLeadButtonVariant} size="sm" className="h-8">
-                  <Link href={`/architecture/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}`}>Review</Link>
+                  <Link href={resolveOperatorHomeReviewHref(props.showcaseDemoRun, drafts)}>Review</Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="h-8">
                   <Link href={getShowcaseManifestHref()}>{BUYER_VIEW_SIGNED_RECORD_CTA}</Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="h-8">
                   <Link
-                    href={`/architecture/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
+                    href={`${resolveOperatorHomeReviewHref(
+                      props.showcaseDemoRun,
+                      drafts,
+                    )}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
                   >
                     View primary finding
                   </Link>
@@ -249,7 +249,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
         <section aria-label="Featured review summary">
           <OperatorHomeReviewSummaryCard
             run={props.showcaseDemoRun}
-            href={`/architecture/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}`}
+            href={resolveOperatorHomeReviewHref(props.showcaseDemoRun, drafts)}
             buyerPolishedShell={props.buyerPolishedShell}
             variant="featured"
             primaryAction={props.showcasePrimaryCta}
@@ -265,6 +265,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
               runs={featuredItems}
               suppressContinueForRunId={heroResumeTarget?.runId}
               remainingReviewCount={hiddenFeaturedCount}
+              draftRegistryEntries={drafts}
             />
           ) : (
             <ul className="m-0 list-none space-y-0 p-0" data-testid="recent-runs-home-panel">
@@ -276,7 +277,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
                     <div className="min-w-0 flex-1">
                       <OperatorHomeReviewSummaryCard
                         run={run}
-                        href={`/architecture/reviews/${encodeURIComponent(run.runId)}`}
+                        href={resolveOperatorHomeReviewHref(run, drafts)}
                         buyerPolishedShell={props.buyerPolishedShell}
                         variant="list"
                         siblingRuns={featuredItems}

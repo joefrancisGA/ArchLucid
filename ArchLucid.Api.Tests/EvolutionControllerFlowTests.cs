@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
 
 using ArchLucid.Api.Models.Evolution;
 using ArchLucid.Contracts.Evolution;
@@ -11,8 +9,6 @@ using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
-
-using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
 namespace ArchLucid.Api.Tests;
 
@@ -29,11 +25,9 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
             "/v1/evolution/candidates/00000000-0000-0000-0000-000000000003/shadow-evaluate",
             null);
 
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.NotFound,
+            ProblemTypes.EvolutionCandidateChangeSetNotFound);
     }
 
     [SkippableFact]
@@ -41,46 +35,21 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
     {
         Guid planId = await SeedMinimalPlanInDefaultScopeAsync();
 
-        HttpResponseMessage createResponse =
-            await Client.PostAsync($"/v1/evolution/candidates/from-plan/{planId}", null);
+        EvolutionCandidateChangeSetResponse created = await CreateCandidateFromPlanAsync(planId);
 
-        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        EvolutionCandidateChangeSetResponse? created =
-            await createResponse.Content.ReadFromJsonAsync<EvolutionCandidateChangeSetResponse>(JsonOptions);
-
-        created.Should().NotBeNull();
         created.SourcePlanId.Should().Be(planId);
         created.Status.Should().Be(EvolutionCandidateChangeSetStatusValues.Draft);
         created.DerivationRuleVersion.Should().Be("60R-v1");
 
-        HttpResponseMessage shadowResponse =
-            await Client.PostAsync(
-                $"/v1/evolution/candidates/{created.CandidateChangeSetId}/shadow-evaluate",
-                null);
+        EvolutionShadowEvaluateResponse shadowBody = await ShadowEvaluateAsync(created.CandidateChangeSetId);
 
-        shadowResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        EvolutionShadowEvaluateResponse? shadowBody =
-            await shadowResponse.Content.ReadFromJsonAsync<EvolutionShadowEvaluateResponse>(JsonOptions);
-
-        shadowBody.Should().NotBeNull();
         shadowBody.SimulationRuns.Should().BeEmpty();
 
-        HttpResponseMessage detailResponse =
-            await Client.GetAsync($"/v1/evolution/candidates/{created.CandidateChangeSetId}");
+        EvolutionCandidateDetailResponse detail = await GetCandidateDetailAsync(created.CandidateChangeSetId);
 
-        detailResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        EvolutionCandidateDetailResponse? detail =
-            await detailResponse.Content.ReadFromJsonAsync<EvolutionCandidateDetailResponse>(JsonOptions);
-
-        detail.Should().NotBeNull();
         detail.Candidate.Status.Should().Be(EvolutionCandidateChangeSetStatusValues.Simulated);
         detail.SimulationRuns.Should().BeEmpty();
         detail.PlanSnapshotJson.Should().NotBeNullOrWhiteSpace();
-
-        JsonDocument.Parse(detail.PlanSnapshotJson);
     }
 
     [SkippableFact]
@@ -88,38 +57,15 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
     {
         Guid planId = await SeedMinimalPlanInDefaultScopeAsync();
 
-        HttpResponseMessage createResponse =
-            await Client.PostAsync($"/v1/evolution/candidates/from-plan/{planId}", null);
+        EvolutionCandidateChangeSetResponse created = await CreateCandidateFromPlanAsync(planId);
 
-        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        EvolutionSimulateResponse simBody = await SimulateAsync(created.CandidateChangeSetId);
 
-        EvolutionCandidateChangeSetResponse? created =
-            await createResponse.Content.ReadFromJsonAsync<EvolutionCandidateChangeSetResponse>(JsonOptions);
-
-        created.Should().NotBeNull();
-
-        HttpResponseMessage simulateResponse = await Client.PostAsync(
-            $"/v1/evolution/simulate/{created.CandidateChangeSetId}",
-            null);
-
-        simulateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        EvolutionSimulateResponse? simBody =
-            await simulateResponse.Content.ReadFromJsonAsync<EvolutionSimulateResponse>(JsonOptions);
-
-        simBody.Should().NotBeNull();
         simBody.Candidate.CandidateChangeSetId.Should().Be(created.CandidateChangeSetId);
         simBody.SimulationRuns.Should().BeEmpty();
 
-        HttpResponseMessage resultsResponse =
-            await Client.GetAsync($"/v1/evolution/results/{created.CandidateChangeSetId}");
+        EvolutionResultsResponse resultsBody = await GetResultsAsync(created.CandidateChangeSetId);
 
-        resultsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        EvolutionResultsResponse? resultsBody =
-            await resultsResponse.Content.ReadFromJsonAsync<EvolutionResultsResponse>(JsonOptions);
-
-        resultsBody.Should().NotBeNull();
         resultsBody.Candidate.CandidateChangeSetId.Should().Be(created.CandidateChangeSetId);
         resultsBody.PlanSnapshotJson.Should().NotBeNullOrWhiteSpace();
         resultsBody.SimulationRuns.Should().BeEmpty();
@@ -130,21 +76,9 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
     {
         Guid planId = await SeedMinimalPlanInDefaultScopeAsync();
 
-        HttpResponseMessage createResponse =
-            await Client.PostAsync($"/v1/evolution/candidates/from-plan/{planId}", null);
+        EvolutionCandidateChangeSetResponse created = await CreateCandidateFromPlanAsync(planId);
 
-        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        EvolutionCandidateChangeSetResponse? created =
-            await createResponse.Content.ReadFromJsonAsync<EvolutionCandidateChangeSetResponse>(JsonOptions);
-
-        created.Should().NotBeNull();
-
-        HttpResponseMessage simulateResponse = await Client.PostAsync(
-            $"/v1/evolution/simulate/{created.CandidateChangeSetId}",
-            null);
-
-        simulateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        await SimulateAsync(created.CandidateChangeSetId);
 
         Guid candidateId = created.CandidateChangeSetId;
 
@@ -152,7 +86,6 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
             await Client.GetAsync($"/v1/evolution/results/{candidateId:D}/export?format=markdown");
 
         markdownResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
         string markdown = await markdownResponse.Content.ReadAsStringAsync();
         markdown.Should().Contain("Evolution test plan");
         markdown.Should().Contain("60R-simulation-export-v1");
@@ -163,14 +96,46 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
             await Client.GetAsync($"/v1/evolution/results/{candidateId:D}/export?format=json");
 
         jsonResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
         string json = await jsonResponse.Content.ReadAsStringAsync();
         json.Should().Contain("Evolution test plan");
         json.Should().Contain("60R-simulation-export-v1");
         json.Should().Contain("\"simulationRuns\"");
+    }
 
-        using JsonDocument doc = JsonDocument.Parse(json);
-        doc.RootElement.GetProperty("simulationRuns").GetArrayLength().Should().Be(0);
+    private async Task<EvolutionCandidateChangeSetResponse> CreateCandidateFromPlanAsync(Guid planId)
+    {
+        HttpResponseMessage response = await Client.PostAsync($"/v1/evolution/candidates/from-plan/{planId:D}", null);
+
+        return await response.ReadJsonForTestAsync<EvolutionCandidateChangeSetResponse>(JsonOptions);
+    }
+
+    private async Task<EvolutionShadowEvaluateResponse> ShadowEvaluateAsync(Guid candidateId)
+    {
+        HttpResponseMessage response =
+            await Client.PostAsync($"/v1/evolution/candidates/{candidateId:D}/shadow-evaluate", null);
+
+        return await response.ReadJsonForTestAsync<EvolutionShadowEvaluateResponse>(JsonOptions);
+    }
+
+    private async Task<EvolutionCandidateDetailResponse> GetCandidateDetailAsync(Guid candidateId)
+    {
+        HttpResponseMessage response = await Client.GetAsync($"/v1/evolution/candidates/{candidateId:D}");
+
+        return await response.ReadJsonForTestAsync<EvolutionCandidateDetailResponse>(JsonOptions);
+    }
+
+    private async Task<EvolutionSimulateResponse> SimulateAsync(Guid candidateId)
+    {
+        HttpResponseMessage response = await Client.PostAsync($"/v1/evolution/simulate/{candidateId:D}", null);
+
+        return await response.ReadJsonForTestAsync<EvolutionSimulateResponse>(JsonOptions);
+    }
+
+    private async Task<EvolutionResultsResponse> GetResultsAsync(Guid candidateId)
+    {
+        HttpResponseMessage response = await Client.GetAsync($"/v1/evolution/results/{candidateId:D}");
+
+        return await response.ReadJsonForTestAsync<EvolutionResultsResponse>(JsonOptions);
     }
 
     private async Task<Guid> SeedMinimalPlanInDefaultScopeAsync()

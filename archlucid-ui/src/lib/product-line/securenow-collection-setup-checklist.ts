@@ -1,6 +1,9 @@
 import type { IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 
+import { SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
+import { resolveSecureNowCollectionMissingDetail } from "@/lib/product-line/securenow-collection-missing-reason";
+import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 
 export const SECURENOW_COLLECTION_SETUP_CHECKLIST_TITLE = "Collection setup" as const;
 
@@ -38,7 +41,84 @@ export function resolveSecureNowCollectionSetupEmphasizedStepId(
 }
 
 export function resolveSecureNowCollectionSetupRecoveryHref(
-  _input: SecureNowCollectionMissingInput,
+  input: SecureNowCollectionMissingInput,
 ): string {
-  return SECURENOW_COLLECTION_SETUP_RECOVERY_HREF;
+  const emphasizedStepId = resolveSecureNowCollectionSetupEmphasizedStepId(input);
+
+  return resolveSecureNowCollectionSetupStepRecoveryHref(emphasizedStepId);
+}
+
+export function resolveSecureNowCollectionSetupStepRecoveryHref(stepId: string): string {
+  switch (stepId) {
+    case "provider":
+      return "/integrations/cloud-connections#cloud-connections-options-heading";
+    case "subscription":
+      return "/integrations/cloud-connections/azure";
+    case "capture":
+      return SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH;
+    default:
+      return SECURENOW_COLLECTION_SETUP_RECOVERY_HREF;
+  }
+}
+
+export type SecureNowCollectionPrimaryBlocker = {
+  readonly stepId: string;
+  readonly stepLabel: string;
+  readonly detail: string;
+  readonly recoveryHref: string;
+};
+
+/** First incomplete collection step — one headline blocker for Home and cloud connections. */
+export type SecureNowCollectionYouAreHere = {
+  readonly stepIndex: number;
+  readonly stepCount: number;
+  readonly stepLabel: string;
+  readonly recoveryHref: string;
+};
+
+export function resolveSecureNowCollectionYouAreHere(
+  input: SecureNowCollectionMissingInput,
+): SecureNowCollectionYouAreHere | null {
+  const blocker = resolveSecureNowCollectionPrimaryBlocker(input);
+
+  if (blocker === null) {
+    return null;
+  }
+
+  const steps = resolveSecureNowCollectionSetupSteps(input);
+  const stepIndex = steps.findIndex((step) => step.id === blocker.stepId);
+
+  if (stepIndex < 0) {
+    return null;
+  }
+
+  return {
+    stepIndex: stepIndex + 1,
+    stepCount: steps.length,
+    stepLabel: blocker.stepLabel,
+    recoveryHref: blocker.recoveryHref,
+  };
+}
+
+export function resolveSecureNowCollectionPrimaryBlocker(
+  input: SecureNowCollectionMissingInput,
+): SecureNowCollectionPrimaryBlocker | null {
+  if (isSecureNowCollectionSetupComplete(input)) {
+    return null;
+  }
+
+  const steps = resolveSecureNowCollectionSetupSteps(input);
+  const emphasizedStepId = resolveSecureNowCollectionSetupEmphasizedStepId(input);
+  const step = steps.find((entry) => entry.id === emphasizedStepId);
+
+  if (step === undefined || step.complete) {
+    return null;
+  }
+
+  return {
+    stepId: step.id,
+    stepLabel: step.label,
+    detail: resolveSecureNowCollectionMissingDetail(input),
+    recoveryHref: resolveSecureNowCollectionSetupStepRecoveryHref(step.id),
+  };
 }

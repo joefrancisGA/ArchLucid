@@ -41,6 +41,21 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         return Task.CompletedTask;
     }
 
+    public Task RecordDeliveryAsync(DigestSubscription subscription, DateTime deliveredUtc, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(subscription);
+        ct.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            DigestSubscription? stored = _items.Find(x =>
+                x.SubscriptionId == subscription.SubscriptionId && SameScope(x, subscription));
+            if (stored is not null && (stored.LastDeliveredUtc is null || stored.LastDeliveredUtc < deliveredUtc))
+                stored.LastDeliveredUtc = deliveredUtc;
+        }
+
+        return Task.CompletedTask;
+    }
+
     public Task<DigestSubscription?> GetByIdAsync(ScopeContext scope, Guid subscriptionId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);

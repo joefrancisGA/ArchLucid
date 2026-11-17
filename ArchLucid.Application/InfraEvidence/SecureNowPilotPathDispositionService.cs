@@ -3,17 +3,21 @@ using System.Text.Json;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Serialization;
+
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.InfraEvidence;
 
 public sealed class SecureNowPilotPathDispositionService(
     ISecurityEvidencePathRepository pathRepository,
     IAuditService auditService,
-    IAuditRepository auditRepository) : ISecureNowPilotPathDispositionService
+    IAuditRepository auditRepository,
+    ILogger<SecureNowPilotPathDispositionService> logger) : ISecureNowPilotPathDispositionService
 {
     private static readonly HashSet<string> AllowedOutcomes = new(StringComparer.Ordinal)
     {
@@ -42,29 +46,40 @@ public sealed class SecureNowPilotPathDispositionService(
             return null;
         }
 
-        IReadOnlyList<AuditEvent> events = await auditRepository.GetFilteredAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            new AuditEventFilter
-            {
-                EventType = AuditEventTypes.SecureNowPilotPathDispositionRecorded,
-                IncludeDataJson = true,
-                Take = 500,
-            },
-            cancellationToken);
-
-        foreach (AuditEvent auditEvent in events.OrderByDescending(item => item.OccurredUtc))
+        AuditEventFilter filter = new()
         {
-            SecureNowPilotPathDispositionResponse? parsed = TryParseDisposition(pathId, auditEvent);
+            EventType = AuditEventTypes.SecureNowPilotPathDispositionRecorded,
+            IncludeDataJson = true,
+            Take = PaginationDefaults.MaxListingTake,
+        };
 
-            if (parsed is not null)
+        while (true)
+        {
+            IReadOnlyList<AuditEvent> events = await auditRepository.GetFilteredAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                filter,
+                cancellationToken);
+
+            foreach (AuditEvent auditEvent in events)
             {
-                return parsed;
-            }
-        }
+                SecureNowPilotPathDispositionResponse? parsed = TryParseDisposition(pathId, auditEvent);
 
-        return null;
+                if (parsed is not null)
+                    return parsed;
+            }
+
+            if (events.Count < filter.Take)
+                return null;
+
+            AuditEvent cursor = events[^1];
+            if (cursor.OccurredUtc == filter.BeforeUtc && cursor.EventId == filter.BeforeEventId)
+                return null;
+
+            filter.BeforeUtc = cursor.OccurredUtc;
+            filter.BeforeEventId = cursor.EventId;
+        }
     }
 
     public async Task<SecureNowPilotPathDispositionSaveResult> SaveAsync(
@@ -112,8 +127,7 @@ public sealed class SecureNowPilotPathDispositionService(
 
         DateTime recordedUtc = TimeProvider.System.UtcNowDateTime();
 
-        await auditService.LogAsync(
-            new AuditEvent
+        AuditEvent auditEvent = new AuditEvent
             {
                 EventType = AuditEventTypes.SecureNowPilotPathDispositionRecorded,
                 ActorUserId = actor,
@@ -131,8 +145,14 @@ public sealed class SecureNowPilotPathDispositionService(
                         recordedUtc,
                     },
                     AuditJsonSerializationOptions.Instance),
-            },
-            cancellationToken);
+            };
+
+        await DurableAuditLogRetry.LogOrThrowAsync(
+            ct => auditService.LogAsync(auditEvent, ct),
+            logger,
+            "SecureNowPilotPathDispositionRecorded",
+            cancellationToken,
+            auditEventTypeForMetrics: AuditEventTypes.SecureNowPilotPathDispositionRecorded);
 
         return new SecureNowPilotPathDispositionSaveResult
         {

@@ -12,7 +12,6 @@ export const SECURENOW_FIRST_HOUR_HOME_ROWS: readonly SecureNowHomeDestinationRo
     href: "/integrations/cloud-connections",
     label: "Scope and freshness",
     summary: "Open cloud connections when Home says no collection yet or the capture needs attention.",
-    recommendedFirst: true,
   },
   {
     href: "/security/remediation-factory",

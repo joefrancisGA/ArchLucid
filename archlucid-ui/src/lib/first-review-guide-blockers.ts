@@ -7,7 +7,10 @@ import {
   resolveFinishSetupWizardDeploymentOptions,
   resolveFinishSetupWizardSteps,
 } from "@/lib/finish-setup-wizard-steps";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+
+import { ARCH_FIRST_REVIEW_PLATFORM_HEALTH_BLOCKER_DESCRIPTION } from "@/lib/architecture/architecture-first-review-platform-health-copy";
 
 import type { FirstReviewGuideStateInput } from "./first-review-guide-status";
 
@@ -26,6 +29,7 @@ export type FirstReviewGuidePrerequisiteInput = {
 
 export function resolveFirstReviewGuideOnePrerequisite(
   input: FirstReviewGuidePrerequisiteInput,
+  productLine: ProductLineId = "architecture",
 ): FirstReviewGuideRequiredBlocker | null {
   if (input.samplePackageSelected === null || input.policyPackAssigned === null) {
     return null;
@@ -34,8 +38,8 @@ export function resolveFirstReviewGuideOnePrerequisite(
   if (!input.samplePackageSelected) {
     return {
       id: "sample-package",
-      title: "Sample package",
-      description: "Select a completed sample package for this workspace.",
+      title: "Sample review",
+      description: "Select a completed sample review for this workspace.",
       href: "/",
       actionLabel: OPERATOR_HOME_CHOOSE_SAMPLE_REVIEW_CTA,
     };
@@ -46,7 +50,7 @@ export function resolveFirstReviewGuideOnePrerequisite(
       id: "policy-pack",
       title: "Policy pack",
       description: FIRST_REVIEW_GUIDE_POLICY_PACK_ASSIGNMENT_COPY,
-      href: GOVERNANCE_POLICY_PACKS_PATH,
+      href: policyPacksPathForProductLine(productLine),
       actionLabel: "Review policy pack assignments",
     };
   }
@@ -78,7 +82,7 @@ export function resolveFirstReviewGuideRequiredBlockers(
     {
       id: "platform-health",
       title: "Platform health",
-      description: "Required services must be healthy before your first review on a self-hosted deployment.",
+      description: ARCH_FIRST_REVIEW_PLATFORM_HEALTH_BLOCKER_DESCRIPTION,
       href: healthStep.href,
       actionLabel: healthStep.cta,
     },

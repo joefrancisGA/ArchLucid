@@ -106,7 +106,7 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
                 {ACCESSIBILITY_MARKETING_START_HERE_CARD_TITLE}
               </h2>
               <a
-                className={ACCESSIBILITY_PUBLIC_LAYOUT.utilityButton}
+                className={cn(ACCESSIBILITY_PUBLIC_LAYOUT.utilityButton, MARKETING_SURFACES.inlineLink)}
                 href={`mailto:${ACCESSIBILITY_REPORT_EMAIL}`}
                 data-testid="accessibility-report-issue-cta"
               >

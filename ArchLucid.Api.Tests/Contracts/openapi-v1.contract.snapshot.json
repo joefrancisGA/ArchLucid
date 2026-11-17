@@ -31929,14 +31929,7 @@
             "type": "string"
           },
           "tokenCounts": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/RunLlmTokenCountsDto"
-              }
-            ]
+            "$ref": "#/components/schemas/RunLlmTokenCountsDto"
           }
         },
         "type": "object"
@@ -37333,7 +37326,15 @@
         },
         "type": "object"
       },
-      "StructuralExecutionMode": {},
+      "StructuralExecutionMode": {
+        "enum": [
+          "Simulator",
+          "Real",
+          "Fallback",
+          "Mixed"
+        ],
+        "type": "string"
+      },
       "StructuredBriefSuggestionKind": {
         "enum": [
           "Constraint",

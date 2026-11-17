@@ -1,11 +1,16 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const refreshMock = vi.fn();
+const navigationMocks = vi.hoisted(() => ({
+  router: { refresh: vi.fn(), push: vi.fn(), replace: vi.fn() },
+  searchParams: new URLSearchParams(),
+}));
+const refreshMock = navigationMocks.router.refresh;
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: refreshMock }),
+  useRouter: () => navigationMocks.router,
   usePathname: () => "/architecture/reviews/run-1",
+  useSearchParams: () => navigationMocks.searchParams,
 }));
 
 const postFindingMuteMock = vi.fn();

@@ -118,27 +118,43 @@ public sealed class DiagramForestDataFlowEdgeRouterTests
     public void Render_data_flow_source_to_storage_edge_avoids_application_card()
     {
         DiagramAst ast = BuildDataFlowRoutingAst();
-        DiagramForestLayoutResult result = renderer.Render(ast);
+        DiagramForestLayoutOptions options = new();
+        DiagramForestCanvasLabelContext labelContext = DiagramForestCanvasLabelContext.Create(ast.Nodes, options);
+        DiagramForestDataFlowColumnLayout.Result layout = DiagramForestDataFlowColumnLayout.Plan(
+            ast.Nodes,
+            ast.Subgraphs,
+            options,
+            labelContext,
+            ast.Edges);
+        DiagramForestDataFlowColumnLayout.NodePlacement source = layout.Placements.Single(placement =>
+            string.Equals(placement.Node.NodeId, "source-node", StringComparison.Ordinal));
+        DiagramForestDataFlowColumnLayout.NodePlacement storage = layout.Placements.Single(placement =>
+            string.Equals(placement.Node.NodeId, "storage-node", StringComparison.Ordinal));
+        DiagramForestDataFlowColumnLayout.NodePlacement application = layout.Placements.Single(placement =>
+            string.Equals(placement.Node.NodeId, "app-node", StringComparison.Ordinal));
+        List<DiagramResourceGroupPacker.NodePlacementBounds> bounds = layout.Placements
+            .Select(placement => new DiagramResourceGroupPacker.NodePlacementBounds(
+                placement.Node,
+                placement.X,
+                placement.Y,
+                placement.Width,
+                placement.Height,
+                FrameCellId: null))
+            .ToList();
 
-        result.Succeeded.Should().BeTrue();
-        XDocument document = XDocument.Parse(result.Svg!);
-        XElement root = document.Root!;
-        DiagramForestDataFlowColumnLayout.NodePlacement application = BuildThreeColumnLayout(new DiagramForestLayoutOptions())
-            .Placements.Single(placement => string.Equals(placement.Node.NodeId, "app-node", StringComparison.Ordinal));
-        XElement? edgeGroup = root.Descendants()
-            .FirstOrDefault(element =>
-                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
-                && string.Equals((string?)element.Attribute("class"), "edge", StringComparison.Ordinal)
-                && string.Equals(element.Element(XNamespace.Get("http://www.w3.org/2000/svg") + "title")?.Value, "flows", StringComparison.Ordinal));
-        XElement? edgePath = edgeGroup?.Elements()
-            .FirstOrDefault(element =>
-                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
-                && string.Equals((string?)element.Attribute("class"), "edge-path", StringComparison.Ordinal));
+        DiagramForestOrthogonalEdgeRouter.RouteResult? route = DiagramForestDataFlowEdgeRouter.TryRoute(
+            source,
+            storage,
+            layout.Columns,
+            bounds,
+            source.Node.NodeId,
+            storage.Node.NodeId,
+            options);
 
-        edgePath.Should().NotBeNull();
-        PathDataInteriorMustNotIntersectRect(edgePath!.Attribute("d")?.Value ?? string.Empty, application, 1.0d)
-            .Should()
-            .BeTrue();
+        route.Should().NotBeNull();
+        PathInteriorMustNotIntersectRect(route!, application, inflateBy: 1.0d).Should().BeTrue();
+
+        renderer.Render(ast).Succeeded.Should().BeTrue();
     }
 
     [Fact]
@@ -460,31 +476,14 @@ public sealed class DiagramForestDataFlowEdgeRouterTests
                 double px = x1 + (t * (x2 - x1));
                 double py = y1 + (t * (y2 - y1));
 
-                if (PointInInflatedRectInterior(px, py, placement, inflateBy))
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    private static bool PathDataInteriorMustNotIntersectRect(
-        string pathData,
-        DiagramForestDataFlowColumnLayout.NodePlacement placement,
-        double inflateBy)
-    {
-        List<(double X1, double Y1, double X2, double Y2)> segments = ParseOrthogonalPathData(pathData);
-
-        foreach ((double x1, double y1, double x2, double y2) in segments)
-        {
-            for (double t = 0.1d; t <= 0.9d; t += 0.1d)
-            {
-                double px = x1 + (t * (x2 - x1));
-                double py = y1 + (t * (y2 - y1));
-
-                if (PointInInflatedRectInterior(px, py, placement, inflateBy))
+                if (PointInInflatedRectInterior(
+                        px,
+                        py,
+                        placement.X,
+                        placement.Y,
+                        placement.Width,
+                        placement.Height,
+                        inflateBy))
                 {
                     return false;
                 }
@@ -497,13 +496,16 @@ public sealed class DiagramForestDataFlowEdgeRouterTests
     private static bool PointInInflatedRectInterior(
         double x,
         double y,
-        DiagramForestDataFlowColumnLayout.NodePlacement placement,
+        double rectX,
+        double rectY,
+        double rectWidth,
+        double rectHeight,
         double inflateBy)
     {
-        double left = placement.X - inflateBy;
-        double top = placement.Y - inflateBy;
-        double right = placement.X + placement.Width + inflateBy;
-        double bottom = placement.Y + placement.Height + inflateBy;
+        double left = rectX - inflateBy;
+        double top = rectY - inflateBy;
+        double right = rectX + rectWidth + inflateBy;
+        double bottom = rectY + rectHeight + inflateBy;
 
         return x > left && x < right && y > top && y < bottom;
     }

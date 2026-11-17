@@ -26,11 +26,11 @@ import {
   GUIDED_INTAKE_CONTINUE_TO_DISCOVERY,
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER,
   GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
-  GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER,
   GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
   GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER,
   guidedIntakeArchitectureIntentHelperText,
   guidedIntakeCreationArchitectureOverviewHelperText,
+  guidedIntakeCreationBusinessOutcomeHelperText,
 } from "@/lib/guided-intake-copy";
 import {
   type DeriveScopeUnderstandingBulletsInput,
@@ -39,9 +39,11 @@ import {
 import type { ActorSet } from "@/types/draft-intake";
 import type { Dispatch, SetStateAction } from "react";
 
+import { formatGuidedIntakeScopeLimitsAgentsHelper } from "@/lib/guided-intake-scope-limits-agents-copy";
+
 import { GuidedIntakeRequestError } from "./GuidedIntakeRequestError";
 import { GuidedIntakeEvidenceSection } from "./GuidedIntakeEvidenceSection";
-import { INTAKE_STEPS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
+import { INTAKE_STEPS } from "./guided-intake-steps";
 
 const GUIDED_INTAKE_STEP_SCOPE_SECTION_DIVIDER_CLASS =
   "border-t border-neutral-200 pt-4 dark:border-neutral-800";
@@ -214,11 +216,7 @@ export function SocraticIntakeWizardStepScope({
               role={outcomeTrimmedLength > 0 && !outcomeMeetsMinimum ? "alert" : "status"}
               data-testid="socratic-outcome-helper"
             >
-              {outcomeTrimmedLength === 0
-                ? GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER
-                : outcomeMeetsMinimum
-                  ? `${outcomeTrimmedLength} characters.`
-                  : `${outcomeTrimmedLength} / ${MIN_OUTCOME_CHARS} characters. ${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER}`}
+              {guidedIntakeCreationBusinessOutcomeHelperText(outcomeTrimmedLength)}
             </p>
           </div>
         ) : (
@@ -276,6 +274,12 @@ export function SocraticIntakeWizardStepScope({
         </div>
 
         <div className={GUIDED_INTAKE_STEP_SCOPE_SECTION_DIVIDER_CLASS}>
+        <p
+          className={OPERATOR_FORM_FIELD_HELPER_CLASS}
+          data-testid="guided-intake-scope-limits-agents"
+        >
+          {formatGuidedIntakeScopeLimitsAgentsHelper({ focusedPilotModeEnabled, isCreateArchitectureFlow })}
+        </p>
         <ReviewAssuranceCoverageSection
           focusedPilotModeEnabled={focusedPilotModeEnabled}
           onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}

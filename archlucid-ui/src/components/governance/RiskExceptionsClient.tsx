@@ -11,7 +11,9 @@ import { RiskExceptionsBuyerChrome } from "@/app/(operator)/governance/exception
 import { RiskExceptionsLoadFailure } from "@/app/(operator)/governance/exceptions/_sections/RiskExceptionsLoadFailure";
 import { RiskExceptionsLoadingSkeleton } from "@/app/(operator)/governance/exceptions/_sections/RiskExceptionsLoadingSkeleton";
 import { riskExceptionsPageSubtitle } from "@/app/(operator)/governance/exceptions/risk-exceptions-page-copy";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 import {
   GOVERNANCE_RISK_EXCEPTIONS_BUYER_START_HERE_HELPER,
@@ -36,6 +38,9 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { RISK_EXCEPTIONS_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/governance/risk-exceptions-empty-partial-capture-copy";
 import { RiskExceptionsTriageFirstExpiringStrip } from "@/components/governance/RiskExceptionsTriageFirstExpiringStrip";
 import { RiskExceptionsPickReviewBeforeRenewStrip } from "@/components/governance/RiskExceptionsPickReviewBeforeRenewStrip";
 import { RiskExceptionsNextReviewFooterClient } from "@/components/governance/RiskExceptionsNextReviewFooterClient";
@@ -56,6 +61,9 @@ import { LivelihoodDocumentGuardDialog } from "@/hooks/use-livelihood-document-g
 
 /** TB-226 — cross-finding risk exception (waiver) register with renew/revoke. */
 export default function RiskExceptionsClient() {
+  const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
+  const findingsQueueHref = findingsPathForProductLine(productLine);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const {
     scopedRunId,
@@ -106,7 +114,7 @@ export default function RiskExceptionsClient() {
         </a>
       ) : null}
 
-      <LayerHeader pageKey="exceptions" density="compact" className="mb-3" />
+      {buyerPolishedShell ? null : <LayerHeader pageKey="exceptions" density="compact" className="mb-3" />}
 
       <OperatorPageHeader
         navHref={GOVERNANCE_EXCEPTIONS_PATH}
@@ -198,7 +206,7 @@ export default function RiskExceptionsClient() {
             title={buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_TITLE : RISK_EXCEPTIONS_EMPTY_TITLE}
             description={buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_BODY : RISK_EXCEPTIONS_EMPTY_BODY}
             actions={[
-              { label: "Open findings", href: "/governance/findings", variant: "primary" },
+              { label: "Open findings", href: findingsQueueHref, variant: "primary" },
               {
                 label: buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION : "Open approval",
                 href: "/governance/approval-queue",
@@ -206,9 +214,16 @@ export default function RiskExceptionsClient() {
               },
             ]}
             footer={
-              <Link className={OPERATOR_LINK.optional} href="/architecture/reviews/new">
-                {buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION : CREATE_ARCHITECTURE_LABEL}
-              </Link>
+              <>
+                {partialCapture ? (
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="risk-exceptions-empty-partial-capture">
+                    {RISK_EXCEPTIONS_EMPTY_PARTIAL_CAPTURE_LINE}
+                  </p>
+                ) : null}
+                <Link className={OPERATOR_LINK.optional} href="/architecture/reviews/new">
+                  {buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION : CREATE_ARCHITECTURE_LABEL}
+                </Link>
+              </>
             }
           />
         ) : !loading && !loadError ? (

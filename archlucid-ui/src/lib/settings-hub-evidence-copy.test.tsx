@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it , vi} from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { SettingsHubEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-settings-strips";
 import {
@@ -10,6 +10,10 @@ import {
   SETTINGS_HUB_SOURCES_INTRO,
 } from "@/lib/settings-hub-evidence-copy";
 import { HUB_SECONDARY_FOLLOW_UPS_TITLES } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 describe("settings-hub-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -24,9 +28,7 @@ describe("settings-hub-evidence-copy", () => {
 
     const sources = screen.getByTestId("settings-hub-sources");
 
-    for (const link of SETTINGS_HUB_SOURCES) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), SETTINGS_HUB_SOURCES, SETTINGS_HUB_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${SETTINGS_HUB_CANONICAL_PATH}$`, "i") }),

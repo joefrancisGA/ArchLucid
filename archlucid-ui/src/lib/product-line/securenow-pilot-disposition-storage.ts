@@ -4,7 +4,7 @@ export const SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE =
   "Tenant audit is authoritative; this browser copy is a cache. It does not clear beta NO_GO." as const;
 
 export const SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE =
-  "Saved to tenant audit for this workspace. Browser copy updated." as const;
+  "Saved to tenant audit for this workspace." as const;
 
 export type SecureNowPilotDispositionRecord = {
   readonly outcome: string;
@@ -26,24 +26,26 @@ export function readSecureNowPilotDisposition(pathId: string): SecureNowPilotDis
     return null;
   }
 
-  const stored = window.localStorage.getItem(secureNowPilotDispositionStorageKey(trimmedPathId));
-
-  if (stored === null) {
-    return null;
-  }
-
   try {
-    const parsed = JSON.parse(stored) as { outcome?: string; rationale?: string };
-    const outcome = parsed.outcome?.trim() ?? "";
-    const rationale = parsed.rationale?.trim() ?? "";
+    const storage = window.localStorage;
+    const key = secureNowPilotDispositionStorageKey(trimmedPathId);
+    const stored = storage.getItem(key);
 
-    if (outcome.length === 0 || rationale.length === 0) {
+    if (stored === null) {
       return null;
     }
 
-    return { outcome, rationale };
+    try {
+      const parsed = JSON.parse(stored) as { outcome?: string; rationale?: string };
+      const outcome = parsed.outcome?.trim() ?? "";
+      const rationale = parsed.rationale?.trim() ?? "";
+
+      return outcome && rationale ? { outcome, rationale } : null;
+    } catch {
+      storage.removeItem(key);
+      return null;
+    }
   } catch {
-    window.localStorage.removeItem(secureNowPilotDispositionStorageKey(trimmedPathId));
     return null;
   }
 }
@@ -52,8 +54,13 @@ export function writeSecureNowPilotDisposition(
   pathId: string,
   record: SecureNowPilotDispositionRecord,
 ): void {
-  window.localStorage.setItem(
-    secureNowPilotDispositionStorageKey(pathId),
-    JSON.stringify(record),
-  );
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(secureNowPilotDispositionStorageKey(pathId), JSON.stringify(record));
+  } catch {
+    // The browser copy is optional. The tenant audit remains authoritative.
+  }
 }

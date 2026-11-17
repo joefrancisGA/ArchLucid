@@ -7,6 +7,7 @@ using ArchLucid.Persistence.Audit;
 using FluentAssertions;
 
 using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
@@ -90,6 +91,22 @@ public sealed class SecureNowInvestigationEffortInputServiceTests
         latest!.BaselineHours.Should().Be("8");
     }
 
+    [Fact]
+    public async Task SaveAsync_does_not_report_success_when_required_audit_write_fails()
+    {
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit storage unavailable"));
+        SecureNowInvestigationEffortInputService sut =
+            new(auditService.Object, new InMemoryAuditRepository(), NullLogger<SecureNowInvestigationEffortInputService>.Instance);
+
+        Func<Task> act = async () =>
+            await sut.SaveAsync(CreateScope(), ValidRequest(), "operator-actor", CancellationToken.None);
+
+        await act.Should().ThrowAsync<DurableAuditWriteFailedException>();
+    }
+
     private static SecureNowInvestigationEffortInputsWriteRequest ValidRequest() =>
         new()
         {
@@ -107,7 +124,7 @@ public sealed class SecureNowInvestigationEffortInputServiceTests
             .Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns<AuditEvent, CancellationToken>((auditEvent, ct) => auditRepository.AppendAsync(auditEvent, ct));
 
-        return new SecureNowInvestigationEffortInputService(auditService.Object, auditRepository);
+        return new SecureNowInvestigationEffortInputService(auditService.Object, auditRepository, NullLogger<SecureNowInvestigationEffortInputService>.Instance);
     }
 
     private static ScopeContext CreateScope() =>

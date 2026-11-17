@@ -17,10 +17,12 @@ const DOC_PATH_TO_ABSOLUTE_HREF: Readonly<Record<string, string>> = {
   "docs/runbooks/first_value_20_minutes.md": "/help/first-architecture-review#first-value-in-20-minutes",
   /** Shared with the printable checklist entry; prefer the 20-minute anchor for this source path. */
   "docs/runbooks/first_pilot_operator_path.md": "/help/first-architecture-review#first-value-in-20-minutes",
+  "docs/engineering/review-href-routing.md": "/help/working-desk-urls",
   /** Finding provenance folded into Findings help (2026-08-04). */
   "docs/library/customer-facing/finding_provenance.md": "/help/findings#where-findings-come-from",
   "docs/runbooks/generic_oidc_setup.md": "/help/enterprise-onboarding#workforce-sso",
   "docs/runbooks/saml_sp_certificate_rotation_runbook.md": "/help/enterprise-onboarding",
+  "docs/securenow/decision_cycle_log.md": "/administration/securenow-pilot-decision#securenow-decision-cycle",
 };
 
 /**
@@ -28,6 +30,7 @@ const DOC_PATH_TO_ABSOLUTE_HREF: Readonly<Record<string, string>> = {
  * Keys are normalized: lowercase, no leading slash, no hash fragment.
  */
 const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
+  "docs/engineering/review_href_routing.md": "working-desk-urls",
   "docs/library/first_run_wizard.md": "getting-started",
   "docs/library/operator-shell.md": "pilot-guide",
   "docs/library/comparison_replay.md": "comparison-replay",

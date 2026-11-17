@@ -47,10 +47,10 @@ export function useReviewCreationAutoRecheck(args: UseReviewCreationAutoRecheckA
     }
 
     const delayMs = AUTO_RECHECK_DELAYS_MS[attemptRef.current];
-    attemptRef.current += 1;
 
     timerRef.current = window.setTimeout(() => {
       timerRef.current = null;
+      attemptRef.current += 1;
       onRecheckRef.current();
     }, delayMs);
 

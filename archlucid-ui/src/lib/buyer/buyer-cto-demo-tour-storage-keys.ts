@@ -41,7 +41,7 @@ export const ARCHLUCID_CTO_DEMO_SPOTLIGHT_CHANGED_EVENT = "archlucid-cto-demo-sp
 export const ARCHLUCID_CTO_DEMO_STORY_CHANGED_EVENT = "archlucid-cto-demo-story-changed";
 
 /** Per-step pacing budget in minutes for a 30-minute CTO demo (sums to 26; 4 min buffer for open/close). */
-export const BUYER_CTO_DEMO_STEP_BUDGET_MINUTES: readonly number[] = [6, 4, 6, 5, 5];
+export const BUYER_CTO_DEMO_STEP_BUDGET_MINUTES: readonly number[] = [6, 4, 6, 5];
 
 /** `window` CustomEvent — programmatic tour start (tests, future shell actions). */
 export const ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT = "archlucid-buyer-cto-demo-tour-start";

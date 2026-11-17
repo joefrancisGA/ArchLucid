@@ -1,3 +1,4 @@
+import { trimTextFields } from "@/lib/api/api-boundary-normalization";
 import { apiDelete, apiGet, apiPostJson, apiPutJson } from "@/lib/api-client";
 
 /** TB-404 tenant settings — OpenAPI snapshot pending regen. */
@@ -38,6 +39,19 @@ export type TenantItsmConnectorConnectionUpsertRequest = {
   label?: string | null;
 };
 
+/** Connection fields pasted by an admin (URL, user name, Key Vault secret names); stray spaces break lookups. */
+const CONNECTION_TEXT_FIELDS: readonly (keyof TenantItsmConnectorConnectionUpsertRequest & string)[] = [
+  "instanceBaseUrl",
+  "authMode",
+  "authUserName",
+  "credentialKeyVaultSecretName",
+  "oAuthClientIdKeyVaultSecretName",
+  "oAuthClientSecretKeyVaultSecretName",
+  "oAuthRefreshTokenKeyVaultSecretName",
+  "inboundWebhookKeyVaultSecretName",
+  "label",
+];
+
 export type TenantItsmOutboundSettingsResponse = {
   tenantId?: string;
   hasTenantOverrides?: boolean;
@@ -63,7 +77,11 @@ export async function fetchTenantItsmOutboundSettings(): Promise<TenantItsmOutbo
 export async function upsertTenantItsmOutboundSettings(
   body: TenantItsmOutboundSettingsUpsertRequest,
 ): Promise<TenantItsmOutboundSettingsResponse> {
-  return apiPutJson<TenantItsmOutboundSettingsResponse>("/v1/integrations/itsm/settings", body);
+  // The issue-type JSON is sent exactly as authored; only the project key is trimmed.
+  return apiPutJson<TenantItsmOutboundSettingsResponse>(
+    "/v1/integrations/itsm/settings",
+    trimTextFields(body, ["jiraProjectKeyOverride"]),
+  );
 }
 
 export async function fetchTenantItsmConnectorConnection(
@@ -78,7 +96,7 @@ export async function upsertTenantItsmConnectorConnection(
 ): Promise<TenantItsmConnectorConnectionResponse> {
   return apiPostJson<TenantItsmConnectorConnectionResponse>(
     `/v1/integrations/itsm/connections/${provider}`,
-    body,
+    trimTextFields(body, CONNECTION_TEXT_FIELDS),
   );
 }
 

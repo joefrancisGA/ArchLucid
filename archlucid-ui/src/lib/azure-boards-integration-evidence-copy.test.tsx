@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it, vi } from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { AzureBoardsIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -9,6 +9,14 @@ import {
   AZURE_BOARDS_INTEGRATION_SOURCES,
   AZURE_BOARDS_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/azure-boards-integration-evidence-copy";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => AZURE_BOARDS_INTEGRATION_CANONICAL_PATH,
+}));
 
 describe("azure-boards-integration-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -23,9 +31,7 @@ describe("azure-boards-integration-evidence-copy", () => {
 
     const sources = screen.getByTestId("azure-boards-integration-sources");
 
-    for (const link of AZURE_BOARDS_INTEGRATION_SOURCES) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), AZURE_BOARDS_INTEGRATION_SOURCES, AZURE_BOARDS_INTEGRATION_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${AZURE_BOARDS_INTEGRATION_CANONICAL_PATH}$`, "i") }),

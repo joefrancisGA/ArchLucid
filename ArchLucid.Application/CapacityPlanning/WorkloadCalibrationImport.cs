@@ -19,7 +19,8 @@ public static class WorkloadCalibrationImport
         {
             item = JsonSerializer.Deserialize<WorkloadCalibration.Observation>(json,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true,
-                    MaxDepth = 8, UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow });
+                    RespectRequiredConstructorParameters = true, MaxDepth = 8,
+                    UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow });
         }
         catch (JsonException) { return Reject("INVALID_JSON"); }
         if (item is null) return Reject("EMPTY_ARTIFACT");

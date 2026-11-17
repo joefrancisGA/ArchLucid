@@ -139,6 +139,33 @@ internal static class DiagramForestDataFlowRollup
             }
         }
 
+        foreach (DiagramNode node in nodes)
+        {
+            if (!IsDataFactoryRollupHub(node))
+            {
+                continue;
+            }
+
+            List<string> writeTargetIds = edges
+                .Where(edge =>
+                    !edge.IsLayoutOnly
+                    && string.Equals(edge.FromNodeId, node.NodeId, StringComparison.Ordinal))
+                .Select(edge => edge.ToNodeId)
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+
+            if (writeTargetIds.Count < MinimumMembersToRollUp)
+            {
+                continue;
+            }
+
+            exemptNodeIds.Add(node.NodeId);
+            foreach (string targetId in writeTargetIds)
+            {
+                exemptNodeIds.Add(targetId);
+            }
+        }
+
         return exemptNodeIds;
     }
 
@@ -234,11 +261,8 @@ internal static class DiagramForestDataFlowRollup
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(address => address, StringComparer.OrdinalIgnoreCase)
             .ToList();
-        List<DiagramNode> membersWithHiddenPublicIp = members
-            .Where(member => !string.IsNullOrWhiteSpace(member.HiddenPublicIpAddress))
-            .ToList();
-        string? rollupHiddenPublicIp = membersWithHiddenPublicIp.Count == 1
-            ? membersWithHiddenPublicIp[0].HiddenPublicIpAddress!.Trim()
+        string? rollupHiddenPublicIp = hiddenPublicIpAddresses.Count == 1
+            ? hiddenPublicIpAddresses[0]
             : null;
         List<string> privateEndpointNames = members
             .Select(member => member.PrivateEndpointAccessName)
@@ -381,6 +405,9 @@ internal static class DiagramForestDataFlowRollup
             _ => $"{caption}s",
         };
     }
+
+    private static bool IsDataFactoryRollupHub(DiagramNode node) =>
+        node.ArmResourceType?.StartsWith("Microsoft.DataFactory/", StringComparison.OrdinalIgnoreCase) == true;
 
     private static bool IsConsumerStatusResource(string? armResourceType)
     {

@@ -14,7 +14,8 @@ public interface ISecureNowQuestionDispositionRepository
         string questionKey,
         CancellationToken cancellationToken = default);
 
-    Task UpsertAsync(
+    Task<bool> TryUpsertAsync(
         SecureNowQuestionDispositionRecord record,
+        int? expectedAuditEntryCount,
         CancellationToken cancellationToken = default);
 }

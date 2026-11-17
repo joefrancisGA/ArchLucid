@@ -127,10 +127,6 @@ export function resolveAskAssistantGroundingCitationMarker(
     return ASK_CITATION_LISTS_NOT_STORED_MARKER;
   }
 
-  if (countAskAnswerCitationIds(citationRefs) > 0) {
-    return null;
-  }
-
   const messages: string[] = [];
 
   if (findingsOmitted) {

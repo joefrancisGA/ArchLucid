@@ -10,8 +10,10 @@ namespace ArchLucid.Application.Tests.Evidence;
 [Trait("Suite", "Application")]
 public sealed class EvidenceAddedIncrementalReReviewHostedServiceTests
 {
-    [Fact]
-    public async Task ExecuteAsync_runs_enqueued_background_work()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ExecuteAsync_runs_enqueued_background_work(bool enqueueCanceledItem)
     {
         EvidenceAddedIncrementalReReviewQueue queue = new();
         using EvidenceAddedIncrementalReReviewHostedService sut = new(
@@ -23,6 +25,13 @@ public sealed class EvidenceAddedIncrementalReReviewHostedServiceTests
 
         try
         {
+            if (enqueueCanceledItem)
+            {
+                await queue.EnqueueAsync(
+                    _ => Task.FromCanceled(new CancellationToken(canceled: true)),
+                    CancellationToken.None);
+            }
+
             await queue.EnqueueAsync(
                 _ =>
                 {

@@ -24,7 +24,7 @@
 #   --build-arg DOTNET_SDK_IMAGE=... --build-arg DOTNET_ASPNET_IMAGE=... (omit or set a non-empty tag)
 ARG DOTNET_SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23
 # The 10.0.13+ ASP.NET patch tags are published for Alpine 3.24, not 3.23. Use a published, patched runtime tag; do not float or suppress scanner findings.
-ARG DOTNET_ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0.14-alpine3.24
+ARG DOTNET_ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0.15-alpine3.24
 FROM ${DOTNET_SDK_IMAGE} AS restore
 
 WORKDIR /src
@@ -147,6 +147,8 @@ RUN apk update --no-cache \
          "openssl>=3.5.6-r0" \
          "libssl3>=3.5.6-r0" \
          "libcrypto3>=3.5.6-r0" \
+         "libexpat>=2.10.0-r0" \
+         "libxslt>=1.1.43-r4" \
     && apk add --no-cache icu-libs nodejs npm chromium ttf-dejavu fontconfig graphviz \
     && npm install -g @mermaid-js/mermaid-cli@11 \
     && npm cache clean --force \

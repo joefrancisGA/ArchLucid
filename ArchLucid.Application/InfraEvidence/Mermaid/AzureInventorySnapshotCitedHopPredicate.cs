@@ -37,6 +37,14 @@ internal static class AzureInventorySnapshotCitedHopPredicate
             return true;
         }
 
+        if (string.Equals(edge.EdgeType, GraphEdgeTypes.PeersWith, StringComparison.OrdinalIgnoreCase)
+            || AzureInventoryRelationshipAssociationTypes.IsVnetPeeringRelationship(
+                edge.EdgeType,
+                edge.InferenceSource))
+        {
+            return true;
+        }
+
         return InventoryDiagramIndirectRelationshipResolver.IsCitedEdge(edge);
     }
 

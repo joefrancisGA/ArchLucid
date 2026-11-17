@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it , vi} from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { CloudConnectionsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -10,6 +10,10 @@ import {
   CLOUD_CONNECTIONS_SOURCES_INTRO,
 } from "@/lib/cloud-connections-evidence-copy";
 import { HUB_SECONDARY_FOLLOW_UPS_TITLES } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 describe("cloud-connections-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -24,9 +28,7 @@ describe("cloud-connections-evidence-copy", () => {
 
     const sources = screen.getByTestId("cloud-connections-sources");
 
-    for (const link of CLOUD_CONNECTIONS_SOURCES) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), CLOUD_CONNECTIONS_SOURCES, CLOUD_CONNECTIONS_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${CLOUD_CONNECTIONS_CANONICAL_PATH}$`, "i") }),

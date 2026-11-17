@@ -269,4 +269,134 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
         row!.ParentResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(namespaceId));
         row.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(queueId));
     }
+
+    [Fact]
+    public void TryExtractEventHub_reads_child_when_id_is_doubly_nested_json_reference_object()
+    {
+        const string namespaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ns";
+        const string eventHubId = $"{namespaceId}/eventhubs/orders";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "id": {
+                                                                "id": {
+                                                                  "id": "{{eventHubId}}"
+                                                                }
+                                                              },
+                                                              "name": "orders"
+                                                            }
+                                                            """);
+
+        bool extracted = AzureInventoryMessagingAssociationExtractor.TryExtractEventHub(
+            namespaceId,
+            document.RootElement,
+            out AzureInventoryMessagingAssociationRow? row);
+
+        extracted.Should().BeTrue();
+        row!.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(eventHubId));
+    }
+
+    [Fact]
+    public void TryExtractEventHub_reads_child_when_id_is_string_embedded_json_blob_without_object_wrapper()
+    {
+        const string namespaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ns";
+        const string eventHubId = $"{namespaceId}/eventhubs/orders";
+        string embedded = JsonSerializer.Serialize(new { id = eventHubId });
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "id": {{JsonSerializer.Serialize(embedded)}},
+                                                              "name": "orders"
+                                                            }
+                                                            """);
+
+        bool extracted = AzureInventoryMessagingAssociationExtractor.TryExtractEventHub(
+            namespaceId,
+            document.RootElement,
+            out AzureInventoryMessagingAssociationRow? row);
+
+        extracted.Should().BeTrue();
+        row!.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(eventHubId));
+    }
+
+    [Fact]
+    public void TryExtractEventHub_reads_child_when_id_is_json_reference_with_percent_encoded_arm_scalar()
+    {
+        const string namespaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ns";
+        const string eventHubId = $"{namespaceId}/eventhubs/orders";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "id": {
+                                                                "id": "{{Uri.EscapeDataString(eventHubId)}}"
+                                                              },
+                                                              "name": "orders"
+                                                            }
+                                                            """);
+
+        bool extracted = AzureInventoryMessagingAssociationExtractor.TryExtractEventHub(
+            namespaceId,
+            document.RootElement,
+            out AzureInventoryMessagingAssociationRow? row);
+
+        extracted.Should().BeTrue();
+        row!.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(eventHubId));
+    }
+
+    [Fact]
+    public void TryExtractServiceBusChild_reads_child_when_id_is_doubly_nested_json_reference_object()
+    {
+        const string namespaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/ns";
+        const string queueId = $"{namespaceId}/queues/orders";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "id": {
+                                                                "id": {
+                                                                  "id": "{{queueId}}"
+                                                                }
+                                                              },
+                                                              "name": "orders"
+                                                            }
+                                                            """);
+
+        bool extracted = AzureInventoryMessagingAssociationExtractor.TryExtractServiceBusChild(
+            namespaceId,
+            document.RootElement,
+            AzureInventoryMessagingAssociationTypes.ServiceBusQueue,
+            out AzureInventoryMessagingAssociationRow? row);
+
+        extracted.Should().BeTrue();
+        row!.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(queueId));
+    }
+
+    [Fact]
+    public void TryExtractServiceBusChild_reads_child_when_id_is_json_reference_with_percent_encoded_arm_scalar()
+    {
+        const string namespaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/ns";
+        const string queueId = $"{namespaceId}/queues/orders";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "id": {
+                                                                "id": "{{Uri.EscapeDataString(queueId)}}"
+                                                              },
+                                                              "name": "orders"
+                                                            }
+                                                            """);
+
+        bool extracted = AzureInventoryMessagingAssociationExtractor.TryExtractServiceBusChild(
+            namespaceId,
+            document.RootElement,
+            AzureInventoryMessagingAssociationTypes.ServiceBusQueue,
+            out AzureInventoryMessagingAssociationRow? row);
+
+        extracted.Should().BeTrue();
+        row!.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(queueId));
+    }
 }

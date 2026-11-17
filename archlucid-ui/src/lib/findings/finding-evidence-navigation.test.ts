@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
 
 import {
+  getFindingDetailHref,
   getFindingEvidenceInspectHref,
   getFindingEvidenceTraceHref,
   getFindingGovernanceDispositionHref,
@@ -69,5 +70,39 @@ describe("finding-evidence-navigation", () => {
         isWorkingMode: true,
       }),
     ).toBe("/governance/findings?runId=run-abc");
+  });
+
+  it("uses compliance findings queue for SecureNow when run id is absent", () => {
+    expect(
+      resolveFindingsQueueNavHref({
+        findingsQueueRunId: "",
+        productLine: "security",
+      }),
+    ).toBe("/compliance/findings");
+  });
+
+  it("scopes governance queue href to compliance when SecureNow and run id is present", () => {
+    expect(
+      resolveFindingsQueueNavHref({
+        findingsQueueRunId: "run-abc",
+        productLine: "security",
+      }),
+    ).toBe("/compliance/findings?runId=run-abc");
+  });
+
+  it("SG-028: nested finding detail and evidence trace when architecture id is known", () => {
+    expect(
+      getFindingDetailHref("run-1", "finding-9", { architectureId: "arch-desk" }),
+    ).toBe("/architecture/architectures/arch-desk/reviews/run-1/findings/finding-9");
+
+    expect(
+      getFindingEvidenceTraceHref("run-1", "finding-9", { architectureId: "arch-desk" }),
+    ).toBe("/architecture/architectures/arch-desk/reviews/run-1/findings/finding-9/evidence-trace");
+  });
+
+  it("uses nested review findings tab when architecture id is passed to disposition href", () => {
+    expect(getFindingGovernanceDispositionHref("run-1", "finding-9", "arch-desk")).toBe(
+      "/architecture/architectures/arch-desk/reviews/run-1?reviewTab=findings&findingId=finding-9#run-detail-first-review-spine-findings",
+    );
   });
 });

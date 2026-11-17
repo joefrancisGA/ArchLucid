@@ -27,6 +27,50 @@ const SNAPSHOTS_PATH = "/api/proxy/v1/infra-evidence/snapshots";
 const DIFFS_PATH = "/api/proxy/v1/infra-evidence/diffs";
 const BASELINES_PATH = "/api/proxy/v1/infra-evidence/azure-inventory/baselines";
 
+function encodeRequiredPathSegment(value: string, fieldName: string): string {
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    throw new Error(`${fieldName} is required.`);
+  }
+
+  return encodeURIComponent(trimmed);
+}
+
+function mapPagedResponse<T>(
+  raw: unknown,
+  page: number,
+  pageSize: number,
+  mapItem: (item: Record<string, unknown>) => T,
+): InfraEvidencePagedResponse<T> {
+  const row = raw !== null && typeof raw === "object" && !Array.isArray(raw)
+    ? raw as Record<string, unknown>
+    : {};
+  const items = Array.isArray(row.items)
+    ? row.items.flatMap((item) => {
+        if (item === null || typeof item !== "object" || Array.isArray(item)) {
+          return [];
+        }
+
+        return [mapItem(item as Record<string, unknown>)];
+      })
+    : [];
+  const totalCount = typeof row.totalCount === "number" && Number.isFinite(row.totalCount) && row.totalCount >= 0
+    ? row.totalCount
+    : items.length;
+
+  return {
+    items,
+    totalCount,
+    page: typeof row.page === "number" && Number.isFinite(row.page) && row.page >= 1 ? Math.floor(row.page) : page,
+    pageSize:
+      typeof row.pageSize === "number" && Number.isFinite(row.pageSize) && row.pageSize >= 1
+        ? Math.floor(row.pageSize)
+        : pageSize,
+    hasMore: row.hasMore === true,
+  };
+}
+
 export async function deleteInfraEvidenceSnapshot(snapshotId: string): Promise<void> {
   const trimmed = snapshotId.trim();
 
@@ -48,15 +92,24 @@ export async function fetchInfraEvidenceSnapshots(
     params.set("subscriptionId", subscriptionId.trim());
   }
 
-  return proxyJsonGet<InfraEvidencePagedResponse<InfraEvidenceSnapshotSummary>>(
+  const raw = await proxyJsonGet<unknown>(
     `${SNAPSHOTS_PATH}?${params.toString()}`,
   );
+
+  return mapPagedResponse(raw, page, pageSize, (row) => row as InfraEvidenceSnapshotSummary);
 }
 
 export async function fetchInfraEvidenceDiffsForSnapshot(
   snapshotId: string,
 ): Promise<InfraEvidenceDiffSummary[]> {
-  return proxyJsonGet<InfraEvidenceDiffSummary[]>(`${SNAPSHOTS_PATH}/${snapshotId}/diffs`);
+  const raw = await proxyJsonGet<unknown>(
+    `${SNAPSHOTS_PATH}/${encodeRequiredPathSegment(snapshotId, "snapshotId")}/diffs`,
+  );
+
+  return Array.isArray(raw)
+    ? raw.filter((item): item is InfraEvidenceDiffSummary =>
+      item !== null && typeof item === "object" && !Array.isArray(item))
+    : [];
 }
 
 export async function fetchInfraEvidenceSnapshotInventoryRows(
@@ -71,9 +124,11 @@ export async function fetchInfraEvidenceSnapshotInventoryRows(
     params.set("cloudResourceId", options.cloudResourceId.trim());
   }
 
-  return proxyJsonGet<InfraEvidencePagedResponse<InfraEvidenceDiffChange>>(
-    `${SNAPSHOTS_PATH}/${snapshotId}/inventory-rows?${params.toString()}`,
+  const raw = await proxyJsonGet<unknown>(
+    `${SNAPSHOTS_PATH}/${encodeRequiredPathSegment(snapshotId, "snapshotId")}/inventory-rows?${params.toString()}`,
   );
+
+  return mapPagedResponse(raw, page, pageSize, (row) => row as InfraEvidenceDiffChange);
 }
 
 export async function fetchInfraEvidenceDiffChanges(
@@ -92,9 +147,11 @@ export async function fetchInfraEvidenceDiffChanges(
     params.set("includeUnchanged", "true");
   }
 
-  return proxyJsonGet<InfraEvidencePagedResponse<InfraEvidenceDiffChange>>(
-    `${DIFFS_PATH}/${diffId}/changes?${params.toString()}`,
+  const raw = await proxyJsonGet<unknown>(
+    `${DIFFS_PATH}/${encodeRequiredPathSegment(diffId, "diffId")}/changes?${params.toString()}`,
   );
+
+  return mapPagedResponse(raw, page, pageSize, (row) => row as InfraEvidenceDiffChange);
 }
 
 export async function fetchInfraEvidenceBaselines(
@@ -114,7 +171,7 @@ export async function downloadInfraEvidenceTerraformAdvisoryZip(snapshotId: stri
   }
 
   await ensureOidcBearerReady();
-  const url = `${SNAPSHOTS_PATH}/${snapshotId}/terraform-advisory`;
+  const url = `${SNAPSHOTS_PATH}/${encodeRequiredPathSegment(snapshotId, "snapshotId")}/terraform-advisory`;
   const headers = new Headers();
   headers.set("Accept", "application/zip, application/json");
 

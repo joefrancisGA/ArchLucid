@@ -12,13 +12,14 @@ import {
   AUTH_INVITE_SKIP_LINK_LABEL,
   AUTH_INVITE_SKIP_TARGET_ID,
 } from "@/lib/auth/auth-invite-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 const validateInvitationToken = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useSearchParams: vi.fn(),
+  usePathname: () => "/auth/invite",
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
 }));
 
@@ -88,7 +89,7 @@ describe("InvitationAcceptPageClient buyer-polished shell", () => {
     );
     expect(screen.getByRole("heading", { level: 2, name: AUTH_INVITE_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(AUTH_INVITE_SOURCES)) {
+    for (const source of whereToGoNextFollowUpLinksForTests(AUTH_INVITE_SOURCES, "/auth/invite")) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

@@ -15,6 +15,8 @@ import {
   GOVERNANCE_DECISION_REGISTER_PATH,
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type DecisionRegisterFindingsSurfaceId = "decision-register" | "findings-queue";
@@ -57,20 +59,30 @@ export const DECISION_REGISTER_FINDINGS_QUEUE_LINK: DecisionRegisterFindingsLink
   whenToUse: "Triage and resolve open findings.",
 };
 
-/** Pairwise model for Decision register ↔ Findings queue (fixed governance routes). */
-export function buildDecisionRegisterFindingsPairwiseRail(): PairwiseVocabularyRailModel<DecisionRegisterFindingsSurfaceId> {
+function decisionRegisterFindingsQueueLinkForProductLine(
+  productLine: ProductLineId = "architecture",
+): DecisionRegisterFindingsLink {
+  return { ...DECISION_REGISTER_FINDINGS_QUEUE_LINK, href: findingsPathForProductLine(productLine) };
+}
+
+/** Pairwise model for Decision register ↔ Findings queue. */
+export function buildDecisionRegisterFindingsPairwiseRail(
+  productLine: ProductLineId = "architecture",
+): PairwiseVocabularyRailModel<DecisionRegisterFindingsSurfaceId> {
   return {
     heading: DECISION_REGISTER_FINDINGS_HEADING,
     whyTwo: DECISION_REGISTER_FINDINGS_WHY_TWO,
     compactLine: DECISION_REGISTER_FINDINGS_COMPACT_LINE,
     currentLink: DECISION_REGISTER_FINDINGS_REGISTER_LINK,
-    peerLink: DECISION_REGISTER_FINDINGS_QUEUE_LINK,
+    peerLink: decisionRegisterFindingsQueueLinkForProductLine(productLine),
   };
 }
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildDecisionRegisterFindingsVocabulary(): DecisionRegisterFindingsVocabularyModel {
-  const rail = buildDecisionRegisterFindingsPairwiseRail();
+export function buildDecisionRegisterFindingsVocabulary(
+  productLine: ProductLineId = "architecture",
+): DecisionRegisterFindingsVocabularyModel {
+  const rail = buildDecisionRegisterFindingsPairwiseRail(productLine);
 
   return {
     heading: rail.heading,
@@ -84,9 +96,10 @@ export function buildDecisionRegisterFindingsVocabulary(): DecisionRegisterFindi
 /** Peer deep-link for the surface you are not currently on. */
 export function resolveDecisionRegisterFindingsPeerLink(
   currentSurfaceId: DecisionRegisterFindingsSurfaceId,
+  productLine: ProductLineId = "architecture",
 ): DecisionRegisterFindingsLink {
   if (currentSurfaceId === "decision-register") {
-    return DECISION_REGISTER_FINDINGS_QUEUE_LINK;
+    return decisionRegisterFindingsQueueLinkForProductLine(productLine);
   }
 
   return DECISION_REGISTER_FINDINGS_REGISTER_LINK;

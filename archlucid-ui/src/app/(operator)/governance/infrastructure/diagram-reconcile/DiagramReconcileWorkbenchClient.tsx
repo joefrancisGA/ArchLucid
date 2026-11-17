@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DiagramReconcileBreadcrumb } from "./DiagramReconcileBreadcrumb";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -43,6 +44,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-api";
 import { diagramIngestMutationBlockedReason } from "@/lib/infra-evidence/diagram-ingest-mutation-blocked-reason";
 import { diagramReconcileMutationBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-mutation-blocked-reason";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { diagramReconcileLoadModelBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-load-model-blocked-reason";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -72,6 +74,9 @@ import {
 } from "@/lib/infra-evidence/diagram-reconcile-readiness";
 import type { DiagramReconcileWorkbenchMode } from "@/lib/infra-evidence/diagram-reconcile-workbench-mode";
 import { resolveDiagramReconcileSnapshotSelectionSummary } from "@/lib/infra-evidence/diagram-reconcile-snapshot-selection";
+import { DIAGRAM_RECONCILE_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/infra-evidence-workbench-partial-capture-copy";
+import { SecureNowInfraPartialCaptureStrip } from "@/components/product-line/SecureNowInfraPartialCaptureStrip";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { DIAGRAM_RECONCILE_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-page-shortcuts";
 import {
   buildDiagramReconcileOperationalFindingRequestItem,
@@ -135,6 +140,17 @@ import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evide
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DIAGRAM_RECONCILE_INVENTORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-evidence/diagram-reconcile-inventory-snapshot-honesty-copy";
+import { DIAGRAM_RECONCILE_PINNED_NOT_LATEST_CAPTURE_LINE } from "@/lib/infra-evidence/diagram-reconcile-pinned-snapshot-honesty-copy";
+import { DIAGRAM_RECONCILE_EMPTY_NOT_CLEAN_RESULT_LINE } from "@/lib/infra-evidence/diagram-empty-not-clean-result-copy";
+import {
+  DIAGRAM_RECONCILE_FILTER_HID_ROWS_LINE,
+  shouldShowDiagramReconcileFilterHidRowsHonesty,
+} from "@/lib/infra-evidence/diagram-reconcile-filter-hid-rows-copy";
+import {
+  DIAGRAM_RECONCILE_ZERO_CHANGES_NOT_CLEAN_LINE,
+  shouldShowDiagramReconcileZeroChangesHonesty,
+} from "@/lib/infra-evidence/diagram-reconcile-zero-changes-not-clean-copy";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_COPY_ERROR_TITLE,
@@ -393,6 +409,8 @@ export function DiagramReconcileWorkbenchClient() {
   const [absentDocumentationDecisions, setAbsentDocumentationDecisions] = useState<
     InfrastructureDiagramDocumentationDecision[]
   >([]);
+  const [documentationDecisionLoadFailed, setDocumentationDecisionLoadFailed] = useState(false);
+  const [documentationDecisionRetryNonce, setDocumentationDecisionRetryNonce] = useState(0);
   const [documentationDecisionPick, setDocumentationDecisionPick] = useState<Record<string, string>>({});
   const [documentationDecisionBusyKey, setDocumentationDecisionBusyKey] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -532,6 +550,17 @@ export function DiagramReconcileWorkbenchClient() {
       }),
     [selectedSnapshotId, snapshots, urlSnapshotId],
   );
+  const diagramReconcilePinnedNotLatest = useMemo(() => {
+    const latestSnapshotId = snapshots[0]?.snapshotId?.trim() ?? "";
+    const urlId = urlSnapshotId.trim();
+    const selected = selectedSnapshotId.trim();
+
+    if (urlId.length === 0 || latestSnapshotId.length === 0 || selected.length === 0) {
+      return false;
+    }
+
+    return selected !== latestSnapshotId;
+  }, [selectedSnapshotId, snapshots, urlSnapshotId]);
 
   const syncUrl = useCallback(
     (patch: {
@@ -998,6 +1027,8 @@ export function DiagramReconcileWorkbenchClient() {
   }, [advisoryComparisonPath, reconciliation, runId, selectedSnapshotId]);
 
   useEffect(() => {
+    setDocumentationDecisionLoadFailed(false);
+
     if (!documentationDecisionAvailable || reconciliation == null) {
       setDocumentationDecisions({});
       setAbsentDocumentationDecisions([]);
@@ -1036,17 +1067,21 @@ export function DiagramReconcileWorkbenchClient() {
                 subject.subjectKind,
                 subject.subjectKey,
               );
-            } catch {
-              return null;
+            } catch (error: unknown) {
+              if (isApiNotFoundFailure(toApiLoadFailure(error))) {
+                return null;
+              }
+
+              throw error;
             }
           }),
         );
-        absent = await fetchAbsentInfrastructureDiagramDocumentationDecisions(comparisonIdValue).catch(() => []);
+        absent = await fetchAbsentInfrastructureDiagramDocumentationDecisions(comparisonIdValue);
       } else if (validRunId) {
         const sealedDecisions = await fetchSealedInfrastructureDiagramDocumentationDecisions(
           runId,
           selectedSnapshotId,
-        ).catch(() => []);
+        );
         loaded = sealedDecisions;
         absent = sealedDecisions.filter((decision) => decision.carryForwardState === "NoLongerInCapture");
       }
@@ -1065,7 +1100,13 @@ export function DiagramReconcileWorkbenchClient() {
       setAbsentDocumentationDecisions(absent);
     }
 
-    void loadDocumentationDecisions();
+    void loadDocumentationDecisions().catch(() => {
+      if (!cancelled) {
+        setDocumentationDecisions({});
+        setAbsentDocumentationDecisions([]);
+        setDocumentationDecisionLoadFailed(true);
+      }
+    });
 
     return () => {
       cancelled = true;
@@ -1074,6 +1115,7 @@ export function DiagramReconcileWorkbenchClient() {
     advisoryComparisonPath,
     comparisonId,
     documentationDecisionAvailable,
+    documentationDecisionRetryNonce,
     reconciliation,
     runId,
     selectedSnapshotId,
@@ -1536,16 +1578,52 @@ export function DiagramReconcileWorkbenchClient() {
           ? "Advisory compare mode checks documentation accuracy against inventory. Nothing is written to a sealed review record."
           : "Sealed reconcile mode compares the ingested diagram on a sealed review record with inventory evidence. It does not change either one."}
       </p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-snapshot-honesty">
+        {DIAGRAM_RECONCILE_INVENTORY_SNAPSHOT_HONESTY_LINE}
+      </p>
+      {isSecureNowProductLine(productLine) ? (
+        <SecureNowInfraPartialCaptureStrip
+          testId="infra-diagram-reconcile-partial-capture"
+          middleLine={DIAGRAM_RECONCILE_PARTIAL_CAPTURE_LINE}
+          cloudConnectionsTestId="infra-diagram-reconcile-partial-capture-cloud"
+          extractUploadTestId="infra-diagram-reconcile-partial-capture-extract"
+        />
+      ) : null}
 
       {loadError != null ? (
+        <div className="space-y-2" data-testid="infra-diagram-reconcile-load-error">
+          <EnterpriseCompactEmptyState
+            role="alert"
+            title={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE}
+            description={loadError}
+            testId="infra-diagram-reconcile-load-error-panel"
+            footer={
+              <Button type="button" size="sm" variant="primary" onClick={retryWorkbenchLoad}>
+                Retry load
+              </Button>
+            }
+          />
+          <OperatorErrorRecoveryContract
+            presentation={errorRecoveryContractForScenario("api-problem", {
+              failureSummary: loadError,
+            })}
+          />
+        </div>
+      ) : null}
+
+      {documentationDecisionAvailable && documentationDecisionLoadFailed ? (
         <EnterpriseCompactEmptyState
           role="alert"
-          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE}
-          description={loadError}
-          testId="infra-diagram-reconcile-load-error-panel"
+          title="Could not load documentation decisions."
+          description="You can still inspect the reconciliation."
           footer={
-            <Button type="button" size="sm" variant="primary" onClick={retryWorkbenchLoad}>
-              Retry load
+            <Button
+              type="button"
+              size="sm"
+              variant="primary"
+              onClick={() => setDocumentationDecisionRetryNonce((value) => value + 1)}
+            >
+              Retry documentation decisions
             </Button>
           }
         />
@@ -1879,6 +1957,14 @@ export function DiagramReconcileWorkbenchClient() {
             ) : null}
           </div>
         ) : null}
+        {diagramReconcilePinnedNotLatest ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="infra-diagram-reconcile-pinned-not-latest-honesty"
+          >
+            {DIAGRAM_RECONCILE_PINNED_NOT_LATEST_CAPTURE_LINE}
+          </p>
+        ) : null}
       </section>
       </div>
 
@@ -1943,6 +2029,11 @@ export function DiagramReconcileWorkbenchClient() {
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_NO_SAVED_RECONCILIATION_TITLE}
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_NO_SAVED_RECONCILIATION_DESCRIPTION}
           testId="infra-diagram-reconcile-no-saved-reconciliation"
+          footer={
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-empty-not-clean">
+              {DIAGRAM_RECONCILE_EMPTY_NOT_CLEAN_RESULT_LINE}
+            </p>
+          }
         />
       ) : null}
 
@@ -2016,6 +2107,11 @@ export function DiagramReconcileWorkbenchClient() {
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-denominator">
                 {buildDiagramReconcileDenominatorSentence(reconciliation.inventoryResourceCount)}
               </p>
+              {shouldShowDiagramReconcileZeroChangesHonesty(reconciliation.rows?.length ?? 0) ? (
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-zero-changes-not-clean">
+                  {DIAGRAM_RECONCILE_ZERO_CHANGES_NOT_CLEAN_LINE}
+                </p>
+              ) : null}
             </div>
           ) : null}
 
@@ -2084,9 +2180,21 @@ export function DiagramReconcileWorkbenchClient() {
               {filteredRows.length === 0 ? (
                 <EnterpriseTableRow>
                   <EnterpriseTableCell colSpan={6}>
-                    {urlCloudResourceId.length > 0
-                      ? "No correspondence rows match the scoped cloud resource for this reconciliation."
-                      : "No correspondence rows match the selected filter."}
+                    <div className="grid gap-1">
+                      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                        {urlCloudResourceId.length > 0
+                          ? "No correspondence rows match the scoped cloud resource for this reconciliation."
+                          : "No correspondence rows match the selected filter."}
+                      </p>
+                      {shouldShowDiagramReconcileFilterHidRowsHonesty(
+                        reconciliation.rows?.length ?? 0,
+                        displayedRows.rowCount,
+                      ) ? (
+                        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-filter-hid-rows">
+                          {DIAGRAM_RECONCILE_FILTER_HID_ROWS_LINE}
+                        </p>
+                      ) : null}
+                    </div>
                   </EnterpriseTableCell>
                 </EnterpriseTableRow>
               ) : null}

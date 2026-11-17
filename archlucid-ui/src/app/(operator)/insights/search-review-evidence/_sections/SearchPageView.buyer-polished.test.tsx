@@ -10,6 +10,12 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
@@ -18,6 +24,7 @@ vi.mock("@/components/runs/RunIdPicker", () => ({
   RunIdPicker: () => <div data-testid="search-review-evidence-run-picker" />,
 }));
 
+
 vi.mock("@/components/AskRunIdPicker", () => ({
   AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
 }));
@@ -25,6 +32,18 @@ vi.mock("@/components/AskRunIdPicker", () => ({
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({
   useWorkspaceActiveRun: () => ({ runId: "", activeRunId: "" }),
 }));
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => ({
+      isWorkingMode: false,
+      mounted: true,
+    }),
+  };
+});
 
 vi.mock("./SearchNextReviewFooterClient", () => ({
   SearchNextReviewFooterClient: () => <div data-testid="search-next-review-footer-stub" />,

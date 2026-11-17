@@ -16,13 +16,13 @@ const artifactDescriptorSchema = z
     format: operatorNonEmptyTrimmedString,
     createdUtc: operatorNonEmptyTrimmedString,
     contentHash: operatorNonEmptyTrimmedString,
-    manifestId: z.string().optional(),
-    runId: z.string().optional(),
+    manifestId: operatorNonEmptyTrimmedString.optional(),
+    runId: operatorNonEmptyTrimmedString.optional(),
   })
   .passthrough();
 
 const artifactListRowSchema = z
-  .object({ artifactId: operatorNonEmptyTrimmedString, name: z.string() })
+  .object({ artifactId: operatorNonEmptyTrimmedString, name: operatorNonEmptyTrimmedString })
   .passthrough();
 
 /**
@@ -82,12 +82,24 @@ export function coerceArtifactDescriptor(
       }
     }
 
-    if (data.manifestId !== undefined && typeof data.manifestId !== "string") {
-      return { ok: false, message: 'Artifact descriptor has invalid "manifestId".' };
+    if (data.manifestId !== undefined) {
+      if (typeof data.manifestId !== "string") {
+        return { ok: false, message: 'Artifact descriptor has invalid "manifestId".' };
+      }
+
+      if (!operatorNonEmptyTrimmedString.safeParse(data.manifestId).success) {
+        return { ok: false, message: 'Artifact descriptor is missing or invalid "manifestId".' };
+      }
     }
 
-    if (data.runId !== undefined && typeof data.runId !== "string") {
-      return { ok: false, message: 'Artifact descriptor has invalid "runId".' };
+    if (data.runId !== undefined) {
+      if (typeof data.runId !== "string") {
+        return { ok: false, message: 'Artifact descriptor has invalid "runId".' };
+      }
+
+      if (!operatorNonEmptyTrimmedString.safeParse(data.runId).success) {
+        return { ok: false, message: 'Artifact descriptor is missing or invalid "runId".' };
+      }
     }
 
     return { ok: false, message: "Artifact descriptor was not a JSON object." };

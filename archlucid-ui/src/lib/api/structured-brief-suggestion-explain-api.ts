@@ -1,6 +1,7 @@
 import { sha256Hex } from "@/lib/cto-demo-audit-integrity-chain";
 import type { components } from "@/lib/api-types.generated";
 import { apiPostJson } from "./http";
+import { trimRequiredPathSegment } from "./api-boundary-normalization";
 
 /** Matches API minimum for structured-brief explain requests. */
 export const STRUCTURED_BRIEF_EXPLAIN_MIN_SOURCE_CHARS = 20;
@@ -24,12 +25,18 @@ export type ExplainStructuredBriefSuggestionResponse = {
 export async function explainStructuredBriefSuggestion(
   input: ExplainStructuredBriefSuggestionInput,
 ): Promise<ExplainStructuredBriefSuggestionResponse> {
+  const sourceText = trimRequiredPathSegment(input.sourceText, "sourceText");
+
+  if (sourceText.length < STRUCTURED_BRIEF_EXPLAIN_MIN_SOURCE_CHARS) {
+    throw new Error(`sourceText must be at least ${STRUCTURED_BRIEF_EXPLAIN_MIN_SOURCE_CHARS} characters.`);
+  }
+
   return apiPostJson<ExplainStructuredBriefSuggestionResponse>(
     "/v1/architecture/request/draft/suggestion/explain",
     {
-      sourceText: input.sourceText,
+      sourceText,
       suggestionKind: input.suggestionKind,
-      suggestionText: input.suggestionText,
+      suggestionText: trimRequiredPathSegment(input.suggestionText, "suggestionText"),
     },
   );
 }

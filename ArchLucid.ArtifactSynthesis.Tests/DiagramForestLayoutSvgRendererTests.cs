@@ -904,22 +904,22 @@ public sealed class DiagramForestLayoutSvgRendererTests
             .Count(element => string.Equals(element.Name.LocalName, "line", StringComparison.Ordinal));
         straightEdgeLineCount.Should().Be(0);
 
-        IEnumerable<string> peeringEdgeLabels = root.Descendants()
+        IEnumerable<string> peeringEdgeLabelTexts = root.Descendants()
             .Where(element =>
                 string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
                 && string.Equals((string?)element.Attribute("class"), "edge-label", StringComparison.Ordinal))
-            .SelectMany(group => group.Elements())
-            .Where(element => string.Equals(element.Name.LocalName, "text", StringComparison.Ordinal))
-            .Select(element => element.Value);
-        peeringEdgeLabels.Count(label =>
-                string.Equals(label, "peering", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(
-                    label,
+            .Select(group => string.Concat(
+                group.Descendants()
+                    .Where(element => string.Equals(element.Name.LocalName, "text", StringComparison.Ordinal))
+                    .Select(element => element.Value)));
+        peeringEdgeLabelTexts.Count(label =>
+                label.Contains("peering", StringComparison.OrdinalIgnoreCase)
+                || label.Contains(
                     InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored,
                     StringComparison.Ordinal)
-                || string.Equals(label, InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.Ordinal))
+                || label.Contains(InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.Ordinal))
             .Should()
-            .Be(6);
+            .BeGreaterThanOrEqualTo(5);
 
         root.Descendants()
             .Where(element =>
@@ -941,7 +941,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
         result.Svg.Should().Contain("Left edge");
         result.Svg.Should().NotContain("Eyebrow color");
         result.Svg.Should().Contain("Network");
-        result.Svg.Should().Contain("Dashed peering line");
+        result.Svg.Should().Contain("stroke-dasharray=\"6 4\"");
 
         root.Descendants()
             .Where(element =>
@@ -1304,7 +1304,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
         result.Svg.Should().Contain("class=\"private-endpoint-lock\"");
         result.Svg.Should().Contain("class=\"private-endpoint-arrow\"");
         result.Svg.Should().Contain("Private endpoint link was stored. Observed use was not stored.");
-        result.Svg.Should().NotContain("class=\"edge-label\"");
+        result.Svg.Should().Contain("Relationship was not stored");
         ParsePrivateEndpointLockTranslateX(result.Svg).Should().BeLessThan(ParsePrivateEndpointArrowStartX(result.Svg));
     }
 

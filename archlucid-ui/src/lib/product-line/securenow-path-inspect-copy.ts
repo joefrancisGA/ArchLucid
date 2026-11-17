@@ -1,4 +1,11 @@
+import { SECURENOW_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  SECURENOW_DOES_NOT_CHANGE_AZURE_LINE,
+  SECURENOW_RETRY_NO_AZURE_CHANGE,
+} from "@/lib/product-line/securenow-change-impact-copy";
 import { secureNowTitleCase } from "@/lib/product-line/securenow-title-case";
+
+export { SECURENOW_DOES_NOT_CHANGE_AZURE_LINE };
 
 export const SECURENOW_PATH_INSPECT_PANEL_TITLE = secureNowTitleCase("Path inspect");
 
@@ -11,6 +18,9 @@ export const SECURENOW_PATH_INSPECT_LOADING = "Loading path inspect…" as const
 
 export const SECURENOW_PATH_INSPECT_ERROR = "Path inspect unavailable" as const;
 
+export const SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE =
+  SECURENOW_RETRY_NO_AZURE_CHANGE;
+
 export const SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE = secureNowTitleCase("Weakest hop");
 
 export const SECURENOW_PATH_INSPECT_ARCHITECT_SENTENCE_TITLE = secureNowTitleCase("Architect path summary");
@@ -19,8 +29,16 @@ export const SECURENOW_PATH_INSPECT_HOPS_TITLE = secureNowTitleCase("Path hops")
 
 export const SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE = secureNowTitleCase("Cut points");
 
+export const SECURENOW_PATH_INSPECT_CHANGE_IMPACT_DISCIPLINE =
+  "A cut point is an advisory intervention. Your engineer applies the change in Azure outside SecureNow. A later successful capture can support whether the condition changed." as const;
+
 export const SECURENOW_PATH_INSPECT_FRAMEWORK_THEME =
   "Framework theme: Microsoft cloud security benchmark. A cited theme is not a certification." as const;
+
+export const SECURENOW_PATH_INSPECT_EXPECTATION_KEYS_LINE =
+  "Assigned packs expose named expectation keys in Standards and rules. Path rank and explanation outputs are not pack-parameterized (WK-21)." as const;
+
+export const SECURENOW_PATH_INSPECT_EXPECTATION_KEYS_HREF = SECURENOW_STANDARDS_AND_RULES_PATH;
 
 export const SECURENOW_PATH_INSPECT_ROUTING_TITLE = secureNowTitleCase("Organizational routing");
 
@@ -31,9 +49,17 @@ export const SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT =
 
 export const SECURENOW_PATH_INSPECT_RANK_TITLE = secureNowTitleCase("Path rank");
 
+export const SECURENOW_PATH_INSPECT_RANK_MODE_DISCIPLINE =
+  "Path rank is deterministic (SA-09). Explanation generation follows the agent execution mode — rank weights are unchanged." as const;
+
+export const SECURENOW_PATH_INSPECT_RANK_STORED_PATH_DISCIPLINE =
+  "Rank uses the stored path snapshot for this scope. It is not a new model score or a live Azure measurement." as const;
+
 export const SECURENOW_PATH_INSPECT_RANK_LOADING = "Loading path rank…" as const;
 
 export const SECURENOW_PATH_INSPECT_RANK_UNAVAILABLE = "Path rank unavailable" as const;
+
+export const SECURENOW_PATH_INSPECT_RANK_ROI_WORKSHEET_LINK_LABEL = "Synthetic ROI worksheet" as const;
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_TITLE = secureNowTitleCase("Architect explanation");
 
@@ -45,6 +71,9 @@ export const SECURENOW_PATH_INSPECT_EXPLANATION_BUTTON = "Generate explanation" 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_LOADING = "Generating explanation…" as const;
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_ERROR = "Explanation unavailable" as const;
+
+export const SECURENOW_PATH_INSPECT_EXPLANATION_SOURCE_NOT_STORED =
+  "Explanation source was not stored." as const;
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG = "Simulator — not live LLM" as const;
 
@@ -67,6 +96,15 @@ export const SECURENOW_PATH_RANKED_PATHS_LEAD =
   "Deterministic path ranking (SA-09). Select a row to inspect hops, cut points, and rank breakdown." as const;
 
 export const SECURENOW_PATH_RANKED_PATHS_EMPTY =
-  "No ranked path for this scope. Open collection, then select a row." as const;
+  "No ranked path for this scope. Open collection, then select a row. A blank ranking is not a clean result. Check capture freshness when rows are still empty." as const;
+
+export const SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_LINE =
+  "Configured path explanation uses platform Azure OpenAI in Real agent mode. Simulator mode uses the deterministic fallback." as const;
+
+export const SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_CONFIG_LINE =
+  "Configured path explanation uses the deterministic simulator for this workspace session." as const;
+
+export const SECURENOW_PATH_INSPECT_EXPLANATION_REAL_SESSION_FALLBACK_LINE =
+  "Real agent mode is configured, but this explanation did not pass live citation checks. Treat the deterministic fallback below as authoritative — it does not change the rank." as const;
 
 export const SECURENOW_PATH_RANKED_PATHS_ERROR = "Ranked paths unavailable" as const;

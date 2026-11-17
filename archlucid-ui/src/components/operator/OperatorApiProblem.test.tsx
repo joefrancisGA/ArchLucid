@@ -3,6 +3,17 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/run-502",
+  useSearchParams: () => new URLSearchParams(),
+  // Error recovery and report-problem children consume these hooks. Keep
+  // navigation inert without weakening any rendered error assertions.
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+  }),
 }));
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";

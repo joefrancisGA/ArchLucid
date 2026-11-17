@@ -1,4 +1,5 @@
 import type { components } from "@/lib/api-types.generated";
+import { resolveDeskAwareReviewOpenHref } from "@/lib/architecture/review-url-state-pathname";
 import { truncateMiddle } from "@/lib/truncate-middle";
 
 export type IntegrationEventOutboxDeadLetterRow = components["schemas"]["IntegrationEventOutboxDeadLetterRow"];
@@ -40,12 +41,22 @@ export function truncateErrorMessage(message: string | undefined | null): string
   return truncateMiddle(message, 96);
 }
 
-export function resolveReviewHref(runId: string | undefined | null): string | null {
+export function resolveReviewHref(
+  runId: string | undefined | null,
+  pathname?: string | null,
+): string | null {
   if (runId === undefined || runId === null || runId.trim() === "") {
     return null;
   }
 
-  return `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const trimmedRunId = runId.trim();
+  const path = pathname?.trim() ?? "";
+
+  if (path.length === 0) {
+    return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}`;
+  }
+
+  return resolveDeskAwareReviewOpenHref(trimmedRunId, path);
 }
 
 export function rowMatchesFilters(

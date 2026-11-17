@@ -14,6 +14,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { TENANT_SETTINGS_SETTINGS_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/tenant-settings-settings-page-copy";
 
 import { TenantSettingsSettingsBuyerChrome } from "./TenantSettingsSettingsBuyerChrome";

@@ -2,13 +2,14 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Integration hosts using <see cref="ArchLucid.Api.Tests.ArchLucidApiFactory" /> (<c>ArchLucid:StorageProvider=InMemory</c>)
-///     resolve commercial tier via <see cref="ITenantRepository" /> (singleton <see cref="InMemoryTenantRepository" />), not SQL.
+///     Integration hosts using <see cref="ArchLucid.Api.Tests.ArchLucidApiFactory" /> resolve commercial tier via
+///     <see cref="ITenantRepository" /> (in-memory registry or SQL-backed <c>dbo.Tenants</c>).
 /// </summary>
 internal static class CommercialTierIntegrationTestTenant
 {
@@ -21,12 +22,51 @@ internal static class CommercialTierIntegrationTestTenant
 
         ITenantRepository tenants = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
 
-        if (tenants is not InMemoryTenantRepository inMemory)
+        if (tenants is InMemoryTenantRepository inMemory)
         {
-            throw new InvalidOperationException(
-                $"Commercial tier tests require singleton {nameof(InMemoryTenantRepository)} (InMemory ArchLucid:StorageProvider). Found {tenants.GetType().FullName ?? "null"}");
+            await inMemory.SetCommercialTierForIntegrationTestsAsync(ScopeIds.DefaultTenant, tier, cancellationToken)
+                .ConfigureAwait(false);
+            return;
         }
 
-        await inMemory.SetCommercialTierForIntegrationTestsAsync(ScopeIds.DefaultTenant, tier, cancellationToken);
+        await SetSqlTenantCommercialTierAsync(factory.SqlConnectionString, ScopeIds.DefaultTenant, tier, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    private static async Task SetSqlTenantCommercialTierAsync(
+        string connectionString,
+        Guid tenantId,
+        TenantTier tier,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+
+        string tierValue = tier switch
+        {
+            TenantTier.Free => "Free",
+            TenantTier.Standard => "Standard",
+            TenantTier.Enterprise => "Enterprise",
+            _ => throw new ArgumentOutOfRangeException(nameof(tier), tier, null)
+        };
+
+        await using SqlConnection connection = new(connectionString);
+        await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+        await using SqlCommand command = connection.CreateCommand();
+        command.CommandText = """
+            UPDATE dbo.Tenants
+            SET Tier = @Tier
+            WHERE Id = @TenantId;
+            """;
+        command.Parameters.AddWithValue("@Tier", tierValue);
+        command.Parameters.AddWithValue("@TenantId", tenantId);
+
+        int rows = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+
+        if (rows == 0)
+        {
+            throw new InvalidOperationException(
+                $"Tenant '{tenantId:D}' was not found in SQL; ensure integration migrations seeded default scope.");
+        }
     }
 }

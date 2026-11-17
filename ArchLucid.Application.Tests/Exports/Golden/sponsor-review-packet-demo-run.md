@@ -7,7 +7,7 @@
 - **System:** Claims Intake Modernization
 - **Manifest version:** claims-intake-v3-demo
 - **Review ID:** `claims-intake-modernization`
-- **Status:** Committed
+- **Status:** Finalized
 
 ## Execution mode
 

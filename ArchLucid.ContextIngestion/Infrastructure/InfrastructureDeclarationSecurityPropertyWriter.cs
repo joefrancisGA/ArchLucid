@@ -9,11 +9,15 @@ internal static class InfrastructureDeclarationSecurityPropertyWriter
         new(StringComparer.OrdinalIgnoreCase)
         {
             ["publicnetworkaccess"] = "publicNetworkAccess",
+            ["publiclyaccessible"] = "publiclyAccessible",
             ["allowblobpublicaccess"] = "allowBlobPublicAccess",
             ["httpsonly"] = "httpsOnly",
             ["minimumtlsversion"] = "minimumTlsVersion",
+            ["minimaltlsversion"] = "minimalTlsVersion",
+            ["minimal_tls_version"] = "minimalTlsVersion",
             ["min_tls_version"] = "minTlsVersion",
             ["supportshttpstrafficonly"] = "supportsHttpsTrafficOnly",
+            ["enablehttpstrafficonly"] = "enableHttpsTrafficOnly",
         };
 
     internal static bool TryAddTfPropertyWithArmAlias(

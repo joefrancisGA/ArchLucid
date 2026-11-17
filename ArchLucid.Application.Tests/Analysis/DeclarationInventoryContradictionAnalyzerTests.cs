@@ -208,6 +208,385 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_detects_minimum_tls_mismatch_when_declaration_uses_compacted_tf_minimaltlsversion()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.minimaltlsversion"] = "TLS1_2",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "minimumTlsVersion": "TLS1_0"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.minimaltlsversion");
+        mismatch.DeclarationValue.Should().Be("TLS1_2");
+        mismatch.InventoryValue.Should().Be("TLS1_0");
+        mismatch.SecurityTheme.Should().Be("transport-security");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_ssl_enforcement_mismatch_when_declaration_uses_tf_ssl_enforcement_shorthand()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "pg-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pgflex",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DBforPostgreSQL/flexibleServers/pgflex",
+                        ["tf.ssl_enforcement"] = "Disabled",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.DBforPostgreSQL/flexibleServers",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DBforPostgreSQL/flexibleServers/pgflex",
+                "properties": {
+                  "sslEnforcementEnabled": "Enabled"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.ssl_enforcement");
+        mismatch.DeclarationValue.Should().Be("Disabled");
+        mismatch.InventoryValue.Should().Be("Enabled");
+        mismatch.SecurityTheme.Should().Be("transport-security");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_ssl_enforcement_mismatch_when_declaration_uses_compacted_tf_sslenforcement()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "pg-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pgflex",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DBforPostgreSQL/flexibleServers/pgflex",
+                        ["tf.sslenforcement"] = "Disabled",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.DBforPostgreSQL/flexibleServers",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DBforPostgreSQL/flexibleServers/pgflex",
+                "properties": {
+                  "sslEnforcementEnabled": "Enabled"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.sslenforcement");
+        mismatch.DeclarationValue.Should().Be("Disabled");
+        mismatch.InventoryValue.Should().Be("Enabled");
+        mismatch.SecurityTheme.Should().Be("transport-security");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_ssl_enforcement_mismatch_when_inventory_uses_ssl_enforcement_without_enabled_suffix()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "pg-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pgflex",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DBforPostgreSQL/flexibleServers/pgflex",
+                        ["tf.ssl_enforcement"] = "Disabled",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.DBforPostgreSQL/flexibleServers",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DBforPostgreSQL/flexibleServers/pgflex",
+                "properties": {
+                  "sslEnforcement": "Enabled"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.ssl_enforcement");
+        mismatch.DeclarationValue.Should().Be("Disabled");
+        mismatch.InventoryValue.Should().Be("Enabled");
+        mismatch.SecurityTheme.Should().Be("transport-security");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_ssl_enforcement_mismatch_when_declaration_uses_compacted_tf_sslenforcementenabled()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "sql-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sqlprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sqlprod",
+                        ["tf.sslenforcementenabled"] = "false",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Sql/servers",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sqlprod",
+                "properties": {
+                  "sslEnforcementEnabled": "Enabled"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.sslenforcementenabled");
+        mismatch.DeclarationValue.Should().Be("false");
+        mismatch.InventoryValue.Should().Be("Enabled");
+        mismatch.SecurityTheme.Should().Be("transport-security");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_minimum_tls_mismatch_when_inventory_uses_minimal_tls_version_property_name()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.minimaltlsversion"] = "TLS1_2",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "minimalTlsVersion": "TLS1_0"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.InventoryValue.Should().Be("TLS1_0");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_public_network_mismatch_when_inventory_property_is_json_boolean()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.public_network_access_enabled"] = "false",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "publicNetworkAccess": true
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationValue.Should().Be("false");
+        mismatch.InventoryValue.Should().Be("true");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_compacted_tf_enablehttpstrafficonly()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.enablehttpstrafficonly"] = "true",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "supportsHttpsTrafficOnly": false
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.enablehttpstrafficonly");
+        mismatch.DeclarationValue.Should().Be("true");
+        mismatch.InventoryValue.Should().Be("false");
+        mismatch.SecurityTheme.Should().Be("transport-security");
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_enable_https_traffic_only()
     {
         GraphSnapshot graph = new()
@@ -441,6 +820,53 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
                 graph);
 
         mismatches.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_public_network_mismatch_when_aws_declaration_uses_compacted_tf_publiclyaccessible()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "rds-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pay-db",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] = "arn:aws:rds:us-east-1:123456789012:db:pay-db",
+                        ["tf.publiclyaccessible"] = "false",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "name": "arn:aws:rds:us-east-1:123456789012:db:pay-db",
+                "resourceType": "AWS::RDS::DBInstance",
+                "properties": {
+                  "publiclyAccessible": true
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Aws,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.publiclyaccessible");
+        mismatch.DeclarationValue.Should().Be("false");
+        mismatch.InventoryValue.Should().Be("true");
+        mismatch.SecurityTheme.Should().Be("data-protection");
     }
 
     [Fact]
@@ -780,5 +1206,275 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
             out string theme).Should().BeFalse();
 
         theme.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_mismatch_when_inventory_omits_public_network_access_but_declaration_disables()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.public_network_access_enabled"] = "false",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "supportsHttpsTrafficOnly": true
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.SecurityTheme.Should().Be("data-protection");
+        mismatch.DeclarationValue.Should().Be("false");
+        mismatch.InventoryValue.Should().Be("Enabled");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_skips_mismatch_when_inventory_public_network_access_is_secured_by_perimeter()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.public_network_access"] = "Disabled",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "publicNetworkAccess": "SecuredByPerimeter"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        mismatches.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_https_only_mismatch_when_inventory_uses_enable_https_traffic_only()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.supports_https_traffic_only"] = "true",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "enableHttpsTrafficOnly": false
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.supports_https_traffic_only");
+        mismatch.InventoryValue.Should().Be("false");
+        mismatch.SecurityTheme.Should().Be("transport-security");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_does_not_mismatch_when_aws_declaration_uses_zero_and_inventory_publicly_accessible_is_false_string()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "rds-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pay-db",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] = "arn:aws:rds:us-east-1:123456789012:db:pay-db",
+                        ["tf.publiclyaccessible"] = "0",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "name": "arn:aws:rds:us-east-1:123456789012:db:pay-db",
+                "resourceType": "AWS::RDS::DBInstance",
+                "properties": {
+                  "publiclyAccessible": "false"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Aws,
+                resourcesJson,
+                graph);
+
+        mismatches.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_public_network_mismatch_when_aws_declaration_uses_zero_and_inventory_is_public()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "rds-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pay-db",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] = "arn:aws:rds:us-east-1:123456789012:db:pay-db",
+                        ["tf.publiclyaccessible"] = "0",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "name": "arn:aws:rds:us-east-1:123456789012:db:pay-db",
+                "resourceType": "AWS::RDS::DBInstance",
+                "properties": {
+                  "publiclyAccessible": true
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Aws,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationValue.Should().Be("0");
+        mismatch.InventoryValue.Should().Be("true");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_does_not_mismatch_when_declaration_uses_no_and_inventory_public_network_access_is_disabled()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.public_network_access"] = "no",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "publicNetworkAccess": "Disabled"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        mismatches.Should().BeEmpty();
     }
 }

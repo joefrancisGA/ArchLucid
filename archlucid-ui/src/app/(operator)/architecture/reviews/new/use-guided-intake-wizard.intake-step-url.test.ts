@@ -1,4 +1,4 @@
-import { fireEvent, renderHook, waitFor, type ReactNode } from "@testing-library/react";
+import { act, fireEvent, renderHook, waitFor, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -196,7 +196,7 @@ describe("useGuidedIntakeWizard intakeStep URL sync", () => {
     expect(result.current.sourceArchitectureId).toBe("architecture-123");
   });
 
-  it("writes intake step from useSearchParams when window.location.search lags after soft navigation", () => {
+  it("writes intake step from useSearchParams when window.location.search lags after soft navigation", async () => {
     intakeStepSearchParamsHarness.applySearchParamsQuery("");
     intakeStepSearchParamsHarness.setWindowLocationSearch("staleToolbar=old");
 
@@ -204,9 +204,13 @@ describe("useGuidedIntakeWizard intakeStep URL sync", () => {
       wrapper: IntakeStepSearchParamsRerenderHost,
     });
 
-    result.current.setStep(1);
+    act(() => {
+      result.current.setStep(1);
+    });
 
-    expect(intakeStepSearchParamsHarness.state.query).toContain("intakeStep=1");
+    await waitFor(() => {
+      expect(intakeStepSearchParamsHarness.state.query).toContain("intakeStep=1");
+    });
     expect(intakeStepSearchParamsHarness.state.query).not.toContain("staleToolbar");
   });
 

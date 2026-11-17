@@ -29,7 +29,7 @@ describe("PlanningPageHeader", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Improvement planning" })).toBeInTheDocument();
     expect(screen.getByText(IMPROVEMENT_PLANNING_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("improvement-planning-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("improvement-planning-breadcrumb")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
     expect(onRefresh).toHaveBeenCalledTimes(1);
   });

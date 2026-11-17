@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { provenanceReferenceHref } from "@/lib/provenance-reference-href";
 import type { ArchitectureLinkageNode } from "@/types/architecture-provenance";
 
@@ -36,6 +37,24 @@ describe("provenanceReferenceHref", () => {
     );
   });
 
+  it("uses nested desk base for run links when pathname is a nested review desk for that run", () => {
+    const nestedPath = "/architecture/architectures/parent-arch/reviews/customer-intake-modernization/provenance";
+
+    expect(
+      provenanceReferenceHref("customer-intake-modernization", "customer-intake-modernization", nodes, {
+        pathname: nestedPath,
+      }),
+    ).toBe("/architecture/architectures/parent-arch/reviews/customer-intake-modernization");
+  });
+
+  it("uses nested desk base for finding trace when pathname is a nested review desk for that run", () => {
+    const nestedPath = "/architecture/architectures/parent-arch/reviews/customer-intake-modernization";
+
+    expect(provenanceReferenceHref("customer-intake-modernization", "finding-guid-1", nodes, { pathname: nestedPath })).toBe(
+      "/architecture/architectures/parent-arch/reviews/customer-intake-modernization/findings/finding-guid-1/evidence-trace",
+    );
+  });
+
   it("returns null for unresolved guid references", () => {
     expect(
       provenanceReferenceHref("customer-intake-modernization", "00000000-0000-0000-0000-000000000099", nodes),
@@ -44,5 +63,18 @@ describe("provenanceReferenceHref", () => {
 
   it("returns null for empty references", () => {
     expect(provenanceReferenceHref("customer-intake-modernization", null, nodes)).toBeNull();
+  });
+
+  it("links policy pack nodes to compliance hub paths on SecureNow", () => {
+    const policyPackNodes: ArchitectureLinkageNode[] = [
+      ...nodes,
+      { id: "n-pack", type: "PolicyPack", referenceId: "arc-ampe-baseline", name: "ARC-AMPE baseline" },
+    ];
+
+    expect(
+      provenanceReferenceHref("customer-intake-modernization", "arc-ampe-baseline", policyPackNodes, {
+        productLine: "security",
+      }),
+    ).toBe(`${SECURENOW_POLICY_PACKS_PATH}/arc-ampe-baseline`);
   });
 });

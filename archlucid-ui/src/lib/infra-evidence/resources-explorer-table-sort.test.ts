@@ -37,6 +37,29 @@ describe("resources-explorer-table-sort", () => {
     expect(sorted.map((row) => row.cloudResourceId)).toEqual(["1", "2"]);
   });
 
+  it("sorts Last seen by instant across offset-less and explicitly zoned timestamps", () => {
+    const rows = [
+      buildRow({ cloudResourceId: "later", lastSeenUtc: "2026-09-01T12:00:00.5Z" }),
+      buildRow({ cloudResourceId: "earliest", lastSeenUtc: "2026-09-01T13:59:00+02:00" }),
+      buildRow({ cloudResourceId: "earlier", lastSeenUtc: "2026-09-01T12:00:00" }),
+    ];
+
+    expect(sortResourceExplorerRows(rows, "lastSeen", true).map((row) => row.cloudResourceId))
+      .toEqual(["earliest", "earlier", "later"]);
+    expect(sortResourceExplorerRows(rows, "lastSeen", false).map((row) => row.cloudResourceId))
+      .toEqual(["later", "earlier", "earliest"]);
+  });
+
+  it("orders an exact UTC second before a later fractional timestamp", () => {
+    const rows = [
+      buildRow({ cloudResourceId: "later", lastSeenUtc: "2026-09-01T12:00:00.5Z" }),
+      buildRow({ cloudResourceId: "earlier", lastSeenUtc: "2026-09-01T12:00:00Z" }),
+    ];
+
+    expect(sortResourceExplorerRows(rows, "lastSeen", true).map((row) => row.cloudResourceId))
+      .toEqual(["earlier", "later"]);
+  });
+
   it("sorts rows by display name descending", () => {
     const rows = [
       buildRow({ cloudResourceId: "1", displayName: "alpha" }),

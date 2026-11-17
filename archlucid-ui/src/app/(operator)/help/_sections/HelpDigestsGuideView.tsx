@@ -9,7 +9,6 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { Button } from "@/components/ui/button";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
-  DIGESTS_HELP_CONTENT_ITEMS,
   DIGESTS_HELP_CONTENT_SECTION_TITLE,
   DIGESTS_HELP_DESTINATION_CARDS,
   DIGESTS_HELP_CLAIM_HEADING_ID,
@@ -49,6 +48,8 @@ import {
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { resolveDigestsHelpContentItems } from "@/lib/digests-help-guide-content";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
@@ -86,7 +87,9 @@ function HowDigestsWorkSteps(): React.ReactElement {
   );
 }
 
-function DigestsHelpContentSection(): React.ReactElement {
+function DigestsHelpContentSection(props: { readonly productLineId: ReturnType<typeof resolveProductLineIdFromEnv> }): React.ReactElement {
+  const contentItems = resolveDigestsHelpContentItems(props.productLineId);
+
   return (
     <section
       aria-labelledby="what-a-digest-contains"
@@ -94,7 +97,7 @@ function DigestsHelpContentSection(): React.ReactElement {
     >
       <HelpSectionHeading id="what-a-digest-contains">{DIGESTS_HELP_CONTENT_SECTION_TITLE}</HelpSectionHeading>
       <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-digests-content-items">
-        {DIGESTS_HELP_CONTENT_ITEMS.map((item) => (
+        {contentItems.map((item) => (
           <li key={item.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
             <span className="font-medium text-al-text-primary">{item.label}</span>
             <span className="text-al-text-secondary">
@@ -153,6 +156,7 @@ function DigestsHelpSubscriptionConstraintsBlock(): React.ReactElement {
 /** Operator Digests orientation for `/help/digests` (TB-2049). */
 export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const productLineId = resolveProductLineIdFromEnv();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-digests",
     DIGESTS_HELP_GUIDE_HEADINGS,
@@ -218,7 +222,7 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
 
         <div className={contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-            <DigestsHelpContentSection />
+            <DigestsHelpContentSection productLineId={productLineId} />
 
             <section
               aria-labelledby="how-digests-work"

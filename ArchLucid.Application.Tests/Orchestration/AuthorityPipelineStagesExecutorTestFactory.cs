@@ -53,7 +53,8 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
         Mock<IKnowledgeGraphService>? knowledgeGraphServiceMock = null,
         Action<FindingsSnapshot>? configureFindings = null,
         AuthorityPipelineOptions? authorityPipelineOptions = null,
-        Action<Mock<IArtifactSynthesisService>>? configureSynthesis = null)
+        Action<Mock<IArtifactSynthesisService>>? configureSynthesis = null,
+        Action<Mock<IRunStageOutcomesRepository>>? configureStageOutcomes = null)
     {
         Guid snapshotId = Guid.NewGuid();
         Guid graphId = Guid.NewGuid();
@@ -250,6 +251,8 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
                 It.IsAny<System.Data.IDbConnection>(),
                 It.IsAny<System.Data.IDbTransaction>()))
             .Returns(Task.CompletedTask);
+
+        configureStageOutcomes?.Invoke(stageOutcomes);
 
         Mock<IGraphSnapshotSqlAuthorityWriter> graphSqlWriter = new();
         graphSqlWriter

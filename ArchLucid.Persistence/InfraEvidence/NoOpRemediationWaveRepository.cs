@@ -5,6 +5,13 @@ public sealed class NoOpRemediationWaveRepository : IRemediationWaveRepository
     public Task InsertWaveAsync(RemediationWaveRecord wave, CancellationToken cancellationToken = default) =>
         Task.CompletedTask;
 
+    public Task InsertWaveWithMembersInScopeAsync(
+        ArchLucid.Core.Scoping.ProjectScopeKey scope,
+        RemediationWaveCreateMutation wave,
+        IReadOnlyList<RemediationWaveMemberMutation> members,
+        CancellationToken cancellationToken = default) =>
+        Task.CompletedTask;
+
     public Task UpdateWaveAsync(RemediationWaveRecord wave, CancellationToken cancellationToken = default) =>
         Task.CompletedTask;
 

@@ -180,7 +180,7 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
 
     render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={runsDashboard} />);
 
-    expect(screen.getByTestId("operator-home-metric-awaiting-approval-count")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-workspace-metrics-strip")).not.toBeInTheDocument();
   });
 
   it("hides setup readiness in Working mode", () => {

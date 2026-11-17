@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { ArchitectureCreatedEvidenceClaimOrientationStrip } from "@/components/architecture/ArchitectureCreatedEvidenceClaimOrientationStrip";
 import { ARCHITECTURE_CREATED_EVIDENCE_SOURCES } from "@/lib/architecture/architecture-created-evidence-sources";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 describe("ArchitectureCreatedEvidenceClaimOrientationStrip", () => {
@@ -15,7 +15,10 @@ describe("ArchitectureCreatedEvidenceClaimOrientationStrip", () => {
     expect(sourcesSection).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-evidence-claim-discipline")).not.toBeInTheDocument();
 
-    for (const link of filterWhereToGoNextFollowUpLinks(ARCHITECTURE_CREATED_EVIDENCE_SOURCES)) {
+    for (const link of whereToGoNextFollowUpLinksForTests(
+      ARCHITECTURE_CREATED_EVIDENCE_SOURCES,
+      "/architecture/architectures/new/evidence",
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(link.href, link.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", link.href);
     }

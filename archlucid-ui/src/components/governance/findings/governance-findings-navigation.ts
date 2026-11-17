@@ -9,6 +9,8 @@ import {
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { resolveFirstReviewSpineOpenGateSectionId } from "@/lib/reviews/first-review-spine-band";
@@ -41,7 +43,10 @@ export function governanceFindingInspectHref(
     return `${architectureNestedFindingsPath(architectureId)}?${params.toString()}`;
   }
 
-  return getFindingEvidenceTraceHref(runId, findingId, options?.findingsQueueRunId);
+  return getFindingEvidenceTraceHref(runId, findingId, {
+    findingsQueueRunId: options?.findingsQueueRunId,
+    architectureId: options?.architectureId,
+  });
 }
 
 export type GovernanceQueueAuxiliaryFindingHrefInput = {
@@ -71,14 +76,28 @@ export function resolveGovernanceQueueAuxiliaryFindingHref(
     });
   }
 
-  return getFindingDetailHref(runId, findingId, input?.findingsQueueRunId);
+  return getFindingDetailHref(runId, findingId, {
+    findingsQueueRunId: input?.findingsQueueRunId,
+    architectureId: inspectHrefOptions?.architectureId,
+  });
 }
 
 /** Findings workspace deep link for queue disposition work (findingId + first-review spine hash). */
-export function governanceFindingQueueFindingsWorkspaceHref(runId: string, findingId: string): string {
+export function governanceFindingQueueFindingsWorkspaceHref(
+  runId: string,
+  findingId: string,
+  options?: { readonly architectureId?: string | null },
+): string {
+  const locator = resolveWorkingRunReviewLocator({
+    runId,
+    architectureId: options?.architectureId,
+  });
+  const architectureId = locator.architectureId ?? readCachedLastOpenArchitectureId();
+
   return buildReviewDetailTabHref(runId.trim(), "findings", {
     findingId: findingId.trim(),
     hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+    architectureId,
   });
 }
 
@@ -106,7 +125,9 @@ export function governanceFindingQueuePrimaryInspectHref(
   }
 
   if (governanceFindingQueueRowNeedsDispositionRecording(row)) {
-    return governanceFindingQueueFindingsWorkspaceHref(row.runId, row.findingId);
+    return governanceFindingQueueFindingsWorkspaceHref(row.runId, row.findingId, {
+      architectureId: options?.architectureId,
+    });
   }
 
   return governanceFindingInspectHref(row.runId, row.findingId, options);
@@ -129,9 +150,14 @@ export function governanceFindingQueueRowTitleInspectHref(
 }
 
 /** Review column link: findings workspace when this row still needs disposition recording. */
-export function governanceFindingQueueRowReviewHrefForRow(row: GovernanceFindingQueueRow): string {
+export function governanceFindingQueueRowReviewHrefForRow(
+  row: GovernanceFindingQueueRow,
+  options?: GovernanceFindingInspectHrefOptions,
+): string {
   if (governanceFindingQueueRowNeedsDispositionRecording(row)) {
-    return governanceFindingQueueFindingsWorkspaceHref(row.runId, row.findingId);
+    return governanceFindingQueueFindingsWorkspaceHref(row.runId, row.findingId, {
+      architectureId: options?.architectureId,
+    });
   }
 
   return governanceFindingQueueRowReviewHref(row.runId);

@@ -46,7 +46,8 @@ export type FirstReviewSpineBandSummary = {
   readonly showTopFindingRow: boolean;
   readonly topFindingId: string | null;
   readonly topFindingPolicyMapped: boolean;
-  readonly openGateLabel: string | null;
+  readonly openGateLabel: FirstReviewSpineOpenGateLabel | null;
+  readonly openGateNextAction: string | null;
   readonly openGateHref: string | null;
   readonly openGateReviewTab: FirstReviewOpenGateReviewTab | null;
 };
@@ -206,24 +207,64 @@ export const FIRST_REVIEW_SPINE_NO_OPEN_GATE_CLEAR_LINE =
 
 export type FirstReviewOpenGateReviewTab = "findings" | "review-package";
 
+export type FirstReviewOpenGateLabel =
+  | "Uncited finding"
+  | "Open disposition"
+  | "Uncommitted review";
+
+export type FirstReviewOpenGate = {
+  readonly label: FirstReviewOpenGateLabel;
+  readonly reviewTab: FirstReviewOpenGateReviewTab;
+  readonly nextAction: string;
+};
+
+export type FirstReviewSpineOpenGateLabel =
+  | FirstReviewOpenGateLabel
+  | typeof FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED;
+
+const FIRST_REVIEW_OPEN_GATE_DEFINITIONS: Readonly<Record<FirstReviewOpenGateLabel, FirstReviewOpenGate>> = {
+  "Uncited finding": {
+    label: "Uncited finding",
+    reviewTab: "findings",
+    nextAction: "Review the finding citation and record its disposition.",
+  },
+  "Open disposition": {
+    label: "Open disposition",
+    reviewTab: "findings",
+    nextAction: "Record a disposition for the finding.",
+  },
+  "Uncommitted review": {
+    label: "Uncommitted review",
+    reviewTab: "review-package",
+    nextAction: "Review the package and commit it when ready.",
+  },
+};
+
+export function isFirstReviewOpenGateLabel(value: unknown): value is FirstReviewOpenGateLabel {
+  return (
+    typeof value === "string"
+    && Object.prototype.hasOwnProperty.call(FIRST_REVIEW_OPEN_GATE_DEFINITIONS, value)
+  );
+}
+
 export function resolveFirstReviewOpenGate(input: {
   readonly uncitedCount: number;
   readonly openDecisionGradeDispositionCount: number;
   readonly reviewHasGoldenManifest: boolean;
-}): { readonly label: string | null; readonly reviewTab: FirstReviewOpenGateReviewTab | null } {
+}): FirstReviewOpenGate | null {
   if (input.uncitedCount > 0) {
-    return { label: "Uncited finding", reviewTab: "findings" };
+    return FIRST_REVIEW_OPEN_GATE_DEFINITIONS["Uncited finding"];
   }
 
   if (input.openDecisionGradeDispositionCount > 0) {
-    return { label: "Open disposition", reviewTab: "findings" };
+    return FIRST_REVIEW_OPEN_GATE_DEFINITIONS["Open disposition"];
   }
 
   if (!input.reviewHasGoldenManifest) {
-    return { label: "Uncommitted review", reviewTab: "review-package" };
+    return FIRST_REVIEW_OPEN_GATE_DEFINITIONS["Uncommitted review"];
   }
 
-  return { label: null, reviewTab: null };
+  return null;
 }
 
 export function resolveRunDetailVisitDefaultReviewTab(input: {
@@ -243,7 +284,7 @@ export function resolveRunDetailVisitDefaultReviewTab(input: {
     reviewHasGoldenManifest: input.reviewHasGoldenManifest,
   });
 
-  return openGate.reviewTab;
+  return openGate?.reviewTab ?? null;
 }
 
 export const FIRST_REVIEW_SPINE_OPEN_GATE_SECTION_ID_PREFIX = "run-detail-first-review-spine-" as const;
@@ -279,6 +320,8 @@ export function resolveFirstReviewOpenGateReviewHref(input: {
   readonly findings: readonly QuickDecisionFinding[];
   readonly hasFindingsSnapshot: boolean;
   readonly reviewHasGoldenManifest: boolean;
+  /** Working nested desk base when the review is architecture-linked (AO-02). */
+  readonly architectureId?: string | null;
 }): string | null {
   const trimmedRunId = input.runId.trim();
 
@@ -294,7 +337,7 @@ export function resolveFirstReviewOpenGateReviewHref(input: {
     reviewHasGoldenManifest: input.reviewHasGoldenManifest,
   });
 
-  if (openGate.reviewTab === null) {
+  if (openGate === null) {
     return null;
   }
 
@@ -311,6 +354,8 @@ export function resolveFirstReviewOpenGateReviewHref(input: {
   return buildReviewDetailTabHref(trimmedRunId, tab, {
     findingId,
     hash,
+    architectureId: input.architectureId,
+    workbenchFocus: tab === "findings" ? "findings" : null,
   });
 }
 
@@ -319,6 +364,7 @@ export function resolveFirstReviewFindingsWorkspaceHref(input: {
   readonly runId: string;
   readonly findings: readonly QuickDecisionFinding[];
   readonly hasFindingsSnapshot: boolean;
+  readonly architectureId?: string | null;
 }): string | null {
   const trimmedRunId = input.runId.trim();
 
@@ -334,6 +380,35 @@ export function resolveFirstReviewFindingsWorkspaceHref(input: {
   return buildReviewDetailTabHref(trimmedRunId, "findings", {
     findingId,
     hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+    architectureId: input.architectureId,
+    workbenchFocus: "findings",
+  });
+}
+
+/** Findings tab deep link when disposition recording is the next open-gate action. */
+export function resolveFirstReviewRecordDispositionHref(input: {
+  readonly runId: string;
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot: boolean;
+  readonly architectureId?: string | null;
+}): string | null {
+  const trimmedRunId = input.runId.trim();
+
+  if (trimmedRunId.length === 0 || !input.hasFindingsSnapshot) {
+    return null;
+  }
+
+  const findingId = resolveFirstOpenDispositionFindingId(input.findings);
+
+  if (findingId === null) {
+    return resolveFirstReviewFindingsWorkspaceHref(input);
+  }
+
+  return buildReviewDetailTabHref(trimmedRunId, "findings", {
+    findingId,
+    hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+    architectureId: input.architectureId,
+    workbenchFocus: "findings",
   });
 }
 
@@ -342,6 +417,7 @@ export function resolveFirstReviewTopFindingInspectHref(input: {
   readonly runId: string;
   readonly topFindingId: string | null;
   readonly hasFindingsSnapshot: boolean;
+  readonly architectureId?: string | null;
 }): string | null {
   const trimmedRunId = input.runId.trim();
   const findingId = input.topFindingId?.trim() ?? "";
@@ -353,6 +429,8 @@ export function resolveFirstReviewTopFindingInspectHref(input: {
   return buildReviewDetailTabHref(trimmedRunId, "findings", {
     findingId,
     hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+    architectureId: input.architectureId,
+    workbenchFocus: "findings",
   });
 }
 
@@ -385,6 +463,7 @@ export function deriveFirstReviewSpineBandSummary(input: {
       showTopFindingRow: false,
       topFindingPolicyMapped: false,
       openGateLabel: FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED,
+      openGateNextAction: null,
       openGateHref: null,
       openGateReviewTab: null,
       topFindingSeverityLabel: null,
@@ -479,8 +558,9 @@ export function deriveFirstReviewSpineBandSummary(input: {
     showDispositionNextAction: dispositionStats.openDecisionGradeCount > 0,
     classificationCountsStored: true,
     dispositionCountsStored: true,
-    openGateLabel: openGate.label,
-    openGateHref: openGate.reviewTab === null ? null : `#run-detail-first-review-spine-${openGate.reviewTab}`,
-    openGateReviewTab: openGate.reviewTab,
+    openGateLabel: openGate?.label ?? null,
+    openGateNextAction: openGate?.nextAction ?? null,
+    openGateHref: openGate === null ? null : `#run-detail-first-review-spine-${openGate.reviewTab}`,
+    openGateReviewTab: openGate?.reviewTab ?? null,
   };
 }

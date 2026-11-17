@@ -19,7 +19,7 @@ const {
 }));
 
 let searchParams = new URLSearchParams();
-let pathname = "/governance/infrastructure/diagrams";
+const pathname = "/governance/infrastructure/diagrams";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),

@@ -113,7 +113,7 @@ describe("BeforeAfterDeltaTopPanel", () => {
       expect(screen.getByTestId("delta-top-rows")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Not enough data yet")).toBeInTheDocument();
+    expect(screen.getByText("Finding count was not stored.")).toBeInTheDocument();
   });
 
   it("renders the demo badge when a row is flagged as a demo tenant", async () => {

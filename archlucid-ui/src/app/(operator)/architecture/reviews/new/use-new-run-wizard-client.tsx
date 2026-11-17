@@ -33,7 +33,10 @@ import { useNewRunWizardPolicyPackMismatch } from "./use-new-run-wizard-policy-p
 import { useNewRunWizardTrackStream } from "./use-new-run-wizard-track-stream";
 import { useNewRunWizardMode } from "./use-new-run-wizard-mode";
 import { useNewRunWizardPendingEvidence } from "./use-new-run-wizard-pending-evidence";
-import { useNewRunWizardQueryPrefill } from "./use-new-run-wizard-query-prefill";
+import {
+  restoreWizardFormWithDeeplinkPolicy,
+  useNewRunWizardQueryPrefill,
+} from "./use-new-run-wizard-query-prefill";
 import { useNewRunWizardSubmit } from "./use-new-run-wizard-submit";
 import { useNewRunWizardSteps } from "./use-new-run-wizard-steps";
 import { useNewRunWizardTemplateRestore } from "./NewRunWizardTemplateRestore";
@@ -246,6 +249,13 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
   );
   const policyPackCloudMismatch = useNewRunWizardPolicyPackMismatch(templateWizardSessionState, payloadOptions);
 
+  const resetTemplateWizardSession = useCallback(
+    (values: WizardFormValues) => {
+      restoreWizardFormWithDeeplinkPolicy(params.deeplinkPolicyPackId, reset, setValue, values);
+    },
+    [params.deeplinkPolicyPackId, reset, setValue],
+  );
+
   const {
     templateWizardSession,
     suppressWizardResumePrompt,
@@ -258,7 +268,7 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
     wizardStepCount: wizardSteps.stepDefinitions.length,
     templateWizardSessionState,
     showFullWizardShell: wizardSteps.effectiveShowFullWizardShell,
-    reset,
+    reset: resetTemplateWizardSession,
     setStepIndex: wizardSteps.setStepIndex,
     getValues,
   });

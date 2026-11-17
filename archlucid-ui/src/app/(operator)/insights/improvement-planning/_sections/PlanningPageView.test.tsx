@@ -20,6 +20,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { PlanningPageView } from "@/app/(operator)/insights/improvement-planning/_sections/PlanningPageView";
 import type { PlanningPageViewModel } from "@/app/(operator)/insights/improvement-planning/_sections/planning-page-view-model";
 import {

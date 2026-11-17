@@ -1,4 +1,5 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { resolveGovernanceQueueDueDateMs } from "@/lib/governance/governance-queue-due-date";
 
 export type GovernanceAssignedToMeOldestFindingTarget = {
   readonly findingId: string;
@@ -6,18 +7,6 @@ export type GovernanceAssignedToMeOldestFindingTarget = {
   readonly runId: string;
   readonly agingDays: number | null;
 };
-
-function parseDueUtc(row: GovernanceFindingQueueRow): number | null {
-  const raw = row.revisitDueUtc?.trim() ?? row.waiverExpiresAtUtc?.trim() ?? "";
-
-  if (raw.length === 0) {
-    return null;
-  }
-
-  const parsed = Date.parse(raw);
-
-  return Number.isNaN(parsed) ? null : parsed;
-}
 
 function compareAssignedToMeOldestFindings(
   left: GovernanceFindingQueueRow,
@@ -31,8 +20,8 @@ function compareAssignedToMeOldestFindings(
     return agingDelta;
   }
 
-  const leftDue = parseDueUtc(left);
-  const rightDue = parseDueUtc(right);
+  const leftDue = resolveGovernanceQueueDueDateMs(left);
+  const rightDue = resolveGovernanceQueueDueDateMs(right);
 
   if (leftDue === null && rightDue === null) {
     return left.title.localeCompare(right.title);

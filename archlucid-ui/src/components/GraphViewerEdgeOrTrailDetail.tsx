@@ -5,10 +5,11 @@ import type * as React from "react";
 import { ReasoningTraceReadMore } from "@/components/ReasoningTraceReadMore";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buyerTrailEdgeDisplayPhrase } from "@/lib/graph-mapper";
+import { SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED } from "@/lib/security-evidence-path-types";
 import { cn } from "@/lib/utils";
 import type { GraphEdgeVm } from "@/types/graph";
 
-export const GRAPH_EDGE_RELATIONSHIP_NOT_STORED = "Relationship type was not stored." as const;
+export const GRAPH_EDGE_RELATIONSHIP_NOT_STORED = SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED;
 
 export const GRAPH_EDGE_LABEL_NOT_STORED = "Edge label was not stored." as const;
 

@@ -42,10 +42,7 @@ describe("guided-intake band regression (TB-1880)", () => {
   it("honors ENE traffic path token and product label (TB-1876)", () => {
     expect(REVIEWS_NEW_GUIDED_INTAKE_TAB_PATH_TOKEN).toBe(REVIEWS_NEW_GUIDED_INTAKE_PATH_TOKEN);
     expect(REVIEWS_NEW_GUIDED_INTAKE_TAB_PRODUCT_LABEL).toBe(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL);
-    expect(REVIEWS_NEW_GUIDED_INTAKE_TAB_TRAFFIC_NOTE).toContain(
-      `path=${REVIEWS_NEW_GUIDED_INTAKE_PATH_TOKEN}`,
-    );
-    expect(REVIEWS_NEW_GUIDED_INTAKE_TAB_TRAFFIC_NOTE).toContain("SocraticIntakeWizard");
+    expect(REVIEWS_NEW_GUIDED_INTAKE_TAB_TRAFFIC_NOTE).toBe("None");
   });
 
   it("keeps guided-intake path hint and URL token aligned (TB-1867 / TB-1877)", () => {
@@ -65,8 +62,11 @@ describe("guided-intake band regression (TB-1880)", () => {
     const wizardSource = readUiUtf8(
       "src/app/(operator)/architecture/reviews/new/SocraticIntakeWizard.tsx",
     );
+    const scopeStepSource = readUiUtf8(
+      "src/app/(operator)/architecture/reviews/new/SocraticIntakeWizardStepScope.tsx",
+    );
 
-    expect(wizardSource).toContain('data-testid="guided-intake-primary-panel"');
+    expect(scopeStepSource).toContain('data-testid="guided-intake-primary-panel"');
     expect(wizardSource).toContain('data-testid="socratic-source-architecture-banner"');
     expect(wizardSource).toContain("flex min-w-0 flex-col gap-4");
     expect(wizardSource).not.toContain("border-teal-200");

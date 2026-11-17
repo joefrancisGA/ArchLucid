@@ -6,6 +6,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { resolveSponsorRoiIdentifiedVsRealized } from "@/lib/sponsor-roi-identified-vs-realized";
 import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
 import { ROI_HEADLINE_MATH_TOOLTIP_LABEL } from "@/lib/roi-disposition-training-copy";
+import {
+  SPONSOR_ROI_IDENTIFIED_PENDING_LABEL,
+  SPONSOR_ROI_REALIZED_COMMITTED_LABEL,
+} from "@/lib/sponsor/sponsor-roi-identified-vs-realized";
 
 const summary: SponsorRoiSummary = {
   totalEstimatedUsdSavings: 120_000,
@@ -28,6 +32,29 @@ const summary: SponsorRoiSummary = {
 };
 
 describe("SponsorRoiIdentifiedVsRealizedPanel", () => {
+  it("links to decisions-remediation when realized savings were not stored", () => {
+    const noBasisSummary: SponsorRoiSummary = {
+      ...summary,
+      basisBreakdown: undefined,
+      systems: [{ systemName: "Payments", runId: "run-pick-1", committedUtc: null, estimatedUsdSavings: 10_000 }],
+    };
+
+    render(
+      <TooltipProvider>
+        <SponsorRoiIdentifiedVsRealizedPanel
+          summary={noBasisSummary}
+          buckets={resolveSponsorRoiIdentifiedVsRealized(noBasisSummary)}
+          dispositionReviewHref="/architecture/architectures/arch-1/reviews/run-pick-1?reviewTab=decisions-remediation"
+        />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByTestId("exec-roi-realized-not-stored-open-review")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/arch-1/reviews/run-pick-1?reviewTab=decisions-remediation",
+    );
+  });
+
   it("renders separate identified pending and realized committed amounts", () => {
     render(
       <TooltipProvider>
@@ -43,8 +70,8 @@ describe("SponsorRoiIdentifiedVsRealizedPanel", () => {
     expect(
       screen.getAllByRole("button", { name: `Help: ${ROI_HEADLINE_MATH_TOOLTIP_LABEL}` }),
     ).toHaveLength(2);
-    expect(screen.getByText("Identified savings (pending approval)")).toBeInTheDocument();
-    expect(screen.getByText("Realized savings (committed & applied)")).toBeInTheDocument();
+    expect(screen.getByText(SPONSOR_ROI_IDENTIFIED_PENDING_LABEL)).toBeInTheDocument();
+    expect(screen.getByText(SPONSOR_ROI_REALIZED_COMMITTED_LABEL)).toBeInTheDocument();
     expect(screen.getByTestId("exec-roi-identified-pending-usd")).toHaveTextContent("$120,000");
     expect(screen.getByTestId("exec-roi-realized-usd")).toHaveTextContent("$25,000");
   });

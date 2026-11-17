@@ -14,6 +14,10 @@ vi.mock("@/lib/workspace-mode/use-teaching-chrome-visible", () => ({
   useTeachingChromeVisible: () => teachingChromeVisibleMock.value,
 }));
 
+vi.mock("@/hooks/useArchitectWorkspaceChrome", () => ({
+  useArchitectWorkspaceChrome: () => false,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 

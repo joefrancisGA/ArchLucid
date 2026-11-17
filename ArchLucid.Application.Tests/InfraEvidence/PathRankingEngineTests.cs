@@ -23,6 +23,58 @@ public sealed class PathRankingEngineTests
     private static readonly Guid PathId = Guid.Parse("55555555-5555-5555-5555-555555555555");
     private const string SubscriptionId = "66666666-6666-6666-6666-666666666666";
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RunAsync_reports_the_result_of_clearing_ranks_for_an_empty_snapshot(bool failWrite)
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+        };
+
+        Mock<ISecurityEvidencePathRepository> pathRepository = new();
+        pathRepository
+            .Setup(repository => repository.ListWithHopsBySnapshotAsync(
+                It.IsAny<ProjectSnapshotScopeKey>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<ISecurityEvidencePathRankRepository> rankRepository = new(MockBehavior.Strict);
+        Task write = failWrite
+            ? Task.FromException(new InvalidOperationException("Rank storage is unavailable."))
+            : Task.CompletedTask;
+        rankRepository
+            .Setup(repository => repository.ReplaceRanksForSnapshotInScopeAsync(
+                It.Is<ProjectScopeKey>(key => key.TenantId == TenantId
+                    && key.WorkspaceId == WorkspaceId && key.ProjectId == ProjectId),
+                SnapshotId,
+                It.Is<IReadOnlyList<SecurityEvidencePathRankRecord>>(ranks => ranks.Count == 0),
+                CancellationToken.None))
+            .Returns(write)
+            .Verifiable();
+
+        PathRankingEngine engine = new(
+            pathRepository.Object,
+            rankRepository.Object,
+            Mock.Of<ISecurityAssetAssertionResolver>(MockBehavior.Strict),
+            Mock.Of<IAzureInventorySnapshotRepository>(MockBehavior.Strict),
+            NullLogger<PathRankingEngine>.Instance);
+
+        PathRankingEngineResult result = await engine.RunAsync(
+            scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None);
+
+        rankRepository.Verify();
+        result.Succeeded.Should().Be(!failWrite);
+        result.PathsRanked.Should().Be(0);
+        if (failWrite)
+        {
+            result.ErrorMessage.Should().Be("Path ranking persist failed.");
+        }
+    }
+
     [Fact]
     public async Task RunAsync_loads_defender_posture_for_blast_radius_ranking()
     {

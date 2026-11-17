@@ -36,6 +36,11 @@ const searchParamsHarness = vi.hoisted(() => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/run-1",
   useSearchParams: () => new URLSearchParams(searchParamsHarness.state.query),

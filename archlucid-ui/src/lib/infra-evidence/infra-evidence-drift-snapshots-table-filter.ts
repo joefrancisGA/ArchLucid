@@ -191,6 +191,7 @@ export function filterDriftSnapshots(
     DriftSnapshotsTableFilterState,
     "subscriptionFilter" | "capturedFilter" | "resourcesFilter" | "relationshipsFilter"
   >,
+  ianaTimeZoneId?: string,
 ): InfraEvidenceSnapshotSummary[] {
   const subscriptionNeedle = state.subscriptionFilter.trim().toLowerCase();
   const capturedNeedle = state.capturedFilter.trim().toLowerCase();
@@ -207,7 +208,7 @@ export function filterDriftSnapshots(
     }
 
     if (capturedNeedle.length > 0) {
-      const capturedLabel = formatInfraEvidenceSnapshotCapturedLabel(row.capturedUtc).toLowerCase();
+      const capturedLabel = formatInfraEvidenceSnapshotCapturedLabel(row.capturedUtc, ianaTimeZoneId).toLowerCase();
 
       if (!capturedLabel.includes(capturedNeedle)) {
         return false;

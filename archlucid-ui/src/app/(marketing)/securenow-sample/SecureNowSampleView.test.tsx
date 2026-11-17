@@ -59,6 +59,23 @@ describe("SecureNow sample page (SN-MKT-09)", () => {
     expect(screen.getByTestId("securenow-sample-fixture-hops")).toHaveTextContent("not an observed exploit");
   });
 
+  it("links each public beat into the operator pilot walkthrough", () => {
+    render(<SecureNowSampleView />);
+
+    expect(screen.getByTestId("securenow-sample-beat-handoff-1")).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections?securenowWalkBeat=1",
+    );
+    expect(screen.getByTestId("securenow-sample-beat-handoff-2")).toHaveAttribute(
+      "href",
+      expect.stringContaining("fixture-path-01"),
+    );
+    expect(screen.getByRole("link", { name: /Full six-beat pilot checklist/i })).toHaveAttribute(
+      "href",
+      "/administration/securenow-pilot-spine",
+    );
+  });
+
   it("lists the second synthetic fixture path section", () => {
     render(<SecureNowSampleView />);
 

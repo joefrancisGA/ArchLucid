@@ -144,3 +144,8 @@ describe("ServiceBusHealthBanner", () => {
     expect(screen.getByText(/Could not refresh processing status/i)).toBeInTheDocument();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

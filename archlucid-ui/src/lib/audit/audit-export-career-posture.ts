@@ -1,5 +1,6 @@
 import { resolveCareerArtifactExportHonestyDoorFields } from "@/lib/career-artifact/resolve-career-artifact-export-honesty-input";
 import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
+import { formatCareerExportHonestyPlainText } from "@/lib/career-export-coverage-honesty";
 import { AUDIT_DUAL_CHANNEL_HONESTY_NOTE } from "@/lib/buyer-copy/audit";
 import { isRehearsalStructuralExecutionMode } from "@/lib/governance/simulator-career-honesty";
 import {
@@ -96,12 +97,24 @@ export function buildAuditExportCsvHonestyPreambleLines(
     ];
   }
 
+  const coverageHonestyComment = formatCareerExportHonestyPlainText({
+    runId: "audit-csv",
+    progressSummary: null,
+    manifestSummary: null,
+    graphSnapshot: null,
+    enginesSucceeded: null,
+  })
+    .split("\n")
+    .filter((line) => line.trim().length > 0)
+    .map((line) => `# ${line}`);
+
   return [
     "# ArchLucid audit CSV export posture (CG-026)",
     `# structuralExecutionMode=${posture.structuralExecutionMode}`,
     `# workingCareerRehearsalDoor=${posture.workingCareerRehearsalDoor}`,
     `# rehearsalIncomplete=${posture.rehearsalIncomplete ? "True" : "False"}`,
     ...dualChannelLines,
+    ...coverageHonestyComment,
   ];
 }
 

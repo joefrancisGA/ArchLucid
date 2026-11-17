@@ -18,8 +18,11 @@ public sealed partial class SqlOperationalSecurityExceptionRepository
 
         const string sql = """
                            SELECT
-                               SUM(CASE WHEN Status = @ActiveStatus THEN 1 ELSE 0 END) AS ExceptionsActive,
-                               SUM(CASE WHEN Status = @ExpiredStatus THEN 1 ELSE 0 END) AS ExceptionsExpired,
+                               SUM(CASE WHEN Status = @ActiveStatus
+                                   AND ExpirationUtc > @UtcNow THEN 1 ELSE 0 END) AS ExceptionsActive,
+                               SUM(CASE WHEN Status = @ExpiredStatus
+                                   OR (Status = @ActiveStatus AND ExpirationUtc <= @UtcNow)
+                                   THEN 1 ELSE 0 END) AS ExceptionsExpired,
                                SUM(CASE WHEN Status = @ActiveStatus
                                    AND ExpirationUtc <= @ExpiringSoonCutoff
                                    AND ExpirationUtc > @UtcNow THEN 1 ELSE 0 END) AS ExceptionsExpiringSoon

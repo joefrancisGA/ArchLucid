@@ -68,3 +68,8 @@ describe("OperatorStickinessSnapshotCard approval habit links", () => {
     );
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

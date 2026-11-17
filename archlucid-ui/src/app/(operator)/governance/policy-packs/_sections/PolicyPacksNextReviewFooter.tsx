@@ -40,6 +40,6 @@ export function PolicyPacksNextReviewFooter(props: PolicyPacksNextReviewFooterPr
   );
 }
 
-export function policyPacksNextReviewHref(runId: string): string {
-  return buildPolicyPacksHrefWithReviewId(runId.trim());
+export function policyPacksNextReviewHref(runId: string, hubPath?: string): string {
+  return buildPolicyPacksHrefWithReviewId(runId.trim(), hubPath);
 }

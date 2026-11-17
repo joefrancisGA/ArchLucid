@@ -8,27 +8,50 @@ import { SecurityEvidencePathInspectPanel } from "@/components/security/Security
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SECURENOW_SAMPLE_FIXTURE_LINE } from "@/lib/marketing/securenow-sample-copy";
 import {
   secureNowPilotDispositionStorageKey,
   SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE,
   SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE,
 } from "@/lib/product-line/securenow-pilot-disposition-storage";
+import { formatSecureNowPilotDispositionTenantAuditRecordedLine } from "@/lib/product-line/securenow-pilot-disposition-tenant-audit-copy";
 import {
   loadSecureNowPilotDispositionForPath,
   persistSecureNowPilotDispositionForPath,
 } from "@/lib/product-line/securenow-pilot-disposition-sync";
-import { SecureNowPilotStopItsmHandoffBlock } from "@/components/product-line/SecureNowPilotStopItsmHandoffBlock";
+import { SecureNowPilotDispositionOutcomeRehearsalPanels } from "@/components/product-line/SecureNowPilotDispositionOutcomeRehearsalPanels";
 import { SecureNowProcurementTrustStrip } from "@/components/product-line/SecureNowProcurementTrustStrip";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
+import {
+  SECURENOW_SPONSOR_PATH_NO_PATH_LEAD,
+  SECURENOW_SPONSOR_PATH_NO_PATH_REHEARSAL_HEADING,
+} from "@/lib/product-line/securenow-sponsor-path-no-path-copy";
+import {
+  SECURENOW_INVESTIGATION_EFFORT_PATH,
+  SECURENOW_SPONSOR_PATH_INVESTIGATION_EFFORT_HINT,
+} from "@/lib/product-line/securenow-investigation-effort-copy";
+import { SPONSOR_PATH_DISPOSITION_SAVE_UNCHANGED_LINE } from "@/lib/product-line/sponsor-path-disposition-save-error-honesty-copy";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { cn } from "@/lib/utils";
 
 export function SecureNowSponsorPathPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
   const pathId = searchParams.get("pathId")?.trim() ?? "";
   const storageKey = pathId.length > 0 ? secureNowPilotDispositionStorageKey(pathId) : null;
+  const partialCapture = useLatestSnapshotCaptureIsPartial(true);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const [outcome, setOutcome] = useState("");
   const [rationale, setRationale] = useState("");
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedDisposition, setSavedDisposition] = useState<{ outcome: string; rationale: string } | null>(null);
   const [tenantAuditSaved, setTenantAuditSaved] = useState(false);
+  const [tenantAuditRecordedUtc, setTenantAuditRecordedUtc] = useState<string | null>(null);
+  const [rehearsalOutcome, setRehearsalOutcome] = useState("");
 
   useEffect(() => {
     if (pathId.length === 0) {
@@ -36,27 +59,34 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
       setRationale("");
       setSavedDisposition(null);
       setTenantAuditSaved(false);
+      setTenantAuditRecordedUtc(null);
       return;
     }
 
     let cancelled = false;
 
-    void loadSecureNowPilotDispositionForPath(pathId).then((stored) => {
+    void loadSecureNowPilotDispositionForPath(pathId).then((loaded) => {
       if (cancelled) {
         return;
       }
 
-      if (stored === null) {
+      if (loaded === null) {
         setOutcome("");
         setRationale("");
         setSavedDisposition(null);
         setTenantAuditSaved(false);
+        setTenantAuditRecordedUtc(null);
         return;
       }
 
-      setOutcome(stored.outcome);
-      setRationale(stored.rationale);
-      setSavedDisposition(stored);
+      setOutcome(loaded.record.outcome);
+      setRationale(loaded.record.rationale);
+      setSavedDisposition(loaded.record);
+      setTenantAuditRecordedUtc(loaded.recordedUtc);
+
+      if (loaded.recordedUtc !== null) {
+        setTenantAuditSaved(true);
+      }
     });
 
     return () => {
@@ -81,12 +111,14 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
       if (outcome.status === "error") {
         setSaveError(outcome.errorMessage);
         setTenantAuditSaved(false);
+        setTenantAuditRecordedUtc(null);
         return;
       }
 
       setSavedDisposition(record);
       setSaveError(null);
       setTenantAuditSaved(true);
+      setTenantAuditRecordedUtc(outcome.recordedUtc);
     });
   };
 
@@ -97,12 +129,61 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
         subtitle="Internal preparation for a human sponsor readout. SecureNow beta remains NO_GO."
       />
       <main className="mt-6 max-w-4xl space-y-6">
+        <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-sponsor-path-roi-non-summing">
+          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+        </p>
+        {partialCapture ? (
+          <SecureNowPartialCaptureRecoveryParagraph
+            testId="securenow-sponsor-path-partial-capture"
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
+            returnPath={partialCaptureReturnPath}
+            cloudConnectionsTestId="securenow-sponsor-path-partial-capture-cloud-connections"
+            extractUploadTestId="securenow-sponsor-path-partial-capture-extract-upload"
+          />
+        ) : null}
         {pathId.length === 0 ? (
-          <p className={OPERATOR_TYPOGRAPHY.body}>
-            <Link className={OPERATOR_LINK.inline} href="/security/remediation-factory">
-              Select a ranked path in Path inspect.
-            </Link>
-          </p>
+          <section className="space-y-3" data-testid="securenow-sponsor-path-no-path">
+            <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_SPONSOR_PATH_NO_PATH_LEAD}</p>
+            <p className={OPERATOR_TYPOGRAPHY.body}>
+              <Link className={OPERATOR_LINK.inline} href="/security/remediation-factory">
+                Open Path inspect in the remediation factory
+              </Link>
+            </p>
+            <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-sponsor-path-investigation-hint">
+              {SECURENOW_SPONSOR_PATH_INVESTIGATION_EFFORT_HINT}{" "}
+              <Link className={OPERATOR_LINK.inline} href={SECURENOW_INVESTIGATION_EFFORT_PATH}>
+                Investigation effort
+              </Link>
+            </p>
+            <section aria-labelledby="securenow-sponsor-path-rehearsal-heading" className="space-y-2">
+              <h2 id="securenow-sponsor-path-rehearsal-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                {SECURENOW_SPONSOR_PATH_NO_PATH_REHEARSAL_HEADING}
+              </h2>
+              <label className="block space-y-1">
+                <span className={OPERATOR_TYPOGRAPHY.helper}>Outcome (rehearsal only)</span>
+                <select
+                  className="w-full rounded border border-border bg-background px-3 py-2"
+                  value={rehearsalOutcome}
+                  onChange={(event) => setRehearsalOutcome(event.target.value)}
+                  aria-label="Path disposition outcome rehearsal"
+                >
+                  <option value="">Select an outcome</option>
+                  <option value="Proceed">Proceed</option>
+                  <option value="Extend">Extend</option>
+                  <option value="Stop">Stop</option>
+                </select>
+              </label>
+              <SecureNowPilotDispositionOutcomeRehearsalPanels
+                outcome={rehearsalOutcome}
+                savedOutcome={null}
+                savedRationale={null}
+                pathId=""
+                testIdPrefix="securenow-sponsor-path-no-path"
+                stopHandoffTestId="securenow-sponsor-path-no-path-stop-handoff"
+              />
+            </section>
+            <SecureNowProcurementTrustStrip />
+          </section>
         ) : (
           <>
             <SecurityEvidencePathInspectPanel
@@ -115,7 +196,7 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
                 Human disposition
               </h2>
               {pathId === "fixture-path-01" ? (
-                <p className={OPERATOR_TYPOGRAPHY.helper}>Synthetic fixture. Not a customer result.</p>
+                <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_SAMPLE_FIXTURE_LINE}</p>
               ) : null}
               <label className="block space-y-1">
                 <span className={OPERATOR_TYPOGRAPHY.helper}>Outcome</span>
@@ -144,9 +225,19 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
                 Save path disposition
               </button>
               {saveError !== null ? (
-                <p className="text-rose-700" role="alert">
-                  {saveError}
-                </p>
+                <div className="space-y-2" role="alert" data-testid="securenow-sponsor-path-save-error">
+                  <p className="text-rose-700">{saveError}</p>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-sponsor-path-save-unchanged">
+                    {SPONSOR_PATH_DISPOSITION_SAVE_UNCHANGED_LINE}
+                  </p>
+                  <FatalPageReportProblemSupportRow
+                    surfaceId="securenow-sponsor-path-disposition-save-failure"
+                    errorTitle="Save path disposition"
+                    errorCode="securenow-sponsor-path-disposition-save-failed"
+                    correlationId={null}
+                    httpStatus={null}
+                  />
+                </div>
               ) : null}
               {savedDisposition !== null ? (
                 <p className={OPERATOR_TYPOGRAPHY.body} data-testid="securenow-sponsor-path-saved-disposition">
@@ -156,15 +247,24 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
               {tenantAuditSaved ? (
                 <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-sponsor-path-tenant-audit-saved">
                   {SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE}
+                  {formatSecureNowPilotDispositionTenantAuditRecordedLine(tenantAuditRecordedUtc ?? "") != null ? (
+                    <>
+                      {" "}
+                      <span data-testid="securenow-sponsor-path-tenant-audit-recorded-utc">
+                        {formatSecureNowPilotDispositionTenantAuditRecordedLine(tenantAuditRecordedUtc ?? "")}
+                      </span>
+                    </>
+                  ) : null}
                 </p>
               ) : null}
-              {savedDisposition?.outcome === "Stop" ? (
-                <SecureNowPilotStopItsmHandoffBlock
-                  pathId={pathId}
-                  rationale={savedDisposition.rationale}
-                  handoffTestId="securenow-sponsor-path-pilot-stop-itsm-handoff"
-                />
-              ) : null}
+              <SecureNowPilotDispositionOutcomeRehearsalPanels
+                outcome={outcome}
+                savedOutcome={savedDisposition?.outcome ?? null}
+                savedRationale={savedDisposition?.rationale ?? null}
+                pathId={pathId}
+                testIdPrefix="securenow-sponsor-path"
+                stopHandoffTestId="securenow-sponsor-path-pilot-stop-itsm-handoff"
+              />
               <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE}</p>
               <p className={OPERATOR_TYPOGRAPHY.helper}>
                 SecureNow recommends; it does not change Azure. A sponsor disposition does not clear beta NO_GO.
@@ -175,6 +275,12 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
                   href={`/administration/securenow-pilot-decision?pathId=${encodeURIComponent(pathId)}`}
                 >
                   Open pilot decision record
+                </Link>
+              </p>
+              <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-sponsor-path-investigation-hint">
+                {SECURENOW_SPONSOR_PATH_INVESTIGATION_EFFORT_HINT}{" "}
+                <Link className={OPERATOR_LINK.inline} href={SECURENOW_INVESTIGATION_EFFORT_PATH}>
+                  Investigation effort
                 </Link>
               </p>
             </section>

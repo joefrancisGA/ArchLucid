@@ -18,6 +18,7 @@ import {
 } from "@/lib/review-pipeline-completion-notify-dedupe";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { resolveReviewCompletionHref } from "@/lib/reviews/resolve-review-completion-href";
 import {
   REVIEW_PIPELINE_COMPLETION_NOTIFICATION_TITLE,
@@ -33,9 +34,16 @@ function pathnameMatchesRun(pathname: string, runId: string): boolean {
     return true;
   }
 
-  const nestedRoute = parseArchitectureNestedRoute(pathname.split("?")[0] ?? "");
+  const pathOnly = pathname.split("?")[0] ?? "";
+  const nestedRoute = parseArchitectureNestedRoute(pathOnly);
 
   if (nestedRoute?.childKind === "reviews" && nestedRoute.childId === trimmedRunId) {
+    return true;
+  }
+
+  const resolvedBase = resolveArchitectureReviewHref(trimmedRunId, null);
+
+  if (pathOnly === resolvedBase || pathOnly.startsWith(`${resolvedBase}/`)) {
     return true;
   }
 
@@ -60,30 +68,39 @@ export function useReviewCompletionNotification(
 ): void {
   const pathname = usePathname() ?? "/";
   const { isWorkingMode } = useWorkspaceMode();
-  const notifiedRef = useRef(false);
-  const wasCompleteRef = useRef(options.isComplete);
+  const completionRef = useRef({
+    runId: options.runId,
+    wasComplete: options.isComplete,
+    notified: false,
+  });
 
   useEffect(() => {
+    if (completionRef.current.runId !== options.runId) {
+      completionRef.current = { runId: options.runId, wasComplete: options.isComplete, notified: false };
+    }
+
+    const completion = completionRef.current;
+
     if (!options.enabled) {
       return;
     }
 
-    if (options.isComplete && !wasCompleteRef.current && !notifiedRef.current) {
+    if (options.isComplete && !completion.wasComplete && !completion.notified) {
       if (wasReviewPipelineCompletionNotified(options.runId)) {
-        notifiedRef.current = true;
-        wasCompleteRef.current = options.isComplete;
+        completion.notified = true;
+        completion.wasComplete = options.isComplete;
         return;
       }
 
       const shellTrackedRun = getInFlightOperations().some((operation) => operation.runId === options.runId);
 
       if (shellTrackedRun) {
-        notifiedRef.current = true;
-        wasCompleteRef.current = options.isComplete;
+        completion.notified = true;
+        completion.wasComplete = options.isComplete;
         return;
       }
 
-      notifiedRef.current = true;
+      completion.notified = true;
 
       const onRunPage = pathnameMatchesRun(pathname, options.runId);
       const description =
@@ -122,7 +139,7 @@ export function useReviewCompletionNotification(
       }
     }
 
-    wasCompleteRef.current = options.isComplete;
+    completion.wasComplete = options.isComplete;
   }, [
     options.architectureId,
     options.enabled,
@@ -133,11 +150,6 @@ export function useReviewCompletionNotification(
     pathname,
     isWorkingMode,
   ]);
-
-  useEffect(() => {
-    notifiedRef.current = false;
-    wasCompleteRef.current = false;
-  }, [options.runId]);
 }
 
 export function canPromptForDesktopNotifications(): boolean {

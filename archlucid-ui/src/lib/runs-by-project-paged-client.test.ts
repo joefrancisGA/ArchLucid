@@ -1,22 +1,27 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+
 import {
   fetchRunsByProjectPagedCached,
   invalidateRunsByProjectPagedCache,
 } from "@/lib/runs-by-project-paged-client";
 
-vi.mock("@/lib/api", () => ({
-  listRunsByProjectPaged: vi.fn(async () => ({ items: [], totalCount: 0 })),
-}));
-
-import { listRunsByProjectPaged } from "@/lib/api";
-
 describe("fetchRunsByProjectPagedCached", () => {
   beforeEach(async () => {
     resetOperatorQueryClientForTests();
     await invalidateRunsByProjectPagedCache();
-    vi.mocked(listRunsByProjectPaged).mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        text: async () => JSON.stringify({ items: [], totalCount: 0 }),
+        json: async () => ({ items: [], totalCount: 0 }),
+      })),
+    );
   });
 
   afterEach(() => {
@@ -33,6 +38,6 @@ describe("fetchRunsByProjectPagedCached", () => {
 
     expect(first).toEqual({ items: [], totalCount: 0 });
     expect(second).toEqual(first);
-    expect(listRunsByProjectPaged).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(fetch)).toHaveBeenCalledTimes(1);
   });
 });

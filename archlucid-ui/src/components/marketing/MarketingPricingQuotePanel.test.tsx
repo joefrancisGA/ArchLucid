@@ -1,6 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  PROCUREMENT_AL_EVAL_ANCHOR_FRAGMENT,
+  PROCUREMENT_AL_EVAL_ANCHOR_TEST_ID,
+} from "@/lib/procurement/procurement-evidence-map-anchors";
+
 import { MarketingPricingQuotePanel } from "./MarketingPricingQuotePanel";
 
 describe("MarketingPricingQuotePanel", () => {
@@ -33,6 +38,14 @@ describe("MarketingPricingQuotePanel", () => {
       expect(screen.getByRole("alert")).toHaveTextContent("We couldn't submit your request. Please try again.");
     });
     expect(screen.getByRole("alert")).not.toHaveTextContent("System.InvalidOperationException");
+  });
+
+  it("exposes the procurement AL-EVAL acceptance anchor on the quote form", () => {
+    render(<MarketingPricingQuotePanel openOnMount />);
+
+    const anchor = screen.getByTestId(PROCUREMENT_AL_EVAL_ANCHOR_TEST_ID);
+
+    expect(anchor).toHaveAttribute("id", PROCUREMENT_AL_EVAL_ANCHOR_FRAGMENT);
   });
 
   it("does not submit when required buyer identity fields are empty", () => {

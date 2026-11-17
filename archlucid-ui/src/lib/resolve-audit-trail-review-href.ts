@@ -11,6 +11,7 @@ export type ResolveAuditTrailReviewHrefInput = {
 };
 
 /** SY-28: Working audit and activity rows open nested review jobs when architecture identity is known. */
+/* Intentionally not delegated to resolveGovernanceScopedReviewOpenHref: working-mode peer fallback must stay peer-only (no desk-cache continuity jump). */
 export function resolveAuditTrailReviewHref(input: ResolveAuditTrailReviewHrefInput): string {
   const runId = input.runId.trim();
 

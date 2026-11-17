@@ -1,20 +1,30 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RunSummary } from "@/types/authority";
-import { writeArchivedReviewsClientCache } from "@/lib/archived-reviews-client-cache";
+import { archivedReviewsClientCacheKey, writeArchivedReviewsClientCache } from "@/lib/archived-reviews-client-cache";
 import { writeFavoriteReviews } from "@/lib/favorite-reviews";
+import { REVIEW_PACKAGE_OWNER_UNAVAILABLE } from "@/lib/review-package-validation-picker";
 
 const useArchitectureDraftRegistryEntries = vi.fn();
 const readOperatorScopeFromStorage = vi.fn();
 const useSearchParams = vi.fn();
 const useRouter = vi.fn();
+const archiveScope = vi.hoisted(() => ({
+  tenantId: "tenant-a",
+  workspaceId: "workspace-a",
+  projectId: "project-a",
+}));
 const workspaceModeMock = vi.hoisted(() => ({ isWorkingMode: false }));
 const inFlightOperationsMock = vi.hoisted(() => [] as readonly unknown[]);
 const liveShellRecoveryMock = vi.hoisted(() => ({ value: false }));
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
   useWorkspaceMode: () => workspaceModeMock,
+}));
+
+vi.mock("@/hooks/use-operator-scope-query-key", () => ({
+  useOperatorScopeQueryKey: () => archiveScope,
 }));
 
 vi.mock("@/hooks/use-shell-in-flight-operations", () => ({
@@ -63,10 +73,15 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
     isAuthorityLoading: false,
     callerAuthorityRank: 2,
   }),
+  useNavCallerAuthorityRank: () => 2,
 }));
 
 vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
   useArchitectureDraftRegistryEntries: () => useArchitectureDraftRegistryEntries(),
+}));
+
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
 }));
 
 vi.mock("@/lib/operator/operator-scope-storage", async () => {
@@ -105,6 +120,8 @@ function emptySummary() {
 
 beforeEach(() => {
   window.localStorage.clear();
+  archiveScope.workspaceId = "workspace-a";
+  window.history.replaceState({}, "", "/");
   useArchitectureDraftRegistryEntries.mockReset();
   useArchitectureDraftRegistryEntries.mockReturnValue([]);
   readOperatorScopeFromStorage.mockReset();
@@ -147,7 +164,7 @@ describe("ReviewsHubReviewInventory", () => {
 
     expect(screen.getByTestId("workspace-scope-empty-teaching")).toBeInTheDocument();
     expect(screen.getByText("No reviews in Payments")).toBeInTheDocument();
-    expect(screen.getByText("Switch workspace/project to see other work.")).toBeInTheDocument();
+    expect(screen.getByText(/Switch workspace\/project to see other work\./)).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-recent-empty")).not.toBeInTheDocument();
   });
 
@@ -203,13 +220,14 @@ describe("ReviewsHubReviewInventory", () => {
       />,
     );
 
-    expect(screen.getByRole("columnheader", { name: "Pinned" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Review" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Architecture" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Approval" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Risks" })).toBeInTheDocument();
+    const table = screen.getByRole("table");
+    expect(within(table).getByRole("columnheader", { name: "Pinned" })).toBeInTheDocument();
+    expect(within(table).getByText("Review", { selector: "span" })).toBeInTheDocument();
+    expect(within(table).getByText("Architecture", { selector: "span" })).toBeInTheDocument();
+    expect(within(table).getByText("Approval", { selector: "span" })).toBeInTheDocument();
+    expect(within(table).getByText("Risks", { selector: "span" })).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-row-review-001")).toBeInTheDocument();
-    expect(screen.getByText("Taylor Morgan")).toBeInTheDocument();
+    expect(screen.getByText(REVIEW_PACKAGE_OWNER_UNAVAILABLE)).toBeInTheDocument();
     const titleLink = screen.getByTestId("reviews-hub-primary-action-review-001");
     expect(titleLink).toHaveAttribute("href");
     expect(titleLink.className).toMatch(/underline/);
@@ -357,7 +375,41 @@ describe("ReviewsHubReviewInventory", () => {
         createdUtc: "2026-08-01T12:00:00.000Z",
         isArchived: true,
       } satisfies RunSummary,
-    ]);
+    ], archivedReviewsClientCacheKey(archiveScope));
+
+    const runs = [{
+      runId: "active-review",
+      projectId: "default",
+      description: "Active package",
+      createdUtc: "2026-08-10T12:00:00.000Z",
+    } satisfies RunSummary];
+    const inventory = <ReviewsHubReviewInventory runs={runs} summary={deriveReviewsWorkspaceSummary(runs)} />;
+    const { rerender } = render(inventory);
+
+    expect(screen.queryByTestId("reviews-hub-row-archived-review")).toBeNull();
+    expect(screen.getByTestId("reviews-hub-row-active-review")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Filter reviews: Archived/ }));
+
+    expect(screen.getByTestId("reviews-hub-row-archived-review")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-hub-row-active-review")).toBeNull();
+
+    archiveScope.workspaceId = "workspace-b";
+    rerender(<ReviewsHubReviewInventory runs={runs} summary={deriveReviewsWorkspaceSummary(runs)} />);
+
+    expect(screen.queryByTestId("reviews-hub-row-archived-review")).toBeNull();
+  });
+
+  it("shows archived count on the Archived chip before the filter is selected", () => {
+    writeArchivedReviewsClientCache([
+      {
+        runId: "archived-review",
+        projectId: "default",
+        description: "Archived package",
+        createdUtc: "2026-08-01T12:00:00.000Z",
+        isArchived: true,
+      } satisfies RunSummary,
+    ], archivedReviewsClientCacheKey(archiveScope));
 
     render(
       <ReviewsHubReviewInventory
@@ -369,27 +421,14 @@ describe("ReviewsHubReviewInventory", () => {
             createdUtc: "2026-08-10T12:00:00.000Z",
           } satisfies RunSummary,
         ]}
-        summary={deriveReviewsWorkspaceSummary([
-          {
-            runId: "active-review",
-            projectId: "default",
-            description: "Active package",
-            createdUtc: "2026-08-10T12:00:00.000Z",
-          } satisfies RunSummary,
-        ])}
+        summary={emptySummary()}
       />,
     );
 
-    expect(screen.queryByTestId("reviews-hub-row-archived-review")).toBeNull();
-    expect(screen.getByTestId("reviews-hub-row-active-review")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: /Filter reviews: Archived/ }));
-
-    expect(screen.getByTestId("reviews-hub-row-archived-review")).toBeInTheDocument();
-    expect(screen.queryByTestId("reviews-hub-row-active-review")).toBeNull();
+    expect(screen.getByRole("button", { name: "Filter reviews: Archived (1)" })).toBeInTheDocument();
   });
 
-  it("shows archived count on the Archived chip before the filter is selected", () => {
+  it("recomputes non-archived filter chip counts after the Archived filter changes the visibility pool", () => {
     writeArchivedReviewsClientCache([
       {
         runId: "archived-review",
@@ -414,7 +453,40 @@ describe("ReviewsHubReviewInventory", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "Filter reviews: Archived (1)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Filter reviews: All (1)" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Filter reviews: Archived/ }));
+
+    expect(screen.getByRole("button", { name: "Filter reviews: All (2)" })).toBeInTheDocument();
+  });
+
+  it("reconciles the active inventory filter when useSearchParams changes without a popstate event", () => {
+    useSearchParams.mockReturnValue(new URLSearchParams());
+
+    const runs = [
+      {
+        runId: "active-review",
+        projectId: "default",
+        description: "Active package",
+        createdUtc: "2026-08-10T12:00:00.000Z",
+      } satisfies RunSummary,
+    ];
+
+    const view = render(
+      <ReviewsHubReviewInventory runs={runs} summary={emptySummary()} />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Filter reviews: Archived/ }));
+    expect(screen.queryByTestId("reviews-hub-row-active-review")).toBeNull();
+
+    useSearchParams.mockReturnValue(new URLSearchParams("filter=all"));
+    view.rerender(<ReviewsHubReviewInventory runs={runs} summary={emptySummary()} />);
+
+    expect(screen.getByRole("button", { name: /Filter reviews: All/ })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByTestId("reviews-hub-row-active-review")).toBeInTheDocument();
   });
 
   it("shows a clear action when search filters out all reviews", () => {

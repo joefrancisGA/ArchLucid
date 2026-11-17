@@ -1,8 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
-
-using ArchLucid.Api.Tests.TestDtos;
-
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
@@ -16,44 +11,14 @@ public sealed class ArchitectureAnalysisExportTests(ArchLucidApiFactory factory)
     [SkippableFact]
     public async Task ExportAnalysisReport_ReturnsMarkdown()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-ANALYSIS-EXPORT-001")));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
-        await commitResponse.EnsureSuccessForTestAsync();
-        var request = new
-        {
-            includeEvidence = true,
-            includeExecutionTraces = true,
-            includeManifest = true,
-            includeDiagram = true,
-            includeSummary = true,
-            includeDeterminismCheck = false,
-            determinismIterations = 3,
-            includeManifestCompare = false,
-            compareManifestVersion = (string?)null,
-            includeAgentResultCompare = false,
-            compareRunId = (string?)null
-        };
-
-        HttpResponseMessage response = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/analysis-report/export",
-            JsonContent(request));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        ArchitectureAnalysisExportResponse? payload =
-            await response.Content.ReadFromJsonAsync<ArchitectureAnalysisExportResponse>(JsonOptions);
+        ArchitectureAnalysisExportResponse payload =
+            await finalized.PostAnalysisReportMarkdownExportAsync(Client, JsonOptions);
         payload.Should().NotBeNull();
-        payload.RunId.Should().Be(runId);
+        payload.RunId.Should().Be(finalized.RunId);
         payload.Format.Should().Be("markdown");
-        payload.FileName.Should().Be($"analysis_{runId}.md");
+        payload.FileName.Should().Be($"analysis_{finalized.RunId}.md");
         payload.Content.Should().NotBeNullOrWhiteSpace();
 
         string[] lines = payload.Content.Split('\n', StringSplitOptions.RemoveEmptyEntries);

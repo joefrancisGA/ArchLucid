@@ -17,7 +17,7 @@ public sealed class EvidenceAddedIncrementalReReviewHostedService(
                 {
                     await workItem(stoppingToken).ConfigureAwait(false);
                 }
-                catch (Exception ex) when (ex is not OperationCanceledException)
+                catch (Exception ex) when (ex is not OperationCanceledException || !stoppingToken.IsCancellationRequested)
                 {
                     logger.LogWarning(ex, "Evidence-added incremental re-review background work failed.");
                 }

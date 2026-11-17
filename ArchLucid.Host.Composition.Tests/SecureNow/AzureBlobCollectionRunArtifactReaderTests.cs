@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 
 using ArchLucid.Application.SecureNow;
@@ -67,11 +68,53 @@ public sealed class AzureBlobCollectionRunArtifactReaderTests
         manifest!.SchemaVersion.Should().Be(1);
     }
 
+    [Theory]
+    [InlineData("2026-01-01T12:00:00", "2026-01-01T12:15:00")]
+    [InlineData("2026-01-01T12:00:00Z", "2026-01-01T12:15:00Z")]
+    [InlineData("2026-01-01T07:00:00-05:00", "2026-01-01T07:15:00-05:00")]
+    public void ParseManifestContent_treats_manifest_timestamps_as_utc_under_a_non_gregorian_culture(
+        string startedUtc,
+        string finishedUtc)
+    {
+        CultureInfo previousCulture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("ar-SA");
+            CollectionRunManifest? manifest = AzureBlobCollectionRunArtifactReader.ParseManifestContent(
+                BinaryData.FromString(
+                    $$"""
+                      {"runId":"11111111-2222-3333-4444-555555555555","startedUtc":"{{startedUtc}}","finishedUtc":"{{finishedUtc}}"}
+                      """));
+
+            manifest.Should().NotBeNull();
+            manifest!.StartedUtc.Should().Be(new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc));
+            manifest.StartedUtc.Kind.Should().Be(DateTimeKind.Utc);
+            manifest.FinishedUtc.Should().Be(new DateTime(2026, 1, 1, 12, 15, 0, DateTimeKind.Utc));
+            manifest.FinishedUtc!.Value.Kind.Should().Be(DateTimeKind.Utc);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previousCulture;
+        }
+    }
+
     [Fact]
     public void ParseManifestContent_returns_null_when_json_is_invalid()
     {
         CollectionRunManifest? manifest = AzureBlobCollectionRunArtifactReader.ParseManifestContent(
             BinaryData.FromString("{not-valid-json"));
+
+        manifest.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("[]")]
+    [InlineData("null")]
+    [InlineData("\"manifest\"")]
+    public void ParseManifestContent_skips_valid_json_with_a_non_object_root(string content)
+    {
+        CollectionRunManifest? manifest = AzureBlobCollectionRunArtifactReader.ParseManifestContent(
+            BinaryData.FromString(content));
 
         manifest.Should().BeNull();
     }

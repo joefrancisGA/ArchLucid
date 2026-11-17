@@ -5,14 +5,10 @@ import { ShowcaseBreadcrumb } from "@/components/marketing/showcase/ShowcaseBrea
 import { SHOWCASE_BREADCRUMB_HUB_PATH } from "@/lib/showcase-page-copy";
 
 describe("ShowcaseBreadcrumb", () => {
-  it("links See it and labels the current sample showcase page", () => {
+  it("defers to page titles after TB-2090 breadcrumb removal", () => {
     render(<ShowcaseBreadcrumb />);
 
-    expect(screen.getByTestId("showcase-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "See a finalized sample review" })).toHaveAttribute(
-      "href",
-      SHOWCASE_BREADCRUMB_HUB_PATH,
-    );
-    expect(screen.getByText("Sample showcase")).toBeInTheDocument();
+    expect(screen.queryByTestId("showcase-breadcrumb")).not.toBeInTheDocument();
+    expect(SHOWCASE_BREADCRUMB_HUB_PATH.length).toBeGreaterThan(0);
   });
 });

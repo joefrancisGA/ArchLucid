@@ -5,7 +5,7 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public interface ISecurityDeclaredConnectionRepository
 {
-    Task InsertAsync(SecurityDeclaredConnectionRecord record, CancellationToken cancellationToken = default);
+    Task<bool> TryInsertActiveAsync(SecurityDeclaredConnectionRecord record, CancellationToken cancellationToken = default);
 
     Task<SecurityDeclaredConnectionRecord?> TryGetByIdAsync(
         Guid tenantId,

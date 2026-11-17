@@ -101,6 +101,7 @@ export function FindingDetailPageView(props: Props) {
     findingsQueueRunId,
     architectureId: parentArchitectureId,
     isWorkingMode,
+    productLine,
   });
   const workingBackInput = { reviewId: runId, architectureId: parentArchitectureId };
   const reviewFindingsHref = resolveWorkingReviewFindingsBackHref(workingBackInput);

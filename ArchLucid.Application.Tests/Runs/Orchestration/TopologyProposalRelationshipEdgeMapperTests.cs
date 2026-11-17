@@ -197,6 +197,53 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_applies_declared_endpoint_alias_when_key_already_mapped_from_node_label()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-legacy",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "shared-api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new(),
+            },
+            new()
+            {
+                NodeId = "svc-canonical",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "canonical-api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new(),
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new(),
+            },
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["shared-api"] = "svc-canonical",
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [new ManifestRelationship { SourceId = "shared-api", TargetId = "ds-1", RelationshipType = RelationshipType.ReadsFrom }],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-canonical" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first()
     {
         List<GraphNode> nodes =
@@ -1372,6 +1419,64 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
 
         edges.Where(e => e.FromNodeId == "managed-api" && e.ToNodeId == "ds-1").Should().ContainSingle();
         edges.Where(e => e.FromNodeId == "data-api" && e.ToNodeId == "ds-1").Should().ContainSingle();
+    }
+
+    [Fact]
+    public void MapRelationships_resolves_indexed_data_source_root_when_managed_resource_has_the_same_address()
+    {
+        // for_each data sources are addressed as data.<type>.<name>["key"]. The bare data root
+        // must not fall through to the managed resource that owns the same type and name.
+        const string managedAddress = "azurerm_app_service.main";
+        const string dataAddress = "data." + managedAddress + "[\"primary\"]";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "managed-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "managed-api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = managedAddress,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "data-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "data-api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = dataAddress,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main",
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "data." + managedAddress,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle();
+        edges[0].FromNodeId.Should().Be("data-api");
+        edges[0].ToNodeId.Should().Be("ds-1");
     }
 
     [Fact]

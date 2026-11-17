@@ -21,6 +21,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { showError, showSuccess } from "@/lib/toast";
 import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
 import { BASELINE_SETTINGS_PAGE_TITLE, BASELINE_REVIEW_NOTE_SAVE_READINESS } from "@/lib/baseline-settings-present";

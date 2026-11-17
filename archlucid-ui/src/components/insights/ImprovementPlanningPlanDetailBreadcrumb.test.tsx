@@ -7,21 +7,18 @@ import { PLANNING_PLAN_DETAIL_PAGE_TITLE } from "@/lib/planning-plan-detail-evid
 import { ImprovementPlanningPlanDetailBreadcrumb } from "./ImprovementPlanningPlanDetailBreadcrumb";
 
 describe("ImprovementPlanningPlanDetailBreadcrumb", () => {
-  it("renders insights trail ending on the plan title when provided", () => {
+  it("does not render a breadcrumb trail (TB-2090)", () => {
     render(<ImprovementPlanningPlanDetailBreadcrumb planLabel="Modernize intake workflow" />);
 
-    expect(screen.getByTestId("improvement-planning-plan-detail-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Insights" })).toHaveAttribute("href", "/insights/evidence-graph");
-    expect(screen.getByRole("link", { name: IMPROVEMENT_PLANNING_PAGE_TITLE })).toHaveAttribute(
-      "href",
-      "/insights/improvement-planning",
-    );
-    expect(screen.getByText("Modernize intake workflow")).toBeInTheDocument();
+    expect(screen.queryByTestId("improvement-planning-plan-detail-breadcrumb")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Insights" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: IMPROVEMENT_PLANNING_PAGE_TITLE })).not.toBeInTheDocument();
+    expect(screen.queryByText("Modernize intake workflow")).not.toBeInTheDocument();
   });
 
-  it("falls back to Improvement plan when no plan label is available", () => {
+  it("does not render a fallback breadcrumb label (TB-2090)", () => {
     render(<ImprovementPlanningPlanDetailBreadcrumb />);
 
-    expect(screen.getByText(PLANNING_PLAN_DETAIL_PAGE_TITLE)).toBeInTheDocument();
+    expect(screen.queryByText(PLANNING_PLAN_DETAIL_PAGE_TITLE)).not.toBeInTheDocument();
   });
 });

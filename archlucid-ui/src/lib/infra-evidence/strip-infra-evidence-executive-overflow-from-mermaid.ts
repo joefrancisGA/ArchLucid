@@ -5,8 +5,13 @@ import {
 
 const EXECUTIVE_OVERFLOW_LABEL = /^\+\d+ more /u;
 
-const NODE_WITH_LABEL =
-  /^([A-Za-z0-9_-]+)(?:\[\[([^\]]+)\]\]|\[([^\]]+)\]|\(\(([^)]+)\)\)|\(([^)]+)\)|\{\{([^}]+)\}\}|\{([^}]+)\}|>([^<]+)<)?/u;
+const NODE_ID = /[A-Za-z0-9_-]+/u;
+const NODE_SHAPE = /\[\[[^\]]+\]\]|\[[^\]]+\]|\(\([^)]+\)\)|\([^)]+\)|\{\{[^}]+\}\}|\{[^}]+\}|>[^<]+</u;
+const LEADING_NODE_ID = new RegExp(`^${NODE_ID.source}`, "u");
+const EDGE_ENDPOINTS = new RegExp(
+  String.raw`^(${NODE_ID.source}?)\s*(?:${NODE_SHAPE.source})?\s*(?:-->|~~~|-\.->|==+>?)\s*(?:\|[^|]*\|\s*)?(${NODE_ID.source})`,
+  "u",
+);
 
 export function isInfraEvidenceExecutiveOverflowOutlineNode(
   node: InfraEvidenceMermaidOutlineNode,
@@ -15,14 +20,7 @@ export function isInfraEvidenceExecutiveOverflowOutlineNode(
 }
 
 function readLeadingNodeId(line: string): string | null {
-  const trimmed = line.trim();
-  const match = NODE_WITH_LABEL.exec(trimmed);
-
-  if (match == null) {
-    return null;
-  }
-
-  return match[1] ?? null;
+  return LEADING_NODE_ID.exec(line.trimStart())?.[0] ?? null;
 }
 
 function lineDefinesOverflowNode(line: string, overflowIds: ReadonlySet<string>): boolean {
@@ -32,17 +30,10 @@ function lineDefinesOverflowNode(line: string, overflowIds: ReadonlySet<string>)
 }
 
 function lineConnectsOverflowNode(line: string, overflowIds: ReadonlySet<string>): boolean {
-  if (!line.includes("-->") && !line.includes("~~~") && !line.includes("-.->") && !line.includes("==")) {
-    return false;
-  }
+  const [, fromId, toId] = EDGE_ENDPOINTS.exec(line.trimStart()) ?? [];
 
-  for (const overflowId of overflowIds) {
-    if (line.includes(overflowId)) {
-      return true;
-    }
-  }
-
-  return false;
+  return (fromId !== undefined && overflowIds.has(fromId))
+    || (toId !== undefined && overflowIds.has(toId));
 }
 
 export function isInfraEvidenceOutlineOnlyCanvasExcludedNode(

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import {
@@ -99,13 +99,19 @@ export function useQuickFamilyWizardFlow(
     [pathname, router, searchParams],
   );
 
-  useEffect(() => {
-    const fromUrl = parseQuickFamilyWizardStepFromSearch(searchParams.get("qsStep"));
+  // A local Back/Next updates step state before Next's router.replace publishes the new qsStep.
+  // Sync only on an observed URL-step change; re-reading the stale query on every local
+  // step render would immediately undo the operator's navigation.
+  const lastObservedUrlStepRef = useRef(urlQsStep);
 
-    if (fromUrl !== null && fromUrl !== navigation.stepIndex) {
-      navigation.goToStep(fromUrl);
+  useEffect(() => {
+    if (lastObservedUrlStepRef.current === urlQsStep) {
+      return;
     }
-  }, [navigation.goToStep, navigation.stepIndex, searchParams]);
+
+    lastObservedUrlStepRef.current = urlQsStep;
+    navigation.goToStep(urlQsStep ?? 0);
+  }, [navigation.goToStep, urlQsStep]);
 
   const goBack = useCallback(() => {
     const next = previousWizardStepIndex(navigation.stepIndex);

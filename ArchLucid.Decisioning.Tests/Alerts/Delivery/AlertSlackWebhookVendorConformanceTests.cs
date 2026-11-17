@@ -61,7 +61,7 @@ public sealed class AlertSlackWebhookVendorConformanceTests
         text.Should().Contain("[Warning]", because: "Severity must be visible for on-call triage.");
         text.Should().Contain("Latency regression");
         text.Should().Contain("SLO");
-        text.Should().Contain("p95 > 800ms");
+        text.Should().Contain("p95 &gt; 800ms");
         text.Should().Contain("Checkout path breached");
     }
 

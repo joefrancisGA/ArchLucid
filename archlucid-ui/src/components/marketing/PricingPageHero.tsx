@@ -39,7 +39,11 @@ export function PricingPageHero(): React.JSX.Element {
           data-testid="pricing-faq-link-line"
         >
           {PRICING_PAGE_FAQ_LINK_PREFIX}{" "}
-          <Link className={MARKETING_SURFACES.inlineLink} href="/faq">
+          <Link
+            className={MARKETING_SURFACES.inlineLink}
+            href="/faq"
+            aria-label={`${PRICING_PAGE_FAQ_LINK_LABEL} — pricing and packaging questions`}
+          >
             {PRICING_PAGE_FAQ_LINK_LABEL}
           </Link>
           .

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID } from "@/app/(operator)/governance/remediation-factory/remediation-factory-page-copy";
@@ -9,6 +9,7 @@ import {
   SECURENOW_PATH_INSPECT_PANEL_TITLE,
   SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
 } from "@/lib/product-line/securenow-path-inspect-copy";
+import { SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED } from "@/lib/security-evidence-path-types";
 
 vi.mock("@/hooks/use-operational-security-finding-detail-query", () => ({
   useOperationalSecurityFindingDetailQuery: vi.fn(),
@@ -49,6 +50,7 @@ vi.mock("@/lib/product-line/securenow-pilot-disposition-sync", () => ({
   persistSecureNowPilotDispositionForPath: vi.fn(async () => ({
     status: "saved",
     tenantAuditRecorded: true,
+    recordedUtc: null,
   })),
 }));
 
@@ -60,6 +62,9 @@ import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-pa
 import { secureNowPilotDispositionStorageKey, SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE } from "@/lib/product-line/securenow-pilot-disposition-storage";
 import {
   SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG,
+  SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_LINE,
+  SECURENOW_PATH_INSPECT_EXPLANATION_REAL_SESSION_FALLBACK_LINE,
+  SECURENOW_PATH_INSPECT_RANK_MODE_DISCIPLINE,
   SECURENOW_PATH_INSPECT_RANK_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
 
@@ -158,6 +163,83 @@ describe("SecurityEvidencePathInspectPanel", () => {
     fireEvent.click(screen.getByTestId("security-evidence-path-rank-sort-key-path-1"));
     expect(identity).toHaveTextContent(
       "Composite sort key 0.8123. Ordering only — not a percentage, probability, or live risk score.",
+    );
+  });
+
+  it("states rank vs agent mode discipline for Real explanations", () => {
+    vi.mocked(useAgentExecutionMode).mockReturnValue({
+      mode: "Real",
+      isSimulator: false,
+      isLoading: false,
+    });
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "HighlyLikely",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Gap",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: {
+          actor: null,
+          identity: null,
+          network: null,
+          asset: null,
+          weakControl: null,
+          proposedChange: "",
+          verify: "",
+          architectSentence: null,
+        },
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        rankOrder: 1,
+        ruleVersion: "SA-09-v1",
+        technicalExposureScore: 0.9,
+        privilegeDepthScore: 0.8,
+        blastRadiusScore: 0.1,
+        businessConsequenceScore: null,
+        confidenceBandScore: 0.6,
+        compositeSortScore: 0.8123,
+        explanationSummary: "Summary",
+        breakdownJson: "[]",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "HighlyLikely",
+        dimensionProse: {
+          technicalExposure: "Public.",
+          privilegeDepth: "Deep.",
+          blastRadius: "Wide.",
+          businessConsequence: "",
+          confidenceBand: "Likely.",
+          overall: "Overall.",
+        },
+        computedUtc: "2026-01-01T00:00:00Z",
+        nextStoredPathRankContext: "",
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel(null, { pathIdOverride: "path-1" });
+
+    expect(screen.getByTestId("security-evidence-path-rank-mode-discipline")).toHaveTextContent(
+      SECURENOW_PATH_INSPECT_RANK_MODE_DISCIPLINE,
+    );
+    expect(screen.getByTestId("security-evidence-path-inspect-execution-mode-header")).toHaveTextContent(
+      SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_LINE,
     );
   });
 
@@ -315,7 +397,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
             hopOrdinal: 2,
             fromNodeLabel: "Hop source was not stored.",
             toNodeLabel: "Hop destination was not stored.",
-            edgeType: "Relationship type was not stored",
+            edgeType: SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED,
             provenanceKind: "DerivedFact",
             hopConfidenceBand: "Possible",
             inferenceSource: "tag:owner",
@@ -434,15 +516,21 @@ describe("SecurityEvidencePathInspectPanel", () => {
       "This configuration creates a path from Internet through identity principal:aaaaaaaa to asset sa1.",
     );
     expect(screen.getByTestId("security-evidence-path-weakest-hop-callout")).toBeInTheDocument();
-    expect(
-      screen.getByText("This is the stored weakest hop. Evidence strength was not stored."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("This is the stored weakest hop.")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-weakest-hop-row")).toBeInTheDocument();
     expect(screen.getAllByText("Hop source was not stored.").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Hop destination was not stored.").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Relationship type was not stored/).length).toBeGreaterThan(0);
-    expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent("Observed fact");
+    expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent(
+      "Read from collected evidence",
+    );
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[1]).toHaveTextContent("Derived fact");
+    expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent(
+      "Inference source: Inference source was not stored.",
+    );
+    expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[1]).toHaveTextContent(
+      "Inference source: tag:owner",
+    );
     expect(screen.getAllByText("Possible").length).toBeGreaterThan(0);
     expect(screen.queryByText(/\d+%/)).not.toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-cut-points")).toBeInTheDocument();
@@ -454,7 +542,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getByTestId("security-evidence-path-band-weakest-hop-limit")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-routing")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-decision-readiness")).toHaveTextContent("Verify evidence before action");
-    expect(screen.getByTestId("security-evidence-path-evidence-issues")).toHaveTextContent("At least one hop is inferred");
+    expect(screen.getByTestId("security-evidence-path-evidence-issues")).toHaveTextContent(
+      "At least one hop is derived, not observed access.",
+    );
     expect(screen.getByTestId("security-evidence-path-verification-status")).toHaveTextContent(
       "No remediation instance is linked; verification has not started.",
     );
@@ -503,26 +593,12 @@ describe("SecurityEvidencePathInspectPanel", () => {
 
     renderPanel("finding-1");
 
-    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
-      "Problem statement was not stored.",
+    expect(screen.getByTestId("security-evidence-path-recommended-action-not-cited-summary")).toHaveTextContent(
+      "Evidence citation was not stored: Problem, Weakest-hop reason, Hop evidence",
     );
-    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
-      "Blast radius was not stored.",
-    );
-    expect(screen.getByTestId("security-evidence-path-recommended-action")).not.toHaveTextContent("Not cited.");
-    expect(screen.queryAllByText("Not cited.")).toHaveLength(0);
     expect(screen.getByTestId("security-evidence-path-hops-empty")).toHaveTextContent("No hops were stored.");
     expect(screen.getByTestId("security-evidence-path-routing-empty")).toHaveTextContent(
       "No routing citations were stored.",
-    );
-    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
-      "Weakest-hop reason was not stored.",
-    );
-    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
-      "Hop evidence was not stored.",
-    );
-    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
-      "Proposed change was not stored.",
     );
   });
 
@@ -596,7 +672,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
     const recommended = screen.getByTestId("security-evidence-path-recommended-action");
     expect(recommended).toHaveTextContent("Weakest-hop reason");
     expect(recommended).toHaveTextContent("Role assignment inferred from tag metadata.");
-    expect(recommended).toHaveTextContent("Hop evidence was not stored.");
+    expect(recommended).toHaveTextContent("Evidence citation was not stored: Hop evidence");
     expect(recommended).toHaveTextContent("Disable public access.");
     expect(recommended).not.toHaveTextContent("Cut summary should not appear as proposed change.");
   });
@@ -722,6 +798,70 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(rejection).toHaveTextContent("Model cited hop-99 which is not on this path.");
   });
 
+  it("states Real-session fallback discipline when Real mode returns a deterministic explanation", async () => {
+    vi.mocked(useAgentExecutionMode).mockReturnValue({
+      mode: "Real",
+      isSimulator: false,
+      isLoading: false,
+    });
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Gap",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: null,
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+    vi.mocked(buildSecurityEvidencePathExplanation).mockResolvedValue({
+      succeeded: true,
+      explanation: {
+        explanationId: "exp-1",
+        pathId: "path-1",
+        executiveSummary: "Summary",
+        businessImpactHypotheses: [],
+        proposedRemediation: {
+          recommendedChange: "",
+          recommendedChangeSource: "WeakestHop",
+          verificationQueries: [],
+          preconditions: [],
+          suggestedPatternKey: null,
+        },
+        citedEvidenceRefs: ["evidence-1"],
+        provenanceKind: "DeterministicInference",
+        simulatorLabel: "SIMULATOR",
+        modelOutputRejection: null,
+        createdUtc: new Date().toISOString(),
+      },
+    });
+
+    renderPanel("finding-1");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-explanation-button"));
+
+    expect(
+      await screen.findByTestId("security-evidence-path-explanation-real-fallback-discipline"),
+    ).toHaveTextContent(SECURENOW_PATH_INSPECT_EXPLANATION_REAL_SESSION_FALLBACK_LINE);
+  });
+
   it("links hop resource evidence when cloudResourceId is present", () => {
     vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
       data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
@@ -823,6 +963,63 @@ describe("SecurityEvidencePathInspectPanel", () => {
     );
     expect(screen.queryByRole("link", { name: "Open resource evidence" })).toBeNull();
     expect(screen.queryByTestId("security-evidence-path-hop-resource-evidence")).toBeNull();
+  });
+
+  it("ignores a late explanation from a previously selected path", async () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockImplementation((pathId) => ({
+      data: {
+        pathId,
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: null,
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>));
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    type BuildResult = Awaited<ReturnType<typeof buildSecurityEvidencePathExplanation>>;
+    const first = Promise.withResolvers<BuildResult>();
+    const second = Promise.withResolvers<BuildResult>();
+    vi.mocked(buildSecurityEvidencePathExplanation)
+      .mockReturnValueOnce(first.promise)
+      .mockReturnValueOnce(second.promise);
+
+    const queryClient = new QueryClient();
+    const panel = (pathId: string) => (
+      <QueryClientProvider client={queryClient}>
+        <SecurityEvidencePathInspectPanel findingId={null} pathIdOverride={pathId} />
+      </QueryClientProvider>
+    );
+    const { rerender } = render(panel("path-1"));
+    const button = () => screen.getByTestId("security-evidence-path-explanation-button");
+    fireEvent.click(button());
+
+    rerender(panel("path-2"));
+    fireEvent.click(button());
+
+    await act(async () => {
+      first.resolve({ succeeded: false, explanation: null, errorMessage: "Path 1 request failed." });
+    });
+    expect(screen.queryByText("Path 1 request failed.")).toBeNull();
+    expect(button()).toBeDisabled();
+
+    await act(async () => {
+      second.resolve({ succeeded: false, explanation: null, errorMessage: "Path 2 request failed." });
+    });
+    expect(screen.getByText("Path 2 request failed.")).toBeInTheDocument();
+    expect(button()).toBeEnabled();
   });
 
   it("generates simulator explanation for the selected path", async () => {
@@ -1153,7 +1350,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
       </QueryClientProvider>,
     );
 
-    expect(screen.getByText("Highly likely")).toBeInTheDocument();
+    expect(screen.getByText(/Highly likely/)).toBeInTheDocument();
     expect(screen.queryByTestId("security-evidence-path-inspect-empty")).not.toBeInTheDocument();
   });
 

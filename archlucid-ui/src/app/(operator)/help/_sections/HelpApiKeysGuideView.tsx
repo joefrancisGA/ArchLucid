@@ -1,3 +1,4 @@
+import { resolveProductionEvalChromeForServer } from "@/lib/production-desk-chrome";
 import Link from "next/link";
 
 import { HelpApiKeysClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpApiKeysClaimOrientationStrip";
@@ -9,7 +10,6 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   API_KEYS_HELP_ACTION_PANEL_ID,
   API_KEYS_HELP_ACTION_PANEL_INTRO,
@@ -85,7 +85,7 @@ function apiKeysHelpPageSubtitle(buyerPolishedShell: boolean): string {
 /** Operator API keys orientation for `/help/api-keys`. */
 export function HelpApiKeysGuideView(props: HelpApiKeysGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = resolveProductionEvalChromeForServer();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-api-keys",
     API_KEYS_HELP_GUIDE_HEADINGS,

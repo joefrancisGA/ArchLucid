@@ -16,6 +16,11 @@ import {
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
+import {
+  policyPacksPathForProductLine,
+  standardsAndRulesPathForProductLine,
+} from "@/lib/product-line/securenow-compliance-routes";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import type { VocabularyPeerLinkFields } from "@/lib/vocabulary/vocabulary-peer-link-fields";
 
 export type GovernanceSetupConfigHubsSurfaceId =
@@ -80,31 +85,40 @@ export const GOVERNANCE_SETUP_CONFIG_HUBS_STANDARDS_LINK: GovernanceSetupConfigH
   compactLineAnchor: "Standards",
 };
 
-const ALL_LINKS: readonly GovernanceSetupConfigHubsLink[] = [
-  GOVERNANCE_SETUP_CONFIG_HUBS_SETUP_LINK,
-  GOVERNANCE_SETUP_CONFIG_HUBS_ALERT_RULES_LINK,
-  GOVERNANCE_SETUP_CONFIG_HUBS_POLICY_PACKS_LINK,
-  GOVERNANCE_SETUP_CONFIG_HUBS_STANDARDS_LINK,
-];
-
 /** Full vocabulary model. */
-export function buildGovernanceSetupConfigHubsVocabulary(): GovernanceSetupConfigHubsVocabularyModel {
+export function buildGovernanceSetupConfigHubsVocabulary(
+  productLine: ProductLineId = "architecture",
+): GovernanceSetupConfigHubsVocabularyModel {
   return {
     heading: GOVERNANCE_SETUP_CONFIG_HUBS_HEADING,
     whySeparate: GOVERNANCE_SETUP_CONFIG_HUBS_WHY_SEPARATE,
     compactLine: GOVERNANCE_SETUP_CONFIG_HUBS_COMPACT_LINE,
     setupLink: GOVERNANCE_SETUP_CONFIG_HUBS_SETUP_LINK,
     alertRulesLink: GOVERNANCE_SETUP_CONFIG_HUBS_ALERT_RULES_LINK,
-    policyPacksLink: GOVERNANCE_SETUP_CONFIG_HUBS_POLICY_PACKS_LINK,
-    standardsLink: GOVERNANCE_SETUP_CONFIG_HUBS_STANDARDS_LINK,
+    policyPacksLink: {
+      ...GOVERNANCE_SETUP_CONFIG_HUBS_POLICY_PACKS_LINK,
+      href: policyPacksPathForProductLine(productLine),
+    },
+    standardsLink: {
+      ...GOVERNANCE_SETUP_CONFIG_HUBS_STANDARDS_LINK,
+      href: standardsAndRulesPathForProductLine(productLine),
+    },
   };
 }
 
 /** Resolve the link for the current surface. */
 export function resolveGovernanceSetupConfigHubsLink(
   surfaceId: GovernanceSetupConfigHubsSurfaceId,
+  productLine: ProductLineId = "architecture",
 ): GovernanceSetupConfigHubsLink | null {
-  const match = ALL_LINKS.find((link) => link.id === surfaceId);
+  const model = buildGovernanceSetupConfigHubsVocabulary(productLine);
+  const links = [
+    model.setupLink,
+    model.alertRulesLink,
+    model.policyPacksLink,
+    model.standardsLink,
+  ];
+  const match = links.find((link) => link.id === surfaceId);
 
   if (match === undefined) {
     return null;
@@ -119,15 +133,23 @@ export function resolveGovernanceSetupConfigHubsLink(
  */
 export function resolveGovernanceSetupConfigHubsPeerLinks(
   currentSurfaceId: GovernanceSetupConfigHubsSurfaceId,
+  productLine: ProductLineId = "architecture",
 ): readonly GovernanceSetupConfigHubsLink[] {
-  const peers = ALL_LINKS.filter((link) => link.id !== currentSurfaceId);
+  const model = buildGovernanceSetupConfigHubsVocabulary(productLine);
+  const links = [
+    model.setupLink,
+    model.alertRulesLink,
+    model.policyPacksLink,
+    model.standardsLink,
+  ];
+  const peers = links.filter((link) => link.id !== currentSurfaceId);
 
   if (currentSurfaceId === "setup") {
     return peers;
   }
 
   return [
-    GOVERNANCE_SETUP_CONFIG_HUBS_SETUP_LINK,
+    model.setupLink,
     ...peers.filter((link) => link.id !== "setup"),
   ];
 }

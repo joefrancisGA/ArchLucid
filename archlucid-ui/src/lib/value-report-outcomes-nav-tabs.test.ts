@@ -27,6 +27,7 @@ describe("value-report-outcomes-nav-tabs", () => {
       SPONSOR_REPORT_PATH,
       SPONSOR_REPORT_ROI_SUMMARY_PATH,
       SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
+      "/insights/workspace-health",
     ]);
     expect(visible[0]?.label).toBe(SPONSOR_REPORT_PAGE_TITLE);
   });

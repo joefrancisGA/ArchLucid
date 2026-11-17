@@ -4,6 +4,7 @@ import type { GovernanceFindingInspectHrefOptions } from "@/components/governanc
 import {
   getFindingEvidenceTraceHref,
   resolveQuickDecisionFindingDispositionHref,
+  resolveQuickDecisionFindingInspectHref,
   resolveQuickDecisionFindingWorkspaceHref,
 } from "@/lib/findings/finding-evidence-navigation";
 import { ASK_CITATION_REFS_NOT_STORED_MARKER } from "@/lib/ask-review-artifact-status-copy";
@@ -267,7 +268,7 @@ export function buildAskCitationActionFollowUps(
     pushChip(chips, {
       kind: "finding",
       label: `Open ${BUYER_SURFACE_VOCABULARY.finding.toLowerCase()}`,
-      href: resolveQuickDecisionFindingWorkspaceHref(runId, findingId, inspectHrefOptions),
+      href: resolveQuickDecisionFindingInspectHref(runId, findingId, inspectHrefOptions),
       citationId: findingId,
     });
     pushChip(chips, {

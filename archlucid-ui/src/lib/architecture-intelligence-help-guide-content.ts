@@ -7,6 +7,9 @@ import { ARCHITECTURE_INTELLIGENCE_ROUTE_METADATA } from "@/lib/architecture/arc
 import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/architecture-intelligence-help-evidence-copy";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_PAGE_TITLE =
   typeof ARCHITECTURE_INTELLIGENCE_ROUTE_METADATA.title === "string"
@@ -86,6 +89,24 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS: readonly Architecture
     href: REVIEWS_NEW_PATH,
   },
 ] as const;
+
+export function resolveArchitectureIntelligenceHelpFeatureItems(
+  productLine: ProductLineId = "architecture",
+): readonly ArchitectureIntelligenceHelpItem[] {
+  if (!isSecureNowProductLine(productLine)) {
+    return ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS;
+  }
+
+  const findingsHref = findingsPathForProductLine(productLine);
+
+  return ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS.map((item) => {
+    if (item.label !== "Publish to findings") {
+      return item;
+    }
+
+    return { ...item, href: findingsHref };
+  });
+}
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_HOW_TO_READ_STEPS = [
   "Paste or edit an architecture description, then choose Run architecture reasoning or Run baseline evaluation.",

@@ -6,6 +6,7 @@ const pushMock = vi.fn();
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
   usePathname: () => "/compliance/audit-evidence",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
@@ -23,6 +24,25 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
     ),
   };
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
 
 import {
   AUDIT_EVIDENCE_LINEAGE_URL_APPLY_ACTION,

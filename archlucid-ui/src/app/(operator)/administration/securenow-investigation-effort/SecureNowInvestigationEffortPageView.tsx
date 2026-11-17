@@ -4,17 +4,20 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecureNowInvestigationEffortScopeLine } from "@/components/product-line/SecureNowInvestigationEffortScopeLine";
+import { SecureNowInvestigationEffortSyntheticExamplePanel } from "@/components/product-line/SecureNowInvestigationEffortSyntheticExamplePanel";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL,
   SECURENOW_INVESTIGATION_EFFORT_HEADING,
   SECURENOW_INVESTIGATION_EFFORT_LEAD,
   SECURENOW_INVESTIGATION_EFFORT_NOTES,
-  SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_FIELDS,
-  SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_HEADING,
-  SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_LEAD,
-  SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_RESULT,
+  SECURENOW_INVESTIGATION_EFFORT_PARTIAL_CAPTURE_CONTEXT_LINE,
 } from "@/lib/product-line/securenow-investigation-effort-copy";
+import { SecureNowPartialCaptureRecoveryLinks } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import {
   isSecureNowInvestigationEffortAuditCandidate,
   persistSecureNowInvestigationEffortInputs,
@@ -22,6 +25,8 @@ import {
   type SecureNowInvestigationEffortInputFields,
 } from "@/lib/product-line/securenow-investigation-effort-input-storage";
 import { resolveSecureNowInvestigationEffortResultState } from "@/lib/product-line/securenow-investigation-effort-result-state";
+import { SECURENOW_INVESTIGATION_EFFORT_OPERATOR_ROI_DISCIPLINE_LINE } from "@/lib/product-line/securenow-investigation-effort-operator-roi-discipline-copy";
+import { formatSecureNowInvestigationEffortBlockingBanner } from "@/lib/product-line/securenow-investigation-effort-blocking-banner-copy";
 import {
   loadSecureNowInvestigationEffortInputs,
   persistSecureNowInvestigationEffortInputsToAudit,
@@ -38,9 +43,12 @@ const EMPTY_INPUTS: EffortInputs = {
 };
 
 export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
+  const partialCapture = useLatestSnapshotCaptureIsPartial(true);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const [inputs, setInputs] = useState<EffortInputs>(EMPTY_INPUTS);
   const [restoreComplete, setRestoreComplete] = useState(false);
-  const editedRef = useRef(false);
+  const inputEditsRef = useRef<Partial<EffortInputs>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -50,10 +58,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
         return;
       }
 
-      if (!editedRef.current) {
-        setInputs(stored ?? EMPTY_INPUTS);
-      }
-
+      setInputs({ ...(stored ?? EMPTY_INPUTS), ...inputEditsRef.current });
       setRestoreComplete(true);
     });
 
@@ -63,7 +68,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (!restoreComplete) {
+    if (!restoreComplete || Object.keys(inputEditsRef.current).length === 0) {
       return;
     }
 
@@ -85,7 +90,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
   const resultState = useMemo(() => resolveSecureNowInvestigationEffortResultState(inputs), [inputs]);
 
   const updateInput = (field: keyof EffortInputs, value: string) => {
-    editedRef.current = true;
+    inputEditsRef.current = { ...inputEditsRef.current, [field]: value };
     setInputs((current) => ({ ...current, [field]: value }));
   };
 
@@ -100,6 +105,38 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
       />
 
       <div className="mt-6 max-w-3xl space-y-6">
+        {partialCapture ? (
+          <div
+            className="space-y-1 rounded border border-amber-500/30 bg-amber-50/30 p-3 dark:bg-amber-950/20"
+            data-testid="securenow-investigation-effort-partial-capture"
+          >
+            <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_INVESTIGATION_EFFORT_PARTIAL_CAPTURE_CONTEXT_LINE}</p>
+            <p className={OPERATOR_TYPOGRAPHY.helper}>
+              <SecureNowPartialCaptureRecoveryLinks
+                partialCaptureSnapshotId={partialCaptureSnapshotId}
+                returnPath={partialCaptureReturnPath}
+                cloudConnectionsTestId="securenow-investigation-effort-partial-capture-cloud-connections"
+                extractUploadTestId="securenow-investigation-effort-partial-capture-extract-upload"
+              />
+            </p>
+          </div>
+        ) : null}
+        <SecureNowInvestigationEffortScopeLine />
+        <p
+          className={OPERATOR_TYPOGRAPHY.helper}
+          data-testid="securenow-investigation-effort-operator-roi-discipline"
+        >
+          {SECURENOW_INVESTIGATION_EFFORT_OPERATOR_ROI_DISCIPLINE_LINE}
+        </p>
+        {resultState.kind === "incomplete" ? (
+          <div
+            className="rounded border border-amber-500/40 bg-amber-50/40 p-3 dark:bg-amber-950/20"
+            role="status"
+            data-testid="securenow-investigation-effort-blocking-banner"
+          >
+            <p className={OPERATOR_TYPOGRAPHY.body}>{formatSecureNowInvestigationEffortBlockingBanner(resultState.reason)}</p>
+          </div>
+        ) : null}
         <section aria-labelledby="securenow-investigation-effort-inputs-heading" className="space-y-3">
           <h2 id="securenow-investigation-effort-inputs-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Entered inputs
@@ -158,24 +195,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
           </div>
         </section>
 
-        <section
-          aria-labelledby="securenow-investigation-effort-synthetic-heading"
-          className="space-y-2 rounded border border-dashed border-border p-3"
-          data-testid="securenow-investigation-effort-synthetic-example"
-        >
-          <h2 id="securenow-investigation-effort-synthetic-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            {SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_HEADING}
-          </h2>
-          <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_LEAD}</p>
-          <ul className={OPERATOR_TYPOGRAPHY.helper}>
-            <li>B = {SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_FIELDS.baselineHours}</li>
-            <li>A = {SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_FIELDS.afterHours}</li>
-            <li>N = {SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_FIELDS.annualInvestigations}</li>
-            <li>R = {SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_FIELDS.hourlyRate}</li>
-            <li>C = {SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_FIELDS.annualCost}</li>
-          </ul>
-          <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_RESULT}</p>
-        </section>
+        <SecureNowInvestigationEffortSyntheticExamplePanel headingId="securenow-investigation-effort-synthetic-heading" />
 
         <section
           aria-labelledby="securenow-investigation-effort-notes-heading"

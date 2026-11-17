@@ -30,6 +30,7 @@ import type {
   IntegrationRecommendedFirstSetup,
 } from "@/lib/connector-readiness-summary";
 import { INTEGRATION_READINESS_OPTIONAL_SUPPORTING_COPY } from "@/lib/connector-readiness-summary";
+import { INTEGRATION_READINESS_POINT_IN_TIME_HONESTY_LINE } from "@/lib/integrations/integration-readiness-point-in-time-honesty-copy";
 import {
   formatIntegrationReadinessFreshness,
   formatIntegrationReadinessWorkspaceScopeLine,
@@ -96,6 +97,12 @@ export function IntegrationReadinessSummaryStrip(props: IntegrationReadinessSumm
             data-testid="integration-readiness-last-checked"
           >
             {freshness.absoluteLine} ({freshness.relativeLine})
+          </p>
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="integration-readiness-point-in-time-honesty"
+          >
+            {INTEGRATION_READINESS_POINT_IN_TIME_HONESTY_LINE}
           </p>
           {freshness.stale ? (
             <p

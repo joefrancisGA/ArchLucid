@@ -95,8 +95,8 @@ public sealed class JwtLocalSigningIntegrationTests(JwtLocalSigningWebAppFactory
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", MintTrialRoleJwt(ArchLucidRoles.Reader));
 
-        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request");
-        request.Content = new StringContent(
+        using HttpRequestMessage request = IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(
+            new StringContent(
             JsonSerializer.Serialize(
                 new
                 {
@@ -111,7 +111,7 @@ public sealed class JwtLocalSigningIntegrationTests(JwtLocalSigningWebAppFactory
                     priorManifestVersion = (string?)null
                 }),
             Encoding.UTF8,
-            "application/json");
+            "application/json"));
 
         HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
@@ -129,8 +129,8 @@ public sealed class JwtLocalSigningIntegrationTests(JwtLocalSigningWebAppFactory
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", MintTrialRoleJwt(ArchLucidRoles.Admin));
 
-        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request");
-        request.Content = new StringContent(
+        using HttpRequestMessage request = IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(
+            new StringContent(
             JsonSerializer.Serialize(
                 new
                 {
@@ -145,7 +145,7 @@ public sealed class JwtLocalSigningIntegrationTests(JwtLocalSigningWebAppFactory
                     priorManifestVersion = (string?)null
                 }),
             Encoding.UTF8,
-            "application/json");
+            "application/json"));
 
         HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 

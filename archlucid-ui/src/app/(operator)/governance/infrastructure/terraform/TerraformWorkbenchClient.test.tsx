@@ -1,11 +1,13 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { TerraformWorkbenchClient } from "@/app/(operator)/governance/infrastructure/terraform/TerraformWorkbenchClient";
 
-const searchParams = new URLSearchParams(
+const initialSearchParams = new URLSearchParams(
   "snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
 );
+
+let searchParams = initialSearchParams;
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => searchParams,
@@ -69,6 +71,10 @@ vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
 }));
 
 describe("TerraformWorkbenchClient", () => {
+  beforeEach(() => {
+    searchParams = initialSearchParams;
+  });
+
   it("renders advisory mapping and hub links for scoped resource", async () => {
     render(<TerraformWorkbenchClient />);
 
@@ -91,6 +97,35 @@ describe("TerraformWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-terraform-open-drift-export")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-terraform-advisory-reconstructed-tag")).toBeInTheDocument();
     expect(screen.getByTestId("infra-terraform-scope-status")).toHaveTextContent("Scoped");
+  });
+
+  it("hides the old resource mapping while the new selection loads", async () => {
+    const { fetchCachedInfraEvidenceResourceHub } = await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    const fetchHub = vi.mocked(fetchCachedInfraEvidenceResourceHub);
+    fetchHub.mockClear();
+    const { rerender } = render(<TerraformWorkbenchClient />);
+    expect(await screen.findByText("azurerm_public_ip.gateway")).toBeInTheDocument();
+    const previousHub = await fetchHub.mock.results[0]?.value;
+    const pending = Promise.withResolvers<Awaited<ReturnType<typeof fetchCachedInfraEvidenceResourceHub>>>();
+    fetchHub.mockReturnValueOnce(pending.promise);
+
+    const newResourceId = "33333333-3333-3333-3333-333333333333";
+    searchParams = new URLSearchParams({ cloudResourceId: newResourceId });
+    rerender(<TerraformWorkbenchClient />);
+
+    expect(screen.getByText("Loading Terraform mapping…")).toBeInTheDocument();
+    expect(screen.queryByText("azurerm_public_ip.gateway")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-terraform-copy-snippet")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-terraform-download-advisory-zip")).not.toBeInTheDocument();
+
+    await act(async () => {
+      pending.resolve({
+        ...previousHub,
+        cloudResourceId: newResourceId,
+        terraformAddress: "azurerm_public_ip.new_gateway",
+      });
+    });
+    expect(screen.getByText("azurerm_public_ip.new_gateway")).toBeInTheDocument();
   });
 
   it("shows empty state when terraform address is missing", async () => {

@@ -1885,6 +1885,303 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-evidence-completeness-warnings-banner")).not.toBeInTheDocument();
   });
 
+  it("ignores a slow prior snapshot preview response after URL snapshot change", async () => {
+    const snapshotA = "11111111-1111-1111-1111-111111111111";
+    const snapshotB = "22222222-2222-2222-2222-222222222222";
+    let resolveSlowSnapshotA: (() => void) | undefined;
+
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
+      items: [
+        defaultSnapshotsResponse.items[0]!,
+        {
+          snapshotId: snapshotB,
+          subscriptionId: "sub-1",
+          subscriptionName: "Prod",
+          capturedUtc: "2026-09-02T12:00:00Z",
+          captureStatus: 1,
+          resourceCount: 12,
+          relationshipCount: 3,
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (snapshotId: string, query) => ({
+      snapshotId,
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "flowchart LR\n  A-->B",
+      metrics: {
+        nodeCount: 2,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 100,
+        layoutEstimate: 50,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    const buildPreview = (snapshotId: string) => ({
+      snapshotId,
+      modes: [
+        {
+          mode: "executive",
+          status: snapshotId === snapshotA ? "Partitioned" : "Succeeded",
+          nodeCount: snapshotId === snapshotA ? 900 : 2,
+          edgeCount: 1,
+          mermaid: null,
+          fallbackArtifacts: [],
+        },
+      ],
+      completenessWarnings: [],
+    });
+
+    fetchInfraEvidenceMermaidPreviewMock.mockImplementation(async (snapshotId: string) => {
+      if (snapshotId === snapshotA) {
+        await new Promise<void>((resolve) => {
+          resolveSlowSnapshotA = resolve;
+        });
+      }
+
+      return buildPreview(snapshotId);
+    });
+
+    searchParams = new URLSearchParams(`snapshotId=${snapshotA}&mermaidMode=executive`);
+    const { rerender } = render(<DiagramsWorkbenchClient />);
+
+    searchParams = new URLSearchParams(`snapshotId=${snapshotB}&mermaidMode=executive`);
+    rerender(<DiagramsWorkbenchClient />);
+
+    const announcer = await screen.findByTestId("infra-diagrams-selection-announcer");
+
+    await waitFor(() => {
+      expect(announcer.textContent ?? "").toMatch(/Diagram ready/i);
+      expect(announcer.textContent ?? "").not.toMatch(/Diagram partitioned/i);
+    });
+
+    await act(async () => {
+      resolveSlowSnapshotA?.();
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(announcer.textContent ?? "").toMatch(/Diagram ready/i);
+      expect(announcer.textContent ?? "").not.toMatch(/900 nodes/i);
+      expect(announcer.textContent ?? "").not.toMatch(/Diagram partitioned/i);
+    });
+  });
+
+  it("does not show render completeness warnings from a slow prior snapshot after URL snapshot change", async () => {
+    const snapshotA = "11111111-1111-1111-1111-111111111111";
+    const snapshotB = "22222222-2222-2222-2222-222222222222";
+    const warningA = "app-settings-not-collected-hosted-get-only";
+    let resolveSlowRenderA: (() => void) | undefined;
+
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
+      items: [
+        defaultSnapshotsResponse.items[0]!,
+        {
+          snapshotId: snapshotB,
+          subscriptionId: "sub-1",
+          subscriptionName: "Prod",
+          capturedUtc: "2026-09-02T12:00:00Z",
+          captureStatus: 1,
+          resourceCount: 12,
+          relationshipCount: 3,
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    fetchInfraEvidenceMermaidPreviewMock.mockResolvedValue({
+      snapshotId: snapshotB,
+      modes: [
+        {
+          mode: "executive",
+          status: "Succeeded",
+          nodeCount: 2,
+          edgeCount: 1,
+          mermaid: null,
+          fallbackArtifacts: [],
+        },
+      ],
+      completenessWarnings: [],
+    });
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (snapshotId: string, query) => {
+      if (snapshotId === snapshotA) {
+        await new Promise<void>((resolve) => {
+          resolveSlowRenderA = resolve;
+        });
+      }
+
+      return {
+        snapshotId,
+        mode: query.mode ?? "executive",
+        fallbackKey: query.fallbackKey ?? null,
+        status: "Succeeded",
+        mermaid: "flowchart LR\n  A-->B",
+        completenessWarnings: snapshotId === snapshotA ? [warningA] : [],
+        metrics: {
+          nodeCount: 2,
+          edgeCount: 1,
+          subgraphCount: 0,
+          maxDegree: 1,
+          crossSubgraphEdgeCount: 0,
+          textSizeBytes: 100,
+          layoutEstimate: 50,
+        },
+        fallbackArtifacts: [],
+      };
+    });
+
+    searchParams = new URLSearchParams(`snapshotId=${snapshotA}&mermaidMode=executive`);
+    const { rerender } = render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+        snapshotA,
+        expect.objectContaining({ mode: "executive" }),
+      );
+    });
+
+    searchParams = new URLSearchParams(`snapshotId=${snapshotB}&mermaidMode=executive`);
+    rerender(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("infra-evidence-completeness-warnings-banner")).not.toBeInTheDocument();
+    });
+
+    await act(async () => {
+      resolveSlowRenderA?.();
+      await Promise.resolve();
+    });
+
+    expect(screen.queryByTestId("infra-evidence-completeness-warnings-banner")).not.toBeInTheDocument();
+  });
+
+  it("clears completeness warnings when deep-linking a missing snapshot after viewing warnings on a valid snapshot", async () => {
+    const missingSnapshotId = "99999999-9999-9999-9999-999999999999";
+    const warning = "app-settings-not-collected-hosted-get-only";
+
+    fetchInfraEvidenceMermaidPreviewMock.mockResolvedValue({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      modes: [
+        {
+          mode: "executive",
+          status: "Succeeded",
+          nodeCount: 2,
+          edgeCount: 1,
+          mermaid: null,
+          fallbackArtifacts: [],
+        },
+      ],
+      completenessWarnings: [warning],
+    });
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
+    const { rerender } = render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-evidence-completeness-warnings-banner")).toBeInTheDocument();
+
+    searchParams = new URLSearchParams(`snapshotId=${missingSnapshotId}&mermaidMode=executive`);
+    rerender(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-snapshot-deep-link-missing")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-evidence-completeness-warnings-banner")).not.toBeInTheDocument();
+  });
+
+  it("prefetches subscription resource groups for the deep-linked snapshot id while snapshots are still loading", async () => {
+    const snapshotA = "11111111-1111-1111-1111-111111111111";
+    const snapshotB = "22222222-2222-2222-2222-222222222222";
+    let resolveSnapshots: (() => void) | undefined;
+    const previewSnapshotIds: string[] = [];
+
+    fetchInfraEvidenceSnapshotsMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveSnapshots = () => {
+            resolve({
+              items: [
+                defaultSnapshotsResponse.items[0]!,
+                {
+                  snapshotId: snapshotB,
+                  subscriptionId: "sub-1",
+                  subscriptionName: "Prod",
+                  capturedUtc: "2026-09-02T12:00:00Z",
+                  captureStatus: 1,
+                  resourceCount: 12,
+                  relationshipCount: 3,
+                },
+              ],
+              totalCount: 2,
+              page: 1,
+              pageSize: 50,
+              hasMore: false,
+            });
+          };
+        }),
+    );
+
+    fetchInfraEvidenceMermaidPreviewMock.mockImplementation(async (snapshotId: string) => {
+      previewSnapshotIds.push(snapshotId);
+
+      return {
+        snapshotId,
+        modes: [
+          {
+            mode: "full",
+            status: "Partitioned",
+            nodeCount: 10,
+            edgeCount: 5,
+            mermaid: null,
+            fallbackArtifacts: [
+              {
+                key: `resourceGroup:rg-for-${snapshotId.slice(0, 8)}`,
+                label: `rg-for-${snapshotId.slice(0, 8)}`,
+                status: "Succeeded",
+                nodeCount: 3,
+                edgeCount: 1,
+              },
+            ],
+          },
+        ],
+        completenessWarnings: [],
+      };
+    });
+
+    searchParams = new URLSearchParams(`snapshotId=${snapshotB}&diagramSubscription=sub-1`);
+    render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(previewSnapshotIds).toContain(snapshotB);
+    });
+
+    expect(previewSnapshotIds).not.toContain(snapshotA);
+
+    await act(async () => {
+      resolveSnapshots?.();
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      const picker = screen.getByTestId("infra-diagrams-resource-group-picker");
+      expect(within(picker).getByRole("option", { name: `rg-for-${snapshotB.slice(0, 8)}` })).toBeInTheDocument();
+      expect(within(picker).queryByRole("option", { name: `rg-for-${snapshotA.slice(0, 8)}` })).not.toBeInTheDocument();
+    });
+  });
+
   it("links the SecureNow breadcrumb parent to the infrastructure overview", async () => {
     pathname = SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH;
     searchParams = new URLSearchParams();

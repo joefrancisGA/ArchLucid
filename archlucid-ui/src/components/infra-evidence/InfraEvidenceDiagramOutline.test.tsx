@@ -586,6 +586,63 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(detailPanel).getByText(/Authorization from managed identity and RBAC/)).toBeInTheDocument();
   });
 
+  it("hides the inventory edge detail panel when controlled selection clears after auto-expand", async () => {
+    const mayAccessOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "web_app",
+          label: "orders-api",
+          resourceType: "Microsoft.Web/sites",
+          resourceGroup: "rg-app",
+        },
+        {
+          id: "sql_db",
+          label: "orders-db",
+          resourceType: "Microsoft.Sql/servers/databases",
+          resourceGroup: "rg-data",
+        },
+      ],
+      edges: [
+        {
+          from: "web_app",
+          to: "sql_db",
+          label: "May access",
+          source: "probable",
+          confidenceBand: "probable",
+          provenanceKind: "DerivedFact",
+          inferenceSource: "inventory-app-authorized-access",
+          declaredConnectionId: null,
+        },
+      ],
+      ledgerDrops: [],
+    };
+    const edge = mayAccessOutline.edges[0]!;
+    const onSelectInventoryEdge = vi.fn();
+
+    const { rerender } = render(
+      <InfraEvidenceDiagramOutline
+        outline={mayAccessOutline}
+        defaultEdgesOpen={true}
+        selectedInventoryEdge={edge}
+        onSelectInventoryEdge={onSelectInventoryEdge}
+      />,
+    );
+
+    expect(screen.getByTestId("infra-evidence-inventory-edge-detail-panel")).toBeInTheDocument();
+
+    rerender(
+      <InfraEvidenceDiagramOutline
+        outline={mayAccessOutline}
+        defaultEdgesOpen={true}
+        selectedInventoryEdge={null}
+        onSelectInventoryEdge={onSelectInventoryEdge}
+      />,
+    );
+
+    expect(screen.queryByTestId("infra-evidence-inventory-edge-detail-panel")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-outline-edges-disclosure")).toHaveAttribute("aria-expanded", "true");
+  });
+
   it("clears a selected edge detail panel when the outline changes", () => {
     const declaredOutline: InfraEvidenceMermaidOutline = {
       ...outline,

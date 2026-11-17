@@ -77,7 +77,7 @@ describe("resolveInfraEvidenceCompletenessWarningPresentation", () => {
     expect(presentation.title).toContain("insufficient permission");
     expect(presentation.detail).toContain("runCommand");
     expect(presentation.detail).toContain("aks-maks");
-    expect(presentation.detail).toContain("Pulls image from");
+    expect(presentation.detail).toContain("Image reference");
   });
 
   it("maps legacy AKS workload image warning codes", () => {

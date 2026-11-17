@@ -259,16 +259,26 @@ public sealed class PilotProofPackageCompletenessMapperTests
             FindingsBySeverity = [new KeyValuePair<string, int>("Error", 1)],
             AuditRowCount = 4,
             AuditRowCountTruncated = false,
+            AuditRowCountResolved = true,
             LlmCallCount = 2,
             LlmCallCountResolved = true,
             TopFindingId = "f-1",
             TopFindingSeverity = "Error",
             TopFindingEvidenceChain = new(),
             IsDemoTenant = false,
+            SynthesizedArtifactDescriptorCount = 1,
+            SynthesizedArtifactDescriptorCountResolved = true,
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = false,
         };
 
         ValueReportSnapshot snap = SnapshotWith(ReviewCycleBaselineProvenance.TenantSuppliedAtSignup);
-        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, snap);
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            manifest,
+            deltas,
+            snap,
+            BuyerProvidedScorecard());
 
         return (run, manifest, deltas, gate, snap);
     }
@@ -309,7 +319,17 @@ public sealed class PilotProofPackageCompletenessMapperTests
             ReviewCycleHoursDeltaPercent: 10m,
             FindingFeedbackNetScore: 0,
             FindingFeedbackVoteCount: 0,
-            TenantBaselineManualPrepHoursPerReview: null,
+            TenantBaselineManualPrepHoursPerReview: 2m,
             TenantBaselinePeoplePerReview: null);
     }
+
+    private static ArchLucid.Persistence.Pilots.PilotBaselineRecord BuyerProvidedScorecard() =>
+        new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            BaselineHoursPerReview = 40m,
+            BaselineReviewsPerQuarter = 12,
+            BaselineArchitectHourlyCost = 175m,
+            UpdatedUtc = DateTimeOffset.UtcNow,
+        };
 }

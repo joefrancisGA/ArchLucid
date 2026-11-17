@@ -13,8 +13,8 @@ describe("formatApiKeyFingerprint", () => {
 });
 
 describe("formatApiKeyFingerprints", () => {
-  it("returns dash when empty", () => {
-    expect(formatApiKeyFingerprints([])).toBe(" — ");
+  it("returns buyer-safe empty label when no masked segments exist", () => {
+    expect(formatApiKeyFingerprints([])).toBe("Fingerprint not recorded");
   });
 
   it("joins multiple fingerprints", () => {

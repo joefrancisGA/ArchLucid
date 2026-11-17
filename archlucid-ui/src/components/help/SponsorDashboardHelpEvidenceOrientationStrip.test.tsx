@@ -1,9 +1,18 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal as () => Promise<typeof import("next/navigation")>, {
+    usePathname: () => "/help/sponsor-dashboard",
+  });
+});
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { SponsorDashboardHelpEvidenceOrientationStrip } from "@/components/help/SponsorDashboardHelpEvidenceOrientationStrip";
 import {
+  SPONSOR_DASHBOARD_HELP_CANONICAL_PATH,
   SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE,
   SPONSOR_DASHBOARD_HELP_SOURCES,
 } from "@/lib/sponsor-dashboard-help-evidence-copy";
@@ -19,8 +28,6 @@ describe("SponsorDashboardHelpEvidenceOrientationStrip", () => {
       "where-to-go-next",
     );
 
-    for (const source of SPONSOR_DASHBOARD_HELP_SOURCES) {
-      expectFollowUpLink(screen, source);
-    }
+    expectWhereToGoNextFollowUpLinks(screen, SPONSOR_DASHBOARD_HELP_SOURCES, SPONSOR_DASHBOARD_HELP_CANONICAL_PATH);
   });
 });

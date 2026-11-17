@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 10002_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 423_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -11477,6 +11477,52 @@ END;
 GO
 
 /*
+  386 + 420: SecureNow security evidence path explanations — greenfield parity.
+
+  Mirrors DbUp 386 (base columns, PK, path FK, tenant/path/time index) and
+  DbUp 420 (ModelOutputRejection NVARCHAR(512) NULL). Do not rename applied
+  migrations or edit their embedded resource/journal identities.
+
+  Fresh databases receive the final column directly in CREATE TABLE.
+  Existing 386-era databases receive the additive nullable column below,
+  in a separate GO batch so SQL Server resolves the table before ALTER.
+*/
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePathExplanations', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePathExplanations
+    (
+        ExplanationId               UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePathExplanations PRIMARY KEY CLUSTERED,
+        PathId                      UNIQUEIDENTIFIER NOT NULL,
+        TenantId                    UNIQUEIDENTIFIER NOT NULL,
+        ExecutiveSummary            NVARCHAR(MAX)     NOT NULL,
+        BusinessImpactHypothesesJson NVARCHAR(MAX)     NOT NULL,
+        ProposedRemediationJson     NVARCHAR(MAX)     NOT NULL,
+        CitedEvidenceRefsJson       NVARCHAR(MAX)     NOT NULL,
+        ProvenanceKind              INT               NOT NULL,
+        SimulatorLabel              NVARCHAR(128)     NULL,
+        ModelOutputRejection        NVARCHAR(512)     NULL,
+        CreatedUtc                  DATETIME2         NOT NULL,
+        CONSTRAINT FK_SecurityEvidencePathExplanations_Paths
+            FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathExplanations_Tenant_Path
+        ON dbo.SecurityEvidencePathExplanations (TenantId, PathId, CreatedUtc DESC);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePathExplanations', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.SecurityEvidencePathExplanations', N'ModelOutputRejection') IS NULL
+BEGIN
+    ALTER TABLE dbo.SecurityEvidencePathExplanations
+        ADD ModelOutputRejection NVARCHAR(512) NULL;
+END;
+
+GO
+
+/*
   399: Operator inferred connection proposals and confirmations (SN-RT-10).
 */
 
@@ -11552,4 +11598,52 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_VerifiedRemediationControlAssociations_Tenant_Instance
         ON dbo.VerifiedRemediationControlAssociations (TenantId, InstanceId);
+END;
+
+GO
+
+/* Routing is created after its path and finding tables are available. */
+IF OBJECT_ID(N'dbo.SecurityEvidencePathRouting', N'U') IS NULL
+   AND OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.OperationalSecurityFindings', N'U') IS NOT NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePathRouting
+    (
+        RoutingRowId      UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePathRouting PRIMARY KEY CLUSTERED,
+        TenantId          UNIQUEIDENTIFIER NOT NULL,
+        PathId            UNIQUEIDENTIFIER NOT NULL,
+        FindingId         UNIQUEIDENTIFIER NULL,
+        RoutingRole       INT               NOT NULL,
+        PrincipalId       NVARCHAR(512)     NULL,
+        DisplayName       NVARCHAR(512)     NULL,
+        ProvenanceKind    INT               NOT NULL,
+        SourceReference   NVARCHAR(1285)    NOT NULL,
+        CreatedUtc        DATETIME2         NOT NULL,
+        UpdatedUtc        DATETIME2         NOT NULL,
+        CONSTRAINT FK_SecurityEvidencePathRouting_Paths
+            FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId),
+        CONSTRAINT FK_SecurityEvidencePathRouting_Findings
+            FOREIGN KEY (FindingId) REFERENCES dbo.OperationalSecurityFindings (FindingId),
+        CONSTRAINT UQ_SecurityEvidencePathRouting_Tenant_Path_Role
+            UNIQUE (TenantId, PathId, RoutingRole)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathRouting_Tenant_Path
+        ON dbo.SecurityEvidencePathRouting (TenantId, PathId, RoutingRole);
+END;
+
+GO
+
+IF COL_LENGTH(N'dbo.SecurityEvidencePathRouting', N'PrincipalId') = 512
+BEGIN
+    ALTER TABLE dbo.SecurityEvidencePathRouting
+        ALTER COLUMN PrincipalId NVARCHAR(512) NULL;
+END;
+
+GO
+
+IF COL_LENGTH(N'dbo.SecurityEvidencePathRouting', N'SourceReference') = 1024
+BEGIN
+    ALTER TABLE dbo.SecurityEvidencePathRouting
+        ALTER COLUMN SourceReference NVARCHAR(1285) NOT NULL;
 END;

@@ -79,7 +79,9 @@ public sealed class CachingPolicyPackVersionRepository(
         (PolicyPackVersion published, string? previous) =
             await _inner.UpsertPublishedVersionAsync(policyPackId, versionKey, contentJson, ct);
 
-        await HotPathCacheEviction.RemovePolicyPackVersionAsync(_hotPathReadCache, policyPackId, versionKey, ct);
+        // The version has committed, so finish eviction if the caller disconnects.
+        await HotPathCacheEviction.RemovePolicyPackVersionAsync(
+            _hotPathReadCache, policyPackId, versionKey, CancellationToken.None);
 
         return (published, previous);
     }

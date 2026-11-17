@@ -62,6 +62,37 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
     }
 
     /// <inheritdoc />
+    public async Task MarkFailedIfStartedAsync(
+        ScopeContext scope,
+        Guid executionId,
+        DateTime completedUtc,
+        string errorMessage,
+        CancellationToken ct)
+    {
+        PersistenceTenantScope.RequireScopedTenant(scope);
+        const string sql = """
+            UPDATE dbo.AdvisoryScanExecutions
+            SET CompletedUtc = @CompletedUtc, Status = N'Failed', ErrorMessage = @ErrorMessage
+            WHERE ExecutionId = @ExecutionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND Status = N'Started';
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            ExecutionId = executionId,
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            CompletedUtc = completedUtc,
+            ErrorMessage = errorMessage,
+        }, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
     [TenantScopeExempt(
         TenantScopeExemptReason.Operational,
         "Execution history listed by schedule id within the active tenant catalog connection.")]

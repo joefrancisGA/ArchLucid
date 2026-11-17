@@ -14,9 +14,11 @@ import { resolveInhabitedFindingsDocumentPresentation } from "@/lib/inhabit/inha
 import { usePathname } from "next/navigation";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { INSIGHT_DENSITY_GENERIC_THRESHOLD } from "@/lib/governance/governance-findings-density-sort";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
+import { GovernanceFindingsQueueResultsPartialCaptureFootnote } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueResultsPartialCaptureFootnote";
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
 
 export function GovernanceFindingsQueueResultsSection(
@@ -75,6 +77,7 @@ export function GovernanceFindingsQueueResultsSection(
             <PolicyPackAssignFromReviewStrip
               reviewId={props.scopedRunId}
               reviewTitle={props.scopedRunContextTitle}
+              policyPacksHubPath={policyPacksPathForProductLine(productLine)}
             />
           ) : null}
           {props.continueLastFinding !== null ? (
@@ -145,6 +148,7 @@ export function GovernanceFindingsQueueResultsSection(
             onBulkApplied={props.onBulkApplied}
             showInsightDensityScore={props.showInsightDensityScore}
           />
+          <GovernanceFindingsQueueResultsPartialCaptureFootnote />
         </>
       ) : null}
     </>

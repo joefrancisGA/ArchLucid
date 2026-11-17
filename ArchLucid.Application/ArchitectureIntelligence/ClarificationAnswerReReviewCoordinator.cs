@@ -8,6 +8,8 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
 /// <summary>
@@ -30,7 +32,8 @@ public sealed class ClarificationAnswerReReviewCoordinator(
     IAuthorityFindingsSnapshotUpdater? authorityFindingsSnapshotUpdater,
     IRunStageOutcomesRepository runStageOutcomesRepository,
     IAuditService auditService,
-    IReRunExecuteSealedManifestPinGate reRunExecuteSealedManifestPinGate) : IClarificationAnswerReReviewCoordinator
+    IReRunExecuteSealedManifestPinGate reRunExecuteSealedManifestPinGate,
+    ILogger<ClarificationAnswerReReviewCoordinator>? logger = null) : IClarificationAnswerReReviewCoordinator
 {
     private const string StageName = "clarification-re-review";
 
@@ -95,38 +98,59 @@ public sealed class ClarificationAnswerReReviewCoordinator(
             .RecordStageStartedAsync(runId, StageName, startedUtc, cancellationToken)
             .ConfigureAwait(false);
 
-        IncrementalReReviewResult result = await _incrementalReReviewService.ReReviewAsync(
-            model,
-            reReviewScope,
-            _specialistReviewService,
-            cancellationToken).ConfigureAwait(false);
-
-        List<SpecialistReviewFinding> incrementalFindings = result.SpecialistResults
-            .SelectMany(specialistResult => specialistResult.Findings)
-            .ToList();
-
+        IncrementalReReviewResult result;
         IReadOnlyList<string> mergedFindingIds = [];
+        string outcomeStatus = "error";
+        bool reviewFailed = false;
 
-        if (incrementalFindings.Count > 0 && _authorityFindingsSnapshotUpdater is not null)
+        try
         {
-            mergedFindingIds = await _authorityFindingsSnapshotUpdater.MergeSpecialistFindingsAsync(
-                scope,
-                runId,
-                incrementalFindings,
+            result = await _incrementalReReviewService.ReReviewAsync(
+                model,
+                reReviewScope,
+                _specialistReviewService,
                 cancellationToken).ConfigureAwait(false);
+
+            List<SpecialistReviewFinding> incrementalFindings = result.SpecialistResults
+                .SelectMany(specialistResult => specialistResult.Findings)
+                .ToList();
+
+            if (incrementalFindings.Count > 0 && _authorityFindingsSnapshotUpdater is not null)
+            {
+                mergedFindingIds = await _authorityFindingsSnapshotUpdater.MergeSpecialistFindingsAsync(
+                    scope,
+                    runId,
+                    incrementalFindings,
+                    cancellationToken).ConfigureAwait(false);
+            }
+
+            bool allGlobalInvariantsPassed = result.GlobalInvariantResults.All(check => check.Passed);
+            outcomeStatus = allGlobalInvariantsPassed ? "succeeded" : "completed-with-invariant-warnings";
         }
-
-        bool allGlobalInvariantsPassed = result.GlobalInvariantResults.All(check => check.Passed);
-        string outcomeStatus = allGlobalInvariantsPassed ? "succeeded" : "completed-with-invariant-warnings";
-
-        await _runStageOutcomesRepository
-            .RecordStageCompletedAsync(
-                runId,
-                StageName,
-                outcomeStatus,
-                TimeProvider.System.GetUtcNow().UtcDateTime,
-                cancellationToken)
-            .ConfigureAwait(false);
+        catch
+        {
+            reviewFailed = true;
+            throw;
+        }
+        finally
+        {
+            try
+            {
+                await _runStageOutcomesRepository
+                    .RecordStageCompletedAsync(
+                        runId,
+                        StageName,
+                        outcomeStatus,
+                        TimeProvider.System.GetUtcNow().UtcDateTime,
+                        CancellationToken.None)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception ex) when (reviewFailed)
+            {
+                // A second failure while recording the outcome must not replace the review failure.
+                logger?.LogWarning(ex, "Failed to close clarification re-review stage for run {RunId}.", runId);
+            }
+        }
 
         await _auditService.LogAsync(
             new AuditEvent

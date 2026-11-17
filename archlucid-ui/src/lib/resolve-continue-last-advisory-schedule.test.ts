@@ -45,4 +45,22 @@ describe("resolveContinueLastAdvisorySchedule", () => {
     expect(match?.scheduleId).toBe("sooner");
     expect(match?.name).toBe("Sooner");
   });
+
+  it("orders upcoming scans by instant across timestamp offsets", () => {
+    const match = resolveContinueLastAdvisorySchedule([
+      schedule({ scheduleId: "later", nextRunUtc: "2026-08-26T04:00:00-04:00" }),
+      schedule({ scheduleId: "sooner", nextRunUtc: "2026-08-26T09:00:00+02:00" }),
+    ]);
+
+    expect(match?.scheduleId).toBe("sooner");
+  });
+
+  it("uses the newest creation instant when no valid upcoming scan exists", () => {
+    const match = resolveContinueLastAdvisorySchedule([
+      schedule({ scheduleId: "older", nextRunUtc: "invalid", createdUtc: "2026-08-01T09:00:00+02:00" }),
+      schedule({ scheduleId: "newer", nextRunUtc: null, createdUtc: "2026-08-01T08:00:00" }),
+    ]);
+
+    expect(match?.scheduleId).toBe("newer");
+  });
 });

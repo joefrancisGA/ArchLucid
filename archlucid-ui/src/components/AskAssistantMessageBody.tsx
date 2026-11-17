@@ -8,6 +8,8 @@ import { Fragment, useCallback, useEffect, useState, type ReactNode } from "reac
 
 import { BUYER_ASK_GROUNDING_PRIMARY_SOURCE_LIMIT, BUYER_ASK_UNSTRUCTURED_SPONSOR_FALLBACK_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import { splitBuyerAskSponsorLead } from "@/lib/ask-sponsor-lead";
+import { resolveAskGroundingLinkHref } from "@/lib/ask/resolve-ask-grounding-link-href";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { parseAskAssistantStructuredSections, resolveAskAssistantSectionTitle } from "@/lib/ask-assistant-section-parser";
 import {
   ASK_ASSISTANT_MORE_SOURCES_OPEN_PARAM,
@@ -100,7 +102,7 @@ function renderTextWithUuidReviewLinks(
     parts.push(
       <Link
         key={`id-${m.index}-${id}`}
-        href={`/architecture/reviews/${encodeURIComponent(id)}`}
+        href={resolveAskGroundingLinkHref(resolveScopedInsightOpenReviewHrefWithDeskContinuity(id))}
         className={OPERATOR_BODY_INLINE_LINK_CLASS}
         aria-label={buyerPolishedLinks ? `Open linked review ${id}` : undefined}
         title={
@@ -176,7 +178,7 @@ function GroundingLinksFooter(props: {
         {primaryLinks.map((link, index) => (
           <li key={link.href ?? `label-only-${index}-${link.label}`}>
             {link.href != null && link.href.length > 0 ? (
-              <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+              <Link href={resolveAskGroundingLinkHref(link.href)} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                 {renderGroundingLinkLabel(link.label)}
               </Link>
             ) : (
@@ -203,7 +205,7 @@ function GroundingLinksFooter(props: {
             {overflowLinks.map((link, index) => (
               <li key={link.href ?? `overflow-label-only-${index}-${link.label}`}>
                 {link.href != null && link.href.length > 0 ? (
-                  <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                  <Link href={resolveAskGroundingLinkHref(link.href)} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                     {renderGroundingLinkLabel(link.label)}
                   </Link>
                 ) : (

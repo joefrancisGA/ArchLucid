@@ -1,3 +1,7 @@
+import {
+  resolveLibFindingDetailHref,
+  resolveLibOpenReviewHref,
+} from "@/lib/architecture/lib-open-review-href";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { resolveFindingSemanticSupportBandExportFields } from "@/lib/findings/finding-semantic-support-band-export";
 import {
@@ -54,8 +58,8 @@ function traceRowWorkItemLinks(input: TraceRowWorkItemInput): {
   inspectUrl: string;
 } {
   const origin = input.siteOrigin.replace(/\/$/, "");
-  const runPath = `/architecture/reviews/${encodeURIComponent(input.runId)}`;
-  const findingPath = `${runPath}/findings/${encodeURIComponent(input.findingId)}`;
+  const runPath = resolveLibOpenReviewHref(input.runId);
+  const findingPath = resolveLibFindingDetailHref(input.runId, input.findingId);
   const tracePath = getFindingEvidenceTraceHref(input.runId, input.findingId);
 
   return {

@@ -74,6 +74,43 @@ public sealed class AzureInventorySnapshotMaterializerTests
     }
 
     [Fact]
+    public async Task TryMaterializePackageAsync_reports_committed_snapshot_when_analysis_fails()
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        Guid snapshotId = Guid.NewGuid();
+        bool snapshotWritten = false;
+        bool analysisStartedAfterWrite = false;
+        Mock<IAzureInventorySnapshotRepository> snapshotRepository = CreateSnapshotRepository(
+            scope,
+            snapshotId,
+            _ => snapshotWritten = true);
+        Mock<IAzureInventorySnapshotPostMaterializeCoordinator> coordinator = new();
+        coordinator
+            .Setup(c => c.OnSnapshotMaterializedAsync(scope, snapshotId, "sub", CancellationToken.None))
+            .Callback(() => analysisStartedAfterWrite = snapshotWritten)
+            .ThrowsAsync(new InvalidOperationException("Analysis unavailable"));
+        AzureInventorySnapshotMaterializer sut = new(
+            snapshotRepository.Object,
+            CreateIdentityDirectory(scope, snapshotId).Object,
+            coordinator.Object,
+            NullLogger<AzureInventorySnapshotMaterializer>.Instance);
+
+        AzureInventorySnapshotMaterializeResult result = await sut.TryMaterializePackageAsync(
+            scope,
+            snapshotId,
+            Guid.NewGuid(),
+            BuildZip("[]"),
+            AzureInventoryCaptureMethod.CustomerScript,
+            "0.4.0",
+            CancellationToken.None);
+
+        coordinator.Verify(c => c.OnSnapshotMaterializedAsync(scope, snapshotId, "sub", CancellationToken.None), Times.Once);
+        result.Succeeded.Should().BeTrue();
+        analysisStartedAfterWrite.Should().BeTrue();
+        result.ErrorMessage.Should().BeNull();
+    }
+
+    [Fact]
     public async Task TryMaterializePackageAsync_keeps_unknown_resource_type_in_unknowns()
     {
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };

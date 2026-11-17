@@ -1,5 +1,15 @@
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
 /** Stable governance hub for pattern-library pack guidance (TB-1813). */
-export const PATTERN_LIBRARY_POLICY_PACKS_HUB_PATH = "/governance/policy-packs" as const;
+export const PATTERN_LIBRARY_POLICY_PACKS_HUB_PATH = GOVERNANCE_POLICY_PACKS_PATH;
+
+export function resolvePatternLibraryPolicyPacksHubPath(
+  productLine: ProductLineId = "architecture",
+): string {
+  return policyPacksPathForProductLine(productLine);
+}
 
 export const PATTERN_LIBRARY_POLICY_RULES_SECTION_TITLE = "Related policy rules (catalog guidance)";
 

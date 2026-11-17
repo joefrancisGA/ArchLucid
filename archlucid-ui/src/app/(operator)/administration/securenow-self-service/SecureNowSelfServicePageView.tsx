@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -10,6 +11,7 @@ import {
   SECURENOW_SELF_SERVICE_LEAD,
   SECURENOW_SELF_SERVICE_STEPS,
 } from "@/lib/product-line/securenow-self-service-copy";
+import { SECURENOW_SELF_SERVICE_RANK_STORED_PATH_LINE } from "@/lib/product-line/securenow-self-service-rank-stored-path-copy";
 
 export function SecureNowSelfServicePageView(): React.JSX.Element {
   return (
@@ -17,10 +19,19 @@ export function SecureNowSelfServicePageView(): React.JSX.Element {
       <OperatorPageHeader title={SECURENOW_SELF_SERVICE_HEADING} subtitle={SECURENOW_SELF_SERVICE_LEAD} />
 
       <main className="mt-6 max-w-3xl space-y-6">
+        <SecureNowAdminPartialCaptureStrip
+          testId="securenow-self-service-partial-capture"
+          cloudConnectionsTestId="securenow-self-service-partial-capture-cloud-connections"
+          extractUploadTestId="securenow-self-service-partial-capture-extract-upload"
+        />
         <SecureNowCollectionSetupStatusSection
           testIdPrefix="securenow-self-service"
           sectionId="collection"
         />
+
+        <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-self-service-rank-stored-path">
+          {SECURENOW_SELF_SERVICE_RANK_STORED_PATH_LINE}
+        </p>
 
         <section aria-labelledby="securenow-self-service-steps-heading" className="space-y-2">
           <h2 id="securenow-self-service-steps-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>

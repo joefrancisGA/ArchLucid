@@ -2,9 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 import { suggestFramingAnswersFromOverview } from "@/lib/architecture/architecture-intelligence-framing-suggest";
+import { FRAMING_SUGGEST_INFERRED_FROM_BRIEF_PREFIX } from "@/lib/architecture/framing-suggest-infer";
 
 describe("architecture-intelligence-framing-suggest", () => {
-  it("infers business outcome and architecture kind from overview text", () => {
+  it("infers business outcome from context when prose passes the buyer-safe gate", () => {
     const suggestions = suggestFramingAnswersFromOverview(
       [
         { questionId: "business-outcome", prompt: "Outcome?" },
@@ -12,13 +13,12 @@ describe("architecture-intelligence-framing-suggest", () => {
       ],
       {
         combinedSourceText: "This is a migration from monolith to services.",
-        businessOutcome: "Process claims faster",
+        businessOutcome: "Process claims faster with measurable SLAs.",
       },
     );
 
     expect(suggestions).toEqual({
-      "business-outcome": "Process claims faster",
-      "architecture-kind": "Migration",
+      "business-outcome": `${FRAMING_SUGGEST_INFERRED_FROM_BRIEF_PREFIX}Process claims faster with measurable SLAs.`,
     });
   });
 
@@ -37,7 +37,7 @@ describe("architecture-intelligence-framing-suggest", () => {
     const brief = emptyArchitectureDraftStructuredBrief();
     const structuredBrief = {
       ...brief,
-      confirmedConstraints: ["Azure-only deployment"],
+      confirmedConstraints: ["Azure-only deployment."],
     };
 
     const suggestions = suggestFramingAnswersFromOverview(
@@ -49,7 +49,7 @@ describe("architecture-intelligence-framing-suggest", () => {
     );
 
     expect(suggestions).toEqual({
-      "fixed-decisions": "Azure-only deployment",
+      "fixed-decisions": `${FRAMING_SUGGEST_INFERRED_FROM_BRIEF_PREFIX}Azure-only deployment.`,
     });
   });
 
@@ -57,8 +57,8 @@ describe("architecture-intelligence-framing-suggest", () => {
     const brief = emptyArchitectureDraftStructuredBrief();
     const structuredBrief = {
       ...brief,
-      confirmedConstraints: ["Shared DB with TenantId", "Async billing metering"],
-      confirmedRequiredCapabilities: ["Migration tool runs with elevated database permissions"],
+      confirmedConstraints: ["Shared DB with TenantId.", "Async billing metering."],
+      confirmedRequiredCapabilities: ["Migration tool runs with elevated database permissions."],
       qualityAttribute: "Availability 99.9%; RPO 15 minutes",
       failureModeNote: "Tenant data loss during migration is unacceptable; rollback must be manual.",
     };
@@ -91,13 +91,17 @@ describe("architecture-intelligence-framing-suggest", () => {
       ],
       {
         combinedSourceText: overview,
-        businessOutcome: "Migrate pilot tenants without billing disruption",
+        businessOutcome: "Migrate pilot tenants without billing disruption.",
         structuredBrief,
       },
     );
 
-    expect(suggestions["fixed-decisions"]).toBe("Shared DB with TenantId; Async billing metering");
-    expect(suggestions["critical-quality-attributes"]).toBe("Availability 99.9%; RPO 15 minutes");
+    expect(suggestions["fixed-decisions"]).toBe(
+      `${FRAMING_SUGGEST_INFERRED_FROM_BRIEF_PREFIX}Shared DB with TenantId.; Async billing metering.`,
+    );
+    expect(suggestions["critical-quality-attributes"]).toBe(
+      `${FRAMING_SUGGEST_INFERRED_FROM_BRIEF_PREFIX}Availability 99.9%; RPO 15 minutes`,
+    );
     expect(suggestions["unacceptable-failures"]).toContain("Tenant data loss");
     expect(suggestions["system-boundary"]).toMatch(/tenant migration orchestration/i);
     expect(suggestions["evidence-1"]).toMatch(/RPO 15 minutes/i);

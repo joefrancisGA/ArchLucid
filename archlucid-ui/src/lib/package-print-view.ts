@@ -7,6 +7,10 @@ import {
   resolveWorkingReviewPackageBackHref,
   type ResolveWorkingBackLocatorInput,
 } from "@/lib/architecture/working-back-href";
+import {
+  resolveWorkingReviewChildSuffixHref,
+  type ResolveWorkingReviewChildSuffixHrefInput,
+} from "@/lib/architecture/working-review-child-suffix-href";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
@@ -112,14 +116,11 @@ export function formatPackagePrintCreatedMetadataLine(createdUtc: string | null 
   return formatted;
 }
 
-export function buildPackagePrintPath(runId: string): string {
-  const trimmed = runId.trim();
-
-  if (trimmed.length === 0) {
-    return "/architecture/reviews/print";
-  }
-
-  return `/architecture/reviews/${encodeURIComponent(trimmed)}/print`;
+export function buildPackagePrintPath(
+  runId: string,
+  options?: ResolveWorkingReviewChildSuffixHrefInput,
+): string {
+  return resolveWorkingReviewChildSuffixHref(runId, "print", options);
 }
 
 /** Builds the review workspace href with the package tab focused (AO-44 nested when architecture is known). */
@@ -296,7 +297,11 @@ export function buildPackagePrintFindingsSummary(summary: RunSummary): string {
   if (warnings !== null && warnings > 0) {
     parts.push(`${warnings} warning${warnings === 1 ? "" : "s"}`);
   } else if (warnings === 0) {
-    parts.push("0 warnings were stored.");
+    if (summary.hasGovernanceWarnings === false) {
+      parts.push("No governance warning flags were stored.");
+    } else {
+      parts.push("0 warnings were stored.");
+    }
   } else if (warnings === null) {
     parts.push("Warning count was not stored.");
   }

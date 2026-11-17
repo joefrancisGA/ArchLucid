@@ -63,13 +63,7 @@ public sealed class ReadOnlyDbConnectionFactory : IReadOnlyDbConnectionFactory
             return await _primaryFactory.CreateOpenConnectionAsync(cancellationToken);
 
         return await _openRetryPipeline.ExecuteAsync(
-            async innerCt =>
-            {
-                SqlConnection connection = new(readOnlyConnectionString);
-                await connection.OpenAsync(innerCt);
-
-                return connection;
-            },
+            innerCt => SqlConnectionOpen.OpenAsync(new SqlConnection(readOnlyConnectionString), innerCt),
             cancellationToken);
     }
 

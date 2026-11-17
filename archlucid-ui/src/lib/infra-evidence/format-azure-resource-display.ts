@@ -112,11 +112,18 @@ export function formatAzureResourceTypeForDisplay(resourceType: string | null | 
   return `${stripMicrosoftProviderPrefix(namespace)}${remainder}`;
 }
 
-function resourceTypeFromSegments(segments: readonly string[]): string | null {
-  const providersIndex = segments.findIndex((segment) => segment.toLowerCase() === "providers");
+export function resolveAzureResourceTypeFromIdSegments(segments: readonly string[]): string | null {
+  let providersIndex = segments.findIndex((segment) => segment.toLowerCase() === "providers");
 
   if (providersIndex < 0 || segments.length < providersIndex + 3) {
     return null;
+  }
+
+  // Extension resources start another provider namespace at a type position.
+  for (let index = providersIndex + 2; index + 3 < segments.length; index += 2) {
+    if (segments[index]?.toLowerCase() === "providers") {
+      providersIndex = index;
+    }
   }
 
   const namespaceSegment = segments[providersIndex + 1];
@@ -141,7 +148,7 @@ function resourceTypeFromSegments(segments: readonly string[]): string | null {
     return null;
   }
 
-  return `${stripMicrosoftProviderPrefix(namespaceSegment)}/${typeSegments.join("/")}`;
+  return `${namespaceSegment}/${typeSegments.join("/")}`;
 }
 
 function looksLikeArmResourceId(azureResourceId: string): boolean {
@@ -207,7 +214,8 @@ export function formatAzureResourceDisplay(azureResourceId: string | null | unde
     }
   }
 
-  const resourceType = resourceTypeFromSegments(segments);
+  const qualifiedType = resolveAzureResourceTypeFromIdSegments(segments);
+  const resourceType = qualifiedType === null ? null : formatAzureResourceTypeForDisplay(qualifiedType);
 
   const displayName = normalizeSecureNowResourceNameForDisplay(name);
 

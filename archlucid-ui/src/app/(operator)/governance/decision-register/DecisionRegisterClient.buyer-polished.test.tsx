@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -10,6 +10,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isOperatorExperienceFullShellEnv: (): boolean => false,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
 
 vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
   useWhereToGoNextVisible: () => true,
@@ -52,6 +57,22 @@ describe("DecisionRegisterClient buyer-polished shell", () => {
     mockedGetRegister.mockResolvedValue({ decisions: [] });
   });
 
+  it("refetches the workspace and filtered register once after Retry", async () => {
+    mockedGetRegister.mockRejectedValue(new Error("Initial load failed."));
+    render(<DecisionRegisterClient />);
+
+    const retry = await screen.findByTestId("decision-register-load-retry");
+    expect(mockedGetRegister).toHaveBeenCalledTimes(2);
+
+    mockedGetRegister.mockClear();
+    mockedGetRegister.mockResolvedValue({ decisions: [] });
+    fireEvent.click(retry);
+
+    await screen.findByTestId("decision-register-empty-state");
+    expect(screen.queryByTestId("decision-register-load-failure")).toBeNull();
+    expect(mockedGetRegister).toHaveBeenCalledTimes(2);
+  });
+
   it("renders skip link, buyer subtitle, first-viewport intro, and orientation after register body", async () => {
     render(<DecisionRegisterClient />);
 
@@ -85,3 +106,22 @@ describe("DecisionRegisterClient buyer-polished shell", () => {
     expect(emptyState.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+

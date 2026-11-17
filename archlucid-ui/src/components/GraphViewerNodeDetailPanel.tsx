@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useCallback, useEffect, useState, type JSX } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState, type JSX } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,8 @@ import { fetchProvenanceNodeExplanationViaProxy } from "@/lib/fetch-provenance-n
 import {
   findingIdForGraphDeepLink,
   graphFindingDetailHref,
+  graphReviewRunExplanationHref,
+  resolveGraphReviewDeskArchitectureId,
 } from "@/lib/graph-finding-deep-links";
 import {
   graphBuyerTrailDispositionLine,
@@ -70,6 +72,15 @@ export function GraphViewerNodeDetailPanel({
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const graphNodeTechnicalAppendixOpenParam = searchParams.get("graphNodeTechnicalAppendixOpen");
+  const canonicalRunId = canonicalizeDemoRunId(runId.trim());
+  const deskArchitectureId = useMemo(
+    () =>
+      resolveGraphReviewDeskArchitectureId(canonicalRunId, {
+        pathname,
+        search: searchParams.toString(),
+      }),
+    [canonicalRunId, pathname, searchParams],
+  );
   const [technicalAppendixOpen, setTechnicalAppendixOpenState] = useState(() =>
     parseGraphNodeTechnicalAppendixOpenFromSearch(graphNodeTechnicalAppendixOpenParam),
   );
@@ -184,9 +195,7 @@ export function GraphViewerNodeDetailPanel({
       {buyerTrailPanel && runId.trim().length > 0 && selectedNode.type === "Decision" ? (
         <div className="mt-3 flex flex-col gap-2">
           <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
-            <Link
-              href={`/architecture/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId.trim()))}#run-explanation`}
-            >
+            <Link href={graphReviewRunExplanationHref(canonicalRunId, deskArchitectureId)}>
               {BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA}
             </Link>
           </Button>
@@ -206,15 +215,15 @@ export function GraphViewerNodeDetailPanel({
               );
             }
 
-            const rid = canonicalizeDemoRunId(runId.trim());
-
             return (
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
                   <Link href={getShowcaseManifestHref()}>{BUYER_VIEW_SIGNED_RECORD_CTA}</Link>
                 </Button>
                 <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
-                  <Link href={graphFindingDetailHref(rid, fid)}>{BUYER_EVIDENCE_GRAPH_OPEN_FINDING_DETAIL_CTA}</Link>
+                  <Link href={graphFindingDetailHref(canonicalRunId, fid, deskArchitectureId)}>
+                    {BUYER_EVIDENCE_GRAPH_OPEN_FINDING_DETAIL_CTA}
+                  </Link>
                 </Button>
               </div>
             );

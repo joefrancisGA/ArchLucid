@@ -4,11 +4,10 @@ import { describe, expect, it } from "vitest";
 import { GovernanceStandardsRulesBreadcrumb } from "./GovernanceStandardsRulesBreadcrumb";
 
 describe("GovernanceStandardsRulesBreadcrumb", () => {
-  it("renders governance trail ending on Standards & rules", () => {
-    render(<GovernanceStandardsRulesBreadcrumb />);
+  it("does not render breadcrumbs after TB-2090 removal", () => {
+    const { container } = render(<GovernanceStandardsRulesBreadcrumb />);
 
-    expect(screen.getByTestId("governance-standards-rules-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Approval" })).toHaveAttribute("href", "/governance/approval-queue");
-    expect(screen.getByText("Standards & rules")).toBeInTheDocument();
+    expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByTestId("governance-standards-rules-breadcrumb")).toBeNull();
   });
 });

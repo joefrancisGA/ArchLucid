@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { buildArchitectureGovernanceFinalizeReadinessHref } from "@/lib/architecture/architecture-created-finalize-readiness-href";
+import { resolveLibFindingDetailHref } from "@/lib/architecture/lib-open-review-href";
 import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { applyFindingsConfidenceVisibility } from "@/lib/findings/finding-confidence-filter";
@@ -86,7 +87,7 @@ export function ArchitectureCreatedFindingsNextAction(
   });
 
   if (highestSeverityFinding !== null) {
-    const href = `/architecture/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(highestSeverityFinding.findingId)}`;
+    const href = resolveLibFindingDetailHref(props.runId, highestSeverityFinding.findingId);
 
     return (
       <div

@@ -13,7 +13,7 @@ describe("ArchitectureCreatedFindingsEvidenceOrientationStrip", () => {
     expect(screen.getByTestId("architecture-findings-claim-discipline")).toBeInTheDocument();
 
     for (const link of ARCHITECTURE_CREATED_FINDINGS_SOURCES) {
-      expectFollowUpLink(screen, link);
+      expectFollowUpLink(screen, link, { rawLabel: true });
     }
 
     expect(screen.getByText(/not a finalized review record export trail/i)).toBeInTheDocument();

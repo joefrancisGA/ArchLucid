@@ -16,7 +16,10 @@ describe("starterArchitectureTemplates", () => {
       expect(ids.has(t.id)).toBe(false);
       ids.add(t.id);
 
-      wizardFormSchema.parse(applyWizardPreset(buildDefaultWizardValues(), t.values));
+      const populated = applyWizardPreset(buildDefaultWizardValues(), t.values);
+      // Environment is a user choice, never silently supplied by a starter.
+      expect(populated.environment).toBe("");
+      wizardFormSchema.parse({ ...populated, environment: "production" });
     }
   });
 });

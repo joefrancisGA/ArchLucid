@@ -215,15 +215,26 @@ public sealed class RemediationInstanceQueryService(
         }
         else if (cloudResourceId is Guid resourceId && resourceId != Guid.Empty)
         {
-            (IReadOnlyList<RemediationInstanceRecord> items, _) =
-                await instanceRepository.ListByCloudResourceIdPagedInScopeAsync(
-                    scope.ToProjectScopeKey(),
-                    resourceId,
-                    PaginationDefaults.DefaultPage,
-                    PaginationDefaults.MaxPageSize,
-                    cancellationToken);
+            const int pageSize = PaginationDefaults.MaxPageSize;
+            ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+            List<RemediationInstanceRecord> resourceInstances = [];
 
-            instances = items;
+            for (int page = PaginationDefaults.DefaultPage; ; page++)
+            {
+                (IReadOnlyList<RemediationInstanceRecord> items, int totalCount) =
+                    await instanceRepository.ListByCloudResourceIdPagedInScopeAsync(
+                        projectScope,
+                        resourceId,
+                        page,
+                        pageSize,
+                        cancellationToken);
+                resourceInstances.AddRange(items);
+
+                if (items.Count == 0 || (long)page * pageSize >= totalCount)
+                    break;
+            }
+
+            instances = resourceInstances;
         }
         else
         {

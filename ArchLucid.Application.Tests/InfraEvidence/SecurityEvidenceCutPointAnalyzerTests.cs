@@ -64,6 +64,40 @@ public sealed class SecurityEvidenceCutPointAnalyzerTests
     }
 
     [Fact]
+    public void ToRecord_bounds_long_edge_keys_without_losing_endpoint_identity()
+    {
+        string from = "identity:" + new string('a', 450);
+        string to = "public-ip:" + new string('b', 450);
+        IReadOnlyList<SecurityEvidenceCutPointCandidate> candidates = SecurityEvidenceCutPointAnalyzer.Analyze(
+        [
+            BuildPath(Path1, BuildIdentityHop(Path1, from, to + "1")),
+            BuildPath(Path2, BuildIdentityHop(Path2, from, to + "2")),
+            BuildPath(Path3, BuildIdentityHop(Path3, from, to + "1")),
+        ], new Dictionary<Guid, string?>());
+
+        SecurityEvidenceCutPointCandidate[] edges = candidates
+            .Where(candidate => candidate.CutKind == SecurityEvidenceCutPointKind.Edge && candidate.FromNodeId == from)
+            .ToArray();
+        edges.Should().HaveCount(2);
+        edges.Single(candidate => candidate.ToNodeId == to + "1").CollapsedPathIds.Should().HaveCount(2);
+
+        SecurityEvidenceCutPointRecord[] records = edges
+            .Select(candidate => SecurityEvidenceCutPointAnalyzer.ToRecord(
+                candidate, TenantId, SnapshotId, 1, DateTime.UnixEpoch, null))
+            .ToArray();
+
+        records.Should().OnlyContain(record => record.CutKey.Length <= 768 && record.FromNodeId == from);
+        records.Select(record => record.CutKey).Should().OnlyHaveUniqueItems();
+        records.Select(record => record.ToNodeId).Should().BeEquivalentTo(new[] { to + "1", to + "2" });
+        SecurityEvidenceCutPointAnalyzer.ToRecord(edges[0], TenantId, SnapshotId, 2, DateTime.UnixEpoch, null)
+            .CutKey.Should().Be(records[0].CutKey);
+
+        SecurityEvidenceCutPointCandidate node = candidates.Single(candidate => candidate.CutKey == $"node:{from}");
+        SecurityEvidenceCutPointAnalyzer.ToRecord(node, TenantId, SnapshotId, 3, DateTime.UnixEpoch, null)
+            .CutKey.Should().Be(node.CutKey);
+    }
+
+    [Fact]
     public void ComputeLeverageScore_cheaper_cost_class_wins_tie_on_paths_collapsed()
     {
         decimal roleLeverage = SecurityEvidenceCutPointConstants.ComputeLeverageScore(

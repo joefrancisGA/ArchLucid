@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -17,13 +19,16 @@ import {
 } from "@/lib/governance/recurrence-schedules-route";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { RecurrenceSchedulesPickReviewBeforeSchedulingStrip } from "@/components/governance/RecurrenceSchedulesPickReviewBeforeSchedulingStrip";
 import { RecurrenceSchedulesNextReviewFooterClient } from "@/components/governance/RecurrenceSchedulesNextReviewFooterClient";
 import { RecurrenceSchedulesWorkflowHelperCard } from "@/components/governance/RecurrenceSchedulesWorkflowHelperCard";
 import { Button } from "@/components/ui/button";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { RECURRENCE_SCHEDULES_CLAIM_DISCIPLINE } from "@/lib/recurrence-schedules-evidence-copy";
@@ -56,7 +61,7 @@ import { useRecurrenceSchedulesClient } from "./use-recurrence-schedules-client"
 
 /** TB-222 — governance workspace for architecture review recurrence schedules. */
 export default function RecurrenceSchedulesClient() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const { productLine } = useProductLine();
   const router = useRouter();
   const pathname = usePathname() ?? GOVERNANCE_RECURRENCE_SCHEDULES_PATH;
@@ -189,7 +194,20 @@ export default function RecurrenceSchedulesClient() {
         subtitle={recurrenceSchedulesPageSubtitle(buyerPolishedShell)}
         claimDiscipline={RECURRENCE_SCHEDULES_CLAIM_DISCIPLINE}
         claimDisciplineTestId="recurrence-schedules-claim-discipline"
-        actions={isEmpty ? null : <div className="flex flex-wrap items-center gap-2">{createScheduleButton}</div>}
+        actions={
+          isEmpty ? (
+            buyerPolishedShell ? null : (
+              <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+            )
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              {buyerPolishedShell ? null : (
+                <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+              )}
+              {createScheduleButton}
+            </div>
+          )
+        }
       />
 
       <div

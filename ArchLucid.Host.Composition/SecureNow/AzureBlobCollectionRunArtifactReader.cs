@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Application.SecureNow;
@@ -134,11 +135,15 @@ public sealed class AzureBlobCollectionRunArtifactReader(
         {
             using JsonDocument document = JsonDocument.Parse(content);
             JsonElement root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+                return null;
 
             if (!Guid.TryParse(GetString(root, "runId"), out Guid runId))
                 return null;
 
-            if (!DateTime.TryParse(GetString(root, "startedUtc"), out DateTime startedUtc))
+            const DateTimeStyles timestampStyles = DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal;
+            if (!DateTime.TryParse(
+                    GetString(root, "startedUtc"), CultureInfo.InvariantCulture, timestampStyles, out DateTime startedUtc))
                 return null;
 
             string[] subscriptions = root.TryGetProperty("subscriptions", out JsonElement subscriptionElement) &&
@@ -154,9 +159,10 @@ public sealed class AzureBlobCollectionRunArtifactReader(
                 RunId = runId,
                 TenantId = Guid.TryParse(GetString(root, "tenantId"), out Guid tenantId) ? tenantId : null,
                 AgentVersion = GetString(root, "agentVersion") ?? "unknown",
-                StartedUtc = startedUtc.ToUniversalTime(),
-                FinishedUtc = DateTime.TryParse(GetString(root, "finishedUtc"), out DateTime finishedUtc)
-                    ? finishedUtc.ToUniversalTime()
+                StartedUtc = startedUtc,
+                FinishedUtc = DateTime.TryParse(
+                    GetString(root, "finishedUtc"), CultureInfo.InvariantCulture, timestampStyles, out DateTime finishedUtc)
+                    ? finishedUtc
                     : null,
                 Status = GetString(root, "status") ?? "Failed",
                 SubscriptionsCovered = subscriptions,

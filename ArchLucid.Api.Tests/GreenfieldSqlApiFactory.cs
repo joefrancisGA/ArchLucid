@@ -114,6 +114,10 @@ public class GreenfieldSqlApiFactory : SqlIntegrationTestWebAppFactoryBase
             ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout);
 
         await HealthReadyProbe.EnsureReadyAsync(healthClient, cancellationToken).ConfigureAwait(false);
+
+        await IntegrationTestWorkspaceModeSupport
+            .PinGuidedWorkspaceModeForDevUserAsync(this, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

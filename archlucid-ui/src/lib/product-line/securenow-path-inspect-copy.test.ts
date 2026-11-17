@@ -5,9 +5,12 @@ import {
   SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
   SECURENOW_PATH_INSPECT_PANEL_LEAD,
   SECURENOW_PATH_INSPECT_PANEL_TITLE,
+  SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE,
   SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
   SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD,
+  SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG,
+  SECURENOW_PATH_INSPECT_RANK_STORED_PATH_DISCIPLINE,
   SECURENOW_PATH_RANKED_PATHS_EMPTY,
 } from "@/lib/product-line/securenow-path-inspect-copy";
 import {
@@ -35,6 +38,17 @@ describe("securenow-path-inspect-copy", () => {
     expect(SECURENOW_PATH_INSPECT_EMPTY_NO_PATH).toBe("This finding does not cite a path.");
   });
 
+  it("keeps retry recovery advisory and non-mutating", () => {
+    expect(SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE).toBe(
+      "Retry the load. This does not change Azure.",
+    );
+  });
+
+  it("keeps rank discipline and citation rejection tags explicit", () => {
+    expect(SECURENOW_PATH_INSPECT_RANK_STORED_PATH_DISCIPLINE).toContain("stored path snapshot");
+    expect(SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG).toContain("citation rejected");
+  });
+
   it("keeps explanations and empty ranked paths honest about the rank", () => {
     expect(SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD).toContain(
       "This does not change the rank.",
@@ -42,9 +56,8 @@ describe("securenow-path-inspect-copy", () => {
     expect(SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD).toContain(
       "This does not change the rank.",
     );
-    expect(SECURENOW_PATH_RANKED_PATHS_EMPTY).toBe(
-      "No ranked path for this scope. Open collection, then select a row.",
-    );
+    expect(SECURENOW_PATH_RANKED_PATHS_EMPTY).toContain("blank ranking is not a clean result");
+    expect(SECURENOW_PATH_RANKED_PATHS_EMPTY).toContain("Open collection, then select a row");
   });
 
   it("rejects deny-list language in SecureNow path inspect copy", () => {

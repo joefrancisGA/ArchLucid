@@ -5,8 +5,16 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal as () => Promise<typeof import("next/navigation")>, {
+    usePathname: () => "/help/decision-register",
+  });
+});
+
 import { HelpDecisionRegisterGuideView } from "@/app/(operator)/help/_sections/HelpDecisionRegisterGuideView";
-import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
+import { expectClaimDisciplineBandContent, expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import {
   DECISION_REGISTER_HELP_CATEGORY_EXAMPLE,
   DECISION_REGISTER_HELP_CLAIM_HEADING_ID,
@@ -21,6 +29,7 @@ import {
   DECISION_REGISTER_HELP_TILE_ITEMS,
 } from "@/lib/decision-register-help-guide-content";
 import {
+  DECISION_REGISTER_HELP_CANONICAL_PATH,
   DECISION_REGISTER_HELP_CLAIM_DISCIPLINE,
   DECISION_REGISTER_HELP_CLAIM_DISCIPLINE_HEADING,
   DECISION_REGISTER_HELP_SOURCES,
@@ -30,7 +39,6 @@ import {
   DECISION_REGISTER_CONFIDENCE_BASIS_LABEL,
 } from "@/app/(operator)/governance/decision-register/decision-register-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpDecisionRegisterGuideView", () => {
@@ -102,10 +110,7 @@ describe("HelpDecisionRegisterGuideView", () => {
     expect(within(fieldExamples).getByText(DECISION_REGISTER_HELP_CONFIDENCE_BASIS_EXAMPLE)).toBeInTheDocument();
     expect(within(fieldExamples).getByText(DECISION_REGISTER_HELP_CONFIDENCE_EXAMPLE)).toBeInTheDocument();
 
-    for (const source of DECISION_REGISTER_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(screen, DECISION_REGISTER_HELP_SOURCES, DECISION_REGISTER_HELP_CANONICAL_PATH);
 
     for (const heading of DECISION_REGISTER_HELP_GUIDE_HEADINGS) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();

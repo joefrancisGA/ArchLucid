@@ -173,6 +173,17 @@ export function MarketingResourcesMenu({ seeItLinked }: MarketingResourcesMenuPr
             Why SecureNow
           </Link>
           <Link
+            href="/securenow-sku"
+            role="menuitem"
+            className={cn(
+              "block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+            onClick={closeMenu}
+          >
+            SecureNow SKU card
+          </Link>
+          <Link
             href="/securenow-sample"
             role="menuitem"
             className={cn(

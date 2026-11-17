@@ -72,7 +72,18 @@ function Get-ArchLucidHttpProbe {
     catch {
         $status = $null
         $body = $null
-        $resp = $_.Exception.Response
+        # Connection-refused / timeout exceptions have no Response; StrictMode callers
+        # (release-smoke.ps1) must not throw here or the readiness wait aborts early.
+        $resp = $null
+
+        try {
+            if ($null -ne $_.Exception -and $null -ne $_.Exception.PSObject.Properties['Response']) {
+                $resp = $_.Exception.Response
+            }
+        }
+        catch {
+            $resp = $null
+        }
 
         if ($null -ne $resp) {
             try {

@@ -18,6 +18,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
 
@@ -26,6 +31,25 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
     PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
   };
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
 
 vi.mock("@/lib/operator/operator-scope-storage", () => ({
   readOperatorScopeFromStorage: () => ({
@@ -55,6 +79,7 @@ import {
   IDENTITY_PROVIDERS_SETTINGS_SKIP_LINK_LABEL,
   IDENTITY_PROVIDERS_SETTINGS_SKIP_TARGET_ID,
 } from "./identity-providers-settings-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -131,7 +156,12 @@ describe("IdentityProvidersSettingsPageView buyer-polished shell (AID)", () => {
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(screen.getByTestId("identity-providers-sso-setup-cta-button")).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(IDENTITY_PROVIDERS_SETTINGS_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(IDENTITY_PROVIDERS_SETTINGS_SOURCES),
+      "/administration/identity-providers",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

@@ -1,4 +1,5 @@
 import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { AdvisoryScanSchedule } from "@/types/advisory-scheduling";
 
 export const ADVISORY_SCHEDULE_LAST_VIEWED_STORAGE_KEY = "archlucid_advisory_schedule_continue_last_v1";
@@ -44,22 +45,24 @@ function toTarget(schedule: AdvisoryScanSchedule): AdvisorySchedulesContinueLast
 }
 
 function compareSoonestNextRun(left: AdvisoryScanSchedule, right: AdvisoryScanSchedule): number {
-  const leftNext = left.nextRunUtc?.trim() ?? "";
-  const rightNext = right.nextRunUtc?.trim() ?? "";
+  const leftNext = parseIsoUtcMs(left.nextRunUtc ?? "");
+  const rightNext = parseIsoUtcMs(right.nextRunUtc ?? "");
+  const leftHasNext = !Number.isNaN(leftNext);
+  const rightHasNext = !Number.isNaN(rightNext);
 
-  if (leftNext.length > 0 && rightNext.length > 0) {
-    return leftNext.localeCompare(rightNext);
+  if (leftHasNext && rightHasNext) {
+    return leftNext - rightNext;
   }
 
-  if (leftNext.length > 0) {
-    return -1;
+  if (leftHasNext !== rightHasNext) {
+    return leftHasNext ? -1 : 1;
   }
 
-  if (rightNext.length > 0) {
-    return 1;
-  }
-
-  return right.createdUtc.localeCompare(left.createdUtc);
+  const leftCreated = parseIsoUtcMs(left.createdUtc);
+  const rightCreated = parseIsoUtcMs(right.createdUtc);
+  if (Number.isNaN(leftCreated)) return Number.isNaN(rightCreated) ? 0 : 1;
+  if (Number.isNaN(rightCreated)) return -1;
+  return rightCreated - leftCreated;
 }
 
 /** Resolves the advisory schedule to pin as Continue last viewed. */

@@ -4,8 +4,17 @@ import { describe, expect, it, vi } from "vitest";
 import { OperatorHomeCompactStartingActionsSection } from "@/components/operator-home/OperatorHomeCompactStartingActionsSection";
 import { REVIEWS_NEW_GUIDED_INTAKE_HREF } from "@/lib/architecture/architecture-routes";
 
+const { useArchitectureDraftRegistryEntries, resolveContinueLastArchitectureIdentityTarget } = vi.hoisted(() => ({
+  useArchitectureDraftRegistryEntries: vi.fn(() => []),
+  resolveContinueLastArchitectureIdentityTarget: vi.fn(() => null),
+}));
+
 vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
-  useArchitectureDraftRegistryEntries: () => [],
+  useArchitectureDraftRegistryEntries,
+}));
+
+vi.mock("@/lib/resolve-continue-last-architecture-identity", () => ({
+  resolveContinueLastArchitectureIdentityTarget,
 }));
 
 vi.mock("@/components/operator-home/OperationalMetricsGate", () => ({
@@ -24,6 +33,8 @@ vi.mock("@/components/operator-home/operator-home-workspace-activity-context", (
 
 describe("OperatorHomeCompactStartingActionsSection (LD-06)", () => {
   it("shows a single new-review CTA in Working mode without dual-path cards", () => {
+    resolveContinueLastArchitectureIdentityTarget.mockReturnValue(null);
+    useArchitectureDraftRegistryEntries.mockReturnValue([]);
     render(<OperatorHomeCompactStartingActionsSection workingMode />);
 
     const primary = screen.getByTestId("operator-home-working-new-review-primary");

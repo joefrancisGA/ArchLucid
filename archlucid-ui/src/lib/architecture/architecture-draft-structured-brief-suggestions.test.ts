@@ -51,7 +51,7 @@ describe("buildDeterministicStructuredBriefSuggestionsFromText", () => {
 
     expect(suggestions.suggestedConstraints.length).toBeGreaterThan(0);
     expect(suggestions.suggestedAssumptions.some((item) => /noisy-neighbor/i.test(item))).toBe(true);
-    expect(suggestions.suggestedCapabilities.some((item) => /audit export/i.test(item))).toBe(true);
+    expect(suggestions.suggestedConstraints.some((item) => /audit export/i.test(item))).toBe(true);
   });
 
   it("returns empty suggestions for very short text", () => {

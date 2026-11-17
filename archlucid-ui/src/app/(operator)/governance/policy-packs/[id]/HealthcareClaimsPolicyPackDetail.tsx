@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +19,13 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import { PolicyPackDetailPartialCaptureStrip } from "./PolicyPackDetailPartialCaptureStrip";
+import {
+  findingsPathForProductLine,
+  policyPacksPathForProductLine,
+} from "@/lib/product-line/securenow-compliance-routes";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { resolveHealthcareClaimsPolicyRuleRows } from "@/lib/policy/healthcare-claims-policy-pack-rules";
 import {
@@ -27,7 +35,6 @@ import {
 import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/definition";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
 import { HealthcareClaimsPolicyPackTechnicalDetailsDisclosure } from "./HealthcareClaimsPolicyPackTechnicalDetailsDisclosure";
@@ -76,9 +83,10 @@ function resolvePackProvenanceLabel(packRecord: PolicyPack | null): string {
  */
 export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPackDetailProps) {
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const packsHubHref = props.packsHubHref ?? GOVERNANCE_POLICY_PACKS_PATH;
-  const findingsHref = props.findingsHref ?? "/governance/findings";
+  const buyerPolishedShell = useProductionEvalChrome();
+  const { productLine } = useProductLine();
+  const packsHubHref = props.packsHubHref ?? policyPacksPathForProductLine(productLine);
+  const findingsHref = props.findingsHref ?? findingsPathForProductLine(productLine);
 
   const canonicalPackLabel = policyPackBuyerLabel("healthcare-claims-v3", CLAIMS_INTAKE_RULE_SET_VERSION);
   const provenanceLabel = resolvePackProvenanceLabel(packRecord);
@@ -139,6 +147,8 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         }
         actions={headerActions}
       />
+
+      <PolicyPackDetailPartialCaptureStrip />
 
       <Card data-testid="policy-pack-summary-card">
         <CardHeader>

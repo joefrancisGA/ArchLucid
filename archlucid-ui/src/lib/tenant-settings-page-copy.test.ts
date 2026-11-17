@@ -23,7 +23,7 @@ describe("tenant-settings-page-copy", () => {
         workspaceLabel: "Pilot",
         projectLabel: "Northwind",
       }),
-    ).toBe("Active scope: Workspace: Pilot — Northwind");
+    ).toBe("Active scope: Pilot — Northwind");
   });
 
   it("falls back when scope storage is empty", () => {
@@ -40,7 +40,7 @@ describe("tenant-settings-page-copy", () => {
         },
         null,
       ),
-    ).toContain("Claims Intake");
+    ).toContain("Development — Primary project");
   });
 
   it("prefers API project names over synthesized defaults", () => {
@@ -54,7 +54,7 @@ describe("tenant-settings-page-copy", () => {
         null,
         "default",
       ),
-    ).toBe("Active scope: Workspace: Claims Intake — default");
+    ).toBe("Active scope: Development — default");
   });
 
   it("prefers storage labels when headers match the stored record", () => {
@@ -73,7 +73,7 @@ describe("tenant-settings-page-copy", () => {
           projectLabel: "Northwind",
         },
       ),
-    ).toBe("Active scope: Workspace: Pilot — Northwind");
+    ).toBe("Active scope: Pilot — Northwind");
   });
 
   it("links cost settings audit trail with the tenant cost event type", () => {

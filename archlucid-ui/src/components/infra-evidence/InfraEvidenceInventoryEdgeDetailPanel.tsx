@@ -253,16 +253,9 @@ export function InfraEvidenceInventoryEdgeDetailPanel(
             </div>
             <div className="sm:col-span-2">
               <dt className="font-medium text-neutral-700 dark:text-neutral-300">Inference source</dt>
-              <dd className="m-0 font-mono text-sm text-neutral-900 dark:text-neutral-100">
-                {props.edge.inferenceSource === null || props.edge.inferenceSource === undefined
-                  ? "Inference source was not stored"
-                  : props.edge.inferenceSource.length === 0
-                    ? "Inference source was stored empty."
-                    : props.edge.inferenceSource}
-              </dd>
+              <dd className="m-0 text-neutral-900 dark:text-neutral-100">{configurationHint}</dd>
             </div>
           </dl>
-          <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{hint}</p>
         </>
       ) : (
         <>

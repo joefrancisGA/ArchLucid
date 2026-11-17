@@ -157,9 +157,11 @@ export function useAlertSimulation(): AlertSimulationModel {
     [router, searchParams],
   );
 
+  // A fresh search-params wrapper with unchanged values must not reset a locally
+  // selected simulation mode while router.replace is still publishing the URL.
   useEffect(() => {
-    setTabState(parseAlertSimulationModeFromSearch(searchParams.get("simMode")));
-  }, [searchParams]);
+    setTabState(urlTab);
+  }, [urlTab]);
 
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -301,14 +303,15 @@ export function useAlertSimulation(): AlertSimulationModel {
     [sCompareRun, sRunId, scheduleScopeSync],
   );
 
+  // Follow genuine URL value changes, not query-wrapper identity. Otherwise a
+  // local edit can be reverted before the debounced router.replace commits it.
   useEffect(() => {
-    setSRunIdState(parseAlertSimulationRunIdFromSearch(searchParams.get("simRunId")));
-    setSCompareRunState(parseAlertSimulationCompareRunIdFromSearch(searchParams.get("simCompareRun")));
-    const slug = parseAlertSimulationProjectSlugFromSearch(searchParams.get("simSlug"));
-    setSSlugState(slug);
-    setCSlugState(slug);
-    setCmpSlugState(slug);
-  }, [searchParams]);
+    setSRunIdState(urlRunId);
+    setSCompareRunState(urlCompareRun);
+    setSSlugState(urlSlug);
+    setCSlugState(urlSlug);
+    setCmpSlugState(urlSlug);
+  }, [urlRunId, urlCompareRun, urlSlug]);
 
   useEffect(
     () => () => {

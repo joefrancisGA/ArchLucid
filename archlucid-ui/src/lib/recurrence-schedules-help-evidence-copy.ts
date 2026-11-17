@@ -7,6 +7,8 @@ import {
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/digests-route-paths";
 import { RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE } from "@/lib/recurrence-schedules-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export const RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH = "/help/recurrence-schedules" as const;
 
@@ -55,6 +57,12 @@ export const RECURRENCE_SCHEDULES_HELP_SOURCES: readonly EvidenceSourceLinkWithW
     when: "Read approval workflow guidance when scheduled reviews need approval routing context",
   },
 ] as const;
+
+export function resolveRecurrenceSchedulesHelpSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLinkWithWhen[] {
+  return remapEvidenceSourceFindingsQueueHref(RECURRENCE_SCHEDULES_HELP_SOURCES, productLine);
+}
 
 export type RecurrenceSchedulesHelpHealthConstraint = {
   readonly label: string;

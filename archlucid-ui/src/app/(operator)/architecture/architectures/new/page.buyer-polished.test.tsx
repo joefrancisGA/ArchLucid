@@ -1,9 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: (): boolean => true,
 }));
@@ -17,6 +14,25 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
+
 vi.mock("@/components/architecture/ArchitectureDraftWorkspace", () => ({
   ArchitectureDraftWorkspace: () => <div data-testid="architecture-draft-workspace" />,
 }));
@@ -25,9 +41,22 @@ vi.mock("./_sections/ArchitecturesNewPageHeaderActions", () => ({
   ArchitecturesNewPageHeaderActions: () => <div data-testid="architectures-new-page-header-actions" />,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/architecture/architectures/new",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import NewArchitecturePage from "./page";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
+  ARCHITECTURES_NEW_CANONICAL_PATH,
   ARCHITECTURES_NEW_CLAIM_DISCIPLINE,
   ARCHITECTURES_NEW_SOURCES,
 } from "@/lib/architectures-new-evidence-copy";
@@ -74,9 +103,10 @@ describe("NewArchitecturePage buyer-polished shell (ANE)", () => {
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(draftWorkspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(ARCHITECTURES_NEW_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      ARCHITECTURES_NEW_SOURCES,
+      ARCHITECTURES_NEW_CANONICAL_PATH,
+    );
   });
 });

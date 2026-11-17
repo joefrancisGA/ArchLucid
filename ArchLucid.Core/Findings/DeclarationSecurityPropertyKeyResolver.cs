@@ -13,7 +13,10 @@ public static class DeclarationSecurityPropertyKeyResolver
                 "tf.public_network_access",
                 "tf.public_network_access_enabled",
                 "tf.publicnetworkaccess",
+                "tf.publicly_accessible",
+                "tf.publiclyaccessible",
                 "publicNetworkAccess",
+                "publiclyAccessible",
             ],
             [DeclarationSecurityPropertyLogicalNames.AllowBlobPublicAccess] =
             [
@@ -31,6 +34,7 @@ public static class DeclarationSecurityPropertyKeyResolver
                 "tf.supportshttpstrafficonly",
                 "tf.https_traffic_only_enabled",
                 "tf.enable_https_traffic_only",
+                "tf.enablehttpstrafficonly",
                 "supportsHttpsTrafficOnly",
             ],
             [DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion] =
@@ -38,12 +42,17 @@ public static class DeclarationSecurityPropertyKeyResolver
                 "tf.minimum_tls_version",
                 "tf.minimumtlsversion",
                 "minimumTlsVersion",
+                "tf.minimal_tls_version",
+                "tf.minimaltlsversion",
+                "minimalTlsVersion",
                 "tf.min_tls_version",
                 "minTlsVersion",
             ],
             [DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled] =
             [
                 "tf.ssl_enforcement_enabled",
+                "tf.ssl_enforcement",
+                "tf.sslenforcement",
                 "tf.sslenforcementenabled",
                 "sslEnforcementEnabled",
             ],

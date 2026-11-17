@@ -1,7 +1,7 @@
 import { buildArchitectureActivityFinalizeReadinessHref } from "@/lib/architecture/architecture-created-finalize-readiness-href";
+import { resolveLibReviewWorkspaceHref } from "@/lib/architecture/lib-open-review-href";
 import { buildReviewFindingsTabHref } from "@/lib/findings/review-findings-job-view-url";
 import type { FindingJobView } from "@/lib/findings/finding-job-view";
-import { REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
 import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
 
 export type FinalizeReadinessBlockAction = {
@@ -93,9 +93,10 @@ export function resolveFinalizeReadinessBlockAction(
 }
 
 function buildReviewActivityHref(runId: string): string {
-  const params = new URLSearchParams({ [REVIEW_DETAIL_TAB_PARAM]: "activity" });
-
-  return `/architecture/reviews/${encodeURIComponent(runId)}?${params.toString()}`;
+  return resolveLibReviewWorkspaceHref({
+    runId,
+    reviewTab: "activity",
+  });
 }
 
 function resolveScorecardBlockAction(

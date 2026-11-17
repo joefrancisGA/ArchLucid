@@ -9,6 +9,7 @@ import {
   extractArchitectureIdentityIdFromPathname,
   extractReviewIdFromPathname,
   persistDeskContinuityPatch,
+  readCachedLastOpenArchitectureId,
   writeCachedLastOpenArchitectureId,
 } from "@/lib/desk-continuity-preference";
 import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
@@ -44,9 +45,12 @@ export function OperatorRecentViewsTracker(): null {
       const state = readStoredRecentViewsState();
       const architectureId = extractArchitectureIdentityIdFromPathname(pathname, search);
       const nestedRoute = parseArchitectureNestedRoute(pathname);
+      const reviewIdOnPath = extractReviewIdFromPathname(pathname);
+      const cachedDeskArchitectureId = readCachedLastOpenArchitectureId();
       const parentArchitectureId =
         architectureId ??
-        (nestedRoute?.childKind === "reviews" ? nestedRoute.architectureId : null);
+        (nestedRoute?.childKind === "reviews" ? nestedRoute.architectureId : null) ??
+        (reviewIdOnPath !== null ? cachedDeskArchitectureId : null);
       const next = recordRecentView(state, {
         href,
         label,

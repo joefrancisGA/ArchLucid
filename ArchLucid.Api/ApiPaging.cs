@@ -22,6 +22,12 @@ public static class ApiPaging
             return false;
         }
 
+        if (ticks < DateTime.MinValue.Ticks || ticks > DateTime.MaxValue.Ticks)
+        {
+            error = "cursor ticks must be within the supported UTC date range.";
+            return false;
+        }
+
         createdUtc = new DateTime(ticks, DateTimeKind.Utc);
         id = parts[1];
         return true;

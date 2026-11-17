@@ -73,6 +73,19 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
         $command | Should -Match '\$LASTEXITCODE -ne 0'
         $command | Should -Not -Match 'Write-Host \("'
         $command | Should -Match "Write-Host \('API build failed with exit code \{0\}"
+        $command | Should -Not -Match 'PilotStrict'
+    }
+
+    It 'sets PilotStrict and demo seed on the http-real window when Real mode is requested' {
+        [string]$command = Get-LocalApiWindowCommand `
+            -RepoRoot 'C:\ArchLucid\ArchLucid' `
+            -LaunchProfile 'http-real' `
+            -RealMode
+
+        $command | Should -Match '--launch-profile http-real'
+        $command | Should -Match '\$env:ArchLucid__AgentOutput__QualityGate__Mode = ''PilotStrict'''
+        $command | Should -Match '\$env:Demo__Enabled = ''true'''
+        $command | Should -Match '\$env:Demo__SeedOnStartup = ''true'''
     }
 
     It 'skips build-server shutdown and explicit build when requested' {

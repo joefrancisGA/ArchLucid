@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 namespace ArchLucid.Application.CapacityPlanning;
@@ -45,7 +46,9 @@ public static class WorkloadForecastReport
         foreach (Row row in report.Rows)
         {
             static string Safe(string value) => value.Replace("|", "\\|").Replace("\r", " ").Replace("\n", " ");
-            lines.Add($"| {Safe(row.Revision)} | {Safe(row.Workload)} | {Safe(row.Metric)} | {Safe(row.Unit)} | {row.Forecast} | {row.Observed} | {row.AbsoluteError} | {row.AbsolutePercentageError?.ToString() ?? "n/a"} | {(row.AdvisoryExceeded ? "Review" : "No flag")} |");
+            string percentage = row.AbsolutePercentageError?.ToString(CultureInfo.InvariantCulture) ?? "n/a";
+            lines.Add(string.Create(CultureInfo.InvariantCulture,
+                $"| {Safe(row.Revision)} | {Safe(row.Workload)} | {Safe(row.Metric)} | {Safe(row.Unit)} | {row.Forecast} | {row.Observed} | {row.AbsoluteError} | {percentage} | {(row.AdvisoryExceeded ? "Review" : "No flag")} |"));
         }
         return string.Join("\n", lines) + "\n";
     }

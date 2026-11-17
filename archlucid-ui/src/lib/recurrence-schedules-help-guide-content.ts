@@ -7,7 +7,9 @@ import {
   RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF,
   RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
   RECURRENCE_SCHEDULES_RISK_REGISTER_HREF,
+  resolveRecurrenceSchedulesRiskRegisterHref,
 } from "@/lib/recurrence-schedules-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
   RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING,
   RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS_TITLE,
@@ -77,6 +79,16 @@ export const RECURRENCE_SCHEDULES_HELP_AUTOMATION_ITEMS: readonly RecurrenceSche
     href: RECURRENCE_SCHEDULES_RISK_REGISTER_HREF,
   },
 ] as const;
+
+export function resolveRecurrenceSchedulesHelpAutomationItems(
+  productLine: ProductLineId = "architecture",
+): readonly RecurrenceSchedulesHelpAutomationItem[] {
+  const findingsHref = resolveRecurrenceSchedulesRiskRegisterHref(productLine);
+
+  return RECURRENCE_SCHEDULES_HELP_AUTOMATION_ITEMS.map((item) =>
+    item.href === RECURRENCE_SCHEDULES_RISK_REGISTER_HREF ? { ...item, href: findingsHref } : item,
+  );
+}
 
 export const RECURRENCE_SCHEDULES_HELP_HOW_IT_WORKS_STEPS = [
   "Choose a finalized architecture review to anchor the schedule.",

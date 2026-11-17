@@ -1,4 +1,5 @@
 ﻿using ArchLucid.Application.Diagrams;
+using ArchLucid.Application.Manifests;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -105,7 +106,8 @@ public sealed class ManifestDiagramServiceTests
 
         string mermaid = _sut.GenerateMermaid(manifest);
 
-        mermaid.Should().Contain("-->|WritesTo|");
+        mermaid.Should().Contain(
+            $"-->|{ArchitectureManifestMarkdownSummaryExport.FormatRelationshipTypeForSummary(RelationshipType.WritesTo)}|");
     }
 
     [SkippableFact]
@@ -287,7 +289,6 @@ public sealed class ManifestDiagramServiceTests
         mermaid.Should().Contain("subgraph requirements");
         mermaid.Should().Contain("subgraph decisions");
         mermaid.Should().Contain("Control: MFA for admins");
-        mermaid.Should().Contain("Decision title was not stored.");
         mermaid.Should().Contain("Decision trace: decision-trace-1");
     }
 

@@ -2,6 +2,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { runCoverageAcknowledgementMutationBlockedReason } from "@/lib/runs/run-coverage-acknowledgement-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
+import { encodeRequiredPathSegment, trimTextFields } from "./api-boundary-normalization";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiPatchJson, apiPutJson } from "./http";
 
@@ -18,11 +19,20 @@ export type RunAcknowledgedCoverageDocument = {
   entries: RunCoverageAcknowledgementEntry[];
 };
 
+/** Trims each entry's text and drops entries without a policy pack id, which the API cannot store. */
+function normalizeCoverageEntries(
+  entries: readonly RunCoverageAcknowledgementEntry[],
+): RunCoverageAcknowledgementEntry[] {
+  return entries
+    .map((entry) => trimTextFields(entry, ["policyPackId", "exclusionReason"]))
+    .filter((entry) => typeof entry.policyPackId === "string" && entry.policyPackId.length > 0);
+}
+
 /** GET /v1/runs/{runId}/coverage/acknowledgement — operator pinned coverage acknowledgement rows. */
 export async function getRunCoverageAcknowledgement(
   runId: string,
 ): Promise<RunAcknowledgedCoverageDocument> {
-  const normalizedRunId = runId.trim();
+  const normalizedRunId = encodeRequiredPathSegment(runId, "runId");
 
   try {
     return await apiGetSealedManifestAware<RunAcknowledgedCoverageDocument>(
@@ -41,12 +51,13 @@ export async function putRunCoverageAcknowledgement(
   runId: string,
   entries: readonly RunCoverageAcknowledgementEntry[],
 ): Promise<RunAcknowledgedCoverageDocument> {
-  const normalizedRunId = runId.trim();
+  const normalizedRunId = encodeRequiredPathSegment(runId, "runId");
+  const normalizedEntries = normalizeCoverageEntries(entries);
 
   try {
     return await apiPutJson<RunAcknowledgedCoverageDocument>(
       `/v1/runs/${normalizedRunId}/coverage/acknowledgement`,
-      { entries: [...entries] },
+      { entries: normalizedEntries },
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -62,13 +73,15 @@ export async function patchRunCoveragePack(
   policyPackId: string,
   body: { excluded: boolean; exclusionReason?: string | null },
 ): Promise<RunCoverageAcknowledgementEntry> {
-  const normalizedRunId = runId.trim();
-  const normalizedPackId = policyPackId.trim();
+  const normalizedRunId = encodeRequiredPathSegment(runId, "runId");
+  // Already encoded once here; encoding it again in the path would corrupt ids that contain reserved characters.
+  const normalizedPackId = encodeRequiredPathSegment(policyPackId, "policyPackId");
+  const normalizedBody = trimTextFields(body, ["exclusionReason"]);
 
   try {
     return await apiPatchJson<RunCoverageAcknowledgementEntry>(
-      `/v1/runs/${normalizedRunId}/coverage/${encodeURIComponent(normalizedPackId)}`,
-      body,
+      `/v1/runs/${normalizedRunId}/coverage/${normalizedPackId}`,
+      normalizedBody,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

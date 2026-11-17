@@ -69,6 +69,7 @@ internal static class AzureInventorySnapshotSubnetPlacementEdgeHydrator
                         toNodeId,
                         hop.EdgeType,
                         hop.InferenceSource,
+                        label: hop.EdgeType,
                         provenanceKind: ProvenanceKind.ObservedFact.ToString(),
                         promoteStrongerProvenance: false);
                 }

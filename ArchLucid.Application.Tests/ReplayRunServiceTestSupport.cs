@@ -79,7 +79,8 @@ internal static class ReplayRunServiceTestSupport
             Mock.Of<IRunPolicyPackPinService>(),
             Mock.Of<IRunEvidencePackagePinService>(),
             cloneStage,
-            Mock.Of<IReRunExecuteSealedManifestPinGate>());
+            Mock.Of<IReRunExecuteSealedManifestPinGate>(),
+            NullLogger<ReplayRunPrepareStage>.Instance);
         IReplayRunCommitStage commitStage = new ReplayRunCommitStage(
             decisionEngine,
             agentEvaluationService ?? EmptyEvaluationService(),
@@ -147,7 +148,8 @@ internal static class ReplayRunServiceTestSupport
             Mock.Of<IRunPolicyPackPinService>(),
             Mock.Of<IRunEvidencePackagePinService>(),
             cloneStage,
-            Mock.Of<IReRunExecuteSealedManifestPinGate>());
+            Mock.Of<IReRunExecuteSealedManifestPinGate>(),
+            NullLogger<ReplayRunPrepareStage>.Instance);
         IReplayRunCommitStage commitStage = new ReplayRunCommitStage(
             decisionEngine.Object,
             agentEvaluationService ?? EmptyEvaluationService(),

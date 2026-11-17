@@ -9,17 +9,21 @@ import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-cop
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapGovernanceOperatorHref } from "@/lib/product-line/securenow-compliance-routes";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
+const showcaseReviewHref = resolveScopedInsightOpenReviewHrefWithDeskContinuity(SHOWCASE_STATIC_DEMO_RUN_ID);
 
 /**
  * Golden-path jumps for buyer-polished Ctrl+K — uses showcase URLs even when sidebar omits compare/governance/audit.
  */
-export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] = [
+const BUYER_COMMAND_PALETTE_CURATED_TASK_SOURCES: readonly CuratedPaletteTask[] = [
   {
     label: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
     href: getShowcaseSponsorHref(),
@@ -27,7 +31,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
   },
   {
     label: "Review",
-    href: `/architecture/reviews/${showcaseRunEnc}`,
+    href: showcaseReviewHref,
     searchValue: "review claims intake modernization",
   },
   {
@@ -73,3 +77,13 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
     searchValue: "ask question evidence qna",
   },
 ];
+
+export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] =
+  buildBuyerCommandPaletteCuratedTasks("architecture");
+
+export function buildBuyerCommandPaletteCuratedTasks(productLine: ProductLineId): readonly CuratedPaletteTask[] {
+  return BUYER_COMMAND_PALETTE_CURATED_TASK_SOURCES.map((task) => ({
+    ...task,
+    href: remapGovernanceOperatorHref(task.href, productLine),
+  }));
+}

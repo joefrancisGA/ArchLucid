@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
@@ -37,6 +37,7 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES,
 } from "@/lib/showcase-static-demo";
+import { resolveSealedCollateralReviewDeskHref } from "@/lib/architecture/resolve-sealed-collateral-review-desk-href";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { cn } from "@/lib/utils";
 import type { ManifestSummary } from "@/types/authority";
@@ -60,6 +61,10 @@ export function ManifestDetailSummaryDecisionsBlock({
     () => parseManifestDetailDecisionsOpenFromSearch(manifestDetailDecisionsOpenParam) || detailOpenDefault,
   );
   const isCuratedDemo = summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID;
+  const sealedReviewHref = useMemo(
+    () => resolveSealedCollateralReviewDeskHref({ runId: summary.runId, pathname }),
+    [pathname, summary.runId],
+  );
   const decisionLinesAll = isCuratedDemo ? [...SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES] : [];
   const decisionLinesPreview = decisionLinesAll.slice(0, 3);
   const decisionRestCount = Math.max(0, decisionLinesAll.length - decisionLinesPreview.length);
@@ -115,7 +120,7 @@ export function ManifestDetailSummaryDecisionsBlock({
         ) : summary.decisionCount > 0 ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Full decision text is included in the{" "}
-            <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${summary.runId}`}>
+            <Link className={OPERATOR_LINK.nav} href={sealedReviewHref}>
               architecture review export
             </Link>{" "}
             and evidence bundle — use the download actions on this page when available.
@@ -147,6 +152,10 @@ export function ManifestDetailSummaryWarningsBlock({
     () => parseManifestDetailWarningsOpenFromSearch(manifestDetailWarningsOpenParam) || detailOpenDefault,
   );
   const isCuratedDemo = summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID;
+  const sealedReviewHref = useMemo(
+    () => resolveSealedCollateralReviewDeskHref({ runId: summary.runId, pathname }),
+    [pathname, summary.runId],
+  );
   const warningLines = isCuratedDemo ? [...SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES] : [];
 
   const syncWarningsOpenToUrl = useCallback(
@@ -200,7 +209,7 @@ export function ManifestDetailSummaryWarningsBlock({
         ) : summary.warningCount > 0 ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Monitored-risk detail travels with the evidence bundle — use{" "}
-            <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${summary.runId}`}>
+            <Link className={OPERATOR_LINK.nav} href={sealedReviewHref}>
               review detail
             </Link>{" "}
             or download the bundle.

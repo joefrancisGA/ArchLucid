@@ -69,6 +69,27 @@ describe("formatAzureResourceDisplay", () => {
     });
   });
 
+  it("uses the extension provider and type for an ARM extension resource", () => {
+    expect(
+      formatAzureResourceDisplay(
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/acct/blobServices/default/containers/data/providers/Microsoft.Authorization/roleAssignments/assignment-id",
+      ),
+    ).toMatchObject({
+      name: "assignment-id",
+      resourceType: "Authorization/roleAssignments",
+      resourceGroup: "rg",
+      secondaryLabel: "Authorization/roleAssignments · rg",
+    });
+  });
+
+  it("treats providers in a resource name as a name", () => {
+    expect(
+      formatAzureResourceDisplay(
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/providers/blobServices/default",
+      ).resourceType,
+    ).toBe("Storage/storageAccounts/blobServices");
+  });
+
   it("falls back to the last segment when the value is not an ARM id", () => {
     expect(formatAzureResourceDisplay("gateway-public-ip")).toEqual({
       name: "gateway-public-ip",

@@ -1,11 +1,12 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 import {
   answerDraftQuestion,
   getDraftQuestions,
+  getDraftRequest,
 } from "@/lib/api/draft-intake-api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -59,15 +60,30 @@ export type UseReviewPresenterElicitationResult = {
   readonly primaryQuestionPromptStored: boolean;
 };
 
-function selectPrimaryPendingQuestion(
-  pendingMust: readonly DraftElicitationQuestion[],
-  allQuestions: readonly DraftElicitationQuestion[],
-): DraftElicitationQuestion | null {
-  if (pendingMust.length > 0) {
-    return pendingMust[0] ?? null;
+async function loadPresenterQuestions(draftId: string) {
+  const { selection } = await getDraftQuestions(draftId);
+  const pendingMust = selection?.pendingMustQuestions;
+  const primaryMust = pendingMust?.[0] ?? null;
+
+  if (pendingMust === undefined || primaryMust !== null) {
+    return { selection, primaryQuestion: primaryMust };
   }
 
-  return allQuestions[0] ?? null;
+  const optionalQuestions = selection.allQuestions?.filter((question) => question.tier === "Should") ?? [];
+
+  if (optionalQuestions.length === 0) {
+    return { selection, primaryQuestion: null };
+  }
+
+  const draft = await getDraftRequest(draftId);
+  const answeredKeys = new Set(
+    Object.entries(draft.document.questionAnswers ?? {})
+      .filter(([, answer]) => answer.trim().length > 0)
+      .map(([key]) => key.toLowerCase()),
+  );
+  const primaryQuestion = optionalQuestions.find((question) => !answeredKeys.has(question.questionKey.toLowerCase()));
+
+  return { selection, primaryQuestion: primaryQuestion ?? null };
 }
 
 /** Loads draft MUST/SHOULD questions for Working presenter elicitation (FD-01 / PC-09). */
@@ -84,7 +100,7 @@ export function useReviewPresenterElicitation(
 
   const query = useQuery({
     queryKey: [DRAFT_QUESTIONS_QUERY_KEY, trimmedDraftId],
-    queryFn: () => getDraftQuestions(trimmedDraftId),
+    queryFn: () => loadPresenterQuestions(trimmedDraftId),
     enabled: trimmedDraftId.length > 0,
     staleTime: 15_000,
   });
@@ -95,11 +111,7 @@ export function useReviewPresenterElicitation(
     && selection.pendingMustQuestions !== undefined
     && selection.allQuestions !== undefined;
   const pendingMust = selection?.pendingMustQuestions ?? [];
-  const allQuestions = selection?.allQuestions ?? [];
-  const primaryQuestion = useMemo(
-    () => selectPrimaryPendingQuestion(pendingMust, allQuestions),
-    [allQuestions, pendingMust],
-  );
+  const primaryQuestion = query.data?.primaryQuestion ?? null;
 
   const invalidate = useCallback(async (): Promise<void> => {
     await queryClient.invalidateQueries({ queryKey: [DRAFT_QUESTIONS_QUERY_KEY, trimmedDraftId] });

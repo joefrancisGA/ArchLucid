@@ -156,7 +156,7 @@ describe("TrialUsageUpgradeNudge", () => {
 
     expect(screen.getByRole("heading", { name: /your trial has expired/i })).toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: /dismiss trial upgrade nudge for 24 hours/i }),
+      screen.queryByRole("button", { name: /^Dismiss$/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -211,7 +211,7 @@ describe("TrialUsageUpgradeNudge", () => {
     fireEvent.click(screen.getByRole("link", { name: /request a quote/i }));
     expect(mockClicked).toHaveBeenCalledWith("runs");
 
-    fireEvent.click(screen.getByRole("button", { name: /dismiss trial upgrade nudge for 24 hours/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Dismiss$/i }));
 
     await waitFor(() => {
       expect(screen.queryByTestId("trial-usage-upgrade-nudge")).not.toBeInTheDocument();

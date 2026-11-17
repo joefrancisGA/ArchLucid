@@ -1,0 +1,2 @@
+export const ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE =
+  "Before and after counts in this panel require two finalized review manifests — sealed rehearsal or Career seals both qualify." as const;

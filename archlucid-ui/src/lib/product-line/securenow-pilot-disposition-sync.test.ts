@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const fetchDisposition = vi.fn();
 const saveDisposition = vi.fn();
@@ -20,6 +20,8 @@ describe("securenow pilot disposition sync", () => {
     window.localStorage.clear();
   });
 
+  afterEach(() => vi.restoreAllMocks());
+
   it("hydrates browser cache from tenant audit on load", async () => {
     fetchDisposition.mockResolvedValueOnce({
       pathId: "path-1",
@@ -30,7 +32,10 @@ describe("securenow pilot disposition sync", () => {
 
     const loaded = await loadSecureNowPilotDispositionForPath("path-1");
 
-    expect(loaded).toEqual({ outcome: "Stop", rationale: "Pilot stop." });
+    expect(loaded).toEqual({
+      record: { outcome: "Stop", rationale: "Pilot stop." },
+      recordedUtc: "2026-01-01T00:00:00Z",
+    });
     expect(fetchDisposition).toHaveBeenCalledWith("path-1");
   });
 
@@ -53,7 +58,11 @@ describe("securenow pilot disposition sync", () => {
       rationale: "More time.",
     });
 
-    expect(result).toEqual({ status: "saved", tenantAuditRecorded: true });
+    expect(result).toEqual({
+      status: "saved",
+      tenantAuditRecorded: true,
+      recordedUtc: "2026-01-01T00:00:00Z",
+    });
     expect(saveDisposition).toHaveBeenCalledWith("path-2", { outcome: "Extend", rationale: "More time." });
   });
 
@@ -70,5 +79,33 @@ describe("securenow pilot disposition sync", () => {
     });
 
     expect(result).toEqual({ status: "error", errorMessage: "Audit write rejected." });
+  });
+
+  it("keeps the audit load and save successful when the browser cache cannot be written", async () => {
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("Storage quota exceeded", "QuotaExceededError");
+    });
+    const record = { outcome: "Extend", rationale: "More time." };
+    const recordedUtc = "2026-01-01T00:00:00Z";
+    const disposition = { pathId: "path-1", ...record, recordedUtc };
+    fetchDisposition.mockResolvedValueOnce(disposition);
+    saveDisposition.mockResolvedValueOnce({ succeeded: true, errorMessage: null, disposition });
+
+    const loaded = await loadSecureNowPilotDispositionForPath("path-1");
+    const saved = await persistSecureNowPilotDispositionForPath("path-1", record);
+
+    expect({ loaded, saved }).toEqual({
+      loaded: { record, recordedUtc },
+      saved: { status: "saved", tenantAuditRecorded: true, recordedUtc },
+    });
+  });
+
+  it("treats blocked browser storage as an unavailable fallback", async () => {
+    vi.spyOn(window, "localStorage", "get").mockImplementation(() => {
+      throw new DOMException("Storage access is blocked", "SecurityError");
+    });
+    fetchDisposition.mockRejectedValueOnce(new Error("Audit unavailable"));
+
+    await expect(loadSecureNowPilotDispositionForPath("path-1")).resolves.toBeNull();
   });
 });

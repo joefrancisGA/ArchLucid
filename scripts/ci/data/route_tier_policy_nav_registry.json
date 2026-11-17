@@ -2022,6 +2022,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "OperationalSecurity/OperationalSecurityInvestigationEffortController.cs",
+      "class_name": "OperationalSecurityInvestigationEffortController",
+      "route_template": "v{version:apiVersion}/operational-security/investigation-effort-inputs",
+      "normalized_prefix": "/v1/operational-security/investigation-effort-inputs",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "OperationalSecurity/OperationalSecurityPathsController.cs",
       "class_name": "OperationalSecurityPathsController",
       "route_template": "v{version:apiVersion}/operational-security/paths",

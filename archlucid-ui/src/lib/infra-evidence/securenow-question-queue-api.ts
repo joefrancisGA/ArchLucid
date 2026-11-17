@@ -93,10 +93,6 @@ export type SecureNowQuestionDisposition = {
   readonly auditEntries: readonly SecureNowQuestionDispositionAudit[];
 };
 
-function stringOrDefault(value: unknown, fallback = ""): string {
-  return typeof value === "string" ? value : fallback;
-}
-
 function mapDispositionRequiredString(value: unknown, fallback = ""): string {
   if (typeof value !== "string") {
     return fallback;
@@ -575,7 +571,9 @@ function mapListedQuestionText(value: unknown): string | null {
     return null;
   }
 
-  return value;
+  const trimmed = value.trim();
+
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 function mapListedAnswerCodes(value: unknown): readonly string[] | null {

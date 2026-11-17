@@ -37,8 +37,9 @@ export function useSignedRecordsListFetch(options: {
   const [page, setPage] = useState(urlCursor.length > 0 ? 2 : 1);
   const [cursor, setCursor] = useState(urlCursor);
   const [cursorHistory, setCursorHistory] = useState<readonly string[]>(() =>
-    urlCursor.length > 0 ? ["", urlCursor] : [""],
+    urlCursor.length > 0 ? [""] : [],
   );
+  const lastUrlCursorRef = useRef(urlCursor);
   const [hasMore, setHasMore] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
@@ -50,16 +51,17 @@ export function useSignedRecordsListFetch(options: {
   }, []);
 
   useEffect(() => {
-    const nextCursor = parseSignedRecordsListCursorFromSearch(searchParams.get("cursor"));
-
-    if (nextCursor === cursor) {
+    if (urlCursor === lastUrlCursorRef.current) {
       return;
     }
 
-    setCursor(nextCursor);
-    setCursorHistory(nextCursor.length > 0 ? ["", nextCursor] : [""]);
-    setPage(nextCursor.length > 0 ? 2 : 1);
-  }, [cursor, searchParams]);
+    lastUrlCursorRef.current = urlCursor;
+    if (urlCursor !== cursor) {
+      setCursor(urlCursor);
+      setCursorHistory(urlCursor.length > 0 ? [""] : []);
+      setPage(urlCursor.length > 0 ? 2 : 1);
+    }
+  }, [cursor, urlCursor]);
 
   const syncCursorToUrl = useCallback(
     (nextCursor: string) => {

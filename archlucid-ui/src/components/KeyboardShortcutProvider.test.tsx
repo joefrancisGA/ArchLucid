@@ -119,6 +119,6 @@ describe("KeyboardShortcutProvider", () => {
     fireEvent.keyDown(window, { key: "?", shiftKey: true });
 
     expect(screen.getByText(/Desk work shortcuts are listed first/i)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Desk work (Working)" })).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Architecture desk (Working)" })).toBeInTheDocument();
   });
 });

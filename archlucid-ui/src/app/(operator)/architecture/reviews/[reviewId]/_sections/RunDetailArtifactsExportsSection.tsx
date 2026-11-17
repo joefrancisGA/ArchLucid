@@ -34,6 +34,8 @@ import { architectureRequestJsonMutationBlockedReason } from "@/lib/runs/archite
 import { runExportZipMutationBlockedReason } from "@/lib/runs/run-export-zip-mutation-blocked-reason";
 import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 import { SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT } from "@/lib/api/downloads-blob-urls";
+import { FIRST_REVIEW_SAMPLE_EXPORT_BADGE_LINE } from "@/lib/architecture/first-review-sample-export-badge-copy";
+import { REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE } from "@/lib/reviews/review-commit-evidence-before-seal-copy";
 import { showError } from "@/lib/toast";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer/buyer-polish-copy";
@@ -67,6 +69,7 @@ import { RunDetailExportRecordComparisonHistoryCallout } from "./RunDetailExport
 import { RunDetailAssuranceGuardCallouts } from "./RunDetailAssuranceGuardCallouts";
 import { RunDetailExportBlobPushPanel } from "@/components/runs/RunDetailExportBlobPushPanel";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
+import { ExportPartialCaptureRecoveryHonesty } from "@/components/exports/ExportPartialCaptureRecoveryHonesty";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -341,6 +344,14 @@ export function RunDetailArtifactsExportsSection(
           <p className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)}>
             {RUN_DETAIL_DELIVERABLES_INTRO}
           </p>
+          {!packageSealedForDeliverables ? (
+            <p
+              className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="run-detail-commit-evidence-before-seal"
+            >
+              {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
+            </p>
+          ) : null}
           <div className="mb-4 flex flex-wrap gap-3">
             {showDecisionReceipt ? (
               <DecisionReceiptExportButton
@@ -365,6 +376,9 @@ export function RunDetailArtifactsExportsSection(
                 >
                   {SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}
                 </p>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="run-detail-sample-export-badge">
+                  {FIRST_REVIEW_SAMPLE_EXPORT_BADGE_LINE}
+                </p>
               </div>
             ) : collateralExportBlockedReason !== null ? (
               <div className={cn("flex flex-col gap-1.5", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>
@@ -378,6 +392,12 @@ export function RunDetailArtifactsExportsSection(
                   data-testid="run-detail-docx-export-blocked-reason"
                 >
                   {collateralExportBlockedReason}
+                </p>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="run-detail-deliverables-export-finalize-discipline"
+                >
+                  {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
                 </p>
               </div>
             ) : (
@@ -544,6 +564,12 @@ export function RunDetailArtifactsExportsSection(
 
           <div className="mt-4 flex flex-col gap-3">
             <SponsorExportSendHonestyStrip testIdPrefix="run-detail-exports" />
+            <ExportPartialCaptureRecoveryHonesty
+              show={collateralExportBlockedReason !== null}
+              testId="run-detail-deliverables-partial-capture-recovery"
+              cloudConnectionsTestId="run-detail-deliverables-partial-capture-cloud-connections"
+              extractUploadTestId="run-detail-deliverables-partial-capture-extract-upload"
+            />
             {buyerPolishedArtifactTable ? (
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex max-w-[14rem] flex-col gap-1">

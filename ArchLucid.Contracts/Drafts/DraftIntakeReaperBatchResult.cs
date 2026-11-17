@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Drafts;
@@ -12,4 +14,10 @@ public sealed class DraftIntakeReaperBatchResult
         get => deletedDraftIds;
         init => deletedDraftIds = ContractCollectionDefaults.CoalesceReadOnly(value);
     }
+
+    // Scope is needed for cache eviction after the cross-tenant batch.
+    [JsonIgnore]
+    public IReadOnlyList<DraftIntakeReapedDraft> DeletedDrafts { get; init; } = [];
 }
+
+public sealed record DraftIntakeReapedDraft(Guid DraftId, Guid TenantId, Guid WorkspaceId, Guid ProjectId);

@@ -46,10 +46,16 @@ export async function hydrateAcknowledgedAssumptionIdsFromServer(
   }
 
   try {
+    const localAtRequestStart = readAcknowledgedAssumptionIds(runId);
     const document = await getReviewAssumptionAcknowledgement(runId);
+    // Only add server IDs that were absent when the request started so an in-flight read
+    // cannot reapply an acknowledgement the reviewer just unchecked.
+    const newServerIds = (document.acknowledgedAssumptionIds ?? []).filter(
+      (id) => !localAtRequestStart.has(id),
+    );
     const merged = mergeAcknowledgedAssumptionIds(
       readAcknowledgedAssumptionIds(runId),
-      document.acknowledgedAssumptionIds ?? [],
+      newServerIds,
     );
 
     writeAcknowledgedAssumptionIds(runId, merged);

@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -18,7 +18,7 @@ public sealed class ArchitectureRequestDocumentValidationTests(ArchLucidApiFacto
     public async Task CreateRun_InvalidDocumentContentType_Returns400_WithFieldScopedError()
     {
         JsonNode root = JsonSerializer.SerializeToNode(
-            TestRequestFactory.CreateArchitectureRequest("REQ-DOC-CTYPE-400"),
+            TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(ArchitectureRequestDocumentValidationTests))),
             JsonOptions)!.AsObject();
 
         root["documents"] = new JsonArray
@@ -31,20 +31,13 @@ public sealed class ArchitectureRequestDocumentValidationTests(ArchLucidApiFacto
             }
         };
 
-        HttpResponseMessage response = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(root));
+        HttpResponseMessage response = await Client.PostArchitectureRequestForTestAsync(root);
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        string body = await response.Content.ReadAsStringAsync();
-        using JsonDocument doc = JsonDocument.Parse(body);
-
-        JsonElement rootEl = doc.RootElement;
-        bool hasFieldScopedContentTypeError = ValidationProblemAssertions.ContainsDocumentContentTypeFieldError(rootEl);
+        JsonDocument problem = await response.AssertProblemForTestAsync(HttpStatusCode.BadRequest);
+        bool hasFieldScopedContentTypeError =
+            ValidationProblemAssertions.ContainsDocumentContentTypeFieldError(problem.RootElement);
 
         hasFieldScopedContentTypeError.Should().BeTrue(
-            "expected a validation key scoped to documents and content type in problem details; body: {0}",
-            body);
+            "expected a validation key scoped to documents and content type in problem details");
     }
 }

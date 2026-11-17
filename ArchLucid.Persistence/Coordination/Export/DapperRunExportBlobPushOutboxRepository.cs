@@ -67,7 +67,7 @@ public sealed class DapperRunExportBlobPushOutboxRepository(ISqlConnectionFactor
                            ;WITH cte AS (
                                SELECT TOP (@Take)
                                    OutboxId
-                               FROM dbo.RunExportBlobPushOutbox WITH (READPAST, UPDLOCK, ROWLOCK)
+                               FROM dbo.RunExportBlobPushOutbox WITH (READPAST, UPDLOCK, READCOMMITTEDLOCK)
                                WHERE ProcessedUtc IS NULL
                                  AND DeadLetteredUtc IS NULL
                                  AND (NextAttemptUtc IS NULL OR NextAttemptUtc <= SYSUTCDATETIME())

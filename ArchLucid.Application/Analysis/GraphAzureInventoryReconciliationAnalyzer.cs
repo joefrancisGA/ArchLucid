@@ -474,21 +474,20 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
     internal static string? TryReadInventoryResourceId(JsonElement row)
     {
-        string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
-            row,
-            [
-                "resourceId",
-                "id",
-                "resourceName",
-                "azureResourceId",
-                "armResourceId",
-                "selfLink",
-                "tf.id",
-                "tf.resource_id",
-            ]);
+        // configurationAssignments stores the target on properties.resourceId.
+        // That related id must not replace the assignment row's own id.
+        foreach (string propertyName in ArmResourceIdPropertyNames)
+        {
+            string? direct = InventoryResourcesJsonRowReader.TryGetDirectTrimmedString(row, [propertyName]);
 
-        if (LooksLikeArmResourceId(value))
-            return value;
+            if (LooksLikeArmResourceId(direct))
+                return direct;
+        }
+
+        string? nested = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ArmResourceIdPropertyNames);
+
+        if (LooksLikeArmResourceId(nested))
+            return nested;
 
         return TryCombineSubscriptionIdAndRelativeResourceId(row);
     }

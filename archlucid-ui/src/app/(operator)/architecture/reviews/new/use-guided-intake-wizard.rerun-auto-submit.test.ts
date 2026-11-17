@@ -135,7 +135,7 @@ vi.mock("./use-guided-intake-clarification-inference", () => ({
 }));
 
 vi.mock("./use-guided-intake-prior-run-prefill", () => ({
-  useGuidedIntakePriorRunPrefill: () => {},
+  useGuidedIntakePriorRunPrefill: () => ({ priorRunPrefillCopiedFromLine: null }),
 }));
 
 import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";

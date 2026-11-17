@@ -21,6 +21,10 @@ vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
   mergeRegistrationScopeForProxy: (init: RequestInit) => init,
 }));
 
+vi.mock("@/app/(operator)/administration/users/_sections/AuthBetaReadinessInviteCallout", () => ({
+  AuthBetaReadinessInviteCallout: () => null,
+}));
+
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 100,
   useNavCommittedArchitectureReview: () => false,
@@ -51,16 +55,64 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-const IDENTITY_DIAGNOSTICS_URLS = [
-  "/api/proxy/v1/admin/diagnostics/identity-providers",
-  "/api/proxy/v1/admin/auth/configuration-diagnostics",
-  "/api/proxy/v1/admin/auth/oidc-diagnostics",
-  "/api/proxy/v1/admin/auth/saml-operational-health",
-] as const;
+const IDENTITY_PROVIDERS_PAGE_BUNDLE_URL =
+  "/api/proxy/v1/admin/diagnostics/identity-providers-page-bundle";
+
+function requestedFetchUrl(input: unknown): string {
+  if (typeof input === "string") {
+    return input;
+  }
+
+  if (input instanceof Request) {
+    return input.url;
+  }
+
+  if (input instanceof URL) {
+    return input.toString();
+  }
+
+  return String(input);
+}
+
+function buildIdentityProvidersPageBundle(authMode: "JwtBearer" | "DevelopmentBypass"): unknown {
+  return {
+    identityProviderDiagnostics: {
+      oidc: { status: "Healthy", summary: "OIDC configured." },
+      saml: { status: "NotApplicable", summary: "SAML disabled." },
+    },
+    authConfigurationDiagnostics: {
+      authMode,
+      audienceConfigured: authMode !== "DevelopmentBypass",
+      issuerOrAuthorityConfigured: authMode !== "DevelopmentBypass",
+      openIdDiscoverySucceeded: authMode !== "DevelopmentBypass" ? true : null,
+      saml2Enabled: false,
+      spEntityIdConfigured: null,
+      samlRoleClaimSourcesConfigured: null,
+      tenantClaimMappingConfigured: false,
+      tenantIdentityProviderProtocol: null,
+      jwksConfigured: true,
+      scimProvisioningConfigured: null,
+      scimBearerTokenActive: null,
+      roleClaimNameConfigured: false,
+      misconfigurationHints: [],
+    },
+    oidcDiagnostics:
+      authMode === "DevelopmentBypass"
+        ? { authMode: "DevelopmentBypass" }
+        : {
+            authMode: "JwtBearer",
+            configuredAuthority: "https://login.example.com/",
+            configuredAudience: "api://demo",
+            discoveryAttempted: true,
+            discoverySucceeded: true,
+            openIdConfigurationUrl: "https://login.example.com/.well-known/openid-configuration",
+          },
+    samlOperationalHealth: { saml2Enabled: false },
+  };
+}
 
 function stubIdentityProvidersFetch(options?: {
-  readonly configurationDiagnosticsStatus?: number;
-  readonly oidcDiagnostics?: unknown;
+  readonly bundleStatus?: number;
   readonly authMode?: "JwtBearer" | "DevelopmentBypass";
 }): ReturnType<typeof vi.fn> {
   const authMode = options?.authMode ?? "JwtBearer";
@@ -68,60 +120,9 @@ function stubIdentityProvidersFetch(options?: {
   const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
     const url = typeof input === "string" ? input : input instanceof Request ? input.url : String(input);
 
-    if (url.includes("/diagnostics/identity-providers")) {
-      return new Response(
-        JSON.stringify({
-          oidc: { status: "Healthy", summary: "OIDC configured." },
-          saml: { status: "NotApplicable", summary: "SAML disabled." },
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      );
-    }
-
-    if (url.includes("/auth/configuration-diagnostics")) {
-      return new Response(
-        JSON.stringify({
-          authMode,
-          audienceConfigured: authMode !== "DevelopmentBypass",
-          issuerOrAuthorityConfigured: authMode !== "DevelopmentBypass",
-          openIdDiscoverySucceeded: authMode !== "DevelopmentBypass" ? true : null,
-          saml2Enabled: false,
-          spEntityIdConfigured: null,
-          samlRoleClaimSourcesConfigured: null,
-          tenantClaimMappingConfigured: false,
-          tenantIdentityProviderProtocol: null,
-          jwksConfigured: true,
-          scimProvisioningConfigured: null,
-          scimBearerTokenActive: null,
-          roleClaimNameConfigured: false,
-          misconfigurationHints: [],
-        }),
-        { status: options?.configurationDiagnosticsStatus ?? 200, headers: { "Content-Type": "application/json" } },
-      );
-    }
-
-    if (url.includes("/auth/oidc-diagnostics")) {
-      return new Response(
-        JSON.stringify(
-          options?.oidcDiagnostics ??
-            (authMode === "DevelopmentBypass"
-              ? { authMode: "DevelopmentBypass" }
-              : {
-                  authMode: "JwtBearer",
-                  configuredAuthority: "https://login.example.com/",
-                  configuredAudience: "api://demo",
-                  discoveryAttempted: true,
-                  discoverySucceeded: true,
-                  openIdConfigurationUrl: "https://login.example.com/.well-known/openid-configuration",
-                }),
-        ),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      );
-    }
-
-    if (url.includes("/auth/saml-operational-health")) {
-      return new Response(JSON.stringify({ saml2Enabled: false }), {
-        status: 200,
+    if (url.includes("identity-providers-page-bundle")) {
+      return new Response(JSON.stringify(buildIdentityProvidersPageBundle(authMode)), {
+        status: options?.bundleStatus ?? 200,
         headers: { "Content-Type": "application/json" },
       });
     }
@@ -139,7 +140,7 @@ function stubIdentityProvidersFetch(options?: {
 }
 
 describe("IdentityProvidersSettingsPage", () => {
-  it("issues exactly four identity diagnostics requests and no configuration summary request", async () => {
+  it("issues the identity providers page bundle request and no configuration summary request", async () => {
     const fetchMock = stubIdentityProvidersFetch();
 
     renderIdentityProvidersSettingsPage();
@@ -148,14 +149,17 @@ describe("IdentityProvidersSettingsPage", () => {
       expect(screen.getByTestId("identity-providers-overview-summary")).toBeInTheDocument();
     });
 
-    const requestedUrls = fetchMock.mock.calls.map((call) => String(call[0]));
+    const requestedUrls = fetchMock.mock.calls.map((call) => requestedFetchUrl(call[0]));
 
-    for (const url of IDENTITY_DIAGNOSTICS_URLS) {
-      expect(requestedUrls.some((requested) => requested.includes(url))).toBe(true);
-    }
+    const bundleRequests = requestedUrls.filter((requested) =>
+      requested.includes("identity-providers-page-bundle"),
+    );
 
+    expect(bundleRequests.length).toBeGreaterThan(0);
+    expect(bundleRequests.some((requested) => requested.includes(IDENTITY_PROVIDERS_PAGE_BUNDLE_URL))).toBe(
+      true,
+    );
     expect(requestedUrls.some((requested) => requested.includes("/internal/configuration/summary"))).toBe(false);
-    expect(fetchMock).toHaveBeenCalledTimes(4);
   });
 
   it("renders the buyer-safe overview with summary cards and section navigation", async () => {
@@ -179,8 +183,8 @@ describe("IdentityProvidersSettingsPage", () => {
     expect(screen.queryByTestId("auth-token-test-mapping-card")).not.toBeInTheDocument();
   });
 
-  it("renders restricted state when configuration diagnostics returns 403", async () => {
-    stubIdentityProvidersFetch({ configurationDiagnosticsStatus: 403 });
+  it("renders restricted state when the page bundle returns 403", async () => {
+    stubIdentityProvidersFetch({ bundleStatus: 403 });
 
     renderIdentityProvidersSettingsPage();
 

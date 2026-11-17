@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Agents;
+
 namespace ArchLucid.Api.Tests.TestDtos;
 
 public sealed class GetRunResponseDto
@@ -14,7 +16,7 @@ public sealed class GetRunResponseDto
         set;
     } = [];
 
-    public List<object> Results
+    public List<AgentResult> Results
     {
         get;
         set;

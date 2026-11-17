@@ -992,6 +992,33 @@ namespace N
     await RunInnerLayerTestAsync(testCode, expected);
   }
 
+  [Fact]
+  public async Task Reports_HttpContext_parameter_when_type_is_file_scoped_using_alias()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Ctx = Microsoft.AspNetCore.Http.HttpContext;
+
+    public sealed class Handler
+    {
+        void M({|#0:Ctx|} context) { }
+    }
+}
+""";
+
+    DiagnosticResult expectedAliasTarget = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(4, 43, 4, 54)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    DiagnosticResult expectedParameter = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(8, 16, 8, 19)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    await RunInnerLayerTestAsync(testCode, expectedAliasTarget, expectedParameter);
+  }
+
   private static Task RunInnerLayerTestAsync(string testCode, params DiagnosticResult[] expectedDiagnostics) =>
       RunTestAsync(testCode, InnerLayerAssemblyNameTransform, expectedDiagnostics);
 

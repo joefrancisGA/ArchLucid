@@ -764,6 +764,240 @@ public sealed class CostBreachFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_emits_breach_when_max_monthly_cost_has_medium_mathematical_space_in_digits()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5\u205F000",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        CostBreachFindingPayload payload = findings.Should().ContainSingle()
+            .Which.Payload.Should().BeOfType<CostBreachFindingPayload>().Subject;
+        payload.MaxMonthlyCost.Should().Be(5000m);
+        payload.BreachAmountUsd.Should().Be(1200m);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_breach_when_max_monthly_cost_has_en_space_in_digits()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5\u2002000",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        CostBreachFindingPayload payload = findings.Should().ContainSingle()
+            .Which.Payload.Should().BeOfType<CostBreachFindingPayload>().Subject;
+        payload.MaxMonthlyCost.Should().Be(5000m);
+        payload.BreachAmountUsd.Should().Be(1200m);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_breach_when_max_monthly_cost_has_em_space_in_digits()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5\u2003000",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        CostBreachFindingPayload payload = findings.Should().ContainSingle()
+            .Which.Payload.Should().BeOfType<CostBreachFindingPayload>().Subject;
+        payload.MaxMonthlyCost.Should().Be(5000m);
+        payload.BreachAmountUsd.Should().Be(1200m);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_breach_when_max_monthly_cost_has_three_per_em_space_in_digits()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5\u2004000",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        CostBreachFindingPayload payload = findings.Should().ContainSingle()
+            .Which.Payload.Should().BeOfType<CostBreachFindingPayload>().Subject;
+        payload.MaxMonthlyCost.Should().Be(5000m);
+        payload.BreachAmountUsd.Should().Be(1200m);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_breach_when_max_monthly_cost_has_en_quad_space_in_digits()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5\u2000000",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        CostBreachFindingPayload payload = findings.Should().ContainSingle()
+            .Which.Payload.Should().BeOfType<CostBreachFindingPayload>().Subject;
+        payload.MaxMonthlyCost.Should().Be(5000m);
+        payload.BreachAmountUsd.Should().Be(1200m);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_breach_when_projected_impact_lower_bound_has_en_quad_space_in_digits()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5000",
+                        ["projectedImpactUsdLowerBound"] = "4\u2000000",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        CostBreachFindingPayload payload = findings.Should().ContainSingle()
+            .Which.Payload.Should().BeOfType<CostBreachFindingPayload>().Subject;
+        payload.MaxMonthlyCost.Should().Be(5000m);
+        payload.ProjectedImpactUsdLowerBound.Should().Be(4000m);
+        payload.BreachAmountUsd.Should().Be(1200m);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_breach_when_max_monthly_cost_has_figure_space_in_digits()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5\u2007000",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        CostBreachFindingPayload payload = findings.Should().ContainSingle()
+            .Which.Payload.Should().BeOfType<CostBreachFindingPayload>().Subject;
+        payload.MaxMonthlyCost.Should().Be(5000m);
+        payload.BreachAmountUsd.Should().Be(1200m);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_breach_when_max_monthly_cost_has_narrow_no_break_space_in_digits()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5\u202F000",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        CostBreachFindingPayload payload = findings.Should().ContainSingle()
+            .Which.Payload.Should().BeOfType<CostBreachFindingPayload>().Subject;
+        payload.MaxMonthlyCost.Should().Be(5000m);
+        payload.BreachAmountUsd.Should().Be(1200m);
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_breach_when_max_monthly_cost_uses_ideographic_space_before_currency_suffix()
     {
         GraphSnapshot graph = new()

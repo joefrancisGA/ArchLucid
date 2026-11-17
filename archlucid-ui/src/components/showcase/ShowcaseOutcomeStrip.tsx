@@ -6,6 +6,8 @@ import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { MARKETING_CAPTION_TEXT_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+import { resolveDeskContinuityFindingInspectHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { cn } from "@/lib/utils";
 
 export type ShowcaseOutcomeStripProps = {
@@ -30,11 +32,12 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
   const governanceSubtitle = illustrativeSample
     ? "Sample deliverables — illustrative only"
     : "Board-ready & audit-ready deliverables";
+  const reviewOpenHref = resolveScopedInsightOpenReviewHrefWithDeskContinuity(runId);
   const encRun = encodeURIComponent(runId);
   const hasManifest = typeof manifestId === "string" && manifestId.trim().length > 0;
-  const encFinding =
+  const primaryFindingHref =
     typeof primaryFindingId === "string" && primaryFindingId.trim().length > 0
-      ? encodeURIComponent(primaryFindingId.trim())
+      ? resolveDeskContinuityFindingInspectHref(runId, primaryFindingId.trim())
       : null;
 
   const cardClass =
@@ -52,7 +55,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
   return (
     <section aria-label="Open completed output" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {isRunDetailAvailable ? (
-        <Link className={cardClass} href={`/architecture/reviews/${encRun}`}>
+        <Link className={cardClass} href={reviewOpenHref}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {`1 · ${BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel}`}
           </span>
@@ -121,7 +124,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
         </div>
       )}
 
-      {encFinding !== null ? (
+      {primaryFindingHref !== null ? (
         isRunDetailAvailable ? (
           <Link className={cardClass} href={auditTrailNavHref(runId)}>
             <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>

@@ -45,6 +45,8 @@ import { SecureNowDataSourcesHomeSection } from "@/components/product-line/Secur
 import { SecureNowFindingsHomeSection } from "@/components/product-line/SecureNowFindingsHomeSection";
 import { SecureNowReviewerHomeSection } from "@/components/product-line/SecureNowReviewerHomeSection";
 import { SecureNowFirstHourHomeSection } from "@/components/product-line/SecureNowFirstHourHomeSection";
+import { SecureNowPilotSpineHomeSection } from "@/components/product-line/SecureNowPilotSpineHomeSection";
+import { SecureNowReadoutPackHomeSection } from "@/components/product-line/SecureNowReadoutPackHomeSection";
 import { SecureNowFirstUsefulAnswerHomeSection } from "@/components/product-line/SecureNowFirstUsefulAnswerHomeSection";
 import { SecureNowSelfServiceHomeSection } from "@/components/product-line/SecureNowSelfServiceHomeSection";
 import { SecureNowReturnHomeSection } from "@/components/product-line/SecureNowReturnHomeSection";
@@ -55,6 +57,11 @@ import { SecureNowRemediationHomeSection } from "@/components/product-line/Secur
 import { SecureNowHomeEnvironmentContext } from "@/components/product-line/SecureNowHomeEnvironmentContext";
 import { SecureNowHomeWorkSummary } from "@/components/product-line/SecureNowHomeWorkSummary";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { ArchLucidOpenGateReturnHomeSection } from "@/components/architecture/ArchLucidOpenGateReturnHomeSection";
+import { ArchLucidProcurementEvidenceHomeSection } from "@/components/procurement/ArchLucidProcurementEvidenceHomeSection";
+import { SecureNowAcceleratorHomeSection } from "@/components/product-line/SecureNowAcceleratorHomeSection";
+import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
+import { SecureNowReaderScopeWorkbenchStrip } from "@/components/product-line/SecureNowReaderScopeWorkbenchStrip";
 
 import { InfrastructureOverviewClaimOrientationStrip } from "./InfrastructureOverviewClaimOrientationStrip";
 
@@ -110,6 +117,9 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
         className={cn("min-w-0 space-y-4 scroll-mt-24")}
         data-testid="governance-infrastructure-overview-primary-content"
       >
+        {showSecureNowGroupedHomeSections ? (
+          <SecureNowReaderScopeWorkbenchStrip testId="infrastructure-overview-reader-scope-workbench" />
+        ) : null}
         {buyerPolishedShell ? (
           <section
             aria-labelledby="governance-infrastructure-start-here-heading"
@@ -153,6 +163,10 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
         {showSecureNowGroupedHomeSections ? (
           <div className="mt-6 space-y-4" data-testid="securenow-grouped-home-sections">
             {secureNowHome ? <SecureNowHomeEnvironmentContext /> : null}
+            {secureNowHome ? <SecureNowBetaSkuContentsSection showQuoteLink={false} /> : null}
+            {secureNowHome ? <SecureNowAcceleratorHomeSection /> : null}
+            {secureNowHome ? <SecureNowPilotSpineHomeSection /> : null}
+            {secureNowHome ? <SecureNowReadoutPackHomeSection /> : null}
             {secureNowHome ? <SecureNowFirstHourHomeSection /> : null}
             {secureNowHome ? <SecureNowFirstUsefulAnswerHomeSection /> : null}
             {secureNowHome ? <SecureNowSelfServiceHomeSection /> : null}
@@ -209,6 +223,13 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
             </EnterpriseTable>
           </section>
         )}
+
+        {!secureNowHome && productLine === "architecture" ? (
+          <div className="mt-6 space-y-4" data-testid="archlucid-infrastructure-home-sections">
+            <ArchLucidOpenGateReturnHomeSection />
+            <ArchLucidProcurementEvidenceHomeSection />
+          </div>
+        ) : null}
 
         {buyerPolishedShell ? <InfrastructureOverviewClaimOrientationStrip /> : null}
       </main>

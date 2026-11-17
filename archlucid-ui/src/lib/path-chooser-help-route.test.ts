@@ -34,18 +34,19 @@ import {
 
 
 
-const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
+const HELP_TOPIC_VIEW_RESOLVER_OPERATE = join(
+  process.cwd(),
+  "src",
+  "lib",
+  "help",
+  "help-topic-view-resolver-operate.tsx",
+);
 
 const PRODUCT_PATH_CHOOSER_HELP_SURFACES = [
-
-  "archlucid-ui/src/lib/help/help-search-panel-catalog.ts",
-
   "archlucid-ui/src/lib/in-app-doc-href.ts",
-
   "archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx",
-
-  "archlucid-ui/src/lib/product-documentation-registry.ts",
-
+  "archlucid-ui/src/lib/help/help-center-catalog.ts",
+  "archlucid-ui/src/lib/getting-started-help-guide-content.ts",
 ] as const;
 
 
@@ -93,11 +94,10 @@ describe("path-chooser-help-route (HPX)", () => {
 
 
   it("routes the canonical slug through HelpPathChooserGuideView specialty chrome (TB-1601)", () => {
-    const pageSource = readFileSync(HELP_TOPIC_PAGE, "utf8");
+    const resolverSource = readFileSync(HELP_TOPIC_VIEW_RESOLVER_OPERATE, "utf8");
 
-    expect(pageSource).toContain('loaded.entry.slug === "choose-your-next-step"');
-    expect(pageSource).toContain("HelpPathChooserGuideView");
-    expect(pageSource).toContain("PATH_CHOOSER_HELP_ROUTE_METADATA");
+    expect(resolverSource).toContain('loaded.entry.slug === "choose-your-next-step"');
+    expect(resolverSource).toContain("HelpPathChooserGuideView");
   });
 
 

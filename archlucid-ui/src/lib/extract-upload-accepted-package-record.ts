@@ -10,6 +10,7 @@ export type ExtractUploadAcceptedPackageRecord = {
   readonly resourceCount: number | null;
   readonly fileLabel?: string | null;
   readonly associateRunId?: string | null;
+  readonly snapshotId?: string | null;
 };
 
 export const EXTRACT_UPLOAD_FILE_NAME_NOT_STORED = "File name was not stored." as const;
@@ -149,6 +150,9 @@ export function readExtractUploadAcceptedPackageRecord(): ExtractUploadAcceptedP
           : null,
       fileLabel,
       associateRunId: typeof parsed.associateRunId === "string" ? parsed.associateRunId : null,
+      snapshotId: typeof parsed.snapshotId === "string" && parsed.snapshotId.trim().length > 0
+        ? parsed.snapshotId.trim()
+        : null,
     };
   } catch {
     return null;

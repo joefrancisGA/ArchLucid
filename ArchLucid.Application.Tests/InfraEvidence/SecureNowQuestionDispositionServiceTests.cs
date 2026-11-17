@@ -50,6 +50,49 @@ public sealed class SecureNowQuestionDispositionServiceTests
     }
 
     [Fact]
+    public async Task Ignore_rejects_reason_that_cannot_fit_in_storage()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository);
+        SecureNowQuestionDispositionWriteRequest request =
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource");
+        string maxLengthReason = new('x', 4000);
+
+        SecureNowQuestionDispositionMutationResult rejected = await sut.IgnoreAsync(
+            Scope, SnapshotId, request with { Reason = maxLengthReason + "x" }, "actor");
+
+        rejected.Succeeded.Should().BeFalse();
+        rejected.ErrorMessage.Should().Be("Reason is too long.");
+        repository.Rows.Should().BeEmpty();
+
+        SecureNowQuestionDispositionMutationResult accepted = await sut.IgnoreAsync(
+            Scope, SnapshotId, request with { Reason = $" {maxLengthReason} " }, "actor");
+
+        accepted.Succeeded.Should().BeTrue();
+        accepted.Record!.Reason.Should().Be(maxLengthReason);
+    }
+
+    [Fact]
+    public async Task Answer_rejects_answer_text_that_cannot_fit_in_storage()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository);
+        SecureNowQuestionDispositionWriteRequest request =
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource") with
+            {
+                AnswerCode = "yes",
+                AnswerText = new string('x', 4001),
+            };
+
+        SecureNowQuestionDispositionMutationResult rejected =
+            await sut.AnswerAsync(Scope, SnapshotId, request, "actor");
+
+        rejected.Succeeded.Should().BeFalse();
+        rejected.ErrorMessage.Should().Be("AnswerText is too long.");
+        repository.Rows.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Question_key_is_case_insensitive_on_ignore()
     {
         InMemoryDispositionRepository repository = new();
@@ -71,6 +114,30 @@ public sealed class SecureNowQuestionDispositionServiceTests
         second.Succeeded.Should().BeTrue();
         repository.Rows.Should().ContainSingle();
         repository.Rows[0].QuestionKey.Should().Be("unknown-evidence@v1");
+    }
+
+    [Fact]
+    public async Task Ignore_rejects_disposition_that_expires_while_loading_the_question()
+    {
+        InMemoryDispositionRepository repository = new();
+        DateTimeOffset initial = new(2026, 11, 1, 10, 0, 0, TimeSpan.Zero);
+        Mock<TimeProvider> clock = new();
+        clock.SetupSequence(provider => provider.GetUtcNow())
+            .Returns(initial)
+            .Returns(initial.AddMinutes(1));
+        SecureNowQuestionDispositionService sut = CreateSut(repository, timeProvider: clock.Object);
+        SecureNowQuestionDispositionWriteRequest request =
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource") with
+            {
+                ExpirationUtc = initial.UtcDateTime.AddMinutes(1),
+            };
+
+        SecureNowQuestionDispositionMutationResult result = await sut.IgnoreAsync(
+            Scope, SnapshotId, request, "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("ExpirationUtc must be in the future.");
+        repository.Rows.Should().BeEmpty();
     }
 
     [Fact]
@@ -156,6 +223,26 @@ public async Task Foreign_snapshot_cannot_read_or_write()
 
         noReason.ErrorMessage.Should().Be("Reason is required.");
         tooLong.ErrorMessage.Should().Be("ExpirationUtc cannot be more than 90 days ahead.");
+    }
+
+    [Fact]
+    public async Task Ignore_validates_and_stores_a_local_expiration_as_utc()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository);
+        DateTime expectedUtc = DateTime.UtcNow.AddMinutes(15);
+
+        SecureNowQuestionDispositionMutationResult result = await sut.IgnoreAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource")
+                with { ExpirationUtc = expectedUtc.ToLocalTime() },
+            "actor");
+
+        result.Succeeded.Should().BeTrue(result.ErrorMessage ?? string.Empty);
+        DateTime storedExpiration = repository.Rows.Single().ExpirationUtc;
+        storedExpiration.Should().Be(expectedUtc);
+        storedExpiration.Kind.Should().Be(DateTimeKind.Utc);
     }
 
     [Fact]
@@ -652,14 +739,54 @@ public async Task Foreign_snapshot_cannot_read_or_write()
     private const string UnknownEvidenceFingerprint =
         "C70C7C824299E81D30618883C7BF8C4833B97799C8BBD8B92017CC6CE1E7C9AD";
 
+    [Fact]
+    public async Task Reopen_reports_conflict_if_a_new_audit_entry_was_saved_after_the_read()
+    {
+        SecureNowQuestionDispositionWriteRequest writeRequest =
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource");
+        SecureNowQuestionDispositionRecord existing = new()
+        {
+            TenantId = Scope.TenantId,
+            SubscriptionId = writeRequest.SubscriptionId,
+            ResourceId = writeRequest.ResourceId,
+            QuestionKey = writeRequest.QuestionKey,
+            AuditEntries = [new SecureNowQuestionDispositionAuditEntry { Action = "Ignored" }],
+        };
+        Mock<ISecureNowQuestionDispositionRepository> repository = new();
+        repository.Setup(repo => repo.TryGetByIdentityAsync(
+                Scope.TenantId, existing.SubscriptionId, existing.ResourceId, existing.QuestionKey, CancellationToken.None))
+            .ReturnsAsync(existing);
+        repository.Setup(repo => repo.TryUpsertAsync(
+                It.Is<SecureNowQuestionDispositionRecord>(row => row.AuditEntries.Count == 2),
+                1,
+                CancellationToken.None))
+            .ReturnsAsync(false);
+        SecureNowQuestionDispositionService sut = CreateSut(repository.Object);
+
+        SecureNowQuestionDispositionMutationResult result = await sut.ReopenAsync(
+            Scope, SnapshotId, new SecureNowQuestionDispositionReopenRequest
+            {
+                SubscriptionId = existing.SubscriptionId,
+                ResourceId = existing.ResourceId,
+                QuestionKey = existing.QuestionKey,
+                Reason = "Reopen.",
+            }, "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Question disposition changed. Reload it before saving.");
+        repository.Verify(repo => repo.TryUpsertAsync(
+            It.IsAny<SecureNowQuestionDispositionRecord>(), 1, CancellationToken.None), Times.Once);
+    }
+
     private static SecureNowQuestionDispositionService CreateSut(
-        InMemoryDispositionRepository repository,
+        ISecureNowQuestionDispositionRepository repository,
         bool snapshotOwned = true,
         bool includeQuestion = true,
         bool includeInventoryQuestion = true,
         bool includePackElicitation = false,
         bool inferredConnectionsUnavailable = false,
-        IReadOnlyList<OperatorInferredConnectionRecord>? inferredConnections = null)
+        IReadOnlyList<OperatorInferredConnectionRecord>? inferredConnections = null,
+        TimeProvider? timeProvider = null)
     {
         Mock<IAzureInventorySnapshotRepository> snapshots = new();
         snapshots
@@ -771,7 +898,8 @@ public async Task Foreign_snapshot_cannot_read_or_write()
             audit.Object,
             inferredConnectionsMock?.Object,
             governanceLoader?.Object,
-            graphResolver?.Object);
+            graphResolver?.Object,
+            timeProvider);
     }
 
     private static SecureNowQuestionDispositionWriteRequest CreateWriteRequest(
@@ -817,17 +945,21 @@ public async Task Foreign_snapshot_cannot_read_or_write()
                     && string.Equals(row.ResourceId, resourceId, StringComparison.OrdinalIgnoreCase)
                     && string.Equals(row.QuestionKey, questionKey, StringComparison.OrdinalIgnoreCase)));
 
-        public Task UpsertAsync(
+        public async Task<bool> TryUpsertAsync(
             SecureNowQuestionDispositionRecord record,
+            int? expectedAuditEntryCount,
             CancellationToken cancellationToken = default)
         {
-            Rows.RemoveAll(row =>
-                row.TenantId == record.TenantId
-                && row.SubscriptionId == record.SubscriptionId
-                && row.ResourceId == record.ResourceId
-                && string.Equals(row.QuestionKey, record.QuestionKey, StringComparison.OrdinalIgnoreCase));
+            SecureNowQuestionDispositionRecord? previous = await TryGetByIdentityAsync(
+                record.TenantId, record.SubscriptionId, record.ResourceId, record.QuestionKey, cancellationToken);
+            if (previous?.AuditEntries.Count != expectedAuditEntryCount)
+                return false;
+
+            if (previous is not null)
+                Rows.Remove(previous);
+
             Rows.Add(record);
-            return Task.CompletedTask;
+            return true;
         }
     }
 }

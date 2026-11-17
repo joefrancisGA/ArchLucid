@@ -22,11 +22,8 @@ public sealed class ArchitectureQuickScanIntegrationTests(ArchLucidApiFactory fa
             Description = "Stateful API on AKS with Service Bus and Azure SQL."
         };
 
-        HttpResponseMessage response = await Client.PostAsync("/v1/architecture/quick-scan", JsonContent(payload));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        ArchitectureQuickScanResponse? body =
-            await response.Content.ReadFromJsonAsync<ArchitectureQuickScanResponse>(JsonOptions);
+        HttpResponseMessage response = await Client.PostAsync("/v1/architecture/quick-scan", JsonContent(payload));        ArchitectureQuickScanResponse? body =
+            await response.ReadJsonForTestAsync<ArchitectureQuickScanResponse>(JsonOptions);
         body.Should().NotBeNull();
         body.Findings.Should().NotBeEmpty();
         body.Findings.Count.Should().BeLessThanOrEqualTo(5);

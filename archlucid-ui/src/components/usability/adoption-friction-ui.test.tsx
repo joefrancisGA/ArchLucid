@@ -118,6 +118,23 @@ vi.mock("@/components/SampleReviewsOnOverviewPreferenceProvider", () => ({
   useSampleReviewsOnOverviewVisible: () => true,
 }));
 
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "rehearse" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
 describe("PilotCommandCenterCard", () => {
   it("renders create and review lifecycle cards on empty Overview (ADR 0067)", async () => {
     render(<PilotCommandCenterCard />);

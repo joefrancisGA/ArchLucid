@@ -16,25 +16,10 @@ public sealed class ArchitectureEvidenceTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task GetRunEvidence_ReturnsEvidencePackageAfterExecute()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-EVIDENCE-001")));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage evidenceResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/evidence");
-
-        evidenceResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        AgentEvidencePackageResponse? payload =
-            await evidenceResponse.Content.ReadFromJsonAsync<AgentEvidencePackageResponse>(JsonOptions);
-        payload.Should().NotBeNull();
-        payload.Evidence.RunId.Should().Be(runId);
-        payload.Evidence.SystemName.Should().Be("EnterpriseRag");
+        CreatedRunForTest created = await RunReadyForExecuteAsync();
+        AgentEvidencePackageResponse payload = await created.GetEvidenceAsync(Client, JsonOptions);
+        payload.Evidence.RunId.Should().Be(created.RunId);
+        payload.Evidence.SystemName.Should().Be($"<untrusted_input>{created.SystemName}</untrusted_input>");
         payload.Evidence.Request.Description.Should().Contain("secure Azure RAG system");
         payload.Evidence.Policies.Should().NotBeEmpty();
         payload.Evidence.ServiceCatalog.Should().NotBeEmpty();

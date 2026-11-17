@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
@@ -296,5 +297,14 @@ public sealed class InMemoryTenantRepositoryCoverageTests
 
         await Assert.ThrowsAsync<TrialLimitExceededException>(
             async () => await sut.TryClaimTrialSeatAsync(id, "a@b", CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Constructor_seeds_default_tenant_and_workspace_for_governance_scope()
+    {
+        var sut = new InMemoryTenantRepository();
+        Assert.NotNull(await sut.GetByIdAsync(ScopeIds.DefaultTenant, CancellationToken.None));
+        Assert.True(
+            await sut.WorkspaceExistsAsync(ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, CancellationToken.None));
     }
 }

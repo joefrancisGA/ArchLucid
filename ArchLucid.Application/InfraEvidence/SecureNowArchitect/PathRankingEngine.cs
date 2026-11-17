@@ -40,13 +40,7 @@ public sealed class PathRankingEngine(
 
         if (paths.Count == 0)
         {
-            await rankRepository.ReplaceRanksForSnapshotInScopeAsync(scope.ToProjectScopeKey(), snapshotId, [], cancellationToken);
-
-            return new PathRankingEngineResult
-            {
-                Succeeded = true,
-                PathsRanked = 0,
-            };
+            return await PersistRanksAsync(scope, snapshotId, [], cancellationToken);
         }
 
         SecurityEvidencePathRankWeightsRecord? storedWeights =
@@ -122,12 +116,21 @@ public sealed class PathRankingEngine(
             });
         }
 
+        return await PersistRanksAsync(scope, snapshotId, rankRecords, cancellationToken);
+    }
+
+    private async Task<PathRankingEngineResult> PersistRanksAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        IReadOnlyList<SecurityEvidencePathRankRecord> ranks,
+        CancellationToken cancellationToken)
+    {
         try
         {
             await rankRepository.ReplaceRanksForSnapshotInScopeAsync(
                 scope.ToProjectScopeKey(),
                 snapshotId,
-                rankRecords,
+                ranks,
                 cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -140,7 +143,7 @@ public sealed class PathRankingEngine(
         return new PathRankingEngineResult
         {
             Succeeded = true,
-            PathsRanked = rankRecords.Count,
+            PathsRanked = ranks.Count,
         };
     }
 

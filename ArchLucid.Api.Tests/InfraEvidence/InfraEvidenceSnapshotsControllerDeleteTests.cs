@@ -51,6 +51,38 @@ public sealed class InfraEvidenceSnapshotsControllerDeleteTests
     }
 
     [Fact]
+    public async Task DeleteSnapshot_audits_a_completed_delete_after_the_request_is_canceled()
+    {
+        Guid snapshotId = Guid.NewGuid();
+        using CancellationTokenSource request = new();
+        Mock<IAzureInventorySnapshotDeleteService> deleteService = new();
+        deleteService.Setup(service => service.TryDeleteAsync(Scope, snapshotId, request.Token))
+            .Callback(request.Cancel)
+            .ReturnsAsync(new AzureInventorySnapshotDeleteResult
+            {
+                Outcome = AzureInventorySnapshotDeleteOutcome.Deleted,
+            });
+
+        Mock<IAuditService> auditService = new();
+        auditService.Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((_, token) => token.ThrowIfCancellationRequested())
+            .Returns(Task.CompletedTask);
+        InfraEvidenceSnapshotsController controller = CreateController(deleteService.Object, auditService.Object);
+
+        IActionResult result = await controller.DeleteSnapshot(snapshotId, request.Token);
+
+        result.Should().BeOfType<NoContentResult>();
+        auditService.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(audit => audit.EventType == AuditEventTypes.AzureInventorySnapshotDeleted
+                    && audit.TenantId == Scope.TenantId
+                    && audit.WorkspaceId == Scope.WorkspaceId
+                    && audit.ProjectId == Scope.ProjectId),
+                CancellationToken.None),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task DeleteSnapshot_returns_409_when_bound_to_architecture()
     {
         Guid snapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111");

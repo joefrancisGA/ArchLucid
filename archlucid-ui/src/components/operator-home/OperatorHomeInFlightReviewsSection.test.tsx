@@ -26,8 +26,12 @@ vi.mock("@/lib/api/operations-api", () => ({
   getOperation: vi.fn(),
 }));
 
+const { architectureId } = vi.hoisted(() => ({
+  architectureId: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+}));
+
 vi.mock("@/lib/desk-continuity-preference", () => ({
-  readCachedLastOpenArchitectureId: () => "arch-home",
+  readCachedLastOpenArchitectureId: () => architectureId,
 }));
 
 vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
@@ -64,7 +68,7 @@ describe("OperatorHomeInFlightReviewsSection (CA-46)", () => {
 
   it("shows the Working in-flight strip after server rehydrate with empty sessionStorage", async () => {
     vi.mocked(getArchitectureIdentity).mockResolvedValue({
-      architectureId: "arch-home",
+      architectureId,
       displayName: "Payments",
       draftCount: 0,
       reviewCount: 1,

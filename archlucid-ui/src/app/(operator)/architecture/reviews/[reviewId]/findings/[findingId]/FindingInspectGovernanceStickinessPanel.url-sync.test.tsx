@@ -2,6 +2,8 @@ import { act, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const evalChromeFixtureOn = vi.hoisted(() => ({ enabled: true }));
+
 import type { FindingDispositionEvent } from "@/lib/api/governance-stickiness-api";
 import { FINDING_INSPECT_WAIVER_CONFIRM_PARAM } from "@/lib/findings/finding-inspect-governance-panel-url";
 
@@ -35,6 +37,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: () => false,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => evalChromeFixtureOn.enabled,
+}));
 
 const searchParamsHarness = vi.hoisted(() => {
   const listeners = new Set<() => void>();

@@ -75,7 +75,7 @@ internal static class DiagramAstSubnetPlacementEdgeEnsurer
                 {
                     FromNodeId = vmDiagramId,
                     ToNodeId = subnetDiagramId,
-                    Label = InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved,
+                    Label = "in",
                     InferenceSource = GraphEdgeInferenceSources.InventoryLayoutVmVnet,
                 });
             }

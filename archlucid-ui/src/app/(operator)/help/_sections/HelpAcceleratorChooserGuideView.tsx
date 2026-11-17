@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -20,7 +22,6 @@ import { Button } from "@/components/ui/button";
 import { HelpAcceleratorCostGovernancePackCard } from "@/components/accelerator/HelpAcceleratorCostGovernancePackCard";
 import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
 import { useAcceleratorChooserPrerequisitePresentation } from "@/hooks/use-accelerator-chooser-prerequisite-presentation";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { buildAcceleratorChooserGridItemsForPrerequisite } from "@/lib/accelerator-chooser-grid";
 import type { AcceleratorChooserEntry } from "@/lib/accelerator-chooser";
 import {
@@ -215,7 +216,7 @@ export function HelpAcceleratorChooserGuideView(
   props: HelpAcceleratorChooserGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const presentation = useAcceleratorChooserPrerequisitePresentation();
   const router = useRouter();
   const pathname = usePathname() ?? "/";

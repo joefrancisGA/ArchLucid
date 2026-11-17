@@ -49,9 +49,10 @@ public sealed class OperationalErrorRetentionHostedService(
             {
                 break;
             }
-            catch (Exception ex) when (_logger.IsEnabled(LogLevel.Warning))
+            catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Operational error retention purge iteration failed.");
+                if (_logger.IsEnabled(LogLevel.Warning))
+                    _logger.LogWarning(ex, "Operational error retention purge iteration failed.");
             }
 
             try

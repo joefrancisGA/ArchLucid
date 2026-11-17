@@ -117,7 +117,7 @@ public sealed class UnscopedRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(68, 13, 70, 68)
+            .WithSpan(85, 13, 87, 68)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -149,7 +149,7 @@ public sealed class CommandDefinitionRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(69, 13, 71, 77)
+            .WithSpan(86, 13, 88, 77)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -279,7 +279,7 @@ public sealed class TargetTypedCommandDefinitionRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(69, 37, 69, 45)
+            .WithSpan(86, 37, 86, 45)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -309,8 +309,8 @@ public sealed class BracketedDynamicRunsRepository
 """;
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
-            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(68, 13, 70, 81)
+            .Diagnostic(Arch006Descriptor.UnanalyzableSqlRule)
+            .WithSpan(85, 13, 87, 81)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -335,7 +335,7 @@ public sealed class BadExemptionRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.EmptyExemptionJustificationRule)
-            .WithSpan(63, 2, 63, 60)
+            .WithSpan(80, 2, 80, 60)
             .WithArguments("ArchLucid.Persistence.Probe.BadExemptionRepository");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -365,7 +365,7 @@ public sealed class QueryMultipleRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(68, 52, 69, 68)
+            .WithSpan(85, 52, 86, 68)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -395,8 +395,8 @@ public sealed class DynamicRunsRepository
 """;
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
-            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(68, 13, 70, 77)
+            .Diagnostic(Arch006Descriptor.UnanalyzableSqlRule)
+            .WithSpan(85, 13, 87, 77)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -436,7 +436,7 @@ public sealed class NestedBlockLocalRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(78, 13, 78, 50)
+            .WithSpan(96, 13, 96, 50)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -455,7 +455,7 @@ using Dapper;
 
 public sealed class CompoundAssignmentRunsRepository
 {
-    private string unscopedRunsSql = string.Empty;
+    private string unscopedRunsSql;
 
     public void Load(IDbConnection connection)
     {
@@ -468,7 +468,7 @@ public sealed class CompoundAssignmentRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(71, 13, 71, 62)
+            .WithSpan(88, 13, 88, 62)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -500,7 +500,7 @@ public sealed class AutoPropertyRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(71, 13, 71, 62)
+            .WithSpan(88, 13, 88, 62)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -519,7 +519,7 @@ using Dapper;
 
 public sealed class MethodFieldRunsRepository
 {
-    private string unscopedRunsSql = string.Empty;
+    private string unscopedRunsSql;
 
     public void Load(IDbConnection connection)
     {
@@ -532,7 +532,7 @@ public sealed class MethodFieldRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(71, 13, 71, 62)
+            .WithSpan(88, 13, 88, 62)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -568,7 +568,7 @@ public sealed class ConstructorFieldRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(75, 13, 75, 62)
+            .WithSpan(92, 13, 92, 62)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -599,7 +599,7 @@ public sealed class SplitLocalRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(70, 13, 70, 50)
+            .WithSpan(87, 13, 87, 50)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -629,7 +629,7 @@ public sealed class LocalVariableRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(69, 13, 69, 50)
+            .WithSpan(86, 13, 86, 50)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -658,8 +658,8 @@ public sealed class DynamicLocalRunsRepository
 """;
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
-            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(69, 13, 69, 50)
+            .Diagnostic(Arch006Descriptor.UnanalyzableSqlRule)
+            .WithSpan(86, 13, 86, 50)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -755,7 +755,7 @@ public sealed class StaticReadonlyRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(71, 13, 71, 62)
+            .WithSpan(88, 13, 88, 62)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -787,7 +787,7 @@ public sealed class PropertyInitializedRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(71, 13, 71, 62)
+            .WithSpan(88, 13, 88, 62)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -878,7 +878,7 @@ public sealed class RunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(79, 16, 81, 57)
+            .WithSpan(96, 16, 98, 57)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -909,7 +909,7 @@ public sealed class StringFormatRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(68, 13, 70, 64)
+            .WithSpan(85, 13, 87, 64)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -941,7 +941,7 @@ public sealed class TernaryRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(71, 13, 71, 50)
+            .WithSpan(88, 13, 88, 50)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -976,7 +976,7 @@ public sealed class FormatProviderRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(69, 13, 74, 29)
+            .WithSpan(86, 13, 91, 29)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -1007,7 +1007,7 @@ public sealed class NullCoalescingRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(70, 13, 70, 50)
+            .WithSpan(87, 13, 87, 50)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -1041,7 +1041,7 @@ public sealed class SwitchExpressionRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(73, 13, 73, 50)
+            .WithSpan(90, 13, 90, 50)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -1073,7 +1073,7 @@ public sealed class LocalFunctionRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(68, 13, 68, 59)
+            .WithSpan(85, 13, 85, 59)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -1105,7 +1105,7 @@ public sealed class NestedLocalFunctionRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(71, 13, 71, 59)
+            .WithSpan(88, 13, 88, 59)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -1137,7 +1137,7 @@ public sealed class ExpressionBodiedPropertyRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(71, 13, 71, 62)
+            .WithSpan(88, 13, 88, 62)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -1171,7 +1171,7 @@ public sealed class ExpressionBodiedPropertyGetterRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(73, 13, 73, 62)
+            .WithSpan(90, 13, 90, 62)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);

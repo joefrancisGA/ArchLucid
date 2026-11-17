@@ -13,7 +13,8 @@ describe("core-pilot help IA dual (TB-1683)", () => {
     const currentRow = CORE_PILOT_HELP_JOB_MATRIX.find((row) => row.isCurrent === true);
     const evidenceOnlyRow = CORE_PILOT_HELP_JOB_MATRIX.find((row) => row.isCurrent !== true);
 
-    expect(currentRow?.label).toContain("first architecture review");
+    expect(currentRow?.label).toBe("This guide");
+    expect(CORE_PILOT_HELP_IA_DUAL_INBOUND_LABEL.toLowerCase()).toContain("first architecture review");
     expect(evidenceOnlyRow?.label).toBe(EVIDENCE_ONLY_REVIEW_HELP_IA_DUAL_INBOUND_LABEL);
     expect(evidenceOnlyRow?.href).toBe(EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_HREF);
     expect(evidenceOnlyRow?.label).not.toBe(currentRow?.label);

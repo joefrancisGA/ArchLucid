@@ -16,6 +16,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { buildMissingDraftActorsPlaceholderSet } from "@/lib/draft-intake/draft-intake-actor-honesty";
 
+import { encodeRequiredPathSegment, trimRequiredText, trimTextFields } from "./api-boundary-normalization";
 import { apiGet, apiPatchJson, apiPostJson } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
@@ -65,10 +66,12 @@ export async function createDraftRequest(
 ): Promise<DraftRequestResponse> {
   const trimmedPriorRunId = priorRunId?.trim() ?? "";
   const trimmedSystemName = systemName?.trim() ?? "";
+  // The API rejects a blank intent, so stop here instead of posting one.
+  const trimmedIntent = trimRequiredText(freeTextIntent, "freeTextIntent");
 
   try {
     return await apiPostJson<DraftRequestResponse>(DRAFT_BASE, {
-      freeTextIntent: freeTextIntent.trim(),
+      freeTextIntent: trimmedIntent,
       ...(workflowIntent !== undefined ? { workflowIntent } : {}),
       ...(trimmedPriorRunId.length > 0 ? { priorRunId: trimmedPriorRunId } : {}),
       ...(trimmedSystemName.length > 0 ? { systemName: trimmedSystemName } : {}),
@@ -78,6 +81,13 @@ export async function createDraftRequest(
     const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
+}
+
+/** Adds a paging parameter only when it is a whole number of 1 or more; otherwise the API default applies. */
+function setPositiveIntegerParam(search: URLSearchParams, name: string, value: number | undefined): void {
+  if (value !== undefined && Number.isInteger(value) && value >= 1) {
+    search.set(name, String(value));
   }
 }
 
@@ -97,13 +107,8 @@ export async function listDraftRequests(params?: {
     search.set("status", params.status.trim());
   }
 
-  if (params?.page !== undefined) {
-    search.set("page", String(params.page));
-  }
-
-  if (params?.pageSize !== undefined) {
-    search.set("pageSize", String(params.pageSize));
-  }
+  setPositiveIntegerParam(search, "page", params?.page);
+  setPositiveIntegerParam(search, "pageSize", params?.pageSize);
 
   const query = search.toString();
   const path = query.length > 0 ? `${DRAFT_BASE}?${query}` : DRAFT_BASE;
@@ -122,9 +127,11 @@ export async function getDraftRequest(
   draftId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<DraftRequestResponse> {
+  const encodedDraftId = encodeRequiredPathSegment(draftId, "draftId");
+
   try {
     return await apiGetSealedManifestAware<DraftRequestResponse>(
-      `${DRAFT_BASE}/${encodeURIComponent(draftId)}`,
+      `${DRAFT_BASE}/${encodedDraftId}`,
       options,
     );
   } catch (error: unknown) {
@@ -150,8 +157,18 @@ export async function patchDraftRequest(
     forceOverwrite?: boolean;
   },
 ): Promise<DraftRequestResponse> {
+  const encodedDraftId = encodeRequiredPathSegment(draftId, "draftId");
+  // Trimming keeps an empty string as "", because the API uses it to clear a field.
+  const normalizedBody = trimTextFields(body, [
+    "freeTextIntent",
+    "systemName",
+    "businessOutcome",
+    "openQuestions",
+    "expectedUpdatedUtc",
+  ]);
+
   try {
-    return await apiPatchJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, body);
+    return await apiPatchJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodedDraftId}`, normalizedBody);
   } catch (error: unknown) {
     if (isApiRequestError(error) && error.httpStatus === 409) {
       throw error;

@@ -58,6 +58,23 @@ describe("advisory-schedule-form", () => {
     expect(buildAdvisoryScheduleCronExpression(form)).toBe("30 9 * * 1-5");
   });
 
+  it("shifts UTC weekdays across midnight while keeping local weekdays", () => {
+    const tokyo = {
+      ...createDefaultAdvisoryScheduleFormState("Asia/Tokyo"),
+      frequency: "weekdays" as const,
+      hourOfDay: 7,
+    };
+    const losAngeles = {
+      ...createDefaultAdvisoryScheduleFormState("America/Los_Angeles"),
+      frequency: "weekdays" as const,
+      hourOfDay: 23,
+    };
+
+    expect(buildAdvisoryScheduleCronExpression(tokyo)).toBe("0 22 * * 0-4");
+    expect(buildAdvisoryScheduleCronExpression(losAngeles)).toMatch(/^0 [67] \* \* 2-6$/);
+    expect(describeStoredCronExpression("0 22 * * 0-4")).toMatch(/^Sunday–Thursday/);
+  });
+
   it("builds a monthly cron on day 1–28", () => {
     const form = {
       ...createDefaultAdvisoryScheduleFormState("UTC"),

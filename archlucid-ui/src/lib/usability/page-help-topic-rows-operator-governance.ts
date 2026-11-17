@@ -37,6 +37,10 @@ import { GOVERNANCE_SETUP_HREF, GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/govern
 import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_EXCEPTIONS_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } from "@/lib/governance/governance-approval-help-evidence-copy";
 import { POLICY_PACKS_HUB_HELP_TOPIC_LABEL } from "@/lib/policy/policy-packs-hub-evidence-copy";
@@ -69,6 +73,15 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly PageHelpTopicRow
     },
   },
   { prefix: "/governance/findings", topic: { slug: "findings", label: OPERATOR_NAV_LINK_LABELS.findings } },
+  {
+    prefix: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+    topic: {
+      slug: "findings",
+      label: OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
+      hashFragment: "assigned-to-me",
+    },
+  },
+  { prefix: SECURENOW_FINDINGS_PATH, topic: { slug: "findings", label: OPERATOR_NAV_LINK_LABELS.findings } },
   {
     prefix: GOVERNANCE_SETUP_HREF,
     topic: { slug: "governance-approval", label: GOVERNANCE_SETUP_PAGE_TITLE },
@@ -107,7 +120,15 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly PageHelpTopicRow
     topic: { slug: "policy-packs", label: POLICY_PACKS_HUB_HELP_TOPIC_LABEL },
   },
   {
+    prefix: SECURENOW_POLICY_PACKS_PATH,
+    topic: { slug: "policy-packs", label: POLICY_PACKS_HUB_HELP_TOPIC_LABEL },
+  },
+  {
     prefix: "/governance/standards-and-rules",
+    topic: { slug: "standards-and-rules", label: STANDARDS_RULES_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: SECURENOW_STANDARDS_AND_RULES_PATH,
     topic: { slug: "standards-and-rules", label: STANDARDS_RULES_HELP_TOPIC_LABEL },
   },
   {

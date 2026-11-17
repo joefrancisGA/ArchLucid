@@ -17,7 +17,7 @@ export const MUTATION_REVERSIBILITY_GUARDED_CONFIRM_SURFACES: readonly MutationR
       mutationId: "governance_workflow_promote",
     },
     {
-      sourceRoot: "app/(operator)/governance/_sections/GovernanceWorkflowApprovalsList.tsx",
+      sourceRoot: "app/(operator)/governance/_sections/GovernanceWorkflowApprovalsMutations.tsx",
       mutationId: "governance_workflow_approve",
     },
     {

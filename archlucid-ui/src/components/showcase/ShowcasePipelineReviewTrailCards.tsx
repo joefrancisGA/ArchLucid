@@ -4,6 +4,10 @@ import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
+import {
+  resolveDeskContinuityFindingInspectHref,
+  resolveDeskContinuityReviewOpenHref,
+} from "@/lib/architecture/resolve-desk-continuity-review-href";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import type { PipelineTimelineItem } from "@/types/authority";
@@ -93,7 +97,7 @@ export function ShowcasePipelineReviewTrailCards(props: {
                 {showPrimaryReviewDeepLink ? (
                   <Link
                     className={OPERATOR_LINK.stepPill}
-                    href={`/architecture/reviews/${encodeURIComponent(runId)}`}
+                    href={resolveDeskContinuityReviewOpenHref(runId)}
                   >
                     Review
                   </Link>
@@ -109,7 +113,7 @@ export function ShowcasePipelineReviewTrailCards(props: {
                 {showFinding ? (
                   <Link
                     className="rounded-md border border-amber-600/40 bg-al-surface-raised px-2 py-1 font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-amber-700/50"
-                    href={`/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(primaryFindingId.trim())}`}
+                    href={resolveDeskContinuityFindingInspectHref(runId, primaryFindingId.trim())}
                   >
                     Review finding
                   </Link>

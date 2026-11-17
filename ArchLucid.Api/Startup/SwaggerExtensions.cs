@@ -37,6 +37,7 @@ internal static class SwaggerExtensions
                     "RecommendationLearning" => "Advisory learning",
                     "ProductLearning" => "Product learning",
                     "Audit" => "Audit",
+                    "WorkOwnershipDeletePolicy" => "Settings",
                     "Diagnostics" or "Docs" or "AuthDebug" or "ScopeDebug" or "Demo" or "ConfigurationHealth"
                         or "SyntheticOperatorDemoPack" or "DevelopmentCatalogReset" => "Diagnostics & debug",
                     _ => cad.ControllerName

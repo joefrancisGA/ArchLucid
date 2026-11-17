@@ -1,7 +1,8 @@
+import { ARCHLUCID_BETA_PACKAGING_LEAD_PRICING_PAGE } from "@/lib/buyer-copy/archlucid-commercial-order-acceptance-copy";
+
 export const ARCHLUCID_BETA_EVALUATION_CONTENTS_HEADING = "Beta evaluation contents" as const;
 
-export const ARCHLUCID_BETA_EVALUATION_CONTENTS_LEAD =
-  "What sales-led ArchLucid evaluation includes before a sealed tenant review. This page does not publish a fee." as const;
+export const ARCHLUCID_BETA_EVALUATION_CONTENTS_LEAD = ARCHLUCID_BETA_PACKAGING_LEAD_PRICING_PAGE;
 
 export const ARCHLUCID_BETA_EVALUATION_CONTENTS_INCLUDES = [
   "Hosted architecture review workspace with sample and tenant runs",
@@ -11,7 +12,7 @@ export const ARCHLUCID_BETA_EVALUATION_CONTENTS_INCLUDES = [
 ] as const;
 
 export const ARCHLUCID_BETA_EVALUATION_CONTENTS_EXCLUDES = [
-  "Live self-serve checkout or a public list price on marketing pages",
+  "Self-serve Stripe checkout before engineering publishes a Price",
   "A sealed tenant review until you start, evidence, and commit your own run",
   "CPA-issued SOC 2 or third-party pen-test publication",
 ] as const;

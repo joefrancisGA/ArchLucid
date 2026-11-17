@@ -77,6 +77,15 @@ export const HELP_TOPICS: HelpTopic[] = [
     routes: ["/architecture/reviews/new", "/", "/architecture/first-review-guide"],
   },
   {
+    id: "working-desk-urls",
+    title: "Working desk review URLs",
+    keywords: ["nested", "architecture", "desk", "review", "url", "continuity", "peer"],
+    summary:
+      "When Working mode knows your architecture identity, review links should stay under the architecture desk — not only the peer /architecture/reviews path.",
+    docPath: "docs/engineering/review-href-routing.md",
+    routes: ["/architecture/architectures", "/architecture/reviews", "/architecture/first-review-guide"],
+  },
+  {
     id: "artifacts",
     title: "Reviewing artifacts",
     keywords: ["download", "review", "bundle", "zip"],
@@ -151,7 +160,12 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["governance", "compliance", "pack", "conflicts", "precedence"],
     summary: "Policy packs bundle rules and defaults; assign scope and inspect merged policy rules.",
     docPath: "docs/library/customer-facing/POLICY_PACKS_OPERATOR_GUIDE.md",
-    routes: ["/governance/policy-packs", "/governance/standards-and-rules"],
+    routes: [
+      "/governance/policy-packs",
+      "/governance/standards-and-rules",
+      "/compliance/policy-packs",
+      "/compliance/standards-and-rules",
+    ],
   },
   {
     id: "system-health",

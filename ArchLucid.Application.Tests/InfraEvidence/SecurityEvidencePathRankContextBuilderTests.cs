@@ -12,6 +12,21 @@ public sealed class SecurityEvidencePathRankContextBuilderTests
     private static readonly Guid PathA = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     private static readonly Guid PathB = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
+    [Theory]
+    [InlineData(1)]
+    [InlineData(0)]
+    public void BuildNextStoredPathRankContext_reports_when_no_dimension_is_higher(int selectedExposure)
+    {
+        IReadOnlyList<SecurityEvidencePathRankRecord> ranks =
+        [
+            CreateRank(PathA, rankOrder: 1, technicalExposure: selectedExposure),
+            CreateRank(PathB, rankOrder: 2, technicalExposure: 1m),
+        ];
+
+        SecurityEvidencePathRankContextBuilder.BuildNextStoredPathRankContext(PathA, ranks)
+            .Should().Be($"Selected path {PathA:D} does not outrank stored path {PathB:D} on a stored dimension. This does not change the rank.");
+    }
+
     [Fact]
     public void BuildNextStoredPathRankContext_names_the_next_stored_path_and_dimension()
     {

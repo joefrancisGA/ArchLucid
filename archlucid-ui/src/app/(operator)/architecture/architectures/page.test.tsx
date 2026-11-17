@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const evalChromeFixtureOn = vi.hoisted(() => ({ enabled: true }));
+
 const workspaceModeMock = vi.hoisted(() => ({ isWorkingMode: false }));
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
@@ -15,6 +17,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: (): boolean => false,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => evalChromeFixtureOn.enabled,
+}));
 
 vi.mock("./_sections/ArchitecturesHubListSection", () => ({
   ArchitecturesHubListSection: () => <div data-testid="architectures-hub-list-section" />,

@@ -5,10 +5,10 @@
  */
 
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY } from "@/lib/page-capability-boundary-heading";
 import { PAGE_CAPABILITY_BOUNDARY_SECURENOW_GOVERNANCE_FINDINGS } from "@/lib/product-line/securenow-governance-findings-copy";
 
-export const PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY =
-  "What this page does not do" as const;
+export { PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY };
 
 export type PageCapabilityBoundarySurfaceId =
   | "ask"

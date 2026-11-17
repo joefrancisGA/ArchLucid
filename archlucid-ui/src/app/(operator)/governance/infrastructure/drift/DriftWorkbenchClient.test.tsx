@@ -1,7 +1,9 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { DriftWorkbenchClient } from "@/app/(operator)/governance/infrastructure/drift/DriftWorkbenchClient";
+import { IANA_TIME_ZONE_PREFERENCE_STORAGE_KEY } from "@/lib/iana-time-zone-preference";
+import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 
 let searchParams = new URLSearchParams(
   "snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222",
@@ -220,6 +222,52 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-drift-snapshot-picker")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-export-terraform")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-diff-picker")).not.toBeInTheDocument();
+  });
+
+  it("filters captures using the time shown in the operator's preferred time zone", async () => {
+    window.localStorage.setItem(IANA_TIME_ZONE_PREFERENCE_STORAGE_KEY, "America/Los_Angeles");
+    searchParams = new URLSearchParams();
+    const { rerender } = render(<DriftWorkbenchClient />);
+    const capturedTestId = `infra-drift-snapshot-captured-${mockSnapshotItems[0]!.snapshotId}`;
+    const captured = await screen.findByTestId(capturedTestId);
+    expect(captured).toHaveTextContent("5:00 AM");
+
+    searchParams = new URLSearchParams({ snapshotCaptured: "5:00 AM" });
+    rerender(<DriftWorkbenchClient />);
+
+    expect(screen.getByTestId(capturedTestId)).toHaveTextContent("5:00 AM");
+  });
+
+  it("keeps one snapshot row when a loaded page is fetched again", async () => {
+    const snapshot = mockSnapshotItems[0]!;
+    const response = { items: [snapshot], totalCount: 51, page: 2, pageSize: 50, hasMore: false };
+    vi.mocked(fetchInfraEvidenceSnapshots).mockResolvedValueOnce(response).mockResolvedValueOnce(response);
+    searchParams = new URLSearchParams("snapshotsPage=2");
+
+    const { rerender } = render(<DriftWorkbenchClient />);
+    const rowTestId = `infra-drift-snapshot-row-${snapshot.snapshotId}`;
+    expect(await screen.findByTestId(rowTestId)).toBeInTheDocument();
+
+    searchParams = new URLSearchParams({ snapshotsPage: "2", snapshotId: snapshot.snapshotId });
+    await act(async () => {
+      rerender(<DriftWorkbenchClient />);
+    });
+
+    expect(screen.getAllByTestId(rowTestId)).toHaveLength(1);
+  });
+
+  it("explains that a first stored capture is required when no snapshots exist", async () => {
+    mockSnapshotItems.splice(0, mockSnapshotItems.length);
+    searchParams = new URLSearchParams();
+    render(<DriftWorkbenchClient />);
+
+    const emptyState = await screen.findByTestId("infra-drift-snapshots-empty-resolved");
+
+    expect(emptyState).toHaveTextContent("No stored inventory snapshot is available yet.");
+    expect(screen.getByRole("link", { name: "Open cloud connections" })).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections",
+    );
   });
 
   it("renders snapshot table and export button after selecting an inventory file from the table", async () => {
@@ -474,7 +522,7 @@ describe("DriftWorkbenchClient", () => {
     const askLink = await screen.findByTestId("infra-drift-open-ask");
     expect(askLink).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1&tab=drift",
+      "/governance/infrastructure/drift?snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222&diffId=diff-1&tab=drift&infrastructureAskOpen=1",
     );
   });
 
@@ -487,7 +535,7 @@ describe("DriftWorkbenchClient", () => {
     const askLink = await screen.findByTestId("infra-drift-open-ask");
     expect(askLink).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc&tab=drift",
+      "/governance/infrastructure/drift?snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222&diffId=diff-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc&tab=drift&infrastructureAskOpen=1",
     );
   });
 

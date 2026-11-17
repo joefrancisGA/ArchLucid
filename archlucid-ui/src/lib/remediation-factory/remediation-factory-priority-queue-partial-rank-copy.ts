@@ -1,0 +1,2 @@
+export const REMEDIATION_FACTORY_PRIORITY_QUEUE_PARTIAL_RANK_LINE =
+  "Queue rank on this snapshot does not backfill SecureNow Reader scope — partial capture may hide findings until recovery succeeds." as const;

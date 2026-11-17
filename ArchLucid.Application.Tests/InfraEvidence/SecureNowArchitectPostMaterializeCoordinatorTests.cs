@@ -413,6 +413,45 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
             Times.Once);
     }
 
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public async Task OnSnapshotMaterializedAsync_runs_cut_points_only_after_successful_ranking(
+        bool fullRecompute,
+        bool rankingSucceeded)
+    {
+        Mock<IPathRankingEngine> ranking = new();
+        ranking
+            .Setup(engine => engine.RunAsync(Scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None))
+            .ReturnsAsync(new PathRankingEngineResult { Succeeded = rankingSucceeded });
+
+        Mock<ICutPointAnalysisEngine> cutPoints = new();
+        AzureInventorySnapshotPostMaterializeCoordinator sut = CreateCoordinator(
+            fullRecompute,
+            hasPrior: true,
+            emptyDiff: false,
+            diffWasExisting: false,
+            diffSucceeded: true,
+            new Mock<IPrivilegePathEngine>(),
+            new Mock<IIntendedReachabilityEngine>(),
+            new Mock<IToxicCombinationEngine>(),
+            new Mock<ICapabilityToFlowEngine>(),
+            new Mock<ISharedControlBlastRadiusEngine>(),
+            new Mock<IFourRealityDriftEngine>(),
+            ranking,
+            cutPoints,
+            new Mock<ISecureNowArchitectNeighborhoodRunner>());
+
+        await sut.OnSnapshotMaterializedAsync(Scope, SnapshotId, SubscriptionId, CancellationToken.None);
+
+        ranking.Verify(engine => engine.RunAsync(Scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None), Times.Once);
+        cutPoints.Verify(
+            engine => engine.RunAsync(Scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None),
+            rankingSucceeded ? Times.Once() : Times.Never());
+    }
+
     private static AzureInventorySnapshotPostMaterializeCoordinator CreateCoordinator(
         bool fullRecompute,
         bool hasPrior,

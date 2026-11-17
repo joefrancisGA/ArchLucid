@@ -3,6 +3,16 @@ import { proxyJsonGet, proxyJsonPut } from "@/lib/proxy-json-client";
 
 const PATHS_PATH = "/api/proxy/v1/operational-security/paths";
 
+function mapTrimmedString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function mapOptionalTrimmedString(value: unknown): string | null {
+  const mapped = mapTrimmedString(value);
+
+  return mapped.length > 0 ? mapped : null;
+}
+
 export type SecureNowPilotPathDispositionServerRecord = {
   readonly pathId: string;
   readonly outcome: string;
@@ -18,10 +28,10 @@ export type SecureNowPilotPathDispositionSaveResult = {
 
 function mapDisposition(raw: Record<string, unknown>): SecureNowPilotPathDispositionServerRecord {
   return {
-    pathId: String(raw.pathId ?? ""),
-    outcome: String(raw.outcome ?? ""),
-    rationale: String(raw.rationale ?? ""),
-    recordedUtc: String(raw.recordedUtc ?? ""),
+    pathId: mapTrimmedString(raw.pathId),
+    outcome: mapTrimmedString(raw.outcome),
+    rationale: mapTrimmedString(raw.rationale),
+    recordedUtc: mapTrimmedString(raw.recordedUtc),
   };
 }
 
@@ -36,7 +46,9 @@ export async function fetchSecureNowPilotPathDisposition(
 
   try {
     const raw = await proxyJsonGet<Record<string, unknown>>(`${PATHS_PATH}/${trimmed}/pilot-disposition`);
-    return mapDisposition(raw);
+    const disposition = mapDisposition(raw);
+
+    return disposition.pathId.length > 0 && disposition.outcome.length > 0 ? disposition : null;
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
 
@@ -58,7 +70,14 @@ export async function saveSecureNowPilotPathDisposition(
 
   return {
     succeeded: raw.succeeded === true,
-    errorMessage: raw.errorMessage != null ? String(raw.errorMessage) : null,
-    disposition: dispositionRaw == null ? null : mapDisposition(dispositionRaw),
+    errorMessage: mapOptionalTrimmedString(raw.errorMessage),
+    disposition:
+      dispositionRaw == null
+      || typeof dispositionRaw.pathId !== "string"
+      || dispositionRaw.pathId.trim().length === 0
+      || typeof dispositionRaw.outcome !== "string"
+      || dispositionRaw.outcome.trim().length === 0
+        ? null
+        : mapDisposition(dispositionRaw),
   };
 }

@@ -9,6 +9,8 @@ import {
 } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapHubPolicyAndFindingsEvidenceSources } from "@/lib/product-line/securenow-compliance-routes";
 
 /** Workbook path for GRS standards-and-rules hub. */
 export const STANDARDS_RULES_CANONICAL_PATH = GOVERNANCE_STANDARDS_AND_RULES_PATH;
@@ -17,6 +19,11 @@ export const STANDARDS_RULES_CLAIM_DISCIPLINE_HEADING = "What standards & rules 
 
 export const STANDARDS_RULES_CLAIM_DISCIPLINE =
   "Standards & rules shows effective policy resolution and applied rule rows for the current scope — not a finalized review record on its own. Export a diagnostic report when you need a point-in-time citeable snapshot, then open Findings or Policy packs for follow-up.";
+
+export const STANDARDS_RULES_DOES_NOT_SCORE_CONTROLS_HEADING = "What this page does not score" as const;
+
+export const STANDARDS_RULES_DOES_NOT_SCORE_CONTROLS =
+  "This hub resolves which rules apply for the current scope — it does not score individual controls or replace a sealed review scorecard.";
 
 export const STANDARDS_RULES_SOURCES_INTRO =
   "Use these follow-ups when resolution questions turn into pack authoring, findings, or assurance orientation.";
@@ -42,3 +49,9 @@ const STANDARDS_RULES_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([STAND
 export const STANDARDS_RULES_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = STANDARDS_RULES_SOURCES.filter(
   (source) => !STANDARDS_RULES_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
 );
+
+export function resolveStandardsRulesOrientationSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapHubPolicyAndFindingsEvidenceSources(STANDARDS_RULES_ORIENTATION_SOURCES, productLine);
+}

@@ -38,9 +38,20 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             return true;
         }
 
+        if (logicalName == DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess
+            && cloudProvider is InventoryTopologyCloudProvider.Azure)
+        {
+            // Book ch. 6 storage_public_exposure treats an omitted publicNetworkAccess as Enabled.
+            value = "Enabled";
+            return true;
+        }
+
         value = null;
         return false;
     }
+
+    internal static bool IsUncontradictableAzurePublicNetworkAccessInventoryValue(string? inventoryValue) =>
+        string.Equals(inventoryValue?.Trim(), "SecuredByPerimeter", StringComparison.OrdinalIgnoreCase);
 
     internal static bool TryResolveSecurityTheme(string logicalName, out string theme)
     {
@@ -89,9 +100,14 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
         {
             DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess => ["publicNetworkAccess"],
             DeclarationSecurityPropertyLogicalNames.AllowBlobPublicAccess => ["allowBlobPublicAccess"],
-            DeclarationSecurityPropertyLogicalNames.HttpsOnly => ["httpsOnly", "supportsHttpsTrafficOnly"],
+            DeclarationSecurityPropertyLogicalNames.HttpsOnly =>
+            [
+                "httpsOnly",
+                "supportsHttpsTrafficOnly",
+                "enableHttpsTrafficOnly",
+            ],
             DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion => ["minimalTlsVersion", "minimumTlsVersion"],
-            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled => ["sslEnforcementEnabled"],
+            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled => ["sslEnforcementEnabled", "sslEnforcement"],
             DeclarationSecurityPropertyLogicalNames.StorageEncrypted => ["encryptionEnabled", "storageEncrypted"],
             DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction => ["defaultAction"],
             DeclarationSecurityPropertyLogicalNames.K8sPrivileged => ["privileged"],
@@ -105,7 +121,7 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess => ["publiclyAccessible"],
             DeclarationSecurityPropertyLogicalNames.HttpsOnly => ["supportsHttpsOnly"],
             DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion => ["minimumTlsVersion"],
-            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled => ["sslEnforcementEnabled"],
+            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled => ["sslEnforcementEnabled", "sslEnforcement"],
             DeclarationSecurityPropertyLogicalNames.StorageEncrypted => ["storageEncrypted"],
             DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction => ["defaultAction"],
             DeclarationSecurityPropertyLogicalNames.K8sPrivileged => ["privileged"],

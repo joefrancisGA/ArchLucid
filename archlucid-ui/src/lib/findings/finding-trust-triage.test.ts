@@ -92,7 +92,7 @@ describe("finding-trust-triage", () => {
   });
 
   it("filters by origin", () => {
-    const rule = finding({ findingId: "rule", policyRuleId: "sec.baseline" });
+    const rule = finding({ findingId: "rule", policyRuleId: "sec.baseline", trustLabel: "DeterministicRule" });
     const ai = finding({ findingId: "ai", trustLabel: "EvidenceBacked", evidenceRefCount: 2 });
 
     expect(reviewFindingMatchesProvenanceFilter(rule, "Deterministic rule", "all")).toBe(true);

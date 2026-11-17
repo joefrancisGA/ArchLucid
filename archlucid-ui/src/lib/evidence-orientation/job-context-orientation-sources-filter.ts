@@ -66,13 +66,17 @@ function scoreLinkForJobContext(link: EvidenceOrientationLink, jobKind: JobConte
       return 100;
     }
 
-    if (href.startsWith("/governance/findings") || href.startsWith("/help/findings")) {
+    if (
+      href.startsWith("/governance/findings")
+      || href.startsWith("/compliance/findings")
+      || href.startsWith("/help/findings")
+    ) {
       return 85;
     }
   }
 
   if (jobKind === "governance") {
-    if (href.startsWith("/governance") || href.startsWith("/help/alerts")) {
+    if (href.startsWith("/governance") || href.startsWith("/compliance") || href.startsWith("/help/alerts")) {
       return 100;
     }
   }
@@ -119,6 +123,10 @@ export function filterOrientationSourcesForJobContext(
   // Architecture intelligence ships a curated five-link Sources index; do not truncate it to the
   // generic three-link job-context cap (general scoring would drop help and audit follow-ups).
   if (normalizedPath.startsWith("/architecture/architecture-intelligence")) {
+    return links;
+  }
+
+  if (normalizedPath.startsWith("/help/")) {
     return links;
   }
 

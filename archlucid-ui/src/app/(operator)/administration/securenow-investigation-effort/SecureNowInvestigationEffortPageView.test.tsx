@@ -1,10 +1,15 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { SECURENOW_INVESTIGATION_EFFORT_NOTES } from "@/lib/product-line/securenow-investigation-effort-copy";
 import {
   SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE,
   secureNowInvestigationEffortInputStorageKeyForScope,
 } from "@/lib/product-line/securenow-investigation-effort-input-storage";
+import {
+  loadSecureNowInvestigationEffortInputs,
+  persistSecureNowInvestigationEffortInputsToAudit,
+} from "@/lib/product-line/securenow-investigation-effort-sync";
 import { SecureNowInvestigationEffortPageView } from "./SecureNowInvestigationEffortPageView";
 
 vi.mock("@/lib/operator/operator-scope-storage", () => ({
@@ -14,6 +19,17 @@ vi.mock("@/lib/operator/operator-scope-storage", () => ({
     projectId: "project-c",
     workspaceLabel: "Working",
     projectLabel: "Default",
+  }),
+}));
+
+vi.mock("@/hooks/use-securenow-collection-setup-input", () => ({
+  useSecureNowCollectionSetupInput: () => ({
+    collectionInput: {
+      hasConfiguredProvider: false,
+      azureSubscriptionIdsPresent: false,
+      hasSuccessfulPull: false,
+    },
+    isPending: false,
   }),
 }));
 
@@ -39,31 +55,17 @@ describe("SecureNowInvestigationEffortPageView", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/NO_GO/)).toBeInTheDocument();
     expect(screen.getByText(/This page is not a savings claim\./)).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: "Pilot measurement log" }),
-    ).toHaveAttribute(
-      "href",
-      "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/PILOT_MEASUREMENT_LOG.md",
-    );
-    expect(screen.getByRole("link", { name: "Cost input" })).toHaveAttribute(
-      "href",
-      "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_COST_INPUT.md",
-    );
-    expect(
-      screen.getByRole("link", { name: "Fixture worksheet" }),
-    ).toHaveAttribute(
-      "href",
-      "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_FIXTURE_WORKSHEET.md",
-    );
-    expect(screen.getByRole("link", { name: "Send rule" })).toHaveAttribute(
-      "href",
-      "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_SEND_RULE.md",
-    );
+    for (const note of SECURENOW_INVESTIGATION_EFFORT_NOTES) {
+      expect(screen.getByRole("link", { name: note.label })).toHaveAttribute("href", note.href);
+    }
     expect(
       screen.getByTestId("securenow-investigation-effort-page"),
     ).not.toHaveTextContent(/\$/);
     expect(screen.getByTestId("securenow-investigation-effort-input-storage-discipline")).toHaveTextContent(
       SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE,
+    );
+    expect(screen.getByTestId("securenow-investigation-effort-scope-missing")).toHaveTextContent(
+      "No successful capture yet",
     );
     expect(screen.getByTestId("securenow-investigation-effort-synthetic-example")).toHaveTextContent(
       "Synthetic worksheet walkthrough",
@@ -118,5 +120,67 @@ describe("SecureNowInvestigationEffortPageView", () => {
     expect(screen.getByTestId("securenow-investigation-effort-result")).toHaveTextContent(
       "Net annual value estimate: -3400",
     );
+  });
+
+  it("only records a new audit event after the operator edits restored inputs", async () => {
+    const savedInputs = {
+      baselineHours: "5",
+      afterHours: "3",
+      annualInvestigations: "10",
+      hourlyRate: "80",
+      annualCost: "5000",
+    };
+    vi.mocked(loadSecureNowInvestigationEffortInputs).mockResolvedValueOnce(savedInputs);
+    const save = vi.mocked(persistSecureNowInvestigationEffortInputsToAudit);
+    save.mockClear();
+    vi.useFakeTimers();
+
+    try {
+      await act(async () => {
+        render(<SecureNowInvestigationEffortPageView />);
+      });
+      const baseline = screen.getByLabelText("Baseline hours (B)");
+      expect(baseline).toHaveValue(5);
+
+      act(() => vi.advanceTimersByTime(400));
+      expect(save).not.toHaveBeenCalled();
+
+      fireEvent.change(baseline, { target: { value: "6" } });
+      act(() => vi.advanceTimersByTime(400));
+      expect(save).toHaveBeenCalledExactlyOnceWith({ ...savedInputs, baselineHours: "6" });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("restores untouched fields when an operator edit precedes the load", async () => {
+    const savedInputs = {
+      baselineHours: "5",
+      afterHours: "3",
+      annualInvestigations: "10",
+      hourlyRate: "80",
+      annualCost: "5000",
+    };
+    const restore = Promise.withResolvers<typeof savedInputs>();
+    vi.mocked(loadSecureNowInvestigationEffortInputs).mockReturnValueOnce(restore.promise);
+    render(<SecureNowInvestigationEffortPageView />);
+
+    const baseline = screen.getByLabelText("Baseline hours (B)");
+    const afterHours = screen.getByLabelText("After-product hours (A)");
+    fireEvent.change(baseline, { target: { value: "6" } });
+    fireEvent.change(afterHours, { target: { value: "2" } });
+    fireEvent.change(afterHours, { target: { value: "" } });
+
+    await act(async () => restore.resolve(savedInputs));
+
+    expect(baseline).toHaveValue(6);
+    expect(afterHours).toHaveValue(null);
+    expect(screen.getByLabelText("Annual investigations (N)")).toHaveValue(10);
+    const cacheKey = secureNowInvestigationEffortInputStorageKeyForScope("tenant-a", "workspace-b");
+    expect(JSON.parse(window.localStorage.getItem(cacheKey) ?? "null")).toEqual({
+      ...savedInputs,
+      baselineHours: "6",
+      afterHours: "",
+    });
   });
 });

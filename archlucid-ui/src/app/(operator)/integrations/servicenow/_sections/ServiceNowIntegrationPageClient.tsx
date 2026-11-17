@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { cn } from "@/lib/utils";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -21,7 +23,6 @@ import {
 import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
 import { saveItsmConnectorWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import {
@@ -264,7 +265,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
   const authMethod = formatServiceNowAuthMethod(connection?.authMode);
   const credentialStatus = resolveServiceNowCredentialStatusLabel(settings, connection, credentialsReady);
   const connectionLabel = connection?.label?.trim();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
   const hasUnsavedSettingsEdits =
     settings !== null

@@ -42,9 +42,17 @@ import {
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
+import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { shouldShowSecureNowCollectionMissingBlock } from "@/lib/product-line/securenow-collection-missing-reason";
 import { resolveSecureNowGovernanceFindingsEmptyStateCopy } from "@/lib/product-line/securenow-governance-findings-copy";
+import { SecureNowCollectionPrimaryBlockerLine } from "@/components/product-line/SecureNowCollectionPrimaryBlockerLine";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SECURENOW_FINDINGS_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/product-line/securenow-findings-empty-partial-capture-copy";
 
 export function GovernanceFindingsQueueOutcomeSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
@@ -65,10 +73,54 @@ export function GovernanceFindingsQueueOutcomeSection(
     scopedRunTitle: props.scopedRunContextTitle,
     productLineId: productLine,
   });
+  const { collectionInput, isPending: collectionInputPending } = useSecureNowCollectionSetupInput({
+    snapshotCaptureSucceeded: null,
+    enabled: isSecureNowProductLine(productLine),
+  });
+  const secureNowCollectionMissing =
+    collectionInput !== null && shouldShowSecureNowCollectionMissingBlock(collectionInput);
+  const secureNowCaptureEvaluatedEmpty =
+    collectionInput !== null && !secureNowCollectionMissing && !collectionInputPending;
   const secureNowEmptyState =
-    !props.isAssignedToMe && isSecureNowProductLine(productLine)
-      ? resolveSecureNowGovernanceFindingsEmptyStateCopy()
+    isSecureNowProductLine(productLine)
+      ? resolveSecureNowGovernanceFindingsEmptyStateCopy({
+          collectionMissing: secureNowCollectionMissing,
+          captureEvaluatedEmpty: secureNowCaptureEvaluatedEmpty,
+        })
       : null;
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
+  const showFindingsEmptyPartialCapture =
+    isSecureNowProductLine(productLine)
+    && partialCapture
+    && !secureNowCollectionMissing
+    && !props.loading
+    && props.rows.length === 0
+    && !props.loadFailed;
+
+  const findingsEmptyPartialCaptureStrip = showFindingsEmptyPartialCapture ? (
+    <SecureNowPartialCaptureRecoveryParagraph
+      testId={
+        props.isAssignedToMe
+          ? "governance-assigned-findings-empty-partial-capture"
+          : "governance-findings-empty-partial-capture"
+      }
+      partialCaptureSnapshotId={partialCaptureSnapshotId}
+      returnPath={partialCaptureReturnPath}
+      middleLine={SECURENOW_FINDINGS_EMPTY_PARTIAL_CAPTURE_LINE}
+      cloudConnectionsTestId={
+        props.isAssignedToMe
+          ? "governance-assigned-findings-empty-partial-capture-cloud"
+          : "governance-findings-empty-partial-capture-cloud"
+      }
+      extractUploadTestId={
+        props.isAssignedToMe
+          ? "governance-assigned-findings-empty-partial-capture-extract"
+          : "governance-findings-empty-partial-capture-extract"
+      }
+    />
+  ) : null;
 
   return (
     <>
@@ -121,7 +173,9 @@ export function GovernanceFindingsQueueOutcomeSection(
                   }
             }
             reportProblem={{
-              surfaceId: "governance-findings-queue-hard-failure",
+              surfaceId: isSecureNowProductLine(productLine)
+                ? "compliance-findings-queue-hard-failure"
+                : "governance-findings-queue-hard-failure",
               errorTitle: props.pageTitle,
               errorCode: props.loadFailure?.errorCode ?? "governance-findings-load-failed",
               correlationId: props.loadFailure?.correlationId ?? null,
@@ -155,17 +209,19 @@ export function GovernanceFindingsQueueOutcomeSection(
             }
             description={
               props.isAssignedToMe
-                ? buildGovernanceAssignedToMeEmptyDescription(
-                    {
-                      assigneeDisplayName: props.currentPrincipalName,
-                      assigneeRoleLabel: props.currentPrincipalRole,
-                      checkedAt: props.assignedToMeCheckedAt,
-                      fetchBasis: props.assignedToMeFetchBasis,
-                      productLine,
-                      suppressCheckedAtLine: true,
-                    },
-                    { nowMs: relativeFreshnessNowMs, headerOwnsFreshness: true },
-                  )
+                ? secureNowEmptyState !== null && secureNowCollectionMissing
+                  ? secureNowEmptyState.description
+                  : buildGovernanceAssignedToMeEmptyDescription(
+                      {
+                        assigneeDisplayName: props.currentPrincipalName,
+                        assigneeRoleLabel: props.currentPrincipalRole,
+                        checkedAt: props.assignedToMeCheckedAt,
+                        fetchBasis: props.assignedToMeFetchBasis,
+                        productLine,
+                        suppressCheckedAtLine: true,
+                      },
+                      { nowMs: relativeFreshnessNowMs, headerOwnsFreshness: true },
+                    )
                 : inhabitedEmptyState !== null
                   ? inhabitedEmptyState.description
                   : secureNowEmptyState !== null
@@ -179,7 +235,11 @@ export function GovernanceFindingsQueueOutcomeSection(
                 ? undefined
                 : secureNowEmptyState !== null
                   ? [
-                      { label: "Open policy packs", href: secureNowEmptyState.policyPacksHref, variant: "primary" },
+                      {
+                        label: secureNowCollectionMissing ? "Open cloud connections" : "Open policy packs",
+                        href: secureNowEmptyState.policyPacksHref,
+                        variant: "primary",
+                      },
                     ]
                 : [
                     { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
@@ -195,6 +255,13 @@ export function GovernanceFindingsQueueOutcomeSection(
             footer={
               props.isAssignedToMe ? (
                 <div className="space-y-3">
+                  {findingsEmptyPartialCaptureStrip}
+                  {secureNowCollectionMissing && collectionInput !== null ? (
+                    <SecureNowCollectionPrimaryBlockerLine
+                      input={collectionInput}
+                      testIdPrefix="governance-assigned-findings-empty"
+                    />
+                  ) : null}
                   <Button asChild size="sm" variant="outline">
                     <Link href={assignedToMeFindingsHref(productLine)}>
                       {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL}
@@ -204,9 +271,18 @@ export function GovernanceFindingsQueueOutcomeSection(
                   <GovernanceAssignedToMeBuildProvenanceStrip />
                 </div>
               ) : secureNowEmptyState !== null ? (
-                <Link className={OPERATOR_LINK.inline} href={secureNowEmptyState.policyPacksHref}>
-                  View policy packs
-                </Link>
+                <div className="space-y-3">
+                  {findingsEmptyPartialCaptureStrip}
+                  {secureNowCollectionMissing && collectionInput !== null ? (
+                    <SecureNowCollectionPrimaryBlockerLine
+                      input={collectionInput}
+                      testIdPrefix="governance-findings-empty"
+                    />
+                  ) : null}
+                  <Link className={OPERATOR_LINK.inline} href={secureNowEmptyState.policyPacksHref}>
+                    {secureNowCollectionMissing ? "Open cloud connections" : "View policy packs"}
+                  </Link>
+                </div>
               ) : !props.buyerPolishedShell ? (
                 <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF}>
                   View policy packs

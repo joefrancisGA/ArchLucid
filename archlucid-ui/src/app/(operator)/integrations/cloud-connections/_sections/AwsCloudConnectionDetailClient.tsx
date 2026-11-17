@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
@@ -14,7 +16,6 @@ import {
   cloudProviderConnectionSources,
 } from "@/lib/cloud-provider-connection-evidence-copy";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
@@ -112,7 +113,7 @@ function AwsCloudConnectionStartHerePanel(): React.ReactElement {
 
 function AwsCloudConnectionDetailBody(): React.ReactElement {
   const { productLine, localize } = useLocalizedProductCopy();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
 
   const detailLayout = (
     <CloudProviderDetailLayout
@@ -175,7 +176,7 @@ function AwsCloudConnectionDetailBody(): React.ReactElement {
 }
 
 export function AwsCloudConnectionDetailClient() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (

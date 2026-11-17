@@ -45,6 +45,18 @@ public sealed class TopologySecurityDeltaAnalyzerTests
     }
 
     [Fact]
+    public void Analyze_detects_public_inbound_when_allow_blob_public_access_is_yes()
+    {
+        GraphSnapshot prior = BuildStorageGraph(allowBlobPublicAccess: false);
+        GraphSnapshot current = BuildStorageGraph(allowBlobPublicAccess: true, blobPublicAccessToken: "yes");
+
+        IReadOnlyList<TopologySecurityDelta> deltas = TopologySecurityDeltaAnalyzer.Analyze(current, prior);
+
+        deltas.Should().ContainSingle()
+            .Which.Kind.Should().Be(TopologySecurityDeltaKind.PublicInboundAdded);
+    }
+
+    [Fact]
     public void Analyze_detects_admin_inbound_widened()
     {
         GraphSnapshot prior = BuildNsgGraph(includeAdminInbound: false);
@@ -82,6 +94,33 @@ public sealed class TopologySecurityDeltaAnalyzerTests
                     NodeId = "sql-prod",
                     NodeType = GraphNodeTypes.TopologyResource,
                     Label = "prod-sql",
+                    Properties = properties,
+                },
+            ],
+        };
+    }
+
+    private static GraphSnapshot BuildStorageGraph(bool allowBlobPublicAccess, string blobPublicAccessToken = "true")
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["terraformType"] = "azurerm_storage_account",
+        };
+
+        if (allowBlobPublicAccess)
+        {
+            properties["allowBlobPublicAccess"] = blobPublicAccessToken;
+        }
+
+        return new GraphSnapshot
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "st-prod",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "prod-storage",
                     Properties = properties,
                 },
             ],

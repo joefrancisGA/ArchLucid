@@ -21,7 +21,7 @@ public sealed partial class CachingRunRepository
 
         int safeTake = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
         long revision = await ReadRunListScopeRevisionAsync(scope, ct);
-        string key = HotPathCacheKeys.RunListByProjectFirstPage(scope, projectId, safeTake, revision);
+        string key = HotPathCacheKeys.RunListByProjectFirstPage(scope, projectId, safeTake, revision) + ":unpaged";
 
         IReadOnlyList<RunRecord>? cached = await _hotPathReadCache.GetOrCreateAsync(
             key,
@@ -48,7 +48,7 @@ public sealed partial class CachingRunRepository
 
         int clampedTake = RunPagination.ClampTake(take);
         long revision = await ReadRunListScopeRevisionAsync(scope, ct);
-        string key = HotPathCacheKeys.RunListByProjectFirstPage(scope, projectId, clampedTake, revision);
+        string key = HotPathCacheKeys.RunListByProjectFirstPage(scope, projectId, clampedTake, revision) + ":keyset";
 
         RunListPage? cached = await _hotPathReadCache.GetOrCreateAsync(
             key,
@@ -67,7 +67,7 @@ public sealed partial class CachingRunRepository
 
         int safeTake = Math.Clamp(take <= 0 ? 200 : take, 1, 200);
         long revision = await ReadRunListScopeRevisionAsync(scope, ct);
-        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, safeTake, revision);
+        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, safeTake, revision) + ":unpaged";
 
         IReadOnlyList<RunRecord>? cached = await _hotPathReadCache.GetOrCreateAsync(
             key,
@@ -93,7 +93,7 @@ public sealed partial class CachingRunRepository
 
         int clampedTake = RunPagination.ClampTake(take);
         long revision = await ReadRunListScopeRevisionAsync(scope, ct);
-        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, clampedTake, revision);
+        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, clampedTake, revision) + ":keyset";
 
         RunListPage? cached = await _hotPathReadCache.GetOrCreateAsync(
             key,
@@ -121,7 +121,7 @@ public sealed partial class CachingRunRepository
             return await _inner.ListRecentInScopeOffsetAsync(scope, safeOffset, safeLimit, ct);
 
         long revision = await ReadRunListScopeRevisionAsync(scope, ct);
-        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, safeLimit, revision);
+        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, safeLimit, revision) + ":offset";
 
         RunListPage? cached = await _hotPathReadCache.GetOrCreateAsync(
             key,

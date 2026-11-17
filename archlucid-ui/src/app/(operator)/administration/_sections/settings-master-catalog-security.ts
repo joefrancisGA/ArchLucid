@@ -10,6 +10,8 @@ import {
   INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION,
   INTERNAL_DEVELOPER_TOOLS_CATALOG_GATE_NOTE,
 } from "../developer/developer-settings-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapGovernanceOperatorHref } from "@/lib/product-line/securenow-compliance-routes";
 import type { SettingsMasterSection } from "./settings-master-types";
 
 /** Governance, policy packs, security & trust, identity, and internal developer sections. */
@@ -232,3 +234,19 @@ export const SETTINGS_MASTER_SECTIONS_SECURITY: readonly SettingsMasterSection[]
     ],
   },
 ] as const;
+
+export function resolveSettingsMasterSectionsSecurity(
+  productLine: ProductLineId,
+): readonly SettingsMasterSection[] {
+  if (productLine === "architecture") {
+    return SETTINGS_MASTER_SECTIONS_SECURITY;
+  }
+
+  return SETTINGS_MASTER_SECTIONS_SECURITY.map((section) => ({
+    ...section,
+    destinations: section.destinations.map((destination) => ({
+      ...destination,
+      href: remapGovernanceOperatorHref(destination.href, productLine),
+    })),
+  }));
+}

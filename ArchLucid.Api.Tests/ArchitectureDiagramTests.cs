@@ -17,28 +17,11 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetManifestDiagram_ReturnsMermaid()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DIAGRAM-001")));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
+        string manifestVersion = finalized.ManifestVersion;
 
         HttpResponseMessage diagramResponse =
-            await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/diagram");
-
-        diagramResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        DiagramResponse? diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<DiagramResponse>(JsonOptions);
+            await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/diagram");        DiagramResponse? diagramPayload = await diagramResponse.ReadJsonForTestAsync<DiagramResponse>(JsonOptions);
         diagramPayload.Should().NotBeNull();
         diagramPayload.Format.Should().Be("mermaid");
         diagramPayload.Diagram.Should().Contain("flowchart LR");
@@ -50,29 +33,12 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetManifestDiagramV2_ReturnsManifestDiagramResponse_WithOptions()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DIAGRAM-002")));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
+        string manifestVersion = finalized.ManifestVersion;
 
         HttpResponseMessage diagramResponse = await Client.GetAsync(
-            $"/v1/architecture/manifest/{manifestVersion}/diagram/v2?layout=TB&includeRuntimePlatform=false&relationshipLabels=none&groupBy=serviceType");
-
-        diagramResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        ManifestDiagramResponse? diagramPayload =
-            await diagramResponse.Content.ReadFromJsonAsync<ManifestDiagramResponse>(JsonOptions);
+            $"/v1/architecture/manifest/{manifestVersion}/diagram/v2?layout=TB&includeRuntimePlatform=false&relationshipLabels=none&groupBy=serviceType");        ManifestDiagramResponse? diagramPayload =
+            await diagramResponse.ReadJsonForTestAsync<ManifestDiagramResponse>(JsonOptions);
         diagramPayload.Should().NotBeNull();
         diagramPayload.DiagramType.Should().Be("Mermaid");
         diagramPayload.Content.Should().Contain("flowchart TB");

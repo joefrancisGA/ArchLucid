@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   resolveWorkingCareerRehearsalBlockedReason,
   shouldLabelWorkingIntentAsRehearsal,
+  WORKING_CAREER_BLOCKED_SIMULATOR_HOST_REASON,
 } from "@/lib/governance/working-career-rehearsal-gate";
 import {
   DEFAULT_WORKING_CAREER_REHEARSAL_INTENT,
@@ -32,7 +33,7 @@ describe("working-career-rehearsal chrome matrix (AS-084)", () => {
       realExecutionAvailable: false,
     });
 
-    expect(blocked).toContain("Rehearsal");
+    expect(blocked).toBe(WORKING_CAREER_BLOCKED_SIMULATOR_HOST_REASON);
   });
 
   it("Working + Rehearsal + Simulator is labeled rehearsal", () => {

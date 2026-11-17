@@ -32,14 +32,14 @@ describe("mutation-reversibility guard (TB-2148)", () => {
       }
     }
 
-    const approvalsListPath = path.join(
+    const approvalsMutationsPath = path.join(
       SRC_ROOT,
-      "app/(operator)/governance/_sections/GovernanceWorkflowApprovalsList.tsx",
+      "app/(operator)/governance/_sections/GovernanceWorkflowApprovalsMutations.tsx",
     );
-    const approvalsContent = readFileSync(approvalsListPath, "utf8");
+    const approvalsMutationsContent = readFileSync(approvalsMutationsPath, "utf8");
 
-    if (!approvalsContent.includes("governance_workflow_reject")) {
-      offenders.push("GovernanceWorkflowApprovalsList.tsx: missing governance_workflow_reject");
+    if (!approvalsMutationsContent.includes("governance_workflow_reject")) {
+      offenders.push("GovernanceWorkflowApprovalsMutations.tsx: missing governance_workflow_reject");
     }
 
     expect(offenders).toEqual([]);

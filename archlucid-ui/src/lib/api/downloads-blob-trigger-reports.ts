@@ -1,3 +1,4 @@
+import { encodeRequiredPathSegment, trimRequiredPathSegment } from "@/lib/api/api-boundary-normalization";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { firstValueReportMutationBlockedReason } from "@/lib/pilots/first-value-report-mutation-blocked-reason";
@@ -32,8 +33,11 @@ export async function downloadConsultingArchitectureReportDocx(
     throw new Error("downloadConsultingArchitectureReportDocx is only supported in the browser.");
   }
 
+  const trimmedRunId = trimRequiredPathSegment(runId, "runId");
+  const encodedRunId = encodeRequiredPathSegment(runId, "runId");
+
   await ensureOidcBearerReady();
-  const path = `/v1/architecture/review/${encodeURIComponent(runId)}/analysis-report/export/docx/consulting`;
+  const path = `/v1/architecture/review/${encodedRunId}/analysis-report/export/docx/consulting`;
   const url = `/api/proxy${path}`;
   const headers = new Headers();
   headers.set(
@@ -83,7 +87,7 @@ export async function downloadConsultingArchitectureReportDocx(
 
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
-    `analysis-report-consulting-${runId}.docx`;
+    `analysis-report-consulting-${trimmedRunId}.docx`;
   const blob = await response.blob();
   await triggerBrowserBlobDownload(blob, fileName);
 }
@@ -96,8 +100,11 @@ export async function downloadFirstValueReportPdf(runId: string): Promise<void> 
     throw new Error("downloadFirstValueReportPdf is only supported in the browser.");
   }
 
+  const trimmedRunId = trimRequiredPathSegment(runId, "runId");
+  const encodedRunId = encodeRequiredPathSegment(runId, "runId");
+
   await ensureOidcBearerReady();
-  const path = `/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report.pdf`;
+  const path = `/v1/pilots/runs/${encodedRunId}/first-value-report.pdf`;
   const url = `/api/proxy${path}`;
   const headers = new Headers();
   headers.set("Accept", "application/pdf, application/json");
@@ -122,7 +129,7 @@ export async function downloadFirstValueReportPdf(runId: string): Promise<void> 
 
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
-    `ArchLucid-first-value-report-${runId}.pdf`;
+    `ArchLucid-first-value-report-${trimmedRunId}.pdf`;
   const blob = await response.blob();
   await triggerBrowserBlobDownload(blob, fileName);
 }
@@ -134,6 +141,18 @@ export async function downloadFirstValueReportPdf(runId: string): Promise<void> 
 export async function downloadBoardPackPdf(year: number, quarter: number): Promise<void> {
   if (!isBrowser()) {
     throw new Error("downloadBoardPackPdf is only supported in the browser.");
+  }
+
+  const normalizedYear = Math.floor(year);
+
+  if (!Number.isFinite(year) || normalizedYear < 1) {
+    throw new Error("year must be a positive integer.");
+  }
+
+  const normalizedQuarter = Math.floor(quarter);
+
+  if (!Number.isFinite(quarter) || normalizedQuarter < 1 || normalizedQuarter > 4) {
+    throw new Error("quarter must be between 1 and 4.");
   }
 
   await ensureOidcBearerReady();
@@ -148,7 +167,7 @@ export async function downloadBoardPackPdf(year: number, quarter: number): Promi
     headers,
     credentials: "same-origin",
     cache: "no-store",
-    body: JSON.stringify({ year, quarter }),
+    body: JSON.stringify({ year: normalizedYear, quarter: normalizedQuarter }),
   });
   const { response, correlationId } = await fetchBrowserDownload(url, { ...init, method: "POST" });
 
@@ -164,7 +183,7 @@ export async function downloadBoardPackPdf(year: number, quarter: number): Promi
 
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
-    `ArchLucid-board-pack-Q${quarter}-${year}.pdf`;
+    `ArchLucid-board-pack-Q${normalizedQuarter}-${normalizedYear}.pdf`;
   const blob = await response.blob();
   await triggerBrowserBlobDownload(blob, fileName);
 }
@@ -177,8 +196,11 @@ export async function downloadSponsorOnePagerPdf(runId: string): Promise<void> {
     throw new Error("downloadSponsorOnePagerPdf is only supported in the browser.");
   }
 
+  const trimmedRunId = trimRequiredPathSegment(runId, "runId");
+  const encodedRunId = encodeRequiredPathSegment(runId, "runId");
+
   await ensureOidcBearerReady();
-  const path = `/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-one-pager`;
+  const path = `/v1/pilots/runs/${encodedRunId}/sponsor-one-pager`;
   const url = `/api/proxy${path}`;
   const headers = new Headers();
   headers.set("Accept", "application/pdf, application/json");
@@ -204,7 +226,7 @@ export async function downloadSponsorOnePagerPdf(runId: string): Promise<void> {
 
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
-    `ArchLucid-sponsor-one-pager-${runId}.pdf`;
+    `ArchLucid-sponsor-one-pager-${trimmedRunId}.pdf`;
   const blob = await response.blob();
   await triggerBrowserBlobDownload(blob, fileName);
 }

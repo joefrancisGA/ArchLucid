@@ -34,7 +34,7 @@ Give security reviewers a **single** STRIDE-oriented view of the **whole** produ
 |----------|---|---|---|---|---|---|----------------------|
 | Client → API | Fake tokens, stolen API keys | Tampered bodies | — | TLS + JWT validation / API key | Rate limits, outbox flood | Privilege via mis-roles | Entra roles, least-privilege policies, **`ArchLucidPolicies`** |
 | Client → API (trial) | External IdP token replay, weak local passwords | Hosted IdP / ArchLucid SQL tamper | — | External ID tenant binding + JwtBearer issuer rules; PBKDF2 + optional HIBP | Credential stuffing, cache poisoning | Over-privileged minted JWTs | **`Auth:Trial:Modes`**, **`TrialBootstrapEmailVerificationPolicy`**, lockout + role gates (**`docs/security/TRIAL_AUTH.md`**) |
-| API → SQL | SQL auth misuse | SQL injection | — | RLS + parameterized Dapper | DB DoS, heavy queries | `db_owner` misuse | Managed identity / scoped SQL user, RLS **`SESSION_CONTEXT`** |
+| API → SQL | SQL auth misuse or wrong tenant catalog binding | SQL injection | — | Wrong-catalog or within-catalog data disclosure | DB DoS, heavy queries | `db_owner` misuse | Database-per-tenant catalogs, verified tenant-to-catalog routing, scoped repositories/API guards, parameterized Dapper, managed identity / least-privilege SQL users ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)) |
 | API → LLM | — | Prompt injection → unsafe actions | — | **PII / secrets in prompts** (see **`AGENT_TRACE_FORENSICS.md`**, **`docs/runbooks/LLM_PROMPT_REDACTION.md`**) | Token exhaustion, 429 storms | **Agent side-effect exfil** (HTTP/shell/ITSM from handlers) | Quotas, circuit breakers, deny-list **`LlmPromptRedaction`**; **TB-950** allowlisted tools; **TB-952** side-effect inventory + arch test ([`AGENT_SIDE_EFFECT_SURFACE_INVENTORY.md`](../library/AGENT_SIDE_EFFECT_SURFACE_INVENTORY.md)) |
 | API → Blob | SAS misuse | Object tamper | — | Blob exfiltration | — | — | Private endpoint, MI, container ACLs |
 | Worker → Service Bus | — | Message tamper | — | Payload leak | Queue flood | — | Namespace auth, DLQ, admin retry APIs |
@@ -59,6 +59,8 @@ Give security reviewers a **single** STRIDE-oriented view of the **whole** produ
 | Fallback to simulator after AOAI failure | Buyer misreads simulator metrics as LLM output | Markdown **warning** callout + **Execution provenance** footer; audit **`FirstRealValueRunFellBackToSimulator`**. |
 | **`--strict-real`** in automation | Pipeline fails when AOAI unavailable | Explicit operator choice — no silent substitution. |
 
+**Tenant-isolation boundary:** Production does **not** deploy SQL RLS or `SESSION_CONTEXT` as a tenant-isolation control. Database-per-tenant catalogs, tenant-to-catalog bindings, scoped application authorization, and route guards are the adopted defenses under [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md). Wrong-catalog routing and within-catalog IDOR remain material residual risks requiring validation.
+
 ## 6. Data flow (high level)
 
 1. **Authority run:** HTTP → transactional SQL → outboxes → worker indexing / integration publish.
@@ -74,9 +76,9 @@ Give security reviewers a **single** STRIDE-oriented view of the **whole** produ
 
 ## 8. Operational considerations
 
-- **Review cadence:** After major features touching auth, RLS, or LLM prompts.
+- **Review cadence:** After major features touching authentication, tenant-catalog routing / scoped authorization, or LLM prompts.
 - **Drills:** Geo-failover (**`docs/runbooks/GEO_FAILOVER_DRILL.md`**).
-- **Gaps to track in backlog:** Formal third-party pen test (templates in **`docs/security/PEN_TEST_*`**), residual uncovered tables per **`MULTI_TENANT_RLS.md`** §9, and continuous improvement of deny-list patterns beyond the built-in **`PromptRedactor`** rules.
+- **Gaps to track in backlog:** Formal third-party pen test (templates in **`docs/security/PEN_TEST_*`**), wrong-catalog routing and within-catalog authorization checks per **[ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)**, and continuous improvement of deny-list patterns beyond the built-in **`PromptRedactor`** rules.
 
 ### 8.1 Denial-of-service (network + application)
 

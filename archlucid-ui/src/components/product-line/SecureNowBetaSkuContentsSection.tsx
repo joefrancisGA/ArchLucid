@@ -8,7 +8,14 @@ import {
   SECURENOW_BETA_SKU_CONTENTS_LEAD,
   SECURENOW_BETA_SKU_CONTENTS_QUOTE_HREF,
   SECURENOW_BETA_SKU_CONTENTS_QUOTE_LABEL,
+  SECURENOW_OPERATOR_QUOTE_PACKET_HREF,
 } from "@/lib/product-line/securenow-beta-sku-contents-copy";
+import {
+  SECURENOW_QUOTE_FEE_ARCHITECTURE_BOUNDARY,
+  SECURENOW_QUOTE_FEE_LINKS,
+  SECURENOW_QUOTE_FEE_RECORDED_LINE,
+} from "@/lib/product-line/securenow-quote-fee-honesty-copy";
+import { SECURENOW_SYNTHETIC_FIXTURE_DISCIPLINE } from "@/lib/product-line/securenow-synthetic-fixture-discipline";
 
 type SecureNowBetaSkuContentsSectionProps = {
   readonly showQuoteLink?: boolean;
@@ -29,6 +36,12 @@ export function SecureNowBetaSkuContentsSection(
         {SECURENOW_BETA_SKU_CONTENTS_HEADING}
       </h2>
       <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_BETA_SKU_CONTENTS_LEAD}</p>
+      <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-beta-sku-synthetic-discipline">
+        {SECURENOW_SYNTHETIC_FIXTURE_DISCIPLINE}
+      </p>
+      <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-beta-sku-quote-fee-honesty">
+        {SECURENOW_QUOTE_FEE_RECORDED_LINE} {SECURENOW_QUOTE_FEE_ARCHITECTURE_BOUNDARY}
+      </p>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <p className={OPERATOR_TYPOGRAPHY.helper}>Includes</p>
@@ -56,8 +69,26 @@ export function SecureNowBetaSkuContentsSection(
           <Link className={OPERATOR_LINK.inline} href={SECURENOW_BETA_SKU_CONTENTS_QUOTE_HREF}>
             {SECURENOW_BETA_SKU_CONTENTS_QUOTE_LABEL}
           </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={SECURENOW_QUOTE_FEE_LINKS.acceleratorIndex}>
+            Accelerator index
+          </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={SECURENOW_OPERATOR_QUOTE_PACKET_HREF}>
+            Signed-in quote packet
+          </Link>
         </p>
-      ) : null}
+      ) : (
+        <p className={OPERATOR_TYPOGRAPHY.body}>
+          <Link className={OPERATOR_LINK.inline} href={SECURENOW_OPERATOR_QUOTE_PACKET_HREF}>
+            Open signed-in quote packet
+          </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={SECURENOW_QUOTE_FEE_LINKS.acceleratorIndex}>
+            Accelerator index
+          </Link>
+        </p>
+      )}
     </section>
   );
 }

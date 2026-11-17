@@ -3,6 +3,8 @@ import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-path
 import { IMPROVEMENT_PLANNING_VIEW_REVIEWS_HREF } from "@/lib/planning-page-copy";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export const PLANNING_CLAIM_DISCIPLINE_HEADING = "What improvement planning is not";
 
@@ -42,5 +44,9 @@ export const PLANNING_SOURCES: readonly EvidenceOrientationLink[] = [
     when: "Read triage vocabulary before exporting pilot feedback summaries",
   },
 ] as const;
+
+export function resolvePlanningSources(productLine: ProductLineId = "architecture"): readonly EvidenceOrientationLink[] {
+  return remapEvidenceSourceFindingsQueueHref(PLANNING_SOURCES, productLine);
+}
 
 export { PLANNING_PATH as PLANNING_CANONICAL_PATH } from "@/lib/planning-route";

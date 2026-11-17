@@ -131,24 +131,7 @@ import {
   OPERATOR_HOME_SOURCES,
   OPERATOR_HOME_SOURCES_INTRO,
 } from "@/lib/operator/operator-home-evidence-copy";
-import {
-  APPROVAL_QUEUE_FOLLOW_UPS_TITLE,
-  APPROVAL_QUEUE_SOURCES,
-  APPROVAL_QUEUE_SOURCES_INTRO,
-} from "@/lib/approval-queue-evidence-copy";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
-
-export function ApprovalQueueEvidenceOrientationStrip(): React.JSX.Element {
-  return (
-    <EvidenceOrientationClaimAndSourcesStrip
-      slug="approval-queue"
-      sourcesTitle={APPROVAL_QUEUE_FOLLOW_UPS_TITLE}
-      sourcesIntro={APPROVAL_QUEUE_SOURCES_INTRO}
-      sources={APPROVAL_QUEUE_SOURCES}
-      sourcesHeadingId="where-to-go-next"
-    />
-  );
-}
 
 export function ConnectionStatusEvidenceOrientationStrip(): React.JSX.Element {
   const sectionHeadingClass = cn(
@@ -434,13 +417,17 @@ export function GovernanceAssignedToMeEvidenceOrientationStrip(
   );
 }
 
-export function WorkspaceHealthEvidenceOrientationStrip(): React.JSX.Element {
+export function WorkspaceHealthEvidenceOrientationStrip(
+  props: { readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? SPONSOR_WORKSPACE_HEALTH_SOURCES;
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="workspace-health"
       sourcesTitle={SPONSOR_WORKSPACE_HEALTH_FOLLOW_UPS_TITLE}
       sourcesIntro={SPONSOR_WORKSPACE_HEALTH_SOURCES_INTRO}
-      sources={SPONSOR_WORKSPACE_HEALTH_SOURCES}
+      sources={sources}
       sourcesHeadingId="where-to-go-next"
     />
   );
@@ -469,3 +456,5 @@ export function ProductLinePlaygroundEvidenceOrientationStrip(): React.JSX.Eleme
     />
   );
 }
+
+export { ApprovalQueueEvidenceOrientationStrip } from "./ApprovalQueueEvidenceOrientationStrip";

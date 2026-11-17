@@ -78,6 +78,13 @@ describe("isTechnicalAuditRunIdentifier", () => {
 
   it("treats uuid-like ids as technical", () => {
     expect(isTechnicalAuditRunIdentifier("c85c9b3ff2ab4d1e9f0a1234567890ab")).toBe(true);
+    expect(isTechnicalAuditRunIdentifier("c85c9b3f-f2ab-4d1e-9f0a-1234567890ab")).toBe(true);
+  });
+
+  it("does not mistake unresolved ID-bearing labels for review titles", () => {
+    expect(isTechnicalAuditRunIdentifier("opaque-run-id")).toBe(true);
+    expect(buyerFacingAuditTrailScopeLabel("opaque-run-id")).toBeNull();
+    expect(formatAuditTrailPageTitle("opaque-run-id")).toBe("Audit trail");
   });
 });
 
@@ -89,6 +96,20 @@ describe("buyerAuditTrailGovernanceSummaryCounts", () => {
     expect(summary.evidenceChanges).toBeGreaterThan(0);
     expect(summary.approvals).toBeGreaterThan(0);
     expect(summary.lastActivityUtc).not.toBeNull();
+  });
+
+  it.each([
+    ["2026-09-09T12:00:00Z", "2026-09-09T12:00:00.100Z"],
+    ["2026-09-09T13:00:00+02:00", "2026-09-09T12:00:00Z"],
+    ["unreadable", "2026-09-09T12:00:00Z"],
+  ])("selects the latest valid instant from %s and %s", (earlier, latest) => {
+    const summary = buyerAuditTrailGovernanceSummaryCounts([
+      { eventType: "decision", occurredUtc: earlier },
+      { eventType: "decision", occurredUtc: latest },
+    ]);
+
+    expect(summary.lastActivityUtc).toBe(latest);
+    expect(summary.totalEvents).toBe(2);
   });
 
   it("returns zeros for an empty list", () => {

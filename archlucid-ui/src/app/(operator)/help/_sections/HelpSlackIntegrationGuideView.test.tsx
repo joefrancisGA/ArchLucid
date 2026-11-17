@@ -1,8 +1,18 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/slack-integration",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
 }));
 
 vi.mock("@/app/(operator)/help/_sections/HelpSlackIntegrationWorkspaceReadinessStrip", () => ({
@@ -92,17 +102,23 @@ describe("HelpSlackIntegrationGuideView", () => {
       SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_BODY,
     );
 
-    expectWhereToGoNextFollowUpLinks(screen, SLACK_INTEGRATION_HELP_SOURCES);
+    const sourcesRegion = within(screen.getByTestId("help-slack-integration-sources"));
 
-    for (const source of whereToGoNextFollowUpLinksForTests(SLACK_INTEGRATION_HELP_SOURCES)) {
+    expectWhereToGoNextFollowUpLinks(
+      sourcesRegion,
+      SLACK_INTEGRATION_HELP_SOURCES,
+      "/help/slack-integration",
+    );
+
+    for (const source of whereToGoNextFollowUpLinksForTests(
+      SLACK_INTEGRATION_HELP_SOURCES,
+      "/help/slack-integration",
+    )) {
       if (source.when !== undefined) {
         expect(screen.getByText(source.when)).toBeInTheDocument();
       }
     }
 
-    expect(screen.getByRole("link", { name: "Open Alert rules" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Read How alerts work" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Read Security and trust help" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Slack notifications" })).not.toBeInTheDocument();
 
     for (const heading of resolveGuideHeadingsForStrip(

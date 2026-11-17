@@ -3,6 +3,7 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useAzureBoardsWorkItemTypesQuery } from "@/hooks/use-azure-boards-work-item-types-query";
 import {
@@ -92,6 +93,7 @@ export type UseAzureBoardsIntegrationPageResult = {
 };
 
 export function useAzureBoardsIntegrationPage(): UseAzureBoardsIntegrationPageResult {
+  const { productLine } = useProductLine();
   const pathname = usePathname() ?? "/integrations/azure-boards";
   const searchParams = useSearchParams();
   const livelihoodReturnPath =
@@ -240,8 +242,9 @@ export function useAzureBoardsIntegrationPage(): UseAzureBoardsIntegrationPageRe
         credentialsReady,
         settingsReady,
         health,
+        productLine,
       }),
-    [credentialsReady, health, nativeEnabled, settingsReady],
+    [credentialsReady, health, nativeEnabled, productLine, settingsReady],
   );
 
   const credentialStatus = resolveAzureBoardsCredentialStatusLabel(connection, credentialsReady);

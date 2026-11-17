@@ -19,12 +19,8 @@ public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory
         var body = new { sourceEnvironment = "dev", targetEnvironment = "test" };
         HttpResponseMessage response = await Client.PostAsync(
             "/v1/governance-preview/compare-environments",
-            JsonContent(body));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        GovernanceEnvironmentComparisonResultDto? payload =
-            await response.Content.ReadFromJsonAsync<GovernanceEnvironmentComparisonResultDto>(JsonOptions);
+            JsonContent(body));        GovernanceEnvironmentComparisonResultDto? payload =
+            await response.ReadJsonForTestAsync<GovernanceEnvironmentComparisonResultDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.SourceEnvironment.Should().Be("dev");
         payload.TargetEnvironment.Should().Be("test");
@@ -34,7 +30,8 @@ public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task Preview_ReturnsNotFound_WhenRunMissing()
     {
-        var body = new { runId = "nonexistent-run-id-xxxxxxxx", manifestVersion = "v1", environment = "dev" };
+        string missingRunId = Guid.NewGuid().ToString("D");
+        var body = new { runId = missingRunId, manifestVersion = "v1", environment = "dev" };
 
         HttpResponseMessage response = await Client.PostAsync("/v1/governance-preview/preview", JsonContent(body));
 
@@ -44,73 +41,15 @@ public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task Preview_ReturnsOk_AfterCommittedRun()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-GOV-PREVIEW-01")));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
 
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commit =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        string manifestVersion = commit!.Manifest.Metadata.ManifestVersion;
-
-        var previewBody = new { runId, manifestVersion, environment = "dev" };
+        var previewBody = new { runId = finalized.RunId, manifestVersion = finalized.ManifestVersion, environment = "dev" };
         HttpResponseMessage previewResponse =
-            await Client.PostAsync("/v1/governance-preview/preview", JsonContent(previewBody));
-
-        previewResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        GovernancePreviewResultDto? preview =
-            await previewResponse.Content.ReadFromJsonAsync<GovernancePreviewResultDto>(JsonOptions);
+            await Client.PostAsync("/v1/governance-preview/preview", JsonContent(previewBody));        GovernancePreviewResultDto? preview =
+            await previewResponse.ReadJsonForTestAsync<GovernancePreviewResultDto>(JsonOptions);
         preview.Should().NotBeNull();
-        preview.PreviewRunId.Should().Be(runId);
-        preview.PreviewManifestVersion.Should().Be(manifestVersion);
+        preview.PreviewRunId.Should().Be(finalized.RunId);
+        preview.PreviewManifestVersion.Should().Be(finalized.ManifestVersion);
         preview.Environment.Should().Be("dev");
     }
-}
-
-public sealed class GovernanceEnvironmentComparisonResultDto
-{
-    public string SourceEnvironment
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string TargetEnvironment
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public List<string> Notes
-    {
-        get;
-        set;
-    } = [];
-}
-
-public sealed class GovernancePreviewResultDto
-{
-    public string Environment
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string PreviewRunId
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string PreviewManifestVersion
-    {
-        get;
-        set;
-    } = string.Empty;
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type SetStateAction } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 import { commitHrefIfChanged, readWindowLocationSearch } from '@/lib/navigation/replace-if-href-changed';
 
@@ -461,10 +461,9 @@ function syncMermaidViewportCamera(
 }
 
 function useDiagramZoomState(pathname: string) {
+  const searchParams = useSearchParams();
   const readZoomFromUrl = (): number | null =>
-    parseArchitectureDiagramZoomFromSearch(
-      new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search).get('diagZoom'),
-    );
+    parseArchitectureDiagramZoomFromSearch(searchParams.get('diagZoom'));
   const [zoom, setZoomState] = useState<number>(() => readZoomFromUrl() ?? 1);
   const [zoomPercentDraft, setZoomPercentDraft] = useState<string | null>(null);
   const zoomRef = useRef<number>(zoom);
@@ -513,7 +512,7 @@ function useDiagramZoomState(pathname: string) {
     return (): void => {
       window.removeEventListener('popstate', syncZoomFromUrl);
     };
-  }, []);
+  }, [searchParams]);
 
   const zoomIn = useCallback(() => {
     setZoom((current) => current + ZOOM_STEP);

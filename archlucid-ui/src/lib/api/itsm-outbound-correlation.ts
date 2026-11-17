@@ -1,4 +1,5 @@
 import { apiGet } from "@/lib/api-client";
+import { trimRequiredPathSegment } from "./api-boundary-normalization";
 import type { components } from "@/lib/openapi-schemas";
 
 export type ItsmFindingCorrelationListItem = components["schemas"]["ItsmFindingCorrelationListItem"];
@@ -16,7 +17,7 @@ export async function listItsmFindingCorrelations(
   findingId: string,
 ): Promise<ItsmFindingCorrelationsByFindingResponse> {
   const q = new URLSearchParams();
-  q.set("findingId", findingId);
+  q.set("findingId", trimRequiredPathSegment(findingId, "findingId"));
 
   return apiGet<ItsmFindingCorrelationsByFindingResponse>(
     `/v1/integrations/itsm/correlations?${q}`,

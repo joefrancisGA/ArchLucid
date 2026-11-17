@@ -9,6 +9,9 @@ import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { PLANNING_PATH } from "@/lib/planning-route";
@@ -28,6 +31,7 @@ export const OPERATOR_ROUTE_READINESS_LIVE_PATHS: Readonly<Record<string, RouteR
   [ARCHITECTURE_SCORECARD_PATH]: "demo-ready",
   [SPONSOR_DASHBOARD_HREF]: "demo-ready",
   "/governance/findings": "advanced-only",
+  [SECURENOW_FINDINGS_PATH]: "advanced-only",
   "/administration/security-trust": "demo-ready",
   "/account/preferences": "demo-ready",
   "/insights/sponsor-report": "advanced-only",
@@ -54,6 +58,8 @@ export const OPERATOR_ROUTE_READINESS_LIVE_PATHS: Readonly<Record<string, RouteR
   [GOVERNANCE_APPROVAL_QUEUE_PATH]: "advanced-only",
   [GOVERNANCE_STANDARDS_AND_RULES_PATH]: "advanced-only",
   "/governance/policy-packs": "advanced-only",
+  [SECURENOW_POLICY_PACKS_PATH]: "advanced-only",
+  [SECURENOW_STANDARDS_AND_RULES_PATH]: "advanced-only",
   "/governance/audit": "advanced-only",
   "/governance/alerts": "advanced-only",
   "/governance/alert-rules": "advanced-only",
@@ -130,8 +136,10 @@ const DEMO_MODE_ADVANCED_NAV_ALLOWLIST = new Set<string>([
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   "/governance/audit",
   "/governance/policy-packs",
+  SECURENOW_POLICY_PACKS_PATH,
   "/governance/alerts",
   "/governance/alert-rules",
+  SECURENOW_FINDINGS_PATH,
 ]);
 
 import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";

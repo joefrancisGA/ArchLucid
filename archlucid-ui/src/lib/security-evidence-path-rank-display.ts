@@ -1,10 +1,12 @@
 import type { SecurityEvidencePathRankDetail } from "@/lib/security-evidence-path-types";
 
+const RANK_EXPLANATION_SUMMARY_OMISSION = "Rank explanation summary was not stored." as const;
+
 /** Lead with prose summary; composite sort key is advisory ordering only (UU-401). */
 export function formatSecurityEvidencePathRankLead(rank: SecurityEvidencePathRankDetail): string {
   const summary = rank.explanationSummary.trim();
 
-  if (summary.length > 0) {
+  if (summary.length > 0 && summary !== RANK_EXPLANATION_SUMMARY_OMISSION) {
     return summary;
   }
 

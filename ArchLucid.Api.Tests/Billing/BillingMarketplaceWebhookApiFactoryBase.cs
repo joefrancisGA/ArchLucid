@@ -44,17 +44,9 @@ internal abstract class BillingMarketplaceWebhookApiFactoryBase : GreenfieldSqlA
             ["Billing:AzureMarketplace:LandingPageUrl"] = "https://billing-test.invalid/landing",
             ["Billing:AzureMarketplace:OpenIdMetadataAddress"] =
                 "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration",
-            ["Billing:AzureMarketplace:ValidAudiences:0"] = "https://marketplaceapi.microsoft.com"
+            ["Billing:AzureMarketplace:ValidAudiences:0"] = "https://marketplaceapi.microsoft.com",
+            ["Billing:AzureMarketplace:PlanIdTierMap:contoso-enterprise"] = "Enterprise",
+            ["Billing:AzureMarketplace:PlanIdTierMap:archlucid-enterprise"] = "Enterprise"
         };
     }
-}
-
-internal sealed class BillingMarketplaceWebhookDeferredApiFactory : BillingMarketplaceWebhookApiFactoryBase
-{
-    protected override bool GaEnabled => false;
-}
-
-internal sealed class BillingMarketplaceWebhookGaOnApiFactory : BillingMarketplaceWebhookApiFactoryBase
-{
-    protected override bool GaEnabled => true;
 }

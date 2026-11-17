@@ -57,7 +57,7 @@ describe("sponsor-rehearsal-preview (TB-2208)", () => {
     expect(byId["sponsor-report"].body).toContain("2 accepted");
     expect(byId["key-findings-plain-english"].isEmpty).toBe(false);
     expect(byId["key-findings-plain-english"].body).toContain("High finding: Public ingress");
-    expect(byId["key-findings-plain-english"].body).toContain("elevated concern");
+    expect(byId["key-findings-plain-english"].body).toContain("Stored severity reads as high");
     expect(byId["residual-risks"].isEmpty).toBe(false);
     expect(byId["residual-risks"].body).toContain("weekly sampling");
     expect(byId["what-is-excluded"].body).toContain("Internal CLI usage metrics");

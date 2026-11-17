@@ -50,7 +50,7 @@ export const SECURENOW_SAMPLE_PATH_INSPECT_HREF =
 export const SECURENOW_SAMPLE_PATH_INSPECT_LABEL = "Open fixture-path-01 in Path inspect" as const;
 
 export const SECURENOW_SAMPLE_PATH_INSPECT_LEAD =
-  "Signed-in operators only. Synthetic fixture. Not a customer result." as const;
+  `Signed-in operators only. ${SECURENOW_SAMPLE_FIXTURE_LINE}` as const;
 
 export const SECURENOW_SAMPLE_WHY_LINK_HREF = "/why-securenow" as const;
 

@@ -12,12 +12,12 @@ import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME,
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN_FOOTNOTE,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_RESOURCE_CATEGORY,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
+import { resolveInfraEvidenceDiagramLegendInferredCopy } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-inferred-line";
 
 describe("InfraEvidenceDiagramLegend", () => {
   it("is hidden when no connector or resource-category evidence exists", () => {
@@ -27,7 +27,6 @@ describe("InfraEvidenceDiagramLegend", () => {
           nodes: [],
           edges: [],
         }}
-        layoutSvg="<svg />"
       />,
     );
 
@@ -220,31 +219,29 @@ describe("InfraEvidenceDiagramLegend", () => {
   });
 
   it("keeps inferred copy and adds the swatch row", () => {
-    render(
-      <InfraEvidenceDiagramLegend
-        outline={{
-          nodes: [],
-          edges: [
-            {
-              from: "web",
-              to: "sql",
-              label: "likely connected to",
-              source: "inferred",
-              confidenceBand: "inferred",
-              provenanceKind: "DerivedFact",
-              inferenceSource: "inventory-hostname",
-              declaredConnectionId: null,
-            },
-          ],
-        }}
-        layoutSvg={identityAndComputeSvg}
-      />,
-    );
+    const outline = {
+      nodes: [],
+      edges: [
+        {
+          from: "web",
+          to: "sql",
+          label: "likely connected to",
+          source: "inferred" as const,
+          confidenceBand: "inferred" as const,
+          provenanceKind: "DerivedFact",
+          inferenceSource: "inventory-hostname",
+          declaredConnectionId: null,
+        },
+      ],
+    };
+    const inferredCopy = resolveInfraEvidenceDiagramLegendInferredCopy(outline, identityAndComputeSvg);
 
-    expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN)).toBeInTheDocument();
+    render(<InfraEvidenceDiagramLegend outline={outline} layoutSvg={identityAndComputeSvg} />);
+
+    expect(screen.getByText(inferredCopy.legendLine)).toBeInTheDocument();
     expect(screen.getByTestId("infra-evidence-diagram-legend-stroke-dotted")).toBeInTheDocument();
     expect(screen.getByTestId("infra-evidence-diagram-legend-resource-category")).toBeInTheDocument();
-    expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN_FOOTNOTE)).toBeInTheDocument();
+    expect(screen.getByText(inferredCopy.footnote)).toBeInTheDocument();
   });
 
   it("lists one row when the same accent fill is repeated", () => {

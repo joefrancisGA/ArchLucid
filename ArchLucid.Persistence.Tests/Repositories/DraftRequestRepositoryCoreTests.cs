@@ -12,6 +12,33 @@ namespace ArchLucid.Persistence.Tests.Repositories;
 public sealed class DraftRequestRepositoryCoreTests
 {
     [Fact]
+    public async Task InMemoryDraftRead_does_not_expose_stored_hash_buffers()
+    {
+        InMemoryDraftRequestRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        DraftRequestDocument document = new();
+        CancellationToken ct = CancellationToken.None;
+
+        DraftRequestResponse draft = await repository.CreateAsync(
+            tenantId, workspaceId, projectId, "architect", document, ct);
+        byte[] expectedHash = draft.DocumentContentHashSha256!.ToArray();
+
+        await repository.UpdateAsync(
+            tenantId, workspaceId, projectId, draft.DraftId, DraftRequestStatus.RunSpawned, document,
+            redirectReason: null, spawnedRunId: "run-1", ct, spawnedDocumentContentHashSha256: expectedHash);
+
+        DraftRequestResponse read = (await repository.GetAsync(tenantId, workspaceId, projectId, draft.DraftId, ct))!;
+        read.DocumentContentHashSha256![0] ^= 0xff;
+        read.SpawnedDocumentContentHashSha256![0] ^= 0xff;
+
+        DraftRequestResponse reread = (await repository.GetAsync(tenantId, workspaceId, projectId, draft.DraftId, ct))!;
+        reread.DocumentContentHashSha256.Should().Equal(expectedHash);
+        reread.SpawnedDocumentContentHashSha256.Should().Equal(expectedHash);
+    }
+
+    [Fact]
     public void NormalizeSystemName_uppercases() =>
         DraftRequestRepositoryCore.NormalizeSystemName(" abc ").Should().Be("ABC");
 

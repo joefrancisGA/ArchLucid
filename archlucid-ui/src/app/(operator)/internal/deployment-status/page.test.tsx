@@ -87,7 +87,9 @@ describe("AdminDeploymentStatusPage", () => {
     expect(screen.getByTestId("ds-component-agreement").textContent).toMatch(/Match/i);
     expect(screen.getByTestId("admin-deployment-status-overall").textContent).toMatch(/Healthy/i);
 
-    fireEvent.click(screen.getByTestId("admin-deployment-status-refresh"));
+    const refreshButton = screen.getByTestId("admin-deployment-status-refresh");
+    await waitFor(() => expect(refreshButton).not.toBeDisabled());
+    fireEvent.click(refreshButton);
     await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2));
 
     vi.unstubAllGlobals();

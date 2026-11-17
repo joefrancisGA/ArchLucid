@@ -17,6 +17,8 @@ import {
 } from "@/lib/marketing/digest-sponsor-page-copy";
 import { EVALUATION_SOURCES_TITLE } from "@/lib/evaluation-sources-title";
 import type { ExecDigestSponsorDeepLinkView } from "@/lib/digest/exec-digest-sponsor-deep-link-server";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { DIGEST_SPONSOR_CANONICAL_PATH } from "@/lib/marketing/digest-sponsor-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 
 import { ExecDigestSponsorDeepLinkPanel } from "./ExecDigestSponsorDeepLinkPanel";
@@ -72,7 +74,12 @@ describe("ExecDigestSponsorDeepLinkPanel buyer-polished shell", () => {
     expect(screen.getByRole("heading", { level: 2, name: EVALUATION_SOURCES_TITLE })).toBeInTheDocument();
     expect(screen.getAllByTestId("digest-sponsor-sources")).toHaveLength(1);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(DIGEST_SPONSOR_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(DIGEST_SPONSOR_SOURCES),
+      DIGEST_SPONSOR_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       expect(within(sourcesSection).getByRole("link", { name: source.label })).toHaveAttribute(
         "href",
         source.href,

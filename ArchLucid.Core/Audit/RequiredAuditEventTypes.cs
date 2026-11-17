@@ -54,6 +54,9 @@ public static class RequiredAuditEventTypes
         AuditEventTypes.ArchitectureDocxExportGenerated,
         AuditEventTypes.FindingFeedbackRecorded,
         AuditEventTypes.FindingAskConversationPersisted,
+        // SecureNow: these audit records are the source of truth for human-entered pilot evidence.
+        AuditEventTypes.SecureNowInvestigationEffortInputsRecorded,
+        AuditEventTypes.SecureNowPilotPathDispositionRecorded,
         AuditEventTypes.AuthorityCommittedChainPersisted,
         AuditEventTypes.ArchitectureInventorySnapshotBound,
         AuditEventTypes.ArchitectureInventorySnapshotDetached,
@@ -92,6 +95,8 @@ public static class RequiredAuditEventTypes
         nameof(AuditEventTypes.ArchitectureDocxExportGenerated),
         nameof(AuditEventTypes.FindingFeedbackRecorded),
         nameof(AuditEventTypes.FindingAskConversationPersisted),
+        nameof(AuditEventTypes.SecureNowInvestigationEffortInputsRecorded),
+        nameof(AuditEventTypes.SecureNowPilotPathDispositionRecorded),
         nameof(AuditEventTypes.AuthorityCommittedChainPersisted),
         nameof(AuditEventTypes.ArchitectureInventorySnapshotBound),
         nameof(AuditEventTypes.ArchitectureInventorySnapshotDetached),

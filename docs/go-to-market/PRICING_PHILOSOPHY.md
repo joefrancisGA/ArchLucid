@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-09-07
-
 > **Scope:** ArchLucid — Pricing philosophy and packaging - full detail, tables, and links in the sections below.
+
+> **Reviewed:** 2026-09-07
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -13,7 +13,7 @@
 
 **Grounding:** Pricing anchors to the ROI model in [ROI_MODEL.md](ROI_MODEL.md) (break-even at ~184 architect-hours/year) and buyer personas in [BUYER_PERSONAS.md](BUYER_PERSONAS.md).
 
-**Single source of truth:** All price figures live **only** in this file, [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md), [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md), and [docs/CHANGELOG.md](../CHANGELOG.md). Every other doc must **link here** rather than restate numbers; the CI check `scripts/ci/check_pricing_single_source.py` enforces this on every pull request. **Marketplace tier naming** (Team / Professional / Enterprise) is guarded by `scripts/ci/assert_marketplace_pricing_alignment.py` against [`AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md).
+**Single source of truth:** All price figures live **only** in this file, [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md), [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md), and [docs/CHANGELOG.md](../CHANGELOG.md). SecureNow list prices are [§9](#9-securenow-list-price-quote-only). Every other doc must **link here** rather than restate numbers; the CI check `scripts/ci/check_pricing_single_source.py` enforces this on every pull request. **Marketplace tier naming** (Team / Professional / Enterprise) is guarded by `scripts/ci/assert_marketplace_pricing_alignment.py` against [`AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md).
 
 **Readiness scoring boundary:** Trust, reference, and assurance discounts are **commercial pricing choices** that account for buyer friction. They are not `(A)` headline product-readiness deductions and must not be used to imply that V1 pilots are blocked by SOC 2 CPA attestation, third-party pen-test publication, live commerce, or public references. Those items remain procurement realism / deferred-scope context unless a separate owner decision picks them up.
 
@@ -143,6 +143,8 @@ Host config: `LlmMonthlyTenantDollarBudget` in **`appsettings.SaaS.json`** (Team
 
 **Guided pilot credit:** The $15,000 pilot fee is fully credited against the first annual invoice on conversion to Professional or Enterprise, making it zero net cost to the buyer who converts **within 90 days of the pilot end date**. After 90 days the credit expires (it is not an indefinite option). Credit is not transferable to Team or Architect SKUs.
 
+**Commercial order acceptance (owner 2026-11-10, expanded):** The owner accepts orders at the published list prices in this file by **signed quote or order form** for: **guided pilot** (this section), **design partner**, **Enterprise evaluation**, **self-serve trial conversion** to paid tiers, monthly **Architect / Team / Professional** (§5), and **custom policy-pack** PS SKUs (§4.2). This is permission to quote and execute those SKUs — not self-serve checkout until Stripe Prices are published. **Stripe checkout** is authorized for engineering when Prices are live; until checkout is on the site, quote and order form remain the binding paths. Beta remains **NO_GO**.
+
 **Design partner eligibility:** Must be within the first 3 signed design-partner agreements. Sales must confirm the slot before quoting. Commitment deliverables (case study + reference call) are contractual. Design partner **cannot** stack with the §4.1 reference-customer discount — the design-partner term already purchases the reference commitment (see §4.3).
 
 ### 4.1 Reference-customer discount (standardized 2026-04-21)
@@ -267,7 +269,7 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
     {
       "id": "team",
       "title": "Team",
-      "summary": "Small architecture team with basic governance",
+      "summary": "Small architecture team with policy controls and approval workflows",
       "planMonthlyUsd": 1169,
       "pricingDisplay": "monthly",
       "includedUsers": 5,
@@ -413,6 +415,25 @@ Use this when first deals produce signal about price tolerance. Do not change li
 
 ---
 
+## 9. SecureNow list price (quote only)
+
+> **Owner approved:** 2026-10-29. **Recorded here:** 2026-11-09 so SecureNow has one fee source. **Public list price:** owner decision 2026-11-09. **SN-EVAL orders:** owner decision 2026-11-10. The owner accepts an SN-EVAL order at the price in this table by signed quote. The owner attests a non-fixture Reader capture exists. This file does not name that capture. SN-ANNUAL and the add-on rows are not accepted from a page click. Not a Partner Center plan, not a Stripe Price, and not permission to invoice from a page. SecureNow beta remains **NO_GO**. Live billing stays off.
+
+An ArchLucid Team, Professional, or Enterprise payment does not grant SecureNow. Currency is **USD**. Prices exclude sales tax. There is no monthly card price.
+
+These amounts may be shown on the public SecureNow SKU card (`/securenow-sku`) and on the signed-in quote packet (`/administration/securenow-quote-packet`). A page that shows them must match this table and carry the conditions in this section. Every other doc links here and does not restate the amounts.
+
+| ID | What it sells | Price | Meter |
+| --- | --- | --- | --- |
+| **SN-EVAL** | 45-day controlled evaluation | **$8,000** once | Up to **2** Azure subscriptions and **4** successful snapshots. Reader-only. The customer makes any change outside SecureNow. |
+| **SN-ANNUAL** | One-year subscription evidence | **$24,000** per year, billed annually in advance | **3** Azure subscriptions, **24** successful snapshots in the year, **5** named operators. Included contact channel is business-hours email. That channel is an acknowledgement target, not a support SLA. |
+| **SN-SUB-ADD** | One more subscription on an annual term | **$6,000** per year | Cap **10** subscriptions on this sheet. An 11th subscription is a custom order, not this row. |
+| **SN-SNAP-4** | Extra captures | **$1,500** prepaid | **4** successful snapshots. Unused balance expires at the end of that annual term. |
+
+The **$8,000** evaluation fee is credited in full against **SN-ANNUAL** only when the annual order is signed within **90 days** after the evaluation ends. It is not credited against any ArchLucid SKU.
+
+Seller of record, tax posture, and payout identity stay in [`docs/securenow/PRIVATE_PRICE_SHEET.md`](../securenow/PRIVATE_PRICE_SHEET.md). That sheet must not repeat the dollar amounts in this section.
+
 ## Related documents
 
 | Doc | Use |
@@ -426,3 +447,4 @@ Use this when first deals produce signal about price tolerance. Do not change li
 | [POSITIONING.md](POSITIONING.md) | Positioning narrative and proof points |
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Guided pilot success criteria |
 | [../CHANGELOG.md](../CHANGELOG.md) | Release history including pricing freeze entry |
+| [../securenow/PRIVATE_PRICE_SHEET.md](../securenow/PRIVATE_PRICE_SHEET.md) | SecureNow seller, tax, and payout identity. Fees are §9 of this file. |

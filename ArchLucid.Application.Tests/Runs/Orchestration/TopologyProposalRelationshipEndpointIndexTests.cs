@@ -148,6 +148,39 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_source_endpoint_has_zero_width_format_character()
+    {
+        const string sourceWithZeroWidth = "svc\u200B-api";
+
+        List<ManifestService> services =
+        [
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" },
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new ManifestDatastore { DatastoreName = "sql", DatastoreId = "ds-sql" },
+        ];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = sourceWithZeroWidth,
+                TargetId = "ds-sql",
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            services,
+            datastores,
+            relationships);
+
+        filtered.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterKnownRelationships_returns_empty_when_relationships_are_null_or_empty()
     {
         List<ManifestService> services =
@@ -1838,6 +1871,21 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void DeclaredEndpointKeySetContains_matches_declared_label_when_endpoint_has_zero_width_format_character()
+    {
+        const string withZeroWidth = "ap\u200Bi";
+        HashSet<string> declaredKeys = [];
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(
+            declaredKeys,
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" });
+
+        TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(declaredKeys, withZeroWidth)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
     public void ManifestEndpointReferencesEqual_returns_false_when_either_reference_is_null()
     {
         TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(null, "svc-api")
@@ -1849,6 +1897,38 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
         TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(null, null)
             .Should()
             .BeFalse();
+    }
+
+    [Fact]
+    public void ManifestEndpointReferencesEqual_matches_references_that_differ_only_by_zero_width_format_character()
+    {
+        TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual("api", "ap\u200Bi")
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_node_label_has_zero_width_format_character()
+    {
+        const string serviceId = "svc-api";
+        ManifestService service = new() { ServiceId = serviceId, ServiceName = "api" };
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-primary",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "ap\u200Bi",
+                Category = GraphTopologyCategories.Compute,
+                SourceId = "ProposedChanges",
+            },
+        ];
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+        nodeId.Should().Be("svc-primary");
     }
 
     [Fact]

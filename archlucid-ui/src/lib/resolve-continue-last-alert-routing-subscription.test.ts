@@ -68,4 +68,28 @@ describe("resolveContinueLastAlertRoutingSubscription", () => {
     expect(match?.subscriptionId).toBe("new");
     expect(match?.name).toBe("New");
   });
+
+  it("orders deliveries by instant and ignores unreadable delivery timestamps", () => {
+    window.localStorage.removeItem("archlucid_alert_routing_subscription_continue_last_v1");
+
+    const match = resolveContinueLastAlertRoutingSubscription([
+      subscription({
+        routingSubscriptionId: "invalid",
+        name: "Invalid",
+        lastDeliveredUtc: "not-a-timestamp",
+      }),
+      subscription({
+        routingSubscriptionId: "older",
+        name: "Older",
+        lastDeliveredUtc: "2026-08-20T01:00:00+02:00",
+      }),
+      subscription({
+        routingSubscriptionId: "newer",
+        name: "Newer",
+        lastDeliveredUtc: "2026-08-20T00:30:00Z",
+      }),
+    ]);
+
+    expect(match?.subscriptionId).toBe("newer");
+  });
 });

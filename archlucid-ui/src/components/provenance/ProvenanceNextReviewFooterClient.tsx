@@ -8,6 +8,7 @@ import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
 import { enrichRunsListWithStaticDemoFallback } from "@/lib/operator/operator-runs-list-with-demo-fallback";
+import { resolveLibReviewProvenanceHref } from "@/lib/architecture/lib-open-review-href";
 import { resolveNextRunsListRow } from "@/lib/resolve-next-runs-list-row";
 import type { RunSummary } from "@/types/authority";
 
@@ -61,7 +62,7 @@ export function ProvenanceNextReviewFooterClient(
     return {
       runId: target.runId,
       reviewTitle,
-      href: `/architecture/reviews/${encodeURIComponent(target.runId)}/provenance`,
+      href: resolveLibReviewProvenanceHref(target.runId),
     };
   }, [props.runId, runs]);
 

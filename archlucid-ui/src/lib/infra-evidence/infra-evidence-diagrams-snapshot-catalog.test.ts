@@ -48,6 +48,24 @@ describe("infra-evidence-diagrams-snapshot-catalog", () => {
     ]);
   });
 
+  it("orders captures with different ISO timestamp forms by their UTC instant", () => {
+    const sorted = sortInfraDiagramsSnapshotsForPicker([
+      snapshot({ snapshotId: "early-offset", capturedUtc: "2026-09-01T13:59:00+02:00" }),
+      snapshot({ snapshotId: "unrecorded", capturedUtc: null }),
+      snapshot({ snapshotId: "whole-second", capturedUtc: "2026-09-01T12:00:00Z" }),
+      snapshot({ snapshotId: "latest", capturedUtc: "2026-09-01T12:00:00.5Z" }),
+      snapshot({ snapshotId: "sql-utc", capturedUtc: "2026-09-01T12:00:00.25" }),
+    ]);
+
+    expect(sorted.map((row) => row.snapshotId)).toEqual([
+      "latest",
+      "sql-utc",
+      "whole-second",
+      "early-offset",
+      "unrecorded",
+    ]);
+  });
+
   it("builds subscription filter options without an All row", () => {
     const options = buildInfraDiagramsSubscriptionFilterOptions([
       snapshot({ subscriptionId: "sub-dev", subscriptionName: "Dev" }),

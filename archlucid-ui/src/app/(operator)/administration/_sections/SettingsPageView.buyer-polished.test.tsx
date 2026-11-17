@@ -19,6 +19,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     callerAuthorityRank: navAuth.callerAuthorityRank,
@@ -76,6 +81,25 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
   };
 });
 
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
+
 const routerReplace = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
@@ -91,6 +115,7 @@ vi.mock("next/navigation", () => ({
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { SETTINGS_HUB_CLAIM_DISCIPLINE, SETTINGS_HUB_FOLLOW_UPS_TITLE, SETTINGS_HUB_SOURCES } from "@/lib/settings-hub-evidence-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -145,7 +170,12 @@ describe("SettingsPageView buyer-polished shell (SET)", () => {
     expect(overviewHeader.compareDocumentPosition(firstViewport) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(SETTINGS_HUB_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(SETTINGS_HUB_SOURCES),
+      "/administration",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

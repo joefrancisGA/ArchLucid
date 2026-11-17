@@ -60,11 +60,27 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     },
   },
   {
+    prefix: "/compliance/policy-packs",
+    hint: {
+      id: "compliance-policy-packs",
+      message: "Start from a catalog pack or author rules, then assign packs before your next review.",
+      learnMoreHref: "/help/policy-packs",
+    },
+  },
+  {
     prefix: "/governance/findings",
     hint: {
       id: "governance-findings",
       message: "Triage with keyboard: Alt+J/K to move, Alt+1–3 to accept, remediate, or reject when Execute+ is enabled.",
       learnMoreHref: "/help/governance-findings",
+    },
+  },
+  {
+    prefix: "/compliance/findings",
+    hint: {
+      id: "compliance-findings",
+      message: "Triage with keyboard: Alt+J/K to move, Alt+1–3 to accept, remediate, or reject when Execute+ is enabled.",
+      learnMoreHref: "/help/findings",
     },
   },
   {

@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { StatusTag } from "@/components/ui/status-tag";
+import { OPERATOR_LINK } from "@/lib/design-tokens";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { cn } from "@/lib/utils";
 
@@ -58,7 +59,7 @@ export function RemediationWorkbenchContextStrip(props: RemediationWorkbenchCont
       )}
       <Link
         href={`#${props.detailAnchorId}`}
-        className="ml-auto shrink-0 text-[color:var(--al-accent-interactive)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className={cn("ml-auto shrink-0", OPERATOR_LINK.inline, "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring")}
       >
         Jump to instance detail
       </Link>

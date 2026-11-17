@@ -191,3 +191,8 @@ describe("RunDetailOutcomeCards", () => {
     expect(screen.getByTestId("buyer-review-status-headline")).not.toHaveTextContent("Blocking issues: 0");
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

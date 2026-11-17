@@ -144,7 +144,7 @@ describe("SimplifiedPilotWizard", () => {
     await waitFor(() => {
       expect(saveTenantReviewCycleBaselineMock).toHaveBeenCalledWith({
         baselineReviewCycleHours: 24,
-        baselineReviewCycleSourceNote: "wizard: Not sure — omit confidence on submit",
+        baselineReviewCycleSourceNote: "Confidence was not chosen.",
       });
     });
 
@@ -159,7 +159,7 @@ describe("SimplifiedPilotWizard", () => {
     });
 
     const createPayload = createRun.mock.calls[0]?.[0] as { systemName?: string } | undefined;
-    expect(createPayload?.systemName).toBe("MyRg");
+    expect(createPayload?.systemName).toBe("CustomerWebApp");
   });
 
   it("exposes advanced configuration behind an accordion on step 1", () => {

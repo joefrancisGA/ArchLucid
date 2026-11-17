@@ -16,13 +16,14 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { apiPostJson } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { encodeRequiredPathSegment, trimOptionalText, trimRequiredPathSegment } from "./api-boundary-normalization";
 
 const DRAFT_BASE = "/v1/architecture/draft";
 
 export async function admitDraftRequest(draftId: string): Promise<DraftAdmissionResponse> {
   try {
     return await apiPostJson<DraftAdmissionResponse>(
-      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/admit`,
+      `${DRAFT_BASE}/${encodeRequiredPathSegment(draftId, "draftId")}/admit`,
       {},
     );
   } catch (error: unknown) {
@@ -37,14 +38,12 @@ export async function submitDraftRequest(
   draftId: string,
   expectedUpdatedUtc?: string | null,
 ): Promise<SubmitDraftResponse> {
-  const body =
-    expectedUpdatedUtc === undefined || expectedUpdatedUtc === null
-      ? {}
-      : { expectedUpdatedUtc };
+  const normalizedExpectedUpdatedUtc = trimOptionalText(expectedUpdatedUtc ?? undefined);
+  const body = normalizedExpectedUpdatedUtc !== undefined ? { expectedUpdatedUtc: normalizedExpectedUpdatedUtc } : {};
 
   try {
     return await apiPostJson<SubmitDraftResponse>(
-      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/submit`,
+      `${DRAFT_BASE}/${encodeRequiredPathSegment(draftId, "draftId")}/submit`,
       body,
     );
   } catch (error: unknown) {
@@ -58,7 +57,7 @@ export async function submitDraftRequest(
 /** Return an admitted draft to drafting so the architecture brief can be edited again. */
 export async function reopenDraftRequest(draftId: string): Promise<DraftRequestResponse> {
   try {
-    return await apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/reopen`, {});
+    return await apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeRequiredPathSegment(draftId, "draftId")}/reopen`, {});
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
@@ -70,7 +69,7 @@ export async function reopenDraftRequest(draftId: string): Promise<DraftRequestR
 /** Permanently abandons an architecture draft in Drafting or Admitted — not reversible. */
 export async function abandonDraftRequest(draftId: string): Promise<DraftRequestResponse> {
   try {
-    return await apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/abandon`, {});
+    return await apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeRequiredPathSegment(draftId, "draftId")}/abandon`, {});
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
@@ -86,8 +85,8 @@ export async function reasonDraftRequest(
 ): Promise<DraftIntakeReasonResponse> {
   try {
     return await apiPostJson<DraftIntakeReasonResponse>(
-      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/reason`,
-      { message: message.trim() },
+      `${DRAFT_BASE}/${encodeRequiredPathSegment(draftId, "draftId")}/reason`,
+      { message: trimRequiredPathSegment(message, "message") },
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -101,7 +100,7 @@ export async function reasonDraftRequest(
 export async function getDraftBranchQuota(draftId: string): Promise<DraftBranchQuotaResponse> {
   try {
     return await apiGetSealedManifestAware<DraftBranchQuotaResponse>(
-      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/branch-quota`,
+      `${DRAFT_BASE}/${encodeRequiredPathSegment(draftId, "draftId")}/branch-quota`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -116,10 +115,17 @@ export async function branchDraftRequest(
   draftId: string,
   body: BranchDraftRequest,
 ): Promise<BranchDraftResponse> {
+  const overrideKey = trimOptionalText(body.overrideKey);
+  const request = {
+    overrideKind: body.overrideKind,
+    overrideValue: trimRequiredPathSegment(body.overrideValue, "overrideValue"),
+    ...(overrideKey !== undefined ? { overrideKey } : {}),
+  };
+
   try {
     return await apiPostJson<BranchDraftResponse>(
-      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/branch`,
-      body,
+      `${DRAFT_BASE}/${encodeRequiredPathSegment(draftId, "draftId")}/branch`,
+      request,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -133,7 +139,7 @@ export async function branchDraftRequest(
 export async function cloneDraftSnapshot(draftId: string): Promise<CloneSnapshotDraftResponse> {
   try {
     return await apiPostJson<CloneSnapshotDraftResponse>(
-      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/clone-snapshot`,
+      `${DRAFT_BASE}/${encodeRequiredPathSegment(draftId, "draftId")}/clone-snapshot`,
       {},
     );
   } catch (error: unknown) {

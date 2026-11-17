@@ -4,7 +4,11 @@ import {
   isInfraEvidenceResourceRemovedChange,
   normalizeInfraEvidenceChangeTypeKey,
 } from "@/lib/infra-evidence/infra-evidence-drift-display";
-import { formatAzureResourceDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
+import {
+  formatAzureResourceDisplay,
+  formatAzureResourceTypeForDisplay,
+  resolveAzureResourceTypeFromIdSegments,
+} from "@/lib/infra-evidence/format-azure-resource-display";
 import {
   formatInfraEvidenceDriftRiskLabel,
   isComparingTwoInventorySnapshots,
@@ -228,22 +232,12 @@ function compareStrings(left: string | null | undefined, right: string | null | 
 }
 
 function resourceTypeHaystack(azureResourceId: string | null | undefined): string {
-  const trimmed = azureResourceId?.trim() ?? "";
+  const segments = (azureResourceId?.trim() ?? "").split("/").filter((segment) => segment.length > 0);
+  const qualifiedType = resolveAzureResourceTypeFromIdSegments(segments);
 
-  if (trimmed.length === 0) {
-    return "";
-  }
-
-  const display = formatAzureResourceDisplay(trimmed);
-  const segments = trimmed.split("/").filter((segment) => segment.length > 0);
-  const providersIndex = segments.findIndex((segment) => segment.toLowerCase() === "providers");
-  let providerQualifiedType = "";
-
-  if (providersIndex >= 0 && segments.length >= providersIndex + 3) {
-    providerQualifiedType = `${segments[providersIndex + 1]}/${segments[providersIndex + 2]}`;
-  }
-
-  return `${display.resourceType ?? ""} ${providerQualifiedType}`.trim().toLowerCase();
+  return qualifiedType === null
+    ? ""
+    : `${qualifiedType} ${formatAzureResourceTypeForDisplay(qualifiedType)}`.toLowerCase();
 }
 
 export function hasActiveDriftTableFilters(

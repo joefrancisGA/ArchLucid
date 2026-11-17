@@ -39,6 +39,68 @@ namespace ArchLucid.Application.Tests.Advisory;
 public sealed class AdvisoryScanRunnerTests
 {
     [Fact]
+    public async Task RunScheduleAsync_WhenCanceled_ClosesStartedExecutionAndPropagatesCancellation()
+    {
+        using CancellationTokenSource cancellation = new();
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(x => x.ListRunsByProjectAsync(It.IsAny<ScopeContext>(), "default", 2, cancellation.Token))
+            .Returns(() =>
+            {
+                cancellation.Cancel();
+                return Task.FromCanceled<IReadOnlyList<RunSummaryDto>>(cancellation.Token);
+            });
+        InMemoryAdvisoryScanExecutionRepository executions = new();
+        Mock<IAdvisoryScanScheduleRepository> schedules = new();
+        AdvisoryScanRunner sut = new(
+            authority.Object,
+            Mock.Of<IImprovementAdvisorService>(),
+            Mock.Of<IComparisonService>(),
+            Mock.Of<IArchitectureDigestBuilder>(),
+            Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
+            Mock.Of<IArchitectureDigestRepository>(),
+            Mock.Of<IDigestDeliveryDispatcher>(),
+            Mock.Of<IAlertService>(),
+            Mock.Of<ICompositeAlertService>(),
+            Mock.Of<IEffectiveGovernanceLoader>(),
+            Mock.Of<IRecommendationRepository>(),
+            Mock.Of<IRecommendationLearningService>(),
+            executions,
+            schedules.Object,
+            Mock.Of<IScanScheduleCalculator>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<IIntegrationEventPublisher>(),
+            Mock.Of<IIntegrationEventOutboxRepository>(),
+            OptionsMonitor(),
+            Mock.Of<IManifestHashService>(),
+            NullLogger<AdvisoryScanRunner>.Instance);
+        AdvisoryScanSchedule schedule = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            RunProjectSlug = "default",
+        };
+
+        Func<Task> run = () => sut.RunScheduleAsync(schedule, cancellation.Token);
+        await run.Should().ThrowAsync<OperationCanceledException>();
+
+        ScopeContext scope = new()
+        {
+            TenantId = schedule.TenantId,
+            WorkspaceId = schedule.WorkspaceId,
+            ProjectId = schedule.ProjectId,
+        };
+        IReadOnlyList<AdvisoryScanExecution> history =
+            await executions.ListByScheduleAsync(scope, schedule.ScheduleId, 1, CancellationToken.None);
+        AdvisoryScanExecution execution = history.Should().ContainSingle().Which;
+        execution.Status.Should().Be("Failed");
+        execution.CompletedUtc.Should().NotBeNull();
+        execution.ErrorMessage.Should().Be("Advisory scan was canceled.");
+        schedules.Verify(x => x.UpdateAsync(It.IsAny<AdvisoryScanSchedule>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task RunScheduleAsync_WhenNoRuns_FailsExecutionAndAdvancesSchedule()
     {
         Mock<IAuthorityQueryService> authority = new();

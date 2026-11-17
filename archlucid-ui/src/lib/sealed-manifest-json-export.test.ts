@@ -23,7 +23,7 @@ describe("buildSealedManifestExportJson (FC-55)", () => {
         progressSummary: null,
         manifestSummary: null,
         graphSnapshot: null,
-        enginesSucceeded: 35,
+        enginesSucceeded: 41,
         transparencyTrail: {
           asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
           inferred: [],
@@ -56,7 +56,7 @@ describe("buildSealedManifestExportJson (FC-55)", () => {
         progressSummary: null,
         manifestSummary: null,
         graphSnapshot: null,
-        enginesSucceeded: 35,
+        enginesSucceeded: 41,
         transparencyTrail: { asserted: [], inferred: undefined, skipped: [] } as never,
       },
     });

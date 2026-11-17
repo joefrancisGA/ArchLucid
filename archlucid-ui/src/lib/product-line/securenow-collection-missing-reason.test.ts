@@ -26,7 +26,7 @@ describe("resolveSecureNowCollectionMissingDetail", () => {
         azureSubscriptionIdsPresent: false,
         hasSuccessfulPull: false,
       }),
-    ).toMatch(/Subscription scope/i);
+    ).toMatch(/Azure subscription/i);
   });
 
   it("names a failed or unfinished capture when pull has not succeeded", () => {
@@ -36,7 +36,7 @@ describe("resolveSecureNowCollectionMissingDetail", () => {
         azureSubscriptionIdsPresent: true,
         hasSuccessfulPull: false,
       }),
-    ).toMatch(/capture failed or has not finished/i);
+    ).toMatch(/Manual upload/i);
   });
 
   it("shows the block until a successful pull exists", () => {

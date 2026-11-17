@@ -1,3 +1,5 @@
+import { AMOUNT_NOT_RETURNED } from "@/lib/amount-display-copy";
+
 /** Default coefficients for “hours surfaced pre-commit” — editable only in source for v1.1; $/hour is Admin UI + localStorage. */
 
 import type { PilotValueReportSeverityJson } from "@/types/pilot-value-report";
@@ -94,7 +96,7 @@ export function formatHours(hours: number): string {
 
 export function formatUsd(amount: number): string {
   if (!Number.isFinite(amount)) {
-    return "Amount not returned";
+    return AMOUNT_NOT_RETURNED;
   }
 
   return new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(amount);

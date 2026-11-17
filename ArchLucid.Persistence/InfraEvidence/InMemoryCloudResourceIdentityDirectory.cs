@@ -169,6 +169,7 @@ public sealed class InMemoryCloudResourceIdentityDirectory : ICloudResourceIdent
 
         List<CloudResourceIdentityRecord> ordered = query
             .OrderByDescending(record => record.LastSeenUtc)
+            .ThenBy(record => record.CloudResourceId)
             .ToList();
 
         int totalCount = ordered.Count;

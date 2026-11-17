@@ -36,6 +36,28 @@ describe("resolveArchitectureCompareSiblingDefaults (AO-29)", () => {
     });
   });
 
+  it("keeps the later review on the later side when timestamps share a second", () => {
+    const sameSecond = [
+      { runId: "later", description: "Later review", createdUtc: "2026-01-02T00:00:00.1Z" },
+      { runId: "prior", description: "Prior review", createdUtc: "2026-01-02T00:00:00Z" },
+    ];
+
+    expect(resolveArchitectureCompareSiblingDefaults({ architectureId: "architecture-identity-001", reviews: sameSecond }))
+      .toEqual({ architectureId: "architecture-identity-001", priorRunId: "prior", laterRunId: "later" });
+  });
+
+  it("preserves precise server ordering for reviews within the same millisecond", () => {
+    const sameMillisecond = [
+      { runId: "later", description: null, createdUtc: "2026-01-02T00:00:00.123456Z" },
+      { runId: "prior", description: null, createdUtc: "2026-01-02T00:00:00.1234Z" },
+    ];
+
+    expect(resolveArchitectureCompareSiblingDefaults({
+      architectureId: "architecture-identity-001",
+      reviews: sameMillisecond,
+    })?.laterRunId).toBe("later");
+  });
+
   it("returns null when fewer than two sibling reviews exist", () => {
     expect(
       resolveArchitectureCompareSiblingDefaults({

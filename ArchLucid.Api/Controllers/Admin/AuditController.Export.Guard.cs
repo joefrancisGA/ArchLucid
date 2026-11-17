@@ -10,26 +10,25 @@ namespace ArchLucid.Api.Controllers.Admin;
 
 public sealed partial class AuditController
 {
-    /// <summary>Wave-21 suggestion 204: fail-closed when export row cap would silently truncate the filtered set.</summary>
-    private async Task<IActionResult?> EnsureAuditExportWithinRowCapOrConflictAsync(
+    private async Task<(IReadOnlyList<AuditEvent> Events, IActionResult? Problem)> ReadAuditExportAsync(
         ScopeContext scope,
         AuditEventFilter filter,
-        int exportMaxRows,
         CancellationToken cancellationToken)
     {
-        int matchingRows = await repo.CountFilteredAsync(
+        filter.IncludeExportOverflowRow = true;
+        IReadOnlyList<AuditEvent> events = await repo.GetFilteredExportAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
             filter,
             cancellationToken);
 
-        if (matchingRows <= exportMaxRows)
-            return null;
+        if (events.Count <= filter.Take)
+            return (events, null);
 
-        return this.ConflictProblem(
-            $"Audit export blocked: {matchingRows} events match the filter but maxRows is {exportMaxRows}. "
+        return ([], this.ConflictProblem(
+            $"Audit export blocked: at least {events.Count} events match the filter but maxRows is {filter.Take}. "
             + "Narrow the date range or filters, or raise maxRows up to 10,000.",
-            ProblemTypes.AuditExportRowCapExceeded);
+            ProblemTypes.AuditExportRowCapExceeded));
     }
 }

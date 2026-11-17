@@ -26,6 +26,8 @@ const reviewAvailabilityMock = vi.hoisted(() => ({
   loading: false,
   hasFinalizedReviews: true,
   finalizedCount: 1,
+  loadFailed: false,
+  retry: vi.fn(),
 }));
 
 const demoEnvMock = vi.hoisted(() => ({
@@ -33,6 +35,36 @@ const demoEnvMock = vi.hoisted(() => ({
   fullShell: true,
   evalChrome: false,
 }));
+
+const advisorySchedulesNavigation = vi.hoisted(() => ({
+  params: new URLSearchParams(),
+  pathname: "/governance/advisory-scans",
+}));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => advisorySchedulesNavigation.pathname,
+    useSearchParams: () => advisorySchedulesNavigation.params,
+    useRouter: () =>
+      ({
+        back: vi.fn(),
+        forward: vi.fn(),
+        prefetch: vi.fn(),
+        push: vi.fn(),
+        refresh: vi.fn(),
+        replace: vi.fn((href: string) => {
+          const queryIndex = href.indexOf("?");
+
+          advisorySchedulesNavigation.params = new URLSearchParams(
+            queryIndex >= 0 ? href.slice(queryIndex + 1) : "",
+          );
+        }),
+        bfcacheId: null,
+      }) as ReturnType<typeof import("next/navigation")["useRouter"]>,
+  });
+});
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => demoEnvMock.evalChrome,
@@ -58,6 +90,8 @@ vi.mock("@/hooks/use-advisory-schedule-review-availability", () => ({
     loading: reviewAvailabilityMock.loading,
     hasFinalizedReviews: reviewAvailabilityMock.hasFinalizedReviews,
     finalizedCount: reviewAvailabilityMock.finalizedCount,
+    loadFailed: reviewAvailabilityMock.loadFailed,
+    retry: reviewAvailabilityMock.retry,
   }),
 }));
 
@@ -77,10 +111,12 @@ describe("AdvisorySchedulesContent", () => {
   }
 
   beforeEach(() => {
+    advisorySchedulesNavigation.params = new URLSearchParams();
     authMock.rank = AUTHORITY_RANK.AdminAuthority;
     reviewAvailabilityMock.loading = false;
     reviewAvailabilityMock.hasFinalizedReviews = true;
     reviewAvailabilityMock.finalizedCount = 1;
+    reviewAvailabilityMock.loadFailed = false;
     demoEnvMock.buyerPolished = false;
     demoEnvMock.fullShell = true;
     demoEnvMock.evalChrome = false;
@@ -173,6 +209,20 @@ describe("AdvisorySchedulesContent", () => {
     expect(screen.queryByTestId("advisory-schedule-create-submit")).toBeNull();
   });
 
+  it("shows a retryable review lookup error instead of a no-review prerequisite", async () => {
+    reviewAvailabilityMock.hasFinalizedReviews = false;
+    reviewAvailabilityMock.finalizedCount = 0;
+    reviewAvailabilityMock.loadFailed = true;
+
+    render(<AdvisorySchedulesContent />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not check for finalized reviews.");
+    expect(screen.queryByTestId("advisory-schedules-no-finalized-reviews-empty-state")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("advisory-schedules-create-action")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Retry review lookup" }));
+    expect(reviewAvailabilityMock.retry).toHaveBeenCalledOnce();
+  });
+
   it("disables run now when finalized reviews are unavailable", async () => {
     reviewAvailabilityMock.hasFinalizedReviews = false;
     reviewAvailabilityMock.finalizedCount = 0;
@@ -205,20 +255,14 @@ describe("AdvisorySchedulesContent", () => {
       expect(screen.getByTestId("advisory-schedule-upcoming-preview")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTestId("advisory-schedule-advanced-toggle"));
+    fireEvent.click(await screen.findByTestId("advisory-schedule-advanced-toggle"));
 
-    expect(await screen.findByTestId("cron-expression-input")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("cron-expression-input")).toBeInTheDocument();
+    });
     expect(screen.getByTestId("advisory-schedule-upcoming-preview")).toBeInTheDocument();
     expect(screen.queryByTestId("cron-next-runs-preview")).toBeNull();
     expect(screen.queryByText(/Generated expression \(UTC\)/i)).toBeNull();
-  });
-
-  it("shows generated cron only after Advanced scheduling opens", async () => {
-    render(<AdvisorySchedulesContent />);
-
-    fireEvent.click(screen.getByTestId("advisory-schedule-advanced-toggle"));
-
-    expect(await screen.findByText(/Generated expression \(UTC\)/i)).toBeInTheDocument();
   });
 
   it("creates a daily schedule with pending state and refreshes the list", async () => {
@@ -326,7 +370,7 @@ describe("AdvisorySchedulesContent", () => {
     render(<AdvisorySchedulesContent />);
 
     const createButton = await screen.findByTestId("advisory-schedules-create-action");
-    expect(createButton.className).toContain("al-primary-action-bg");
+    expect(createButton.className).toContain("bg-[var(--al-primary-action-bg)]");
     expect(screen.queryByTestId("advisory-schedule-create-submit")).toBeNull();
 
     fireEvent.click(createButton);

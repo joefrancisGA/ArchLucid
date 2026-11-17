@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { DIGESTS_HUB_GET_STARTED_TAB_ID } from "@/lib/digests-hub-tab";
 import { digestsHubScopedHref } from "@/lib/digests-route-paths";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactElement } from "react";
@@ -22,6 +23,8 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { DigestsBrowseHistorySkeleton } from "@/components/digests/DigestsBrowseHistorySkeleton";
 import { DigestsBrowseIncludesPreview } from "@/components/digests/DigestsBrowseIncludesPreview";
+import { DigestsBrowseScopedFilterPartialHonesty } from "@/components/digests/DigestsBrowseScopedFilterPartialHonesty";
+import { DigestsBrowseSetupEmptyPartialHonesty } from "@/components/digests/DigestsBrowseSetupEmptyPartialHonesty";
 import { DigestsBrowseSetupChecklist } from "@/components/digests/DigestsBrowseSetupChecklist";
 import {
   DIGESTS_BROWSE_EMPTY_DESCRIPTION,
@@ -31,6 +34,11 @@ import {
   DIGESTS_BROWSE_SETUP_UNKNOWN_DESCRIPTION,
   DIGESTS_BROWSE_SETUP_UNKNOWN_TITLE,
 } from "@/lib/digests-browse-copy";
+import {
+  DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_DESCRIPTION,
+  DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE,
+  DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_TITLE,
+} from "@/lib/digests-browse-scoped-filter-empty-copy";
 import {
   digestsBrowseDisclosureHrefFromSearch,
   parseDigestsBrowseIncludesOpenFromSearch,
@@ -149,7 +157,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            href={resolveOperatorScopedRunReviewHref(scopedRunId)}
           >
             Open review
           </Link>
@@ -175,13 +183,31 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
 
       {showEmptyComposition ? (
         <div className="mt-4 space-y-3" data-testid="digests-browse-empty-state">
-          {setupChecklist !== null ? (
-            <DigestsBrowseSetupChecklist items={setupChecklist} />
+          {scopedRunFilterActive ? (
+            <EnterpriseCompactEmptyState
+              testId="digests-browse-scoped-filter-empty-state"
+              title={DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_TITLE}
+              description={DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_DESCRIPTION}
+              footer={
+                <div className="space-y-2">
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digests-browse-scoped-filter-empty-not-load-failure">
+                    {DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                  <DigestsBrowseScopedFilterPartialHonesty />
+                </div>
+              }
+            />
+          ) : setupChecklist !== null ? (
+            <>
+              <DigestsBrowseSetupChecklist items={setupChecklist} />
+              <DigestsBrowseSetupEmptyPartialHonesty />
+            </>
           ) : (
             <EnterpriseCompactEmptyState
               testId="digests-empty-state"
               title={DIGESTS_BROWSE_SETUP_UNKNOWN_TITLE}
               description={DIGESTS_BROWSE_SETUP_UNKNOWN_DESCRIPTION}
+              footer={<DigestsBrowseSetupEmptyPartialHonesty />}
             />
           )}
           <CollapsibleSection

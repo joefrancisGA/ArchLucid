@@ -15,6 +15,27 @@ import {
   type QuickFamilyWizardFlowOptions,
 } from "./use-quick-family-wizard-flow";
 
+const navigationTestState = vi.hoisted(() => ({
+  qsStep: null as string | null,
+  replace: vi.fn(),
+}));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+  const base = await extendNextNavigationVitestMock(importOriginal);
+
+  return {
+    ...base,
+    useRouter: () => ({ ...base.useRouter(), replace: navigationTestState.replace }),
+    useSearchParams: () => ({
+      ...base.useSearchParams(),
+      get: (key: string) => (key === "qsStep" ? navigationTestState.qsStep : null),
+      toString: () =>
+        navigationTestState.qsStep === null ? "" : `qsStep=${navigationTestState.qsStep}`,
+    }),
+  };
+});
+
 const createRun = vi.fn();
 
 vi.mock("@/lib/api", () => ({
@@ -86,6 +107,8 @@ async function fillValidIdentityStep(form: UseFormReturn<WizardFormValues>): Pro
 describe("useQuickFamilyWizardFlow", () => {
   beforeEach(() => {
     createRun.mockReset();
+    navigationTestState.qsStep = null;
+    navigationTestState.replace.mockReset();
   });
 
   it("starts on the first step and treats the last step as the review step", () => {
@@ -144,6 +167,36 @@ describe("useQuickFamilyWizardFlow", () => {
     });
 
     expect(result.current.flow.stepIndex).toBe(0);
+  });
+
+  it("does not undo Back while router.replace still exposes the previous qsStep", () => {
+    navigationTestState.qsStep = "1";
+    const { result, rerender } = renderFlow();
+
+    expect(result.current.flow.stepIndex).toBe(1);
+
+    act(() => {
+      result.current.flow.goBack();
+    });
+    rerender();
+
+    expect(result.current.flow.stepIndex).toBe(0);
+    expect(navigationTestState.replace).toHaveBeenCalledTimes(1);
+    expect(navigationTestState.replace.mock.calls[0]?.[0]).not.toContain("qsStep=1");
+  });
+
+  it("still follows a real URL qsStep change from browser navigation", () => {
+    navigationTestState.qsStep = "1";
+    const { result, rerender } = renderFlow();
+
+    expect(result.current.flow.stepIndex).toBe(1);
+
+    act(() => {
+      navigationTestState.qsStep = "2";
+      rerender();
+    });
+
+    expect(result.current.flow.stepIndex).toBe(2);
   });
 
   it("submits the create-run payload and reports the new review id", async () => {

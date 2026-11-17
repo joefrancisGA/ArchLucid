@@ -47,10 +47,12 @@ public sealed class AzureInventoryDiffService(
             }
 
             AzureInventorySnapshotDetailReadModel? snapshotA =
-                (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotAId, cancellationToken))?.Snapshot;
+                (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotAId, cancellationToken)
+                    .ConfigureAwait(false))?.Snapshot;
 
             AzureInventorySnapshotDetailReadModel? snapshotB =
-                (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotBId, cancellationToken))?.Snapshot;
+                (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotBId, cancellationToken)
+                    .ConfigureAwait(false))?.Snapshot;
 
             if (snapshotA is null || snapshotB is null)
             {
@@ -70,17 +72,16 @@ public sealed class AzureInventoryDiffService(
                 };
             }
 
-            if (snapshotA.Header.ContentHashSha256 is not null
-                && snapshotB.Header.ContentHashSha256 is not null
-                && snapshotA.Header.ContentHashSha256.SequenceEqual(snapshotB.Header.ContentHashSha256))
-            {
-                return await PersistEmptyDiffAsync(scope, snapshotAId, snapshotBId, snapshotA.Header.SubscriptionId, cancellationToken);
-            }
-
+            // The topology hash omits evidence such as tags and role assignments.
             List<AzureInventoryChangeRecord> changes = AzureInventoryChangeAttributionResolver.Enrich(
                 AzureInventoryDiffComparer.Compare(snapshotA, snapshotB, snapshotAId, snapshotBId),
                 snapshotA,
                 snapshotB);
+
+            if (changes.Count == 0)
+            {
+                return await PersistEmptyDiffAsync(scope, snapshotAId, snapshotBId, snapshotA.Header.SubscriptionId, cancellationToken);
+            }
 
             Guid diffId = Guid.NewGuid();
             AzureInventoryDiffSummaryRecord summary = BuildSummary(diffId, changes, snapshotAId, snapshotBId, snapshotA.Header.SubscriptionId);
@@ -98,15 +99,7 @@ public sealed class AzureInventoryDiffService(
                 },
                 cancellationToken);
 
-            return new AzureInventoryDiffComputeResult
-            {
-                Succeeded = true,
-                WasExisting = persisted.WasExisting,
-                DiffId = persisted.DiffId,
-                Summary = persisted.Summary,
-                Changes = changes,
-                ConsumerFanOutSucceeded = await NotifyDiffConsumersAsync(persisted.Summary, changes, cancellationToken),
-            };
+            return await CompletePersistedDiffAsync(scope, persisted, changes, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -175,8 +168,18 @@ public sealed class AzureInventoryDiffService(
             },
             cancellationToken);
 
-        bool consumerFanOutSucceeded =
-            await NotifyDiffConsumersAsync(persisted.Summary, [], cancellationToken);
+        return await CompletePersistedDiffAsync(scope, persisted, [], cancellationToken);
+    }
+
+    private async Task<AzureInventoryDiffComputeResult> CompletePersistedDiffAsync(
+        ScopeContext scope,
+        AzureInventoryDiffPersistResult persisted,
+        IReadOnlyList<AzureInventoryChangeRecord> computedChanges,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<AzureInventoryChangeRecord> changes = persisted.WasExisting
+            ? await diffRepository.ListChangesByDiffIdAsync(scope, persisted.DiffId, cancellationToken)
+            : computedChanges;
 
         return new AzureInventoryDiffComputeResult
         {
@@ -184,8 +187,8 @@ public sealed class AzureInventoryDiffService(
             WasExisting = persisted.WasExisting,
             DiffId = persisted.DiffId,
             Summary = persisted.Summary,
-            Changes = [],
-            ConsumerFanOutSucceeded = consumerFanOutSucceeded,
+            Changes = changes,
+            ConsumerFanOutSucceeded = await NotifyDiffConsumersAsync(persisted.Summary, changes, cancellationToken),
         };
     }
 

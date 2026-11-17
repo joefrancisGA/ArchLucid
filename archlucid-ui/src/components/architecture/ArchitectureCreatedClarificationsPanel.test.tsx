@@ -14,6 +14,18 @@ import {
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import type { ArchitectureStructuredSection } from "@/lib/architecture/architecture-structured-content-types";
+import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
+
+const zeroGapClarificationQuestions: readonly ReviewClarificationQuestion[] = [
+  {
+    questionId: "clarification-q-1",
+    prompt: "Who approves production changes?",
+    sourceFindingId: "finding-1",
+    sourceFindingType: "ClarificationGap",
+    severity: "Info",
+    missingItem: "change-approver",
+  },
+];
 
 describe("ArchitectureCreatedClarificationsPanel", () => {
   it("preserves missing section, omitted entity collection, and empty entity count states", () => {
@@ -242,6 +254,8 @@ alpha|beta|gamma|delta|epsilon|zeta`;
         dismissedClarificationGapIds={new Set()}
         onDismissClarificationGap={vi.fn()}
         onNavigateTab={vi.fn()}
+        clarificationQuestions={zeroGapClarificationQuestions}
+        clarificationQuestionsTotalDerivedCount={zeroGapClarificationQuestions.length}
       />,
     );
 
@@ -278,6 +292,8 @@ alpha|beta|gamma|delta|epsilon|zeta`;
         dismissedClarificationGapIds={new Set()}
         onDismissClarificationGap={vi.fn()}
         onNavigateTab={vi.fn()}
+        clarificationQuestions={zeroGapClarificationQuestions}
+        clarificationQuestionsTotalDerivedCount={zeroGapClarificationQuestions.length}
       />,
     );
 
@@ -315,6 +331,8 @@ alpha|beta|gamma|delta|epsilon|zeta`;
         dismissedClarificationGapIds={new Set()}
         onDismissClarificationGap={vi.fn()}
         onNavigateTab={vi.fn()}
+        clarificationQuestions={zeroGapClarificationQuestions}
+        clarificationQuestionsTotalDerivedCount={zeroGapClarificationQuestions.length}
         pagePrimaryOwnedElsewhere
       />,
     );

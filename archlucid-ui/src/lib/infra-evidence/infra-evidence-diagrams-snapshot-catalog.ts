@@ -1,3 +1,4 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { normalizeInfraEvidenceSubscriptionId } from "@/lib/infra-evidence/infra-evidence-drift-subscription-scope";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { resolveInfraEvidenceSnapshotSubscriptionLabel } from "@/lib/infra-evidence/infra-evidence-drift-subscription-scope";
@@ -18,6 +19,12 @@ type InfraEvidenceSnapshotSummaryWire = InfraEvidenceSnapshotSummary & {
 
 function compareStrings(left: string, right: string): number {
   return left.localeCompare(right, undefined, { sensitivity: "base" });
+}
+
+function capturedSortTime(capturedUtc: string | null | undefined): number {
+  const time = parseIsoUtcMs(capturedUtc ?? "");
+
+  return Number.isNaN(time) ? Number.MIN_SAFE_INTEGER : time;
 }
 
 /** Maps API snapshot rows to UI summaries, including optional architecture display name. */
@@ -57,7 +64,7 @@ export function sortInfraDiagramsSnapshotsForPicker(
       return architectureCompare;
     }
 
-    return compareStrings(right.capturedUtc ?? "", left.capturedUtc ?? "");
+    return capturedSortTime(right.capturedUtc) - capturedSortTime(left.capturedUtc);
   });
 
   return sorted;

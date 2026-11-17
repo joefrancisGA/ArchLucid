@@ -8,14 +8,38 @@ export type SecureNowInvestigationEffortInputsServerRecord = SecureNowInvestigat
   readonly recordedUtc: string;
 };
 
+function mapInvestigationEffortField(value: unknown): string {
+  if (typeof value === "string") {
+    return value.trim();
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  return "";
+}
+
+function mapNonNegativeEffortNumber(value: unknown): string {
+  const mapped = mapInvestigationEffortField(value);
+
+  if (mapped.length === 0) {
+    return mapped;
+  }
+
+  const numeric = Number(mapped);
+
+  return Number.isFinite(numeric) && numeric >= 0 ? mapped : "";
+}
+
 function mapInputs(raw: Record<string, unknown>): SecureNowInvestigationEffortInputsServerRecord {
   return {
-    baselineHours: String(raw.baselineHours ?? ""),
-    afterHours: String(raw.afterHours ?? ""),
-    annualInvestigations: String(raw.annualInvestigations ?? ""),
-    hourlyRate: String(raw.hourlyRate ?? ""),
-    annualCost: String(raw.annualCost ?? ""),
-    recordedUtc: String(raw.recordedUtc ?? ""),
+    baselineHours: mapNonNegativeEffortNumber(raw.baselineHours),
+    afterHours: mapNonNegativeEffortNumber(raw.afterHours),
+    annualInvestigations: mapNonNegativeEffortNumber(raw.annualInvestigations),
+    hourlyRate: mapNonNegativeEffortNumber(raw.hourlyRate),
+    annualCost: mapNonNegativeEffortNumber(raw.annualCost),
+    recordedUtc: mapInvestigationEffortField(raw.recordedUtc),
   };
 }
 
@@ -50,5 +74,7 @@ export async function saveSecureNowInvestigationEffortInputs(
     return null;
   }
 
-  return raw.errorMessage != null ? String(raw.errorMessage) : "Investigation effort input save failed.";
+  return typeof raw.errorMessage === "string" && raw.errorMessage.trim().length > 0
+    ? raw.errorMessage.trim()
+    : "Investigation effort input save failed.";
 }

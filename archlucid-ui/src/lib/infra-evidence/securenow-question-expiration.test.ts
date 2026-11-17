@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   secureNowQuestionDispositionPostExpirationContradicts,
@@ -145,5 +145,23 @@ describe("secureNowQuestionShowsExpired", () => {
 
   it("returns false when expiration is missing and isExpired is null", () => {
     expect(secureNowQuestionShowsExpired(null, null, now)).toBe(false);
+  });
+});
+
+describe("expiration UTC semantics", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("treats SQL expiration timestamps without an offset as UTC", () => {
+    vi.stubEnv("TZ", "America/Los_Angeles");
+    const expiration = "2026-10-25T11:00:00";
+    const now = Date.parse("2026-10-25T12:00:00Z");
+
+    expect({
+      queueExpired: secureNowQuestionShowsExpired(expiration, false, now),
+      contradictsExpired: secureNowQuestionDispositionPostExpirationContradicts(expiration, true, now),
+      underReportsExpired: secureNowQuestionDispositionPostExpirationUnderReports(expiration, false, now),
+    }).toEqual({ queueExpired: true, contradictsExpired: false, underReportsExpired: true });
   });
 });

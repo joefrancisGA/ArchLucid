@@ -81,7 +81,7 @@ public sealed class DapperRetrievalIndexingOutboxRepository(ISqlConnectionFactor
                            ;WITH cte AS (
                                SELECT TOP (@Take)
                                    OutboxId
-                               FROM dbo.RetrievalIndexingOutbox WITH (READPAST, UPDLOCK, ROWLOCK)
+                               FROM dbo.RetrievalIndexingOutbox WITH (READPAST, UPDLOCK, READCOMMITTEDLOCK)
                                WHERE ProcessedUtc IS NULL
                                  AND DeadLetteredUtc IS NULL
                                  AND (NextAttemptUtc IS NULL OR NextAttemptUtc <= SYSUTCDATETIME())

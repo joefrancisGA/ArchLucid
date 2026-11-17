@@ -103,7 +103,7 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "SEE",
     path: "/see-it",
     section: "Marketing",
-    note: "See it (Marketing) - SeeItMarketingPage with skip link, hero last-reviewed meta, SeeItHeroSection (H1 + lead + primary showcase CTA + get-started ladder + visual-only deliverable preview rail), demoted What this page is not disclosure, revision history, softened sample summary labels, and Sources-only SeeItEvidenceOrientationStrip footer (amber claim callout removed). Secondary row PDF only (no duplicate preview CTA). Not an operator PageContextualHelp surface. Sibling SRH = /showcase/[reviewId]. Score 58/100 Evidence (marketing sample ceiling); UX 82/100 (2026-08-15) after layout pass. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "See it (Marketing) - SeeItMarketingPage with skip link, hero last-reviewed meta, SeeItHeroSection (H1 + lead + primary showcase CTA + get-started ladder + visual-only deliverable preview rail), demoted What this page is not disclosure, revision history, softened sample summary labels, and Sources-only SeeItEvidenceOrientationStrip footer (amber claim callout removed). Secondary row PDF only (no duplicate preview CTA). Not an operator PageContextualHelp surface. Sibling SRH = /showcase/[runId]. Score 58/100 Evidence (marketing sample ceiling); UX 82/100 (2026-08-15) after layout pass. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["SeeItHeroSection", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Signup. Owner backlog shorthand: SIG. */
@@ -117,7 +117,7 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for Showcase run. Owner backlog shorthand: SRH. */
   {
     rowId: "SRH",
-    path: "/showcase/[reviewId]",
+    path: "/showcase/[runId]",
     section: "Marketing",
     note: "Showcase run (Marketing) - ShowcaseEvidenceOrientationStrip (evaluation Sources + claim-discipline: sample showcase only) on showcase run surface. Not an operator PageContextualHelp surface.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["Sources", "cannot improve further toward 80"],

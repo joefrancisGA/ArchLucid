@@ -124,6 +124,42 @@ public sealed class CircuitBreakerAuditBridgeTests
             Times.AtLeastOnce);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task CreateCallback_ServiceResolutionFailure_QueuesCapturedEvent(bool failScopeCreation)
+    {
+        TaskCompletionSource<AuditEvent> queued = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        ServiceCollection services = [];
+        await using ServiceProvider root = services.BuildServiceProvider();
+        Mock<IServiceScopeFactory> failingFactory = new();
+        failingFactory.Setup(factory => factory.CreateScope()).Throws(new InvalidOperationException("scope unavailable"));
+        IServiceScopeFactory scopeFactory = failScopeCreation
+            ? failingFactory.Object
+            : root.GetRequiredService<IServiceScopeFactory>();
+
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(scope);
+        Mock<IAuditRetryQueue> retryQueue = new();
+        retryQueue.Setup(queue => queue.TryEnqueue(It.IsAny<AuditEvent>()))
+            .Callback<AuditEvent>(entry => queued.TrySetResult(entry))
+            .Returns(true);
+        CircuitBreakerAuditBridge sut = new(
+            scopeFactory, scopeProvider.Object, retryQueue.Object, Mock.Of<ILogger<CircuitBreakerAuditBridge>>());
+        DateTimeOffset occurred = TimeProvider.System.GetUtcNow();
+
+        sut.CreateCallback()(new CircuitBreakerAuditEntry("gate-retry", "StateTransition", "Closed", "Open", null, occurred));
+
+        AuditEvent captured = await queued.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        captured.EventType.Should().Be(AuditEventTypes.CircuitBreakerStateTransition);
+        captured.TenantId.Should().Be(scope.TenantId);
+        captured.WorkspaceId.Should().Be(scope.WorkspaceId);
+        captured.ProjectId.Should().Be(scope.ProjectId);
+        captured.OccurredUtc.Should().Be(occurred.UtcDateTime);
+        retryQueue.Verify(queue => queue.TryEnqueue(It.IsAny<AuditEvent>()), Times.Once);
+    }
+
     private static ServiceProvider BuildRootProvider(IAuditService auditService)
     {
         ServiceCollection services = [];

@@ -225,7 +225,9 @@ public sealed class FirstValueReportPdfBrandingTests
                 new KeyValuePair<string, int>("Error", 1),
             ],
             AuditRowCount = 7,
+            AuditRowCountResolved = true,
             LlmCallCount = 4,
+            LlmCallCountResolved = true,
             TopFindingId = "top-finding-id",
             TopFindingSeverity = "Error",
             TopFindingEvidenceChain = new FindingEvidenceChainResponse
@@ -236,6 +238,10 @@ public sealed class FirstValueReportPdfBrandingTests
                 FindingsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
             },
             IsDemoTenant = false,
+            SynthesizedArtifactDescriptorCount = 1,
+            SynthesizedArtifactDescriptorCountResolved = true,
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = false,
         };
     }
 

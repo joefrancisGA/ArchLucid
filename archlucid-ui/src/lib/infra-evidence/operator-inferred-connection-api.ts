@@ -1,4 +1,5 @@
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
+import { finiteNonNegativeNumberOrDefault } from "@/lib/parse-finite-number";
 import type {
   InferenceQuestionnaireListResponse,
   OperatorInferredConnectionConfirmRequest,
@@ -7,35 +8,45 @@ import type {
 } from "@/lib/infra-evidence/operator-inferred-connection-types";
 
 function mapRow(raw: Record<string, unknown>): OperatorInferredConnectionRow {
+  const mapRequired = (value: unknown): string => typeof value === "string" ? value.trim() : "";
+  const mapOptional = (value: unknown): string | null => {
+    const mapped = mapRequired(value);
+
+    return mapped.length > 0 ? mapped : null;
+  };
+
   return {
-    connectionId: typeof raw.connectionId === "string" ? raw.connectionId : "",
-    snapshotId: typeof raw.snapshotId === "string" ? raw.snapshotId : "",
-    status: typeof raw.status === "string" ? raw.status as OperatorInferredConnectionRow["status"] : null,
-    source: typeof raw.source === "string" ? raw.source as OperatorInferredConnectionRow["source"] : null,
-    ruleName: typeof raw.ruleName === "string" ? raw.ruleName : null,
-    questionText: typeof raw.questionText === "string" ? raw.questionText : null,
-    fromArmId: typeof raw.fromArmId === "string" ? raw.fromArmId : null,
-    fromLabel: typeof raw.fromLabel === "string" ? raw.fromLabel : null,
-    fromCloudResourceId: typeof raw.fromCloudResourceId === "string" ? raw.fromCloudResourceId : null,
-    toHost: typeof raw.toHost === "string" ? raw.toHost : null,
-    toCatalog: typeof raw.toCatalog === "string" ? raw.toCatalog : null,
-    toArmId: typeof raw.toArmId === "string" ? raw.toArmId : null,
-    toCloudResourceId: typeof raw.toCloudResourceId === "string" ? raw.toCloudResourceId : null,
-    settingName: typeof raw.settingName === "string" ? raw.settingName : null,
-    sourceFileFormat: typeof raw.sourceFileFormat === "string" ? raw.sourceFileFormat : null,
-    provenanceKind: typeof raw.provenanceKind === "string" ? raw.provenanceKind : "DeterministicInference",
-    createdUtc: typeof raw.createdUtc === "string" ? raw.createdUtc : "",
-    updatedUtc: typeof raw.updatedUtc === "string" ? raw.updatedUtc : "",
+    connectionId: mapRequired(raw.connectionId),
+    snapshotId: mapRequired(raw.snapshotId),
+    status: raw.status === "Proposed" || raw.status === "Confirmed" || raw.status === "Dismissed"
+      ? raw.status
+      : typeof raw.status === "string" && raw.status.trim().length > 0
+        ? ""
+        : null,
+    source: raw.source === "upload" || raw.source === "questionnaire"
+      ? raw.source
+      : typeof raw.source === "string" && raw.source.trim().length > 0
+        ? ""
+        : null,
+    ruleName: mapOptional(raw.ruleName),
+    questionText: mapOptional(raw.questionText),
+    fromArmId: mapOptional(raw.fromArmId),
+    fromLabel: mapOptional(raw.fromLabel),
+    fromCloudResourceId: mapOptional(raw.fromCloudResourceId),
+    toHost: mapOptional(raw.toHost),
+    toCatalog: mapOptional(raw.toCatalog),
+    toArmId: mapOptional(raw.toArmId),
+    toCloudResourceId: mapOptional(raw.toCloudResourceId),
+    settingName: mapOptional(raw.settingName),
+    sourceFileFormat: mapOptional(raw.sourceFileFormat),
+    provenanceKind: mapRequired(raw.provenanceKind),
+    createdUtc: mapRequired(raw.createdUtc),
+    updatedUtc: mapRequired(raw.updatedUtc),
   };
 }
 
-function finiteNumberOrDefault(value: unknown, fallback: number): number {
-  const parsed = typeof value === "number" ? value : Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
 function snapshotBasePath(snapshotId: string): string {
-  return `/api/proxy/v1/infra-evidence/snapshots/${snapshotId}/operator-inferred-connections`;
+  return `/api/proxy/v1/infra-evidence/snapshots/${encodeURIComponent(snapshotId.trim())}/operator-inferred-connections`;
 }
 
 export async function listOperatorInferredConnections(
@@ -46,7 +57,9 @@ export async function listOperatorInferredConnections(
     throw new Error("SecureNow inferred connections response was invalid.");
   }
 
-  return raw.map((row) => mapRow(row));
+  return raw
+    .filter((row): row is Record<string, unknown> => row !== null && typeof row === "object")
+    .map((row) => mapRow(row));
 }
 
 export async function listInferenceQuestionnaireItems(
@@ -54,13 +67,15 @@ export async function listInferenceQuestionnaireItems(
 ): Promise<InferenceQuestionnaireListResponse> {
   const raw = await proxyJsonGet<Record<string, unknown>>(`${snapshotBasePath(snapshotId)}/questionnaire`);
   const items = Array.isArray(raw.items)
-    ? raw.items.map((row) => mapRow(row as Record<string, unknown>))
+    ? raw.items
+      .filter((row): row is Record<string, unknown> => row !== null && typeof row === "object")
+      .map((row) => mapRow(row))
     : [];
 
   return {
     items,
-    totalCount: finiteNumberOrDefault(raw.totalCount, items.length),
-    cap: finiteNumberOrDefault(raw.cap, 50),
+    totalCount: finiteNonNegativeNumberOrDefault(raw.totalCount, items.length),
+    cap: finiteNonNegativeNumberOrDefault(raw.cap, 50),
     capReached: raw.capReached === true,
   };
 }
@@ -69,12 +84,17 @@ export async function confirmOperatorInferredConnection(
   snapshotId: string,
   request: OperatorInferredConnectionConfirmRequest,
 ): Promise<void> {
-  await proxyJsonPost(`${snapshotBasePath(snapshotId)}/confirm`, request);
+  await proxyJsonPost(`${snapshotBasePath(snapshotId)}/confirm`, {
+    ...request,
+    connectionId: request.connectionId.trim(),
+  });
 }
 
 export async function dismissOperatorInferredConnection(
   snapshotId: string,
   request: OperatorInferredConnectionDismissRequest,
 ): Promise<void> {
-  await proxyJsonPost(`${snapshotBasePath(snapshotId)}/dismiss`, request);
+  await proxyJsonPost(`${snapshotBasePath(snapshotId)}/dismiss`, {
+    connectionId: request.connectionId.trim(),
+  });
 }

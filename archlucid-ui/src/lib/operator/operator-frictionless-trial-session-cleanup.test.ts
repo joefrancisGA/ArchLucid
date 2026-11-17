@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FRICTIONLESS_TRIAL_SESSION_STORAGE_KEY } from "@/lib/frictionless-trial-session";
 import { clearFrictionlessTrialSessionForAuthenticatedOperator } from "@/lib/operator/operator-frictionless-trial-session-cleanup";
+import { accessTokenWithSubjectClaim } from "@/lib/oidc/testing/access-token-with-subject-claim";
 import { clearOidcSession, isLikelySignedIn, persistTokenResponse } from "@/lib/oidc/session";
 
 describe("clearFrictionlessTrialSessionForAuthenticatedOperator", () => {
@@ -18,7 +19,7 @@ describe("clearFrictionlessTrialSessionForAuthenticatedOperator", () => {
 
   it("removes frictionless session flag when operator is signed in", () => {
     persistTokenResponse({
-      access_token: "signed-in-access-token",
+      access_token: accessTokenWithSubjectClaim(),
       token_type: "Bearer",
       expires_in: 3600,
     });

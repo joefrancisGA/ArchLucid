@@ -16,8 +16,9 @@ public sealed class NoOpSecureNowQuestionDispositionRepository : ISecureNowQuest
         CancellationToken cancellationToken = default) =>
         Task.FromResult<SecureNowQuestionDispositionRecord?>(null);
 
-    public Task UpsertAsync(
+    public Task<bool> TryUpsertAsync(
         SecureNowQuestionDispositionRecord record,
+        int? expectedAuditEntryCount,
         CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+        Task.FromResult(true);
 }

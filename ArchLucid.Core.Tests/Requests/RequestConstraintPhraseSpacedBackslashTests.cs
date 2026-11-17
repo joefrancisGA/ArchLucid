@@ -18,6 +18,14 @@ public sealed class RequestConstraintPhraseSpacedBackslashTests
     }
 
     [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_duplicate_spaces_wrap_spaced_backslash()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: [@"Use managed  \  identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
     public void HasManagedIdentityConstraint_returns_false_when_compact_backslash_forms_compound_slug()
     {
         ArchitectureRequest request = CreateRequest(constraints: ["Use managed\\identity for Key Vault"]);

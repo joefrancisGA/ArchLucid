@@ -14,6 +14,8 @@ import type { GovernanceApprovalWorkflowState } from "@/app/(operator)/governanc
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_WORKFLOW_NO_APPROVALS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { GOVERNANCE_APPROVAL_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/governance-approval-empty-not-load-failure-copy";
+import { GovernanceWorkflowApprovalsEmptyPartialHonesty } from "@/app/(operator)/governance/_sections/GovernanceWorkflowApprovalsEmptyPartialHonesty";
 
 export type GovernanceWorkflowApprovalsEmptyProps = {
   readonly workflowState: GovernanceApprovalWorkflowState;
@@ -48,6 +50,13 @@ export function GovernanceWorkflowApprovalsEmpty(props: GovernanceWorkflowApprov
                   ? governanceNoApprovalsGettingStartedOperator
                   : governanceNoApprovalsGettingStartedReader)}
               />
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="governance-workflow-approvals-empty-not-load-failure"
+              >
+                {GOVERNANCE_APPROVAL_EMPTY_NOT_LOAD_FAILURE_LINE}
+              </p>
+              <GovernanceWorkflowApprovalsEmptyPartialHonesty />
             </div>
           }
         />

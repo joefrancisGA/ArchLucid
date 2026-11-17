@@ -20,6 +20,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { ApiKeysSettingsRestrictedState } from "./ApiKeysSettingsRestrictedState";
 import {
   API_KEYS_RESTRICTED_TITLE,

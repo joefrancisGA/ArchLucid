@@ -25,4 +25,23 @@ public static class HotPathCacheProviderResolver
 
         return "Memory";
     }
+
+    /// <summary>Bounds local cache lifetime when Redis is the shared backing store.</summary>
+    public static TimeSpan ResolveLocalCacheExpiration(
+        HotPathCacheOptions options,
+        bool distributedL2Enabled,
+        int absoluteExpirationSeconds)
+    {
+        if (!distributedL2Enabled)
+            return TimeSpan.FromSeconds(absoluteExpirationSeconds);
+
+        int localSeconds = options.LocalCacheExpirationSeconds;
+
+        if (localSeconds <= 0)
+            localSeconds = Math.Clamp(absoluteExpirationSeconds / 4, 1, 15);
+        else
+            localSeconds = Math.Clamp(localSeconds, 1, absoluteExpirationSeconds);
+
+        return TimeSpan.FromSeconds(localSeconds);
+    }
 }

@@ -1,6 +1,6 @@
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { formatIsoUtcForDisplay, parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { SHOWCASE_BUYER_REVIEW_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -75,13 +75,19 @@ export function isTechnicalAuditRunIdentifier(runId: string): boolean {
     return false;
   }
 
-  const label = buyerFacingReviewLinkLabelFromRunId(trimmed);
-
-  if (label !== trimmed) {
-    return false;
+  // Opaque run identifiers are metadata, not a buyer-facing review title.
+  // Classify GUIDs explicitly, including those without separators.
+  if (
+    /^[0-9a-f]{32}$/i.test(trimmed) ||
+    /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(trimmed)
+  ) {
+    return true;
   }
 
-  return true;
+  const label = buyerFacingReviewLinkLabelFromRunId(trimmed).trim();
+
+  // The fallback label embeds the original ID; it is not a human title.
+  return label === trimmed || label.includes(`Review id: ${trimmed}`);
 }
 
 /** Human review label for audit scope chips and titles; null when only a technical id is known. */
@@ -133,6 +139,7 @@ export function buyerAuditTrailGovernanceSummaryCounts(
   let approvals = 0;
   let exportsCount = 0;
   let lastActivityUtc: string | null = null;
+  let lastActivityMs = Number.NEGATIVE_INFINITY;
 
   for (const eventItem of events) {
     const eventType = eventItem.eventType;
@@ -155,12 +162,11 @@ export function buyerAuditTrailGovernanceSummaryCounts(
 
     const occurredUtc = eventItem.occurredUtc.trim();
 
-    if (occurredUtc.length === 0) {
-      continue;
-    }
+    const occurredMs = parseIsoUtcMs(occurredUtc);
 
-    if (lastActivityUtc === null || occurredUtc.localeCompare(lastActivityUtc) > 0) {
+    if (occurredMs > lastActivityMs) {
       lastActivityUtc = occurredUtc;
+      lastActivityMs = occurredMs;
     }
   }
 

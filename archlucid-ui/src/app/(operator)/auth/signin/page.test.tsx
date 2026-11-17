@@ -1,16 +1,22 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { Suspense, isValidElement } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   AUTH_SIGNIN_PAGE_METADATA_DESCRIPTION,
   AUTH_SIGNIN_PAGE_METADATA_TITLE,
 } from "@/lib/auth/auth-signin-page-copy";
 
-import SignInPage, { metadata } from "@/app/(operator)/auth/signin/page";
+vi.mock("@/lib/product-line/resolve-product-line-id-server", () => ({
+  resolveProductLineIdForServer: vi.fn(async () => "architecture"),
+}));
+
+import SignInPage, { generateMetadata } from "@/app/(operator)/auth/signin/page";
 
 describe("signin page (TB-1313 parity)", () => {
-  it("exports branded document metadata", () => {
+  it("exports branded document metadata", async () => {
+    const metadata = await generateMetadata();
+
     expect(metadata.title).toBe(AUTH_SIGNIN_PAGE_METADATA_TITLE);
     expect(metadata.description).toBe(AUTH_SIGNIN_PAGE_METADATA_DESCRIPTION);
   });

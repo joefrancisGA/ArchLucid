@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -59,6 +59,8 @@ export function useAuditSavedViews(params: UseAuditSavedViewsParams): UseAuditSa
     setFailure,
   } = params;
 
+  const loadGeneration = useRef(0);
+
   const getAuditSavedViewPayload = useCallback(
     () => buildAuditSavedViewPayload(currentFilters(), auditDatePreset, advancedAuditFiltersOpen),
     [advancedAuditFiltersOpen, auditDatePreset, currentFilters],
@@ -66,6 +68,7 @@ export function useAuditSavedViews(params: UseAuditSavedViewsParams): UseAuditSa
 
   const loadAuditSavedView = useCallback(
     async (view: OperatorSavedView) => {
+      const generation = ++loadGeneration.current;
       const filters = view.payload.filters as AuditSavedViewFilters;
       const nextFilters: AuditFilterFields = {
         eventType: filters.eventType ?? "",
@@ -92,15 +95,23 @@ export function useAuditSavedViews(params: UseAuditSavedViewsParams): UseAuditSa
       try {
         const page = await executeSearch(nextFilters);
 
-        applySearchPageToState(page, nextFilters);
+        if (generation === loadGeneration.current) {
+          applySearchPageToState(page, nextFilters);
+        }
       } catch (error) {
+        if (generation !== loadGeneration.current) {
+          return;
+        }
+
         if (shouldInjectAuditDemoOnSearchError(nextFilters)) {
           applyDemoAuditFallback();
         } else {
           setFailure(toApiLoadFailure(error));
         }
       } finally {
-        setSearching(false);
+        if (generation === loadGeneration.current) {
+          setSearching(false);
+        }
       }
     },
     [

@@ -6,7 +6,7 @@ const ARCHITECT_METRICS_PATH = "/api/proxy/v1/operational-security/architect-met
 function finiteNumberOrNull(value: unknown): number | null {
   if (value == null) return null;
   const parsed = typeof value === "number" ? value : Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
 }
 
 export async function fetchSecureNowArchitectOutcomeMetrics(
@@ -19,8 +19,16 @@ export async function fetchSecureNowArchitectOutcomeMetrics(
   });
   const raw = await proxyJsonGet<Record<string, unknown>>(`${ARCHITECT_METRICS_PATH}?${params.toString()}`);
 
-  const fromId = (typeof raw.fromSnapshotId === "string" ? raw.fromSnapshotId : fromSnapshotId).trim();
-  const toId = (typeof raw.toSnapshotId === "string" ? raw.toSnapshotId : toSnapshotId).trim();
+  if (raw.succeeded === false) {
+    return null;
+  }
+
+  if (typeof raw.fromSnapshotId !== "string" || typeof raw.toSnapshotId !== "string") {
+    return null;
+  }
+
+  const fromId = raw.fromSnapshotId.trim();
+  const toId = raw.toSnapshotId.trim();
 
   if (fromId.length === 0 || toId.length === 0) {
     return null;
@@ -31,7 +39,7 @@ export async function fetchSecureNowArchitectOutcomeMetrics(
   return {
     fromSnapshotId: fromId,
     toSnapshotId: toId,
-    ruleVersion: String(raw.ruleVersion ?? ""),
+    ruleVersion: typeof raw.ruleVersion === "string" ? raw.ruleVersion.trim() : "",
     criticalOrHighConfidencePathsRemoved: finiteNumberOrNull(raw.criticalOrHighConfidencePathsRemoved),
     privilegedIdentityNodesOnPathsReduced: finiteNumberOrNull(raw.privilegedIdentityNodesOnPathsReduced),
     unrestrictedEgressCapabilityPathsReduced: finiteNumberOrNull(raw.unrestrictedEgressCapabilityPathsReduced),

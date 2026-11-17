@@ -1,9 +1,10 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import type { ReactNode } from "react";
 
 import { LayerHeader } from "@/components/LayerHeader";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
@@ -25,7 +26,7 @@ type PolicyPackDetailEvidenceChromeProps = {
 export function PolicyPackDetailEvidenceChrome(
   props: PolicyPackDetailEvidenceChromeProps,
 ): React.JSX.Element {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
 
   return (
     <div data-testid="policy-pack-detail-evidence-chrome">

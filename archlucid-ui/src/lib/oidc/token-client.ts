@@ -10,6 +10,7 @@ import {
   normalizeAuthorizeCallbackErrorCode,
   normalizeOAuthErrorCode,
   normalizeOidcOAuthFormString,
+  normalizeOidcOpaqueOAuthString,
   readOAuthJsonErrorDescription,
   sanitizeOAuthUserFacingMessage,
   stripOAuthInvisibleFormatChars,
@@ -532,7 +533,11 @@ function trimTokenFormParams(params: Record<string, string>): Record<string, str
   const trimmed: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(params)) {
-    trimmed[key] = normalizeTokenString(value);
+    if (key === "code" || key === "code_verifier") {
+      trimmed[key] = normalizeOidcOpaqueOAuthString(value);
+    } else {
+      trimmed[key] = normalizeTokenString(value);
+    }
   }
 
   return trimmed;

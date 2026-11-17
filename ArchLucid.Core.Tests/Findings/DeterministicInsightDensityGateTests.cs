@@ -768,6 +768,26 @@ public sealed class DeterministicInsightDensityGateTests
     }
 
     [Fact]
+    public void Jaccard_similarity_treats_zero_width_non_joiner_separated_resource_tokens_as_space_separated_peers()
+    {
+        InsightDensityTextSimilarity.JaccardSimilarity(
+                "Enable encryption for prod\u200Csql\u200Cdb storage account",
+                "Enable encryption for prod sql db storage account")
+            .Should()
+            .BeGreaterThanOrEqualTo(0.85);
+    }
+
+    [Fact]
+    public void Jaccard_similarity_treats_zero_width_joiner_separated_resource_tokens_as_space_separated_peers()
+    {
+        InsightDensityTextSimilarity.JaccardSimilarity(
+                "Enable encryption for prod\u200Dsql\u200Ddb storage account",
+                "Enable encryption for prod sql db storage account")
+            .Should()
+            .BeGreaterThanOrEqualTo(0.85);
+    }
+
+    [Fact]
     public void Score_applies_high_duplication_for_same_engine_near_duplicate_peers()
     {
         const string sharedMessage =

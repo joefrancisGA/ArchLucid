@@ -4,12 +4,15 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { preFinalizeChecklistBlockedReason } from "@/lib/runs/pre-finalize-checklist-blocked-reason";
 
+import { encodeRequiredPathSegment } from "./api-boundary-normalization";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 export async function getPreFinalizeChecklist(runId: string): Promise<PreFinalizeChecklistResult> {
+  const encodedRunId = encodeRequiredPathSegment(runId, "runId");
+
   try {
     return await apiGetSealedManifestAware<PreFinalizeChecklistResult>(
-      `/v1/governance/pre-finalize/checklist/${encodeURIComponent(runId)}`,
+      `/v1/governance/pre-finalize/checklist/${encodedRunId}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

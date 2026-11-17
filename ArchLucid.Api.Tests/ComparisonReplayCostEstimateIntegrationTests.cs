@@ -42,11 +42,8 @@ public sealed class ComparisonReplayCostEstimateIntegrationTests(ArchLucidApiFac
         }
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/v1/architecture/comparisons/{id}/replay/cost-estimate?replayMode=artifact&format=markdown");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        ComparisonReplayCostEstimateResponse? body =
-            await response.Content.ReadFromJsonAsync<ComparisonReplayCostEstimateResponse>(JsonOptions);
+            $"/v1/architecture/comparisons/{id}/replay/cost-estimate?replayMode=artifact&format=markdown");        ComparisonReplayCostEstimateResponse? body =
+            await response.ReadJsonForTestAsync<ComparisonReplayCostEstimateResponse>(JsonOptions);
         body.Should().NotBeNull();
         body.ComparisonRecordId.Should().Be(id);
         body.RelativeCostBand.Should().BeOneOf("low", "medium", "high");

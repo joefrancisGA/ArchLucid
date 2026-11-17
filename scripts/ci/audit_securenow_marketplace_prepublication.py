@@ -15,16 +15,13 @@ ROOT = Path(__file__).resolve().parents[2]
 # drifted or was removed. It does not authorize Marketplace publication.
 _PRIVATE_QUOTE_MARKERS = (
     "OWNER APPROVED PRIVATE QUOTE SHEET",
-    "NOT A PUBLIC LIST PRICE",
+    "QUOTE IDENTITY ONLY",
     "beta remains **NO_GO**",
     "SN-EVAL",
-    "$8,000",
     "SN-ANNUAL",
-    "$24,000",
     "SN-SUB-ADD",
-    "$6,000",
     "SN-SNAP-4",
-    "$1,500",
+    "PRICING_PHILOSOPHY.md",
     "USD",
     "tax extra",
     "Joseph Francis (Sole Proprietorship)",

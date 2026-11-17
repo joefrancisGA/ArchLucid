@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
@@ -360,7 +361,7 @@ export function CompositeAlertRulesContent() {
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            href={resolveOperatorScopedRunReviewHref(scopedRunId)}
           >
             Open review
           </Link>

@@ -1,7 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
 
 import {
   ARCHLUCID_REVIEWS_NEW_WIZARD_CONTINUE_EVENT,
@@ -54,7 +57,6 @@ export function useWizardSessionPersistence<TState>(
   args: UseWizardSessionPersistenceArgs<TState>,
 ): UseWizardSessionPersistenceResult<TState> {
   const enabled = args.enabled !== false;
-  const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const wizardRestoreConfirmParam = searchParams.get("wizardRestoreConfirm");
@@ -73,16 +75,17 @@ export function useWizardSessionPersistence<TState>(
         return;
       }
 
-      router.replace(
+      // Query-only restore disclosure — avoid App Router soft navigation during dev full reload (TB-2157).
+      commitHrefIfChanged(
         wizardSessionRestoreConfirmHrefFromSearch(
-          searchParams.toString(),
+          searchParamsQueryStringForHrefWrite(searchParams),
           confirmOpen ? { confirmOpen: true, wizardId: args.wizardId } : { confirmOpen: false, wizardId: null },
           pathname,
         ),
-        { scroll: false },
+        { notify: false },
       );
     },
-    [args.wizardId, pathname, router, searchParams],
+    [args.wizardId, pathname, searchParams],
   );
 
   const clearSession = useCallback(() => {

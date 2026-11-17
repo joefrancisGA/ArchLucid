@@ -92,13 +92,14 @@ export function resolveCompareUpdatedReviewOpenHref(
   }
 
   const { updatedPrimaryFindingId } = resolveComparePairPrimaryFindingIds(lifecycleRecords);
+  const trimmedUpdatedPrimaryFindingId = updatedPrimaryFindingId?.trim() ?? "";
 
-  if (updatedPrimaryFindingId === null || updatedPrimaryFindingId.trim().length === 0) {
+  if (trimmedUpdatedPrimaryFindingId.length === 0) {
     return fallbackHref;
   }
 
   return resolveAskBuyerOpenReviewHref(trimmedUpdatedRunId, {
-    primaryFindingId: updatedPrimaryFindingId,
+    primaryFindingId: trimmedUpdatedPrimaryFindingId,
     architectureId,
   });
 }

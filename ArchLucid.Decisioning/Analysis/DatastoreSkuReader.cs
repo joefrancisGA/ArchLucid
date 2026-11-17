@@ -41,6 +41,11 @@ public static class DatastoreSkuReader
             return true;
         }
 
+        // A false zone or geo flag only means that flag is off. GRS is geo-redundant and not
+        // zone-redundant, so a replication SKU is read before a false flag becomes single-region.
+        bool sawGeoRedundantFalse = false;
+        bool sawZoneRedundantFalse = false;
+
         if (TryGetBooleanProperty(properties, "geoRedundant", out bool geoRedundant))
         {
             if (geoRedundant)
@@ -51,10 +56,7 @@ public static class DatastoreSkuReader
                 return true;
             }
 
-            tier = DatastoreSkuTier.SingleRegion;
-            observedSku = "geoRedundant=false";
-
-            return true;
+            sawGeoRedundantFalse = true;
         }
 
         if (TryGetBooleanProperty(properties, "zoneRedundant", out bool zoneRedundant))
@@ -67,30 +69,41 @@ public static class DatastoreSkuReader
                 return true;
             }
 
+            sawZoneRedundantFalse = true;
+        }
+
+        List<string> skuTokens = CollectSkuTokens(properties);
+
+        if (skuTokens.Count > 0)
+        {
+            DatastoreSkuTier? mappedTier = TryMapSkuTokens(skuTokens, out string mappedSku);
+
+            if (mappedTier is not null)
+            {
+                tier = mappedTier.Value;
+                observedSku = mappedSku;
+
+                return true;
+            }
+        }
+
+        if (sawGeoRedundantFalse)
+        {
+            tier = DatastoreSkuTier.SingleRegion;
+            observedSku = "geoRedundant=false";
+
+            return true;
+        }
+
+        if (sawZoneRedundantFalse)
+        {
             tier = DatastoreSkuTier.SingleRegion;
             observedSku = "zoneRedundant=false";
 
             return true;
         }
 
-        List<string> skuTokens = CollectSkuTokens(properties);
-
-        if (skuTokens.Count == 0)
-        {
-            return false;
-        }
-
-        DatastoreSkuTier? mappedTier = TryMapSkuTokens(skuTokens, out string mappedSku);
-
-        if (mappedTier is null)
-        {
-            return false;
-        }
-
-        tier = mappedTier.Value;
-        observedSku = mappedSku;
-
-        return true;
+        return false;
     }
 
     private static bool HasSkuEvidence(IReadOnlyDictionary<string, string> properties)
@@ -214,22 +227,43 @@ public static class DatastoreSkuReader
             return false;
         }
 
-        if (bool.TryParse(text, out value))
+        if (TryNormalizeBooleanToken(text, out value))
         {
             return true;
         }
 
-        if (string.Equals(text, "1", StringComparison.OrdinalIgnoreCase))
+        value = false;
+
+        return false;
+    }
+
+    /// <summary>Parity with <c>GraphJsonScalarReaders.TryNormalizeBooleanString</c> for declaration bags that skip graph ingest.</summary>
+    private static bool TryNormalizeBooleanToken(string text, out bool value)
+    {
+        if (text.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("enabled", StringComparison.OrdinalIgnoreCase))
         {
             value = true;
 
             return true;
         }
 
-        if (string.Equals(text, "0", StringComparison.OrdinalIgnoreCase))
+        if (text.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("disabled", StringComparison.OrdinalIgnoreCase))
         {
             value = false;
 
+            return true;
+        }
+
+        if (bool.TryParse(text, out value))
+        {
             return true;
         }
 

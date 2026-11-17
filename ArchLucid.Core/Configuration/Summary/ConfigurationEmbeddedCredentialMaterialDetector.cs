@@ -101,6 +101,9 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
             if (decodedTrimmed.Length < 4)
                 continue;
 
+            if (ContainsAuthorizationHeaderCredentialsAfterPercentDecoding(decodedTrimmed))
+                return true;
+
             if (ContainsUrlUserInfoCredentials(decodedTrimmed))
                 return true;
 
@@ -109,6 +112,26 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         }
 
         return false;
+    }
+
+    private static bool ContainsAuthorizationHeaderCredentialsAfterPercentDecoding(ReadOnlySpan<char> decodedTrimmed)
+    {
+        if (ContainsBasicAuthorizationHeaderCredentials(decodedTrimmed))
+            return true;
+
+        if (ContainsBearerAuthorizationHeaderCredentials(decodedTrimmed))
+            return true;
+
+        if (ContainsDigestAuthorizationHeaderCredentials(decodedTrimmed))
+            return true;
+
+        if (ContainsNegotiateAuthorizationHeaderCredentials(decodedTrimmed))
+            return true;
+
+        if (ContainsNtlmAuthorizationHeaderCredentials(decodedTrimmed))
+            return true;
+
+        return ContainsSetCookieHeaderCredentials(decodedTrimmed);
     }
 
     private static bool ContainsUrlUserInfoCredentials(ReadOnlySpan<char> trimmed)
@@ -159,8 +182,8 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
             int absoluteBasicIndex = searchStart + basicIndex;
             ReadOnlySpan<char> afterBasic = trimmed.Slice(absoluteBasicIndex + "Basic".Length);
 
-            if (!afterBasic.IsEmpty && char.IsWhiteSpace(afterBasic[0])
-                && TryBasicAuthorizationHeaderToken(afterBasic))
+            if (!afterBasic.IsEmpty && IsAuthorizationHeaderTokenDelimiter(afterBasic[0])
+                && TryBasicAuthorizationHeaderToken(TrimAuthorizationHeaderDelimiters(afterBasic)))
                 return true;
 
             searchStart = absoluteBasicIndex + "Basic".Length;
@@ -169,9 +192,27 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         return false;
     }
 
+    private static bool IsAuthorizationHeaderTokenDelimiter(char character) =>
+        char.IsWhiteSpace(character) || character == '+';
+
+    private static ReadOnlySpan<char> TrimAuthorizationHeaderDelimiters(ReadOnlySpan<char> value)
+    {
+        int start = 0;
+
+        while (start < value.Length && IsAuthorizationHeaderTokenDelimiter(value[start]))
+            start++;
+
+        int end = value.Length;
+
+        while (end > start && char.IsWhiteSpace(value[end - 1]))
+            end--;
+
+        return value.Slice(start, end - start);
+    }
+
     private static bool TryBasicAuthorizationHeaderToken(ReadOnlySpan<char> afterBasic)
     {
-        ReadOnlySpan<char> token = TrimLeadingByteOrderMarks(afterBasic.Trim());
+        ReadOnlySpan<char> token = TrimLeadingByteOrderMarks(TrimAuthorizationHeaderDelimiters(afterBasic));
 
         if (TryBasicAuthorizationPayloadFromToken(token))
             return true;
@@ -565,10 +606,10 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         ReadOnlySpan<char> afterBearer = trimmed.Slice(bearerIndex + "Bearer".Length);
 
-        if (afterBearer.IsEmpty || !char.IsWhiteSpace(afterBearer[0]))
+        if (afterBearer.IsEmpty || !IsAuthorizationHeaderTokenDelimiter(afterBearer[0]))
             return false;
 
-        ReadOnlySpan<char> token = afterBearer.Trim();
+        ReadOnlySpan<char> token = TrimAuthorizationHeaderDelimiters(afterBearer);
 
         return CollapsedBearerCredentialLength(token) >= 8;
     }
@@ -597,10 +638,10 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         ReadOnlySpan<char> afterDigest = trimmed.Slice(digestIndex + "Digest".Length);
 
-        if (afterDigest.IsEmpty || !char.IsWhiteSpace(afterDigest[0]))
+        if (afterDigest.IsEmpty || !IsAuthorizationHeaderTokenDelimiter(afterDigest[0]))
             return false;
 
-        ReadOnlySpan<char> digestPart = afterDigest.Trim();
+        ReadOnlySpan<char> digestPart = TrimAuthorizationHeaderDelimiters(afterDigest);
 
         int responseIndex = digestPart.IndexOf("response=", StringComparison.OrdinalIgnoreCase);
 
@@ -650,10 +691,10 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         ReadOnlySpan<char> afterNegotiate = trimmed.Slice(negotiateIndex + "Negotiate".Length);
 
-        if (afterNegotiate.IsEmpty || !char.IsWhiteSpace(afterNegotiate[0]))
+        if (afterNegotiate.IsEmpty || !IsAuthorizationHeaderTokenDelimiter(afterNegotiate[0]))
             return false;
 
-        ReadOnlySpan<char> token = afterNegotiate.Trim();
+        ReadOnlySpan<char> token = TrimAuthorizationHeaderDelimiters(afterNegotiate);
 
         return CollapsedBearerCredentialLength(token) >= 8;
     }
@@ -667,10 +708,10 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         ReadOnlySpan<char> afterNtlm = trimmed.Slice(ntlmIndex + "NTLM".Length);
 
-        if (afterNtlm.IsEmpty || !char.IsWhiteSpace(afterNtlm[0]))
+        if (afterNtlm.IsEmpty || !IsAuthorizationHeaderTokenDelimiter(afterNtlm[0]))
             return false;
 
-        ReadOnlySpan<char> token = afterNtlm.Trim();
+        ReadOnlySpan<char> token = TrimAuthorizationHeaderDelimiters(afterNtlm);
 
         return CollapsedBearerCredentialLength(token) >= 8;
     }
@@ -834,6 +875,14 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
             if (afterKey >= rest.Length)
                 continue;
 
+            // Uri.EscapeDataString applied repeatedly to '=' or ':' yields a compact
+            // sequence such as %25253D. Inspect it once rather than decoding the
+            // entire config value thousands of times (quadratic work for deep inputs).
+            // As with literal separators, empty credential values fail closed.
+
+            if (rest[afterKey] == '%' && IsRepeatedlyEncodedSeparator(rest.Slice(afterKey)))
+                return true;
+
             if (rest[afterKey] is not ('=' or ':'))
                 continue;
 
@@ -847,6 +896,23 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         }
 
         return false;
+    }
+
+    private static bool IsRepeatedlyEncodedSeparator(ReadOnlySpan<char> value)
+    {
+        // One encoding of '=' is %3D, and each additional encoding inserts 25
+        // after the leading percent: %253D, %25253D, etc. ':' ends in 3A.
+
+        if (value.Length < 3 || value[0] != '%')
+            return false;
+
+        int index = 1;
+
+        while (index + 1 < value.Length && value[index] == '2' && value[index + 1] == '5')
+            index += 2;
+
+        return index + 1 < value.Length && value[index] == '3'
+            && value[index + 1] is 'D' or 'd' or 'A' or 'a';
     }
 
     private static bool IsKeyContinuationCharacter(char character) =>

@@ -1,3 +1,4 @@
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { deriveRunListPipelineLabel } from "@/components/runs/RunStatusBadge";
 import type { RunSummary } from "@/types/authority";
 
@@ -125,12 +126,12 @@ function hrefForStepIndex(index: number, signals: FirstPilotOperatingRailSignals
     const runId = signals.latestRunId ?? signals.firstCommittedRunId;
 
     if (runId !== null && runId.length > 0) {
-      return `/architecture/reviews/${encodeURIComponent(runId)}`;
+      return resolveLibOpenReviewHref(runId);
     }
   }
 
   if (index === 5 && signals.firstCommittedRunId !== null) {
-    return `/architecture/reviews/${encodeURIComponent(signals.firstCommittedRunId)}`;
+    return resolveLibOpenReviewHref(signals.firstCommittedRunId);
   }
 
   const step = FIRST_PILOT_OPERATING_RAIL_STEPS_FALLBACK_HREFS[index];

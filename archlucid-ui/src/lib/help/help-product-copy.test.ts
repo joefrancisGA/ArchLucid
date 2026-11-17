@@ -37,7 +37,8 @@ describe("help-product-copy", () => {
     const localized = localizeHelpSearchPanelTopic(topic, "security");
 
     expect(localized.title).toBe("How SecureNow works");
-    expect(localized.description).toContain("SecureNow");
+    expect(localized.description).toContain("cloud inventory");
+    expect(localized.description).toContain("ARC-AMPE");
     expect(localized.description).not.toContain("ArchLucid");
   });
 

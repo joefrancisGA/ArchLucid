@@ -491,7 +491,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
 
         List<string> titles = EdgeTitles(Render(ast));
         titles.Count(title =>
-                title.Equals(InventoryDiagramRelationshipLabelTexts.PrivateAccess, StringComparison.OrdinalIgnoreCase))
+                title.StartsWith(DiagramForestPrivateEndpointEdgeAccessibility.AccessTitlePrefix, StringComparison.Ordinal))
             .Should()
             .Be(2);
         titles.Should().NotContain(title => title.StartsWith($"{InventoryDiagramRelationshipLabelTexts.PrivateAccess} ×", StringComparison.Ordinal));

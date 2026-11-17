@@ -42,6 +42,8 @@ import { downloadManifestMarkdownExport } from "@/lib/api/manifest-markdown-expo
 import { manifestMarkdownExportBlockedReason } from "@/lib/manifest/manifest-markdown-export-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE } from "@/lib/reviews/review-commit-evidence-before-seal-copy";
+import { ExportPartialCaptureRecoveryHonesty } from "@/components/exports/ExportPartialCaptureRecoveryHonesty";
 import { EXPORT_FORMAT_MARKDOWN } from "@/lib/export-format-when-to-use";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
@@ -266,13 +268,14 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
 
   const exportLegacyWarning =
     legacySealedReExport ? (
-      <p
-        className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="golden-manifest-export-legacy-sealed-warning"
-        role="status"
-      >
-        This sealed record predates transparency trail requirements — treat exports as incomplete for career use.
-      </p>
+      <div className="space-y-1" role="status" data-testid="golden-manifest-export-legacy-sealed-warning">
+        <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
+          This sealed record predates transparency trail requirements — treat exports as incomplete for career use.
+        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-legacy-blocked-commit-before-seal">
+          {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
+        </p>
+      </div>
     ) : null;
 
   const exportStatusChrome =
@@ -311,13 +314,27 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
 
   const exportBlockedReasonChrome =
     sponsorExportBlocked ? (
-      <p
-        role="alert"
-        className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="golden-manifest-export-blocked-reason"
-      >
-        {exportBlockedReason}
-      </p>
+      <div className="space-y-1" role="alert" data-testid="golden-manifest-export-blocked-reason">
+        <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportBlockedReason}</p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-commit-before-seal">
+          {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
+        </p>
+        <ExportPartialCaptureRecoveryHonesty
+          show
+          testId="golden-manifest-export-partial-capture-recovery"
+          cloudConnectionsTestId="golden-manifest-export-partial-capture-cloud-connections"
+          extractUploadTestId="golden-manifest-export-partial-capture-extract-upload"
+        />
+      </div>
+    ) : null;
+  const exportPartialCaptureOnError =
+    exportError !== null ? (
+      <ExportPartialCaptureRecoveryHonesty
+        show
+        testId="golden-manifest-export-error-partial-capture-recovery"
+        cloudConnectionsTestId="golden-manifest-export-error-partial-capture-cloud-connections"
+        extractUploadTestId="golden-manifest-export-error-partial-capture-extract-upload"
+      />
     ) : null;
 
   if (buyerMarkdownAsPrimaryButton === true) {
@@ -344,14 +361,14 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         {exportLegacyWarning}
         {exportStatusChrome}
         {exportRecoveryChrome}
+        {exportPartialCaptureOnError}
         {exportError !== null ? (
-          <p
-            role="alert"
-            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="golden-manifest-export-error"
-          >
-            {exportError}
-          </p>
+          <div className="space-y-1" role="alert" data-testid="golden-manifest-export-error">
+            <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportError}</p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-error-commit-before-seal">
+              {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
+            </p>
+          </div>
         ) : null}
       </div>
     );
@@ -417,14 +434,14 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       {exportLegacyWarning}
       {exportStatusChrome}
       {exportRecoveryChrome}
+      {exportPartialCaptureOnError}
       {exportError !== null ? (
-        <p
-          role="alert"
-          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="golden-manifest-export-error"
-        >
-          {exportError}
-        </p>
+        <div className="space-y-1" role="alert" data-testid="golden-manifest-export-error">
+          <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportError}</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-error-commit-before-seal">
+            {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
+          </p>
+        </div>
       ) : null}
     </div>
   );

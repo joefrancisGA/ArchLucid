@@ -99,7 +99,7 @@ export function resolveInfraDiagramsDefaultFallbackKey(
   const thematic = resolveInfraDiagramsThematicFallbackArtifacts(artifacts);
   const executive = thematic.find((artifact) => artifact.key === "executive");
 
-  if (executive != null) {
+  if (executive?.status === "Succeeded") {
     return executive.key;
   }
 
@@ -109,7 +109,7 @@ export function resolveInfraDiagramsDefaultFallbackKey(
     return succeeded.key;
   }
 
-  return thematic[0]?.key ?? "";
+  return executive?.key ?? thematic[0]?.key ?? "";
 }
 
 export function resolveInfraDiagramsEffectiveFallbackKey(

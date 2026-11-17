@@ -1,6 +1,7 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { AMOUNT_NOT_RETURNED } from "@/lib/amount-display-copy";
 import { SponsorRoiSavingsTrendSvgChart } from "./SponsorRoiSavingsTrendSvgChart";
 
 describe("SponsorRoiSavingsTrendSvgChart", () => {
@@ -24,7 +25,7 @@ describe("SponsorRoiSavingsTrendSvgChart", () => {
   it("renders omitted savings as a zero-height bar instead of coercing to $0", () => {
     const { container } = render(
       <SponsorRoiSavingsTrendSvgChart
-        points={[{ snapshotUtc: "2026-01-15T00:00:00Z", totalEstimatedUsdSavings: null, savingsTooltipSuffix: "Amount not returned" }]}
+        points={[{ snapshotUtc: "2026-01-15T00:00:00Z", totalEstimatedUsdSavings: null, savingsTooltipSuffix: AMOUNT_NOT_RETURNED }]}
       />,
     );
 

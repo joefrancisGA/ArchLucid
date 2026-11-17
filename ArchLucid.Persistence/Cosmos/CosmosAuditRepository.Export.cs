@@ -94,7 +94,7 @@ public sealed partial class CosmosAuditRepository
                 nameof(filter));
         }
 
-        int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000);
+        int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000) + (filter.IncludeExportOverflowRow ? 1 : 0);
         Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
         string tid = tenantId.ToString("D");
         string wid = workspaceId.ToString("D");

@@ -27,7 +27,7 @@ This guide describes the New architecture review wizard — it is product help, 
 
 ## Confirm review scope
 
-By default, your first review is evaluated against six architecture-quality standards — Security Architecture Baseline, Reliability and Resilience, FinOps & Cloud Cost Optimization, Performance and Scalability, Operational Excellence, and Sustainability and Resource Efficiency. Open **Review standards selection** to turn this off and use every standard enabled for your workspace instead.
+By default, your first review is evaluated against six baseline standards — Security Architecture Baseline, Reliability and Resilience, FinOps & Cloud Cost Optimization, Performance and Scalability, Operational Excellence, and Sustainability and Resource Efficiency. Open **Review standards selection** to turn this off and use every standard enabled for your workspace instead.
 
 | Standard | What ArchLucid evaluates |
 | --- | --- |

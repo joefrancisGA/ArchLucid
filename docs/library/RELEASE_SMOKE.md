@@ -7,7 +7,7 @@
 
 One **deterministic** end-to-end check for **pilot / commercial confidence** on **ArchLucid** (not full coverage). Implemented as **`scripts/release-smoke.ps1`** / **`scripts/release-smoke.cmd`** (run **`.\scripts\release-smoke.ps1`** or **`scripts\release-smoke.cmd`** from repo root).
 
-**For pilots:** Use **`run-readiness-check`** first (faster — no temporary API). Use **`release-smoke`** when you have **SQL** and want one scripted path that also runs **CLI `run --quick`** and checks **artifacts**. If the script fails, copy the **`--- FAILURE (triage) ---`** block (**Stage**, **Category**, **Next:**) into your report — see [PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md#when-you-report-an-issue).
+**For pilots:** Use **`run-readiness-check`** first (faster — no temporary API). Use **`release-smoke`** when you have **SQL** and want one scripted Gate 1 path (HTTP create→commit + artifact check). If the script fails, copy the **`--- FAILURE (triage) ---`** block (**Stage**, **Category**, **Next:**) into your report — see [PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md#when-you-report-an-issue).
 
 **What it verifies**
 
@@ -17,9 +17,9 @@ One **deterministic** end-to-end check for **pilot / commercial confidence** on 
 4. **Optional: full Core** — `-FullCore` adds `Suite=Core` (may require SQL for integration tests).
 5. **Architect workspace** — when Node is on `PATH`: `npm ci`, **Vitest**, **`npm run build`** (production bundle). Skip with **`-SkipUi`**.
 6. **API readiness** — starts the **`ArchLucid.Api`** project (Release, **http** profile, port **5128**), waits for **`GET /health/ready`** and **`GET /health/live`**. **Readiness** includes the primary SQL check plus **`sql_system_plane`** when **`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`** (proves **ConnectionStrings:ArchLucidSystem** independently of tenant routing). **Single-catalog** dev/test skips the system-plane probe as redundant with **`database`**.
-7. **Sample review** (CLI **`run --quick`**) — CLI **`new ArchLucidSmokeRc`** in a temp folder, then **`run --quick`** (Development seed + commit).
+7. **Sample review (Gate 1)** — CLI **`new ArchLucidSmokeRc`**, then HTTP **Guided** workspace + **`POST /v1/architecture/request`** (Sql StorageProvider; authority pipeline commits inline). Fallback finalize when status is **ReadyForCommit**.
 8. **Artifacts** — **`GET /v1/architecture/review/{runId}`** must show **`goldenManifestId`**; **`GET /v1/artifacts/signed-review-records/{manifestId}`** must return **â‰¥ 1** descriptor.
-9. **Run-export durable outbox** — enqueue blob push, poll **`dbo.RunExportBlobPushOutbox`** for dead-letter within 15s (controlled failure path; proves worker + schema wiring).
+9. **Run-export durable outbox** — enqueue blob push to a non-loopback Azure Blob HTTPS SAS URL, poll **`dbo.RunExportBlobPushOutbox`** for dead-letter (controlled failure path; proves worker + schema wiring). Simulator Gate 1 runs that 409 on career honesty fall back to SQL enqueue of the same outbox row shape.
 10. **Optional: Playwright (mock)** — **`-RunPlaywright`** runs **`archlucid-ui`** **`npm run test:e2e`** (mock/fixture loopback) **after** the steps above.
 11. **Optional: Playwright (live API parity)** — **`-LivePlaywright`** or **named `-Profile LiveUiSql`** runs **`npm exec playwright test`** against **`playwright.config.ts`** with **`LIVE_API_URL`** (defaults to **`-ApiBaseUrl`**). Mirrors **`ci.yml`** **`ui-e2e-live`** for **`live-api-*.spec.ts`** while reusing the smoke-started API when **`-SkipE2E`** is omitted. Equivalent convenience entry points: **`scripts/release-smoke-live-ui-sql.ps1`** / **`scripts/release-smoke-live-ui-sql.cmd`**. **`LIVE_API_KEY`** / **`LIVE_JWT_TOKEN`** remain optional — auth subset specs skip when unset (same as CI). Not run by default.
 12. **Evidence summary footer** — on success, the script prints a short **`Release smoke evidence summary`** stating which gates validated and what was **not** asserted (default smoke still skips live parity unless **`LiveUiSql` profile** / **`-LivePlaywright`** / **`-RunPlaywright`** as applicable).
@@ -244,10 +244,12 @@ Deterministic behavior is unchanged: same step order, same filters, same timeout
 ## Troubleshooting
 
 - **API exits before ready:** wrong SQL string, migrations failing, or port in use — watch for a separate console if you run API manually; the smoke script starts a **hidden** `dotnet run` (stdout not shown). Re-run with **`-SkipE2E`** and start the API yourself to read logs, or temporarily change the script to use a visible window for debugging.
-- **`run --quick` seed fails:** API must be **`Development`** (the script sets **`ASPNETCORE_ENVIRONMENT=Development`** for the child process).
+- **`OTEL_SDK_DISABLED=true`:** some Cloud Agent images set this; OpenTelemetry then returns **NoopTracerProvider** and Core **`ObservabilityTraceSamplingConfiguratorTests`** fail. **`release-smoke.ps1`** clears the variable for its process (and the temporary API). Unset it manually when running those tests outside the smoke script.
+- **Gate 1 create fails:** API must be **`Development`** with **`ArchLucid__StorageProvider=Sql`** (script sets both). Confirm the SQL catalog exists and create brief is ≥100 characters of architecture context.
 - **Zero artifacts:** synthesis or persistence regression — check API logs for the smoke **`RunId`**.
 - **Config lint failure (Step 2):** inspect `artifacts/release-readiness/config-lint-production-like-hosted-pilot.md` for blocking rows; fix RC baseline fixture or validate deployed config with the same profile before signoff.
-- **Outbox timeout (Step 9):** ensure `ArchLucid.Api` was compiled correctly and Microsoft.Data.SqlClient.dll is present, or check background worker logs for processing/dead-lettering failure.
+- **SQL scalar helper (artifact count / outbox):** Gate 1 uses **`tools/ArchLucid.SqlScalar`** (not `Add-Type` of `Microsoft.Data.SqlClient` into pwsh — that fails on Linux Cloud Agents). Build with `dotnet build tools/ArchLucid.SqlScalar/ArchLucid.SqlScalar.csproj -c Release` if the helper is missing.
+- **Outbox timeout (Step 8):** ensure the temporary API hosted worker is running, then re-check `dbo.RunExportBlobPushOutbox` for the smoke **`RunId`**.
 - **Playwright fails:** ensure browsers are installed (**`npx playwright install`** in **`archlucid-ui`**) and port **3000** is free for the test **`webServer`**.
 
 More: [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md), [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md).

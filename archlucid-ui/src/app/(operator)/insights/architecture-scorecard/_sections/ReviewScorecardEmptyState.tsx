@@ -3,8 +3,13 @@ import { cn } from "@/lib/utils";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { REVIEW_SCORECARD_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
-import { REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE } from "@/lib/review-scorecard-empty-state";
+import {
+  REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE,
+  REVIEW_SCORECARD_ROI_EMPTY_HONESTY_NOTE,
+  REVIEW_SCORECARD_ROI_NON_SUMMING_NOTE,
+} from "@/lib/review-scorecard-empty-state";
 
+import { ReviewScorecardEmptyPartialCaptureHonesty } from "./ReviewScorecardEmptyPartialCaptureHonesty";
 import { ReviewScorecardEmptyStatePreview } from "./ReviewScorecardEmptyStatePreview";
 
 /** Sponsor-ready empty state for the operator review scorecard. */
@@ -16,6 +21,19 @@ export function ReviewScorecardEmptyState(): React.JSX.Element {
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE}
       </p>
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="review-scorecard-roi-empty-honesty"
+      >
+        {REVIEW_SCORECARD_ROI_EMPTY_HONESTY_NOTE}
+      </p>
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="review-scorecard-roi-non-summing"
+      >
+        {REVIEW_SCORECARD_ROI_NON_SUMMING_NOTE}
+      </p>
+      <ReviewScorecardEmptyPartialCaptureHonesty />
     </div>
   );
 }

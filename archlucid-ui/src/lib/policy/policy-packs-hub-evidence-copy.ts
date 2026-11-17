@@ -5,6 +5,11 @@ import {
 } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import {
+  policyPacksPathForProductLine,
+  remapHubPolicyAndFindingsEvidenceSources,
+} from "@/lib/product-line/securenow-compliance-routes";
 
 export const POLICY_PACKS_HUB_CANONICAL_PATH = GOVERNANCE_POLICY_PACKS_PATH;
 
@@ -35,3 +40,14 @@ const POLICY_PACKS_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([POLICY_P
 export const POLICY_PACKS_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = POLICY_PACKS_HUB_SOURCES.filter(
   (source) => !POLICY_PACKS_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
 );
+
+export function resolvePolicyPacksHubOrientationSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  const hubPath = policyPacksPathForProductLine(productLine);
+  const excluded = new Set<string>([hubPath]);
+
+  return remapHubPolicyAndFindingsEvidenceSources(POLICY_PACKS_HUB_SOURCES, productLine).filter(
+    (source) => !excluded.has(source.href),
+  );
+}

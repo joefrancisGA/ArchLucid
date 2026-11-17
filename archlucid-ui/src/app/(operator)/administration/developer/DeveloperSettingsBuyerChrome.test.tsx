@@ -22,3 +22,8 @@ describe("DeveloperSettingsBuyerChrome (SDX)", () => {
     expect(screen.queryByTestId("developer-settings-claim-discipline")).not.toBeInTheDocument();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

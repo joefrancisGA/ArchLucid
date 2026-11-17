@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import type { SignedRecordsListRow } from "@/app/(operator)/governance/sealed-records/_sections/signed-records-list-row";
+import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recent-views";
 import { resolveContinueLastSignedRecordsListRow } from "@/lib/resolve-continue-last-signed-record";
 
 function row(overrides: Partial<SignedRecordsListRow> = {}): SignedRecordsListRow {
@@ -21,6 +22,8 @@ function row(overrides: Partial<SignedRecordsListRow> = {}): SignedRecordsListRo
 }
 
 describe("resolveContinueLastSignedRecordsListRow", () => {
+  afterEach(() => window.localStorage.removeItem(OPERATOR_RECENT_VIEWS_STORAGE_KEY));
+
   it("returns null when input is not an array", () => {
     expect(resolveContinueLastSignedRecordsListRow(null)).toBeNull();
     expect(resolveContinueLastSignedRecordsListRow({})).toBeNull();
@@ -35,6 +38,28 @@ describe("resolveContinueLastSignedRecordsListRow", () => {
     ]);
 
     expect(match?.runId).toBe("run-new");
+  });
+
+  it("resumes the next viewed record when the most recent is outside the loaded list", () => {
+    window.localStorage.setItem(OPERATOR_RECENT_VIEWS_STORAGE_KEY, JSON.stringify({
+      schemaVersion: 2,
+      entries: [
+        { href: "/governance/sealed-records/off-page", label: "Off page", kind: "manifest", visitedAtUtc: "2026-03-02T00:00:00Z" },
+        { href: "/governance/sealed-records/manifest-1", label: "Viewed record", kind: "manifest", visitedAtUtc: "2026-03-01T00:00:00Z" },
+      ],
+    }));
+
+    const match = resolveContinueLastSignedRecordsListRow([
+      row(),
+      row({
+        runId: "run-new",
+        manifestId: "manifest-new",
+        signedRecordHref: "/governance/sealed-records/manifest-new",
+        committedUtc: "2026-02-01T00:00:00Z",
+      }),
+    ]);
+
+    expect(match?.manifestId).toBe("manifest-1");
   });
 
   it("returns null when no openable rows exist", () => {

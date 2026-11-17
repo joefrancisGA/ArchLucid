@@ -33,7 +33,15 @@ public sealed class TenantBrandingService(
         CancellationToken cancellationToken = default)
     {
         ResolvedTenantBrandingProfile profile = await GetBrandingProfileAsync(tenantId, cancellationToken);
+        return await GetLogoForProfileAsync(tenantId, profile, context, cancellationToken);
+    }
 
+    private async Task<TenantBrandingLogo> GetLogoForProfileAsync(
+        Guid tenantId,
+        ResolvedTenantBrandingProfile profile,
+        BrandingDisplayContext context,
+        CancellationToken cancellationToken)
+    {
         if (profile.IsProductBrand)
         {
             return new TenantBrandingLogo { IsProductBrand = true };
@@ -117,7 +125,7 @@ public sealed class TenantBrandingService(
         CancellationToken cancellationToken = default)
     {
         ResolvedTenantBrandingProfile profile = await GetBrandingProfileAsync(tenantId, cancellationToken);
-        TenantBrandingLogo logo = await GetLogoAsync(tenantId, context, cancellationToken);
+        TenantBrandingLogo logo = await GetLogoForProfileAsync(tenantId, profile, context, cancellationToken);
         return TenantBrandingDisplayContextPolicy.Resolve(context, profile, logo);
     }
 

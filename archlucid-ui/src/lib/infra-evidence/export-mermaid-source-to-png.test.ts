@@ -1,6 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { appendDataFlowRollupMemberLegend } from "@/lib/infra-evidence/export-mermaid-source-to-png";
+import {
+  appendDataFlowRollupMemberLegend,
+  exportSanitizedMermaidSvgMarkupToPngBlob,
+} from "@/lib/infra-evidence/export-mermaid-source-to-png";
 
 describe("appendDataFlowRollupMemberLegend", () => {
   it("adds rollup members to an export legend without throwing", () => {
@@ -25,5 +28,33 @@ describe("appendDataFlowRollupMemberLegend", () => {
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80"><rect /></svg>';
 
     expect(appendDataFlowRollupMemberLegend(svg)).toBe(svg);
+  });
+});
+
+describe("exportSanitizedMermaidSvgMarkupToPngBlob", () => {
+  it("uses the viewBox size when the SVG origin is negative", async () => {
+    const drawImage = vi.fn();
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+      drawImage,
+      fillRect: vi.fn(),
+    } as unknown as CanvasRenderingContext2D);
+    const png = new Blob(["rendered"], { type: "image/png" });
+    vi.spyOn(HTMLCanvasElement.prototype, "toBlob").mockImplementation((callback) => callback(png));
+    vi.stubGlobal("Image", class {
+      onload?: () => void;
+
+      set src(_value: string) {
+        this.onload?.();
+      }
+    });
+
+    try {
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -20 320 180"><rect /></svg>';
+
+      expect(await exportSanitizedMermaidSvgMarkupToPngBlob(svg)).toBe(png);
+      expect(drawImage).toHaveBeenCalledWith(expect.anything(), 0, 0, 320, 180);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

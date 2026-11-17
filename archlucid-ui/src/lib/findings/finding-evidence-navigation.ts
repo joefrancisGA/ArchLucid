@@ -1,6 +1,8 @@
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
+import { buildReviewWorkspaceRouteHref } from "@/lib/architecture/review-workspace-route";
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { resolveFirstReviewSpineOpenGateSectionId } from "@/lib/reviews/first-review-spine-band";
@@ -16,16 +18,59 @@ export const EVIDENCE_TRACE_PAGE_TITLE = "Evidence Trace";
 export const EVIDENCE_TRACE_PAGE_SUBTITLE =
   "Inspect the policy, evidence, reasoning, audit linkage, and approval record supporting this finding.";
 
+export type FindingEvidenceRouteOptions = {
+  readonly architectureId?: string | null;
+  readonly findingsQueueRunId?: string | null;
+};
+
+function normalizeFindingEvidenceRouteOptions(
+  options?: string | null | FindingEvidenceRouteOptions,
+): FindingEvidenceRouteOptions {
+  if (typeof options === "string" || options === null || options === undefined) {
+    return { findingsQueueRunId: options ?? undefined };
+  }
+
+  return options;
+}
+
+function appendPathSuffixBeforeQuery(href: string, suffix: string): string {
+  const queryIndex = href.indexOf("?");
+
+  if (queryIndex === -1) {
+    return `${href}${suffix}`;
+  }
+
+  return `${href.slice(0, queryIndex)}${suffix}${href.slice(queryIndex)}`;
+}
+
 /** Finding detail page — parent surface of the evidence trace drill-down. */
 export function getFindingDetailHref(
   runId: string,
   findingId: string,
-  findingsQueueRunId?: string | null,
+  options?: string | null | FindingEvidenceRouteOptions,
 ): string {
+  const normalized = normalizeFindingEvidenceRouteOptions(options);
+  const architectureId = normalized.architectureId?.trim() ?? "";
+  const queueRunId = (normalized.findingsQueueRunId ?? "").trim();
+  const params = new URLSearchParams();
+
+  if (queueRunId.length > 0) {
+    params.set("runId", queueRunId);
+  }
+
+  if (architectureId.length > 0) {
+    return buildReviewWorkspaceRouteHref({
+      runId,
+      architectureId,
+      findingId,
+      findingIdOnPath: true,
+      search: params,
+    });
+  }
+
   const encRun = encodeURIComponent(runId.trim());
   const encFinding = encodeURIComponent(findingId.trim());
   const base = `/architecture/reviews/${encRun}/findings/${encFinding}`;
-  const queueRunId = (findingsQueueRunId ?? "").trim();
 
   if (queueRunId.length === 0) {
     return base;
@@ -38,6 +83,7 @@ export type ResolveFindingsQueueNavHrefInput = {
   readonly findingsQueueRunId?: string | null;
   readonly architectureId?: string | null;
   readonly isWorkingMode?: boolean;
+  readonly productLine?: ProductLineId;
 };
 
 /** Back navigation from finding detail or evidence trace to the scoped findings instrument. */
@@ -51,6 +97,8 @@ export function resolveFindingsQueueNavHref(
   const queueRunId = (normalizedInput.findingsQueueRunId ?? "").trim();
   const architectureId = normalizedInput.architectureId?.trim() ?? "";
   const isWorkingMode = normalizedInput.isWorkingMode === true;
+  const productLine = normalizedInput.productLine ?? "architecture";
+  const findingsQueueBasePath = findingsPathForProductLine(productLine);
 
   if (isWorkingMode && architectureId.length > 0) {
     return resolveWorkingFindingsInstrumentHref({
@@ -62,38 +110,40 @@ export function resolveFindingsQueueNavHref(
   }
 
   if (queueRunId.length === 0) {
-    return GOVERNANCE_FINDINGS_PATH;
+    return findingsQueueBasePath;
   }
 
-  return buildGovernanceFindingsQueueHref({ runId: queueRunId, filter: "all" });
+  return buildGovernanceFindingsQueueHref({
+    runId: queueRunId,
+    filter: "all",
+    basePath: findingsQueueBasePath,
+  });
 }
 
 /** Buyer-facing drill-down into the provenance chain for a finding (#7). */
 export function getFindingEvidenceTraceHref(
   runId: string,
   findingId: string,
-  findingsQueueRunId?: string | null,
+  options?: string | null | FindingEvidenceRouteOptions,
 ): string {
-  const encRun = encodeURIComponent(runId.trim());
-  const encFinding = encodeURIComponent(findingId.trim());
-  const base = `/architecture/reviews/${encRun}/findings/${encFinding}/${FINDING_EVIDENCE_TRACE_SEGMENT}`;
-  const queueRunId = (findingsQueueRunId ?? "").trim();
+  const detailHref = getFindingDetailHref(runId, findingId, options);
 
-  if (queueRunId.length === 0) {
-    return base;
-  }
-
-  return `${base}?runId=${encodeURIComponent(queueRunId)}`;
+  return appendPathSuffixBeforeQuery(detailHref, `/${FINDING_EVIDENCE_TRACE_SEGMENT}`);
 }
 
 /** In-page anchor for the disposition workflow on the evidence trace surface. */
 export const FINDING_GOVERNANCE_DISPOSITION_HASH = "governance-disposition-heading";
 
 /** Findings workspace deep link for recording disposition (review tab + finding selection + spine hash). */
-export function resolveReviewFindingsWorkspaceDispositionHref(runId: string, findingId: string): string {
+export function resolveReviewFindingsWorkspaceDispositionHref(
+  runId: string,
+  findingId: string,
+  architectureId?: string | null,
+): string {
   return buildReviewDetailTabHref(runId.trim(), "findings", {
     findingId: findingId.trim(),
     hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+    architectureId,
   });
 }
 
@@ -103,8 +153,12 @@ export function resolveReviewFindingsWorkspaceFindingHref(runId: string, finding
 }
 
 /** Deep link to record disposition on the review findings workspace. */
-export function getFindingGovernanceDispositionHref(runId: string, findingId: string): string {
-  return resolveReviewFindingsWorkspaceDispositionHref(runId, findingId);
+export function getFindingGovernanceDispositionHref(
+  runId: string,
+  findingId: string,
+  architectureId?: string | null,
+): string {
+  return resolveReviewFindingsWorkspaceDispositionHref(runId, findingId, architectureId);
 }
 
 export type QuickDecisionFindingNavOptions = {

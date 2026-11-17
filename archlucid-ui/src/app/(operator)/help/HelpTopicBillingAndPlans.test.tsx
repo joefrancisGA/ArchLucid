@@ -30,6 +30,12 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: (): string => "/help/billing-and-plans",
+  useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: (): URLSearchParams => new URLSearchParams("helpBillingAndPlansSourcesOpen=1"),
+}));
+
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => useNavCallerAuthorityRank(),
 }));
@@ -55,6 +61,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: () => false,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
 
 vi.mock("@/lib/frictionless-trial-session", () => ({
   readFrictionlessTrialSessionEnabled: () => false,
@@ -427,6 +438,11 @@ describe("HelpBillingAndPlansGuideView", () => {
     const pageText = document.body.textContent?.toLowerCase() ?? "";
 
     for (const phrase of BANNED_CUSTOMER_COPY) {
+      if (phrase === "overage") {
+        expect(pageText, `should not contain standalone "${phrase}"`).not.toMatch(/\boverage\b/);
+        continue;
+      }
+
       expect(pageText, `should not contain "${phrase}"`).not.toContain(phrase);
     }
 

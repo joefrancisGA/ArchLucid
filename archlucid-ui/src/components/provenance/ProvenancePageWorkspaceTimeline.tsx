@@ -33,6 +33,8 @@ import { formatProvenancePageWorkspaceUtc } from "./provenance-page-workspace-pr
 
 export type ProvenancePageWorkspaceTimelineProps = {
   readonly runId: string;
+  /** Desk-shaped path for scoped review deep links (peer vs nested); URL sync uses the live route below. */
+  readonly reviewPathname: string;
   readonly graph: ArchitectureRunProvenanceGraph;
   readonly viewMode: ProvenanceViewMode;
   readonly onSelectNode: (nodeId: string) => void;
@@ -40,12 +42,13 @@ export type ProvenancePageWorkspaceTimelineProps = {
 
 export function ProvenancePageWorkspaceTimeline({
   runId,
+  reviewPathname,
   graph,
   viewMode,
   onSelectNode,
 }: ProvenancePageWorkspaceTimelineProps) {
   const router = useRouter();
-  const pathname = usePathname() ?? "/";
+  const urlPathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const provenanceTimelineTechnicalKindReferenceIdParam = searchParams.get(
     PROVENANCE_TIMELINE_TECHNICAL_KIND_REFERENCE_ID_PARAM,
@@ -56,11 +59,11 @@ export function ProvenancePageWorkspaceTimeline({
   const syncOpenTechnicalKindReferenceIdToUrl = useCallback(
     (referenceId: string | null) => {
       router.replace(
-        provenanceTimelineTechnicalKindDisclosureHrefFromSearch(searchParams.toString(), referenceId, pathname),
+        provenanceTimelineTechnicalKindDisclosureHrefFromSearch(searchParams.toString(), referenceId, urlPathname),
         { scroll: false },
       );
     },
-    [pathname, router, searchParams],
+    [urlPathname, router, searchParams],
   );
   const setOpenTechnicalKindReferenceId = useCallback(
     (referenceId: string | null) => {
@@ -177,7 +180,12 @@ export function ProvenancePageWorkspaceTimeline({
                     ) : null}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="break-all border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
-                    <ProvenanceReferenceLink runId={runId} referenceId={row.referenceId} nodes={graph.nodes} />
+                    <ProvenanceReferenceLink
+                      runId={runId}
+                      pathname={reviewPathname}
+                      referenceId={row.referenceId}
+                      nodes={graph.nodes}
+                    />
                   </EnterpriseTableCell>
                 </EnterpriseTableRow>
               );

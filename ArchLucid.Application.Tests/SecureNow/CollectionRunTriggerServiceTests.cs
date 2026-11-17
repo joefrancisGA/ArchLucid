@@ -116,6 +116,84 @@ public sealed class CollectionRunTriggerServiceTests
             Times.Once);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TriggerAsync_returns_persisted_run_when_informational_audit_fails(bool useDurableClaim)
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Mock<ICollectionRunRepository> repository = new();
+        Mock<ICollectionRunTrigger> trigger = new();
+        Mock<ICollectionTriggerClaimRepository> claims = new();
+        Mock<IAuditService> audit = new();
+        claims.Setup(x => x.TryReserveAsync(It.IsAny<ProjectScopeKey>(), "key", It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProjectScopeKey _, string _, Guid runId, CancellationToken _) => (true, runId, (byte)0));
+        trigger.Setup(x => x.TriggerAsync(scope, It.IsAny<CollectionRunTriggerRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CollectionRunTriggerResult { Schedule = "Daily" });
+        audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Audit storage unavailable."));
+        CollectionRunTriggerService service = new(repository.Object, trigger.Object,
+            new InMemoryCollectionRunTriggerIdempotencyStore(), audit.Object,
+            new CollectionRunAdmissionCounter(), durableClaims: useDurableClaim ? claims.Object : null);
+
+        CollectionRun result = await service.TriggerAsync(scope, "key", ["sub"], CancellationToken.None);
+
+        Assert.Equal(CollectionRunStatus.Running, result.Status);
+        repository.Verify(x => x.UpsertAsync(result, It.IsAny<CancellationToken>()), Times.Once);
+        audit.Verify(x => x.LogAsync(It.Is<AuditEvent>(e =>
+            e.EventType == AuditEventTypes.SecureNowCollectionRunTriggered && e.RunId == result.RunId),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Accepted_collection_is_persisted_and_deduplicated_after_request_cancellation(bool useDurableClaim)
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        using CancellationTokenSource request = new();
+        Mock<ICollectionRunRepository> repository = new();
+        Mock<ICollectionRunTrigger> trigger = new();
+        Mock<IAuditService> audit = new();
+        CollectionRun? persisted = null;
+        repository.Setup(source => source.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
+            .Returns((CollectionRun run, CancellationToken ct) =>
+            {
+                ct.ThrowIfCancellationRequested();
+                persisted = run;
+                return Task.CompletedTask;
+            });
+        repository.Setup(source => source.GetAsync(scope, It.IsAny<Guid>(), CancellationToken.None))
+            .ReturnsAsync(() => persisted);
+        trigger.Setup(source => source.TriggerAsync(scope, It.IsAny<CollectionRunTriggerRequest>(), request.Token))
+            .Callback(request.Cancel)
+            .ReturnsAsync(new CollectionRunTriggerResult { Schedule = "Daily" });
+        audit.Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns((AuditEvent _, CancellationToken ct) => ct.IsCancellationRequested
+                ? Task.FromCanceled(ct)
+                : Task.CompletedTask);
+        ICollectionTriggerClaimRepository? claims = useDurableClaim
+            ? new ArchLucid.Persistence.SecureNow.InMemoryCollectionTriggerClaimRepository()
+            : null;
+        CollectionRunTriggerService service = new(repository.Object, trigger.Object,
+            new InMemoryCollectionRunTriggerIdempotencyStore(), audit.Object,
+            new CollectionRunAdmissionCounter(), durableClaims: claims);
+
+        CollectionRun accepted = await service.TriggerAsync(scope, "key", ["sub"], request.Token);
+        CollectionRun retry = await service.TriggerAsync(scope, "key", ["sub"], CancellationToken.None);
+
+        Assert.Same(accepted, persisted);
+        Assert.Equal(accepted.RunId, retry.RunId);
+        trigger.Verify(source => source.TriggerAsync(scope, It.IsAny<CollectionRunTriggerRequest>(),
+            It.IsAny<CancellationToken>()), Times.Once);
+        audit.Verify(source => source.LogAsync(It.IsAny<AuditEvent>(), CancellationToken.None), Times.Once);
+        if (claims is not null)
+        {
+            var replay = await claims.TryReserveAsync(scope.ToProjectScopeKey(), "key", Guid.NewGuid());
+            Assert.Equal((byte)1, replay.State);
+        }
+    }
+
     [Fact]
     public async Task TriggerAsync_rejects_when_waiting_admissions_exceed_budget()
     {

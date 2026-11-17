@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
@@ -10,6 +12,44 @@ namespace ArchLucid.Persistence.InfraEvidence;
 public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory connectionFactory)
     : IRemediationPatternMatchRepository
 {
+    public async Task ReplaceActiveMatchInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        RemediationPatternMatchResultRecord? matchResult,
+        RemediationPatternMatchConflictRecord? conflict,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        if ((matchResult is not null && matchResult.FindingId != findingId)
+            || (conflict is not null && conflict.FindingId != findingId))
+            throw new ArgumentException("Replacement records must match the target finding.");
+
+        const string lockFindingSql = """
+                                      SELECT FindingId
+                                      FROM dbo.OperationalSecurityFindings WITH (UPDLOCK, HOLDLOCK)
+                                      WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId
+                                        AND ProjectId = @ProjectId AND FindingId = @FindingId;
+                                      """;
+        using IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbTransaction tx = conn.BeginTransaction();
+        Guid? lockedFindingId = await conn.ExecuteScalarAsync<Guid?>(new CommandDefinition(
+            lockFindingSql,
+            new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, FindingId = findingId },
+            transaction: tx,
+            cancellationToken: cancellationToken));
+
+        if (lockedFindingId is null)
+            throw new InvalidOperationException("Scoped remediation match target finding was not found.");
+
+        await DeactivateMatchesForFindingInScopeAsync(conn, tx, scope, findingId, cancellationToken);
+        if (conflict is not null)
+            await InsertConflictInScopeAsync(conn, tx, scope, conflict, cancellationToken);
+        if (matchResult is not null)
+            await InsertMatchResultInScopeAsync(conn, tx, scope, matchResult, cancellationToken);
+
+        tx.Commit();
+    }
+
     public async Task DeactivateMatchesForFindingAsync(
         Guid tenantId,
         Guid findingId,
@@ -32,6 +72,17 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
         Guid findingId,
         CancellationToken cancellationToken = default)
     {
+        using IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await DeactivateMatchesForFindingInScopeAsync(conn, null, scope, findingId, cancellationToken);
+    }
+
+    private static async Task DeactivateMatchesForFindingInScopeAsync(
+        IDbConnection conn,
+        IDbTransaction? tx,
+        ProjectScopeKey scope,
+        Guid findingId,
+        CancellationToken cancellationToken)
+    {
         const string sql = """
                            UPDATE m
                            SET IsActive = 0
@@ -45,12 +96,11 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
                              AND f.ProjectId = @ProjectId;
                            """;
 
-        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await conn.ExecuteAsync(
             new CommandDefinition(
                 sql,
                 new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, FindingId = findingId },
-                cancellationToken: cancellationToken));
+                transaction: tx, cancellationToken: cancellationToken));
     }
 
     public async Task InsertMatchResultAsync(
@@ -100,6 +150,17 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
         RemediationPatternMatchResultRecord matchResult,
         CancellationToken cancellationToken = default)
     {
+        using IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await InsertMatchResultInScopeAsync(conn, null, scope, matchResult, cancellationToken);
+    }
+
+    private static async Task InsertMatchResultInScopeAsync(
+        IDbConnection conn,
+        IDbTransaction? tx,
+        ProjectScopeKey scope,
+        RemediationPatternMatchResultRecord matchResult,
+        CancellationToken cancellationToken)
+    {
         const string sql = """
                            IF NOT EXISTS (
                                SELECT 1 FROM dbo.OperationalSecurityFindings
@@ -122,7 +183,6 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
                            );
                            """;
 
-        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await conn.ExecuteAsync(
             new CommandDefinition(
                 sql,
@@ -143,7 +203,7 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
                     matchResult.IsActive,
                     matchResult.MatchedUtc,
                 },
-                cancellationToken: cancellationToken));
+                transaction: tx, cancellationToken: cancellationToken));
     }
 
     public async Task InsertConflictAsync(
@@ -182,6 +242,17 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
         RemediationPatternMatchConflictRecord conflict,
         CancellationToken cancellationToken = default)
     {
+        using IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await InsertConflictInScopeAsync(conn, null, scope, conflict, cancellationToken);
+    }
+
+    private static async Task InsertConflictInScopeAsync(
+        IDbConnection conn,
+        IDbTransaction? tx,
+        ProjectScopeKey scope,
+        RemediationPatternMatchConflictRecord conflict,
+        CancellationToken cancellationToken)
+    {
         const string sql = """
                            IF NOT EXISTS (
                                SELECT 1 FROM dbo.OperationalSecurityFindings
@@ -198,7 +269,6 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
                            (@ConflictId, @TenantId, @FindingId, @ConflictType, @Description, @CandidatePatternIdsJson, @CreatedUtc);
                            """;
 
-        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await conn.ExecuteAsync(
             new CommandDefinition(
                 sql,
@@ -214,7 +284,7 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
                     conflict.CandidatePatternIdsJson,
                     conflict.CreatedUtc,
                 },
-                cancellationToken: cancellationToken));
+                transaction: tx, cancellationToken: cancellationToken));
     }
 
     public async Task<RemediationPatternMatchResultRecord?> TryGetActiveMatchAsync(
@@ -227,7 +297,7 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
                                           MatchKind, MatchSource, ExplainText, IsActive, MatchedUtc
                            FROM dbo.RemediationPatternMatchResults
                            WHERE TenantId = @TenantId AND FindingId = @FindingId AND IsActive = 1
-                           ORDER BY MatchedUtc DESC;
+                           ORDER BY MatchedUtc DESC, MatchResultId DESC;
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -254,7 +324,7 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
                              AND m.IsActive = 1
                              AND f.WorkspaceId = @WorkspaceId
                              AND f.ProjectId = @ProjectId
-                           ORDER BY m.MatchedUtc DESC;
+                           ORDER BY m.MatchedUtc DESC, m.MatchResultId DESC;
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -282,7 +352,7 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
                              AND f.ProjectId = @ProjectId
                              AND m.IsActive = 1
                              AND f.Status IN (@OpenStatus, @RecurredStatus)
-                           ORDER BY m.FindingId, m.MatchedUtc DESC;
+                           ORDER BY m.FindingId, m.MatchedUtc DESC, m.MatchResultId DESC;
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);

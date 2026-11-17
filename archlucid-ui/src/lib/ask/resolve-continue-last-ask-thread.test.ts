@@ -33,4 +33,25 @@ describe("resolveContinueLastAskThread", () => {
 
     expect(match?.threadId).toBe("thread-new");
   });
+
+  it.each([
+    { older: "2026-02-01T08:00:00Z", newer: "2026-02-01T08:00:00.500Z" },
+    { older: "2026-02-01T09:00:00+02:00", newer: "2026-02-01T08:00:00" },
+  ])("resumes the latest instant when timestamp formats differ", ({ older, newer }) => {
+    const match = resolveContinueLastAskThread([
+      thread({ threadId: "thread-new", lastUpdatedUtc: newer }),
+      thread({ threadId: "thread-old", lastUpdatedUtc: older }),
+    ]);
+
+    expect(match?.threadId).toBe("thread-new");
+  });
+
+  it("skips unparseable timestamps in the recency fallback", () => {
+    const match = resolveContinueLastAskThread([
+      thread({ threadId: "thread-invalid", lastUpdatedUtc: "unknown" }),
+      thread({ threadId: "thread-valid", lastUpdatedUtc: "2026-02-01T08:00:00Z" }),
+    ]);
+
+    expect(match?.threadId).toBe("thread-valid");
+  });
 });

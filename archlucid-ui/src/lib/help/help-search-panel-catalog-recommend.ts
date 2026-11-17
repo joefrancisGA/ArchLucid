@@ -35,6 +35,10 @@ export const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; re
   },
   { prefix: "/governance", topicIds: ["governance-workflow", "risk-register", "policy-packs"] },
   { prefix: "/governance/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },
+  { prefix: "/compliance/findings", topicIds: ["risk-register", "findings", "governance-workflow"] },
+  { prefix: "/compliance/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },
+  { prefix: "/compliance/standards-and-rules", topicIds: ["standards-rules-help", "policy-packs", "governance-workflow"] },
+  { prefix: "/compliance", topicIds: ["governance-workflow", "risk-register", "policy-packs"] },
   { prefix: "/architecture/reviews/new", topicIds: ["create-first-review", "upload-evidence", "first-review-guide"] },
   { prefix: "/architecture/reviews", topicIds: ["review-findings", "finalize-review", "review-artifacts"] },
   { prefix: "/administration/users", topicIds: ["users-and-roles", "sso-identity"] },
@@ -123,14 +127,15 @@ export function recommendedHelpSearchPanelTopicIds(
   situation: HelpPageSituation | null = null,
   workingMode: boolean = false,
 ): string[] {
+  const path = normalizePathname(pathname);
   const situationTopicIds = helpPageSituationTopicIds(situation);
 
   // A published situation describes the review in front of the user; it outranks the route.
   if (situationTopicIds.length > 0) {
-    return filterWorkingHomeHelpTopicIds(situationTopicIds, workingMode);
+    return path === "/"
+      ? filterWorkingHomeHelpTopicIds(situationTopicIds, workingMode)
+      : [...situationTopicIds];
   }
-
-  const path = normalizePathname(pathname);
 
   if (path === "/") {
     const homeTopicIds = ROUTE_RECOMMENDED_TOPIC_IDS.find((row) => row.prefix === "/")?.topicIds ?? [];

@@ -54,33 +54,56 @@ internal static partial class RunRepositorySql
                                                             EXEC dbo.Archival_CascadeFromArchivedRuns @Archived = @Archived;
                                                             """;
 
-    public const string ArchiveRunsByIds = """
-                                           DECLARE @ArchivedScratch TABLE (
-                                               RunId UNIQUEIDENTIFIER NOT NULL,
-                                               TenantId UNIQUEIDENTIFIER NOT NULL,
-                                               WorkspaceId UNIQUEIDENTIFIER NOT NULL,
-                                               ScopeProjectId UNIQUEIDENTIFIER NOT NULL
-                                           );
+    private const string ArchiveByIdScopeFilter =
+        " AND TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ScopeProjectId = @ScopeProjectId";
 
-                                           DECLARE @Archived dbo.ArchivedRunIdList;
+    public const string ArchiveRunsByIds = $"""
+        {ArchiveByIdWrite};
 
-                                           UPDATE dbo.Runs
-                                           SET ArchivedUtc = SYSUTCDATETIME()
-                                           OUTPUT inserted.RunId, inserted.TenantId, inserted.WorkspaceId, inserted.ScopeProjectId
-                                           INTO @ArchivedScratch
-                                           WHERE RunId IN @RunIds AND ArchivedUtc IS NULL;
+        {ArchiveByIdReport};
 
-                                           INSERT INTO @Archived (RunId)
-                                           SELECT RunId FROM @ArchivedScratch;
+        {ArchiveByIdCascade}
+        """;
 
-                                           SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @ArchivedScratch;
+    public const string ArchiveUnsealedRun = $"""
+        {ArchiveByIdWrite}{ArchiveByIdScopeFilter} AND GoldenManifestId IS NULL;
 
-                                           SELECT RunId
-                                           FROM dbo.Runs
-                                           WHERE RunId IN @RunIds AND ArchivedUtc IS NOT NULL;
+        {ArchiveByIdReport}{ArchiveByIdScopeFilter};
 
-                                           EXEC dbo.Archival_CascadeFromArchivedRuns @Archived = @Archived;
-                                           """;
+        {ArchiveByIdCascade}
+        """;
+
+    private const string ArchiveByIdWrite = """
+        DECLARE @ArchivedScratch TABLE (
+            RunId UNIQUEIDENTIFIER NOT NULL,
+            TenantId UNIQUEIDENTIFIER NOT NULL,
+            WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+            ScopeProjectId UNIQUEIDENTIFIER NOT NULL
+        );
+
+        DECLARE @Archived dbo.ArchivedRunIdList;
+
+        UPDATE dbo.Runs
+        SET ArchivedUtc = SYSUTCDATETIME()
+        OUTPUT inserted.RunId, inserted.TenantId, inserted.WorkspaceId, inserted.ScopeProjectId
+        INTO @ArchivedScratch
+        WHERE RunId IN @RunIds AND ArchivedUtc IS NULL
+        """;
+
+    private const string ArchiveByIdReport = """
+        INSERT INTO @Archived (RunId)
+        SELECT RunId FROM @ArchivedScratch;
+
+        SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @ArchivedScratch;
+
+        SELECT RunId
+        FROM dbo.Runs
+        WHERE RunId IN @RunIds AND ArchivedUtc IS NOT NULL
+        """;
+
+    private const string ArchiveByIdCascade = """
+        EXEC dbo.Archival_CascadeFromArchivedRuns @Archived = @Archived;
+        """;
 
     public const string CountActiveRunsForArchitectureRequest = $"""
                                                                 SELECT COUNT(1)
@@ -167,4 +190,21 @@ internal static partial class RunRepositorySql
                                                                 AND ScopeProjectId = @ScopeProjectId
                                                                 AND ArchivedUtc IS NULL;
                                                               """;
+
+    /// <summary>
+    ///     Lifecycle-only promotion after authority artifacts seal; avoids full-row TB-310 anchor rewrite.
+    /// </summary>
+    public const string MarkAuthorityPipelineCommitted = """
+                                                         UPDATE dbo.Runs
+                                                         SET LegacyRunStatus = @CommittedStatus,
+                                                             CompletedUtc = COALESCE(CompletedUtc, @CompletedUtc),
+                                                             GoldenManifestId = COALESCE(GoldenManifestId, @GoldenManifestId)
+                                                         WHERE RunId = @RunId
+                                                           AND TenantId = @TenantId
+                                                           AND WorkspaceId = @WorkspaceId
+                                                           AND ScopeProjectId = @ScopeProjectId
+                                                           AND ArchivedUtc IS NULL;
+
+                                                         SELECT @@ROWCOUNT;
+                                                         """;
 }

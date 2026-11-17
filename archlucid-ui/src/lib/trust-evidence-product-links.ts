@@ -1,3 +1,4 @@
+import { resolveLibReviewProvenanceHref } from "@/lib/architecture/lib-open-review-href";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import type { RunTrustEvidenceRouteRef } from "@/types/authority";
 
@@ -42,7 +43,7 @@ export function resolveTrustEvidenceProductLink(
       };
     case "traceabilityZip":
       return {
-        href: `/architecture/reviews/${encodedRun}/provenance`,
+        href: resolveLibReviewProvenanceHref(runId),
         label: "Open provenance view",
       };
     default:

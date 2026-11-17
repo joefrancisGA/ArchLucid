@@ -46,6 +46,7 @@ internal static class InventoryDiagramPrivateAccessRelationshipApplier
             }
 
             edge.Label = InventoryDiagramRelationshipLabelTexts.PrivateAccess;
+            edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
             InventoryDiagramRelationshipEdgeHelper.RemoveGenericEdgesBetween(ast, edge.FromNodeId, edge.ToNodeId);
         }
     }

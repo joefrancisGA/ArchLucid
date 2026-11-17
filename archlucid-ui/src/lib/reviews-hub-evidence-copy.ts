@@ -3,6 +3,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveWorkingArchitecturePortfolioParentLink } from "@/lib/resolve-working-evidence-parent-link";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const REVIEWS_HUB_CLAIM_DISCIPLINE =
   "Architecture reviews lists draft, active, and finalized packages — not a full audit export by itself. Open a review workspace, Evidence graph, or Audit when you need export-ready records.";
@@ -14,14 +16,18 @@ export const REVIEWS_HUB_SOURCES_INTRO =
 
 
 /** Operator Sources — no self-href to the reviews list hub. */
-export function buildReviewsHubSources(workingMode: boolean): readonly EvidenceSourceLink[] {
+export function buildReviewsHubSources(
+  workingMode: boolean,
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
   const portfolioParent = resolveWorkingArchitecturePortfolioParentLink(workingMode);
+  const findingsQueueHref = findingsPathForProductLine(productLine);
 
   const sources: EvidenceSourceLink[] = [
     { label: "Start a review", href: REVIEWS_NEW_PATH },
     { label: "Evidence graph", href: "/insights/evidence-graph" },
     { label: "Search review evidence", href: "/insights/search-review-evidence" },
-    { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
+    { label: "Findings queue", href: findingsQueueHref },
     { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
     { label: "Architecture packages help", href: inAppHelpHref("review-packages") },
   ];

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -34,7 +34,18 @@ export type UseAskPageOptions = {
 
 export function useAskPage(options: UseAskPageOptions = {}) {
   const [threads, setThreads] = useState<ConversationThread[]>([]);
-  const [selectedThreadId, setSelectedThreadId] = useState("");
+  const [selectedThreadId, updateSelectedThreadId] = useState("");
+  const selectedThreadIdRef = useRef("");
+  const messageRequestVersion = useRef(0);
+  const skipAutomaticThreadResume = useRef(false);
+  const setSelectedThreadId = useCallback((threadId: string) => {
+    if (selectedThreadIdRef.current !== threadId) {
+      selectedThreadIdRef.current = threadId;
+      messageRequestVersion.current += 1;
+    }
+
+    updateSelectedThreadId(threadId);
+  }, []);
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const [runId, setRunId] = useState("");
   const [baseRunId, setBaseRunId] = useState("");
@@ -54,7 +65,9 @@ export function useAskPage(options: UseAskPageOptions = {}) {
 
   const {
     data: prefetchedThreads,
+    error: threadListError,
     isError: threadsQueryError,
+    isFetching: threadsQueryFetching,
     refetch: refetchThreads,
   } = useConversationThreadsQuery(50);
 
@@ -74,7 +87,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     setMessages(seeded.messages);
 
     return true;
-  }, [buyerPolishedShell]);
+  }, [buyerPolishedShell, setSelectedThreadId]);
 
   const applyThreadList = useCallback(
     (data: ConversationThread[]) => {
@@ -88,42 +101,41 @@ export function useAskPage(options: UseAskPageOptions = {}) {
   );
 
   const loadThreads = useCallback(async () => {
-    setListFailure(null);
-
-    try {
-      const result = await refetchThreads();
-      const data = result.data ?? [];
-      applyThreadList(data);
-    } catch (e) {
-      if (applyDemoSeedIfAvailable()) {
-        return;
-      }
-
-      setListFailure(toApiLoadFailure(e));
-    }
-  }, [applyDemoSeedIfAvailable, applyThreadList, refetchThreads]);
+    await refetchThreads();
+  }, [refetchThreads]);
 
   useEffect(() => {
-    if (prefetchedThreads === undefined) {
-      return;
-    }
-
     if (threadsQueryError) {
-      applyDemoSeedIfAvailable();
-
+      setListFailure(applyDemoSeedIfAvailable() ? null : toApiLoadFailure(threadListError));
       return;
     }
 
-    applyThreadList(prefetchedThreads);
-  }, [applyDemoSeedIfAvailable, applyThreadList, prefetchedThreads, threadsQueryError]);
+    if (prefetchedThreads !== undefined) {
+      setListFailure(null);
+      applyThreadList(prefetchedThreads);
+    }
+  }, [applyDemoSeedIfAvailable, applyThreadList, prefetchedThreads, threadListError, threadsQueryError]);
 
   const loadMessages = useCallback(async (threadId: string) => {
+    if (threadId !== selectedThreadIdRef.current) {
+      return;
+    }
+
+    const requestVersion = ++messageRequestVersion.current;
     setActionFailure(null);
     try {
       const data = await getConversationMessages(threadId);
+      if (requestVersion !== messageRequestVersion.current) {
+        return;
+      }
+
       const fallback = tryStaticDemoConversationMessages(threadId);
       setMessages(data.length > 0 ? data : (fallback ?? []));
     } catch (e) {
+      if (requestVersion !== messageRequestVersion.current) {
+        return;
+      }
+
       const fallback = tryStaticDemoConversationMessages(threadId);
 
       if (fallback !== null) {
@@ -156,7 +168,9 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     setLoading,
   });
 
-  const threadsHydrated = prefetchedThreads !== undefined || threadsQueryError;
+  // The URL may only discard a missing thread after the successful query result
+  // has been applied to the local list used by the URL synchronizer.
+  const threadsHydrated = threads === prefetchedThreads && !threadsQueryError && !threadsQueryFetching;
 
   const urlSync = useAskPageUrlSync({
     runId,
@@ -180,10 +194,14 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     basePathname: options.basePathname,
   });
 
-  const { onSelectThread } = urlSync;
+  const { onSelectThread, onNewConversation: resetConversation } = urlSync;
+  const onNewConversation = useCallback(() => {
+    skipAutomaticThreadResume.current = true;
+    resetConversation();
+  }, [resetConversation]);
 
   useEffect(() => {
-    if (listFailure !== null) {
+    if (skipAutomaticThreadResume.current || listFailure !== null) {
       return;
     }
 
@@ -198,7 +216,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     if (urlSync.urlThreadId.length > 0) {
       const urlThreadKnown = threads.some((thread) => thread.threadId === urlSync.urlThreadId);
 
-      if (urlThreadKnown) {
+      if (urlThreadKnown || !threadsHydrated) {
         return;
       }
     }
@@ -210,7 +228,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     }
 
     void onSelectThread(resumeThreadId);
-  }, [threads, selectedThreadId, listFailure, onSelectThread, urlSync.urlThreadId]);
+  }, [threads, threadsHydrated, selectedThreadId, listFailure, onSelectThread, urlSync.urlThreadId]);
 
   const continueLastThread = useMemo(() => resolveContinueLastAskThread(threads), [threads]);
   const showContinueLastThreadRow =
@@ -353,7 +371,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     reviewScopedForAsking: urlSync.reviewScopedForAsking,
     showThreadHistoryPanel,
     onPickReviewForAsking: urlSync.onPickReviewForAsking,
-    onNewConversation: urlSync.onNewConversation,
+    onNewConversation,
     onSelectThread: urlSync.onSelectThread,
     onStarterPromptClick: stream.onStarterPromptClick,
     mergePromptLine: stream.mergePromptLine,

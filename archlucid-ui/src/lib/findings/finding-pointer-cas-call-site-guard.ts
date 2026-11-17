@@ -20,6 +20,7 @@ const ALLOWLISTED_RELATIVE_PATHS = new Set([
   "lib/findings/finding-collect-expected-disposition-row-versions.ts",
   "lib/findings/finding-pointer-cas-inventory.ts",
   "lib/findings/finding-pointer-cas-call-site-guard.ts",
+  "lib/auth/livelihood-mutation-401-resume-wrappers.ts",
 ]);
 
 export type FindingPointerCasCallSiteViolation = {

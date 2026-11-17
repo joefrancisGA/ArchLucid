@@ -59,7 +59,13 @@ function integrationLabelsFromSection(section: ArchitectureStructuredSection | u
     .map((entity) => entity.label.trim())
     .filter((label) => label.length > 0);
 
-  return entityLabels;
+  if (entityLabels.length > 0) {
+    return entityLabels;
+  }
+
+  const narrative = section.narrativeMarkdown?.trim() ?? "";
+
+  return narrative.length > 0 ? [narrative] : [];
 }
 
 /**

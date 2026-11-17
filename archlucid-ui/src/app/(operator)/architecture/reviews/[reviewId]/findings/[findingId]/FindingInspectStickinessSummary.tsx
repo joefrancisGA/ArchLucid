@@ -5,6 +5,7 @@ import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorSto
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import type { CollabRecentActor } from "@/lib/collab-recent-actor-presence";
 import type { SponsorStoryDispositionCounts } from "@/lib/sponsor-story-synopsis";
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 type FindingInspectStickinessSummaryProps = {
@@ -49,7 +50,7 @@ export function FindingInspectStickinessSummary(props: FindingInspectStickinessS
       <SponsorStorySynopsisFromCounts
         packageTitle={sponsorSynopsisPackageTitle}
         counts={sponsorSynopsisCounts}
-        sponsorHandoffHref={`/architecture/reviews/${encodeURIComponent(runId)}?reviewTab=review-package`}
+        sponsorHandoffHref={resolveLibOpenReviewHref(runId, { tab: "review-package" })}
       />
       {statusMessage ? (
         <p className="m-0 text-al-text-secondary dark:text-neutral-300" role="status" aria-live="polite">

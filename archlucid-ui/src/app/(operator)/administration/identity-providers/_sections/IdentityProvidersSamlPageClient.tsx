@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -9,7 +11,6 @@ import {
   identityProvidersSamlPageSubtitle,
 } from "@/lib/identity-providers-settings-copy";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { ArchLucidSamlSpValuesCard } from "./ArchLucidSamlSpValuesCard";
 import { AuthTokenTestMappingCard } from "./AuthTokenTestMappingCard";
@@ -34,7 +35,7 @@ import { SamlSpConfigurationForm } from "./SamlSpConfigurationForm";
 export function IdentityProvidersSamlPageClient(): React.JSX.Element {
   const [hasUnsavedSamlEdits, setHasUnsavedSamlEdits] = useState(false);
   const documentGuards = useLivelihoodDocumentGuards({ when: hasUnsavedSamlEdits });
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
 
   return (
     <IdentityProvidersSettingsGate>

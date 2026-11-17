@@ -2274,6 +2274,15 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         DiagramNode fromNode,
         DiagramNode toNode)
     {
+        string? label = edge.Label?.Trim();
+
+        if (label is not null
+            && label.Contains(InventoryDiagramRelationshipLabelTexts.PrivateAccess, StringComparison.OrdinalIgnoreCase)
+            && label.Contains('×', StringComparison.Ordinal))
+        {
+            return label;
+        }
+
         if (!IsPrivateEndpointEdge(edge)
             && !string.Equals(
                 edge.InferenceSource,
@@ -2294,16 +2303,32 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
     private static bool IsPrivateEndpointEdge(DiagramEdge edge)
     {
-        if (string.Equals(edge.Label?.Trim(), InventoryDiagramRelationshipLabelTexts.PrivateAccess, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(
+                edge.InferenceSource,
+                GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
-        return string.Equals(edge.Label?.Trim(), "private endpoint", StringComparison.OrdinalIgnoreCase)
-            && string.Equals(
-                edge.InferenceSource,
-                GraphEdgeInferenceSources.InventoryPrivateEndpoint,
-                StringComparison.OrdinalIgnoreCase);
+        string? label = edge.Label?.Trim();
+
+        if (string.IsNullOrEmpty(label))
+        {
+            return false;
+        }
+
+        if (string.Equals(label, InventoryDiagramRelationshipLabelTexts.PrivateAccess, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return label.Contains(InventoryDiagramRelationshipLabelTexts.PrivateAccess, StringComparison.OrdinalIgnoreCase)
+            || (string.Equals(label, "private endpoint", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                    StringComparison.OrdinalIgnoreCase));
     }
 
     private static FrameEdgeRoute ResolveFrameEdgeRoute(

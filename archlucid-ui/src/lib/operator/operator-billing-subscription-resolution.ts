@@ -99,6 +99,33 @@ export function resolveOperatorBillingSubscriptionStatusDisplay(
   }
 }
 
+export function resolveOperatorBillingWorkspacePackagingRow(
+  hasPaidPlan: boolean,
+  commercialTier: string | null | undefined,
+  subscriptionLoadState: OperatorBillingSubscriptionLoadState,
+  workspacesUsed: number | undefined,
+  workspacesLimit: number | null | undefined,
+): { readonly value: string; readonly helper: string | null } | null {
+  if (subscriptionLoadState !== "resolved" || !hasPaidPlan) {
+    return null;
+  }
+
+  if (typeof workspacesLimit !== "number" || !Number.isFinite(workspacesLimit) || workspacesLimit <= 0) {
+    return null;
+  }
+
+  const used = normalizeOperatorHomeNonNegativeCount(workspacesUsed);
+  const limit = Math.trunc(workspacesLimit);
+  const value = `${used} of ${limit} in use`;
+  let helper: string | null = null;
+
+  if (commercialTier === "Team" && used >= limit) {
+    helper = "Team includes 1 workspace. Professional supports add-on workspaces.";
+  }
+
+  return { value, helper };
+}
+
 export function resolveOperatorBillingSeatRow(
   hasPaidPlan: boolean,
   isTenantTrial: boolean,

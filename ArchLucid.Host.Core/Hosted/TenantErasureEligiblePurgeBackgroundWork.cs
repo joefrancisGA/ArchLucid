@@ -45,20 +45,29 @@ public static class TenantErasureEligiblePurgeBackgroundWork
 
             foreach (Guid tenantId in ids)
             {
-                TenantRecord? row = await tenants.GetByIdAsync(tenantId, cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+                try
+                {
+                    TenantRecord? row = await tenants.GetByIdAsync(tenantId, cancellationToken);
 
-                if (!TenantErasureEligibility.IsEligibleForScheduledHardPurge(row, utcNow))
-                    continue;
+                    if (!TenantErasureEligibility.IsEligibleForScheduledHardPurge(row, utcNow))
+                        continue;
 
-                await deletion.DeleteTenantAsync(
-                    tenantId,
-                    new TenantDeletionInvocation
-                    {
-                        ActorUserId = "system:tenant-erasure-purge",
-                        ActorUserName = "tenant-erasure-eligible-purge",
-                        CorrelationId = null
-                    },
-                    cancellationToken);
+                    await deletion.DeleteTenantAsync(
+                        tenantId,
+                        new TenantDeletionInvocation
+                        {
+                            ActorUserId = "system:tenant-erasure-purge",
+                            ActorUserName = "tenant-erasure-eligible-purge",
+                            CorrelationId = null
+                        },
+                        cancellationToken);
+                }
+                catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+                {
+                    if (logger.IsEnabled(LogLevel.Error))
+                        logger.LogError(ex, "Scheduled erasure purge failed for tenant {TenantId}.", tenantId);
+                }
             }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

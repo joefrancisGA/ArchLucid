@@ -413,9 +413,9 @@ describe("RunExplanationSection", () => {
     );
 
     const storedValues = document.querySelectorAll("#doc-explanation-provenance dd");
-    expect(storedValues[2]?.textContent).toBe("");
-    expect(storedValues[3]?.textContent).toBe("");
-    expect(storedValues[4]?.textContent).toBe("");
+    expect(storedValues[2]).toHaveTextContent("Prompt template was stored empty.");
+    expect(storedValues[3]).toHaveTextContent("Prompt version was stored empty.");
+    expect(storedValues[4]).toHaveTextContent("Content hash was stored empty.");
   });
 
   it("reports missing explanation provenance and omitted cost implications", () => {

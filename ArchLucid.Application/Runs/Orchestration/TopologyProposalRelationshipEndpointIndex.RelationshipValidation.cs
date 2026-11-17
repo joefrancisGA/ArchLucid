@@ -53,7 +53,13 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         if (string.IsNullOrWhiteSpace(endpointKey))
             return false;
 
-        string trimmed = CanonicalizeTerraformEndpointReferenceForLookup(endpointKey.Trim());
+        string trimmed = endpointKey.Trim();
+        string withoutFormatCharacters = TopologyProposalRequiredControlKeys.NormalizeManifestEndpointIdentity(trimmed);
+
+        if (knownEndpointKeys.Contains(withoutFormatCharacters))
+            return true;
+
+        trimmed = CanonicalizeTerraformEndpointReferenceForLookup(trimmed);
 
         if (knownEndpointKeys.Contains(trimmed))
             return true;

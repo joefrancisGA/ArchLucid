@@ -23,12 +23,14 @@ const actorSet: ActorSet = {
   ],
 };
 
-const fields: ArchitectureDraftFieldState = {
+const legacyFields: Omit<ArchitectureDraftFieldState, "openQuestions"> = {
   freeTextIntent: "Architecture overview text long enough for recovery round-trip validation in tests.",
   businessOutcome: "Reduce review cycle time.",
   systemName: "Claims intake",
   structuredBrief: emptyArchitectureDraftStructuredBrief(),
 };
+
+const fields: ArchitectureDraftFieldState = { ...legacyFields, openQuestions: "Which team owns the queue?" };
 
 describe("architecture-new-draft-recovery (WS-15)", () => {
   beforeEach(() => {
@@ -46,8 +48,22 @@ describe("architecture-new-draft-recovery (WS-15)", () => {
       queuedAtUtc: "2026-09-08T12:00:00.000Z",
     });
 
+    expect(readArchitectureNewDraftRecovery()?.fields.openQuestions).toBe(fields.openQuestions);
     expect(readArchitectureNewDraftRecovery()?.fields.systemName).toBe("Claims intake");
     expect(readArchitectureNewDraftRecovery()?.actorSet.actors).toHaveLength(1);
+  });
+
+  it("restores drafts saved before open questions were tracked", () => {
+    localStorage.setItem(
+      "archlucid.architecture-new-draft-recovery.v1",
+      JSON.stringify({ fields: legacyFields, actorSet, queuedAtUtc: "2026-09-08T12:00:00.000Z" }),
+    );
+
+    expect(readArchitectureNewDraftRecovery()).toEqual({
+      fields: { ...legacyFields, openQuestions: "" },
+      actorSet,
+      queuedAtUtc: "2026-09-08T12:00:00.000Z",
+    });
   });
 
   it("clears recovery after server create succeeds", () => {

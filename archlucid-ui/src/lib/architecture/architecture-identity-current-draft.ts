@@ -1,3 +1,4 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { ArchitectureIdentityChildDraftSummary } from "@/types/architecture-identity";
 import type { DraftRequestStatus } from "@/types/draft-intake";
 
@@ -30,7 +31,14 @@ export function resolveArchitectureIdentityCurrentDraftState(
   currentDraftId: string | null | undefined,
   latestReviewId: string | null | undefined,
 ): ArchitectureIdentityCurrentDraftState {
-  const sortedDrafts = [...drafts].sort((left, right) => right.updatedUtc.localeCompare(left.updatedUtc));
+  const sortedDrafts = drafts
+    .map((draft) => {
+      const updatedMs = parseIsoUtcMs(draft.updatedUtc);
+
+      return { draft, updatedMs: Number.isNaN(updatedMs) ? Number.MIN_SAFE_INTEGER : updatedMs };
+    })
+    .sort((left, right) => right.updatedMs - left.updatedMs)
+    .map(({ draft }) => draft);
   const draftingDraft = sortedDrafts.find((draft) => isDraftingStatus(draft.status));
 
   if (draftingDraft !== undefined) {

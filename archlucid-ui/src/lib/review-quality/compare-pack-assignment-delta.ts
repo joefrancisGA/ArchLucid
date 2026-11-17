@@ -16,7 +16,11 @@ export type ComparePackAssignmentDeltaView = {
   readonly wk21Line: string;
 };
 
-function formatPackAssignmentSummary(snapshot: CompareManifestGovernanceSnapshot): string {
+function formatPackAssignmentSummary(snapshot: CompareManifestGovernanceSnapshot | undefined): string {
+  if (snapshot === undefined) {
+    return "No pack assignment recorded";
+  }
+
   const atCommitPacks = snapshot.atCommit?.packAssignments ?? [];
 
   if (atCommitPacks.length > 0) {
@@ -53,7 +57,9 @@ export function buildComparePackAssignmentDeltaView(
   const bothEmpty =
     baselineLine === "No pack assignment recorded" && targetLine === "No pack assignment recorded";
 
-  if (bothEmpty && view.manifestRuleSetChanges.length === 0) {
+  const manifestRuleSetChanges = view.manifestRuleSetChanges ?? [];
+
+  if (bothEmpty && manifestRuleSetChanges.length === 0) {
     return null;
   }
 
@@ -66,7 +72,7 @@ export function buildComparePackAssignmentDeltaView(
       label: "Updated review",
       summaryLine: targetLine,
     },
-    changed: baselineLine !== targetLine || view.manifestRuleSetChanges.length > 0,
+    changed: baselineLine !== targetLine || manifestRuleSetChanges.length > 0,
     wk21Line: POLICY_PACK_INFLUENCE_HONESTY_LINE,
   };
 }

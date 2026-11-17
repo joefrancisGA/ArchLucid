@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import {
   buildGovernanceFindingsQueueHref,
   buildReviewDetailFindingsTabHref,
@@ -58,6 +61,16 @@ describe("review-package-governance-findings-vocabulary (TB-2386)", () => {
     ).toEqual(scopedModel.reviewPackageFindingsLink);
   });
 
+  it("uses the SecureNow findings namespace for security product-line links", () => {
+    const model = buildReviewPackageGovernanceFindingsVocabulary(
+      "run-1",
+      undefined,
+      "security",
+    );
+
+    expect(model.governanceFindingsLink.href).toBe(`${SECURENOW_FINDINGS_PATH}?runId=run-1`);
+  });
+
   it("pairs metric-count nouns with rail labels for home drill-down", () => {
     const reviewMetric = reviewFindingsGovernanceQueuePresentation("run-1", 3);
     const workspaceMetric = workspaceOpenFindingsPresentation(5);
@@ -66,7 +79,8 @@ describe("review-package-governance-findings-vocabulary (TB-2386)", () => {
     expect(reviewMetric.dimensions.some((dimension) => dimension.kind === "this-review")).toBe(
       true,
     );
-    expect(workspaceMetric.dimensions).toHaveLength(1);
+    expect(workspaceMetric.dimensions).toEqual([{ kind: "governance-filter", filter: "open" }]);
+    expect(workspaceMetric.supplementalScopeLabels).toEqual(["this workspace", "open"]);
     expect(model.reviewPackageFindingsLink.label.toLowerCase()).toContain("this review");
     expect(model.governanceFindingsLink.label.toLowerCase()).toContain("workspace");
     expect(model.governanceFindingsLink.href).toBe(reviewMetric.href);

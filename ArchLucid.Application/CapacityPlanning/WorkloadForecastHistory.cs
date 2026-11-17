@@ -25,7 +25,7 @@ public static class WorkloadForecastHistory
         if (observations.Length > 10000) throw new ArgumentOutOfRangeException(nameof(json));
         foreach (Observation o in observations)
         {
-            if (o.SchemaVersion != 1 || string.IsNullOrWhiteSpace(o.Revision) ||
+            if (o is null || o.SchemaVersion != 1 || string.IsNullOrWhiteSpace(o.Revision) ||
                 string.IsNullOrWhiteSpace(o.Workload) || string.IsNullOrWhiteSpace(o.Metric) ||
                 string.IsNullOrWhiteSpace(o.Unit) || o.Forecast < 0 || o.Actual < 0 ||
                 o.RecordedAtUtc == default || o.RecordedAtUtc.Offset != TimeSpan.Zero)

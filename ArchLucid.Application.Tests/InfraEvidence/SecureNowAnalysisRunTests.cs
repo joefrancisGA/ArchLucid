@@ -62,6 +62,7 @@ public sealed class SecureNowAnalysisRunTests
         Mock<IAzureInventorySnapshotRepository> otherRepository = CreateRepository();
         using IDisposable run = SecureNowAnalysisRun.Begin();
         SecureNowAnalysisSnapshot? first = await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default);
+
         foreach (ScopeContext otherScope in new[]
         {
             new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId },
@@ -319,6 +320,7 @@ public sealed class SecureNowAnalysisRunTests
         using IDisposable run = SecureNowAnalysisRun.Begin();
         SecureNowAnalysisSnapshot? first =
             await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, ids[0], default);
+
         foreach (Guid id in ids.Skip(1))
             (await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default))
                 .Should().NotBeNull();
@@ -330,7 +332,7 @@ public sealed class SecureNowAnalysisRunTests
     }
 
     [Fact]
-    public async Task Oversized_snapshot_is_returned_but_not_retained_in_the_run_cache()
+    public async Task Oversized_snapshot_coalesces_in_run_without_lru_retention()
     {
         ScopeContext scope = CreateScope();
         Guid id = Guid.NewGuid();
@@ -351,8 +353,8 @@ public sealed class SecureNowAnalysisRunTests
         SecureNowAnalysisSnapshot? second =
             await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default);
         first!.Snapshot.Resources.Should().HaveCount(17_000);
-        second.Should().NotBeSameAs(first);
-        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), id, It.IsAny<CancellationToken>()), Times.Exactly(2));
+        second.Should().BeSameAs(first);
+        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), id, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -380,6 +382,7 @@ public sealed class SecureNowAnalysisRunTests
         await tasks[0];
         await fifthStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
         repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), ids[4], It.IsAny<CancellationToken>()), Times.Once);
+
         foreach (Guid id in ids.Skip(1))
             replies[id].SetResult(new() { Header = new() { SnapshotId = id } });
         await Task.WhenAll(tasks);
@@ -450,6 +453,7 @@ public sealed class SecureNowAnalysisRunTests
         using IDisposable run = SecureNowAnalysisRun.Begin();
         SecureNowAnalysisSnapshot? first =
             await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, ids[0], default);
+
         foreach (Guid id in ids.Skip(1))
             (await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default))
                 .Should().NotBeNull();

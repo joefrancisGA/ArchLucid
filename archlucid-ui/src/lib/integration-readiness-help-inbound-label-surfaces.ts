@@ -6,6 +6,6 @@ export const INTEGRATION_READINESS_HELP_INBOUND_PATH_LABELS: Readonly<Record<str
 } as const;
 
 export const INTEGRATION_READINESS_HELP_INBOUND_LABEL_SOURCE_FILES: readonly string[] = [
-  "src/lib/usability/page-help-topic-rows.ts",
+  "src/lib/usability/page-help-topic-rows-operator-integrations.ts",
   "src/lib/contextual-help/integration-readiness-rows.ts",
 ] as const;

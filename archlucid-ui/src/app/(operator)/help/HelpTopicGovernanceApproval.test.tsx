@@ -11,6 +11,16 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/governance-approval",
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
 import { HelpGovernanceApprovalGuideView } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalGuideView";
 import {
   expectClaimDisciplineBandContent,
@@ -61,7 +71,7 @@ function primaryCopyText(): string {
 
 function collectPageLinkHrefs(options?: { excludeOrientationStrip?: boolean }): string[] {
   const guide = screen.getByTestId("help-governance-approval-guide");
-  const orientationStrip = guide.querySelector('[data-testid="help-governance-approval-orientation"]');
+  const orientationStrip = guide.querySelector('[data-testid="help-governance-approval-sources"]');
 
   return Array.from(guide.querySelectorAll("a[href]"))
     .filter((anchor) => {
@@ -237,7 +247,7 @@ describe("HelpGovernanceApprovalGuideView", () => {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
 
       expect(
-        within(screen.getByTestId("help-governance-approval-orientation")).getByRole("link", { name: accessibleName }),
+        within(screen.getByTestId("help-governance-approval-sources")).getByRole("link", { name: accessibleName }),
       ).toHaveAttribute("href", source.href);
     }
   });

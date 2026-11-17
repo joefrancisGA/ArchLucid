@@ -1,6 +1,8 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export const CONTEXTUAL_HELP_DRAWER_CLAIM_DISCIPLINE =
   "Contextual help suggests next steps and in-app documentation — it does not open a finalized review record, evidence trail export, or approval on its own. Follow links into reviews, findings, or audit surfaces before treating guidance as authoritative.";
@@ -18,3 +20,9 @@ export const CONTEXTUAL_HELP_DRAWER_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
 ] as const;
+
+export function resolveContextualHelpDrawerSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapEvidenceSourceFindingsQueueHref(CONTEXTUAL_HELP_DRAWER_SOURCES, productLine);
+}

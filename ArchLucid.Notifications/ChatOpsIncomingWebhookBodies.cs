@@ -149,7 +149,7 @@ public static class ChatOpsIncomingWebhookBodies
         if (sanitizedSeverity is null)
             return encodedTitle;
 
-        string encodedSeverity = WebUtility.HtmlEncode(sanitizedSeverity);
+        string encodedSeverity = WebUtility.HtmlEncode(ChatOpsWebhookUserFragments.SanitizeUserLine(sanitizedSeverity));
 
         return FormattableString.Invariant($"[{encodedSeverity}] {encodedTitle}");
     }

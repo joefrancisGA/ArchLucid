@@ -2,6 +2,7 @@
 
 import type { JSX } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
   buildRiskExceptionsFindingsPairwiseRail,
@@ -26,6 +27,7 @@ export type RiskExceptionsFindingsVocabularyRailProps = {
 export function RiskExceptionsFindingsVocabularyRail(
   props: RiskExceptionsFindingsVocabularyRailProps,
 ): JSX.Element {
+  const { productLine } = useProductLine();
   const pairwiseModel =
     props.model !== undefined
       ? {
@@ -35,7 +37,7 @@ export function RiskExceptionsFindingsVocabularyRail(
           currentLink: props.model.riskExceptionsLink,
           peerLink: props.model.findingsLink,
         }
-      : buildRiskExceptionsFindingsPairwiseRail();
+      : buildRiskExceptionsFindingsPairwiseRail(productLine);
 
   return (
     <PairwiseVocabularyRailFromModel

@@ -83,7 +83,7 @@ public sealed class AlertDeliveryDispatcherTests
         attempts.Setup(x => x.CreateAsync(It.IsAny<AlertDeliveryAttempt>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         attempts.Setup(x => x.UpdateAsync(It.IsAny<AlertDeliveryAttempt>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        routing.Setup(x => x.UpdateAsync(It.IsAny<AlertRoutingSubscription>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        routing.Setup(x => x.RecordDeliveryAsync(subscription, It.IsAny<DateTime>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         Mock<IAlertDeliveryChannel> channel = new();
         channel.Setup(x => x.ChannelType).Returns(AlertRoutingChannelType.Email);
@@ -107,7 +107,101 @@ public sealed class AlertDeliveryDispatcherTests
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.AlertDeliverySucceeded),
                 It.IsAny<CancellationToken>()),
             Times.Once);
-        routing.Verify(x => x.UpdateAsync(It.IsAny<AlertRoutingSubscription>(), It.IsAny<CancellationToken>()), Times.Once);
+        routing.Verify(x => x.RecordDeliveryAsync(subscription, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeliverAsync_PreservesRoutingChangesMadeDuringSend()
+    {
+        AlertRecord alert = CreateAlert(AlertSeverity.Warning);
+        AlertRoutingSubscription original = new()
+        {
+            TenantId = alert.TenantId,
+            WorkspaceId = alert.WorkspaceId,
+            ProjectId = alert.ProjectId,
+            ChannelType = AlertRoutingChannelType.Email,
+            Destination = "old@example.com",
+            MinimumSeverity = AlertSeverity.Info,
+            IsEnabled = true,
+        };
+        AlertRoutingSubscription edited = new()
+        {
+            RoutingSubscriptionId = original.RoutingSubscriptionId,
+            TenantId = original.TenantId,
+            WorkspaceId = original.WorkspaceId,
+            ProjectId = original.ProjectId,
+            ChannelType = original.ChannelType,
+            Destination = "new@example.com",
+            MinimumSeverity = AlertSeverity.Critical,
+            IsEnabled = false,
+        };
+        InMemoryAlertRoutingSubscriptionRepository routing = new();
+        await routing.CreateAsync(original, CancellationToken.None);
+        Mock<IAlertDeliveryChannel> channel = new();
+        channel.Setup(x => x.ChannelType).Returns(AlertRoutingChannelType.Email);
+        channel.Setup(x => x.SendAsync(It.IsAny<AlertDeliveryPayload>(), It.IsAny<CancellationToken>()))
+            .Returns((AlertDeliveryPayload _, CancellationToken ct) => routing.UpdateAsync(edited, ct));
+        AlertDeliveryDispatcher sut = CreateSut([channel.Object], routing,
+            Mock.Of<IAlertDeliveryAttemptRepository>(), Mock.Of<IAuditService>());
+
+        await sut.DeliverAsync(alert, CancellationToken.None);
+
+        ScopeContext scope = new()
+        {
+            TenantId = alert.TenantId,
+            WorkspaceId = alert.WorkspaceId,
+            ProjectId = alert.ProjectId,
+        };
+        AlertRoutingSubscription? stored =
+            await routing.GetByIdAsync(scope, original.RoutingSubscriptionId, CancellationToken.None);
+        stored.Should().NotBeNull();
+        stored!.IsEnabled.Should().BeFalse();
+        stored.Destination.Should().Be(edited.Destination);
+        stored.MinimumSeverity.Should().Be(edited.MinimumSeverity);
+        stored.LastDeliveredUtc.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task DeliverAsync_WhenSuccessAuditFails_PreservesSuccessfulDelivery()
+    {
+        AlertRecord alert = CreateAlert(AlertSeverity.Warning);
+        AlertRoutingSubscription subscription = new()
+        {
+            TenantId = alert.TenantId,
+            WorkspaceId = alert.WorkspaceId,
+            ProjectId = alert.ProjectId,
+            ChannelType = AlertRoutingChannelType.Email,
+            Destination = "oncall@example.com",
+            MinimumSeverity = AlertSeverity.Info,
+        };
+        InMemoryAlertRoutingSubscriptionRepository routing = new();
+        await routing.CreateAsync(subscription, CancellationToken.None);
+        InMemoryAlertDeliveryAttemptRepository attempts = new();
+        Mock<IAlertDeliveryChannel> channel = new();
+        channel.Setup(x => x.ChannelType).Returns(AlertRoutingChannelType.Email);
+        channel.Setup(x => x.SendAsync(It.IsAny<AlertDeliveryPayload>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        Mock<IAuditService> audit = new();
+        audit.Setup(x => x.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.AlertDeliverySucceeded),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit storage unavailable"));
+        AlertDeliveryDispatcher sut = CreateSut([channel.Object], routing, attempts, audit.Object);
+
+        await sut.DeliverAsync(alert, CancellationToken.None);
+
+        ScopeContext scope = new()
+        {
+            TenantId = alert.TenantId,
+            WorkspaceId = alert.WorkspaceId,
+            ProjectId = alert.ProjectId,
+        };
+        IReadOnlyList<AlertDeliveryAttempt> history =
+            await attempts.ListByAlertAsync(scope, alert.AlertId, CancellationToken.None);
+        history.Should().ContainSingle().Which.Status.Should().Be(AlertDeliveryAttemptStatus.Succeeded);
+        audit.Verify(x => x.LogAsync(
+            It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.AlertDeliveryFailed),
+            It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

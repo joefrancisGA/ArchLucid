@@ -11,6 +11,7 @@ import {
   resolveFirstReviewGuideHeaderActions,
   resolveFirstReviewGuideProgress,
   resolveFirstReviewGuideReadiness,
+  resolveFirstReviewGuideRunHref,
   resolveFirstReviewGuideSteps,
 } from "@/lib/first-review-guide-state";
 import { SHOWCASE_CREATED_STATIC_DEMO_RUN_ID } from "@/lib/showcase-created-static-demo";
@@ -133,9 +134,36 @@ describe("first-review-guide-state", () => {
 
     expect(steps[3]?.actionHref).toBe("/architecture/reviews/run-123?reviewTab=findings");
     expect(steps[4]?.actionHref).toBe("/architecture/reviews/run-123?reviewTab=decisions-remediation");
-    expect(steps[5]?.actionHref).toBe("/architecture/reviews/run-123#finalize-review");
+    expect(steps[5]?.actionHref).toBe("/architecture/reviews/run-123?reviewTab=overview#finalize-review");
     expect(steps[6]?.actionHref).toBe(
       `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}?reviewTab=review-package`,
+    );
+  });
+
+  it("SY-18: uses nested review workspace hrefs when Working architecture id is known", () => {
+    const input = {
+      commitContext: {
+        ...emptyContext,
+        latestRunId: "run-123",
+        latestRunReadyToFinalize: true,
+      },
+      canExecute: true,
+      finishSetupContext: null,
+      finishSetupLoaded: true,
+      workingMode: true,
+      architectureId: "arch-desk",
+    } as const;
+
+    const steps = resolveFirstReviewGuideSteps(input);
+
+    expect(steps[3]?.actionHref).toBe(
+      "/architecture/architectures/arch-desk/reviews/run-123?reviewTab=findings",
+    );
+    expect(steps[5]?.actionHref).toBe(
+      "/architecture/architectures/arch-desk/reviews/run-123?reviewTab=overview#finalize-review",
+    );
+    expect(resolveFirstReviewGuideRunHref("run-123", input)).toBe(
+      "/architecture/architectures/arch-desk/reviews/run-123",
     );
   });
 

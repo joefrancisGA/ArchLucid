@@ -8,6 +8,7 @@ import { findingInspectEvidenceCitationLabel } from "@/lib/findings/finding-poli
 import { normalizeEvidenceRefSnippet } from "@/lib/findings/finding-evidence-ref-snippet";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import type { FindingInspectEvidence, FindingInspectPayload } from "@/types/finding-inspect";
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { signedRecordSectionPath } from "@/lib/signed-records-paths";
 
 export type FindingSourceEvidenceLinkKind =
@@ -49,13 +50,9 @@ function nonEmpty(value: string | null | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function encodeRunPath(runId: string): string {
-  return encodeURIComponent(runId.trim());
-}
-
 /** In-app run detail section anchor (`#manifest-summary`, `#artifacts-exports`, …). */
 export function runDetailSectionHref(runId: string, sectionId: string): string {
-  return `/architecture/reviews/${encodeRunPath(runId)}#${sectionId.trim()}`;
+  return resolveLibOpenReviewHref(runId, { hash: sectionId.trim() });
 }
 
 /** Manifest record page section anchor (`#manifest-decisions`, …). */

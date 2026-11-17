@@ -6,11 +6,10 @@ import { BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE } from "@/lib/buyer/buyer-polish-c
 import { GovernanceFindingsQueueBreadcrumb } from "./GovernanceFindingsQueueBreadcrumb";
 
 describe("GovernanceFindingsQueueBreadcrumb", () => {
-  it("renders governance trail ending on Findings", () => {
+  it("defers to page titles after TB-2090 breadcrumb removal", () => {
     render(<GovernanceFindingsQueueBreadcrumb />);
 
-    expect(screen.getByTestId("governance-findings-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Approval" })).toHaveAttribute("href", "/governance/approval-queue");
-    expect(screen.getByText(BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE)).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-findings-breadcrumb")).not.toBeInTheDocument();
+    expect(BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE.length).toBeGreaterThan(0);
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   heartbeatDraftWorkLease,
@@ -40,23 +40,37 @@ export function useArchitectureDraftWorkLease(
   const [leaseLost, setLeaseLost] = useState(false);
   const [stealBusy, setStealBusy] = useState(false);
   const [stealError, setStealError] = useState<string | null>(null);
-  const acquireStartedRef = useRef(false);
+  const mutable = enabled && draftId !== null && isMutableDraftLeaseTarget(draft);
+  const leaseTarget = useMemo(() => mutable && draftId !== null ? { draftId } : null, [draftId, mutable]);
+  const acquisitionRef = useRef<{
+    target: NonNullable<typeof leaseTarget>;
+    request: ReturnType<typeof tryAcquireDraftWorkLease>;
+  } | null>(null);
 
   useEffect(() => {
     setLease(snapshotFromDraft(draft));
-  }, [draft?.workLease?.holderUserId, draft?.workLease?.expiresUtc, draft?.workLease?.heldByCaller]);
-
-  const mutable = enabled && draftId !== null && isMutableDraftLeaseTarget(draft);
+  }, [draftId, draft?.workLease?.holderUserId, draft?.workLease?.expiresUtc, draft?.workLease?.heldByCaller]);
 
   useEffect(() => {
-    if (!mutable || draftId === null || acquireStartedRef.current) {
+    setLeaseLost(false);
+
+    if (leaseTarget === null) {
       return;
     }
 
-    acquireStartedRef.current = true;
+    let cancelled = false;
 
-    void (async () => {
-      const outcome = await tryAcquireDraftWorkLease(draftId);
+    if (acquisitionRef.current?.target !== leaseTarget) {
+      acquisitionRef.current = {
+        target: leaseTarget,
+        request: tryAcquireDraftWorkLease(leaseTarget.draftId),
+      };
+    }
+
+    void acquisitionRef.current.request.then((outcome) => {
+      if (cancelled) {
+        return;
+      }
 
       if (outcome.kind === "acquired") {
         setLease(outcome.lease);
@@ -73,13 +87,19 @@ export function useArchitectureDraftWorkLease(
           heldByCaller: false,
         });
       }
-    })();
-  }, [draftId, mutable]);
+    }).catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [leaseTarget]);
 
   useEffect(() => {
     if (!mutable || draftId === null) {
       return;
     }
+
+    let cancelled = false;
 
     const heartbeat = () => {
       if (document.visibilityState !== "visible" || !document.hasFocus()) {
@@ -88,11 +108,13 @@ export function useArchitectureDraftWorkLease(
 
       void heartbeatDraftWorkLease(draftId)
         .then((next) => {
-          setLease(next);
-          setLeaseLost(false);
+          if (!cancelled) {
+            setLease(next);
+            setLeaseLost(false);
+          }
         })
         .catch((error: unknown) => {
-          if (readDraftWorkLeaseHeartbeatLost(error)) {
+          if (!cancelled && readDraftWorkLeaseHeartbeatLost(error)) {
             setLeaseLost(true);
           }
         });
@@ -101,6 +123,7 @@ export function useArchitectureDraftWorkLease(
     const intervalId = window.setInterval(heartbeat, SESSION_IDLE_FOCUS_HEARTBEAT_MS);
 
     return () => {
+      cancelled = true;
       window.clearInterval(intervalId);
     };
   }, [draftId, mutable]);

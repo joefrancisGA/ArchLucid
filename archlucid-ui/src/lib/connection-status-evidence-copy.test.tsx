@@ -1,6 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it, vi } from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 import { ConnectionStatusEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
@@ -24,9 +28,11 @@ describe("connection-status-evidence-copy", () => {
 
     const sources = screen.getByTestId("connection-status-sources");
 
-    for (const link of filterWhereToGoNextFollowUpLinks(CONNECTION_STATUS_SOURCES)) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sources),
+      filterWhereToGoNextFollowUpLinks(CONNECTION_STATUS_SOURCES),
+      CONNECTION_STATUS_CANONICAL_PATH,
+    );
 
     expect(within(sources).queryByRole("link", { name: "Open System health" })).not.toBeInTheDocument();
 

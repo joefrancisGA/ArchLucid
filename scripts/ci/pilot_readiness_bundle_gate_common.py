@@ -95,6 +95,13 @@ def validate_offline_bundle_report(report: dict[str, Any]) -> list[str]:
     if not isinstance(safe_slots, list):
         safe_slots = []
 
+    # A WARN slot blocks offline readiness even when the rollup is inconsistent.
+    # Name the specific synthetic fixture instead of only saying "overall Warn".
+    for slot in safe_slots:
+        if isinstance(slot, dict) and slot.get("verdict") == "Warn":
+            key = str(slot.get("slotKey") or "unknown-slot").strip() or "unknown-slot"
+            issues.append(f"offline slot {key} verdict is Warn.")
+
     ship_gate = next(
         (
             slot

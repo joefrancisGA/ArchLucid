@@ -1,6 +1,7 @@
 using System.Data;
 using System.Globalization;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -140,6 +141,29 @@ public sealed partial class InMemoryRunRepository
     }
 
     /// <inheritdoc />
+    public Task<RunArchiveByIdsResult> ArchiveUnsealedRunAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ct.ThrowIfCancellationRequested();
+
+        if (!_store.TryGetValue(runId, out RunRecord? run) || !RunRepositoryCore.MatchesScope(run, scope))
+            return Task.FromResult(RunArchiveByIdsOutcome.Assemble([runId], [], [], new()));
+
+        lock (run)
+        {
+            if (run.ArchivedUtc is not null)
+                return Task.FromResult(RunArchiveByIdsOutcome.Assemble([runId], [], [runId], new()));
+
+            if (run.GoldenManifestId is not null)
+                return Task.FromResult(RunArchiveByIdsOutcome.Assemble([runId], [], [], new()));
+
+            run.ArchivedUtc = TimeProvider.System.UtcNowDateTime();
+            return Task.FromResult(RunArchiveByIdsOutcome.Assemble(
+                [runId], [RunRepositoryCore.ToArchivedRunScopeRow(run)], [], new()));
+        }
+    }
+
+    /// <inheritdoc />
     public Task<RunStaleUncommittedPurgeBatchResult> HardDeleteStaleUncommittedRunsBatchAsync(
         DateTimeOffset createdBeforeUtc,
         int batchSize,
@@ -196,6 +220,38 @@ public sealed partial class InMemoryRunRepository
         }
 
         return Task.FromResult(new RunSamplePurgeBatchResult { Deleted = removed });
+    }
+
+    public Task MarkAuthorityPipelineCommittedAsync(
+        ScopeContext scope,
+        Guid runId,
+        Guid goldenManifestId,
+        DateTime completedUtc,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        _ = connection;
+        _ = transaction;
+        ct.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (!_store.TryGetValue(runId, out RunRecord? run))
+            throw new RunConcurrencyConflictException(runId);
+
+        lock (run)
+        {
+            if (!RunRepositoryCore.IsActiveInScope(run, scope))
+                throw new RunConcurrencyConflictException(runId);
+
+            run.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
+            run.CompletedUtc ??= completedUtc;
+
+            if (run.GoldenManifestId is null || run.GoldenManifestId == Guid.Empty)
+                run.GoldenManifestId = goldenManifestId;
+        }
+
+        return Task.CompletedTask;
     }
 
     public Task<bool> TrySetOperatorGovernanceDispositionAsync(

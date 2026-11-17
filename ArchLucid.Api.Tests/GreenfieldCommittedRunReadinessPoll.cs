@@ -1,9 +1,5 @@
 ﻿using System.Net;
-using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Audit;
 
@@ -15,11 +11,7 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 internal static class GreenfieldCommittedRunReadinessPoll
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) },
-    };
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     internal static Task WaitUntilCommittedRunDetailReadableAsync(
         HttpClient client,
@@ -29,13 +21,13 @@ internal static class GreenfieldCommittedRunReadinessPoll
         return WaitUntilAsync(
             async ct =>
             {
-                using HttpResponseMessage response = await client.GetAsync($"/v1/architecture/review/{runId}", ct);
+                using HttpResponseMessage response = await client.GetRunHttpAsync(runId, ct);
 
                 if (!response.IsSuccessStatusCode)
                     return false;
 
-                ArchitectureRunDetailProbeDto? detail =
-                    await response.Content.ReadFromJsonAsync<ArchitectureRunDetailProbeDto>(JsonOptions, ct);
+                GetRunResponseDto detail =
+                    await response.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions, ct);
 
                 return detail?.Run is { Status: "Committed", CurrentManifestVersion: { Length: > 0 } };
             },
@@ -54,13 +46,13 @@ internal static class GreenfieldCommittedRunReadinessPoll
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        using HttpResponseMessage response = await client.GetAsync($"/v1/architecture/review/{runId}", cancellationToken);
+        using HttpResponseMessage response = await client.GetRunHttpAsync(runId, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
             return false;
 
-        ArchitectureRunDetailProbeDto? detail =
-            await response.Content.ReadFromJsonAsync<ArchitectureRunDetailProbeDto>(JsonOptions, cancellationToken);
+        GetRunResponseDto detail =
+            await response.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions, cancellationToken);
 
         return detail?.Run is { Status: "Committed", CurrentManifestVersion: { Length: > 0 } };
     }
@@ -78,13 +70,13 @@ internal static class GreenfieldCommittedRunReadinessPoll
         return WaitUntilAsync(
             async ct =>
             {
-                using HttpResponseMessage response = await client.GetAsync($"/v1/architecture/review/{runId}", ct);
+                using HttpResponseMessage response = await client.GetRunHttpAsync(runId, ct);
 
                 if (!response.IsSuccessStatusCode)
                     return false;
 
-                ArchitectureRunExecuteReadinessProbeDto? detail =
-                    await response.Content.ReadFromJsonAsync<ArchitectureRunExecuteReadinessProbeDto>(JsonOptions, ct);
+                GetRunResponseDto detail =
+                    await response.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions, ct);
 
                 if (detail?.Run is null)
                     return false;
@@ -123,13 +115,13 @@ internal static class GreenfieldCommittedRunReadinessPoll
 
         bounded.CancelAfter(TimeSpan.FromSeconds(30));
 
-        using HttpResponseMessage response =
-            await client.GetAsync($"/v1/architecture/review/{runId}", bounded.Token);
+        using HttpResponseMessage response = await client.GetRunHttpAsync(runId, bounded.Token);
 
         string body = await response.Content.ReadAsStringAsync(bounded.Token);
 
-        ArchitectureRunExecuteReadinessProbeDto? detail =
-            await response.Content.ReadFromJsonAsync<ArchitectureRunExecuteReadinessProbeDto>(JsonOptions, bounded.Token);
+        GetRunResponseDto? detail = string.IsNullOrWhiteSpace(body)
+            ? null
+            : JsonSerializer.Deserialize<GetRunResponseDto>(body, JsonOptions);
 
         int resultsCount = detail?.Results?.Count ?? 0;
         string status = detail?.Run?.Status ?? "(null run)";
@@ -302,33 +294,10 @@ internal static class GreenfieldCommittedRunReadinessPoll
         if (string.IsNullOrEmpty(text))
             return false;
 
-        return text.Contains(ContosoRetailDemoIdentifiers.RunBaseline, StringComparison.Ordinal)
-            || text.Contains(ContosoRetailDemoIdentifiers.RunHardened, StringComparison.Ordinal)
-            || text.Contains(ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("D"), StringComparison.Ordinal)
-            || text.Contains(ContosoRetailDemoIdentifiers.AuthorityRunHardenedId.ToString("D"), StringComparison.Ordinal);
+        return text.Contains(HarnessDemoBaselineSupport.DemoRunId, StringComparison.Ordinal)
+            || text.Contains(HarnessDemoBaselineSupport.DemoRunHardened, StringComparison.Ordinal)
+            || text.Contains(HarnessDemoBaselineSupport.AuthorityRunId.ToString("D"), StringComparison.Ordinal)
+            || text.Contains(HarnessDemoBaselineSupport.AuthorityRunHardenedId.ToString("D"), StringComparison.Ordinal);
     }
 
-    private sealed class ArchitectureRunDetailProbeDto
-    {
-        public RunDto? Run
-        {
-            get;
-            set;
-        }
-    }
-
-    private sealed class ArchitectureRunExecuteReadinessProbeDto
-    {
-        public RunDto? Run
-        {
-            get;
-            set;
-        }
-
-        public List<object>? Results
-        {
-            get;
-            set;
-        }
-    }
 }

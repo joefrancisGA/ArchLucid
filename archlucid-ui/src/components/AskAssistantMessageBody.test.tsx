@@ -199,6 +199,9 @@ describe("AskAssistantMessageBody", () => {
 
     expect(screen.getByText("Sources in this review")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Manifest" })).toHaveAttribute("href", "/manifests/a1");
-    expect(screen.getByRole("link", { name: "Finding" })).toHaveAttribute("href", "/architecture/reviews/r1/findings/f1");
+    expect(screen.getByRole("link", { name: "Finding" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/r1?reviewTab=findings&findingId=f1",
+    );
   });
 });

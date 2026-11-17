@@ -4,7 +4,7 @@ export function formatCloudConnectionImportSuccessMessage(
   packageId: string | null | undefined,
 ): string {
   const resourcePart =
-    typeof resourceCount === "number" && Number.isFinite(resourceCount)
+    typeof resourceCount === "number" && Number.isFinite(resourceCount) && resourceCount >= 0
       ? `${resourceCount} resources imported`
       : "Resource count was not stored.";
   const packagePart =
@@ -21,7 +21,7 @@ export function formatTier2ConnectionValidationPackageLine(
   packageId: string | null | undefined,
 ): string {
   const resourcePart =
-    typeof resourceCount === "number" && Number.isFinite(resourceCount)
+    typeof resourceCount === "number" && Number.isFinite(resourceCount) && resourceCount >= 0
       ? `${resourceCount} resources`
       : "Resource count was not stored.";
   const packagePart =

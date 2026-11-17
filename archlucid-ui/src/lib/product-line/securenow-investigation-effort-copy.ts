@@ -1,11 +1,22 @@
+import { securenowInternalDocHref } from "@/lib/product-line/securenow-internal-doc-href";
+
+export const SECURENOW_INVESTIGATION_EFFORT_PATH = "/administration/securenow-investigation-effort" as const;
+
 export const SECURENOW_INVESTIGATION_EFFORT_HEADING =
   "Investigation effort" as const;
 
 export const SECURENOW_INVESTIGATION_EFFORT_LEAD =
-  "Record comparable minutes in the pilot measurement log. Share a number only when the send rule passes. SecureNow beta remains NO_GO." as const;
+  "Enter your own investigation minutes first. ROI stays ROI not calculated until all five inputs are positive and not the fixture tuple. SecureNow beta remains NO_GO." as const;
 
 export const SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL =
   "This page does not start a timer, calculate ROI, or copy a fee. This page is not a savings claim." as const;
+
+/** Shown when the latest capture completed with gaps — worksheet math does not fix incomplete inventory. */
+export const SECURENOW_INVESTIGATION_EFFORT_PARTIAL_CAPTURE_CONTEXT_LINE =
+  "The latest capture completed with gaps. Investigation-effort ROI uses your entered minutes only — it does not infer missing hops or paths from a partial snapshot." as const;
+
+export const SECURENOW_SPONSOR_PATH_INVESTIGATION_EFFORT_HINT =
+  `${SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL} Enter your own inputs on Investigation effort before citing ROI in a sponsor readout.` as const;
 
 export const SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_HEADING =
   "Synthetic worksheet walkthrough" as const;
@@ -26,19 +37,19 @@ export const SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_RESULT =
 
 export const SECURENOW_INVESTIGATION_EFFORT_NOTES = [
   {
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/PILOT_MEASUREMENT_LOG.md",
+    href: securenowInternalDocHref("PILOT_MEASUREMENT_LOG.md"),
     label: "Pilot measurement log",
   },
   {
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_COST_INPUT.md",
+    href: securenowInternalDocHref("ROI_COST_INPUT.md"),
     label: "Cost input",
   },
   {
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_FIXTURE_WORKSHEET.md",
+    href: securenowInternalDocHref("ROI_FIXTURE_WORKSHEET.md"),
     label: "Fixture worksheet",
   },
   {
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_SEND_RULE.md",
+    href: securenowInternalDocHref("ROI_SEND_RULE.md"),
     label: "Send rule",
   },
 ] as const;

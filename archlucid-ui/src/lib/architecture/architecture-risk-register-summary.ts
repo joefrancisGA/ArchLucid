@@ -1,4 +1,5 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { isGovernanceFindingOpenRisk } from "@/lib/governance/governance-finding-open-risk";
 
 export type ArchitectureRiskRegisterSummary = {
   readonly openRisks: number;
@@ -13,7 +14,7 @@ function isFindingRow(row: GovernanceFindingQueueRow): boolean {
   return row.recordKind === "finding";
 }
 
-function hasExpiringException(row: GovernanceFindingQueueRow, nowMs: number): boolean {
+export function hasExpiringRiskException(row: GovernanceFindingQueueRow, nowMs: number): boolean {
   const expiresRaw = row.waiverExpiresAtUtc?.trim() ?? "";
 
   if (expiresRaw.length === 0) {
@@ -26,7 +27,7 @@ function hasExpiringException(row: GovernanceFindingQueueRow, nowMs: number): bo
     return false;
   }
 
-  return expiresMs <= nowMs + WAIVER_EXPIRING_WINDOW_MS;
+  return expiresMs > nowMs && expiresMs <= nowMs + WAIVER_EXPIRING_WINDOW_MS;
 }
 
 function isOverdueReview(row: GovernanceFindingQueueRow, nowMs: number): boolean {
@@ -46,21 +47,7 @@ function isOverdueReview(row: GovernanceFindingQueueRow, nowMs: number): boolean
 }
 
 function isOpenRisk(row: GovernanceFindingQueueRow): boolean {
-  if (!isFindingRow(row)) {
-    return false;
-  }
-
-  const normalized = row.status.toLowerCase();
-
-  if (normalized.includes("recorded")) {
-    return false;
-  }
-
-  if (normalized.includes("closed") || normalized.includes("resolved")) {
-    return false;
-  }
-
-  return true;
+  return isGovernanceFindingOpenRisk(row);
 }
 
 function hasPendingOwner(row: GovernanceFindingQueueRow): boolean {
@@ -77,7 +64,7 @@ export function computeArchitectureRiskRegisterSummary(
 ): ArchitectureRiskRegisterSummary {
   return {
     openRisks: rows.filter((row) => isOpenRisk(row)).length,
-    expiringExceptions: rows.filter((row) => hasExpiringException(row, nowMs)).length,
+    expiringExceptions: rows.filter((row) => hasExpiringRiskException(row, nowMs)).length,
     pendingOwner: rows.filter((row) => hasPendingOwner(row)).length,
     overdueReview: rows.filter((row) => isOverdueReview(row, nowMs)).length,
   };

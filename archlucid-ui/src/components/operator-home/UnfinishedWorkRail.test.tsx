@@ -3,6 +3,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import {
+  INHABIT_WORKING_HOME_UNFINISHED_WORK_AWAITING_DISPOSITION_STATUS,
+  INHABIT_WORKING_HOME_UNFINISHED_WORK_CONTINUE_CTA,
+  INHABIT_WORKING_HOME_UNFINISHED_WORK_IN_PROGRESS_STATUS,
+} from "@/lib/inhabit/inhabit-working-home-copy";
+import {
   OPERATOR_HOME_YOUR_WORK_COLUMN_NAME,
   OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS,
   OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE,
@@ -267,7 +272,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
 
     render(<UnfinishedWorkRail runs={runs} />);
 
-    expect(screen.getByRole("link", { name: "Continue review" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: INHABIT_WORKING_HOME_UNFINISHED_WORK_CONTINUE_CTA })).toBeInTheDocument();
   });
 
   it("surfaces mid-execute reviews from runs props", () => {
@@ -287,7 +292,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
 
     expect(screen.getByTestId("unfinished-work-rail")).toBeInTheDocument();
     expect(screen.getByText("Edge review in flight")).toBeInTheDocument();
-    expect(screen.getByText("Draft")).toBeInTheDocument();
+    expect(screen.getByText(INHABIT_WORKING_HOME_UNFINISHED_WORK_IN_PROGRESS_STATUS)).toBeInTheDocument();
   });
 
   it("prefers the refreshed reviews snapshot over the server-rendered runs prop", () => {
@@ -326,7 +331,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
 
     expect(screen.queryByText("Stale first paint review")).toBeNull();
     expect(screen.getByText("Refreshed review awaiting disposition")).toBeInTheDocument();
-    expect(screen.getByText("Action needed")).toBeInTheDocument();
+    expect(screen.getByText(INHABIT_WORKING_HOME_UNFINISHED_WORK_AWAITING_DISPOSITION_STATUS)).toBeInTheDocument();
   });
 
   it("hides once the refreshed snapshot reports no unfinished reviews", () => {

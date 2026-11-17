@@ -68,6 +68,8 @@ export type ReviewDetailWorkspaceProps = {
   readonly visitDefaultFindingIdWhenUrlSilent?: string | null;
   /** When the URL omits hash, scroll to the first-review spine open-gate section when present. */
   readonly visitDefaultReviewHashWhenUrlSilent?: string | null;
+  /** Working desk identity — upgrades flat peer URLs when syncing tabs (ADR 0077). */
+  readonly parentArchitectureId?: string | null;
 };
 
 type ReviewDetailWorkspaceTabContextValue = {

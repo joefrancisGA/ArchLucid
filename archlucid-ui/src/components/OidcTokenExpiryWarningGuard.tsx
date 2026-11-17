@@ -13,7 +13,7 @@ import {
 import { isOperatorOidcKeepaliveRoute } from "@/lib/auth/operator-oidc-keepalive-route";
 import { readPresenterModeFromWindowLocation } from "@/lib/review-detail-workspace-tabs";
 import { isJwtAuthMode } from "@/lib/oidc/config";
-import { ensureAccessTokenFresh, getAccessTokenExpiresAtMs } from "@/lib/oidc/session";
+import { clearOidcSession, ensureAccessTokenFresh, getAccessTokenExpiresAtMs } from "@/lib/oidc/session";
 import { pulseBffSessionActivity } from "@/lib/oidc/bff-session-sync";
 
 function isMeetingSafeSessionSurface(pathname: string): boolean {
@@ -22,6 +22,15 @@ function isMeetingSafeSessionSurface(pathname: string): boolean {
   }
 
   return readPresenterModeFromWindowLocation();
+}
+
+// Same unauthorized result as useOidcSessionKeepalive: a rejected activity pulse ends the local session.
+async function pulseExpiryWarningActivityOrClearSession(): Promise<void> {
+  const result = await pulseBffSessionActivity();
+
+  if (result === "unauthorized") {
+    clearOidcSession();
+  }
 }
 
 /** Warns before OIDC access-token expiry so long read sessions can refresh without a hard logout. */
@@ -42,12 +51,12 @@ export function OidcTokenExpiryWarningGuard() {
     }
 
     writeSharedSessionLastActivityAt();
-    void pulseBffSessionActivity();
+    void pulseExpiryWarningActivityOrClearSession();
 
     const heartbeatId = window.setInterval(() => {
       writeSharedSessionLastActivityAt();
       void ensureAccessTokenFresh();
-      void pulseBffSessionActivity();
+      void pulseExpiryWarningActivityOrClearSession();
     }, SESSION_IDLE_FOCUS_HEARTBEAT_MS);
 
     return () => {

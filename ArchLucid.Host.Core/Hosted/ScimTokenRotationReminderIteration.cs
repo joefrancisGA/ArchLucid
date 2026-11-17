@@ -48,11 +48,19 @@ public static class ScimTokenRotationReminderIteration
 
             string dataJson = JsonSerializer.Serialize(new { tenantId = row.TenantId, tokenId = row.Id, createdUtc = row.CreatedUtc });
 
-            await notices.InsertAsync(
-                "scim_token_rotation_due",
-                $"SCIM bearer token {row.Id:D} for tenant {row.TenantId:D} is older than the configured rotation reminder ({reminderDays} days). Rotate or revoke in admin.",
-                dataJson,
-                ct).ConfigureAwait(false);
+            try
+            {
+                await notices.InsertAsync(
+                    "scim_token_rotation_due",
+                    $"SCIM bearer token {row.Id:D} for tenant {row.TenantId:D} is older than the configured rotation reminder ({reminderDays} days). Rotate or revoke in admin.",
+                    dataJson,
+                    ct).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                if (logger.IsEnabled(LogLevel.Error))
+                    logger.LogError(ex, "SCIM rotation reminder write failed for token {TokenId}.", row.Id);
+            }
         }
     }
 }

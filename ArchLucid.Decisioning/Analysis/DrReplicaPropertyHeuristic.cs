@@ -91,6 +91,8 @@ public static class DrReplicaPropertyHeuristic
         return string.Equals(normalized, "false", StringComparison.OrdinalIgnoreCase)
             || string.Equals(normalized, "disabled", StringComparison.OrdinalIgnoreCase)
             || string.Equals(normalized, "none", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(normalized, "0", StringComparison.OrdinalIgnoreCase);
+            || string.Equals(normalized, "0", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(normalized, "no", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(normalized, "off", StringComparison.OrdinalIgnoreCase);
     }
 }

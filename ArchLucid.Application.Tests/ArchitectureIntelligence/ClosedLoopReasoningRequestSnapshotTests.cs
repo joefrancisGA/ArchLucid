@@ -108,6 +108,27 @@ public sealed class ClosedLoopReasoningRequestSnapshotTests
     }
 
     [Fact]
+    public void Capture_preserves_display_casing_without_splitting_case_insensitive_cache_identity()
+    {
+        ClosedLoopReasoningRequest mixed = new()
+        {
+            DeclaredPriorities = [" Security ", "cost", "Cost"],
+        };
+        ClosedLoopReasoningRequest canonical = new()
+        {
+            DeclaredPriorities = ["security", "cost"],
+        };
+
+        ClosedLoopReasoningRequest snapshot = ClosedLoopReasoningRequestSnapshot.Capture(mixed);
+
+        // Display priorities retain encounter order (trade-off precedence), even when
+        // cache identity normalizes their case.
+        snapshot.DeclaredPriorities.Should().Equal("Security", "cost");
+        ReviewCacheManifestBuilder.Build(snapshot).DeclaredPrioritiesHash
+            .Should().Be(ReviewCacheManifestBuilder.Build(canonical).DeclaredPrioritiesHash);
+    }
+
+    [Fact]
     public void Capture_normalizes_declared_priorities()
     {
         ClosedLoopReasoningRequest request = new()

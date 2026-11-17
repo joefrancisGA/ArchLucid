@@ -7,6 +7,8 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Persistence.ApplicationPorts.SecureNow;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.SecureNow;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.SecureNow;
@@ -19,7 +21,8 @@ public sealed class CollectionRunTriggerService(
     ICollectionRunAdmissionCounter admissionCounter,
     TimeProvider? timeProvider = null,
     ICollectionTriggerClaimRepository? durableClaims = null,
-    IOptions<SecureNowCapacityOptions>? capacityOptions = null)
+    IOptions<SecureNowCapacityOptions>? capacityOptions = null,
+    ILogger<CollectionRunTriggerService>? logger = null)
 {
     private static readonly TimeSpan IdempotencyWindow = TimeSpan.FromMinutes(2);
     // Process-local execution bulkhead; independent of per-tenant idempotency gates.
@@ -153,9 +156,10 @@ public sealed class CollectionRunTriggerService(
             Status = CollectionRunStatus.Running,
             SubscriptionsCoveredJson = JsonSerializer.Serialize(subscriptionIds),
         };
-        await _collectionRunRepository.UpsertAsync(run, cancellationToken);
-        await durableClaims.ReconcilePersistedRunAsync(scoped, idempotencyKey, runId, cancellationToken);
-        await _auditService.LogAsync(new AuditEvent
+        // The trigger accepted the start. Keep the local run and claim recoverable if the caller disconnects.
+        await _collectionRunRepository.UpsertAsync(run, CancellationToken.None);
+        await durableClaims.ReconcilePersistedRunAsync(scoped, idempotencyKey, runId, CancellationToken.None);
+        await LogTriggeredAsync(new AuditEvent
         {
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
@@ -163,7 +167,7 @@ public sealed class CollectionRunTriggerService(
             EventType = AuditEventTypes.SecureNowCollectionRunTriggered,
             RunId = runId,
             DataJson = JsonSerializer.Serialize(new { runId, subscriptionIds, durableClaim = true }),
-        }, cancellationToken);
+        });
         return run;
     }
 
@@ -210,10 +214,10 @@ public sealed class CollectionRunTriggerService(
             SubscriptionsCoveredJson = JsonSerializer.Serialize(subscriptionIds),
         };
 
-        await _collectionRunRepository.UpsertAsync(run, cancellationToken);
+        await _collectionRunRepository.UpsertAsync(run, CancellationToken.None);
         _idempotencyStore.Set(scopedKey, runId, IdempotencyWindow);
 
-        await _auditService.LogAsync(
+        await LogTriggeredAsync(
             new AuditEvent
             {
                 TenantId = scope.TenantId,
@@ -227,9 +231,17 @@ public sealed class CollectionRunTriggerService(
                     subscriptionIds,
                     idempotencyWindowSeconds = IdempotencyWindow.TotalSeconds,
                 }),
-            },
-            cancellationToken);
+            });
 
         return run;
     }
+
+    private Task LogTriggeredAsync(AuditEvent auditEvent) =>
+        DurableAuditLogRetry.TryLogAsync(
+            ct => _auditService.LogAsync(auditEvent, ct),
+            logger ?? NullLogger<CollectionRunTriggerService>.Instance,
+            AuditEventTypes.SecureNowCollectionRunTriggered,
+            CancellationToken.None,
+            maxAttempts: 1,
+            auditEventTypeForMetrics: AuditEventTypes.SecureNowCollectionRunTriggered);
 }

@@ -56,12 +56,12 @@ describe("keyboard shortcuts extract-upload (integration)", () => {
     );
   });
 
-  it("documents extract-upload shortcuts in the page header disclosure", async () => {
+  it("exposes extract-upload shortcut targets on the settings page", async () => {
     render(<ExtractUploadSettingsPageClient />);
 
-    expect(screen.getByTestId("extract-upload-page-shortcuts")).toBeInTheDocument();
-    expect(screen.getByTestId("extract-upload-page-shortcuts-entry-focus")).toBeInTheDocument();
-    expect(screen.getByTestId("extract-upload-page-shortcuts-entry-copy")).toBeInTheDocument();
+    expect(screen.getByTestId("extract-upload-settings-page")).toBeInTheDocument();
+    expect(screen.getByTestId("extract-upload-drop-zone-surface")).toBeInTheDocument();
+    expect(screen.getByTestId("extract-upload-quick-start-copy")).toBeInTheDocument();
   });
 
   it("registers Ctrl+U shortcut handler without throwing", () => {

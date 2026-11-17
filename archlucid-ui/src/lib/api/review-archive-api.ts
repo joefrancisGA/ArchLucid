@@ -1,12 +1,12 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { encodeRequiredPathSegment } from "@/lib/api/api-boundary-normalization";
 
 export type ArchiveReviewResult =
   | Readonly<{ ok: true }>
   | Readonly<{ ok: false; status: number; message: string }>;
 
 export async function archiveReview(runId: string): Promise<ArchiveReviewResult> {
-  const encodedRunId = encodeURIComponent(runId.trim());
-  const path = `/api/proxy/v1/architecture/runs/${encodedRunId}/archive`;
+  const path = `/api/proxy/v1/architecture/runs/${encodeRequiredPathSegment(runId, "runId")}/archive`;
 
   const response = await fetch(
     path,
@@ -16,7 +16,7 @@ export async function archiveReview(runId: string): Promise<ArchiveReviewResult>
     }),
   );
 
-  if (response.status === 204) {
+  if (response.status === 204 || response.status === 200) {
     return { ok: true };
   }
 

@@ -87,6 +87,16 @@ vi.mock("@/lib/oidc/build-authorize-url", () => ({
   buildAuthorizeUrl: vi.fn(() => "https://login.example.com/authorize?foo=bar"),
 }));
 
+const initiateOidcRedirectMock = vi.hoisted(() =>
+  vi.fn(async () => {
+    window.location.assign("https://login.example.com/authorize?foo=bar");
+  }),
+);
+
+vi.mock("@/lib/oidc/initiate-redirect", () => ({
+  initiateOidcRedirect: (...args: unknown[]) => initiateOidcRedirectMock(...args),
+}));
+
 // -------------------------------------------------------------------
 // Component under test (imported after mocks are wired).
 // -------------------------------------------------------------------

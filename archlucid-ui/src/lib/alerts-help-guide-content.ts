@@ -17,6 +17,12 @@ import {
   governanceAlertRulesTabHref,
 } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import {
+  policyPacksPathForProductLine,
+  standardsAndRulesPathForProductLine,
+} from "@/lib/product-line/securenow-compliance-routes";
 
 export const ALERTS_HELP_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.alerts;
 
@@ -171,6 +177,23 @@ export const ALERTS_HELP_RELATED_CONCEPTS = [
   },
 ] as const;
 
+export function resolveAlertsHelpRelatedConcepts(productLine: ProductLineId = "architecture") {
+  if (!isSecureNowProductLine(productLine)) {
+    return ALERTS_HELP_RELATED_CONCEPTS;
+  }
+
+  return ALERTS_HELP_RELATED_CONCEPTS.map((concept) => {
+    if (concept.title === "Policy packs") {
+      return { ...concept, href: policyPacksPathForProductLine(productLine) };
+    }
+
+    if (concept.title === "Standards and rules") {
+      return { ...concept, href: standardsAndRulesPathForProductLine(productLine) };
+    }
+
+    return concept;
+  });
+}
 
 export const ALERTS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "how-alerts-work", title: "How alerts work" },

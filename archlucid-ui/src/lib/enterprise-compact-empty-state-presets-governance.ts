@@ -45,6 +45,11 @@ import {
   STANDARDS_RULES_EMPTY_BODY,
   STANDARDS_RULES_EMPTY_HEADING,
 } from "@/lib/standards-rules-page";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import {
+  policyPacksPathForProductLine,
+  remapGovernanceOperatorHref,
+} from "@/lib/product-line/securenow-compliance-routes";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { buildInsightsFinalizedReviewPrerequisiteEmpty } from "@/lib/insights-finalized-review-prerequisite-empty";
 import {
@@ -111,7 +116,24 @@ export const DECISION_REGISTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
   ],
 };
 
-/** Standards & rules register when no rules apply to the current review scope. */
+/** Decision register empty compact — remaps findings-adjacent CTAs on SecureNow. */
+export function resolveDecisionRegisterEmptyCompact(productLine: ProductLineId): EnterpriseCompactEmptyStateProps {
+  const actions = DECISION_REGISTER_EMPTY_COMPACT.actions;
+
+  if (actions === undefined) {
+    return DECISION_REGISTER_EMPTY_COMPACT;
+  }
+
+  return {
+    ...DECISION_REGISTER_EMPTY_COMPACT,
+    actions: actions.map((action) =>
+      action.label === "Open resolve outcomes"
+        ? { ...action, href: remapGovernanceOperatorHref(action.href, productLine) }
+        : action,
+    ),
+  };
+}
+
 export const STANDARDS_RULES_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "standards-rules-empty-state",
   title: STANDARDS_RULES_EMPTY_HEADING,
@@ -125,6 +147,24 @@ export const STANDARDS_RULES_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
     },
   ],
 };
+
+/** Standards & rules register when no rules apply to the current review scope. */
+export function resolveStandardsRulesEmptyCompact(productLine: ProductLineId): EnterpriseCompactEmptyStateProps {
+  const actions = STANDARDS_RULES_EMPTY_COMPACT.actions;
+
+  if (actions === undefined) {
+    return STANDARDS_RULES_EMPTY_COMPACT;
+  }
+
+  return {
+    ...STANDARDS_RULES_EMPTY_COMPACT,
+    actions: actions.map((action, index) =>
+      index === 0
+        ? { ...action, href: policyPacksPathForProductLine(productLine) }
+        : action,
+    ),
+  };
+}
 
 /** Policy findings queue when rows exist but the active filter hides all of them. */
 export const GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT: EnterpriseCompactEmptyStateProps =

@@ -2,8 +2,9 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Api.Models;
+using ArchLucid.Api.Models.Integrations;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Core.Audit;
@@ -23,26 +24,7 @@ namespace ArchLucid.Api.Tests.Integrations;
 [Trait("Suite", "Core")]
 public sealed class ItsmOutboundIssuesEndpointIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonWeb = new(JsonSerializerDefaults.Web);
-
-    private static string DemoPrimaryFindingId =>
-        $"finding-demo-{ContosoRetailDemoIdentifiers.AuthorityRunBaselineId:N}-primary";
-
-    private static StringContent OutboundIssueBody(string provider, string findingId)
-    {
-        string json = JsonSerializer.Serialize(
-            new Dictionary<string, string> { ["provider"] = provider, ["findingId"] = findingId },
-            JsonWeb);
-
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
-
-    private static async Task SeedDemoBaselineAsync(IServiceProvider rootServices)
-    {
-        using IServiceScope scope = rootServices.CreateScope();
-
-        await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
-    }
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     [SkippableFact]
     public async Task Post_jira_upstream_created_returns_external_key_correlation_and_audit()
@@ -55,20 +37,17 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
                     Content = new StringContent("{\"id\":\"441\",\"key\":\"DP-900\"}", Encoding.UTF8, "application/json")
                 });
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        using HttpClient client = await ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync(factory);
 
-        await SeedDemoBaselineAsync(factory.Services);
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "Jira",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/integrations/itsm/outbound/issues",
-            OutboundIssueBody("Jira", DemoPrimaryFindingId));
+        CreateItsmOutboundIssueResponse body =
+            await response.ReadJsonForTestAsync<CreateItsmOutboundIssueResponse>(JsonOptions);
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        JsonDocument body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        body.RootElement.GetProperty("provider").GetString().Should().Be("Jira");
-        body.RootElement.GetProperty("externalKey").GetString().Should().Be("DP-900");
+        body.Provider.Should().Be("Jira");
+        body.ExternalKey.Should().Be("DP-900");
 
         using IServiceScope scope = factory.Services.CreateScope();
         IItsmFindingCorrelationRepository correlations =
@@ -78,7 +57,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             await correlations.TryGetByExternalKeyAsync("Jira", "DP-900", CancellationToken.None);
 
         row.Should().NotBeNull();
-        row.FindingId.Should().Be(DemoPrimaryFindingId);
+        row.FindingId.Should().Be(HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         factory.AuditCapture.Snapshot()
             .Select(static a => a.EventType)
@@ -93,18 +72,14 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
         factory.OutboundHttp.RespondAsync = (_, _) =>
             Task.FromResult(new HttpResponseMessage(HttpStatusCode.Unauthorized));
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        using HttpClient client = await ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync(factory);
 
-        await SeedDemoBaselineAsync(factory.Services);
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "Jira",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/integrations/itsm/outbound/issues",
-            OutboundIssueBody("Jira", DemoPrimaryFindingId));
+        using JsonDocument problem = await response.AssertProblemForTestAsync(HttpStatusCode.ServiceUnavailable);
 
-        response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
-
-        JsonDocument problem = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         problem.RootElement.GetProperty("detail").GetString().Should().NotBeNullOrWhiteSpace();
         problem.RootElement.GetProperty("provider").GetString().Should().Be("Jira");
         problem.RootElement.TryGetProperty(ProblemCorrelation.ExtensionKey, out JsonElement cid).Should().BeTrue();
@@ -130,19 +105,15 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             };
         };
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        using HttpClient client = await ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync(factory);
 
-        await SeedDemoBaselineAsync(factory.Services);
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "Jira",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/integrations/itsm/outbound/issues",
-            OutboundIssueBody("Jira", DemoPrimaryFindingId));
-
-        response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
-
-        JsonDocument problem = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        problem.RootElement.GetProperty("detail").GetString().Should().Contain("timed out");
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.ServiceUnavailable,
+            detailContains: "timed out");
 
         factory.AuditCapture.Snapshot()
             .Select(static a => a.EventType)
@@ -158,19 +129,16 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             IncludeJiraOutboundHostConfiguration = false
         };
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        using HttpClient client = await ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync(factory);
 
-        await SeedDemoBaselineAsync(factory.Services);
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "Jira",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/integrations/itsm/outbound/issues",
-            OutboundIssueBody("Jira", DemoPrimaryFindingId));
+        using JsonDocument problem = await response.AssertProblemForTestAsync(
+            HttpStatusCode.BadRequest,
+            detailContains: "not configured");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        JsonDocument problem = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        problem.RootElement.GetProperty("detail").GetString().Should().Contain("not configured");
         problem.RootElement.GetProperty("provider").GetString().Should().Be("Jira");
 
         factory.AuditCapture.Snapshot()
@@ -184,15 +152,13 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
     {
         await using ItsmOutboundIssuesIntegrationApiFactory factory = new();
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        using HttpClient client = ItsmIntegrationTestClientSupport.CreateScopedClient(factory);
 
         using HttpResponseMessage response =
-            await client.PostAsync("/v1/integrations/itsm/outbound/issues", OutboundIssueBody("Freshdesk", "any"));
+            await client.PostItsmOutboundIssueHttpAsync("Freshdesk", "any");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using JsonDocument problem = await response.AssertProblemForTestAsync(HttpStatusCode.BadRequest);
 
-        JsonDocument problem = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         problem.RootElement.GetProperty("provider").GetString().Should().Be("Freshdesk");
         problem.RootElement.GetProperty("findingId").GetString().Should().Be("any");
     }
@@ -234,20 +200,17 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.BadRequest));
         };
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        using HttpClient client = await ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync(factory);
 
-        await SeedDemoBaselineAsync(factory.Services);
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "ServiceNow",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/integrations/itsm/outbound/issues",
-            OutboundIssueBody("ServiceNow", DemoPrimaryFindingId));
+        CreateItsmOutboundIssueResponse body =
+            await response.ReadJsonForTestAsync<CreateItsmOutboundIssueResponse>(JsonOptions);
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        JsonDocument body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        body.RootElement.GetProperty("provider").GetString().Should().Be("ServiceNow");
-        body.RootElement.GetProperty("externalKey").GetString().Should().Be("sn-sys-42");
+        body.Provider.Should().Be("ServiceNow");
+        body.ExternalKey.Should().Be("sn-sys-42");
 
         using IServiceScope scope = factory.Services.CreateScope();
         IItsmFindingCorrelationRepository correlations =
@@ -257,7 +220,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             await correlations.TryGetByExternalKeyAsync("ServiceNow", "sn-sys-42", CancellationToken.None);
 
         row.Should().NotBeNull();
-        row.FindingId.Should().Be(DemoPrimaryFindingId);
+        row.FindingId.Should().Be(HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         factory.AuditCapture.Snapshot()
             .Select(static a => a.EventType)
@@ -270,14 +233,11 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
     {
         await using ItsmOutboundIssuesIntegrationApiFactory factory = new() { NativeItsmCreateEnabled = false };
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        using HttpClient client = await ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync(factory);
 
-        await SeedDemoBaselineAsync(factory.Services);
-
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/integrations/itsm/outbound/issues",
-            OutboundIssueBody("Jira", DemoPrimaryFindingId));
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "Jira",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
@@ -296,41 +256,24 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
                     Content = new StringContent("{\"id\":\"441\",\"key\":\"DP-901\"}", Encoding.UTF8, "application/json")
                 });
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        using HttpClient client = await ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync(factory);
 
-        await SeedDemoBaselineAsync(factory.Services);
-
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/integrations/itsm/outbound/issues",
-            OutboundIssueBody("Jira", DemoPrimaryFindingId));
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "Jira",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        JsonDocument accepted = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        string jobId = accepted.RootElement.GetProperty("jobId").GetString() ?? string.Empty;
+        AsyncJobResponse accepted = await response.ReadJsonForTestAsync<AsyncJobResponse>(JsonOptions);
+        string jobId = accepted.JobId;
         jobId.Should().NotBeNullOrWhiteSpace();
 
-        BackgroundJobState? terminalState = null;
-
-        for (int attempt = 0; attempt < 40; attempt++)
-        {
-            await Task.Delay(100, CancellationToken.None);
-
-            using HttpResponseMessage statusResponse = await client.GetAsync($"/v1/jobs/{jobId}");
-            statusResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            JsonDocument statusBody = JsonDocument.Parse(await statusResponse.Content.ReadAsStringAsync());
-            string? stateRaw = statusBody.RootElement.GetProperty("state").GetString();
-
-            if (stateRaw is "Succeeded" or "Failed")
-            {
-                terminalState = Enum.Parse<BackgroundJobState>(stateRaw, ignoreCase: true);
-                break;
-            }
-        }
-
-        terminalState.Should().Be(BackgroundJobState.Succeeded);
+        await IntegrationTestJobPollSupport.PollJobUntilSucceededAsync(
+            client,
+            jobId,
+            JsonOptions,
+            maxIterations: HarnessPollDefaults.ItsmDurableCreateMaxIterations,
+            delayBetween: HarnessPollDefaults.ItsmDurableCreateDelay);
 
         using IServiceScope scope = factory.Services.CreateScope();
         IItsmFindingCorrelationRepository correlations =
@@ -340,7 +283,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             await correlations.TryGetByExternalKeyAsync("Jira", "DP-901", CancellationToken.None);
 
         row.Should().NotBeNull();
-        row.FindingId.Should().Be(DemoPrimaryFindingId);
+        row.FindingId.Should().Be(HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         factory.AuditCapture.Snapshot()
             .Select(static a => a.EventType)

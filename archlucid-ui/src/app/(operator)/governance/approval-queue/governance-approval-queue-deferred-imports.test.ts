@@ -10,7 +10,7 @@ const routeDir = dirname(fileURLToPath(import.meta.url));
 const sectionsDir = join(routeDir, "..", "_sections");
 
 const pageSource = readFileSync(join(routeDir, "page.tsx"), "utf8");
-const pageContentSource = readFileSync(join(sectionsDir, "GovernanceWorkflowPageContent.tsx"), "utf8");
+const pageContentSource = readFileSync(join(sectionsDir, "GovernanceWorkflowPageShell.tsx"), "utf8");
 const deferredSource = readFileSync(join(sectionsDir, "governance-workflow-deferred-chunks.tsx"), "utf8");
 const mutationHostSource = readFileSync(join(sectionsDir, "GovernanceWorkflowMutationHost.tsx"), "utf8");
 const manifestLoaderSource = readDeferredChunkImportLoaderSource();

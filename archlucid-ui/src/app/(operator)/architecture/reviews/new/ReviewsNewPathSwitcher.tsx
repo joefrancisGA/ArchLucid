@@ -1,12 +1,19 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { cn } from "@/lib/utils";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { SIMPLIFIED_PILOT_ADVANCED_CONFIG_OPEN_PARAM } from "@/lib/architecture/simplified-pilot-advanced-config-disclosure-url";
 import { isAcceleratorPackId } from "@/lib/accelerator-wizard-presets";
+import { GUIDED_INTAKE_VIEW_ALL_CLARIFICATIONS_OPEN_PARAM } from "@/lib/guided-intake/guided-intake-view-all-clarifications-disclosure-url";
+import { FIRST_PILOT_STANDARDS_SELECTION_OPEN_PARAM } from "@/lib/reviews/first-pilot-standards-selection-disclosure-url";
+import { REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM } from "@/lib/reviews/reviews-new-more-ways-to-start-disclosure-url";
+import { REVIEWS_NEW_RETURNING_JOB_CHOOSER_OPEN_PARAM } from "@/lib/reviews/reviews-new-returning-job-chooser-disclosure-url";
 import {
   ACCELERATOR_JOB_CHOOSER_HEADING,
   ACCELERATOR_JOB_CHOOSER_LEAD,
@@ -17,7 +24,6 @@ import {
 } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
 import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
@@ -98,7 +104,7 @@ export function ReviewsNewPathSwitcher() {
       isAcceleratorPackId(acceleratorPackId));
   const showJobChooserStartOptions = activePath === "quick-review" && !hasAcceleratorStartIntent;
   const specimenPreviewPresentation = useReviewsNewSpecimenPreviewPresentation();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const commitQuery = useCorePilotCommitContextQuery();
   const isReturningTenant =
     commitQuery.isPending || commitQuery.data?.hasCommittedManifest === true;
@@ -193,6 +199,11 @@ export function ReviewsNewPathSwitcher() {
       params.delete("preset");
       params.delete("template");
       params.delete("example");
+      params.delete(FIRST_PILOT_STANDARDS_SELECTION_OPEN_PARAM);
+      params.delete(SIMPLIFIED_PILOT_ADVANCED_CONFIG_OPEN_PARAM);
+      params.delete(REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM);
+      params.delete(REVIEWS_NEW_RETURNING_JOB_CHOOSER_OPEN_PARAM);
+      params.delete(GUIDED_INTAKE_VIEW_ALL_CLARIFICATIONS_OPEN_PARAM);
     }
 
     if (path === "guided-intake") {
@@ -210,6 +221,8 @@ export function ReviewsNewPathSwitcher() {
       params.delete("mode");
       params.delete("pilot");
       params.delete("advancedConfig");
+      params.delete("evidenceSource");
+      params.delete("demoScenario");
     }
 
     commitHrefIfChanged(buildReviewsNewPathHref(pathname, path, params), { notify: false });

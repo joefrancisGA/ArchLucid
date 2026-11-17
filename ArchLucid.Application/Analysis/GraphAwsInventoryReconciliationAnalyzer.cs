@@ -196,24 +196,33 @@ public static class GraphAwsInventoryReconciliationAnalyzer
         }
     }
 
+    private static readonly string[] InventoryResourceIdPropertyNames =
+    [
+        "name",
+        "resourceName",
+        "arn",
+        "resourceArn",
+        "awsResourceId",
+        "identifier",
+        "id",
+        "tf.id",
+        "tf.arn",
+        "tf.resource_id",
+    ];
+
     internal static string? TryReadInventoryResourceId(JsonElement row)
     {
-        string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
-            row,
-            [
-                "name",
-                "resourceName",
-                "arn",
-                "resourceArn",
-                "awsResourceId",
-                "identifier",
-                "id",
-                "tf.id",
-                "tf.arn",
-                "tf.resource_id",
-            ]);
+        // AWS Config stores the S3 bucket name on configuration.name. That name is not an ARN,
+        // so each candidate is checked and a later arn on the same item is still used.
+        foreach (string propertyName in InventoryResourceIdPropertyNames)
+        {
+            string? candidate = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, [propertyName]);
 
-        return LooksLikeAwsResourceId(value) ? value : null;
+            if (LooksLikeAwsResourceId(candidate))
+                return candidate;
+        }
+
+        return null;
     }
 
     internal static bool LooksLikeAwsResourceId(string? value)

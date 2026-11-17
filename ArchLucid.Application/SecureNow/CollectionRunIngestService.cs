@@ -31,63 +31,39 @@ public sealed class CollectionRunIngestService(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         CollectionRunManifest manifest = artifact.Manifest;
-        byte[] zipHash = ResolveHash(manifest, artifact.ZipBytes);
+        byte[] zipHash = SHA256.HashData(artifact.ZipBytes);
 
         CollectionRun? existingRun = await _collectionRunRepository.GetAsync(
             scope,
             manifest.RunId,
             cancellationToken);
-        if (existingRun?.Status == CollectionRunStatus.Imported &&
+        string? rejectionReason = GetManifestRejectionReason(manifest, scope.TenantId, zipHash);
+        if (rejectionReason is null &&
+            existingRun?.Status == CollectionRunStatus.Imported &&
+            existingRun.ImportedSnapshotId.HasValue &&
             existingRun.ZipSha256 is not null &&
             existingRun.ZipSha256.SequenceEqual(zipHash))
             return existingRun;
 
         CollectionRun collectionRun = CreateRun(scope, manifest, zipHash);
-
-        if (!IsImportableManifestStatus(manifest.Status))
+        if (rejectionReason is not null)
         {
-            collectionRun = WithStatus(
-                collectionRun,
-                CollectionRunStatus.Rejected,
-                "Collection manifest is not in an importable terminal status.");
-            await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
+            collectionRun = WithStatus(collectionRun, CollectionRunStatus.Rejected, rejectionReason);
+            if (existingRun?.Status != CollectionRunStatus.Imported)
+                await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
+
             return collectionRun;
         }
 
-        if (manifest.TenantId is not Guid manifestTenantId)
+        Guid? reusableSnapshotId = await _collectionRunRepository.FindImportedSnapshotIdByHashAsync(scope, zipHash, cancellationToken);
+        if (reusableSnapshotId.HasValue)
         {
-            collectionRun = WithStatus(
-                collectionRun,
-                CollectionRunStatus.Rejected,
-                "Collection manifest does not include a tenant identifier.");
-            await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
-            return collectionRun;
-        }
-
-        if (manifestTenantId != scope.TenantId)
-        {
-            collectionRun = WithStatus(collectionRun, CollectionRunStatus.Rejected, "Collection manifest tenant does not match the current scope.");
-            await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
-            return collectionRun;
-        }
-
-        if (!IsManifestHashValid(manifest, zipHash))
-        {
-            collectionRun = WithStatus(collectionRun, CollectionRunStatus.Rejected, "Collection package hash does not match the manifest.");
-            await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
-            return collectionRun;
-        }
-
-        if (manifest.SchemaVersion != AzureExtractorPackageZipValidator.SupportedSchemaVersion)
-        {
-            collectionRun = WithStatus(collectionRun, CollectionRunStatus.Rejected, "Unsupported collection manifest schema version.");
-            await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
-            return collectionRun;
-        }
-
-        if (await _collectionRunRepository.HasImportedHashAsync(scope, zipHash, cancellationToken))
-        {
-            collectionRun = WithStatus(collectionRun, CollectionRunStatus.Imported, null);
+            collectionRun = collectionRun with
+            {
+                Status = CollectionRunStatus.Imported,
+                ImportedSnapshotId = reusableSnapshotId,
+                ErrorSummary = null,
+            };
             await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
             return collectionRun;
         }
@@ -100,7 +76,8 @@ public sealed class CollectionRunIngestService(
             correlationId: null,
             maxAcceptedZipBytes: AzureExtractorIngestService.MaxUploadedZipBytes);
 
-        collectionRun = importResult.Succeeded
+        bool snapshotImported = importResult.Succeeded && importResult.SnapshotId.HasValue;
+        collectionRun = snapshotImported
             ? collectionRun with
             {
                 Status = CollectionRunStatus.Imported,
@@ -110,10 +87,38 @@ public sealed class CollectionRunIngestService(
             : WithStatus(
                 collectionRun,
                 importResult.IsSchemaRejection ? CollectionRunStatus.Rejected : CollectionRunStatus.Failed,
-                importResult.FailureDetail);
+                importResult.Succeeded
+                    ? "The uploaded package did not produce an inventory snapshot."
+                    : importResult.FailureDetail);
 
-        await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
+        // A successful import has already written the snapshot. Preserve its link if the caller disconnects.
+        await _collectionRunRepository.UpsertAsync(
+            collectionRun,
+            snapshotImported ? CancellationToken.None : cancellationToken);
         return collectionRun;
+    }
+
+    private static string? GetManifestRejectionReason(
+        CollectionRunManifest manifest,
+        Guid tenantId,
+        byte[] zipHash)
+    {
+        if (!IsImportableManifestStatus(manifest.Status))
+            return "Collection manifest is not in an importable terminal status.";
+
+        if (manifest.TenantId is not Guid manifestTenantId)
+            return "Collection manifest does not include a tenant identifier.";
+
+        if (manifestTenantId != tenantId)
+            return "Collection manifest tenant does not match the current scope.";
+
+        if (!IsManifestHashValid(manifest, zipHash))
+            return "Collection package hash does not match the manifest.";
+
+        if (manifest.SchemaVersion != AzureExtractorPackageZipValidator.SupportedSchemaVersion)
+            return "Unsupported collection manifest schema version.";
+
+        return null;
     }
 
     private static CollectionRun CreateRun(
@@ -155,24 +160,6 @@ public sealed class CollectionRunIngestService(
             ZipSha256 = collectionRun.ZipSha256,
             ImportedSnapshotId = collectionRun.ImportedSnapshotId,
         };
-
-    private static byte[] ResolveHash(CollectionRunManifest manifest, byte[] zipBytes)
-    {
-        if (!string.IsNullOrWhiteSpace(manifest.ZipSha256) &&
-            manifest.ZipSha256.Length == 64 &&
-            manifest.ZipSha256.All(static character => Uri.IsHexDigit(character)))
-        {
-            try
-            {
-                return Convert.FromHexString(manifest.ZipSha256);
-            }
-            catch (FormatException)
-            {
-            }
-        }
-
-        return SHA256.HashData(zipBytes);
-    }
 
     private static bool IsManifestHashValid(CollectionRunManifest manifest, byte[] actualHash)
     {

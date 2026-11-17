@@ -33,6 +33,51 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_configuration_assignment_when_properties_resource_id_is_the_target()
+    {
+        // Microsoft.Maintenance/configurationAssignments stores the target resource on properties.resourceId.
+        // The assignment's own id is the row id and must stay the inventory key.
+        const string assignmentId =
+            "/subscriptions/00000000-0000-0000-0000-000000000099/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1/providers/Microsoft.Maintenance/configurationAssignments/assign1";
+        const string targetId =
+            "/subscriptions/00000000-0000-0000-0000-000000000099/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = assignmentId,
+                    Label = "assign1",
+                    Properties = new()
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "id": "{{assignmentId}}",
+                  "type": "Microsoft.Maintenance/configurationAssignments",
+                  "properties": {
+                    "maintenanceConfigurationId": "/subscriptions/00000000-0000-0000-0000-000000000099/resourceGroups/rg/providers/Microsoft.Maintenance/maintenanceConfigurations/config1",
+                    "resourceId": "{{targetId}}"
+                  }
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void Analyze_reports_inventory_only_when_graph_has_no_arm_resource_ids()
     {
         const string inventoryResourceId =

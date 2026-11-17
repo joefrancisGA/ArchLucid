@@ -72,6 +72,8 @@ public static class GraphGcpInventoryReconciliationAnalyzer
                          "gcpResourceId",
                          "fullResourceName",
                          "selfLink",
+                         // Terraform show stores values.self_link as tf.self_link, which is not the CAI selfLink key.
+                         "tf.self_link",
                          "resourceName",
                          "name",
                          "resourceId",
@@ -189,6 +191,7 @@ public static class GraphGcpInventoryReconciliationAnalyzer
         "name",
         "id",
         "selfLink",
+        "tf.self_link",
         "tf.id",
         "tf.resource_id",
     ];
@@ -267,6 +270,7 @@ public static class GraphGcpInventoryReconciliationAnalyzer
                                  "gcpResourceId",
                                  "fullResourceName",
                                  "selfLink",
+                                 "tf.self_link",
                                  "resourceName",
                                  "name",
                                  "resourceId",

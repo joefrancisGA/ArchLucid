@@ -98,8 +98,18 @@ public sealed class RemediationPatternMatcherServiceTests
 
         patternRepository.Versions.Add(CreateApprovedVersionRecord(patternId, "1.0.0"));
 
+        InMemoryOperationalSecurityFindingRepository findingRepository = new();
+        findingRepository.Findings.Add(CreateFinding(findingId));
+
         InMemoryRemediationPatternMatchRepository matchRepository = new();
-        RemediationPatternMatcherService sut = CreateSut(new InMemoryOperationalSecurityFindingRepository(), patternRepository, matchRepository);
+        matchRepository.ActiveMatches.Add(new RemediationPatternMatchResultRecord
+        {
+            MatchResultId = Guid.NewGuid(),
+            TenantId = TenantId,
+            FindingId = findingId,
+            IsActive = true,
+        });
+        RemediationPatternMatcherService sut = CreateSut(findingRepository, patternRepository, matchRepository);
 
         RemediationPatternMatchEvaluationResult result = await sut.TryRecordProposedMatchAsync(
             CreateScope(),
@@ -112,6 +122,7 @@ public sealed class RemediationPatternMatcherServiceTests
 
         result.Succeeded.Should().BeTrue();
         result.MatchKind.Should().Be(RemediationPatternMatchKind.PossibleMatch);
+        matchRepository.ActiveMatches.Should().ContainSingle().Which.Should().BeSameAs(result.PrimaryMatch);
     }
 
     private static RemediationPatternMatcherService CreateSut(
@@ -301,10 +312,7 @@ public sealed class RemediationPatternMatcherServiceTests
 
         public Task DeactivateMatchesForFindingAsync(Guid tenantId, Guid findingId, CancellationToken cancellationToken = default)
         {
-            foreach (RemediationPatternMatchResultRecord match in ActiveMatches.Where(row => row.TenantId == tenantId && row.FindingId == findingId))
-            {
-                ActiveMatches.Remove(match);
-            }
+            ActiveMatches.RemoveAll(row => row.TenantId == tenantId && row.FindingId == findingId);
 
             return Task.CompletedTask;
         }
@@ -321,6 +329,20 @@ public sealed class RemediationPatternMatcherServiceTests
         {
             Conflicts.Add(conflict);
             return Task.CompletedTask;
+        }
+
+        public async Task ReplaceActiveMatchInScopeAsync(
+            ProjectScopeKey scope,
+            Guid findingId,
+            RemediationPatternMatchResultRecord? matchResult,
+            RemediationPatternMatchConflictRecord? conflict,
+            CancellationToken cancellationToken = default)
+        {
+            await DeactivateMatchesForFindingAsync(scope.TenantId, findingId, cancellationToken);
+            if (conflict is not null)
+                await InsertConflictAsync(conflict, cancellationToken);
+            if (matchResult is not null)
+                await InsertMatchResultAsync(matchResult, cancellationToken);
         }
 
         public Task<RemediationPatternMatchResultRecord?> TryGetActiveMatchAsync(Guid tenantId, Guid findingId, CancellationToken cancellationToken = default) =>

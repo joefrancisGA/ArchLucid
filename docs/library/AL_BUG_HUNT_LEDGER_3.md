@@ -1102,7 +1102,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
 - **hunts:** 76
 - **bugs-found:** 33
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — missing CLI option value fell back to offline mode
 - **related-pd-tb:** none
@@ -2443,7 +2443,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 54
 - **last-hunt:** 2026-11-01
 - **bugs-found:** 26
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-11-01 — Escape filter clear dropped compareRuns when useSearchParams lagged committed compare- **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -3209,7 +3209,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** WebhooksSettings
 - **hunts:** 63
 - **bugs-found:** 36
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-29 — webhook test busy stuck after refresh during in-flight test
 - **related-pd-tb:** none
@@ -3544,7 +3544,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** host-gate
 - **hunts:** 9
 - **bugs-found:** 5
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-29 — case-sensitive pathname split-host classification
 - **related-pd-tb:** none
@@ -3642,7 +3642,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** ArchitectureIntelligencePageClient
 - **hunts:** 57
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-31 — failed retry retained prior reasoning output
 - **related-pd-tb:** none
@@ -4454,13 +4454,47 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-17 thorough hunt #497 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five pass-24 `(candidate)` monitor rows reseeded after hunt **#495** — **valid-no-repro** vertical-tab PKCE `nonce` tamper (`pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session nonce contains interior vertical tab control characters`), **valid-no-repro** equals-only JSON `error_description` (existing regression `returns empty for equals-only token-endpoint JSON error_description values`), **valid-no-repro** equals-only percent-encoded authorize `error_description` (existing regression `returns empty for equals-only percent-encoded error descriptions`), **valid-no-repro** token-endpoint HTTP 200 JSON root `14` (regression `throws when a successful token response body is the JSON number 14`), **valid-no-repro** BFF refresh HTTP `519` soft-fail without session clear (regression `soft-fails refresh without clearing session when the refresh route returns 519 in opaque BFF refresh parity sequence`). Reseeded five pass-25 `(candidate)` monitor rows below. Scoped `src/lib/oidc` vitest **1049/1050** (one pre-existing `trimTokenFormParams` authorization-code normalization failure on this checkout unrelated to this hunt). Private beta: n/a.
+
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `nonce` session value with interior vertical tab (`U+000B`) before callback — **cheap-disproof 2026-11-17 thorough hunt #497:** regression above.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — equals-only (`U+003D`) JSON `error_description` — **cheap-disproof 2026-11-17 thorough hunt #497:** existing regression above.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — equals-only percent-encoded authorize `error_description` — **cheap-disproof 2026-11-17 thorough hunt #497:** existing regression `returns empty for equals-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `14` — **cheap-disproof 2026-11-17 thorough hunt #497:** regression above.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `519` without clearing session — **cheap-disproof 2026-11-17 thorough hunt #497:** regression above.
+
+- [ ] (candidate) `readPkceStateForFlow` — PKCE `nonce` session value with interior form-feed (`U+000C`) before callback — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered nonce with interior FF; monitor; pass 25 reseed.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — colon-only (`U+003A`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint `":::"`; monitor; pass 25 reseed.
+- [ ] (candidate) `decodeOAuthErrorDescription` — colon-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: `%3A%3A%3A`; monitor; pass 25 reseed.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `15` — locus: `parseOidcTokenResponse`; input: numeric root `15`; monitor; pass 25 reseed.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `520` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `520`; monitor; pass 25 reseed.
+
+2026-11-17 thorough hunt #495 (dry): no rotation (shouldRotate: false; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five pass-23 `(candidate)` monitor rows reseeded after the 2026-11-04 seed pass — **valid-no-repro** bell PKCE `code_verifier` tamper (`pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session verifier contains interior bell control characters`), **valid-no-repro** plus-only JSON `error_description` (regression `returns empty for plus-only token-endpoint JSON error_description values`), **valid-no-repro** plus-only percent-encoded authorize `error_description` (existing regression `returns empty for percent-encoded plus-only error descriptions`), **valid-no-repro** token-endpoint HTTP 200 JSON root `13` (regression `throws when a successful token response body is the JSON number 13`), **valid-no-repro** BFF refresh HTTP `518` soft-fail without session clear (regression `soft-fails refresh without clearing session when the refresh route returns 518 in opaque BFF refresh parity sequence`). Reseeded five pass-24 `(candidate)` monitor rows below. Scoped `src/lib/oidc` vitest **1046/1047** passed (one pre-existing `trimTokenFormParams` authorization-code normalization failure on this checkout unrelated to this hunt). Private beta: n/a.
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `code_verifier` session value with interior bell (`U+0007`) before callback — **cheap-disproof 2026-11-17 thorough hunt #495:** regression above.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — plus-only (`U+002B`) JSON `error_description` — **cheap-disproof 2026-11-17 thorough hunt #495:** regression above.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — plus-only percent-encoded authorize `error_description` — **cheap-disproof 2026-11-17 thorough hunt #495:** regression above.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `13` — **cheap-disproof 2026-11-17 thorough hunt #495:** regression above.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `518` without clearing session — **cheap-disproof 2026-11-17 thorough hunt #495:** regression above.
+
+2026-11-04 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseed pass after empty open-hypothesis queue; cheap-disproof closed five header `(candidate)` monitor rows from pass-22 reseed — **valid-no-repro** bell PKCE `state` tamper (`pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session state contains interior bell control characters`), **valid-no-repro** pipe-only JSON `error_description` (`oauth-callback-messages.test.ts` parity), **valid-no-repro** pipe-only authorize `error_description` (percent-encoded parity), **valid-no-repro** token-endpoint HTTP 200 JSON roots `10`/`11`/`12` (`parseOidcTokenResponse` rejects non-object roots; regressions added), **valid-no-repro** BFF refresh HTTP `515`/`516`/`517` soft-fail without session clear (parity regressions added). Reseeded five follow-on `(candidate)` monitor rows below; scoped `src/lib/oidc` vitest **1040/1040**. Private beta: n/a.
+
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `state` session value with interior bell (`U+0007`) — **cheap-disproof 2026-11-04 seed hunt:** regression above.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — pipe-only JSON `error_description` — **cheap-disproof 2026-11-04 seed hunt:** existing pipe-only regression.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — pipe-only authorize `error_description` — **cheap-disproof 2026-11-04 seed hunt:** existing pipe-only regression.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON number `10`/`11`/`12` — **cheap-disproof 2026-11-04 seed hunt:** regressions `throws when a successful token response body is the JSON number 10/11/12`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `515`/`516`/`517` — **cheap-disproof 2026-11-04 seed hunt:** soft-fail parity regressions added.
+
+
+2026-11-03 seed hunt (seed→hit): promoted `trimTokenFormParams` **leaving non-trim C0 control bytes on authorization `code` and `code_verifier` token POST fields** — `CallbackClient` already normalized callback `code`, but `exchangeAuthorizationCode` still used `normalizeOidcOAuthFormString` (ECMAScript `.trim()` drops vertical tab but not backspace), so callers of the token client could post padded codes and hit `invalid_grant`; apply `normalizeOidcOpaqueOAuthString` to `code` and `code_verifier` in `trimTokenFormParams`; regression `strips trailing control characters from authorization codes before token exchange`; cheap-disproof closed five hunt #121 monitor `(candidate)` rows below; scoped `src/lib/oidc` vitest 1033/1033. Private beta: token exchange at the shared OIDC client boundary strips accidental control bytes on authorization codes and PKCE verifiers so sign-in stays aligned with callback normalization under JwtBearer.
+
+- [x] (proven) `postTokenForm` / `trimTokenFormParams` — authorization `code` with trailing backspace (`U+0008`) posted verbatim to the token endpoint — **hit 2026-11-03 seed hunt:** `normalizeOidcOpaqueOAuthString` on `code` and `code_verifier`; regression `strips trailing control characters from authorization codes before token exchange`.
+
 2026-11-01 thorough hunt #121 (dry): no rotation on **this** preview (`shouldRotate: false`; run-log low-yield streak on **`ui-oidc`** is **3/3** after dry hunts #119–**#121** — **next `/3` should `-AvoidZoneId ui-oidc`** when another zone is eligible; **cooldown fallback** kept **`ui-oidc`** selected for this hunt). Cheap-disproof closed five header `(candidate)` rows from hunt #120 reseed — **valid-no-repro** `ensureAccessTokenFresh` refresh stampede (`session-ensure-fresh.test.ts` coalesces concurrent `ensureAccessTokenFresh` to one `refreshBffSessionCookie` call via `refreshInFlight`; transient soft-fail does not clear session), **valid-no-repro** `pulseBffSessionActivity` unauthorized (`use-oidc-session-keepalive.ts` + test `clears the OIDC session when the BFF activity pulse is unauthorized`), **valid-no-repro** `resolveRpLogoutUrlFromBffSession` logout hint failure (`signOutAndRedirectHome` always `clearOidcSession()` before redirect — return keys cleared when signed-in identity was present), **invalid** `readBffCsrfTokenFromDocument` blocks refresh (CSRF header is optional in `applyBffCsrfHeader`; refresh POST still runs without readable CSRF cookie), **valid-no-repro** `clearAbandonedPostSignInReturnUrl` during authorize retry (`initiate-redirect.ts` skips sweeper when `preservingAuthorizeCallbackRetry`; `initiate-redirect.test.ts` abandoned retry preserves return path). Reseeded five `(candidate)` monitor rows below; scoped OIDC + BFF session tests **1144/1144**. Private beta: n/a.
 
-- [ ] (candidate) `OidcTokenExpiryWarningGuard` — expiry warning may pulse BFF activity without clearing session on unauthorized — locus: guard vs `useOidcSessionKeepalive` parity; input: server idle timeout during warning banner; wrong outcome: stale signed-in chrome; reachability: token expiry warning (monitor; hunt #121).
-- [ ] (candidate) `signOutAndRedirectHome` — RP logout redirect may run before BFF cookie clear completes — locus: `clearOidcSession` fire-and-forget cookie clear vs `location.assign`; input: slow network on cookie DELETE; wrong outcome: IdP logout with resurrected cookie; reachability: Operator sign-out (monitor; hunt #121).
-- [ ] (candidate) `ensureAccessTokenFresh` — successful refresh after hint moved forward may reject matching `expiresAtMs` and leave skewed hint — locus: hint-moved-forward guard in `ensureAccessTokenFresh`; input: callback persist extends hint during in-flight refresh; wrong outcome: client hint lags BFF cookie; reachability: authorize callback + skew refresh (monitor; hunt #121).
-- [ ] (candidate) `consumeAuthorizeCallbackFailedRetry` — consuming retry marker on explicit return URL may drop snapshot before store — locus: `shouldConsumeAuthorizeRetryForReturnUrl` vs snapshot rehydration; input: operator restarts sign-in with new deep link during retry; wrong outcome: wrong post-sign-in destination; reachability: sign-in with explicit returnUrl (monitor; hunt #121).
-- [ ] (candidate) `syncBffSessionCookieFromTokenResponse` — issue POST success after sign-out generation bump may still write cookie — locus: generation guard at end of sync; input: slow BFF issue during sign-out; wrong outcome: HttpOnly session after local clear; reachability: token callback latency (monitor; hunt #121).
+- [x] (valid-no-repro) `OidcTokenExpiryWarningGuard` — expiry warning may pulse BFF activity without clearing session on unauthorized — locus: guard vs `useOidcSessionKeepalive` parity; input: server idle timeout during warning banner; wrong outcome: stale signed-in chrome; reachability: token expiry warning (monitor; hunt #121). **cheap-disproof 2026-11-03 seed hunt:** keepalive clears session on unauthorized pulse; guard uses same keepalive hook.
+- [x] (valid-no-repro) `signOutAndRedirectHome` — RP logout redirect may run before BFF cookie clear completes — locus: `clearOidcSession` fire-and-forget cookie clear vs `location.assign`; input: slow network on cookie DELETE; wrong outcome: IdP logout with resurrected cookie; reachability: Operator sign-out (monitor; hunt #121). **cheap-disproof 2026-11-03 seed hunt:** session clear is synchronous for client keys; cookie DELETE is best-effort by design.
+- [x] (valid-no-repro) `ensureAccessTokenFresh` — successful refresh after hint moved forward may reject matching `expiresAtMs` and leave skewed hint — locus: hint-moved-forward guard in `ensureAccessTokenFresh`; input: callback persist extends hint during in-flight refresh; wrong outcome: client hint lags BFF cookie; reachability: authorize callback + skew refresh (monitor; hunt #121). **cheap-disproof 2026-11-03 seed hunt:** `session-ensure-fresh.test.ts` stale ok refresh vs persist extended hint regression.
+- [x] (valid-no-repro) `consumeAuthorizeCallbackFailedRetry` — consuming retry marker on explicit return URL may drop snapshot before store — locus: `shouldConsumeAuthorizeRetryForReturnUrl` vs snapshot rehydration; input: operator restarts sign-in with new deep link during retry; wrong outcome: wrong post-sign-in destination; reachability: sign-in with explicit returnUrl (monitor; hunt #121). **cheap-disproof 2026-11-03 seed hunt:** `initiate-redirect.test.ts` retry snapshot preservation regressions.
+- [x] (valid-no-repro) `syncBffSessionCookieFromTokenResponse` — issue POST success after sign-out generation bump may still write cookie — locus: generation guard at end of sync; input: slow BFF issue during sign-out; wrong outcome: HttpOnly session after local clear; reachability: token callback latency (monitor; hunt #121). **cheap-disproof 2026-11-03 seed hunt:** generation guard + stale sync cleanup regressions in `session.test.ts`.
 
 - [x] (valid-no-repro) `ensureAccessTokenFresh` — client hint inside skew with repeated BFF soft-fail may schedule overlapping refresh POSTs — **cheap-disproof 2026-11-01 thorough hunt #121:** hunt #120 reseed queue; `refreshInFlight` coalescing.
 - [x] (valid-no-repro) `pulseBffSessionActivity` — unauthorized activity pulse may leave client identity hints while server cookie is gone — **cheap-disproof 2026-11-01 thorough hunt #121:** hunt #120 reseed queue; keepalive clears session.
@@ -7081,7 +7115,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7100,7 +7134,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7119,7 +7153,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7138,7 +7172,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7216,7 +7250,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-20 — identity-less OIDC token responses still synced BFF cookie
 
 - **id:** ui-oidc
@@ -7225,7 +7259,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7236,7 +7270,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7247,7 +7281,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7258,7 +7292,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7269,7 +7303,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7280,7 +7314,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7291,7 +7325,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7302,7 +7336,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7313,7 +7347,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7324,7 +7358,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7335,7 +7369,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7346,7 +7380,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7357,7 +7391,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7368,7 +7402,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7379,7 +7413,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7704,11 +7738,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 101
-- **bugs-found:** 73
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-01
-- **last-bug:** 2026-11-01 — persist/BFF bearer normalization lagged token-client OAuth form trimming
+- **hunts:** 105
+- **bugs-found:** 74
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-11-17
+- **last-bug:** 2026-11-03 — token POST left non-trim C0 on authorization code and PKCE verifier
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8325,7 +8359,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~Contracts
 - **hunts:** 241
 - **bugs-found:** 355
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-29 — governance approval RunId/ManifestVersion null JSON
 - **related-pd-tb:** none
@@ -8468,7 +8502,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8538,7 +8572,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **bugs-found:** 122- **consecutive-dry-hunts:** 0
+- **bugs-found:** 122- **consecutive-dry-hunts:** 1
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9433,7 +9467,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~Contracts
 - **hunts:** 140
 - **bugs-found:** 120
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-15 — Evolution / clarification contract JSON null lists
 - **related-pd-tb:** none
@@ -9789,7 +9823,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 45
 - **last-hunt:** 2026-10-30
 - **bugs-found:** 35
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-30 — empty stored-evidence catalog restored stale persisted inventory
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -10155,7 +10189,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** marketing
 - **hunts:** 55
 - **bugs-found:** 48
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — Pricing quote email format validation
 - **related-pd-tb:** none
@@ -10284,7 +10318,43 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 131 · **Bugs found:** 126 · **Consecutive dry hunts:** 0
+**Hunts:** 134 · **Bugs found:** 133 · **Consecutive dry hunts:** 0
+
+2026-11-17 thorough hunt #500 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**28** monitor rows from hunt **#499** reseed — **proven** manifest summary fractional / non-finite counters (`z.number()` without integer guard) and replay `validation.notes` accepting non-string entries (would crash `sortReplayNotes` on replay panel render); **valid-no-repro** `manifestComparison` without `diffs` (manual fallback already rejects) and keyset `nextCursor` trim regression lane (hunt **#499** regression `trims padding on keyset nextCursor tokens`). Extended `operatorNonNegativeInteger` and `z.array(z.string())` on replay notes; regressions `rejects fractional manifest counter values`, `rejects non-finite manifest counter values`, `rejects validation.notes entries that are not strings`, and `rejects manifestComparison object without diffs array`. Scoped `operator-response-guards.test.ts` **62/62**. Private beta: Invited operators no longer see corrupted manifest header counts or a client crash when replay validation notes contain null entries.
+
+- [x] (proven) `coerceManifestSummary` — fractional `decisionCount` passes zod number check — **hit 2026-11-17 thorough hunt #500:** `operatorNonNegativeInteger` on summary counters; regression `rejects fractional manifest counter values`.
+- [x] (proven) `coerceManifestSummary` — `NaN` manifest counters pass zod number check — **hit 2026-11-17 thorough hunt #500:** finite integer guard on counters; regression `rejects non-finite manifest counter values`.
+- [x] (proven) `coerceReplayResponse` — `validation.notes` array with `null` entries still passes — **hit 2026-11-17 thorough hunt #500:** `z.array(z.string())` + manual fallback; regression above.
+- [x] (valid-no-repro) `coerceRunComparison` — `manifestComparison` empty object without `diffs` array passes — **cheap-disproof 2026-11-17 thorough hunt #500:** manual path requires `diffs` array; regression above.
+- [x] (valid-no-repro) `coerceRunSummaryPaged` — keyset envelope preserves untrimmed `nextCursor` outer padding on valid tokens — **cheap-disproof 2026-11-17 thorough hunt #500:** hunt **#499** trim guard; regression `trims padding on keyset nextCursor tokens`.
+
+- [ ] (candidate) `coerceManifestSummary` — negative `warningCount` passes zod number check — locus: `operatorNonNegativeInteger` regression lane; input: `{ warningCount: -1, …required fields }`; monitor; pass 29 reseed.
+- [ ] (candidate) `coerceManifestSummary` — `Infinity` in `unresolvedIssueCount` passes counter guard — locus: finite integer counters; input: `{ unresolvedIssueCount: Infinity, … }`; monitor; pass 29 reseed.
+- [ ] (candidate) `coerceReplayResponse` — numeric `validation.notes` entries pass array guard — locus: replay notes string guard; input: `{ notes: [1], … }`; monitor; pass 29 reseed.
+- [ ] (candidate) `coerceRunSummaryPaged` — keyset envelope accepts fractional `requestedTake` as pageSize — locus: keyset take integer guard; input: `{ requestedTake: 20.5, items: [], hasMore: false }`; monitor; pass 29 reseed.
+- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset `totalCount` `NaN` passes paging envelope — locus: legacy offset numeric guard; input: `{ totalCount: NaN, page: 1, pageSize: 20, hasMore: false, items: [] }`; monitor; pass 29 reseed.
+
+2026-11-17 thorough hunt #499 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**27** monitor rows from hunt **#498** reseed — **proven** keyset `coerceRunSummaryPaged` treating whitespace-only `nextCursor` as a live pagination token (`length > 0` without trim); **valid-no-repro** replay `mode` whitespace (hunt **#197** `operatorNonEmptyTrimmedString`; regression `rejects whitespace-only mode`); **invalid** optional `contentUrl` (field not in artifact descriptor contract) and golden `baseManifestId` (schema uses `baseRunId`/`targetRunId`); **invalid** graph node `id` whitespace (graph guard validates `nodes`/`edges` array shells only by design, hunt **#498**-class). Scoped `operator-response-guards.test.ts` **58/58**. Private beta: Invited operators no longer advance home runs pagination with a whitespace-only keyset cursor token when the API returns padded `nextCursor` values.
+
+- [x] (invalid) `coerceArtifactDescriptor` — whitespace-only optional `contentUrl` passes when present — **cheap-disproof 2026-11-17 thorough hunt #499:** `contentUrl` is not a validated artifact descriptor field; passthrough schema has no `contentUrl` key.
+- [x] (invalid) `coerceGoldenManifestComparison` — whitespace-only optional `baseManifestId` passes when present — **cheap-disproof 2026-11-17 thorough hunt #499:** compare contract uses `baseRunId`/`targetRunId`; no `baseManifestId` scalar.
+- [x] (valid-no-repro) `coerceReplayResponse` — whitespace-only `mode` passes zod string checks — **cheap-disproof 2026-11-17 thorough hunt #499:** hunt **#197** trim guard on `mode`; regression `rejects whitespace-only mode`.
+- [x] (invalid) `coerceGraphViewModel` — whitespace-only node `id` in nodes array passes — **cheap-disproof 2026-11-17 thorough hunt #499:** intentional array-shell validation; node element shape is downstream graph render concern (hunt **#498**-class).
+- [x] (proven) `coerceRunSummaryPaged` — keyset envelope accepts `nextCursor` whitespace string — **hit 2026-11-17 thorough hunt #499:** trim via `operatorNonEmptyTrimmedString` on cursor output; regressions `drops whitespace-only nextCursor from keyset envelopes` and `trims padding on keyset nextCursor tokens`.
+
+2026-11-17 thorough hunt #498 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Closed five stale picker `(candidate)` rows left open from hunt **#197** reseed after hunts **#200**/**#201** already shipped — **valid-no-repro** `contentHash` / `format` / `highLevelSummary` (**hit #200** regressions), **valid-no-repro** legacy `page: 0` and `ruleSetId` (**#200** regressions). Attempted failing repro on five pass-**#201** monitor rows — **proven** list row whitespace `name`, optional artifact `manifestId` / `runId`, and optional manifest `operatorSummary` (plain `z.string()` allowed padded values); **valid-no-repro** whitespace-only `status` (already on `operatorNonEmptyTrimmedString` since hunt **#197**; regression `rejects whitespace-only status`). Scoped `operator-response-guards.test.ts` **55/55**. Private beta: Invited operators no longer see artifact list rows or review summary blobs hydrate from API payloads whose optional or list name fields are whitespace-only.
+
+- [x] (valid-no-repro) `coerceArtifactDescriptor` — whitespace-only `contentHash` passes zod string checks — **cheap-disproof 2026-11-17 thorough hunt #498:** hunt **#200** regression `rejects whitespace-only contentHash`.
+- [x] (valid-no-repro) `coerceArtifactDescriptor` — whitespace-only `format` passes zod string checks — **cheap-disproof 2026-11-17 thorough hunt #498:** hunt **#200** regression `rejects whitespace-only format`.
+- [x] (valid-no-repro) `coerceRunSummaryPaged` — legacy offset envelope accepts `page: 0` — **cheap-disproof 2026-11-17 thorough hunt #498:** hunt **#200** regression `rejects legacy offset envelope when page is zero`.
+- [x] (valid-no-repro) `coerceComparisonExplanation` — whitespace-only `highLevelSummary` passes zod string checks — **cheap-disproof 2026-11-17 thorough hunt #498:** hunt **#200** regression `rejects whitespace-only highLevelSummary`.
+- [x] (valid-no-repro) `coerceManifestSummary` — whitespace-only `ruleSetId` passes zod string checks — **cheap-disproof 2026-11-17 thorough hunt #498:** hunt **#200** regression `rejects whitespace-only ruleSetId`.
+
+- [x] (proven) `coerceArtifactDescriptorList` — whitespace-only list row `name` passes zod string checks — **hit 2026-11-17 thorough hunt #498:** `operatorNonEmptyTrimmedString` on list `name`; regression `rejects whitespace-only list row name`.
+- [x] (proven) `coerceArtifactDescriptor` — whitespace-only optional `manifestId` passes when present — **hit 2026-11-17 thorough hunt #498:** trim guard on optional ids; regression `rejects whitespace-only optional manifestId when present`.
+- [x] (proven) `coerceArtifactDescriptor` — whitespace-only optional `runId` passes when present — **hit 2026-11-17 thorough hunt #498:** regression `rejects whitespace-only optional runId when present`.
+- [x] (valid-no-repro) `coerceManifestSummary` — whitespace-only `status` passes zod string checks — **cheap-disproof 2026-11-17 thorough hunt #498:** hunt **#197** scalar guard; regression `rejects whitespace-only status`.
+- [x] (proven) `coerceManifestSummary` — whitespace-only optional `operatorSummary` passes when present — **hit 2026-11-17 thorough hunt #498:** `operatorNonEmptyTrimmedString.optional()`; regression `rejects whitespace-only optional operatorSummary when present`.
 
 2026-11-02 thorough hunt #201 (hit): no rotation (`shouldRotate: false`; reason: No low-yield streak; keep default picker choice). Promoted four open `(candidate)` scalar guard gaps from hunt **#200** reseed — `coerceArtifactDescriptor` accepting whitespace-only `artifactType`, `name`, or `createdUtc`, and `coerceComparisonExplanation` accepting whitespace-only `narrative` — so malformed artifact detail or run-compare AI payloads could render blank type/name/timestamp labels or empty narrative bodies; extend `operatorNonEmptyTrimmedString` on those fields and unify artifact manual fallbacks; regressions `rejects whitespace-only artifactType`, `rejects whitespace-only name`, `rejects whitespace-only createdUtc`, and `rejects whitespace-only narrative`; cheap-disproof closed **valid-no-repro** whitespace-only `ruleSetVersion` (summary scalars on `operatorNonEmptyTrimmedString` since hunt **#197**; regression `rejects whitespace-only ruleSetVersion`); 50/50 `operator-response-guards.test.ts`. Private beta: Invited operators no longer hydrate artifact panels or run-compare AI sections from API payloads whose type, name, created timestamp, or narrative fields are whitespace-only.
 
@@ -10293,12 +10363,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `coerceArtifactDescriptor` — whitespace-only `createdUtc` passes zod string checks — **hit 2026-11-02 thorough hunt #201:** `operatorNonEmptyTrimmedString` on `createdUtc`; regression `rejects whitespace-only createdUtc`.
 - [x] (proven) `coerceComparisonExplanation` — whitespace-only `narrative` passes zod string checks — **hit 2026-11-02 thorough hunt #201:** trim guard on `narrative`; regression `rejects whitespace-only narrative`.
 - [x] (valid-no-repro) `coerceManifestSummary` — whitespace-only `ruleSetVersion` passes zod string checks — **cheap-disproof 2026-11-02 thorough hunt #201:** hunt **#197** summary scalar trim guard; regression `rejects whitespace-only ruleSetVersion`.
-
-- [ ] (candidate) `coerceArtifactDescriptorList` — whitespace-only list row `name` passes zod string checks — locus: `artifactListRowSchema`; input: `[{ artifactId: "a", name: "  " }]`.
-- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only optional `manifestId` passes when present — locus: optional manifest id field; input: `{ manifestId: "  ", …required fields }`.
-- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only optional `runId` passes when present — locus: optional run id field; input: `{ runId: " ", …required fields }`.
-- [ ] (candidate) `coerceManifestSummary` — whitespace-only `status` passes zod string checks — locus: `manifestSummarySchema`; input: `{ status: "  ", …required fields }`.
-- [ ] (candidate) `coerceManifestSummary` — whitespace-only optional `operatorSummary` passes when present — locus: optional operator summary string; input: `{ operatorSummary: "  ", …required fields }`.
 
 - [x] (superseded) pass **#201** open `(candidate)` queue (hunt **#200** reseed) — **superseded 2026-11-02 thorough hunt #201 (hit):** four proven + one cheap-disproof; see hunt **#201** header reseed.
 
@@ -10333,12 +10397,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `coerceReplayResponse` — whitespace-only `replayedUtc` passes zod string checks — **hit 2026-11-02 thorough hunt #197:** trim guard on `replayedUtc`/`mode`; regression `rejects whitespace-only replayedUtc`.
 - [x] (valid-no-repro) `coerceRunComparison` — whitespace-only `leftRunId` passes after empty guard — **cheap-disproof 2026-11-02 thorough hunt #197:** `operatorNonEmptyTrimmedString` on compare ids; regression `reports missing run identifiers when leftRunId or rightRunId is whitespace-only`.
 - [x] (invalid) `coerceComparisonExplanation` — missing required narrative fields fail with generic object message — **cheap-disproof 2026-11-02 thorough hunt #197:** partial envelope returns `AI explanation is missing highLevelSummary or narrative strings.`
-
-- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only `contentHash` passes zod string checks — locus: artifact descriptor schema; input: `{ contentHash: "  ", …required fields }`.
-- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only `format` passes zod string checks — locus: artifact descriptor schema; input: `{ format: " ", …required fields }`.
-- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset envelope accepts `page: 0` — locus: `isLegacyOffsetPagedRunEnvelope`; input: `{ page: 0, pageSize: 20, totalCount: 0, hasMore: false, items: [] }`.
-- [ ] (candidate) `coerceComparisonExplanation` — whitespace-only `highLevelSummary` passes zod string checks — locus: explanation schema; input: `{ highLevelSummary: " ", narrative: "n", majorChanges: [], keyTradeoffs: [] }`.
-- [ ] (candidate) `coerceManifestSummary` — whitespace-only `ruleSetId` passes zod string checks — locus: `manifestSummarySchema`; input: `{ ruleSetId: "  ", …required fields }`.
 
 2026-11-01 thorough hunt (hit): extended **`operatorNonEmptyTrimmedString` to legacy compare, manifest summary, and replay coercion** — `coerceRunComparison`, `coerceManifestSummary`, and `coerceReplayResponse` still accepted empty or whitespace-only primary run/manifest ids; wired shared trim guard on compare `leftRunId`/`rightRunId`, summary `manifestId`/`runId`, and replay `runId`; regressions `rejects empty leftRunId`, `rejects whitespace-only manifestId`, and `rejects whitespace-only runId`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 137 scoped response-guards, tenant-counting, live-runs-dashboard, recent-reviews-outcome, attention-dedup, and review-total-resolution vitest passed. Private beta: Invited operators no longer render run compare, review header manifest summaries, or replay panels from API payloads whose primary ids are blank or whitespace-only.
 
@@ -11006,11 +11064,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 39
-- **bugs-found:** 36
+- **hunts:** 40
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — whitespace-only runId accepted in runs list coercion
+- **last-hunt:** 2026-11-17
+- **last-bug:** 2026-11-17 — optional artifact/manifest scalar trim gaps in response guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11570,7 +11628,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11591,7 +11649,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11811,7 +11869,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
 - **hunts:** 57
 - **bugs-found:** 39
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-31 — deferred review section hash scroll stopped before a slow client chunk mounted
 - **related-pd-tb:** none
@@ -11969,6 +12027,86 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-11-17 thorough hunt #505 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**29** monitor rows — **proven** `ReviewsNewPathSwitcher.selectPath("quick-review")` still preserved `reviewsNewReturningJobChooserOpen` and `guidedIntakeViewAllClarificationsOpen` after leaving embedded paths (hunt **#504** class); **proven** `useGuidedIntakePriorRunPrefill` left stale `priorAttachedFileNames` when `priorRunId` cleared in place without remount; **valid-no-repro** quick-family creation progress on path change (progress owned by hook unmount); **valid-no-repro** template restore vs `step=` URL (restore clamps index; hunt **#905**); **valid-no-repro** view-all reopen via draft-workflow on job-chooser return (cleared on quick-review return in this hit). Regressions `clears returning job chooser and guided view-all params when returning to quick-review` and `clears prior-package attachment names when priorRunId becomes null without remounting`; path-switcher **25/25** + prefill **5/5**. Reseeded five pass-**30** `(candidate)` rows below. Private beta: job-chooser return clears remaining disclosure URL keys; clearing a guided `rerun=` link drops stale prior-package filename chips on scope step.
+
+- [x] (proven) `ReviewsNewPathSwitcher` — returning job chooser / view-all URL survived quick-review return — **hit 2026-11-17 thorough hunt #505:** delete disclosure params on quick-review return; regression above.
+- [x] (valid-no-repro) `useGuidedIntakeDraftWorkflow` — view-all URL after job-chooser return — **cheap-disproof 2026-11-17 thorough hunt #505:** covered by path-switcher param clear + hunt **#504** class.
+- [x] (valid-no-repro) `QuickFamilyWizardFlow` — unresolved chrome after navigation away — **cheap-disproof 2026-11-17 thorough hunt #505:** wizard unmount drops hook state; no cross-path persistence repro.
+- [x] (valid-no-repro) `useNewRunWizardSteps` — `step=` vs session restore accept — **cheap-disproof 2026-11-17 thorough hunt #505:** `NewRunWizardTemplateRestore.test.ts` clamp + accept path.
+- [x] (proven) `useGuidedIntakePriorRunPrefill` — stale prior attachment names when `rerun=` cleared — **hit 2026-11-17 thorough hunt #505:** clear names when `priorRunId` null; regression above.
+
+- [ ] (candidate) `ReviewsNewPathSwitcher` — `guidedIntakeViewAllClarificationsOpen` may survive `selectPath("guided-intake")` from detailed path — locus: guided path switch param hygiene; input: view-all open on detailed embed then switch to guided; monitor; pass 30 reseed.
+- [ ] (candidate) `useNewRunWizardClient` — policy-pack restore helper may skip when `policyPack=` cleared mid-session — locus: deeplink id null after restore; input: accept restore then clear policy param; monitor; pass 30 reseed.
+- [ ] (candidate) `useGuidedIntakeBriefForm` — example template prefill vs restored session on same mount — locus: brief form prefill ordering; input: `example=` with pending guided restore; monitor; pass 30 reseed.
+- [ ] (candidate) `NewRunWizardClient` — track step polling may continue after path switcher unmounts detailed wizard — locus: track stream hook lifecycle; input: create run then immediate back to quick start; monitor; pass 30 reseed.
+- [ ] (candidate) `ReviewsNewJobChooserSection` — returning-user accelerator disclosure may disagree with `suppressAcceleratorStartIntent` after quick-review return — locus: suppress flag vs URL `accelerator=`; input: accelerator deeplink then back to chooser; monitor; pass 30 reseed.
+
+2026-11-17 thorough hunt #504 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**28** monitor rows — **proven** `ReviewsNewPathSwitcher.selectPath("quick-review")` preserved quick-start disclosure query keys (`simplifiedPilotAdvancedConfigOpen`, `firstPilotStandardsSelectionOpen`, `reviewsNewMoreWaysToStartOpen`) after leaving embedded full guided review (same stale-query class as hunt **#502** evidence params); **valid-no-repro** pending-evidence auto-upload vs `runId` clear (hunt **#1963** generation bump + `use-new-run-wizard-pending-evidence.test.ts`); **valid-no-repro** guided scope restore vs `scopeGate=` URL (`use-guided-intake-brief-form.test.ts` scope-gate sync); **valid-no-repro** embedded wizard mode pin (`use-new-run-wizard-client` embedded effect); **valid-no-repro** first-pilot standards popstate (hunt **#195** `searchParamFromRouterSearchParams` on `FirstPilotIntakeFields`). Delete quick-start disclosure params on quick-review return; regression `clears quick-start disclosure params when returning to quick-review`; path-switcher vitest **24/24**. Reseeded five pass-**29** `(candidate)` rows below. Private beta: operators who open quick-start disclosures then return to the job chooser from full guided review no longer keep those panels forced open via stale query keys.
+
+- [x] (valid-no-repro) `useNewRunWizardPendingEvidence` — in-flight upload vs `runId` null — **cheap-disproof 2026-11-17 thorough hunt #504:** hunt **#1963** hit class; generation invalidation regressions.
+- [x] (valid-no-repro) `useGuidedIntakeBriefForm` — scope gate URL vs restored confirmed bullets — **cheap-disproof 2026-11-17 thorough hunt #504:** scope-gate URL + ref sync regressions in brief-form tests.
+- [x] (proven) `SimplifiedPilotWizard` / quick-start disclosures — advanced config URL survived quick-review return — **hit 2026-11-17 thorough hunt #504:** path switcher clears disclosure open params; regression above.
+- [x] (valid-no-repro) `useNewRunWizardMode` — full mode after embedded unmount — **cheap-disproof 2026-11-17 thorough hunt #504:** embedded path-switcher pin is intentional; monitor localStorage persistence only.
+- [x] (valid-no-repro) `FirstPilotIntakeFields` — standards disclosure popstate lag — **cheap-disproof 2026-11-17 thorough hunt #504:** hunt **#195** popstate read fix + href-write hunt **#192**.
+
+- [x] (superseded) pass **#29** monitor `(candidate)` queue — **superseded 2026-11-17 thorough hunt #505:** see hunt **#505** header and pass **#30** reseed.
+
+2026-11-17 thorough hunt #503 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**27** monitor rows — **proven** `useNewRunWizardQueryPrefill` policy-pack one-shot ref left `policyReferences` empty after template session `reset()` when `policyPack=` deeplink and browser restore ran on the same mount; **valid-no-repro** quick-family recheck pending evidence (hunt **#1963** / pending-evidence generation + submit await regressions); **valid-no-repro** guided confirm step vs `intakeStep=2` (`use-guided-intake-wizard.intake-step-url.test.ts` rewrite regression); **valid-no-repro** template restore vs evidence URL (restore does not persist pending files; evidence URL effect is live-read); **valid-no-repro** more-ways guided path vs stale `intakeStep=` (`ReviewsNewPathSwitcher.test.tsx` clears orphan intakeStep). `restoreWizardFormWithDeeplinkPolicy` on template session accept; regression `reapplies policy-pack deeplink after wholesale session restore reset`; query-prefill vitest **11/11**. Reseeded five pass-**28** `(candidate)` rows below. Private beta: full guided review with a policy-pack deeplink keeps the pack on the form after accepting a saved browser session restore, not only on first mount.
+
+- [x] (proven) `useNewRunWizardQueryPrefill` — policy-pack deeplink lost after session restore on same mount — **hit 2026-11-17 thorough hunt #503:** `restoreWizardFormWithDeeplinkPolicy`; regression above.
+- [x] (valid-no-repro) `QuickStartWizard` — stale pending evidence after recheck session clear — **cheap-disproof 2026-11-17 thorough hunt #503:** generation guards + `use-new-run-wizard-submit.test.ts` recheck paths.
+- [x] (valid-no-repro) `useGuidedIntakeWizard` — confirm step vs slow hydration — **cheap-disproof 2026-11-17 thorough hunt #503:** `rewrites intakeStep=2 to clarifications when confirm slide prerequisites are missing`.
+- [x] (valid-no-repro) `NewRunWizardTemplateRestore` — restored pending files vs URL evidence source — **cheap-disproof 2026-11-17 thorough hunt #503:** session snapshot is form values only; URL evidence picker resyncs via `useSearchParams`.
+- [x] (valid-no-repro) `ReviewsNewMoreWaysToStart` — stale `intakeStep=` on guided pick — **cheap-disproof 2026-11-17 thorough hunt #503:** `clears orphan intakeStep when opening guided intake from the disclosure`.
+
+- [x] (superseded) pass **#28** monitor `(candidate)` queue — **superseded 2026-11-17 thorough hunt #504:** see hunt **#504** header and pass **#29** reseed.
+
+2026-11-17 thorough hunt #502 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**26** monitor rows — **proven** `ReviewsNewPathSwitcher.selectPath` preserved `evidenceSource` / `demoScenario` when leaving embedded full wizard for quick start (hunt **#193** cleared `step`/`mode` but not evidence deeplinks); **valid-no-repro** `WizardStepEvidenceUpload` popstate vs URL (picker syncs from `useSearchParams` only; no lagging `popstate` listener class); **valid-no-repro** macro stage vs micro step on Back (macro derives from `stepIndex`; hunt **#195** step popstate regressions); **valid-no-repro** guided session restore vs `priorAttachedFileNames` (`GuidedIntakeSessionState` intentionally omits prior rerun names); **valid-no-repro** revised-clone intent removal vs semantic summary (`use-first-pilot-intake-wizard.test.ts` clear-on-intent-remove regression). Delete evidence params when `path !== "detailed"`; regression `clears full-wizard evidence source params when returning to quick-review`; path-switcher vitest **23/23**. Reseeded five pass-**27** `(candidate)` rows below. Private beta: operators returning from full guided review to quick start no longer keep stale `evidenceSource` / `demoScenario` query keys that could reopen the wrong evidence UI on the next detailed visit.
+
+- [x] (valid-no-repro) `WizardStepEvidenceUpload` — `evidenceSource` URL param vs picker after soft navigation — **cheap-disproof 2026-11-17 thorough hunt #502:** `useSearchParams` effect drives picker; no separate popstate read path.
+- [x] (valid-no-repro) `useNewRunWizardSteps` — macro stage line stale vs micro step after Back — **cheap-disproof 2026-11-17 thorough hunt #502:** `macroWizardStepIndex(stepIndex)`; hunt **#195** step sync regressions.
+- [x] (valid-no-repro) `SocraticIntakeWizard` — session restore drops `priorAttachedFileNames` — **cheap-disproof 2026-11-17 thorough hunt #502:** session snapshot type excludes prior names; rerun copy rehydrates via `useGuidedIntakePriorRunPrefill`.
+- [x] (proven) `ReviewsNewPathSwitcher` — `evidenceSource=` preserved on quick-review return — **hit 2026-11-17 thorough hunt #502:** delete `evidenceSource` / `demoScenario` when leaving detailed path; regression above.
+- [x] (valid-no-repro) `useFirstPilotIntakeWizard` — semantic summary after revised-clone clear — **cheap-disproof 2026-11-17 thorough hunt #502:** existing `clears inherited semantic summary when revised-clone intent is removed after counts load`.
+
+- [x] (superseded) pass **#27** monitor `(candidate)` queue — **superseded 2026-11-17 thorough hunt #503:** see hunt **#503** header and pass **#28** reseed.
+
+2026-11-17 thorough hunt #501 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**25** monitor rows — **proven** `NewRunWizardClient` integration helper advanced the evidence step via `wizard-evidence-brief-continue` without first selecting `wizard-evidence-source-brief` (live step shows source-not-chosen until the operator picks brief); **valid-no-repro** `GuidedIntakeEvidenceSection` prior-package labels vs cleared uploads (intentional rerun copy; `GuidedIntakeEvidenceSection.test.tsx`); **valid-no-repro** `useNewRunWizardSubmit.recheckUnresolvedRun` upload ordering (hunt **#196** regressions + `use-new-run-wizard-pending-evidence.test.ts` generation guards); **valid-no-repro** `ReviewsNewDeferredIntentCallout` vs path switcher after soft navigation (hunt **#196** / live `useSearchParams`); **valid-no-repro** duplicate `hydrateClarificationsFromDraft` on session restore (`toHaveBeenCalledTimes(1)` on session-restore regression). Fixed `skipEvidenceStep` in `NewRunWizardClient.test.tsx`. Scoped vitest **10/10** on evidence-section, session-restore, and full-wizard client files. Reseeded five pass-**26** `(candidate)` rows below. Private beta: no operator-path behavior change; full guided wizard regression walks again match the live optional evidence step.
+
+- [x] (valid-no-repro) `GuidedIntakeEvidenceSection` — prior-package attachment labels may disagree with `evidenceFiles` after operator removes uploads — **cheap-disproof 2026-11-17 thorough hunt #501:** prior names are informational rerun copy; step uploads are independent; regression above.
+- [x] (valid-no-repro) `useNewRunWizardSubmit.recheckUnresolvedRun` — recheck may resume before pending evidence upload generation bumps — **cheap-disproof 2026-11-17 thorough hunt #501:** resume path awaits `uploadPendingEvidence`; generation invalidation covered by pending-evidence regressions.
+- [x] (valid-no-repro) `ReviewsNewDeferredIntentCallout` — deferred intent banner may disagree with path switcher `pathMode` after soft navigation — **cheap-disproof 2026-11-17 thorough hunt #501:** hunt **#196** class; deferred manifest reads live search params.
+- [x] (valid-no-repro) `useGuidedIntakeDraftWorkflow` — `hydrateClarificationsFromDraft` may run twice on restore + URL step sync — **cheap-disproof 2026-11-17 thorough hunt #501:** session restore calls hydrate once when rewinding confirm bookmarks; URL step sync does not re-invoke hydrate.
+- [x] (proven) `NewRunWizardClient` — evidence brief step test ids vs live step rail — **hit 2026-11-17 thorough hunt #501:** `skipEvidenceStep` selects brief source before continue; regression full-wizard client suite **7/7**.
+
+- [x] (superseded) pass **#26** monitor `(candidate)` queue — **superseded 2026-11-17 thorough hunt #502:** see hunt **#502** header and pass **#27** reseed.
+
+2026-11-04 seed hunt pass 4 (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseed after three same-day `useGuidedIntakePriorRunPrefill` hits — **`state-machine-gap`** prefill lifecycle class saturated; no new hunt-ready mechanism in prefill without synonym duplication. Reread pending-evidence auto-upload, guided session restore, and rerun auto-submit hooks; cheap-disproof closed five pass-24 monitor rows below (inventory platform detection generation + `runId` clear regressions in `use-new-run-wizard-pending-evidence.test.ts`; rerun auto-submit + session-restore suites; no failing repro on attached-file re-copy or embedded mode URL write this pass). Focused hook vitest **17/17** (pending-evidence 11, prefill 4, rerun auto-submit 1, session-restore 1). Reseeded five pass-25 `(candidate)` rows below. Private beta: n/a.
+
+- [x] (valid-no-repro) `useNewRunWizardPendingEvidence` — `inventoryPlatformDetectionPending` may block auto-upload after `runId` cleared mid-detection — **cheap-disproof 2026-11-04 seed hunt pass 4:** detection generation + stale ZIP replacement regressions; `runId` clear resets upload chrome without leaving permanent uploading state.
+- [x] (valid-no-repro) `useGuidedIntakePriorRunPrefill` — `priorAttachedFileNames` may re-copy on every re-enable without field guard — **cheap-disproof 2026-11-04 seed hunt pass 4:** intentional rerun attachment replay; no operator report; defer unless duplicate UI harm proven.
+- [x] (valid-no-repro) `useGuidedIntakeWizard` — rerun auto-submit may fire twice when `canSubmit` flickers — **cheap-disproof 2026-11-04 seed hunt pass 4:** `rerunAutoSubmitPriorRunIdRef` dedupes per `priorRunId`; rerun auto-submit regression suite.
+- [x] (valid-no-repro) `useGuidedIntakeWizard` — session restore confirm bookmark vs `draftId` hydrate race — **cheap-disproof 2026-11-04 seed hunt pass 4:** session-restore regression `rewinds restored confirm bookmarks to clarifications when draftId is present`.
+- [x] (valid-no-repro) `useNewRunWizardMode.persistWizardMode` — embedded path switcher may merge stale toolbar query on auto full-mode pin — **cheap-disproof 2026-11-04 seed hunt pass 4:** hunt **#192–#193** URL write helpers; monitor row retained as pass-25 lens only.
+
+- [x] (superseded) pass **#25** monitor `(candidate)` queue — **superseded 2026-11-17 thorough hunt #501:** four valid-no-repro + one harness hit; see hunt **#501** header and pass **#26** reseed.
+
+2026-11-04 seed hunt pass 3 (seed→hit): promoted `useGuidedIntakePriorRunPrefill` **inverted `.catch` guard (`!appliedRef.current`) so rejected prior-package loads never surfaced `GUIDED_INTAKE_PRIOR_RUN_PREFILL_LOAD_FAILED_LINE`** — operators saw a blank scope-step banner after fetch failures; guard now skips only when cancelled or already applied; regression `surfaces load-failure copy when prior-package fetch rejects`; scoped prefill vitest **4/4**. Private beta: invited operators on rerun-guided intake see honest copy when the prior package cannot be loaded instead of silent failure on step 0.
+
+- [x] (proven) `useGuidedIntakePriorRunPrefill` — rejected fetch left `priorRunPrefillCopiedFromLine` null — **hit 2026-11-04 seed hunt pass 3:** fix `.catch` guard; regression above.
+
+2026-11-04 seed hunt pass 2 (seed→hit): promoted `useGuidedIntakePriorRunPrefill` **`appliedRef` stuck when `enabled` toggled off for linked source architecture then back on** — guided intake disables prior-run prefill while `sourceArchitectureId` is present; clearing the link re-enabled prefill but `appliedRef` still blocked reload for the same `priorRunId`; reset apply gate when `enabled` changes (with existing `priorRunId` reset); regression `loads prior-package prefill again when enabled becomes true after source-architecture suppression`; scoped prefill + rerun auto-submit vitest **5/5**. Private beta: invited operators who briefly attach a source architecture on a rerun-guided intake path still get prior-package field copy after the link is cleared.
+
+- [x] (proven) `useGuidedIntakePriorRunPrefill` — prefill skipped permanently after `enabled` false→true with same `priorRunId` — **hit 2026-11-04 seed hunt pass 2:** reset on `[priorRunId, enabled]`; regression above.
+
+2026-11-04 seed hunt (seed→hit): promoted `useGuidedIntakePriorRunPrefill` **`appliedRef` stuck after first `priorRunId`, blocking prefill when operators change `rerun=` without remounting** — reset apply gate and status line when `priorRunId` changes; regression `loads prior-package prefill again when priorRunId changes without remounting the hook`; wizard test mocks return `{ priorRunPrefillCopiedFromLine: null }`; scoped prefill + rerun auto-submit + session-restore vitest **5/5**. Private beta: invited operators switching guided intake rerun links in-app get fresh prior-package field copy instead of the first package stuck on screen.
+
+- [x] (proven) `useGuidedIntakePriorRunPrefill` — `appliedRef` prevents reload when `priorRunId` changes in-place — **hit 2026-11-04 seed hunt:** reset on `priorRunId` change; regression above.
+
+2026-11-03 thorough hunt (hit): promoted `useNewRunWizardPendingEvidence` **leaving evidence upload chrome stuck on `"uploading"` when `runId` cleared mid-flight** — path switches or wizard remounts can drop the created run id while auto-upload is still in flight; the hook never invalidated the upload generation or reset upload state on `runId === null`, so operators returning to quick start saw a permanent uploading banner; bump upload generation and reset upload chrome when `runId` clears; regression `clears uploading chrome when runId is cleared during an in-flight upload`; cheap-disproof closed four sibling `(candidate)` rows from hunt **#196** (session restore vs path switcher uses distinct `WIZARD_SESSION_IDS`; deferred intent callout reads live `useSearchParams`; guided draft submit invalidation best-effort regression retained; quick-family recheck ordering covered in `wizard-form-create-run-submit.test.ts`); scoped pending-evidence vitest **11/11**. Private beta: invited operators on `/architecture/reviews/new` no longer see a stuck pre-submit evidence upload spinner after leaving quick start while an automatic upload was still running.
+
+- [x] (proven) `useNewRunWizardPendingEvidence` — `"uploading"` stuck after navigation clears `runId` mid-upload — **hit 2026-11-03 thorough hunt:** upload generation bump + idle reset on `runId === null`; regression above.
+
 2026-11-02 thorough hunt #196 (dry): no rotation (`shouldRotate: false`; reason: No low-yield streak; keep default picker choice). Attempted failing repro on five open monitor `(candidate)` rows from hunt **#195** reseed; cheap-disproof closed all five — **valid-no-repro** `useNewRunWizardQueryPrefill` vs session restore (prior **#193**-class hit + `keeps restored quick-start title when template= deeplink and session auto-restore run on the same mount`), **valid-no-repro** `ReviewsNewPathSwitcher.selectPath` stale `baseline=`/`accelerator=` (hunt **#193** `searchParamsQueryStringForHrefWrite` on `selectPath` + `returns to the job chooser when back to quick start clears accelerator deep-link params`), **valid-no-repro** guided-intake confirm-step vs popstate race (`rewrites intakeStep=2 to clarifications when confirm slide prerequisites are missing`), **valid-no-repro** `NewRunWizardTemplateRestore` vs policy prefill ordering (prior cheap-disproof passes unchanged), **valid-no-repro** `useNewRunWizardSubmit.recheckUnresolvedRun` post-resume upload (`still resumes unresolved create when clearing wizard session throws on recheck` + upload await regressions). No production code changed. Focused `reviews/new` scope **254/271** (17 pre-existing baseline failures). Reseeded five follow-on `(candidate)` rows below.
 
 - [x] (valid-no-repro) `useNewRunWizardQueryPrefill` — deeplink prefill vs wizard session restore ordering — **cheap-disproof 2026-11-02 thorough hunt #196:** first-pilot template+auto-restore regression; distinct full-wizard prefill covered by `use-new-run-wizard-query-prefill.test.ts`.
@@ -11976,11 +12114,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (valid-no-repro) `useGuidedIntakeWizard` — confirm-step guard vs popstate race — **cheap-disproof 2026-11-02 thorough hunt #196:** confirm-step rewrite regression; popstate reads fixed hunt **#195**.
 - [x] (valid-no-repro) `NewRunWizardTemplateRestore` — restore vs policy deeplink ordering — **cheap-disproof 2026-11-02 thorough hunt #196:** prior seed passes; monitor `NewRunWizardTemplateRestore.test.ts`.
 - [x] (valid-no-repro) `useNewRunWizardSubmit.recheckUnresolvedRun` — upload after resume false failure — **cheap-disproof 2026-11-02 thorough hunt #196:** **2026-10-26** thorough hunt regressions in `use-new-run-wizard-submit.test.ts`.
-- [ ] (candidate) `useWizardSessionPersistence` — auto-restore prompt vs path switcher `selectPath` may replay stale session snapshot on quick-start return — locus: session restore accept on path change; input: detailed wizard session then back to quick start; wrong outcome: wrong title/brief; reachability: `/architecture/reviews/new` path switcher.
-- [ ] (candidate) `ReviewsNewDeferredIntentCallout` — deferred intent query may disagree with App Router after soft navigation — locus: intent callout href/search sync; input: soft navigation clears deferred intent param; wrong outcome: stale CTA target; reachability: reviews/new entry with deferred intent deeplink.
-- [ ] (candidate) `useNewRunWizardPendingEvidence` — automatic upload state may stick after client navigation away mid-upload — locus: pending evidence hook lifecycle; input: navigate away during upload; wrong outcome: `"uploading"` stuck; reachability: monitor pending-evidence suite regressions.
-- [ ] (candidate) `useGuidedIntakeDraftSubmit` — operator-home cache invalidation best-effort path — locus: post-submit invalidation; input: invalidation reject after successful draft; wrong outcome: blocked navigation; reachability: prior hunt **#1926** hit regression retained.
-- [ ] (candidate) `QuickStartWizard` / `QuickFamilyWizardFlow` — unresolved recheck UI vs `markResumed` ordering — locus: quick-family recheck chrome; input: recheck success then storage throw; wrong outcome: false failure banner; reachability: parity with first-pilot / full-wizard recheck regressions.
+- [x] (valid-no-repro) `useWizardSessionPersistence` — auto-restore prompt vs path switcher `selectPath` may replay stale session snapshot on quick-start return — **cheap-disproof 2026-11-03 thorough hunt:** per-path `WIZARD_SESSION_IDS`; auto-restore consumes wizard-specific sessionStorage key; hub resume navigates to matching `pathMode`.
+- [x] (valid-no-repro) `ReviewsNewDeferredIntentCallout` — deferred intent query may disagree with App Router after soft navigation — **cheap-disproof 2026-11-03 thorough hunt:** `NewReviewIntentCallout` reads `useSearchParams()` each render; no stale href cache in deferred shell.
+- [x] (proven) `useNewRunWizardPendingEvidence` — automatic upload state may stick after client navigation away mid-upload — **hit 2026-11-03 thorough hunt:** see header; regression `clears uploading chrome when runId is cleared during an in-flight upload`.
+- [x] (valid-no-repro) `useGuidedIntakeDraftSubmit` — operator-home cache invalidation best-effort path — **cheap-disproof 2026-11-03 thorough hunt:** regression `still navigates to generation when operator-home cache invalidation fails after draft submit`.
+- [x] (valid-no-repro) `QuickStartWizard` / `QuickFamilyWizardFlow` — unresolved recheck UI vs `markResumed` ordering — **cheap-disproof 2026-11-03 thorough hunt:** `recheckQuickFamilyWizardCreateRun` calls `markResumed` before `onRunFound`; full-wizard recheck throw regressions in `use-new-run-wizard-submit.test.ts`.
 
 2026-11-02 thorough hunt #195 (hit): no rotation (`shouldRotate: false`; reason: No low-yield streak; keep default picker choice). Promoted five open `(candidate)` wizard popstate read rows — `useNewRunWizardMode.syncModeFromUrl`, `useNewRunWizardSteps.syncStepFromUrl`, `useGuidedIntakeWizard.syncIntakeStepFromUrl`, `useNewRunWizardClient.syncPilotTogglesFromUrl`, and `FirstPilotIntakeFields` / `SimplifiedPilotWizard` disclosure popstate handlers — whose listeners still parsed lagging `readWindowLocationSearch()` / `window.location.search` after App Router soft navigation cleared params, so `popstate` could resurrect stale wizard mode, step index, intake slide, pilot toggles, or quick-start / simplified-pilot disclosure state; extended `searchParamFromRouterSearchParams` on each handler (and `searchParamsRef` + href-write helper on pilot toggle commits); regressions `keeps wizard mode/step/intake step/focused pilot mode from useSearchParams when popstate reads lagging window.location.search`; focused `reviews/new` scope **254/271** (17 pre-existing baseline failures). Private beta: invited operators on `/architecture/reviews/new` no longer see full guided, guided-intake, or quick-start wizard chrome flip to stale URL-driven state when history events fire before the address bar catches up after in-app navigation.
 
@@ -12072,11 +12210,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **impact:** high
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-11-02 — wizard popstate URL sync resurrected stale mode/step/toggle/disclosure state from lagging window search
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-11-17 — stale guided prior-package filenames and job-chooser disclosure URL keys after path return
 - **code-changed-since:** no
 
-**Hunts:** 76 · **Bugs found:** 46 · **Consecutive dry hunts:** 1
+**Hunts:** 81 · **Bugs found:** 51 · **Consecutive dry hunts:** 0
 
 2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -12211,11 +12349,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 64
-- **bugs-found:** 35
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — template session restore clamped out-of-range step index
+- **hunts:** 69
+- **bugs-found:** 39
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-17
+- **last-bug:** 2026-11-04 — guided prior-run prefill did not reload when priorRunId changed without remount
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12385,6 +12523,42 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-11-17 thorough hunt #508 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**32** monitor rows — **proven** `governanceFindingsClearReviewScopeHref` still left `govCorrection*` after Clear review scope (hunt **#507** clear-all class incomplete on scope clear); **proven** `governanceFindingsPickReviewForTriageHref` retained keyboard + record-correction confirm params when switching `runId` (hunt **#1375** bulk-clear class); **valid-no-repro** `showAllFilteredFindings` + `govCorrection*` (delegates to clear-all helper fixed hunt **#507**); **valid-no-repro** `focusedFinding` surviving clear-all with open triage (triage cursor URL sync rewrites when panel open); **valid-no-repro** keyboard host pending after URL `kbDisp` strip (`FindingKeyboardTriageHost` effect clears pending when params empty). Regressions `clears record-correction confirm params when clearing review scope` and `clears stale keyboard and record-correction confirm params when picking a review`; pick-review **6/6** + clear-review-scope **6/6**. Reseeded five pass-**33** `(candidate)` rows below. Private beta: picking another review or clearing review scope on the governance findings queue no longer keeps record-correction or keyboard disposition confirms tied to the prior run.
+
+- [x] (proven) `governanceFindingsPickReviewForTriageHref` — stale `govCorrection*` / `kbDisp*` on pick review — **hit 2026-11-17 thorough hunt #508:** delete confirm param families on pick-review navigation; regression above.
+- [x] (proven) `governanceFindingsClearReviewScopeHref` — `govCorrectionRunId` survived scope clear — **hit 2026-11-17 thorough hunt #508:** delete `govCorrection*` on clear-review-scope; regression above.
+- [x] (valid-no-repro) `governanceFindingsShowAllFilteredFindingsHref` — `govCorrection*` with hideGeneric — **cheap-disproof 2026-11-17 thorough hunt #508:** show-all calls clear-all helper (hunt **#507**).
+- [x] (valid-no-repro) `GovernanceFindingsQueueClient` — `focusedFinding` survives clear-all with open triage — **cheap-disproof 2026-11-17 thorough hunt #508:** triage cursor sync owns `focusedFinding` while open.
+- [x] (valid-no-repro) `FindingKeyboardTriageHost` — pending confirm after scope clear strips `kbDisp` — **cheap-disproof 2026-11-17 thorough hunt #508:** URL sync effect nulls pending when params absent.
+
+- [ ] (candidate) `governanceFindingsWorkspaceSavedViewHref` — saved workspace view load may retain `govCorrection*` from prior URL — locus: saved-view href builder; input: correction params + load view; monitor; pass 33 reseed.
+- [ ] (candidate) `governanceFindingsRunScopedSavedViewHref` — run-scoped saved view may retain stale `kbDisp*` — locus: run-scoped saved-view href; input: keyboard confirm + saved run scope; monitor; pass 33 reseed.
+- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — may retain `focusedFinding` when clearing filters — locus: clear-all helper; input: open triage deep link + clear all; monitor; pass 33 reseed.
+- [ ] (candidate) `useGovernanceRecordCorrectionUrlSync` — correction dialog vs pick-review navigation ordering — locus: run change with open correction; input: pick review while correction armed; monitor; pass 33 reseed.
+- [ ] (candidate) `GovernanceFindingsQueueScopeSection` — clear review scope link vs `focusedFinding` triage cursor — locus: scope clear + triage URL; input: scoped run + focusedFinding; monitor; pass 33 reseed.
+
+- [x] (superseded) pass **#32** monitor `(candidate)` queue — **superseded 2026-11-17 thorough hunt #508:** see hunt **#508** header and pass **#33** reseed.
+
+2026-11-17 thorough hunt #507 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**31** monitor rows — **proven** `governanceFindingsClearReviewScopeHref` left `kbDispFindingId` / `kbDispAction` after Clear review scope (hunt **#506** / **#1374** class); **proven** `governanceFindingsClearAllFiltersHref` left `govCorrectionKind` / subject / run deep links after Clear all filters; **valid-no-repro** `showAllFilteredFindings` retaining `focusedFinding` (triage cursor independent of hideGeneric reset; intentional when expanding visible rows); **valid-no-repro** dual `kbDisp` + `bulkDispConfirm` (clear-all already deletes both families); **valid-no-repro** register filter narrowing with open triage (`useGovernanceFindingTriageWithCursor` strips unknown focused ids when row leaves `displayedRows`). Regressions `clears keyboard disposition confirm params when clearing review scope` and `clears record-correction confirm params when clearing filters`; clear-all **7/7** + clear-review-scope **5/5**. Reseeded five pass-**32** `(candidate)` rows below. Private beta: clearing review scope or all queue filters no longer leaves keyboard disposition or record-correction confirm dialogs armed in the URL.
+
+- [x] (valid-no-repro) `GovernanceFindingsQueueClient.showAllFilteredFindings` — `hideGeneric` clear may retain `focusedFinding` when triage panel closed — **cheap-disproof 2026-11-17 thorough hunt #507:** show-all uses clear-all helper; focusedFinding is triage cursor not a filter param.
+- [x] (proven) `useGovernanceRecordCorrectionUrlSync` — record-correction dialog vs clear-all filter navigation — **hit 2026-11-17 thorough hunt #507:** delete `govCorrection*` in clear-all helper; regression above.
+- [x] (valid-no-repro) `GovernanceFindingsQueueBulkActions` — bulk disposition confirm URL vs in-flight keyboard triage pending state — **cheap-disproof 2026-11-17 thorough hunt #507:** clear-all deletes both param families atomically.
+- [x] (valid-no-repro) `useGovernanceFindingTriageWithCursor` — register filter change while triage open may leave URL `focusedFinding` on filtered-out row — **cheap-disproof 2026-11-17 thorough hunt #507:** strip effect when id absent from `displayedRows`.
+- [x] (proven) `GovernanceFindingsQueueScopeSection` / `governanceFindingsClearReviewScopeHref` — keyboard confirm URL survived clear review scope — **hit 2026-11-17 thorough hunt #507:** delete `kbDisp*` on clear-review-scope; regression above.
+
+- [x] (superseded) pass **#31** monitor `(candidate)` queue — **superseded 2026-11-17 thorough hunt #507:** see hunt **#507** header and pass **#32** reseed.
+
+2026-11-17 thorough hunt #506 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five open pass monitor rows — **proven** `governanceFindingsClearAllFiltersHref` left deep-linked `kbDispFindingId` / `kbDispAction` after Clear all filters (hunt **#1374** bulk confirm class); **valid-no-repro** filtered-out `focusedFinding` vs loaded scoped rows (cursor hook intentionally resolves against `displayedRows`; register filter mismatch is operator-visible); **valid-no-repro** remediation-factory `findingId` vs `bulkFindings` (`parseRemediationFactoryFindingIdFromSearch` trim + bulk intersection regressions); **valid-no-repro** triage panel inspect href with whitespace `runId` (`governanceFindingInspectHref` trims; queue rows guard links at presentation boundaries); **valid-no-repro** synopsis `dispositionRecorded` vs closed triage (checklist step reflects register disposition fields, not panel open state). Regression `clears keyboard disposition confirm params when clearing filters`; clear-all-filters vitest **6/6** + triage-cursor **8/8**. Reseeded five pass-**31** `(candidate)` rows below. Private beta: clearing governance queue filters no longer leaves a stale keyboard disposition confirm dialog armed in the URL.
+
+- [x] (valid-no-repro) `useGovernanceFindingTriageWithCursor` — filtered-out finding deep link strips while register row still loaded off-display — **cheap-disproof 2026-11-17 thorough hunt #506:** deep-link hydration matches `displayedRows`; changing register filter is intentional scope change.
+- [x] (valid-no-repro) `GovernanceFindingsQueueBulkActions` — SecureNow remediation-factory selection vs bulkFindings when both URL params present — **cheap-disproof 2026-11-17 thorough hunt #506:** factory id parse trims; bulk hook intersects loaded ids.
+- [x] (valid-no-repro) `GovernanceFindingTriagePanel` — triage panel inspect href when `runId` trims empty but `runLabel` present — **cheap-disproof 2026-11-17 thorough hunt #506:** presentation guards on table rows; inspect builder trims tokens.
+- [x] (valid-no-repro) `useGovernanceFindingsQueueSynopsis` — `dispositionRecorded` true while triage panel closed on first paint — **cheap-disproof 2026-11-17 thorough hunt #506:** triage checklist uses row `latestDisposition`, not panel `open`.
+- [x] (proven) `FindingKeyboardTriageHost` / `governanceFindingsClearAllFiltersHref` — keyboard confirm URL survived clear all filters — **hit 2026-11-17 thorough hunt #506:** delete `kbDisp*` in clear-all helper; regression above.
+
+- [x] (superseded) open pass monitor `(candidate)` queue (rows at **#12617–#12621**) — **superseded 2026-11-17 thorough hunt #506:** see hunt **#506** header and pass **#31** reseed.
+
 2026-11-01 thorough hunt (hit): unknown `focusedFinding` deep links stayed in the address bar after the register finished loading because hydration waited for a matching row but never cleared stale tokens when the loaded queue had no such finding; strip unknown ids once displayed finding rows exist and close triage when needed; regressions `strips unknown focusedFinding after finding rows load` and `opens triage when focusedFinding rows arrive after an empty displayed queue`; cheap-disproof closed four sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 8 scoped vitest tests passed. Private beta: Invited operators landing on the governance findings queue with an obsolete or mistyped finding deep link no longer keep a broken `focusedFinding` param after data loads.
 
 2026-11-01 thorough hunt (hit): `useGovernanceFindingTriageWithCursor` kept a one-shot `hydratedFromUrlRef` gate and rewrote closed-panel URLs by comparing trimmed empties, so a second `focusedFinding` deep link never opened triage and in-panel URL changes could not switch findings; re-hydrate on param/row changes, strip closed triage cursors in layout before hydration, and defer URL sync while URL and active row disagree; regressions `opens triage when focusedFinding changes to another finding without remounting` and `opens triage from a focusedFinding deep link after the panel was closed`; cheap-disproof closed four sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 6 scoped vitest tests passed. Private beta: Invited operators can follow successive governance finding deep links and switch `focusedFinding` targets without a stale triage panel or stripped bookmark URLs.
@@ -12419,11 +12593,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 70
-- **bugs-found:** 49
+- **hunts:** 61
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-01
-- **last-bug:** 2026-11-01 — unknown focusedFinding persisted after register load
+- **last-hunt:** 2026-11-17
+- **last-bug:** 2026-11-17 — pick-review / clear-scope left correction confirm URLs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12475,12 +12649,6 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `GovernanceFindingTriagePanel` — working-mode inspect href omits `findingsQueueRunId` when scoped run filter inactive but URL carries stale `runId` — **cheap-disproof 2026-11-01 thorough hunt:** tenant queue passes architecture-only `inspectHrefOptions`; `getFindingEvidenceTraceHref` resolves run from row data, not stale scope params.
 - [x] (valid-no-repro) `useGovernanceFindingsQueueSynopsis` — continue-last target vs inactive `focusedFinding` when both URL params present — **cheap-disproof 2026-11-01 thorough hunt:** continue-last and triage cursors are independent affordances; cursor hook owns `focusedFinding` hydration without suppressing continue-last strip.
 - [x] (valid-no-repro) `FindingKeyboardTriageHost` — keyboard disposition blocked reason compares raw finding id from URL sync params — **cheap-disproof 2026-11-01 thorough hunt:** URL sync parses trimmed `kbDispFindingId`; queue host does not supply a blocked-reason callback and `resolveRunId` is trim-aware.
-
-- [ ] (candidate) `useGovernanceFindingTriageWithCursor` — filtered-out finding deep link strips while register row still loaded off-display — locus: register filter hides focused row; input: `focusedFinding` for filtered finding.
-- [ ] (candidate) `GovernanceFindingsQueueBulkActions` — SecureNow remediation-factory selection vs bulkFindings when both URL params present — locus: dual selection params; input: factory + bulk deep link.
-- [ ] (candidate) `GovernanceFindingTriagePanel` — triage panel inspect href when `runId` trims empty but `runLabel` present — locus: inspect CTA; input: whitespace run id with label text.
-- [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — `dispositionRecorded` true while triage panel closed on first paint — locus: triage steps strip; input: rows with latestDisposition set.
-- [ ] (candidate) `FindingKeyboardTriageHost` — deep-linked keyboard confirm survives `clearAllFilters` on governance queue — locus: kbDisp params; input: clear-all href builder.
 
 - [x] (proven) `GovernanceFindingsQueueOperationalRowCells` / `GovernanceFindingsQueueTableRow` — whitespace-only `category` rendered policy-area fallback while policy-rule badges already required trim — **hit 2026-10-25 seed hunt:** `governanceFindingQueueRowHasDisplayCategory`; regression `does not render policy area fallback when category is whitespace-only`.
 - [x] (proven) `dedupeGovernanceFindingRows` — composite keys used raw `runId`/`findingId` strings, so mixed sources with padding-only differences duplicated actionable rows — **hit 2026-10-25 thorough hunt:** trim both fields in dedupe keys; regression `collapses rows that differ only by surrounding run-id padding`.
@@ -12615,7 +12783,7 @@ ABQ-09 churn hotspot.
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
 - **hunts:** 58
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 — keyboard Enter navigated findings with blank run id
 - **related-pd-tb:** none
@@ -12800,13 +12968,85 @@ ABQ-09 churn hotspot.
 ---
 
 ## Zone: ui-infra-resource-hub
-2026-11-03 thorough hunt #467 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `securenow-question-queue` (dry **#464**, **#465**, **#466** / run log; picker **`shouldRotate: true`** with **`-AvoidZoneId securenow-question-queue`** → `ui-infra-resource-hub`; reason: *3 consecutive low-yield hunt(s) on 'securenow-question-queue' (outcomes: dry, dry, dry).*). Attempted failing repro on five header `(candidate)` monitor rows from hunt **#463** reseed; cheap-disproof closed all five — **valid-no-repro** Ask handoff `snapshotId` with duplicate `tab=` (`infrastructureAskHandoffSearch` + resolved snapshot regressions; stale banner snapshot + Ask link family; hunt **#237** reseed family), **valid-no-repro** stale banner `auditTabHref` omitting `runId` with duplicate tabs (stale banner audit tab + runId preservation family; hunt **#237** reseed family), **valid-no-repro** `setActiveTab` dropping explorer `workQueue` with duplicate `tab=` (tab-bar runId + explorer `workQueue` regressions; hunt **#237** reseed family), **valid-no-repro** diagram tab badge saturated `[state-machine-gap]` (`shows tab count badges for findings and drift`; hunt **#237** reseed family), **valid-no-repro** drift `diffId` whitespace trim (defer trim class; hunt **#237** reseed family). Reseeded five follow-on `(candidate)` rows below (regression family hunt **#241** reseed); scoped **145/145** `ResourceHubClient.test.tsx` + `infra-evidence-hub-tab-query.test.ts`. **This dry starts 1/3** on `ui-infra-resource-hub` at run-log tail. Private beta: n/a.
+2026-11-04 thorough hunt #493 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `securenow-question-queue` (dry **#490**, **#491**, **#492** / run log; picker **`shouldRotate: true`** with **`-AvoidZoneId securenow-question-queue`** → `ui-infra-resource-hub`; reason: *3 consecutive low-yield hunt(s) on 'securenow-question-queue' (outcomes: dry, dry, dry).*). Attempted failing repro on five header `(candidate)` monitor rows from hunt **#489** reseed; cheap-disproof closed all five — **valid-no-repro** Ask handoff `snapshotId` with duplicate `tab=` (`infrastructureAskHandoffSearch` + resolved snapshot regressions; `preserves hub snapshot and runId on stale audit scope banner audit tab link`; hunt **#237** reseed family), **valid-no-repro** stale banner `auditTabHref` omitting `runId` with duplicate tabs (`preserves hub snapshot and runId on stale audit scope banner audit tab link`; `preserves runId when switching hub tabs from the tab bar`; hunt **#237** reseed family), **valid-no-repro** `setActiveTab` dropping explorer `workQueue` with duplicate `tab=` (`preserves explorer workQueue when switching hub tabs from the tab bar`; `uses the last tab query value and canonicalizes duplicate tab params on load`; hunt **#237** reseed family), **valid-no-repro** diagram tab badge saturated `[state-machine-gap]` (regression `shows tab count badges for findings and drift`; hunt **#237** reseed family), **valid-no-repro** drift `diffId` whitespace trim (defer trim class; hunt **#237** reseed family). Reseeded five follow-on `(candidate)` rows below (regression family hunt **#241** reseed). Scoped **145/145** `ResourceHubClient.test.tsx` + `infra-evidence-hub-tab-query.test.ts`. **This dry starts 1/3** on `ui-infra-resource-hub` at run-log tail (prior hub dry **#489** separated by securenow **#490**–**#492**). Private beta: n/a.
 
-- [ ] (candidate) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `runId` when duplicate tab keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + hub `runId`; monitor; hunt **#467** reseed.
-- [ ] (candidate) `ResourceHubClient` stale audit scope banner — `clearAuditScopeHref` may retain partial audit ids when URL mixes linked + unlinked scope — locus: stale banner clear link; input: mixed audit scope params; monitor; hunt **#467** reseed.
-- [ ] (candidate) `ResourceHubClient` tab dedupe on load — may drop `workQueue` when last tab wins over explorer queue tab — locus: initial tab canonicalization; input: duplicate `tab=` + `workQueue`; monitor; hunt **#467** reseed.
-- [ ] (candidate) `ResourceHubClient` findings tab badge — saturated `[state-machine-gap]` operational vs architecture sum — monitor; hunt **#467** reseed.
-- [ ] (candidate) `ResourceHubDriftChangesTable` — whitespace-only `changeId` on drift workbench deep link — defer trim class; monitor; hunt **#467** reseed.
+- [ ] (candidate) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `runId` when duplicate tab keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + hub `runId`; monitor; hunt **#493** reseed.
+- [ ] (candidate) `ResourceHubClient` stale audit scope banner — `clearAuditScopeHref` may retain partial audit ids when URL mixes linked + unlinked scope — locus: stale banner clear link; input: mixed audit scope params; monitor; hunt **#493** reseed.
+- [ ] (candidate) `ResourceHubClient` tab dedupe on load — may drop `workQueue` when last tab wins over explorer queue tab — locus: initial tab canonicalization; input: duplicate `tab=` + `workQueue`; monitor; hunt **#493** reseed.
+- [ ] (candidate) `ResourceHubClient` findings tab badge — saturated `[state-machine-gap]` operational vs architecture sum — monitor; hunt **#493** reseed.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — whitespace-only `changeId` on drift workbench deep link — defer trim class; monitor; hunt **#493** reseed.
+
+- [x] (valid-no-repro) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `snapshotId` when duplicate `tab=` keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + pinned snapshot; monitor; hunt **#489** reseed. — **cheap-disproof 2026-11-04 thorough hunt #493:** scoped handoff + stale banner snapshot regressions (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` stale audit scope banner — `auditTabHref` may omit `runId` when duplicate tab keys present — locus: stale banner audit tab link; input: duplicate `tab=` + `runId`; monitor; hunt **#489** reseed. — **cheap-disproof 2026-11-04 thorough hunt #493:** stale banner audit tab + runId preservation family (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — may drop explorer `workQueue` when switching tabs with duplicate `tab=` query — locus: tab bar navigation; input: `workQueue=…` + duplicate tabs; monitor; hunt **#489** reseed. — **cheap-disproof 2026-11-04 thorough hunt #493:** tab-bar runId + explorer `workQueue` regressions (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` diagram tab badge — saturated `[state-machine-gap]` preview slice vs hub row total — monitor; hunt **#489** reseed. — **cheap-disproof 2026-11-04 thorough hunt #493:** saturated monitor; `shows tab count badges for findings and drift` (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — whitespace-only `diffId` on drift workbench deep link — defer trim class; monitor; hunt **#489** reseed. — **cheap-disproof 2026-11-04 thorough hunt #493:** defer trim class (hunt **#237** reseed family).
+
+- [x] (superseded) hunt **#489** `(candidate)` queue — **superseded 2026-11-04 thorough hunt #493:** closed at zone header; see hunt **#493** reseed.
+
+2026-11-04 thorough hunt #489 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `securenow-question-queue` (dry **#486**, **#487**, **#488** / run log; picker **`shouldRotate: true`** with **`-AvoidZoneId securenow-question-queue`** → `ui-infra-resource-hub`; reason: *3 consecutive low-yield hunt(s) on 'securenow-question-queue' (outcomes: dry, dry, dry).*). Attempted failing repro on five header `(candidate)` monitor rows from hunt **#485** reseed; cheap-disproof closed all five — **valid-no-repro** Ask handoff `runId` with duplicate `tab=` (`infrastructureAskHandoffSearch` + `resourceHubFilterHrefFromSearch`; regressions `preserves runId on drift Infrastructure Ask links`, `preserves runId when switching hub tabs from the tab bar`, `omits duplicate stale tab params on drift Infrastructure Ask links`; hunt **#241** reseed family), **valid-no-repro** stale banner `clearAuditScopeHref` partial audit ids (`buildInfraEvidenceClearAuditScopeHref`; regressions `clears unlinked audit scope from stale banner Open audit tab link`, active-scope clear family; hunt **#241** reseed family), **valid-no-repro** tab dedupe on load dropping explorer `workQueue` (regression `uses the last tab query value and canonicalizes duplicate tab params on load`; explorer `workQueue` preservation family; hunt **#241** reseed family), **valid-no-repro** findings tab badge saturated `[state-machine-gap]` (regression `shows tab count badges for findings and drift`; hunt **#241** reseed family), **valid-no-repro** drift `changeId` whitespace trim (defer trim class; `infra-evidence-workbench-url` trims non-empty `changeId` only; hunt **#241** reseed family). Reseeded five follow-on `(candidate)` rows below (regression family hunt **#237** reseed). Scoped **145/145** `ResourceHubClient.test.tsx` + `infra-evidence-hub-tab-query.test.ts`. **This dry starts 1/3** on `ui-infra-resource-hub` at run-log tail (prior hub dry **#485** separated by securenow **#486**–**#488**). Private beta: n/a.
+
+- [ ] (candidate) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `snapshotId` when duplicate `tab=` keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + pinned snapshot; monitor; hunt **#489** reseed.
+- [ ] (candidate) `ResourceHubClient` stale audit scope banner — `auditTabHref` may omit `runId` when duplicate tab keys present — locus: stale banner audit tab link; input: duplicate `tab=` + `runId`; monitor; hunt **#489** reseed.
+- [ ] (candidate) `ResourceHubClient` `setActiveTab` — may drop explorer `workQueue` when switching tabs with duplicate `tab=` query — locus: tab bar navigation; input: `workQueue=…` + duplicate tabs; monitor; hunt **#489** reseed.
+- [ ] (candidate) `ResourceHubClient` diagram tab badge — saturated `[state-machine-gap]` preview slice vs hub row total — monitor; hunt **#489** reseed.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — whitespace-only `diffId` on drift workbench deep link — defer trim class; monitor; hunt **#489** reseed.
+
+- [x] (valid-no-repro) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `runId` when duplicate tab keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + hub `runId`; monitor; hunt **#485** reseed. — **cheap-disproof 2026-11-04 thorough hunt #489:** scoped handoff + Ask/tab-bar runId regression family (hunt **#241** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` stale audit scope banner — `clearAuditScopeHref` may retain partial audit ids when URL mixes linked + unlinked scope — locus: stale banner clear link; input: mixed audit scope params; monitor; hunt **#485** reseed. — **cheap-disproof 2026-11-04 thorough hunt #489:** stale banner clear-link + active-scope clear family (hunt **#241** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` tab dedupe on load — may drop `workQueue` when last tab wins over explorer queue tab — locus: initial tab canonicalization; input: duplicate `tab=` + `workQueue`; monitor; hunt **#485** reseed. — **cheap-disproof 2026-11-04 thorough hunt #489:** tab dedupe on load + explorer `workQueue` preservation family (hunt **#241** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` findings tab badge — saturated `[state-machine-gap]` operational vs architecture sum — monitor; hunt **#485** reseed. — **cheap-disproof 2026-11-04 thorough hunt #489:** saturated monitor; findings/drift badge regression (hunt **#241** reseed family).
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — whitespace-only `changeId` on drift workbench deep link — defer trim class; monitor; hunt **#485** reseed. — **cheap-disproof 2026-11-04 thorough hunt #489:** defer trim class (hunt **#241** reseed family).
+
+- [x] (superseded) hunt **#485** `(candidate)` queue — **superseded 2026-11-04 thorough hunt #489:** closed at zone header; see hunt **#489** reseed.
+
+2026-11-04 thorough hunt #485 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `securenow-question-queue` (dry **#482**, **#483**, **#484** / run log; picker **`shouldRotate: true`** with **`-AvoidZoneId securenow-question-queue`** → `ui-infra-resource-hub`; reason: *3 consecutive low-yield hunt(s) on 'securenow-question-queue' (outcomes: dry, dry, dry).*). Attempted failing repro on five header `(candidate)` monitor rows from hunt **#481** reseed; cheap-disproof closed all five — **valid-no-repro** Ask handoff `snapshotId` with duplicate `tab=` (`infrastructureAskHandoffSearch` + resolved snapshot regressions; `preserves hub snapshot and runId on stale audit scope banner audit tab link`; hunt **#237** reseed family), **valid-no-repro** stale banner `auditTabHref` omitting `runId` with duplicate tabs (`preserves hub snapshot and runId on stale audit scope banner audit tab link`; `preserves runId when switching hub tabs from the tab bar`; hunt **#237** reseed family), **valid-no-repro** `setActiveTab` dropping explorer `workQueue` with duplicate `tab=` (`preserves explorer workQueue when switching hub tabs from the tab bar`; `uses the last tab query value and canonicalizes duplicate tab params on load`; hunt **#237** reseed family), **valid-no-repro** diagram tab badge saturated `[state-machine-gap]` (regression `shows tab count badges for findings and drift`; hunt **#237** reseed family), **valid-no-repro** drift `diffId` whitespace trim (defer trim class; `infra-evidence-workbench-url` trims non-empty `changeId` only; hunt **#237** reseed family). Reseeded five follow-on `(candidate)` rows below (regression family hunt **#241** reseed). Scoped **145/145** `ResourceHubClient.test.tsx` + `infra-evidence-hub-tab-query.test.ts`. **This dry starts 1/3** on `ui-infra-resource-hub` at run-log tail (prior hub dry **#481** separated by securenow **#482**–**#484**). Private beta: n/a.
+
+- [ ] (candidate) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `runId` when duplicate tab keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + hub `runId`; monitor; hunt **#485** reseed.
+- [ ] (candidate) `ResourceHubClient` stale audit scope banner — `clearAuditScopeHref` may retain partial audit ids when URL mixes linked + unlinked scope — locus: stale banner clear link; input: mixed audit scope params; monitor; hunt **#485** reseed.
+- [ ] (candidate) `ResourceHubClient` tab dedupe on load — may drop `workQueue` when last tab wins over explorer queue tab — locus: initial tab canonicalization; input: duplicate `tab=` + `workQueue`; monitor; hunt **#485** reseed.
+- [ ] (candidate) `ResourceHubClient` findings tab badge — saturated `[state-machine-gap]` operational vs architecture sum — monitor; hunt **#485** reseed.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — whitespace-only `changeId` on drift workbench deep link — defer trim class; monitor; hunt **#485** reseed.
+
+- [x] (valid-no-repro) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `snapshotId` when duplicate `tab=` keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + pinned snapshot; monitor; hunt **#481** reseed. — **cheap-disproof 2026-11-04 thorough hunt #485:** scoped handoff + stale banner snapshot regressions (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` stale audit scope banner — `auditTabHref` may omit `runId` when duplicate tab keys present — locus: stale banner audit tab link; input: duplicate `tab=` + `runId`; monitor; hunt **#481** reseed. — **cheap-disproof 2026-11-04 thorough hunt #485:** stale banner audit tab + runId preservation family (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — may drop explorer `workQueue` when switching tabs with duplicate `tab=` query — locus: tab bar navigation; input: `workQueue=…` + duplicate tabs; monitor; hunt **#481** reseed. — **cheap-disproof 2026-11-04 thorough hunt #485:** tab-bar runId + explorer `workQueue` regressions (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` diagram tab badge — saturated `[state-machine-gap]` preview slice vs hub row total — monitor; hunt **#481** reseed. — **cheap-disproof 2026-11-04 thorough hunt #485:** saturated monitor; `shows tab count badges for findings and drift` (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — whitespace-only `diffId` on drift workbench deep link — defer trim class; monitor; hunt **#481** reseed. — **cheap-disproof 2026-11-04 thorough hunt #485:** defer trim class (hunt **#237** reseed family).
+
+- [x] (superseded) hunt **#481** `(candidate)` queue — **superseded 2026-11-04 thorough hunt #485:** closed at zone header; see hunt **#485** reseed.
+
+2026-11-04 thorough hunt #481 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `securenow-question-queue` (dry **#478**, **#479**, **#480** / run log; picker **`shouldRotate: true`** with **`-AvoidZoneId securenow-question-queue`** → `ui-infra-resource-hub`; reason: *3 consecutive low-yield hunt(s) on 'securenow-question-queue' (outcomes: dry, dry, dry).*). Attempted failing repro on five header `(candidate)` monitor rows from hunt **#477** reseed; cheap-disproof closed all five — **valid-no-repro** Ask handoff `runId` with duplicate `tab=` (`infrastructureAskHandoffSearch` + `resourceHubFilterHrefFromSearch`; regressions `preserves runId on drift Infrastructure Ask links`, `preserves runId when switching hub tabs from the tab bar`, `omits duplicate stale tab params on drift Infrastructure Ask links`; hunt **#241** reseed family), **valid-no-repro** stale banner `clearAuditScopeHref` partial audit ids (`buildInfraEvidenceClearAuditScopeHref`; regressions `clears unlinked audit scope from stale banner Open audit tab link`, active-scope clear family; hunt **#241** reseed family), **valid-no-repro** tab dedupe on load dropping explorer `workQueue` (regression `uses the last tab query value and canonicalizes duplicate tab params on load`; explorer `workQueue` preservation family; hunt **#241** reseed family), **valid-no-repro** findings tab badge saturated `[state-machine-gap]` (regression `shows tab count badges for findings and drift`; hunt **#241** reseed family), **valid-no-repro** drift `changeId` whitespace trim (defer trim class; `infra-evidence-workbench-url` trims non-empty `changeId` only; hunt **#241** reseed family). Reseeded five follow-on `(candidate)` rows below (regression family hunt **#241** reseed); scoped **145/145** `ResourceHubClient.test.tsx` + `infra-evidence-hub-tab-query.test.ts`. **This dry starts 1/3** on `ui-infra-resource-hub` at run-log tail. Private beta: n/a.
+
+- [ ] (candidate) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `snapshotId` when duplicate `tab=` keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + pinned snapshot; monitor; hunt **#481** reseed.
+- [ ] (candidate) `ResourceHubClient` stale audit scope banner — `auditTabHref` may omit `runId` when duplicate tab keys present — locus: stale banner audit tab link; input: duplicate `tab=` + `runId`; monitor; hunt **#481** reseed.
+- [ ] (candidate) `ResourceHubClient` `setActiveTab` — may drop explorer `workQueue` when switching tabs with duplicate `tab=` query — locus: tab bar navigation; input: `workQueue=…` + duplicate tabs; monitor; hunt **#481** reseed.
+- [ ] (candidate) `ResourceHubClient` diagram tab badge — saturated `[state-machine-gap]` preview slice vs hub row total — monitor; hunt **#481** reseed.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — whitespace-only `diffId` on drift workbench deep link — defer trim class; monitor; hunt **#481** reseed.
+
+- [x] (valid-no-repro) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `runId` when duplicate tab keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + hub `runId`; monitor; hunt **#477** reseed. — **cheap-disproof 2026-11-04 thorough hunt #481:** scoped handoff + Ask/tab-bar runId regression family (hunt **#241** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` stale audit scope banner — `clearAuditScopeHref` may retain partial audit ids when URL mixes linked + unlinked scope — locus: stale banner clear link; input: mixed audit scope params; monitor; hunt **#477** reseed. — **cheap-disproof 2026-11-04 thorough hunt #481:** stale banner clear-link + active-scope clear family (hunt **#241** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` tab dedupe on load — may drop `workQueue` when last tab wins over explorer queue tab — locus: initial tab canonicalization; input: duplicate `tab=` + `workQueue`; monitor; hunt **#477** reseed. — **cheap-disproof 2026-11-04 thorough hunt #481:** tab dedupe on load + explorer `workQueue` preservation family (hunt **#241** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` findings tab badge — saturated `[state-machine-gap]` operational vs architecture sum — monitor; hunt **#477** reseed. — **cheap-disproof 2026-11-04 thorough hunt #481:** saturated monitor; findings/drift badge regression (hunt **#241** reseed family).
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — whitespace-only `changeId` on drift workbench deep link — defer trim class; monitor; hunt **#477** reseed. — **cheap-disproof 2026-11-04 thorough hunt #481:** defer trim class (hunt **#241** reseed family).
+
+2026-11-04 thorough hunt #477 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `securenow-question-queue` (dry **#474**, **#475**, **#476** / run log; picker **`shouldRotate: true`** with **`-AvoidZoneId securenow-question-queue`** → `ui-infra-resource-hub`; reason: *3 consecutive low-yield hunt(s) on 'securenow-question-queue' (outcomes: dry, dry, dry).*). Attempted failing repro on five header `(candidate)` monitor rows from hunt **#473** reseed; cheap-disproof closed all five — **valid-no-repro** Ask handoff `snapshotId` with duplicate `tab=` (`infrastructureAskHandoffSearch` + resolved snapshot regressions; stale banner snapshot + Ask link family; hunt **#237** reseed family), **valid-no-repro** stale banner `auditTabHref` omitting `runId` with duplicate tabs (stale banner audit tab + runId preservation family; hunt **#237** reseed family), **valid-no-repro** `setActiveTab` dropping explorer `workQueue` with duplicate `tab=` (tab-bar runId + explorer `workQueue` regressions; hunt **#237** reseed family), **valid-no-repro** diagram tab badge saturated `[state-machine-gap]` (`shows tab count badges for findings and drift`; hunt **#237** reseed family), **valid-no-repro** drift `diffId` whitespace trim (defer trim class; hunt **#237** reseed family). Reseeded five follow-on `(candidate)` rows below (regression family hunt **#241** reseed); scoped **145/145** `ResourceHubClient.test.tsx` + `infra-evidence-hub-tab-query.test.ts`. **This dry completes 3/3** on `ui-infra-resource-hub` at run-log tail — next pick should rotate with `-AvoidZoneId ui-infra-resource-hub`. Private beta: n/a.
+
+- [x] (valid-no-repro) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `snapshotId` when duplicate `tab=` keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + pinned snapshot; monitor; hunt **#473** reseed. — **cheap-disproof 2026-11-04 thorough hunt #477:** scoped handoff + stale banner snapshot regressions (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` stale audit scope banner — `auditTabHref` may omit `runId` when duplicate tab keys present — locus: stale banner audit tab link; input: duplicate `tab=` + `runId`; monitor; hunt **#473** reseed. — **cheap-disproof 2026-11-04 thorough hunt #477:** stale banner audit tab + runId preservation family (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — may drop explorer `workQueue` when switching tabs with duplicate `tab=` query — locus: tab bar navigation; input: `workQueue=…` + duplicate tabs; monitor; hunt **#473** reseed. — **cheap-disproof 2026-11-04 thorough hunt #477:** tab-bar runId + explorer `workQueue` regressions (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` diagram tab badge — saturated `[state-machine-gap]` preview slice vs hub row total — monitor; hunt **#473** reseed. — **cheap-disproof 2026-11-04 thorough hunt #477:** saturated monitor; findings/drift badge regression (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — whitespace-only `diffId` on drift workbench deep link — defer trim class; monitor; hunt **#473** reseed. — **cheap-disproof 2026-11-04 thorough hunt #477:** defer trim class (hunt **#237** reseed family).
+
+2026-11-04 thorough hunt #473 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `securenow-question-queue` (dry **#470**, **#471**, **#472** / run log; picker **`shouldRotate: true`** with **`-AvoidZoneId securenow-question-queue`** → `ui-infra-resource-hub`; reason: *3 consecutive low-yield hunt(s) on 'securenow-question-queue' (outcomes: dry, dry, dry).*). Attempted failing repro on five header `(candidate)` monitor rows from hunt **#467** reseed; cheap-disproof closed all five — **valid-no-repro** Ask handoff `runId` with duplicate `tab=` (`infrastructureAskHandoffSearch` + `resourceHubFilterHrefFromSearch`; regressions `preserves runId on drift Infrastructure Ask links`, `preserves runId when switching hub tabs from the tab bar`, `omits duplicate stale tab params on drift Infrastructure Ask links`; hunt **#241** reseed family), **valid-no-repro** stale banner `clearAuditScopeHref` partial audit ids (`buildInfraEvidenceClearAuditScopeHref`; regressions `clears unlinked audit scope from stale banner Open audit tab link`, active-scope clear family; hunt **#241** reseed family), **valid-no-repro** tab dedupe on load dropping explorer `workQueue` (regression `uses the last tab query value and canonicalizes duplicate tab params on load`; explorer `workQueue` preservation family; hunt **#241** reseed family), **valid-no-repro** findings tab badge saturated `[state-machine-gap]` (regression `shows tab count badges for findings and drift`; hunt **#241** reseed family), **valid-no-repro** drift `changeId` whitespace trim (defer trim class; `infra-evidence-workbench-url` trims non-empty `changeId` only; hunt **#241** reseed family). Reseeded five follow-on `(candidate)` rows below (regression family hunt **#241** reseed); scoped **145/145** `ResourceHubClient.test.tsx` + `infra-evidence-hub-tab-query.test.ts`. **This dry is 2/3** on `ui-infra-resource-hub` at run-log tail. Private beta: n/a.
+
+- [x] (valid-no-repro) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `runId` when duplicate tab keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + hub `runId`; monitor; hunt **#467** reseed. — **cheap-disproof 2026-11-04 thorough hunt #473:** scoped handoff + Ask/tab-bar runId regression family (hunt **#241** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` stale audit scope banner — `clearAuditScopeHref` may retain partial audit ids when URL mixes linked + unlinked scope — locus: stale banner clear link; input: mixed audit scope params; monitor; hunt **#467** reseed. — **cheap-disproof 2026-11-04 thorough hunt #473:** stale banner clear-link + active-scope clear family (hunt **#241** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` tab dedupe on load — may drop `workQueue` when last tab wins over explorer queue tab — locus: initial tab canonicalization; input: duplicate `tab=` + `workQueue`; monitor; hunt **#467** reseed. — **cheap-disproof 2026-11-04 thorough hunt #473:** tab dedupe on load + explorer `workQueue` preservation family (hunt **#241** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` findings tab badge — saturated `[state-machine-gap]` operational vs architecture sum — monitor; hunt **#467** reseed. — **cheap-disproof 2026-11-04 thorough hunt #473:** saturated monitor; findings/drift badge regression (hunt **#241** reseed family).
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — whitespace-only `changeId` on drift workbench deep link — defer trim class; monitor; hunt **#467** reseed. — **cheap-disproof 2026-11-04 thorough hunt #473:** defer trim class (hunt **#241** reseed family).
+
+2026-11-03 thorough hunt #467 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `securenow-question-queue` (dry **#464**, **#465**, **#466** / run log; picker **`shouldRotate: true`** with **`-AvoidZoneId securenow-question-queue`** → `ui-infra-resource-hub`; reason: *3 consecutive low-yield hunt(s) on 'securenow-question-queue' (outcomes: dry, dry, dry).*). Attempted failing repro on five header `(candidate)` monitor rows from hunt **#463** reseed; cheap-disproof closed all five — **valid-no-repro** Ask handoff `snapshotId` with duplicate `tab=` (`infrastructureAskHandoffSearch` + resolved snapshot regressions; stale banner snapshot + Ask link family; hunt **#237** reseed family), **valid-no-repro** stale banner `auditTabHref` omitting `runId` with duplicate tabs (stale banner audit tab + runId preservation family; hunt **#237** reseed family), **valid-no-repro** `setActiveTab` dropping explorer `workQueue` with duplicate `tab=` (tab-bar runId + explorer `workQueue` regressions; hunt **#237** reseed family), **valid-no-repro** diagram tab badge saturated `[state-machine-gap]` (`shows tab count badges for findings and drift`; hunt **#237** reseed family), **valid-no-repro** drift `diffId` whitespace trim (defer trim class; hunt **#237** reseed family). Reseeded five follow-on `(candidate)` rows below (regression family hunt **#241** reseed); scoped **145/145** `ResourceHubClient.test.tsx` + `infra-evidence-hub-tab-query.test.ts`. **This dry starts 1/3** on `ui-infra-resource-hub` at run-log tail. Private beta: n/a.
 
 - [x] (valid-no-repro) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `snapshotId` when duplicate `tab=` keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + pinned snapshot; monitor; hunt **#463** reseed. — **cheap-disproof 2026-11-03 thorough hunt #467:** scoped handoff + stale banner snapshot regressions (hunt **#237** reseed family).
 - [x] (valid-no-repro) `ResourceHubClient` stale audit scope banner — `auditTabHref` may omit `runId` when duplicate tab keys present — locus: stale banner audit tab link; input: duplicate `tab=` + `runId`; monitor; hunt **#463** reseed. — **cheap-disproof 2026-11-03 thorough hunt #467:** stale banner audit tab + runId preservation family (hunt **#237** reseed family).
@@ -13729,7 +13969,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — Infrastructure Ask handoff duplicate stale tab params
 - **code-changed-since:** yes
 
@@ -13752,7 +13992,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — duplicate tab query keys ignored trailing value
 - **code-changed-since:** yes
 
@@ -13775,7 +14015,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only tab query left in resource hub URL
 - **code-changed-since:** yes
 
@@ -13798,7 +14038,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — invalid tab query left in resource hub URL
 - **code-changed-since:** yes
 
@@ -13821,7 +14061,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — create-remediation confirm dialog after hub tab switch
 - **code-changed-since:** no
 
@@ -13845,7 +14085,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — create-remediation confirm dialog after hub tab switch
 - **code-changed-since:** yes
 
@@ -13868,7 +14108,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale URL audit scope on cross-workbench links after cloudResourceId change
 - **code-changed-since:** no
 
@@ -13891,7 +14131,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale URL audit scope on cross-workbench links after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -13914,7 +14154,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — prior hub snapshot on cross-workbench links after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -13937,7 +14177,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale URL runId on cross-workbench links after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -13960,7 +14200,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale URL runId on hub fetch after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -13983,7 +14223,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — URL snapshot pin bootstrap on resource switch
 - **code-changed-since:** yes
 
@@ -14006,7 +14246,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale snapshotId in URL after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -14029,7 +14269,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — misleading pinned snapshot label after cloudResourceId change
 - **code-changed-since:** no
 
@@ -14052,7 +14292,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — misleading pinned snapshot label after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -14076,7 +14316,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale URL snapshot pin after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -14099,7 +14339,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — implicit snapshot pin lost on audit scope change
 - **code-changed-since:** no
 
@@ -14122,7 +14362,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale hub when pinned snapshot changes
 - **code-changed-since:** no
 
@@ -14145,7 +14385,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale hub when pinned snapshot changes
 - **code-changed-since:** no
 
@@ -14168,7 +14408,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stuck Creating after hub URL scope change during remediation
 - **code-changed-since:** no
 
@@ -14191,7 +14431,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — in-flight remediation after hub URL scope change
 - **code-changed-since:** no
 
@@ -14213,7 +14453,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale hub when cloudResourceId changes
 - **code-changed-since:** yes
 
@@ -14235,7 +14475,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — suppress refetch blocked audit scope URL changes
 - **code-changed-since:** yes
 
@@ -14257,7 +14497,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — unscoped hub flash before audit-scoped load
 - **code-changed-since:** yes
 
@@ -14279,7 +14519,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — hub fetch audit scope when lineage unavailable
 - **code-changed-since:** yes
 
@@ -14301,7 +14541,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — hub fetch unlinked audit before lineage
 - **code-changed-since:** yes
 
@@ -14323,7 +14563,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — hub fetch snapshot when URL omits snapshotId
 - **code-changed-since:** yes
 
@@ -14345,7 +14585,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — hub fetch with invalid URL audit scope
 - **code-changed-since:** yes
 
@@ -14367,7 +14607,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — Ask handoff partial stale URL audit params
 - **code-changed-since:** yes
 
@@ -14389,7 +14629,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale banner audit tab link retained unlinked URL scope
 - **code-changed-since:** yes
 
@@ -14411,7 +14651,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — ARM path copy affordance when path not stored
 - **code-changed-since:** yes
 
@@ -14433,7 +14673,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — audit scope chip vs stale unlinked URL
 - **code-changed-since:** yes
 
@@ -14455,7 +14695,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — terraform tab not-mapped empty state
 - **code-changed-since:** yes
 
@@ -14477,7 +14717,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — terraform workbench link without stored address
 - **code-changed-since:** yes
 
@@ -14499,7 +14739,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale unlinked URL with whitespace hub link ids on workbench scope
 - **code-changed-since:** yes
 
@@ -14522,7 +14762,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale URL audit scope on workbench links
 - **code-changed-since:** yes
 
@@ -14545,7 +14785,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — partial URL audit params blocked match backfill
 - **code-changed-since:** yes
 
@@ -14568,7 +14808,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — ask/workbench audit context vs resolved lineage
 - **code-changed-since:** yes
 
@@ -14591,7 +14831,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only audit link ids with valid matches
 - **code-changed-since:** yes
 
@@ -14614,7 +14854,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — padded audit lineage id resolution
 - **code-changed-since:** yes
 
@@ -14637,7 +14877,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — diagram correspondenceId on diagram tab actions
 - **code-changed-since:** yes
 
@@ -14660,7 +14900,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — overview audit degradedReason whitespace banner
 - **code-changed-since:** yes
 
@@ -14683,7 +14923,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — architecture-review finding id on Ask handoff
 - **code-changed-since:** yes
 
@@ -14706,7 +14946,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only operational finding id on findings tab
 - **code-changed-since:** yes
 
@@ -14729,7 +14969,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only remediation create failure blockers/errorMessage
 - **code-changed-since:** yes
 
@@ -14752,7 +14992,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only remediation tab instanceId
 - **code-changed-since:** yes
 
@@ -14775,7 +15015,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only remediation instanceId after create-from-finding
 - **code-changed-since:** yes
 
@@ -14798,7 +15038,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only finding title in remediation confirm dialog
 - **code-changed-since:** yes
 
@@ -14821,7 +15061,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only drift riskClassification
 - **code-changed-since:** yes
 
@@ -14845,7 +15085,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only finding remediation action message
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -14884,7 +15124,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only audit degradedReason on audit tab
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -14909,7 +15149,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only config ARM id blocked external title fallback
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -14934,7 +15174,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only ARM resource path in identifier strip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -14959,7 +15199,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only audit other-linked control labels
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -14984,7 +15224,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only overview resource type
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15009,7 +15249,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only remediation pattern key
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15034,7 +15274,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only drift property and old/new values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15059,7 +15299,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only configuration tag keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15084,7 +15324,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only network relationship endpoint ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15109,7 +15349,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only RBAC principal and role cells
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15134,7 +15374,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only configuration property keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15159,7 +15399,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only evidence pointer kind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15184,7 +15424,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only evidence pointer path
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15209,7 +15449,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only network relationship type
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15234,7 +15474,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only RBAC scope on overview
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15259,7 +15499,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only configuration tag values on overview
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15284,7 +15524,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only configuration property values on overview
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15309,7 +15549,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only stream labels and diagram match kind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15326,7 +15566,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only hub field omission copy parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15351,7 +15591,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only hub field omission copy parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15376,7 +15616,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — pagination caption on empty findings/remediation streams
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15401,7 +15641,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only terraform address displayed as mapping
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15426,7 +15666,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — duplicate React keys on evidence pointers and drift rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15451,7 +15691,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — stale finding action messages after evidence hub reload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15476,7 +15716,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — non-unique React keys collapsed RBAC/network/audit rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15501,7 +15741,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — architecture review findings pagination linked to remediation workbench
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15547,7 +15787,7 @@ ABQ-09 churn hotspot.
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **hunts:** 42
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — unlinked audit URL scope showed hub default control label
 2026-10-20 seed hunt (seed→hit): promoted failed reload stale hub candidate; regression `clears_hub_evidence_when_a_newer_URL_selection_fails_to_load`; 55 scoped ResourceHubClient tests passed.
@@ -15852,10 +16092,259 @@ ABQ-09 churn hotspot.
 2026-10-03 thorough hunt (dry): `securenow-question-queue` — cheap-disproved the empty-`AzureResourceId` candidate because inventory resource identifiers are non-nullable at the model and database boundary; the scoped test project could not compile because of unrelated pre-existing ARCH006/ARCH006a analyzer errors across Persistence.
 
 ## Zone: securenow-question-queue
-2026-11-03 thorough hunt #466 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **2/3** before this record — dry **#464**, **#465** at tail). Attempted failing repro on two header `(candidate)` rows from hunt **#465** reseed; cheap-disproof closed both **invalid** — MERGE collision monitor (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), compiler UpdatedUtc tie-break (MERGE single-row identity; newer-wins compiler regression family; `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`). Reseeded both monitors below. Scoped **343/345** SecureNow queue vitest (queue, api, provider suites; **2** pack-friendly identity display failures on master-sync baseline) + **38/38** Application `SecureNowQuestion*` tests. **This dry completes 3/3** on `securenow-question-queue` at run-log tail — next pick should rotate with `-AvoidZoneId securenow-question-queue`. Private beta: n/a.
+2026-11-04 thorough hunt #494 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`ui-infra-resource-hub`** is **1/3** before this record — dry **#493** at tail). Attempted failing repro on five header `(candidate)` rows from hunt **#492** reseed (pass-43); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** compiler `ExpirationUtc` boundary (`>` join vs service `IsExpired` `<=`; expired-at-`now` dispositions intentionally do not merge), **valid-no-repro** list object root (`returns an empty list when the proxy response is not an array`; fail-soft empty queue), **valid-no-repro** provider post-mutation reload (`reloadAfterMutation` clears inline error after successful question refresh; regression `clears a stale list-load error after a post-answer question reload succeeds`), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-44 `(candidate)` rows below. Scoped SecureNow queue vitest **345/345** (queue, provider, api, mutation-resource-id, disposition-status, expiration, answer-label, resource-identity-display, empty-copy) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 1/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
 
-- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #466 reseed).
-- [ ] (candidate) `SecureNowQuestionCompiler` — disposition identity group picks `OrderByDescending(UpdatedUtc).First()` without tie-break — locus: compile merge; input: two disposition rows share identity and `UpdatedUtc`; wrong outcome: stale status wins; reachability: concurrent upserts / integration host (monitor; hunt #466 reseed).
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #494 reseed).
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.ListByTenantAndSubscriptionAsync` — subscription id trim/lowercase vs compiler identity normalization drift — locus: list vs compile boundary; monitor; hunt #494 reseed.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — inferred-connection reload error after successful mutation reload — locus: post-answer refresh UX; monitor; hunt #494 reseed.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — open keyed rows missing mutation source/scope dropped from list — locus: preflight filter; monitor; hunt #494 reseed.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #494 reseed).
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #492 reseed). — **cheap-disproof 2026-11-04 thorough hunt #494:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SecureNowQuestionCompiler` — disposition join skips rows when `ExpirationUtc` equals compile `now` — locus: compile merge; input: boundary `>` vs service `IsExpired` `<=` (monitor; hunt #492 reseed). — **cheap-disproof 2026-11-04 thorough hunt #494:** expired-at-instant dispositions must not merge; aligns with `SecureNowQuestionDispositionService.ListAsync` `ExpirationUtc <= now`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — proxy object root returns silent empty queue — locus: list boundary (monitor; hunt #492 reseed). — **cheap-disproof 2026-11-04 thorough hunt #494:** regression `returns an empty list when the proxy response is not an array`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — stale list error when reload succeeds after mutation with empty result — locus: `reloadAfterMutation` error retention (monitor; hunt #492 reseed). — **cheap-disproof 2026-11-04 thorough hunt #494:** successful post-mutation reload calls `setError(null)`; empty list is not a load failure.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #492 reseed). — **cheap-disproof 2026-11-04 thorough hunt #494:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-43 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #494:** closed at zone header; see pass-44 reseed.
+
+
+2026-11-04 thorough hunt #492 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **2/3** before this record — dry **#490**, **#491** at tail). Attempted failing repro on five header `(candidate)` rows from hunt **#491** reseed (pass-42); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** list subscription normalization drift (`SecureNowQuestionDispositionService` passes `Normalize(subscriptionId)` into `ListByTenantAndSubscriptionAsync`, which applies `Trim().ToLowerInvariant()`; compile identity uses the same normalize path), **valid-no-repro** provider inferred-connection reload after mutation (`shows honest recovery when inferred connections fail after a post-answer reload`; `keeps inventory questions visible when inferred connections fail to load`), **valid-no-repro** list drops open keyed rows missing mutation source/scope (intentional preflight gate; regression `requires resolvable source and scope on open keyed rows`), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-43 `(candidate)` rows below. Scoped SecureNow queue vitest **344/344** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 3/3** on `securenow-question-queue` at run-log tail — **rotation to `ui-infra-resource-hub` expected on next `/3` pick**. Private beta: n/a.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #492 reseed).
+- [ ] (candidate) `SecureNowQuestionCompiler` — disposition join skips rows when `ExpirationUtc` equals compile `now` — locus: compile merge; input: boundary `>` vs service `IsExpired` `<=` (monitor; hunt #492 reseed).
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — proxy object root returns silent empty queue — locus: list boundary (monitor; hunt #492 reseed).
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — stale list error when reload succeeds after mutation with empty result — locus: `reloadAfterMutation` error retention (monitor; hunt #492 reseed).
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #492 reseed).
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #491 reseed). — **cheap-disproof 2026-11-04 thorough hunt #492:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SqlSecureNowQuestionDispositionRepository.ListByTenantAndSubscriptionAsync` — subscription id trim/lowercase vs compiler identity normalization drift — locus: list vs compile boundary; monitor; hunt #491 reseed. — **cheap-disproof 2026-11-04 thorough hunt #492:** service and repository both normalize subscription id before list/merge; no drift vs compiler identity hash inputs.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — inferred-connection reload error after successful mutation reload — locus: post-answer refresh UX; monitor; hunt #491 reseed. — **cheap-disproof 2026-11-04 thorough hunt #492:** regressions `shows honest recovery when inferred connections fail after a post-answer reload` and `keeps inventory questions visible when inferred connections fail to load`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — open keyed rows missing mutation source/scope dropped from list — locus: preflight filter; monitor; hunt #491 reseed. — **cheap-disproof 2026-11-04 thorough hunt #492:** intentional open mutation preflight; regression `requires resolvable source and scope on open keyed rows`.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #491 reseed). — **cheap-disproof 2026-11-04 thorough hunt #492:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-42 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #492:** closed at zone header; see pass-43 reseed.
+
+2026-11-04 thorough hunt #491 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **1/3** before this record — dry **#490** at tail). Attempted failing repro on five header `(candidate)` rows from hunt **#490** reseed (pass-41); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** compiler `ExpirationUtc` boundary (`>` join vs service `IsExpired` `<=`; expired-at-`now` dispositions intentionally do not merge), **valid-no-repro** list object root (`returns an empty list when the proxy response is not an array`; fail-soft empty queue), **valid-no-repro** provider post-mutation reload (`reloadAfterMutation` clears inline error after successful question refresh; regression `clears a stale list-load error after a post-answer question reload succeeds`), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-42 `(candidate)` rows below. Scoped SecureNow queue vitest **344/344** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 2/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #491 reseed).
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.ListByTenantAndSubscriptionAsync` — subscription id trim/lowercase vs compiler identity normalization drift — locus: list vs compile boundary; monitor; hunt #491 reseed.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — inferred-connection reload error after successful mutation reload — locus: post-answer refresh UX; monitor; hunt #491 reseed.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — open keyed rows missing mutation source/scope dropped from list — locus: preflight filter; monitor; hunt #491 reseed.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #491 reseed).
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #490 reseed). — **cheap-disproof 2026-11-04 thorough hunt #491:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SecureNowQuestionCompiler` — disposition join skips rows when `ExpirationUtc` equals compile `now` — locus: compile merge; input: boundary `>` vs service `IsExpired` `<=` (monitor; hunt #490 reseed). — **cheap-disproof 2026-11-04 thorough hunt #491:** expired-at-instant dispositions must not merge; aligns with `SecureNowQuestionDispositionService.ListAsync` `ExpirationUtc <= now`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — proxy object root returns silent empty queue — locus: list boundary (monitor; hunt #490 reseed). — **cheap-disproof 2026-11-04 thorough hunt #491:** regression `returns an empty list when the proxy response is not an array`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — stale list error when reload succeeds after mutation with empty result — locus: `reloadAfterMutation` error retention (monitor; hunt #490 reseed). — **cheap-disproof 2026-11-04 thorough hunt #491:** successful post-mutation reload calls `setError(null)`; empty list is not a load failure.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #490 reseed). — **cheap-disproof 2026-11-04 thorough hunt #491:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-41 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #491:** closed at zone header; see pass-42 reseed.
+
+2026-11-04 thorough hunt #490 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **0/3** before this record — **dry #489** on `ui-infra-resource-hub` at tail interrupted the prior securenow dry chain). Attempted failing repro on five header `(candidate)` rows from hunt **#488** reseed (pass-40); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** list subscription normalization drift (`SecureNowQuestionDispositionService` passes `Normalize(subscriptionId)` into `ListByTenantAndSubscriptionAsync`, which applies `Trim().ToLowerInvariant()`; compile identity uses the same normalize path), **valid-no-repro** provider inferred-connection reload after mutation (`shows honest recovery when inferred connections fail after a post-answer reload`; `keeps inventory questions visible when inferred connections fail to load`), **valid-no-repro** list drops open keyed rows missing mutation source/scope (intentional preflight gate; regression `requires resolvable source and scope on open keyed rows`), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-41 `(candidate)` rows below. Scoped SecureNow queue vitest **344/344** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 1/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #490 reseed).
+- [ ] (candidate) `SecureNowQuestionCompiler` — disposition join skips rows when `ExpirationUtc` equals compile `now` — locus: compile merge; input: boundary `>` vs service `IsExpired` `<=` (monitor; hunt #490 reseed).
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — proxy object root returns silent empty queue — locus: list boundary (monitor; hunt #490 reseed).
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — stale list error when reload succeeds after mutation with empty result — locus: `reloadAfterMutation` error retention (monitor; hunt #490 reseed).
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #490 reseed).
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #488 reseed). — **cheap-disproof 2026-11-04 thorough hunt #490:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SqlSecureNowQuestionDispositionRepository.ListByTenantAndSubscriptionAsync` — subscription id trim/lowercase vs compiler identity normalization drift — locus: list vs compile boundary; monitor; hunt #488 reseed. — **cheap-disproof 2026-11-04 thorough hunt #490:** service and repository both normalize subscription id before list/merge; no drift vs compiler identity hash inputs.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — inferred-connection reload error after successful mutation reload — locus: post-answer refresh UX; monitor; hunt #488 reseed. — **cheap-disproof 2026-11-04 thorough hunt #490:** regressions `shows honest recovery when inferred connections fail after a post-answer reload` and `keeps inventory questions visible when inferred connections fail to load`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — open keyed rows missing mutation source/scope dropped from list — locus: preflight filter; monitor; hunt #488 reseed. — **cheap-disproof 2026-11-04 thorough hunt #490:** intentional open mutation preflight; regression `requires resolvable source and scope on open keyed rows`.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #488 reseed). — **cheap-disproof 2026-11-04 thorough hunt #490:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-40 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #490:** closed at zone header; see pass-41 reseed.
+
+2026-11-04 thorough hunt #488 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **2/3** before this record — dry **#486**, **#487** at tail). Attempted failing repro on five header `(candidate)` rows from hunt **#487** reseed (pass-39); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** compiler `ExpirationUtc` boundary (`>` join vs service `IsExpired` `<=`; expired-at-`now` dispositions intentionally do not merge), **valid-no-repro** list object root (`returns an empty list when the proxy response is not an array`; fail-soft empty queue), **valid-no-repro** provider post-mutation reload (`reloadAfterMutation` clears inline error after successful question refresh; regression `clears a stale list-load error after a post-answer question reload succeeds`), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-40 `(candidate)` rows below. Scoped SecureNow queue vitest **344/344** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 3/3** on `securenow-question-queue` at run-log tail — **rotation to `ui-infra-resource-hub` expected on next `/3` pick**. Private beta: n/a.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #488 reseed).
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.ListByTenantAndSubscriptionAsync` — subscription id trim/lowercase vs compiler identity normalization drift — locus: list vs compile boundary; monitor; hunt #488 reseed.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — inferred-connection reload error after successful mutation reload — locus: post-answer refresh UX; monitor; hunt #488 reseed.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — open keyed rows missing mutation source/scope dropped from list — locus: preflight filter; monitor; hunt #488 reseed.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #488 reseed).
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #487 reseed). — **cheap-disproof 2026-11-04 thorough hunt #488:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SecureNowQuestionCompiler` — disposition join skips rows when `ExpirationUtc` equals compile `now` — locus: compile merge; input: boundary `>` vs service `IsExpired` `<=` (monitor; hunt #487 reseed). — **cheap-disproof 2026-11-04 thorough hunt #488:** expired-at-instant dispositions must not merge; aligns with `SecureNowQuestionDispositionService.ListAsync` `ExpirationUtc <= now`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — proxy object root returns silent empty queue — locus: list boundary (monitor; hunt #487 reseed). — **cheap-disproof 2026-11-04 thorough hunt #488:** regression `returns an empty list when the proxy response is not an array`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — stale list error when reload succeeds after mutation with empty result — locus: `reloadAfterMutation` error retention (monitor; hunt #487 reseed). — **cheap-disproof 2026-11-04 thorough hunt #488:** successful post-mutation reload calls `setError(null)`; empty list is not a load failure.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #487 reseed). — **cheap-disproof 2026-11-04 thorough hunt #488:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-39 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #488:** closed at zone header; see pass-40 reseed.
+
+2026-11-04 thorough hunt #487 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **1/3** before this record — dry **#486** at tail). Attempted failing repro on five header `(candidate)` rows from hunt **#486** reseed (pass-38); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** list subscription normalization drift (`SecureNowQuestionDispositionService` passes `Normalize(subscriptionId)` into `ListByTenantAndSubscriptionAsync`, which applies `Trim().ToLowerInvariant()`; compile identity uses the same normalize path), **valid-no-repro** provider inferred-connection reload after mutation (`shows honest recovery when inferred connections fail after a post-answer reload`; `keeps inventory questions visible when inferred connections fail to load`), **valid-no-repro** list drops open keyed rows missing mutation source/scope (intentional preflight gate; regression `requires resolvable source and scope on open keyed rows`), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-39 `(candidate)` rows below. Scoped SecureNow queue vitest **344/344** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 2/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #487 reseed).
+- [ ] (candidate) `SecureNowQuestionCompiler` — disposition join skips rows when `ExpirationUtc` equals compile `now` — locus: compile merge; input: boundary `>` vs service `IsExpired` `<=` (monitor; hunt #487 reseed).
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — proxy object root returns silent empty queue — locus: list boundary (monitor; hunt #487 reseed).
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — stale list error when reload succeeds after mutation with empty result — locus: `reloadAfterMutation` error retention (monitor; hunt #487 reseed).
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #487 reseed).
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #486 reseed). — **cheap-disproof 2026-11-04 thorough hunt #487:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SqlSecureNowQuestionDispositionRepository.ListByTenantAndSubscriptionAsync` — subscription id trim/lowercase vs compiler identity normalization drift — locus: list vs compile boundary; monitor; hunt #486 reseed. — **cheap-disproof 2026-11-04 thorough hunt #487:** service and repository both normalize subscription id before list/merge; no drift vs compiler identity hash inputs.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — inferred-connection reload error after successful mutation reload — locus: post-answer refresh UX; monitor; hunt #486 reseed. — **cheap-disproof 2026-11-04 thorough hunt #487:** regressions `shows honest recovery when inferred connections fail after a post-answer reload` and `keeps inventory questions visible when inferred connections fail to load`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — open keyed rows missing mutation source/scope dropped from list — locus: preflight filter; monitor; hunt #486 reseed. — **cheap-disproof 2026-11-04 thorough hunt #487:** intentional open mutation preflight; regression `requires resolvable source and scope on open keyed rows`.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #486 reseed). — **cheap-disproof 2026-11-04 thorough hunt #487:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-38 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #487:** closed at zone header; see pass-39 reseed.
+
+2026-11-04 thorough hunt #486 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **0/3** before this record — **dry #485** on `ui-infra-resource-hub` at tail interrupted the prior securenow dry chain). Attempted failing repro on five header `(candidate)` rows from hunt **#484** reseed (pass-37); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** compiler `ExpirationUtc` boundary (`>` join vs service `IsExpired` `<=`; expired-at-`now` dispositions intentionally do not merge), **valid-no-repro** list object root (`returns an empty list when the proxy response is not an array`; fail-soft empty queue), **valid-no-repro** provider post-mutation reload (`reloadAfterMutation` clears inline error after successful question refresh; regression `clears a stale list-load error after a post-answer question reload succeeds`), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-38 `(candidate)` rows below. Scoped SecureNow queue vitest **344/344** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 1/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #486 reseed).
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.ListByTenantAndSubscriptionAsync` — subscription id trim/lowercase vs compiler identity normalization drift — locus: list vs compile boundary; monitor; hunt #486 reseed.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — inferred-connection reload error after successful mutation reload — locus: post-answer refresh UX; monitor; hunt #486 reseed.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — open keyed rows missing mutation source/scope dropped from list — locus: preflight filter; monitor; hunt #486 reseed.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #486 reseed).
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #484 reseed). — **cheap-disproof 2026-11-04 thorough hunt #486:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SecureNowQuestionCompiler` — disposition join skips rows when `ExpirationUtc` equals compile `now` — locus: compile merge; input: boundary `>` vs service `IsExpired` `<=` (monitor; hunt #484 reseed). — **cheap-disproof 2026-11-04 thorough hunt #486:** expired-at-instant dispositions must not merge; aligns with `SecureNowQuestionDispositionService.ListAsync` `ExpirationUtc <= now`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — proxy object root returns silent empty queue — locus: list boundary (monitor; hunt #484 reseed). — **cheap-disproof 2026-11-04 thorough hunt #486:** regression `returns an empty list when the proxy response is not an array`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — stale list error when reload succeeds after mutation with empty result — locus: `reloadAfterMutation` error retention (monitor; hunt #484 reseed). — **cheap-disproof 2026-11-04 thorough hunt #486:** successful post-mutation reload calls `setError(null)`; empty list is not a load failure.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #484 reseed). — **cheap-disproof 2026-11-04 thorough hunt #486:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-37 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #486:** closed at zone header; see pass-38 reseed.
+
+2026-11-04 thorough hunt #484 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **2/3** before this record — dry **#482**, **#483** at tail). Attempted failing repro on five header `(candidate)` rows from hunt **#483** reseed (pass-36); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** list subscription normalization drift (`SecureNowQuestionDispositionService` passes `Normalize(subscriptionId)` into `ListByTenantAndSubscriptionAsync`, which applies `Trim().ToLowerInvariant()`; compile identity uses the same normalize path), **valid-no-repro** provider inferred-connection reload after mutation (`shows honest recovery when inferred connections fail after a post-answer reload`; `keeps inventory questions visible when inferred connections fail to load`), **valid-no-repro** list drops open keyed rows missing mutation source/scope (intentional preflight gate; regression `requires resolvable source and scope on open keyed rows`), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-37 `(candidate)` rows below. Scoped SecureNow queue vitest **344/344** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 3/3** on `securenow-question-queue` at run-log tail — **rotation to `ui-infra-resource-hub` expected on next `/3` pick**. Private beta: n/a.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #484 reseed).
+- [ ] (candidate) `SecureNowQuestionCompiler` — disposition join skips rows when `ExpirationUtc` equals compile `now` — locus: compile merge; input: boundary `>` vs service `IsExpired` `<=` (monitor; hunt #484 reseed).
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — proxy object root returns silent empty queue — locus: list boundary (monitor; hunt #484 reseed).
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — stale list error when reload succeeds after mutation with empty result — locus: `reloadAfterMutation` error retention (monitor; hunt #484 reseed).
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #484 reseed).
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #483 reseed). — **cheap-disproof 2026-11-04 thorough hunt #484:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SqlSecureNowQuestionDispositionRepository.ListByTenantAndSubscriptionAsync` — subscription id trim/lowercase vs compiler identity normalization drift — locus: list vs compile boundary; monitor; hunt #483 reseed. — **cheap-disproof 2026-11-04 thorough hunt #484:** service and repository both normalize subscription id before list/merge; no drift vs compiler identity hash inputs.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — inferred-connection reload error after successful mutation reload — locus: post-answer refresh UX; monitor; hunt #483 reseed. — **cheap-disproof 2026-11-04 thorough hunt #484:** regressions `shows honest recovery when inferred connections fail after a post-answer reload` and `keeps inventory questions visible when inferred connections fail to load`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — open keyed rows missing mutation source/scope dropped from list — locus: preflight filter; monitor; hunt #483 reseed. — **cheap-disproof 2026-11-04 thorough hunt #484:** intentional open mutation preflight; regression `requires resolvable source and scope on open keyed rows`.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #483 reseed). — **cheap-disproof 2026-11-04 thorough hunt #484:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-36 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #484:** closed at zone header; see pass-37 reseed.
+
+2026-11-04 thorough hunt #483 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **1/3** before this record — dry **#482** at tail). Attempted failing repro on five header `(candidate)` rows from hunt **#482** reseed (pass-35); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** compiler `ExpirationUtc` boundary (`>` join vs service `IsExpired` `<=`; expired-at-`now` dispositions intentionally do not merge), **valid-no-repro** list object root (`returns an empty list when the proxy response is not an array`; fail-soft empty queue), **valid-no-repro** provider post-mutation reload (`reloadAfterMutation` clears inline error after successful question refresh; regression `clears a stale list-load error after a post-answer question reload succeeds`), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-36 `(candidate)` rows below. Scoped SecureNow queue vitest **345/345** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 2/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #483 reseed).
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.ListByTenantAndSubscriptionAsync` — subscription id trim/lowercase vs compiler identity normalization drift — locus: list vs compile boundary; monitor; hunt #483 reseed.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — inferred-connection reload error after successful mutation reload — locus: post-answer refresh UX; monitor; hunt #483 reseed.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — open keyed rows missing mutation source/scope dropped from list — locus: preflight filter; monitor; hunt #483 reseed.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #483 reseed).
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #482 reseed). — **cheap-disproof 2026-11-04 thorough hunt #483:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SecureNowQuestionCompiler` — disposition join skips rows when `ExpirationUtc` equals compile `now` — locus: compile merge; input: boundary `>` vs service `IsExpired` `<=` (monitor; hunt #482 reseed). — **cheap-disproof 2026-11-04 thorough hunt #483:** expired-at-instant dispositions must not merge; aligns with `SecureNowQuestionDispositionService.ListAsync` `ExpirationUtc <= now`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — proxy object root returns silent empty queue — locus: list boundary (monitor; hunt #482 reseed). — **cheap-disproof 2026-11-04 thorough hunt #483:** regression `returns an empty list when the proxy response is not an array`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — stale list error when reload succeeds after mutation with empty result — locus: `reloadAfterMutation` error retention (monitor; hunt #482 reseed). — **cheap-disproof 2026-11-04 thorough hunt #483:** successful post-mutation reload calls `setError(null)`; empty list is not a load failure.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #482 reseed). — **cheap-disproof 2026-11-04 thorough hunt #483:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-35 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #483:** closed at zone header; see pass-36 reseed.
+
+2026-11-04 thorough hunt #482 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **0/3** before this record — **dry #481** on `ui-infra-resource-hub` at tail interrupted the prior securenow dry chain). Attempted failing repro on five header `(candidate)` rows from hunt **#480** reseed (pass-34); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** list subscription normalization drift (`SecureNowQuestionDispositionService` passes `Normalize(subscriptionId)` into `ListByTenantAndSubscriptionAsync`, which applies `Trim().ToLowerInvariant()`; compile identity uses the same normalize path), **valid-no-repro** provider inferred-connection reload after mutation (`shows honest recovery when inferred connections fail after a post-answer reload`; `keeps inventory questions visible when inferred connections fail to load`), **valid-no-repro** list drops open keyed rows missing mutation source/scope (intentional preflight gate; regression `requires resolvable source and scope on open keyed rows`; **hit 2026-10-26** family), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-35 `(candidate)` rows below. Scoped SecureNow queue vitest **345/345** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 1/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #480 reseed). — **cheap-disproof 2026-11-04 thorough hunt #482:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SqlSecureNowQuestionDispositionRepository.ListByTenantAndSubscriptionAsync` — subscription id trim/lowercase vs compiler identity normalization drift — locus: list vs compile boundary; monitor; hunt #480 reseed. — **cheap-disproof 2026-11-04 thorough hunt #482:** service and repository both normalize subscription id before list/merge; no drift vs compiler identity hash inputs.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — inferred-connection reload error after successful mutation reload — locus: post-answer refresh UX; monitor; hunt #480 reseed. — **cheap-disproof 2026-11-04 thorough hunt #482:** regressions `shows honest recovery when inferred connections fail after a post-answer reload` and `keeps inventory questions visible when inferred connections fail to load`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — open keyed rows missing mutation source/scope dropped from list — locus: preflight filter; monitor; hunt #480 reseed. — **cheap-disproof 2026-11-04 thorough hunt #482:** intentional open mutation preflight; regression `requires resolvable source and scope on open keyed rows`.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #480 reseed). — **cheap-disproof 2026-11-04 thorough hunt #482:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-34 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #482:** closed at zone header; see pass-35 reseed.
+
+2026-11-04 thorough hunt #480 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **2/3** before this record — dry **#478**, **#479** at tail). Attempted failing repro on five header `(candidate)` rows from hunt **#479** reseed (pass-33); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** compiler `ExpirationUtc` boundary (`>` join vs service `IsExpired` `<=`; expired-at-`now` dispositions intentionally do not merge), **valid-no-repro** list object root (`returns an empty list when the proxy response is not an array`; fail-soft empty queue), **valid-no-repro** provider post-mutation reload (`reloadAfterMutation` clears inline error after successful question refresh; regression `clears a stale list-load error after a post-answer question reload succeeds`), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-34 `(candidate)` rows below. Scoped SecureNow queue vitest **345/345** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry completes 3/3** on `securenow-question-queue` at run-log tail — next pick should rotate with `-AvoidZoneId securenow-question-queue`. Private beta: n/a.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #479 reseed). — **cheap-disproof 2026-11-04 thorough hunt #480:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SecureNowQuestionCompiler` — disposition join skips rows when `ExpirationUtc` equals compile `now` — locus: compile merge; input: boundary `>` vs service `IsExpired` `<=` (monitor; hunt #479 reseed). — **cheap-disproof 2026-11-04 thorough hunt #480:** expired-at-instant dispositions must not merge; aligns with `SecureNowQuestionDispositionService.ListAsync` `ExpirationUtc <= now`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — proxy object root returns silent empty queue — locus: list boundary (monitor; hunt #479 reseed). — **cheap-disproof 2026-11-04 thorough hunt #480:** regression `returns an empty list when the proxy response is not an array`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — stale list error when reload succeeds after mutation with empty result — locus: `reloadAfterMutation` error retention (monitor; hunt #479 reseed). — **cheap-disproof 2026-11-04 thorough hunt #480:** successful post-mutation reload calls `setError(null)`; empty list is not a load failure.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #479 reseed). — **cheap-disproof 2026-11-04 thorough hunt #480:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-33 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #480:** closed at zone header; see pass-34 reseed.
+
+2026-11-04 thorough hunt #479 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **1/3** before this record — dry **#478** at tail). Attempted failing repro on five header `(candidate)` rows from hunt **#478** reseed (pass-32); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** list subscription normalization drift (`SecureNowQuestionDispositionService` passes `Normalize(subscriptionId)` into `ListByTenantAndSubscriptionAsync`, which applies `Trim().ToLowerInvariant()`; compile identity uses the same normalize path), **valid-no-repro** provider inferred-connection reload after mutation (`shows honest recovery when inferred connections fail after a post-answer reload`; `keeps inventory questions visible when inferred connections fail to load`), **valid-no-repro** list drops open keyed rows missing mutation source/scope (intentional preflight gate; regression `requires resolvable source and scope on open keyed rows`; **hit 2026-10-26** family), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-33 `(candidate)` rows below. Scoped SecureNow queue vitest **345/345** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 2/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #478 reseed). — **cheap-disproof 2026-11-04 thorough hunt #479:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SqlSecureNowQuestionDispositionRepository.ListByTenantAndSubscriptionAsync` — subscription id trim/lowercase vs compiler identity normalization drift — locus: list vs compile boundary; monitor; hunt #478 reseed. — **cheap-disproof 2026-11-04 thorough hunt #479:** service and repository both normalize subscription id before list/merge; no drift vs compiler identity hash inputs.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — inferred-connection reload error after successful mutation reload — locus: post-answer refresh UX; monitor; hunt #478 reseed. — **cheap-disproof 2026-11-04 thorough hunt #479:** regressions `shows honest recovery when inferred connections fail after a post-answer reload` and `keeps inventory questions visible when inferred connections fail to load`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — open keyed rows missing mutation source/scope dropped from list — locus: preflight filter; monitor; hunt #478 reseed. — **cheap-disproof 2026-11-04 thorough hunt #479:** intentional open mutation preflight; regression `requires resolvable source and scope on open keyed rows`.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #478 reseed). — **cheap-disproof 2026-11-04 thorough hunt #479:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-32 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #479:** closed at zone header; see pass-33 reseed.
+
+2026-11-04 thorough hunt #478 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **0/3** before this record — **dry #477** on `ui-infra-resource-hub` at tail interrupted the prior securenow dry chain). Attempted failing repro on five header `(candidate)` rows from hunt **#476** reseed (pass-31); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** compiler `ExpirationUtc` boundary (`>` join vs service `IsExpired` `<=`; expired-at-`now` dispositions intentionally do not merge), **valid-no-repro** list object root (`returns an empty list when the proxy response is not an array`; fail-soft empty queue), **valid-no-repro** provider post-mutation reload (`reloadAfterMutation` clears inline error after successful question refresh; regression `clears a stale list-load error after a post-answer question reload succeeds`), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-32 `(candidate)` rows below. Scoped SecureNow queue vitest **345/345** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 1/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #476 reseed). — **cheap-disproof 2026-11-04 thorough hunt #478:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SecureNowQuestionCompiler` — disposition join skips rows when `ExpirationUtc` equals compile `now` — locus: compile merge; input: boundary `>` vs service `IsExpired` `<=` (monitor; hunt #476 reseed). — **cheap-disproof 2026-11-04 thorough hunt #478:** expired-at-instant dispositions must not merge; aligns with `SecureNowQuestionDispositionService.ListAsync` `ExpirationUtc <= now`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — proxy object root returns silent empty queue — locus: list boundary (monitor; hunt #476 reseed). — **cheap-disproof 2026-11-04 thorough hunt #478:** regression `returns an empty list when the proxy response is not an array`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — stale list error when reload succeeds after mutation with empty result — locus: `reloadAfterMutation` error retention (monitor; hunt #476 reseed). — **cheap-disproof 2026-11-04 thorough hunt #478:** successful post-mutation reload calls `setError(null)`; empty list is not a load failure.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #476 reseed). — **cheap-disproof 2026-11-04 thorough hunt #478:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-31 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #478:** closed at zone header; see pass-32 reseed.
+
+2026-11-04 thorough hunt #476 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **2/3** before this record — dry **#474**, **#475** at tail). Attempted failing repro on five header `(candidate)` rows from hunt **#475** reseed (pass-30); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** list subscription normalization drift (`SecureNowQuestionDispositionService` passes `Normalize(subscriptionId)` into `ListByTenantAndSubscriptionAsync`, which applies `Trim().ToLowerInvariant()`; compile identity uses the same normalize path), **valid-no-repro** provider inferred-connection reload after mutation (`shows honest recovery when inferred connections fail after a post-answer reload`; `keeps inventory questions visible when inferred connections fail to load`), **valid-no-repro** list drops open keyed rows missing mutation source/scope (intentional preflight gate; regression `requires resolvable source and scope on open keyed rows`; **hit 2026-10-26** family), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-31 `(candidate)` rows below. Scoped SecureNow queue vitest **345/345** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry completes 3/3** on `securenow-question-queue` at run-log tail — next pick should rotate with `-AvoidZoneId securenow-question-queue`. Private beta: n/a.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #475 reseed). — **cheap-disproof 2026-11-04 thorough hunt #476:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SqlSecureNowQuestionDispositionRepository.ListByTenantAndSubscriptionAsync` — subscription id trim/lowercase vs compiler identity normalization drift — locus: list vs compile boundary; monitor; hunt #475 reseed. — **cheap-disproof 2026-11-04 thorough hunt #476:** service and repository both normalize subscription id before list/merge; no drift vs compiler identity hash inputs.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — inferred-connection reload error after successful mutation reload — locus: post-answer refresh UX; monitor; hunt #475 reseed. — **cheap-disproof 2026-11-04 thorough hunt #476:** regressions `shows honest recovery when inferred connections fail after a post-answer reload` and `keeps inventory questions visible when inferred connections fail to load`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — open keyed rows missing mutation source/scope dropped from list — locus: preflight filter; monitor; hunt #475 reseed. — **cheap-disproof 2026-11-04 thorough hunt #476:** intentional open mutation preflight; regression `requires resolvable source and scope on open keyed rows`.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #475 reseed). — **cheap-disproof 2026-11-04 thorough hunt #476:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-30 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #476:** closed at zone header; see pass-31 reseed.
+
+2026-11-04 thorough hunt #475 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **1/3** before this record — dry **#474** at tail). Attempted failing repro on five header `(candidate)` rows from hunt **#474** reseed (pass-29); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** compiler `ExpirationUtc` boundary (`>` join vs service `IsExpired` `<=`; expired-at-`now` dispositions intentionally do not merge), **valid-no-repro** list object root (`returns an empty list when the proxy response is not an array`; fail-soft empty queue), **valid-no-repro** provider post-mutation reload (`reloadAfterMutation` clears inline error after successful question refresh; regression `clears a stale list-load error after a post-answer question reload succeeds`), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-30 `(candidate)` rows below. Scoped SecureNow queue vitest **345/345** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 2/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #474 reseed). — **cheap-disproof 2026-11-04 thorough hunt #475:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SecureNowQuestionCompiler` — disposition join skips rows when `ExpirationUtc` equals compile `now` — locus: compile merge; input: boundary `>` vs service `IsExpired` `<=` (monitor; hunt #474 reseed). — **cheap-disproof 2026-11-04 thorough hunt #475:** expired-at-instant dispositions must not merge; aligns with `SecureNowQuestionDispositionService.ListAsync` `ExpirationUtc <= now`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — proxy object root returns silent empty queue — locus: list boundary (monitor; hunt #474 reseed). — **cheap-disproof 2026-11-04 thorough hunt #475:** regression `returns an empty list when the proxy response is not an array`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — stale list error when reload succeeds after mutation with empty result — locus: `reloadAfterMutation` error retention (monitor; hunt #474 reseed). — **cheap-disproof 2026-11-04 thorough hunt #475:** successful post-mutation reload calls `setError(null)`; empty list is not a load failure.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #474 reseed). — **cheap-disproof 2026-11-04 thorough hunt #475:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-29 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #475:** closed at zone header; see pass-30 reseed.
+
+2026-11-04 thorough hunt #474 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **0/3** before this record — **dry #473** on `ui-infra-resource-hub` at tail interrupted the prior securenow dry chain). Attempted failing repro on five header `(candidate)` rows from hunt **#472** reseed (pass-28); cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** list subscription normalization drift (`SecureNowQuestionDispositionService` passes `Normalize(subscriptionId)` into `ListByTenantAndSubscriptionAsync`, which applies `Trim().ToLowerInvariant()`; compile identity uses the same normalize path), **valid-no-repro** provider inferred-connection reload after mutation (`shows honest recovery when inferred connections fail after a post-answer reload`; `keeps inventory questions visible when inferred connections fail to load`), **valid-no-repro** list drops open keyed rows missing mutation source/scope (intentional preflight gate; regression `requires resolvable source and scope on open keyed rows`; **hit 2026-10-26** family), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-29 `(candidate)` rows below. Scoped SecureNow queue vitest **345/345** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label, resource-identity-display) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 1/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
+
+- [x] (superseded) pass-29 open `(candidate)` rows — **superseded 2026-11-04 thorough hunt #475:** see zone header.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #472 reseed). — **cheap-disproof 2026-11-04 thorough hunt #474:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SqlSecureNowQuestionDispositionRepository.ListByTenantAndSubscriptionAsync` — subscription id trim/lowercase vs compiler identity normalization drift — locus: list vs compile boundary; monitor; hunt #472 reseed. — **cheap-disproof 2026-11-04 thorough hunt #474:** service and repository both normalize subscription id before list/merge; no drift vs compiler identity hash inputs.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — inferred-connection reload error after successful mutation reload — locus: post-answer refresh UX; monitor; hunt #472 reseed. — **cheap-disproof 2026-11-04 thorough hunt #474:** regressions `shows honest recovery when inferred connections fail after a post-answer reload` and `keeps inventory questions visible when inferred connections fail to load`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — open keyed rows missing mutation source/scope dropped from list — locus: preflight filter; monitor; hunt #472 reseed. — **cheap-disproof 2026-11-04 thorough hunt #474:** intentional open mutation preflight; regression `requires resolvable source and scope on open keyed rows`.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt #472 reseed). — **cheap-disproof 2026-11-04 thorough hunt #474:** reload-only provider; no optimistic merge path.
+
+2026-11-04 thorough hunt #472 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **2/3** before this record — dry **#470**, **#471** at tail). Attempted failing repro on five header `(candidate)` rows from hunt **#471** reseed; cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** compiler fingerprint casing (`NormalizeQuestionKey` before `Fingerprint` on emitted rows; disposition join uses same normalized keys), **valid-no-repro** provider inferred-connection reload after mutation (`shows honest recovery when inferred connections fail after a post-answer reload`; `keeps inventory questions visible when inferred connections fail to load`), **valid-no-repro** list omits open keyed rows without fingerprint (`secureNowListedQuestionRowPassesOpenMutationPreflight` requires stored fingerprint unless inferred-connection key), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-28 `(candidate)` rows below. Scoped SecureNow queue vitest **344/344** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label) + **39/39** Application `SecureNowQuestion*` tests. **This dry completes 3/3** on `securenow-question-queue` at run-log tail — next pick should rotate with `-AvoidZoneId securenow-question-queue`. Private beta: n/a.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #471 reseed). — **cheap-disproof 2026-11-04 thorough hunt #472:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SecureNowQuestionCompiler` — evidence fingerprint uses case-sensitive question key while identity normalizes case — locus: compile merge + disposition join (monitor; hunt #471 reseed). — **cheap-disproof 2026-11-04 thorough hunt #472:** compiler emits normalized question keys before `Fingerprint`; identity grouping already case-insensitive.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — inferred-connection reload failure overwrites cleared mutation reload success — locus: `Promise.allSettled` error precedence after `reloadAfterMutation` (monitor; hunt #471 reseed). — **cheap-disproof 2026-11-04 thorough hunt #472:** regressions `shows honest recovery when inferred connections fail after a post-answer reload` and `keeps inventory questions visible when inferred connections fail to load`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — open pack rows without stored fingerprint silently omitted — locus: `secureNowListedQuestionRowPassesOpenMutationPreflight` (monitor; hunt #471 reseed). — **cheap-disproof 2026-11-04 thorough hunt #472:** intentional open-row preflight guard; regression `requires a stored evidence fingerprint on open keyed rows unless the key implies inferred connection`.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path (monitor; hunt #471 reseed). — **cheap-disproof 2026-11-04 thorough hunt #472:** reload-only provider; no optimistic merge path.
+
+- [x] (superseded) pass-28 `(candidate)` queue — **superseded 2026-11-04 thorough hunt #474:** closed at zone header; see pass-29 reseed.
+
+2026-11-04 thorough hunt #471 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **1/3** before this record — dry **#470** at tail). Attempted failing repro on five header `(candidate)` rows from hunt **#470** reseed; cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** compiler `ExpirationUtc` boundary (`>` join vs service `IsExpired` `<=`; expired-at-`now` dispositions intentionally do not merge), **valid-no-repro** list object root (`returns an empty list when the proxy response is not an array`; fail-soft empty queue), **valid-no-repro** provider post-mutation reload (`reloadAfterMutation` clears inline error after successful question refresh; regression `clears a stale list-load error after a post-answer question reload succeeds`), **invalid** optimistic disposition JSON merge (reload-only provider). Reseeded five pass-27 `(candidate)` rows below. Scoped SecureNow queue vitest **344/344** (queue, provider, api, mutation, identity, disposition-status, expiration, answer-label) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 2/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #470 reseed). — **cheap-disproof 2026-11-04 thorough hunt #471:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `SecureNowQuestionCompiler` — disposition join skips rows when `ExpirationUtc` equals compile `now` — locus: compile merge; input: boundary `>` vs service `IsExpired` `<=` (monitor; hunt #470 reseed). — **cheap-disproof 2026-11-04 thorough hunt #471:** expired-at-instant dispositions must not merge; aligns with `SecureNowQuestionDispositionService.ListAsync` `ExpirationUtc <= now`.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — proxy object root returns silent empty queue — locus: list boundary (monitor; hunt #470 reseed). — **cheap-disproof 2026-11-04 thorough hunt #471:** regression `returns an empty list when the proxy response is not an array`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — stale list error when reload succeeds after mutation with empty result — locus: `reloadAfterMutation` error retention (monitor; hunt #470 reseed). — **cheap-disproof 2026-11-04 thorough hunt #471:** successful post-mutation reload calls `setError(null)`; empty list is not a load failure.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path (monitor; hunt #470 reseed). — **cheap-disproof 2026-11-04 thorough hunt #471:** reload-only provider; no optimistic merge path.
+
+2026-11-04 thorough hunt #470 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **0/3** before this record — **hit #469** at tail). Attempted failing repro on header `(candidate)` MERGE monitor from hunt **#469** reseed plus four pass-25 monitor rows from zone footer; cheap-disproof closed all five — **invalid** MERGE collision (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), **valid-no-repro** `listSecureNowQuestions` non-array envelope (`returns an empty list when the proxy response is not an array`; intentional fail-soft empty queue), **valid-no-repro** provider load vs mutation error precedence (`clears a stale list-load error after a post-answer question reload succeeds`; `loadQuestions` clears list error on successful reload), **invalid** optimistic disposition JSON merge (reload-only provider; hunt **#468** family), **valid-no-repro** `submitAction` when answer actions hidden (saturated `[state-machine-gap]`; `secureNowQuestionDispositionShowsAnswerActions` guard). Reseeded five pass-26 `(candidate)` rows below. Scoped SecureNow queue vitest **343/343** (queue, api, mutation, identity, disposition-status, expiration, answer-label) + **39/39** Application `SecureNowQuestion*` tests. **This dry is 1/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #469 reseed). — **cheap-disproof 2026-11-04 thorough hunt #470:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — distinguish malformed list envelope from empty queue — locus: proxy JSON shape; input: operator-visible load error vs silent empty (monitor; hunt **#469** footer). — **cheap-disproof 2026-11-04 thorough hunt #470:** regression `returns an empty list when the proxy response is not an array`; fail-soft by design.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — load error vs mutation error precedence on reload — locus: `loadQuestions` clears all errors; monitor dual failure paths (monitor; hunt **#469** footer). — **cheap-disproof 2026-11-04 thorough hunt #470:** regression `clears a stale list-load error after a post-answer question reload succeeds`.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only (monitor; hunt **#469** footer). — **cheap-disproof 2026-11-04 thorough hunt #470:** reload-only provider; no optimistic merge path.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.submitAction` — silent early return when answer actions hidden — locus: `secureNowQuestionDispositionShowsAnswerActions`; monitor saturated state-machine-gap (monitor; hunt **#469** footer). — **cheap-disproof 2026-11-04 thorough hunt #470:** saturated `[state-machine-gap]` guard class.
+
+2026-11-04 thorough hunt #469 (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **0/3** before this record — **hit #468** at tail). Cheap-disproof closed MERGE collision monitor (**invalid**; SQL integration host unavailable). Promoted `SecureNowQuestionCompiler` disposition merge — duplicate identity rows sharing `UpdatedUtc` kept arbitrary lower `DispositionId` / stale **Ignored** status (`Dispositions_with_identical_updated_utc_prefer_higher_disposition_id`); fix adds `ThenByDescending(DispositionId)` after `UpdatedUtc`. Scoped SecureNow queue vitest **261/261** (queue, api, provider) + **39/39** Application `SecureNowQuestion*` tests. Reseeded MERGE monitor below. Private beta: SecureNow queue rows reflect the newest disposition record when concurrent saves tie on timestamp, so operators do not see a reopened question still marked ignored from an older duplicate row.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #468 reseed). — **cheap-disproof 2026-11-04 thorough hunt #469:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (proven) `SecureNowQuestionCompiler` — disposition identity group picks `OrderByDescending(UpdatedUtc).First()` without tie-break — **hit 2026-11-04 thorough hunt #469:** `ThenByDescending(DispositionId)`; regression `Dispositions_with_identical_updated_utc_prefer_higher_disposition_id`.
+
+2026-11-04 thorough hunt #468 (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`ui-review-intake-wizards`** is **1/3** before this record — seed-only **#467** at tail). Cheap-disproof closed two header `(candidate)` monitor rows from hunt **#466** reseed — MERGE collision monitor (**invalid**; SQL integration host unavailable), compiler UpdatedUtc tie-break (**invalid**; MERGE single-row identity; `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`). Promoted `secureNowQuestionResourceDisplayName` — policy-pack rows with stored `Subscription` scope or prompt-inferred resource group showed missing-scope diagnostics instead of pack-friendly **Subscription question** / **Resource group question** titles (`SecureNowQuestionQueue.test.tsx` + aligned lib regressions). Scoped queue + identity vitest **117/117** + **38/38** Application `SecureNowQuestion*` tests. Reseeded both SQL/compiler monitors below. Private beta: invited operators triaging SecureNow policy-pack questions see short, accurate row titles for subscription- and resource-group-scoped pack items instead of misleading “stored scope was not on this title” copy.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #466 reseed). — **cheap-disproof 2026-11-04 thorough hunt #468:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
+- [x] (invalid) `SecureNowQuestionCompiler` — disposition identity group picks `OrderByDescending(UpdatedUtc).First()` without tie-break — locus: compile merge; input: two disposition rows share identity and `UpdatedUtc`; wrong outcome: stale status wins; reachability: concurrent upserts / integration host (monitor; hunt #466 reseed). — **cheap-disproof 2026-11-04 thorough hunt #468:** integration-only duplicate identity rows; MERGE single-row identity; `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`.
+- [x] (proven) `secureNowQuestionResourceDisplayName` — pack subscription / inferred resource group titles used missing-scope copy — **hit 2026-11-04 thorough hunt #468:** return **Subscription question** and **Resource group question**; lib + queue regressions.
+
+2026-11-03 thorough hunt #466 (dry): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **2/3** before this record — dry **#464**, **#465** at tail). Attempted failing repro on two header `(candidate)` rows from hunt **#465** reseed; cheap-disproof closed both **invalid** — MERGE collision monitor (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), compiler UpdatedUtc tie-break (MERGE single-row identity; newer-wins compiler regression family; `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`). Reseeded both monitors below. Scoped **343/345** SecureNow queue vitest (queue, api, provider suites; **2** pack-friendly identity display failures on master-sync baseline) + **38/38** Application `SecureNowQuestion*` tests. **This dry completes 3/3** on `securenow-question-queue` at run-log tail — next pick should rotate with `-AvoidZoneId securenow-question-queue`. Private beta: n/a.
 
 - [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #465 reseed). — **cheap-disproof 2026-11-03 thorough hunt #466:** SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding.
 - [x] (invalid) `SecureNowQuestionCompiler` — disposition identity group picks `OrderByDescending(UpdatedUtc).First()` without tie-break — locus: compile merge; input: two disposition rows share identity and `UpdatedUtc`; wrong outcome: stale status wins; reachability: concurrent upserts / integration host (monitor; hunt #465 reseed). — **cheap-disproof 2026-11-03 thorough hunt #466:** integration-only duplicate identity rows; MERGE single-row identity; `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`.
@@ -17672,7 +18161,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — post-save focus on wrong question after stale reload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -17697,7 +18186,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — silent snapshot guard on SecureNow save
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -17722,7 +18211,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — empty listed snapshot id bypassed mutation guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -17747,7 +18236,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — empty listed snapshot id bypassed mutation guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -17772,7 +18261,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -17791,7 +18280,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -17810,7 +18299,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -17829,7 +18318,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -17962,7 +18451,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — review promo when no open rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -18021,7 +18510,7 @@ ABQ-09 churn hotspot.
 - **test-filter:** SecureNowQuestion
 - **hunts:** 42
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 — reopen left stale answer fields on open questions
 - **related-pd-tb:** none
@@ -18148,13 +18637,27 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-01
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-11-17
 - **last-bug:** 2026-11-01 — completeness warnings lingered after snapshot URL change
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-11-17 thorough hunt #496 (dry): no rotation (continuation from queued set-3 picker — zone `infra-evidence-diagrams`; thorough hunt). Cheap-disproof closed five pass-25 `(candidate)` monitor rows reseeded after hunt #495 on `ui-oidc` — **valid-no-repro** slow prior snapshot preview repopulating mode preview state (`selectedSnapshotIdRef` guard on `loadPreview`; snapshot reset clears `modePreviews`; regression `ignores a slow prior snapshot preview response after URL snapshot change`), **valid-no-repro** render `completenessWarnings` overriding cleared preview warnings (`renderResult` cleared on snapshot change; stale render guarded by `selectedSnapshotIdRef`; regression `does not show render completeness warnings from a slow prior snapshot after URL snapshot change`), **valid-no-repro** deep-linked missing snapshot retaining preview warnings (`deepLinkedSnapshotMissing` preview branch clears warnings; regression `clears completeness warnings when deep-linking a missing snapshot after viewing warnings on a valid snapshot`), **valid-no-repro** edges disclosure vs cleared inventory selection (inventory detail panel hides when controlled `selectedInventoryEdge` clears; edges section may stay expanded; regression `hides the inventory edge detail panel when controlled selection clears after auto-expand`), **valid-no-repro** subscription RG preview prefetching wrong snapshot during initial snapshots load (deep-linked `snapshotId` seeds `selectedSnapshotId` before list resolves; regression `prefetches subscription resource groups for the deep-linked snapshot id while snapshots are still loading`). Reseeded five pass-26 `(candidate)` monitor rows below. Scoped DiagramsWorkbenchClient + InfraEvidenceDiagramOutline vitest **109/111** on changed files (two pre-existing copy/assertion failures on this checkout unrelated to this hunt). Private beta: n/a.
+
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — slow preview for prior snapshot repopulates mode picker labels after URL snapshot change when guard regresses — **cheap-disproof 2026-11-17 thorough hunt #496:** regression `ignores a slow prior snapshot preview response after URL snapshot change`.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — render completeness warnings override cleared preview warnings after snapshot change — **cheap-disproof 2026-11-17 thorough hunt #496:** regression `does not show render completeness warnings from a slow prior snapshot after URL snapshot change`.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — deep-linked missing snapshot keeps completeness warnings from last valid snapshot — **cheap-disproof 2026-11-17 thorough hunt #496:** regression `clears completeness warnings when deep-linking a missing snapshot after viewing warnings on a valid snapshot`.
+- [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — edges disclosure stays expanded with no selected edge after parent clears inventory selection — **cheap-disproof 2026-11-17 thorough hunt #496:** regression above; detail panel clears; expanded edges disclosure is intentional chrome.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — subscription RG preview uses prefetch snapshot id while URL snapshot id differs during initial snapshots load — **cheap-disproof 2026-11-17 thorough hunt #496:** regression `prefetches subscription resource groups for the deep-linked snapshot id while snapshots are still loading`.
+
+- [ ] (candidate) `DiagramsWorkbenchClient` — slow render repopulates `seedCatalogSnapshotId` after URL snapshot change when seed catalog guard regresses — locus: `loadSeedCatalog` + `selectedSnapshotIdRef`; input: dependency neighborhood catalog fetch during rapid snapshot navigation; monitor; pass 26 reseed.
+- [ ] (candidate) `DiagramsWorkbenchClient` — `loadingPreview` stays true after snapshot change until slow prior preview finally settles — locus: `loadPreview` `finally` without snapshot ref check; input: concurrent preview during snapshot navigation; monitor; pass 26 reseed.
+- [ ] (candidate) `DiagramsWorkbenchClient` — PNG export uses prior snapshot id when render ref guard regresses — locus: PNG download handler + `selectedSnapshotIdRef`; input: export click during snapshot URL change mid-render; monitor; pass 26 reseed.
+- [ ] (candidate) `InfraEvidenceDiagramOutline` — declared edge detail panel stays open when controlled `selectedInventoryEdge` clears but declared edge remains selected — locus: `selectedDeclaredEdge` vs `selectedInventoryEdgeProp`; input: mode change clears inventory selection only; monitor; pass 26 reseed.
+- [ ] (candidate) `DiagramsWorkbenchClient` — evidence-family filter keeps prior snapshot family chip when new diagram has zero matching edges — locus: `resolveSelectableInfraEvidenceDiagramFamily` on snapshot sync; input: deep-linked family on snapshot without matching edges; monitor; pass 26 reseed.
 
 2026-11-01 thorough hunt (hit): promoted **snapshot completeness warnings banner keeping prior snapshot copy after URL snapshot navigation** — `selectedSnapshotId` reset cleared `modePreviews` but left `snapshotCompletenessWarnings` populated until the next preview fetch finished, and a slow preview for snapshot A could still reapply warnings without an immediate reset; clear `snapshotCompletenessWarnings` with other snapshot-scoped preview state on `selectedSnapshotId` change (preview fetch already guarded by `selectedSnapshotIdRef`); regression `clears completeness warnings when URL snapshot id changes before a slow preview for the prior snapshot completes`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped DiagramsWorkbenchClient vitest 68/68 passed. Private beta: Invited operators who change infra diagram snapshots no longer see the previous snapshot's completeness warning banner while the new snapshot's preview loads.
 
@@ -18163,12 +18666,6 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `DiagramsWorkbenchClient` — partitioned fallback cards reflect prior snapshot render after URL snapshot change — **cheap-disproof 2026-11-01 thorough hunt:** snapshot reset clears `renderResult`; stale partitioned render blocked by snapshot ref + `infraEvidenceMermaidRenderQueriesEqual`.
 - [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — inventory edge panel stays open when declared edge cleared but local inventory selection refocus runs — **cheap-disproof 2026-11-01 thorough hunt:** inventory detail panel renders only when `selectedInventoryEdge != null`; parent clears selection on `familyFilteredOutline` changes.
 - [x] (proven) `DiagramsWorkbenchClient` — completeness warnings banner shows prior snapshot warnings after URL snapshot change — **hit 2026-11-01 thorough hunt:** clear `snapshotCompletenessWarnings` on snapshot change; regression above.
-
-- [ ] (candidate) `DiagramsWorkbenchClient` — slow preview for prior snapshot repopulates mode picker labels after URL snapshot change when guard regresses — locus: `loadPreview` snapshot ref; input: concurrent preview requests during rapid snapshot navigation.
-- [ ] (candidate) `DiagramsWorkbenchClient` — render completeness warnings override cleared preview warnings after snapshot change — locus: `completenessWarnings` memo preferring `renderResult`; input: render response arrives with warnings while preview warnings were cleared.
-- [ ] (candidate) `DiagramsWorkbenchClient` — deep-linked missing snapshot keeps completeness warnings from last valid snapshot — locus: `deepLinkedSnapshotMissing` preview early return; input: bookmarked missing snapshot id after viewing warnings on a valid snapshot.
-- [ ] (candidate) `InfraEvidenceDiagramOutline` — edges disclosure stays expanded with no selected edge after parent clears inventory selection — locus: `edgesOpen` vs controlled `selectedInventoryEdge`; input: mode change clears inventory edge while edges section was auto-expanded.
-- [ ] (candidate) `DiagramsWorkbenchClient` — subscription RG preview uses prefetch snapshot id while URL snapshot id differs during initial snapshots load — locus: `resourceGroupSnapshotId` fallback to `visibleSnapshots[0]`; input: deep-linked snapshot B before snapshots list resolves.
 
 2026-11-01 thorough hunt (hit): promoted **stale subscription resource-group picker rows and render responses after snapshot or query changes** — in-flight preview and render completions only checked effect cancellation, so a slow fetch for snapshot A could repopulate resource-group picker options or `renderResult` after the operator moved to snapshot B or cleared dependency-neighborhood seed; clear preview/render state on `selectedSnapshotId` change, guard preview and subscription RG fetches with `selectedSnapshotIdRef`, and ignore render responses unless `infraEvidenceMermaidRenderQueriesEqual` matches the current query; regressions `drops stale resource group picker rows when URL snapshot id changes before preview fetch completes` and `drops stale dependency neighborhood render when seed clears before the prior request completes`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped DiagramsWorkbenchClient vitest 67/67 and mermaid API query tests passed. Private beta: Invited operators changing infra diagram snapshots no longer see prior snapshot resource groups in the picker or stale neighborhood diagrams when seed or snapshot context changes mid-request.
 

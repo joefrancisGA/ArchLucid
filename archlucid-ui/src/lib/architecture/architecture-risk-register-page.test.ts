@@ -74,6 +74,18 @@ describe("architecture-risk-register-page", () => {
     });
   });
 
+  it("counts and filters only exceptions that have yet to expire within the next 14 days", () => {
+    const now = Date.parse("2026-07-01T12:00:00Z");
+    const expired = sampleRow({ waiverExpiresAtUtc: "2026-07-01T11:59:59Z" });
+    const expiresNow = sampleRow({ waiverExpiresAtUtc: "2026-07-01T12:00:00Z" });
+    const expiresSoon = sampleRow({ waiverExpiresAtUtc: "2026-07-15T12:00:00Z" });
+    const expiresLater = sampleRow({ waiverExpiresAtUtc: "2026-07-15T12:00:01Z" });
+    const rows = [expired, expiresNow, expiresSoon, expiresLater];
+
+    expect(computeArchitectureRiskRegisterSummary(rows, now).expiringExceptions).toBe(1);
+    expect(rows.filter((row) => matchesRiskRegisterFilter(row, "expiring-soon", now))).toEqual([expiresSoon]);
+  });
+
   it("matches operational filters from row data", () => {
     const nowMs = Date.parse("2026-07-01T12:00:00.000Z");
     const row = sampleRow({

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +44,7 @@ export function ArchitectureIdentityDeskCommandBar(
 ): React.JSX.Element | null {
   const pathname = usePathname() ?? "/";
   const { mode } = useWorkspaceMode();
+  const { productLine } = useProductLine();
   const workingMode = isWorkingWorkspaceMode(mode);
 
   if (!workingMode) {
@@ -64,6 +66,7 @@ export function ArchitectureIdentityDeskCommandBar(
       pathname,
       lastOpenArchitectureId: props.architectureId,
       lastOpenReviewId: props.latestReviewId,
+      productLine,
     });
 
   return (

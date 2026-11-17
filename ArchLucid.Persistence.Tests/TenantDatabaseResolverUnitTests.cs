@@ -140,6 +140,50 @@ public sealed class TenantDatabaseResolverUnitTests
         builder.ApplicationIntent.Should().Be(ApplicationIntent.ReadOnly);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task PerTenant_uses_the_current_template_on_a_cache_hit(bool readOnly)
+    {
+        Guid tenantId = Guid.NewGuid();
+        ITenantDatabaseBindingRepository bindings = new RecordingBindingsRepository(new TenantDatabaseBindingRecord
+        {
+            TenantId = tenantId,
+            SqlLogicalDatabaseName = "TenantCatalog",
+            ProvisioningState = TenantDatabaseProvisioningState.Active,
+        });
+        using MemoryCache cache = new(new MemoryCacheOptions());
+        SqlTopologyOptions topology = new()
+        {
+            Mode = SqlTopologyMode.SystemWithPerTenantCatalogs,
+            TenantCatalogConnectionStringTemplate = "Server=old-primary;Database=placeholder",
+        };
+        ArchLucidPersistenceOptions persistence = new()
+        {
+            ReadOnlyConnectionStringTemplate = "Server=old-replica;Database=placeholder;Application Intent=ReadOnly",
+        };
+        TenantDatabaseResolver resolver = new(
+            bindings,
+            cache,
+            new StubOptionsMonitor<SqlTopologyOptions>(topology),
+            new StubOptionsMonitor<ArchLucidPersistenceOptions>(persistence),
+            "Server=system;Database=SystemCatalog");
+
+        SqlConnectionStringBuilder before = new(await ResolveAsync());
+        before.DataSource.Should().Be(readOnly ? "old-replica" : "old-primary");
+
+        topology.TenantCatalogConnectionStringTemplate = "Server=new-primary;Database=placeholder";
+        persistence.ReadOnlyConnectionStringTemplate = "Server=new-replica;Database=placeholder;Application Intent=ReadOnly";
+
+        SqlConnectionStringBuilder after = new(await ResolveAsync());
+        after.DataSource.Should().Be(readOnly ? "new-replica" : "new-primary");
+        after.InitialCatalog.Should().Be("TenantCatalog");
+
+        async Task<string> ResolveAsync() => readOnly
+            ? (await resolver.TryResolveReadOnlyConnectionStringAsync(tenantId, CancellationToken.None))!
+            : await resolver.ResolveTenantConnectionStringAsync(tenantId, CancellationToken.None);
+    }
+
     private sealed class ThrowingTenantDatabaseBindingRepository : ITenantDatabaseBindingRepository
     {
         public Task<TenantDatabaseBindingRecord?> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken) =>

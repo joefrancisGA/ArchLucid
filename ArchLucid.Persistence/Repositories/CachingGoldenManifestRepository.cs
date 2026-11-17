@@ -96,11 +96,19 @@ public sealed class CachingGoldenManifestRepository(
         IReadOnlyList<Guid> superseded =
             await _inner.SupersedeUnreferencedActiveGoldenManifestsAsync(scope, newManifestId, connection, transaction, cancellationToken);
 
-        foreach (Guid manifestId in superseded)
-            await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, scope, manifestId, cancellationToken);
+        // Finalization owns eviction after committing an external transaction.
+        if (transaction is null)
+        {
+            foreach (Guid manifestId in superseded)
+                await EvictCachedManifestAsync(scope, manifestId, cancellationToken);
+        }
 
         return superseded;
     }
+
+    /// <inheritdoc />
+    public Task EvictCachedManifestAsync(ScopeContext scope, Guid manifestId, CancellationToken cancellationToken) =>
+        HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, scope, manifestId, cancellationToken);
 
     /// <inheritdoc />
     public async Task UpdateSealedHasherBoundSliceAsync(

@@ -1,5 +1,5 @@
+import { resolveProductionEvalChromeForServer } from "@/lib/production-desk-chrome";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { SIGNED_RECORD_ARTIFACT_CLAIM_DISCIPLINE } from "@/lib/signed-record-artifact-evidence-copy";
 import {
@@ -12,7 +12,7 @@ import {
 import { SignedRecordArtifactPageSkeleton } from "./_sections/SignedRecordArtifactPageSkeleton";
 
 export default function SignedRecordArtifactLoading(): React.JSX.Element {
-  const buyerPolishedLayout = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedLayout = resolveProductionEvalChromeForServer();
 
   if (!buyerPolishedLayout) {
     return (

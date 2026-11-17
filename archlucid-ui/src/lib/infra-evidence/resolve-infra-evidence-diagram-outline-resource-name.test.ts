@@ -15,7 +15,7 @@ function node(label: string, resourceType: string | null = null): InfraEvidenceM
 
 describe("resolveInfraEvidenceDiagramOutlineResourceName (P-02)", () => {
   it("labels empty and em-dash names as not stored", () => {
-    expect(resolveInfraEvidenceDiagramOutlineResourceName(node(""))).toBe("Node name was not stored");
+    expect(resolveInfraEvidenceDiagramOutlineResourceName(node(""))).toBe("Resource name was stored empty.");
     expect(resolveInfraEvidenceDiagramOutlineResourceName(node("—"))).toBe("Node name was not stored");
   });
 

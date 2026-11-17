@@ -16,6 +16,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 const authorityState = { callerAuthorityRank: 0 };
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", async (importOriginal) => {

@@ -19,8 +19,10 @@ namespace ArchLucid.Application.Tests.Findings;
 [Trait("Category", "Unit")]
 public sealed class FindingPriorityRerankerTests
 {
-    [Fact]
-    public async Task RerankForRunAsync_persists_llm_order_per_severity_tier()
+    [Theory]
+    [InlineData("""["finding-high-b","finding-high-a"]""")]
+    [InlineData("""["finding-medium-a","unrecognized-id"," FINDING-HIGH-B "]""")]
+    public async Task RerankForRunAsync_persists_only_canonical_ids_from_the_severity_tier(string modelResponse)
     {
         Guid runGuid = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid snapshotId = Guid.Parse("22222222-2222-2222-2222-222222222222");
@@ -63,6 +65,16 @@ public sealed class FindingPriorityRerankerTests
             "High",
             "Missing failover");
 
+        FindingRecordMetadataRow mediumA = new(
+            Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            2,
+            "finding-medium-a",
+            "Policy",
+            "Reliability",
+            "PolicyEngine",
+            "Medium",
+            "Restore procedure");
+
         Mock<IFindingsSnapshotRepository> findingsRepository = new();
 
         findingsRepository
@@ -78,7 +90,7 @@ public sealed class FindingPriorityRerankerTests
                 It.IsAny<int>(),
                 It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FindingRecordMetadataPage([highA, highB], HasMore: false));
+            .ReturnsAsync(new FindingRecordMetadataPage([highA, highB, mediumA], HasMore: false));
 
         IReadOnlyList<(string FindingId, int PriorityRank)>? capturedRanks = null;
         findingsRepository
@@ -99,7 +111,7 @@ public sealed class FindingPriorityRerankerTests
                 null,
                 null,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync("""["finding-high-b","finding-high-a"]""");
+            .ReturnsAsync(modelResponse);
 
         FindingPriorityReranker sut = new(
             runRepository.Object,
@@ -110,9 +122,10 @@ public sealed class FindingPriorityRerankerTests
 
         await sut.RerankForRunAsync(runGuid.ToString(), CancellationToken.None);
 
-        capturedRanks.Should().NotBeNull();
-        capturedRanks!.Should().Contain(r => r.FindingId == "finding-high-b" && r.PriorityRank == 0);
-        capturedRanks.Should().Contain(r => r.FindingId == "finding-high-a" && r.PriorityRank == 1);
+        capturedRanks.Should().Equal(
+            ("finding-high-b", 0),
+            ("finding-high-a", 1),
+            ("finding-medium-a", 0));
     }
 
     [Fact]

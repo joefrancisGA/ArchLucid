@@ -32,4 +32,38 @@ describe("resolveContinueLastPlanningPlan", () => {
     expect(resolveContinueLastPlanningPlan(null)).toBeNull();
     expect(resolveContinueLastPlanningPlan({})).toBeNull();
   });
+
+  it("orders plans by instant and ignores unreadable creation timestamps", () => {
+    const plan = resolveContinueLastPlanningPlan([
+      {
+        planId: "invalid",
+        themeId: "theme-1",
+        title: "Invalid timestamp",
+        summary: "",
+        priorityScore: 3,
+        status: "Open",
+        createdUtc: "not-a-timestamp",
+      },
+      {
+        planId: "older",
+        themeId: "theme-1",
+        title: "Older plan",
+        summary: "",
+        priorityScore: 1,
+        status: "Open",
+        createdUtc: "2026-08-20T01:00:00+02:00",
+      },
+      {
+        planId: "newer",
+        themeId: "theme-1",
+        title: "Newer plan",
+        summary: "",
+        priorityScore: 2,
+        status: "Open",
+        createdUtc: "2026-08-20T00:30:00Z",
+      },
+    ]);
+
+    expect(plan?.planId).toBe("newer");
+  });
 });

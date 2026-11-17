@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 
@@ -26,5 +27,26 @@ describe("resolveGovernanceScopedReviewOpenHref", () => {
         requestId: null,
       }),
     ).toBe("/architecture/architectures/architecture-cached-002/reviews/run-peer");
+  });
+
+  it("passes draft registry entries through the working locator", () => {
+    const entry: ArchitectureDraftRegistryEntry = {
+      draftId: "draft-1",
+      displayName: "Draft",
+      customerStatus: "review-linked",
+      ownerLabel: "You",
+      lastUpdatedUtc: "2026-01-01T00:00:00.000Z",
+      linkedReviewId: "run-registry",
+      serverUpdatedUtc: "2026-01-01T00:00:00.000Z",
+      parentArchitectureId: "architecture-from-registry",
+    };
+
+    expect(
+      resolveGovernanceScopedReviewOpenHref({
+        runId: "run-registry",
+        architectureId: null,
+        draftRegistryEntries: [entry],
+      }),
+    ).toBe("/architecture/architectures/architecture-from-registry/reviews/run-registry");
   });
 });

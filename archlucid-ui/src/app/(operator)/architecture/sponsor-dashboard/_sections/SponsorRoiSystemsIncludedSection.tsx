@@ -15,6 +15,7 @@ import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdow
 import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
 import { presentSponsorEstimatedSavings } from "@/lib/sponsor-estimated-savings-display";
 import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
+import { AMOUNT_NOT_RETURNED } from "@/lib/amount-display-copy";
 import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveSponsorSystemRowScopeLabel } from "@/lib/roi-sponsor-scope-labels";
@@ -35,7 +36,8 @@ export function SponsorRoiSystemsIncludedSection(
     return null;
   }
 
-  const summaryLine = `${summary.systems.length} system${summary.systems.length === 1 ? "" : "s"} — per-row savings do not sum to the headline.`;
+  const systemCountLabel = `${summary.systems.length} system${summary.systems.length === 1 ? "" : "s"}`;
+  const summaryLine = `${systemCountLabel}. ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`;
 
   return (
     <CollapsibleSection
@@ -49,9 +51,6 @@ export function SponsorRoiSystemsIncludedSection(
       <div className="space-y-3 pt-2">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {resolveSponsorSystemRowScopeLabel(summary)}
-        </p>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="exec-roi-systems-included-non-summing">
-          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
         </p>
         <SecureNowSponsorRoiCollectionScopeHonestyLine testId="exec-roi-systems-included-collection-honesty" />
 
@@ -72,7 +71,7 @@ export function SponsorRoiSystemsIncludedSection(
             {summary.systems.map((system) => {
               const savingsDisplay =
                 system.estimatedUsdSavings === null || system.estimatedUsdSavings === undefined
-                  ? "Amount not returned"
+                  ? AMOUNT_NOT_RETURNED
                   : presentSponsorEstimatedSavings(system.estimatedUsdSavings, {
                       loading: false,
                       summary,

@@ -7,6 +7,7 @@ import { RunDetailActivityTabSectionNav } from "@/components/runs/RunDetailActiv
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { resolveReviewFailureRecordedAtUtc } from "@/components/resolve-run-detail-last-failure-summary";
 import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
+import { resolveLibReviewProvenanceHref } from "@/lib/architecture/lib-open-review-href";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import {
   RunDetailBelowFoldDeferredSkeleton,
@@ -27,7 +28,7 @@ export function composeRunDetailActivityTab(
   const m = input.model;
   const terminalFailure = isReviewPipelineTerminalFailure(m.pipelineDiagnosticContext);
   const doThisNextOwnsFailureRecovery = terminalFailure && !m.manifestId;
-  const provenanceHref = `/architecture/reviews/${encodeURIComponent(m.resolvedDetail.run.runId)}/provenance`;
+  const provenanceHref = resolveLibReviewProvenanceHref(m.resolvedDetail.run.runId);
   const failureRecordedAtUtc = resolveReviewFailureRecordedAtUtc({
     pipelineSummary: m.progressForPipelineUi ?? null,
     runCompletedUtc: m.resolvedDetail.run.completedUtc ?? null,

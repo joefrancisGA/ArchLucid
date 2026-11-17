@@ -14,7 +14,8 @@ internal static class InventoryDiagramIndirectRelationshipApplier
     public static void Apply(
         DiagramAst ast,
         GraphSnapshot graph,
-        IReadOnlyDictionary<string, string> graphToDiagramNodeId)
+        IReadOnlyDictionary<string, string> graphToDiagramNodeId,
+        DiagramMode mode)
     {
         ArgumentNullException.ThrowIfNull(ast);
         ArgumentNullException.ThrowIfNull(graph);
@@ -62,7 +63,32 @@ internal static class InventoryDiagramIndirectRelationshipApplier
 
             if (existingEdges.TryGetValue(fallbackKey, out DiagramEdge? fallbackEdge))
             {
+                if (ShouldPreserveDirectPlacementEdge(fallbackEdge, ast, mode))
+                {
+                    continue;
+                }
+
                 AssignResolvedRelationship(fallbackEdge, formattedLabel, resolved.InferenceSource, resolved.EvidenceCurrency);
+                continue;
+            }
+
+            DiagramEdge? directDiagramEdge = ast.Edges.FirstOrDefault(edge =>
+                !edge.IsLayoutOnly
+                && string.Equals(edge.FromNodeId, resolved.FromDiagramNodeId, StringComparison.Ordinal)
+                && string.Equals(edge.ToNodeId, resolved.ToDiagramNodeId, StringComparison.Ordinal));
+
+            if (directDiagramEdge is not null)
+            {
+                if (ShouldPreserveDirectPlacementEdge(directDiagramEdge, ast, mode))
+                {
+                    continue;
+                }
+
+                AssignResolvedRelationship(
+                    directDiagramEdge,
+                    formattedLabel,
+                    resolved.InferenceSource,
+                    resolved.EvidenceCurrency);
                 continue;
             }
 
@@ -78,6 +104,67 @@ internal static class InventoryDiagramIndirectRelationshipApplier
             ast.Edges.Add(newEdge);
             existingEdges[edgeKey] = newEdge;
         }
+    }
+
+    private static bool ShouldPreserveDirectPlacementEdge(DiagramEdge edge, DiagramAst ast, DiagramMode mode)
+    {
+        // Network frames require cited placement to remain machine-readable after
+        // resolving other indirect NIC-hop descriptions. Preserve only verified
+        // placement sources targeting an actual subnet/VNet node in this mode.
+        // Other modes keep the derived relationship's honest description.
+
+        if (mode == DiagramMode.Network
+            && string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase)
+            && (string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryNicSubnet,
+                    StringComparison.OrdinalIgnoreCase)
+                || string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryLayoutVmVnet,
+                    StringComparison.OrdinalIgnoreCase))
+            && ast.Nodes.Any(node =>
+                string.Equals(node.NodeId, edge.ToNodeId, StringComparison.Ordinal)
+                && ((node.ArmResourceType ?? string.Empty).Contains(
+                        "Microsoft.Network/virtualNetworks/subnets",
+                        StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(
+                        node.ArmResourceType,
+                        "Microsoft.Network/virtualNetworks",
+                        StringComparison.OrdinalIgnoreCase))))
+        {
+            return true;
+        }
+
+        if (!IsDirectSubnetAttachmentEndpoint(edge.FromNodeId, ast))
+        {
+            return false;
+        }
+
+        return string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsDirectSubnetAttachmentEndpoint(string diagramNodeId, DiagramAst ast)
+    {
+        DiagramNode? fromNode = ast.Nodes.FirstOrDefault(node =>
+            string.Equals(node.NodeId, diagramNodeId, StringComparison.Ordinal));
+
+        if (fromNode is null || string.IsNullOrWhiteSpace(fromNode.ArmResourceType))
+        {
+            return false;
+        }
+
+        string armType = fromNode.ArmResourceType;
+
+        if (armType.Contains("networkInterfaces", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return armType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase)
+            && !armType.Contains("managedPrivateEndpoints", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string FormatResolvedLabel(InventoryDiagramIndirectRelationshipResolvedEdge resolved)

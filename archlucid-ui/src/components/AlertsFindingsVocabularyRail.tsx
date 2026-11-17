@@ -2,6 +2,7 @@
 
 import type { JSX } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
   buildAlertsFindingsPairwiseRail,
@@ -21,6 +22,7 @@ export type AlertsFindingsVocabularyRailProps = {
  * Mount on Alerts inbox and Findings queue.
  */
 export function AlertsFindingsVocabularyRail(props: AlertsFindingsVocabularyRailProps): JSX.Element {
+  const { productLine } = useProductLine();
   const pairwiseModel =
     props.model !== undefined
       ? {
@@ -30,7 +32,7 @@ export function AlertsFindingsVocabularyRail(props: AlertsFindingsVocabularyRail
           currentLink: props.model.alertsLink,
           peerLink: props.model.findingsLink,
         }
-      : buildAlertsFindingsPairwiseRail();
+      : buildAlertsFindingsPairwiseRail(productLine);
 
   return (
     <PairwiseVocabularyRailFromModel

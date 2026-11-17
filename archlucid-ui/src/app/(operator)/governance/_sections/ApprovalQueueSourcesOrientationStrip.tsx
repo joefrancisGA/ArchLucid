@@ -3,14 +3,15 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import {
   APPROVAL_QUEUE_FOLLOW_UPS_TITLE,
-  APPROVAL_QUEUE_SOURCES,
   APPROVAL_QUEUE_SOURCES_INTRO,
   GOVERNANCE_APPROVAL_QUEUE_ORIENTATION_BOTTOM_TEST_ID,
+  resolveApprovalQueueSources,
 } from "@/lib/approval-queue-evidence-copy";
 import {
   approvalQueueSourcesDisclosureHrefFromSearch,
@@ -19,6 +20,8 @@ import {
 
 /** Sources-only follow-ups for `/governance/approval-queue` buyer-polished shell (GOP). */
 export function ApprovalQueueSourcesOrientationStrip(): React.JSX.Element {
+  const { productLine } = useProductLine();
+  const approvalQueueSources = resolveApprovalQueueSources(productLine);
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -61,7 +64,7 @@ export function ApprovalQueueSourcesOrientationStrip(): React.JSX.Element {
         headingId="where-to-go-next"
         title={APPROVAL_QUEUE_FOLLOW_UPS_TITLE}
         intro={APPROVAL_QUEUE_SOURCES_INTRO}
-        links={APPROVAL_QUEUE_SOURCES}
+        links={approvalQueueSources}
         style={EVIDENCE_SOURCES_STYLE.operatorRaised}
         layout="columns"
       />

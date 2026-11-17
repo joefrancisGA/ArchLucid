@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Pilots;
 
 using FluentAssertions;
@@ -14,21 +13,20 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
+[Trait(HarnessGoldenPathGuardConstants.DemoBaselineTraitCategory, HarnessGoldenPathGuardConstants.DemoBaselineTraitValue)]
 public sealed class WhyArchLucidSnapshotEndpointTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
     [SkippableFact]
     public async Task GetWhyArchLucidSnapshot_returns_ok_with_canonical_demo_run_id_and_zero_baseline_counters()
     {
-        HttpResponseMessage response = await Client.GetAsync("/v1/pilots/why-archlucid-snapshot");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        HttpResponseMessage response = await Client.GetWhyArchLucidSnapshotHttpAsync();
 
         WhyArchLucidSnapshotResponse? snapshot =
-            await response.Content.ReadFromJsonAsync<WhyArchLucidSnapshotResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<WhyArchLucidSnapshotResponse>(JsonOptions);
 
         snapshot.Should().NotBeNull();
-        snapshot.DemoRunId.Should().Be(ContosoRetailDemoIdentifiers.RunBaseline);
+        snapshot.DemoRunId.Should().Be(HarnessDemoBaselineSupport.DemoRunId);
         snapshot.GeneratedUtc.Should().BeCloseTo(TimeProvider.System.GetUtcNow(), TimeSpan.FromMinutes(2));
         snapshot.RunsCreatedTotal.Should().BeGreaterThanOrEqualTo(0);
         snapshot.AuditRowCount.Should().BeGreaterThanOrEqualTo(0);

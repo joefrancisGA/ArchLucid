@@ -89,7 +89,7 @@ public sealed class ManifestSummaryServiceTests
         markdown.Should().Contain(
             $"**Private Endpoint Required:** {ArchitectureManifestDatastoreExport.PrivateEndpointRequiredOmissionLabel}");
         markdown.Should().Contain(
-            $"**Encryption At Rest Required:** {ArchitectureManifestDatastoreExport.EncryptionAtRestRequiredOmissionLabel}");
+            $"**Encryption At Rest Required:** {ArchitectureManifestDatastoreExport.FormatEncryptionAtRestRequiredForExport(true)}");
     }
 
     [SkippableFact]

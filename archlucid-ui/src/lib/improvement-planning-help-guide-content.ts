@@ -1,5 +1,7 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import {
   IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE_HEADING,
   IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL,
@@ -89,6 +91,20 @@ export const IMPROVEMENT_PLANNING_HELP_OUTPUT_TILE_ITEMS: readonly ImprovementPl
     href: GOVERNANCE_FINDINGS_PATH,
   },
 ] as const;
+
+export function resolveImprovementPlanningHelpOutputTileItems(
+  productLine: ProductLineId = "architecture",
+): readonly ImprovementPlanningHelpTileItem[] {
+  const findingsHref = findingsPathForProductLine(productLine);
+
+  return IMPROVEMENT_PLANNING_HELP_OUTPUT_TILE_ITEMS.map((item) => {
+    if (item.label !== "Findings triage") {
+      return item;
+    }
+
+    return { ...item, href: findingsHref };
+  });
+}
 
 export const IMPROVEMENT_PLANNING_HELP_HOW_TO_READ_STEPS = [
   "Capture review feedback or record pilot feedback in product learning to generate themes.",

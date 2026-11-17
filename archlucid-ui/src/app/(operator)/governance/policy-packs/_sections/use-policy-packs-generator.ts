@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { applyGeneratedCuratedPolicyPack } from "@/lib/apply-generated-curated-policy-pack";
 import type { CuratedRulesDocument } from "@/lib/policy/policy-pack-curated-rules-v1";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { usePolicyPacksHubPath } from "@/lib/product-line/use-policy-packs-hub-path";
 import { policyPackAuthoringInputModeHrefFromSearch } from "@/lib/policy/policy-pack-authoring-input-mode-url";
 import {
   parsePolicyPackAuthoringAdvancedOpenFromSearch,
@@ -21,7 +21,7 @@ export function usePolicyPacksGenerator(
   createPublish: PolicyPacksCreatePublishSlice,
 ) {
   const router = useRouter();
-  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
+  const pathname = usePolicyPacksHubPath();
   const searchParams = useSearchParams();
   const [generatedRuleCount, setGeneratedRuleCount] = useState(0);
   const [generatedValidationErrors, setGeneratedValidationErrors] = useState<readonly string[]>([]);

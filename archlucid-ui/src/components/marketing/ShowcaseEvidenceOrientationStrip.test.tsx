@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { ShowcaseEvidenceOrientationStrip } from "@/components/marketing/ShowcaseEvidenceOrientationStrip";
+import { expectClaimDisciplineBand } from "@/lib/claim-discipline-test-helpers";
 import {
   SHOWCASE_CANONICAL_PATH_PREFIX,
   SHOWCASE_SOURCES,

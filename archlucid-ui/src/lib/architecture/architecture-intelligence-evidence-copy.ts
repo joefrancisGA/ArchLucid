@@ -4,6 +4,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveWorkingArchitecturePortfolioParentLink } from "@/lib/resolve-working-evidence-parent-link";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const ARCHITECTURE_INTELLIGENCE_CANONICAL_PATH = ARCHITECTURE_INTELLIGENCE_PATH;
 
@@ -19,13 +21,15 @@ export const ARCHITECTURE_INTELLIGENCE_SOURCES_INTRO =
 /** Operator Sources - no self-href to architecture-intelligence. */
 export function buildArchitectureIntelligenceSources(
   workingMode: boolean,
+  productLine: ProductLineId = "architecture",
 ): readonly EvidenceOrientationLink[] {
   const reviewsParent = resolveWorkingArchitecturePortfolioParentLink(workingMode);
+  const findingsHref = findingsPathForProductLine(productLine);
 
   return [
   {
     label: "Findings",
-    href: GOVERNANCE_FINDINGS_PATH,
+    href: findingsHref,
     when: "Open the findings queue when published reasoning output needs triage",
   },
   {

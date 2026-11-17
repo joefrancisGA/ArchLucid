@@ -227,8 +227,9 @@ describe("settings-master-page-model", () => {
     expect(hrefs).toContain("/administration/users");
     expect(hrefs).toContain("/administration/auth-domains");
     expect(hrefs).toContain("/administration/model-governance");
-    expect(hrefs).toContain("/governance/infrastructure/extract-upload");
+    expect(hrefs).toContain("/infrastructure/manual-upload");
     expect(hrefs).not.toContain("/administration/extract-upload");
+    expect(hrefs).not.toContain("/governance/infrastructure/extract-upload");
     expect(hrefs).not.toContain("/administration/billing");
     expect(hrefs).not.toContain("/governance/approval-queue");
     expect(hrefs).not.toContain("/administration/ai-usage");

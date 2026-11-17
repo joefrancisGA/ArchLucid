@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { COUNT_NOT_RETURNED } from "@/lib/amount-display-copy";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
 export type ComplianceDriftOpenResolvedChartProps = {
@@ -113,7 +114,7 @@ function OpenResolvedStackedBars(props: {
         const openPx = stack === 0 ? 0 : (point.openCount / stack) * stackPx;
         const resolvedPx = stackPx - openPx;
         const barAriaLabel = countsMissing
-          ? "Count not returned"
+          ? COUNT_NOT_RETURNED
           : `Opened ${point.openCount}, resolved ${point.resolvedCount}`;
 
         return (
@@ -123,7 +124,7 @@ function OpenResolvedStackedBars(props: {
           >
             {countsMissing ? (
               <span className={cn("text-center text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>
-                Count not returned
+                {COUNT_NOT_RETURNED}
               </span>
             ) : (
               <div

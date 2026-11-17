@@ -18,7 +18,7 @@ public sealed class FirstValueReportPdfEndpointTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task PostFirstValueReportPdf_WhenRunUnknown_Returns404Problem()
     {
-        Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid runId = HarnessWellKnownGuids.UnknownRunForReviewSubresource;
 
         HttpRequestMessage request = new(HttpMethod.Post, $"/v1/pilots/runs/{runId:D}/first-value-report.pdf");
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/pdf"));

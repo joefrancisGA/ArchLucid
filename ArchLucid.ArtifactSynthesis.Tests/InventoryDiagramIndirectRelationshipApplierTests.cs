@@ -60,9 +60,27 @@ public sealed class InventoryDiagramIndirectRelationshipApplierTests
 
         ast.Edges.Should().Contain(edge =>
             !edge.IsLayoutOnly
-            && edge.Label.Contains("Derived", StringComparison.Ordinal)
-            && edge.Label.Contains("nic-app", StringComparison.Ordinal)
+            && edge.Label.Contains("Derived through NIC", StringComparison.Ordinal)
+            && edge.Label.Contains("not observed traffic", StringComparison.OrdinalIgnoreCase)
             && edge.InferenceSource == GraphEdgeInferenceSources.InventoryIndirectDerivedRelationship);
+    }
+
+    [Fact]
+    public void Compile_network_vm_nic_subnet_chain_keeps_cited_placement_for_network_frames()
+    {
+        DiagramAst ast = compiler.Compile(BuildVmNicSubnetGraph(), DiagramMode.Network);
+
+        DiagramNode subnet = ast.Nodes.Single(node =>
+            (node.ArmResourceType ?? string.Empty).Contains(
+                "Microsoft.Network/virtualNetworks/subnets", StringComparison.OrdinalIgnoreCase));
+
+        ast.Edges.Should().Contain(edge =>
+            !edge.IsLayoutOnly
+            && string.Equals(edge.ToNodeId, subnet.NodeId, StringComparison.Ordinal)
+            && string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase)
+            && (edge.InferenceSource == GraphEdgeInferenceSources.InventoryNicSubnet
+                || edge.InferenceSource == GraphEdgeInferenceSources.InventoryLayoutVmVnet),
+            "cited network placement must remain available to the subnet-frame membership planner");
     }
 
     [Fact]

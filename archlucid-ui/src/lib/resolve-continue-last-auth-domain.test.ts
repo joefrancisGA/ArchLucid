@@ -66,4 +66,31 @@ describe("resolveContinueLastAuthDomain", () => {
 
     expect(match?.normalizedDomain).toBe("pending-new.com");
   });
+
+  it("orders unverified domains by instant and ignores unreadable creation timestamps", () => {
+    window.localStorage.removeItem(AUTH_DOMAIN_LAST_VIEWED_STORAGE_KEY);
+
+    const match = resolveContinueLastAuthDomain([
+      domain({
+        normalizedDomain: "invalid.com",
+        displayDomain: "invalid.com",
+        verificationStatus: "Unverified",
+        createdUtc: "not-a-timestamp",
+      }),
+      domain({
+        normalizedDomain: "older.com",
+        displayDomain: "older.com",
+        verificationStatus: "Unverified",
+        createdUtc: "2026-08-20T01:00:00+02:00",
+      }),
+      domain({
+        normalizedDomain: "newer.com",
+        displayDomain: "newer.com",
+        verificationStatus: "Unverified",
+        createdUtc: "2026-08-20T00:30:00Z",
+      }),
+    ]);
+
+    expect(match?.normalizedDomain).toBe("newer.com");
+  });
 });

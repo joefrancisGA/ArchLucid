@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it , vi} from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { PlatformBundledPolicyPacksEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -9,6 +9,10 @@ import {
   PLATFORM_BUNDLED_POLICY_PACKS_SOURCES,
   PLATFORM_BUNDLED_POLICY_PACKS_SOURCES_INTRO,
 } from "@/lib/platform-bundled-policy-packs-evidence-copy";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 describe("platform-bundled-policy-packs-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -23,9 +27,7 @@ describe("platform-bundled-policy-packs-evidence-copy", () => {
 
     const sources = screen.getByTestId("platform-bundled-policy-packs-sources");
 
-    for (const link of PLATFORM_BUNDLED_POLICY_PACKS_SOURCES) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), PLATFORM_BUNDLED_POLICY_PACKS_SOURCES, PLATFORM_BUNDLED_POLICY_PACKS_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", {

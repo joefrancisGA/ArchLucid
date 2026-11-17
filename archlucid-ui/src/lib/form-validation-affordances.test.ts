@@ -19,6 +19,12 @@ describe("pilot-baseline-wizard-validation", () => {
 });
 
 describe("tenant-cost-settings-validation", () => {
+  it("rejects USD amounts that round to zero", () => {
+    expect(validateTenantCostSettingsFields("0.001", "25000", "0").hourlyError).not.toBeNull();
+    expect(validateTenantCostSettingsFields("150", "0.001", "0").incidentError).not.toBeNull();
+    expect(validateTenantCostSettingsFields("0.005", "0.005", "0").valid).toBe(true);
+  });
+
   it("rejects non-positive USD amounts and out-of-range EA discount", () => {
     expect(validateTenantCostSettingsFields("0", "25000", "0").valid).toBe(false);
     expect(validateTenantCostSettingsFields("150", "25000", "101").valid).toBe(false);

@@ -1,5 +1,13 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/hooks/use-operator-scope-query-key", () => ({
+  useOperatorScopeQueryKey: () => ({
+    tenantId: "tenant-1",
+    workspaceId: "ws-1",
+    projectId: "project-1",
+  }),
+}));
 
 import { RunDetailFirstReviewSpineBand } from "./RunDetailFirstReviewSpineBand";
 import type { FirstReviewSpineBandSummary } from "@/lib/reviews/first-review-spine-band";
@@ -29,6 +37,7 @@ function baseSummary(overrides: Partial<FirstReviewSpineBandSummary>): FirstRevi
     topFindingId: null,
     topFindingPolicyMapped: false,
     openGateLabel: null,
+    openGateNextAction: null,
     openGateHref: null,
     openGateReviewTab: null,
     ...overrides,
@@ -42,6 +51,7 @@ describe("RunDetailFirstReviewSpineBand", () => {
         runId="run-abc"
         summary={baseSummary({
           openGateLabel: "Uncommitted review",
+          openGateNextAction: "Review the package and commit it when ready.",
           openGateReviewTab: "review-package",
         })}
         openGateNavigationInput={{
@@ -53,9 +63,34 @@ describe("RunDetailFirstReviewSpineBand", () => {
     );
 
     expect(screen.getByTestId("review-open-gate")).toHaveTextContent("Uncommitted review");
-    expect(screen.getByRole("link", { name: "Open the gate" })).toHaveAttribute(
+    expect(screen.getByTestId("review-open-gate")).toHaveTextContent(
+      "Next action: Review the package and commit it when ready.",
+    );
+    expect(screen.getByTestId("run-detail-first-review-spine-open-gate-primary")).toHaveAttribute(
       "href",
       "/architecture/reviews/run-abc?reviewTab=review-package#run-detail-first-review-spine-review-package",
+    );
+    expect(screen.getByTestId("run-detail-first-review-spine-open-gate-primary")).toHaveTextContent(
+      "Open gate: Uncommitted review",
+    );
+  });
+
+  it("shows the stored review snapshot", () => {
+    render(
+      <RunDetailFirstReviewSpineBand
+        runId="run-abc"
+        manifestVersion="v2026.11.12"
+        summary={baseSummary({})}
+        openGateNavigationInput={{
+          findings: [],
+          hasFindingsSnapshot: true,
+          reviewHasGoldenManifest: true,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-first-review-spine-manifest")).toHaveTextContent(
+      "Review snapshot: v2026.11.12",
     );
   });
 
@@ -80,6 +115,30 @@ describe("RunDetailFirstReviewSpineBand", () => {
     );
   });
 
+  it("uses nested review paths when architectureId is provided", () => {
+    render(
+      <RunDetailFirstReviewSpineBand
+        runId="run-abc"
+        architectureId="architecture-identity-001"
+        summary={baseSummary({
+          openGateLabel: "Uncommitted review",
+          openGateNextAction: "Review the package and commit it when ready.",
+          openGateReviewTab: "review-package",
+        })}
+        openGateNavigationInput={{
+          findings: [],
+          hasFindingsSnapshot: true,
+          reviewHasGoldenManifest: false,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-first-review-spine-open-gate-primary")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/run-abc?reviewTab=review-package#run-detail-first-review-spine-review-package",
+    );
+  });
+
   it("links the top finding row into the findings workspace", () => {
     render(
       <RunDetailFirstReviewSpineBand
@@ -101,7 +160,7 @@ describe("RunDetailFirstReviewSpineBand", () => {
 
     expect(screen.getByTestId("run-detail-first-review-spine-top-finding-link")).toHaveAttribute(
       "href",
-      "/architecture/reviews/run-abc?reviewTab=findings&findingId=top-1#run-detail-first-review-spine-findings",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=top-1&workbenchFocus=findings#run-detail-first-review-spine-findings",
     );
   });
 
@@ -111,6 +170,7 @@ describe("RunDetailFirstReviewSpineBand", () => {
         runId="run-abc"
         summary={baseSummary({
           openGateLabel: "Uncited finding",
+          openGateNextAction: "Review the finding citation and record its disposition.",
           openGateReviewTab: "findings",
         })}
       />,

@@ -11,6 +11,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { PatternLibraryDetailClient } from "./PatternLibraryDetailClient";
 import {
   PATTERN_LIBRARY_AGGREGATE_PRIVACY_COPY,

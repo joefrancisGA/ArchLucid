@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({
-  useWorkspaceActiveRun: () => ({ runId: "later-run", setRunId: vi.fn() }),
+  useWorkspaceActiveRun: () => ({ activeRunId: "later-run", setActiveRunId: vi.fn() }),
 }));
 
 vi.mock("@/hooks/use-run-detail-workspace-context-bundle-query", () => ({

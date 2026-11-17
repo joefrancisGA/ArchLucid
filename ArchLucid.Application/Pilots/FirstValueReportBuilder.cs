@@ -274,12 +274,15 @@ public sealed class FirstValueReportBuilder(
         SponsorRoiNarrativeGateMarkdownFormatter.AppendMarkdownSection(sb, roiClaimGate);
         ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot, roiClaimGate.Disposition);
         RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, valueWindowSnapshot, roiClaimGate);
+
+        // TB-985: sponsor lead zone ends at "## Review-cycle delta"; numeric ROI source rows use digit-heavy cells that can
+        // match `$…` substrings inside table pipes. Emit baseline-input posture (and `Projected dollar claims sponsor-safe`)
+        // before those rows so `SponsorSimulatorRoiForbidAssertions` does not false-positive on Simulator/HOLD.
+        if (proofCompleteness.RoiBaselineInputs is not null)
+            PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness.RoiBaselineInputs, roiClaimGate);
         RoiMetricSourceMarkdownFormatter.AppendMarkdownSection(
             sb,
             RoiMetricSourceCatalogBuilder.Build(valueWindowSnapshot));
-
-        if (proofCompleteness.RoiBaselineInputs is not null)
-            PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness.RoiBaselineInputs, roiClaimGate);
         FirstValueReportFindingFeedbackSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         FirstValueReportDeltasSectionFormatter.AppendFindingsSection(sb, deltas);
         FirstValueReportDeltasSectionFormatter.AppendFindingsTrustHonestySection(sb);

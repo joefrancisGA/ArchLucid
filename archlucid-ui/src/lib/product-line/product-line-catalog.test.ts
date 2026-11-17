@@ -479,6 +479,30 @@ describe("product-line catalog", () => {
         "architecture",
       ),
     ).toBe(false);
+    expect(
+      isPathAllowedForProductLine(
+        "/administration/securenow-pilot-spine",
+        "security",
+      ),
+    ).toBe(true);
+    expect(
+      isPathAllowedForProductLine(
+        "/administration/securenow-pilot-spine",
+        "architecture",
+      ),
+    ).toBe(false);
+    expect(
+      isPathAllowedForProductLine(
+        "/administration/securenow-reviewer-packet",
+        "security",
+      ),
+    ).toBe(true);
+    expect(
+      isPathAllowedForProductLine(
+        "/administration/securenow-readout-pack",
+        "security",
+      ),
+    ).toBe(true);
   });
 
   it("lets an override move a destination into Security without editing the catalog file", () => {

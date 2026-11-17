@@ -1,11 +1,11 @@
 import type { SponsorRoiHistoryPoint } from "@/lib/sponsor-roi-query-fetch";
 
 export function finiteSponsorRoiHistoryCount(value: number | undefined): number | null {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0) {
     return null;
   }
 
-  return Math.max(0, Math.trunc(value));
+  return value;
 }
 
 export function sponsorRoiTrendCriticalFindingsDisplay(

@@ -16,9 +16,9 @@ vi.mock("@/hooks/useRunSummaryStream", () => ({
 
 import { useIncrementalReviewFindingsRefresh } from "./use-incremental-review-findings-refresh";
 
-function runSummary(hasFindingsSnapshot: boolean): RunSummary {
+function runSummary(runId: string, hasFindingsSnapshot: boolean): RunSummary {
   return {
-    runId: "run-1",
+    runId,
     hasFindingsSnapshot,
   } as RunSummary;
 }
@@ -30,7 +30,7 @@ describe("useIncrementalReviewFindingsRefresh", () => {
   });
 
   it("does not refresh when disabled", async () => {
-    streamedSummary = runSummary(true);
+    streamedSummary = runSummary("run-1", true);
 
     renderHook(() =>
       useIncrementalReviewFindingsRefresh({
@@ -45,7 +45,7 @@ describe("useIncrementalReviewFindingsRefresh", () => {
   });
 
   it("does not refresh on the first streamed summary baseline", async () => {
-    streamedSummary = runSummary(true);
+    streamedSummary = runSummary("run-1", true);
 
     renderHook(() =>
       useIncrementalReviewFindingsRefresh({
@@ -60,7 +60,7 @@ describe("useIncrementalReviewFindingsRefresh", () => {
   });
 
   it("refreshes only on the first false-to-true findings snapshot transition", async () => {
-    streamedSummary = runSummary(false);
+    streamedSummary = runSummary("run-1", false);
 
     const { rerender } = renderHook(() =>
       useIncrementalReviewFindingsRefresh({
@@ -73,14 +73,14 @@ describe("useIncrementalReviewFindingsRefresh", () => {
       expect(routerRefresh).not.toHaveBeenCalled();
     });
 
-    streamedSummary = runSummary(true);
+    streamedSummary = runSummary("run-1", true);
     rerender();
 
     await waitFor(() => {
       expect(routerRefresh).toHaveBeenCalledTimes(1);
     });
 
-    streamedSummary = runSummary(true);
+    streamedSummary = runSummary("run-1", true);
     rerender();
 
     await waitFor(() => {
@@ -89,7 +89,7 @@ describe("useIncrementalReviewFindingsRefresh", () => {
   });
 
   it("resets baseline when runId changes", async () => {
-    streamedSummary = runSummary(false);
+    streamedSummary = runSummary("run-1", false);
 
     const { rerender } = renderHook(
       ({ runId }: { runId: string }) =>
@@ -100,7 +100,7 @@ describe("useIncrementalReviewFindingsRefresh", () => {
       { initialProps: { runId: "run-1" } },
     );
 
-    streamedSummary = runSummary(true);
+    streamedSummary = runSummary("run-1", true);
     rerender({ runId: "run-1" });
 
     await waitFor(() => {
@@ -108,10 +108,10 @@ describe("useIncrementalReviewFindingsRefresh", () => {
     });
 
     routerRefresh.mockReset();
-    streamedSummary = runSummary(false);
+    streamedSummary = runSummary("run-2", false);
     rerender({ runId: "run-2" });
 
-    streamedSummary = runSummary(true);
+    streamedSummary = runSummary("run-2", true);
     rerender({ runId: "run-2" });
 
     await waitFor(() => {

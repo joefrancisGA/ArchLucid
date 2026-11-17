@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Audit;
@@ -10,6 +12,7 @@ using ArchLucid.Persistence.InfraEvidence;
 using FluentAssertions;
 
 using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
@@ -85,6 +88,36 @@ public sealed class SecureNowPilotPathDispositionServiceTests
     }
 
     [Fact]
+    public async Task TryGetLatestAsync_crosses_a_full_page_of_other_paths_at_the_same_time()
+    {
+        InMemoryAuditRepository auditRepository = new();
+        SecureNowPilotPathDispositionService sut = CreateSut(CreateSamplePathRepository(), auditRepository);
+        DateTime occurredUtc = new(2026, 11, 15, 12, 0, 0, DateTimeKind.Utc);
+        Guid otherPathId = Guid.NewGuid();
+
+        for (int index = 1; index <= 501; index++)
+        {
+            Guid pathId = index == 1 ? PathId : otherPathId;
+            await auditRepository.AppendAsync(new AuditEvent
+            {
+                EventId = new Guid(index, 0, 0, new byte[8]),
+                OccurredUtc = occurredUtc,
+                EventType = AuditEventTypes.SecureNowPilotPathDispositionRecorded,
+                TenantId = TenantId,
+                WorkspaceId = WorkspaceId,
+                ProjectId = ProjectId,
+                DataJson = JsonSerializer.Serialize(new { pathId, outcome = "Stop", rationale = "Pilot scope ended." }),
+            }, CancellationToken.None);
+        }
+
+        SecureNowPilotPathDispositionResponse? latest = await sut.TryGetLatestAsync(CreateScope(), PathId);
+
+        latest.Should().NotBeNull();
+        latest!.PathId.Should().Be(PathId);
+        latest.Outcome.Should().Be("Stop");
+    }
+
+    [Fact]
     public async Task SaveAsync_rejects_invalid_outcome()
     {
         ScopeContext scope = CreateScope();
@@ -102,6 +135,31 @@ public sealed class SecureNowPilotPathDispositionServiceTests
         result.ErrorMessage.Should().Contain("Proceed");
     }
 
+    [Fact]
+    public async Task SaveAsync_does_not_report_success_when_required_audit_write_fails()
+    {
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit storage unavailable"));
+        SecureNowPilotPathDispositionService sut =
+            new(CreateSamplePathRepository(), auditService.Object, new InMemoryAuditRepository(), NullLogger<SecureNowPilotPathDispositionService>.Instance);
+
+        Func<Task> act = async () =>
+            await sut.SaveAsync(
+                CreateScope(),
+                PathId,
+                new SecureNowPilotPathDispositionWriteRequest
+                {
+                    Outcome = "Stop",
+                    Rationale = "Controlled pilot concluded.",
+                },
+                "sponsor-actor",
+                CancellationToken.None);
+
+        await act.Should().ThrowAsync<DurableAuditWriteFailedException>();
+    }
+
     private static SecureNowPilotPathDispositionService CreateSut(
         InMemoryPathRepository paths,
         InMemoryAuditRepository auditRepository)
@@ -111,7 +169,7 @@ public sealed class SecureNowPilotPathDispositionServiceTests
             .Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns<AuditEvent, CancellationToken>((auditEvent, ct) => auditRepository.AppendAsync(auditEvent, ct));
 
-        return new SecureNowPilotPathDispositionService(paths, auditService.Object, auditRepository);
+        return new SecureNowPilotPathDispositionService(paths, auditService.Object, auditRepository, NullLogger<SecureNowPilotPathDispositionService>.Instance);
     }
 
     private static ScopeContext CreateScope() =>

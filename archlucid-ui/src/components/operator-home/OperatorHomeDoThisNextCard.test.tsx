@@ -35,6 +35,7 @@ vi.mock("@/lib/operator/operator-scope-storage", () => ({
     "x-project-id": "33333333-3333-3333-3333-333333333333",
   }),
   readOperatorScopeFromStorage: () => null,
+  subscribeOperatorScopeStorageChanges: () => () => {},
 }));
 
 vi.mock("@/lib/operator/operator-static-demo", () => ({

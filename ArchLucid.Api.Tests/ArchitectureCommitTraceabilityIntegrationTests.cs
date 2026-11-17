@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Tests.TestDtos;
@@ -24,39 +22,24 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchitectureCommitTraceabilityIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
-    };
-
-    private static StringContent JsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     [SkippableFact]
     public async Task CommitRun_manifest_decision_trace_ids_align_with_returned_traces()
     {
-        await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
+        {
+        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(ArchitectureCommitTraceabilityIntegrationTests))));
 
-        HttpResponseMessage createResponse = await client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-TRACE-001")));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+                CreateRunResponseDto? created =
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         string runId = created.Run.RunId;
 
-        await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
-        commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        CommitRunResponse? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponse>(JsonOptions);
+        await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
+        HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);        CommitRunResponse? commitPayload =
+            await commitResponse.ReadJsonForTestAsync<CommitRunResponse>(JsonOptions);
         commitPayload.Should().NotBeNull();
 
         IReadOnlyList<DecisionTrace> domainTraces = commitPayload.DecisionTraces
@@ -70,5 +53,6 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
         gaps.Should()
             .BeEmpty(
                 "manifest metadata must list exactly the authority rule-audit trace ids returned with the commit body");
+        });
     }
 }

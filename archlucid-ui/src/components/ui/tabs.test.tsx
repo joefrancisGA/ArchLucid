@@ -129,7 +129,9 @@ describe("Tabs primitive (TB-665)", () => {
 
     const tabA = screen.getByRole("tab", { name: "Tab A" });
 
-    expect(tabA.className).toMatch(/rounded-full/);
+    // Pill chrome reuses buyer filter-chip tokens (rounded-md), not legacy rounded-full pills.
+    expect(tabA.className).toMatch(/rounded-md/);
+    expect(tabA.className).toMatch(/inline-flex/);
     expect(tabA.className).not.toMatch(/border-b-2/);
   });
 

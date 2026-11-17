@@ -10,19 +10,27 @@ public sealed class InfeasibleHonestyCommandTests
     [Fact]
     public async Task RunAsync_json_includes_hard_and_soft_lines()
     {
-        using StringWriter writer = new();
-        Console.SetOut(writer);
+        StringWriter writer = new();
 
-        int exitCode = await InfeasibleHonestyCommand.RunAsync(["--json"]);
+        try
+        {
+            Console.SetOut(writer);
 
-        exitCode.Should().Be(0);
+            int exitCode = await InfeasibleHonestyCommand.RunAsync(["--json"]);
 
-        string output = writer.ToString();
+            exitCode.Should().Be(0);
 
-        output.Should().Contain("hardRequiresCitation");
-        output.Should().Contain("softEnvelope");
-        output.Should().Contain(CliInfeasibleHonesty.HardRequiresCitationLine);
-        output.Should().Contain("Soft infeasible: labeled envelope");
-        output.Should().Contain("not Career-complete without sealed run stamp (CG).");
+            string output = writer.ToString();
+
+            output.Should().Contain("hardRequiresCitation");
+            output.Should().Contain("softEnvelope");
+            output.Should().Contain(CliInfeasibleHonesty.HardRequiresCitationLine);
+            output.Should().Contain("Soft infeasible: labeled envelope");
+            output.Should().Contain("not Career-complete without sealed run stamp (CG).");
+        }
+        finally
+        {
+            CliConsoleTestReset.ResetStandardConsoleStreams();
+        }
     }
 }

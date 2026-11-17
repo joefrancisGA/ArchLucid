@@ -27,6 +27,7 @@ import {
   parseTerraformAdvisoryExportConfirmOpenFromSearch,
   terraformAdvisoryExportConfirmHrefFromSearch,
 } from "@/lib/reviews/terraform-advisory-export-confirm-url";
+import { resolveReviewUrlStatePathname } from "@/lib/architecture/review-url-state-pathname";
 
 export type ExportTerraformAdvisoryButtonProps = {
   runId: string;
@@ -37,7 +38,7 @@ export type ExportTerraformAdvisoryButtonProps = {
 export function ExportTerraformAdvisoryButton(props: ExportTerraformAdvisoryButtonProps): ReactNode {
   const { runId, manifestVersion = null } = props;
   const router = useRouter();
-  const pathname = usePathname() ?? `/architecture/reviews/${runId}`;
+  const pathname = resolveReviewUrlStatePathname(usePathname(), runId);
   const searchParams = useSearchParams();
   const terraformExportConfirmParam = searchParams.get("terraformExportConfirm");
   const [open, setOpenState] = useState(() =>

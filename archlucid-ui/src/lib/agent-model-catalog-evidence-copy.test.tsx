@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it , vi} from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { AgentModelCatalogEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -9,6 +9,10 @@ import {
   AGENT_MODEL_CATALOG_SOURCES,
   AGENT_MODEL_CATALOG_SOURCES_INTRO,
 } from "@/lib/agent-model-catalog-evidence-copy";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 describe("agent-model-catalog-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -23,9 +27,7 @@ describe("agent-model-catalog-evidence-copy", () => {
 
     const sources = screen.getByTestId("agent-model-catalog-sources");
 
-    for (const link of AGENT_MODEL_CATALOG_SOURCES) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), AGENT_MODEL_CATALOG_SOURCES, AGENT_MODEL_CATALOG_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${AGENT_MODEL_CATALOG_CANONICAL_PATH}$`, "i") }),

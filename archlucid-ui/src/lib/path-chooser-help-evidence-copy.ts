@@ -1,4 +1,5 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { ACCELERATOR_CHOOSER_HELP_INBOUND_LABEL } from "@/lib/accelerator-chooser-help-title-honesty-surfaces";
 import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { PATH_CHOOSER_HELP_RELATED_GUIDES } from "@/lib/path-chooser-help-related-guides";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -21,7 +22,7 @@ export const PATH_CHOOSER_HELP_CLAIM_DISCIPLINE_SCOPE =
 export const PATH_CHOOSER_HELP_FOLLOW_UPS_TITLE = "Related next steps";
 
 export const PATH_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO =
-  "Use these follow-ups when goal branches turn into live intake, procurement cites, or accelerator packs.";
+  `Use these follow-ups when goal branches turn into live intake, procurement cites, or ${ACCELERATOR_CHOOSER_HELP_INBOUND_LABEL.toLowerCase()} packs.`;
 
 const PATH_CHOOSER_HELP_EXCLUDED_SOURCE_HREFS = new Set<string>([
   "/architecture/reviews/new",

@@ -7,6 +7,9 @@ export const SECURENOW_SELF_SERVICE_HOME_SECTION_LEAD =
 
 export const SECURENOW_SELF_SERVICE_OPERATOR_PATH = "/administration/securenow-self-service" as const;
 
+export const SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF =
+  `${SECURENOW_SELF_SERVICE_OPERATOR_PATH}#collection` as const;
+
 export const SECURENOW_SELF_SERVICE_HOME_ROWS: readonly SecureNowHomeDestinationRow[] = [
   {
     href: `${SECURENOW_SELF_SERVICE_OPERATOR_PATH}#collection`,

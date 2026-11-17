@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import {
   fixtureArtifactDescriptorsScreenshot,
@@ -103,10 +103,77 @@ function filePathForHref(href: string): string {
   return `${OUT}/${slugForHref(href)}.png`;
 }
 
+/** Diagnostic only: capture the built chunk around a browser module-initialization TDZ. */
+const routeTdzDiagnostics = new WeakMap<Page, Promise<void>[]>();
+
+async function captureRouteModuleTdzEvidence(page: Page, errorText: string): Promise<void> {
+  const frame = errorText.match(
+    /(https?:\/\/[^\s)]+\/_next\/static\/chunks\/[^\s):]+\.js):(\d+):(\d+)/,
+  );
+  const url = frame?.[1];
+  const lineNumber = Number(frame?.[2] ?? "");
+  const columnNumber = Number(frame?.[3] ?? "");
+
+  if (!url || !Number.isSafeInteger(lineNumber) || !Number.isSafeInteger(columnNumber)) {
+    return;
+  }
+
+  try {
+    const target = new URL(url);
+    if (
+      target.origin !== new URL(page.url()).origin ||
+      !target.pathname.startsWith("/_next/static/chunks/") ||
+      !target.pathname.endsWith(".js")
+    ) {
+      return;
+    }
+
+    const response = await page.context().request.get(target.href, { timeout: 10_000 });
+    if (!response.ok()) {
+      process.stderr.write(
+        "[RC-TDZ-CHUNK-DIAG] fetch status " + response.status() + " for " + target.pathname + "\n",
+      );
+      return;
+    }
+
+    const builtLine = (await response.text()).split("\n")[lineNumber - 1] ?? "";
+    const offset = Math.max(0, columnNumber - 1);
+    const excerpt = builtLine.slice(Math.max(0, offset - 240), offset + 240);
+    process.stderr.write(
+      "[RC-TDZ-CHUNK-DIAG] " +
+        JSON.stringify({
+          route: new URL(page.url()).pathname,
+          chunk: target.pathname,
+          line: lineNumber,
+          column: columnNumber,
+          excerpt,
+        }) +
+        "\n",
+    );
+  } catch (exception) {
+    process.stderr.write("[RC-TDZ-CHUNK-DIAG] chunk fetch unavailable: " + String(exception) + "\n");
+  }
+}
+
 test.describe.parallel("all routes screenshots (mock API)", () => {
   test.describe.configure({ timeout: PER_ROUTE_SCREENSHOT_TIMEOUT_MS });
 
   test.beforeEach(async ({ page }) => {
+    const pendingDiagnostics: Promise<void>[] = [];
+    const seenChunkFrames = new Set<string>();
+    routeTdzDiagnostics.set(page, pendingDiagnostics);
+    // Error boundaries log module TDZ failures to console without necessarily firing pageerror.
+    const queueChunkDiagnostic = (errorText: string): void => {
+      if (!/Cannot access ['"][^'"]+['"] before initialization/.test(errorText)) return;
+      const chunkFrame = errorText.match(/https?:\/\/[^\s)]+\/_next\/static\/chunks\/[^\s):]+\.js:\d+:\d+/)?.[0];
+      if (!chunkFrame || seenChunkFrames.has(chunkFrame) || seenChunkFrames.size >= 3) return;
+      seenChunkFrames.add(chunkFrame);
+      pendingDiagnostics.push(captureRouteModuleTdzEvidence(page, errorText));
+    };
+    page.on("pageerror", (error) => queueChunkDiagnostic(error.stack ?? error.message));
+    page.on("console", (message) => {
+      if (message.type() === "error") queueChunkDiagnostic(message.text());
+    });
     await page.setViewportSize({ width: 1440, height: 900 });
     await registerOperatorJourneyApiRoutes(page, {
       runDetail: { runId: SCREENSHOT_RUN_ID, body: fixtureRunDetailScreenshot() },
@@ -130,6 +197,12 @@ test.describe.parallel("all routes screenshots (mock API)", () => {
       },
     });
     await registerScreenshotSuiteProxyRoutes(page);
+  });
+
+  test.afterEach(async ({ page }) => {
+    // Preserve all original screenshot/readiness assertions and timeouts.
+    // Wait only for any captured TDZ diagnostics before Playwright closes the page.
+    await Promise.allSettled(routeTdzDiagnostics.get(page) ?? []);
   });
 
   for (const href of HREFS) {

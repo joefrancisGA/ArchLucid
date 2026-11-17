@@ -148,7 +148,10 @@ export function countCaiqSigResponseTableRows(preparedMarkdown: string): number 
       continue;
     }
 
-    if (statusColumnIndex !== null || responseColumnIndex !== null) {
+    if (
+      countPostureInTableRow(line, statusColumnIndex, responseColumnIndex) !== null &&
+      (statusColumnIndex !== null || responseColumnIndex !== null)
+    ) {
       rowCount += 1;
     }
   }

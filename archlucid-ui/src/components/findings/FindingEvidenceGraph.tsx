@@ -36,6 +36,7 @@ import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/
 import { mapGraphToReactFlow } from "@/lib/graph-mapper";
 import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { resolveReviewUrlStatePathname } from "@/lib/architecture/review-url-state-pathname";
 import type { GraphViewModel } from "@/types/graph";
 
 export type FindingEvidenceGraphProps = {
@@ -190,7 +191,7 @@ function FindingEvidenceGraphCanvas(props: {
  */
 export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
   const { runId, graphNodeIdsExamined } = props;
-  const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const pathname = resolveReviewUrlStatePathname(usePathname(), runId);
   const readEvidenceGraphViewFromUrl = (): {
     viewMode: FindingEvidenceGraphViewMode | null;
     presentationMode: FindingEvidenceGraphPresentationMode | null;

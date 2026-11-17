@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { ADVISORY_SCHEDULES_WORKSPACE_TEST_ID } from "@/lib/advisory-schedules-evidence-copy";
@@ -8,6 +9,7 @@ import { ADVISORY_SCHEDULES_WORKSPACE_TEST_ID } from "@/lib/advisory-schedules-e
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { AdvisoryScheduleCreateForm } from "@/components/advisory/AdvisoryScheduleCreateForm";
 import { AdvisorySchedulesBuyerChrome } from "@/components/advisory/AdvisorySchedulesBuyerChrome";
 import { AdvisorySchedulesNextReviewFooterClient } from "@/components/advisory/AdvisorySchedulesNextReviewFooterClient";
@@ -174,7 +176,7 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
             {" · "}
             <Link
               className={OPERATOR_BODY_INLINE_LINK_CLASS}
-              href={`/architecture/reviews/${encodeURIComponent(page.scopedRunId)}`}
+              href={resolveOperatorScopedRunReviewHref(page.scopedRunId)}
             >
               Open review
             </Link>
@@ -188,6 +190,17 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
               fallbackMessage={page.failure.message}
               correlationId={page.failure.correlationId}
             />
+          </div>
+        ) : null}
+
+        {page.reviewAvailability.loadFailed ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="alert">
+              Could not check for finalized reviews.
+            </p>
+            <Button type="button" size="sm" variant="outline" onClick={page.reviewAvailability.retry}>
+              Retry review lookup
+            </Button>
           </div>
         ) : null}
 

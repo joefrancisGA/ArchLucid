@@ -9,6 +9,7 @@ namespace ArchLucid.Application.Tests.Analysis;
 /// <summary>
 ///     Ensures compare quality delta counts appear in comparison exports (markdown/HTML/summary), not only in the UI.
 /// </summary>
+[Collection("PdfRendering")]
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class CompareQualityDeltaExportTests

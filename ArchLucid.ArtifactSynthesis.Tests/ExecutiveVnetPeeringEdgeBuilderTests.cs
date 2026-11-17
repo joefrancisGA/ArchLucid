@@ -56,6 +56,7 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             graph,
             Array.Empty<GraphNode>(),
             new Dictionary<string, string>(StringComparer.Ordinal));
+        ExecutiveVnetPeeringEdgeBuilder.EnsureObservedPeeringOnVirtualNetworkPairs(ast);
 
         DiagramEdge peering = ast.Edges.Single();
         peering.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.PeeringStoredConnectedStateNotStored);
@@ -167,6 +168,7 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             graph,
             Array.Empty<GraphNode>(),
             new Dictionary<string, string>(StringComparer.Ordinal));
+        ExecutiveVnetPeeringEdgeBuilder.EnsureObservedPeeringOnVirtualNetworkPairs(ast);
 
         DiagramEdge edge = ast.Edges.Single();
         edge.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored);

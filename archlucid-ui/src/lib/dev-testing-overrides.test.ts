@@ -75,7 +75,7 @@ describe("dev-testing-overrides", () => {
     expect(overridden.roleClaimValues).toContain(DEV_EMPLOYEE_API_ACTOR_ROLE);
     expect(overridden.permissionClaimValues).toContain(ARCHLUCID_VENDOR_STAFF_CROSS_TENANT_PERMISSION);
     expect(isArchLucidVendorStaffPrincipal(overridden)).toBe(true);
-    expect(overridden.authorityRank).toBe(3);
+    expect(overridden.authorityRank).toBe(4);
     expect(overridden.hasCommittedArchitectureReview).toBe(true);
   });
 
@@ -99,7 +99,7 @@ describe("dev-testing-overrides", () => {
 
     expect(isArchLucidVendorStaffPrincipal(principal)).toBe(true);
     expect(principal.roleClaimValues).toContain(DEV_EMPLOYEE_API_ACTOR_ROLE);
-    expect(principal.authorityRank).toBe(3);
+    expect(principal.authorityRank).toBe(4);
   });
 
   it("persists shell override in a dev-only cookie", () => {

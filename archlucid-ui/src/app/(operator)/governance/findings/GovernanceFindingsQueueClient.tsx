@@ -192,6 +192,7 @@ export default function GovernanceFindingsQueueClient({
     pathname,
     scopedArchitectureId,
     scopeRecord,
+    draftRegistryEntries,
   });
   usePrefetchItsmFindingCorrelations(synopsis.findingIds);
 

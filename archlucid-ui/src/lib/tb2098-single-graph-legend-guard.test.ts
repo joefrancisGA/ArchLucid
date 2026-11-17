@@ -12,7 +12,7 @@ const LOADED_EXPERIENCE = join(
   SRC,
   "app/(operator)/insights/evidence-graph/_sections/GraphLoadedExperience.tsx",
 );
-const GRAPH_VIEWER = join(SRC, "components/GraphViewer.tsx");
+const GRAPH_VIEWER_SELECTION = join(SRC, "components/GraphViewerSelectionSettings.tsx");
 const KIND_CHIPS = join(SRC, "components/GraphNodeKindLegendChips.tsx");
 
 describe("TB-2098 Evidence graph single legend", () => {
@@ -26,13 +26,13 @@ describe("TB-2098 Evidence graph single legend", () => {
   });
 
   it("keeps a single node-kind legend beside the canvas in GraphViewer", () => {
-    const viewer = readFileSync(GRAPH_VIEWER, "utf8");
+    const viewerChrome = readFileSync(GRAPH_VIEWER_SELECTION, "utf8");
     const chips = readFileSync(KIND_CHIPS, "utf8");
 
-    expect(viewer).toContain("GraphNodeKindLegendChips");
-    expect(viewer).toContain('data-testid="graph-canvas-legend"');
-    expect(viewer.match(/<GraphNodeKindLegendChips\b/g)?.length ?? 0).toBe(1);
-    expect(viewer).not.toContain("Evidence-to-decision trail:");
+    expect(viewerChrome).toContain("GraphNodeKindLegendChips");
+    expect(viewerChrome).toContain('data-testid="graph-canvas-legend"');
+    expect(viewerChrome.match(/<GraphNodeKindLegendChips\b/g)?.length ?? 0).toBe(1);
+    expect(viewerChrome).not.toContain("Evidence-to-decision trail:");
     expect(chips).toContain('aria-label={props["aria-label"] ?? "Legend"}');
   });
 

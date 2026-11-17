@@ -166,6 +166,50 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_tf_self_link()
+    {
+        const string projectsPath =
+            "projects/demo-project/instances/graph-sql";
+
+        const string selfLink =
+            "https://sqladmin.googleapis.com/sql/v1beta4/projects/demo-project/instances/graph-sql";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-gcp-sql",
+                    Label = "google_sql_database_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        // Terraform show stores values.self_link as tf.self_link. The short id is not a resource path.
+                        ["tf.id"] = "graph-sql",
+                        ["tf.self_link"] = selfLink
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_bag_combines_scalar_ancestors_parent_with_short_name()
     {
         const string projectsPath =

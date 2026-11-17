@@ -18,6 +18,14 @@ public sealed class RequestConstraintPhraseSpacedSolidusTests
     }
 
     [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_duplicate_spaces_wrap_spaced_solidus()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed  /  identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
     public void HasPrivateNetworkingConstraint_returns_true_when_ascii_solidus_with_spaces_splits_private_endpoint_phrase()
     {
         ArchitectureRequest request = CreateRequest(constraints: ["Traffic via private / endpoint only"]);

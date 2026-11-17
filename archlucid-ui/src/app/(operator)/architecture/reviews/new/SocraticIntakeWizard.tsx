@@ -15,8 +15,8 @@ import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudge
 import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD,
   GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD,
@@ -42,7 +42,7 @@ export type SocraticIntakeWizardProps = {
 
 /** Guided intake: write the brief, answer required clarifications, submit the review package. */
 export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const { isWorkingMode } = useWorkspaceMode();
   const suppressWizardResumePrompt = useReviewsNewSuppressWizardResumePrompt();
   const { isSimulator } = useAgentExecutionMode();
@@ -186,17 +186,13 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
           onDismiss={wizardSession.dismissRestore}
         />
       ) : null}
-      <div
-        className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
-        data-testid="socratic-intake-stepper-row"
-      >
+      <div data-testid="socratic-intake-stepper-row">
         <WizardStepper
           steps={[...INTAKE_WIZARD_STEPPER_STEPS]}
           currentStep={step}
           completedSteps={completedWizardSteps}
-          className="min-w-0 flex-1"
+          headerAside={<WizardSessionSaveStatus saveState={wizardSession.saveState} />}
         />
-        <WizardSessionSaveStatus saveState={wizardSession.saveState} />
       </div>
       {buyerPolishedShell ? <ReviewsNewBuyerChrome /> : null}
       {draftId !== null && step >= 1 ? (
@@ -291,7 +287,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
         />
       ) : null}
 
-      {step === 0 ? (
+      {step === 0 && !isSubmitBlocked ? (
         <SocraticIntakeWizardStepScope
           isCreateArchitectureFlow={isCreateArchitectureFlow}
           requiresSystemName={requiresSystemName}

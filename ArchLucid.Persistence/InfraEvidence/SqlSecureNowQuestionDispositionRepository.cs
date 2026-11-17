@@ -71,12 +71,13 @@ public sealed class SqlSecureNowQuestionDispositionRepository(ISqlConnectionFact
         return row is null ? null : Map(row);
     }
 
-    public async Task UpsertAsync(
+    public async Task<bool> TryUpsertAsync(
         SecureNowQuestionDispositionRecord record,
+        int? expectedAuditEntryCount,
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-                           MERGE dbo.SecureNowQuestionDispositions AS target
+                           MERGE dbo.SecureNowQuestionDispositions WITH (HOLDLOCK) AS target
                            USING (SELECT
                                       @TenantId AS TenantId,
                                       @SubscriptionId AS SubscriptionId,
@@ -88,7 +89,9 @@ public sealed class SqlSecureNowQuestionDispositionRepository(ISqlConnectionFact
                               AND target.SubscriptionId = source.SubscriptionId
                               AND target.ResourceId = source.ResourceId
                               AND target.QuestionKey = source.QuestionKey
-                           WHEN MATCHED THEN UPDATE SET
+                           WHEN MATCHED AND @ExpectedAuditEntryCount =
+                               (SELECT COUNT(*) FROM OPENJSON(target.AuditEntriesJson))
+                           THEN UPDATE SET
                                WorkspaceId = @WorkspaceId,
                                ProjectId = @ProjectId,
                                SnapshotId = @SnapshotId,
@@ -103,7 +106,7 @@ public sealed class SqlSecureNowQuestionDispositionRepository(ISqlConnectionFact
                                ActorKey = @ActorKey,
                                UpdatedUtc = @UpdatedUtc,
                                AuditEntriesJson = @AuditEntriesJson
-                           WHEN NOT MATCHED THEN INSERT (
+                           WHEN NOT MATCHED AND @ExpectedAuditEntryCount IS NULL THEN INSERT (
                                DispositionId, TenantId, WorkspaceId, ProjectId, SnapshotId,
                                SubscriptionId, ResourceId, QuestionKey, IdentityHashSha256, Source, ScopeKind,
                                Status, AnswerCode, AnswerText, Reason, ExpirationUtc,
@@ -117,13 +120,15 @@ public sealed class SqlSecureNowQuestionDispositionRepository(ISqlConnectionFact
 
         using System.Data.IDbConnection connection =
             await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        await connection.ExecuteAsync(
-            new CommandDefinition(sql, MapParameters(record), cancellationToken: cancellationToken));
+        int changed = await connection.ExecuteAsync(
+            new CommandDefinition(sql, MapParameters(record, expectedAuditEntryCount), cancellationToken: cancellationToken));
+        return changed == 1;
     }
 
-    private static object MapParameters(SecureNowQuestionDispositionRecord record) =>
+    private static object MapParameters(SecureNowQuestionDispositionRecord record, int? expectedAuditEntryCount) =>
         new
         {
+            ExpectedAuditEntryCount = expectedAuditEntryCount,
             record.DispositionId,
             record.TenantId,
             record.WorkspaceId,

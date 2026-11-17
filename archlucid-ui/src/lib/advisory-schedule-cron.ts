@@ -1,10 +1,10 @@
-import { formatIanaTimeZoneOptionLabel } from "@/lib/iana-time-zone-select";
+import { formatIanaTimeZoneOptionLabel, toStoredIanaTimeZoneId } from "@/lib/iana-time-zone-select";
 
 import {
   ADVISORY_SCHEDULE_DAY_OPTIONS,
   type AdvisoryScheduleFormState,
 } from "./advisory-schedule-form-state";
-import { findNextLocalOccurrence, formatLocalClockLabel } from "./advisory-schedule-timezone";
+import { findNextLocalOccurrence, formatLocalClockLabel, getZonedDateParts } from "./advisory-schedule-timezone";
 
 /** Builds a five-field UTC cron expression from customer-friendly controls. */
 export function buildAdvisoryScheduleCronExpression(form: AdvisoryScheduleFormState): string {
@@ -23,7 +23,10 @@ export function buildAdvisoryScheduleCronExpression(form: AdvisoryScheduleFormSt
   }
 
   if (form.frequency === "weekdays") {
-    return `${minute} ${hour} * * 1-5`;
+    const localWeekday = getZonedDateParts(next, toStoredIanaTimeZoneId(form.timeZoneId)).weekday;
+    const firstUtcWeekday = 1 + dayOfWeek - localWeekday;
+
+    return `${minute} ${hour} * * ${firstUtcWeekday}-${firstUtcWeekday + 4}`;
   }
 
   if (form.frequency === "weekly") {
@@ -93,6 +96,16 @@ export function describeStoredCronExpression(cronExpression: string): string {
 
   if (dayOfMonth === "*" && dayOfWeek === "1-5") {
     return `Weekdays at ${clock} UTC`;
+  }
+
+  if (dayOfMonth === "*" && /^[0-6]-[0-6]$/.test(dayOfWeek)) {
+    const [first, last] = dayOfWeek.split("-").map(Number);
+    const firstLabel = ADVISORY_SCHEDULE_DAY_OPTIONS.find((option) => option.value === first)?.label;
+    const lastLabel = ADVISORY_SCHEDULE_DAY_OPTIONS.find((option) => option.value === last)?.label;
+
+    if (firstLabel !== undefined && lastLabel !== undefined) {
+      return `${firstLabel}–${lastLabel} at ${clock} UTC`;
+    }
   }
 
   if (dayOfMonth === "*" && /^\d$/.test(dayOfWeek)) {

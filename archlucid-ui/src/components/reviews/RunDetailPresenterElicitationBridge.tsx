@@ -287,6 +287,7 @@ export function RunDetailPresenterElicitationBridge(
   return (
     <ReviewDetailWorkspace
       {...workspaceProps}
+      parentArchitectureId={parentArchitectureId}
       activePanelLead={activePanelLead}
       presenterFindingTitle={presenterFindingTitle}
       presenterFindingBody={presenterFindingBody}

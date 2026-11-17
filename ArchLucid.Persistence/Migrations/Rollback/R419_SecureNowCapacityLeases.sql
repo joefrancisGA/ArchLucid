@@ -1,7 +1,10 @@
 /*
-  R419: Rollback 419_SecureNowCapacityLeases.sql.
+  R419: Manual-only rollback for 419_SecureNowCapacityLeases.sql.
+  DESTRUCTIVE: dropping the table removes fencing tokens and active lease
+  ownership. First stop collection workers and reconcile external operations.
+  Requires approved change control and verified backup/PITR recovery plan.
+  An expired or removed lease does NOT authorize external trigger replay.
 */
-
 SET NOCOUNT ON;
 GO
 

@@ -1,5 +1,7 @@
 using ArchLucid.Capabilities.Cost;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Configuration;
@@ -42,8 +44,9 @@ public sealed class TypedFindingsGoldenPathTests
                     EdgeId = "rel1",
                     FromNodeId = "r1",
                     ToNodeId = "t1",
-                    EdgeType = "RELATES_TO",
-                    Label = "relates to"
+                    EdgeType = GraphEdgeTypes.RelatesTo,
+                    Label = "relates to",
+                    Weight = GraphEdgeDecisioningThresholds.MinWeightForSemanticLink
                 },
                 new GraphEdge { EdgeId = "p1", FromNodeId = "s1", ToNodeId = "t1", EdgeType = "PROTECTS", Label = "protects" },
                 new GraphEdge { EdgeId = "p2", FromNodeId = "s1", ToNodeId = "t2", EdgeType = "PROTECTS", Label = "protects" },
@@ -147,31 +150,39 @@ public sealed class TypedFindingsGoldenPathTests
 
         FindingsSnapshot snapshot = await orchestrator.GenerateFindingsSnapshotAsync(runId, ctxId, graph, CancellationToken.None);
 
-        snapshot.Findings.Should().Contain(f =>
+        IEnumerable<Finding> packageFindings = AllPackageFindings(snapshot);
+
+        packageFindings.Should().Contain(f =>
             f.FindingType == "RequirementFinding"
             && f.RelatedNodeIds.Contains("t1")
-            && f.Trace.DecisionsTaken.Count > 0
+            && f.Trace!.DecisionsTaken.Count > 0
             && f.Trace.RulesApplied.Contains("requirement-surface")
             && f.Trace.Notes.Any(n => n.StartsWith("Related topology resources:", StringComparison.Ordinal)));
 
-        snapshot.Findings.Should().Contain(f => f.FindingType == "CostConstraintFinding");
-        snapshot.Findings.Should().Contain(f =>
+        packageFindings.Should().Contain(f => f.FindingType == "CostConstraintFinding");
+        packageFindings.Should().Contain(f =>
             f.FindingType == "SecurityControlFinding" && f.RelatedNodeIds.Contains("t1"));
 
         RuleBasedDecisionEngine decisionEngine = Feasibility.RuleBasedDecisionEngineTestDependencies.CreateEngine(
             new InMemoryDecisionRuleProvider());
 
+        // Decision-grade manifest materialization reads promoted rows only (ADR 0070); checklist findings stay on-package.
         (ManifestDocument manifest, _) = await decisionEngine.DecideAsync(runId, ctxId, graph, snapshot, CancellationToken.None);
 
-        manifest.Cost.MaxMonthlyCost.Should().Be(5000m);
+        packageFindings.Should().Contain(f =>
+            f.FindingType == "ComplianceFinding"
+            && f.RelatedNodeIds.Any(id => string.Equals(id, "t3", StringComparison.OrdinalIgnoreCase)));
+        manifest.Cost.MaxMonthlyCost.Should().BeNull("cost constraint typed findings demote without diagram citations");
         manifest.Security.Controls.Should().Contain(c => c.ControlId == "AC-2" && c.Status == "missing");
-        manifest.Compliance.Controls.Should().Contain(c => c.ControlId == "STO-001" && c.Status == "Gap");
-        manifest.Compliance.Controls.Should().Contain(c => c.ControlId == "DAT-001" && c.Status == "Gap");
-        manifest.Compliance.Gaps.Should().Contain(g => g.Contains("blob", StringComparison.OrdinalIgnoreCase));
-        manifest.Compliance.Gaps.Should().Contain(g => g.Contains("db", StringComparison.OrdinalIgnoreCase));
-        manifest.UnresolvedIssues.Items.Should().Contain(i => i.IssueType == "ComplianceGap");
+        manifest.Compliance.Controls.Should().BeEmpty();
         manifest.Decisions.Should().Contain(d =>
-            d.Category == "Security" && d.SelectedOption == "RequiredRemediation" && d.Title.Contains("MFA"));
-        manifest.Assumptions.Should().Contain(a => a.Contains("Preferred:", StringComparison.OrdinalIgnoreCase) && a.Contains("Cost", StringComparison.OrdinalIgnoreCase));
+            d.Category == "Security" && d.Title.Contains("MFA", StringComparison.Ordinal));
     }
+
+    /// <summary>
+    ///     After insight-density demotion (DX-59), typed-engine rows may reside in
+    ///     <see cref="FindingsSnapshot.ChecklistCoverage" /> rather than <see cref="FindingsSnapshot.Findings" />.
+    /// </summary>
+    private static IEnumerable<Finding> AllPackageFindings(FindingsSnapshot snapshot) =>
+        snapshot.Findings.Concat(snapshot.ChecklistCoverage);
 }

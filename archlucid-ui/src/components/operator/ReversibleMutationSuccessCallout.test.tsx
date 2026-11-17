@@ -26,7 +26,12 @@ describe("ReversibleMutationSuccessCallout (TB-2148)", () => {
 
     expect(screen.getByText("Marked 2 finding(s) as accepted.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Undo" })).toBeInTheDocument();
-    expect(screen.getByText(MUTATION_UNDO_WINDOW_VISIBLE_COPY)).toBeInTheDocument();
+    expect(
+      screen.getByText((_, element) => {
+        const text = element?.textContent ?? "";
+        return element?.tagName === "P" && text.includes(MUTATION_UNDO_WINDOW_VISIBLE_COPY);
+      }),
+    ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Undo" }));
 

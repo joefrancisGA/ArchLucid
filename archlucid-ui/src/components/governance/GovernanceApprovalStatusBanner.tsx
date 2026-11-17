@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import {
   BUYER_GOVERNANCE_STATUS_BANNER_TITLE,
@@ -15,13 +19,12 @@ import {
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
-  GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { cn } from "@/lib/utils";
 
 const approvalQueueHref = GOVERNANCE_APPROVAL_QUEUE_PATH;
 const auditHref = GOVERNANCE_AUDIT_PATH;
-const findingsQueueHref = GOVERNANCE_FINDINGS_PATH;
 
 export type GovernanceApprovalStatusBannerProps = {
   readonly className?: string;
@@ -35,6 +38,8 @@ export type GovernanceApprovalStatusBannerProps = {
 
 /** Compact approval status — shared accent and actions across buyer approval surfaces. */
 export function GovernanceApprovalStatusBanner(props: GovernanceApprovalStatusBannerProps) {
+  const { productLine } = useProductLine();
+  const findingsQueueHref = findingsPathForProductLine(productLine);
   const { className, onRiskRegisterPage = false, onAssignedToMeFindingsPage = false, provenance = null } = props;
 
   if (!hasGovernanceApprovalProvenance(provenance)) {

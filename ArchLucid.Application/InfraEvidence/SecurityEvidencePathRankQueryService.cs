@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Contracts.InfraEvidence;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -20,6 +21,8 @@ public sealed class SecurityEvidencePathRankQueryService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+
+        (page, pageSize) = PaginationDefaults.Normalize(page, pageSize);
 
         (IReadOnlyList<SecurityEvidencePathRankRecord> ranks, int totalCount) =
             await rankRepository.ListRankedPagedAsync(

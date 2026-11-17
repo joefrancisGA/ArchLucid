@@ -7,6 +7,7 @@ import { ensureOidcBearerReady } from "./http-auth";
 import { applyCorrelationHeaders, resolveRequest, serverFetchInit } from "./http-proxy";
 import { apiPatchJson, apiPutJson } from "./http";
 import { notifyIfIdempotencyReplayed } from "./http-verbs-mutate-shared";
+import { encodeRequiredPathSegment, isRecord } from "./api-boundary-normalization";
 
 const ARCHITECTURES_BASE = "/v1/architectures";
 
@@ -26,7 +27,7 @@ export async function getArchitectureShares(
   architectureId: string,
 ): Promise<ArchitectureShareListResponse> {
   return apiGetSealedManifestAware<ArchitectureShareListResponse>(
-    `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/shares`,
+    `${ARCHITECTURES_BASE}/${encodeRequiredPathSegment(architectureId, "architectureId")}/shares`,
   );
 }
 
@@ -35,7 +36,7 @@ export async function putArchitectureShare(
   body: PutArchitectureShareRequest,
 ): Promise<ArchitectureShareListResponse> {
   return apiPutJson<ArchitectureShareListResponse>(
-    `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/shares`,
+    `${ARCHITECTURES_BASE}/${encodeRequiredPathSegment(architectureId, "architectureId")}/shares`,
     body,
   );
 }
@@ -45,7 +46,7 @@ export async function revokeArchitectureShare(
   targetActorOid: string,
 ): Promise<ArchitectureShareListResponse> {
   await ensureOidcBearerReady();
-  const path = `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/shares/${encodeURIComponent(targetActorOid.trim())}`;
+  const path = `${ARCHITECTURES_BASE}/${encodeRequiredPathSegment(architectureId, "architectureId")}/shares/${encodeRequiredPathSegment(targetActorOid, "targetActorOid")}`;
   const { url, headers } = await resolveRequest(path);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   const response = await fetch(url, serverFetchInit(h, { method: "DELETE" }));
@@ -58,7 +59,17 @@ export async function revokeArchitectureShare(
 
   notifyIfIdempotencyReplayed(response);
 
-  return JSON.parse(text) as ArchitectureShareListResponse;
+  if (text.trim().length === 0) {
+    throw new Error("Architecture share response was not returned.");
+  }
+
+  const parsed: unknown = JSON.parse(text);
+
+  if (!isRecord(parsed)) {
+    throw new Error("Architecture share response was not recognized.");
+  }
+
+  return parsed as ArchitectureShareListResponse;
 }
 
 export async function patchArchitectureRestrictToShares(
@@ -66,7 +77,7 @@ export async function patchArchitectureRestrictToShares(
   body: PatchArchitectureRestrictToSharesRequest,
 ): Promise<ArchitectureShareListResponse> {
   return apiPatchJson<ArchitectureShareListResponse>(
-    `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/restrict-to-shares`,
+    `${ARCHITECTURES_BASE}/${encodeRequiredPathSegment(architectureId, "architectureId")}/restrict-to-shares`,
     body,
   );
 }

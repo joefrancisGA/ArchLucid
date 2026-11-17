@@ -56,9 +56,10 @@ public sealed partial class SqlOperationalSecurityFindingRepository
                                  AND LTRIM(RTRIM(ControlId)) <> ''
                            ),
                            closed_pairs AS (
-                               SELECT DISTINCT CloudResourceId, ControlId
+                               SELECT CloudResourceId, ControlId, MIN(UpdatedUtc) AS FirstClosedUpdateUtc
                                FROM scoped
                                WHERE Status = @ClosedStatus
+                               GROUP BY CloudResourceId, ControlId
                            ),
                            recurred_pairs AS (
                                SELECT DISTINCT CloudResourceId, ControlId
@@ -73,6 +74,7 @@ public sealed partial class SqlOperationalSecurityFindingRepository
                                INNER JOIN closed_pairs c
                                    ON c.CloudResourceId = s.CloudResourceId
                                    AND c.ControlId = s.ControlId
+                                   AND c.FirstClosedUpdateUtc < s.UpdatedUtc
                                WHERE s.Status = @OpenStatus
                                  AND s.UpdatedUtc > @WindowStartUtc
                                  AND s.UpdatedUtc <= @WindowEndUtc

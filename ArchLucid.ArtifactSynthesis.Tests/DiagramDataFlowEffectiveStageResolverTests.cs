@@ -25,6 +25,7 @@ public sealed class DiagramDataFlowEffectiveStageResolverTests
             .Should()
             .Be(AzureInventoryDataFlowStageNames.Ingestion);
 
-        overrides.Should().NotContainKey("st0");
+        overrides["st0"].Should().Be(AzureInventoryDataFlowStageNames.Ingestion);
+        overrides["st11"].Should().Be(AzureInventoryDataFlowStageNames.Ingestion);
     }
 }

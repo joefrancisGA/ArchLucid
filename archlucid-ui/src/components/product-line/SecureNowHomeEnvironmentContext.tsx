@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useQueries, useQuery } from "@tanstack/react-query";
 
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
@@ -16,8 +17,15 @@ import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-ev
 import {
   computeSecureNowCapturePathDelta,
   collectSecurityEvidencePathIdsFromAttackPathReport,
-  formatSecureNowCapturePathDeltaList,
 } from "@/lib/product-line/securenow-capture-path-delta";
+import {
+  formatSecureNowCapturePathDeltaCounts,
+  readSecureNowLastOpenedSnapshotId,
+  secureNowPathInspectHref,
+  writeSecureNowLastOpenedSnapshotId,
+} from "@/lib/product-line/securenow-stickiness";
+import { SECURENOW_COLLECTION_SETUP_API_UNREACHABLE } from "@/lib/product-line/securenow-workspace-api-unreachable-copy";
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { fetchRankedSecurityEvidencePaths, fetchSecurityEvidencePathAttackPathReport } from "@/lib/security-evidence-path-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -25,18 +33,26 @@ import {
   formatScopeSwitcherTriggerLabel,
   isSampleWorkspacePresentationScope,
 } from "@/lib/scope-switcher-display";
+import { SecureNowCollectionPrimaryBlockerLine } from "@/components/product-line/SecureNowCollectionPrimaryBlockerLine";
+import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-line/SecureNowWorkspaceApiUnreachableNotice";
 import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
 import {
   resolveSecureNowHomeCollectionSetupFallbackInput,
   useSecureNowCollectionSetupInput,
 } from "@/hooks/use-securenow-collection-setup-input";
+import { resolveSecureNowHomeEnvironmentNextStep } from "@/lib/product-line/securenow-home-next-step";
+import { SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF } from "@/lib/product-line/securenow-self-service-home-copy";
+import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { cn } from "@/lib/utils";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 
 const SNAPSHOT_PAGE_SIZE = 20;
-const CLOUD_CONNECTIONS_HREF = "/integrations/cloud-connections";
+const CLOUD_CONNECTIONS_HREF = CLOUD_CONNECTIONS_PATH;
 const DRIFT_HREF = "/infrastructure/snapshots-drift";
-const RANKED_PATHS_HREF = "/security/remediation-factory";
-const FIRST_HOUR_STOP_HREF = "/administration/securenow-first-hour#stop";
 
 function subscriptionPhrase(snapshots: readonly InfraEvidenceSnapshotSummary[]): string | null {
   const subscriptions = [...new Set(
@@ -78,10 +94,39 @@ function collectionGapDescription(snapshot: InfraEvidenceSnapshotSummary): strin
   return null;
 }
 
+function PathIdLinks(props: { readonly pathIds: readonly string[] }): React.JSX.Element {
+  if (props.pathIds.length === 0) {
+    return <span>None</span>;
+  }
+
+  return (
+    <>
+      {props.pathIds.map((pathId, index) => (
+        <span key={pathId}>
+          {index > 0 ? ", " : null}
+          <ContextLink href={secureNowPathInspectHref(pathId)}>{pathId}</ContextLink>
+        </span>
+      ))}
+    </>
+  );
+}
+
 function CaptureDeltaBlock(props: {
+  readonly stickinessScope: { readonly tenantId: string; readonly workspaceId: string };
   readonly eligibleSnapshots: readonly InfraEvidenceSnapshotSummary[];
   readonly reportQueries: ReadonlyArray<{ readonly isPending: boolean; readonly isError: boolean; readonly data: ReturnType<typeof collectSecurityEvidencePathIdsFromAttackPathReport> | undefined }>;
 }): React.JSX.Element {
+  const latestSnapshotId = props.eligibleSnapshots[0]?.snapshotId ?? null;
+  const [lastOpenedSnapshotId, setLastOpenedSnapshotId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const previous = readSecureNowLastOpenedSnapshotId(props.stickinessScope);
+    setLastOpenedSnapshotId(previous);
+
+    if (latestSnapshotId !== null) {
+      writeSecureNowLastOpenedSnapshotId(props.stickinessScope, latestSnapshotId);
+    }
+  }, [latestSnapshotId, props.stickinessScope]);
   if (props.eligibleSnapshots.length < 2) {
     return (
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-capture-delta">
@@ -112,13 +157,27 @@ function CaptureDeltaBlock(props: {
   const previousIds = props.reportQueries[1]?.data ?? [];
   const delta = computeSecureNowCapturePathDelta(previousIds, latestIds);
 
+  const returnSinceLastOpen =
+    lastOpenedSnapshotId === null || latestSnapshotId === null
+      ? null
+      : lastOpenedSnapshotId === latestSnapshotId
+        ? "No newer capture since you last opened Home."
+        : "New capture since you last opened Home.";
+
   return (
     <div className={cn("m-0 space-y-1", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-capture-delta">
-      <p className="m-0">
-        Added: {formatSecureNowCapturePathDeltaList(delta.added)} · Gone:{" "}
-        {formatSecureNowCapturePathDeltaList(delta.gone)} · Unchanged:{" "}
-        {formatSecureNowCapturePathDeltaList(delta.unchanged)}
+      <p className="m-0" data-testid="securenow-capture-delta-counts">
+        {formatSecureNowCapturePathDeltaCounts(delta)}
       </p>
+      <p className="m-0">
+        Added: <PathIdLinks pathIds={delta.added} /> · Gone: <PathIdLinks pathIds={delta.gone} /> · Unchanged:{" "}
+        <PathIdLinks pathIds={delta.unchanged} />
+      </p>
+      {returnSinceLastOpen !== null ? (
+        <p className="m-0" data-testid="securenow-last-opened-capture">
+          {returnSinceLastOpen}
+        </p>
+      ) : null}
       <p className="m-0">
         This is not a usage claim.{" "}
         <ContextLink href={DRIFT_HREF}>Compare captures</ContextLink>
@@ -148,6 +207,16 @@ function SecureNowHomeCollectionSetupBlock(props: {
   const setupQuery = useSecureNowCollectionSetupInput({
     snapshotCaptureSucceeded: props.snapshotCaptureSucceeded,
   });
+
+  if (setupQuery.isError) {
+    return (
+      <SecureNowWorkspaceApiUnreachableNotice
+        message={SECURENOW_COLLECTION_SETUP_API_UNREACHABLE}
+        testId="securenow-home-collection-setup-unreachable"
+      />
+    );
+  }
+
   const collectionInput =
     setupQuery.collectionInput
     ?? resolveSecureNowHomeCollectionSetupFallbackInput({
@@ -155,11 +224,33 @@ function SecureNowHomeCollectionSetupBlock(props: {
       subscriptionLabelPresent: props.subscriptionLabelPresent,
     });
 
+  const collectionComplete = isSecureNowCollectionSetupComplete(collectionInput);
+
   return (
-    <SecureNowCollectionSetupChecklist
-      input={collectionInput}
-      testIdPrefix="securenow-home"
-    />
+    <div className="space-y-2">
+      <SecureNowCollectionPrimaryBlockerLine
+        input={collectionInput}
+        testIdPrefix="securenow-home"
+        youAreHereMode
+      />
+      <SecureNowCollectionSetupChecklist
+        input={collectionInput}
+        testIdPrefix="securenow-home"
+        suppressRecoveryLink
+      />
+      {!collectionComplete ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-collection-check-link-row">
+          Stuck on collection?{" "}
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF}
+            data-testid="securenow-home-collection-check-link"
+          >
+            Collection check
+          </Link>
+        </p>
+      ) : null}
+    </div>
   );
 }
 
@@ -167,6 +258,9 @@ function SecureNowHomeCollectionSetupBlock(props: {
 export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
   const searchParams = useSearchParams();
   const scope = useOperatorScopeQueryKey();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(true);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const snapshotsQuery = useQuery({
     queryKey: operatorQueryKeys.infraEvidenceSnapshotsList(1, SNAPSHOT_PAGE_SIZE),
     queryFn: () => fetchInfraEvidenceSnapshots(1, SNAPSHOT_PAGE_SIZE),
@@ -229,6 +323,8 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
         {workspaceLabel !== null ? <span>{workspaceLabel}</span> : null}
         <span>{errorMessage(snapshotsQuery.error)}</span>
         <ContextLink href={CLOUD_CONNECTIONS_HREF}>Check cloud connections</ContextLink>
+        <ContextLink href={SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF}>Collection check</ContextLink>
+        <ContextLink href={ADMINISTRATION_SYSTEM_HEALTH_PATH}>System health</ContextLink>
       </p>
     );
   }
@@ -245,30 +341,12 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
   const snapshot = snapshotRows[0] ?? null;
   const selectedPathId = searchParams.get("pathId")?.trim() ?? "";
 
-  const nextStep = (
-    needsCollection: boolean,
-    firstRankedPathId: string,
-  ): { label: string; href: string } => {
-    if (needsCollection) {
-      return { label: "Next: Scope and freshness", href: CLOUD_CONNECTIONS_HREF };
-    }
-
-    if (selectedPathId.length > 0) {
-      return { label: "Next: Stop", href: FIRST_HOUR_STOP_HREF };
-    }
-
-    if (firstRankedPathId.length > 0) {
-      return {
-        label: "Next: One ranked path",
-        href: `${RANKED_PATHS_HREF}?pathId=${encodeURIComponent(firstRankedPathId)}`,
-      };
-    }
-
-    return { label: "Next: One ranked path", href: RANKED_PATHS_HREF };
-  };
-
   if (snapshot === null) {
-    const next = nextStep(true, firstRankedPathId);
+    const next = resolveSecureNowHomeEnvironmentNextStep({
+      needsCollection: true,
+      selectedPathId,
+      firstRankedPathId,
+    });
 
     return (
       <div
@@ -279,6 +357,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
         {workspaceLabel !== null ? <span>{workspaceLabel}</span> : null}
         <ContextLink href={CLOUD_CONNECTIONS_HREF}>No collection yet</ContextLink>
         <ContextLink href="/administration/securenow-first-hour">First hour</ContextLink>
+        <ContextLink href={SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF}>Collection check</ContextLink>
         </p>
         <SecureNowHomeCollectionSetupBlock
           snapshotCaptureSucceeded={false}
@@ -290,6 +369,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
           This is not a timed SLA.
         </p>
         <CaptureDeltaBlock
+          stickinessScope={{ tenantId: scope.tenantId, workspaceId: scope.workspaceId }}
           eligibleSnapshots={eligibleCaptureSnapshots}
           reportQueries={pathDeltaReportQueryViews}
         />
@@ -302,11 +382,17 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
   const gap = collectionGapDescription(snapshot);
   const snapshotCaptureSucceeded =
     snapshot !== null && gap === null && isInfraEvidenceSnapshotCaptureSucceeded(snapshot.captureStatus);
-  const next = nextStep(gap !== null, firstRankedPathId);
+  const next = resolveSecureNowHomeEnvironmentNextStep({
+    needsCollection: gap !== null,
+    selectedPathId,
+    firstRankedPathId,
+  });
   const showCollectionSetup =
     gap !== null
     || snapshot === null
     || !isInfraEvidenceSnapshotCaptureSucceeded(snapshot.captureStatus);
+  // Wait for ranked-path query before linking "One ranked path" so the CTA can include pathId.
+  const rankedPathNextStepPending = gap === null && rankedPathsQuery.isPending;
 
   return (
     <div className="space-y-1" data-testid="securenow-home-environment-context">
@@ -324,13 +410,27 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
       ) : null}
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-next-step">
         Next step:{" "}
-        <ContextLink href={next.href}>{next.label.replace("Next: ", "")}</ContextLink>{" "}
+        {rankedPathNextStepPending ? (
+          <span>Loading next step…</span>
+        ) : (
+          <ContextLink href={next.href}>{next.label.replace("Next: ", "")}</ContextLink>
+        )}{" "}
         This is not a timed SLA.
       </p>
       <CaptureDeltaBlock
+        stickinessScope={{ tenantId: scope.tenantId, workspaceId: scope.workspaceId }}
         eligibleSnapshots={eligibleCaptureSnapshots}
         reportQueries={pathDeltaReportQueryViews}
       />
+      {partialCapture && !showCollectionSetup ? (
+        <SecureNowPartialCaptureRecoveryParagraph
+          testId="securenow-home-partial-capture"
+          partialCaptureSnapshotId={partialCaptureSnapshotId}
+          returnPath={partialCaptureReturnPath}
+          cloudConnectionsTestId="securenow-home-partial-capture-cloud-connections"
+          extractUploadTestId="securenow-home-partial-capture-extract-upload"
+        />
+      ) : null}
     </div>
   );
 }

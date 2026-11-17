@@ -31,6 +31,21 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
         return Task.CompletedTask;
     }
 
+    public Task RecordDeliveryAsync(AlertRoutingSubscription subscription, DateTime deliveredUtc, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(subscription);
+        ct.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            AlertRoutingSubscription? stored = _items.Find(x =>
+                x.RoutingSubscriptionId == subscription.RoutingSubscriptionId && SameScope(x, subscription));
+            if (stored is not null && (stored.LastDeliveredUtc is null || stored.LastDeliveredUtc < deliveredUtc))
+                stored.LastDeliveredUtc = deliveredUtc;
+        }
+
+        return Task.CompletedTask;
+    }
+
     public Task<AlertRoutingSubscription?> GetByIdAsync(
         ScopeContext scope,
         Guid routingSubscriptionId,

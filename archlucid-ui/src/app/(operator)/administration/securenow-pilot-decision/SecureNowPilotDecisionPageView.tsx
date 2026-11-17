@@ -4,7 +4,12 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { SecureNowPilotStopItsmHandoffBlock } from "@/components/product-line/SecureNowPilotStopItsmHandoffBlock";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+
+import { SecureNowPilotDispositionOutcomeRehearsalPanels } from "@/components/product-line/SecureNowPilotDispositionOutcomeRehearsalPanels";
 import { SecureNowProcurementTrustStrip } from "@/components/product-line/SecureNowProcurementTrustStrip";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -13,6 +18,7 @@ import {
   loadSecureNowPilotDispositionForPath,
   persistSecureNowPilotDispositionForPath,
 } from "@/lib/product-line/securenow-pilot-disposition-sync";
+import { formatSecureNowPilotDispositionTenantAuditRecordedLine } from "@/lib/product-line/securenow-pilot-disposition-tenant-audit-copy";
 import {
   secureNowPilotDispositionStorageKey,
   SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE,
@@ -29,9 +35,15 @@ import {
   SECURENOW_PILOT_DECISION_OUTCOMES,
   SECURENOW_PILOT_DECISION_STEPS,
 } from "@/lib/product-line/securenow-pilot-decision-copy";
+import { SPONSOR_PATH_DISPOSITION_SAVE_UNCHANGED_LINE } from "@/lib/product-line/sponsor-path-disposition-save-error-honesty-copy";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { cn } from "@/lib/utils";
 
 export function SecureNowPilotDecisionPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(true);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const pathId = searchParams.get("pathId")?.trim() ?? "";
   const storageKey = pathId.length > 0 ? secureNowPilotDispositionStorageKey(pathId) : null;
   const [outcome, setOutcome] = useState("");
@@ -39,6 +51,7 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedDisposition, setSavedDisposition] = useState<{ outcome: string; rationale: string } | null>(null);
   const [tenantAuditSaved, setTenantAuditSaved] = useState(false);
+  const [tenantAuditRecordedUtc, setTenantAuditRecordedUtc] = useState<string | null>(null);
 
   useEffect(() => {
     if (pathId.length === 0) {
@@ -46,27 +59,36 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
       setRationale("");
       setSavedDisposition(null);
       setTenantAuditSaved(false);
+      setTenantAuditRecordedUtc(null);
       return;
     }
 
     let cancelled = false;
 
-    void loadSecureNowPilotDispositionForPath(pathId).then((stored) => {
+    void loadSecureNowPilotDispositionForPath(pathId).then((loaded) => {
       if (cancelled) {
         return;
       }
 
-      if (stored === null) {
+      if (loaded === null) {
         setOutcome("");
         setRationale("");
         setSavedDisposition(null);
         setTenantAuditSaved(false);
+        setTenantAuditRecordedUtc(null);
         return;
       }
 
-      setOutcome(stored.outcome);
-      setRationale(stored.rationale);
-      setSavedDisposition(stored);
+      setOutcome(loaded.record.outcome);
+      setRationale(loaded.record.rationale);
+      setSavedDisposition(loaded.record);
+      setTenantAuditRecordedUtc(loaded.recordedUtc);
+
+      if (loaded.recordedUtc !== null) {
+        setTenantAuditSaved(true);
+      } else {
+        setTenantAuditSaved(false);
+      }
     });
 
     return () => {
@@ -91,12 +113,14 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
       if (outcome.status === "error") {
         setSaveError(outcome.errorMessage);
         setTenantAuditSaved(false);
+        setTenantAuditRecordedUtc(null);
         return;
       }
 
       setSavedDisposition(record);
       setSaveError(null);
       setTenantAuditSaved(true);
+      setTenantAuditRecordedUtc(outcome.recordedUtc);
     });
   };
 
@@ -105,6 +129,15 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
       <OperatorPageHeader title={SECURENOW_PILOT_DECISION_HEADING} subtitle={SECURENOW_PILOT_DECISION_LEAD} />
 
       <main className="mt-6 max-w-3xl space-y-6">
+        {partialCapture ? (
+          <SecureNowPartialCaptureRecoveryParagraph
+            testId="securenow-pilot-decision-partial-capture"
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
+            returnPath={partialCaptureReturnPath}
+            cloudConnectionsTestId="securenow-pilot-decision-partial-capture-cloud-connections"
+            extractUploadTestId="securenow-pilot-decision-partial-capture-extract-upload"
+          />
+        ) : null}
         <section aria-labelledby="securenow-pilot-decision-steps-heading" className="space-y-2">
           <h2 id="securenow-pilot-decision-steps-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Close the review
@@ -164,7 +197,21 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
           <button type="button" className="rounded border border-border px-3 py-2" onClick={saveDisposition}>
             Save path disposition
           </button>
-          {saveError !== null ? <p className="text-rose-700" role="alert">{saveError}</p> : null}
+          {saveError !== null ? (
+            <div className="space-y-1" role="alert" data-testid="securenow-pilot-decision-save-error">
+              <p className="text-rose-700">{saveError}</p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-pilot-decision-save-unchanged">
+                {SPONSOR_PATH_DISPOSITION_SAVE_UNCHANGED_LINE}
+              </p>
+              <FatalPageReportProblemSupportRow
+                surfaceId="securenow-pilot-decision-disposition-save-failure"
+                errorTitle="Save path disposition"
+                errorCode="securenow-pilot-decision-disposition-save-failed"
+                correlationId={null}
+                httpStatus={null}
+              />
+            </div>
+          ) : null}
           {savedDisposition !== null ? (
             <p className={OPERATOR_TYPOGRAPHY.body} data-testid="securenow-pilot-decision-saved-disposition">
               Saved {savedDisposition.outcome}: {savedDisposition.rationale}
@@ -173,15 +220,24 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
           {tenantAuditSaved ? (
             <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-pilot-decision-tenant-audit-saved">
               {SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE}
+              {formatSecureNowPilotDispositionTenantAuditRecordedLine(tenantAuditRecordedUtc ?? "") != null ? (
+                <>
+                  {" "}
+                  <span data-testid="securenow-pilot-decision-tenant-audit-recorded-utc">
+                    {formatSecureNowPilotDispositionTenantAuditRecordedLine(tenantAuditRecordedUtc ?? "")}
+                  </span>
+                </>
+              ) : null}
             </p>
           ) : null}
-          {savedDisposition?.outcome === "Stop" ? (
-            <SecureNowPilotStopItsmHandoffBlock
-              pathId={pathId}
-              rationale={savedDisposition.rationale}
-              handoffTestId="securenow-pilot-decision-pilot-stop-itsm-handoff"
-            />
-          ) : null}
+          <SecureNowPilotDispositionOutcomeRehearsalPanels
+            outcome={outcome}
+            savedOutcome={savedDisposition?.outcome ?? null}
+            savedRationale={savedDisposition?.rationale ?? null}
+            pathId={pathId}
+            testIdPrefix="securenow-pilot-decision"
+            stopHandoffTestId="securenow-pilot-decision-pilot-stop-itsm-handoff"
+          />
           <p className={OPERATOR_TYPOGRAPHY.helper}>A saved disposition does not clear beta NO_GO.</p>
         </section>
 

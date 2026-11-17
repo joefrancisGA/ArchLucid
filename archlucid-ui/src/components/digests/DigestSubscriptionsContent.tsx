@@ -22,6 +22,7 @@ import { useDigestSubscriptionsContentToggle } from "@/components/digests/use-di
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { DIGESTS_BROWSE_RECIPIENTS_HELPER } from "@/lib/digests-browse-copy";
 import { digestsHubScopedHref } from "@/lib/digests-route-paths";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 import {
   DIGEST_SUBSCRIPTION_PAUSE_DIALOG_DESCRIPTION,
   resolveDigestSubscriptionPauseDialogTitle,
@@ -39,6 +40,8 @@ import {
   resolveDigestSubscriptionsWorkflowSteps,
 } from "@/lib/digest-subscriptions-workflow-checklist";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 export type DigestSubscriptionsContentProps = {
   readonly healthSnap: WeeklyDigestHealthDto | null;
@@ -51,6 +54,7 @@ export type DigestSubscriptionsContentProps = {
  * Subscriptions tab: customer-goal delivery workflow for architecture digests (TB-926).
  */
 export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProps): ReactElement {
+  const { productLine } = useProductLine();
   const buyerPolishedShell = useProductionEvalChrome();
   const refreshToken = props.refreshToken ?? 0;
   const formCardRef = useRef<HTMLDivElement | null>(null);
@@ -158,7 +162,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            href={resolveOperatorScopedRunReviewHref(scopedRunId)}
           >
             Open review
           </Link>
@@ -175,12 +179,25 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
       ) : null}
 
       {failure !== null ? (
-        <div role="alert">
+        <div role="alert" className="space-y-2" data-testid="digest-subscriptions-load-failure">
           <OperatorApiProblem
             problem={failure.problem}
             fallbackMessage={failure.message}
             correlationId={failure.correlationId}
           />
+          {list.queryFailure !== null ? (
+            <FatalPageReportProblemSupportRow
+              surfaceId={
+                productLine === "security"
+                  ? "compliance-digest-subscriptions-hard-failure"
+                  : "governance-digest-subscriptions-hard-failure"
+              }
+              errorTitle="Digest subscriptions"
+              errorCode="digest-subscriptions-list-load-failed"
+              correlationId={list.queryFailure.correlationId}
+              httpStatus={list.queryFailure.httpStatus}
+            />
+          ) : null}
         </div>
       ) : null}
 
@@ -217,6 +234,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
         <DigestSubscriptionList
           items={list.items}
           attemptsBySub={list.attemptsBySub}
+          attemptStatusBySub={list.attemptStatusBySub}
           historyOpenFor={list.historyOpenFor}
           loading={loading}
           canMutate={toggle.canMutateSubscriptions}

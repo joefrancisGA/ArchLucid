@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { InfraEvidenceWorkbenchBuildProvenanceStrip } from "@/components/infra-evidence/InfraEvidenceWorkbenchBuildProvenanceStrip";
 import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -27,6 +28,12 @@ import {
   fetchCloudResourceExplorerPage,
   formatInfraEvidenceHubApiError,
 } from "@/lib/infra-evidence/infra-evidence-hub-api";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
+import { RESOURCES_EXPLORER_SNAPSHOT_SCOPE_HONESTY_LINE } from "@/lib/infra-evidence/resources-explorer-snapshot-scope-honesty-copy";
+import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
+import { RESOURCE_EXPLORER_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-partial-capture-copy";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { RESOURCES_EXPLORER_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-resources-explorer-page-shortcuts";
@@ -56,6 +63,7 @@ import {
   formatAzureResourceTypeForDisplay,
   formatCloudResourceDisplayName,
 } from "@/lib/infra-evidence/format-azure-resource-display";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatInstantCompactMilitary } from "@/lib/locale-datetime";
 import {
   formatResourceHubTabActionLabelFromExplorerWorkQueue,
@@ -117,10 +125,13 @@ function resolveExplorerAskHubTab(
 
 function resolveNewestLastSeenUtc(rows: readonly CloudResourceSummary[]): string {
   let newest = "";
+  let newestMs = Number.NEGATIVE_INFINITY;
 
   for (const row of rows) {
-    if (row.lastSeenUtc.length > 0 && row.lastSeenUtc.localeCompare(newest) > 0) {
+    const lastSeenMs = parseIsoUtcMs(row.lastSeenUtc);
+    if (lastSeenMs > newestMs) {
       newest = row.lastSeenUtc;
+      newestMs = lastSeenMs;
     }
   }
 
@@ -130,6 +141,7 @@ function resolveNewestLastSeenUtc(rows: readonly CloudResourceSummary[]): string
 export function ResourcesExplorerClient() {
   useProductionEvalChrome();
   const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const resourcesPath = infrastructureResourcesPathForProductLine(productLine);
   const pageTitle = resolveSecureNowPageHeading(
     productLine,
@@ -225,7 +237,10 @@ export function ResourcesExplorerClient() {
     setPage(urlPage);
   }, [urlNamePrefix, urlPage, urlResourceGroup, urlResourceType, urlWorkQueue]);
 
+  const resourceRequestVersion = useRef(0);
   const loadResources = useCallback(async () => {
+    const requestVersion = ++resourceRequestVersion.current;
+
     setLoading(true);
     setLoadError(null);
 
@@ -240,18 +255,28 @@ export function ResourcesExplorerClient() {
         urlPage,
         50,
       );
+      if (requestVersion !== resourceRequestVersion.current) {
+        return;
+      }
+
       setRows(response.items);
       setTotalCount(response.totalCount);
       setPage(response.page);
       setPageSize(response.pageSize);
       setHasMore(response.hasMore);
     } catch (error: unknown) {
+      if (requestVersion !== resourceRequestVersion.current) {
+        return;
+      }
+
       setLoadError(formatInfraEvidenceHubApiError(error));
       setRows([]);
       setTotalCount(0);
       setHasMore(false);
     } finally {
-      setLoading(false);
+      if (requestVersion === resourceRequestVersion.current) {
+        setLoading(false);
+      }
     }
   }, [urlNamePrefix, urlPage, urlResourceGroup, urlResourceType, urlWorkQueue]);
 
@@ -261,6 +286,10 @@ export function ResourcesExplorerClient() {
     }
 
     void loadResources();
+
+    return () => {
+      resourceRequestVersion.current += 1;
+    };
   }, [loadResources, urlCloudResourceId]);
 
   useEffect(() => {
@@ -457,6 +486,10 @@ export function ResourcesExplorerClient() {
         }
       />
 
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-resource-explorer-snapshot-scope-honesty">
+        {RESOURCES_EXPLORER_SNAPSHOT_SCOPE_HONESTY_LINE}
+      </p>
+
       <main
         id={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID}
         className="flex w-full flex-col gap-4 scroll-mt-24"
@@ -487,17 +520,24 @@ export function ResourcesExplorerClient() {
       />
 
       {loadError != null ? (
-        <EnterpriseCompactEmptyState
-          role="alert"
-          title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE}
-          description={loadError}
-          testId="infra-resource-explorer-load-error-panel"
-          footer={
-            <Button type="button" size="sm" variant="primary" onClick={() => void loadResources()}>
-              Retry load
-            </Button>
-          }
-        />
+        <div className="space-y-2" data-testid="infra-resource-explorer-load-error">
+          <EnterpriseCompactEmptyState
+            role="alert"
+            title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE}
+            description={loadError}
+            testId="infra-resource-explorer-load-error-panel"
+            footer={
+              <Button type="button" size="sm" variant="primary" onClick={() => void loadResources()}>
+                Retry load
+              </Button>
+            }
+          />
+          <OperatorErrorRecoveryContract
+            presentation={errorRecoveryContractForScenario("api-problem", {
+              failureSummary: loadError,
+            })}
+          />
+        </div>
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -614,6 +654,18 @@ export function ResourcesExplorerClient() {
                   title="No matching resources"
                   description="No resources in this snapshot match the current filters. Widen filters or clear the work queue — an empty table is not proof the subscription has zero resources."
                   testId="infra-resource-explorer-empty-state"
+                  footer={
+                    <>
+                      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-resource-explorer-empty-not-failure">
+                        {RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                      </p>
+                      {partialCapture ? (
+                        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-resource-explorer-empty-partial-capture">
+                          {RESOURCE_EXPLORER_EMPTY_PARTIAL_CAPTURE_LINE}
+                        </p>
+                      ) : null}
+                    </>
+                  }
                 />
               </EnterpriseTableCell>
             </EnterpriseTableRow>

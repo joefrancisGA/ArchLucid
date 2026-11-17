@@ -4,6 +4,7 @@ import type { JSX } from "react";
 
 import { ExternalPeerVocabularyRailFromModel } from "@/components/vocabulary/ExternalPeerVocabularyRailFromModel";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   buildReviewPackageGovernanceFindingsPairwiseRail,
   type ReviewPackageGovernanceFindingsSurfaceId,
@@ -31,6 +32,7 @@ export function ReviewPackageGovernanceFindingsVocabularyRail(
   props: ReviewPackageGovernanceFindingsVocabularyRailProps,
 ): JSX.Element {
   const { isWorkingMode } = useWorkspaceMode();
+  const { productLine } = useProductLine();
   const parentArchitectureId = props.parentArchitectureId?.trim() ?? "";
   const workingInstrument =
     isWorkingMode && parentArchitectureId.length > 0
@@ -45,7 +47,7 @@ export function ReviewPackageGovernanceFindingsVocabularyRail(
           reviewSideLink: props.model.reviewPackageFindingsLink,
           externalPeerLink: props.model.governanceFindingsLink,
         }
-      : buildReviewPackageGovernanceFindingsPairwiseRail(props.runId, workingInstrument);
+      : buildReviewPackageGovernanceFindingsPairwiseRail(props.runId, workingInstrument, productLine);
 
   return (
     <ExternalPeerVocabularyRailFromModel

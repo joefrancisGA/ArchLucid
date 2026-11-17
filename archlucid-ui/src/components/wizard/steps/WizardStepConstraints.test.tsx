@@ -15,7 +15,7 @@ describe("WizardStepConstraints", () => {
       </TooltipProvider>,
     );
 
-    expect(screen.getByText("No Constraints added yet.")).toBeInTheDocument();
+    expect(screen.getByText("No constraints were stored yet.")).toBeInTheDocument();
   });
 
   it("adds a constraint badge from the architecture draft input and Add button", () => {

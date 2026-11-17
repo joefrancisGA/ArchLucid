@@ -1,9 +1,7 @@
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Tests.TestDtos;
 
@@ -23,16 +21,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchitectureRunCommitPathParityIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
-    };
-
-    private static StringContent JsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     [SkippableFact]
     public async Task Authority_commit_path_cohort_produces_committed_demo_shape()
@@ -48,26 +37,19 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
     private static async Task<CohortArtifacts> CaptureCohortAsync()
     {
         await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        HttpClient client = await IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync(factory);
 
-        const string requestId = "REQ-PR-A2-COHORT-DEMO-001";
-        HttpResponseMessage createResponse = await client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
+        string requestId = TestRequestIds.ForScenario(nameof(ArchitectureRunCommitPathParityIntegrationTests));
+        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+                CreateRunResponseDto? created =
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         string runId = created.Run.RunId;
 
-        await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
-        commitResponse.StatusCode.Should().Be(HttpStatusCode.OK, "commit should succeed on authority path");
-
-        CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
+        HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);        CommitRunResponseDto? commitPayload =
+            await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
         int manifestTraceIdCount = commitPayload.Manifest.Metadata.DecisionTraceIds.Count;
         string manifestJson = JsonSerializer.Serialize(commitPayload.Manifest, JsonOptions);
@@ -81,7 +63,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         string deltasJson = await deltasResponse.Content.ReadAsStringAsync();
 
         HttpResponseMessage zipResponse =
-            await client.GetAsync($"/v1/architecture/review/{runId}/traceability-bundle.zip");
+            await client.GetReviewTraceabilityBundleZipHttpAsync(Guid.Parse(runId));
         zipResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         byte[] zipBytes = await zipResponse.Content.ReadAsByteArrayAsync();
         IReadOnlyList<string> zipNames = ReadZipEntryNames(zipBytes);

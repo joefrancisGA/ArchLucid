@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { INTEGRATIONS_JIRA_PATH } from "@/lib/integrations-nav-paths";
@@ -20,6 +24,9 @@ export function ItsmAtlassianOAuthCallbackHeaderActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="itsm-oauth-callback-header-actions">
+      {buyerPolishedShell ? null : (
+        <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+      )}
       {showOpenJiraHeaderAction ? (
         <Button asChild size="sm" variant="primary" data-testid="itsm-oauth-callback-open-jira-header">
           <Link href={INTEGRATIONS_JIRA_PATH}>{ITSM_ATLASSIAN_OAUTH_CALLBACK_OPEN_JIRA_LABEL}</Link>

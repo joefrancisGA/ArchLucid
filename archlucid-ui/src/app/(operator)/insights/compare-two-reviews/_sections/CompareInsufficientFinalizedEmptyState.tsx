@@ -7,6 +7,12 @@ import {
   buildCompareInsufficientFinalizedEmpty,
   buildInsightsFinalizedReviewPrerequisiteEmpty,
 } from "@/lib/insights-finalized-review-prerequisite-empty";
+import { ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE } from "@/lib/architecture/compare-delta-counts-two-sealed-footnote-copy";
+import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
+import { CompareInsufficientFinalizedPartialCaptureHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareInsufficientFinalizedPartialCaptureHonesty";
+import { CompareRunPickersPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersPartialInventoryFootnote";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type CompareInsufficientFinalizedEmptyStateProps = {
   readonly finalizedCount: number;
@@ -29,7 +35,25 @@ export function CompareInsufficientFinalizedEmptyState(props: CompareInsufficien
   return (
     <EnterpriseCompactEmptyState
       {...preset}
-      footer={<CompareSampleComparisonAction onLoadSampleComparison={onLoadSampleComparison} />}
+      footer={
+        <div className="space-y-3">
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-insufficient-finalized-second-sealed-discipline"
+          >
+            {ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-insufficient-finalized-counts-two-sealed"
+          >
+            {ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE}
+          </p>
+          <CompareRunPickersPartialInventoryFootnote />
+          <CompareInsufficientFinalizedPartialCaptureHonesty />
+          <CompareSampleComparisonAction onLoadSampleComparison={onLoadSampleComparison} />
+        </div>
+      }
     />
   );
 }

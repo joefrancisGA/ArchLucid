@@ -21,7 +21,7 @@ describe("slack-integration-connect-checklist", () => {
         activeDestinationCount: 0,
         formTestSucceeded: false,
       }),
-    ).toBe("destination");
+    ).toBe("test");
   });
 
   it("returns three checklist steps", () => {

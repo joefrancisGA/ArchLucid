@@ -5,6 +5,7 @@ namespace ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 
 public interface ICollectionRunRepository
 {
+    /// <summary>Persists a run. A late Running record cannot replace a terminal record.</summary>
     Task UpsertAsync(CollectionRun collectionRun, CancellationToken cancellationToken = default);
 
     Task<CollectionRun?> GetAsync(
@@ -18,7 +19,7 @@ public interface ICollectionRunRepository
         int limit,
         CancellationToken cancellationToken = default);
 
-    Task<bool> HasImportedHashAsync(
+    Task<Guid?> FindImportedSnapshotIdByHashAsync(
         ScopeContext scope,
         byte[] zipSha256,
         CancellationToken cancellationToken = default);

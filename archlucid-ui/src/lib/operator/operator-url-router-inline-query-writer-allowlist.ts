@@ -21,4 +21,7 @@ export const OPERATOR_URL_ROUTER_INLINE_QUERY_WRITER_ALLOWLIST = new Set<string>
   "app/(operator)/insights/roi-summary/_sections/RoiSummaryPageView.tsx",
   "app/(operator)/insights/search-review-evidence/_sections/SearchPageClient.tsx",
   "app/(operator)/insights/sponsor-report/_sections/PilotValueReportPageView.tsx",
+  "app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx",
+  "app/(operator)/integrations/webhooks/WebhooksCreateSubscriptionForm.tsx",
+  "app/(operator)/integrations/webhooks/use-webhooks-settings-mutations.ts",
 ]);

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_POLICY_PACKS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import {
   POLICY_PACK_DETAIL_HUB_COMPACT_LINE,
   POLICY_PACK_DETAIL_HUB_HEADING,
@@ -43,6 +46,19 @@ describe("policy-pack-detail-hub-vocabulary (TB-2283)", () => {
 
     expect(resolvePolicyPackDetailHubPeerLink("pack-detail")).toEqual(
       POLICY_PACK_DETAIL_HUB_PACKS_LINK,
+    );
+  });
+
+  it("uses the SecureNow hub for pack detail handoffs", () => {
+    expect(buildPolicyPackDetailHubVocabulary("security").packsHubLink.href).toBe(
+      SECURENOW_POLICY_PACKS_PATH,
+    );
+    expect(resolvePolicyPackDetailHubPeerLink("policy-packs", "pack-abc", "security")).toEqual({
+      ...POLICY_PACK_DETAIL_HUB_PACK_DETAIL_LINK,
+      href: `${SECURENOW_POLICY_PACKS_PATH}/pack-abc`,
+    });
+    expect(resolvePolicyPackDetailHubPeerLink("pack-detail", undefined, "security").href).toBe(
+      SECURENOW_POLICY_PACKS_PATH,
     );
   });
 });

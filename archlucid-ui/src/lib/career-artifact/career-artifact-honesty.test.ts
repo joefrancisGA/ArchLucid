@@ -171,7 +171,7 @@ describe("evaluateCareerArtifactHonesty (FC-02 / ADR 0078)", () => {
     });
 
     expect(verdict.canRender).toBe(false);
-    expect(verdict.headerLines.join(" ")).toMatch(/Skipped required questions: drRpo/i);
+    expect(verdict.headerLines.join(" ")).toMatch(/Skipped MUST questions: drRpo/i);
   });
 
   it("blocks Working Career simulator export without rehearsal banner on artifact (CG-021)", () => {

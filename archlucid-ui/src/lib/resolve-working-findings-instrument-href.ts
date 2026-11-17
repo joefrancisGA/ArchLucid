@@ -1,5 +1,7 @@
 import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import type { RiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
 
 export type ResolveWorkingFindingsInstrumentHrefInput = {
@@ -7,6 +9,8 @@ export type ResolveWorkingFindingsInstrumentHrefInput = {
   readonly runId?: string | null;
   readonly filter?: RiskRegisterFilter;
   readonly isWorkingMode: boolean;
+  readonly basePath?: string;
+  readonly productLine?: ProductLineId;
 };
 
 /** ADR 0098 / SG-019 — nested architecture findings when parent known on Working. */
@@ -15,8 +19,11 @@ export function resolveWorkingFindingsInstrumentHref(
 ): string {
   const architectureId = input.architectureId?.trim() ?? "";
   const runId = input.runId?.trim() ?? "";
+  const productLine = input.productLine ?? "architecture";
 
-  if (input.isWorkingMode && architectureId.length > 0) {
+  // SecureNow findings live on the compliance queue. Nested architecture findings stay the Working desk for Architecture.
+
+  if (input.isWorkingMode && architectureId.length > 0 && productLine !== "security") {
     const params = new URLSearchParams();
 
     if (runId.length > 0) {
@@ -33,5 +40,9 @@ export function resolveWorkingFindingsInstrumentHref(
     return query.length > 0 ? `${base}?${query}` : base;
   }
 
-  return buildGovernanceFindingsQueueHref({ runId, filter: input.filter });
+  return buildGovernanceFindingsQueueHref({
+    runId,
+    filter: input.filter,
+    basePath: input.basePath ?? findingsPathForProductLine(productLine),
+  });
 }

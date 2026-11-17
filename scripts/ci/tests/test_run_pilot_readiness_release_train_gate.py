@@ -50,6 +50,20 @@ class PilotReadinessReleaseTrainGateTests(unittest.TestCase):
         issues = self.module.validate_pilot_readiness_bundle_report(report)
         self.assertIn("overallVerdict is Fail.", issues)
 
+    def test_offline_warn_names_the_specific_slot(self) -> None:
+        report = json.loads((FIXTURES / "offline-pass.json").read_text(encoding="utf-8"))
+        report["overallVerdict"] = "Warn"
+        report["slots"][3]["verdict"] = "Warn"
+        issues = self.module.validate_pilot_readiness_bundle_report(report)
+        self.assertIn("offline overallVerdict must be Pass, found Warn.", issues)
+        self.assertIn("offline slot frontier-ai-baseline verdict is Warn.", issues)
+
+    def test_offline_warn_fails_even_if_overall_says_pass(self) -> None:
+        report = json.loads((FIXTURES / "offline-pass.json").read_text(encoding="utf-8"))
+        report["slots"][1]["verdict"] = "Warn"
+        issues = self.module.validate_pilot_readiness_bundle_report(report)
+        self.assertIn("offline slot return-trigger-telemetry verdict is Warn.", issues)
+
     def test_malformed_json_and_scalar_slots_emit_fail_artifact(self) -> None:
         payloads = [
             "{", "[", "null", "[]", "42", '"text"',

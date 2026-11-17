@@ -9,6 +9,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -52,6 +53,8 @@ import {
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
+import { REMEDIATION_PATTERNS_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-pattern/remediation-patterns-empty-not-load-failure-copy";
+import { REMEDIATION_PATTERNS_FILTER_NO_MATCH_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-pattern/remediation-patterns-filter-no-match-not-load-failure-copy";
 import { GOVERNANCE_AUDIT_PATH, SECURENOW_REMEDIATION_PATTERNS_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
@@ -453,7 +456,7 @@ export function RemediationPatternsClient() {
   }, [urlVersion]);
 
   useEffect(() => {
-    if (selectedPatternId === null) {
+    if (selectedPatternId === null || !listQuery.isSuccess) {
       return;
     }
 
@@ -464,7 +467,7 @@ export function RemediationPatternsClient() {
       setSelectedVersion(null);
       syncSelectionUrl({ patternId: null, version: null });
     }
-  }, [filteredPatterns, selectedPatternId, syncSelectionUrl]);
+  }, [filteredPatterns, listQuery.isSuccess, selectedPatternId, syncSelectionUrl]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -890,6 +893,17 @@ export function RemediationPatternsClient() {
               onRetry={refreshAll}
               retrying={listQuery.isFetching}
             />
+            <FatalPageReportProblemSupportRow
+              surfaceId={
+                productLine === "security"
+                  ? "compliance-remediation-patterns-hard-failure"
+                  : "governance-remediation-patterns-hard-failure"
+              }
+              errorTitle="Remediation patterns catalog"
+              errorCode="remediation-patterns-list-load-failed"
+              correlationId={null}
+              httpStatus={null}
+            />
             <OperatorErrorRecoveryContract presentation={listLoadRecovery} />
           </div>
         ) : listQuery.isLoading || (listQuery.isFetching && patterns.length === 0) ? (
@@ -908,6 +922,11 @@ export function RemediationPatternsClient() {
               },
             ]}
             testId="remediation-patterns-empty"
+            footer={
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-patterns-empty-not-load-failure">
+                {REMEDIATION_PATTERNS_EMPTY_NOT_LOAD_FAILURE_LINE}
+              </p>
+            }
           />
         ) : showFilteredRegistryEmpty ? (
           <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-patterns-filtered-empty">
@@ -922,6 +941,9 @@ export function RemediationPatternsClient() {
             >
               Show all patterns
             </Link>
+            <span className={cn("block mt-1", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-patterns-filtered-empty-not-failure">
+              {REMEDIATION_PATTERNS_FILTER_NO_MATCH_NOT_LOAD_FAILURE_LINE}
+            </span>
           </p>
         ) : (
           <div

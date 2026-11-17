@@ -1,5 +1,6 @@
 using System.Data;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -143,6 +144,57 @@ public sealed partial class SqlRunRepository
         }
 
         run.RowVersion = newStamp;
+    }
+
+    /// <inheritdoc />
+    public async Task MarkAuthorityPipelineCommittedAsync(
+        ScopeContext scope,
+        Guid runId,
+        Guid goldenManifestId,
+        DateTime completedUtc,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        if (runId == Guid.Empty)
+            throw new ArgumentException("Run id is required.", nameof(runId));
+
+        if (goldenManifestId == Guid.Empty)
+            throw new ArgumentException("Golden manifest id is required.", nameof(goldenManifestId));
+
+        object args = new
+        {
+            RunId = runId,
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+            CompletedUtc = completedUtc,
+            GoldenManifestId = goldenManifestId,
+        };
+
+        CommandDefinition command = new(
+            RunRepositorySql.MarkAuthorityPipelineCommitted,
+            args,
+            connection is null ? null : transaction,
+            cancellationToken: ct);
+
+        int affectedRows;
+        if (connection is not null)
+        {
+            affectedRows = await connection.ExecuteScalarAsync<int>(command).ConfigureAwait(false);
+        }
+        else
+        {
+            await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+            affectedRows = await owned.ExecuteScalarAsync<int>(command).ConfigureAwait(false);
+        }
+
+        if (affectedRows == 0)
+            throw new RunConcurrencyConflictException(runId);
     }
 
     /// <inheritdoc />

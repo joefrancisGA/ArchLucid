@@ -17,6 +17,7 @@ using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Repositories;
 
 using FluentAssertions;
 
@@ -36,6 +37,36 @@ namespace ArchLucid.Application.Tests.Orchestration;
 [Trait("Suite", "Core")]
 public sealed class AuthorityCommittedPipelineFinalizerTests
 {
+    [Fact]
+    public async Task FinalizeAsync_evicts_run_cache_after_external_commit()
+    {
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        IRunRepository runs = CreateRunRepository(scope);
+        Mock<IArchLucidUnitOfWork> uow = CreateUnitOfWork();
+        uow.SetupGet(work => work.SupportsExternalTransaction).Returns(true);
+        bool committed = false;
+        uow.Setup(work => work.CommitAsync(It.IsAny<CancellationToken>()))
+            .Callback(() => committed = true).Returns(Task.CompletedTask);
+
+        bool? committedAtEviction = null;
+        Mock.Get(runs).Setup(repo => repo.EvictCachedRunAsync(scope, runId, CancellationToken.None))
+            .Callback(() => committedAtEviction = committed).Returns(Task.CompletedTask);
+        AuthorityCommittedPipelineFinalizer sut = CreateFinalizer(Mock.Of<IAuthorityQueryService>(), runs);
+
+        await sut.FinalizeAsync(
+            CreateRun(runId, scope), CreateContextSnapshot(runId, contextId),
+            CreateFindingsSnapshot(runId, contextId, findingsId),
+            CreateManifest(scope, runId, contextId, findingsId, traceId, manifestId),
+            CreateTrace(scope, runId, traceId), scope, uow.Object, CancellationToken.None);
+
+        committedAtEviction.Should().BeTrue();
+    }
+
     [Fact]
     public async Task FinalizeAsync_does_not_query_sealed_golden_manifest_during_first_create()
     {
@@ -76,6 +107,8 @@ public sealed class AuthorityCommittedPipelineFinalizerTests
             CancellationToken.None);
 
         completed.RunId.Should().Be(runId);
+        completed.LegacyRunStatus.Should().Be(nameof(ArchitectureRunStatus.Committed));
+        completed.GoldenManifestId.Should().Be(manifestId);
         authorityQuery.Verify(
             query => query.GetRunDetailForManifestCompareAsync(
                 It.IsAny<ScopeContext>(),
@@ -85,11 +118,121 @@ public sealed class AuthorityCommittedPipelineFinalizerTests
         uow.Verify(work => work.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    [Fact]
+    public async Task FinalizeAsync_persists_committed_legacy_status_before_unit_of_work_commit()
+    {
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.Parse("8cef4ce2-f677-44d6-998b-9fc9bfed4b10");
+        Guid contextSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111112");
+        Guid findingsSnapshotId = Guid.Parse("22222222-2222-2222-2222-222222222223");
+        Guid decisionTraceId = Guid.Parse("33333333-3333-3333-3333-333333333334");
+        Guid manifestId = Guid.Parse("44444444-4444-4444-4444-444444444445");
+        RunRecord run = CreateRun(runId, scope);
+        run.GoldenManifestId = manifestId;
+        run.LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated);
+        ManifestDocument manifest = CreateManifest(
+            scope,
+            runId,
+            contextSnapshotId,
+            findingsSnapshotId,
+            decisionTraceId,
+            manifestId);
+
+        Mock<IRunRepository> runRepo = new();
+        runRepo
+            .Setup(repo => repo.MarkAuthorityPipelineCommittedAsync(
+                scope,
+                runId,
+                manifestId,
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
+            .Returns(Task.CompletedTask);
+        runRepo
+            .Setup(repo => repo.ListByProjectAsync(
+                scope,
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        AuthorityCommittedPipelineFinalizer sut = CreateFinalizer(
+            new Mock<IAuthorityQueryService>().Object,
+            runRepo.Object);
+        Mock<IArchLucidUnitOfWork> uow = CreateUnitOfWork();
+
+        await sut.FinalizeAsync(
+            run,
+            CreateContextSnapshot(runId, contextSnapshotId),
+            CreateFindingsSnapshot(runId, contextSnapshotId, findingsSnapshotId),
+            manifest,
+            CreateTrace(scope, runId, decisionTraceId),
+            scope,
+            uow.Object,
+            CancellationToken.None);
+
+        runRepo.Verify(
+            repo => repo.MarkAuthorityPipelineCommittedAsync(
+                scope,
+                runId,
+                manifestId,
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>(),
+                null,
+                null),
+            Times.Once);
+        uow.Verify(work => work.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task FinalizeAsync_rejects_archived_run_before_completion_side_effects()
+    {
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        RunRecord run = CreateRun(runId, scope);
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(CreateRun(runId, scope), CancellationToken.None);
+        await runs.ArchiveRunsByIdsAsync([runId], CancellationToken.None);
+
+        Mock<IRetrievalIndexingOutboxRepository> retrieval = new();
+        Mock<IIntegrationEventPublisher> publisher = new();
+        Mock<IAuditService> audit = new();
+        Mock<IArchLucidUnitOfWork> uow = CreateUnitOfWork();
+        AuthorityCommittedPipelineFinalizer sut = CreateFinalizer(
+            Mock.Of<IAuthorityQueryService>(), runs, retrieval, publisher, audit);
+
+        Func<Task> finalize = () => sut.FinalizeAsync(
+            run,
+            CreateContextSnapshot(runId, contextId),
+            CreateFindingsSnapshot(runId, contextId, findingsId),
+            CreateManifest(scope, runId, contextId, findingsId, traceId, manifestId),
+            CreateTrace(scope, runId, traceId),
+            scope,
+            uow.Object,
+            CancellationToken.None);
+
+        await finalize.Should().ThrowAsync<RunConcurrencyConflictException>();
+        run.LegacyRunStatus.Should().Be(nameof(ArchitectureRunStatus.Created));
+        run.GoldenManifestId.Should().BeNull();
+        uow.Verify(work => work.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+        retrieval.VerifyNoOtherCalls();
+        publisher.VerifyNoOtherCalls();
+        audit.VerifyNoOtherCalls();
+    }
+
     private static AuthorityCommittedPipelineFinalizer CreateFinalizer(
         IAuthorityQueryService authorityQuery,
-        IRunRepository runRepository)
+        IRunRepository runRepository,
+        Mock<IRetrievalIndexingOutboxRepository>? retrievalOutbox = null,
+        Mock<IIntegrationEventPublisher>? publisher = null,
+        Mock<IAuditService>? audit = null)
     {
-        Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
+        retrievalOutbox ??= new();
         retrievalOutbox
             .Setup(outbox => outbox.EnqueueAsync(
                 It.IsAny<Guid>(),
@@ -99,7 +242,7 @@ public sealed class AuthorityCommittedPipelineFinalizerTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        Mock<IIntegrationEventPublisher> publisher = new();
+        publisher ??= new();
         publisher
             .Setup(events => events.PublishAsync(
                 It.IsAny<string>(),
@@ -121,7 +264,7 @@ public sealed class AuthorityCommittedPipelineFinalizerTests
         Mock<IManifestHashService> manifestHash = new();
         manifestHash.Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>())).Returns("sha256:pipeline");
 
-        Mock<IAuditService> audit = new();
+        audit ??= new();
         audit.Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -158,8 +301,72 @@ public sealed class AuthorityCommittedPipelineFinalizerTests
                 It.IsAny<int>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
+        runRepo
+            .Setup(repo => repo.MarkAuthorityPipelineCommittedAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
+            .Returns(Task.CompletedTask);
 
         return runRepo.Object;
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task FinalizeAsync_publishes_direct_completion_only_after_successful_commit(bool commitFails)
+    {
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        RunRecord run = CreateRun(runId, scope);
+        Mock<IArchLucidUnitOfWork> uow = CreateUnitOfWork();
+        bool committed = false;
+        uow.SetupGet(work => work.SupportsExternalTransaction).Returns(true);
+        uow.Setup(work => work.CommitAsync(It.IsAny<CancellationToken>())).Returns(() =>
+        {
+            if (commitFails)
+                return Task.FromException(new InvalidOperationException("Commit failed."));
+
+            committed = true;
+            return Task.CompletedTask;
+        });
+
+        Mock<IIntegrationEventPublisher> publisher = new();
+        AuthorityCommittedPipelineFinalizer sut = CreateFinalizer(
+            Mock.Of<IAuthorityQueryService>(), CreateRunRepository(scope), publisher: publisher);
+        bool? wasCommittedAtPublish = null;
+        publisher.Setup(events => events.PublishAsync(
+                IntegrationEventTypes.AuthorityRunCompletedV1,
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback(() => wasCommittedAtPublish = committed)
+            .Returns(Task.CompletedTask);
+
+        Func<Task> finalize = () => sut.FinalizeAsync(
+            run, CreateContextSnapshot(runId, contextId), CreateFindingsSnapshot(runId, contextId, findingsId),
+            CreateManifest(scope, runId, contextId, findingsId, traceId, manifestId),
+            CreateTrace(scope, runId, traceId), scope, uow.Object, CancellationToken.None);
+
+        if (commitFails)
+        {
+            await finalize.Should().ThrowAsync<InvalidOperationException>().WithMessage("Commit failed.");
+            wasCommittedAtPublish.Should().BeNull();
+        }
+        else
+        {
+            await finalize();
+            wasCommittedAtPublish.Should().BeTrue();
+        }
     }
 
     private static ScopeContext CreateScope()

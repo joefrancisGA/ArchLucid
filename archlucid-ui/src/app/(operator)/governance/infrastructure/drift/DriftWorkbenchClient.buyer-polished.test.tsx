@@ -81,6 +81,42 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "security" as const }),
+}));
+
+vi.mock("@/hooks/use-securenow-collection-setup-input", () => ({
+  useSecureNowCollectionSetupInput: () => ({
+    collectionInput: {
+      hasConfiguredProvider: true,
+      azureSubscriptionIdsPresent: true,
+      hasSuccessfulPull: true,
+    },
+    isPending: false,
+  }),
+}));
+
+vi.mock("@/hooks/use-operator-scope-query-key", () => ({
+  useOperatorScopeQueryKey: () => ({ tenantId: "t", workspaceId: "w", projectId: "p" }),
+}));
+
+vi.mock("@tanstack/react-query", async () => {
+  const actual = await vi.importActual<typeof import("@tanstack/react-query")>("@tanstack/react-query");
+
+  return {
+    ...actual,
+    useQuery: () => ({
+      isPending: false,
+      data: { items: [{ pathId: "fixture-path-01" }] },
+    }),
+  };
+});
+
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
 
@@ -90,8 +126,28 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
   };
 });
 
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
+
 import {
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE_SECONDARY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
@@ -107,12 +163,18 @@ describe("DriftWorkbenchClient buyer-polished chrome", () => {
       `#${GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID}`,
     );
     expect(screen.getByTestId("infra-drift-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-page-lead")).toHaveTextContent(GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD);
+    expect(screen.getByTestId("infra-drift-page-lead")).toHaveTextContent(
+      GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE_LEAD,
+    );
+    expect(screen.getByTestId("infra-drift-page-lead")).toHaveTextContent(
+      GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE_SECONDARY,
+    );
     expect(screen.getByTestId("governance-infrastructure-drift-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(await screen.findByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
     expect(await screen.findByTestId("infra-drift-export-terraform")).toBeInTheDocument();
+    expect(await screen.findByTestId("securenow-drift-post-capture-next-step")).toBeInTheDocument();
   });
 
   it("hides inline resource id behind disclosure when scoped", async () => {
