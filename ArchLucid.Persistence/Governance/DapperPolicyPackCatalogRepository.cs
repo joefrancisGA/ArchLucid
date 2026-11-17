@@ -115,7 +115,7 @@ public sealed class DapperPolicyPackCatalogRepository(ISqlConnectionFactory conn
 
         const string mergeSql = """
                                 DECLARE @Id UNIQUEIDENTIFIER =
-                                    (SELECT PolicyPackCatalogEntryId FROM dbo.PolicyPackCatalogEntry WHERE SourcePolicyPackId = @SourcePolicyPackId);
+                                    (SELECT PolicyPackCatalogEntryId FROM dbo.PolicyPackCatalogEntry WITH (UPDLOCK) WHERE SourcePolicyPackId = @SourcePolicyPackId);
 
                                 IF @Id IS NULL
                                 BEGIN
@@ -163,6 +163,8 @@ public sealed class DapperPolicyPackCatalogRepository(ISqlConnectionFactory conn
                                 """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlTransaction transaction =
+            (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.Serializable, ct);
         PolicyPackCatalogEntryDetail? row = await connection.QueryFirstOrDefaultAsync<PolicyPackCatalogEntryDetail>(
             new CommandDefinition(
                 mergeSql,
@@ -175,11 +177,13 @@ public sealed class DapperPolicyPackCatalogRepository(ISqlConnectionFactory conn
                     SnapshotVersion = snapshotVersion,
                     SnapshotContentJson = snapshotContentJson
                 },
+                transaction,
                 cancellationToken: ct));
 
         if (row is null)
             throw new InvalidOperationException("Policy pack catalog upsert returned no row.");
 
+        await transaction.CommitAsync(ct);
         return row;
     }
 }
