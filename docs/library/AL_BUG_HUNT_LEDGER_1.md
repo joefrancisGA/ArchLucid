@@ -8612,9 +8612,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 ---
 
 ## Zone: architecture-recommendation
+**Hunts:** 1 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
+
+2026-11-17 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Post-catalog-reset re-read of `ArchitectureRecommendationEngine` and `ArchitectureRecommendationTradeOffBuilder` (**fail-open-validation** governance class saturated — no new governance-disposition candidates). Scoped picker filter **45/45** Alternatives/ProposedChange tests (`RunAnalyzers=false`). No row met hunt-ready bar; seeded five `(candidate)` rows below. Private beta: n/a.
+
+- [ ] (candidate) `ArchitectureRecommendationEngine.CreateRecommendation` — every recommendation copies the entire `declaredPriorities` list into `Dependencies` (`L84`) rather than finding-scoped links; locus: `Dependencies = declaredPriorities.ToList()`; input: multi-priority brief with unrelated Cost entry and a Security-only fail finding; wrong outcome: operator sees Cost as a dependency on Security recommendations; reachability: closed-loop recommendation packet UI.
+- [ ] (candidate) `ArchitectureRecommendationEngine.IsActionableFinding` — Indeterminate fails become recommendations without `ProvenancePresentationMapper` unverified filtering that trade-offs apply in `IsActionableForTradeOff` (`L28-38` vs `L549-557`); locus: engine vs trade-off actionable gate split; input: unverified Indeterminate Security finding alongside verified Cost fail; wrong outcome: must-change recommendation emitted but Security/Cost trade-off omitted; reachability: provisional specialist conclusions before evidence validation.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — when both dimensions have actionable findings but `FindRecommendationForTradeOff` fails for both, `InvalidOperationException` aborts the whole batch (`L85-86`); locus: throw vs skip; input: actionable Security/Cost findings after recommendation id drift or proposed-change rewrite; wrong outcome: empty recommendation list despite partial actionable findings; reachability: recommendation rebuild after proposed-change template change.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security dimension participates in both Security/Cost and Security/Reliability pairs, so up to two trade-offs may attach to the same Security recommendation (`L24-58`, `TryAddTradeOff`); locus: in-place `target.TradeOffs.Add`; input: actionable fails on Security, Cost, and Reliability; wrong outcome: duplicate human-approval trade-off objects on one card; reachability: multi-dimension review outcomes in architecture intelligence workspace.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — when bare `Security` and `Cost` tokens both appear in declared priorities, `prefersFirst` and `prefersSecond` can be true while `BuildResolutionRationale` uses the no-priority-balanced path (`L100-112`, `L165-182`); locus: independent dimension token scans vs explicit pair precedence; input: priorities `["Security", "Cost optimization"]`; wrong outcome: resolution text says balance while rationale says no declared priority selected; reachability: operator-supplied priority bullet list without explicit over/before pair.
+
 
 - **id:** architecture-recommendation
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
@@ -8622,7 +8632,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** 1
 
 2026-10-30 seed hunt (seed-only): re-read `ArchitectureRecommendationEngine` and `ArchitectureRecommendationTradeOffBuilder` after the explicit-balance rationale fix. No hunt-ready row. Closed three sibling lenses. Left three candidates. Private beta: n/a.
 2026-11-17 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Picker **thorough hunt** on three header `(candidate)` rows. **fail-open-validation** remains saturated (14d). Promoted `HumanDecisionRequired` fail findings still emitted must-change recommendations; extend `IsGovernanceClosedForRecommendation`. Regression `BuildRecommendations_skips_fail_findings_whose_governance_disposition_is_human_decision_required`. Cheap-disproof: unverified fail recommendations keep `SupportStatus.IndirectlySupported` — regression `BuildRecommendations_stamps_system_proposed_indirectly_supported_when_fail_evidence_is_unverified`; remediation-planned or human-pending security with open cost omits security-cost trade-off — regressions `BuildRecommendations_omits_security_cost_trade_off_when_security_finding_is_remediation_planned` and `BuildRecommendations_omits_security_cost_trade_off_when_security_finding_awaits_human_decision`. Reseeded three follow-on `(candidate)` rows above. Scoped architecture-recommendation tests **137/137** (`RunAnalyzers=false`). Private beta: when an invited operator marks a failed finding as awaiting human disposition, architecture recommendations no longer push a must-change proposal ahead of that review.
