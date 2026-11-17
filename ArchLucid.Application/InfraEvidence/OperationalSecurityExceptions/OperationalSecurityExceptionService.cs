@@ -316,7 +316,8 @@ public sealed class OperationalSecurityExceptionService(
 
         OperationalSecurityFindingObservationRecord observation = new()
         {
-            ObservationId = Guid.NewGuid(),
+            // Concurrent retries use the same observation key so the finding write cannot commit twice.
+            ObservationId = new Guid(observationHash.AsSpan(0, 16)),
             FindingId = findingId,
             TenantId = scope.TenantId,
             ObservedUtc = utcNow,
