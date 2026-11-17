@@ -24330,11 +24330,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
-- [ ] (candidate) `DeclarationPremiseConflictClassifier.TryGetWorkloadIsolationDeclarationProperty` — only truthy k8s flags should surface on workload premise rows — locus: property picker order; input: `hostNetwork=false` with pod-security intent; wrong outcome: cites disabled flag; reachability: raw declaration bags.
-- [ ] (candidate) `DeclarationPremiseConflictClassifier.TryGetWorkloadIsolationDeclarationProperty` — `allowPrivilegeEscalation=no` treated as present escalation property — locus: k8s property read; input: `no` token; wrong outcome: workload conflict cites `no`; reachability: values not passed through scalar normalization.
+- [ ] (candidate) `DeclarationPremiseConflictClassifier.TryGetWorkloadIsolationDeclarationProperty` — `allowPrivilegeEscalation=no` cited when escalation off but listed first — locus: truthy-only picker; input: `allowPrivilegeEscalation=no` with privileged intent; wrong outcome: cites `no`; reachability: raw Helm tokens (monitor).
 - [ ] (candidate) `RequirementSkuTierAnalyzer.Analyze` — requirement geo tier with unparsed datastore tier returns no gap — locus: gap when `TryRead` false; input: datastore with only non-tokenized properties; wrong outcome: silent; reachability: sparse declaration nodes.
-- [ ] (candidate) `DrRpoTopologyAnalyzer` — replica evidence from Helm `yes` on zone flag without normalization — locus: DR evidence scan; input: `zone_redundant=yes` only; wrong outcome: silent RPO posture; reachability: parity with SKU reader tokens.
-- [ ] (candidate) `DatastoreSkuReader.TryRead` — `zoneRedundant=no` without SKU token — locus: false zone flag path; input: only zone redundant no; wrong outcome: unparsed tier; reachability: bags mirroring helm values.
+- [ ] (candidate) `DrRpoTopologyAnalyzer` — replica evidence from Helm `yes` on zone flag without normalization — locus: DR evidence scan; input: `zone_redundant=yes` only; wrong outcome: false-negative RPO posture; reachability: parity with SKU reader tokens.
+- [ ] (candidate) `DatastoreSkuReader.TryRead` — `zoneRedundant=no` without SKU token — locus: false zone flag path; input: only zone redundant no; wrong outcome: unparsed tier; reachability: bags mirroring helm values (boolean-coercion saturated; defer helper consolidation).
+- [ ] (candidate) `IdentityPathAnalyzer` — visit key ignores carried non-write role when same vault reached twice — locus: visit state; input: reader then contributor reorder; wrong outcome: drops contributor path; reachability: relationship order variance.
+
+2026-11-17 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Picker flagged **boolean-coercion** saturated (14d); promoted non-coercion candidate `DeclarationPremiseConflictClassifier.TryGetWorkloadIsolationDeclarationProperty`, which returned the first present k8s key even when falsy, so `k8s.privileged=false` hid `k8s.allowPrivilegeEscalation=true` on workload-isolation premise rows; require truthy values via `TryGetTruthyK8sProperty`. Regression `Classify_cites_allow_privilege_escalation_when_privileged_is_explicitly_false`. Cheap-disproof: falsy-only `hostNetwork=false` stays on admin-ingress path (hunt **2026-11-16**); `DatastoreSkuReader.TryRead` with only `zoneRedundant=no` now parses single-region after hunt **#2** (monitor row retained). Scoped touchpoint test **1/1** plus classifier tests already green on filter spot-check. Private beta: when an invited operator's workload disables privileged mode but enables privilege escalation, premise conflicts cite the escalation flag instead of a false privileged token.
+
+- [x] (proven) `DeclarationPremiseConflictClassifier.TryGetWorkloadIsolationDeclarationProperty` — falsy `k8s.privileged` preferred over truthy escalation — **hit 2026-11-17 seed hunt #2:** truthy-only k8s property picker; regression above. [class:fail-open-validation]
+- [x] (valid-no-repro) `DeclarationPremiseConflictClassifier.TryGetWorkloadIsolationDeclarationProperty` — falsy `hostNetwork` cited on workload rows — **cheap-disproof 2026-11-17 seed hunt #2:** baseline workload theme requires truthy posture; `hostNetwork=false` maps to admin ingress (hunt **2026-11-16**).
 
 2026-11-17 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted ledger candidate `DrReplicaPropertyHeuristic.IsDisabledReplicaValue` — Helm-style `no`/`off` on `zone_redundant` was not treated as disabled replica evidence, so RPO topology paths falsely inferred replica coverage on single-region declarations; extend disabled token list. Regression `HasReplicaEvidence_returns_false_when_zone_redundant_is_no_token`. Cheap-disproof: `DatastoreSkuReader.TryRead` still maps `geoRedundant=no` plus `accountReplicationType=GRS` to geo-redundant via SKU tokens after hunt **#2** ordering (monitor candidate closed). Scoped `DrReplicaPropertyHeuristicTests` **2/2** (`RunAnalyzers=false`). Private beta: when an invited operator declares zone redundancy as `no`, DR/RPO findings no longer treat the datastore as replica-backed.
 
@@ -24459,11 +24464,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 70
-- **bugs-found:** 58
+- **hunts:** 71
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-17
-- **last-bug:** 2026-11-17 — Helm `no` on `zone_redundant` falsely counted as DR replica evidence
+- **last-bug:** 2026-11-17 — falsy `k8s.privileged` hid escalation on workload premise conflicts
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
