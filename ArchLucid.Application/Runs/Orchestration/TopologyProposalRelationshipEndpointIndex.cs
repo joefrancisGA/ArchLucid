@@ -104,9 +104,15 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         if (string.Equals(left, right, StringComparison.OrdinalIgnoreCase))
             return true;
 
+        if (string.Equals(
+                CanonicalizeTerraformEndpointReferenceForLookup(left),
+                CanonicalizeTerraformEndpointReferenceForLookup(right),
+                StringComparison.OrdinalIgnoreCase))
+            return true;
+
         return string.Equals(
-            CanonicalizeTerraformEndpointReferenceForLookup(left),
-            CanonicalizeTerraformEndpointReferenceForLookup(right),
+            TopologyProposalRequiredControlKeys.NormalizeManifestEndpointIdentity(left),
+            TopologyProposalRequiredControlKeys.NormalizeManifestEndpointIdentity(right),
             StringComparison.OrdinalIgnoreCase);
     }
 

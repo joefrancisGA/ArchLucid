@@ -1900,6 +1900,38 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void ManifestEndpointReferencesEqual_matches_references_that_differ_only_by_zero_width_format_character()
+    {
+        TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual("api", "ap\u200Bi")
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_node_label_has_zero_width_format_character()
+    {
+        const string serviceId = "svc-api";
+        ManifestService service = new() { ServiceId = serviceId, ServiceName = "api" };
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-primary",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "ap\u200Bi",
+                Category = GraphTopologyCategories.Compute,
+                SourceId = "ProposedChanges",
+            },
+        ];
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+        nodeId.Should().Be("svc-primary");
+    }
+
+    [Fact]
     public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_datastore_id_quotes_for_each_key_and_graph_source_id_does_not()
     {
         const string rootAddress = "azurerm_storage_account.main";
