@@ -20,7 +20,7 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            _items.Add(subscription);
+            _items.Add(Copy(subscription));
             if (_items.Count > MaxEntries)
                 _items.RemoveRange(0, _items.Count - MaxEntries);
         }
@@ -72,7 +72,11 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x => x.SubscriptionId == subscriptionId && MatchesScope(x, scope)));
+        {
+            DigestSubscription? stored = _items.FirstOrDefault(x =>
+                x.SubscriptionId == subscriptionId && MatchesScope(x, scope));
+            return Task.FromResult(stored is null ? null : Copy(stored));
+        }
     }
 
     public Task<IReadOnlyList<DigestSubscription>> ListByScopeAsync(
@@ -90,6 +94,7 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
                     x.WorkspaceId == workspaceId &&
                     x.ProjectId == projectId)
                 .OrderByDescending(x => x.CreatedUtc)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<DigestSubscription>>(result);
@@ -112,11 +117,27 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
                     x.ProjectId == projectId &&
                     x.IsEnabled)
                 .OrderByDescending(x => x.CreatedUtc)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<DigestSubscription>>(result);
         }
     }
+
+    private static DigestSubscription Copy(DigestSubscription subscription) => new()
+    {
+        SubscriptionId = subscription.SubscriptionId,
+        TenantId = subscription.TenantId,
+        WorkspaceId = subscription.WorkspaceId,
+        ProjectId = subscription.ProjectId,
+        Name = subscription.Name,
+        ChannelType = subscription.ChannelType,
+        Destination = subscription.Destination,
+        IsEnabled = subscription.IsEnabled,
+        CreatedUtc = subscription.CreatedUtc,
+        LastDeliveredUtc = subscription.LastDeliveredUtc,
+        MetadataJson = subscription.MetadataJson,
+    };
 
     private static bool MatchesScope(DigestSubscription subscription, ScopeContext scope) =>
         subscription.TenantId == scope.TenantId &&
