@@ -1180,6 +1180,29 @@ public sealed class TopologyProposalConsensusMergerTests
     }
 
     [Fact]
+    public void Merge_reports_zero_disagreement_when_required_controls_differ_only_by_zero_width_space_on_one_model()
+    {
+        const string withZeroWidth = "SOC\u200B2";
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            RequiredControls = ["SOC2", withZeroWidth],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            RequiredControls = ["SOC2"],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.RequiredControls.Should().ContainSingle().Which.Should().Be("SOC2");
+    }
+
+    [Fact]
     public void Merge_counts_service_disagreement_when_models_use_name_only_versus_synthetic_service_id()
     {
         AgentTopologyProposal primary = new()

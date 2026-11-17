@@ -7873,6 +7873,29 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_WhenGraphIsEmpty_dedupes_required_controls_that_differ_only_by_zero_width_space()
+    {
+        GraphSnapshot graph = Graph();
+        const string withZeroWidth = "SOC\u200B2";
+
+        AgentResult compliance = new()
+        {
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                RequiredControls = ["SOC2", withZeroWidth]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.RequiredControls.Should().ContainSingle("SOC2");
+    }
+
+    [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_drops_result_when_sanitized_proposal_has_no_remaining_payload()
     {
         GraphSnapshot graph = Graph(ComputeNode(), DataNode());
