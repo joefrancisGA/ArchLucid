@@ -1054,19 +1054,88 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         SemanticModel semanticModel,
         CancellationToken cancellationToken)
     {
-        ForEachStatementSyntax? foreachStatementSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<ForEachStatementSyntax>();
+        ExpressionSyntax? collectionExpression = null;
+        StatementSyntax? loopBody = null;
 
-        if (foreachStatementSyntax is null)
+        if (logAsyncSyntaxNode.FirstAncestorOrSelf<ForEachStatementSyntax>() is ForEachStatementSyntax foreachStatementSyntax)
+        {
+            collectionExpression = foreachStatementSyntax.Expression;
+            loopBody = foreachStatementSyntax.Statement;
+        }
+        else if (logAsyncSyntaxNode.FirstAncestorOrSelf<ForEachVariableStatementSyntax>()
+                 is ForEachVariableStatementSyntax foreachVariableStatementSyntax)
+        {
+            collectionExpression = foreachVariableStatementSyntax.Expression;
+            loopBody = foreachVariableStatementSyntax.Statement;
+        }
+        else
+        {
+            return false;
+        }
+
+        if (!ForeachExpressionIsCompileTimeEmpty(collectionExpression, semanticModel, cancellationToken))
             return false;
 
-        if (!ForeachCollectionIsCompileTimeEmpty(
-                foreachStatementSyntax.Expression,
-                semanticModel,
-                cancellationToken))
-            return false;
-
-        return foreachStatementSyntax.Statement.DescendantNodesAndSelf()
+        return loopBody.DescendantNodesAndSelf()
             .Any(node => ReferenceEquals(node, logAsyncSyntaxNode));
+    }
+
+    private static bool ForeachExpressionIsCompileTimeEmpty(
+        ExpressionSyntax collectionExpression,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (ForeachCollectionIsCompileTimeEmpty(collectionExpression, semanticModel, cancellationToken))
+            return true;
+
+        if (collectionExpression is InvocationExpressionSyntax invocationExpressionSyntax)
+        {
+            return IteratorInvocationHasNoCompileTimeExecutableYields(
+                invocationExpressionSyntax,
+                semanticModel,
+                cancellationToken);
+        }
+
+        return false;
+    }
+
+    private static bool IteratorInvocationHasNoCompileTimeExecutableYields(
+        InvocationExpressionSyntax invocationExpressionSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (semanticModel.GetSymbolInfo(invocationExpressionSyntax, cancellationToken).Symbol is not IMethodSymbol methodSymbol)
+            return false;
+
+        foreach (SyntaxReference syntaxReference in methodSymbol.DeclaringSyntaxReferences)
+        {
+            SyntaxNode declaringSyntax = syntaxReference.GetSyntax(cancellationToken);
+
+            if (declaringSyntax is not MethodDeclarationSyntax and not LocalFunctionStatementSyntax)
+                declaringSyntax = declaringSyntax.FirstAncestorOrSelf<MethodDeclarationSyntax>()
+                    ?? declaringSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>()
+                    ?? declaringSyntax;
+
+            IEnumerable<YieldStatementSyntax> yieldStatements = declaringSyntax
+                .DescendantNodes()
+                .OfType<YieldStatementSyntax>();
+
+            if (!yieldStatements.Any())
+                return true;
+
+            foreach (YieldStatementSyntax yieldStatementSyntax in yieldStatements)
+            {
+                if (!IsLogAsyncSyntaxInNeverTakenConstantIfBranch(
+                        yieldStatementSyntax,
+                        semanticModel,
+                        cancellationToken))
+                    return false;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     private static bool ForeachCollectionIsCompileTimeEmpty(
