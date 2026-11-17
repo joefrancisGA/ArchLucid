@@ -101,6 +101,7 @@ import { RemediationFactoryAttackPathReportSection } from "./RemediationFactoryA
 import { RemediationFactoryTopCutPointsSection } from "./RemediationFactoryTopCutPointsSection";
 import { RemediationFactoryContextStrip } from "./RemediationFactoryContextStrip";
 import { RemediationFactoryPriorityTable } from "./RemediationFactoryPriorityTable";
+import { RemediationFactoryPriorityQueueEmptyPartialHonesty } from "./RemediationFactoryPriorityQueueEmptyPartialHonesty";
 import { RemediationFactoryRankedPathsShortcutHints } from "./RemediationFactoryRankedPathsShortcutHints";
 import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
 import { remediationFactoryPageShortcutsDisclosureEntries } from "./remediation-factory-page-shortcuts-disclosure";
@@ -919,7 +920,10 @@ export function RemediationFactoryClient() {
             />
           </>
         ) : ranked.length === 0 ? (
-          <EnterpriseCompactEmptyState {...priorityQueueEmptyState} />
+          <>
+            <EnterpriseCompactEmptyState {...priorityQueueEmptyState} />
+            {productLine === "security" ? <RemediationFactoryPriorityQueueEmptyPartialHonesty /> : null}
+          </>
         ) : (
           <RemediationFactoryPriorityTable
             rows={ranked}
