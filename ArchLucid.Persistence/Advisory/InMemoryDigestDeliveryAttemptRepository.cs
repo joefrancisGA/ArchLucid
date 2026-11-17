@@ -18,7 +18,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
         ArgumentNullException.ThrowIfNull(attempt);
         _ = ct;
         lock (_gate)
-            _items.Add(attempt);
+            _items.Add(Copy(attempt));
         return Task.CompletedTask;
     }
 
@@ -30,7 +30,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
         {
             int i = _items.FindIndex(x => x.AttemptId == attempt.AttemptId && SameScope(x, attempt));
             if (i >= 0)
-                _items[i] = attempt;
+                _items[i] = Copy(attempt);
         }
 
         return Task.CompletedTask;
@@ -49,6 +49,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
                 .Where(x => x.DigestId == digestId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
                 .Take(ListByDigestCap)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<DigestDeliveryAttempt>>(result);
@@ -81,6 +82,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
                 .GroupBy(x => x.DigestId)
                 .SelectMany(static g => g.OrderByDescending(x => x.AttemptedUtc).Take(ListByDigestCap))
                 .OrderByDescending(x => x.AttemptedUtc)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<DigestDeliveryAttempt>>(result);
@@ -101,11 +103,27 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
                 .Where(x => x.SubscriptionId == subscriptionId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
                 .Take(take)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<DigestDeliveryAttempt>>(result);
         }
     }
+
+    private static DigestDeliveryAttempt Copy(DigestDeliveryAttempt attempt) => new()
+    {
+        AttemptId = attempt.AttemptId,
+        DigestId = attempt.DigestId,
+        SubscriptionId = attempt.SubscriptionId,
+        TenantId = attempt.TenantId,
+        WorkspaceId = attempt.WorkspaceId,
+        ProjectId = attempt.ProjectId,
+        AttemptedUtc = attempt.AttemptedUtc,
+        Status = attempt.Status,
+        ErrorMessage = attempt.ErrorMessage,
+        ChannelType = attempt.ChannelType,
+        Destination = attempt.Destination,
+    };
 
     private static bool MatchesScope(DigestDeliveryAttempt attempt, ScopeContext scope) =>
         attempt.TenantId == scope.TenantId &&
