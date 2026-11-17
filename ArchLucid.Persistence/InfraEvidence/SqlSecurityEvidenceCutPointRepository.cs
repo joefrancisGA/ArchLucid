@@ -101,15 +101,8 @@ public sealed partial class SqlSecurityEvidenceCutPointRepository(ISqlConnection
                            WHERE c.TenantId = @TenantId
                              AND p.WorkspaceId = @WorkspaceId
                              AND p.ProjectId = @ProjectId
+                             AND p.PathId = @PathId
                              AND c.CollapsedPathIdsJson LIKE @PathIdLike
-                             AND EXISTS (
-                                 SELECT 1
-                                 FROM dbo.SecurityEvidencePaths targetPath
-                                 WHERE targetPath.TenantId = @TenantId
-                                   AND targetPath.WorkspaceId = @WorkspaceId
-                                   AND targetPath.ProjectId = @ProjectId
-                                   AND targetPath.PathId = @PathId
-                             )
                            ORDER BY c.LeverageScore DESC, c.CutOrder, c.CutPointId;
                            """;
 
@@ -130,7 +123,6 @@ public sealed partial class SqlSecurityEvidenceCutPointRepository(ISqlConnection
         return rows
             .Select(MapCutPoint)
             .Where(record => CollapsedPathIdsContains(record, pathId))
-            .DistinctBy(record => record.CutPointId)
             .ToList();
     }
 
