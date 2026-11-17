@@ -21,6 +21,7 @@ import {
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import { PolicyPackDetailPartialCaptureStrip } from "./PolicyPackDetailPartialCaptureStrip";
 import {
   findingsPathForProductLine,
   policyPacksPathForProductLine,
@@ -146,6 +147,8 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         }
         actions={headerActions}
       />
+
+      <PolicyPackDetailPartialCaptureStrip />
 
       <Card data-testid="policy-pack-summary-card">
         <CardHeader>

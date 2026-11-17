@@ -55,6 +55,8 @@ import {
 import { resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench } from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { DIAGRAMS_SNAPSHOT_RENDER_HONESTY_LINE } from "@/lib/infra-evidence/diagrams-snapshot-render-honesty-copy";
+import { DIAGRAMS_WORKBENCH_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/infra-evidence-workbench-partial-capture-copy";
+import { SecureNowInfraPartialCaptureStrip } from "@/components/product-line/SecureNowInfraPartialCaptureStrip";
 import {
   INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM,
   INFRA_DIAGRAMS_MERMAID_MODE_PARAM,
@@ -2439,6 +2441,14 @@ export function DiagramsWorkbenchClient() {
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagrams-snapshot-render-honesty">
         {DIAGRAMS_SNAPSHOT_RENDER_HONESTY_LINE}
       </p>
+      {isSecureNowProductLine(productLine) ? (
+        <SecureNowInfraPartialCaptureStrip
+          testId="infra-diagrams-partial-capture"
+          middleLine={DIAGRAMS_WORKBENCH_PARTIAL_CAPTURE_LINE}
+          cloudConnectionsTestId="infra-diagrams-partial-capture-cloud"
+          extractUploadTestId="infra-diagrams-partial-capture-extract"
+        />
+      ) : null}
 
       {deepLinkedSnapshotMissing ? (
         <StatusTag
