@@ -10,6 +10,7 @@ public sealed class InMemoryPlatformBundledPolicyPackRegistryRepository : IPlatf
 {
     private readonly ConcurrentDictionary<string, PlatformBundledPolicyPackRegistryEntry> _rows =
         new(StringComparer.OrdinalIgnoreCase);
+    private readonly Lock _writeGate = new();
 
     public Task<IReadOnlyList<PlatformBundledPolicyPackRegistryEntry>> ListAllAsync(CancellationToken ct)
     {
@@ -24,13 +25,21 @@ public sealed class InMemoryPlatformBundledPolicyPackRegistryRepository : IPlatf
     {
         ArgumentNullException.ThrowIfNull(entry);
 
-        _rows[entry.BundleContentFile] = new PlatformBundledPolicyPackRegistryEntry
+        lock (_writeGate)
         {
-            BundleContentFile = entry.BundleContentFile,
-            DisplayName = entry.DisplayName,
-            IsGloballyActive = entry.IsGloballyActive,
-            UpdatedUtc = entry.UpdatedUtc,
-        };
+            bool isGloballyActive = _rows.TryGetValue(
+                entry.BundleContentFile, out PlatformBundledPolicyPackRegistryEntry? existing)
+                ? existing.IsGloballyActive
+                : entry.IsGloballyActive;
+
+            _rows[entry.BundleContentFile] = new PlatformBundledPolicyPackRegistryEntry
+            {
+                BundleContentFile = entry.BundleContentFile,
+                DisplayName = entry.DisplayName,
+                IsGloballyActive = isGloballyActive,
+                UpdatedUtc = entry.UpdatedUtc,
+            };
+        }
 
         return Task.CompletedTask;
     }
@@ -42,11 +51,14 @@ public sealed class InMemoryPlatformBundledPolicyPackRegistryRepository : IPlatf
 
         string key = bundleContentFile.Trim();
 
-        if (!_rows.TryGetValue(key, out PlatformBundledPolicyPackRegistryEntry? existing))
-            return Task.FromResult(false);
+        lock (_writeGate)
+        {
+            if (!_rows.TryGetValue(key, out PlatformBundledPolicyPackRegistryEntry? existing))
+                return Task.FromResult(false);
 
-        existing.IsGloballyActive = isGloballyActive;
-        existing.UpdatedUtc = TimeProvider.System.UtcNowDateTime();
+            existing.IsGloballyActive = isGloballyActive;
+            existing.UpdatedUtc = TimeProvider.System.UtcNowDateTime();
+        }
 
         return Task.FromResult(true);
     }
