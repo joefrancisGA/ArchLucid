@@ -139,7 +139,13 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         if (string.IsNullOrWhiteSpace(value))
             return;
 
-        knownEndpointKeys.Add(value.Trim());
+        string trimmed = value.Trim();
+        knownEndpointKeys.Add(trimmed);
+
+        string withoutFormatCharacters = TopologyProposalRequiredControlKeys.NormalizeManifestEndpointIdentity(trimmed);
+
+        if (!string.Equals(withoutFormatCharacters, trimmed, StringComparison.Ordinal))
+            knownEndpointKeys.Add(withoutFormatCharacters);
     }
 
     internal static void AddCanonicalTerraformInstanceKeyEndpointKey(HashSet<string> knownEndpointKeys, string? terraformSourceId)

@@ -148,6 +148,39 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_source_endpoint_has_zero_width_format_character()
+    {
+        const string sourceWithZeroWidth = "svc\u200B-api";
+
+        List<ManifestService> services =
+        [
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" },
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new ManifestDatastore { DatastoreName = "sql", DatastoreId = "ds-sql" },
+        ];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = sourceWithZeroWidth,
+                TargetId = "ds-sql",
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            services,
+            datastores,
+            relationships);
+
+        filtered.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterKnownRelationships_returns_empty_when_relationships_are_null_or_empty()
     {
         List<ManifestService> services =
