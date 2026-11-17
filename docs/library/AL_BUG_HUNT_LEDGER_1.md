@@ -8399,8 +8399,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 ---
 
 ## Zone: alert-simulation
+**Hunts:** 1 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
 
-**Hunts:** 0 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
+2026-11-17 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Post-catalog-reset re-read of `AlertSimulationContextProvider` and `AlertSimulationController` simulate/compare paths. Scoped filter **40/40** (`AlertSimulationContextProviderTests`; `RunAnalyzers=false`). No hunt-ready row; seeded five `(candidate)` rows below. Private beta: n/a.
+
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — recent-run batch mode invokes `BuildContextAsync` with `comparedToRunId: null` for every row even when the caller supplied a baseline compare id; locus: list branch foreach; input: `runId` null + `comparedToRunId` set + `recentRunCount>1`; wrong outcome: historical batch simulation drops baseline comparison silently; reachability: Operator alert simulation over recent runs with compare baseline (contract test expects `ComparedToRunId` null in batch — monitor).
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — `FindingsSnapshotMatchesGoldenManifest` failure returns `null` in batch mode without surfacing corrupt snapshot linkage; locus: snapshot id equality gate; input: findings snapshot ids drift from golden manifest; wrong outcome: run omitted from evaluated set with no conflict response; reachability: partially repaired committed runs in authority catalog.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — `CreateEmptyFindings` when `detail.FindingsSnapshot` is null still builds plans from manifest-linked snapshot ids, under-populating findings for simulation; locus: null snapshot fallback; input: manifest present, findings row missing; wrong outcome: rule simulation under-matches vs production evaluator; reachability: runs mid-backfill before findings snapshot persistence completes.
+- [ ] (candidate) `AlertSimulationController.Simulate` — sealed-manifest failures map to `409` only when `IsSealedManifestSimulationBlock` matches; other `InvalidOperationException` text from downstream services may fall through to the generic `400` validation catch; locus: exception filter ordering; input: compare/plan fault with overlapping message shape; wrong outcome: misclassified client error; reachability: alert simulation API with malformed rule payload plus corrupt manifest edge from provider.
+- [ ] (candidate) `AlertSimulationController.Simulate` — `DurableAuditLogRetry.TryLogAsync` is best-effort after a successful `SimulateAsync`, so audit loss does not fail the HTTP response; locus: post-simulate audit; input: audit store outage after dry-run completes; wrong outcome: operator sees simulation results without `AlertRuleSimulationExecuted` audit row; reachability: Operator alert tuning dry-run under SQL audit pressure (intentional availability; monitor).
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected alert controller and context provider; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -8463,15 +8470,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-10-07 thorough hunt (hit): proved mis-scoped recommendation rows could enter simulation context; regressions for recommendation scope filter, recent-run clamp, and whitespace slug default; 26 scoped `AlertSimulationContextProviderTests` passed.
 
 - **id:** alert-simulation
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-11-17
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** 0
