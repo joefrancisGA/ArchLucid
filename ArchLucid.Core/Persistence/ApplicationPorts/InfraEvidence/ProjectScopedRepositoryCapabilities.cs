@@ -45,6 +45,11 @@ public interface IProjectScopedOperationalSecurityFindingRepository
         int pageSize,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByCloudResourceIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid cloudResourceId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdInScopeAsync(
         ProjectScopeKey scope,
         Guid pathId,
