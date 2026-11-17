@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
@@ -118,6 +120,10 @@ public sealed partial class FindingAnalysisContextBuilder(
             EvidencePin = primaryEvidencePin,
             EvidencePins = evidencePins,
             HasCreateTimeEvidencePinCommitment = _runEvidencePackagePinService.HasCreateTimePinCommitment(header),
+            // VerifyPinIntegrityAsync above checked create-time pin bytes, SHA-256 and scope before trusting [].
+            HasVerifiedEmptyEvidencePinCommitment = header?.PinnedEvidencePackagePinsJson is "[]"
+                && header.PinnedEvidencePackagePinsHashSha256 is { Length: 32 } pinHash
+                && pinHash.AsSpan().SequenceEqual(SHA256.HashData("[]"u8)),
             HeldCheckLedger = new HeldCheckLedger(),
         };
     }

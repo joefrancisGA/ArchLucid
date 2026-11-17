@@ -43,11 +43,13 @@ partial class FindingsEngineInvokeStage
                                string.Equals(pin.Provider, provider, StringComparison.OrdinalIgnoreCase));
         bool required = analysisContext.RequiredEngineTypes.Contains(engineType, StringComparer.OrdinalIgnoreCase);
 
-        // A matching pin must be assessed even if it lacks CollectionUtc, to preserve fail-closed handling.
-        // The same applies when a policy mandates the engine or evidence-pin commitment is inconsistent.
+        // Matching pins without CollectionUtc and required engines remain fail-closed.
+        // A verified SHA-256 commitment to [] is an honest absence, not a broken commitment.
+        // An unverified/missing/corrupt commitment must never be treated as an empty inventory.
 
         if (matchingPin || required
-            || (analysisContext.HasCreateTimeEvidencePinCommitment && !anyPins)
+            || (analysisContext.HasCreateTimeEvidencePinCommitment && !anyPins
+                && !analysisContext.HasVerifiedEmptyEvidencePinCommitment)
             || (anyPins && !analysisContext.HasCreateTimeEvidencePinCommitment))
             return true;
 

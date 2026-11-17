@@ -38,6 +38,33 @@ public sealed class FindingsEngineInventoryApplicabilityTests
     }
 
     [Fact]
+    public async Task Verified_empty_create_time_commitment_holds_inventory_instead_of_falsely_invoking_engines()
+    {
+        HeldCheckLedger ledger = new();
+        FindingAnalysisContext analysis = new()
+        {
+            HasCreateTimeEvidencePinCommitment = true,
+            HasVerifiedEmptyEvidencePinCommitment = true,
+            HeldCheckLedger = ledger,
+        };
+        Mock<IEffectfulFindingEngine> azure = Engine("azure-inventory-security-baseline", invoke: false);
+        Mock<IEffectfulFindingEngine> aws = Engine("aws-inventory-security-baseline", invoke: false);
+        FindingsStageContext context = CreateContext(analysis);
+
+        await CreateStage(azure, aws).ExecuteAsync(context, CancellationToken.None);
+
+        context.SuccessfulEngineInvocations.Should().Be(0);
+        context.SuccessfulEngineTypes.Should().BeEmpty();
+        context.EngineFailures.Should().BeEmpty();
+        ledger.BuildRollup().Select(entry => entry.InputCode).Should()
+            .BeEquivalentTo([HeldCheckInputCode.AzureInventoryZip, HeldCheckInputCode.AwsInventoryZip]);
+        azure.Verify(x => x.AnalyzeAsync(It.IsAny<GraphSnapshot>(), It.IsAny<FindingAnalysisContext?>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+        aws.Verify(x => x.AnalyzeAsync(It.IsAny<GraphSnapshot>(), It.IsAny<FindingAnalysisContext?>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task Aws_pin_without_date_is_invoked_while_missing_azure_is_held()
     {
         HeldCheckLedger ledger = new();

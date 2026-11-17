@@ -93,6 +93,16 @@ public sealed class FindingAnalysisContext
         init;
     }
 
+    /// <summary>
+    ///     A scope-verified create-time pin hash commits to the canonical empty evidence package list.
+    ///     This is distinct from a missing or corrupted pin commitment and cannot authorize an inventory scan.
+    /// </summary>
+    public bool HasVerifiedEmptyEvidencePinCommitment
+    {
+        get;
+        init;
+    }
+
     /// <summary>Missing-input attribution for fail-closed engines (DX-52). Null in golden harness.</summary>
     public IHeldCheckLedger? HeldCheckLedger
     {
