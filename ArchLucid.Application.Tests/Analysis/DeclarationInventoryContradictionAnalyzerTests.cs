@@ -1102,4 +1102,48 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
         mismatch.DeclarationValue.Should().Be("0");
         mismatch.InventoryValue.Should().Be("true");
     }
+
+    [Fact]
+    public void CompareQuality_Analyze_does_not_mismatch_when_declaration_uses_no_and_inventory_public_network_access_is_disabled()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.public_network_access"] = "no",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "publicNetworkAccess": "Disabled"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        mismatches.Should().BeEmpty();
+    }
 }
