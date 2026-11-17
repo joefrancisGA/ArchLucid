@@ -129,6 +129,38 @@ public sealed class AlertTeamsWebhookDeliveryChannelTests
     }
 
     [Fact]
+    public async Task SendAsync_TeamsPayload_strips_vertical_tab_from_category_in_posted_text()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
+
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    ChatOpsWebhookTarget.Teams,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
+            .Returns(Task.CompletedTask);
+
+        AlertTeamsWebhookDeliveryChannel sut = new(delivery.Object);
+        AlertDeliveryPayload payload = CreatePayload("https://outlook.office.com/webhook/x");
+        payload.Alert.Category = "Perform\u000Bance";
+
+        await sut.SendAsync(payload, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        object body = ChatOpsIncomingWebhookBodies.ForTeams(captured!);
+        string text = GetStringProperty(body, "text");
+
+        text.Should().Contain("Category: Perform ance");
+        text.Should().NotContain("\u000B");
+    }
+
+    [Fact]
     public async Task SendAsync_TeamsPayload_HtmlEncodes_severity_in_title_prefix()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();
