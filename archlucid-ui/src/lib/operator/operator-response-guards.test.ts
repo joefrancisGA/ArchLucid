@@ -44,6 +44,40 @@ describe("coerceRunSummaryList", () => {
 });
 
 describe("coerceRunSummaryPaged", () => {
+  it("trims padding on keyset nextCursor tokens", () => {
+    const result = coerceRunSummaryPaged(
+      {
+        items: [{ runId: "r1", projectId: "default", createdUtc: "2020-01-01T00:00:00Z" }],
+        requestedTake: 20,
+        hasMore: true,
+        nextCursor: "  cursor-token  ",
+      },
+      { page: 1 },
+    );
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.nextCursor).toBe("cursor-token");
+    }
+  });
+
+  it("drops whitespace-only nextCursor from keyset envelopes", () => {
+    const result = coerceRunSummaryPaged(
+      {
+        items: [{ runId: "r1", projectId: "default", createdUtc: "2020-01-01T00:00:00Z" }],
+        requestedTake: 20,
+        hasMore: true,
+        nextCursor: "  ",
+      },
+      { page: 1 },
+    );
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.nextCursor).toBeNull();
+    }
+  });
+
   it("accepts cursor keyset envelope (requestedTake + hasMore) and synthesizes totals", () => {
     const result = coerceRunSummaryPaged(
       {
@@ -346,6 +380,24 @@ describe("coerceReplayResponse", () => {
     const result = coerceReplayResponse({
       runId: "   ",
       mode: "m",
+      replayedUtc: "2020-01-01T00:00:00Z",
+      validation: {
+        notes: [],
+        manifestHashMatches: true,
+        artifactBundlePresentAfterReplay: false,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe("Replay response is missing runId, mode, or replayedUtc.");
+    }
+  });
+
+  it("rejects whitespace-only mode", () => {
+    const result = coerceReplayResponse({
+      runId: "r",
+      mode: " ",
       replayedUtc: "2020-01-01T00:00:00Z",
       validation: {
         notes: [],
