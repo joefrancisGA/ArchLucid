@@ -5,6 +5,14 @@ namespace ArchLucid.Application.Runs.Orchestration;
 
 internal static class TopologyProposalRequiredControlKeys
 {
+    internal static string NormalizeManifestEndpointIdentity(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return string.Empty;
+
+        return StripUnicodeFormatCharacters(value.Trim());
+    }
+
     internal static string NormalizeKey(string control)
     {
         if (string.IsNullOrWhiteSpace(control))

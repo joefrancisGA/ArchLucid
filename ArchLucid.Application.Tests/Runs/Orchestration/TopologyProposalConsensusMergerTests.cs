@@ -11,6 +11,48 @@ namespace ArchLucid.Application.Tests.Runs.Orchestration;
 public sealed class TopologyProposalConsensusMergerTests
 {
     [Fact]
+    public void Merge_intersects_services_when_service_names_differ_only_by_zero_width_format_character()
+    {
+        const string withZeroWidth = "ap\u200Bi";
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceId = string.Empty,
+                    ServiceName = "api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                }
+            ]
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceId = string.Empty,
+                    ServiceName = withZeroWidth,
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                }
+            ]
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.AddedServices.Should().ContainSingle()
+            .Which.ServiceName.Should().Be("api");
+    }
+
+    [Fact]
     public void Merge_intersects_services_when_models_use_rename_alias_labels_for_same_service_id()
     {
         AgentTopologyProposal primary = new()
