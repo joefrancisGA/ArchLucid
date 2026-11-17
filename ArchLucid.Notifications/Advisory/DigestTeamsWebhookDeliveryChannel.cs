@@ -1,7 +1,6 @@
 using System.Net;
 
 using ArchLucid.Contracts.Advisory.Delivery;
-using ArchLucid.Core.Notifications;
 using ArchLucid.Core.Persistence.Ports;
 
 namespace ArchLucid.Notifications.Advisory;
@@ -24,7 +23,7 @@ public sealed class DigestTeamsWebhookDeliveryChannel(IChatOpsWebhookDeliverySer
         ChatOpsWebhookMessage body = new()
         {
             Title = payload.Digest.Title,
-            SupportingParagraph = WebUtility.HtmlEncode(EmailHeaderFragmentSanitizer.Sanitize(payload.Digest.Summary)),
+            SupportingParagraph = WebUtility.HtmlEncode(ChatOpsDigestSummaryFragments.SanitizeForDelivery(payload.Digest.Summary)),
             Body = payload.Digest.ContentMarkdown,
         };
 

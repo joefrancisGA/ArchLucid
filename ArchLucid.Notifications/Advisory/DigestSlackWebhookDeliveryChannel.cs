@@ -21,7 +21,7 @@ public sealed class DigestSlackWebhookDeliveryChannel(IChatOpsWebhookDeliverySer
         ChatOpsWebhookMessage body = new()
         {
             Title = payload.Digest.Title,
-            SupportingParagraph = payload.Digest.Summary,
+            SupportingParagraph = ChatOpsDigestSummaryFragments.SanitizeForDelivery(payload.Digest.Summary),
             Body = payload.Digest.ContentMarkdown,
         };
 
