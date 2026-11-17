@@ -226,23 +226,32 @@ public sealed partial class SqlSecurityEvidenceCutPointRepository(ISqlConnection
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using System.Data.IDbTransaction tx = conn.BeginTransaction();
 
+        // Serialize same-snapshot replacements even before any cut-point rows exist.
         const string scopeExistsSql = """
                                       SELECT COUNT(1)
-                                      FROM dbo.SecurityEvidencePaths
-                                      WHERE TenantId = @TenantId
-                                        AND WorkspaceId = @WorkspaceId
-                                        AND ProjectId = @ProjectId
-                                        AND SnapshotId = @SnapshotId;
+                                      FROM dbo.AzureInventorySnapshots s WITH (UPDLOCK, HOLDLOCK)
+                                      WHERE s.TenantId = @TenantId
+                                        AND s.WorkspaceId = @WorkspaceId
+                                        AND s.ProjectId = @ProjectId
+                                        AND s.SnapshotId = @SnapshotId
+                                        AND EXISTS (
+                                            SELECT 1
+                                            FROM dbo.SecurityEvidencePaths p
+                                            WHERE p.TenantId = s.TenantId
+                                              AND p.WorkspaceId = s.WorkspaceId
+                                              AND p.ProjectId = s.ProjectId
+                                              AND p.SnapshotId = s.SnapshotId
+                                        );
                                       """;
 
-        int scopedPathCount = await conn.ExecuteScalarAsync<int>(
+        int scopedSnapshotWithPathsCount = await conn.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 scopeExistsSql,
                 new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, SnapshotId = snapshotId },
                 transaction: tx,
                 cancellationToken: cancellationToken));
 
-        if (scopedPathCount == 0 && cutPoints.Count > 0)
+        if (scopedSnapshotWithPathsCount == 0 && cutPoints.Count > 0)
             throw new InvalidOperationException("Scoped cut-point replacement target snapshot has no paths in the project.");
 
         const string deleteSql = """
