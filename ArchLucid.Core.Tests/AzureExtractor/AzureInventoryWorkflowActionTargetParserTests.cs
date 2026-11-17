@@ -33,6 +33,24 @@ public sealed class AzureInventoryWorkflowActionTargetParserTests
     }
 
     [Fact]
+    public void Parse_reads_arm_id_from_json_blob_when_only_resourceId_key_present()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [$"{InventoryDiagramNodeRelationshipPropertyKeys.WorkflowActionPrefix}Notify{InventoryDiagramNodeRelationshipPropertyKeys.WorkflowActionTargetSuffix}"] =
+                $$"""{"resourceId":"{{StorageArmId}}"}""",
+        };
+
+        IReadOnlyList<AzureInventoryWorkflowActionTarget> targets =
+            AzureInventoryWorkflowActionTargetParser.Parse(properties);
+
+        targets.Should().ContainSingle(action => action.ActionName == "Notify");
+        targets.Single(action => action.ActionName == "Notify").TargetArmId
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(StorageArmId));
+    }
+
+    [Fact]
     public void Parse_reads_action_targets_from_definition_json()
     {
         string definition = """

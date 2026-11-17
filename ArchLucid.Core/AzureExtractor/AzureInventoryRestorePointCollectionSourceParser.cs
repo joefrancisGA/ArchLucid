@@ -114,34 +114,6 @@ public static class AzureInventoryRestorePointCollectionSourceParser
         return ArmResourceIdNormalizer.Normalize(working);
     }
 
-    private static string? TryReadArmIdFromJson(string json)
-    {
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(json);
-            JsonElement root = document.RootElement;
-
-            if (root.ValueKind is not JsonValueKind.Object)
-            {
-                return null;
-            }
-
-            string? armId = AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(root);
-
-            if (string.IsNullOrWhiteSpace(armId))
-            {
-                return null;
-            }
-
-            // Re-enter when the inner scalar is still encoded or nested; otherwise keep normalized id.
-            string? resolved = TryResolveArmReferenceValue(armId);
-
-            return resolved ?? armId;
-        }
-        catch (JsonException)
-        {
-        }
-
-        return null;
-    }
+    private static string? TryReadArmIdFromJson(string json) =>
+        AzureInventoryArmJsonBlobIdReader.TryReadArmIdFromJson(json, TryResolveArmReferenceValue);
 }

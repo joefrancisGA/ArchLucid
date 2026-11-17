@@ -219,24 +219,6 @@ public static class AzureInventoryWorkflowActionTargetParser
         return ArmResourceIdNormalizer.Normalize(trimmed);
     }
 
-    private static string? TryReadArmIdFromJson(string json)
-    {
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(json);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Object
-                || !document.RootElement.TryGetProperty("id", out JsonElement idElement)
-                || idElement.ValueKind is not JsonValueKind.String)
-            {
-                return null;
-            }
-
-            return NormalizeArmId(idElement.GetString());
-        }
-        catch (JsonException)
-        {
-            return null;
-        }
-    }
+    private static string? TryReadArmIdFromJson(string json) =>
+        AzureInventoryArmJsonBlobIdReader.TryReadArmIdFromJson(json, NormalizeArmId);
 }

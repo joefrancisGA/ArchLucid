@@ -45,6 +45,22 @@ public sealed class AzureInventoryAccessConnectorTargetParserTests
     }
 
     [Fact]
+    public void ParseExternalTargetArmId_reads_arm_id_from_json_blob_when_inner_key_uses_capital_Id_casing()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["target"] =
+                """
+                {"Id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stexternal"}
+                """,
+        };
+
+        AzureInventoryAccessConnectorTargetParser.ParseExternalTargetArmId(properties)
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(ExternalTargetArmId));
+    }
+
+    [Fact]
     public void ParseExternalTargetArmId_reads_explicit_target_reference()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
