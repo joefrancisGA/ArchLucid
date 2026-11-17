@@ -297,7 +297,7 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
                                           MatchKind, MatchSource, ExplainText, IsActive, MatchedUtc
                            FROM dbo.RemediationPatternMatchResults
                            WHERE TenantId = @TenantId AND FindingId = @FindingId AND IsActive = 1
-                           ORDER BY MatchedUtc DESC;
+                           ORDER BY MatchedUtc DESC, MatchResultId DESC;
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -324,7 +324,7 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
                              AND m.IsActive = 1
                              AND f.WorkspaceId = @WorkspaceId
                              AND f.ProjectId = @ProjectId
-                           ORDER BY m.MatchedUtc DESC;
+                           ORDER BY m.MatchedUtc DESC, m.MatchResultId DESC;
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -352,7 +352,7 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
                              AND f.ProjectId = @ProjectId
                              AND m.IsActive = 1
                              AND f.Status IN (@OpenStatus, @RecurredStatus)
-                           ORDER BY m.FindingId, m.MatchedUtc DESC;
+                           ORDER BY m.FindingId, m.MatchedUtc DESC, m.MatchResultId DESC;
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
