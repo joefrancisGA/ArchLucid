@@ -730,6 +730,12 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             if (IsLogAsyncSyntaxInNeverExecutedConstantForLoop(logAsyncSyntaxNode, semanticModel, cancellationToken))
                 return false;
 
+            if (IsLogAsyncSyntaxInNeverExecutedForeachOverEmptyCollection(
+                    logAsyncSyntaxNode,
+                    semanticModel,
+                    cancellationToken))
+                return false;
+
             if (IsLogAsyncSyntaxAfterUnreachableSibling(logAsyncSyntaxNode, semanticModel, cancellationToken))
                 return false;
         }
@@ -1039,6 +1045,64 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                 return true;
             }
         }
+
+        return false;
+    }
+
+    private static bool IsLogAsyncSyntaxInNeverExecutedForeachOverEmptyCollection(
+        SyntaxNode logAsyncSyntaxNode,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        ForEachStatementSyntax? foreachStatementSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<ForEachStatementSyntax>();
+
+        if (foreachStatementSyntax is null)
+            return false;
+
+        if (!ForeachCollectionIsCompileTimeEmpty(
+                foreachStatementSyntax.Expression,
+                semanticModel,
+                cancellationToken))
+            return false;
+
+        return foreachStatementSyntax.Statement.DescendantNodesAndSelf()
+            .Any(node => ReferenceEquals(node, logAsyncSyntaxNode));
+    }
+
+    private static bool ForeachCollectionIsCompileTimeEmpty(
+        ExpressionSyntax collectionExpression,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (collectionExpression is CollectionExpressionSyntax collectionExpressionSyntax)
+            return collectionExpressionSyntax.Elements.Count == 0;
+
+        if (collectionExpression is ImplicitArrayCreationExpressionSyntax implicitArrayCreationExpressionSyntax)
+            return implicitArrayCreationExpressionSyntax.Initializer is null ||
+                   implicitArrayCreationExpressionSyntax.Initializer.Expressions.Count == 0;
+
+        if (collectionExpression is ArrayCreationExpressionSyntax arrayCreationExpressionSyntax)
+        {
+            foreach (ExpressionSyntax dimension in arrayCreationExpressionSyntax.Type.RankSpecifiers
+                         .SelectMany(static rank => rank.Sizes))
+            {
+                if (dimension is not LiteralExpressionSyntax dimensionLiteralExpressionSyntax ||
+                    !dimensionLiteralExpressionSyntax.IsKind(SyntaxKind.NumericLiteralExpression))
+                    continue;
+
+                if (semanticModel.GetConstantValue(dimensionLiteralExpressionSyntax, cancellationToken).Value is int bound &&
+                    bound == 0)
+                    return true;
+            }
+
+            if (arrayCreationExpressionSyntax.Initializer?.Expressions.Count == 0)
+                return true;
+        }
+
+        if (collectionExpression is InvocationExpressionSyntax invocationExpressionSyntax &&
+            semanticModel.GetSymbolInfo(invocationExpressionSyntax, cancellationToken).Symbol is IMethodSymbol
+                { Name: "Empty", IsStatic: true, ContainingType.SpecialType: SpecialType.System_Array })
+            return true;
 
         return false;
     }
