@@ -24330,6 +24330,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
+- [ ] (candidate) `DeclarationPremiseConflictClassifier.TryGetWorkloadIsolationDeclarationProperty` — only truthy k8s flags should surface on workload premise rows — locus: property picker order; input: `hostNetwork=false` with pod-security intent; wrong outcome: cites disabled flag; reachability: raw declaration bags.
+- [ ] (candidate) `DeclarationPremiseConflictClassifier.TryGetWorkloadIsolationDeclarationProperty` — `allowPrivilegeEscalation=no` treated as present escalation property — locus: k8s property read; input: `no` token; wrong outcome: workload conflict cites `no`; reachability: values not passed through scalar normalization.
+- [ ] (candidate) `RequirementSkuTierAnalyzer.Analyze` — requirement geo tier with unparsed datastore tier returns no gap — locus: gap when `TryRead` false; input: datastore with only non-tokenized properties; wrong outcome: silent; reachability: sparse declaration nodes.
+- [ ] (candidate) `DrRpoTopologyAnalyzer` — replica evidence from Helm `yes` on zone flag without normalization — locus: DR evidence scan; input: `zone_redundant=yes` only; wrong outcome: silent RPO posture; reachability: parity with SKU reader tokens.
+- [ ] (candidate) `DatastoreSkuReader.TryRead` — `zoneRedundant=no` without SKU token — locus: false zone flag path; input: only zone redundant no; wrong outcome: unparsed tier; reachability: bags mirroring helm values.
+
+2026-11-17 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted ledger candidate `DrReplicaPropertyHeuristic.IsDisabledReplicaValue` — Helm-style `no`/`off` on `zone_redundant` was not treated as disabled replica evidence, so RPO topology paths falsely inferred replica coverage on single-region declarations; extend disabled token list. Regression `HasReplicaEvidence_returns_false_when_zone_redundant_is_no_token`. Cheap-disproof: `DatastoreSkuReader.TryRead` still maps `geoRedundant=no` plus `accountReplicationType=GRS` to geo-redundant via SKU tokens after hunt **#2** ordering (monitor candidate closed). Scoped `DrReplicaPropertyHeuristicTests` **2/2** (`RunAnalyzers=false`). Private beta: when an invited operator declares zone redundancy as `no`, DR/RPO findings no longer treat the datastore as replica-backed.
+
+- [x] (proven) `DrReplicaPropertyHeuristic.IsDisabledReplicaValue` — `zone_redundant=no` counts as replica evidence — **hit 2026-11-17 seed hunt:** treat `no`/`off` as disabled; regression above. [class:boolean-coercion]
+- [x] (valid-no-repro) `DatastoreSkuReader.TryRead` — `geoRedundant=no` with `accountReplicationType=GRS` — **cheap-disproof 2026-11-17 seed hunt:** SKU token read still yields `GeoRedundant` before false-flag single-region tail (hunt **2026-11-16 #2** ordering).
+
 - [ ] (candidate) `DrReplicaPropertyHeuristic.IsDisabledReplicaValue` — `zone_redundant=no` counts as replica evidence — locus: disabled token list; input: Helm `no` on raw bags; wrong outcome: DR satisfied falsely; reachability: declarations without graph ingest coercion.
 - [ ] (candidate) `DeclarationPremiseConflictClassifier.TryGetWorkloadIsolationDeclarationProperty` — falsy `k8s.hostNetwork` still cited on workload premise conflicts — locus: property picker; input: `hostNetwork=false` with pod-security intent; wrong outcome: conflicts cite disabled host network; reachability: mixed baseline and premise paths.
 - [ ] (candidate) `DeclarationPremiseConflictClassifier.TryGetWorkloadIsolationDeclarationProperty` — `allowPrivilegeEscalation=no` treated as present escalation property — locus: k8s property read; input: `no` token; wrong outcome: workload conflict cites `no`; reachability: values not passed through scalar normalization.
@@ -24448,11 +24459,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 69
-- **bugs-found:** 57
+- **hunts:** 70
+- **bugs-found:** 58
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-16
-- **last-bug:** 2026-11-16 — Helm `yes`/`no` on `geoRedundant` skipped SKU tier mapping
+- **last-hunt:** 2026-11-17
+- **last-bug:** 2026-11-17 — Helm `no` on `zone_redundant` falsely counted as DR replica evidence
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
