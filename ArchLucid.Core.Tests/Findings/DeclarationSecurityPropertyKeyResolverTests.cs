@@ -312,6 +312,44 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
     }
 
     [Fact]
+    public void TryGet_resolves_compacted_tf_enablepublicaccess_for_public_network_access()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.enablepublicaccess"] = "false",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.enablepublicaccess");
+        value.Should().Be("false");
+    }
+
+    [Fact]
+    public void TryGet_resolves_compacted_tf_internetaccessenabled_for_public_network_access()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.internetaccessenabled"] = "false",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.internetaccessenabled");
+        value.Should().Be("false");
+    }
+
+    [Fact]
     public void TryGet_resolves_compacted_tf_encryptionenabled_for_storage_encrypted()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)

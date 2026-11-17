@@ -1682,6 +1682,206 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_detects_public_network_mismatch_when_gcp_inventory_nests_enable_public_access_under_ip_configuration()
+    {
+        const string resourceId = "projects/demo-project/instances/pay-sql";
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "sql-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pay-sql",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] = resourceId,
+                        ["tf.enablepublicaccess"] = "false",
+                    },
+                },
+            ],
+        };
+
+        string resourcesJson =
+            $$"""
+            [
+              {
+                "name": "{{resourceId}}",
+                "assetType": "sqladmin.googleapis.com/Instance",
+                "properties": {
+                  "settings": {
+                    "ipConfiguration": {
+                      "enablePublicAccess": true
+                    }
+                  }
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Gcp,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.enablepublicaccess");
+        mismatch.DeclarationValue.Should().Be("false");
+        mismatch.InventoryValue.Should().Be("true");
+        mismatch.SecurityTheme.Should().Be("data-protection");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_public_network_mismatch_when_aws_inventory_nests_publicly_accessible_under_db_instance()
+    {
+        const string arn = "arn:aws:rds:us-east-1:123456789012:db:pay-sql";
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "sql-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pay-sql",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] = arn,
+                        ["tf.publiclyaccessible"] = "false",
+                    },
+                },
+            ],
+        };
+
+        string resourcesJson =
+            $$"""
+            [
+              {
+                "arn": "{{arn}}",
+                "properties": {
+                  "DBInstance": {
+                    "publiclyAccessible": true
+                  }
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Aws,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.publiclyaccessible");
+        mismatch.InventoryValue.Should().Be("true");
+        mismatch.SecurityTheme.Should().Be("data-protection");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_storage_encryption_mismatch_when_azure_inventory_nests_blob_encryption_enabled()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.storageencrypted"] = "false",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "encryption": {
+                    "services": {
+                      "blob": {
+                        "enabled": true
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.storageencrypted");
+        mismatch.InventoryValue.Should().Be("true");
+        mismatch.SecurityTheme.Should().Be("encryption");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_public_network_mismatch_when_gcp_declaration_uses_compacted_tf_internetaccessenabled()
+    {
+        const string resourceId = "projects/demo-project/instances/pay-sql";
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "sql-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pay-sql",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] = resourceId,
+                        ["tf.internetaccessenabled"] = "false",
+                    },
+                },
+            ],
+        };
+
+        string resourcesJson =
+            $$"""
+            [
+              {
+                "name": "{{resourceId}}",
+                "assetType": "sqladmin.googleapis.com/Instance",
+                "properties": {
+                  "enablePublicAccess": true
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Gcp,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.internetaccessenabled");
+        mismatch.InventoryValue.Should().Be("true");
+        mismatch.SecurityTheme.Should().Be("data-protection");
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_does_not_mismatch_when_declaration_uses_no_and_inventory_public_network_access_is_disabled()
     {
         GraphSnapshot graph = new()

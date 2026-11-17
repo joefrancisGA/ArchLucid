@@ -20,6 +20,7 @@ internal static class InfrastructureDeclarationSecurityPropertyWriter
             ["enablehttpstrafficonly"] = "enableHttpsTrafficOnly",
             ["requiressl"] = "requireSsl",
             ["ipv4enabled"] = "ipv4Enabled",
+            ["enablepublicaccess"] = "enablePublicAccess",
             ["encryptionenabled"] = "encryptionEnabled",
         };
 
