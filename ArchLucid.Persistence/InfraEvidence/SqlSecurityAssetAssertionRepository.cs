@@ -331,7 +331,8 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
     {
         const string sql = """
                            UPDATE dbo.SecurityAssetAssertions
-                           SET Status = @ExpiredStatus, UpdatedUtc = @AsOfUtc
+                           SET Status = @ExpiredStatus,
+                               UpdatedUtc = CASE WHEN Status = @ActiveStatus THEN @AsOfUtc ELSE UpdatedUtc END
                            OUTPUT
                                INSERTED.AssertionId, INSERTED.TenantId, INSERTED.WorkspaceId, INSERTED.ProjectId,
                                INSERTED.CloudResourceId, INSERTED.DataSensitivity, INSERTED.RegulatoryClass,
@@ -343,8 +344,9 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
                              AND ProjectId = @ProjectId
-                             AND Status = @ActiveStatus
-                             AND ExpirationUtc < @AsOfUtc;
+                             AND ExpiryProcessedUtc IS NULL
+                             AND (Status = @ExpiredStatus
+                                  OR (Status = @ActiveStatus AND ExpirationUtc < @AsOfUtc));
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);

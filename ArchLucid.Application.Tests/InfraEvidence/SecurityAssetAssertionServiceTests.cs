@@ -113,6 +113,27 @@ public sealed class SecurityAssetAssertionServiceTests
     }
 
     [Fact]
+    public async Task SweepExpiredAsync_recovers_unprocessed_expiration_after_interruption()
+    {
+        DateTime utcNow = DateTime.UtcNow;
+        InMemorySecurityAssetAssertionRepository repository = new();
+        repository.Records.Add(CreateExpiredAssertion(Guid.NewGuid(), utcNow.AddMinutes(-5)));
+        await repository.MarkExpiredAsync(TenantId, utcNow);
+
+        InMemoryOperationalSecurityFindingRepository findings = new();
+        findings.Findings.Add(CreateFinding(Guid.NewGuid(), utcNow));
+        SecurityAssetAssertionService sut = CreateSut(repository, findings);
+
+        SecurityAssetAssertionExpirySweepResult retry = await sut.SweepExpiredAsync(CreateScope());
+        retry.ObservationsCreatedCount.Should().Be(1);
+        repository.Records.Single().ExpiryProcessedUtc.Should().NotBeNull();
+        findings.Observations.Should().ContainSingle();
+
+        (await sut.SweepExpiredAsync(CreateScope())).ExpiredCount.Should().Be(0);
+        findings.Observations.Should().ContainSingle();
+    }
+
+    [Fact]
     public async Task RevokeAsync_rejects_cross_tenant_lookup()
     {
         DateTime utcNow = DateTime.UtcNow;
