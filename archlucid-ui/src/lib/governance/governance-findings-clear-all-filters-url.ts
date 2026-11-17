@@ -13,6 +13,11 @@ import {
 } from "@/lib/governance/finding-keyboard-triage-confirm-url";
 import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
 import { governanceFindingsHideGenericHrefFromSearch } from "@/lib/governance/governance-findings-hide-generic-url";
+import {
+  GOVERNANCE_RECORD_CORRECTION_KIND_PARAM,
+  GOVERNANCE_RECORD_CORRECTION_RUN_ID_PARAM,
+  GOVERNANCE_RECORD_CORRECTION_SUBJECT_ID_PARAM,
+} from "@/lib/governance/governance-record-correction-confirm-url";
 import { REVIEW_FINDINGS_JOB_VIEW_PARAM } from "@/lib/findings/review-findings-job-view-url";
 import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
@@ -35,6 +40,9 @@ export function governanceFindingsClearAllFiltersHref(
   params.delete(GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM);
   params.delete(FINDING_KEYBOARD_TRIAGE_FINDING_ID_PARAM);
   params.delete(FINDING_KEYBOARD_TRIAGE_ACTION_PARAM);
+  params.delete(GOVERNANCE_RECORD_CORRECTION_KIND_PARAM);
+  params.delete(GOVERNANCE_RECORD_CORRECTION_SUBJECT_ID_PARAM);
+  params.delete(GOVERNANCE_RECORD_CORRECTION_RUN_ID_PARAM);
   params.delete(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
 
   const nextQuery = params.toString();
