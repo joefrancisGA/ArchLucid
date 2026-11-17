@@ -11683,6 +11683,41 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         AssertRedacts(effectiveValue);
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_bearer_header_is_fully_percent_encoded()
+    {
+        const string effectiveValue = "Authorization%3A%20Bearer%20eyJhbGciOiJIUzI1NiJ9";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_header_is_fully_percent_encoded()
+    {
+        const string effectiveValue = "Proxy-Authorization%3A%20Basic%20dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie_header_is_fully_percent_encoded()
+    {
+        const string effectiveValue = "Set-Cookie%3A%20session%3D12345678";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_digest_header_is_fully_percent_encoded()
+    {
+        const string effectiveValue = "Authorization%3A%20Digest%20response%3Ddeadbeef0123";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_www_authenticate_basic_challenge()
+    {
+        const string effectiveValue = """{"hdr":"WWW-Authenticate%3A%20Basic%20dXNlcjpwYXNz"}""";
+        AssertRedacts(effectiveValue);
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
