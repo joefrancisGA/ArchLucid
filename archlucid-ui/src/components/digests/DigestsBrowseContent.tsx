@@ -23,6 +23,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { DigestsBrowseHistorySkeleton } from "@/components/digests/DigestsBrowseHistorySkeleton";
 import { DigestsBrowseIncludesPreview } from "@/components/digests/DigestsBrowseIncludesPreview";
+import { DigestsBrowseSetupEmptyPartialHonesty } from "@/components/digests/DigestsBrowseSetupEmptyPartialHonesty";
 import { DigestsBrowseSetupChecklist } from "@/components/digests/DigestsBrowseSetupChecklist";
 import {
   DIGESTS_BROWSE_EMPTY_DESCRIPTION,
@@ -193,12 +194,16 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
               }
             />
           ) : setupChecklist !== null ? (
-            <DigestsBrowseSetupChecklist items={setupChecklist} />
+            <>
+              <DigestsBrowseSetupChecklist items={setupChecklist} />
+              <DigestsBrowseSetupEmptyPartialHonesty />
+            </>
           ) : (
             <EnterpriseCompactEmptyState
               testId="digests-empty-state"
               title={DIGESTS_BROWSE_SETUP_UNKNOWN_TITLE}
               description={DIGESTS_BROWSE_SETUP_UNKNOWN_DESCRIPTION}
+              footer={<DigestsBrowseSetupEmptyPartialHonesty />}
             />
           )}
           <CollapsibleSection
