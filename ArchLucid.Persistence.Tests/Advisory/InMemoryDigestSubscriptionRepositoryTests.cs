@@ -58,6 +58,25 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
     }
 
     [SkippableFact]
+    public async Task UpdateAsync_preserves_a_delivery_recorded_after_settings_were_loaded()
+    {
+        InMemoryDigestSubscriptionRepository repo = new();
+        Guid id = Guid.NewGuid();
+        DigestSubscription initial = Build(id, "digest@x.com", true, BaseUtc);
+        DigestSubscription staleSettings = Build(id, "digest@x.com", false, BaseUtc);
+        DateTime deliveredUtc = BaseUtc.AddHours(1);
+
+        await repo.CreateAsync(initial, CancellationToken.None);
+        await repo.RecordDeliveryAsync(initial, deliveredUtc, CancellationToken.None);
+        await repo.UpdateAsync(staleSettings, CancellationToken.None);
+
+        DigestSubscription? loaded = await repo.GetByIdAsync(TestScope, id, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.IsEnabled.Should().BeFalse();
+        loaded.LastDeliveredUtc.Should().Be(deliveredUtc);
+    }
+
+    [SkippableFact]
     public async Task GetByIdAsync_returns_null_for_unknown_id()
     {
         InMemoryDigestSubscriptionRepository repo = new();

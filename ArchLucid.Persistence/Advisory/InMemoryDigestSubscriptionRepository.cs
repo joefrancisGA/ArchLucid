@@ -33,9 +33,20 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.SubscriptionId == subscription.SubscriptionId && SameScope(x, subscription));
-            if (i >= 0)
-                _items[i] = subscription;
+            DigestSubscription? stored = _items.Find(x =>
+                x.SubscriptionId == subscription.SubscriptionId && SameScope(x, subscription));
+            if (stored is not null)
+            {
+                stored.Name = subscription.Name;
+                stored.ChannelType = subscription.ChannelType;
+                stored.Destination = subscription.Destination;
+                stored.IsEnabled = subscription.IsEnabled;
+                stored.CreatedUtc = subscription.CreatedUtc;
+                stored.MetadataJson = subscription.MetadataJson;
+
+                if (stored.LastDeliveredUtc is null || subscription.LastDeliveredUtc > stored.LastDeliveredUtc)
+                    stored.LastDeliveredUtc = subscription.LastDeliveredUtc;
+            }
         }
 
         return Task.CompletedTask;
