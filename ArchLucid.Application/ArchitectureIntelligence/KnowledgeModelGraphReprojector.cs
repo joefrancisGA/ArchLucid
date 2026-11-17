@@ -62,6 +62,7 @@ public sealed class KnowledgeModelGraphReprojector(
 
         // A sealed run's evidence anchors are immutable. κ updates after commitment
         // may produce a new architecture revision, but must not retarget this run's Γ.
+
         if (run is null
             || run.GoldenManifestId.HasValue
             || string.Equals(run.LegacyRunStatus, "Committed", StringComparison.OrdinalIgnoreCase))
