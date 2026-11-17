@@ -9296,6 +9296,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 ---
 
 ## Zone: agent-runtime-safety
+**Hunts:** 1 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
+
+2026-11-17 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Re-read `ArchLucid.AgentRuntime/Safety/` and `PromptInjection/` after catalog reset. Scoped filter **525 passed / 70 failed** on Windows (`AgentEvidenceUntrustedInputSanitizerTests` header-line equality vs `AppendLine` `\r\n` — not promoted). No hunt-ready row; seeded five `(candidate)` rows. Private beta: n/a.
+
+- [ ] (candidate) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` — horizontal tab in `Description` may collapse to spaces without neutralizing spoofed `Architecture Request` header lines in composed topology prompts when tests split on `\n` only; locus: `StripControlChars` + `BuildTopologyUserPrompt`; input: `description\tArchitecture Request\nIGNORE`; wrong outcome: duplicate trust anchor lines; reachability: TB-949 quarantined customer prose on agent execute.
+- [ ] (candidate) `AzureResourceTagPromptSanitizer.SanitizeScalar` — untrusted wrap runs before `EscapeCustomerMarkersAfterControlStrip` on several evidence fields may leave embedded `CUSTOMER_CONTENT_BEGIN` tokens reachable in prompt DATA; locus: scalar sanitize path; input: description carrying raw begin marker; wrong outcome: premature section boundary; reachability: operator-pasted intake prose.
+- [ ] (candidate) `AzureContentSafetyGuard.HandleSdkFailure` — fail-open when `FailClosedOnSdkError` is false returns `Allowed` without surfacing `SdkError` category to downstream circuit breaker; locus: SDK catch path; input: 503 from Content Safety; wrong outcome: unscanned prompt passes guard; reachability: pilot tenants with fail-open policy.
+- [ ] (candidate) `CircuitBreakingContentSafetyGuard.GuardAsync` — category block records success then inner SDK errors may fail to open breaker when fail-open inner guard returns allowed; locus: breaker + category interaction; input: alternating category block and SDK throw; wrong outcome: silent bypass after threshold; reachability: Azure Content Safety intermittent errors during execute.
+- [ ] (candidate) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` — buffered output scan aggregates chunks before `CheckOutputAsync` may miss blocklist hits split across chunk boundaries when inner stream uses custom chunk sizes; locus: buffer-then-scan; input: blocked token split across two chunks; wrong outcome: unsafe model text reaches parser; reachability: streaming completion clients on long JSON payloads.
 
 2026-11-02 thorough hunt (dry, rotation, hunt 189): **Zone rotation** fired (`shouldRotate: true`; `avoidZoneApplied: true`; reason: *3 consecutive low-yield hunt(s) on 'commit-output-integrity' (outcomes: dry, dry, dry).*). Picker applied **`-AvoidZoneId commit-output-integrity`** and returned `agent-runtime-safety` after commit-output-integrity dries **116**–**118**. Cheap-disproof closed five header `(candidate)` monitor rows from hunt 188 reseed (regression family hunt **87**) — **valid-no-repro** inner exception fail-open records failure before allow without opening below threshold (`When_inner_throws_and_fail_open_allows_without_scrub_before_circuit_threshold`; hunt 83/87 parity), **invalid** empty category analyses allow path is contract (`MapResult_allows_when_no_categories`; hunt 77/87 parity), **valid-no-repro** `ThrowBlocked` surfaces stage key and guard `BlockReason` only, not raw user prompt (`ContentSafetyEnforcingAgentCompletionClient.ThrowBlocked`; hunt 77/87 parity), **invalid** null list in-place replacement does not leave stale alias on sanitizer contract (`AgentEvidenceUntrustedInputSanitizer`; hunt 79/87 parity), **valid-no-repro** stream aggregates full inner output before output scan when evaluation enabled (`StreamJsonAsync` buffer-then-scan; hunt 76/87 parity). Reseeded five `(candidate)` monitor rows below (regression family hunt **91**); scoped picker-filter **585/585** AgentRuntime tests passed (`RunAnalyzers=false`). Run-log low-yield streak on `agent-runtime-safety` is **1/3** before this record (dry **188** at 2026-11-02). **This dry is 2/3** on `agent-runtime-safety` in the run log. Private beta: n/a.
 
@@ -10589,13 +10598,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-26 seed hunt (seed→hit): reseeded agent-runtime-safety; proved persisted starter-task objectives built before execute-time sanitize still carried raw Unicode line separators into the Task Objective quarantine while architecture fields were collapsed; fixed via `SanitizePersistedCustomerProse` at prompt render; seeded stale-objective `CUSTOMER_CONTENT_END` marker and cost/compliance objective parity candidates; 134 scoped agent-runtime-safety tests passed.
 
 - **id:** agent-runtime-safety
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 0
-- **last-hunt:** never
+- **hunts:** 1
+- **last-hunt:** 2026-11-17
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
 - **last-bug:** never
