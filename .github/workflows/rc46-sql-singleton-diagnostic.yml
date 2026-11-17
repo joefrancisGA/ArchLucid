@@ -6,6 +6,8 @@ on:
     branches: [RC46]
     paths:
       - .github/workflows/rc46-sql-singleton-diagnostic.yml
+      - ArchLucid.AgentRuntime.Tests/AgentModelTierResolverTestsHelper.cs
+      - ArchLucid.AgentRuntime/AgentModelAliases/CatalogBackedAgentModelAliasRegistry.cs
   workflow_dispatch:
 
 permissions:
