@@ -42,6 +42,47 @@ public sealed class OperationalErrorCaptureServiceTests
         Assert.Single(Assert.IsAssignableFrom<ICollection>(field.GetValue(service)));
     }
 
+    [Fact]
+    public void Fingerprint_limits_are_independent_for_each_tenant_workspace_and_project()
+    {
+        InMemoryOperationalErrorCaptureQueue queue = new();
+        Mock<IOptionsMonitor<OperationalErrorOptions>> options = new();
+        options.SetupGet(x => x.CurrentValue).Returns(new OperationalErrorOptions
+        {
+            MaxCapturesPerFingerprintPerMinute = 1
+        });
+        OperationalErrorCaptureService service = new(
+            queue, options.Object, NullLogger<OperationalErrorCaptureService>.Instance, new TestClock());
+        Guid tenant = Guid.NewGuid();
+        Guid workspace = Guid.NewGuid();
+        Guid project = Guid.NewGuid();
+        (Guid Tenant, Guid Workspace, Guid Project)[] scopes =
+        [
+            (tenant, workspace, project),
+            (Guid.NewGuid(), workspace, project),
+            (tenant, Guid.NewGuid(), project),
+            (tenant, workspace, Guid.NewGuid())
+        ];
+
+        foreach (var scope in scopes)
+        {
+            OperationalErrorCaptureRequest request = new()
+            {
+                Category = OperationalErrorCategory.HttpError,
+                Source = OperationalErrorSource.Api,
+                RequestPath = "/same",
+                HttpStatusCode = 500,
+                TenantId = scope.Tenant,
+                WorkspaceId = scope.Workspace,
+                ProjectId = scope.Project
+            };
+            service.TryCapture(request);
+            service.TryCapture(request);
+        }
+
+        Assert.Equal(scopes.Length, queue.ApproximatePendingCount);
+    }
+
     private static OperationalErrorCaptureRequest Request(string path) => new()
     {
         Category = OperationalErrorCategory.HttpError,
