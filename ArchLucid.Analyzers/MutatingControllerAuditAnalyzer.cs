@@ -727,6 +727,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             if (IsLogAsyncSyntaxInNeverExecutedConstantWhileLoop(logAsyncSyntaxNode, semanticModel, cancellationToken))
                 return false;
 
+            if (IsLogAsyncSyntaxInNeverExecutedConstantForLoop(logAsyncSyntaxNode, semanticModel, cancellationToken))
+                return false;
+
             if (IsLogAsyncSyntaxAfterUnreachableSibling(logAsyncSyntaxNode, semanticModel, cancellationToken))
                 return false;
         }
@@ -959,6 +962,85 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
         return whileStatementSyntax.Statement.DescendantNodesAndSelf()
             .Any(node => ReferenceEquals(node, logAsyncSyntaxNode));
+    }
+
+    private static bool IsLogAsyncSyntaxInNeverExecutedConstantForLoop(
+        SyntaxNode logAsyncSyntaxNode,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        ForStatementSyntax? forStatementSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<ForStatementSyntax>();
+
+        if (forStatementSyntax is null)
+            return false;
+
+        if (!ForLoopConditionIsCompileTimeFalse(forStatementSyntax, semanticModel, cancellationToken))
+            return false;
+
+        return forStatementSyntax.Statement.DescendantNodesAndSelf()
+            .Any(node => ReferenceEquals(node, logAsyncSyntaxNode));
+    }
+
+    private static bool ForLoopConditionIsCompileTimeFalse(
+        ForStatementSyntax forStatementSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        ExpressionSyntax? conditionSyntax = forStatementSyntax.Condition;
+
+        if (conditionSyntax is null)
+            return false;
+
+        Optional<object?> conditionOptional =
+            semanticModel.GetConstantValue(conditionSyntax, cancellationToken);
+
+        if (conditionOptional.HasValue)
+            return !AuditProofConstantValueIsTrue(conditionOptional.Value);
+
+        // `for (int i = 0; i < 0; i++)` — the condition is not a constant expression, but the first check is always false.
+        if (conditionSyntax is not BinaryExpressionSyntax binaryExpressionSyntax ||
+            !binaryExpressionSyntax.IsKind(SyntaxKind.LessThanExpression))
+        {
+            return false;
+        }
+
+        if (binaryExpressionSyntax.Right is not LiteralExpressionSyntax rightLiteralSyntax ||
+            !rightLiteralSyntax.IsKind(SyntaxKind.NumericLiteralExpression))
+        {
+            return false;
+        }
+
+        if (semanticModel.GetConstantValue(rightLiteralSyntax, cancellationToken).Value is not int rightBound ||
+            rightBound != 0)
+        {
+            return false;
+        }
+
+        if (binaryExpressionSyntax.Left is not IdentifierNameSyntax leftIdentifierSyntax)
+            return false;
+
+        string loopVariableName = leftIdentifierSyntax.Identifier.Text;
+
+        foreach (VariableDeclaratorSyntax variableDeclaratorSyntax in forStatementSyntax.Declaration?.Variables
+                     ?? default)
+        {
+            if (!string.Equals(variableDeclaratorSyntax.Identifier.Text, loopVariableName, StringComparison.Ordinal))
+                continue;
+
+            if (variableDeclaratorSyntax.Initializer?.Value is not LiteralExpressionSyntax initializerLiteralSyntax)
+                continue;
+
+            if (!initializerLiteralSyntax.IsKind(SyntaxKind.NumericLiteralExpression))
+                continue;
+
+            if (semanticModel.GetConstantValue(initializerLiteralSyntax, cancellationToken).Value is int initialValue &&
+                initialValue >= rightBound)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool IsLogAsyncSyntaxAfterUnreachableSibling(
