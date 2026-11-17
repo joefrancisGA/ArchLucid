@@ -29,7 +29,14 @@ public sealed class ArchitectureRecommendationEngine : IArchitectureRecommendati
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        return finding.Conclusion is ReviewConclusion.Fail or ReviewConclusion.Indeterminate;
+        if (finding.Conclusion is not (ReviewConclusion.Fail or ReviewConclusion.Indeterminate))
+            return false;
+
+        // Risk-accepted findings stay failed for audit but must not spawn must-change recommendations.
+        if (finding.GovernanceDisposition is GovernanceDisposition.Accepted)
+            return false;
+
+        return true;
     }
 
     private static ArchitectureRecommendation CreateRecommendation(

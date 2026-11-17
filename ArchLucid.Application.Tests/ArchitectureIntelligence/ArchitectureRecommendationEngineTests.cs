@@ -115,6 +115,24 @@ public sealed class ArchitectureRecommendationEngineTests
     }
 
     [Fact]
+    public void BuildRecommendations_skips_fail_findings_whose_governance_disposition_is_accepted()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding acceptedRisk = CreateFailingFinding(
+            "f-accepted",
+            QualityDimension.Security,
+            "Residual exposure after explicit risk acceptance");
+        acceptedRisk.GovernanceDisposition = GovernanceDisposition.Accepted;
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            CreateModel(),
+            [acceptedRisk],
+            ["Security"]);
+
+        recommendations.Should().BeEmpty();
+    }
+
+    [Fact]
     public void FromFinding_throws_when_finding_is_null()
     {
         Action act = () => ArchitectureRecommendationStableId.FromFinding(null!, "proposed");
