@@ -40,7 +40,9 @@ import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evide
 import { RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-partial-capture-copy";
 import {
   RESOURCE_HUB_DIAGRAM_TAB_PARTIAL_CAPTURE_LINE,
+  RESOURCE_HUB_DRIFT_TAB_PARTIAL_CAPTURE_LINE,
   RESOURCE_HUB_OVERVIEW_PARTIAL_CAPTURE_LINE,
+  RESOURCE_HUB_REMEDIATION_TAB_PARTIAL_CAPTURE_LINE,
   RESOURCE_HUB_TERRAFORM_TAB_PARTIAL_CAPTURE_LINE,
 } from "@/lib/infra-evidence/resource-hub-tab-partial-capture-copy";
 import { SecureNowInfraPartialCaptureStrip } from "@/components/product-line/SecureNowInfraPartialCaptureStrip";
@@ -2019,6 +2021,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
               Open the drift workbench with this resource&apos;s snapshot context prefilled.
             </p>
+            {isSecureNowProductLine(productLine) ? (
+              <SecureNowInfraPartialCaptureStrip
+                testId="infra-resource-hub-drift-tab-partial-capture"
+                middleLine={RESOURCE_HUB_DRIFT_TAB_PARTIAL_CAPTURE_LINE}
+                cloudConnectionsTestId="infra-resource-hub-drift-tab-partial-capture-cloud"
+                extractUploadTestId="infra-resource-hub-drift-tab-partial-capture-extract"
+              />
+            ) : null}
             <Link
               className={OPERATOR_LINK.inline}
               href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext, resolvedRunId)}
@@ -2044,6 +2054,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DRIFT_EMPTY_TITLE}
                 description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DRIFT_EMPTY_BODY}
                 testId="infra-resource-hub-drift-empty"
+                footer={
+                  isSecureNowProductLine(productLine) ? (
+                    <SecureNowInfraPartialCaptureStrip
+                      testId="infra-resource-hub-drift-empty-partial-capture"
+                      middleLine={RESOURCE_HUB_DRIFT_TAB_PARTIAL_CAPTURE_LINE}
+                      cloudConnectionsTestId="infra-resource-hub-drift-empty-partial-cloud"
+                      extractUploadTestId="infra-resource-hub-drift-empty-partial-extract"
+                    />
+                  ) : undefined
+                }
               />
             )}
           </EnterpriseTabsContent>
@@ -2504,6 +2524,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="remediation" className="mt-4 space-y-3">
+            {isSecureNowProductLine(productLine) ? (
+              <SecureNowInfraPartialCaptureStrip
+                testId="infra-resource-hub-remediation-tab-partial-capture"
+                middleLine={RESOURCE_HUB_REMEDIATION_TAB_PARTIAL_CAPTURE_LINE}
+                cloudConnectionsTestId="infra-resource-hub-remediation-tab-partial-capture-cloud"
+                extractUploadTestId="infra-resource-hub-remediation-tab-partial-capture-extract"
+              />
+            ) : null}
             <Link
               className={OPERATOR_LINK.inline}
               href={buildRemediationWorkbenchHref({ cloudResourceId, snapshotId: resolvedSnapshotId, runId: resolvedRunId.length > 0 ? resolvedRunId : undefined, ...workbenchLinkAuditContext })}
@@ -2532,6 +2560,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_TITLE}
                 description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_BODY}
                 testId="infra-resource-hub-remediation-empty"
+                footer={
+                  isSecureNowProductLine(productLine) ? (
+                    <SecureNowInfraPartialCaptureStrip
+                      testId="infra-resource-hub-remediation-empty-partial-capture"
+                      middleLine={RESOURCE_HUB_REMEDIATION_TAB_PARTIAL_CAPTURE_LINE}
+                      cloudConnectionsTestId="infra-resource-hub-remediation-empty-partial-cloud"
+                      extractUploadTestId="infra-resource-hub-remediation-empty-partial-extract"
+                    />
+                  ) : undefined
+                }
               />
             ) : (
               <EnterpriseTable ariaLabel="Remediation instances">

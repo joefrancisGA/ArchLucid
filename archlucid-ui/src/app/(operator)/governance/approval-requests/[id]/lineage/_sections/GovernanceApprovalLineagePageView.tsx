@@ -22,6 +22,7 @@ import {
   APPROVAL_LINEAGE_START_HERE_CARD_TITLE,
   APPROVAL_LINEAGE_WORKSPACE_TEST_ID,
 } from "@/lib/approval-lineage-evidence-copy";
+import { GovernanceApprovalLineagePartialEmptyHonesty } from "./GovernanceApprovalLineagePartialEmptyHonesty";
 import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -123,7 +124,18 @@ export function GovernanceApprovalLineagePageView({
   }
 
   if (!data) {
-    return <EnterpriseCompactEmptyState {...GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT} />;
+    return (
+      <EnterpriseCompactEmptyState
+        {...GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT}
+        footer={
+          <GovernanceApprovalLineagePartialEmptyHonesty
+            testId="governance-approval-lineage-no-data-partial-capture"
+            cloudConnectionsTestId="governance-approval-lineage-no-data-partial-capture-cloud"
+            extractUploadTestId="governance-approval-lineage-no-data-partial-capture-extract"
+          />
+        }
+      />
+    );
   }
 
   const scopedRunId = data.approvalRequest.runId.trim();

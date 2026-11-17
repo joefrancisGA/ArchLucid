@@ -18,6 +18,7 @@ import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-comp
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
+import { GovernanceFindingsQueueResultsPartialCaptureFootnote } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueResultsPartialCaptureFootnote";
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
 
 export function GovernanceFindingsQueueResultsSection(
@@ -147,6 +148,7 @@ export function GovernanceFindingsQueueResultsSection(
             onBulkApplied={props.onBulkApplied}
             showInsightDensityScore={props.showInsightDensityScore}
           />
+          <GovernanceFindingsQueueResultsPartialCaptureFootnote />
         </>
       ) : null}
     </>
