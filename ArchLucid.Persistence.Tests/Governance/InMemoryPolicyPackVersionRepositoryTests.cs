@@ -7,6 +7,29 @@ namespace ArchLucid.Persistence.Tests.Governance;
 public sealed class InMemoryPolicyPackVersionRepositoryTests
 {
     [SkippableFact]
+    public async Task Mutating_input_or_read_result_does_not_modify_storage()
+    {
+        InMemoryPolicyPackVersionRepository repository = new();
+        PolicyPackVersion version = new()
+        {
+            PolicyPackId = Guid.NewGuid(),
+            Version = "1.0.0",
+            ContentJson = "{}",
+        };
+
+        await repository.CreateAsync(version, CancellationToken.None);
+        version.ContentJson = "changed input";
+        PolicyPackVersion? fetched = await repository.GetByPackAndVersionAsync(
+            version.PolicyPackId, version.Version, CancellationToken.None);
+        fetched!.ContentJson.Should().Be("{}");
+
+        fetched.ContentJson = "changed result";
+        PolicyPackVersion? reread = await repository.GetByPackAndVersionAsync(
+            version.PolicyPackId, version.Version, CancellationToken.None);
+        reread!.ContentJson.Should().Be("{}");
+    }
+
+    [SkippableFact]
     public async Task CreateAsync_null_throws()
     {
         InMemoryPolicyPackVersionRepository sut = new();
