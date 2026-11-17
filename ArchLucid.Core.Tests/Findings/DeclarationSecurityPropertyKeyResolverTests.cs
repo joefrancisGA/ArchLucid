@@ -236,6 +236,25 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
     }
 
     [Fact]
+    public void TryGet_resolves_compacted_tf_sslenforcement_without_enabled_suffix()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.sslenforcement"] = "Enabled",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.sslenforcement");
+        value.Should().Be("Enabled");
+    }
+
+    [Fact]
     public void TryGet_resolves_compacted_tf_enablehttpstrafficonly()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
