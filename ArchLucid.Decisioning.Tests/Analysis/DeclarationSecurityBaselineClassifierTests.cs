@@ -106,6 +106,20 @@ public sealed class DeclarationSecurityBaselineClassifierTests
     }
 
     [Fact]
+    public void Classify_flags_allow_blob_public_access_when_value_is_yes()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["allowBlobPublicAccess"] = "yes",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("storage", properties);
+
+        signals.Should().ContainSingle(signal => signal.Theme == "data-protection");
+    }
+
+    [Fact]
     public void Classify_flags_arm_publicNetworkAccess()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
