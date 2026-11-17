@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Core.InfraEvidence;
@@ -71,6 +73,9 @@ public sealed class SecurityEvidenceCutPointCandidate
 /// <summary>Deterministic cut-point aggregation over ranked paths (SA-10).</summary>
 public static class SecurityEvidenceCutPointAnalyzer
 {
+    // Matches dbo.SecurityEvidenceCutPoints.CutKey (nvarchar(768)).
+    private const int MaxPersistedCutKeyLength = 768;
+
     public static IReadOnlyList<SecurityEvidenceCutPointCandidate> Analyze(
         IReadOnlyList<(SecurityEvidencePathRecord Path, IReadOnlyList<SecurityEvidencePathHopRecord> Hops)> rankedPaths,
         IReadOnlyDictionary<Guid, string?> resourceTypesByCloudResourceId)
@@ -138,7 +143,9 @@ public static class SecurityEvidenceCutPointAnalyzer
             SnapshotId = snapshotId,
             RuleVersion = SecurityEvidenceCutPointConstants.RuleVersion,
             CutKind = candidate.CutKind,
-            CutKey = candidate.CutKey,
+            CutKey = candidate.CutKey.Length <= MaxPersistedCutKeyLength
+                ? candidate.CutKey
+                : $"sha256:{Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(candidate.CutKey)))}",
             FromNodeId = candidate.FromNodeId,
             ToNodeId = candidate.ToNodeId,
             EdgeType = candidate.EdgeType,

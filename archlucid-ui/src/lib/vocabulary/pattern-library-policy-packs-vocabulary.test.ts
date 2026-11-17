@@ -9,7 +9,10 @@ import {
   buildPatternLibraryPolicyPacksVocabulary,
   resolvePatternLibraryPolicyPacksPeerLink,
 } from "@/lib/vocabulary/pattern-library-policy-packs-vocabulary";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_POLICY_PACKS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 
 describe("pattern-library-policy-packs-vocabulary (TB-2292)", () => {
@@ -40,6 +43,12 @@ describe("pattern-library-policy-packs-vocabulary (TB-2292)", () => {
 
     expect(resolvePatternLibraryPolicyPacksPeerLink("policy-packs")).toEqual(
       PATTERN_LIBRARY_POLICY_PACKS_LIBRARY_LINK,
+    );
+  });
+
+  it("uses the SecureNow policy packs hub for the security product line", () => {
+    expect(buildPatternLibraryPolicyPacksVocabulary("security").policyPacksLink.href).toBe(
+      SECURENOW_POLICY_PACKS_PATH,
     );
   });
 });

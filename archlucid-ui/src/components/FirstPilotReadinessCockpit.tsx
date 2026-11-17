@@ -72,6 +72,7 @@ import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 
 const EMPTY_COMMIT_CONTEXT: CorePilotCommitContext = {
   hasCommittedManifest: false,
@@ -331,9 +332,9 @@ export function FirstPilotReadinessCockpit() {
   const curatedHome = isBuyerShellHomePresentation();
   const reviewPackageHref =
     commitCtx.firstCommittedRunId !== null
-      ? `/architecture/reviews/${encodeURIComponent(commitCtx.firstCommittedRunId)}`
+      ? resolveOperatorScopedRunReviewHref(commitCtx.firstCommittedRunId)
       : commitCtx.latestRunId !== null
-        ? `/architecture/reviews/${encodeURIComponent(commitCtx.latestRunId)}`
+        ? resolveOperatorScopedRunReviewHref(commitCtx.latestRunId)
         : "/architecture/reviews";
 
   const [cockpitExpanded, setCockpitExpanded] = useOperatorHomeBooleanDisclosureUrlSync(

@@ -21,7 +21,7 @@ export type RunDetailWorkspaceStickyActionsResolvedProps = {
   readonly runId: string;
   readonly manifestId: string | null | undefined;
   readonly hasCommitBlockingFailures: boolean;
-  readonly blockingFindingCount: number;
+  readonly blockingFindingCount: number | null;
   readonly buyerPolishedArtifactTable: boolean;
   readonly operatorGovernanceDecision: string | null | undefined;
   readonly manifestStatus: string | null | undefined;
@@ -55,7 +55,7 @@ export function RunDetailWorkspaceStickyActionsResolved(
     serverFinalizeReadinessBlocks: props.serverFinalizeReadinessBlocks,
     finalizeReadinessEnabled: props.finalizeReadinessEnabled,
     findings: props.quickDecisionFindings,
-    blockingFindingCount: props.blockingFindingCount,
+    blockingFindingCount: props.blockingFindingCount ?? 0,
     requestAssumptionTexts: props.requestAssumptionTexts,
     transparencyTrail: props.transparencyTrail,
     degradedFindingCoverage: props.degradedFindingCoverage,
@@ -89,7 +89,7 @@ export function RunDetailWorkspaceStickyActionsResolved(
     runId: props.runId,
     manifestId: props.manifestId,
     hasCommitBlockingFailures: props.hasCommitBlockingFailures,
-    blockingFindingCount: props.blockingFindingCount,
+    blockingFindingCount: props.blockingFindingCount ?? 0,
     buyerPolishedArtifactTable: props.buyerPolishedArtifactTable,
     operatorGovernanceDecision: props.operatorGovernanceDecision,
     manifestStatus: props.manifestStatus,

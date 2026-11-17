@@ -180,6 +180,7 @@ public sealed class SecureNowArchitectNeighborhoodRunner(
                     EventType = AuditEventTypes.SecureNowArchitectNeighborhoodRecomputed,
                     ActorUserId = SecureNowArchitectConstants.SystemActorId,
                     ActorUserName = SecureNowArchitectConstants.SystemActorId,
+                    ExplicitActor = true,
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,

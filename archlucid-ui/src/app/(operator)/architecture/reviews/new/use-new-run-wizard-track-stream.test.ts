@@ -108,20 +108,29 @@ describe("useNewRunWizardTrackStream", () => {
     expect(result.current.liveMessage).not.toMatch(/context pending/);
   });
 
-  it("disables summary polling in full wizard before the track step when a run id already exists", () => {
-    useRunSummaryStream.mockClear();
+  it("uses present and not-present finalized review record snapshot copy (P-14)", () => {
+    useRunSummaryStream.mockReturnValue({
+      summary: {
+        runId: "run-123",
+        projectId: "p",
+        createdUtc: "2026-01-01T00:00:00.000Z",
+        hasGoldenManifest: true,
+        hasContextSnapshot: true,
+        hasGraphSnapshot: false,
+        hasFindingsSnapshot: true,
+      },
+    });
 
-    renderHook(() =>
+    const { result } = renderHook(() =>
       useNewRunWizardTrackStream({
         runId: "run-123",
-        wizardMode: "full",
+        wizardMode: "quick",
         stepIndex: 0,
       }),
     );
 
-    expect(useRunSummaryStream).toHaveBeenCalledWith("run-123", {
-      enabled: false,
-      retryToken: 0,
-    });
+    expect(result.current.liveMessage).toContain("Finalized review record snapshot is present");
+    expect(result.current.liveMessage).toContain("graph pending");
+    expect(result.current.liveMessage).not.toContain("Finalized review record ready");
   });
 });

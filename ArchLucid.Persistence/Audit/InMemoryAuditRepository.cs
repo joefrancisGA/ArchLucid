@@ -32,7 +32,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
             if (_events.Count >= MaxEvents)
                 _events.RemoveRange(0, EvictCount);
 
-            _events.Add(auditEvent);
+            _events.Add(AuditEventListProjection.Copy(auditEvent));
         }
 
         return Task.CompletedTask;
@@ -73,7 +73,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         ct.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(filter);
 
-        int take = Math.Clamp(filter.Take <= 0 ? 100 : filter.Take, 1, 500);
+        int take = filter.ResolveListFetchSize();
         List<AuditEvent> snapshot;
         lock (_gate)
         {
@@ -85,7 +85,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         }
 
         if (filter.IncludeDataJson)
-            return Task.FromResult<IReadOnlyList<AuditEvent>>(snapshot);
+            return Task.FromResult<IReadOnlyList<AuditEvent>>(snapshot.Select(row => AuditEventListProjection.Copy(row)).ToList());
 
         return Task.FromResult<IReadOnlyList<AuditEvent>>(AuditEventListProjection.MaterializeWithoutDataJson(snapshot));
     }
@@ -137,7 +137,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                 .Take(take)
                 .ToList();
 
-        return Task.FromResult<IReadOnlyList<AuditEvent>>(result);
+        return Task.FromResult<IReadOnlyList<AuditEvent>>(result.Select(row => AuditEventListProjection.Copy(row)).ToList());
     }
 
     public async Task<IReadOnlyList<AuditEvent>> GetFilteredExportAsync(
@@ -172,7 +172,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                 nameof(filter));
         }
 
-        int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000);
+        int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000) + (filter.IncludeExportOverflowRow ? 1 : 0);
         List<AuditEvent> snapshot;
 
         lock (_gate)
@@ -186,7 +186,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         foreach (AuditEvent auditEvent in snapshot)
         {
             ct.ThrowIfCancellationRequested();
-            yield return auditEvent;
+            yield return AuditEventListProjection.Copy(auditEvent);
         }
     }
 
@@ -197,6 +197,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
 
             return _events
                 .Where(x => x.TenantId == tenantId && x.OccurredUtc >= fromUtc && x.OccurredUtc < toUtc)
+                .Select(row => AuditEventListProjection.Copy(row))
                 .ToList();
     }
 }

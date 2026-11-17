@@ -55,6 +55,16 @@ public sealed class PilotRunDeltasResponse
     }
 
     /// <summary>
+    ///     <see langword="false" /> when the scoped audit count query failed — <see cref="AuditRowCount" /> is then a
+    ///     sentinel and must not be read as an attested zero.
+    /// </summary>
+    public bool AuditRowCountResolved
+    {
+        get;
+        init;
+    } = true;
+
+    /// <summary>
     ///     Per-run LLM completion rows when <see cref="LlmCallCountResolved" /> is <see langword="true" />; otherwise
     ///     <see langword="null" />.
     /// </summary>

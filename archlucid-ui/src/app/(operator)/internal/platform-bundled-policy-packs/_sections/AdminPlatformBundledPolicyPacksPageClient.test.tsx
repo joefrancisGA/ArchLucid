@@ -2,8 +2,44 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
+import { INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH } from "@/lib/internal-ops-route-paths";
 
 const nav = vi.hoisted(() => ({ callerAuthorityRank: 3 }));
+
+const policyPacksSearchParams = vi.hoisted(() => ({ current: new URLSearchParams() }));
+
+function applyPolicyPacksRouterHref(href: string): void {
+  const queryIndex = href.indexOf("?");
+
+  policyPacksSearchParams.current =
+    queryIndex >= 0 ? new URLSearchParams(href.slice(queryIndex + 1)) : new URLSearchParams();
+
+  // Name-filter debounce compares against window.location.search; keep jsdom in sync with replace().
+  const url = new URL(href, "http://localhost");
+
+  window.history.replaceState(null, "", `${url.pathname}${url.search}`);
+}
+
+const policyPacksRouterReplace = vi.hoisted(() => vi.fn(applyPolicyPacksRouterHref));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal as () => Promise<typeof import("next/navigation")>, {
+    useSearchParams: () => policyPacksSearchParams.current,
+    usePathname: () => INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH,
+    useRouter: () =>
+      ({
+        back: vi.fn(),
+        forward: vi.fn(),
+        prefetch: vi.fn(),
+        push: vi.fn(),
+        refresh: vi.fn(),
+        replace: policyPacksRouterReplace,
+        bfcacheId: null,
+      }) as unknown as ReturnType<typeof import("next/navigation")["useRouter"]>,
+  });
+});
 
 const listPlatformBundledPolicyPacks = vi.fn();
 const setPlatformBundledPolicyPackActivation = vi.fn();
@@ -47,6 +83,8 @@ const sampleRow = {
 describe("AdminPlatformBundledPolicyPacksPageClient", () => {
   beforeEach(() => {
     nav.callerAuthorityRank = 3;
+    policyPacksSearchParams.current = new URLSearchParams();
+    policyPacksRouterReplace.mockClear();
     listPlatformBundledPolicyPacks.mockReset();
     setPlatformBundledPolicyPackActivation.mockReset();
     listPlatformBundledPolicyPacks.mockResolvedValue([sampleRow]);
@@ -60,7 +98,7 @@ describe("AdminPlatformBundledPolicyPacksPageClient", () => {
     render(<AdminPlatformBundledPolicyPacksPageClient />);
 
     expect(screen.getByTestId("platform-bundled-policy-packs-sources")).toBeInTheDocument();
-    expect(screen.queryByTestId("platform-bundled-policy-packs-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("platform-bundled-policy-packs-claim-discipline")).toBeInTheDocument();
 
     const toggle = await screen.findByTestId(`platform-bundled-policy-pack-toggle-${sampleRow.bundleContentFile}`);
 

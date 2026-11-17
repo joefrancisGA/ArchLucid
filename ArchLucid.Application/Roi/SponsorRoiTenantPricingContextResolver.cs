@@ -30,6 +30,7 @@ public sealed class SponsorRoiTenantPricingContextResolver(
 
     private static decimal NormalizeEaDiscountMultiplier(decimal? raw)
     {
+        // Null or out-of-range tenant settings resolve to 1.0 Retail — sponsor exports must label that as a default, not stored tenant proof.
         if (raw is null or <= 0m or > 1m)
             return 1.0m;
 

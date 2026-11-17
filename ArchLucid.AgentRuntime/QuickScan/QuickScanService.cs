@@ -90,25 +90,53 @@ public sealed class QuickScanService(
 
             foreach (JsonElement findingElement in findingsElement.EnumerateArray())
             {
-                string category = findingElement.TryGetProperty("category", out JsonElement c) ? c.GetString() ?? "General" : "General";
-                string message = findingElement.TryGetProperty("message", out JsonElement m) ? m.GetString() ?? string.Empty : string.Empty;
-                string severityStr = findingElement.TryGetProperty("severity", out JsonElement s) ? s.GetString() ?? "Info" : "Info";
+                bool categoryStored = findingElement.TryGetProperty("category", out JsonElement categoryElement)
+                    && !string.IsNullOrWhiteSpace(categoryElement.GetString());
+                string category = categoryStored
+                    ? categoryElement.GetString()!.Trim()
+                    : "Category was not stored.";
 
-                if (!Enum.TryParse(severityStr, true, out FindingSeverity severity))
-                    severity = FindingSeverity.Info;
+                bool messageStored = findingElement.TryGetProperty("message", out JsonElement messageElement)
+                    && !string.IsNullOrWhiteSpace(messageElement.GetString());
+                string message = messageStored
+                    ? messageElement.GetString()!.Trim()
+                    : "Finding message was not stored.";
+
+                bool severityOnWire = findingElement.TryGetProperty("severity", out JsonElement severityElement)
+                    && !string.IsNullOrWhiteSpace(severityElement.GetString());
+                string severityStr = severityOnWire ? severityElement.GetString()! : string.Empty;
+
+                FindingSeverity severity = default;
+                FindingSeverity parsedSeverity = default;
+                bool severityParsed = severityOnWire
+                    && Enum.TryParse(severityStr, true, out parsedSeverity);
+
+                if (severityParsed)
+                {
+                    severity = parsedSeverity;
+                }
 
                 double? confidenceScore = TryReadConfidenceScore(findingElement);
                 FindingConfidenceLevel? confidenceLevel = TryReadConfidenceLevel(findingElement);
+
+                AgentType sourceAgent = default;
+                bool sourceAgentStored = findingElement.TryGetProperty("sourceAgent", out JsonElement sourceAgentElement)
+                    && TryReadSourceAgent(sourceAgentElement, out sourceAgent);
 
                 findings.Add(new ArchitectureFinding
                 {
                     Category = category,
                     Message = message,
                     Severity = severity,
+                    SeverityStored = severityParsed,
+                    SourceAgentStored = sourceAgentStored,
                     FindingId = Guid.NewGuid().ToString("N"),
-                    SourceAgent = AgentType.Topology,
+                    SourceAgent = sourceAgentStored ? sourceAgent : default,
                     ConfidenceScore = confidenceScore,
-                    ConfidenceLevel = confidenceLevel
+                    ConfidenceLevel = confidenceLevel,
+                    ReasoningTrace = severityParsed
+                        ? null
+                        : "Severity was not stored.",
                 });
             }
 
@@ -161,5 +189,20 @@ public sealed class QuickScanService(
             return parsed;
 
         return null;
+    }
+
+    private static bool TryReadSourceAgent(JsonElement element, out AgentType agentType)
+    {
+        agentType = default;
+
+        if (element.ValueKind != JsonValueKind.String)
+        {
+            return false;
+        }
+
+        string? raw = element.GetString();
+
+        return !string.IsNullOrWhiteSpace(raw)
+            && Enum.TryParse(raw, true, out agentType);
     }
 }

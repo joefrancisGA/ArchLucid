@@ -57,6 +57,16 @@ describe("formatInfraEvidenceOutlineEdgeToLabel", () => {
     ).toBe("core-vnet (Virtual Network)");
   });
 
+  it("uses unmapped ARM caption when names match on an unknown type", () => {
+    expect(
+      formatInfraEvidenceOutlineEdgeToLabel({
+        fromName: "custom-node",
+        toName: "custom-node",
+        toResourceType: "Microsoft.Example/widgetFarms",
+      }),
+    ).toContain("ARM resource type has no reviewer label:");
+  });
+
   it("does not copy the From name when the To name is missing", () => {
     expect(
       formatInfraEvidenceOutlineEdgeToLabel({

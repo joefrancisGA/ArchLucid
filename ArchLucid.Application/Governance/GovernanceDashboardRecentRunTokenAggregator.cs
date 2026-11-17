@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
@@ -86,16 +87,17 @@ internal static class GovernanceDashboardRecentRunTokenAggregator
         if (runIds.Count == 0)
             return (0, 0);
 
-        IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> slicesByRun =
-            await traceRepository.GetLlmCostSlicesByRunIdsAsync(scope, runIds, cancellationToken).ConfigureAwait(false);
-
         long promptTotal = 0;
         long completionTotal = 0;
 
         foreach (string runId in runIds)
         {
-            if (!slicesByRun.TryGetValue(runId, out IReadOnlyList<AgentExecutionTraceLlmCostSlice>? slices))
-                continue;
+            IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices =
+                await AnalysisRunIdCanonicalization.LoadLlmCostSlicesByRunIdAsync(
+                    traceRepository,
+                    scope,
+                    runId,
+                    cancellationToken).ConfigureAwait(false);
 
             foreach (AgentExecutionTraceLlmCostSlice slice in slices)
             {

@@ -82,38 +82,23 @@ public static class AzureInventoryNetworkConnectionEndpointParser
 
         string trimmed = armId.Trim();
 
-        if (trimmed.StartsWith("{", StringComparison.Ordinal))
+        string working = trimmed.StartsWith("{", StringComparison.Ordinal)
+            ? trimmed
+            : PercentDecodeBounded.Decode(trimmed);
+
+        if (working.StartsWith("{", StringComparison.Ordinal))
         {
-            return TryReadArmIdFromJson(trimmed);
+            return TryReadArmIdFromJson(working);
         }
-
-        if (!trimmed.StartsWith("/", StringComparison.Ordinal)
-            || !trimmed.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
-        {
-            return null;
-        }
-
-        return ArmResourceIdNormalizer.Normalize(trimmed);
-    }
-
-    private static string? TryReadArmIdFromJson(string json)
-    {
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(json);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Object
-                || !document.RootElement.TryGetProperty("id", out JsonElement idElement)
-                || idElement.ValueKind is not JsonValueKind.String)
-            {
-                return null;
-            }
-
-            return NormalizeArmId(idElement.GetString());
-        }
-        catch (JsonException)
+        if (!working.StartsWith("/", StringComparison.Ordinal)
+            || !working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
         {
             return null;
         }
+
+        return ArmResourceIdNormalizer.Normalize(working);
     }
+
+    private static string? TryReadArmIdFromJson(string json) =>
+        AzureInventoryArmJsonBlobIdReader.TryReadArmIdFromJson(json, NormalizeArmId);
 }

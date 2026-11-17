@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -25,9 +26,19 @@ public sealed class TechnologyLedgerRunCommandService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        string runIdKey = await EnsureRunExistsAsync(scope, runId, cancellationToken);
+        _ = await EnsureRunExistsAsync(scope, runId, cancellationToken);
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId.ToString());
+        IReadOnlyList<TechnologyLedgerEntry> merged =
+            await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+                _technologyLedgerRepository,
+                scope,
+                canonicalRunId,
+                cancellationToken).ConfigureAwait(false);
 
-        return await _technologyLedgerRepository.GetByRunIdAsync(scope, runIdKey, cancellationToken);
+        return merged
+            .OrderBy(static entry => entry.CreatedUtc)
+            .ThenBy(static entry => entry.EntryId, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     public async Task<TechnologyLedgerEntry> PatchEntryAsync(
@@ -46,7 +57,11 @@ public sealed class TechnologyLedgerRunCommandService(
 
         string runIdKey = await EnsureRunExistsAsync(scope, runId, cancellationToken);
         IReadOnlyList<TechnologyLedgerEntry> existingRows =
-            await _technologyLedgerRepository.GetByRunIdAsync(scope, runIdKey, cancellationToken);
+            await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+                _technologyLedgerRepository,
+                scope,
+                AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId.ToString()),
+                cancellationToken).ConfigureAwait(false);
 
         TechnologyLedgerEntry existing = existingRows.FirstOrDefault(row => string.Equals(row.EntryId, entryId, StringComparison.Ordinal))
             ?? throw new TechnologyLedgerEntryNotFoundException(runIdKey, entryId);

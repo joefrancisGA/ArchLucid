@@ -23,7 +23,8 @@ public sealed class InMemoryOperationalErrorCaptureQueue : IOperationalErrorCapt
 
         BoundedChannelOptions options = new(capacity)
         {
-            FullMode = BoundedChannelFullMode.DropWrite,
+            // TryWrite reports rejection at capacity and never waits for space.
+            FullMode = BoundedChannelFullMode.Wait,
             SingleReader = true,
             SingleWriter = false
         };

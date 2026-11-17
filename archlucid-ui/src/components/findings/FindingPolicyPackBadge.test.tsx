@@ -29,4 +29,10 @@ describe("FindingPolicyPackBadge", () => {
 
     expect(screen.getByRole("button", { name: /Pack Enterprise Privacy Policy Pack v3/i })).toBeTruthy();
   });
+
+  it("renders not-stored copy when pack id and label are missing", () => {
+    render(<FindingPolicyPackBadge policyPackId="" policyPackLabel={null} />);
+
+    expect(screen.getByText("Policy pack id was not stored.")).toBeInTheDocument();
+  });
 });

@@ -132,4 +132,28 @@ public sealed class AzureInventorySecurityBaselineClassifierTests
 
         AzureInventorySecurityBaselineClassifier.ClassifyFromResourcesJson(resourcesJson).Should().BeEmpty();
     }
+
+    [Fact]
+    public void ClassifyFromResourcesJson_marks_name_fallback_on_message()
+    {
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "publicsa",
+                "properties": {
+                  "allowBlobPublicAccess": true
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<InventorySecurityBaselineFinding> findings =
+            AzureInventorySecurityBaselineClassifier.ClassifyFromResourcesJson(resourcesJson);
+
+        findings.Should().ContainSingle();
+        findings[0].ResourceId.Should().Be("publicsa");
+        findings[0].Message.Should().Contain("Resource id was not stored; name was used to locate the row.");
+    }
 }

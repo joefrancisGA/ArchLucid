@@ -34,6 +34,9 @@ import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { DIGESTS_SUBSCRIPTIONS_TAB_PATH } from "@/lib/digests-route-paths";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const ADVISORY_SCANS_HELP_PAGE_EYEBROW = "Help topic · Governance" as const;
 
@@ -294,6 +297,24 @@ export const ADVISORY_SCANS_HELP_TILE_ITEMS: readonly AdvisoryScansHelpTileItem[
     href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
   },
 ] as const;
+
+export function resolveAdvisoryScansHelpTileItems(
+  productLine: ProductLineId = "architecture",
+): readonly AdvisoryScansHelpTileItem[] {
+  if (!isSecureNowProductLine(productLine)) {
+    return ADVISORY_SCANS_HELP_TILE_ITEMS;
+  }
+
+  const findingsHref = findingsPathForProductLine(productLine);
+
+  return ADVISORY_SCANS_HELP_TILE_ITEMS.map((item) => {
+    if (item.label !== "Findings triage") {
+      return item;
+    }
+
+    return { ...item, href: findingsHref };
+  });
+}
 
 export type AdvisoryScansHelpHowToReadStepPart =
   | { readonly type: "text"; readonly value: string }

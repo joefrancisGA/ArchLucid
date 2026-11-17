@@ -1,10 +1,26 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
+import { recordsOnly, trimRequiredText } from "./api-boundary-normalization";
 import { apiGet, apiPostJson } from "./http";
+
+function encodeRequiredSubscriptionId(value: string): string {
+  const normalized = value.trim();
+
+  if (normalized.length === 0) {
+    throw new Error("routingSubscriptionId is required.");
+  }
+
+  return encodeURIComponent(normalized);
+}
 
 /** Lists all alert routing subscriptions (delivery channels for fired alerts). */
 export async function listAlertRoutingSubscriptions(): Promise<AlertRoutingSubscription[]> {
-  return apiGet<AlertRoutingSubscription[]>("/v1/alert-routing-subscriptions");
+  const raw = await apiGet<unknown>("/v1/alert-routing-subscriptions");
+
+  return Array.isArray(raw)
+    ? raw.filter((item): item is AlertRoutingSubscription =>
+      item !== null && typeof item === "object" && !Array.isArray(item))
+    : [];
 }
 
 export type AlertRoutingCriteriaInput = {
@@ -23,14 +39,30 @@ export async function createAlertRoutingSubscription(body: {
   metadataJson?: string;
   routingCriteria?: AlertRoutingCriteriaInput;
 }): Promise<AlertRoutingSubscription> {
+  const name = body.name.trim();
+  const channelType = body.channelType.trim();
+  const destination = body.destination.trim();
+  const minimumSeverity = body.minimumSeverity.trim();
+  const routingCriteria = body.routingCriteria === undefined
+    ? undefined
+    : {
+        severities: body.routingCriteria.severities?.map((value) => value.trim()).filter(Boolean),
+        findingTypes: body.routingCriteria.findingTypes?.map((value) => value.trim()).filter(Boolean),
+        tags: body.routingCriteria.tags?.map((value) => value.trim()).filter(Boolean),
+      };
+
+  if (name.length === 0 || channelType.length === 0 || destination.length === 0 || minimumSeverity.length === 0) {
+    throw new Error("Routing subscription name, channel, destination, and severity are required.");
+  }
+
   return apiPostJson<AlertRoutingSubscription>(`/${ApiV1Routes.alertRoutingSubscriptions}`, {
-    name: body.name,
-    channelType: body.channelType,
-    destination: body.destination,
-    minimumSeverity: body.minimumSeverity,
+    name,
+    channelType,
+    destination,
+    minimumSeverity,
     isEnabled: body.isEnabled ?? true,
     metadataJson: body.metadataJson ?? "{}",
-    routingCriteria: body.routingCriteria,
+    routingCriteria,
   });
 }
 
@@ -39,7 +71,7 @@ export async function toggleAlertRoutingSubscription(
   routingSubscriptionId: string,
 ): Promise<AlertRoutingSubscription> {
   return apiPostJson<AlertRoutingSubscription>(
-    `/v1/alert-routing-subscriptions/${encodeURIComponent(routingSubscriptionId)}/toggle`,
+    `/v1/alert-routing-subscriptions/${encodeRequiredSubscriptionId(routingSubscriptionId)}/toggle`,
     {},
   );
 }
@@ -49,15 +81,17 @@ export async function listAlertRoutingDeliveryAttempts(
   routingSubscriptionId: string,
   take = 30,
 ): Promise<AlertRoutingDeliveryAttempt[]> {
-  return apiGet<AlertRoutingDeliveryAttempt[]>(
-    `/${ApiV1Routes.alertRoutingSubscriptions}/${encodeURIComponent(routingSubscriptionId)}/attempts?take=${take}`,
-  );
+  const normalizedTake = Number.isFinite(take) && take >= 1 ? Math.floor(take) : 30;
+
+  return recordsOnly<AlertRoutingDeliveryAttempt>(await apiGet<unknown>(
+    `/${ApiV1Routes.alertRoutingSubscriptions}/${encodeRequiredSubscriptionId(routingSubscriptionId)}/attempts?take=${normalizedTake}`,
+  ));
 }
 
 /** Sends a synthetic signed ping to a webhook routing subscription and returns the remote HTTP outcome. */
 export async function testWebhookSubscription(routingSubscriptionId: string): Promise<WebhookTestResponse> {
   return apiPostJson<WebhookTestResponse>(
-    `/${ApiV1Routes.webhookSubscriptions}/${encodeURIComponent(routingSubscriptionId)}/test`,
+    `/${ApiV1Routes.webhookSubscriptions}/${encodeRequiredSubscriptionId(routingSubscriptionId)}/test`,
     {},
   );
 }
@@ -70,7 +104,7 @@ export type OutboundWebhookDryRunRequestBody = {
 /** Probes a webhook URL without persisting a subscription (POST `/v1/webhooks/dry-run`). */
 export async function dryRunOutboundWebhook(body: OutboundWebhookDryRunRequestBody): Promise<WebhookTestResponse> {
   const payload: OutboundWebhookDryRunRequestBody = {
-    targetUrl: body.targetUrl.trim(),
+    targetUrl: trimRequiredText(body.targetUrl, "targetUrl"),
   };
 
   const trimmedSecret = body.sharedSecret?.trim() ?? "";

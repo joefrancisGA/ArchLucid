@@ -18,7 +18,9 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         StringBuilder sb,
         PilotRunDeltas deltas,
         ProofPackageCompletenessResponse proof,
-        ArchitectureRun? run = null)
+        ArchitectureRun? run = null,
+        PilotBuyerSafeEvidenceGateResult? buyerSafeGate = null,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -32,7 +34,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
         if (deltas.TopFindingId is null)
         {
-            sb.AppendLine("_(No findings on this run — no top-severity evidence card.)_");
+            sb.AppendLine(FormattableString.Invariant($"_({PilotTopFindingEvidenceChainHonestyCopy.NoFindingsSkipPlain})_"));
             sb.AppendLine();
 
             return;
@@ -42,69 +44,74 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         sb.AppendLine();
         sb.AppendLine("| Field | Value |");
         sb.AppendLine("| --- | --- |");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Finding id | `{deltas.TopFindingId}` |");
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"| Finding id | {FormatInlineCodeCell(string.IsNullOrWhiteSpace(deltas.TopFindingId) ? "Finding id was not stored." : deltas.TopFindingId.Trim())} |");
         sb.AppendLine(CultureInfo.InvariantCulture,
-            $"| Severity (selected for excerpt) | `{deltas.TopFindingSeverity ?? "Severity was not stored."}` |");
+            $"| Severity (selected for excerpt) | {FormatInlineCodeCell(PilotTopFindingPresentationHonestyCopy.ResolveTopFindingSeverity(deltas))} |");
 
         FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
 
         if (chain is null)
         {
             sb.AppendLine(
-                "| Evidence chain | **Missing** — top finding did not resolve to a persisted chain (see table above). |");
+                CultureInfo.InvariantCulture,
+                $"| Evidence chain | {PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse} |");
         }
         else
         {
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Manifest version (chain) | `{chain.ManifestVersion ?? "Manifest version was not stored."}` |");
+                $"| Manifest version (chain) | {FormatInlineCodeCell(chain.ManifestVersion ?? "Manifest version was not stored.")} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Findings snapshot id | `{FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")}` |");
+                $"| Findings snapshot id | {FormatInlineCodeCell(FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored."))} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Context snapshot id | `{FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}` |");
+                $"| Context snapshot id | {FormatInlineCodeCell(FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored."))} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Graph snapshot id | `{FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")}` |");
+                $"| Graph snapshot id | {FormatInlineCodeCell(FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored."))} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Decision trace id | `{FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}` |");
+                $"| Decision trace id | {FormatInlineCodeCell(FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored."))} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Golden manifest id | `{FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}` |");
+                $"| Golden manifest id | {FormatInlineCodeCell(FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored."))} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Related graph nodes | {chain.RelatedGraphNodeIds.Count} |");
+                $"| Related graph nodes | {PilotSponsorMaterialFindingsHonestyCopy.FormatRelatedGraphNodeCount(chain.RelatedGraphNodeIds.Count)} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Agent execution traces | {chain.AgentExecutionTraceIds.Count} |");
+                $"| Agent execution traces | {PilotSponsorMaterialFindingsHonestyCopy.FormatAgentExecutionTraceCount(chain.AgentExecutionTraceIds.Count)} |");
         }
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Buyer-safe proof sendability (API checklist) | `{proof.ProofSendability}` · `{proof.PublishingTier}` |");
+            $"| Buyer-safe proof sendability (API checklist) | {PilotSponsorSafeSendableAllClearHonestyCopy.FormatProofSendabilityMirrorCell(proof)} |");
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Sponsor-proof readiness | {FormatSponsorProofReadiness(proof.SponsorProofReadiness)} |");
+            $"| Sponsor-proof readiness | {SponsorProofReadinessClassifier.FormatMarkdownTableCell(deltas, buyerSafeGate, proof.SponsorProofReadiness)} |");
 
-        sb.AppendLine($"| Agent output quality (PilotStrict, when attested) | {DescribePilotStrict(deltas)} |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Evidence-basis label (top finding) | {DescribeTopFindingEvidenceBasis(deltas, proof, run)} |");
+            $"| Agent output quality (PilotStrict, when attested) | {PilotAgentOutputPilotStrictHonestyCopy.FormatEvidenceCardCell(proof, deltas)} |");
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"| Evidence-basis label (top finding) | {DescribeTopFindingEvidenceBasis(deltas, proof, run, roiClaimGate)} |");
 
         ArchitectureRun basisRun = run ?? new ArchitectureRun { RealModeFellBackToSimulator = false };
 
         TopFindingEvidenceSufficiency? sufficiency =
-            TopFindingEvidenceSufficiencyClassifier.Classify(deltas, proof, basisRun);
+            TopFindingEvidenceSufficiencyClassifier.Classify(deltas, proof, basisRun, roiClaimGate);
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
@@ -112,7 +119,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Confidence class (machine-readable) | `{TopFindingEvidenceSufficiencyClassifier.DescribeConfidenceClass(sufficiency)}` |");
+            $"| Confidence class (machine-readable) | {FormatInlineCodeCell(TopFindingEvidenceSufficiencyClassifier.DescribeConfidenceClass(sufficiency))} |");
 
         if (sufficiency is TopFindingEvidenceSufficiency.Low or TopFindingEvidenceSufficiency.Insufficient)
         {
@@ -127,38 +134,28 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
     private static string DescribeTopFindingEvidenceBasis(
         PilotRunDeltas deltas,
         ProofPackageCompletenessResponse proof,
-        ArchitectureRun? run)
+        ArchitectureRun? run,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
         ArchitectureRun basisRun = run ?? new ArchitectureRun { RealModeFellBackToSimulator = false };
-        IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(proof, deltas, basisRun);
-        return SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
-    }
+        IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(proof, deltas, basisRun, deferredScopePresent: false, roiClaimGate);
+        string table = SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
 
-    private static string DescribePilotStrict(PilotRunDeltas deltas)
-    {
-        if (!deltas.AgentOutputPilotStrictSignalsResolved)
-        {
-            return
-                "PilotStrict posture **not fully attested** — execution-trace aggregation did not complete; do not infer pass/fail from silence.";
-        }
-
-        return deltas.AgentOutputPilotStrictViolatesSponsorEvidence ? "**Failed** — PilotStrict sponsor-evidence checks reported failures for this run." : "**No PilotStrict failures** recorded for attested traces on this run.";
+        return basisRun.RealModeFellBackToSimulator
+            ? PilotSimulatorSubstitutionHonestyCopy.AppendToProofPackageEvidenceBasisCell(table)
+            : table;
     }
 
     private static string FormatGuid(Guid? id, string missingValue = "(none)")
     {
-        return id is null ? missingValue : id.Value.ToString("D");
-    }
-
-    private static string FormatSponsorProofReadiness(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
+        if (id is null || id.Value == Guid.Empty)
         {
-            return "Sponsor-proof readiness was not stored.";
+            return missingValue;
         }
 
-        return Enum.TryParse(value, ignoreCase: false, out SponsorProofReadinessClassification readiness)
-            ? $"**{readiness}**"
-            : $"**Unrecognized** — persisted value `{value}` is not a known classification.";
+        return id.Value.ToString("D");
     }
+
+    private static string FormatInlineCodeCell(string value)
+        => FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value);
 }

@@ -51,6 +51,9 @@ public static class DrRpoTopologyAnalyzer
                 adjacency,
                 gaps,
                 gapKeys);
+
+            if (gaps.Count >= MaxFindings)
+                return gaps;
         }
 
         foreach (GraphNode qualityAttribute in graphSnapshot.GetNodesByType(GraphNodeTypes.QualityAttribute))
@@ -74,6 +77,9 @@ public static class DrRpoTopologyAnalyzer
                 adjacency,
                 gaps,
                 gapKeys);
+
+            if (gaps.Count >= MaxFindings)
+                return gaps;
         }
 
         return gaps;
@@ -101,7 +107,25 @@ public static class DrRpoTopologyAnalyzer
             datastores = GetAllDatastoreTopologyNodes(graphSnapshot);
 
         if (datastores.Count == 0)
+        {
+            if (linkedDatastoresOnly)
+            {
+                string gapKey = $"{sourceNodeId}|unlinked-recovery";
+
+                if (gapKeys.Add(gapKey))
+                {
+                    gaps.Add(new DrRpoTopologyGap(
+                        sourceNodeId,
+                        sourceLabel,
+                        rpoMinutes,
+                        rtoMinutes,
+                        string.Empty,
+                        "Linked recovery datastore was not stored."));
+                }
+            }
+
             return;
+        }
 
         foreach (GraphNode datastore in datastores)
         {
@@ -245,6 +269,5 @@ public static class DrRpoTopologyAnalyzer
         }
     }
 
-    private static string ResolveLabel(GraphNode node) =>
-        string.IsNullOrWhiteSpace(node.Label) ? node.NodeId : node.Label.Trim();
+    private static string ResolveLabel(GraphNode node) => GraphNodeReviewerLabel.ForFindingTitle(node.Label);
 }

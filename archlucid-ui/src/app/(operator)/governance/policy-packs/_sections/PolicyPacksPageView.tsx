@@ -27,6 +27,7 @@ import {
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { PolicyPacksActivePackSummaryCard } from "./PolicyPacksActivePackSummaryCard";
 import { PolicyPacksBuyerChrome } from "./PolicyPacksBuyerChrome";
+import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
 import { PolicyPacksBreadcrumb } from "./PolicyPacksBreadcrumb";
 import { PolicyPacksNextReviewFooterClient } from "./PolicyPacksNextReviewFooterClient";
 import { PolicyPacksCatalogSection } from "./PolicyPacksCatalogSection";
@@ -71,6 +72,8 @@ import {
 import type { PolicyPacksPageTab } from "./policy-packs-page-view-model";
 import { featuredSecureNowFrameworksIncludingOrganizationPacks } from "@/lib/editions/securenow-featured-frameworks";
 import { resolveSecureNowEditionIdFromEnv } from "@/lib/product-line/resolve-securenow-edition-id";
+import { SECURENOW_POLICY_PACKS_HUB_RANK_HONESTY_LINE } from "@/lib/product-line/securenow-policy-packs-hub-rank-honesty-copy";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 type Props = {
   readonly model: PolicyPacksPageViewModel;
@@ -120,7 +123,6 @@ export function PolicyPacksPageView(props: Props) {
           resolveSecureNowEditionIdFromEnv(),
         )
       : [];
-
   const impactPreviewPanel =
     !m.buyerPolishedShell ? (
       <PolicyPackImpactPreviewPanel
@@ -376,6 +378,15 @@ export function PolicyPacksPageView(props: Props) {
         >
           {GOVERNANCE_POLICY_PACKS_BUYER_START_HERE_HELPER}
         </p>
+        <OperatorHomeWorkingOpenGateStrip />
+        {isSecureNowProductLine(productLine) ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="policy-packs-hub-rank-honesty"
+          >
+            {SECURENOW_POLICY_PACKS_HUB_RANK_HONESTY_LINE}
+          </p>
+        ) : null}
       </div>
 
       {m.loading ? <PolicyPacksLoadingSkeleton /> : null}
@@ -384,6 +395,8 @@ export function PolicyPacksPageView(props: Props) {
         <PolicyPacksLoadFailure
           message={GOVERNANCE_POLICY_PACKS_LOAD_ERROR}
           retrying={m.loading}
+          errorTitle="Policy packs"
+          reportProblemSurfaceId="compliance-policy-packs-hub-hard-failure"
           onRetry={() => {
             void m.load();
           }}

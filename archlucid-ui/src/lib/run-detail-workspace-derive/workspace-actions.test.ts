@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
-import { deriveBlockingApprovalCount, deriveRecommendedWorkspaceActions } from "./workspace-actions";
+import {
+  deriveBlockingApprovalCount,
+  deriveRecommendedWorkspaceActions,
+  normalizeWorkspaceRecommendedActionOwnerOrRole,
+} from "./workspace-actions";
 
 function sampleFinding(
   partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId">,
@@ -24,6 +28,15 @@ function sampleFinding(
     },
   };
 }
+
+describe("normalizeWorkspaceRecommendedActionOwnerOrRole (P-15)", () => {
+  it("treats whitespace-only owners as omitted", () => {
+    expect(normalizeWorkspaceRecommendedActionOwnerOrRole(null)).toBeNull();
+    expect(normalizeWorkspaceRecommendedActionOwnerOrRole("   ")).toBeNull();
+    expect(normalizeWorkspaceRecommendedActionOwnerOrRole("Remediation lead")).toBeNull();
+    expect(normalizeWorkspaceRecommendedActionOwnerOrRole("Review owner")).toBeNull();
+  });
+});
 
 describe("deriveRecommendedWorkspaceActions", () => {
   it("does not recommend owner assignment for disposition-closed high findings", () => {
@@ -102,6 +115,16 @@ describe("deriveBlockingApprovalCount", () => {
 
     expect(count).toBe(0);
   });
+
+  it("returns null when unresolved issue count was omitted and coverage is not blocking", () => {
+    const count = deriveBlockingApprovalCount({
+      unresolvedIssueCount: null,
+      hasCommitBlockingFailures: false,
+      findings: [sampleFinding({ findingId: "f-1", severityValue: 3 })],
+    });
+
+    expect(count).toBeNull();
+  });
 });
 
 describe("deriveRecommendedWorkspaceActions evidence ref honesty (P-05 / P-09)", () => {
@@ -130,7 +153,57 @@ describe("deriveRecommendedWorkspaceActions evidence ref honesty (P-05 / P-09)",
   });
 });
 
+describe("deriveRecommendedWorkspaceActions blocking counts (P-05)", () => {
+  it("does not invent a blocking count when the metric was omitted", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings: [
+        sampleFinding({
+          findingId: "f-medium-policy",
+          severityValue: 1,
+          enforcementTier: "PolicyViolation",
+        }),
+      ],
+      manifestId: null,
+      showProgressTracker: false,
+      hasCommitBlockingFailures: true,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: null,
+      runCompleted: true,
+    });
+
+    const blocking = actions.find((action) => action.id === "review-blocking");
+
+    expect(blocking?.reason).toContain("Blocking finding count was not stored");
+    expect(blocking?.relatedFindingCount).toBeNull();
+  });
+});
+
 describe("deriveRecommendedWorkspaceActions blocking counts", () => {
+  it("does not promote severity to blocking when stored blocking count is zero (P-13)", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings: [
+        sampleFinding({
+          findingId: "f-high",
+          severityValue: 3,
+        }),
+      ],
+      manifestId: null,
+      showProgressTracker: false,
+      hasCommitBlockingFailures: false,
+      blockingFindingCount: 0,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: null,
+      runCompleted: true,
+    });
+
+    expect(actions.find((action) => action.id === "review-blocking")).toBeUndefined();
+    expect(actions.find((action) => action.id === "review-critical-high")).toBeDefined();
+  });
+
   it("honors blockingFindingCount for medium-severity coverage failures", () => {
     const findings = [
       sampleFinding({

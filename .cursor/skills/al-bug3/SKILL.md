@@ -20,6 +20,7 @@ Follow `.cursor/skills/al-bug/workflow.md` with these bindings. They replace `bu
 
 ```powershell
 .\scripts\agent\al-bug-sync-branch.ps1 -TargetBranch bugsmash-3
+.\scripts\agent\al-bug-zone-rotation.ps1 -Set 3 -PreviewPick -SkipGitPicker
 .\scripts\agent\al-bug-pick-zone.ps1 -Set 3 -Preview
 .\scripts\agent\al-bug-rolling-stats.ps1 -Set 3 -RecordHunt -HuntZoneId '<zoneId>' -HuntOutcome hit -Rolling24h
 .\scripts\agent\al-bug-push-master.ps1 -TargetBranch bugsmash-3 -Paths @('<paths>') -CommitMessage @'
@@ -31,7 +32,9 @@ fix is on the RC35 / private-beta line.
 '@
 ```
 
-Add `-Hint '<zone>'` to the picker when the user named a zone in this set. Pass `-Refresh` when the user passed `--refresh`.
+When the user did **not** name a hunt hint, run **`al-bug-zone-rotation.ps1 -Set 3 -PreviewPick -SkipGitPicker`** instead of calling the picker alone. If JSON **`shouldRotate`** is true, hunt **`pickResult.zoneId`** (the picker already received **`-AvoidZoneId`**). If **`shouldRotate`** is false, hunt the returned **`pickResult`** zone. Say in chat when rotation fired (**`reason`** field) so Joseph can see why the zone changed.
+
+Add `-Hint '<zone>'` to rotation (or the picker) when the user named a zone in this set. Hints disable automatic avoidance. Pass `-Refresh` when the user passed `--refresh`.
 
 ## Rules
 

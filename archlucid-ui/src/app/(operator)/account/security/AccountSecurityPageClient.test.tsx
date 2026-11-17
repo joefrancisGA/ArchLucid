@@ -141,14 +141,14 @@ describe("AccountSecurityPageClient", () => {
     );
   });
 
-  it("does not render a breadcrumb trail", async () => {
+  it("renders the account security breadcrumb trail", async () => {
     vi.mocked(fetchSignInMethods).mockResolvedValue([]);
 
     render(<AccountSecurityPageClient />);
 
     await screen.findByTestId("account-security-page-title");
 
-    expect(screen.queryByTestId("account-security-page-breadcrumb")).toBeNull();
+    expect(screen.getByTestId("account-security-page-breadcrumb")).toBeInTheDocument();
   });
 
   it("shows empty copy with authentication help CTA only after a successful empty list load (TB-1884)", async () => {

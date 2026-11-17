@@ -6,6 +6,8 @@ import {
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/digests-help-evidence-copy";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const DIGESTS_HELP_PAGE_TITLE = "Architecture digests";
 
@@ -50,6 +52,14 @@ export const DIGESTS_HELP_CONTENT_ITEMS: readonly DigestsHelpContentItem[] = [
     href: ADVISORY_SCANS_SCHEDULES_HREF,
   },
 ] as const;
+
+export function resolveDigestsHelpContentItems(productLine: ProductLineId): readonly DigestsHelpContentItem[] {
+  const findingsHref = findingsPathForProductLine(productLine);
+
+  return DIGESTS_HELP_CONTENT_ITEMS.map((item) =>
+    item.label === "Findings summary" ? { ...item, href: findingsHref } : item,
+  );
+}
 
 export const DIGESTS_HELP_SAMPLE_DIGEST_TITLE = "Example digest summary";
 

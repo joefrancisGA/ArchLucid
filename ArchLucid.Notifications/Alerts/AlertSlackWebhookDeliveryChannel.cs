@@ -24,10 +24,10 @@ public sealed class AlertSlackWebhookDeliveryChannel(IChatOpsWebhookDeliveryServ
         {
             SeverityLabel = payload.Alert.Severity,
             Title = payload.Alert.Title,
-            SupportingParagraph =
-                $"Category: {payload.Alert.Category}\nTrigger: {payload.Alert.TriggerValue}",
-            Body = ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(
-                payload.Alert.Description ?? string.Empty),
+            SupportingParagraph = ChatOpsAlertEvaluationFragments.BuildSlackCategoryTriggerParagraph(
+                payload.Alert.Category,
+                payload.Alert.TriggerValue),
+            Body = ChatOpsAlertEvaluationFragments.BuildSlackDescriptionBody(payload.Alert.Description),
         };
 
         string destination = ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow(

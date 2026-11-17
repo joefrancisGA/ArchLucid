@@ -128,6 +128,13 @@ export function CloudConnectionsProviderList(props: CloudConnectionsProviderList
           >
             {CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_LINK_LABEL}
           </Link>
+          {" "}
+          <Link
+            href="/administration/securenow-self-service#collection"
+            className={OPERATOR_LINK.nav}
+          >
+            Collection check
+          </Link>
           {CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION_MID}{" "}
           <Link href="/architecture/reviews/new" className={OPERATOR_LINK.nav}>
             {CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION_REVIEW_LINK_LABEL}

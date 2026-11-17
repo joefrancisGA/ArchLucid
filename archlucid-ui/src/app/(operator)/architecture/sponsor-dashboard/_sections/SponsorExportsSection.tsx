@@ -17,6 +17,7 @@ import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-sco
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -160,7 +161,7 @@ export function SponsorExportsSection({
     return first !== undefined
       ? {
           runId: first.runId,
-          manifestVersion: first.goldenManifestId?.trim() || first.currentManifestVersion?.trim() || "",
+          manifestVersion: first.goldenManifestId?.trim() ?? "",
         }
       : null;
   }, [runsQuery.data]);
@@ -185,6 +186,15 @@ export function SponsorExportsSection({
       {sponsorDocx === null && runsQuery.data !== undefined ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="sponsor-exports-target-line">
           Sponsor export target was not stored. Commit a review to unlock DOCX and one-pager downloads.
+        </p>
+      ) : null}
+      {sponsorDocx !== null && sponsorDocx.manifestVersion.length === 0 ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="sponsor-exports-golden-manifest-honesty"
+        >
+          {SIGNED_MANIFEST_LABEL} id was not stored on the first finalized review, so sealed DOCX and one-pager
+          downloads stay blocked.
         </p>
       ) : null}
       {finalizedReviewsLoadBlocked ? (

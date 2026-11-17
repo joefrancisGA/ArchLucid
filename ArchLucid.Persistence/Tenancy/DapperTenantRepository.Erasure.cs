@@ -40,6 +40,27 @@ public sealed partial class DapperTenantRepository
 
 
     /// <inheritdoc />
+    public async Task<bool> TryRevertTenantErasureApprovalAsync(Guid tenantId, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        const string sql = """
+                           UPDATE dbo.Tenants
+                           SET TenantErasureApprovedUtc = NULL,
+                               TenantErasureApprovedByUserId = NULL
+                           WHERE Id = @TenantId
+                             AND OffboardedUtc IS NOT NULL
+                             AND TenantErasureApprovedUtc IS NOT NULL;
+                           """;
+
+        int rows = await connection.ExecuteAsync(
+            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: ct)).ConfigureAwait(false);
+
+        return rows == 1;
+    }
+
+
+    /// <inheritdoc />
     public async Task<bool> TryStartTenantErasureOffboardAsync(
         Guid tenantId,
         DateTimeOffset offboardedUtc,

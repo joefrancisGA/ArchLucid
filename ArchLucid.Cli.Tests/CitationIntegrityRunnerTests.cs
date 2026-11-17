@@ -159,4 +159,30 @@ public sealed class CitationIntegrityRunnerTests
         report.FailThresholdExceeded.Should().BeTrue();
         report.OverallVerdict.Should().Be(CitationIntegrityVerdict.Fail);
     }
+
+    [Fact]
+    public void RunOffline_WithReleaseTrainManifest_ReportsPassOnly()
+    {
+        string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();
+
+        repositoryRoot.Should().NotBeNull();
+
+        CitationIntegrityRules rules = CitationIntegrityRulesLoader.Load(null);
+        CitationIntegrityRunner runner = new();
+        CitationIntegrityReport report = runner.RunOffline(
+            repositoryRoot!,
+            new CitationIntegrityOptions
+            {
+                ManifestPath = Path.Combine(
+                    repositoryRoot!,
+                    "fixtures",
+                    "citation-integrity",
+                    "offline-release-train-manifest.v1.json"),
+            },
+            rules);
+
+        report.Runs.Should().ContainSingle(static run => run.RunId == "cite-pass-run-01");
+        report.Runs.Should().OnlyContain(static run => run.Verdict == CitationIntegrityVerdict.Pass);
+        report.OverallVerdict.Should().Be(CitationIntegrityVerdict.Pass);
+    }
 }

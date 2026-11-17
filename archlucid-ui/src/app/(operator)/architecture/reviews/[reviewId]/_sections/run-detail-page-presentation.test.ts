@@ -9,9 +9,11 @@ type ModelOverrides = {
   readonly hasCommitBlockingFailures?: boolean;
   readonly failedEngineLabels?: readonly string[];
   readonly operatorGovernanceDecision?: string | null;
+  readonly hasFindingsSnapshot?: boolean;
   readonly findings?: readonly Record<string, unknown>[];
   readonly artifacts?: readonly unknown[];
   readonly trustEvidenceCard?: unknown;
+  readonly explanationSummary?: { readonly riskPosture?: string | null } | null;
 };
 
 function model(overrides: ModelOverrides = {}): RunDetailPageModel {
@@ -21,6 +23,7 @@ function model(overrides: ModelOverrides = {}): RunDetailPageModel {
     completedUtc: "2026-08-01T12:30:00Z",
     description: "Claims intake modernization",
     operatorGovernanceDecision: overrides.operatorGovernanceDecision ?? null,
+    hasFindingsSnapshot: overrides.hasFindingsSnapshot ?? false,
   };
 
   return {
@@ -57,7 +60,7 @@ function model(overrides: ModelOverrides = {}): RunDetailPageModel {
     artifacts: overrides.artifacts ?? [],
     artifactsFailure: null,
     artifactsMalformed: null,
-    explanationSummary: null,
+    explanationSummary: overrides.explanationSummary ?? null,
     explanationFailure: null,
     runDetailNavSections: [],
     findingCountDisplay: 0,
@@ -162,9 +165,25 @@ describe("buildRunDetailPresentation", () => {
   });
 
   it("demotes the governance CTA card when governance is already the primary action", async () => {
-    const finalized = await buildRunDetailPresentation(model({ manifestId: "manifest-1" }), false);
+    const finalized = await buildRunDetailPresentation(
+      model({
+        manifestId: "manifest-1",
+        hasFindingsSnapshot: true,
+        operatorGovernanceDecision: "Approved with monitoring",
+        findings: [
+          {
+            findingId: "f-reviewed",
+            message: "Reviewed",
+            severity: 2,
+            humanReviewStatus: 2,
+            latestDisposition: "Accepted",
+          },
+        ],
+      }),
+      false,
+    );
 
-    expect(finalized.showGovernanceCta).toBe(true);
+    expect(finalized.showGovernanceCta).toBe(false);
     expect(finalized.showGovernanceCtaCard).toBe(false);
   });
 
@@ -236,6 +255,24 @@ describe("buildRunDetailPresentation", () => {
     expect(presentation.materialSeverityLine).toBeNull();
   });
 
+  it("labels material severity when unresolved findings omit severity (P-06)", async () => {
+    const presentation = await buildRunDetailPresentation(
+      model({
+        manifestId: "manifest-1",
+        findings: [
+          {
+            findingId: "f-no-severity",
+            message: "Severity omitted",
+            severity: null,
+          },
+        ],
+      }),
+      false,
+    );
+
+    expect(presentation.materialSeverityLine).toBe("Severity was not stored.");
+  });
+
   it("does not surface disposition-closed findings in highest severity summary", async () => {
     const presentation = await buildRunDetailPresentation(
       model({
@@ -252,7 +289,7 @@ describe("buildRunDetailPresentation", () => {
       false,
     );
 
-    expect(presentation.overallPosture).toBe("Not assessed");
+    expect(presentation.overallPosture).toBe("Risk posture was not stored.");
     expect(presentation.reviewStatusSummary.highestUnresolvedSeverity).toBeNull();
   });
 
@@ -279,5 +316,25 @@ describe("buildRunDetailPresentation", () => {
     );
 
     expect(presentation.findingsTriageVisibleCount).toBe(1);
+  });
+
+  it("does not substitute risk posture for highest unresolved severity when findings snapshot is captured", async () => {
+    const presentation = await buildRunDetailPresentation(
+      model({
+        hasFindingsSnapshot: true,
+        explanationSummary: { riskPosture: "Approved with monitoring" },
+        findings: [
+          {
+            findingId: "f-resolved",
+            message: "Resolved",
+            severity: 2,
+            humanReviewStatus: 2,
+          },
+        ],
+      }),
+      false,
+    );
+
+    expect(presentation.reviewStatusSummary.highestUnresolvedSeverity).toBeNull();
   });
 });

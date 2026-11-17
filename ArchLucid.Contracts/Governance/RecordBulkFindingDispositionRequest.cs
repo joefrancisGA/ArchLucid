@@ -1,10 +1,18 @@
 namespace ArchLucid.Contracts.Governance;
 
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Serialization;
 
 public sealed class RecordBulkFindingDispositionRequest
 {
-    public required IReadOnlyList<string> FindingIds { get; init; }
+    private IReadOnlyList<string> findingIds = [];
+
+    public required IReadOnlyList<string> FindingIds
+    {
+        get => findingIds;
+        init => findingIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
     public required FindingDisposition Disposition { get; init; }
     public required string Rationale { get; init; }
 

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useMarketingPublicPricingQuery } from "@/hooks/use-marketing-public-pricing-query";
 import { MarketingPricingEarlyAdopterBanner } from "@/components/marketing/MarketingPricingEarlyAdopterBanner";
 import { MarketingPricingFitMatrix } from "@/components/marketing/MarketingPricingFitMatrix";
+import { MarketingBetaEvaluationContentsStrip } from "@/components/marketing/MarketingBetaEvaluationContentsStrip";
 import { MarketingPricingUniversalIncludesStrip } from "@/components/marketing/MarketingPricingUniversalIncludesStrip";
 import { isPublicStripeTeamCheckoutEnabled } from "@/lib/marketing/is-public-stripe-team-checkout-enabled";
 import { buildMarketingSelfServeBillingHref } from "@/lib/marketing/marketing-billing-plan-href";
@@ -146,6 +147,7 @@ function MarketingTierPricingSectionInner(props: MarketingTierPricingSectionProp
       {pricing && !pricingError ? (
         <>
           <MarketingPricingUniversalIncludesStrip />
+          <MarketingBetaEvaluationContentsStrip />
           <ul className="grid items-stretch gap-6 md:grid-cols-2 xl:grid-cols-4">
             {[...pricing.packages]
               .sort((a, b) => pricingTierSortIndex(a.id) - pricingTierSortIndex(b.id))

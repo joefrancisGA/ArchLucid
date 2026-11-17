@@ -93,7 +93,7 @@ describe("review-meeting-capture-export (PC-09 optional)", () => {
     ]);
 
     expect(text).toContain(REVIEW_MEETING_CAPTURE_DISCLAIMER);
-    expect(text).toContain("Q: latency");
+    expect(text).toContain("Q: Question text was not stored. Key: latency.");
     expect(text).toContain("A: Yes");
     expect(text).toContain("Room");
   });
@@ -103,8 +103,8 @@ describe("review-meeting-capture-export (PC-09 optional)", () => {
   });
 
   it("labels blank meeting-capture questions and answers in plain text", () => {
-    expect(formatReviewMeetingCaptureQuestionLabel("")).toBe("Question was not stored.");
-    expect(formatReviewMeetingCaptureAnswer("   ")).toBe("Answer was not stored.");
+    expect(formatReviewMeetingCaptureQuestionLabel("")).toBe("Question key was stored empty.");
+    expect(formatReviewMeetingCaptureAnswer("   ")).toBe("Answer was stored empty.");
 
     const text = formatReviewMeetingCapturePlainText([
       {
@@ -116,7 +116,7 @@ describe("review-meeting-capture-export (PC-09 optional)", () => {
       },
     ]);
 
-    expect(text).toContain("Q: Question was not stored.");
-    expect(text).toContain("A: Answer was not stored.");
+    expect(text).toContain("Q: Question key was stored empty.");
+    expect(text).toContain("A: Answer was stored empty.");
   });
 });

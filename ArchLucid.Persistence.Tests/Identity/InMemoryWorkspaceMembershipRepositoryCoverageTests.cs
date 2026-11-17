@@ -99,4 +99,43 @@ public sealed class InMemoryWorkspaceMembershipRepositoryCoverageTests
         (await sut.ListByUserAndTenantAsync(userAdmin, tenantId, CancellationToken.None)).Should().ContainSingle();
         (await sut.CountActivePrivilegedMembersByTenantAsync(tenantId, CancellationToken.None)).Should().Be(2);
     }
+
+    [Fact]
+    public async Task UpsertAsync_last_writer_wins_for_same_user_and_workspace()
+    {
+        InMemoryWorkspaceMembershipRepository sut = new();
+        Guid tenantId = Guid.NewGuid();
+        Guid userId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        DateTimeOffset t0 = TimeProvider.System.GetUtcNow();
+
+        await sut.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                Role = ArchLucidRoles.Reader,
+                Status = WorkspaceMembershipStatus.Active,
+            },
+            t0,
+            CancellationToken.None);
+
+        await sut.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                Role = ArchLucidRoles.Admin,
+                Status = WorkspaceMembershipStatus.Active,
+            },
+            t0.AddMinutes(1),
+            CancellationToken.None);
+
+        WorkspaceMembershipRecord row =
+            (await sut.ListByUserAndTenantAsync(userId, tenantId, CancellationToken.None)).Should().ContainSingle().Subject;
+
+        row.Role.Should().Be(ArchLucidRoles.Admin);
+    }
 }

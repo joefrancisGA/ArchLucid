@@ -165,7 +165,7 @@ internal static class SimpleTerraformResourceBlockParser
         if (string.IsNullOrWhiteSpace(content))
             return [];
 
-        MatchCollection matches = ResourceHeaderRegex.Matches(MaskComments(content));
+        MatchCollection matches = ResourceHeaderRegex.Matches(MaskComments(MaskHeredocBodies(content)));
 
         if (matches.Count == 0)
             return [];
@@ -196,7 +196,7 @@ internal static class SimpleTerraformResourceBlockParser
         if (string.IsNullOrWhiteSpace(content))
             return [];
 
-        MatchCollection matches = ModuleHeaderRegex.Matches(MaskComments(content));
+        MatchCollection matches = ModuleHeaderRegex.Matches(MaskComments(MaskHeredocBodies(content)));
 
         if (matches.Count == 0)
             return [];
@@ -566,5 +566,125 @@ internal static class SimpleTerraformResourceBlockParser
         }
 
         return new string(masked);
+    }
+
+    private static string MaskHeredocBodies(string content)
+    {
+        if (string.IsNullOrEmpty(content))
+            return content;
+
+        string[] lines = content.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+        string? heredocTerminator = null;
+        bool stripIndent = false;
+
+        for (int lineIndex = 0; lineIndex < lines.Length; lineIndex++)
+        {
+            string line = lines[lineIndex];
+
+            if (heredocTerminator is not null)
+            {
+                string trimmed = line.Trim();
+
+                if (string.Equals(trimmed, heredocTerminator, StringComparison.Ordinal)
+                    || (stripIndent && trimmed.EndsWith(heredocTerminator, StringComparison.Ordinal)))
+                {
+                    heredocTerminator = null;
+                    stripIndent = false;
+                }
+                else
+                {
+                    lines[lineIndex] = new string(' ', line.Length);
+                }
+
+                continue;
+            }
+
+            string trimmedLine = line.TrimStart();
+
+            if (trimmedLine.StartsWith('#')
+                || trimmedLine.StartsWith("//", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            int heredocMarkerIndex = IndexOfHeredocMarkerOutsideQuotes(line);
+
+            if (heredocMarkerIndex < 0)
+                continue;
+
+            string afterMarker = line[(heredocMarkerIndex + 2)..].TrimStart();
+
+            if (afterMarker.StartsWith("-", StringComparison.Ordinal))
+            {
+                stripIndent = true;
+                afterMarker = afterMarker[1..].TrimStart();
+            }
+
+            int delimiterEnd = 0;
+
+            while (delimiterEnd < afterMarker.Length
+                   && (char.IsLetterOrDigit(afterMarker[delimiterEnd]) || afterMarker[delimiterEnd] is '_' or '-'))
+            {
+                delimiterEnd++;
+            }
+
+            if (delimiterEnd == 0)
+                continue;
+
+            heredocTerminator = afterMarker[..delimiterEnd];
+        }
+
+        return string.Join('\n', lines);
+    }
+
+    private static int IndexOfHeredocMarkerOutsideQuotes(string line)
+    {
+        bool inDoubleQuotes = false;
+        bool inSingleQuotes = false;
+        bool escaped = false;
+
+        for (int index = 0; index < line.Length - 1; index++)
+        {
+            char current = line[index];
+
+            if (inDoubleQuotes || inSingleQuotes)
+            {
+                if (escaped)
+                {
+                    escaped = false;
+                    continue;
+                }
+
+                if (current == '\\')
+                {
+                    escaped = true;
+                    continue;
+                }
+
+                if (inDoubleQuotes && current == '"')
+                    inDoubleQuotes = false;
+                else if (inSingleQuotes && current == '\'')
+                    inSingleQuotes = false;
+
+                continue;
+            }
+
+            if (current == '"')
+            {
+                inDoubleQuotes = true;
+                continue;
+            }
+
+            if (current == '\'')
+            {
+                inSingleQuotes = true;
+                continue;
+            }
+
+            if (current == '<' && line[index + 1] == '<')
+                return index;
+        }
+
+        return -1;
     }
 }

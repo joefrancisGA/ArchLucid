@@ -179,7 +179,7 @@ export function ArchitectureIdentityDeskReviewsTable(
                     />
                   ) : (
                     <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-                      In-flight status was not stored.
+                      Review step status was not stored.
                     </span>
                   )}
                 </EnterpriseTableCell>

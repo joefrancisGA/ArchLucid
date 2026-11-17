@@ -1,10 +1,13 @@
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Findings;
 
 using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Api.Tests;
@@ -12,6 +15,10 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Base for API integration tests: provides an <see cref="HttpClient" /> from <see cref="ArchLucidApiFactory" /> and
 ///     JSON helpers aligned with the API’s serializer settings.
+///     Harness cheat sheet — arrange: <see cref="ArrangeFinalizedAsync" /> / <see cref="ArrangeCommittedPairAsync" />;
+///     act: <see cref="Client" />; assert bodies: <see cref="ArchLucidHttpResponseIntegrationTestExtensions.ReadJsonForTestAsync" />,
+///     <see cref="ArchLucidHttpResponseIntegrationTestExtensions.ReadBytesForTestAsync" />,
+///     <see cref="ArchLucidHttpResponseIntegrationTestExtensions.AssertProblemForTestAsync" />.
 /// </summary>
 public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<ArchLucidApiFactory>, IAsyncLifetime
 {
@@ -30,12 +37,89 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     ///     Aligned with <see cref="ArchLucid.Api.Startup.MvcExtensions" /> API JSON options (camelCase properties, string
     ///     enums).
     /// </summary>
-    protected readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    protected readonly JsonSerializerOptions JsonOptions = CreateApiJsonOptions();
+
+    /// <summary>JSON options aligned with the API serializer; shared by <see cref="ReplaySession" />.</summary>
+    public static JsonSerializerOptions CreateApiJsonOptions() =>
+        new(JsonSerializerDefaults.Web)
+        {
+            PropertyNameCaseInsensitive = true,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            Converters = { new EvalCorpusFindingSeverityJsonConverter(), new JsonStringEnumConverter(null) }
+        };
+
+    /// <summary>API JSON options with relaxed escaping (provenance / embedded JSON in Problem Details).</summary>
+    public static JsonSerializerOptions CreateRelaxedEscapingJsonOptions()
     {
-        PropertyNameCaseInsensitive = true,
-        DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-        Converters = { new EvalCorpusFindingSeverityJsonConverter(), new JsonStringEnumConverter(null) }
-    };
+        JsonSerializerOptions options = CreateApiJsonOptions();
+        options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+
+        return options;
+    }
+
+    /// <summary>Golden-path helpers for comparison replay tests using this fixture's client and factory.</summary>
+    protected ReplaySession Replay => ReplaySession.From(Factory, Client, JsonOptions);
+
+    /// <summary>POST <c>/v1/architecture/request</c> with the standard integration payload.</summary>
+    protected Task<HttpResponseMessage> PostArchitectureRequestAsync(string requestId) =>
+        Client.PostArchitectureRequestForTestAsync(requestId);
+
+    /// <summary>Builds an intake <see cref="HttpRequestMessage" /> with optional custom content.</summary>
+    protected static HttpRequestMessage CreateArchitectureRequestMessage(HttpContent? body = null) =>
+        IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(body);
+
+    /// <summary>Creates a run via the architecture request endpoint and returns the new run id.</summary>
+    protected Task<string> CreateArchitectureRunAsync(string requestId) =>
+        IntegrationTestRunLifecycleSupport.CreateArchitectureRunForTestAsync(Client, JsonOptions, requestId);
+
+    /// <summary>Execute with κ pin refresh (preferred before finalize).</summary>
+    protected Task ExecuteForTestAsync(string runId) =>
+        Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
+
+    /// <summary>Finalize with κ pin refresh.</summary>
+    protected Task<HttpResponseMessage> FinalizeRunAsync(string runId, HttpContent? body = null) =>
+        Client.PostFinalizeForTestAsync(Factory, runId, body);
+
+    /// <summary>Create → execute → finalize; returns run id and committed manifest version.</summary>
+    protected Task<FinalizedRun> CreateFinalizedRunAsync(string requestId) =>
+        IntegrationTestRunLifecycleSupport.CreateFinalizedRunForTestAsync(Client, Factory, JsonOptions, requestId);
+
+    /// <summary>Create → execute → finalize using the fixture class and calling test for <see cref="TestRequestIds.ForScenario" />.</summary>
+    protected Task<FinalizedRun> ArrangeFinalizedAsync([CallerMemberName] string testMethod = "") =>
+        HarnessArrange.FinalizedAsync(Client, Factory, JsonOptions, GetType().Name, testMethod);
+
+    /// <summary>Finalize + commit-replay pair using the fixture class and calling test.</summary>
+    protected Task<CommittedReplayPair> ArrangeCommittedPairAsync([CallerMemberName] string testMethod = "") =>
+        HarnessArrange.CommittedPairAsync(Replay, GetType().Name, testMethod);
+
+    /// <summary>Governance committed run using the fixture class and calling test.</summary>
+    protected Task<FinalizedRun> ArrangeGovernanceCommittedAsync([CallerMemberName] string testMethod = "") =>
+        HarnessArrange.GovernanceCommittedAsync(Client, Factory, JsonOptions, GetType().Name, testMethod);
+
+    /// <summary>POST architecture request with caller-aware request id; returns run id and request id.</summary>
+    protected async Task<CreatedRunForTest> CreateRunForTestAsync([CallerMemberName] string testMethod = "")
+    {
+        string requestId = TestRequestIds.ForScenario(GetType().Name, testMethod);
+        HttpResponseMessage createResponse =
+            await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
+        CreateRunResponseDto created =
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+
+        return new CreatedRunForTest(created.Run.RunId, requestId);
+    }
+
+    /// <summary>Intake + pin-aware execute; for tests that stop before finalize.</summary>
+    protected async Task<CreatedRunForTest> RunReadyForExecuteAsync([CallerMemberName] string testMethod = "")
+    {
+        CreatedRunForTest created = await CreateRunForTestAsync(testMethod).ConfigureAwait(false);
+        await ExecuteForTestAsync(created.RunId).ConfigureAwait(false);
+
+        return created;
+    }
+
+    /// <summary>POST <c>/v1/architecture/comparisons/{comparisonRecordId}/replay</c>.</summary>
+    protected Task<HttpResponseMessage> PostComparisonReplayAsync(string comparisonRecordId, string format = "markdown") =>
+        Client.PostComparisonReplayForTestAsync(comparisonRecordId, format);
 
     /// <summary>Factory for the hosted API (singleton services, SQL connection string, etc.).</summary>
     protected ArchLucidApiFactory Factory
@@ -46,7 +130,7 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     /// <inheritdoc />
     public async Task InitializeAsync()
     {
-        Client = await CreateClientWithDefaultScopeHeadersAsync(Factory).ConfigureAwait(false);
+        Client = await IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync(Factory).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -59,11 +143,8 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     ///     Serializes <paramref name="value" /> with <see cref="JsonOptions" /> and returns <see cref="StringContent" />
     ///     suitable for <c>application/json</c> POST bodies.
     /// </summary>
-    protected StringContent JsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
+    protected StringContent JsonContent(object value) =>
+        IntegrationTestHttpContent.CreateJson(value, JsonOptions);
 
     /// <summary>
     ///     POST <c>/v1/governance/approval-requests</c> using explicit camelCase JSON keys so binding stays stable across
@@ -285,14 +366,6 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
 
         _ = request.Headers.TryAddWithoutValidation(ArchLucidAuthOptions.TestActorNameHeader, testActorName.Trim());
         _ = request.Headers.TryAddWithoutValidation(ArchLucidAuthOptions.TestActorIdHeader, testActorId.Trim());
-    }
-
-    private static async Task<HttpClient> CreateClientWithDefaultScopeHeadersAsync(ArchLucidApiFactory apiFactory)
-    {
-        HttpClient client = await apiFactory.CreateBoundedClientAsync().ConfigureAwait(false);
-        WireDefaultSqlIntegrationScopeHeaders(client);
-
-        return client;
     }
 
     /// <summary>

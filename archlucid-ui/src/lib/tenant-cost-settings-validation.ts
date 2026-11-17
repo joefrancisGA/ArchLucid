@@ -31,6 +31,8 @@ export function validateTenantCostSettingsFields(
   const averageIncidentCostUsd = parseUsdField(incidentCost);
   const eaDiscountPct = parseUsdField(eaDiscountPercentage);
 
+  const minimumRoundingToOneCent = 0.005;
+
   let hourlyError: string | null = null;
   let incidentError: string | null = null;
   let eaError: string | null = null;
@@ -38,17 +40,17 @@ export function validateTenantCostSettingsFields(
   if (
     architectHourlyRateUsd === null ||
     Number.isNaN(architectHourlyRateUsd) ||
-    architectHourlyRateUsd <= 0
+    architectHourlyRateUsd < minimumRoundingToOneCent
   ) {
-    hourlyError = "Enter a USD amount greater than zero.";
+    hourlyError = "Enter a USD amount that rounds to at least $0.01.";
   }
 
   if (
     averageIncidentCostUsd === null ||
     Number.isNaN(averageIncidentCostUsd) ||
-    averageIncidentCostUsd <= 0
+    averageIncidentCostUsd < minimumRoundingToOneCent
   ) {
-    incidentError = "Enter a USD amount greater than zero.";
+    incidentError = "Enter a USD amount that rounds to at least $0.01.";
   }
 
   if (eaDiscountPct === null || Number.isNaN(eaDiscountPct) || eaDiscountPct < 0 || eaDiscountPct > 100) {

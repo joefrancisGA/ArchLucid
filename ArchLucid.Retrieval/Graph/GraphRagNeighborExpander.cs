@@ -119,7 +119,11 @@ public sealed class GraphRagNeighborExpander(
                     CorpusKind = nameof(CorpusKind.KnowledgeGraphNode),
                     SourceType = "KnowledgeGraphNodeNeighbor",
                     SourceId = neighbor.NodeId,
-                    Title = neighbor.Label ?? neighbor.NodeId,
+                    Title = neighbor.Label is null
+                        ? "Node label was not stored."
+                        : neighbor.Label.Length == 0 || neighbor.Label.Trim().Length == 0
+                            ? "Node label was stored empty."
+                            : neighbor.Label.Trim(),
                     Text = KnowledgeGraphNodeEmbeddingTextComposer.Compose(neighbor),
                     Score = neighborScore,
                 });

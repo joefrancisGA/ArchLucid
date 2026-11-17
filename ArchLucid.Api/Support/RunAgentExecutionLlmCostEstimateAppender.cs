@@ -1,5 +1,6 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
@@ -25,7 +26,11 @@ internal static class RunAgentExecutionLlmCostEstimateAppender
         ArgumentNullException.ThrowIfNull(costEstimator);
 
         IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices =
-            await traceRepository.GetLlmCostSlicesByRunIdAsync(scope, runId, cancellationToken);
+            await AnalysisRunIdCanonicalization.LoadLlmCostSlicesByRunIdAsync(
+                traceRepository,
+                scope,
+                runId,
+                cancellationToken);
 
         AgentExecutionTraceRunLlmCostSummary summary =
             AgentExecutionTraceRunLlmCostAggregator.Compute(slices, costEstimator);

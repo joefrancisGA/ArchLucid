@@ -78,7 +78,7 @@ export function FindingDetailPageView(props: Props) {
   const severityRationale =
     labels?.severityLabel?.trim().length
       ? findingSeverityAudienceCopy(labels.severityLabel).meaningForOperators
-      : "";
+      : "Severity meaning was not stored.";
   const severityConstraintNote =
     inspectPayload !== null
       ? buildSeverityConstraintNoteForInspectPayload(inspectPayload, statedConstraintContext)
@@ -101,6 +101,7 @@ export function FindingDetailPageView(props: Props) {
     findingsQueueRunId,
     architectureId: parentArchitectureId,
     isWorkingMode,
+    productLine,
   });
   const workingBackInput = { reviewId: runId, architectureId: parentArchitectureId };
   const reviewFindingsHref = resolveWorkingReviewFindingsBackHref(workingBackInput);

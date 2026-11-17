@@ -1,3 +1,4 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { DeletedProjectRow, WorkspaceBinRow } from "@/lib/projects-recycle-bin-payload";
 import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 
@@ -108,7 +109,16 @@ export function resolveContinueLastRecycleBinProject(
     }
   }
 
-  const newest = validProjects.slice().sort((left, right) => right.deletedUtcIso.localeCompare(left.deletedUtcIso))[0];
+  let newest: RecycleBinContinueLastProjectInput | null = null;
+  let newestDeletedMs = Number.NEGATIVE_INFINITY;
 
-  return newest === undefined ? null : toTarget(newest);
+  for (const project of validProjects) {
+    const deletedMs = parseIsoUtcMs(project.deletedUtcIso);
+    if (deletedMs > newestDeletedMs) {
+      newest = project;
+      newestDeletedMs = deletedMs;
+    }
+  }
+
+  return newest === null ? null : toTarget(newest);
 }

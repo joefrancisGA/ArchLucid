@@ -29,8 +29,21 @@ public sealed class ArchitectureRecommendationEngine : IArchitectureRecommendati
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        return finding.Conclusion is ReviewConclusion.Fail or ReviewConclusion.Indeterminate;
+        if (finding.Conclusion is not (ReviewConclusion.Fail or ReviewConclusion.Indeterminate))
+            return false;
+
+        if (IsGovernanceClosedForRecommendation(finding))
+            return false;
+
+        return true;
     }
+
+    internal static bool IsGovernanceClosedForRecommendation(SpecialistReviewFinding finding) =>
+        finding.GovernanceDisposition is GovernanceDisposition.Accepted
+            or GovernanceDisposition.ExceptionGranted
+            or GovernanceDisposition.Deferred
+            or GovernanceDisposition.RemediationPlanned
+            or GovernanceDisposition.HumanDecisionRequired;
 
     private static ArchitectureRecommendation CreateRecommendation(
         SpecialistReviewFinding finding,

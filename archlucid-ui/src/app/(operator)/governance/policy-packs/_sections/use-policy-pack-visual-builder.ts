@@ -24,6 +24,7 @@ import {
   visualBuilderStateToContentJson,
 } from "@/lib/policy/policy-pack-visual-builder";
 import { presentPolicyPackSimulateToast } from "@/lib/policy/policy-pack-simulate-toast";
+import { policyPacksHubPathFromPathname } from "@/lib/product-line/securenow-compliance-routes";
 import { buildPolicyPacksHrefWithReviewId } from "@/lib/policy-packs-review-handoff";
 import { showSuccess } from "@/lib/toast";
 
@@ -65,7 +66,8 @@ export function usePolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) 
   const scopedReviewId = (props.scopedReviewId ?? "").trim();
   const scopedReviewFilterActive = scopedReviewId.length > 0;
   const requiresReviewPick = props.onPickReview !== undefined;
-  const validateClearScopeHref = buildPolicyPacksHrefWithReviewId("");
+  const policyPacksHubPath = policyPacksHubPathFromPathname(pathname);
+  const validateClearScopeHref = buildPolicyPacksHrefWithReviewId("", policyPacksHubPath);
   const urlTemplateId = parsePolicyPackGeneratorTemplateFromSearch(searchParams.get("generatorTemplate"));
   const [builderState, setBuilderState] = useState<VisualBuilderState>(() => createEmptyVisualBuilderState());
   const [jsonPreview, setJsonPreview] = useState<string>(policyContentJson);

@@ -34,6 +34,31 @@ public sealed class SecurityTraceabilityAnalyzerTests
     }
 
     [Fact]
+    public void Analyze_blank_security_baseline_label_uses_not_stored_copy()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "sec-1",
+                    NodeType = GraphNodeTypes.SecurityBaseline,
+                    Label = "",
+                    Properties = new(),
+                },
+            ],
+        };
+
+        SecurityTraceabilityGap gap = SecurityTraceabilityAnalyzer.Analyze(graph)
+            .Should()
+            .ContainSingle(g => g.GapCode == "security-baseline-without-protects")
+            .Subject;
+
+        gap.Title.Should().Contain("Graph node label was not stored.");
+    }
+
+    [Fact]
     public void Analyze_WhenComputeUnprotected_EmitsComputeGap()
     {
         GraphSnapshot graph = new()

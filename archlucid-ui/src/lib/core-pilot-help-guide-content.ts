@@ -8,6 +8,7 @@ import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { WORKING_REVIEWS_INBOX_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { resolveShowcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 
@@ -86,7 +87,7 @@ export const CORE_PILOT_HELP_FIRST_VIEWPORT_PHASES: readonly CorePilotHelpFirstV
 /** @deprecated Use {@link CORE_PILOT_HELP_FIRST_VIEWPORT_PHASES}. */
 export const CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS = CORE_PILOT_HELP_FIRST_VIEWPORT_PHASES;
 
-const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+const sampleReviewHref = resolveLibOpenReviewHref(SHOWCASE_STATIC_DEMO_RUN_ID);
 
 export function resolveCorePilotHelpSampleReviewHref(workingMode: boolean): string {
   return resolveShowcaseSampleReviewPackageHref(workingMode);

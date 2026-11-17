@@ -8,8 +8,9 @@ import { FindingDerivationLine } from "@/components/usability/FindingDerivationL
 import { findingCausalMiniChainFromQuickDecisionFinding } from "@/lib/findings/finding-causal-mini-chain";
 import { findingDerivationFromQuickDecisionFinding } from "@/lib/findings/finding-derivation-sentence";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
-import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
+import { sponsorSeverityInputFromFindingSeverityValue } from "@/lib/sponsor/sponsor-finding-severity-input";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { formatQuickDecisionFindingMessageDisplay } from "@/lib/quick-decision-finding-links";
 
 export type QuickDecisionFindingRationaleProps = {
   readonly runId: string;
@@ -37,8 +38,8 @@ export function QuickDecisionFindingRationale(
       <SponsorPlainEnglishFindingPanel
         input={{
           title: finding.title,
-          message: finding.recommendation,
-          severity: severityBadgeLabel(finding.severityValue),
+          message: formatQuickDecisionFindingMessageDisplay(finding.findingMessage ?? finding.recommendation),
+          severity: sponsorSeverityInputFromFindingSeverityValue(finding.severityValue),
           derivationSentence: derivation.sentence,
           residualRisk: null,
         }}

@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
+const evalChromeFixtureOn = vi.hoisted(() => ({ enabled: true }));
+
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
@@ -163,6 +165,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isOperatorExperienceFullShellEnv: vi.fn(() => false),
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => evalChromeFixtureOn.enabled,
+}));
 
 function baseModel(overrides: Partial<RunsPageModel> = {}): RunsPageModel {
   return {

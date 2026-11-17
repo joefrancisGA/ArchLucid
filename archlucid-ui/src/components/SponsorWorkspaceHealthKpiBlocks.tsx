@@ -13,8 +13,14 @@ import {
   formatHours,
   HOURS_PER_PRECOMMIT_BLOCK,
 } from "@/lib/roi-assumptions";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { SPONSOR_COMPLIANCE_DRIFT_PARTIAL_WINDOW_LINE } from "@/lib/sponsor/sponsor-compliance-drift-partial-window-copy";
 import { executiveWorkspaceHealthKpiTitle } from "@/lib/sponsor-workspace-health-page-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { AUDIT_TRAIL_LABEL } from "@/lib/usability/canonical-product-terms";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import {
@@ -24,6 +30,26 @@ import {
 import { cn } from "@/lib/utils";
 
 import type { SponsorWorkspaceHealthKpiViewModel } from "./use-sponsor-workspace-health-dashboard";
+import { WORKSPACE_HEALTH_KPI_CARD_AS_OF_LINE } from "@/lib/insights/workspace-health-kpi-card-as-of-copy";
+
+function WorkspaceHealthKpiCardAsOfLine(): React.JSX.Element {
+  return (
+    <p
+      className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid="sponsor-workspace-health-kpi-card-as-of"
+    >
+      {WORKSPACE_HEALTH_KPI_CARD_AS_OF_LINE}
+    </p>
+  );
+}
+
+function sponsorHighCriticalFindingsLinkLabel(buyerPolishedShell: boolean, productLine: ProductLineId): string {
+  if (productLine === "security") {
+    return buyerPolishedShell ? "Open findings queue" : "Compliance findings queue";
+  }
+
+  return buyerPolishedShell ? "Open risk register" : "Architecture risk register";
+}
 
 export type SponsorWorkspaceHealthKpiBlocksProps = {
   readonly buyerPolishedShell: boolean;
@@ -36,6 +62,9 @@ export function SponsorWorkspaceHealthKpiBlocks({
   callerRank,
   viewModel,
 }: SponsorWorkspaceHealthKpiBlocksProps) {
+  const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
+  const findingsQueueHref = findingsPathForProductLine(productLine);
   const {
     blocked30d,
     warned30d,
@@ -57,6 +86,7 @@ export function SponsorWorkspaceHealthKpiBlocks({
             <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {executiveWorkspaceHealthKpiTitle("preCommitOutcomes", buyerPolishedShell)}
             </h2>
+            <WorkspaceHealthKpiCardAsOfLine />
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {buyerPolishedShell ? (
                 <>
@@ -93,6 +123,7 @@ export function SponsorWorkspaceHealthKpiBlocks({
             <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {executiveWorkspaceHealthKpiTitle("highCriticalExposure", buyerPolishedShell)}
             </h2>
+            <WorkspaceHealthKpiCardAsOfLine />
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Pilot-value report severity totals in the window — exposure in the report period, not the same as an open-backlog
               aging inventory.
@@ -104,8 +135,8 @@ export function SponsorWorkspaceHealthKpiBlocks({
               {finiteIntegerCountDisplay(highCritical90)}
             </p>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link href="/governance/findings" className={OPERATOR_LINK.nav}>
-                {buyerPolishedShell ? "Open risk register" : "Architecture risk register"}
+              <Link href={findingsQueueHref} className={OPERATOR_LINK.nav}>
+                {sponsorHighCriticalFindingsLinkLabel(buyerPolishedShell, productLine)}
               </Link>
             </p>
           </CardContent>
@@ -121,7 +152,16 @@ export function SponsorWorkspaceHealthKpiBlocks({
                 Resolve outcomes workflow
               </Link>
             </div>
+            <WorkspaceHealthKpiCardAsOfLine />
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Daily buckets (1440-minute) from compliance drift API.</p>
+            {partialCapture ? (
+              <p
+                className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="sponsor-drift-partial-window"
+              >
+                {SPONSOR_COMPLIANCE_DRIFT_PARTIAL_WINDOW_LINE}
+              </p>
+            ) : null}
             <ComplianceDriftChartPdfExport points={driftPoints} />
           </CardContent>
         </Card>
@@ -131,6 +171,7 @@ export function SponsorWorkspaceHealthKpiBlocks({
             <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {executiveWorkspaceHealthKpiTitle("approvalSla", buyerPolishedShell)}
             </h2>
+            <WorkspaceHealthKpiCardAsOfLine />
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Derived from workspace health pending approvals and recent terminal decisions.
             </p>
@@ -169,6 +210,7 @@ export function SponsorWorkspaceHealthKpiBlocks({
                 triggerClassName="self-start"
               />
             </div>
+            <WorkspaceHealthKpiCardAsOfLine />
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Blocks in 30d:{" "}
               <span className="font-mono font-medium text-neutral-800 dark:text-neutral-200">

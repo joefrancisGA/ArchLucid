@@ -1,4 +1,5 @@
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Authorization;
@@ -109,6 +110,78 @@ public sealed class CachingReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task CustomRole_UpdateAsync_bumps_tenant_revision_after_caller_cancels()
+    {
+        using CancellationTokenSource request = new();
+        CustomRoleRecord role = new()
+        {
+            Id = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            Name = "Updated role name",
+        };
+        Mock<ICustomRoleRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(repo => repo.UpdateAsync(role, request.Token))
+            .Callback(request.Cancel)
+            .ReturnsAsync(role);
+
+        string revisionKey = HotPathCacheKeys.CustomRoleTenantRevision(role.TenantId);
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        cache.Setup(value => value.RemoveAsync(revisionKey, It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken token) =>
+                token.IsCancellationRequested ? Task.FromCanceled(token) : Task.CompletedTask);
+        cache.Setup(value => value.GetOrCreateAsync(
+                revisionKey,
+                It.IsAny<Func<CancellationToken, Task<RunListScopeRevisionState?>>>(),
+                CancellationToken.None,
+                null))
+            .Returns((string _, Func<CancellationToken, Task<RunListScopeRevisionState?>> factory,
+                CancellationToken token, int? _) => factory(token));
+        CachingCustomRoleRepository repository = new(inner.Object, cache.Object);
+
+        CustomRoleRecord result = await repository.UpdateAsync(role, request.Token);
+
+        result.Should().BeSameAs(role);
+        cache.Verify(value => value.RemoveAsync(revisionKey, CancellationToken.None), Times.Once);
+        cache.Verify(value => value.GetOrCreateAsync(
+            revisionKey,
+            It.IsAny<Func<CancellationToken, Task<RunListScopeRevisionState?>>>(),
+            CancellationToken.None,
+            null), Times.Once);
+    }
+
+    [Fact]
+    public async Task ScimUser_DeactivateAsync_invalidates_both_keys_after_caller_cancels()
+    {
+        using CancellationTokenSource request = new();
+        Guid tenantId = Guid.NewGuid();
+        const string externalId = "directory-user";
+        InMemoryScimUserRepository backing = new();
+        ScimUserRecord prior = await backing.InsertAsync(
+            tenantId, externalId, "user@example.com", null, true, null,
+            ScimResolvedRoleOrigin.Manual, CancellationToken.None);
+        Guid userId = prior.Id;
+
+        Mock<IScimUserRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(repo => repo.GetByIdAsync(tenantId, userId, request.Token)).ReturnsAsync(prior);
+        inner.Setup(repo => repo.DeactivateAsync(tenantId, userId, request.Token)).Returns(async () =>
+        {
+            await backing.DeactivateAsync(tenantId, userId, request.Token);
+            request.Cancel();
+        });
+
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        cache.Setup(value => value.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken token) =>
+                token.IsCancellationRequested ? Task.FromCanceled(token) : Task.CompletedTask);
+        CachingScimUserRepository repo = new(inner.Object, cache.Object);
+
+        await repo.DeactivateAsync(tenantId, userId, request.Token);
+
+        cache.Verify(value => value.RemoveAsync(HotPathCacheKeys.ScimUserById(tenantId, userId), CancellationToken.None), Times.Once);
+        cache.Verify(value => value.RemoveAsync(HotPathCacheKeys.ScimUserByExternalId(tenantId, externalId), CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
     public async Task ScimUser_GetByExternalIdAsync_uses_cache_until_replace()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
@@ -151,6 +224,21 @@ public sealed class CachingReferenceDataRepositoryTests
         oldKey.Should().BeNull();
         newKey.Should().NotBeNull();
         newKey!.ExternalId.Should().Be("ext-2");
+    }
+
+    [Fact]
+    public async Task Tenant_GetByIdUncachedAsync_bypasses_the_cache()
+    {
+        Guid tenantId = Guid.NewGuid();
+        TenantRecord expected = new() { Id = tenantId };
+        Mock<ITenantRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(repository => repository.GetByIdUncachedAsync(tenantId, CancellationToken.None))
+            .ReturnsAsync(expected);
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        CachingTenantRepository repository = new(inner.Object, cache.Object);
+
+        (await repository.GetByIdUncachedAsync(tenantId, CancellationToken.None)).Should().BeSameAs(expected);
+        cache.VerifyNoOtherCalls();
     }
 
     [Fact]

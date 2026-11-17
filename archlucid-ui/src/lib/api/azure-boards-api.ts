@@ -1,3 +1,4 @@
+import { isRecord, trimmedStringsOnly, trimTextFields } from "@/lib/api/api-boundary-normalization";
 import { apiGet, apiPostJson, apiPutJson } from "@/lib/api-client";
 import { interpretAzureBoardsLastConnectionTest } from "@/lib/azure-boards-stored-health";
 
@@ -38,33 +39,66 @@ export type AzureBoardsConnectionTestResponse = {
   statusCode?: number | null;
 };
 
+/**
+ * Every field on these responses is optional, so a non-object response becomes an empty object.
+ * Callers then see "not configured" or "not reachable" instead of a crash on a property read.
+ */
+function recordOrEmpty<T extends object>(raw: unknown): T {
+  return (isRecord(raw) ? raw : {}) as T;
+}
+
+/** Reads the `items` text list from a named-items response; anything malformed yields an empty list. */
+function namedItems(raw: unknown): string[] {
+  return isRecord(raw) ? trimmedStringsOnly(raw.items) : [];
+}
+
 export async function fetchAzureBoardsHealth(): Promise<AzureBoardsIntegrationHealthResponse> {
-  return apiGet<AzureBoardsIntegrationHealthResponse>("/v1/integrations/azure-boards/health");
+  return recordOrEmpty<AzureBoardsIntegrationHealthResponse>(
+    await apiGet<unknown>("/v1/integrations/azure-boards/health"),
+  );
 }
 
 export async function fetchAzureBoardsSettings(): Promise<AzureBoardsOutboundSettingsResponse> {
-  return apiGet<AzureBoardsOutboundSettingsResponse>("/v1/integrations/azure-boards/settings");
+  return recordOrEmpty<AzureBoardsOutboundSettingsResponse>(
+    await apiGet<unknown>("/v1/integrations/azure-boards/settings"),
+  );
 }
 
 export async function upsertAzureBoardsSettings(
   body: AzureBoardsOutboundSettingsUpsertRequest,
 ): Promise<AzureBoardsOutboundSettingsResponse> {
-  return apiPutJson<AzureBoardsOutboundSettingsResponse>("/v1/integrations/azure-boards/settings", body);
+  const normalizedBody = trimTextFields(body, [
+    "projectName",
+    "defaultWorkItemType",
+    "areaPath",
+    "iterationPath",
+    "defaultTags",
+  ]);
+
+  return recordOrEmpty<AzureBoardsOutboundSettingsResponse>(
+    await apiPutJson<unknown>("/v1/integrations/azure-boards/settings", normalizedBody),
+  );
 }
 
 export async function listAzureBoardsProjects(): Promise<string[]> {
-  const body = await apiGet<AzureBoardsNamedItemsResponse>("/v1/integrations/azure-boards/projects");
+  const body = await apiGet<unknown>("/v1/integrations/azure-boards/projects");
 
-  return body.items ?? [];
+  return namedItems(body);
 }
 
 export async function listAzureBoardsWorkItemTypes(project: string): Promise<string[]> {
-  const encoded = encodeURIComponent(project);
-  const body = await apiGet<AzureBoardsNamedItemsResponse>(
+  const normalizedProject = project.trim();
+
+  if (normalizedProject.length === 0) {
+    throw new Error("project is required.");
+  }
+
+  const encoded = encodeURIComponent(normalizedProject);
+  const body = await apiGet<unknown>(
     `/v1/integrations/azure-boards/projects/${encoded}/work-item-types`,
   );
 
-  return body.items ?? [];
+  return namedItems(body);
 }
 
 export async function testAzureBoardsConnection(): Promise<AzureBoardsConnectionTestResponse> {

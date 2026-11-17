@@ -29,7 +29,41 @@ public static class InventoryDiagramAvdResourceMapping
 
     public const string SessionHostArmIdSegment = "/sessionHosts/";
 
-    public const string CollapsedBoundaryLabel = "Azure Virtual Desktop";
+    public const string CollapsedBoundaryEdgeLabel = "AVD resources omitted from this diagram.";
+
+    public const string HostPoolNameNotStoredCaption = "Host pool name was not stored.";
+
+    public const string HostPoolNameNotStored = "Host pool name was not stored.";
 
     public const string CollapsedBoundaryNodeIdPrefix = "avd-boundary-";
+
+    public static string FormatHostPoolBoundaryLabel(string? hostPoolArmId)
+    {
+        if (string.IsNullOrWhiteSpace(hostPoolArmId) || hostPoolArmId.Equals("avd", StringComparison.OrdinalIgnoreCase))
+        {
+            return HostPoolNameNotStoredCaption;
+        }
+
+        const string hostPoolsSegment = "/hostPools/";
+        int segmentIndex = hostPoolArmId.IndexOf(hostPoolsSegment, StringComparison.OrdinalIgnoreCase);
+
+        if (segmentIndex < 0)
+        {
+            return HostPoolNameNotStoredCaption;
+        }
+
+        string afterSegment = hostPoolArmId[(segmentIndex + hostPoolsSegment.Length)..];
+        int slashIndex = afterSegment.IndexOf('/', StringComparison.Ordinal);
+        string hostPoolName = (slashIndex >= 0 ? afterSegment[..slashIndex] : afterSegment).Trim();
+
+        return hostPoolName.Length > 0 ? hostPoolName : HostPoolNameNotStoredCaption;
+    }
+
+    public static string FormatOmittedAvdSummaryBoundaryLabel(int hostPoolCount, int sessionHostCount)
+    {
+        string hostPoolWord = hostPoolCount == 1 ? "host pool" : "host pools";
+        string sessionHostWord = sessionHostCount == 1 ? "session host" : "session hosts";
+
+        return $"{hostPoolCount} {hostPoolWord} and {sessionHostCount} {sessionHostWord} omitted from this diagram.";
+    }
 }

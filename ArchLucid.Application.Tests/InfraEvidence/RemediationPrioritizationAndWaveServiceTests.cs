@@ -77,6 +77,79 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
     }
 
     [Fact]
+    public async Task CreateWave_does_not_leave_an_empty_wave_if_the_instance_lookup_fails()
+    {
+        ScopeContext scope = CreateScope(TenantA);
+        Guid findingId = Guid.NewGuid();
+        InMemoryRemediationWaveRepository waveRepository = new();
+        Mock<IRemediationPrioritizationService> prioritizationService = new();
+        prioritizationService
+            .Setup(service => service.RankOpenFindingsAsync(scope, "operator-1", CancellationToken.None))
+            .ReturnsAsync(new[] { new RemediationPrioritizedFinding { FindingId = findingId } });
+        Mock<IProjectScopedRemediationInstanceRepository> instanceRepository = new();
+        instanceRepository
+            .SetupSequence(repository => repository.ListLatestApprovedByFindingIdsInScopeAsync(
+                scope.ToProjectScopeKey(),
+                It.Is<IReadOnlyCollection<Guid>>(ids => ids.Count == 1 && ids.Contains(findingId)),
+                CancellationToken.None))
+            .ThrowsAsync(new InvalidOperationException("Approved instances could not be loaded."))
+            .ReturnsAsync(new Dictionary<Guid, RemediationInstanceRecord>());
+        RemediationWaveService waveService = new(
+            waveRepository, prioritizationService.Object, Mock.Of<IRemediationInstanceService>(), instanceRepository.Object);
+        Task<RemediationWaveOperationResult> CreateWave() =>
+            waveService.CreateWaveAsync(scope, "wave", targetSize: 1, explicitCloudResourceIds: null, "operator-1");
+
+        InvalidOperationException failure = await Assert.ThrowsAsync<InvalidOperationException>(CreateWave);
+        failure.Message.Should().Be("Approved instances could not be loaded.");
+        waveRepository.Waves.Should().BeEmpty();
+
+        RemediationWaveOperationResult retry = await CreateWave();
+        retry.Succeeded.Should().BeTrue();
+        waveRepository.Waves.Should().ContainSingle();
+        waveRepository.Members.Should().ContainSingle(member => member.FindingId == findingId);
+    }
+
+    [Fact]
+    public async Task CreateWave_does_not_assign_instances_if_wave_members_cannot_be_saved()
+    {
+        ScopeContext scope = CreateScope(TenantA);
+        Guid findingId = Guid.NewGuid();
+        Guid instanceId = Guid.NewGuid();
+        Mock<IRemediationPrioritizationService> prioritizationService = new();
+        prioritizationService
+            .Setup(service => service.RankOpenFindingsAsync(scope, "operator-1", CancellationToken.None))
+            .ReturnsAsync(new[] { new RemediationPrioritizedFinding { FindingId = findingId } });
+        Mock<IProjectScopedRemediationInstanceRepository> instanceRepository = new();
+        instanceRepository
+            .Setup(repository => repository.ListLatestApprovedByFindingIdsInScopeAsync(
+                scope.ToProjectScopeKey(),
+                It.IsAny<IReadOnlyCollection<Guid>>(),
+                CancellationToken.None))
+            .ReturnsAsync(new Dictionary<Guid, RemediationInstanceRecord>
+            {
+                [findingId] = new() { InstanceId = instanceId },
+            });
+        Mock<IRemediationWaveRepository> waveRepository = new();
+        waveRepository
+            .Setup(repository => repository.InsertWaveWithMembersInScopeAsync(
+                scope.ToProjectScopeKey(),
+                It.IsAny<RemediationWaveCreateMutation>(),
+                It.Is<IReadOnlyList<RemediationWaveMemberMutation>>(members =>
+                    members.Count == 1 && members[0].InstanceId == instanceId),
+                CancellationToken.None))
+            .ThrowsAsync(new InvalidOperationException("Member write failed."));
+        Mock<IRemediationInstanceService> instanceService = new();
+        RemediationWaveService waveService = new(
+            waveRepository.Object, prioritizationService.Object, instanceService.Object, instanceRepository.Object);
+
+        InvalidOperationException failure = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            waveService.CreateWaveAsync(scope, "wave", targetSize: 1, explicitCloudResourceIds: null, "operator-1"));
+
+        failure.Message.Should().Be("Member write failed.");
+        instanceService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Weight_change_reranks_findings()
     {
         Guid lowSeverityId = Guid.NewGuid();
@@ -372,6 +445,17 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
         public Task InsertWaveAsync(RemediationWaveRecord wave, CancellationToken cancellationToken = default)
         {
             Waves.Add(wave);
+            return Task.CompletedTask;
+        }
+
+        public Task InsertWaveWithMembersInScopeAsync(
+            ProjectScopeKey scope,
+            RemediationWaveCreateMutation wave,
+            IReadOnlyList<RemediationWaveMemberMutation> members,
+            CancellationToken cancellationToken = default)
+        {
+            Waves.Add(wave.ToRecord(scope));
+            Members.AddRange(members.Select(member => member.ToRecord(scope)));
             return Task.CompletedTask;
         }
 

@@ -11,10 +11,11 @@ import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
-  GOVERNANCE_FINDINGS_PATH,
-  GOVERNANCE_POLICY_PACKS_PATH,
-} from "@/lib/governance/governance-route-paths";
+  findingsPathForProductLine,
+  policyPacksPathForProductLine,
+} from "@/lib/product-line/securenow-compliance-routes";
 import {
   GOVERNANCE_OVERVIEW_APPROVED_PACKAGES_DEFINITION,
   GOVERNANCE_OVERVIEW_APPROVED_PACKAGES_LABEL,
@@ -72,6 +73,9 @@ export function GovernanceOverviewSummaryPanelShell(
     retryOverview,
     workspaceIsIdle,
   } = props;
+  const { productLine } = useProductLine();
+  const findingsHref = findingsPathForProductLine(productLine);
+  const policyPacksHref = policyPacksPathForProductLine(productLine);
 
   return (
     <section aria-labelledby="governance-overview-summary-heading">
@@ -154,7 +158,7 @@ export function GovernanceOverviewSummaryPanelShell(
               label={GOVERNANCE_OVERVIEW_BLOCKING_FINDINGS_LABEL}
               definition={GOVERNANCE_OVERVIEW_BLOCKING_FINDINGS_DEFINITION}
               value={loadState.metrics.blockingFindingsTotal}
-              href={GOVERNANCE_FINDINGS_PATH}
+              href={findingsHref}
               destinationLabel="findings queue"
               caution
               breakdown={loadState.metrics.blockingFindings}
@@ -170,7 +174,7 @@ export function GovernanceOverviewSummaryPanelShell(
               label={GOVERNANCE_OVERVIEW_POLICY_ACTIVATIONS_LABEL}
               definition={GOVERNANCE_OVERVIEW_POLICY_ACTIVATIONS_DEFINITION}
               value={loadState.metrics.policyActivations}
-              href={GOVERNANCE_POLICY_PACKS_PATH}
+              href={policyPacksHref}
               destinationLabel="policy packs"
             />
           </div>
@@ -192,7 +196,7 @@ export function GovernanceOverviewSummaryPanelShell(
                   </Button>
                 ) : null}
                 <Button asChild variant="outline" size="sm">
-                  <Link href={GOVERNANCE_FINDINGS_PATH}>{GOVERNANCE_OVERVIEW_FINDINGS_ACTION}</Link>
+                  <Link href={findingsHref}>{GOVERNANCE_OVERVIEW_FINDINGS_ACTION}</Link>
                 </Button>
               </>
             ) : (
@@ -227,7 +231,7 @@ export function GovernanceOverviewSummaryPanelShell(
                   {GOVERNANCE_OVERVIEW_PENDING_ACTION}
                 </Button>
                 <Button asChild variant="outline" size="sm">
-                  <Link href={GOVERNANCE_FINDINGS_PATH}>{GOVERNANCE_OVERVIEW_FINDINGS_ACTION}</Link>
+                  <Link href={findingsHref}>{GOVERNANCE_OVERVIEW_FINDINGS_ACTION}</Link>
                 </Button>
               </>
             )}

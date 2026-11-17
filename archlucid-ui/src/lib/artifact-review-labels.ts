@@ -78,6 +78,10 @@ export function getArtifactFormatLabel(format: string | null | undefined): strin
     return "Artifact format was not stored.";
   }
 
+  if (format.trim().length === 0) {
+    return "Artifact format was stored empty.";
+  }
+
   const normalized = format.trim().toLowerCase();
 
   return (
@@ -109,7 +113,13 @@ export function getArtifactTypeLabel(artifactType: string): string {
     return entry.label;
   }
 
-  return artifactType.replace(/([a-z])([A-Z])/g, "$1 $2").trim();
+  const token = artifactType.trim();
+
+  if (token.length === 0) {
+    return "Artifact type was not stored.";
+  }
+
+  return `Artifact type ${token} has no reviewer label.`;
 }
 
 /**

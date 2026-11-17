@@ -67,11 +67,13 @@ export function AdvisorySchedulesTable(props: AdvisorySchedulesTableProps): Reac
     runNowNoReviewsHintId,
   } = page;
 
+  const reviewLookupFailed = page.reviewAvailability.loadFailed;
+
   if (isEmpty) {
     return (
       <div className="mt-4">
         <EnterpriseCompactEmptyState
-          {...(showPrerequisiteEmpty
+          {...(showPrerequisiteEmpty && !reviewLookupFailed
             ? ADVISORY_SCHEDULES_NO_FINALIZED_REVIEWS_EMPTY_COMPACT
             : ADVISORY_SCHEDULES_EMPTY_COMPACT)}
           footer={showPrerequisiteEmpty ? undefined : emptyStateFooter}
@@ -82,7 +84,7 @@ export function AdvisorySchedulesTable(props: AdvisorySchedulesTableProps): Reac
 
   return (
     <div className="mt-3">
-      {prerequisiteBlocksSchedules ? (
+      {prerequisiteBlocksSchedules && !reviewLookupFailed ? (
         <p
           className={cn("m-0 mb-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="advisory-schedules-prerequisite-blocked"
@@ -91,7 +93,9 @@ export function AdvisorySchedulesTable(props: AdvisorySchedulesTableProps): Reac
         </p>
       ) : null}
       <span id={runNowNoReviewsHintId} className="sr-only">
-        {ADVISORY_SCANS_SCHEDULES_RUN_NOW_NO_REVIEWS_HINT}
+        {reviewLookupFailed
+          ? "Could not check for finalized reviews. Retry the review lookup to run this scan."
+          : ADVISORY_SCANS_SCHEDULES_RUN_NOW_NO_REVIEWS_HINT}
       </span>
       <span id={runNowHintId} className="sr-only">
         {ADVISORY_SCANS_SCHEDULES_SCAN_NOW_SR_ONLY}

@@ -175,7 +175,7 @@ public sealed class AgentResultParserTests
         AgentResult result = _sut.ParseAndValidate(json, "run1", "task1", AgentType.Compliance);
 
         result.Findings.Should().HaveCount(3);
-        result.Findings[0].Severity.Should().Be(FindingSeverity.Info);
+        result.Findings[0].Severity.Should().Be(FindingSeverity.Warning);
         result.Findings[1].Severity.Should().Be(FindingSeverity.Warning);
         result.Findings[2].Severity.Should().Be(FindingSeverity.Error);
     }

@@ -1,3 +1,4 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { ArchitectureIdentityChildReviewSummary } from "@/types/architecture-identity";
 
 export type ArchitectureCompareSiblingDefaults = {
@@ -6,10 +7,18 @@ export type ArchitectureCompareSiblingDefaults = {
   readonly laterRunId: string;
 };
 
-function sortReviewsNewestFirst(
+export function sortArchitectureReviewsNewestFirst(
   reviews: readonly ArchitectureIdentityChildReviewSummary[],
 ): ArchitectureIdentityChildReviewSummary[] {
-  return [...reviews].sort((left, right) => right.createdUtc.localeCompare(left.createdUtc));
+  // Keep the input order for equal milliseconds. The API orders by the full timestamp.
+  return reviews
+    .map((review) => {
+      const createdMs = parseIsoUtcMs(review.createdUtc);
+
+      return { review, createdMs: Number.isNaN(createdMs) ? Number.MIN_SAFE_INTEGER : createdMs };
+    })
+    .sort((left, right) => right.createdMs - left.createdMs)
+    .map(({ review }) => review);
 }
 
 /** Default Compare pickers to sibling reviews of the open architecture (AO-29). */
@@ -24,7 +33,7 @@ export function resolveArchitectureCompareSiblingDefaults(input: {
     return null;
   }
 
-  const sortedReviews = sortReviewsNewestFirst(input.reviews);
+  const sortedReviews = sortArchitectureReviewsNewestFirst(input.reviews);
   const laterReview = sortedReviews[0];
   const priorReview = sortedReviews[1];
 

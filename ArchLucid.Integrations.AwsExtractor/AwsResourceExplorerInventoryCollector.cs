@@ -16,6 +16,8 @@ internal static class AwsResourceExplorerInventoryCollector
         ArgumentNullException.ThrowIfNull(explorerClient);
         ArgumentException.ThrowIfNullOrWhiteSpace(regionSystemName);
 
+        regionSystemName = regionSystemName.Trim();
+
         List<AwsInventoryResourceEntry> resources = [];
         string? nextToken = null;
         string queryString = AwsResourceExplorerQueryString.ResolveForRegion(regionSystemName);
@@ -63,7 +65,7 @@ internal static class AwsResourceExplorerInventoryCollector
 
                     resources.Add(new AwsInventoryResourceEntry(
                         resource.Arn.Trim(),
-                        resource.ResourceType ?? string.Empty,
+                        resource.ResourceType?.Trim() ?? string.Empty,
                         location,
                         null));
                 }
@@ -80,7 +82,7 @@ internal static class AwsResourceExplorerInventoryCollector
     {
         if (!string.IsNullOrWhiteSpace(resource.Region))
         {
-            return resource.Region;
+            return resource.Region.Trim();
         }
 
         return connectionRegionSystemName;

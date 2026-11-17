@@ -69,7 +69,7 @@ export const CLOUD_NEUTRAL_PRIMARY_COPY = {
   executiveBaselineBannerBody:
     "Sponsor ROI summaries stay grounded when you upload a cloud inventory ZIP (AWS, Azure, or GCP) for this workspace. Use the baseline upload wizard to parse packager output and start your first review from measured inventory.",
   corePilotInventoryStepDetail:
-    "Run the read-only cloud inventory script for your selected provider locally, then upload a ZIP (`manifest.json` + `resources.json`) from Extract & Upload settings or review detail. If you are using brief, document, or diagram evidence only, skip this step — findings will still run and may have lower confidence on cost claims.",
+    "Run the read-only cloud inventory script for your selected provider locally, then upload a ZIP (`manifest.json` + `resources.json`) from Extract & Upload settings or review detail. If you are using brief, document, or diagram evidence only, skip this step — findings still run from the evidence on this review, and a cost-confidence change was not stored for skipping inventory.",
   corePilotFirstSessionInventoryBullet:
     "Upload a cloud inventory ZIP (AWS, Azure, or GCP) on the open review, before seal, so the diagram and findings can cite that inventory.",
   demoExplainConversionLead:

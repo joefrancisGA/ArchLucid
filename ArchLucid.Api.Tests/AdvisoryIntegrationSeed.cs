@@ -3,6 +3,8 @@ using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -38,6 +40,8 @@ public static class AdvisoryIntegrationSeed
             serviceProvider.GetRequiredService<IFindingsSnapshotRepository>();
         IDecisionTraceRepository decisionTraceRepo =
             serviceProvider.GetRequiredService<IDecisionTraceRepository>();
+        IManifestHashService manifestHashService =
+            serviceProvider.GetRequiredService<IManifestHashService>();
 
         Guid runId = Guid.NewGuid();
         Guid manifestId = Guid.NewGuid();
@@ -124,11 +128,13 @@ public static class AdvisoryIntegrationSeed
             FindingsSnapshotId = findingsSnapshotId,
             DecisionTraceId = decisionTraceId,
             CreatedUtc = createdUtc,
-            ManifestHash = "integration-seed",
             RuleSetId = "test-rs",
             RuleSetVersion = "1",
             RuleSetHash = "test-rh"
         };
+        manifest.Security.Gaps.Add("Integration seed: storage account not encrypted at rest");
+
+        manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
 
         await goldenRepo.SaveAsync(manifest, ct);
 

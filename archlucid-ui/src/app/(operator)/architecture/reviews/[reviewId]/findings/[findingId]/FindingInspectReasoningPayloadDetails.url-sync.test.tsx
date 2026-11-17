@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -6,8 +6,16 @@ import { FINDING_INSPECT_REASONING_OPEN_PARAM } from "@/lib/findings/finding-ins
 
 import { FindingInspectReasoningPayloadDetails } from "./FindingInspectReasoningPayloadDetails";
 
+const getFindingInspectMock = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/api/findings-api", () => ({
+  getFindingInspect: getFindingInspectMock,
+}));
+
 vi.mock("@/components/findings/FindingInspectJsonPayload", () => ({
-  FindingInspectJsonPayload: () => null,
+  FindingInspectJsonPayload: ({ value }: { readonly value: unknown }) => (
+    <div data-testid="finding-inspect-json-payload">{JSON.stringify(value)}</div>
+  ),
 }));
 
 vi.mock("@/lib/resolve-production-eval-chrome-from-storage", () => ({
@@ -91,6 +99,41 @@ describe("FindingInspectReasoningPayloadDetails URL sync", () => {
 
     await waitFor(() => {
       expect(reasoningDetails()).toHaveAttribute("open");
+    });
+  });
+
+  it("does not commit a lazy payload response after navigating to another finding", async () => {
+    let resolveRequest: ((value: { readonly typedPayload: unknown }) => void) | undefined;
+    getFindingInspectMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveRequest = resolve;
+        }),
+    );
+
+    const renderDetails = (runId: string, findingId: string, typedPayload: unknown) => (
+      <FindingInspectReasoningPayloadDetails
+        runId={runId}
+        findingId={findingId}
+        reasoningTrace={null}
+        typedPayload={typedPayload}
+        lazyLoadTypedPayload
+      />
+    );
+
+    const { rerender } = render(renderDetails("run-1", "finding-1", { label: "new finding" }));
+    fireEvent.click(screen.getByText("AI Audit Inspection"));
+
+    await waitFor(() => {
+      expect(getFindingInspectMock).toHaveBeenCalledWith("run-1", "finding-1", { includeTypedPayload: true });
+    });
+
+    rerender(renderDetails("run-2", "finding-2", { label: "next finding" }));
+    resolveRequest?.({ typedPayload: { label: "old finding payload" } });
+
+    await waitFor(() => {
+      expect(screen.queryByText('{"label":"old finding payload"}')).not.toBeInTheDocument();
+      expect(screen.getByText("Expand to load the full structured evaluation payload.")).toBeInTheDocument();
     });
   });
 });

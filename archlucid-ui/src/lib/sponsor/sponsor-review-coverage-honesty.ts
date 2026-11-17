@@ -1,4 +1,5 @@
 import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import {
   ACTOR_DEPENDENT_FINDINGS_ACTOR_COUNT_NOT_STORED_BODY,
@@ -47,7 +48,7 @@ export function formatSponsorReviewCoverageHonestyMarkdown(
   }
 
   const lines: string[] = [];
-  const reviewHref = `/architecture/reviews/${encodeURIComponent(inputs.runId.trim())}`;
+  const reviewHref = resolveLibOpenReviewHref(inputs.runId);
   const verdict = inputs.manifestSummary?.feasibilityVerdict;
 
   lines.push("## Architecture package honesty");

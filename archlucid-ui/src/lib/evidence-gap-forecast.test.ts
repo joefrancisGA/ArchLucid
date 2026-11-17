@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  deriveEvidenceAttachmentHonestyNotices,
+  deriveEvidenceFilenameClassHonestyNotices,
   deriveEvidenceGapForecast,
   deriveEvidencePresenceFromFileNames,
+  EVIDENCE_STORED_IMAGE_DIAGRAM_NOT_READ,
+  EVIDENCE_STORED_ZIP_INVENTORY_NOT_IDENTIFIED,
   deriveEvidencePresenceFromInventoryKinds,
   EVIDENCE_COVERAGE_CLASS_COUNT,
   EVIDENCE_COVERAGE_DOCUMENT_ATTACHED_SUMMARY,
@@ -122,7 +126,7 @@ describe("summarizeEvidenceCoverage", () => {
     const presence = deriveEvidencePresenceFromFileNames(fileNames);
     const summary = summarizeEvidenceCoverage(presence, { attachmentFileNames: fileNames });
 
-    expect(presence.hasArchitectureBrief).toBe(true);
+    expect(presence.hasArchitectureBrief).toBe(false);
     expect(summary.usesDocumentAttachedSummary).toBe(true);
     expect(summary.summaryLine).toBe(EVIDENCE_COVERAGE_DOCUMENT_ATTACHED_SUMMARY);
     expect(summary.summaryLine).not.toContain("0 of 5");
@@ -134,7 +138,7 @@ describe("summarizeEvidenceCoverage", () => {
     const summary = summarizeEvidenceCoverage(presence, { attachmentFileNames: fileNames });
 
     expect(summary.usesDocumentAttachedSummary).toBe(false);
-    expect(summary.summaryLine).toContain("2 of 5 evidence classes present");
+    expect(summary.summaryLine).toContain("0 of 5 evidence classes present");
   });
 });
 
@@ -161,27 +165,72 @@ describe("listEvidenceCoverageReferenceRows", () => {
 });
 
 describe("deriveEvidencePresenceFromFileNames", () => {
-  it("classifies upload file names into evidence classes", () => {
+  it("does not mark evidence classes present from file names alone", () => {
     const presence = deriveEvidencePresenceFromFileNames([
       "prod-inventory.zip",
       "main.tf",
       "architecture-brief.md",
     ]);
 
-    expect(presence.hasCloudInventory).toBe(true);
-    expect(presence.hasInfrastructureAsCode).toBe(true);
-    expect(presence.hasArchitectureBrief).toBe(true);
+    expect(presence.hasCloudInventory).toBe(false);
+    expect(presence.hasInfrastructureAsCode).toBe(false);
+    expect(presence.hasArchitectureBrief).toBe(false);
     expect(presence.hasArchitectureDiagram).toBe(false);
   });
 
-  it("treats generic architecture documents as the architecture-brief class", () => {
-    const presence = deriveEvidencePresenceFromFileNames([
-      "ARCHITECTURAL_HANDBOOK_20240428.docx",
-      "security-overview.pdf",
-    ]);
+  it("does not treat image or zip file names alone as specialist evidence classes (P-01)", () => {
+    const sketchOnly = deriveEvidencePresenceFromFileNames(["sketch.png"]);
+    const zipOnly = deriveEvidencePresenceFromFileNames(["attachments-bundle.zip"]);
 
-    expect(presence.hasArchitectureBrief).toBe(true);
-    expect(presence.hasCloudInventory).toBe(false);
+    expect(sketchOnly.hasArchitectureDiagram).toBe(false);
+    expect(zipOnly.hasCloudInventory).toBe(false);
+    expect(deriveEvidenceGapForecast(sketchOnly).some((entry) => entry.missingClass === "architecture-diagram")).toBe(
+      true,
+    );
+    expect(deriveEvidenceGapForecast(zipOnly).some((entry) => entry.missingClass === "cloud-inventory")).toBe(true);
+  });
+
+  it("cloud inventory guidance does not promise live resource anchors from file names alone", () => {
+    const row = listEvidenceCoverageReferenceRows().find((entry) => entry.classId === "cloud-inventory");
+
+    expect(row?.guidance).toContain("parsed into this review");
+    expect(row?.guidance.toLowerCase()).not.toContain("live resources");
+  });
+
+  it("surfaces filename honesty for mermaid sources without treating them as present (P-16)", () => {
+    expect(deriveEvidenceFilenameClassHonestyNotices(["topology.mmd"])).toContain(
+      "topology.mmd was attached; architecture diagram was not read from file contents.",
+    );
+  });
+
+  it("surfaces attachment honesty notices for stored images and zips", () => {
+    expect(deriveEvidenceAttachmentHonestyNotices(["sketch.png"])).toEqual([
+      EVIDENCE_STORED_IMAGE_DIAGRAM_NOT_READ,
+    ]);
+    expect(deriveEvidenceAttachmentHonestyNotices(["network-diagram.png"])).toContain(
+      "network-diagram.png was attached; architecture diagram was not read from file contents.",
+    );
+    expect(deriveEvidenceAttachmentHonestyNotices(["bundle.zip"])).toEqual([
+      EVIDENCE_STORED_ZIP_INVENTORY_NOT_IDENTIFIED,
+    ]);
+  });
+
+  it("does not treat docx or pdf file names as present architecture brief", () => {
+    const docxPresence = deriveEvidencePresenceFromFileNames(["ARCHITECTURAL_HANDBOOK_20240428.docx"]);
+    const pdfPresence = deriveEvidencePresenceFromFileNames(["security-overview.pdf"]);
+
+    expect(docxPresence.hasArchitectureBrief).toBe(false);
+    expect(pdfPresence.hasArchitectureBrief).toBe(false);
+    expect(pdfPresence.hasCloudInventory).toBe(false);
+  });
+
+  it("adds filename class honesty for terraform and diagram names", () => {
+    expect(deriveEvidenceAttachmentHonestyNotices(["terraform-notes.pdf"])).toContain(
+      "terraform-notes.pdf was attached; infrastructure as code was not read from file contents.",
+    );
+    expect(deriveEvidenceAttachmentHonestyNotices(["network-diagram.png"])).toContain(
+      "network-diagram.png was attached; architecture diagram was not read from file contents.",
+    );
   });
 });
 
@@ -234,5 +283,33 @@ describe("deriveEvidencePresenceFromInventoryKinds", () => {
     });
 
     expect(presence.hasArchitectureBrief).toBe(true);
+  });
+
+  it("does not treat generic document inventory kinds as an architecture brief", () => {
+    const presence = deriveEvidencePresenceFromInventoryKinds({
+      inventoryKinds: ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+      submittedArchitecturePresent: false,
+    });
+
+    expect(presence.hasArchitectureBrief).toBe(false);
+  });
+
+  it("does not treat graph snapshot inventory kinds as cloud inventory or architecture diagram", () => {
+    const presence = deriveEvidencePresenceFromInventoryKinds({
+      inventoryKinds: ["Graph snapshot", "Findings snapshot"],
+      submittedArchitecturePresent: false,
+    });
+
+    expect(presence.hasCloudInventory).toBe(false);
+    expect(presence.hasArchitectureDiagram).toBe(false);
+  });
+
+  it("detects cloud inventory from explicit cloud inventory kind labels", () => {
+    const presence = deriveEvidencePresenceFromInventoryKinds({
+      inventoryKinds: ["Cloud inventory export"],
+      submittedArchitecturePresent: false,
+    });
+
+    expect(presence.hasCloudInventory).toBe(true);
   });
 });

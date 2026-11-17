@@ -10,7 +10,6 @@ import {
   POLICY_PACK_VERSION_NOT_STORED,
 } from "@/lib/compare-effective-governance-diff";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
 import {
   buildCommittedCoverageExclusionLines,
   buildCommittedCoverageExclusionSummary,
@@ -21,6 +20,8 @@ export type PolicyAtCommitScopeSummaryProps = {
   readonly snapshot: CompareEffectiveGovernanceAtCommitSnapshot | null | undefined;
   readonly testIdPrefix?: string;
   readonly compact?: boolean;
+  /** Product-line-aware policy pack hub for committed pack detail links. */
+  readonly policyPacksHubPath?: string;
 };
 
 function formatCoverageRow(row: CompareEffectiveCoverageAssignmentAtCommitRow): string {
@@ -111,18 +112,29 @@ export function PolicyAtCommitScopeSummary(
       {packAssignments.length > 0 ? (
         <ul className="m-0 list-none space-y-1 p-0" data-testid={`${testIdPrefix}-packs`}>
           {packAssignments.map((row) => {
-            const packHref =
-              policyPackBuyerGovernanceDetailHref(row.policyPackId) ??
-              governancePolicyPackDetailPath(row.policyPackId);
+            const packDetailHref = policyPackBuyerGovernanceDetailHref(
+              row.policyPackId,
+              props.policyPacksHubPath,
+            );
 
             return (
               <li
                 key={`${row.policyPackId}-${row.policyPackVersion}-${row.scopeLevel}`}
                 className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
               >
-                <Link className={cn(OPERATOR_LINK.inline, "font-mono", OPERATOR_TYPOGRAPHY.micro)} href={packHref}>
-                  {row.policyPackId}
-                </Link>{" "}
+                {packDetailHref !== null ? (
+                  <Link
+                    className={cn(OPERATOR_LINK.inline, "font-mono", OPERATOR_TYPOGRAPHY.micro)}
+                    href={packDetailHref}
+                  >
+                    {row.policyPackId}
+                  </Link>
+                ) : (
+                  <>
+                    <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{row.policyPackId}</span>
+                    <span> · Policy pack detail link was not stored.</span>
+                  </>
+                )}{" "}
                 ·{" "}
                 {row.policyPackVersion === POLICY_PACK_VERSION_NOT_STORED
                   ? POLICY_PACK_VERSION_NOT_STORED

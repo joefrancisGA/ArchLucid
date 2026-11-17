@@ -1,3 +1,4 @@
+import { encodeRequiredPathSegment, trimStringList } from "./api-boundary-normalization";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiPutJson } from "./http";
 
@@ -10,7 +11,7 @@ export type ReviewAssumptionAcknowledgementDocument = {
 };
 
 function acknowledgementPath(runId: string): string {
-  return `/v1/architecture/review/${encodeURIComponent(runId.trim())}/assumptions/acknowledgement`;
+  return `/v1/architecture/review/${encodeRequiredPathSegment(runId, "runId")}/assumptions/acknowledgement`;
 }
 
 /** GET /v1/architecture/review/{runId}/assumptions/acknowledgement */
@@ -26,6 +27,6 @@ export async function putReviewAssumptionAcknowledgement(
   acknowledgedAssumptionIds: ReadonlySet<string>,
 ): Promise<ReviewAssumptionAcknowledgementDocument> {
   return apiPutJson<ReviewAssumptionAcknowledgementDocument>(acknowledgementPath(runId), {
-    acknowledgedAssumptionIds: [...acknowledgedAssumptionIds],
+    acknowledgedAssumptionIds: trimStringList([...acknowledgedAssumptionIds]),
   });
 }

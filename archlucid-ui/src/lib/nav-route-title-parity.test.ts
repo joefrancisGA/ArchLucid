@@ -6,6 +6,8 @@ import { getRouteTitle } from "@/lib/route-titles";
 /** Nav hrefs whose page H1 intentionally differs by shell mode (buyer-polished copy). */
 const NAV_TITLE_PARITY_EXCEPTIONS = new Set<string>([
   "/insights/ask-review-questions",
+  "/insights/sponsor-report",
+  "/administration/model-governance",
 ]);
 
 /**

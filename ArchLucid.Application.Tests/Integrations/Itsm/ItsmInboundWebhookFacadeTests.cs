@@ -34,7 +34,7 @@ public sealed class ItsmInboundWebhookFacadeTests
         });
 
         Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
-        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, CreateSyncService());
+        ItsmInboundWebhookFacade sut = new(options.Object, CreateOutboundOptionsMonitor(), credentials.Object, CreateSyncService());
 
         ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
             new ItsmInboundWebhookProcessRequest
@@ -66,7 +66,7 @@ public sealed class ItsmInboundWebhookFacadeTests
 
         Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
         ItsmInboundWebhookSyncService sync = CreateSyncService();
-        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, sync);
+        ItsmInboundWebhookFacade sut = new(options.Object, CreateOutboundOptionsMonitor(), credentials.Object, sync);
 
         ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
             new ItsmInboundWebhookProcessRequest
@@ -99,7 +99,7 @@ public sealed class ItsmInboundWebhookFacadeTests
 
         Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
         ItsmInboundWebhookSyncService sync = CreateSyncService();
-        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, sync);
+        ItsmInboundWebhookFacade sut = new(options.Object, CreateOutboundOptionsMonitor(), credentials.Object, sync);
 
         ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
             new ItsmInboundWebhookProcessRequest
@@ -129,7 +129,7 @@ public sealed class ItsmInboundWebhookFacadeTests
         });
 
         Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
-        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, CreateSyncService());
+        ItsmInboundWebhookFacade sut = new(options.Object, CreateOutboundOptionsMonitor(), credentials.Object, CreateSyncService());
 
         ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
             new ItsmInboundWebhookProcessRequest
@@ -158,7 +158,7 @@ public sealed class ItsmInboundWebhookFacadeTests
         });
 
         Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
-        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, CreateSyncService());
+        ItsmInboundWebhookFacade sut = new(options.Object, CreateOutboundOptionsMonitor(), credentials.Object, CreateSyncService());
 
         ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
             new ItsmInboundWebhookProcessRequest
@@ -190,7 +190,7 @@ public sealed class ItsmInboundWebhookFacadeTests
         Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
         ItsmInboundWebhookSyncService sync = CreateSyncService();
 
-        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, sync);
+        ItsmInboundWebhookFacade sut = new(options.Object, CreateOutboundOptionsMonitor(), credentials.Object, sync);
 
         ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
             new ItsmInboundWebhookProcessRequest
@@ -222,7 +222,7 @@ public sealed class ItsmInboundWebhookFacadeTests
         Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
         ItsmInboundWebhookSyncService sync = CreateSyncService();
 
-        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, sync);
+        ItsmInboundWebhookFacade sut = new(options.Object, CreateOutboundOptionsMonitor(), credentials.Object, sync);
 
         ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
             new ItsmInboundWebhookProcessRequest
@@ -255,7 +255,7 @@ public sealed class ItsmInboundWebhookFacadeTests
         Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
         ItsmInboundWebhookSyncService sync = CreateSyncService();
 
-        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, sync);
+        ItsmInboundWebhookFacade sut = new(options.Object, CreateOutboundOptionsMonitor(), credentials.Object, sync);
 
         ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
             new ItsmInboundWebhookProcessRequest
@@ -287,7 +287,7 @@ public sealed class ItsmInboundWebhookFacadeTests
         Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
         ItsmInboundWebhookSyncService sync = CreateSyncService();
 
-        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, sync);
+        ItsmInboundWebhookFacade sut = new(options.Object, CreateOutboundOptionsMonitor(), credentials.Object, sync);
 
         ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
             new ItsmInboundWebhookProcessRequest
@@ -302,6 +302,39 @@ public sealed class ItsmInboundWebhookFacadeTests
             CancellationToken.None);
 
         result.Outcome.Should().NotBe(ItsmInboundWebhookHttpOutcome.Unauthorized);
+    }
+
+    [Fact]
+    public async Task ProcessAsync_returns_unauthorized_on_legacy_route_when_outbound_requires_tenant_scoped_credentials()
+    {
+        const string body = """{"issue":{"key":"PROJ-1","fields":{"status":{"name":"Done"}}}}""";
+
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> options = new();
+        options.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions
+        {
+            AllowDeploymentWideWebhookSecrets = true,
+            JiraWebhookSecret = SharedSecret,
+        });
+
+        Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
+        ItsmInboundWebhookFacade sut = new(
+            options.Object,
+            CreateOutboundOptionsMonitor(requireTenantScoped: true),
+            credentials.Object,
+            CreateSyncService());
+
+        ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
+            new ItsmInboundWebhookProcessRequest
+            {
+                Provider = TenantItsmConnectorProvider.Jira,
+                TenantId = null,
+                RawBody = body,
+                PayloadUtf8Bytes = Encoding.UTF8.GetByteCount(body),
+                VendorToken = SharedSecret,
+            },
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(ItsmInboundWebhookHttpOutcome.Unauthorized);
     }
 
     [Fact]
@@ -322,7 +355,7 @@ public sealed class ItsmInboundWebhookFacadeTests
             .ReturnsAsync((string?)null);
 
         ItsmInboundWebhookSyncService sync = CreateSyncService();
-        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, sync);
+        ItsmInboundWebhookFacade sut = new(options.Object, CreateOutboundOptionsMonitor(), credentials.Object, sync);
 
         ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
             new ItsmInboundWebhookProcessRequest
@@ -336,6 +369,18 @@ public sealed class ItsmInboundWebhookFacadeTests
             CancellationToken.None);
 
         result.Outcome.Should().Be(ItsmInboundWebhookHttpOutcome.Unauthorized);
+    }
+
+    private static IOptionsMonitor<IntegrationsItsmOutboundOptions> CreateOutboundOptionsMonitor(
+        bool requireTenantScoped = false)
+    {
+        Mock<IOptionsMonitor<IntegrationsItsmOutboundOptions>> outbound = new();
+        outbound.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmOutboundOptions
+        {
+            RequireTenantScopedCredentials = requireTenantScoped,
+        });
+
+        return outbound.Object;
     }
 
     private static ItsmInboundWebhookSyncService CreateSyncService()

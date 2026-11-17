@@ -15,8 +15,10 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
       severity: "High",
     });
 
-    expect(result.headline).toBe("Public ingress on intake API");
-    expect(result.plainEnglish).toContain("elevated concern");
+    expect(result.headline).toBe("High finding: Public ingress on intake API");
+    expect(result.plainEnglish).toContain(
+      "Stored severity reads as high. This sentence is not a stored deferral.",
+    );
     expect(result.plainEnglish).toContain(
       "In plain terms: The intake API accepts traffic from the public internet.",
     );
@@ -37,16 +39,43 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
     expect(result.plainEnglish).toContain("Severity was not stored.");
     expect(result.plainEnglish).toContain("Finding summary was not stored.");
     expect(result.plainEnglish).not.toContain("How reviewers derived it");
-    expect(result.plainEnglish).not.toContain("Residual risk note");
+    expect(result.plainEnglish).toContain("Residual risk note was not stored.");
     expect(result.sponsorCaution).toBe(SPONSOR_PLAIN_ENGLISH_CAUTION);
   });
 
   it("maps severity bands to distinct sponsor urgency clauses", () => {
-    expect(sponsorSeverityUrgencyClause("Critical")).toContain("material delivery");
-    expect(sponsorSeverityUrgencyClause("High")).toContain("elevated concern");
+    expect(sponsorSeverityUrgencyClause("Critical")).toBe(
+      "Stored severity reads as critical. This sentence is not a stored owner and not a stored rollout decision.",
+    );
+    expect(sponsorSeverityUrgencyClause("High")).toBe(
+      "Stored severity reads as high. This sentence is not a stored deferral.",
+    );
     expect(sponsorSeverityUrgencyClause("Medium")).toContain("planning-priority");
     expect(sponsorSeverityUrgencyClause("Info")).toContain("improvement opportunity");
     expect(sponsorSeverityUrgencyClause(null)).toBe("Severity was not stored.");
+  });
+
+  it("distinguishes explicitly empty severity from missing severity and omits the sentinel", () => {
+    const storedEmpty = buildSponsorPlainEnglishFinding({
+      title: "Public ingress on intake API",
+      severity: "  ",
+    });
+
+    expect(storedEmpty.plainEnglish).toContain("Severity was stored empty.");
+
+    const notStored = buildSponsorPlainEnglishFinding({
+      title: "Public ingress on intake API",
+      severity: undefined,
+    });
+
+    expect(notStored.plainEnglish).toContain("Severity was not stored.");
+
+    const sentinel = buildSponsorPlainEnglishFinding({
+      title: "Public ingress on intake API",
+      severity: "Severity label was not stored.",
+    });
+
+    expect(sentinel.plainEnglish).toContain("Severity was not stored.");
   });
 
   it("includes derivation and residual risk when present, skips unavailable derivation", () => {
@@ -69,7 +98,9 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
       derivationSentence: FINDING_DERIVATION_NOT_AVAILABLE,
     });
 
-    expect(withoutDerivation.plainEnglish).not.toContain("How reviewers derived it");
+    expect(withoutDerivation.plainEnglish).toContain(
+      "How reviewers derived it: Derivation was not available on this finding.",
+    );
   });
 
   it("falls back to titled finding language when message is empty", () => {
@@ -79,7 +110,7 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
       severity: "Low",
     });
 
-    expect(result.headline).toBe("Missing private endpoint");
+    expect(result.headline).toBe("Low finding: Missing private endpoint");
     expect(result.plainEnglish).toContain('The recorded finding is titled "Missing private endpoint".');
   });
 });

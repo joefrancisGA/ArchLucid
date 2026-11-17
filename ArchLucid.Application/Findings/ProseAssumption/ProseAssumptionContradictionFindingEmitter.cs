@@ -17,6 +17,7 @@ internal static class ProseAssumptionContradictionFindingEmitter
 
         List<string> evidenceRefs = [match.Candidate.EvidenceRef];
         FindingEvidenceRefs.TryAppendInventoryResourceId(evidenceRefs, match.InventoryResourceId);
+        string resourceLabel = ResolveResourceLabel(match.ResourceLabel);
 
         return new Finding
         {
@@ -26,7 +27,7 @@ internal static class ProseAssumptionContradictionFindingEmitter
             EngineType = "declaration-premise-conflict",
             Severity = FindingSeverity.Warning,
             Title =
-                $"{match.ResourceLabel} prose assumption contradicts live inventory ({match.InventoryPropertyKey}={match.InventoryValue})",
+                $"{resourceLabel} prose assumption contradicts live inventory ({match.InventoryPropertyKey}={match.InventoryValue})",
             Rationale =
                 $"In-batch prose states \"{match.Candidate.QuotedSpan}\" while scoped {match.CloudLabel} inventory reports "
                 + $"'{match.InventoryPropertyKey}' as '{match.InventoryValue}'.",
@@ -36,8 +37,8 @@ internal static class ProseAssumptionContradictionFindingEmitter
             Payload = new DeclarationPremiseConflictFindingPayload
             {
                 ConflictKind = "prose-inventory-contradiction",
-                DeclarationPropertyKey = match.Candidate.LogicalPropertyName ?? string.Empty,
-                DeclarationPropertyValue = match.Candidate.ImpliedPropertyValue ?? string.Empty,
+                DeclarationPropertyKey = FormatDeclarationProperty(match.Candidate.LogicalPropertyName),
+                DeclarationPropertyValue = FormatDeclarationValue(match.Candidate.ImpliedPropertyValue),
                 IntentNodeId = match.GraphNodeId,
                 IntentRequirementText = match.Candidate.Statement,
                 IsNarrowApplicability = false,
@@ -61,8 +62,18 @@ internal static class ProseAssumptionContradictionFindingEmitter
                     match.Candidate.EvidenceRef,
                     $"evidence:inventory:{match.InventoryResourceId}",
                     $"evidence:graph-node:{match.GraphNodeId}",
+                    "Narrow applicability was not stored.",
                 ],
             },
         };
     }
+
+    private static string ResolveResourceLabel(string? resourceLabel) =>
+        string.IsNullOrWhiteSpace(resourceLabel) ? "Resource label was not stored." : resourceLabel.Trim();
+
+    private static string FormatDeclarationProperty(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "Declaration property was not stored." : value.Trim();
+
+    private static string FormatDeclarationValue(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "Declaration value was not stored." : value.Trim();
 }

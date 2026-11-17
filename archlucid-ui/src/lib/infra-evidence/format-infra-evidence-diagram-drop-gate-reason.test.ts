@@ -29,10 +29,15 @@ describe("formatInfraEvidenceDiagramDropGateReasonLabel", () => {
     expect(formatInfraEvidenceDiagramDropGateReasonLabel("nsg-unattached-off-diagram")).toBe(
       GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NSG_OFF_DIAGRAM_TARGET_LABEL,
     );
+    expect(formatInfraEvidenceDiagramDropGateReasonLabel("nsg-association-target-id-not-stored")).toBe(
+      "NSG association target id was not stored.",
+    );
   });
 
-  it("returns the stored code when no mapping exists", () => {
-    expect(formatInfraEvidenceDiagramDropGateReasonLabel("custom-drop")).toBe("custom-drop");
+  it("labels unmapped drop reason codes explicitly", () => {
+    expect(formatInfraEvidenceDiagramDropGateReasonLabel("custom-drop")).toBe(
+      "Drop reason code was not mapped: custom-drop",
+    );
   });
 
   it("labels blank drop reasons as not stored", () => {

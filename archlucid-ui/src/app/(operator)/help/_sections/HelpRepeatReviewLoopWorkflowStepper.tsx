@@ -2,22 +2,22 @@
 
 import Link from "next/link";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { Button } from "@/components/ui/button";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   REPEAT_REVIEW_LOOP_HELP_LOOP_HEADING,
-  REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS,
+  repeatReviewLoopHelpLoopSteps,
   type RepeatReviewLoopHelpLoopStep,
 } from "@/lib/repeat-review-loop-help-loop-steps";
 import { cn } from "@/lib/utils";
 
-const LOOP_STEP_TOTAL = REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS.length;
 
-function StepOrdinalLabel(props: { readonly stepNumber: number }): React.ReactElement {
+function StepOrdinalLabel(props: { readonly stepNumber: number; readonly stepTotal: number }): React.ReactElement {
   return (
     <span className="sr-only">
-      Step {props.stepNumber} of {LOOP_STEP_TOTAL}{" "}
+      Step {props.stepNumber} of {props.stepTotal}{" "}
     </span>
   );
 }
@@ -42,6 +42,9 @@ function LoopStepSecondaryLinks(props: { readonly step: RepeatReviewLoopHelpLoop
 
 /** Repeat-review loop stepper with deep-link CTAs (TB-1398). */
 export function HelpRepeatReviewLoopWorkflowStepper(): React.ReactElement {
+  const { productLine } = useProductLine();
+  const loopSteps = repeatReviewLoopHelpLoopSteps(productLine);
+
   return (
     <section
       aria-labelledby="repeat-review-loop-workflow-heading"
@@ -53,8 +56,8 @@ export function HelpRepeatReviewLoopWorkflowStepper(): React.ReactElement {
       </h2>
 
       <ol className="m-0 list-none space-y-0 p-0">
-        {REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS.map((step, index) => {
-          const isLast = index === REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS.length - 1;
+        {loopSteps.map((step, index) => {
+          const isLast = index === loopSteps.length - 1;
 
           return (
             <li key={step.stepNumber} className="relative flex gap-4 pb-6 last:pb-0">
@@ -69,7 +72,7 @@ export function HelpRepeatReviewLoopWorkflowStepper(): React.ReactElement {
               </span>
               <div className="min-w-0 flex-1 space-y-2 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
                 <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                  <StepOrdinalLabel stepNumber={step.stepNumber} />
+                  <StepOrdinalLabel stepNumber={step.stepNumber} stepTotal={loopSteps.length} />
                   {step.title}
                 </h3>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{step.description}</p>

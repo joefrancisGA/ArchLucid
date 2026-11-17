@@ -9,6 +9,11 @@ import { STANDARDS_RULES_HELP_TOPIC_LABEL } from "@/lib/standards-rules-page";
 import { STANDARDS_RULES_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/standards-rules-help-evidence-copy";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import {
+  findingsPathForProductLine,
+  policyPacksPathForProductLine,
+  standardsAndRulesPathForProductLine,
+} from "@/lib/product-line/securenow-compliance-routes";
 
 export const STANDARDS_RULES_HELP_PAGE_EYEBROW = "Help topic" as const;
 
@@ -116,6 +121,38 @@ export function standardsRulesHelpHowToReadSteps(productLineId: ProductLineId = 
   return isSecureNowProductLine(productLineId)
     ? SECURENOW_STANDARDS_RULES_HELP_HOW_TO_READ_STEPS
     : STANDARDS_RULES_HELP_HOW_TO_READ_STEPS;
+}
+
+export function resolveStandardsRulesHelpTableItems(
+  productLineId: ProductLineId = "architecture",
+): readonly StandardsRulesHelpItem[] {
+  if (productLineId === "architecture") {
+    return STANDARDS_RULES_HELP_TABLE_ITEMS;
+  }
+
+  const findingsHref = findingsPathForProductLine(productLineId);
+  const packsHref = policyPacksPathForProductLine(productLineId);
+  const standardsHref = standardsAndRulesPathForProductLine(productLineId);
+
+  return STANDARDS_RULES_HELP_TABLE_ITEMS.map((item) => {
+    if (item.label === "Enforced rules" && item.href === GOVERNANCE_STANDARDS_AND_RULES_PATH) {
+      return { ...item, href: standardsHref };
+    }
+
+    if (item.label === "Linked evidence" && item.href === GOVERNANCE_FINDINGS_PATH) {
+      return { ...item, href: findingsHref };
+    }
+
+    if (item.label === "Policy packs" && item.href === GOVERNANCE_POLICY_PACKS_PATH) {
+      return { ...item, href: packsHref };
+    }
+
+    return item;
+  });
+}
+
+export function resolveStandardsRulesHelpFindingsHref(productLineId: ProductLineId = "architecture"): string {
+  return findingsPathForProductLine(productLineId);
 }
 
 export const STANDARDS_RULES_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [

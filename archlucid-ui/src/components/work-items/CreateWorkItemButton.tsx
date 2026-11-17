@@ -20,6 +20,7 @@ import {
   parseCreateWorkItemFindingIdFromSearch,
   parseCreateWorkItemOpenFromSearch,
 } from "@/lib/work-items/create-work-item-dialog-url";
+import { resolveReviewUrlStatePathname } from "@/lib/architecture/review-url-state-pathname";
 
 export type CreateWorkItemButtonProps = BuildArchitectureWorkItemPreviewInput & {
   readonly compact?: boolean;
@@ -30,7 +31,7 @@ export type CreateWorkItemButtonProps = BuildArchitectureWorkItemPreviewInput & 
 /** Secondary outline trigger for the provider-neutral create-work-item dialog. */
 export function CreateWorkItemButton(props: CreateWorkItemButtonProps): React.JSX.Element {
   const router = useRouter();
-  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const pathname = resolveReviewUrlStatePathname(usePathname(), props.runId);
   const searchParams = useSearchParams();
   const workItemOpenParam = searchParams.get("workItemOpen");
   const workItemFindingIdParam = searchParams.get("workItemFindingId");

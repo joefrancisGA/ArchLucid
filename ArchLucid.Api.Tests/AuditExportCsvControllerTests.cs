@@ -21,10 +21,11 @@ public sealed class AuditExportCsvControllerTests
     public async Task ExportAuditCsv_ReturnsCsvContentType_WithAttachmentDisposition()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await factory.CreateBoundedClientAsync();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
 
-        AuditExportRepositoryTestDoubles.SetupStreamFilteredExport(repo);
+        AuditExportRepositoryTestDoubles.SetupFilteredExport(repo);
 
         client.DefaultRequestHeaders.Accept.Clear();
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/csv"));
@@ -47,10 +48,11 @@ public sealed class AuditExportCsvControllerTests
     public async Task ExportAuditCsv_ResponseBodyContainsCsvHeader()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await factory.CreateBoundedClientAsync();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
 
-        AuditExportRepositoryTestDoubles.SetupStreamFilteredExport(repo);
+        AuditExportRepositoryTestDoubles.SetupFilteredExport(repo);
 
         client.DefaultRequestHeaders.Accept.Clear();
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/csv"));
@@ -70,7 +72,8 @@ public sealed class AuditExportCsvControllerTests
     public async Task ExportAuditCsv_WithEvent_IncludesRowInBody()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await factory.CreateBoundedClientAsync();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
 
         AuditEvent evt = new()
@@ -88,7 +91,7 @@ public sealed class AuditExportCsvControllerTests
             DataJson = "{\"k\":1}"
         };
 
-        AuditExportRepositoryTestDoubles.SetupStreamFilteredExport(repo, evt);
+        AuditExportRepositoryTestDoubles.SetupFilteredExport(repo, evt);
 
         client.DefaultRequestHeaders.Accept.Clear();
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/csv"));
@@ -106,21 +109,23 @@ public sealed class AuditExportCsvControllerTests
     public async Task ExportAuditCsv_PassesAllFilterParameters_ToRepository()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await factory.CreateBoundedClientAsync();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
 
-        AuditExportRepositoryTestDoubles.SetupStreamFilteredExport(repo);
+        AuditExportRepositoryTestDoubles.SetupFilteredExport(repo);
 
-        Guid runId = Guid.Parse("c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3");
+        // Empty run id exercises filter wiring without sealed-manifest export guard (run-scoped guard skips Guid.Empty).
+        Guid runId = Guid.Empty;
         Uri uri = new(
-            $"/v1/audit/export/csv?fromUtc=2026-01-01T00:00:00.0000000Z&toUtc=2026-01-31T00:00:00.0000000Z&eventType=RunCreated&correlationId=cx&actorUserId=ux&runId={runId:D}",
+            "/v1/audit/export/csv?fromUtc=2026-01-01T00:00:00.0000000Z&toUtc=2026-01-31T00:00:00.0000000Z&eventType=RunCreated&correlationId=cx&actorUserId=ux&runId=00000000-0000-0000-0000-000000000000",
             UriKind.Relative);
 
         HttpResponseMessage response = await client.GetAsync(uri);
 
         await response.EnsureSuccessForTestAsync();
         repo.Verify(
-            r => r.StreamFilteredExportAsync(
+            r => r.GetFilteredExportAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
@@ -139,20 +144,21 @@ public sealed class AuditExportCsvControllerTests
     public async Task ExportAuditCsv_ClampsMaxRows_BeforeCallingRepository()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await factory.CreateBoundedClientAsync();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
 
-        AuditExportRepositoryTestDoubles.SetupStreamFilteredExport(repo);
+        AuditExportRepositoryTestDoubles.SetupFilteredExport(repo);
 
         HttpResponseMessage response = await client.GetAsync("/v1/audit/export/csv?maxRows=9999999");
 
         await response.EnsureSuccessForTestAsync();
         repo.Verify(
-            r => r.StreamFilteredExportAsync(
+            r => r.GetFilteredExportAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
-                It.Is<AuditEventFilter>(f => f.Take == 10_000),
+                It.Is<AuditEventFilter>(f => f.Take == 10_000 && f.IncludeExportOverflowRow),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

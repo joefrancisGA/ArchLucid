@@ -29,7 +29,11 @@ export function formatDiagramReconcileMatchKindLabel(matchKind: string | null | 
     case DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.unknown:
       return "Match kind recorded as unknown.";
     default:
-      return normalized.length === 0 ? "Match kind was not stored." : normalized;
+      if (normalized.length === 0) {
+        return matchKind === "" ? "Match kind was stored empty." : "Match kind was not stored.";
+      }
+
+      return normalized;
   }
 }
 

@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -27,6 +28,8 @@ public sealed class InventoryDiagramNodePoolRelationshipApplierTests
 
         InventoryDiagramNodePoolRelationshipApplier.Apply(ast);
 
-        ast.Edges.Single().Label.Should().Be("Node pool");
+        DiagramEdge edge = ast.Edges.Single();
+        edge.Label.Should().Be(InventoryDiagramNodePoolRelationshipApplier.Label);
+        edge.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference.ToString());
     }
 }

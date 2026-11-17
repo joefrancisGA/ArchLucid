@@ -39,7 +39,7 @@ vi.mock("@/app/(operator)/governance/remediation-factory/use-remediation-factory
     pathId: mockedPathId,
     fromSnapshotId: null,
     toSnapshotId: null,
-    rankedPage: 1,
+    rankedPage: Number(searchParams.get("rankedPage") ?? "1"),
     hasSnapshotPair: false,
     selectFinding,
     selectPath,
@@ -240,6 +240,7 @@ describe("RemediationFactoryClient", () => {
     routerReplaceMock.mockReset();
     selectFinding.mockReset();
     selectPath.mockReset();
+    setRankedPage.mockReset();
     syncSelection.mockReset();
     fetchRemediationScoreExplanationMock.mockReset();
     mockRankedFindingsQuery();
@@ -312,7 +313,7 @@ describe("RemediationFactoryClient", () => {
     const priorityRow = screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     expect(priorityRow).toHaveTextContent("This row does not name a leading factor.");
     expect(priorityRow).toHaveTextContent("This week");
-    expect(priorityRow).toHaveTextContent("Name not recorded");
+    expect(priorityRow).toHaveTextContent("Resource name was not stored.");
     expect(priorityRow).toHaveTextContent("Show sort key");
     expect(priorityRow).not.toHaveTextContent("0.4200");
     expect(priorityRow).not.toHaveTextContent("Rule=IE15-priority-v1");
@@ -713,6 +714,26 @@ describe("RemediationFactoryClient", () => {
     await waitFor(() => {
       expect(syncSelection).toHaveBeenCalledWith({ findingId: null });
     });
+  });
+
+  it("keeps the ranked page from the bookmark on first render", () => {
+    searchParams = new URLSearchParams("rankedPage=2");
+    mockRankedPathsQuery();
+
+    render(<RemediationFactoryClient />);
+
+    expect(screen.getByText("Showing page 2 (1 rows) of 1 ranked paths.")).toBeInTheDocument();
+    expect(setRankedPage).not.toHaveBeenCalled();
+  });
+
+  it("resets ranked pagination in the same URL update as a new path filter", () => {
+    searchParams = new URLSearchParams("rankedPage=2");
+    mockRankedPathsQuery();
+
+    render(<RemediationFactoryClient />);
+    fireEvent.click(screen.getByRole("button", { name: /^Public exposure/ }));
+
+    expect(routerReplaceMock).toHaveBeenCalledWith("?pathView=public-exposure", { scroll: false });
   });
 
   it("clears stale pathId from the URL when the path is missing from loaded ranked paths", async () => {

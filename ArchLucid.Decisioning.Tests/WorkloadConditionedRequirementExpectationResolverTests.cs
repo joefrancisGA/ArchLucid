@@ -80,6 +80,34 @@ public sealed class WorkloadConditionedRequirementExpectationResolverTests
     }
 
     [Fact]
+    public void ResolveExpectedThemes_WhenConstraintMentionsNonNetworkSandbox_DoesNotAddNetworkIsolationTheme()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "ctx-1",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "scope",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        [ContextGraphPropertyKeys.RequiredCapabilities] =
+                            "Azure Functions serverless queue event processing",
+                        [ContextGraphPropertyKeys.Constraints] =
+                            "non-network sandbox integrations only"
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<string> themes = WorkloadConditionedRequirementExpectationResolver.ResolveExpectedThemes(graph);
+
+        themes.Should().NotContain("network-isolation");
+    }
+
+    [Fact]
     public void ResolveExpectedThemes_WhenConstraintSaysDoNotRequirePrivateEndpoint_DoesNotAddNetworkIsolationTheme()
     {
         GraphSnapshot graph = new()

@@ -15,6 +15,7 @@ import {
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
+import { resolveShowcaseOperatorFindingHref, resolveShowcaseOperatorReviewHref } from "@/lib/showcase-operator-review-href";
 import { resolveShowcaseScenarioSlug, type ShowcaseRenderMode } from "@/lib/marketing/showcase-telemetry";
 
 function primaryFindingIdForShowcase(payload: DemoCommitPagePreviewResponse): string {
@@ -50,8 +51,8 @@ export function ShowcaseQuickNav({
   const scenario = resolveShowcaseScenarioSlug(runId);
   const manifestId = payload.manifest.manifestId;
   const findingId = primaryFindingIdForShowcase(payload);
-  const findingHref = `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
-  const reviewHref = `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const findingHref = resolveShowcaseOperatorFindingHref(runId, findingId);
+  const reviewHref = resolveShowcaseOperatorReviewHref(runId);
 
   return (
     <section

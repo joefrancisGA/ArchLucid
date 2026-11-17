@@ -39,4 +39,8 @@ describe("verdict-taxonomy", () => {
     expect(tryVerdictTierFromRiskPosture(null)).toBeNull();
     expect(tryVerdictTierFromRiskPosture("Critical hold required")).toBe("Hold");
   });
+
+  it("does not map unrecognized posture text to Remediate", () => {
+    expect(tryVerdictTierFromRiskPosture("Needs executive steering committee review")).toBeNull();
+  });
 });

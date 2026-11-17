@@ -20,7 +20,7 @@ public static class AzureInventoryMessagingAssociationExtractor
             return false;
         }
 
-        string? childResourceId = TryReadString(eventHubResource, "id");
+        string? childResourceId = TryReadResourceId(eventHubResource, "id");
         string? childName = TryReadString(eventHubResource, "name");
 
         if (string.IsNullOrWhiteSpace(childResourceId) || string.IsNullOrWhiteSpace(childName))
@@ -45,8 +45,8 @@ public static class AzureInventoryMessagingAssociationExtractor
 
         row = new AzureInventoryMessagingAssociationRow
         {
-            ParentResourceId = namespaceResourceId.Trim(),
-            ChildResourceId = childResourceId.Trim(),
+            ParentResourceId = CompanionArmIdNormalizer.Normalize(namespaceResourceId),
+            ChildResourceId = CompanionArmIdNormalizer.Normalize(childResourceId),
             ChildName = childName.Trim(),
             ChildType = AzureInventoryMessagingAssociationTypes.EventHub,
             AssociationType = AzureInventoryMessagingAssociationTypes.MessagingChild,
@@ -71,7 +71,7 @@ public static class AzureInventoryMessagingAssociationExtractor
             return false;
         }
 
-        string? childResourceId = TryReadString(childResource, "id");
+        string? childResourceId = TryReadResourceId(childResource, "id");
         string? childName = TryReadString(childResource, "name");
 
         if (string.IsNullOrWhiteSpace(childResourceId) || string.IsNullOrWhiteSpace(childName))
@@ -93,8 +93,8 @@ public static class AzureInventoryMessagingAssociationExtractor
 
         row = new AzureInventoryMessagingAssociationRow
         {
-            ParentResourceId = namespaceResourceId.Trim(),
-            ChildResourceId = childResourceId.Trim(),
+            ParentResourceId = CompanionArmIdNormalizer.Normalize(namespaceResourceId),
+            ChildResourceId = CompanionArmIdNormalizer.Normalize(childResourceId),
             ChildName = childName.Trim(),
             ChildType = childType,
             AssociationType = AzureInventoryMessagingAssociationTypes.MessagingChild,
@@ -108,6 +108,16 @@ public static class AzureInventoryMessagingAssociationExtractor
         return true;
     }
 
+    private static string? TryReadResourceId(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out JsonElement value))
+        {
+            return null;
+        }
+
+        return AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(value);
+    }
+
     private static string? TryReadString(JsonElement element, string propertyName)
     {
         if (!element.TryGetProperty(propertyName, out JsonElement value))
@@ -117,5 +127,4 @@ public static class AzureInventoryMessagingAssociationExtractor
 
         return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
     }
-
 }

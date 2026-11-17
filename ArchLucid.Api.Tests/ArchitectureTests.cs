@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Json;
-using System.Text.Json;
+using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Contracts.Agents;
@@ -25,16 +24,15 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
     {
         object request = new
         {
-            requestId = "REQ-TEST-1",
+            requestId = TestRequestIds.ForScenario(nameof(ArchitectureTests)),
             description = "Test architecture",
-            systemName = "TestSystem",
+            // Each test creates a fresh review name within the shared integration workspace.
+            systemName = $"TestSystem-{Guid.NewGuid():N}",
             environment = "dev",
             cloudProvider = 1
         };
 
-        HttpResponseMessage response = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(request));
+        HttpResponseMessage response = await Client.PostArchitectureRequestForTestAsync(request);
 
         await response.EnsureSuccessForTestAsync();
         string body = await response.Content.ReadAsStringAsync();
@@ -48,25 +46,18 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
         // Unique per execution: fixed "REQ-1" collides across sharded SQL integration runs.
         object request = new
         {
-            requestId = $"REQ-{Guid.NewGuid():N}",
+            requestId = TestRequestIds.ForScenario(nameof(ArchitectureTests)),
             description = "Test architecture",
-            systemName = "TestSystem",
+            // Each test creates a fresh review name within the shared integration workspace.
+            systemName = $"TestSystem-{Guid.NewGuid():N}",
             environment = "dev",
             cloudProvider = 1
         };
 
-        HttpResponseMessage create = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(request));
+        HttpResponseMessage create = await Client.PostArchitectureRequestForTestAsync(request);
 
-        await create.EnsureSuccessForTestAsync();
-        string body = await create.Content.ReadAsStringAsync();
-
-        string? runId = JsonDocument.Parse(body)
-            .RootElement
-            .GetProperty("run")
-            .GetProperty("runId")
-            .GetString();
+        CreateRunResponseDto? created = await create.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
         runId.Should().NotBeNullOrWhiteSpace();
 
@@ -75,13 +66,10 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
             null);
 
         await seed.EnsureSuccessForTestAsync();
-        HttpResponseMessage commit = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage commit = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        await commit.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
-            await commit.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+                CommitRunResponseDto? commitPayload =
+            await commit.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
         HttpResponseMessage manifest = await Client.GetAsync(

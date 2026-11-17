@@ -23,13 +23,23 @@ public sealed class DapperAuthenticationIdentityLinkProposalRepositorySqlIntegra
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperAuthenticationIdentityLinkProposalRepository sut = new(factory);
         Guid id = Guid.NewGuid();
+        Guid userId = Guid.NewGuid();
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        // The proposal requires an existing platform user; exercise the terminal-state
+        // behavior without bypassing SQL foreign-key integrity.
+        DapperPlatformUserRepository users = new(factory);
+        await users.InsertAsync(new PlatformUserInsert
+        {
+            Id = userId,
+            Status = PlatformUserStatus.Active,
+        }, CancellationToken.None);
 
         await sut.InsertAsync(
             new AuthenticationIdentityLinkProposalRecord
             {
                 Id = id,
-                UserId = Guid.NewGuid(),
+                UserId = userId,
                 ProviderType = AuthenticationProviderType.TenantOidc,
                 NormalizedIssuer = "https://login.example",
                 Subject = "sub-sql-guard",

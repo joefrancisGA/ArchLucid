@@ -13,25 +13,15 @@ import {
   trackReviewPipelineInFlight,
 } from "@/lib/operations/review-pipeline-in-flight";
 
-const staticDemo = vi.hoisted(() => ({ enabled: false }));
-
-vi.mock("@/lib/operator-static-demo/eligibility", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/operator-static-demo/eligibility")>();
-
-  return {
-    ...actual,
-    isStaticDemoPayloadFallbackEnabled: () => staticDemo.enabled,
-  };
-});
-
 describe("trackReviewPipelineInFlight", () => {
   beforeEach(() => {
-    staticDemo.enabled = false;
+    vi.unstubAllEnvs();
     window.sessionStorage.clear();
     resetInFlightOperationsForTests();
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
     window.sessionStorage.clear();
     resetInFlightOperationsForTests();
   });
@@ -60,7 +50,6 @@ describe("trackReviewPipelineInFlight", () => {
   });
 
   it("uses the server's run handle so the shell poller can resolve review status", () => {
-    // OperationIdCodec.RunPrefix — GET /v1/operations/run:{runId} projects the run itself.
     expect(reviewPipelineOperationId(" abc-123 ")).toBe("run:abc-123");
   });
 
@@ -76,7 +65,7 @@ describe("trackReviewPipelineInFlight", () => {
   });
 
   it("skips demo and offline shells, where a tracked row would poll a 404 forever", () => {
-    staticDemo.enabled = true;
+    vi.stubEnv("NEXT_PUBLIC_DEMO_STATIC_OPERATOR", "true");
 
     expect(trackReviewPipelineInFlight("abc-123")).toBeNull();
     expect(getInFlightOperations()).toHaveLength(0);
@@ -92,12 +81,13 @@ describe("trackReviewPipelineInFlight", () => {
 
 describe("restartReviewPipelineInFlight", () => {
   beforeEach(() => {
-    staticDemo.enabled = false;
+    vi.unstubAllEnvs();
     window.sessionStorage.clear();
     resetInFlightOperationsForTests();
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
     window.sessionStorage.clear();
     resetInFlightOperationsForTests();
   });

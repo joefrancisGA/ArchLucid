@@ -21,5 +21,9 @@ export {
 export type { FirstReviewGuideReadiness, FirstReviewGuideReadinessKind } from "./first-review-guide-readiness";
 export { resolveFirstReviewGuideReadiness } from "./first-review-guide-readiness";
 
-export type { FirstReviewGuideRequiredBlocker } from "./first-review-guide-blockers";
-export { resolveFirstReviewGuideRequiredBlockers } from "./first-review-guide-blockers";
+export type { FirstReviewGuideRequiredBlocker, FirstReviewGuidePrerequisiteInput } from "./first-review-guide-blockers";
+export {
+  resolveFirstReviewGuideRequiredBlockers,
+  resolveFirstReviewGuideOnePrerequisite,
+  resolveFirstReviewGuidePolicyPackAssigned,
+} from "./first-review-guide-blockers";

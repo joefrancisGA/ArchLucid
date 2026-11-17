@@ -2,7 +2,6 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -30,11 +29,6 @@ namespace ArchLucid.Api.Tests.Integrations;
 [Trait("Suite", "Core")]
 public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonWeb = new(JsonSerializerDefaults.Web);
-
-    private static string DemoPrimaryFindingId =>
-        $"finding-demo-{ContosoRetailDemoIdentifiers.AuthorityRunBaselineId:N}-primary";
-
     [SkippableFact]
     public async Task Post_Jira_issues_hits_wire_mock_with_mapper_aligned_payload_and_basic_auth()
     {
@@ -52,10 +46,11 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
         HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        await SeedDemoBaselineAsync(factory.Services);
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
 
-        using HttpResponseMessage response =
-            await client.PostAsync("/v1/integrations/itsm/outbound/issues", OutboundIssueBody("Jira", DemoPrimaryFindingId));
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "Jira",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -135,10 +130,11 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
         HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        await SeedDemoBaselineAsync(factory.Services);
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
 
-        using HttpResponseMessage response =
-            await client.PostAsync("/v1/integrations/itsm/outbound/issues", OutboundIssueBody("ServiceNow", DemoPrimaryFindingId));
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "ServiceNow",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -181,13 +177,6 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
         ItsmOutboundWireMockEndpointAssertions.AssertBasicAuthMatches(captured, username: "svc", password: "pwd");
     }
 
-    private static async Task SeedDemoBaselineAsync(IServiceProvider rootServices)
-    {
-        using IServiceScope scope = rootServices.CreateScope();
-
-        await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
-    }
-
     private static async Task<FindingInspectResponse> LoadPrimaryFindingInspectAsync(
         ItsmOutboundIssuesWireMockApiFactory factory)
     {
@@ -197,7 +186,7 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
         IFindingInspectReadRepository repo = scope.ServiceProvider.GetRequiredService<IFindingInspectReadRepository>();
 
         FindingInspectResponse? inspect =
-            await repo.GetInspectAsync(scoped, DemoPrimaryFindingId, CancellationToken.None);
+            await repo.GetInspectAsync(scoped, HarnessDemoBaselineSupport.DemoPrimaryFindingId, CancellationToken.None);
 
         inspect.Should().NotBeNull();
 
@@ -243,12 +232,4 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
         return string.IsNullOrWhiteSpace(raw) ? string.Empty : raw.Trim();
     }
 
-    private static StringContent OutboundIssueBody(string provider, string findingId)
-    {
-        string json = JsonSerializer.Serialize(
-            new Dictionary<string, string> { ["provider"] = provider, ["findingId"] = findingId },
-            JsonWeb);
-
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
 }

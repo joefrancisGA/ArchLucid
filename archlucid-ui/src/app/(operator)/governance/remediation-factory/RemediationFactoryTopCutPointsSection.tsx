@@ -2,42 +2,32 @@
 
 import Link from "next/link";
 
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
+import { remediationFactoryTopCutPointsErrorRecovery } from "@/lib/remediation-factory/remediation-factory-error-recovery";
+import { formatCutPointHeadline } from "@/lib/security-evidence-path-cut-point-presentation";
 import type { SecurityEvidencePathCutPoint } from "@/lib/security-evidence-path-types";
 import { cn } from "@/lib/utils";
+import { STANDARDS_CUT_POINT_FRAMEWORK_THEME_NOT_CONTROL_PASS_LINE } from "@/lib/governance/standards-cut-point-framework-theme-copy";
+import {
+  PATH_INSPECT_LONG_PATH_ID_OVERFLOW_LINE,
+  shouldShowPathInspectLongPathIdHonesty,
+} from "@/lib/product-line/path-inspect-long-path-id-honesty-copy";
 
+import { RemediationFactoryBorderedSection } from "./RemediationFactoryBorderedSection";
 import {
   REMEDIATION_FACTORY_TOP_CUT_POINTS_EMPTY,
   REMEDIATION_FACTORY_TOP_CUT_POINTS_LEAD,
   REMEDIATION_FACTORY_TOP_CUT_POINTS_LOADING,
   REMEDIATION_FACTORY_TOP_CUT_POINTS_PATTERN_PREFIX,
+  REMEDIATION_FACTORY_TOP_CUT_POINTS_SUGGESTED_PATTERN_NOT_STORED,
   REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE,
   REMEDIATION_FACTORY_TOP_CUT_POINTS_VIEW_PATH,
 } from "./remediation-factory-top-cut-points-copy";
-
-const REMEDIATION_FACTORY_CUT_ENDPOINT_NOT_STORED = "Cut endpoint was not stored.";
-
-const REMEDIATION_FACTORY_SUGGESTED_PATTERN_NOT_STORED = "Suggested pattern was not stored.";
-
-function formatCutPointHeadline(cutPoint: SecurityEvidencePathCutPoint): string {
-  const fromStored =
-    cutPoint.fromNodeLabel != null && cutPoint.fromNodeLabel.trim().length > 0;
-  const toStored = cutPoint.toNodeLabel != null && cutPoint.toNodeLabel.trim().length > 0;
-
-  if (fromStored && toStored) {
-    return `${cutPoint.cutKind} · ${cutPoint.fromNodeLabel!.trim()} → ${cutPoint.toNodeLabel!.trim()}`;
-  }
-
-  if (!fromStored || !toStored) {
-    return `${cutPoint.cutKind} · ${REMEDIATION_FACTORY_CUT_ENDPOINT_NOT_STORED}`;
-  }
-
-  return cutPoint.cutKind;
-}
 
 function firstCollapsedPathId(cutPoint: SecurityEvidencePathCutPoint): string | null {
   const first = cutPoint.collapsedPathIds[0]?.trim();
@@ -61,31 +51,23 @@ export function RemediationFactoryTopCutPointsSection(props: {
 }) {
   if (props.isLoading) {
     return (
-      <section
-        className="space-y-3 rounded border border-border p-4"
-        aria-label={REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}
-        data-testid="remediation-factory-top-cut-points"
+      <RemediationFactoryBorderedSection
+        title={REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}
+        testId="remediation-factory-top-cut-points"
       >
-        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}</h2>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_TOP_CUT_POINTS_LOADING}</p>
-      </section>
+      </RemediationFactoryBorderedSection>
     );
   }
 
   if (props.isError) {
     return (
-      <section
-        className="space-y-3 rounded border border-border p-4"
-        aria-label={REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}
-        data-testid="remediation-factory-top-cut-points"
+      <RemediationFactoryBorderedSection
+        title={REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}
+        testId="remediation-factory-top-cut-points"
       >
-        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}</h2>
         <OperatorErrorRecoveryContract
-          presentation={{
-            whatFailed: "Top cut points did not load.",
-            whatIsIntact: "The priority queue and ranked paths on this page are unchanged.",
-            nextStep: "Retry the load. This does not change Azure.",
-          }}
+          presentation={remediationFactoryTopCutPointsErrorRecovery()}
           testId="remediation-top-cut-points-error-recovery"
         />
         <RefreshButton
@@ -93,7 +75,7 @@ export function RemediationFactoryTopCutPointsSection(props: {
           label="Refresh cut points"
           onClick={() => void props.refetch()}
         />
-      </section>
+      </RemediationFactoryBorderedSection>
     );
   }
 
@@ -102,20 +84,24 @@ export function RemediationFactoryTopCutPointsSection(props: {
   }
 
   return (
-    <section
-      className="space-y-3 rounded border border-border p-4"
-      aria-label={REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}
-      data-testid="remediation-factory-top-cut-points"
-    >
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}</h2>
+    <RemediationFactoryBorderedSection
+      title={REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}
+      testId="remediation-factory-top-cut-points"
+      headerAside={
         <RefreshButton
           busy={props.isFetching}
           label="Refresh cut points"
           onClick={() => void props.refetch()}
         />
-      </div>
+      }
+    >
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{REMEDIATION_FACTORY_TOP_CUT_POINTS_LEAD}</p>
+      <p
+        className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="remediation-factory-top-cut-points-framework-theme"
+      >
+        {STANDARDS_CUT_POINT_FRAMEWORK_THEME_NOT_CONTROL_PASS_LINE}
+      </p>
 
       {props.cutPoints.length === 0 ? (
         <EnterpriseCompactEmptyState
@@ -132,10 +118,12 @@ export function RemediationFactoryTopCutPointsSection(props: {
               <li
                 key={cutPoint.cutPointId}
                 className="rounded border border-border p-3"
-                data-testid={`remediation-factory-top-cut-point-${cutPoint.cutOrder}`}
+                data-testid={`remediation-factory-top-cut-point-${cutPoint.cutOrder ?? "not-stored"}`}
               >
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  <span className="font-mono text-muted-foreground">#{cutPoint.cutOrder}</span>
+                  <span className="font-mono text-muted-foreground">
+                    #{cutPoint.cutOrder ?? "not stored"}
+                  </span>
                   {" "}
                   {formatCutPointHeadline(cutPoint)}
                 </p>
@@ -152,26 +140,42 @@ export function RemediationFactoryTopCutPointsSection(props: {
                       </Link>
                     </>
                   ) : (
-                    REMEDIATION_FACTORY_SUGGESTED_PATTERN_NOT_STORED
+                    REMEDIATION_FACTORY_TOP_CUT_POINTS_SUGGESTED_PATTERN_NOT_STORED
                   )}
                 </p>
+                {(cutPoint.toNodeLabel?.trim().length ?? 0) > 0 ? (
+                  <p className={cn("m-0 mt-2 inline-flex flex-wrap items-center gap-1", OPERATOR_TYPOGRAPHY.helper)}>
+                    Resource id: <span className="font-mono text-xs">{cutPoint.toNodeLabel ?? ""}</span>
+                    <CopyIdButton value={cutPoint.toNodeLabel ?? ""} aria-label="Copy cut-point resource id" />
+                  </p>
+                ) : null}
                 {highlightPathId != null ? (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    className="mt-2"
-                    aria-pressed={props.selectedPathId === highlightPathId}
-                    onClick={() => props.onSelectPath(highlightPathId)}
-                  >
-                    {REMEDIATION_FACTORY_TOP_CUT_POINTS_VIEW_PATH}
-                  </Button>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      aria-pressed={props.selectedPathId === highlightPathId}
+                      onClick={() => props.onSelectPath(highlightPathId)}
+                    >
+                      {REMEDIATION_FACTORY_TOP_CUT_POINTS_VIEW_PATH}
+                    </Button>
+                    <span className={cn("inline-flex items-center gap-1 break-all font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
+                      {highlightPathId}
+                      <CopyIdButton value={highlightPathId} aria-label="Copy path id for this cut point" />
+                    </span>
+                    {shouldShowPathInspectLongPathIdHonesty(highlightPathId) ? (
+                      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-factory-cut-point-path-id-overflow">
+                        {PATH_INSPECT_LONG_PATH_ID_OVERFLOW_LINE}
+                      </p>
+                    ) : null}
+                  </div>
                 ) : null}
               </li>
             );
           })}
         </ol>
       )}
-    </section>
+    </RemediationFactoryBorderedSection>
   );
 }

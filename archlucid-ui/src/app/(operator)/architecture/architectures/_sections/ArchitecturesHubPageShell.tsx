@@ -16,6 +16,8 @@ import {
 } from "@/lib/architectures-hub-copy";
 import { cn } from "@/lib/utils";
 
+import { OperatorHomeWorkingOpenGateLine } from "@/components/operator-home/OperatorHomeWorkingOpenGateLine";
+
 import { ArchitecturesHubBuyerChrome } from "./ArchitecturesHubBuyerChrome";
 import { ArchitecturesHubListSection } from "./ArchitecturesHubListSection";
 import { ArchitecturesHubObjectMapStrip } from "./ArchitecturesHubObjectMapStrip";
@@ -32,6 +34,7 @@ export function ArchitecturesHubPageShell(): React.JSX.Element {
 
   const architecturesHubWorkspaceBody = (
     <>
+      <OperatorHomeWorkingOpenGateLine workingMode={isWorkingMode} />
       <Suspense fallback={null}>
         <ArchitecturesHubWorkingAskBindEmptyStrip />
         <ArchitecturesHubWorkingGraphBindEmptyStrip />

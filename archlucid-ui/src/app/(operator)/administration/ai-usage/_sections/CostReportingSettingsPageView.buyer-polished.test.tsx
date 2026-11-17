@@ -9,9 +9,6 @@ import {
   AI_USAGE_SETTINGS_SOURCES,
 } from "@/lib/ai-usage-settings-evidence-copy";
 import { AI_USAGE_BILLING_ESTIMATES_HONESTY } from "@/lib/vocabulary/ai-usage-billing-vocabulary";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-
 import { CostReportingSettingsPageView } from "./CostReportingSettingsPageView";
 import type { CostReportingSettingsPageViewModel } from "./cost-reporting-settings-page-view-model";
 import {
@@ -33,6 +30,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
 
@@ -42,6 +44,25 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
   };
 });
 
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
+
 vi.mock("@/components/AiUsageBillingVocabularyRail", () => ({
   AiUsageBillingVocabularyRail: () => <div data-testid="ai-usage-billing-vocabulary-rail" />,
 }));
@@ -49,6 +70,20 @@ vi.mock("@/components/AiUsageBillingVocabularyRail", () => ({
 vi.mock("@/components/ModelGovernanceAiUsageVocabularyRail", () => ({
   ModelGovernanceAiUsageVocabularyRail: () => <div data-testid="model-governance-ai-usage-vocabulary-rail" />,
 }));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/administration/ai-usage",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
+import { AI_USAGE_SETTINGS_CANONICAL_PATH } from "@/lib/ai-usage-settings-evidence-copy";
 
 function buildQuietEmptyModel(): CostReportingSettingsPageViewModel {
   const derived = buildAiUsageDashboardDerived({
@@ -155,10 +190,11 @@ describe("CostReportingSettingsPageView buyer-polished shell (ADI)", () => {
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(AI_USAGE_SETTINGS_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      AI_USAGE_SETTINGS_SOURCES,
+      AI_USAGE_SETTINGS_CANONICAL_PATH,
+    );
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

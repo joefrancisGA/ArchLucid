@@ -10,5 +10,8 @@ internal static class ComparisonExportRecordIdLookup
 
     internal static bool StoredValueMatchesLookup(string? storedExportRecordId, string normalizedLookupKey) =>
         !string.IsNullOrWhiteSpace(storedExportRecordId)
-        && string.Equals(storedExportRecordId.Trim(), normalizedLookupKey, StringComparison.Ordinal);
+        && string.Equals(
+            storedExportRecordId.Trim(),
+            normalizedLookupKey,
+            StringComparison.OrdinalIgnoreCase);
 }

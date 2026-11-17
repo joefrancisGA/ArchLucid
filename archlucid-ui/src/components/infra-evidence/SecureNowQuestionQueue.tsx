@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -9,6 +10,7 @@ import { secureNowQuestionAnswerLabel } from "@/lib/infra-evidence/securenow-que
 import {
   secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionIsPolicyPackDispositionRow,
+  secureNowQuestionPackAnswerChoiceLabel,
   secureNowQuestionReviewerEvidenceFingerprintLine,
   secureNowQuestionReviewerScopeLabel,
   secureNowQuestionReviewerSourceLabel,
@@ -23,8 +25,12 @@ import {
   secureNowQuestionReviewerClosedDispositionReasonLine,
   secureNowQuestionReviewerReasonTextLine,
   secureNowQuestionReviewerSourceLine,
+  SECURENOW_QUESTION_DISPOSITION_STATUS_NOT_STORED_FILTER,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
-import { secureNowQuestionReviewerExpirationUtcStamp } from "@/lib/infra-evidence/securenow-question-expiration";
+import {
+  secureNowQuestionReviewerExpirationDisplayLine,
+  secureNowQuestionReviewerExpirationUtcStamp,
+} from "@/lib/infra-evidence/securenow-question-expiration";
 import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
 import {
   secureNowQuestionResourceDisplayName,
@@ -32,8 +38,9 @@ import {
 } from "@/lib/infra-evidence/securenow-question-resource-identity-display";
 import { secureNowQuestionShowsExpired } from "@/lib/infra-evidence/securenow-question-expiration";
 import { diagramOutlineIncludesFocusResource } from "@/lib/architecture/architecture-diagram-camera-focus";
+import { SECURENOW_QUESTION_QUEUE_EMPTY_FILTER } from "@/lib/product-line/securenow-question-queue-empty-copy";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import {
@@ -55,7 +62,7 @@ type ClosedQuestionAnswerFields = {
   readonly status: string | null;
   readonly answerCode: string | null;
   readonly answerText: string | null;
-  readonly reason: string | null | undefined;
+  readonly reason: string | null;
 };
 
 function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields): readonly string[] {
@@ -66,7 +73,7 @@ function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields
   return [
     secureNowQuestionReviewerClosedAnswerCodeLine(question.answerCode),
     secureNowQuestionReviewerClosedAnswerTextLine(question.answerText),
-    secureNowQuestionReviewerClosedDispositionReasonLine(question.reason),
+    secureNowQuestionReviewerClosedDispositionReasonLine(question.reason ?? null),
   ];
 }
 
@@ -263,7 +270,13 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
             </div>
           ) : null}
         </div>
-        <Button type="button" size="sm" variant="outline" onClick={() => setDrawerOpen(false)}>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={busy}
+          onClick={() => setDrawerOpen(false)}
+        >
           Close
         </Button>
       </div>
@@ -320,9 +333,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   Answer choices were stored as an empty list.
                 </p>
               ) : null}
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Not sure moves to the next question without storing an answer.
-              </p>
+              {currentQuestion.answerCodes?.some((code) => code.trim() === "NotSure") === true ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Not sure moves to the next question without storing an answer.
+                </p>
+              ) : null}
               {currentQuestionMatchesInferredConnection ? (
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Asked because a connection was inferred. Answering does not store a link.
@@ -338,6 +353,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                     type="button"
                     size="sm"
                     variant={selectedAnswer === normalizedAnswerCode ? "primary" : "outline"}
+                    disabled={busy}
                     onClick={() => {
                       if (normalizedAnswerCode === "NotSure") {
                         advanceWithoutPersistence();
@@ -352,7 +368,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                       ? "Not sure. This does not store an answer."
                       : answerCode.trim().length === 0
                         ? "Answer choice was stored empty."
-                        : secureNowQuestionAnswerLabel(answerCode)}
+                        : secureNowQuestionPackAnswerChoiceLabel(currentQuestion, answerCode)}
                   </Button>
                   );
                 })}
@@ -367,6 +383,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   type="button"
                   size="sm"
                   variant="outline"
+                  disabled={busy}
                   onClick={() => {
                     setDrawerAction("ignore");
                     setReason("");
@@ -426,7 +443,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               type="button"
               size="sm"
               variant="outline"
-              disabled={currentIndex === 0}
+              disabled={busy || currentIndex === 0}
               onClick={() => setCurrentIndex((current) => Math.max(current - 1, 0))}
             >
               Previous
@@ -438,7 +455,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               type="button"
               size="sm"
               variant="outline"
-              disabled={currentIndex >= filteredQuestions.length - 1 || visitedQuestionKeys.size >= VISIT_CAP}
+              disabled={
+                busy
+                || currentIndex >= filteredQuestions.length - 1
+                || visitedQuestionKeys.size >= VISIT_CAP
+              }
               onClick={() => setCurrentIndex((current) => Math.min(current + 1, filteredQuestions.length - 1))}
             >
               Next
@@ -453,12 +474,20 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
           >
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2" role="group" aria-label="Question filters">
-                {(["Open", "Answered", "Dismissed"] as const).map((option) => (
+                {(
+                  [
+                    "Open",
+                    "Answered",
+                    "Dismissed",
+                    SECURENOW_QUESTION_DISPOSITION_STATUS_NOT_STORED_FILTER,
+                  ] as const
+                ).map((option) => (
                   <Button
                     key={option}
                     type="button"
                     size="sm"
                     variant={filter === option ? "primary" : "outline"}
+                    disabled={busy}
                     onClick={() => {
                       setFilter(option);
                       setCurrentIndex(0);
@@ -507,11 +536,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 Subscription: {secureNowQuestionReviewerSubscriptionLabel(currentQuestion.subscriptionId)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {secureNowQuestionReviewerExpirationUtcStamp(currentQuestion.expirationUtc) ?? (
-                  currentQuestion.expirationUtc === null || currentQuestion.expirationUtc === undefined
-                    ? "Expiration was not stored."
-                    : "Expiration was stored empty."
-                )}
+                {secureNowQuestionReviewerExpirationDisplayLine(currentQuestion.expirationUtc)}
                 {currentQuestion.isExpired === null
                     && secureNowQuestionReviewerExpirationUtcStamp(currentQuestion.expirationUtc) === null
                   ? " · Expiration status was not stored."
@@ -530,7 +555,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
         </div>
       ) : (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          No questions match this filter.
+          {SECURENOW_QUESTION_QUEUE_EMPTY_FILTER}
+          {" "}
+          <Link className={OPERATOR_LINK.inline} href="/administration/securenow-first-hour#first-useful-answer">
+            First useful answer
+          </Link>
         </p>
       )}
     </div>

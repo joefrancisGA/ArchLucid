@@ -8,6 +8,7 @@ import {
   resolveReviewWorkspaceArchitectureId,
 } from "@/lib/architecture/working-architecture-review-routes";
 import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
+import { resolveGlobalSearchDeskArchitectureId } from "@/lib/global-search-desk-architecture-id";
 import { lookupArchitectureDraftParentArchitectureId } from "@/lib/review-package-validation-picker";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
@@ -47,10 +48,19 @@ function resolveWorkingBackArchitectureId(input: ResolveWorkingBackLocatorInput)
     return nestedArchitectureId;
   }
 
-  return lookupArchitectureDraftParentArchitectureId(
+  const fromDraftRegistry = lookupArchitectureDraftParentArchitectureId(
     input.reviewId,
     input.draftRegistryEntries,
   );
+
+  if (fromDraftRegistry !== null) {
+    return fromDraftRegistry;
+  }
+
+  return resolveGlobalSearchDeskArchitectureId({
+    runId: input.reviewId,
+    pathname: input.pathname,
+  });
 }
 
 /** Working deep pages: child → nested review job → architecture desk (AO-44 / ADR 0077). */

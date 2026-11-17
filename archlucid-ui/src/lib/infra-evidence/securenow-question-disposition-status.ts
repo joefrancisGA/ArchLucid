@@ -5,7 +5,7 @@ export type SecureNowQuestionDispositionChromeFields = {
   readonly status: string | null;
   readonly answerCode: string | null;
   readonly answerText: string | null;
-  readonly reason: string | null;
+  readonly reason: string | null | undefined;
 };
 
 export type SecureNowQuestionOpenQueueRowFields = SecureNowQuestionDispositionChromeFields & {
@@ -15,7 +15,7 @@ export type SecureNowQuestionOpenQueueRowFields = SecureNowQuestionDispositionCh
 
 function secureNowQuestionDispositionFieldWasStored(
   value: string | null | undefined,
-): boolean {
+): value is string {
   return value !== null && value !== undefined;
 }
 
@@ -37,9 +37,23 @@ type SecureNowQuestionDispositionStatusCanonical =
   | "dismissed"
   | "other";
 
+function secureNowQuestionDispositionStatusWasStoredEmpty(
+  status: string | null | undefined,
+): boolean {
+  if (status === null || status === undefined) {
+    return false;
+  }
+
+  return status.trim().length === 0;
+}
+
 function secureNowQuestionDispositionStatusCanonical(
   status: string | null | undefined,
 ): SecureNowQuestionDispositionStatusCanonical {
+  if (secureNowQuestionDispositionStatusWasStoredEmpty(status)) {
+    return "other";
+  }
+
   const trimmed = secureNowQuestionDispositionStatusTrimmed(status);
   if (trimmed === null) {
     return "missing";
@@ -109,10 +123,18 @@ export function secureNowQuestionCountsAsReviewableQueueRow(
 ): boolean {
   return secureNowQuestionCountsAsOpenQueueRow(question)
     || secureNowQuestionCountsAsAnsweredFilterRow(question)
-    || secureNowQuestionCountsAsDismissedFilterRow(question);
+    || secureNowQuestionCountsAsDismissedFilterRow(question)
+    || secureNowQuestionCountsAsMissingStatusFilterRow(question);
 }
 
-export type SecureNowQuestionQueueReviewFilter = "Open" | "Answered" | "Dismissed";
+export const SECURENOW_QUESTION_DISPOSITION_STATUS_NOT_STORED_FILTER =
+  "Question disposition status was not stored" as const;
+
+export type SecureNowQuestionQueueReviewFilter =
+  | "Open"
+  | "Answered"
+  | "Dismissed"
+  | typeof SECURENOW_QUESTION_DISPOSITION_STATUS_NOT_STORED_FILTER;
 
 export function secureNowQuestionQueueInitialReviewFilter(
   questions: readonly SecureNowQuestionOpenQueueRowFields[],
@@ -123,6 +145,10 @@ export function secureNowQuestionQueueInitialReviewFilter(
 
   if (questions.some((question) => secureNowQuestionCountsAsAnsweredFilterRow(question))) {
     return "Answered";
+  }
+
+  if (questions.some((question) => secureNowQuestionCountsAsMissingStatusFilterRow(question))) {
+    return SECURENOW_QUESTION_DISPOSITION_STATUS_NOT_STORED_FILTER;
   }
 
   return "Dismissed";
@@ -143,15 +169,35 @@ export function secureNowQuestionCountsAsAnsweredFilterRow(
     || secureNowQuestionDispositionFieldContributesToInference(question.answerText);
 }
 
+function secureNowQuestionDispositionReviewerAnswerMetadataLabel(
+  question: SecureNowQuestionDispositionChromeFields,
+): string | null {
+  if (!secureNowQuestionCountsAsAnsweredFilterRow(question)) {
+    return null;
+  }
+
+  if (secureNowQuestionDispositionStatusCanonical(question.status) === "open") {
+    return "Open. Answer metadata is stored.";
+  }
+
+  return "Question status was not stored. Answer metadata is stored.";
+}
+
 export function secureNowQuestionDispositionReviewerStatusLabel(
   question: SecureNowQuestionDispositionChromeFields,
 ): string {
   const trimmed = secureNowQuestionDispositionStatusTrimmed(question.status);
   const canonical = secureNowQuestionDispositionStatusCanonical(question.status);
 
+  if (secureNowQuestionDispositionStatusWasStoredEmpty(question.status)) {
+    return "Question status was stored empty.";
+  }
+
   if (canonical === "missing") {
-    if (secureNowQuestionCountsAsAnsweredFilterRow(question)) {
-      return "Answered";
+    const answerMetadataLabel = secureNowQuestionDispositionReviewerAnswerMetadataLabel(question);
+
+    if (answerMetadataLabel !== null) {
+      return answerMetadataLabel;
     }
 
     if (secureNowQuestionCountsAsDismissedFilterRow(question)) {
@@ -169,9 +215,25 @@ export function secureNowQuestionDispositionReviewerStatusLabel(
     return "Dismissed";
   }
 
-  if (canonical === "open" || canonical === "other") {
-    if (secureNowQuestionCountsAsAnsweredFilterRow(question)) {
-      return "Answered";
+  if (canonical === "open") {
+    const answerMetadataLabel = secureNowQuestionDispositionReviewerAnswerMetadataLabel(question);
+
+    if (answerMetadataLabel !== null) {
+      return answerMetadataLabel;
+    }
+
+    if (secureNowQuestionCountsAsDismissedFilterRow(question)) {
+      return "Dismissed";
+    }
+
+    return "Open";
+  }
+
+  if (canonical === "other") {
+    const answerMetadataLabel = secureNowQuestionDispositionReviewerAnswerMetadataLabel(question);
+
+    if (answerMetadataLabel !== null) {
+      return answerMetadataLabel;
     }
 
     if (secureNowQuestionCountsAsDismissedFilterRow(question)) {
@@ -210,13 +272,23 @@ export function secureNowQuestionDispositionStatusTrimmed(
   return trimmed.length > 0 ? trimmed : null;
 }
 
+export function secureNowQuestionCountsAsMissingStatusFilterRow(
+  question: SecureNowQuestionDispositionChromeFields,
+): boolean {
+  if (secureNowQuestionDispositionStatusCanonical(question.status) !== "missing") {
+    return false;
+  }
+
+  return !secureNowQuestionCountsAsAnsweredFilterRow(question)
+    && !secureNowQuestionCountsAsDismissedFilterRow(question);
+}
+
 export function secureNowQuestionDispositionIsOpen(
   status: string | null | undefined,
 ): boolean {
   const canonical = secureNowQuestionDispositionStatusCanonical(status);
   if (canonical === "missing") {
-    // List JSON may omit status on actionable open rows while they still appear in the Open filter.
-    return true;
+    return false;
   }
 
   return canonical === "open";
@@ -285,12 +357,20 @@ export function secureNowQuestionReviewerClosedDispositionReasonLine(
   return trimmed;
 }
 
-export function secureNowQuestionReviewerReasonTextLine(reasonText: string): string {
+export function secureNowQuestionReviewerReasonTextLine(reasonText: string | null | undefined): string {
+  if (reasonText === null || reasonText === undefined) {
+    return "Reason was not stored.";
+  }
+
   const trimmed = reasonText.trim();
-  return trimmed.length > 0 ? trimmed : "Reason was not stored";
+  return trimmed.length > 0 ? trimmed : "Reason was stored empty.";
 }
 
-export function secureNowQuestionReviewerSourceLine(sourceLine: string): string {
+export function secureNowQuestionReviewerSourceLine(sourceLine: string | null | undefined): string {
+  if (sourceLine === null || sourceLine === undefined) {
+    return "Source line was not stored.";
+  }
+
   const trimmed = sourceLine.trim();
-  return trimmed.length > 0 ? trimmed : "Source line was not stored";
+  return trimmed.length > 0 ? trimmed : "Source line was stored empty.";
 }

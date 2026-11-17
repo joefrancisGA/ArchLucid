@@ -1,0 +1,5 @@
+# Real SQL evidence repository capacity measurements
+
+The dedicated SQL/vector workflow now runs `Benchmark_real_scoped_path_repository_reads` from the existing SQL Server integration suite. It seeds 1,000 and 2,000 one-hop evidence paths into an isolated test snapshot, then measures repeated actual `SqlSecurityEvidencePathRepository.ListWithHopsBySnapshotAsync` calls at concurrency 1 and 4, including scope enforcement, query/materialization time and network round trip. Each workload uses five timed reads per worker after a warm-up and emits schema-v1 JSON with p50, p95 and wall-clock duration. Path insertion and fixture setup are excluded from the timed read scope.
+
+Important: these are **SecureNow-style security path repository operations within ArchLucid**, not representative of every ArchLucid workload. SQL is a CI-hosted test container, not a production service tier; SQL CPU, peak working set, network latency, I/O contention, and query-plan statistics are not captured. These measurements must not be fed into generalized CPU/worker sizing calibration without matching workloads and resource telemetry. No production data or schema changes occur.

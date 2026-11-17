@@ -1,11 +1,11 @@
-> **Scope:** Paste-ready prompts for SecureNow read-path costs. **SN-PERF-01–05**, **06–10**, **12**, **17–19**, and **20–36** are shipped on this branch (waves 5–7). **SN-PERF-11**, **13–16** remain paste sets for extend-only work. Internal engineering only. Prompts only — do not implement from this index.
+> **Scope:** Paste-ready prompts for SecureNow read-path costs. **SN-PERF-01–36** are shipped on trunk (waves 1–7). Internal engineering only. Keep these prompts as regression reference; do not implement from this index.
 > **Paste-ready files:** [`.cursor/prompts/securenow-performance-00-index.md`](../../.cursor/prompts/securenow-performance-00-index.md)
 
 # SecureNow performance — Luna prompts
 
-**Created:** 2026-10-18 · **Status:** ready to paste · **Audience:** Composer 2.5 slow (`composer-2.5`)
+**Created:** 2026-10-18 · **Updated:** 2026-11-01 · **Status:** SN-PERF-01–36 shipped on trunk · **Audience:** Composer 2.5 slow (`composer-2.5`)
 
-Paste **one** prompt per session. Do not implement from this index.
+The SN-PERF-01–36 implementation is on trunk. Keep these prompt files as regression reference; do not implement from this index.
 
 | ID | Prompt | Depends on | Intent |
 |----|--------|------------|--------|
@@ -38,7 +38,7 @@ Paste **one** prompt per session. Do not implement from this index.
 | **SN-PERF-36** | — | **20** (shipped) | Hub visible ARM ids from type+ARM rows |
 | **SN-PERF-HOLD** | [securenow-performance-hold.md](../../.cursor/prompts/securenow-performance-hold.md) | — | Forbidden scope |
 
-**01–05**, **06–10**, **12**, **17–19**, **20–24**, **25–29**, and **30–36** are shipped. **06–10**, **12**, and **17–19** have no paste file. **11**, **13**, **14**, and **16** can run in parallel. Run **15** after **11** if **11** is not on `master` yet, so both call one resource-list method. **20** and **21** can run in parallel. **22**, **23**, and **24** do not depend on **20**. **25**, **27**, **28**, and **29** can run in parallel. **26** follows **22** so verification is not edited in the preflight session.
+**SN-PERF-01–36** are shipped. **06–10**, **12**, and **17–19** have no paste file. **30–36** are retained in this record as shipped follow-ons. Do not redo these prompts as greenfield work. **SN-PERF-HOLD** remains the stop list.
 
 **17** loads the snapshot header for question list and ownership. **18** loads ranked-path headers and cut points in batch. **19** counts architect outcome findings and exceptions in SQL.
 

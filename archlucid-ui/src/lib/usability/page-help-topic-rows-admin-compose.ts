@@ -1,5 +1,6 @@
 /** Operator, pilot, and internal-ops contextual help rows (administration routes). */
 
+import { ACCELERATOR_CHOOSER_HELP_INBOUND_LABEL } from "@/lib/accelerator-chooser-help-title-honesty-surfaces";
 import { AI_USAGE_HELP_TOPIC_LABEL } from "@/lib/ai-usage-settings-evidence-copy";
 import { AUDIT_TRAIL_HELP_TOPIC_LABEL } from "@/lib/audit-trail-help-evidence-copy";
 import { BASELINE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/baseline-settings-evidence-copy";
@@ -52,6 +53,10 @@ export const PAGE_HELP_TOPIC_ROWS_ADMIN_COMPOSE: readonly { prefix: string; topi
   {
     prefix: "/help/choose-your-next-step",
     topic: { slug: "choose-your-next-step", label: PATH_CHOOSER_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/accelerator-chooser",
+    topic: { slug: "accelerator-chooser", label: ACCELERATOR_CHOOSER_HELP_INBOUND_LABEL },
   },
   {
     prefix: "/help/pilot-feedback",

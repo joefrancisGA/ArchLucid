@@ -18,9 +18,17 @@ public static class DiagramForestLegendSvgEmitter
     private const double TopPadding = 8.0d;
     private const double BackgroundWidth = 420.0d;
 
+    internal const string UnclassifiedConnectorLegendRow =
+        "Provenance was not stored.";
+
+    public const string ResourceGroupFrameLegendRow =
+        "Resource group frame (group name on the frame when stored; not a node category or connector).";
+
     public sealed record LegendInput(
         IReadOnlyList<DiagramInventoryPictogramKind> UsedKinds,
         bool HasPrivateEndpointAccess,
+        bool HasStoredSolidRelationshipConnectors,
+        bool HasUnclassifiedConnectors,
         bool HasDashedPeeringEdges,
         bool HasResourceGroupFrames,
         IReadOnlyList<DiagramNode> RollupNodes);
@@ -42,7 +50,7 @@ public static class DiagramForestLegendSvgEmitter
         List<string> rows =
         [
             "Legend",
-            "Left edge",
+            "Left edge color is the resource category.",
         ];
 
         foreach (DiagramInventoryPictogramKind kind in input.UsedKinds)
@@ -52,25 +60,40 @@ public static class DiagramForestLegendSvgEmitter
 
         if (input.HasPrivateEndpointAccess)
         {
-            rows.Add("Private endpoint access");
+            rows.Add("Private endpoint link was stored. Observed use was not stored.");
         }
 
-        rows.Add("Connector");
+        if (input.HasStoredSolidRelationshipConnectors)
+        {
+            rows.Add("Solid connector (stored relationship)");
+        }
+
+        if (input.HasUnclassifiedConnectors)
+        {
+            rows.Add(UnclassifiedConnectorLegendRow);
+        }
 
         if (input.HasDashedPeeringEdges)
         {
-            rows.Add("Peering");
+            rows.Add("Dashed peering line. Read the line label for peering state. This legend row is not observed traffic.");
         }
 
         if (input.HasResourceGroupFrames)
         {
-            rows.Add("Resource group");
+            rows.Add(ResourceGroupFrameLegendRow);
         }
 
         foreach (DiagramNode rollup in input.RollupNodes)
         {
-            rows.Add(rollup.Label);
-            rows.AddRange(rollup.DataFlowRollupMemberNames.Select(member => $"  {member}"));
+            string rollupLabel = DiagramSubgraphLabelFormatter.FormatForDiagram(rollup.Label);
+            rows.Add(rollupLabel);
+            rows.AddRange(
+                rollup.DataFlowRollupMemberNames.Select(member =>
+                    member is null
+                        ? "  Rollup member name was not stored."
+                        : string.IsNullOrWhiteSpace(member)
+                            ? "  Rollup member name was stored empty."
+                            : $"  {member.Trim()}"));
         }
 
         double height = TopPadding + (rows.Count * RowHeight) + TopPadding;
@@ -111,28 +134,38 @@ public static class DiagramForestLegendSvgEmitter
                 continue;
             }
 
-            if (string.Equals(row, "Private endpoint access", StringComparison.Ordinal))
+            if (string.Equals(row, "Private endpoint link was stored. Observed use was not stored.", StringComparison.Ordinal))
             {
                 group.Add(PrivateEndpointAccessGlyph(svgNamespace, LeftPadding, y - 10.0d));
                 group.Add(Text(svgNamespace, LeftPadding + 24.0d, y, row, bold: false));
                 continue;
             }
 
-            if (string.Equals(row, "Connector", StringComparison.Ordinal))
+            if (string.Equals(row, "Solid connector (stored relationship)", StringComparison.Ordinal))
             {
                 group.Add(SolidLine(svgNamespace, LeftPadding, y - 4.0d));
                 group.Add(Text(svgNamespace, LeftPadding + 28.0d, y, row, bold: false));
                 continue;
             }
 
-            if (string.Equals(row, "Peering", StringComparison.Ordinal))
+            if (string.Equals(row, UnclassifiedConnectorLegendRow, StringComparison.Ordinal))
+            {
+                group.Add(UnclassifiedConnectorLine(svgNamespace, LeftPadding, y - 4.0d));
+                group.Add(Text(svgNamespace, LeftPadding + 28.0d, y, row, bold: false));
+                continue;
+            }
+
+            if (string.Equals(
+                    row,
+                    "Dashed peering line. Read the line label for peering state. This legend row is not observed traffic.",
+                    StringComparison.Ordinal))
             {
                 group.Add(DashedLine(svgNamespace, LeftPadding, y - 4.0d));
                 group.Add(Text(svgNamespace, LeftPadding + 28.0d, y, row, bold: false));
                 continue;
             }
 
-            if (string.Equals(row, "Resource group", StringComparison.Ordinal))
+            if (string.Equals(row, ResourceGroupFrameLegendRow, StringComparison.Ordinal))
             {
                 group.Add(ResourceGroupFrameSwatch(svgNamespace, LeftPadding, y - 9.0d));
                 group.Add(Text(svgNamespace, LeftPadding + 28.0d, y, row, bold: false));
@@ -180,7 +213,7 @@ public static class DiagramForestLegendSvgEmitter
             DiagramInventoryPictogramKind.Data => "Data",
             DiagramInventoryPictogramKind.Storage => "Storage",
             DiagramInventoryPictogramKind.Identity => "Identity",
-            _ => "Generic",
+            _ => "Resource category was not stored.",
         };
     }
 
@@ -242,6 +275,20 @@ public static class DiagramForestLegendSvgEmitter
             new XAttribute("stroke", ArchitectureDiagramMermaidPalette.LightEdgeStroke),
             new XAttribute("stroke-width", "1.5"),
             new XAttribute("stroke-dasharray", "6 4"),
+            new XAttribute("pointer-events", "none"));
+    }
+
+    private static XElement UnclassifiedConnectorLine(XNamespace svgNamespace, double x, double y)
+    {
+        return new XElement(
+            svgNamespace + "line",
+            new XAttribute("x1", Format(x)),
+            new XAttribute("y1", Format(y)),
+            new XAttribute("x2", Format(x + 24.0d)),
+            new XAttribute("y2", Format(y)),
+            new XAttribute("stroke", ArchitectureDiagramMermaidPalette.LightEdgeStroke),
+            new XAttribute("stroke-width", "1.5"),
+            new XAttribute("stroke-dasharray", "2 2"),
             new XAttribute("pointer-events", "none"));
     }
 

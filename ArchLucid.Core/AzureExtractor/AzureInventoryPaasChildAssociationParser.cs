@@ -7,8 +7,6 @@ namespace ArchLucid.Core.AzureExtractor;
 /// </summary>
 public static class AzureInventoryPaasChildAssociationParser
 {
-    private const int MaxIdentifierLength = 512;
-
     private const int MaxNameLength = 260;
 
     public static bool TryParse(JsonElement element, out AzureInventoryPaasChildAssociationRow? row, out string? errorMessage)
@@ -23,14 +21,14 @@ public static class AzureInventoryPaasChildAssociationParser
             return false;
         }
 
-        string? parentResourceId = TryReadBoundedString(element, "parentResourceId", MaxIdentifierLength);
-        string? childResourceId = TryReadBoundedString(element, "childResourceId", MaxIdentifierLength);
+        string? parentResourceIdRaw = TryReadString(element, "parentResourceId");
+        string? childResourceIdRaw = TryReadString(element, "childResourceId");
         string? childName = TryReadBoundedString(element, "childName", MaxNameLength);
         string? childType = TryReadBoundedString(element, "childType", MaxNameLength);
         string? collectionStatus = TryReadBoundedString(element, "collectionStatus", MaxNameLength);
 
-        if (string.IsNullOrWhiteSpace(parentResourceId)
-            || string.IsNullOrWhiteSpace(childResourceId)
+        if (string.IsNullOrWhiteSpace(parentResourceIdRaw)
+            || string.IsNullOrWhiteSpace(childResourceIdRaw)
             || string.IsNullOrWhiteSpace(childName)
             || string.IsNullOrWhiteSpace(childType)
             || string.IsNullOrWhiteSpace(collectionStatus))
@@ -47,10 +45,18 @@ public static class AzureInventoryPaasChildAssociationParser
             return false;
         }
 
+        if (!AzureInventoryCompanionArmIdNormalizer.TryNormalize(parentResourceIdRaw, out string normalizedParentResourceId)
+            || !AzureInventoryCompanionArmIdNormalizer.TryNormalize(childResourceIdRaw, out string normalizedChildResourceId))
+        {
+            errorMessage = "parentResourceId and childResourceId must be valid ARM identifiers.";
+
+            return false;
+        }
+
         row = new AzureInventoryPaasChildAssociationRow
         {
-            ParentResourceId = parentResourceId.Trim(),
-            ChildResourceId = childResourceId.Trim(),
+            ParentResourceId = normalizedParentResourceId,
+            ChildResourceId = normalizedChildResourceId,
             ChildName = childName.Trim(),
             ChildType = childType.Trim(),
             AssociationType = TryReadBoundedString(element, "associationType", MaxNameLength)

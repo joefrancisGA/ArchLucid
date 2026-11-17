@@ -41,7 +41,7 @@ export function isAskQuestionSent(input: {
   readonly messages: readonly ConversationMessage[];
 }): boolean {
   if (input.loading) {
-    return true;
+    return false;
   }
 
   return input.messages.some((message) => message.role.trim().toLowerCase() === "user");

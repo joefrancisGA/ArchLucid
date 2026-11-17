@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Audit;
@@ -29,7 +30,9 @@ public sealed class OperationalSecurityPathsController(
     ISecurityEvidencePathRankQueryService pathRankQueryService,
     ISecurityEvidencePathReportQueryService pathReportQueryService,
     ISecurityEvidencePathExplanationService pathExplanationService,
-    IScopeContextProvider scopeProvider) : ControllerBase
+    ISecureNowPilotPathDispositionService pilotPathDispositionService,
+    IScopeContextProvider scopeProvider,
+    IActorContext actorContext) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(typeof(PagedResponse<SecurityEvidencePathSummaryResponse>), StatusCodes.Status200OK)]
@@ -229,5 +232,81 @@ public sealed class OperationalSecurityPathsController(
                 ? null
                 : SecurityEvidencePathExplanationBuilder.MapResponse(result.Explanation),
         });
+    }
+
+    [HttpGet("{pathId:guid}/pilot-disposition")]
+    [ProducesResponseType(typeof(SecureNowPilotPathDispositionResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetPilotPathDisposition(
+        Guid pathId,
+        CancellationToken cancellationToken = default)
+    {
+        if (pathId == Guid.Empty)
+        {
+            return this.BadRequestProblem("PathId is required.", ProblemTypes.ValidationFailed);
+        }
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        SecureNowPilotPathDispositionResponse? disposition = await pilotPathDispositionService.TryGetLatestAsync(
+            scope,
+            pathId,
+            cancellationToken);
+
+        if (disposition is null)
+        {
+            return this.NotFoundProblem(
+                "Pilot path disposition was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(disposition);
+    }
+
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPut("{pathId:guid}/pilot-disposition")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Audit: SecureNowPilotPathDispositionService logs save via IAuditService.")]
+    [ProducesResponseType(typeof(SecureNowPilotPathDispositionSaveResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SavePilotPathDisposition(
+        Guid pathId,
+        [FromBody] SecureNowPilotPathDispositionWriteRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        if (pathId == Guid.Empty)
+        {
+            return this.BadRequestProblem("PathId is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (request is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        }
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        string actorId = actorContext.GetActorId();
+
+        SecureNowPilotPathDispositionSaveResult result = await pilotPathDispositionService.SaveAsync(
+            scope,
+            pathId,
+            request,
+            actorId,
+            cancellationToken);
+
+        if (!result.Succeeded)
+        {
+            string message = result.ErrorMessage ?? "Pilot path disposition save failed.";
+
+            if (message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+            {
+                return this.NotFoundProblem(message, ProblemTypes.ResourceNotFound);
+            }
+
+            return this.BadRequestProblem(message, ProblemTypes.ValidationFailed);
+        }
+
+        return Ok(result);
     }
 }

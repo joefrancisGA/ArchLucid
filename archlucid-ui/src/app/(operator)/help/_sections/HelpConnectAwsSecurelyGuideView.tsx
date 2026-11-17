@@ -67,6 +67,7 @@ import {
 } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -115,6 +116,11 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
   const { entry } = props;
   const returnHref = props.returnHref ?? CONNECT_AWS_SECURELY_CONFIGURE_HREF;
   const verifyHref = buildConnectAwsSecurelyVerifyHref(returnHref);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "cloud-connections-aws",
+    CONNECT_AWS_SECURELY_TOC_HEADINGS,
+    CONNECT_AWS_SECURELY_CLAIM_HEADING_ID,
+  );
 
   return (
     <article
@@ -368,7 +374,7 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
 
             <SponsorSendPathHonestyPanel testIdPrefix="help-connect-aws-securely" showSsoOptional={false} />
           </div>
-          <HelpTopicTableOfContents headings={CONNECT_AWS_SECURELY_TOC_HEADINGS} enableScrollSpy />
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
         </div>
       </div>
     </article>

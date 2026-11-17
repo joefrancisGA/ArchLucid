@@ -14,6 +14,8 @@
 
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ItsmConnectorsFindingTicketSurfaceId =
@@ -64,20 +66,27 @@ export const ITSM_CONNECTORS_FINDING_TICKET_FINDINGS_PEER_LINK: ItsmConnectorsFi
     whenToUse: "Open a finding, then create or link an external ITSM ticket.",
   };
 
-/** Pairwise model for ITSM connectors ↔ Finding ticket linkage (fixed routes). */
-export function buildItsmConnectorsFindingTicketPairwiseRail(): PairwiseVocabularyRailModel<ItsmConnectorsFindingTicketSurfaceId> {
+/** Pairwise model for ITSM connectors ↔ Finding ticket linkage. */
+export function buildItsmConnectorsFindingTicketPairwiseRail(
+  productLine: ProductLineId = "architecture",
+): PairwiseVocabularyRailModel<ItsmConnectorsFindingTicketSurfaceId> {
   return {
     heading: ITSM_CONNECTORS_FINDING_TICKET_HEADING,
     whyTwo: ITSM_CONNECTORS_FINDING_TICKET_WHY_TWO,
     compactLine: ITSM_CONNECTORS_FINDING_TICKET_COMPACT_LINE,
     currentLink: ITSM_CONNECTORS_FINDING_TICKET_CONNECTORS_LINK,
-    peerLink: ITSM_CONNECTORS_FINDING_TICKET_FINDINGS_PEER_LINK,
+    peerLink: {
+      ...ITSM_CONNECTORS_FINDING_TICKET_FINDINGS_PEER_LINK,
+      href: findingsPathForProductLine(productLine),
+    },
   };
 }
 
 /** Full vocabulary model. */
-export function buildItsmConnectorsFindingTicketVocabulary(): ItsmConnectorsFindingTicketVocabularyModel {
-  const rail = buildItsmConnectorsFindingTicketPairwiseRail();
+export function buildItsmConnectorsFindingTicketVocabulary(
+  productLine: ProductLineId = "architecture",
+): ItsmConnectorsFindingTicketVocabularyModel {
+  const rail = buildItsmConnectorsFindingTicketPairwiseRail(productLine);
 
   return {
     heading: rail.heading,
@@ -91,9 +100,13 @@ export function buildItsmConnectorsFindingTicketVocabulary(): ItsmConnectorsFind
 /** Peer deep-link for the surface you are not currently on. */
 export function resolveItsmConnectorsFindingTicketPeerLink(
   currentSurfaceId: ItsmConnectorsFindingTicketSurfaceId,
+  productLine: ProductLineId = "architecture",
 ): ItsmConnectorsFindingTicketLink {
   if (currentSurfaceId === "itsm-connectors") {
-    return ITSM_CONNECTORS_FINDING_TICKET_FINDINGS_PEER_LINK;
+    return {
+      ...ITSM_CONNECTORS_FINDING_TICKET_FINDINGS_PEER_LINK,
+      href: findingsPathForProductLine(productLine),
+    };
   }
 
   return ITSM_CONNECTORS_FINDING_TICKET_CONNECTORS_LINK;

@@ -12,6 +12,8 @@ public static class ArchitectureDiagramCanonicalObjectMapper
 {
     public const string StructuredDiagramSourceType = StructuredDiagramCanonicalSourceTypes.StructuredDiagram;
 
+    public const string DiagramNodeLabelNotStoredCopy = "Diagram node label was not stored.";
+
     public static IReadOnlyList<CanonicalObject> Map(
         ArchitectureDiagramModelRecord model,
         string documentId,
@@ -61,13 +63,16 @@ public static class ArchitectureDiagramCanonicalObjectMapper
         string objectId,
         double labelOnlyInferenceConfidence)
     {
-        string label = string.IsNullOrWhiteSpace(node.Label) ? node.Id.Trim() : node.Label.Trim();
-        double confidence = string.Equals(
-            node.Provenance,
-            ArchitectureDiagramProvenanceKinds.Asserted,
-            StringComparison.Ordinal)
-            ? 1d
-            : labelOnlyInferenceConfidence;
+        bool labelStored = !string.IsNullOrWhiteSpace(node.Label);
+        string label = labelStored ? node.Label.Trim() : DiagramNodeLabelNotStoredCopy;
+        double confidence = !labelStored
+            ? 0d
+            : string.Equals(
+                node.Provenance,
+                ArchitectureDiagramProvenanceKinds.Asserted,
+                StringComparison.Ordinal)
+                ? 1d
+                : labelOnlyInferenceConfidence;
 
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -76,7 +81,20 @@ public static class ArchitectureDiagramCanonicalObjectMapper
             ["diagramNodeKind"] = node.Kind,
             ["extractionMethod"] = model.ExtractionMethod,
             ["inferenceConfidence"] = confidence.ToString("0.###"),
+            ["diagramNodeLabelStored"] = labelStored ? "true" : "false",
         };
+
+        if (!labelStored)
+        {
+            properties["labelOnlyInferenceConfidence"] = "Label-only inference confidence was not applied because the diagram node label was not stored.";
+        }
+        else if (!string.Equals(
+                     node.Provenance,
+                     ArchitectureDiagramProvenanceKinds.Asserted,
+                     StringComparison.Ordinal))
+        {
+            properties["labelOnlyInferenceConfidence"] = labelOnlyInferenceConfidence.ToString("0.###");
+        }
 
         if (!string.IsNullOrWhiteSpace(node.SubgraphId))
         {

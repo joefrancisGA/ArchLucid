@@ -24,6 +24,7 @@ export type SendableExportCoverInput = {
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly hostAgentExecutionMode?: string | null;
   readonly findings?: readonly FindingSemanticSupportBandExportInput[] | null;
+  /** When greater than zero, the cover includes sponsor ROI non-summing honesty. */
   readonly sponsorRoiRowCount?: number | null;
 };
 
@@ -38,15 +39,19 @@ function readClassificationFromWire(value: unknown): FindingSemanticSupportBandE
 /** Coerces findings snapshot wire JSON into sendable-cover band inputs. */
 export function coerceSendableExportCoverFindingsFromSnapshot(
   snapshot: unknown,
-): readonly FindingSemanticSupportBandExportInput[] {
+): readonly FindingSemanticSupportBandExportInput[] | null {
   if (!isRecord(snapshot)) {
-    return [];
+    return null;
+  }
+
+  if (!("findings" in snapshot)) {
+    return null;
   }
 
   const findings = snapshot.findings;
 
   if (!Array.isArray(findings)) {
-    return [];
+    return null;
   }
 
   const rows: FindingSemanticSupportBandExportInput[] = [];
@@ -144,12 +149,14 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
     lines.push(`- **Semantic support:** ${SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY}`);
   }
 
-  const sponsorRoiRowCount = input.sponsorRoiRowCount ?? 0;
+  const sponsorRoiRowCount = input.sponsorRoiRowCount;
 
-  if (sponsorRoiRowCount > 0) {
-    lines.push(`- **Sponsor ROI:** ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`);
-  } else {
+  if (sponsorRoiRowCount === null || sponsorRoiRowCount === undefined) {
     lines.push("- **Sponsor ROI:** Sponsor savings were not stored on this export cover.");
+  } else if (sponsorRoiRowCount === 0) {
+    lines.push("- **Sponsor ROI:** No sponsor savings rows were stored.");
+  } else {
+    lines.push(`- **Sponsor ROI:** ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`);
   }
 
   lines.push("");

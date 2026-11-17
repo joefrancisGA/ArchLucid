@@ -20,6 +20,8 @@ import {
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_CATALOG_STATUS_NOT_STORED_TITLE,
+  RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_CATALOG_UNAVAILABLE_TITLE,
   RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_DESCRIPTION,
   RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_TITLE,
   RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_HEADING,
@@ -73,7 +75,13 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
       {props.items.length === 0 ? (
         <div className="mt-3">
           <EnterpriseCompactEmptyState
-            title={RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_TITLE}
+            title={
+              props.catalogAvailable === false
+                ? RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_CATALOG_UNAVAILABLE_TITLE
+                : props.catalogAvailable === undefined
+                  ? RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_CATALOG_STATUS_NOT_STORED_TITLE
+                  : RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_TITLE
+            }
             description={
               props.catalogAvailable === false
                 ? "Uploaded files from an earlier browser session may not appear until the catalog is available."
@@ -108,7 +116,7 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
                       <>
                         {item.fileName}
                         <span className={cn("ml-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                          Evidence item id was not stored.
+                          File name is a label without a stored evidence item. Evidence item id was not stored.
                         </span>
                       </>
                     ) : item.evidenceItemId.length > 0 ? (
@@ -117,6 +125,7 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
                         evidenceItemId={item.evidenceItemId!}
                         fileName={item.fileName}
                         contentType={item.contentType}
+                        contentTypeCatalogPending={item.contentTypeCatalogPending === true}
                         handlers={handlers}
                         openButtonRef={openButtonRef}
                       />
@@ -129,7 +138,11 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
                       </>
                     )}
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell>{formatIngestedLabel(item.ingestedUtc)}</EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    {item.evidenceItemId === null || item.evidenceItemId === undefined
+                      ? RUN_DETAIL_CAPTURED_EVIDENCE_UPLOADED_TIME_NOT_STORED_COPY
+                      : formatIngestedLabel(item.ingestedUtc)}
+                  </EnterpriseTableCell>
                 </EnterpriseTableRow>
               ))}
             </EnterpriseTableBody>

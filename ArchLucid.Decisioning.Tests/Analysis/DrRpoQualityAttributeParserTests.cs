@@ -9,6 +9,30 @@ namespace ArchLucid.Decisioning.Tests.Analysis;
 [Trait("Category", "Unit")]
 public sealed class DrRpoQualityAttributeParserTests
 {
+    [Theory]
+    [InlineData("35791394.125")]
+    [InlineData("79228162514264337593543950335")]
+    [InlineData("-1")]
+    public void TryParseRecoveryObjectives_ignores_invalid_hours_and_retains_valid_objective(string invalidHours)
+    {
+        GraphNode node = new()
+        {
+            NodeId = "qa-invalid-rpo",
+            NodeType = GraphNodeTypes.QualityAttribute,
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["rpoHours"] = invalidHours,
+                ["rtoHours"] = "4",
+            },
+        };
+
+        DrRpoQualityAttributeParser.TryParseRecoveryObjectives(node, out int? rpoMinutes, out int? rtoMinutes)
+            .Should().BeTrue();
+
+        rpoMinutes.Should().BeNull();
+        rtoMinutes.Should().Be(240);
+    }
+
     [Fact]
     public void TryParseRecoveryObjectives_reads_typed_rto_and_rpo_hours_without_re_parsing_label()
     {
@@ -34,6 +58,31 @@ public sealed class DrRpoQualityAttributeParserTests
         parsed.Should().BeTrue();
         rtoMinutes.Should().Be(240);
         rpoMinutes.Should().Be(15);
+    }
+
+    [Fact]
+    public void TryParseRecoveryObjectives_does_not_round_half_minute_rpo_hours_to_zero()
+    {
+        // RequestQualityAttributeMaterializer stores Round(0.5/60, 4) for "RPO 0.5 minutes".
+        GraphNode node = new()
+        {
+            NodeId = "qa-half-minute",
+            NodeType = GraphNodeTypes.QualityAttribute,
+            Label = "Availability quality attribute",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["rpoHours"] = "0.0083",
+            },
+        };
+
+        bool parsed = DrRpoQualityAttributeParser.TryParseRecoveryObjectives(
+            node,
+            out int? rpoMinutes,
+            out int? rtoMinutes);
+
+        parsed.Should().BeTrue();
+        rpoMinutes.Should().Be(1);
+        rtoMinutes.Should().BeNull();
     }
 
     [Fact]

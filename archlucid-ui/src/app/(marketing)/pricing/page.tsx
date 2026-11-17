@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { MarketingCustomPolicyPackAuthoringSection } from "@/components/marketing/MarketingCustomPolicyPackAuthoringSection";
+import { ArchLucidBetaSkuContentsSection } from "@/components/product-line/ArchLucidBetaSkuContentsSection";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { MarketingPricingUsageFaqSection } from "@/components/marketing/MarketingPricingUsageFaqSection";
@@ -68,6 +69,7 @@ export default async function PricingPage(props: PricingPageProps) {
         initialPricing={loadPricingDoc()}
       />
       <MarketingPricingUsageFaqSection />
+      <ArchLucidBetaSkuContentsSection />
       <MarketingCustomPolicyPackAuthoringSection quoteSectionDomId="pricing-quote-request" />
       <details
         className="mb-6 rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"

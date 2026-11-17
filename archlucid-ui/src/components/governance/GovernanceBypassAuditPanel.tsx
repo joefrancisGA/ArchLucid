@@ -21,6 +21,7 @@ import type { AuditEvent } from "@/lib/api";
 import { GOVERNANCE_BYPASS_INVOKED_EVENT_TYPE, parseGovernanceBypassAuditPayload } from "@/lib/governance/governance-bypass-audit-payload";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { listRecentGovernanceBypassAuditEvents } from "@/lib/list-recent-governance-bypass-audit-events";
+import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -133,7 +134,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
                     <EnterpriseTableCell>
                       {runId.length > 0 ? (
                         <Link
-                          href={`/architecture/reviews/${encodeURIComponent(runId)}`}
+                          href={resolveGovernanceScopedReviewOpenHref({ runId })}
                           className={OPERATOR_LINK.nav}
                         >
                           {runId}

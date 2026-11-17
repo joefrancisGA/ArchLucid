@@ -10,6 +10,7 @@ import {
   buildPolicyPacksHrefWithReviewId,
   POLICY_PACKS_REVIEW_ID_QUERY_PARAM,
 } from "@/lib/policy-packs-review-handoff";
+import { resolvePolicyPackScopedOpenReviewHref } from "@/lib/policy-pack-scoped-open-review-href";
 import { policyPackDetailHref } from "@/lib/policy/policy-packs-deep-link";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
@@ -63,7 +64,7 @@ function PolicyPackDetailScopedChrome(props: PolicyPackDetailChromeProps): React
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={`/architecture/reviews/${encodeURIComponent(scopedReviewId)}`}
+              href={resolvePolicyPackScopedOpenReviewHref(scopedReviewId)}
             >
               Open review
             </Link>
@@ -136,6 +137,10 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
     );
   }
 
+  if (detailQuery.isError) {
+    return wrapDetail(<PolicyPackDetailLoadError onRetry={handleRetry} />);
+  }
+
   if (kind === "healthcare-claims") {
     return wrapDetail(
       <HealthcareClaimsPolicyPackDetail
@@ -162,10 +167,6 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
         findingsHref={findingsHref}
       />,
     );
-  }
-
-  if (detailQuery.isError) {
-    return wrapDetail(<PolicyPackDetailLoadError onRetry={handleRetry} />);
   }
 
   if (packRecord !== null) {

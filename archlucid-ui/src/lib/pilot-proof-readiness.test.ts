@@ -113,14 +113,14 @@ describe("isAgentOutputPilotStrictSponsorSafe", () => {
     ).toBe(false);
   });
 
-  it("returns true when satisfied or field is absent", () => {
+  it("returns true only when strict evidence is explicitly satisfied", () => {
     expect(
       isAgentOutputPilotStrictSponsorSafe({
         proofPackageCompleteness: { agentOutputPilotStrictEvidenceSatisfied: true },
       }),
     ).toBe(true);
 
-    expect(isAgentOutputPilotStrictSponsorSafe({ proofPackageCompleteness: {} })).toBe(true);
+    expect(isAgentOutputPilotStrictSponsorSafe({ proofPackageCompleteness: {} })).toBe(false);
   });
 });
 
@@ -128,6 +128,15 @@ describe("describeSponsorProofReadiness", () => {
   it("returns null when proofPackageCompleteness is absent", () => {
     expect(describeSponsorProofReadiness({ isDemoTenant: false })).toBeNull();
     expect(describeSponsorProofReadiness(null)).toBeNull();
+  });
+
+  it("labels omitted proof sendability fields as not stored", () => {
+    const copy = describeSponsorProofReadiness({
+      isDemoTenant: false,
+      proofPackageCompleteness: {},
+    });
+
+    expect(copy?.detail).toBe("Proof sendability was not stored.");
   });
 
   it("uses persisted sponsorProofReadiness Sendable when present", () => {

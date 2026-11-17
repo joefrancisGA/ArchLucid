@@ -26,7 +26,8 @@ export async function RunDetailDecisionDeltaDeferred(
   }
 
   const quickDecisionFindings = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
-  const view = resolveRunDetailDecisionDeltaView(quickDecisionFindings, isCommitted);
+  const hasFindingsSnapshot = resolvedDetail.run.hasFindingsSnapshot === true;
+  const view = resolveRunDetailDecisionDeltaView(quickDecisionFindings, isCommitted, hasFindingsSnapshot);
 
   if (view === null) {
     return null;

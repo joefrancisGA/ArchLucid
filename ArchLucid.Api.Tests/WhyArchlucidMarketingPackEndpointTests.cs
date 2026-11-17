@@ -20,6 +20,7 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
+[Trait(HarnessGoldenPathGuardConstants.DemoBaselineTraitCategory, HarnessGoldenPathGuardConstants.DemoBaselineTraitValue)]
 public sealed class WhyArchlucidMarketingPackEndpointTests(ArchLucidApiFactory factory) : IClassFixture<ArchLucidApiFactory>
 {
     [SkippableFact]
@@ -107,7 +108,7 @@ public sealed class WhyArchlucidMarketingPackEndpointTests(ArchLucidApiFactory f
             CancellationToken cancellationToken = default)
         {
             Guid manifestId = Guid.Parse("11111111-1111-1111-1111-111111111111");
-            Guid runId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
+            Guid runId = HarnessDemoBaselineSupport.AuthorityRunId;
 
             DemoCommitPagePreviewResponse response = new()
             {

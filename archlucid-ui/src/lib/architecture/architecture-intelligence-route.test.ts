@@ -30,7 +30,7 @@ const ARCHITECTURE_INTELLIGENCE_APP_LAYOUT = join(
 );
 
 const PRODUCT_ARCHITECTURE_INTELLIGENCE_SURFACES = [
-  "archlucid-ui/src/lib/pilot-nav-group-builder.ts",
+  "archlucid-ui/src/lib/command-palette-curated-tasks.ts",
   "archlucid-ui/src/lib/architecture/architecture-intelligence-run-href.ts",
   "archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailAiRefinePanel.tsx",
   "archlucid-ui/src/components/governance/findings/governance-findings-queue-operational-actions.tsx",
@@ -39,7 +39,7 @@ const PRODUCT_ARCHITECTURE_INTELLIGENCE_SURFACES = [
 describe("architecture-intelligence-route (AR2)", () => {
   it("marks the reasoning lab as noindex with honest metadata", () => {
     expect(ARCHITECTURE_INTELLIGENCE_ROUTE_METADATA.robots).toEqual({ index: false, follow: false });
-    expect(ARCHITECTURE_INTELLIGENCE_ROUTE_METADATA.title).toBe("Architecture intelligence");
+    expect(ARCHITECTURE_INTELLIGENCE_ROUTE_METADATA.title).toBe("Try another reasoning pass");
     expect(ARCHITECTURE_INTELLIGENCE_ROUTE_METADATA.description?.toLowerCase()).toContain("reasoning");
   });
 

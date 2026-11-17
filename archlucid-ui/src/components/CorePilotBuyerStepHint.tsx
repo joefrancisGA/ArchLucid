@@ -16,6 +16,7 @@ import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 
 
 function StepBadge({ label }: { label: string }) {
@@ -54,7 +55,8 @@ function buyerHintBody(
   }
 
   if (state === "has-run") {
-    const href = latestRunId !== null ? `/architecture/reviews/${encodeURIComponent(latestRunId)}` : "/architecture/reviews";
+    const href =
+      latestRunId !== null ? resolveOperatorScopedRunReviewHref(latestRunId) : "/architecture/reviews";
 
     return (
       <>
@@ -72,7 +74,7 @@ function buyerHintBody(
 
   const href =
     firstCommittedRunId !== null
-      ? `/architecture/reviews/${encodeURIComponent(firstCommittedRunId)}`
+      ? resolveOperatorScopedRunReviewHref(firstCommittedRunId)
       : "/architecture/reviews";
 
   return (

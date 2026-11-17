@@ -9,6 +9,12 @@ import {
   resolveInfraEvidenceOutlineSeedNodeId,
   type InfraEvidenceMermaidOutlineNode,
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+import {
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DERIVED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED,
+} from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 
 function expectedOutlineNode(
   node: Pick<InfraEvidenceMermaidOutlineNode, "id" | "label"> &
@@ -79,7 +85,7 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         resourceType: null,
         resourceGroup: null,
       }),
-    ).toBe("n_hash");
+    ).toBe("");
   });
 
   it("parses inventory node metadata comments for resource type and group", () => {
@@ -297,6 +303,18 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     ]);
   });
 
+  it("leaves connection-state omission metadata unset instead of Unknown", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    %% al-state="Connection state was not stored."',
+        '    n_app["app"]',
+      ].join("\n"),
+    );
+
+    expect(outline.nodes[0]?.connectionState).toBeNull();
+  });
+
   it("parses al-state, al-unresolved, and ledger drop comments", () => {
     const outline = parseInfraEvidenceMermaidOutline(
       [
@@ -317,10 +335,21 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     });
   });
 
-  it("maps provenance tokens to reviewer bands (P-03)", () => {
-    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("ObservedFact")).toBe("Observed");
+  it("maps provenance tokens to reviewer bands (P-18)", () => {
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("ObservedFact")).toBe(
+      INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED,
+    );
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("HumanAssertion")).toBe(
+      INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED,
+    );
     expect(formatInfraEvidenceOutlineProvenanceReviewerBand("DerivedFact")).toBe(
-      'Provenance "DerivedFact" has no reviewer band.',
+      INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DERIVED,
+    );
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("DeterministicInference")).toBe(
+      INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED,
+    );
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("NotAFact")).toBe(
+      'Provenance "NotAFact" has no reviewer band.',
     );
   });
 });

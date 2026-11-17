@@ -1,12 +1,18 @@
 import {
   FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
   FINDING_CLASSIFICATION_DECISION_GRADE,
+  FINDING_CLASSIFICATION_STORED_EMPTY_LABEL,
+  isUnrecognizedFindingClassification,
 } from "@/lib/findings/review-detail-findings-classification-band";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
+
+export const FINDING_CLASSIFICATION_UNRECOGNIZED_LABEL =
+  "Finding classification was not recognized." as const;
 
 export type FindingClassificationValue =
   | typeof FINDING_CLASSIFICATION_DECISION_GRADE
   | typeof FINDING_CLASSIFICATION_CHECKLIST_COVERAGE
+  | string
   | null
   | undefined;
 
@@ -20,7 +26,7 @@ export const FINDING_CLASSIFICATION_CHECKLIST_DEMOTED_LABEL = "Checklist-demoted
 export const FINDING_TREATMENT_DEMOTE_TO_CHECKLIST = 1 as const;
 
 export const FINDING_CLASSIFICATION_DECISION_GRADE_REASON =
-  "Policy-mapped or insight-density-promoted finding eligible for disposition and career exports." as const;
+  "Stored as decision-grade on the finding record; disposition and exports still require reviewer action." as const;
 
 export const FINDING_CLASSIFICATION_CHECKLIST_REASON =
   "Typed-engine checklist coverage; not a default pre-commit gate block." as const;
@@ -39,10 +45,18 @@ export function resolveFindingClassificationLabel(
     }
 
     if (treatment !== null && treatment !== undefined && treatment !== 0) {
-      return String(treatment);
+      return "Treatment was not recognized.";
     }
 
     return FINDING_CLASSIFICATION_CHECKLIST_LABEL;
+  }
+
+  if (typeof classification === "string" && classification.trim().length === 0) {
+    return FINDING_CLASSIFICATION_STORED_EMPTY_LABEL;
+  }
+
+  if (isUnrecognizedFindingClassification(classification)) {
+    return FINDING_CLASSIFICATION_UNRECOGNIZED_LABEL;
   }
 
   return null;

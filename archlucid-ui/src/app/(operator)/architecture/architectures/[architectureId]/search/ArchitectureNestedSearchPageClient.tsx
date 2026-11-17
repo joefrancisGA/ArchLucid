@@ -1,11 +1,13 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { Suspense } from "react";
 
 import { WorkingArchitectureNestedToolShell } from "@/components/architecture/WorkingArchitectureNestedToolShell";
 import { SearchPageClient } from "@/app/(operator)/insights/search-review-evidence/_sections/SearchPageClient";
 import { architectureNestedSearchPath } from "@/lib/architecture/architecture-routes";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
 export type ArchitectureNestedSearchPageClientProps = {
@@ -17,7 +19,7 @@ export function ArchitectureNestedSearchPageClient(
   props: ArchitectureNestedSearchPageClientProps,
 ): React.JSX.Element {
   const architectureId = props.architectureId.trim();
-  const buyerShell = isBuyerPolishedOperatorShellEnv();
+  const buyerShell = useProductionEvalChrome();
   const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
 
   return (

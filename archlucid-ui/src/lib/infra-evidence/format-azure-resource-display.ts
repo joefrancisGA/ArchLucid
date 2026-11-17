@@ -15,16 +15,18 @@ const EMPTY_RESOURCE_NAME_PLACEHOLDER = "—";
 
 export const AZURE_RESOURCE_NAME_NOT_STORED_LABEL = "Resource name was not stored." as const;
 
+/** Operator tables — missing ARM id (UU-457). */
+export const AZURE_RESOURCE_NAME_NOT_RECORDED_LABEL = AZURE_RESOURCE_NAME_NOT_STORED_LABEL;
+
 export const SECURE_NOW_RESOURCE_NAME_NOT_STORED_LABEL = "Node name was not stored" as const;
+
+export const SECURE_NOW_RESOURCE_NAME_STORED_EMPTY_LABEL = "Resource name was stored empty." as const;
 
 export function isSecureNowResourceDisplayNameMissing(resourceName: string | null | undefined): boolean {
   const trimmed = resourceName?.trim() ?? "";
 
   return trimmed.length === 0 || trimmed === EMPTY_RESOURCE_NAME_PLACEHOLDER;
 }
-
-/** Operator tables — missing ARM id or name (UU-457). */
-export const AZURE_RESOURCE_NAME_NOT_RECORDED_LABEL = "Name not recorded" as const;
 
 /**
  * SecureNow lists and diagrams show Azure resource names in lowercase for scanability.
@@ -33,8 +35,12 @@ export const AZURE_RESOURCE_NAME_NOT_RECORDED_LABEL = "Name not recorded" as con
 export function normalizeSecureNowResourceNameForDisplay(resourceName: string): string {
   const trimmed = resourceName.trim();
 
-  if (trimmed.length === 0 || trimmed === EMPTY_RESOURCE_NAME_PLACEHOLDER) {
-    return trimmed.length > 0 ? AZURE_RESOURCE_NAME_NOT_STORED_LABEL : AZURE_RESOURCE_NAME_NOT_STORED_LABEL;
+  if (trimmed.length === 0) {
+    return AZURE_RESOURCE_NAME_NOT_STORED_LABEL;
+  }
+
+  if (trimmed === EMPTY_RESOURCE_NAME_PLACEHOLDER) {
+    return AZURE_RESOURCE_NAME_NOT_STORED_LABEL;
   }
 
   return trimmed.toLowerCase();
@@ -47,19 +53,7 @@ export function formatCloudResourceDisplayName(input: CloudResourceDisplayNameIn
     return normalizeSecureNowResourceNameForDisplay(displayName);
   }
 
-  const externalResourceId = input.externalResourceId?.trim() ?? "";
-
-  if (externalResourceId.length === 0) {
-    return "Resource name was not stored.";
-  }
-
-  const parsedName = formatAzureResourceDisplay(externalResourceId).primaryLabel;
-
-  if (parsedName === AZURE_RESOURCE_NAME_NOT_RECORDED_LABEL) {
-    return "Resource name was not stored.";
-  }
-
-  return parsedName;
+  return AZURE_RESOURCE_NAME_NOT_STORED_LABEL;
 }
 
 const EMPTY_DISPLAY: AzureResourceDisplay = {
@@ -118,11 +112,18 @@ export function formatAzureResourceTypeForDisplay(resourceType: string | null | 
   return `${stripMicrosoftProviderPrefix(namespace)}${remainder}`;
 }
 
-function resourceTypeFromSegments(segments: readonly string[]): string | null {
-  const providersIndex = segments.findIndex((segment) => segment.toLowerCase() === "providers");
+export function resolveAzureResourceTypeFromIdSegments(segments: readonly string[]): string | null {
+  let providersIndex = segments.findIndex((segment) => segment.toLowerCase() === "providers");
 
   if (providersIndex < 0 || segments.length < providersIndex + 3) {
     return null;
+  }
+
+  // Extension resources start another provider namespace at a type position.
+  for (let index = providersIndex + 2; index + 3 < segments.length; index += 2) {
+    if (segments[index]?.toLowerCase() === "providers") {
+      providersIndex = index;
+    }
   }
 
   const namespaceSegment = segments[providersIndex + 1];
@@ -147,17 +148,46 @@ function resourceTypeFromSegments(segments: readonly string[]): string | null {
     return null;
   }
 
-  return `${stripMicrosoftProviderPrefix(namespaceSegment)}/${typeSegments.join("/")}`;
+  return `${namespaceSegment}/${typeSegments.join("/")}`;
 }
 
-function joinSecondaryLabel(resourceType: string | null, resourceGroup: string | null): string | null {
-  const parts = [resourceType, resourceGroup].filter((part): part is string => part != null && part.length > 0);
+function looksLikeArmResourceId(azureResourceId: string): boolean {
+  const lower = azureResourceId.toLowerCase();
 
-  if (parts.length === 0) {
+  return lower.includes("/providers/") || lower.startsWith("/subscriptions/");
+}
+
+function joinSecondaryLabel(
+  resourceType: string | null,
+  resourceGroup: string | null,
+  azureResourceId: string,
+): string | null {
+  const typeMissing = resourceType == null || resourceType.length === 0;
+  const groupMissing = resourceGroup == null || resourceGroup.length === 0;
+
+  if (!looksLikeArmResourceId(azureResourceId)) {
     return null;
   }
 
-  return parts.join(" · ");
+  if (typeMissing && groupMissing) {
+    return "Resource type was not stored. Resource group was not stored.";
+  }
+
+  if (typeMissing) {
+    return resourceGroup !== null && resourceGroup.length > 0
+      ? `${resourceGroup} · Resource type was not stored.`
+      : "Resource type was not stored.";
+  }
+
+  if (groupMissing) {
+    return resourceType !== null && resourceType.length > 0
+      ? `${resourceType} · Resource group was not stored.`
+      : "Resource group was not stored.";
+  }
+
+  const parts = [resourceType, resourceGroup].filter((part): part is string => part != null && part.length > 0);
+
+  return parts.length > 0 ? parts.join(" · ") : null;
 }
 
 /**
@@ -172,8 +202,20 @@ export function formatAzureResourceDisplay(azureResourceId: string | null | unde
 
   const segments = trimmed.split("/").filter((segment) => segment.length > 0);
   const name = segments[segments.length - 1] ?? trimmed;
-  const resourceGroup = segmentAfterToken(segments, "resourcegroups");
-  const resourceType = resourceTypeFromSegments(segments);
+  const resourceGroupIndex = segments.findIndex((segment) => segment.toLowerCase() === "resourcegroups");
+  let resourceGroup: string | null = null;
+
+  if (resourceGroupIndex >= 0) {
+    const candidate = segments[resourceGroupIndex + 1];
+    const tokenAfterGroup = segments[resourceGroupIndex + 2]?.toLowerCase() ?? "";
+
+    if (candidate !== undefined && candidate.length > 0 && tokenAfterGroup === "providers") {
+      resourceGroup = candidate;
+    }
+  }
+
+  const qualifiedType = resolveAzureResourceTypeFromIdSegments(segments);
+  const resourceType = qualifiedType === null ? null : formatAzureResourceTypeForDisplay(qualifiedType);
 
   const displayName = normalizeSecureNowResourceNameForDisplay(name);
 
@@ -182,6 +224,6 @@ export function formatAzureResourceDisplay(azureResourceId: string | null | unde
     resourceType,
     resourceGroup,
     primaryLabel: displayName,
-    secondaryLabel: joinSecondaryLabel(resourceType, resourceGroup),
+    secondaryLabel: joinSecondaryLabel(resourceType, resourceGroup, trimmed),
   };
 }

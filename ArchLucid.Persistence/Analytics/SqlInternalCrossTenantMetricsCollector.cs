@@ -38,19 +38,9 @@ public sealed class SqlInternalCrossTenantMetricsCollector(
     public Task<IReadOnlyList<InternalCrossTenantTenantRunMetrics>> CollectTenantMetricsAsync(
         DateOnly rollupDate,
         CancellationToken cancellationToken = default) =>
-        _sqlOperations.ExecuteAsync(ct => CollectTenantMetricsCoreAsync(rollupDate, ct), cancellationToken);
-
-    private async Task<IReadOnlyList<InternalCrossTenantTenantRunMetrics>> CollectTenantMetricsCoreAsync(
-        DateOnly rollupDate,
-        CancellationToken cancellationToken)
-    {
-        SqlTopologyOptions snapshot = _topologyOptions.CurrentValue;
-
-        if (snapshot.Mode == SqlTopologyMode.SingleCatalog)
-            return await CollectSingleCatalogAsync(rollupDate, cancellationToken);
-
-        return await CollectPerTenantCatalogAsync(rollupDate, cancellationToken);
-    }
+        _topologyOptions.CurrentValue.Mode == SqlTopologyMode.SingleCatalog
+            ? _sqlOperations.ExecuteAsync(ct => CollectSingleCatalogAsync(rollupDate, ct), cancellationToken)
+            : CollectPerTenantCatalogAsync(rollupDate, cancellationToken);
 
     private async Task<IReadOnlyList<InternalCrossTenantTenantRunMetrics>> CollectSingleCatalogAsync(
         DateOnly rollupDate,
@@ -96,8 +86,8 @@ public sealed class SqlInternalCrossTenantMetricsCollector(
         CancellationToken cancellationToken)
     {
         IReadOnlyList<TenantDatabaseBindingRecord> bindings =
-            await _tenantDatabaseBindingRepository.ListBindingsWithStateAsync(
-                TenantDatabaseProvisioningState.Active,
+            await _sqlOperations.ExecuteAsync(
+                ct => _tenantDatabaseBindingRepository.ListBindingsWithStateAsync(TenantDatabaseProvisioningState.Active, ct),
                 cancellationToken);
 
         if (bindings.Count == 0)

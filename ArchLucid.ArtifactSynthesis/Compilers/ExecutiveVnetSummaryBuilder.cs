@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Inventory;
 
@@ -52,8 +53,12 @@ internal static class ExecutiveVnetSummaryBuilder
 
     }
 
+    private const string VirtualNetworkNameNotStored = "Virtual network name was not stored.";
+
     private static string BuildVnetLabel(string baseLabel, VnetResourceCounts counts)
     {
+        string label = string.IsNullOrWhiteSpace(baseLabel) ? VirtualNetworkNameNotStored : baseLabel.Trim();
+
         List<string> suffixParts = [];
 
         if (counts.SubnetCount > 0)
@@ -68,12 +73,12 @@ internal static class ExecutiveVnetSummaryBuilder
 
         if (suffixParts.Count == 0)
         {
-            return baseLabel;
+            return label;
         }
 
         string suffix = string.Join(" · ", suffixParts);
 
-        return $"{MermaidDiagramRenderer.EscapeLabel(baseLabel)} · {suffix}";
+        return $"{MermaidDiagramRenderer.EscapeLabel(label)} · {suffix}";
     }
 
     private static Dictionary<string, VnetResourceCounts> BuildVnetCounts(
@@ -96,7 +101,7 @@ internal static class ExecutiveVnetSummaryBuilder
         foreach (GraphNode node in graph.Nodes)
         {
             string armType = DiagramAstGraphNodeClassifier.ReadArmType(node);
-            string? parentArmId = node.Properties.TryGetValue("arm.parentId", out string? parentId) ? parentId : null;
+            string? parentArmId = ResolveSubnetParentArmId(node);
 
             if (!string.IsNullOrWhiteSpace(parentArmId)
                 && armIdToNodeId.TryGetValue(parentArmId, out string? parentNodeId)
@@ -137,6 +142,28 @@ internal static class ExecutiveVnetSummaryBuilder
         }
 
         return counts;
+    }
+
+    private static string? ResolveSubnetParentArmId(GraphNode node)
+    {
+        if (node.Properties.TryGetValue("arm.parentId", out string? parentId))
+        {
+            if (string.IsNullOrWhiteSpace(parentId))
+            {
+                return null;
+            }
+
+            return parentId.Trim();
+        }
+
+        if (node.Properties.TryGetValue("arm.id", out string? armId)
+            && ArmResourceIdNormalizer.TryGetParentResourceId(armId, out string derivedParent)
+            && !string.IsNullOrWhiteSpace(derivedParent))
+        {
+            return derivedParent;
+        }
+
+        return null;
     }
 
     private static Dictionary<string, List<string>> BuildConnectsToAdjacency(GraphSnapshot graph)

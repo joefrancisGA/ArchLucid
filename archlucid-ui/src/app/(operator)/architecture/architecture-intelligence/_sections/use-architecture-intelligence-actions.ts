@@ -76,6 +76,7 @@ export function useArchitectureIntelligenceActions(
 
       setLoadingAction(action);
       setError(null);
+      setRunState(null);
 
       if (shouldPublish) {
         setPublishToProduct(true);
@@ -177,7 +178,12 @@ export function useArchitectureIntelligenceActions(
         return;
       }
 
-      setActiveRunId(result.runId ?? activeRunId);
+      const resolvedRunId = result.runId?.trim() ?? "";
+
+      if (resolvedRunId.length > 0) {
+        setActiveRunId(resolvedRunId);
+      }
+
       setRunState({ kind: "reasoning", result });
     } catch (cause) {
       if (isStaleActionGeneration(actionGenerationRef, generation)) {

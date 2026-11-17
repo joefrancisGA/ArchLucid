@@ -13,15 +13,26 @@ import { manifestSummaryReadBlockedReason } from "@/lib/governance/manifest-summ
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
+import { encodeRequiredPathSegment } from "./api-boundary-normalization";
+
+/** Builds the path for one artifact. A blank manifest id or artifact id throws before any request is sent. */
+function artifactPath(manifestId: string, artifactId: string): string {
+  const encodedManifestId = encodeRequiredPathSegment(manifestId, "manifestId");
+  const encodedArtifactId = encodeRequiredPathSegment(artifactId, "artifactId");
+
+  return `/v1/artifacts/signed-review-records/${encodedManifestId}/artifact/${encodedArtifactId}`;
+}
 
 /** Fetches golden manifest summary (decision count, warnings, status, etc.). */
 export async function getManifestSummary(
   manifestId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ManifestSummary> {
+  const encodedManifestId = encodeRequiredPathSegment(manifestId, "manifestId");
+
   try {
     return await apiGetSealedManifestAware<ManifestSummary>(
-      `/v1/authority/signed-review-records/${manifestId}/summary`,
+      `/v1/authority/signed-review-records/${encodedManifestId}/summary`,
       options,
     );
   } catch (error: unknown) {
@@ -38,7 +49,7 @@ export async function listArtifacts(
   options?: ApiGetOptions,
 ): Promise<ArtifactDescriptor[]> {
   return apiGetSealedManifestAware<ArtifactDescriptor[]>(
-    `/v1/artifacts/signed-review-records/${manifestId}`,
+    `/v1/artifacts/signed-review-records/${encodeRequiredPathSegment(manifestId, "manifestId")}`,
     options,
   );
 }
@@ -48,9 +59,7 @@ export async function getArtifactDescriptor(
   manifestId: string,
   artifactId: string,
 ): Promise<ArtifactDescriptor> {
-  return apiGetSealedManifestAware<ArtifactDescriptor>(
-    `/v1/artifacts/signed-review-records/${manifestId}/artifact/${artifactId}/descriptor`,
-  );
+  return apiGetSealedManifestAware<ArtifactDescriptor>(`${artifactPath(manifestId, artifactId)}/descriptor`);
 }
 
 /** In-shell preview cap; artifacts larger than this are truncated for the review panel. */
@@ -73,8 +82,9 @@ export async function fetchArtifactContentUtf8(
   artifactId: string,
   maxBytes: number = DEFAULT_ARTIFACT_PREVIEW_MAX_BYTES,
 ): Promise<ArtifactContentFetchResult> {
+  const path = artifactPath(manifestId, artifactId);
+
   await ensureOidcBearerReady();
-  const path = `/v1/artifacts/signed-review-records/${encodeURIComponent(manifestId)}/artifact/${encodeURIComponent(artifactId)}`;
   const { url, headers } = await resolveBinaryGetRequest(path);
   const requestHeaders = withCorrelationHeaders(headers);
   const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(requestHeaders);
@@ -91,7 +101,9 @@ export async function fetchArtifactContentUtf8(
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
-  const contentType = response.headers.get("content-type") ?? "application/octet-stream";
+  const rawContentType = response.headers.get("content-type")?.trim() ?? "";
+  const contentType =
+    rawContentType.length > 0 ? rawContentType : "Content type was not stored on this artifact response.";
   const buffer = await response.arrayBuffer();
   const byteLength = buffer.byteLength;
   let truncated = false;

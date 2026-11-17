@@ -57,6 +57,7 @@ export type SocraticIntakeWizardStepClarificationsProps = {
   readonly isSubmitBlocked: boolean;
   readonly suggestAnswersFromEvidence: () => void;
   readonly markQuestionEdited: (questionKey: string) => void;
+  readonly droppedClarificationExtractSummary: string | null;
   readonly saveAndContinue: (questionKey: string) => void;
   readonly skipQuestion: (questionKey: string) => Promise<void>;
   readonly reviewAnswers: () => Promise<void>;
@@ -199,7 +200,8 @@ export function SocraticIntakeWizardStepClarifications(
               className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="guided-intake-clarification-suggested-draft-count"
             >
-              {suggestedDraftCount} suggested from your architecture brief — review and save each.
+              {suggestedDraftCount} suggested from your{" "}
+              {hasRephrasedSuggestions ? "architecture brief" : "evidence corpus"} — review and save each.
             </p>
           ) : null}
 
@@ -209,6 +211,15 @@ export function SocraticIntakeWizardStepClarifications(
               data-testid="guided-intake-clarification-inference-unavailable"
             >
               {UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER}
+            </p>
+          ) : null}
+
+          {props.droppedClarificationExtractSummary !== null ? (
+            <p
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="guided-intake-dropped-clarification-extracts"
+            >
+              {props.droppedClarificationExtractSummary}
             </p>
           ) : null}
 

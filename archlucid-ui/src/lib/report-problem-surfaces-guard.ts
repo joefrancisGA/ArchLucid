@@ -48,6 +48,24 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     additionalSourceRoots: ["components/EnterpriseInlineErrorNotification.tsx"],
   },
   {
+    surfaceId: "compliance-findings-queue-hard-failure",
+    requiredMarkers: ["compliance-findings-queue-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: [
+      "components/EnterpriseInlineErrorNotification.tsx",
+      "app/(operator)/governance/findings/_sections/GovernanceFindingsQueueOutcomeSection.tsx",
+    ],
+  },
+  {
+    surfaceId: "compliance-policy-packs-hub-hard-failure",
+    requiredMarkers: ["compliance-policy-packs-hub-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["app/(operator)/governance/policy-packs"],
+  },
+  {
+    surfaceId: "compliance-standards-rules-hard-failure",
+    requiredMarkers: ["compliance-standards-rules-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["app/(operator)/governance/standards-and-rules/_sections/GovernanceResolutionPageView.tsx"],
+  },
+  {
     surfaceId: "review-commit-export-page-failure",
     requiredMarkers: ["OperatorApiProblem", "review-commit-export-page-failure"],
     additionalSourceRoots: ["app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArtifactsExportsSection.tsx"],
@@ -105,6 +123,64 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
   {
     surfaceId: "admin-support-bundle-download-failure",
     requiredMarkers: ["admin-support-bundle-download-failure", "FatalPageReportProblemSupportRow"],
+  },
+  {
+    surfaceId: "governance-remediation-factory-hard-failure",
+    requiredMarkers: ["governance-remediation-factory-hard-failure", "FatalPageReportProblemSupportRow"],
+  },
+  {
+    surfaceId: "compliance-remediation-factory-hard-failure",
+    requiredMarkers: ["compliance-remediation-factory-hard-failure", "FatalPageReportProblemSupportRow"],
+  },
+  {
+    surfaceId: "governance-infrastructure-extract-upload-hard-failure",
+    requiredMarkers: ["governance-infrastructure-extract-upload-hard-failure", "FatalPageReportProblemSupportRow"],
+  },
+  {
+    surfaceId: "compliance-infrastructure-extract-upload-hard-failure",
+    requiredMarkers: ["compliance-infrastructure-extract-upload-hard-failure", "FatalPageReportProblemSupportRow"],
+  },
+  {
+    surfaceId: "administration-connection-status-hard-failure",
+    requiredMarkers: ["administration-connection-status-hard-failure", "FatalPageReportProblemSupportRow"],
+  },
+  {
+    surfaceId: "governance-decision-register-hard-failure",
+    requiredMarkers: ["governance-decision-register-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["app/(operator)/governance/decision-register/_sections/DecisionRegisterLoadFailure.tsx"],
+  },
+  {
+    surfaceId: "compliance-decision-register-hard-failure",
+    requiredMarkers: ["compliance-decision-register-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["app/(operator)/governance/decision-register/_sections/DecisionRegisterLoadFailure.tsx"],
+  },
+  {
+    surfaceId: "securenow-pilot-decision-disposition-save-failure",
+    requiredMarkers: ["securenow-pilot-decision-disposition-save-failure", "FatalPageReportProblemSupportRow"],
+  },
+  {
+    surfaceId: "securenow-sponsor-path-disposition-save-failure",
+    requiredMarkers: ["securenow-sponsor-path-disposition-save-failure", "FatalPageReportProblemSupportRow"],
+  },
+  {
+    surfaceId: "governance-remediation-patterns-hard-failure",
+    requiredMarkers: ["governance-remediation-patterns-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["app/(operator)/governance/remediation-patterns/RemediationPatternsClient.tsx"],
+  },
+  {
+    surfaceId: "compliance-remediation-patterns-hard-failure",
+    requiredMarkers: ["compliance-remediation-patterns-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["app/(operator)/governance/remediation-patterns/RemediationPatternsClient.tsx"],
+  },
+  {
+    surfaceId: "governance-digest-subscriptions-hard-failure",
+    requiredMarkers: ["governance-digest-subscriptions-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["components/digests/DigestSubscriptionsContent.tsx"],
+  },
+  {
+    surfaceId: "compliance-digest-subscriptions-hard-failure",
+    requiredMarkers: ["compliance-digest-subscriptions-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["components/digests/DigestSubscriptionsContent.tsx"],
   },
 ] as const;
 

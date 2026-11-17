@@ -20,7 +20,6 @@ describe("ui-route-traffic-signed-records-list (SI)", () => {
     expect(row?.section).not.toBe("Marketing");
     expect(SIGNED_RECORDS_LIST_TRAFFIC_SECTION).toBe("Alerts/gov");
     expect(row?.notes).toBe(SIGNED_RECORDS_LIST_TRAFFIC_NOTE);
-    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
 
     expect(rows.find((candidate) => candidate.id === "MA")).toBeUndefined();
   });

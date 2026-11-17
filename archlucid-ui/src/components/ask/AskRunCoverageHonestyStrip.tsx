@@ -35,6 +35,17 @@ export function AskRunCoverageHonestyStrip(props: AskRunCoverageHonestyStripProp
     );
   }
 
+  if (query.isLoading && query.data === undefined) {
+    return (
+      <p
+        className={cn("mb-4 m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="ask-run-coverage-honesty-loading"
+      >
+        Loading run coverage honesty…
+      </p>
+    );
+  }
+
   if (query.data === undefined) {
     return null;
   }

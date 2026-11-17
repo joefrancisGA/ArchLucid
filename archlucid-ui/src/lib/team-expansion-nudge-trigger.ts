@@ -1,5 +1,5 @@
 /** Threshold triggers for the paid Team expansion nudge (Improvement #5). */
-export type TeamExpansionNudgeTrigger = "seats" | "workspaces";
+export type TeamExpansionNudgeTrigger = "seats";
 
 export type TeamExpansionNudgeStatusPayload = {
   isTrial?: boolean;
@@ -12,7 +12,30 @@ export type TeamExpansionNudgeStatusPayload = {
 
 const USAGE_THRESHOLD = 0.8;
 
-/** Returns the highest-priority active trigger, or null when no nudge threshold is met. */
+export function isTeamExpansionUsageAtCap(used: number, limit: number): boolean {
+  if (!Number.isFinite(used) || !Number.isFinite(limit) || limit <= 0) {
+    return false;
+  }
+
+  return Math.trunc(used) >= Math.trunc(limit);
+}
+
+export function isTeamExpansionApproachingCap(used: number, limit: number): boolean {
+  if (!Number.isFinite(used) || !Number.isFinite(limit) || limit <= 0) {
+    return false;
+  }
+
+  const normalizedUsed = Math.trunc(used);
+  const normalizedLimit = Math.trunc(limit);
+
+  if (normalizedUsed >= normalizedLimit) {
+    return false;
+  }
+
+  return normalizedUsed / normalizedLimit >= USAGE_THRESHOLD;
+}
+
+/** Returns the active seats trigger, or null when no nudge threshold is met. Workspace caps are enforced at create time, not shell nudges. */
 export function resolveTeamExpansionNudgeTrigger(
   payload: TeamExpansionNudgeStatusPayload | null,
 ): TeamExpansionNudgeTrigger | null {
@@ -24,27 +47,45 @@ export function resolveTeamExpansionNudgeTrigger(
     return null;
   }
 
-  const workspacesLimit = payload.workspacesLimit;
-
-  if (typeof workspacesLimit === "number" && workspacesLimit > 0) {
-    const workspacesUsed = payload.workspacesUsed ?? 0;
-
-    if (workspacesUsed / workspacesLimit >= USAGE_THRESHOLD) {
-      return "workspaces";
-    }
-  }
-
   const seatsLimit = payload.seatsLimit;
 
   if (typeof seatsLimit === "number" && seatsLimit > 0) {
     const seatsUsed = payload.seatsUsed ?? 0;
 
-    if (seatsUsed / seatsLimit >= USAGE_THRESHOLD) {
+    if (isTeamExpansionApproachingCap(seatsUsed, seatsLimit)) {
       return "seats";
     }
   }
 
   return null;
+}
+
+export type TeamExpansionNudgeCopy = {
+  readonly title: string;
+  readonly detail: string;
+  readonly ctaLabel: string;
+};
+
+export function buildTeamExpansionNudgeCopy(
+  trigger: TeamExpansionNudgeTrigger,
+  payload: TeamExpansionNudgeStatusPayload,
+): TeamExpansionNudgeCopy {
+  if (trigger !== "seats") {
+    const _exhaustive: never = trigger;
+    return _exhaustive;
+  }
+
+  const used = payload.seatsUsed ?? 0;
+  const limit = payload.seatsLimit;
+
+  return {
+    title: "You're approaching your Team seat limit",
+    detail:
+      typeof limit === "number"
+        ? `${used} of ${limit} seats in use — request a quote to expand to Professional.`
+        : `${used} seats in use — request a quote to expand to Professional.`,
+    ctaLabel: "Request a quote",
+  };
 }
 
 export function buildTeamExpansionNudgePricingHref(trigger: TeamExpansionNudgeTrigger): string {

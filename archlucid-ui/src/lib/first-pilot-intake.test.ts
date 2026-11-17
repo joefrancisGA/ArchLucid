@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { TENANT_ORGANIZATION_NAME_UNAVAILABLE } from "@/lib/active-tenant-context-display";
 import {
   buildEvidenceBackedIntakeBrief,
   describeFirstPilotIntakeGap,
@@ -28,6 +29,17 @@ const analyzableEvidenceDefaults = {
 const qualityTitle = "Retail API modernization review";
 
 describe("first-pilot-intake", () => {
+  it("buildEvidenceBackedIntakeBrief uses honesty title when review title is blank", () => {
+    const brief = buildEvidenceBackedIntakeBrief(
+      "  ",
+      [new File(["diagram"], "network-topology.pdf", { type: "application/pdf" })],
+      "",
+    );
+
+    expect(brief).toContain('Architecture review intake for "Review title was not stored."');
+    expect(brief).not.toContain("this architecture");
+  });
+
   it("buildEvidenceBackedIntakeBrief auto-tags uploaded files and meets minimum length", () => {
     const brief = buildEvidenceBackedIntakeBrief(
       "Claims intake modernization",
@@ -229,6 +241,17 @@ describe("first-pilot-intake", () => {
         workspaceLabel: "Retail modernization",
       }),
     ).toBe("This review will be created in Retail modernization (Contoso Retail).");
+  });
+
+  it("formatFirstPilotIntakeWriteDestination names missing tenant labels honestly (P-17)", () => {
+    expect(
+      formatFirstPilotIntakeWriteDestination({
+        displayName: TENANT_ORGANIZATION_NAME_UNAVAILABLE,
+        tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        workspaceId: null,
+        workspaceLabel: "Retail modernization",
+      }),
+    ).toBe("This review will be created in Retail modernization (Tenant name was not stored).");
   });
 
   it("describeFirstPilotStartBlocker surfaces scope confirmation after intake is ready", () => {

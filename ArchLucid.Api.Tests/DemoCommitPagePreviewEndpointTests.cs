@@ -172,7 +172,7 @@ public sealed class DemoCommitPagePreviewEndpointTests(ArchLucidApiFactory facto
                 DemoStatusMessage = "ok",
                 Run = new DemoPreviewRun
                 {
-                    RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("N"),
+                    RunId = HarnessDemoBaselineSupport.AuthorityRunIdCompact,
                     ProjectId = "default",
                     Description = "stub",
                     CreatedUtc = DateTime.UtcNow
@@ -181,7 +181,7 @@ public sealed class DemoCommitPagePreviewEndpointTests(ArchLucidApiFactory facto
                 Manifest = new DemoPreviewManifestSummary
                 {
                     ManifestId = Guid.NewGuid().ToString("N"),
-                    RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("N"),
+                    RunId = HarnessDemoBaselineSupport.AuthorityRunIdCompact,
                     CreatedUtc = DateTime.UtcNow,
                     ManifestHash = "mh",
                     RuleSetId = "r",
@@ -218,7 +218,7 @@ public sealed class DemoCommitPagePreviewEndpointTests(ArchLucidApiFactory facto
             CancellationToken cancellationToken = default)
         {
             Guid manifestId = Guid.Parse("11111111-1111-1111-1111-111111111111");
-            Guid runId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
+            Guid runId = HarnessDemoBaselineSupport.AuthorityRunId;
 
             DemoCommitPagePreviewResponse response = new()
             {

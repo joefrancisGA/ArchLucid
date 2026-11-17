@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import { OperateAnalysisNavGroupBuilder } from "@/lib/operate-analysis-nav-group-builder";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
-import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 
 describe("OperateAnalysisNavGroupBuilder", () => {
@@ -11,7 +10,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
 
     expect(group.label).toBe("Insights");
     expect(group.caption).toBe(
-      "Explore evidence, findings, decisions, sponsor value reports, and workspace health KPIs across reviews.",
+      "Explore evidence, ask and search, compare reviews, and open the Outcomes hub for sponsor value reports.",
     );
   });
 
@@ -31,20 +30,19 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/insights/evidence-graph",
       "/insights/ask-review-questions",
       "/insights/search-review-evidence",
+      "/insights/sponsor-report",
+      "/insights/roi-summary",
       "/insights/compare-two-reviews",
       "/insights/impact-preview",
       "/insights/improvement-planning",
-      "/insights/architecture-scorecard",
       "/insights/patterns",
-      "/insights/sponsor-report",
-      "/insights/roi-summary",
-      WORKSPACE_HEALTH_PATH,
+      "/insights/architecture-scorecard",
     ]);
-    expect(group.links.at(-4)?.label).toBe("Pattern library");
-    expect(group.links.at(-4)?.navBadge).toBeUndefined();
-    expect(group.links.at(-3)?.label).toBe("Sponsor report");
-    expect(group.links.at(-2)?.label).toBe("ROI summary");
-    expect(group.links.at(-1)?.label).toBe("Workspace health");
+    expect(group.links.at(-2)?.label).toBe("Pattern library");
+    expect(group.links.at(-2)?.navBadge).toBeUndefined();
+    expect(group.links.at(-1)?.label).toBe("Architecture scorecard");
+    expect(group.links.find((link) => link.href === "/insights/sponsor-report")?.label).toBeTruthy();
+    expect(group.links.find((link) => link.href === "/insights/roi-summary")?.label).toBe("ROI summary");
   });
 
   it("keeps the merged sponsor report read-gated so viewers reach it and exports stay Execute-gated", () => {

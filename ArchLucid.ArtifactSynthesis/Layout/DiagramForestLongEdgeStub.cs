@@ -122,13 +122,15 @@ internal static class DiagramForestLongEdgeStub
 
         string sourceChip = ChipText(sourceEnd: true, FormatPartnerLabel(targetLabel));
         string targetChip = ChipText(sourceEnd: false, FormatPartnerLabel(sourceLabel));
+        string sourceTitleChip = ChipText(sourceEnd: true, targetLabel.Trim());
+        string targetTitleChip = ChipText(sourceEnd: false, sourceLabel.Trim());
         string fromId = MermaidIdSanitizer.Sanitize(sourceNodeId);
         string toId = MermaidIdSanitizer.Sanitize(targetNodeId);
 
         return
         [
-            EmitStub(svgNamespace, edge, stubs[0], relationship, sourceChip, fromId, toId, toId),
-            EmitStub(svgNamespace, edge, stubs[1], relationship, targetChip, fromId, toId, fromId),
+            EmitStub(svgNamespace, edge, stubs[0], relationship, sourceChip, sourceTitleChip, fromId, toId, toId),
+            EmitStub(svgNamespace, edge, stubs[1], relationship, targetChip, targetTitleChip, fromId, toId, fromId),
         ];
     }
 
@@ -149,6 +151,7 @@ internal static class DiagramForestLongEdgeStub
         (double X1, double Y1, double X2, double Y2) segment,
         string relationship,
         string chip,
+        string titleChip,
         string fromId,
         string toId,
         string focusNodeId)
@@ -189,7 +192,7 @@ internal static class DiagramForestLongEdgeStub
             new XAttribute("data-from", fromId),
             new XAttribute("data-to", toId),
             new XAttribute("data-focus-node", focusNodeId),
-            new XElement(svgNamespace + "title", $"{relationship} {chip}"),
+            new XElement(svgNamespace + "title", $"{relationship} {titleChip}"),
             new XElement(svgNamespace + "path", pathAttributes),
             new XElement(
                 svgNamespace + "text",

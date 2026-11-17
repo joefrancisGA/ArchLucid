@@ -367,6 +367,15 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_negation_scopes_to_an_earlier_sentence()
+    {
+        ArchitectureRequest request = CreateRequest(
+            constraints: ["Internet traffic is blocked from the subnet. Use managed identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
     public void HasEncryptionConstraint_does_not_false_positive_on_isnt_required_encryption_phrasing()
     {
         ArchitectureRequest request = CreateRequest(constraints: ["encryption isn't required for this workload"]);

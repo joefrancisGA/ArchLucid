@@ -20,6 +20,14 @@ import {
 
 } from "@/lib/marketing/public-marketing-seo-paths";
 
+const HELP_TOPIC_VIEW_RESOLVER = join(
+  process.cwd(),
+  "src",
+  "lib",
+  "help",
+  "help-topic-view-resolver-operate.tsx",
+);
+
 const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
 
 const PRODUCT_FINDINGS_HELP_SURFACES = [
@@ -28,7 +36,7 @@ const PRODUCT_FINDINGS_HELP_SURFACES = [
 
   "archlucid-ui/src/lib/findings/findings-help-guide-content.ts",
 
-  "archlucid-ui/src/lib/product-documentation-registry.ts",
+  "archlucid-ui/src/lib/product-documentation-registry-entries-operator-workspace.ts",
 
 ] as const;
 
@@ -68,13 +76,15 @@ describe("findings-help-route (HFX)", () => {
 
   it("routes the canonical slug through HelpFindingsGuideView instead of bare markdown", () => {
 
-    const pageSource = readFileSync(HELP_TOPIC_PAGE, "utf8");
+    const pageSource = readFileSync(HELP_TOPIC_VIEW_RESOLVER, "utf8");
 
     expect(pageSource).toContain('loaded.entry.slug === "findings"');
 
     expect(pageSource).toContain("HelpFindingsGuideView");
 
-    expect(pageSource).toContain("FINDINGS_HELP_ROUTE_METADATA");
+    const routeMetadataSource = readFileSync(HELP_TOPIC_PAGE, "utf8");
+
+    expect(routeMetadataSource).toContain("FINDINGS_HELP_ROUTE_METADATA");
 
   });
 

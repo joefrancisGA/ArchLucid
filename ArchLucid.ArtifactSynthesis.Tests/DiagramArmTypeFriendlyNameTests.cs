@@ -32,6 +32,21 @@ public sealed class DiagramArmTypeFriendlyNameTests
     }
 
     [Fact]
+    public void TryFormatKnownCatalog_returns_null_for_unmapped_arm_types()
+    {
+        DiagramArmTypeFriendlyName.TryFormatKnownCatalog("Microsoft.Example/widgetFarms").Should().BeNull();
+        DiagramArmTypeFriendlyName.IsKnownCatalogType("Microsoft.Storage/storageAccounts").Should().BeTrue();
+    }
+
+    [Fact]
+    public void FormatUnmappedArmTypeCaption_does_not_invent_a_friendly_name()
+    {
+        DiagramArmTypeFriendlyName.FormatUnmappedArmTypeCaption("Microsoft.Example/widgetFarms")
+            .Should()
+            .Contain("no reviewer label");
+    }
+
+    [Fact]
     public void TryFormat_returns_null_for_blank()
     {
         DiagramArmTypeFriendlyName.TryFormat(null).Should().BeNull();

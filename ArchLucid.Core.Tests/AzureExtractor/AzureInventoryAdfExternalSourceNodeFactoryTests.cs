@@ -35,7 +35,15 @@ public sealed class AzureInventoryAdfExternalSourceNodeFactoryTests
     {
         AzureInventoryAdfExternalSourceNodeFactory.BuildDisplayLabel(null, "sap.example.com")
             .Should()
-            .Be("External source (sap.example.com)");
+            .Be("Linked service type was not stored (sap.example.com)");
+    }
+
+    [Fact]
+    public void BuildDisplayLabel_states_missing_target_host()
+    {
+        AzureInventoryAdfExternalSourceNodeFactory.BuildDisplayLabel("SapTable", null)
+            .Should()
+            .Be("SapTable. Target host was not stored.");
     }
 
     [Fact]

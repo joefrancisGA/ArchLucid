@@ -45,7 +45,11 @@ public static class KnowledgeGraphRetrievalDocumentBuilder
                 CorpusKind = CorpusKind.KnowledgeGraphNode,
                 SourceType = "KnowledgeGraphNode",
                 SourceId = node.NodeId,
-                Title = node.Label ?? node.NodeId,
+                Title = node.Label is null
+                    ? "Node label was not stored."
+                    : node.Label.Length == 0 || node.Label.Trim().Length == 0
+                        ? "Node label was stored empty."
+                        : node.Label.Trim(),
                 Content = content,
                 ContentHash = ComputeContentHash(snapshot.GraphSnapshotId, node.NodeId, content),
                 CreatedUtc = snapshot.CreatedUtc,

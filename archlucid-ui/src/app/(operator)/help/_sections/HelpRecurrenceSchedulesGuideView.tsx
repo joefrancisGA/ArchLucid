@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecurrenceScheduleVocabularyRail";
@@ -22,8 +26,8 @@ import {
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
-  RECURRENCE_SCHEDULES_HELP_AUTOMATION_ITEMS,
   RECURRENCE_SCHEDULES_HELP_AUTOMATION_SECTION_TITLE,
+  resolveRecurrenceSchedulesHelpAutomationItems,
   RECURRENCE_SCHEDULES_HELP_BREADCRUMB_TOPIC_TITLE,
   RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID,
   RECURRENCE_SCHEDULES_HELP_EXAMPLES_SECTION_TITLE,
@@ -90,6 +94,9 @@ function HowRecurrenceSchedulesWorkSteps(): React.ReactElement {
 }
 
 function RecurrenceSchedulesHelpAutomationSection(): React.ReactElement {
+  const { productLine } = useProductLine();
+  const automationItems = resolveRecurrenceSchedulesHelpAutomationItems(productLine);
+
   return (
     <section
       aria-labelledby="what-a-schedule-automates"
@@ -102,7 +109,7 @@ function RecurrenceSchedulesHelpAutomationSection(): React.ReactElement {
         className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}
         data-testid="help-recurrence-schedules-automation-items"
       >
-        {RECURRENCE_SCHEDULES_HELP_AUTOMATION_ITEMS.map((item) => (
+        {automationItems.map((item) => (
           <li key={item.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
             <span className="font-medium text-al-text-primary">{item.label}</span>
             <span className="text-al-text-secondary">

@@ -169,6 +169,6 @@ export function filterInfraEvidenceMermaidOutline(
   return {
     nodes: visibleNodes,
     edges: visibleEdges,
-    ledgerDrops: outline.ledgerDrops ?? [],
+    ...(outline.ledgerDrops === undefined ? {} : { ledgerDrops: outline.ledgerDrops }),
   };
 }

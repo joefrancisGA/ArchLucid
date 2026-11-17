@@ -467,6 +467,60 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task VerifyCodeAsync_accepts_padded_invitation_token_matching_trimmed_hash()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out _,
+            out InMemoryUserInvitationRepository invitations,
+            out _,
+            out _,
+            out _);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        const string rawToken = "invite-token-12345";
+        byte[] tokenHash = EmailOtpInvitationTokenHasher.Hash(rawToken);
+
+        await invitations.InsertAsync(
+            tenantId,
+            workspaceId,
+            "invited@example.com",
+            "Reader",
+            "admin",
+            null,
+            tokenHash,
+            DateTimeOffset.UtcNow.AddDays(7),
+            CancellationToken.None);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest
+            {
+                Email = "invited@example.com",
+                InvitationToken = $"  {rawToken}  "
+            },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
+
+        string code = RecoverCodeForTests(challenge);
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = challenge.Id,
+                Code = code,
+                InvitationToken = $"  {rawToken}  "
+            },
+            CancellationToken.None);
+
+        Assert.True(verified.Succeeded);
+    }
+
+    [Fact]
     public async Task VerifyCodeAsync_returns_invitation_app_role_when_invitation_is_accepted()
     {
         EmailOtpAuthService sut = CreateSut(

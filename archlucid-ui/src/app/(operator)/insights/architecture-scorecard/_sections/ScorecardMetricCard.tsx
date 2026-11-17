@@ -6,6 +6,13 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE } from "@/lib/sponsor/sponsor-roi-headline-estimate-honesty";
+import {
+  PILOT_SCORECARD_HEADLINE_BAND_ROI_NON_SUMMING_LINE,
+  PILOT_SCORECARD_OPERATIONAL_METRIC_ROI_NON_SUMMING_LINE,
+  PILOT_SCORECARD_QUARTERLY_BAND_ROI_NON_SUMMING_LINE,
+  PILOT_SCORECARD_ANNUAL_WITHOUT_QUARTERLY_NON_SUMMING_LINE,
+} from "@/lib/scorecard/pilot-scorecard-headline-band-roi-non-summing-copy";
 import {
   REVIEW_SCORECARD_NOT_MEASURED_LABEL,
   type ReviewScorecardMetricState,
@@ -117,6 +124,12 @@ export function ScorecardMetricCard({
       className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
     >
       <p className={cn(OPERATOR_TYPOGRAPHY.tab, "uppercase tracking-wide text-al-text-secondary")}>{title}</p>
+      <p
+        className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+        data-testid={`scorecard-operational-non-summing-${title.toLowerCase().replace(/\s+/g, "-")}`}
+      >
+        {PILOT_SCORECARD_OPERATIONAL_METRIC_ROI_NON_SUMMING_LINE}
+      </p>
       <MetricValueDisplay metricState={metricState} useKpiEmphasis={useKpiEmphasis} value={value} />
 
       {detail ? (
@@ -183,6 +196,12 @@ export function ScorecardSummaryTile({
       )}
     >
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{label}</p>
+      <p
+        className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+        data-testid={`scorecard-summary-non-summing-${label.toLowerCase().replace(/\s+/g, "-")}`}
+      >
+        {PILOT_SCORECARD_HEADLINE_BAND_ROI_NON_SUMMING_LINE}
+      </p>
       <MetricValueDisplay metricState={metricState} useKpiEmphasis={useKpiEmphasis} value={value} />
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{detail}</p>
       {href !== null && href !== undefined && drillDownLabel !== undefined && drillDownLabel.length > 0 ? (
@@ -233,6 +252,12 @@ export function ScorecardSavingsHero({
         Estimated annual review-time savings
       </p>
       <p
+        className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+        data-testid="scorecard-savings-hero-non-summing"
+      >
+        {PILOT_SCORECARD_HEADLINE_BAND_ROI_NON_SUMMING_LINE}
+      </p>
+      <p
         className={cn(
           "m-0 font-semibold text-al-text-primary",
           empty || compact
@@ -243,9 +268,30 @@ export function ScorecardSavingsHero({
         {value}
       </p>
       {secondaryLabel !== null && secondaryLabel.length > 0 ? (
-        <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{secondaryLabel}</p>
-      ) : null}
+        <>
+          <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{secondaryLabel}</p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+            data-testid="scorecard-savings-hero-quarterly-non-summing"
+          >
+            {PILOT_SCORECARD_QUARTERLY_BAND_ROI_NON_SUMMING_LINE}
+          </p>
+        </>
+      ) : (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+          data-testid="scorecard-savings-hero-annual-without-quarterly-non-summing"
+        >
+          {PILOT_SCORECARD_ANNUAL_WITHOUT_QUARTERLY_NON_SUMMING_LINE}
+        </p>
+      )}
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{detail}</p>
+      <p
+        className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="scorecard-savings-hero-model-honesty"
+      >
+        {SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE}
+      </p>
       {empty && actionHref !== null && actionLabel !== null && actionLabel.length > 0 ? (
         <div className="pt-1">
           <Button asChild variant="primary" size="sm" data-testid="scorecard-configure-roi-assumptions-cta">

@@ -5,6 +5,7 @@
  * (TB-2319 VocabularyRail). This module keeps the TB-2221 import surface.
  */
 
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
   ALERTS_FINDINGS_ALERTS_LINK,
   ALERTS_FINDINGS_COMPACT_LINE,
@@ -41,8 +42,10 @@ export const ALERTS_FINDINGS_DUAL_INBOX_ALERTS_LINK = ALERTS_FINDINGS_ALERTS_LIN
 export const ALERTS_FINDINGS_DUAL_INBOX_FINDINGS_LINK = ALERTS_FINDINGS_FINDINGS_LINK;
 
 /** Full reconciler model (heading, why-two copy, and deep links). */
-export function buildAlertsFindingsDualInboxReconciler(): AlertsFindingsDualInboxReconcilerModel {
-  const model: AlertsFindingsVocabularyModel = buildAlertsFindingsVocabulary();
+export function buildAlertsFindingsDualInboxReconciler(
+  productLine: ProductLineId = "architecture",
+): AlertsFindingsDualInboxReconcilerModel {
+  const model: AlertsFindingsVocabularyModel = buildAlertsFindingsVocabulary(productLine);
 
   return {
     heading: model.heading,

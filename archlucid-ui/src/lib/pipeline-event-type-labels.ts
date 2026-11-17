@@ -87,6 +87,8 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   graph_snapshot: "Persists the architecture relationship graph used in the evidence trail.",
   findings_snapshot: "Persists generated findings before final review packaging.",
   "com.archlucid.authority.run.completed": "Closes the review with a durable outcome snapshot for approval and audit.",
+  "com.archlucid.authority.run.failed":
+    "Records that the review run failed before a finalized package could be sealed.",
   "com.archlucid.manifest.finalized.v1":
     "Finalizes the review record as the authoritative package for decisions, deliverables, and audit.",
   "com.archlucid.governance.approval.submitted":
@@ -105,5 +107,5 @@ export function pipelineEventTypeBuyerMilestoneSubtitle(eventType: string): stri
     return mapped;
   }
 
-  return "Recorded on the authoritative audit trail for this review.";
+  return "Event meaning was not stored.";
 }

@@ -22,9 +22,11 @@ public sealed class DiagramHiddenPrivateEndpointConnectorTests
 
         ast.Nodes.Should().NotContain(node => node.Label == "pe-kv");
         ast.Edges.Should().Contain(edge =>
-            edge.Label.Contains(
-                InventoryDiagramRelationshipLabelTexts.FormatPrivateEndpointConnectionLabel("Approved"),
-                StringComparison.Ordinal));
+            string.Equals(
+                edge.InferenceSource,
+                GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                StringComparison.OrdinalIgnoreCase)
+            && edge.Label.Contains("Private endpoint", StringComparison.Ordinal));
     }
 
     [Fact]

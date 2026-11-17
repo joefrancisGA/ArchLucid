@@ -1,7 +1,7 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   buyerPolishedShellVitestOverride,
   extendBuyerPolishedShellVitestMock,
@@ -41,13 +41,29 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+const evalChromeMock = vi.hoisted(() => ({ enabled: false }));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => evalChromeMock.enabled,
+  useProductionDeskChrome: () => !evalChromeMock.enabled,
+}));
+
+vi.mock("@/lib/buyer/buyer-safe-review-navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/buyer/buyer-safe-review-navigation")>();
+
+  return {
+    ...actual,
+    isBuyerSafePrimaryReviewNavigationPreferred: () => true,
+  };
+});
+
 import { RunInspectorPreview } from "@/components/runs/RunInspectorPreview";
 
 import type { RunSummary } from "@/types/authority";
 
 function showcaseRun(overrides: Partial<RunSummary> = {}): RunSummary {
   return {
-    runId: "customer-intake-modernization",
+    runId: SHOWCASE_STATIC_DEMO_RUN_ID,
     projectId: "default",
     description: "Claims Intake",
     createdUtc: "2026-01-15T12:00:00.000Z",
@@ -62,6 +78,7 @@ function showcaseRun(overrides: Partial<RunSummary> = {}): RunSummary {
 
 describe("RunInspectorPreview", () => {
   beforeEach(() => {
+    evalChromeMock.enabled = false;
     buyerPolishedShellVitestOverride.value = false;
     buyerChromeForced.on = false;
   });
@@ -72,6 +89,7 @@ describe("RunInspectorPreview", () => {
   });
 
   it("buyer-polished showcase: primary manifest, workspace findings quick link, and no duplicate full-review CTA", () => {
+    evalChromeMock.enabled = true;
     buyerPolishedShellVitestOverride.value = true;
     buyerChromeForced.on = true;
 
@@ -95,37 +113,43 @@ describe("RunInspectorPreview", () => {
 
     expect(screen.queryByRole("link", { name: "Open approved package" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByText("Related actions"));
-    expect(screen.getByRole("link", { name: "View finalized record" })).toHaveAttribute(
+    const relatedActions = within(
+      screen.getByText("Related actions").closest("details") as HTMLElement,
+    );
+    expect(relatedActions.getByRole("link", { name: "View finalized record" })).toHaveAttribute(
       "href",
       `/governance/sealed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`,
     );
-    expect(screen.getByRole("link", { name: "View evidence graph" })).toHaveAttribute(
+    expect(relatedActions.getByRole("link", { name: "View evidence graph" })).toHaveAttribute(
       "href",
       "/insights/evidence-graph?runId=customer-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "View approval" })).toHaveAttribute(
+    expect(relatedActions.getByRole("link", { name: "View approval" })).toHaveAttribute(
       "href",
       "/governance/approval-queue?runId=customer-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "View audit trail" })).toHaveAttribute(
+    expect(relatedActions.getByRole("link", { name: "View audit trail" })).toHaveAttribute(
       "href",
       "/governance/audit?runId=customer-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Ask about this review" })).toHaveAttribute(
+    expect(relatedActions.getByRole("link", { name: "Ask about this review" })).toHaveAttribute(
       "href",
       "/insights/ask-review-questions?runId=customer-intake-modernization",
     );
     fireEvent.click(screen.getByText("Open specific artifact"));
+    const artifactActions = within(
+      screen.getByText("Open specific artifact").closest("details") as HTMLElement,
+    );
 
-    expect(screen.getByRole("link", { name: "Sponsor report" })).toHaveAttribute(
+    expect(artifactActions.getByRole("link", { name: "Sponsor report" })).toHaveAttribute(
       "href",
       "/architecture/reviews/customer-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Read-only walkthrough" })).toHaveAttribute(
+    expect(artifactActions.getByRole("link", { name: "Read-only walkthrough" })).toHaveAttribute(
       "href",
       "/showcase/customer-intake-modernization",
     );
-    expect(screen.queryByRole("link", { name: "Full review detail" })).toBeNull();
+    expect(artifactActions.queryByRole("link", { name: "Full review detail" })).toBeNull();
     expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute(
       "href",
       "/architecture/reviews/customer-intake-modernization#run-explanation",
@@ -142,11 +166,12 @@ describe("RunInspectorPreview", () => {
     render(<RunInspectorPreview run={showcaseRun()} />);
 
     fireEvent.click(screen.getByText("▸ More actions"));
-    expect(screen.getByRole("link", { name: "Primary finding" })).toHaveAttribute(
+    const moreActions = within(screen.getByText("▾ Less").parentElement as HTMLElement);
+    expect(moreActions.getByRole("link", { name: "Primary finding" })).toHaveAttribute(
       "href",
       "/showcase/customer-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Timeline (walkthrough)" })).toHaveAttribute(
+    expect(moreActions.getByRole("link", { name: "Timeline (walkthrough)" })).toHaveAttribute(
       "href",
       "/showcase/customer-intake-modernization",
     );

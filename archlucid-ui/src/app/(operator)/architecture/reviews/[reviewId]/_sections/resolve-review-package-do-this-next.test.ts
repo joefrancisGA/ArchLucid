@@ -26,7 +26,7 @@ describe("resolveReviewPackageDoThisNext", () => {
     const next = resolveReviewPackageDoThisNext(baseInput);
 
     expect(next.kind).toBe("add-evidence");
-    expect(next.sentence).toContain("Evidence is still thin");
+    expect(next.sentence).toContain("Evidence thickness was not measured");
     expect(next.href).toContain("reviewTab=evidence");
   });
 
@@ -106,7 +106,10 @@ describe("resolveReviewPackageDoThisNext", () => {
     });
 
     expect(next.kind).toBe("rerun-review");
-    expect(next.secondaryAction).toBeNull();
+    expect(next.secondaryAction?.label).toBe("Review submitted intake");
+    expect(next.secondaryAction?.label).not.toMatch(/workspace AI|Configure workspace/i);
+    expect(next.failureRecovery?.adminConfigurationHref).toBeNull();
+    expect(next.failureRecovery?.adminConfigurationLabel).toBeNull();
   });
 
   it("builds a rerun href when correctionHref is absent on terminal failure", () => {
@@ -222,7 +225,7 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.kind).toBe("export-decision-receipt");
     expect(next.sentence).toContain("reasoned no");
     expect(next.sentence).not.toContain("finalize");
-    expect(next.actionLabel).toBe("Export decision receipt");
+    expect(next.actionLabel).toBe("Open decision receipt");
     expect(next.href).toContain("reviewTab=evidence");
     expect(next.href).toContain("artifacts-exports");
   });
@@ -305,7 +308,7 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.actionLabel).toBe("Review evidence coverage");
     expect(next.buttonVariant).toBe("outline");
     expect(next.href).toContain("reviewTab=evidence");
-    expect(next.secondaryAction?.label).toBe("Send sponsor briefing export");
+    expect(next.secondaryAction?.label).toBe("Open sponsor briefing");
   });
 
   it("defaults a comparable second package to compare against the prior review", () => {
@@ -320,8 +323,9 @@ describe("resolveReviewPackageDoThisNext", () => {
     });
 
     expect(next.kind).toBe("compare-to-prior");
+    expect(next.sentence).toBe("A prior review link is stored. This strip does not list what changed.");
     expect(next.actionLabel).toBe("Compare reviews");
     expect(next.href).toContain("compare-two-reviews");
-    expect(next.secondaryAction?.label).toBe("Send sponsor briefing export");
+    expect(next.secondaryAction?.label).toBe("Open sponsor briefing");
   });
 });

@@ -42,6 +42,8 @@ import {
   GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import {
   INTEGRATIONS_AZURE_BOARDS_PATH,
@@ -511,7 +513,26 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
     },
   },
   {
+    prefix: SECURENOW_FINDINGS_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Findings",
+      summary:
+        "Track architecture risks from accepted findings, waivers, exceptions, and approval decisions.",
+      nextAction: "Assign owners, review aging risks, and clear expiring exceptions.",
+    },
+  },
+  {
     prefix: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Assigned to me",
+      summary: "Open findings assigned to you for triage, evidence review, or resolution in this workspace.",
+      nextAction: "Open each assigned finding, confirm evidence, then update status or route to the owning review.",
+    },
+  },
+  {
+    prefix: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
     matchExact: true,
     explanation: {
       title: "Assigned to me",
@@ -694,6 +715,8 @@ const GOVERNANCE_EXPLAIN_OPT_IN_EXACT_PATHS: ReadonlySet<string> = new Set([
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_DECISION_REGISTER_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,

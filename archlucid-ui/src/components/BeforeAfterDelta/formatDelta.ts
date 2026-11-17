@@ -4,12 +4,18 @@
  * directly from the variant specs without importing React.
  */
 
+import {
+  AMOUNT_NOT_RETURNED,
+  COUNT_NOT_RETURNED,
+  HOURS_NOT_RETURNED,
+} from "@/lib/amount-display-copy";
+
 const SECONDS_PER_HOUR = 3600;
 
 /** USD savings from findings snapshot — whole dollars or em-dash when unknown. */
 export function formatUsd(value: number | null | undefined): string {
-  if (value === null || value === undefined) return "Amount not returned";
-  if (!Number.isFinite(value)) return "Amount not returned";
+  if (value === null || value === undefined) return AMOUNT_NOT_RETURNED;
+  if (!Number.isFinite(value)) return AMOUNT_NOT_RETURNED;
 
   return new Intl.NumberFormat(undefined, {
     style: "currency",
@@ -20,17 +26,17 @@ export function formatUsd(value: number | null | undefined): string {
 
 /** "12.34 h" or em-dash when the input is null / non-finite. */
 export function formatHours(seconds: number | null | undefined): string {
-  if (seconds === null || seconds === undefined) return "Hours not returned";
-  if (!Number.isFinite(seconds)) return "Hours not returned";
-  if (seconds < 0) return "Hours not returned";
+  if (seconds === null || seconds === undefined) return HOURS_NOT_RETURNED;
+  if (!Number.isFinite(seconds)) return HOURS_NOT_RETURNED;
+  if (seconds < 0) return HOURS_NOT_RETURNED;
 
   return `${(seconds / SECONDS_PER_HOUR).toFixed(2)} h`;
 }
 
 /** "5" / "5.5" — integer formatting unless the median falls between counts. */
 export function formatFindings(count: number | null | undefined): string {
-  if (count === null || count === undefined) return "Count not returned";
-  if (!Number.isFinite(count)) return "Count not returned";
+  if (count === null || count === undefined) return COUNT_NOT_RETURNED;
+  if (!Number.isFinite(count) || count < 0) return COUNT_NOT_RETURNED;
 
   return Number.isInteger(count) ? String(count) : count.toFixed(1);
 }
@@ -91,12 +97,17 @@ export function safeCommittedRunWindowCount(count: unknown): number | null {
 
 /** Per-row findings caption for delta lists (never surfaces "NaN finding(s)"). */
 export function formatPerRunFindingsLine(totalFindings: unknown): string {
-  const numeric = typeof totalFindings === "number" ? totalFindings : Number(totalFindings);
-  const formatted = formatFindings(numeric);
-
-  if (formatted === "Count not returned") {
-    return "Not enough data yet";
+  if (totalFindings === null || totalFindings === undefined) {
+    return "Finding count was not stored.";
   }
+
+  const numeric = typeof totalFindings === "number" ? totalFindings : Number(totalFindings);
+
+  if (!Number.isFinite(numeric) || numeric < 0) {
+    return "Finding count was not stored.";
+  }
+
+  const formatted = formatFindings(numeric);
 
   return `${formatted} finding${formatted === "1" ? "" : "s"}`;
 }

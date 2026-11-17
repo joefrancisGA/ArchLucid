@@ -13,7 +13,12 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
     public Task UpsertAsync(CollectionRun collectionRun, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(collectionRun);
-        _runs[Key(collectionRun.TenantId, collectionRun.WorkspaceId, collectionRun.ProjectId, collectionRun.RunId)] = collectionRun;
+        _runs.AddOrUpdate(
+            Key(collectionRun.TenantId, collectionRun.WorkspaceId, collectionRun.ProjectId, collectionRun.RunId),
+            collectionRun,
+            (_, current) => collectionRun.Status == CollectionRunStatus.Running && current.Status != CollectionRunStatus.Running
+                ? current
+                : collectionRun);
         return Task.CompletedTask;
     }
 
@@ -49,18 +54,24 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
         return Task.FromResult(result);
     }
 
-    public Task<bool> HasImportedHashAsync(
+    public Task<Guid?> FindImportedSnapshotIdByHashAsync(
         ScopeContext scope,
         byte[] zipSha256,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(zipSha256);
-        bool result = _runs.Values.Any(run =>
-            IsInScope(run, scope) &&
-            run.Status == CollectionRunStatus.Imported &&
-            run.ZipSha256 is not null &&
-            run.ZipSha256.SequenceEqual(zipSha256));
+        Guid? result = _runs.Values
+            .Where(run =>
+                IsInScope(run, scope) &&
+                run.Status == CollectionRunStatus.Imported &&
+                run.ImportedSnapshotId.HasValue &&
+                run.ZipSha256 is not null &&
+                run.ZipSha256.SequenceEqual(zipSha256))
+            .OrderByDescending(run => run.StartedUtc)
+            .ThenByDescending(run => run.RunId)
+            .Select(run => run.ImportedSnapshotId)
+            .FirstOrDefault();
         return Task.FromResult(result);
     }
 

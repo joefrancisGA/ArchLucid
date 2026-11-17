@@ -1,31 +1,44 @@
 import { coerceArchitectureFindingSeverity } from "@/lib/quick-decision-severity-labels";
 
 export const QUICK_DECISION_FINDING_TITLE_NOT_STORED = "Finding title was not stored" as const;
+export const QUICK_DECISION_FINDING_TITLE_STORED_EMPTY = "Finding title was stored empty." as const;
+
+export const QUICK_DECISION_FINDING_RECOMMENDATION_NOT_STORED = "Recommended action was not stored." as const;
+export const QUICK_DECISION_FINDING_MESSAGE_STORED_EMPTY = "Finding message was stored empty." as const;
 
 export function resolveQuickDecisionFindingTitleAndMessage(fr: Record<string, unknown>): {
   readonly title: string;
   readonly messageBody: string;
 } {
-  const storedTitle = typeof fr.title === "string" ? fr.title.trim() : "";
-  const message = typeof fr.message === "string" ? fr.message.trim() : "";
+  const rawTitle = typeof fr.title === "string" ? fr.title : null;
+  const rawMessage = typeof fr.message === "string" ? fr.message : null;
+  let messageBody = rawMessage !== null ? rawMessage.trim() : "";
 
-  if (storedTitle.length > 0) {
-    return {
-      title: storedTitle,
-      messageBody: message,
-    };
+  if (rawMessage !== null && rawMessage.length > 0 && messageBody.length === 0) {
+    messageBody = QUICK_DECISION_FINDING_MESSAGE_STORED_EMPTY;
   }
 
-  if (message.length > 0) {
-    return {
-      title: message,
-      messageBody: "",
-    };
+  if (rawTitle !== null) {
+    const trimmedTitle = rawTitle.trim();
+
+    if (trimmedTitle.length > 0) {
+      return {
+        title: trimmedTitle,
+        messageBody,
+      };
+    }
+
+    if (rawTitle.length > 0) {
+      return {
+        title: QUICK_DECISION_FINDING_TITLE_STORED_EMPTY,
+        messageBody,
+      };
+    }
   }
 
   return {
     title: QUICK_DECISION_FINDING_TITLE_NOT_STORED,
-    messageBody: "",
+    messageBody,
   };
 }
 
@@ -53,18 +66,18 @@ export function resolveQuickDecisionFindingRecommendation(fr: Record<string, unk
     return reasoningTrace;
   }
 
-  return "";
+  return QUICK_DECISION_FINDING_RECOMMENDATION_NOT_STORED;
 }
 
 export function resolveQuickDecisionFindingPresentation(fr: Record<string, unknown>): {
   readonly title: string;
+  readonly findingMessage: string;
   readonly recommendation: string;
 } {
   const { title, messageBody } = resolveQuickDecisionFindingTitleAndMessage(fr);
-  const recommendation =
-    messageBody.length > 0 ? messageBody : resolveQuickDecisionFindingRecommendation(fr);
+  const recommendation = resolveQuickDecisionFindingRecommendation(fr);
 
-  return { title, recommendation };
+  return { title, findingMessage: messageBody, recommendation };
 }
 
 export function coerceQuickDecisionFindingSeverityFromWire(raw: unknown): number | null {

@@ -6,6 +6,8 @@ namespace ArchLucid.Cli.Commands;
 
 internal static class TenantIsolationNegativeTestCommand
 {
+    private static readonly UTF8Encoding Utf8NoBom = new(false);
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -106,14 +108,14 @@ internal static class TenantIsolationNegativeTestCommand
         {
             EnsureArtifactParentDirectoryExists(outputPaths.JsonPath!);
 
-            await File.WriteAllTextAsync(outputPaths.JsonPath!, json, Encoding.UTF8, cancellationToken);
+            await File.WriteAllTextAsync(outputPaths.JsonPath!, json, Utf8NoBom, cancellationToken);
         }
 
         if (outputPaths.WillWriteMarkdown)
         {
             EnsureArtifactParentDirectoryExists(outputPaths.MarkdownPath!);
 
-            await File.WriteAllTextAsync(outputPaths.MarkdownPath!, markdown, Encoding.UTF8, cancellationToken);
+            await File.WriteAllTextAsync(outputPaths.MarkdownPath!, markdown, Utf8NoBom, cancellationToken);
         }
     }
 

@@ -65,7 +65,10 @@ internal static class InventoryDiagramExcellenceDataFlowHubRoutingAssertions
             .FirstOrDefault(element =>
                 string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
                 && string.Equals((string?)element.Attribute("class"), "edge", StringComparison.Ordinal)
-                && string.Equals(element.Element(svgNamespace + "title")?.Value, resolvedEdgeLabel, StringComparison.Ordinal))
+                && string.Equals(
+                    element.Element(svgNamespace + "title")?.Value,
+                    resolvedEdgeLabel,
+                    StringComparison.OrdinalIgnoreCase))
             ?.Elements()
             .FirstOrDefault(element =>
                 string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
@@ -128,7 +131,7 @@ internal static class InventoryDiagramExcellenceDataFlowHubRoutingAssertions
             return "writes";
         }
 
-        string label = MermaidDiagramRenderer.EscapeLabel(edge.Label).Trim().ToLowerInvariant();
+        string label = MermaidDiagramRenderer.EscapeLabel(edge.Label).Trim();
 
         return label.Length == 0 ? "writes" : label;
     }

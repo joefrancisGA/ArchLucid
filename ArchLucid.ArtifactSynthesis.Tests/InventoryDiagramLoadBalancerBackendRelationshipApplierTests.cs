@@ -21,7 +21,7 @@ public sealed class InventoryDiagramLoadBalancerBackendRelationshipApplierTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         DiagramEdge edge = FindLoadBalancerToVmEdge(ast);
-        edge.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.BackendPoolMembershipConfiguredObservedTrafficNotStored);
+        edge.Label.Should().Be($"probable · {InventoryDiagramRelationshipLabelTexts.FormatSendsTrafficToBackend(null)}");
     }
 
     [Fact]
@@ -32,7 +32,7 @@ public sealed class InventoryDiagramLoadBalancerBackendRelationshipApplierTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         FindLoadBalancerToVmEdge(ast).Label.Should().Be(
-            "Backend pool membership is configured on port 443. Observed traffic was not stored.");
+            "probable · Backend pool membership is configured on port 443. Observed traffic was not stored.");
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public sealed class InventoryDiagramLoadBalancerBackendRelationshipApplierTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         FindLoadBalancerToVmEdge(ast).Label.Should().Be(
-            InventoryDiagramRelationshipLabelTexts.BackendPoolMembershipConfiguredObservedTrafficNotStored);
+            $"probable · {InventoryDiagramRelationshipLabelTexts.FormatSendsTrafficToBackend(null)}");
     }
 
     [Fact]
@@ -59,7 +59,8 @@ public sealed class InventoryDiagramLoadBalancerBackendRelationshipApplierTests
             !edge.IsLayoutOnly
             && edge.FromNodeId == agwId
             && edge.ToNodeId == appId
-            && edge.Label == InventoryDiagramRelationshipLabelTexts.BackendPoolMembershipConfiguredObservedTrafficNotStored);
+            && string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryLbBackend, StringComparison.OrdinalIgnoreCase)
+            && edge.Label == $"probable · {InventoryDiagramRelationshipLabelTexts.FormatSendsTrafficToBackend(null)}");
     }
 
     [Fact]
@@ -83,7 +84,11 @@ public sealed class InventoryDiagramLoadBalancerBackendRelationshipApplierTests
         return ast.Edges.Should().ContainSingle(edge =>
                 !edge.IsLayoutOnly
                 && edge.FromNodeId == lbId
-                && edge.ToNodeId == vmId)
+                && edge.ToNodeId == vmId
+                && string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryLbBackend,
+                    StringComparison.OrdinalIgnoreCase))
             .Subject;
     }
 

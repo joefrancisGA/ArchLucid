@@ -375,31 +375,41 @@ public sealed class OpenCommitmentFindingEngine(
 
     private static string BuildTitle(OpenCommitmentSignal signal)
     {
+        string kindLabel = signal.Kind switch
+        {
+            OpenCommitmentSignalKind.ExpiredWaiver => "Expired waiver",
+            OpenCommitmentSignalKind.ExpiringWaiver => "Expiring waiver",
+            OpenCommitmentSignalKind.OverdueDeferral => "Overdue deferral",
+            OpenCommitmentSignalKind.UnansweredEvidenceRequest => "Unanswered evidence request",
+            OpenCommitmentSignalKind.OverdueRemediation => "Overdue remediation",
+            _ => "Open commitment",
+        };
+
         if (string.Equals(signal.ReasonToken, "operational-security-exception", StringComparison.OrdinalIgnoreCase))
         {
             return signal.Kind switch
             {
                 OpenCommitmentSignalKind.ExpiredWaiver =>
-                    $"Operational security exception for finding {signal.SourceFindingId} expired on {signal.DueOrExpiryUtc:yyyy-MM-dd}",
+                    $"{kindLabel}: operational security exception for finding {signal.SourceFindingId} expired on {signal.DueOrExpiryUtc:yyyy-MM-dd}",
                 OpenCommitmentSignalKind.ExpiringWaiver =>
-                    $"Operational security exception for finding {signal.SourceFindingId} expires on {signal.DueOrExpiryUtc:yyyy-MM-dd}",
-                _ => $"Operational security exception open on finding {signal.SourceFindingId}",
+                    $"{kindLabel}: operational security exception for finding {signal.SourceFindingId} expires on {signal.DueOrExpiryUtc:yyyy-MM-dd}",
+                _ => $"{kindLabel}: operational security exception open on finding {signal.SourceFindingId}",
             };
         }
 
         return signal.Kind switch
         {
             OpenCommitmentSignalKind.ExpiredWaiver =>
-                $"Risk waiver for finding {signal.SourceFindingId} expired on {signal.DueOrExpiryUtc:yyyy-MM-dd}",
+                $"{kindLabel}: risk waiver for finding {signal.SourceFindingId} expired on {signal.DueOrExpiryUtc:yyyy-MM-dd}",
             OpenCommitmentSignalKind.ExpiringWaiver =>
-                $"Risk waiver for finding {signal.SourceFindingId} expires on {signal.DueOrExpiryUtc:yyyy-MM-dd}",
+                $"{kindLabel}: risk waiver for finding {signal.SourceFindingId} expires on {signal.DueOrExpiryUtc:yyyy-MM-dd}",
             OpenCommitmentSignalKind.OverdueDeferral =>
-                $"Deferred finding {signal.SourceFindingId} revisit was due {signal.DueOrExpiryUtc:yyyy-MM-dd}",
+                $"{kindLabel}: deferred finding {signal.SourceFindingId} revisit was due {signal.DueOrExpiryUtc:yyyy-MM-dd}",
             OpenCommitmentSignalKind.UnansweredEvidenceRequest =>
-                $"Evidence request for finding {signal.SourceFindingId} remains unanswered",
+                $"{kindLabel}: evidence request for finding {signal.SourceFindingId} remains unanswered",
             OpenCommitmentSignalKind.OverdueRemediation =>
-                $"Remediation for finding {signal.SourceFindingId} was due {signal.DueOrExpiryUtc:yyyy-MM-dd}",
-            _ => $"Open commitment on finding {signal.SourceFindingId}",
+                $"{kindLabel}: remediation for finding {signal.SourceFindingId} was due {signal.DueOrExpiryUtc:yyyy-MM-dd}",
+            _ => $"{kindLabel} on finding {signal.SourceFindingId}",
         };
     }
 
@@ -442,13 +452,13 @@ public sealed class OpenCommitmentFindingEngine(
         if (stillOpenOnCurrentGraph && joinResult.MatchedNode is GraphNode matchedNode)
         {
             return baseRationale
-                + $" The deferred control is still absent on topology node '{matchedNode.Label}' on this review graph.";
+                + $" The deferred control is still absent on topology node '{FormatTopologyNodeLabel(matchedNode)}' on this review graph.";
         }
 
         if (joinResult.TopologyMatch && joinResult.MatchedNode is GraphNode joinedNode)
         {
             return baseRationale
-                + $" Matched topology node '{joinedNode.Label}' on this review graph.";
+                + $" Matched topology node '{FormatTopologyNodeLabel(joinedNode)}' on this review graph.";
         }
 
         return baseRationale;
@@ -475,5 +485,12 @@ public sealed class OpenCommitmentFindingEngine(
                 "Complete remediation or formally accept risk before approving downstream changes.",
             _ => "Close the open governance commitment before approving this review.",
         };
+    }
+
+    private static string FormatTopologyNodeLabel(GraphNode node)
+    {
+        string label = node.Label?.Trim() ?? string.Empty;
+
+        return label.Length > 0 ? label : "Graph node label was not stored.";
     }
 }

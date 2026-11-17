@@ -141,6 +141,27 @@ public sealed class DraftRequestProjectorTests
         request.InlineRequirements.Should().Contain("Reliability: RTO 4 hours");
     }
 
+    [Fact]
+    public void Project_LeavesEnvironmentEmpty_WhenDraftIntakeDoesNotStoreTargetEnvironment()
+    {
+        DraftRequestDocument document = CreateDocument();
+
+        Contracts.Requests.ArchitectureRequest request = _projector.Project(document, Guid.NewGuid());
+
+        request.Environment.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Project_AppendsMinimumLengthNote_InsteadOfPaddingDescriptionWithDots()
+    {
+        DraftRequestDocument document = new() { FreeTextIntent = "Short" };
+
+        Contracts.Requests.ArchitectureRequest request = _projector.Project(document, Guid.NewGuid());
+
+        request.Description.Should().Be("Short Draft intent did not meet the minimum description length.");
+        request.Description.Should().NotMatch(@"\.\.\.");
+    }
+
     private static DraftRequestDocument CreateDocument() => new()
     {
         FreeTextIntent = "Modernize the claims intake workflow with nightly batch API integration.",

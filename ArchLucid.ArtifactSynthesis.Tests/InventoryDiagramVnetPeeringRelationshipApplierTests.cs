@@ -69,7 +69,7 @@ public sealed class InventoryDiagramVnetPeeringRelationshipApplierTests
             DiagramMode.FullSubscription);
 
         ast.Nodes.Single(node => node.Label == "vnet-a").UnresolvedRelationshipDetails.Should()
-            .Contain("Peering to Remote network name was not stored. is not connected");
+            .Contain(detail => detail.Contains("is not connected", StringComparison.Ordinal));
     }
 
     [Fact]

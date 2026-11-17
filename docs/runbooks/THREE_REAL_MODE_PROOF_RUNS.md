@@ -273,3 +273,18 @@ See [`CLAIM_READINESS_STATUS.md#appendix--sendno-send-hardening-review-2026-06-1
 - [`CLAIM_READINESS_STATUS.md#sponsor-claim-and-execution-mode-label-audit`](../go-to-market/CLAIM_READINESS_STATUS.md#sponsor-claim-and-execution-mode-label-audit) (`SPONSOR_CLAIM_LABEL_AUDIT.md` alias)
 - [`FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist`](FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist)
 - [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) — **G-REAL-06**, **G-REAL-07**, **M-39**
+
+
+## Automated three-packet candidate audit (offline; cannot advance G4)
+
+When **real** operator-generated proof directories exist, check their `go-no-go-summary.json` fields before asking the release owner to review G4. This is strictly read-only and does not contact Azure OpenAI or write to the canonical proof log:
+
+```sh
+python3 scripts/ci/audit_archlucid_three_real_proof_folders.py \\
+  --proof-dir /secure/run1-proof \\
+  --proof-dir /secure/run2-proof \\
+  --proof-dir /secure/run3-proof \\
+  --output /secure/three-run-candidate-audit.json
+```
+
+The output contains aggregate counts and reason codes **only**. Duplicate run IDs, missing or simulator-only execution evidence, missing sponsor-safe ROI, blocked findings or absent proof files fail candidate checks. Three qualifying *local metadata* candidates still require operator verification of original run execution, artifact integrity and owner signoff. **Do not auto-mark G4 PASS or send customer packets based on this result.**

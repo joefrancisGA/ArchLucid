@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 
 import { ComparePageHeaderActions } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePageHeaderActions";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -13,6 +14,7 @@ import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundary
 import { ValidateCompareVocabularyRail } from "@/components/ValidateCompareVocabularyRail";
 import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";
 import { CompareContinueLastComparisonRow } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareContinueLastComparisonRow";
+import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
 import { CompareNextReviewFooterClient } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareNextReviewFooterClient";
 import { CompareEmptyResultsPlaceholder } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareEmptyResultsPlaceholder";
 import { CompareHowComparisonWorksSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareHowComparisonWorksSection";
@@ -47,7 +49,9 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form";
-import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
+import { useCompareFindingCorrelation } from "./useCompareFindingCorrelation";
+import { resolveCompareUpdatedReviewOpenHref } from "@/lib/compare-pair-grounding-links";
+import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
 
 export type CompareFormProps = {
   readonly basePathname?: string;
@@ -120,6 +124,21 @@ export function CompareForm(props: CompareFormProps = {}) {
     architectureId,
   } = useCompareForm({ basePathname: props.basePathname });
 
+  const compareScopeCorrelation = useCompareFindingCorrelation(
+    golden?.baseRunId ?? (leftTrim.length > 0 ? leftTrim : null),
+    golden?.targetRunId ?? (rightTrim.length > 0 ? rightTrim : null),
+  );
+
+  const compareUpdatedReviewOpenHref = useMemo(
+    () =>
+      resolveCompareUpdatedReviewOpenHref(
+        rightTrim,
+        architectureId,
+        compareScopeCorrelation.lifecycleRecords,
+      ),
+    [architectureId, compareScopeCorrelation.lifecycleRecords, rightTrim],
+  );
+
   const pageBody = (
     <>
       <OperatorPageHeader
@@ -134,6 +153,7 @@ export function CompareForm(props: CompareFormProps = {}) {
         claimDisciplineTestId={buyerPolished ? COMPARE_TWO_REVIEWS_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined}
         actions={<ComparePageHeaderActions buyerPolished={buyerPolished} />}
       />
+      {buyerPolished ? <OperatorHomeWorkingOpenGateStrip /> : null}
       {!buyerPolished ? (
         <OperatorRelatedSurfacesDisclosure testId="compare-related-surfaces-disclosure">
           <ValidateCompareVocabularyRail currentSurfaceId="compare" />
@@ -222,6 +242,13 @@ export function CompareForm(props: CompareFormProps = {}) {
           testIdPrefix="compare-two-reviews"
         />
 
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="compare-two-reviews-second-sealed-discipline"
+        >
+          {ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE}
+        </p>
+
         {urlPairComplete ? (
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
@@ -238,7 +265,7 @@ export function CompareForm(props: CompareFormProps = {}) {
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={resolveSystemNotJobWorkingReviewOpenHref(rightTrim, architectureId)}
+              href={compareUpdatedReviewOpenHref}
             >
               Open updated review
             </Link>
@@ -300,6 +327,7 @@ export function CompareForm(props: CompareFormProps = {}) {
             comparisonNarrativeLoading={comparisonNarrativeLoading}
             buyerPolished={buyerPolished}
             resultsFirst={compareInsightFirstLayout}
+            showPartialInventoryFootnote={compareHasRenderableOutcome}
           />
         ) : null}
       </section>

@@ -29,6 +29,23 @@ public sealed class TenantScopedTablesJsonParityTests
         Assert.Equal(expectedTenant, actualTenant);
     }
 
+    [Fact]
+    public void SecureNow_path_explanation_table_is_explicitly_tenant_scoped()
+    {
+        string matrixText = ArchitectureSourceProbe.ReadPathWithPartials(
+            GetRepoPath("docs/security/TENANT_TABLE_ISOLATION_CLASSIFICATION.md"));
+        string jsonText = ArchitectureSourceProbe.ReadPathWithPartials(
+            GetRepoPath("scripts/ci/data/tenant_scoped_tables.v1.json"));
+
+        const string table = "dbo.SecurityEvidencePathExplanations";
+        Assert.Contains(table, ParseBucket(matrixText, "tenant-id-on-row"));
+        Assert.DoesNotContain(table, ParseBucket(matrixText, "scope-triple-on-row"));
+
+        using JsonDocument document = JsonDocument.Parse(jsonText);
+        Assert.Contains(table, ParseJsonArray(document.RootElement, "tenantIdOnRow"));
+        Assert.DoesNotContain(table, ParseJsonArray(document.RootElement, "scopeTripleOnRow"));
+    }
+
     private static IReadOnlySet<string> ParseBucket(string matrixText, string classification)
     {
         HashSet<string> tables = new(StringComparer.OrdinalIgnoreCase);

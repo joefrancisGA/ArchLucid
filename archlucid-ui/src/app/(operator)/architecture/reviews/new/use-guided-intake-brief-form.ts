@@ -6,10 +6,14 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { starterArchitectureTemplates } from "@/data/starter-templates";
 import {
   mergeScopeBulletsIntoBrief,
-  scopeBriefLines,
+  scopeConfirmBriefLines,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast";
 import { appendIntakeAttachedFileNames } from "@/lib/intake-attached-file-names";
 import {
@@ -20,6 +24,7 @@ import {
 } from "@/lib/guided-intake-copy";
 import type { ReviewIntakeExampleTemplate } from "@/lib/operator/operator-home-example-request";
 import type { ActorSet } from "@/types/draft-intake";
+import { resolveScopeGateOpenTransition } from "@/lib/architecture/scope-gate-open-setter";
 import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
 
 import { MIN_INTENT_CHARS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
@@ -46,6 +51,8 @@ export type GuidedIntakeBriefForm = ReturnType<typeof useGuidedIntakeBriefForm>;
 export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) {
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const urlScopeGateOpen = parseScopeGateOpenFromSearch(searchParams.get("scopeGate"));
   const [freeTextIntent, setFreeTextIntent] = useState("");
   const [businessOutcome, setBusinessOutcome] = useState("");
@@ -56,6 +63,7 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   const [scopeGateOpen, setScopeGateOpenState] = useState(urlScopeGateOpen);
   const scopeGateOpenRef = useRef(scopeGateOpen);
   scopeGateOpenRef.current = scopeGateOpen;
+  const pendingScopeGateUrlSyncRef = useRef(false);
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [priorAttachedFileNames, setPriorAttachedFileNames] = useState<readonly string[]>([]);
 
@@ -71,23 +79,34 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   }, [searchParams]);
   const starterTemplatePrefillApplied = useRef(false);
 
-  const setScopeGateOpen = useCallback(
-    (next: boolean | ((open: boolean) => boolean)) => {
-      setScopeGateOpenState((current) => {
-        const resolved = typeof next === "function" ? next(current) : next;
+  const setScopeGateOpen = useCallback((next: boolean | ((open: boolean) => boolean)) => {
+    setScopeGateOpenState((current) => {
+      const { resolved, shouldSyncUrl } = resolveScopeGateOpenTransition(current, next);
 
-        if (scopeGateOpenRef.current !== resolved) {
-          scopeGateOpenRef.current = resolved;
-          commitHrefIfChanged(scopeGateHrefFromSearch(readWindowLocationSearch(), resolved, pathname), {
-            notify: false,
-          });
-        }
+      if (shouldSyncUrl) {
+        pendingScopeGateUrlSyncRef.current = true;
+        scopeGateOpenRef.current = resolved;
+      }
 
-        return resolved;
-      });
-    },
-    [pathname],
-  );
+      return resolved;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!pendingScopeGateUrlSyncRef.current) {
+      return;
+    }
+
+    pendingScopeGateUrlSyncRef.current = false;
+    commitHrefIfChanged(
+      scopeGateHrefFromSearch(
+        searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+        scopeGateOpen,
+        pathname,
+      ),
+      { notify: false },
+    );
+  }, [pathname, scopeGateOpen]);
 
   useEffect(() => {
     if (scopeGateOpenRef.current !== urlScopeGateOpen) {
@@ -99,7 +118,7 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   useEffect(() => {
     const syncScopeGateFromUrl = (): void => {
       const next = parseScopeGateOpenFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("scopeGate"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "scopeGate"),
       );
 
       if (scopeGateOpenRef.current === next) {
@@ -198,7 +217,7 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   ]);
 
   const advanceHint = buildGuidedIntakeCreationAdvanceBlockerMessage(advanceBlockers);
-  const confirmedScopeLines = useMemo(() => scopeBriefLines(scopeBullets), [scopeBullets]);
+  const confirmedScopeLines = useMemo(() => scopeConfirmBriefLines(scopeBullets), [scopeBullets]);
 
   const scopeUnderstandingInput = useMemo(
     () => ({
@@ -217,15 +236,22 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   );
 
   const guidedIntakeEvidencePresence = useMemo(() => {
-    if (evidenceFiles.length > 0) {
-      return deriveEvidencePresenceFromFileNames(evidenceFiles.map((file) => file.name));
+    const fromFiles =
+      evidenceFiles.length > 0
+        ? deriveEvidencePresenceFromFileNames(evidenceFiles.map((file) => file.name))
+        : deriveEvidencePresenceFromFileNames([]);
+
+    const typedBriefReady =
+      freeTextIntent.trim().length >= MIN_INTENT_CHARS
+      || businessOutcome.trim().length >= MIN_OUTCOME_CHARS;
+    const typedBriefPartial =
+      freeTextIntent.trim().length > 0 || businessOutcome.trim().length > 0;
+
+    if (typedBriefReady || (evidenceFiles.length > 0 && typedBriefPartial)) {
+      return { ...fromFiles, hasArchitectureBrief: true };
     }
 
-    if (freeTextIntent.trim().length > 0 || businessOutcome.trim().length > 0) {
-      return deriveEvidencePresenceFromFileNames(["architecture-brief.md"]);
-    }
-
-    return deriveEvidencePresenceFromFileNames([]);
+    return fromFiles;
   }, [businessOutcome, evidenceFiles, freeTextIntent]);
 
   /** Brief text as the server should store it: confirmed scope bullets merged into the prose. */

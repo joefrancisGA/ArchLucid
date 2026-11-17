@@ -3,11 +3,11 @@
 
 # SecureNow question queue — Luna prompts
 
-**Created:** 2026-10-03 · **Status:** ready to paste · **Audience:** GPT-5.6 Luna
+**Created:** 2026-10-03 · **Updated:** 2026-11-01 · **Status:** SN-QQ-01–10 shipped on trunk. **Audience:** GPT-5.6 Luna
 
 The diagrams workbench already has two different "questions." `InferenceQuestionnairePanel` lists proposed operator-inferred connections. The outline's Unknown notice and Problem column are diagram evidence. A policy pack can also force a question that has no node. The reader gets one queue, one count, and one drawer.
 
-Paste **one** prompt per Luna session. Run them in order. Do not implement from this index.
+The SN-QQ-01–10 implementation is on trunk. Keep these prompts as regression reference; do not implement from this index.
 
 | ID | Prompt | Depends on | Intent |
 |----|--------|------------|--------|
@@ -23,7 +23,7 @@ Paste **one** prompt per Luna session. Run them in order. Do not implement from 
 | **SN-QQ-10** | [securenow-question-queue-10-open-count-weight.md](../../.cursor/prompts/securenow-question-queue-10-open-count-weight.md) | SN-QQ-03, SN-QQ-09 | Show `Action needed`, the open count in medium helper type, and an outline `Review questions` button. Composer 2.5 slow |
 | **SN-QQ-HOLD** | [securenow-question-queue-hold.md](../../.cursor/prompts/securenow-question-queue-hold.md) | — | Forbidden scope |
 
-**SN-QQ-05** can follow **SN-QQ-02** before the drawer exists. **SN-QQ-03** and **SN-QQ-04** stay in order. **SN-QQ-06** follows the store and the compiler. It can land before the drawer. **SN-QQ-07** follows the mounted queue. Run it on its own. It does not rebuild SN-QQ-01 through SN-QQ-06. **SN-QQ-08** follows that banner. It adds one OP-01 map row and does not change the controller, the middleware, or the queue UI. **SN-QQ-09** follows the mounted card. It does not add a question source. Run it on Composer 2.5 slow (`composer-2.5`), not a fast-tier slug. **SN-QQ-10** follows that promo. It changes the open-count row only. Run it on Composer 2.5 slow (`composer-2.5`), not a fast-tier slug.
+**SN-QQ-01** through **SN-QQ-10** are on trunk. Do not redo them. **SN-QQ-HOLD** is not a build step.
 
 ## Settled reading
 

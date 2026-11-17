@@ -5,6 +5,8 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Persistence.Serialization;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>
@@ -14,11 +16,13 @@ namespace ArchLucid.Persistence.Advisory;
 /// <param name="subscriptionRepository">Scope-scoped routing rows.</param>
 /// <param name="attemptRepository">Persists delivery attempt lifecycle.</param>
 /// <param name="auditService">Success/failure audit events.</param>
+/// <param name="logger">Reports failures after delivery success has been recorded.</param>
 public sealed class DigestDeliveryDispatcher(
     IEnumerable<IDigestDeliveryChannel> channels,
     IDigestSubscriptionRepository subscriptionRepository,
     IDigestDeliveryAttemptRepository attemptRepository,
-    IAuditService auditService) : IDigestDeliveryDispatcher
+    IAuditService auditService,
+    ILogger<DigestDeliveryDispatcher>? logger = null) : IDigestDeliveryDispatcher
 {
     private static IDigestDeliveryChannel ResolveChannel(IEnumerable<IDigestDeliveryChannel> channels, string channelType) =>
         channels.FirstOrDefault(x => string.Equals(x.ChannelType, channelType, StringComparison.OrdinalIgnoreCase))
@@ -46,7 +50,7 @@ public sealed class DigestDeliveryDispatcher(
     /// </summary>
     /// <remarks>
     /// <see cref="OperationCanceledException"/> is re-thrown to allow callers to honor cancellation.
-    /// All other exceptions are caught, recorded on the attempt row, and audited as failures without propagating.
+    /// Exceptions before recording success are treated as delivery failures. Later exceptions are logged as warnings.
     /// </remarks>
     private async Task DeliverToSubscriptionAsync(
         ArchitectureDigest digest,
@@ -68,6 +72,7 @@ public sealed class DigestDeliveryDispatcher(
         };
 
         await attemptRepository.CreateAsync(attempt, ct);
+        bool deliveryRecorded = false;
 
         try
         {
@@ -84,10 +89,11 @@ public sealed class DigestDeliveryDispatcher(
                 ;
 
             attempt.Status = DigestDeliveryStatus.Succeeded;
-            subscription.LastDeliveredUtc = TimeProvider.System.UtcNowDateTime();
+            DateTime deliveredUtc = TimeProvider.System.UtcNowDateTime();
 
             await attemptRepository.UpdateAsync(attempt, ct);
-            await subscriptionRepository.UpdateAsync(subscription, ct);
+            deliveryRecorded = true;
+            await subscriptionRepository.RecordDeliveryAsync(subscription, deliveredUtc, ct);
 
             await auditService.LogAsync(
                 new AuditEvent
@@ -112,6 +118,13 @@ public sealed class DigestDeliveryDispatcher(
         catch (OperationCanceledException)
         {
             throw;
+        }
+        catch (Exception ex) when (deliveryRecorded)
+        {
+            logger?.LogWarning(
+                ex,
+                "Could not finish bookkeeping for successful digest delivery attempt {DigestDeliveryAttemptId}.",
+                attempt.AttemptId);
         }
         catch (Exception ex)
         {

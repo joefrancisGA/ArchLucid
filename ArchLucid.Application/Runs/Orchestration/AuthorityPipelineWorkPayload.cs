@@ -1,4 +1,5 @@
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
+using ArchLucid.ContextIngestion;
 using ArchLucid.Contracts.Persistence.Context;
 using System.Globalization;
 
@@ -153,7 +154,7 @@ public sealed class AuthorityPipelineWorkPayload
             return [];
 
         return values
-            .Where(static value => value is not null && HasUsableIdentifierText(value))
+            .Where(static value => value is not null && HasUsableMultilineBodyText(value))
             .ToList();
     }
 
@@ -163,7 +164,7 @@ public sealed class AuthorityPipelineWorkPayload
             return [];
 
         return values
-            .Where(static value => value is not null && HasUsableCompactIdentifierText(value))
+            .Where(static value => value is not null && HasUsableMultilineBodyText(value))
             .ToList();
     }
 
@@ -178,9 +179,41 @@ public sealed class AuthorityPipelineWorkPayload
     }
 
     private static bool HasSubstantiveDocument(ContextDocumentReference document) =>
-        HasUsableCompactIdentifierText(document.Name)
-        && HasUsableCompactIdentifierText(document.ContentType)
-        && HasUsableIdentifierText(document.Content);
+        HasUsableMultilineBodyText(document.Name)
+        && HasUsableDocumentContentType(document.ContentType)
+        && HasUsableMultilineBodyText(document.Content);
+
+    /// <summary>
+    ///     Prose fields and document or declaration names may contain newlines. Reject no-break and other
+    ///     non-ASCII whitespace while keeping ordinary spaces and line breaks.
+    /// </summary>
+    private static bool HasUsableMultilineBodyText(string? value)
+    {
+        if (!HasUsableIdentifierText(value))
+            return false;
+
+        foreach (char character in value!)
+        {
+            if (character == '\u00A0')
+                return false;
+
+            if (char.IsWhiteSpace(character)
+                && character is not ' ' and not '\n' and not '\r' and not '\t')
+                return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    ///     MIME parameters such as <c>; charset=utf-8</c> contain a space. Judge the type token
+    ///     after the same lookup cut the parser uses, and keep the raw value on the document.
+    /// </summary>
+    private static bool HasUsableDocumentContentType(string? value)
+    {
+        string normalized = SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup(value);
+        return HasUsableCompactIdentifierText(normalized);
+    }
 
     private static List<InfrastructureDeclarationReference> MaterializeInfrastructureDeclarationList(
         List<InfrastructureDeclarationReference>? values)
@@ -195,8 +228,8 @@ public sealed class AuthorityPipelineWorkPayload
 
     private static bool HasSubstantiveInfrastructureDeclaration(InfrastructureDeclarationReference declaration)
     {
-        return HasUsableCompactIdentifierText(declaration.Name)
+        return HasUsableMultilineBodyText(declaration.Name)
                && HasUsableCompactIdentifierText(declaration.Format)
-               && HasUsableIdentifierText(declaration.Content);
+               && HasUsableMultilineBodyText(declaration.Content);
     }
 }

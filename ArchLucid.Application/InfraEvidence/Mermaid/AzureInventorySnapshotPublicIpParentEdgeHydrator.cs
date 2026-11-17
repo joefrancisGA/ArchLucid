@@ -26,7 +26,13 @@ internal static class AzureInventorySnapshotPublicIpParentEdgeHydrator
 
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources)
         {
-            if (!resource.ResourceType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(resource.ResourceType)
+                || !resource.ResourceType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(resource.AzureResourceId))
             {
                 continue;
             }
@@ -48,6 +54,7 @@ internal static class AzureInventorySnapshotPublicIpParentEdgeHydrator
                     AzureInventorySnapshotGraphEdgeAppender.TryAdd(
                         edges, edgeKeys, publicIpNodeId, parentNodeId,
                         GraphEdgeTypes.Exposes, GraphEdgeInferenceSources.InventoryPublicIp,
+                        label: GraphEdgeTypes.Exposes,
                         promoteStrongerProvenance: false, preserveNullProvenance: true);
                 }
             }

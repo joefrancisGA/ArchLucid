@@ -76,7 +76,7 @@ internal static class DiagramExecutiveAlwaysShowSelector
         {
             NodeId = $"{OverflowNodeIdPrefix}{tier.Key}",
             NodeType = GraphNodeTypes.TopologyResource,
-            Label = $"+{overflowCount} more {tier.OverflowNoun}",
+            Label = $"+{overflowCount} more {tier.OverflowNoun} not on this diagram",
             Category = null,
             SourceType = null,
             SourceId = null,

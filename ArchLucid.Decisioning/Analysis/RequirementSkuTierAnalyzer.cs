@@ -56,7 +56,7 @@ public static class RequirementSkuTierAnalyzer
                     continue;
                 }
 
-                if (tier != DatastoreSkuTier.SingleRegion)
+                if (MeetsRequiredRedundancy(tier, requiredRedundancy))
                 {
                     continue;
                 }
@@ -191,8 +191,17 @@ public static class RequirementSkuTierAnalyzer
         }
     }
 
+    private static bool MeetsRequiredRedundancy(DatastoreSkuTier observedTier, RequirementRedundancyLevel requiredRedundancy) =>
+        requiredRedundancy switch
+        {
+            RequirementRedundancyLevel.Zone => observedTier >= DatastoreSkuTier.ZoneRedundant,
+            RequirementRedundancyLevel.Geo => observedTier >= DatastoreSkuTier.GeoRedundant,
+            RequirementRedundancyLevel.MultiRegion => observedTier >= DatastoreSkuTier.MultiRegion,
+            _ => false,
+        };
+
     private static string ResolveLabel(GraphNode node) =>
-        string.IsNullOrWhiteSpace(node.Label) ? node.NodeId : node.Label.Trim();
+        GraphNodeReviewerLabel.ForFindingTitle(node.Label);
 
     private static bool TryGetProperty(
         IReadOnlyDictionary<string, string> properties,

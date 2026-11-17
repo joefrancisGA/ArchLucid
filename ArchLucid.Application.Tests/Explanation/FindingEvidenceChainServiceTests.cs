@@ -132,18 +132,71 @@ public sealed class FindingEvidenceChainServiceTests
         chain.SupportHint.Should().NotBeNullOrWhiteSpace();
     }
 
+    [Fact]
+    public async Task CompareQuality_BuildAsync_merges_execution_traces_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("abababab-abab-abab-abab-abababababab");
+        string canonical = runGuid.ToString("N");
+        string legacyUpper = canonical.ToUpperInvariant();
+        RunDetailDto dto = MinimalDetail(runGuid, findings: [NewFinding("hit-id")]);
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+        };
+
+        FindingEvidenceChainService sut = CreateSut(
+            out Mock<IAuthorityQueryService> authority,
+            out Mock<IAgentExecutionTraceRepository> traces,
+            out _,
+            out _,
+            scope);
+
+        authority
+            .Setup(a => a.GetRunDetailAsync(scope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(dto);
+
+        IReadOnlyList<AgentExecutionTrace> legacyTraces =
+        [
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-legacy-repo-key",
+                RunId = legacyUpper,
+                AgentType = AgentType.Compliance,
+            },
+        ];
+
+        traces
+            .Setup(t => t.GetByRunIdAsync(scope, canonical, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(legacyTraces);
+        traces
+            .Setup(t => t.GetByRunIdAsync(
+                scope,
+                It.Is<string>(id => id != canonical),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        FindingEvidenceChainResponse? chain = await sut.BuildAsync(canonical, "hit-id");
+
+        chain.Should().NotBeNull();
+        chain!.AgentExecutionTraceIds.Should().ContainSingle("trace-legacy-repo-key");
+    }
+
     private static FindingEvidenceChainService CreateSut(
         out Mock<IAuthorityQueryService> authority,
         out Mock<IAgentExecutionTraceRepository> traces,
         out Mock<IRetrievalGroundingTraceReader> grounding,
-        out Mock<IAuditRepository> audit)
+        out Mock<IAuditRepository> audit,
+        ScopeContext? scopeContext = null)
     {
         authority = new Mock<IAuthorityQueryService>();
         Mock<IScopeContextProvider> scope = new();
         traces = new Mock<IAgentExecutionTraceRepository>();
         grounding = new Mock<IRetrievalGroundingTraceReader>();
         audit = new Mock<IAuditRepository>();
-        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+        scope.Setup(s => s.GetCurrentScope()).Returns(scopeContext ?? new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         grounding.Setup(g => g.GetByRunIdAsync(
                 It.IsAny<Guid>(),

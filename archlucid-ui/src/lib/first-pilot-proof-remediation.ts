@@ -2,6 +2,7 @@
  * Maps first-pilot proof finding names to remediation doc paths and in-app routes.
  * Keep aligned with scripts/FirstPilotSupportNextStep.ps1.
  */
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 export type FirstPilotProofRemediation = {
@@ -41,7 +42,7 @@ function reviewDetailHref(runId: string | null | undefined): string | null {
     return "/architecture/reviews";
   }
 
-  return `/architecture/reviews/${encodeURIComponent(runId.trim())}`;
+  return resolveLibOpenReviewHref(runId.trim());
 }
 
 function inAppHrefForFinding(name: string, runId: string | null | undefined): string | null {

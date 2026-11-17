@@ -26,11 +26,9 @@ public sealed partial class ImprovementSignalAnalyzer
             {
                 SignalType = ImprovementSignalTypes.UncoveredRequirement,
                 Category = ImprovementSignalCategories.Requirement,
-                Title = $"Requirement not covered: {uncovered.RequirementName}",
-                Description = string.IsNullOrWhiteSpace(uncovered.RequirementText)
-                    ? uncovered.RequirementName
-                    : uncovered.RequirementText,
-                Severity = ImprovementSignalSeverities.High,
+                Title = ImprovementSignalAnalyzerHonesty.FormatUncoveredRequirementTitle(uncovered.RequirementName),
+                Description = ImprovementSignalAnalyzerHonesty.FormatUncoveredRequirementDescription(uncovered.RequirementText),
+                Severity = ImprovementSignalSeverities.NotStored,
                 FindingIds = uncovered.SupportingFindingIds.ToList()
             });
     }
@@ -69,13 +67,11 @@ public sealed partial class ImprovementSignalAnalyzer
         {
             SignalType = ImprovementSignalTypes.PolicyViolation,
             Category = ImprovementSignalCategories.Compliance,
-            Title = string.IsNullOrWhiteSpace(violation.ControlName)
-                ? "Policy violation"
-                : $"Policy violation: {violation.ControlName}",
-            Description = string.IsNullOrWhiteSpace(violation.Description)
-                ? violation.ControlId
-                : violation.Description,
-            Severity = ImprovementSignalSeverities.High
+            Title = ImprovementSignalAnalyzerHonesty.FormatPolicyViolationTitle(violation.ControlName),
+            Description = ImprovementSignalAnalyzerHonesty.FormatPolicyViolationDescription(
+                violation.Description,
+                violation.ControlId),
+            Severity = ImprovementSignalSeverities.NotStored
         }));
     }
 
@@ -112,7 +108,7 @@ public sealed partial class ImprovementSignalAnalyzer
         foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
         {
             string sev = string.IsNullOrWhiteSpace(issue.Severity)
-                ? ImprovementSignalSeverities.Medium
+                ? ImprovementSignalSeverities.NotStored
                 : issue.Severity;
             signals.Add(new ImprovementSignal
             {

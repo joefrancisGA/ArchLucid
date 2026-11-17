@@ -9,11 +9,11 @@ import {
 import { AccessDeniedBreadcrumb } from "./AccessDeniedBreadcrumb";
 
 describe("AccessDeniedBreadcrumb", () => {
-  it("renders Welcome → Access denied trail", () => {
+  it("defers to page titles after TB-2090 breadcrumb removal", () => {
     render(<AccessDeniedBreadcrumb />);
 
-    const breadcrumb = screen.getByTestId("access-denied-breadcrumb");
-    expect(breadcrumb).toHaveTextContent(ACCESS_DENIED_BREADCRUMB_HUB_LABEL);
-    expect(breadcrumb).toHaveTextContent(ACCESS_DENIED_BREADCRUMB_TOPIC_TITLE);
+    expect(screen.queryByTestId("access-denied-breadcrumb")).not.toBeInTheDocument();
+    expect(ACCESS_DENIED_BREADCRUMB_HUB_LABEL.length).toBeGreaterThan(0);
+    expect(ACCESS_DENIED_BREADCRUMB_TOPIC_TITLE.length).toBeGreaterThan(0);
   });
 });

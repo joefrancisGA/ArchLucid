@@ -52,7 +52,8 @@ describe("digest-setup-gap-actions", () => {
   it("maps executive digest setup gap from stable gap code", () => {
     const action = mapDigestSetupGap("copy changed on server", "executive_email_digest_not_configured");
 
-    expect(action.title).toContain("Executive");
+    // Alias of sponsor_email_digest_not_configured — same remediation path.
+    expect(action.title).toContain("Sponsor");
     expect(action.actionLabel.toLowerCase()).toContain("open");
   });
 
@@ -194,8 +195,8 @@ describe("digest-setup-gap-actions", () => {
   });
 
   it("formats instants or em dash", () => {
-    expect(formatDigestInstant(null)).toBe(" — ");
-    expect(formatDigestInstant("not-a-date")).toBe(" — ");
-    expect(formatDigestInstant("2026-07-08T12:00:00Z")).not.toBe(" — ");
+    expect(formatDigestInstant(null)).toBe("Not recorded");
+    expect(formatDigestInstant("not-a-date")).toBe("Date not readable");
+    expect(formatDigestInstant("2026-07-08T12:00:00Z")).not.toBe("Not recorded");
   });
 });

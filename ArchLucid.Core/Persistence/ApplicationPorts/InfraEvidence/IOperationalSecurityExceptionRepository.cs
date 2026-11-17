@@ -94,15 +94,17 @@ public interface IOperationalSecurityExceptionRepository
             && row.ExpirationUtc > asOfUtc);
     }
 
+    /// <summary>Marks due exceptions expired and returns scoped expiry work still awaiting processing.</summary>
     async Task<IReadOnlyList<OperationalSecurityExceptionRecord>> MarkExpiredInScopeAsync(
         ProjectScopeKey scope,
         DateTime asOfUtc,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<OperationalSecurityExceptionRecord> rows =
-            await MarkExpiredAsync(scope.TenantId, asOfUtc, cancellationToken);
+        await MarkExpiredAsync(scope.TenantId, asOfUtc, cancellationToken);
+        IReadOnlyList<OperationalSecurityExceptionRecord> rows = await ListByScopeAsync(scope, cancellationToken);
 
-        return rows.Where(row => scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId)).ToList();
+        return rows.Where(row => row.Status == OperationalSecurityExceptionStatus.Expired
+            && !row.ExpiryProcessedUtc.HasValue).ToList();
     }
 
     async Task MarkExpiryProcessedInScopeAsync(
@@ -140,8 +142,11 @@ public interface IOperationalSecurityExceptionRepository
         IReadOnlyList<OperationalSecurityExceptionRecord> exceptions =
             await ListByScopeAsync(scope, cancellationToken);
 
-        int exceptionsActive = exceptions.Count(item => item.Status == OperationalSecurityExceptionStatus.Active);
-        int exceptionsExpired = exceptions.Count(item => item.Status == OperationalSecurityExceptionStatus.Expired);
+        int exceptionsActive = exceptions.Count(item =>
+            item.Status == OperationalSecurityExceptionStatus.Active && item.ExpirationUtc > utcNow);
+        int exceptionsExpired = exceptions.Count(item =>
+            item.Status == OperationalSecurityExceptionStatus.Expired
+            || (item.Status == OperationalSecurityExceptionStatus.Active && item.ExpirationUtc <= utcNow));
 
         int exceptionsExpiringSoon = exceptions.Count(item =>
             item.Status == OperationalSecurityExceptionStatus.Active

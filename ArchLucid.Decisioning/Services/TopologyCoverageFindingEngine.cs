@@ -21,6 +21,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
         TopologyCoverageResult result = analyzer.AnalyzeTopology(graphSnapshot);
         List<Finding> findings = [];
         IReadOnlyList<string> expectedCategories = result.ExpectedCategories;
+        bool hasScopeMetadata = WorkloadScopeExpectationHonesty.HasWorkloadScopeMetadata(graphSnapshot);
 
         if (result.TopologyNodeCount == 0)
         {
@@ -32,7 +33,8 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                 EngineType = EngineType,
                 Severity = FindingSeverity.Warning,
                 Title = "No topology resources were found",
-                Rationale = "The graph does not contain any TopologyResource nodes.",
+                Rationale = WorkloadScopeExpectationHonesty.DescribeTopologyCoverageRationale(hasScopeMetadata)
+                    + " The graph does not contain any TopologyResource nodes.",
                 PayloadType = nameof(TopologyCoverageFindingPayload),
                 Payload = new TopologyCoverageFindingPayload
                 {
@@ -54,7 +56,13 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                         "Verify the graph projection maps infrastructure types into TopologyResource (not only generic service/datastore nodes).",
                         "Treat empty topology as intentional and record scope or policy rationale instead of expanding coverage."
                     ],
-                    Notes = [$"Expected categories: {string.Join(", ", expectedCategories)}"]
+                    Notes =
+                    [
+                        hasScopeMetadata
+                            ? "Expected categories derived from stored scope metadata and policy stamps."
+                            : WorkloadScopeExpectationHonesty.TopologyLegacyDefaultNote,
+                        $"Expected categories: {string.Join(", ", expectedCategories)}"
+                    ]
                 }
             });
 
@@ -75,7 +83,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                 EngineType = EngineType,
                 Severity = FindingSeverity.Warning,
                 Title = "Topology coverage is incomplete",
-                Rationale = "The graph contains topology resources but is missing one or more workload-expected categories.",
+                Rationale = WorkloadScopeExpectationHonesty.DescribeTopologyCoverageRationale(hasScopeMetadata),
                 PayloadType = nameof(TopologyCoverageFindingPayload),
                 Payload = new TopologyCoverageFindingPayload
                 {
@@ -85,9 +93,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     MissingCategories = result.MissingCategories
                 },
                 RecommendedActions =
-                [
-                    "Add missing topology categories to the architecture input."
-                ],
+                    WorkloadScopeExpectationHonesty.TopologyCoverageRecommendedActions(hasScopeMetadata).ToList(),
                 RelatedNodeIds = [.. result.TopologyNodeIds],
                 EvidenceRefs = evidenceRefs,
                 Trace = new ExplainabilityTrace
@@ -96,7 +102,9 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     RulesApplied = ["topology-coverage-categories"],
                     DecisionsTaken =
                     [
-                        "Compared present topology categories to expected coverage categories."
+                        hasScopeMetadata
+                            ? "Compared present topology categories to expected coverage categories from stored scope metadata."
+                            : "Compared present topology categories to the engine legacy four-pillar default because scope metadata was not stored."
                     ],
                     AlternativePathsConsidered =
                     [

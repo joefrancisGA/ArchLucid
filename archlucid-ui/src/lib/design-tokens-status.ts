@@ -23,7 +23,7 @@ export const ENTERPRISE_STATUS_LABELS: Readonly<Record<EnterpriseStatusKind, str
   "approved-with-monitoring": "Approved with monitoring",
   "in-progress": "In progress",
   draft: "Draft",
-  neutral: " — ",
+  neutral: "Status was not stored.",
 };
 
 /** Non-interactive metadata label shell — flat soft labels, not buttons or filter chips. */
@@ -125,7 +125,7 @@ export const SEVERITY_LABELS: Readonly<Record<FindingSeverityKind, string>> = {
   medium: "Medium",
   low: "Low",
   info: "Info",
-  unknown: "Unclassified",
+  unknown: "Severity label was not stored.",
 };
 
 export function normalizeFindingSeverity(raw: string | null | undefined): FindingSeverityKind {

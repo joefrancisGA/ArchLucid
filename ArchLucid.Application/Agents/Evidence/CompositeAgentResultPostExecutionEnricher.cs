@@ -26,7 +26,7 @@ public sealed class CompositeAgentResultPostExecutionEnricher(IEnumerable<IAgent
         if (results.Any(static result => result is null))
             enrichableResults = results.Where(static result => result is not null).ToArray();
 
-        foreach (IAgentResultPostExecutionEnricher enricher in _enrichers)
+        foreach (IAgentResultPostExecutionEnricher enricher in _enrichers.Where(static enricher => enricher is not null))
             await enricher.EnrichAsync(runId, request, evidence, enrichableResults, cancellationToken)
                 .ConfigureAwait(false);
     }

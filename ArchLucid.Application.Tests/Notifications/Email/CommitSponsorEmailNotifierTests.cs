@@ -176,6 +176,40 @@ public sealed class CommitSponsorEmailNotifierTests
     }
 
     [SkippableFact]
+    public async Task NotifyAfterCommitAsync_strips_form_feed_from_product_display_name_in_html_and_subject()
+    {
+        Mock<ITenantTrialEmailContactLookup> lookup = new();
+        lookup
+            .Setup(x => x.TryResolveAdminEmailAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("sponsor@example.com");
+
+        EmailMessage? captured = null;
+        Mock<IEmailProvider> email = new();
+        email.Setup(x => x.ProviderName).Returns("test");
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => captured = message)
+            .Returns(Task.CompletedTask);
+
+        IOptionsMonitor<EmailNotificationOptions> options = BuildOptions(
+            new EmailNotificationOptions
+            {
+                ProductDisplayName = "Prod\fSuite",
+                OperatorBaseUrl = "https://app.example",
+            });
+
+        CommitSponsorEmailNotifier sut = CreateSut(lookup.Object, email.Object, options);
+
+        await sut.NotifyAfterCommitAsync(TenantId, RunIdText, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.Subject.Should().StartWith("Prod Suite:");
+        captured.HtmlBody.Should().Contain("Prod Suite:");
+        captured.HtmlBody.Should().NotContain("\f");
+        captured.TextBody.Should().NotContain("\f");
+    }
+
+    [SkippableFact]
     public async Task NotifyAfterCommitAsync_when_send_fails_does_not_throw()
     {
         Mock<ITenantTrialEmailContactLookup> lookup = new();

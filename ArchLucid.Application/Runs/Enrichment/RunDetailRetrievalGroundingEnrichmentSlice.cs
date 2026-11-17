@@ -35,12 +35,19 @@ public sealed class RunDetailRetrievalGroundingEnrichmentSlice(
                     cancellationToken)
                 .ConfigureAwait(false);
 
+        int? totalGraphRagNeighbors = RetrievalGroundingTraceMetricRollup.SumIntWhenAllPresent(
+            traces,
+            static trace => trace.GraphRagNeighborsAdded);
+        int? totalGraphRagSeedHits = RetrievalGroundingTraceMetricRollup.SumIntWhenAllPresent(
+            traces,
+            static trace => trace.GraphRagSeedHits);
+
         detail.RetrievalGroundingSummary = RunRetrievalGroundingSummaryBuilder.Build(
             traces,
             detail.Results,
             GraphRagQualityPosture.ResolveForGroundedRun(
                 _configuration,
-                traces.Sum(static trace => trace.GraphRagNeighborsAdded ?? 0),
-                traces.Sum(static trace => trace.GraphRagSeedHits ?? 0)));
+                totalGraphRagNeighbors ?? 0,
+                totalGraphRagSeedHits ?? 0));
     }
 }

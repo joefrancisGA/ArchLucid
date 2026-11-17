@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -14,7 +16,7 @@ import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectio
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RefreshButton } from "@/components/ui/refresh-button";
-import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
@@ -25,6 +27,7 @@ import {
   GOVERNANCE_SIGNED_RECORDS_LIST_SKIP_LINK_LABEL,
 } from "@/lib/governance-signed-records-list-page-copy";
 import { SIGNED_RECORDS_LIST_CLAIM_DISCIPLINE } from "@/lib/signed-records-list-evidence-copy";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { cn } from "@/lib/utils";
 
@@ -46,10 +49,12 @@ import { SignedRecordsListTableSkeleton } from "./SignedRecordsListTableSkeleton
 import { SignedRecordsListToolbar } from "./SignedRecordsListToolbar";
 import { SignedRecordsListTableDeferred } from "./signed-records-list-deferred-chunks";
 import { SignedRecordsListEmptyStates } from "./SignedRecordsListEmptyStates";
+import { SignedRecordsListPartialCaptureFootnote } from "./SignedRecordsListPartialCaptureFootnote";
+import { SignedRecordsUnscopedListPartialHonesty } from "./SignedRecordsUnscopedListPartialHonesty";
 import { useSignedRecordsListClient } from "./use-signed-records-list-client";
 
 export default function SignedRecordsListClient() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const {
     scopedRunId,
     scopedRunFilterActive,
@@ -160,7 +165,7 @@ export default function SignedRecordsListClient() {
           {" · "}
           <Link
             className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(scopedRunId)}
           >
             Open review
           </Link>
@@ -188,6 +193,10 @@ export default function SignedRecordsListClient() {
         showcaseSampleAvailable={showcaseSampleAvailable}
         onClearFilters={clearFilters}
       />
+
+      {!scopedRunFilterActive && hasRows && !loading ? (
+        <SignedRecordsUnscopedListPartialHonesty />
+      ) : null}
 
       {scopedRunFilterActive && showListChrome ? (
         <div className="mb-4 space-y-2" data-testid="signed-records-list-chrome">
@@ -235,16 +244,19 @@ export default function SignedRecordsListClient() {
       {isPageRefresh ? <SignedRecordsListTableSkeleton rowCount={Math.max(rows.length, 3)} /> : null}
 
       {scopedRunFilterActive && !loading && hasRows && !showFilterNoMatch ? (
-        <SignedRecordsListTableDeferred
-          rows={filteredRows}
-          enriching={enriching}
-          retryingRunId={retryingRunId}
-          retryFailedRunId={retryFailedRunId}
-          retrySucceededRunId={retrySucceededRunId}
-          onRetryRow={(runId) => {
-            void retryRow(runId);
-          }}
-        />
+        <>
+          <SignedRecordsListTableDeferred
+            rows={filteredRows}
+            enriching={enriching}
+            retryingRunId={retryingRunId}
+            retryFailedRunId={retryFailedRunId}
+            retrySucceededRunId={retrySucceededRunId}
+            onRetryRow={(runId) => {
+              void retryRow(runId);
+            }}
+          />
+          <SignedRecordsListPartialCaptureFootnote />
+        </>
       ) : null}
 
       {retrySucceededRunId !== null ? (

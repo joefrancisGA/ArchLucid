@@ -1,5 +1,6 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { CorePilotCommitProgressState } from "@/lib/core-pilot-commit-progress";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 
 export type FirstReviewCheckpointStatus = "complete" | "active" | "pending";
@@ -25,10 +26,14 @@ export function buildFirstReviewCheckpointStrip(
   latestRunId: string | null,
   firstCommittedRunId: string | null,
   latestRunReadyToFinalize: boolean,
+  hasRecordedFirstReviewExport = false,
 ): readonly FirstReviewCheckpoint[] {
-  const reviewHref = latestRunId !== null ? `/architecture/reviews/${latestRunId}` : "/architecture/reviews";
+  const reviewHref =
+    latestRunId !== null ? resolveOperatorScopedRunReviewHref(latestRunId) : "/architecture/reviews";
   const committedReviewHref =
-    firstCommittedRunId !== null ? `/architecture/reviews/${firstCommittedRunId}` : "/architecture/reviews";
+    firstCommittedRunId !== null
+      ? resolveOperatorScopedRunReviewHref(firstCommittedRunId)
+      : "/architecture/reviews";
 
   const statusById: Record<FirstReviewCheckpointId, FirstReviewCheckpointStatus> = {
     intake: "pending",
@@ -53,8 +58,13 @@ export function buildFirstReviewCheckpointStrip(
     statusById.intake = "complete";
     statusById.execute = "complete";
     statusById.commit = "complete";
-    statusById.export = "complete";
-    statusById["sponsor-ready"] = "active";
+
+    if (hasRecordedFirstReviewExport) {
+      statusById.export = "complete";
+      statusById["sponsor-ready"] = "active";
+    } else {
+      statusById.export = "active";
+    }
   }
 
   return [
@@ -89,7 +99,7 @@ export function checkpointNextAction(
 export function statusChipLabel(status: FirstReviewCheckpointStatus): string {
   switch (status) {
     case "complete":
-      return "Ready";
+      return "Complete";
     case "active":
       return "In progress";
     case "pending":

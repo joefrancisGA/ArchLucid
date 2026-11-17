@@ -63,6 +63,7 @@ public sealed class CachingScimUserRepository(IScimUserRepository inner, IHotPat
         return _inner.GetByUserNameAsync(tenantId, userName, cancellationToken);
     }
 
+    // After a successful write, eviction must finish even if the caller has disconnected.
     /// <inheritdoc />
     public async Task<ScimUserRecord> InsertAsync(
         Guid tenantId,
@@ -89,7 +90,7 @@ public sealed class CachingScimUserRepository(IScimUserRepository inner, IHotPat
             tenantId,
             created.Id,
             created.ExternalId,
-            cancellationToken);
+            CancellationToken.None);
 
         return created;
     }
@@ -124,14 +125,14 @@ public sealed class CachingScimUserRepository(IScimUserRepository inner, IHotPat
             tenantId,
             id,
             prior?.ExternalId,
-            cancellationToken);
+            CancellationToken.None);
 
         await HotPathCacheEviction.RemoveScimUserAsync(
             _hotPathReadCache,
             tenantId,
             id,
             externalId,
-            cancellationToken);
+            CancellationToken.None);
     }
 
     /// <inheritdoc />
@@ -164,7 +165,7 @@ public sealed class CachingScimUserRepository(IScimUserRepository inner, IHotPat
             tenantId,
             id,
             prior?.ExternalId,
-            cancellationToken);
+            CancellationToken.None);
 
         if (!string.IsNullOrWhiteSpace(externalId))
         {
@@ -173,7 +174,7 @@ public sealed class CachingScimUserRepository(IScimUserRepository inner, IHotPat
                 tenantId,
                 id,
                 externalId,
-                cancellationToken);
+                CancellationToken.None);
         }
     }
 
@@ -189,7 +190,7 @@ public sealed class CachingScimUserRepository(IScimUserRepository inner, IHotPat
             tenantId,
             id,
             prior?.ExternalId,
-            cancellationToken);
+            CancellationToken.None);
     }
 
     /// <inheritdoc />
@@ -222,14 +223,14 @@ public sealed class CachingScimUserRepository(IScimUserRepository inner, IHotPat
             tenantId,
             id,
             prior?.ExternalId,
-            cancellationToken);
+            CancellationToken.None);
 
         await HotPathCacheEviction.RemoveScimUserAsync(
             _hotPathReadCache,
             tenantId,
             id,
             externalId,
-            cancellationToken);
+            CancellationToken.None);
 
         return reactivated;
     }

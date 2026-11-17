@@ -17,6 +17,7 @@ type ProvenanceGraphEdge = ArchitectureRunProvenanceGraph["edges"][number];
 
 export type ProvenancePageWorkspaceNodeAsideProps = {
   readonly runId: string;
+  readonly reviewPathname: string;
   readonly selectedNode: ProvenanceGraphNode;
   readonly graphNodes: ArchitectureRunProvenanceGraph["nodes"];
   readonly nodeById: Map<string, ProvenanceGraphNode>;
@@ -26,7 +27,8 @@ export type ProvenancePageWorkspaceNodeAsideProps = {
 };
 
 export function ProvenancePageWorkspaceNodeAside(props: ProvenancePageWorkspaceNodeAsideProps): React.JSX.Element {
-  const { runId, selectedNode, graphNodes, nodeById, incomingEdges, outgoingEdges, onSelectEdge } = props;
+  const { runId, reviewPathname, selectedNode, graphNodes, nodeById, incomingEdges, outgoingEdges, onSelectEdge } =
+    props;
 
   return (
     <aside
@@ -42,7 +44,12 @@ export function ProvenancePageWorkspaceNodeAside(props: ProvenancePageWorkspaceN
         <div>
           <dt className="font-semibold">Reference</dt>
           <dd className="mt-0.5">
-            <ProvenanceReferenceLink runId={runId} referenceId={selectedNode.referenceId} nodes={graphNodes} />
+            <ProvenanceReferenceLink
+              runId={runId}
+              pathname={reviewPathname}
+              referenceId={selectedNode.referenceId}
+              nodes={graphNodes}
+            />
           </dd>
         </div>
         <div>

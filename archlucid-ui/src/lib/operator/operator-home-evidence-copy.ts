@@ -5,6 +5,8 @@ import {
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export const OPERATOR_HOME_CANONICAL_PATH = "/";
 
@@ -40,3 +42,9 @@ const OPERATOR_HOME_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([
 export const OPERATOR_HOME_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = OPERATOR_HOME_SOURCES.filter(
   (source) => !OPERATOR_HOME_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
 );
+
+export function resolveOperatorHomeOrientationSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapEvidenceSourceFindingsQueueHref(OPERATOR_HOME_ORIENTATION_SOURCES, productLine);
+}

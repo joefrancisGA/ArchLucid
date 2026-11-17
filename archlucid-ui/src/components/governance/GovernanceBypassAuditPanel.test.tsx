@@ -5,6 +5,10 @@ import { GovernanceBypassAuditPanel } from "./GovernanceBypassAuditPanel";
 
 const listRecentGovernanceBypassAuditEvents = vi.fn();
 
+vi.mock("@/lib/desk-continuity-preference", () => ({
+  readCachedLastOpenArchitectureId: vi.fn(() => "architecture-bypass-desk"),
+}));
+
 vi.mock("@/lib/list-recent-governance-bypass-audit-events", () => ({
   listRecentGovernanceBypassAuditEvents: (...args: unknown[]) => listRecentGovernanceBypassAuditEvents(...args),
 }));
@@ -44,7 +48,10 @@ describe("GovernanceBypassAuditPanel", () => {
 
     expect(screen.getByText("Alex Operator")).toBeInTheDocument();
     expect(screen.getByText("Approved emergency release.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "run-abc" })).toHaveAttribute("href", "/architecture/reviews/run-abc");
+    expect(screen.getByRole("link", { name: "run-abc" })).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-bypass-desk/reviews/run-abc",
+    );
     expect(screen.getByTestId("governance-bypass-row-evt-1")).toHaveTextContent("2");
   });
 

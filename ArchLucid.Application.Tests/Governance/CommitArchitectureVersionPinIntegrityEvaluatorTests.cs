@@ -25,7 +25,7 @@ public sealed class CommitArchitectureVersionPinIntegrityEvaluatorTests
         Mock<IArchitectureVersionRepository> versionRepository = new(MockBehavior.Strict);
         Mock<IArchitectureKnowledgeModelAccess> knowledgeModelAccess = new(MockBehavior.Strict);
 
-        IReadOnlyList<string> reasons = await CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync(
+        (IReadOnlyList<string> reasons, _) = await CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync(
             scope,
             "opaque-run-id",
             request,

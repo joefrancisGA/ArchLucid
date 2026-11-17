@@ -95,13 +95,6 @@ public sealed class TenantBrandingAdminService(
         int nextVersion = (active?.Version ?? 0) + 1;
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
-        await brandingProfileRepository.UpdateStatusForTenantAsync(
-            scope.TenantId,
-            BrandingProfileStatus.Active,
-            BrandingProfileStatus.Disabled,
-            actor,
-            cancellationToken);
-
         TenantBrandingProfileRecord activated = CloneProfile(
             draft,
             Guid.NewGuid(),
@@ -110,14 +103,22 @@ public sealed class TenantBrandingAdminService(
             utcNow,
             actor);
 
-        await brandingProfileRepository.InsertAsync(activated, cancellationToken);
-
-        await brandingProfileRepository.UpdateStatusForTenantAsync(
-            scope.TenantId,
-            BrandingProfileStatus.Draft,
-            BrandingProfileStatus.Disabled,
-            actor,
-            cancellationToken);
+        if (!await brandingProfileRepository.TryActivateDraftAsync(draft, activated, cancellationToken))
+        {
+            return new TenantBrandingActivateResponse
+            {
+                Succeeded = false,
+                ValidationIssues =
+                [
+                    new TenantBrandingValidationIssueResponse
+                    {
+                        Code = "draftChanged",
+                        Severity = "Error",
+                        Message = "The branding draft changed. Reload it before activating.",
+                    },
+                ],
+            };
+        }
 
         TenantBrandingValidationResult postValidation = await ValidateDraftAsync(scope, activated, cancellationToken);
 

@@ -8,6 +8,12 @@ describe("PolicyPacksNextReviewFooter", () => {
     expect(policyPacksNextReviewHref("run-2")).toBe("/governance/policy-packs?reviewId=run-2");
   });
 
+  it("preserves a SecureNow policy packs hub path", () => {
+    expect(policyPacksNextReviewHref("run-2", "/compliance/policy-packs")).toBe(
+      "/compliance/policy-packs?reviewId=run-2",
+    );
+  });
+
   it("renders next review policy packs link", () => {
     render(
       <PolicyPacksNextReviewFooter

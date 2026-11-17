@@ -4,6 +4,8 @@ import {
   GOVERNANCE_DECISION_REGISTER_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
@@ -41,9 +43,9 @@ export const FINDINGS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
 ] as const;
 
 export const SECURENOW_FINDINGS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
+  { label: "Findings", href: SECURENOW_FINDINGS_PATH },
   { label: "Resource explorer", href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH },
-  { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH },
+  { label: "Policy packs", href: SECURENOW_POLICY_PACKS_PATH },
   { label: "Audit evidence lineage", href: SECURENOW_AUDIT_EVIDENCE_PATH },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
 ] as const;

@@ -64,6 +64,8 @@
 | [`operator-governance-axe.test.tsx`](../../archlucid-ui/src/accessibility/operator-governance-axe.test.tsx) | Governance-related operator pages | Partial |
 | [`operator-alerts-axe.test.tsx`](../../archlucid-ui/src/accessibility/operator-alerts-axe.test.tsx) | Alerts operator pages | Partial |
 | [`operator-value-pages-axe.test.tsx`](../../archlucid-ui/src/accessibility/operator-value-pages-axe.test.tsx) | Value report / advisory surfaces | Partial |
+| [`first-review-guide-axe.test.tsx`](../../archlucid-ui/src/accessibility/first-review-guide-axe.test.tsx) | First-review guide when sample + policy pack prerequisites are complete (includes next checklist step block) | Partial |
+| [`securenow-path-surfaces-axe.test.tsx`](../../archlucid-ui/src/accessibility/securenow-path-surfaces-axe.test.tsx) | SecureNow path inspect + path-scoped diagram client | Partial |
 | [`demo-leak-scan.test.tsx`](../../archlucid-ui/src/accessibility/demo-leak-scan.test.tsx) | `LegacyRunComparisonView`, `RunProvenanceInline`, forbidden-string guard | Axe on demo views — partial **1.1.1** / **4.1.x** on those trees only |
 
 ---

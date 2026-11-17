@@ -10,12 +10,21 @@ public sealed class ArchitectureRunAsyncOperationExecuteReplayWorker : IArchitec
         ArchitectureRunAsyncOperationWorkItem item,
         Func<ArchitectureRunAsyncOperationWorkItem, CancellationToken, Task> processWorkItemAsync,
         Func<ArchitectureRunAsyncOperationWorkItem, CancellationToken, Task> waitForCreateIfNeededAsync,
+        Func<ArchitectureRunAsyncOperationWorkItem, OperationCanceledException, Task> onAdmissionCanceledAsync,
         CancellationToken cancellationToken)
     {
-        if (item.Kind == ArchitectureRunAsyncOperationKind.Execute)
-            await waitForCreateIfNeededAsync(item, cancellationToken);
+        try
+        {
+            if (item.Kind == ArchitectureRunAsyncOperationKind.Execute)
+                await waitForCreateIfNeededAsync(item, cancellationToken);
 
-        await _gate.WaitAsync(cancellationToken);
+            await _gate.WaitAsync(cancellationToken);
+        }
+        catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
+        {
+            await onAdmissionCanceledAsync(item, ex);
+            throw;
+        }
 
         try
         {

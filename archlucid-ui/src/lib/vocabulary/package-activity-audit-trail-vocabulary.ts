@@ -2,7 +2,7 @@
  * TB-2305 — Review Activity vs Audit trail vocabulary rail.
  *
  * Why two surfaces exist:
- * - Review Activity (`?archTab=activity` / `?reviewTab=activity`) is assessment
+ * - Review Activity (`?reviewTab=activity`) is assessment
  *   progress for one architecture package — pipeline stages and review events
  *   on that package.
  * - Audit trail (`/governance/audit`) is the workspace audit trail for

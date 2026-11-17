@@ -1,6 +1,7 @@
 import { API_KEYS_ADMIN_KEY_NAME, API_KEYS_READONLY_KEY_NAME } from "@/lib/api-keys-settings-copy";
 import type { ApiKeyAuditEvent, ApiKeyCredentialSlot } from "@/lib/api-keys-settings-types";
 import { asNonemptyReadonlyArray, asReadonlyArray } from "@/lib/continue-last-list-guard";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 
 export const API_KEY_CREDENTIAL_LAST_VIEWED_STORAGE_KEY =
   "archlucid_api_key_credential_continue_last_v1";
@@ -131,8 +132,9 @@ export function resolveContinueLastApiKeyCredential(
     (event) => typeof event?.occurredAtUtc === "string" && typeof event?.keyName === "string",
   );
   const newestAudit = validAuditEvents
-    .slice()
-    .sort((left, right) => right.occurredAtUtc.localeCompare(left.occurredAtUtc))[0];
+    .map((event) => ({ event, occurredAtMs: parseIsoUtcMs(event.occurredAtUtc) }))
+    .filter(({ occurredAtMs }) => !Number.isNaN(occurredAtMs))
+    .sort((left, right) => right.occurredAtMs - left.occurredAtMs)[0]?.event;
 
   if (newestAudit !== undefined) {
     const auditSlot = slotFromKeyName(newestAudit.keyName);

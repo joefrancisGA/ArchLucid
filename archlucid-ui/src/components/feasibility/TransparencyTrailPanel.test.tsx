@@ -48,7 +48,7 @@ describe("TransparencyTrailPanel", () => {
 
     expect(skippedMust).toBeInTheDocument();
     expect(screen.getByText(/skipped must questions \(0\)/i)).toBeInTheDocument();
-    expect(within(skippedMust).getByText(/none recorded\./i)).toBeInTheDocument();
+    expect(within(skippedMust).getByText(/skipped must questions were stored empty\./i)).toBeInTheDocument();
   });
 
   it("collapses behind a disclosure when defaultExpanded is false", () => {
@@ -91,6 +91,9 @@ describe("TransparencyTrailPanel", () => {
     );
 
     expect(screen.queryByText(/was not stored\./)).not.toBeInTheDocument();
+    expect(screen.getByText(/Responder was stored empty\./)).toBeInTheDocument();
+    expect(screen.getByText(/Question id was stored empty\./)).toBeInTheDocument();
+    expect(screen.getByText(/Answer recorded time was stored empty\./)).toBeInTheDocument();
   });
 
   it("reports missing assertion keys and skipped tiers without classifying them as SHOULD", () => {

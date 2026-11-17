@@ -93,7 +93,7 @@ export function IntegrationEventsDlqTable(props: IntegrationEventsDlqTableProps)
       </EnterpriseTableHead>
       <EnterpriseTableBody>
         {rows.map((row) => {
-          const reviewHref = resolveReviewHref(row.runId);
+          const reviewHref = resolveReviewHref(row.runId, pathname);
           const tenantLabel =
             row.tenantId === undefined || row.tenantId === null || row.tenantId === ""
               ? " — "

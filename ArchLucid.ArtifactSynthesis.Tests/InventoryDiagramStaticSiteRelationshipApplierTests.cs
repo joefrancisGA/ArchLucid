@@ -31,6 +31,6 @@ public sealed class InventoryDiagramStaticSiteRelationshipApplierTests
 
         InventoryDiagramStaticSiteRelationshipApplier.Apply(ast);
 
-        ast.Edges.Single().Label.Should().Be("Linked backend");
+        ast.Edges.Single().Label.Should().Be(InventoryDiagramStaticSiteRelationshipApplier.Label);
     }
 }

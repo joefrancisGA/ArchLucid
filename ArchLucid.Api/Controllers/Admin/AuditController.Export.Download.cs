@@ -85,41 +85,32 @@ public sealed partial class AuditController
             if (careerBlockedResult is not null)
                 return careerBlockedResult;
 
-            AuditEventFilter exportFilter = new()
-        {
-            FromUtc = from,
-            ToUtc = to,
-            EventType = string.IsNullOrWhiteSpace(eventType) ? null : eventType.Trim(),
-            CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? null : correlationId.Trim(),
-            ActorUserId = string.IsNullOrWhiteSpace(actorUserId) ? null : actorUserId.Trim(),
-            RunId = runId,
-            Take = exportMaxRows
-        };
+            string? exportFormat = string.IsNullOrWhiteSpace(format) ? null : format.Trim().ToLowerInvariant();
 
-        IActionResult? rowCapProblem =
-            await EnsureAuditExportWithinRowCapOrConflictAsync(scope, exportFilter, exportMaxRows, ct);
-
-        if (rowCapProblem is not null)
-            return rowCapProblem;
-
-        if (!string.IsNullOrWhiteSpace(format))
-        {
-            string f = format.Trim().ToLowerInvariant();
-
-            if (f is not ("csv" or "json" or "cef"))
+            if (exportFormat is not (null or "csv" or "json" or "cef"))
                 return this.BadRequestProblem(
                     "format must be csv, json, or cef when supplied.",
                     ProblemTypes.ValidationFailed);
 
-            if (f == "cef")
+            AuditEventFilter exportFilter = new()
             {
-                IReadOnlyList<AuditEvent> events = await repo.GetFilteredExportAsync(
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    exportFilter,
-                    ct);
+                FromUtc = from,
+                ToUtc = to,
+                EventType = string.IsNullOrWhiteSpace(eventType) ? null : eventType.Trim(),
+                CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? null : correlationId.Trim(),
+                ActorUserId = string.IsNullOrWhiteSpace(actorUserId) ? null : actorUserId.Trim(),
+                RunId = runId,
+                Take = exportMaxRows
+            };
 
+            (IReadOnlyList<AuditEvent> events, IActionResult? rowCapProblem) =
+                await ReadAuditExportAsync(scope, exportFilter, ct);
+
+            if (rowCapProblem is not null)
+                return rowCapProblem;
+
+            if (exportFormat == "cef")
+            {
                 await using MemoryStream buffer = new();
                 await AuditCefLineWriter.WriteAllAsync(buffer, events, ct).ConfigureAwait(false);
                 byte[] utf8 = buffer.ToArray();
@@ -128,61 +119,24 @@ public sealed partial class AuditController
                 return File(utf8, "text/plain", cefName);
             }
 
-            if (f == "csv")
+            if (PrefersCsvResponse(exportFormat))
             {
-                string csvName = exportFormatter.BuildAuditExportCsvFileName(
+                string attachmentName = exportFormatter.BuildAuditExportCsvFileName(
                     from,
                     to,
                     postureStamp?.RehearsalIncomplete == true);
-                IAsyncEnumerable<AuditEvent> csvStream = repo.StreamFilteredExportAsync(
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    exportFilter,
-                    ct);
 
                 await AuditEventCsvResponseWriter.WriteAsync(
                     Response,
                     exportFormatter,
-                    csvStream,
-                    csvName,
+                    events.ToAsyncEnumerable(),
+                    attachmentName,
                     ct,
                     postureStamp);
                 return new EmptyResult();
             }
-        }
 
-        if (PrefersCsvResponse(format))
-        {
-            string attachmentName = exportFormatter.BuildAuditExportCsvFileName(
-                from,
-                to,
-                postureStamp?.RehearsalIncomplete == true);
-            IAsyncEnumerable<AuditEvent> csvStream = repo.StreamFilteredExportAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                exportFilter,
-                ct);
-
-            await AuditEventCsvResponseWriter.WriteAsync(
-                Response,
-                exportFormatter,
-                csvStream,
-                attachmentName,
-                ct,
-                postureStamp);
-            return new EmptyResult();
-        }
-
-        IReadOnlyList<AuditEvent> jsonEvents = await repo.GetFilteredExportAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            exportFilter,
-            ct);
-
-            return Ok(jsonEvents);
+            return Ok(events);
         }
         catch (ConflictException ex)
         {

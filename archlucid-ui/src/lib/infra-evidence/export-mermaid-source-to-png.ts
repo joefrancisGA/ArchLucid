@@ -89,7 +89,7 @@ function readSvgExportDimensions(svgMarkup: string): { width: number; height: nu
   if (viewBox !== null && viewBox.trim().length > 0) {
     const parts = viewBox.trim().split(/[\s,]+/).map((part) => Number.parseFloat(part));
 
-    if (parts.length === 4 && parts.every((value) => Number.isFinite(value) && value >= 0)) {
+    if (parts.length === 4 && parts.every((value, index) => Number.isFinite(value) && (index < 2 || value >= 0))) {
       const width = Math.max(1, Math.ceil(parts[2] ?? 0));
       const height = Math.max(1, Math.ceil(parts[3] ?? 0));
 

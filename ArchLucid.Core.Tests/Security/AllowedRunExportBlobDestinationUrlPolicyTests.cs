@@ -10,6 +10,7 @@ public sealed class AllowedRunExportBlobDestinationUrlPolicyTests
     [Theory]
     [InlineData("https://acct.blob.core.windows.net/container/run.zip?sas=token")]
     [InlineData("https://acct.z13.blob.storage.azure.net/container/run.zip?sas=token")]
+    [InlineData("https://acct.Z13.BLOB.STORAGE.AZURE.NET/container/run.zip?sas=token")]
     public void TryGetRejectionReason_WhenAzureBlobHttps_Allows(string url)
     {
         AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(url).Should().BeNull();
@@ -34,10 +35,31 @@ public sealed class AllowedRunExportBlobDestinationUrlPolicyTests
             .Contain("private");
     }
 
+    [Fact]
+    public void TryGetRejectionReason_WhenIpv6LiteralPrefixedBlobAccountLabel_Rejects()
+    {
+        AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(
+                "https://[::1].blob.core.windows.net/container/run.zip?sas=token")
+            .Should()
+            .Contain("private");
+    }
+
+    [Theory]
+    [InlineData("https://[::1]/container/run.zip?sas=token")]
+    [InlineData("https://[fd00::1]/container/run.zip?sas=token")]
+    [InlineData("https://[::ffff:127.0.0.1]/container/run.zip?sas=token")]
+    public void TryGetRejectionReason_WhenIpv6LiteralHost_RejectsPrivateOrLoopback(string url)
+    {
+        AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(url)
+            .Should()
+            .Contain("private");
+    }
+
     [Theory]
     [InlineData("https://127%2e0%2e0%2e1.blob.core.windows.net/container/run.zip?sas=token")]
     [InlineData("https://10%2e0%2e0%2e1.blob.core.windows.net/container/run.zip?sas=token")]
     [InlineData("https://acct.blob%2ecore%2ewindows%2enet/container/run.zip?sas=token")]
+    [InlineData("https://acct.BLOB%2ECORE%2Ewindows%2enet/container/run.zip?sas=token")]
     public void TryGetRejectionReason_WhenPercentEncodedDotsInHost_RejectsAsInvalidAbsoluteUrl(string url)
     {
         AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(url)

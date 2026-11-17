@@ -254,9 +254,9 @@ function buildMeasurementFloorLine(
   if (measured === null) {
     baseLine = `No engine coverage measured on this package yet. The product catalog includes ${counts.catalogEngineCount} built-in engines; the measurement floor expects at least ${counts.harnessEngineCount} engines to produce findings.`;
   } else if (measured < counts.harnessEngineCount) {
-    baseLine = `${measured} of ${counts.catalogEngineCount} catalog engines produced findings on this package. The sealed record may be honest but analytically incomplete.`;
+    baseLine = `${measured} catalog engines were recorded as succeeded on this package. That count is not a count of findings. The sealed record may be honest but analytically incomplete.`;
   } else {
-    baseLine = `${measured} of ${counts.catalogEngineCount} catalog engines produced findings on this package.`;
+    baseLine = `${measured} catalog engines were recorded as succeeded on this package. That count is not a count of findings.`;
   }
 
   return appendMeasurementFloorHonestySuffixes(

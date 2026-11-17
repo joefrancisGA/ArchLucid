@@ -11,6 +11,7 @@ import {
   type SetSampleReviewsOnOverviewVisibilityRequest,
   type SetWhereToGoNextVisibilityRequest,
 } from "./user-preferences-types";
+import { trimRequiredText } from "./api-boundary-normalization";
 
 export async function setUserAppearancePreference(value: ColorModePreference): Promise<void> {
   await httpApi.apiPutJson<void>(
@@ -63,19 +64,20 @@ export async function setUserSampleReviewsOnOverviewEnabled(enabled: boolean): P
 }
 
 export async function setUserIanaTimeZonePreference(ianaTimeZoneId: string): Promise<void> {
+  const normalizedIanaTimeZoneId = trimRequiredText(ianaTimeZoneId, "ianaTimeZoneId");
   const cached = readCachedUserPreferencesForMutators();
 
-  if (cached.ianaTimeZoneIsExplicit && cached.ianaTimeZoneId === ianaTimeZoneId) {
+  if (cached.ianaTimeZoneIsExplicit && cached.ianaTimeZoneId === normalizedIanaTimeZoneId) {
     return;
   }
 
   await httpApi.apiPutJson<void>(
     "/v1/user/preferences/time-zone",
-    { ianaTimeZoneId } satisfies SetIanaTimeZonePreferenceRequest,
+    { ianaTimeZoneId: normalizedIanaTimeZoneId } satisfies SetIanaTimeZonePreferenceRequest,
   );
 
   patchUserPreferencesCache({
-    ianaTimeZoneId,
+    ianaTimeZoneId: normalizedIanaTimeZoneId,
     ianaTimeZoneIsExplicit: true,
   });
 }

@@ -97,6 +97,10 @@ Create a ruleset targeting your default branch, enable **Require status checks**
 
 **PR vs full CI:** On **pull_request** (into `main`/`master`), `.github/workflows/ci.yml` runs jobs **before** `.NET: fast core (corset)` plus a **trimmed** corset (same check name; skips CycloneDX SBOM, coverlet/ReportGenerator, and the finding-engine template test). Terraform validate (all matrix legs including `infra/terraform/prod`), hosted-prod sync parity, gitleaks, and guard jobs run on PR. Everything **after** corset—including `.NET: full regression`, UI/Docker/k6/ZAP/Schemathesis—runs only on **Actions → CI → Run workflow** (`workflow_dispatch`).
 
+## Staging CD automation: temporary hold (2026-11-02)
+
+During CI stabilization, the automatic `workflow_run` trigger for `CD staging on merge` is paused to prevent skipped downstream runs. Owner-approved manual `workflow_dispatch` remains available subject to its existing repository variable, staging environment and deployment safeguards. The design below describes the **inactive** automatic mode to restore only after explicit approval and CI stabilization.
+
 ## Automatic staging deploy (supplements branch protection)
 
 The workflow **CD staging on merge** (`.github/workflows/cd-staging-on-merge.yml`) runs only after the **CI** workflow completes successfully (`workflow_run` with `conclusion == success`). It further requires:

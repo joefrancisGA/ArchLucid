@@ -88,6 +88,20 @@ describe("resolveReviewWorkspaceVisibleTabs (TB-2367)", () => {
     expect(resolveReviewWorkspaceTabFromSearchParams(searchParams, finalized, "finalized")).toBe("architecture");
   });
 
+  it("prefers the open-gate tab when reviewTab is absent", () => {
+    const finalized = resolveReviewWorkspaceVisibleTabs({
+      lifecycle: "finalized",
+      manifestId: "manifest-1",
+      showProgressTracker: false,
+      runCompleted: true,
+    });
+    const searchParams = new URLSearchParams();
+
+    expect(
+      resolveReviewWorkspaceTabFromSearchParams(searchParams, finalized, "finalized", "findings"),
+    ).toBe("findings");
+  });
+
   it("keeps stage defaults when neither reviewTab nor archTab is present", () => {
     const finalized = resolveReviewWorkspaceVisibleTabs({
       lifecycle: "finalized",

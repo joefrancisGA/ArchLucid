@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -82,7 +83,11 @@ public sealed class FindingLlmAuditService(
                 return direct;
         }
 
-        IReadOnlyList<AgentExecutionTrace> traces = await _agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<AgentExecutionTrace> traces = await AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync(
+            _agentExecutionTraceRepository,
+            scope,
+            runId,
+            cancellationToken).ConfigureAwait(false);
         if (traces.Count == 0)
             return null;
         if (!Enum.TryParse(finding.EngineType, true, out AgentType engineAgent))

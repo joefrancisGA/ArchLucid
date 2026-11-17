@@ -209,7 +209,7 @@ public sealed partial class BackgroundJobRepository
                 cancellationToken: cancellationToken));
     }
 
-    public async Task MarkPendingRetryAsync(
+    public async Task<bool> MarkPendingRetryAsync(
         string jobId,
         int retryCount,
         string error,
@@ -227,11 +227,13 @@ public sealed partial class BackgroundJobRepository
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        await connection.ExecuteAsync(
+        int rowsAffected = await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
                 new { JobId = jobId, RetryCount = retryCount, Error = error },
                 cancellationToken: cancellationToken));
+
+        return rowsAffected > 0;
     }
 
     public async Task MarkCanceledAsync(string jobId, CancellationToken cancellationToken = default)

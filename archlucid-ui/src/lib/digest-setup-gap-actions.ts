@@ -44,6 +44,9 @@ const ADVISORY_SCHEDULE_GAP_CODE = "no_enabled_advisory_schedule";
 const SUBSCRIPTION_GAP_CODE = "no_digest_subscriptions";
 const DISABLED_SUBSCRIPTION_GAP_CODE = "no_enabled_digest_subscriptions";
 const SPONSOR_EMAIL_GAP_CODE = "sponsor_email_digest_not_configured";
+const EXECUTIVE_EMAIL_DIGEST_GAP_CODE = "executive_email_digest_not_configured";
+/** Legacy/alias gap code — same remediation as sponsor email digest setup. */
+const EXECUTIVE_EMAIL_GAP_CODE = "executive_email_digest_not_configured";
 
 /**
  * Maps backend setup-gap data to title, impact, and a next-action link.
@@ -96,13 +99,24 @@ export function mapDigestSetupGap(gap: string, gapCode?: string | null): DigestS
 
   if (
     normalizedCode === SPONSOR_EMAIL_GAP_CODE ||
+    normalizedCode === EXECUTIVE_EMAIL_GAP_CODE ||
     trimmed === SPONSOR_EMAIL_GAP ||
-    /sponsor email digest/i.test(trimmed)
+    /sponsor email digest/i.test(trimmed) ||
+    /executive email digest/i.test(trimmed)
   ) {
     return {
       title: "Sponsor recipients not configured",
       impact: "Sponsor emails will not receive the sponsor rollup.",
       actionLabel: DIGESTS_CHECKLIST_ACTION_OPEN_SPONSOR,
+      href: DIGESTS_SCHEDULE_TAB_PATH,
+    };
+  }
+
+  if (normalizedCode === EXECUTIVE_EMAIL_DIGEST_GAP_CODE || /executive.*digest/i.test(trimmed)) {
+    return {
+      title: "Executive digest not configured",
+      impact: "Executive email digest is not fully configured for this workspace.",
+      actionLabel: "Open executive schedule",
       href: DIGESTS_SCHEDULE_TAB_PATH,
     };
   }

@@ -17,9 +17,23 @@ def repository_root() -> Path:
 
 
 def read_pinned_sha(pin_path: Path) -> str | None:
-    match = re.search(r"^pinned_sha=([0-9a-fA-F]{7,40})$", pin_path.read_text(encoding="utf-8"), re.MULTILINE)
+    try:
+        content = pin_path.read_text(encoding="utf-8", errors="strict")
+    except (OSError, UnicodeError):
+        return None
 
-    return None if match is None else match.group(1)
+    declarations = [
+        line.strip() for line in content.splitlines()
+        if line.strip().startswith("pinned_sha")
+    ]
+    # Accept the existing short-SHA convention, but not duplicate,
+    # malformed, or ambiguous declarations.
+    if len(declarations) != 1:
+        return None
+    match = re.fullmatch(r"pinned_sha=([0-9a-fA-F]{7,40})", declarations[0])
+    if match is None or set(match.group(1).lower()) == {"0"}:
+        return None
+    return match.group(1)
 
 
 def git_ref_exists(root: Path, ref: str) -> bool:

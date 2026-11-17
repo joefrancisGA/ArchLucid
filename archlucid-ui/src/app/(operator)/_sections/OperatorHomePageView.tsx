@@ -8,6 +8,7 @@ import { UnfinishedWorkRail } from "@/components/operator-home/UnfinishedWorkRai
 import { OperatorHomeWorkspaceMetricsStrip } from "@/components/operator-home/OperatorHomeWorkspaceMetricsStrip";
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { OperatorHomeCompactStartingActionsSection } from "@/components/operator-home/OperatorHomeCompactStartingActionsSection";
+import { OperatorHomeSecureNowCollectionSetupSection } from "@/components/operator-home/OperatorHomeSecureNowCollectionSetupSection";
 import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
 import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
 import {
@@ -47,6 +48,7 @@ import {
 import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import {
   OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID,
@@ -243,6 +245,7 @@ function OperatorHomePageBody(props: {
   readonly workingMode: boolean;
 }): React.JSX.Element {
   const { summaries } = useOperatorAttentionSummary();
+  const { productLine } = useProductLine();
   const summaryByPartition = new Map(summaries.map((summary) => [summary.partition, summary]));
   const attentionCountsByKind = Object.fromEntries(
     OPERATOR_ATTENTION_KIND_IDS.map((kind) => [kind, summaryByPartition.get(kind)?.totalCount ?? 0]),
@@ -291,6 +294,11 @@ function OperatorHomePageBody(props: {
       workingMode: props.workingMode,
     });
 
+  const secureNowCollectionSetup =
+    productLine === "security" && workspaceMetrics.reviewPackagesCommitted === 0 ? (
+      <OperatorHomeSecureNowCollectionSetupSection />
+    ) : null;
+
   return (
     <OperatorHomeWorkspaceActivityProvider
       initialHasReviews={workspaceMetrics.hasReviews}
@@ -318,12 +326,16 @@ function OperatorHomePageBody(props: {
             </div>
           </div>
           <div className="space-y-4" data-testid="operator-home-workspace">
+            {secureNowCollectionSetup}
             {workspaceSections.map((section) => renderSection(section))}
           </div>
           {buyerChromeSection !== undefined ? renderSection(buyerChromeSection) : null}
         </>
       ) : (
-        sections.map((section) => renderSection(section))
+        <>
+          {secureNowCollectionSetup}
+          {sections.map((section) => renderSection(section))}
+        </>
       )}
     </OperatorHomeWorkspaceActivityProvider>
   );

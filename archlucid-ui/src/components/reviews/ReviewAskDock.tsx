@@ -8,8 +8,15 @@ import { useCallback, useEffect, useRef, useState, type ReactElement } from "rea
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { AskCitationActionFollowUps } from "@/components/ask/AskCitationActionFollowUps";
-import { buildAskCitationActionFollowUps } from "@/lib/ask-citation-action-follow-ups";
 import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
+import { buildAskCitationActionFollowUps } from "@/lib/ask-citation-action-follow-ups";
+import { StatusTag } from "@/components/ui/status-tag";
+import {
+  ASK_RETRIEVAL_DEGRADED_LABEL,
+  ASK_INDEXED_SEARCH_NOT_LIMITED_TO_REVIEW_ID,
+  ASK_RETRIEVAL_MODE_NOT_STORED_LABEL,
+  ASK_RETRIEVAL_NOT_DEGRADED_LABEL,
+} from "@/lib/ask-retrieval-mode-copy";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -32,9 +39,20 @@ import {
   parseReviewAskDockThreadIdFromSearch,
   reviewAskDockHrefFromSearch,
 } from "@/lib/reviews/review-ask-dock-url";
+import {
+  ASK_ANSWER_NOT_STORED_LABEL,
+  ASK_ANSWER_STORED_EMPTY_LABEL,
+  askWireCitationRefsOmitted,
+  askWireCitationRefsPresentInWire,
+  normalizeAskWireAnswerForTurn,
+  reviewAskPerListSourceHonestyLabels,
+  reviewAskSourcesHonestyLabel,
+  REVIEW_ASK_STREAMING_ANSWER_PENDING_LABEL,
+  REVIEW_ASK_STREAMING_UUID_LINKS_NOTE,
+} from "@/lib/ask/ask-response-turn-honesty";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
-const DEFAULT_REVIEW_QUESTION =
+const DEFAULT_REVIEW_QUESTION_PLACEHOLDER =
   "What are the top unresolved risks in this review and what evidence supports them?";
 
 export type ReviewAskDockProps = {
@@ -51,34 +69,38 @@ type AskTurn = {
   referencedFindings: readonly string[] | null;
   referencedDecisions: readonly string[] | null;
   referencedArtifacts: readonly string[] | null;
+  citationRefsOmitted: boolean;
+  retrievalDegraded: boolean | null;
+  indexedSearchNotLimitedToReviewId: boolean;
 };
 
-const REVIEW_ASK_ANSWER_NOT_STORED = "Answer was not stored.";
-const REVIEW_ASK_ANSWER_STORED_EMPTY = "Answer was stored empty.";
-const REVIEW_ASK_SOURCES_NOT_STORED = "Ask sources were not stored on this answer.";
-const REVIEW_ASK_SOURCES_STORED_EMPTY = "Ask sources were stored empty on this answer.";
-
-function resolveReviewAskSourcesHonestyLine(turn: AskTurn): string | null {
-  const arrays = [turn.referencedFindings, turn.referencedDecisions, turn.referencedArtifacts];
-
-  if (arrays.every((value) => value === null)) {
-    return REVIEW_ASK_SOURCES_NOT_STORED;
+function buildCitedReviewIdsFromTurn(turn: AskTurn): ReadonlySet<string> {
+  if (turn.citationRefsOmitted) {
+    return new Set();
   }
 
-  const findings = turn.referencedFindings ?? [];
-  const decisions = turn.referencedDecisions ?? [];
-  const artifacts = turn.referencedArtifacts ?? [];
+  const ids = new Set<string>();
 
-  if (findings.length === 0 && decisions.length === 0 && artifacts.length === 0) {
-    return REVIEW_ASK_SOURCES_STORED_EMPTY;
+  for (const id of [
+    ...(turn.referencedFindings ?? []),
+    ...(turn.referencedDecisions ?? []),
+    ...(turn.referencedArtifacts ?? []),
+  ]) {
+    const trimmed = id.trim();
+
+    if (trimmed.length > 0) {
+      ids.add(trimmed.toLowerCase());
+    }
   }
 
-  return null;
+  return ids;
 }
 
 /** Review-scoped Ask dock: grounded Q&A without leaving the review detail page. */
 export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   const runId = props.runId.trim();
+  const activeRunIdRef = useRef(runId);
+  activeRunIdRef.current = runId;
   const pathname = usePathname() ?? buildReviewWorkspaceRouteHref({ runId });
   const searchParams = useSearchParams();
   const urlAskDockOpen = parseReviewAskDockOpenFromSearch(
@@ -90,7 +112,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   const [open, setOpenState] = useState(urlAskDockOpen);
   const openRef = useRef(open);
   openRef.current = open;
-  const [question, setQuestion] = useState(DEFAULT_REVIEW_QUESTION);
+  const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<AskTurn[]>([]);
   const [threadId, setThreadIdState] = useState<string | null>(null);
   const disabledCleanupAttemptedRef = useRef(false);
@@ -101,6 +123,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   } | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const { ask: askStream, isStreaming, tokens: streamingContent, reset: resetStream } = useAskStream();
+  const previousRunIdRef = useRef(runId);
   const askDockDisabled = props.disabled === true;
   const disabledReasonMessage = formatWhyDisabledCtaMessage(props.disabledReason);
   const reviewTitleForGrounding =
@@ -211,8 +234,22 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
     }
   }, [askDockDisabled, syncAskDockToUrl, urlAskDockOpen, urlAskThreadId]);
 
+  useEffect(() => {
+    if (previousRunIdRef.current === runId) {
+      return;
+    }
+
+    previousRunIdRef.current = runId;
+    setQuestion("");
+    setTurns([]);
+    setThreadIdState(null);
+    setError(null);
+    resetStream();
+  }, [resetStream, runId]);
+
   const submitQuestion = useCallback(async (): Promise<void> => {
     const trimmed = question.trim();
+    const requestRunId = runId;
 
     if (trimmed.length === 0 || isStreaming || runId.length === 0) {
       return;
@@ -227,6 +264,10 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         runId,
         threadId: threadId ?? undefined});
 
+      if (activeRunIdRef.current !== requestRunId) {
+        return;
+      }
+
       if (streamError !== null) {
         setError({
           message: streamError,
@@ -238,7 +279,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
 
       if (response === null) {
         setError({
-          message: "Ask request returned no answer.",
+          message: "The ask request failed before an answer was stored.",
           problem: null,
           correlationId: null});
         return;
@@ -248,18 +289,35 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         setThreadId(response.threadId);
       }
 
+      const citationRefs = {
+        referencedFindings: response.referencedFindings,
+        referencedDecisions: response.referencedDecisions,
+        referencedArtifacts: response.referencedArtifacts,
+      };
+      const citationRefsOmitted = askWireCitationRefsOmitted(citationRefs);
+      const turnRetrievalDegraded =
+        response.retrievalDegraded === undefined ? null : response.retrievalDegraded === true;
+      const indexedSearchNotLimitedToReviewId = response.indexedSearchNotLimitedToReviewId === true;
+
       setTurns((current) => [
         ...current,
         {
           question: trimmed,
-          answer: response.answer,
-          referencedFindings: response.referencedFindings,
-          referencedDecisions: response.referencedDecisions,
-          referencedArtifacts: response.referencedArtifacts,
+          answer: normalizeAskWireAnswerForTurn(response.answer),
+          referencedFindings: citationRefsOmitted ? [] : response.referencedFindings ?? null,
+          referencedDecisions: citationRefsOmitted ? [] : response.referencedDecisions ?? null,
+          referencedArtifacts: citationRefsOmitted ? [] : response.referencedArtifacts ?? null,
+          citationRefsOmitted,
+          retrievalDegraded: turnRetrievalDegraded,
+          indexedSearchNotLimitedToReviewId,
         },
       ]);
       setQuestion("");
     } catch (e: unknown) {
+      if (activeRunIdRef.current !== requestRunId) {
+        return;
+      }
+
       const failure = toApiLoadFailure(e);
 
       if (isApiRequestError(e)) {
@@ -322,8 +380,16 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
               Ask about this review
             </DialogTitle>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Grounded answers cite indexed evidence from{" "}
-              <span className="font-medium text-al-text-primary">{reviewTitleForGrounding}</span>.
+              Answers for{" "}
+              <span className="font-medium text-al-text-primary">{reviewTitleForGrounding}</span>{" "}
+              cite indexed evidence only when citations were stored on the answer.
+            </p>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="review-ask-dock-review-id"
+            >
+              <span className="font-medium text-al-text-primary">Review id:</span>{" "}
+              {runId.length > 0 ? runId : "Review id was not stored."}
             </p>
           </DialogHeader>
 
@@ -332,17 +398,38 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
             {turns.length > 0 ? (
               <ol className="m-0 list-none space-y-4 p-0">
                 {turns.map((turn, index) => {
-                  const findings = turn.referencedFindings ?? [];
-                  const decisions = turn.referencedDecisions ?? [];
-                  const artifacts = turn.referencedArtifacts ?? [];
-                  const citationChips = buildAskCitationActionFollowUps({
-                    runId,
-                    referencedFindings: findings,
-                    referencedDecisions: decisions,
-                    referencedArtifacts: artifacts,
-                  });
-                  const sourcesHonestyLine = resolveReviewAskSourcesHonestyLine(turn);
-                  const refsPresentInWire = sourcesHonestyLine === null;
+                  const citationChips = buildAskCitationActionFollowUps(
+                    turn.citationRefsOmitted
+                      ? {
+                          runId,
+                          inspectMetadataJson: JSON.stringify({
+                            referencedFindings: null,
+                            referencedDecisions: null,
+                            referencedArtifacts: null,
+                          }),
+                        }
+                      : {
+                          runId,
+                          referencedFindings: turn.referencedFindings,
+                          referencedDecisions: turn.referencedDecisions,
+                          referencedArtifacts: turn.referencedArtifacts,
+                        },
+                  );
+                  const citationRefs = {
+                    referencedFindings: turn.citationRefsOmitted
+                      ? undefined
+                      : turn.referencedFindings,
+                    referencedDecisions: turn.citationRefsOmitted
+                      ? undefined
+                      : turn.referencedDecisions,
+                    referencedArtifacts: turn.citationRefsOmitted
+                      ? undefined
+                      : turn.referencedArtifacts,
+                  };
+                  const refsPresentInWire = askWireCitationRefsPresentInWire(citationRefs);
+                  const sourcesHonestyLabel = reviewAskSourcesHonestyLabel(citationRefs);
+                  const perListSourceHonestyLabels = reviewAskPerListSourceHonestyLabels(citationRefs);
+                  const citedReviewIds = buildCitedReviewIdsFromTurn(turn);
 
                   return (
                   <li
@@ -357,31 +444,94 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                       Answer
                     </p>
                     {turn.answer === null ? (
-                      <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REVIEW_ASK_ANSWER_NOT_STORED}</p>
+                      <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                        {ASK_ANSWER_NOT_STORED_LABEL}
+                      </p>
                     ) : turn.answer.trim().length === 0 ? (
-                      <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REVIEW_ASK_ANSWER_STORED_EMPTY}</p>
+                      <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                        {ASK_ANSWER_STORED_EMPTY_LABEL}
+                      </p>
                     ) : (
-                      <AskAssistantMessageBody content={turn.answer} groundingLinks={refsPresentInWire ? [] : undefined} />
+                      <AskAssistantMessageBody
+                        content={turn.answer}
+                        groundingLinks={refsPresentInWire ? [] : undefined}
+                        citedReviewIds={citedReviewIds}
+                        reviewIdInScope={runId}
+                      />
                     )}
                     {refsPresentInWire ? (
-                      <AskCitationActionFollowUps chips={citationChips} showHonestEmpty reviewId={runId} />
-                    ) : (
+                      <>
+                        {perListSourceHonestyLabels.map((label) => (
+                          <p
+                            key={label}
+                            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                            data-testid="review-ask-dock-sources-per-list"
+                          >
+                            {label}
+                          </p>
+                        ))}
+                        <AskCitationActionFollowUps chips={citationChips} showHonestEmpty reviewId={runId} />
+                      </>
+                    ) : null}
+                    {!refsPresentInWire && sourcesHonestyLabel.length > 0 ? (
                       <p
                         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                         data-testid="review-ask-dock-sources-not-stored"
                       >
-                        {sourcesHonestyLine}
+                        {sourcesHonestyLabel}
                       </p>
-                    )}
+                    ) : null}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {turn.retrievalDegraded === null ? (
+                        <StatusTag
+                          kind="neutral"
+                          label={ASK_RETRIEVAL_MODE_NOT_STORED_LABEL}
+                          data-testid="review-ask-dock-turn-retrieval-not-stored"
+                        />
+                      ) : turn.retrievalDegraded ? (
+                        <StatusTag
+                          kind="needs-attention"
+                          label={ASK_RETRIEVAL_DEGRADED_LABEL}
+                          data-testid="review-ask-dock-turn-retrieval-degraded"
+                        />
+                      ) : (
+                        <StatusTag
+                          kind="neutral"
+                          label={ASK_RETRIEVAL_NOT_DEGRADED_LABEL}
+                          data-testid="review-ask-dock-turn-retrieval-full"
+                        />
+                      )}
+                      {turn.indexedSearchNotLimitedToReviewId ? (
+                        <StatusTag
+                          kind="neutral"
+                          label={ASK_INDEXED_SEARCH_NOT_LIMITED_TO_REVIEW_ID}
+                          data-testid="review-ask-dock-turn-indexed-search-scope"
+                        />
+                      ) : null}
+                    </div>
                   </li>
                   );
                 })}
               </ol>
             ) : null}
 
-            {isStreaming && streamingContent.trim().length > 0 ? (
-              <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
-                <AskAssistantMessageBody content={streamingContent} />
+            {isStreaming ? (
+              <div
+                className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+                data-testid="review-ask-dock-streaming-answer"
+              >
+                {streamingContent.trim().length > 0 ? (
+                  <>
+                    <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      {REVIEW_ASK_STREAMING_UUID_LINKS_NOTE}
+                    </p>
+                    <AskAssistantMessageBody content={streamingContent} citedReviewIds={new Set()} />
+                  </>
+                ) : (
+                  <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                    {REVIEW_ASK_STREAMING_ANSWER_PENDING_LABEL}
+                  </p>
+                )}
               </div>
             ) : null}
 
@@ -402,6 +552,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                 value={question}
                 rows={3}
                 disabled={isStreaming}
+                placeholder={DEFAULT_REVIEW_QUESTION_PLACEHOLDER}
                 onChange={(event) => {
                   setQuestion(event.target.value);
                 }}

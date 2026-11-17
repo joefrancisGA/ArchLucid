@@ -90,31 +90,28 @@ public sealed class AzureAutomationCollectionRunTrigger(
         IReadOnlyList<string> requestedSubscriptionIds,
         CancellationToken cancellationToken)
     {
-        IReadOnlyList<TenantHostedExtractorConfigurationRecord> configurations =
-            await _configurationRepository.ListByTenantAsync(tenantId, cancellationToken);
-
-        TenantHostedExtractorConfigurationRecord? configuration = configurations
-            .OrderBy(static item => item.UpdatedUtc)
-            .LastOrDefault();
-
-        if (configuration is null)
-        {
-            throw new InvalidOperationException("SecureNow collection is not configured for this tenant.");
-        }
-
         string[] requested = requestedSubscriptionIds
             .Where(static subscriptionId => !string.IsNullOrWhiteSpace(subscriptionId))
             .Select(static subscriptionId => subscriptionId.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
-        if (requested.Length > 0 && requested.Any(subscriptionId =>
-                !subscriptionId.Equals(configuration.SubscriptionId, StringComparison.OrdinalIgnoreCase)))
+        if (requested.Length > 1)
         {
-            throw new InvalidOperationException("The requested subscription is not configured for this tenant.");
+            throw new InvalidOperationException("SecureNow collection can target only one subscription per run.");
         }
 
-        return configuration;
+        if (requested.Length == 1)
+        {
+            return await _configurationRepository.TryGetAsync(tenantId, requested[0], cancellationToken)
+                ?? throw new InvalidOperationException("The requested subscription is not configured for this tenant.");
+        }
+
+        IReadOnlyList<TenantHostedExtractorConfigurationRecord> configurations =
+            await _configurationRepository.ListByTenantAsync(tenantId, cancellationToken);
+
+        return configurations.OrderBy(static item => item.UpdatedUtc).LastOrDefault()
+            ?? throw new InvalidOperationException("SecureNow collection is not configured for this tenant.");
     }
 
     private static void ValidateOptions(HostedAzureExtractorOptions options)

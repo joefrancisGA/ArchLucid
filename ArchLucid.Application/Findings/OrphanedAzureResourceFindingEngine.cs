@@ -131,6 +131,8 @@ public sealed class OrphanedAzureResourceFindingEngine(
                 List<string> evidenceRefs = [];
                 FindingEvidenceRefs.TryAppendInventoryResourceId(evidenceRefs, orphan.ResourceId);
 
+                string resourceNameLabel = FormatResourceNameLabel(orphan.ResourceId);
+
                 return new Finding
                 {
                     FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -138,7 +140,7 @@ public sealed class OrphanedAzureResourceFindingEngine(
                     Category = orphan.Category,
                     EngineType = "orphaned-azure-resource",
                     Severity = FindingSeverity.Warning,
-                    Title = $"Orphaned resource: {orphan.ResourceType}",
+                    Title = $"Orphaned resource: {orphan.ResourceType}. {resourceNameLabel}.",
                     Rationale = orphan.Message,
                     RelatedNodeIds = topologyNodes.Resolve(orphan.ResourceId).ToList(),
                     EvidenceRefs = evidenceRefs,
@@ -157,7 +159,7 @@ public sealed class OrphanedAzureResourceFindingEngine(
                         }
                         : new RequirementFindingPayload
                         {
-                            RequirementName = orphan.ResourceId,
+                            RequirementName = resourceNameLabel,
                             RequirementText = orphan.Message,
                             IsMandatory = false,
                         },
@@ -202,5 +204,31 @@ public sealed class OrphanedAzureResourceFindingEngine(
             notes.Add($"Estimated annual savings (USD): {annualSavingsUsd:0.##}");
 
         return notes;
+    }
+
+    private static string FormatResourceNameLabel(string resourceId)
+    {
+        string? lastSegment = TryReadLastArmSegment(resourceId);
+
+        return string.IsNullOrWhiteSpace(lastSegment)
+            ? "Resource name was not stored"
+            : $"Resource name inferred from resource id segment {lastSegment.Trim()} (name was not stored on the inventory row)";
+    }
+
+    private static string? TryReadLastArmSegment(string armId)
+    {
+        if (string.IsNullOrWhiteSpace(armId))
+        {
+            return null;
+        }
+
+        int lastSlash = armId.LastIndexOf('/');
+
+        if (lastSlash < 0 || lastSlash >= armId.Length - 1)
+        {
+            return null;
+        }
+
+        return armId[(lastSlash + 1)..];
     }
 }

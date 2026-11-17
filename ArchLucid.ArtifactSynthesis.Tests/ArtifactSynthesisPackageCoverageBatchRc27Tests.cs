@@ -46,11 +46,17 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc27Tests
     [InlineData(" ")]
     [InlineData("\t\t")]
     [InlineData("\t\r\n")]
-    public void FileNameSanitizer_returns_artifact_txt_for_whitespace_only(string input)
+    public void FileNameSanitizer_returns_honest_entry_for_whitespace_only(string input)
     {
         string sanitized = FileNameSanitizer.Sanitize(input);
 
-        sanitized.Should().Be("artifact.txt");
+        sanitized.Should().Be(FileNameSanitizer.EmptyFileNameEntry);
+    }
+
+    [Fact]
+    public void FileNameSanitizer_returns_not_stored_entry_for_empty_string()
+    {
+        FileNameSanitizer.Sanitize(string.Empty).Should().Be(FileNameSanitizer.MissingFileNameEntry);
     }
 
     [Fact]
@@ -229,6 +235,28 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc27Tests
             .FirstOrDefault(f => f.Ascii?.Value == "Consolas");
 
         monoFont.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void WordDocumentBuilder_strips_xml_invalid_control_characters_from_all_plain_text_surfaces()
+    {
+        Body body = new();
+
+        WordDocumentBuilder.AddParagraph(body, "A\u0001B");
+        WordDocumentBuilder.AddHeading(body, "C\u0002D");
+        WordDocumentBuilder.AddBodyText(body, "E\u0003F");
+        WordDocumentBuilder.AddBulletList(body, ["G\u0004H"]);
+        WordDocumentBuilder.AddSimpleTable(body, [("I\u0005J", "K\u0006L")], headerRow: true);
+
+        // Serializing the actual OpenXml structure fails if any XML-invalid
+        // control character was passed through to a Text node.
+        string xml = body.OuterXml;
+
+        xml.Should().Contain("AB").And.Contain("CD").And.Contain("EF");
+        xml.Should().Contain("GH").And.Contain("IJ").And.Contain("KL");
+        xml.Should().NotContain("\u0001").And.NotContain("\u0002")
+            .And.NotContain("\u0003").And.NotContain("\u0004")
+            .And.NotContain("\u0005").And.NotContain("\u0006");
     }
 
     [Fact]

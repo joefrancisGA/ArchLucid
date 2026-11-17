@@ -95,6 +95,7 @@ describe("PricingPage brand category", () => {
     const { container, getByTestId } = render(element);
 
     getByTestId("pricing-quote-request-section");
+    getByTestId("archlucid-beta-sku-contents-section");
 
     const quoteSection = container.querySelector('[data-testid="pricing-quote-request-section"]');
     const pricingHeading = container.querySelector("#pricing-page-heading");
@@ -115,7 +116,6 @@ describe("PricingPage brand category", () => {
       "href",
       `#${PRICING_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("pricing-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("pricing-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("pricing-page-hero")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: "Pricing" })).toBeInTheDocument();

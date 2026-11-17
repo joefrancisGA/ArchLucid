@@ -48,11 +48,15 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { reversibleControlLabel } from "@/lib/reversible-control-verbs";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
+import type { QueryStatus } from "@tanstack/react-query";
 import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
+import { DIGEST_SUBSCRIPTIONS_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/digests/digest-subscriptions-empty-not-load-failure-copy";
+import { DIGEST_SUBSCRIPTIONS_VS_BROWSE_EMPTY_HONESTY_LINE } from "@/lib/digests/digest-subscriptions-vs-browse-empty-honesty-copy";
 
 export type DigestSubscriptionListProps = {
   readonly items: readonly DigestSubscription[];
   readonly attemptsBySub: Readonly<Record<string, DigestDeliveryAttempt[]>>;
+  readonly attemptStatusBySub: Readonly<Record<string, QueryStatus>>;
   readonly historyOpenFor: string | null;
   readonly loading: boolean;
   readonly canMutate: boolean;
@@ -74,6 +78,7 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
     : digestSubscriptionsEmptyListReaderLine;
   const mutationDisabledReason = props.canMutate ? null : whyDisabledEnterpriseMutationControl();
   const mutationDisabledHintId = "digest-subscriptions-mutate-disabled-hint";
+  const historyStatus = props.historyOpenFor === null ? null : props.attemptStatusBySub[props.historyOpenFor];
 
   return (
     <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950">
@@ -100,17 +105,25 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
             title="No delivery destinations yet"
             description={emptyDescription}
             footer={
-              props.hideEmptyStateCreateCta ? undefined : (
-              <Button
-                type="button"
-                size="sm"
-                variant="primary"
-                onClick={props.onFocusCreateForm}
-                data-testid="digest-subscriptions-empty-add-destination"
-              >
-                Add delivery destination
-              </Button>
-              )
+              <div className="flex flex-col gap-2">
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digest-subscriptions-empty-not-load-failure">
+                  {DIGEST_SUBSCRIPTIONS_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digest-subscriptions-vs-browse-empty-honesty">
+                  {DIGEST_SUBSCRIPTIONS_VS_BROWSE_EMPTY_HONESTY_LINE}
+                </p>
+                {props.hideEmptyStateCreateCta ? null : (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="primary"
+                    onClick={props.onFocusCreateForm}
+                    data-testid="digest-subscriptions-empty-add-destination"
+                  >
+                    Add delivery destination
+                  </Button>
+                )}
+              </div>
             }
           />
         </div>
@@ -134,6 +147,10 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
               {props.items.map((item) => {
                 const attempts: DigestDeliveryAttempt[] = props.attemptsBySub[item.subscriptionId] ?? [];
                 const status = resolveSubscriptionStatusBadge(item, attempts);
+                const attemptStatus = props.attemptStatusBySub[item.subscriptionId];
+                const deliveryResult = attemptStatus === "error"
+                  ? "Delivery history unavailable."
+                  : attemptStatus === "pending" ? "Loading delivery history…" : formatDeliveryResult(attempts);
 
                 return (
                   <EnterpriseTableRow
@@ -160,7 +177,7 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
                       </span>
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>
-                      <span className={OPERATOR_TYPOGRAPHY.helper}>{formatDeliveryResult(attempts)}</span>
+                      <span className={OPERATOR_TYPOGRAPHY.helper}>{deliveryResult}</span>
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>
                       <OperatorInventoryRowMoreActions
@@ -233,7 +250,16 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
             </EnterpriseTableBody>
           </EnterpriseTable>
 
-          {props.historyOpenFor !== null && (props.attemptsBySub[props.historyOpenFor]?.length ?? 0) > 0 ? (
+          {historyStatus === "error" ? (
+            <p role="alert" className={OPERATOR_TYPOGRAPHY.helper} data-testid="digest-subscription-delivery-history-error">
+              Delivery history unavailable.
+            </p>
+          ) : null}
+          {historyStatus === "pending" ? (
+            <p role="status" className={OPERATOR_TYPOGRAPHY.helper}>Loading delivery history…</p>
+          ) : null}
+
+          {props.historyOpenFor !== null && historyStatus === "success" && (props.attemptsBySub[props.historyOpenFor]?.length ?? 0) > 0 ? (
             <div
               className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-700"
               data-testid="digest-subscription-delivery-history"
@@ -254,7 +280,7 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
             </div>
           ) : null}
 
-          {props.historyOpenFor !== null && (props.attemptsBySub[props.historyOpenFor]?.length ?? 0) === 0 ? (
+          {props.historyOpenFor !== null && historyStatus === "success" && (props.attemptsBySub[props.historyOpenFor]?.length ?? 0) === 0 ? (
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               No delivery attempts recorded for this subscription yet.
             </p>

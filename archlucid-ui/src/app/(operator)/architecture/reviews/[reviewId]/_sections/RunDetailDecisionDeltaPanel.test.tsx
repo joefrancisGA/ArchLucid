@@ -19,6 +19,7 @@ describe("RunDetailDecisionDeltaPanel", () => {
     const view: RunDetailDecisionDeltaView = {
       isCommitted: true,
       emptyMessage: null,
+      omittedOpenFindingCount: null,
       rows: [
         {
           rank: 1,
@@ -28,6 +29,8 @@ describe("RunDetailDecisionDeltaPanel", () => {
           policyRuleId: "net-base-001",
           evidenceRefCount: 1,
           evidenceAnchorHint: "network.bicep:10 — public access enabled",
+          evidenceRefCountNotStored: false,
+          fullStoredTitle: null,
           trustChipSet: trustPresentation.chipSet,
           compareDeltaTrustLabels: {
             origin: trustPresentation.chipSet.origin,
@@ -43,7 +46,7 @@ describe("RunDetailDecisionDeltaPanel", () => {
     expect(screen.getByTestId(RUN_DETAIL_DECISION_DELTA_ROW_TEST_ID)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Missing private endpoint/i })).toHaveAttribute(
       "href",
-      "/architecture/reviews/run-abc/findings/finding-1",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
     );
     expect(screen.getByTestId("finding-policy-rule-badge")).toHaveTextContent("net-base-001");
     expect(screen.getByTestId("finding-trust-chip-deterministic-rule")).toBeInTheDocument();
@@ -55,6 +58,7 @@ describe("RunDetailDecisionDeltaPanel", () => {
       isCommitted: true,
       rows: [],
       emptyMessage: "No active findings recorded",
+      omittedOpenFindingCount: null,
     };
 
     render(<RunDetailDecisionDeltaPanel runId="run-abc" view={view} />);

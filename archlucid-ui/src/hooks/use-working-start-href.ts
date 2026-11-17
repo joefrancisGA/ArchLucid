@@ -19,6 +19,7 @@ import { resolveWorkingStartHref } from "@/lib/working-start-route";
 import type { RunSummary } from "@/types/authority";
 
 function resolveWorkingArchitectureContext(input: {
+  readonly lastOpenArchitectureId: string | null | undefined;
   readonly inFlightParentArchitectureId: string;
 }): {
   readonly lastOpenArchitectureId: string | null;
@@ -27,7 +28,7 @@ function resolveWorkingArchitectureContext(input: {
   const parentArchitectureId = input.inFlightParentArchitectureId.trim();
 
   return {
-    lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+    lastOpenArchitectureId: input.lastOpenArchitectureId ?? readCachedLastOpenArchitectureId(),
     inFlightParentArchitectureId: parentArchitectureId.length > 0 ? parentArchitectureId : null,
   };
 }
@@ -93,9 +94,12 @@ export function useWorkingStartHref(_runs: readonly RunSummary[] = []): string {
 
   return useMemo(() => {
     return resolveWorkingStartHref(
-      resolveWorkingArchitectureContext({ inFlightParentArchitectureId }),
+      resolveWorkingArchitectureContext({
+        lastOpenArchitectureId: deskContinuity.lastOpenArchitectureId,
+        inFlightParentArchitectureId,
+      }),
     ).href;
-  }, [deskContinuity.lastOpenDraftId, inFlightParentArchitectureId]);
+  }, [deskContinuity.lastOpenArchitectureId, inFlightParentArchitectureId]);
 }
 
 /** Client hook — Working Alt+N / New review creates under the open architecture (SN-019). */
@@ -123,7 +127,10 @@ export function useWorkingCreateStartHref(_runs: readonly RunSummary[] = []): st
 
   return useMemo(() => {
     return resolveWorkingCreateStartHref(
-      resolveWorkingArchitectureContext({ inFlightParentArchitectureId }),
+      resolveWorkingArchitectureContext({
+        lastOpenArchitectureId: deskContinuity.lastOpenArchitectureId,
+        inFlightParentArchitectureId,
+      }),
     ).href;
-  }, [deskContinuity.lastOpenDraftId, inFlightParentArchitectureId]);
+  }, [deskContinuity.lastOpenArchitectureId, inFlightParentArchitectureId]);
 }

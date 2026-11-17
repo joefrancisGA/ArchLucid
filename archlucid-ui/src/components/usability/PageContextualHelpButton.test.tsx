@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { PageContextualHelpEntry } from "@/lib/contextual-help-registry";
@@ -8,6 +8,12 @@ const mockContextualHelpForPathname = vi.fn<(pathname: string) => PageContextual
 
 vi.mock("next/navigation", () => ({
   usePathname: () => mockUsePathname(),
+  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+}));
+
+vi.mock("@/lib/navigation/replace-if-href-changed", () => ({
+  commitHrefIfChanged: vi.fn(),
 }));
 
 vi.mock("@/lib/contextual-help-registry", async (importOriginal) => {
@@ -15,7 +21,8 @@ vi.mock("@/lib/contextual-help-registry", async (importOriginal) => {
 
   return {
     ...actual,
-    contextualHelpForPathname: (pathname: string) => mockContextualHelpForPathname(pathname),
+    contextualHelpForPathname: (pathname: string, _options?: unknown) =>
+      mockContextualHelpForPathname(pathname),
   };
 });
 
@@ -60,7 +67,9 @@ describe("PageContextualHelpButton", () => {
 
     fireEvent.click(trigger);
 
-    expect(await screen.findByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
+    });
     expect(screen.getByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(
       "href",
       "/help/pilot-feedback",
@@ -107,7 +116,9 @@ describe("PageContextualHelpButton", () => {
 
     fireEvent.click(trigger);
 
-    expect(await screen.findByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
+    });
     expect(screen.getByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(
       "href",
       "/help/review-packages",

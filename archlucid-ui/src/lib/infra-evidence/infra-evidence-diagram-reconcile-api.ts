@@ -20,7 +20,13 @@ import type {
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
 
 function diagramsBasePath(runId: string): string {
-  return `/api/proxy/v1/architecture/runs/${runId}/diagrams`;
+  const trimmed = runId.trim();
+
+  if (trimmed.length === 0) {
+    throw new Error("runId is required.");
+  }
+
+  return `/api/proxy/v1/architecture/runs/${encodeURIComponent(trimmed)}/diagrams`;
 }
 
 export async function fetchArchitectureDiagramModel(runId: string): Promise<ArchitectureDiagramModelRecord> {
@@ -47,7 +53,7 @@ export async function fetchArchitectureDiagramReconciliation(
   runId: string,
   snapshotId: string,
 ): Promise<DiagramInfrastructureReconciliationResult> {
-  const params = new URLSearchParams({ snapshotId });
+  const params = new URLSearchParams({ snapshotId: snapshotId.trim() });
   return proxyJsonGet<DiagramInfrastructureReconciliationResult>(
     `${diagramsBasePath(runId)}/reconciliation?${params.toString()}`,
   );
@@ -67,7 +73,7 @@ export async function fetchSealedInfrastructureDiagramDocumentationDecisions(
   runId: string,
   snapshotId: string,
 ): Promise<InfrastructureDiagramDocumentationDecision[]> {
-  const params = new URLSearchParams({ snapshotId });
+  const params = new URLSearchParams({ snapshotId: snapshotId.trim() });
   return proxyJsonGet<InfrastructureDiagramDocumentationDecision[]>(
     `${diagramsBasePath(runId)}/documentation-decisions?${params.toString()}`,
   );
@@ -84,8 +90,14 @@ export async function compareInfrastructureDiagramAdvisory(
 export async function fetchInfrastructureDiagramComparison(
   comparisonId: string,
 ): Promise<DiagramInfrastructureReconciliationResult> {
+  const trimmedComparisonId = comparisonId.trim();
+
+  if (trimmedComparisonId.length === 0) {
+    throw new Error("comparisonId is required.");
+  }
+
   return proxyJsonGet<DiagramInfrastructureReconciliationResult>(
-    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}`,
+    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${encodeURIComponent(trimmedComparisonId)}`,
   );
 }
 
@@ -93,8 +105,10 @@ export async function saveInfrastructureDiagramNodeMapping(
   comparisonId: string,
   request: InfrastructureDiagramNodeMappingSaveRequest,
 ): Promise<DiagramInfrastructureReconciliationResult> {
+  const trimmedComparisonId = comparisonId.trim();
+
   return proxyJsonPut<DiagramInfrastructureReconciliationResult>(
-    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}/node-mappings`,
+    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${encodeURIComponent(trimmedComparisonId)}/node-mappings`,
     request,
   );
 }
@@ -103,8 +117,10 @@ export async function saveInfrastructureDiagramDocumentationDecision(
   comparisonId: string,
   request: InfrastructureDiagramDocumentationDecisionSaveRequest,
 ): Promise<InfrastructureDiagramDocumentationDecision> {
+  const trimmedComparisonId = comparisonId.trim();
+
   return proxyJsonPut<InfrastructureDiagramDocumentationDecision>(
-    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}/documentation-decisions`,
+    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${encodeURIComponent(trimmedComparisonId)}/documentation-decisions`,
     request,
   );
 }
@@ -114,17 +130,25 @@ export async function fetchInfrastructureDiagramDocumentationDecision(
   subjectKind: InfrastructureDiagramDocumentationDecision["subjectKind"],
   subjectKey: string,
 ): Promise<InfrastructureDiagramDocumentationDecision> {
+  const trimmedComparisonId = comparisonId.trim();
+
   const params = new URLSearchParams({ subjectKind, subjectKey });
   return proxyJsonGet<InfrastructureDiagramDocumentationDecision>(
-    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}/documentation-decisions?${params.toString()}`,
+    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${encodeURIComponent(trimmedComparisonId)}/documentation-decisions?${params.toString()}`,
   );
 }
 
 export async function fetchAbsentInfrastructureDiagramDocumentationDecisions(
   comparisonId: string,
 ): Promise<InfrastructureDiagramDocumentationDecision[]> {
+  const trimmedComparisonId = comparisonId.trim();
+
+  if (trimmedComparisonId.length === 0) {
+    throw new Error("comparisonId is required.");
+  }
+
   return proxyJsonGet<InfrastructureDiagramDocumentationDecision[]>(
-    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}/documentation-decisions/absent`,
+    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${encodeURIComponent(trimmedComparisonId)}/documentation-decisions/absent`,
   );
 }
 

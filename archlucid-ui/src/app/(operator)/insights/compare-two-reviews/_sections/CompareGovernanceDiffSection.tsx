@@ -8,6 +8,8 @@ import {
   type CompareGovernanceDiffLoadState,
 } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareGovernanceDiff";
 import { useComparePolicyPackCloudMismatch } from "@/app/(operator)/insights/compare-two-reviews/_sections/useComparePolicyPackCloudMismatch";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export type CompareGovernanceDiffSectionProps = {
   readonly baselineRunId: string | null;
@@ -19,6 +21,7 @@ export type CompareGovernanceDiffSectionProps = {
 
 /** Client section — soft-loads governance diff without blocking structured compare render. */
 export function CompareGovernanceDiffSection(props: CompareGovernanceDiffSectionProps): ReactElement {
+  const { productLine } = useProductLine();
   const internal = useCompareGovernanceDiff(
     props.preloaded !== undefined ? null : props.baselineRunId,
     props.preloaded !== undefined ? null : props.targetRunId,
@@ -39,6 +42,7 @@ export function CompareGovernanceDiffSection(props: CompareGovernanceDiffSection
       baselineCloudMismatchDetail={cloudMismatch.baselineDetail}
       targetCloudMismatchDetail={cloudMismatch.targetDetail}
       targetRunId={props.targetRunId}
+      policyPacksHubPath={policyPacksPathForProductLine(productLine)}
     />
   );
 }

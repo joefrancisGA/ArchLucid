@@ -28,7 +28,7 @@ export function DiagramReconcileIngestConfirmDialog(
   const existingNodeCountLabel =
     props.existingNodeCount !== null && Number.isFinite(props.existingNodeCount)
       ? String(Math.trunc(props.existingNodeCount))
-      : "Not returned";
+      : "Active node count was not stored.";
 
   return (
     <AlertDialog open={props.open} onOpenChange={props.onOpenChange}>

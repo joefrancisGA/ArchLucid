@@ -5,8 +5,21 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/help/architecture-intelligence",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
 import { HelpArchitectureIntelligenceGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureIntelligenceGuideView";
+import { whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import {
+  ARCHITECTURE_INTELLIGENCE_HELP_CANONICAL_PATH,
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE,
   ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_CLAUSE,
   ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK,
@@ -72,7 +85,10 @@ describe("HelpArchitectureIntelligenceGuideView", () => {
 
     const sourcesSection = screen.getByTestId("help-architecture-intelligence-sources");
 
-    for (const source of ARCHITECTURE_INTELLIGENCE_HELP_SOURCES) {
+    for (const source of whereToGoNextFollowUpLinksForTests(
+      ARCHITECTURE_INTELLIGENCE_HELP_SOURCES,
+      ARCHITECTURE_INTELLIGENCE_HELP_CANONICAL_PATH,
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

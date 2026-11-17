@@ -84,8 +84,13 @@ export function FindingsItsmExportToolbar({
         })
       : null;
   const hiddenAdvisoryCount = Math.max(0, (totalFindingCount ?? findings.length) - findings.length);
-  const { exportableFindings, omittedChecklistCount } = partitionFindingsForItsmExport(findings);
-  const checklistScopeLabel = formatItsmExportScopeLabel(exportableFindings.length, omittedChecklistCount);
+  const { exportableFindings, omittedChecklistCount, omittedUnclassifiedCount } =
+    partitionFindingsForItsmExport(findings);
+  const checklistScopeLabel = formatItsmExportScopeLabel(
+    exportableFindings.length,
+    omittedChecklistCount,
+    omittedUnclassifiedCount,
+  );
   const advisoryScopeLabel = resolveExportScopeLabel(findings.length, totalFindingCount, hiddenAdvisoryCount);
   const scopeLabel = checklistScopeLabel ?? advisoryScopeLabel;
   const exportOptions = packageCommitted === false ? { packageCommitted: false as const } : undefined;
@@ -97,7 +102,9 @@ export function FindingsItsmExportToolbar({
         ? `Export ${exportableFindings.length} rendered CSV`
         : totalFindingCount !== undefined && totalFindingCount > findings.length
           ? `Export ${exportableFindings.length} shown CSV`
-          : `Export ${exportableFindings.length} CSV`;
+          : totalFindingCount === undefined
+            ? `Export ${exportableFindings.length} shown CSV. Total finding count was not stored.`
+            : `Export ${exportableFindings.length} CSV`;
   const jsonLabel =
     exportableFindings.length === 0
       ? "No decision-grade findings to export"
@@ -105,7 +112,9 @@ export function FindingsItsmExportToolbar({
         ? `Export ${exportableFindings.length} rendered JSON`
         : totalFindingCount !== undefined && totalFindingCount > findings.length
           ? `Export ${exportableFindings.length} shown JSON`
-          : `Export ${exportableFindings.length} JSON`;
+          : totalFindingCount === undefined
+            ? `Export ${exportableFindings.length} shown JSON. Total finding count was not stored.`
+            : `Export ${exportableFindings.length} JSON`;
 
   const onExportCsv = useCallback(() => {
     if (sealedManifestBlockedReason !== null) {

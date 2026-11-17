@@ -65,7 +65,7 @@ public static class ArchitectureDiagramModelValidator
                 return false;
             }
 
-            if (!ArchitectureDiagramNodeKindRules.IsKnownKind(node.Kind))
+            if (!ArchitectureDiagramNodeKindRules.IsAllowedKind(node.Kind))
             {
                 failureReason = $"Structured diagram node kind '{node.Kind}' is invalid.";
                 return false;

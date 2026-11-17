@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ManifestDeliverableGrid } from "@/components/ManifestDeliverableGrid";
@@ -31,6 +31,22 @@ describe("ManifestDeliverableGrid", () => {
     );
 
     expect(container.firstChild).toBeNull();
+  });
+
+  it("uses review title omission copy in markdown export when system name is missing (P-10)", async () => {
+    const triggerSpy = vi.spyOn(await import("@/lib/export-markdown"), "triggerGoldenManifestMarkdownDownload");
+
+    render(
+      <ManifestDeliverableGrid manifestId="manifest-1" runId="run-1" buyerPolished />,
+    );
+
+    const markdownButton = screen.getByTestId("deliverable-tile-markdown").querySelector("button");
+
+    expect(markdownButton).not.toBeNull();
+    fireEvent.click(markdownButton!);
+
+    expect(triggerSpy).toHaveBeenCalled();
+    expect(String(triggerSpy.mock.calls[0]?.[0])).toContain("Review title was not stored.");
   });
 
   it("hides PDF tile when demo pack env is inactive", async () => {

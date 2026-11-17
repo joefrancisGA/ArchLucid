@@ -52,7 +52,8 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
 
                     foreach (AgentResult result in results)
                     {
-                        context.TraceByTaskId.TryGetValue(result.TaskId, out AgentExecutionTrace? traceForAgent);
+                        string? taskKey = AgentEvaluationTaskIdKey.Normalize(result.TaskId) ?? result.TaskId;
+                        context.TraceByTaskId.TryGetValue(taskKey, out AgentExecutionTrace? traceForAgent);
 
                         (bool schemaPassed, bool referenceMatched) =
                             await _confidencePipeline

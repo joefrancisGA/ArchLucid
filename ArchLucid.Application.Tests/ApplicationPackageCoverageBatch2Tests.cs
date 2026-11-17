@@ -131,6 +131,18 @@ public sealed class ApplicationPackageCoverageBatch2Tests
     }
 
     [Fact]
+    public void ComparisonDriftReportExportService_formats_markdown_with_trimmed_comparison_record_id()
+    {
+        ComparisonDriftReportExportService sut = new();
+        DriftAnalysisResult drift = new() { DriftDetected = false };
+
+        string markdown = sut.GenerateMarkdown(drift, comparisonRecordId: "  rec-padded  ");
+
+        markdown.Should().Contain("`rec-padded`");
+        markdown.Should().NotContain("`  rec-padded  `");
+    }
+
+    [Fact]
     public void ComparisonDriftReportExportService_generate_docx_returns_non_empty_bytes()
     {
         ComparisonDriftReportExportService sut = new();

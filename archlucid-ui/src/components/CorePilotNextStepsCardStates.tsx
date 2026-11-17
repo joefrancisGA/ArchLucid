@@ -28,6 +28,7 @@ import {
   parseCorePilotNextStepsOpenFromSearch,
 } from "@/lib/operator/core-pilot-next-steps-disclosure-url";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
 
 export const NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY = "archlucid_core_pilot_next_steps_minimized_v1";
@@ -98,7 +99,9 @@ export type CorePilotNextStepsCardStateProps = {
 
 export function CorePilotNextStepsCommittedState(props: CorePilotNextStepsCardStateProps): ReactElement {
   const reviewHref =
-    props.firstCommittedRunId !== null ? `/architecture/reviews/${props.firstCommittedRunId}` : "/architecture/reviews";
+    props.firstCommittedRunId !== null
+      ? resolveOperatorScopedRunReviewHref(props.firstCommittedRunId)
+      : "/architecture/reviews";
 
   const [nextStepsCompleteExpanded, setNextStepsCompleteExpanded] = useOperatorHomeBooleanDisclosureUrlSync(
     OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.recommendedFirstSessionPath,
@@ -231,7 +234,11 @@ export function CorePilotNextStepsHasRunState(props: CorePilotNextStepsCardState
         <li className="flex items-start gap-2" aria-label="Step 3 active">
           <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
           <Link
-            href={props.latestRunId !== null ? `/architecture/reviews/${props.latestRunId}` : "/architecture/reviews"}
+            href={
+              props.latestRunId !== null
+                ? resolveOperatorScopedRunReviewHref(props.latestRunId)
+                : "/architecture/reviews"
+            }
             className={OPERATOR_LINK.nav}
             data-testid="pilot-active-step-link"
           >

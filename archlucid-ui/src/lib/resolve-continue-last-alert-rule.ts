@@ -1,4 +1,5 @@
 import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { AlertRule } from "@/types/alerts";
 
 export const ALERT_RULE_LAST_VIEWED_STORAGE_KEY = "archlucid_alert_rule_continue_last_v1";
@@ -73,8 +74,9 @@ export function resolveContinueLastAlertRule(rules: unknown): AlertRulesContinue
   }
 
   const newest = validRules
-    .slice()
-    .sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
+    .map((rule) => ({ rule, createdAtMs: parseIsoUtcMs(rule.createdUtc) }))
+    .filter(({ createdAtMs }) => !Number.isNaN(createdAtMs))
+    .sort((left, right) => right.createdAtMs - left.createdAtMs)[0]?.rule;
 
   return newest === undefined ? null : toTarget(newest);
 }

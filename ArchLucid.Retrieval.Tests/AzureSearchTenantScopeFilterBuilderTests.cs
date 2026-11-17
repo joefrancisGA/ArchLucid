@@ -74,6 +74,17 @@ public sealed class AzureSearchTenantScopeFilterBuilderTests
     }
 
     [Fact]
+    public void BuildScopeFilter_emits_exact_assigned_policy_pack_id_for_odata_equality()
+    {
+        RetrievalQuery query = BaseQuery(includePlatform: true);
+        query.AllowedPolicyPackRulePackIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Pack-A" };
+
+        string filter = AzureSearchTenantScopeFilterBuilder.BuildScopeFilter(query);
+
+        filter.Should().Contain("policyPackRulePackId eq 'Pack-A'");
+    }
+
+    [Fact]
     public void BuildScopeFilter_with_assigned_policy_packs_requires_platform_sentinel_tenant_id()
     {
         RetrievalQuery query = BaseQuery(includePlatform: true);
@@ -95,6 +106,18 @@ public sealed class AzureSearchTenantScopeFilterBuilderTests
         string filter = AzureSearchTenantScopeFilterBuilder.BuildScopeFilter(query);
 
         filter.Should().NotContain(CorpusKindSentinels.PlatformSentinelTenantId.ToString("D"));
+    }
+
+    [Fact]
+    public void BuildScopeFilter_includes_run_id_when_query_specifies_run_id()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        RetrievalQuery query = BaseQuery(includePlatform: false);
+        query.RunId = runId;
+
+        string filter = AzureSearchTenantScopeFilterBuilder.BuildScopeFilter(query);
+
+        filter.Should().Contain($"runId eq '{runId:D}'");
     }
 
     private static RetrievalQuery BaseQuery(bool includePlatform) => new()

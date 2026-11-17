@@ -14,4 +14,8 @@ describe("pilot-outcomes-agent-type-labels", () => {
   it("keeps mapped agent type labels", () => {
     expect(formatPilotOutcomesAgentTypeLabel("SecurityReviewer")).toBe("Security analysis");
   });
+
+  it("does not treat wire agent type 0 as a stored label (P-08)", () => {
+    expect(formatPilotOutcomesAgentTypeLabel("0")).toBe("Analysis type was not stored.");
+  });
 });

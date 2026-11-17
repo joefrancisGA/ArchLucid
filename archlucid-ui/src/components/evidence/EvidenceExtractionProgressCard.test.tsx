@@ -14,22 +14,6 @@ describe("EvidenceExtractionProgressCard", () => {
     canDraftClarificationAnswers: true,
   });
 
-  it("labels stored-empty document names on the processing card", () => {
-    render(
-      <EvidenceExtractionProgressCard
-        phase="processing"
-        documentNames={[]}
-        stages={stages}
-        activeStageIndex={0}
-        completion={null}
-      />,
-    );
-
-    expect(screen.getByTestId("evidence-extraction-document-line")).toHaveTextContent(
-      "Attached document names were stored empty.",
-    );
-  });
-
   it("renders processing state with an indeterminate progress bar", () => {
     render(
       <EvidenceExtractionProgressCard

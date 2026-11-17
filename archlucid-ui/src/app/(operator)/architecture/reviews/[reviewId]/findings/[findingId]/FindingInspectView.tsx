@@ -112,6 +112,7 @@ export function FindingInspectView({
     findingsQueueRunId,
     architectureId: parentArchitectureId,
     isWorkingMode,
+    productLine,
   });
 
   if (failure || !payload) {
@@ -156,7 +157,9 @@ export function FindingInspectView({
             : (
                 <>
                   This finding belongs to review{" "}
-                  <span className="font-mono">{payload.runId}</span>{" "}
+                  <span className="font-mono">
+                    {payload.runId?.trim() ? payload.runId : "Review run id was not stored."}
+                  </span>{" "}
                   ({ARCHITECTURE_REVIEW_VOCABULARY.correlationIdFieldBridge}), not the review in this URL.
                 </>
               )}

@@ -42,6 +42,8 @@ describe("RunDetailHolisticCriticPanel", () => {
     vi.mocked(generateHolisticCritique).mockResolvedValue({
       disclaimer: "Advisory only.",
       critiqueMarkdown: "Consider regional failover.",
+      omittedFindingLinesCount: 2,
+      omittedThemeSummariesCount: 1,
     });
 
     render(<RunDetailHolisticCriticPanel runId="run-1" hasGoldenManifest={true} />);
@@ -53,5 +55,11 @@ describe("RunDetailHolisticCriticPanel", () => {
     screen.getByTestId("holistic-critic-generate").click();
 
     expect(await screen.findByTestId("ai-output-governance-label-advisory")).toBeInTheDocument();
+    expect(screen.getByTestId("holistic-critic-omitted-context")).toHaveTextContent(
+      "2 structured finding lines were omitted",
+    );
+    expect(screen.getByTestId("holistic-critic-omitted-context")).toHaveTextContent(
+      "1 theme summary was omitted",
+    );
   });
 });

@@ -1,0 +1,2 @@
+export const FIRST_REVIEW_PARTIAL_CAPTURE_DISABLED_CTA_LINE =
+  "The latest SecureNow inventory capture completed with gaps — complete cloud connections or extract upload recovery before starting a tenant review." as const;

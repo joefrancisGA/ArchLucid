@@ -32,6 +32,8 @@ export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanel
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [disclaimer, setDisclaimer] = useState<string | null>(null);
   const [critiqueMarkdown, setCritiqueMarkdown] = useState<string | null>(null);
+  const [omittedFindingLinesCount, setOmittedFindingLinesCount] = useState<number | null>(null);
+  const [omittedThemeSummariesCount, setOmittedThemeSummariesCount] = useState<number | null>(null);
   const blockedReason = holisticCriticBlockedReason(failure);
 
   return (
@@ -78,6 +80,8 @@ export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanel
               setFailure(null);
               setDisclaimer(null);
               setCritiqueMarkdown(null);
+              setOmittedFindingLinesCount(null);
+              setOmittedThemeSummariesCount(null);
 
               try {
                 const trimmedFocus = focus.trim();
@@ -87,6 +91,8 @@ export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanel
 
                 setDisclaimer(response.disclaimer);
                 setCritiqueMarkdown(response.critiqueMarkdown);
+                setOmittedFindingLinesCount(response.omittedFindingLinesCount ?? 0);
+                setOmittedThemeSummariesCount(response.omittedThemeSummariesCount ?? 0);
               } catch (e: unknown) {
                 setFailure(toApiLoadFailure(e));
               } finally {
@@ -119,6 +125,21 @@ export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanel
               <AiOutputGovernanceLabel forceAdvisory />
               <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>{disclaimer}</p>
             </div>
+            {omittedFindingLinesCount !== null && omittedThemeSummariesCount !== null
+            && (omittedFindingLinesCount > 0 || omittedThemeSummariesCount > 0) ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="holistic-critic-omitted-context"
+              >
+                {omittedFindingLinesCount > 0
+                  ? `${omittedFindingLinesCount} structured finding line${omittedFindingLinesCount === 1 ? "" : "s"} were omitted from the critique prompt (first twelve shown).`
+                  : null}
+                {omittedFindingLinesCount > 0 && omittedThemeSummariesCount > 0 ? " " : null}
+                {omittedThemeSummariesCount > 0
+                  ? `${omittedThemeSummariesCount} theme summar${omittedThemeSummariesCount === 1 ? "y was" : "ies were"} omitted from the critique prompt (first five shown).`
+                  : null}
+              </p>
+            ) : null}
             <pre className={cn("max-h-96 overflow-auto whitespace-pre-wrap rounded-md border border-neutral-200 bg-white p-3 leading-relaxed text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.body)}>
               {critiqueMarkdown}
             </pre>

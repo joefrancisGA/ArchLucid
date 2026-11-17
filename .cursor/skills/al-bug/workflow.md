@@ -123,6 +123,8 @@ The script fetches `origin/bugsmash`, checks out `bugsmash`, and `git pull --reb
 
 **Before** hunting, editing production code, or claiming a bug, score the ledger and **display the picker preview in chat**.
 
+When using **`/al-bug1`**–**`/al-bug4`**, run **`scripts/agent/al-bug-zone-rotation.ps1 -Set <N> -PreviewPick -SkipGitPicker`** (or the set skill’s equivalent) **before** hunting when the user did not pass a hint. The picker parks any zone whose **own** run-log tail has **three** consecutive **dry**, **seed-only**, or **held-for-triage** outcomes. Hunts on other zones do not clear that park. A later **hit** does. Parked zones stay out of automatic picks until a **hint** names them (`-Hint` / the zone id in the hunt message). Rotation still passes **`-AvoidZoneId`** for the current tail zone; the picker park is what keeps the zone out on the next hunts. User hints disable avoidance and are the only re-entry.
+
 ```powershell
 .\scripts\agent\al-bug-pick-zone.ps1 -Preview
 ```
@@ -131,16 +133,17 @@ Add `-Hint '<user hint>'` when the message named an area. Add `-Refresh` when th
 
 The picker is **deterministic** (`docs/library/AL_BUG_HUNT_LEDGER.md` + `scripts/agent/al-bug-pick-zone.ps1`). Do **not** LLM-rank zones or fall back to a static “always topology first” walk.
 
-Scoring is **explore/exploit**: hunts are the time unit. Prefer shorter mean hunts-per-bug once data exists; sample untried zones so the catalog can learn. **Hunt-ready** hypothesis count is a small tie-break only — **candidate** (template) rows must not lock the picker. Hypothesis **precision** (`proven / (proven + invalid)`) is a small bonus once at least two classified attempts exist. `valid-no-repro` is healthy exhaustion and does **not** lower precision. **Speed is capped at 1**; `bugs-found` cannot exceed `hunts` for scoring. High recent hit-rate zones **cool** while they still have open hypotheses. A zone whose hypothesis list is already empty stays eligible so the seed reread can run. Escalation matches concrete production files: a directory path does not cool every zone under that prefix. When every open zone is demoted, JSON `cooldownFallback` is `true` and the picker still returns the best demoted zone. That is a hunt, not exhaustion.
+Scoring is **explore/exploit**: hunts are the time unit. Prefer shorter mean hunts-per-bug once data exists; sample untried zones so the catalog can learn. **Hunt-ready** hypothesis count is a small tie-break only — **candidate** (template) rows must not lock the picker. Hypothesis **precision** (`proven / (proven + invalid)`) is a small bonus once at least two classified attempts exist. `valid-no-repro` is healthy exhaustion and does **not** lower precision. **Speed is capped at 1**; `bugs-found` cannot exceed `hunts` for scoring. High recent hit-rate zones **cool** while they still have open hypotheses. A zone whose hypothesis list is already empty stays eligible so the seed reread can run. Escalation matches concrete production files: a directory path does not cool every zone under that prefix. A low-yield park (three consecutive dry, seed-only, or held-for-triage outcomes on that zone’s own run-log tail) removes the zone from automatic picks. JSON `parkedZoneIds` lists them. JSON `cooldownFallback` stays **false**: ledger `cooling`, hit-rate cooldown, class saturation, and file escalation are not selected when every other zone is demoted. That stop is exhaustion of the automatic catalog. A hint still selects the named zone.
 
 Rules:
 
 - Hunt **only** the returned `zoneId` (`paths` + hypotheses). Do not invent another zone in the same invocation.
+- Open **`(candidate)`** rows prepended under **`## Zone: <id>`** (after the newest hunt diary line, before the next dated hunt note) are merged into picker JSON the same as open rows under **`### Hypotheses`**. Keep that header queue current after each hit.
 - If JSON `seedHunt` is `true` or `status` is `unseeded`, this run is a **seed hunt** (Phase 1.1a) before any repro. This includes previously hunted zones whose stored hypotheses are all closed: read the source again and generate fresh mechanism-backed hypotheses; do not record a mechanical dry hunt.
 - **Announce the kind immediately** after the picker table (the picker also prints a Kind banner). Copy one of:
   - `This /al-bug run is a **seed hunt** for zone \`<zoneId>\`. It reseeds hypotheses from the source files. It is not a thorough defect hunt unless a newly promoted hunt-ready row is proven in this same run.`
   - `This /al-bug run is a **thorough defect hunt** for zone \`<zoneId>\`. Cheap-disproof and failing-repro attempts run to completion even if other /al-bug messages are queued.`
-- If JSON `exhaustedAll` is `true`, **stop** — report that every zone is exhausted without git churn. Do not invent a new zone.
+- If JSON `exhaustedAll` is `true`, **stop**. Report `parkedZoneIds` when it is non-empty, and say that a hint is required to hunt a parked or cooled zone. Do not invent a new zone.
 - If `--status`, print the preview and **stop** (do not hunt; do not write the ledger).
 - The script does **not** write the ledger. After the hunt, edit the picker JSON `ledgerPath` (the set ledger that owns the zone).
 
@@ -156,7 +159,7 @@ Set `status` to `cooling` when yield has dropped but exhaustion is not complete.
 
 If every **hunt-ready** hypothesis was tested and **none** produced a failing repro: increment `hunts` and `consecutive-dry-hunts`, set `last-hunt` to today, tick attempted rows with **`(valid-no-repro)`** or **`(invalid)`** (see Phase 1.1c), **stop**. Do not invent another bug in the same files or jump to another zone.
 
-A **seed-only** pass (files read, candidates promoted or retired, no failing repro) increments `hunts`, sets `last-hunt`, sets `status` to `open`, and does **not** increment `consecutive-dry-hunts`. After **8** seed-only outcomes for one zone in 24 hours, the picker skips that zone while any other open or unseeded zone is below that threshold. A hint still selects the saturated zone.
+A **seed-only** pass (files read, candidates promoted or retired, no failing repro) increments `hunts`, sets `last-hunt`, sets `status` to `open`, and does **not** increment `consecutive-dry-hunts`. After **8** seed-only outcomes for one zone in 24 hours, the picker skips that zone while any other open or unseeded zone is below that threshold and is not parked. Three consecutive seed-only outcomes also park the zone until a hint or a later hit. A hint still selects the parked or saturated zone. When every non-parked open zone is seed-saturated, those zones stay eligible.
 
 ---
 
@@ -220,7 +223,7 @@ Prefer mechanisms that have paid off in this catalog: dual-path disagreement (ga
 
 **Guard failure direction:** for redaction, validation, authz, and schema readers, the conservative failure mode (over-redact, reject malformed, deny) is usually `(valid-no-repro)` unless reachability shows a real caller or attacker-controlled input. Fail-open / leak / accept malformed as success is hunt-eligible. Severity must name user-visible harm (secret in summary, cross-tenant 200, committed bad manifest). “Test disagreed with an allowlist” is not medium/high. High impact requires that named harm — see `docs/library/AL_BUG_SEVERITY_CALIBRATION_AUDIT.md` when present.
 
-Optional `[class:…]` tag on hunt-ready/proven rows (closed enum in ledger Scoring). When picker JSON `saturatedClasses` contains your row's class, **do not** ship another sibling synonym — consolidate to a shared helper (ABQ-01/04/15) or close `(invalid)` / `(valid-no-repro)`. Retired classes are CI-banned: do not add a sibling `TryParseBooleanString` body or `IsEmbeddedSensitiveFragment` copy; extend `JsonBooleanStringReader` or the token redactor (`scripts/ci/al-bug-retired-class-allowlist.txt`). **Week UOM (`[class:week-uom-synonym]`):** do not add `HasCompactWeekk+Suffix`, `ContainsSpacedSlashWeekk+Token`, or per-length `*Weekkk*Tests.cs` files — CI bans reintroduction (`scripts/ci/al-bug-ban-retired-classes.py`). Keep-list week tokens only (`docs/library/AZURE_WEEK_UOM_KEEP_LIST.md`).
+Optional `[class:…]` tag on hunt-ready/proven rows (closed enum in ledger Scoring). When picker JSON `saturatedClasses` contains your row's class, **do not** ship another sibling synonym — consolidate to a shared helper (ABQ-01/04/15) or close `(invalid)` / `(valid-no-repro)`. Retired classes are CI-banned: do not add a sibling `TryParseBooleanString` body or `IsEmbeddedSensitiveFragment` copy; extend `JsonBooleanStringReader` or the token redactor (`scripts/ci/al-bug-retired-class-allowlist.txt`). **Week UOM (`[class:week-uom-synonym]`):** do not add `HasCompactWeekk+Suffix`, `ContainsSpacedSlashWeekk+Token`, or per-length `*Weekkk*Tests.cs` files — CI bans reintroduction (`scripts/ci/al-bug-ban-retired-classes.py`). Keep-list week tokens only (`docs/library/AZURE_WEEK_UOM_KEEP_LIST.md`). **Inventory host ladder (`[class:cosmos-typo-en-suffix]`, `[class:storage-latin-extended-i]`, `[class:keyvault-supplementary-fffe]`, `[class:route-percent-decode-depth]`, `[class:firewall-heterogeneous-array-index]`):** do not reseed `.e(N+1)`, `[N,"a"]`, `U+XXFFFE`, decode-depth, or `U+1ECx` siblings — close `(invalid)` / `(valid-no-repro)` citing `AzureInventoryAppSettingHostPinnedMechanismTheoryTests` (`docs/library/AL_BUG_INVENTORY_HOST_LADDER_SATURATION.md`; CI allowlist `scripts/ci/al-bug-inventory-host-ladder-test-allowlist.txt`). **Configuration summary ladder (`[class:config-percent-decode-layer-ladder]`, `[class:config-supplementary-truncation-ladder]`, `[class:config-delimiter-reverify]`, `[class:config-json-null-property-reverify]`, `[class:config-uppercase-key-reverify]`):** do not reseed +1 layer / +1 supplementary-char / re-verify siblings — close citing existing matrix or truncation regressions (`docs/library/AL_BUG_CONFIGURATION_SUMMARY_LADDER_SATURATION.md`; CI allowlist `scripts/ci/al-bug-configuration-summary-ladder-test-allowlist.txt`).
 
 ### 1.1c Cheap disproof (before a repro)
 
@@ -424,6 +427,7 @@ Copy the **total** and **per-product-line** bugs found / dry runs from the `-Rol
 - `docs/library/AL_BUG_HUNT_RUN_LOG_1.jsonl` through `AL_BUG_HUNT_RUN_LOG_4.jsonl` — per-set outcome logs
 - `scripts/agent/al-bug-zone-sets.json` — set membership, branch, ledger, and run log
 - `scripts/agent/al-bug-pick-zone.ps1` — deterministic next-zone picker
+- `scripts/agent/al-bug-zone-rotation.ps1` — low-yield streak detection and `-AvoidZoneId` for set hunts
 - `scripts/agent/al-bug-rolling-stats.ps1` — rolling 24h hunt yield log + preview
 - `scripts/agent/al-bug-sync-branch.ps1` — fetch, checkout, and pull `bugsmash`
 - `scripts/agent/al-bug-push-master.ps1` — worktree commit/push helper (default `bugsmash`)

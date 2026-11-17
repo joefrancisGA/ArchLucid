@@ -53,6 +53,87 @@ public sealed class DataFlowTrustBoundaryPathAnalyzerTests
         DataFlowTrustBoundaryPathAnalyzer.HopCrossesTrustBoundary(node).Should().BeTrue();
     }
 
+    [Fact]
+    public void Analyze_returns_unprotected_path_when_private_endpoint_path_reaches_datastore_first()
+    {
+        GraphSnapshot graph = BuildPrivateEndpointAndPublicPathFixture();
+
+        IReadOnlyList<DataFlowTrustBoundaryPath> paths = DataFlowTrustBoundaryPathAnalyzer.Analyze(graph);
+
+        DataFlowTrustBoundaryPath path = paths.Should().ContainSingle().Subject;
+        path.ActorNodeId.Should().Be("actor-ingress");
+        path.DatastoreNodeId.Should().Be("sql-pay");
+        path.PathNodeIds.Should().Equal("actor-ingress", "app-api", "sql-pay");
+    }
+
+    private static GraphSnapshot BuildPrivateEndpointAndPublicPathFixture()
+    {
+        GraphNode actor = new()
+        {
+            NodeId = "actor-ingress",
+            NodeType = GraphNodeTypes.Actor,
+            Label = "ingress-lb",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["trustOrigin"] = nameof(TrustOrigin.External),
+            },
+        };
+
+        GraphNode privateHop = new()
+        {
+            NodeId = "pe-nic",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "private-link-nic",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["privateEndpointEnabled"] = "true",
+            },
+        };
+
+        GraphNode app = new()
+        {
+            NodeId = "app-api",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "checkout-api",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["category"] = GraphTopologyCategories.Compute,
+            },
+        };
+
+        GraphNode sql = new()
+        {
+            NodeId = "sql-pay",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql-pay-prod",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["category"] = GraphTopologyCategories.Data,
+            },
+        };
+
+        return new GraphSnapshot
+        {
+            Nodes = [actor, privateHop, app, sql],
+            Edges =
+            [
+                Edge(actor.NodeId, privateHop.NodeId),
+                Edge(privateHop.NodeId, sql.NodeId),
+                Edge(actor.NodeId, app.NodeId),
+                Edge(app.NodeId, sql.NodeId),
+            ],
+        };
+    }
+
+    private static GraphEdge Edge(string fromNodeId, string toNodeId) =>
+        new()
+        {
+            FromNodeId = fromNodeId,
+            ToNodeId = toNodeId,
+            EdgeType = GraphEdgeTypes.ConnectsTo,
+            Weight = 1.0,
+        };
+
     private static GraphSnapshot BuildIngressToSqlFixture()
     {
         GraphNode actor = new()

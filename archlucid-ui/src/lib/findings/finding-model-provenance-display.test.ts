@@ -11,18 +11,18 @@ describe("buildFindingModelProvenanceRow", () => {
       evidenceRefCount: 2,
     });
 
-    expect(row.origin).toBe("AI-generated");
-    expect(row.grounding).toBe("Evidence-backed");
+    expect(row.origin).toBe("RealModel");
+    expect(row.grounding).toBe("Grounding was not stored.");
     expect(row.trustLabelReason).toBe("Supported by retrieved evidence.");
   });
 
-  it("falls back to policy rule inference", () => {
+  it("labels absent wire trust label without inferring policy rules", () => {
     const row = buildFindingModelProvenanceRow({
       policyRuleId: "sec-base-001",
       evidenceRefCount: 0,
     });
 
-    expect(row.origin).toBe("Deterministic rule");
-    expect(row.grounding).toBe("Not applicable");
+    expect(row.origin).toBe("Trust label was not stored");
+    expect(row.grounding).toBe("Grounding was not stored.");
   });
 });

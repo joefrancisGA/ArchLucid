@@ -1,7 +1,8 @@
 import { SECURENOW_FINDINGS_HELP_PAGE_SUBTITLE } from "@/lib/findings/findings-help-guide-content";
 import type { LayerGuidanceBlock } from "@/lib/layer-guidance";
 import type { PageCapabilityBoundary } from "@/lib/page-capability-boundary";
-import { PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY } from "@/lib/page-capability-boundary";
+import { PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY } from "@/lib/page-capability-boundary-heading";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { SECURENOW_GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE } from "@/lib/product-line/securenow-governance-assigned-to-me-copy";
 
@@ -36,7 +37,21 @@ export const SECURENOW_GOVERNANCE_FINDINGS_EMPTY_TITLE =
 export const SECURENOW_GOVERNANCE_FINDINGS_EMPTY_BODY =
   "Findings appear when assigned policy packs evaluate connected cloud inventory. Assign packs from Policy packs to start evaluation." as const;
 
+export const SECURENOW_GOVERNANCE_FINDINGS_COLLECTION_MISSING_TITLE =
+  "Findings are not ready for this scope" as const;
+
+export const SECURENOW_GOVERNANCE_FINDINGS_COLLECTION_MISSING_BODY =
+  "Complete a successful inventory capture before policy evaluation can populate this queue." as const;
+
+export const SECURENOW_GOVERNANCE_FINDINGS_EVALUATED_EMPTY_TITLE =
+  "No findings stored for this snapshot" as const;
+
+export const SECURENOW_GOVERNANCE_FINDINGS_EVALUATED_EMPTY_BODY =
+  "Capture succeeded for this scope. Policy evaluation did not store findings in this queue yet." as const;
+
 export const SECURENOW_GOVERNANCE_FINDINGS_EMPTY_POLICY_PACKS_HREF = SECURENOW_POLICY_PACKS_PATH;
+
+export const SECURENOW_GOVERNANCE_FINDINGS_EMPTY_CLOUD_CONNECTIONS_HREF = CLOUD_CONNECTIONS_PATH;
 
 export type SecureNowGovernanceFindingsEmptyStateCopy = {
   readonly title: string;
@@ -56,7 +71,26 @@ export function resolveSecureNowGovernanceFindingsClaimDiscipline(): string {
   return SECURENOW_GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE;
 }
 
-export function resolveSecureNowGovernanceFindingsEmptyStateCopy(): SecureNowGovernanceFindingsEmptyStateCopy {
+export function resolveSecureNowGovernanceFindingsEmptyStateCopy(input?: {
+  readonly collectionMissing?: boolean;
+  readonly captureEvaluatedEmpty?: boolean;
+}): SecureNowGovernanceFindingsEmptyStateCopy {
+  if (input?.collectionMissing === true) {
+    return {
+      title: SECURENOW_GOVERNANCE_FINDINGS_COLLECTION_MISSING_TITLE,
+      description: SECURENOW_GOVERNANCE_FINDINGS_COLLECTION_MISSING_BODY,
+      policyPacksHref: SECURENOW_GOVERNANCE_FINDINGS_EMPTY_CLOUD_CONNECTIONS_HREF,
+    };
+  }
+
+  if (input?.captureEvaluatedEmpty === true) {
+    return {
+      title: SECURENOW_GOVERNANCE_FINDINGS_EVALUATED_EMPTY_TITLE,
+      description: SECURENOW_GOVERNANCE_FINDINGS_EVALUATED_EMPTY_BODY,
+      policyPacksHref: SECURENOW_GOVERNANCE_FINDINGS_EMPTY_POLICY_PACKS_HREF,
+    };
+  }
+
   return {
     title: SECURENOW_GOVERNANCE_FINDINGS_EMPTY_TITLE,
     description: SECURENOW_GOVERNANCE_FINDINGS_EMPTY_BODY,

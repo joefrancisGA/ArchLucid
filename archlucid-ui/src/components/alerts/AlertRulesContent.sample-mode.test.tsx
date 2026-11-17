@@ -41,3 +41,8 @@ describe("AlertRulesContent sample mode", () => {
     expect(screen.queryByRole("button", { name: alertRulesCreateButtonLabelReaderRank })).not.toBeInTheDocument();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

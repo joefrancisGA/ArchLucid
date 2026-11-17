@@ -29,6 +29,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { getArchitectureDecisionRegister } from "@/lib/api/governance-stickiness-api";
 
 const searchParamsState = vi.hoisted(() => ({ query: "" }));

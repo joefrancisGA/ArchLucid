@@ -1,8 +1,16 @@
+import {
+  FIRST_REVIEW_GUIDE_POLICY_PACK_ASSIGNMENT_COPY,
+} from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_HOME_CHOOSE_SAMPLE_REVIEW_CTA } from "@/lib/buyer-copy/operator-home-sample";
 import type { FinishSetupWizardContext } from "@/lib/finish-setup-wizard-steps";
 import {
   resolveFinishSetupWizardDeploymentOptions,
   resolveFinishSetupWizardSteps,
 } from "@/lib/finish-setup-wizard-steps";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+
+import { ARCH_FIRST_REVIEW_PLATFORM_HEALTH_BLOCKER_DESCRIPTION } from "@/lib/architecture/architecture-first-review-platform-health-copy";
 
 import type { FirstReviewGuideStateInput } from "./first-review-guide-status";
 
@@ -13,6 +21,42 @@ export type FirstReviewGuideRequiredBlocker = {
   readonly href: string;
   readonly actionLabel: string;
 };
+
+export type FirstReviewGuidePrerequisiteInput = {
+  readonly samplePackageSelected: boolean | null;
+  readonly policyPackAssigned: boolean | null;
+};
+
+export function resolveFirstReviewGuideOnePrerequisite(
+  input: FirstReviewGuidePrerequisiteInput,
+  productLine: ProductLineId = "architecture",
+): FirstReviewGuideRequiredBlocker | null {
+  if (input.samplePackageSelected === null || input.policyPackAssigned === null) {
+    return null;
+  }
+
+  if (!input.samplePackageSelected) {
+    return {
+      id: "sample-package",
+      title: "Sample review",
+      description: "Select a completed sample review for this workspace.",
+      href: "/",
+      actionLabel: OPERATOR_HOME_CHOOSE_SAMPLE_REVIEW_CTA,
+    };
+  }
+
+  if (!input.policyPackAssigned) {
+    return {
+      id: "policy-pack",
+      title: "Policy pack",
+      description: FIRST_REVIEW_GUIDE_POLICY_PACK_ASSIGNMENT_COPY,
+      href: policyPacksPathForProductLine(productLine),
+      actionLabel: "Review policy pack assignments",
+    };
+  }
+
+  return null;
+}
 
 export function resolveFirstReviewGuideRequiredBlockers(
   input: FirstReviewGuideStateInput,
@@ -38,9 +82,19 @@ export function resolveFirstReviewGuideRequiredBlockers(
     {
       id: "platform-health",
       title: "Platform health",
-      description: "Required services must be healthy before your first review on a self-hosted deployment.",
+      description: ARCH_FIRST_REVIEW_PLATFORM_HEALTH_BLOCKER_DESCRIPTION,
       href: healthStep.href,
       actionLabel: healthStep.cta,
     },
   ];
+}
+
+export function resolveFirstReviewGuidePolicyPackAssigned(
+  workspaceSelection: readonly { readonly isEnabled: boolean }[] | null,
+): boolean | null {
+  if (workspaceSelection === null) {
+    return null;
+  }
+
+  return workspaceSelection.some((item) => item.isEnabled);
 }

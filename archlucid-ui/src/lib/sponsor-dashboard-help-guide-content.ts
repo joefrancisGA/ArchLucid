@@ -5,6 +5,7 @@ import {
 } from "@/lib/architecture/architecture-sponsor-dashboard-evidence-copy";
 import { BASELINE_SETTINGS_HELP_CANONICAL_PATH } from "@/lib/baseline-settings-help-evidence-copy";
 import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/sponsor-dashboard-help-evidence-copy";
 
 export const SPONSOR_DASHBOARD_HELP_BREADCRUMB_TOPIC_TITLE = "Sponsor dashboard help";
@@ -58,7 +59,7 @@ export const SPONSOR_DASHBOARD_HELP_FEATURE_ITEMS: readonly SponsorDashboardHelp
   {
     label: "ROI trends",
     detail:
-      "Directional ROI estimates use baseline settings and finalized review activity in the selected window. Portfolio headline savings are disposition-aware and deduplicated by FindingId; per-system rows do not sum to the headline.",
+      `Directional ROI estimates use baseline settings and finalized review activity in the selected window. ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`,
     href: BASELINE_SETTINGS_HELP_CANONICAL_PATH,
   },
   {

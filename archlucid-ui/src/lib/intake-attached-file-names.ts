@@ -54,9 +54,7 @@ export function extractAttachedIntakeFileNames(description: string | null | unde
 
       const name = line.slice(2).trim();
 
-      if (name.length > 0) {
-        names.push(name);
-      }
+      names.push(name);
 
       continue;
     }
@@ -69,7 +67,6 @@ export function extractAttachedIntakeFileNames(description: string | null | unde
   return names;
 }
 
-/** Appends or replaces the attached-files block on an intake brief. */
 export function appendIntakeAttachedFileNames(
   brief: string,
   fileNames: readonly string[],
@@ -118,4 +115,43 @@ function sliceAttachedFilesSection(text: string): string | null {
   }
 
   return null;
+}
+
+export const PRIOR_PACKAGE_ATTACHED_FILES_HEADING = "Attached on the prior package" as const;
+export const PRIOR_PACKAGE_ATTACHED_FILE_NAME_NOT_STORED = "File name was not stored." as const;
+export const PRIOR_PACKAGE_ATTACHED_FILES_SECTION_EMPTY =
+  "Prior package listed attached files but no file names were stored." as const;
+
+export type PriorPackageAttachedFilesPresentation = {
+  readonly showSection: boolean;
+  readonly heading: string;
+  readonly lead: string | null;
+  readonly bulletLines: readonly string[];
+};
+
+export function resolvePriorPackageAttachedFilesPresentation(
+  fileNames: readonly string[],
+  lead: string,
+): PriorPackageAttachedFilesPresentation {
+  if (fileNames.length === 0) {
+    return {
+      showSection: false,
+      heading: PRIOR_PACKAGE_ATTACHED_FILES_HEADING,
+      lead: null,
+      bulletLines: [],
+    };
+  }
+
+  const bulletLines = fileNames.map((fileName) =>
+    fileName.trim().length > 0 ? fileName.trim() : PRIOR_PACKAGE_ATTACHED_FILE_NAME_NOT_STORED,
+  );
+
+  const allNamesMissing = bulletLines.every((line) => line === PRIOR_PACKAGE_ATTACHED_FILE_NAME_NOT_STORED);
+
+  return {
+    showSection: true,
+    heading: PRIOR_PACKAGE_ATTACHED_FILES_HEADING,
+    lead: allNamesMissing ? PRIOR_PACKAGE_ATTACHED_FILES_SECTION_EMPTY : lead,
+    bulletLines: allNamesMissing ? [PRIOR_PACKAGE_ATTACHED_FILE_NAME_NOT_STORED] : bulletLines,
+  };
 }

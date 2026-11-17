@@ -221,6 +221,8 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     [InlineData("/health//live")]
     [InlineData("/health/./live")]
     [InlineData("//health//ready")]
+    [InlineData("/health/live/.")]
+    [InlineData("/health/ready/.")]
     public async Task InvokeAsync_staging_host_does_not_skip_health_probe_with_empty_or_dot_segments(string path)
     {
         DefaultHttpContext context = CreateContext(path);
@@ -394,6 +396,352 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_skips_openapi_document_path_with_trailing_slash()
+    {
+        DefaultHttpContext context = CreateContext("/openapi/v1.json/");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_openapi_prefix_path()
+    {
+        DefaultHttpContext context = CreateContext("/openapi%2Fv1.json");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded slash segments do not match the /openapi prefix skip on staging-like hosts");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_openapi_even_when_project_scope_uses_default()
+    {
+        Guid tenant = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid workspace = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        DefaultHttpContext context = CreateContext("/openapi/v1.json");
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim("tenant_id", tenant.ToString("D")),
+                new Claim("workspace_id", workspace.ToString("D")),
+            ],
+            "Bearer"));
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "contract-probe skips run before TB-304 even when project scope is still default");
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_mixed_case_health_live_path()
+    {
+        DefaultHttpContext context = CreateContext("/HEALTH/LIVE");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "public health probe checks use OrdinalIgnoreCase segment matching");
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_mixed_case_health_ready_path()
+    {
+        DefaultHttpContext context = CreateContext("/HEALTH/READY");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "public health ready probe checks use OrdinalIgnoreCase segment matching");
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_mixed_case_health_version_path()
+    {
+        DefaultHttpContext context = CreateContext("/HEALTH/VERSION");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "public health version probe checks use OrdinalIgnoreCase segment matching");
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_mixed_case_root_health_aggregate_path()
+    {
+        DefaultHttpContext context = CreateContext("/HEALTH");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "root health aggregate probe checks use OrdinalIgnoreCase path matching");
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_does_not_skip_health_ready_parent_segment_between_probe_segments()
+    {
+        DefaultHttpContext context = CreateContext("/health/ready/../live");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_mixed_case_openapi_document_path()
+    {
+        DefaultHttpContext context = CreateContext("/OpenAPI/v1.json");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_trailing_slash_on_health_ready_path()
+    {
+        DefaultHttpContext context = CreateContext("/health/ready/");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_scalar_explorer_path_with_trailing_slash()
+    {
+        DefaultHttpContext context = CreateContext("/scalar/");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "Scalar explorer routes are not in the unscoped skip list on staging-like hosts");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_health_ready_path()
+    {
+        DefaultHttpContext context = CreateContext("/health%2Fready");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded slash segments do not match the /health/ready probe skip on staging-like hosts");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_scim_v2_prefix_path()
+    {
+        DefaultHttpContext context = CreateContext("/scim%2Fv2/Users");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded slash segments do not match the /scim prefix skip used for SCIM reauthentication");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_root_health_path()
+    {
+        DefaultHttpContext context = CreateContext("/health%2F");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded slash is a single path segment and does not match the /health aggregate probe skip");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_trailing_slash_on_health_version_path()
+    {
+        DefaultHttpContext context = CreateContext("/health/version/");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_health_version_path()
+    {
+        DefaultHttpContext context = CreateContext("/health%2Fversion");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded slash keeps version in one segment so the path is not the /health/version probe skip");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_does_not_skip_openapi_impostor_prefixed_path()
     {
         DefaultHttpContext context = CreateContext("/openapifoo");
@@ -457,6 +805,8 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     [Theory]
     [InlineData("/robots.txt/")]
     [InlineData("/sitemap.xml/")]
+    [InlineData("/ROBOTS.TXT/")]
+    [InlineData("/SITEMAP.XML/")]
     public async Task InvokeAsync_staging_host_skips_trailing_slash_on_crawler_hint_paths(string path)
     {
         DefaultHttpContext context = CreateContext(path);
@@ -474,6 +824,114 @@ public sealed class ScopeResolutionGuardMiddlewareTests
             });
 
         nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_double_slash_sitemap_path()
+    {
+        DefaultHttpContext context = CreateContext("/sitemap.xml//");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse("ApiPathSkipSafety blocks // before crawler skip checks");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_health_live_path()
+    {
+        DefaultHttpContext context = CreateContext("/health%2F%2Flive");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded slashes are not normalized into an anonymous live probe skip on staging-like hosts");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_health_live_trailing_slash_path()
+    {
+        DefaultHttpContext context = CreateContext("/health/live%2F");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded trailing slash is not normalized into an anonymous live probe skip on staging-like hosts");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_robots_trailing_slash_path()
+    {
+        DefaultHttpContext context = CreateContext("/robots.txt%2F");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded trailing slash is not normalized into a crawler hint skip on staging-like hosts");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_openapi_document_path_with_literal_encoded_trailing_slash_segment()
+    {
+        DefaultHttpContext context = CreateContext("/openapi/v1.json%2F");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "StartsWithSegments(\"/openapi\") still matches when the trailing slash is percent-encoded inside the final segment");
     }
 
     [Theory]
@@ -518,6 +976,27 @@ public sealed class ScopeResolutionGuardMiddlewareTests
             });
 
         nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_does_not_false_positive_tb304_on_literal_percent_encoded_robots_path()
+    {
+        DefaultHttpContext context = CreateContext("/robots%2Etxt");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "literal percent-encoded crawler paths miss the skip list and default scope does not trigger TB-304 in the test host");
     }
 
     [Fact]

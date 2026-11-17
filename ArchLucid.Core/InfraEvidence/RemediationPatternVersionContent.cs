@@ -151,4 +151,10 @@ public sealed class RemediationPatternVersionContent
         get;
         init;
     } = [];
+
+    public List<string> SafeRolloutSteps
+    {
+        get;
+        init;
+    } = [];
 }

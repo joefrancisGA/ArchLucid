@@ -13,6 +13,7 @@
  * handing off one finalized review record to a sponsor.
  */
 
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
@@ -102,5 +103,5 @@ export function buildRoiSponsorExportHandoffHref(runId: string | null | undefine
     return ROI_SPONSOR_EXPORT_SPONSOR_HANDOFF_LINK.href;
   }
 
-  return `/architecture/reviews/${encodeURIComponent(trimmed)}#sponsor-handoff`;
+  return resolveLibOpenReviewHref(trimmed, { hash: "sponsor-handoff" });
 }

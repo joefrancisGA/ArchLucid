@@ -71,6 +71,20 @@ describe("azure-inventory-never-show-arm-types", () => {
     expect(shouldOmitInfraEvidenceOutlineNode(outline.nodes[0]!)).toBe(false);
   });
 
+  it("preserves omitted ledgerDrops instead of substituting an empty list", () => {
+    const filtered = filterInfraEvidenceMermaidOutline(
+      {
+        nodes: [
+          { id: "n1", label: "vnet-a", resourceType: "Microsoft.Network/virtualNetworks", resourceGroup: "rg-net" },
+        ],
+        edges: [],
+      },
+      false,
+    );
+
+    expect(filtered.ledgerDrops).toBeUndefined();
+  });
+
   it("keeps never-show nodes when includeNeverShow is true", () => {
     const source = {
       nodes: [

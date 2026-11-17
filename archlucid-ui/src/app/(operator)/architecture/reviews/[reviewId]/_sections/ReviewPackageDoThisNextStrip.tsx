@@ -243,7 +243,11 @@ function ReviewSubmittedIntakeRecapPanel(props: {
             </div>
           ))}
         </dl>
-      ) : null}
+      ) : (
+        <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Intake recap fields were stored as an empty list.
+        </p>
+      )}
 
       {recap.attachedFiles.length > 0 ? (
         <div className="mt-3">
@@ -471,7 +475,7 @@ export function ReviewPackageDoThisNextStrip(
           id={disabledRerunHintId}
           reason={{
             kind: "prerequisite",
-            message: sessionAiReadiness.detail ?? "Live AI is not ready for Real mode.",
+            message: sessionAiReadiness.detail ?? "Live AI readiness detail was not stored.",
           }}
           testId="review-package-rerun-disabled-hint"
         />
@@ -652,7 +656,11 @@ export function ReviewPackageDoThisNextStrip(
           </p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-semibold">Sharing:</span>{" "}
-            {commitBlockedReason?.trim() || "Nothing on this package blocks sharing."}
+            {commitBlockedReason === undefined
+              ? "Share block status was not stored."
+              : commitBlockedReason === null || commitBlockedReason.trim().length === 0
+                ? "Nothing on this package blocks sharing."
+                : commitBlockedReason.trim()}
           </p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-semibold">Send:</span> {next.actionLabel}

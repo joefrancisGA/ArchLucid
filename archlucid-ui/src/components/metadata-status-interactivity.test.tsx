@@ -25,8 +25,8 @@ describe("metadata status labels", () => {
   it("renders SeverityTag Warning and Info as noninteractive spans", () => {
     render(
       <>
-        <SeverityTag severity={null} kind="warning" />
-        <SeverityTag severity={null} kind="info" />
+        <SeverityTag severity="Warning" />
+        <SeverityTag severity="Info" />
       </>,
     );
 

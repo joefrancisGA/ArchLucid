@@ -91,6 +91,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
         {
             FindingId = FindingInspectReadRepositoryCore.NormalizeFindingId(match.FindingId),
             Severity = match.Severity,
+            SeverityStored = true,
             TypedPayload = typed,
             Classification = match.Classification
                 ?? FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed),
@@ -115,6 +116,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             EvaluationConfidenceScore = match.EvaluationConfidenceScore,
             ConfidenceLevel = match.ConfidenceLevel,
             HumanReviewStatus = match.HumanReviewStatus,
+            HumanReviewStatusStored = true,
             IsMuted = match.IsMuted,
             MuteReason = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(match.MuteReason),
             ReasoningTrace = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(

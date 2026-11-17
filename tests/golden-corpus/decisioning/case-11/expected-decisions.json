@@ -2,7 +2,7 @@
   "authority": [
     {
       "category": "Security",
-      "selectedOption": "RequiredRemediation",
+      "selectedOption": "Selected option was not stored.",
       "title": "Enforce control: TLS-1",
       "rationale": "Security control is missing and should be enforced."
     }

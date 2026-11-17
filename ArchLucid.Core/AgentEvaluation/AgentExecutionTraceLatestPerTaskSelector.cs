@@ -15,10 +15,14 @@ public static class AgentExecutionTraceLatestPerTaskSelector
     {
         ArgumentNullException.ThrowIfNull(traces);
 
-        if (traces.Count <= 1)
-            return traces;
+        if (traces.Count == 0)
+            return [];
+
+        if (traces.Count == 1)
+            return traces[0] is null ? [] : [traces[0]];
 
         List<AgentExecutionTrace> latest = traces
+            .Where(static trace => trace is not null)
             .GroupBy(GetLatestPerTaskKey, StringComparer.OrdinalIgnoreCase)
             .Select(static g => g
                 .OrderByDescending(static t => t.AttemptIndex)

@@ -34,4 +34,19 @@ public sealed class DiagramForestCollapsedSingletonTailLabelsTests
         DiagramForestCollapsedSingletonTailLabels.ResolveNeighborhoodResourceCount([node])
             .Should().Be(9);
     }
+
+    [Fact]
+    public void BuildCollapsedSingletonTailInvitationLine_mentions_sample_and_total()
+    {
+        DiagramNode node = new()
+        {
+            Label = "Other resource groups (9)",
+            IsCollapsedResourceGroupTail = true,
+            CollapsedResourceGroupTailMemberNames = ["rg-a", "rg-b", "rg-c"],
+        };
+
+        DiagramForestCollapsedSingletonTailLabels.BuildCollapsedSingletonTailInvitationLine(node)
+            .Should()
+            .Contain("3 of 9");
+    }
 }

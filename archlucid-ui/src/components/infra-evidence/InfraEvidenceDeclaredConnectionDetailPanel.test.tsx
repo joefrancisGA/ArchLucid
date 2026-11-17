@@ -21,6 +21,7 @@ describe("InfraEvidenceDeclaredConnectionDetailPanel", () => {
     const { rerender } = render(<InfraEvidenceDeclaredConnectionDetailPanel {...baseProps} />);
 
     expect(screen.getByText("Approver was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Declared connection id was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Rationale could not be resolved because the declared connection was not found.")).toBeInTheDocument();
     expect(screen.getByText("Expiration could not be resolved because the declared connection was not found.")).toBeInTheDocument();
 
@@ -102,6 +103,22 @@ describe("InfraEvidenceDeclaredConnectionDetailPanel", () => {
     expect(screen.getByText("Status was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Evidence reference was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Expiration was not stored.")).toBeInTheDocument();
-    expect(screen.getByText("Rationale was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Rationale was stored empty.")).toBeInTheDocument();
+
+    rerender(
+      <InfraEvidenceDeclaredConnectionDetailPanel
+        {...baseProps}
+        edge={{ ...baseProps.edge, declaredConnectionId: "connection-1" }}
+        connections={[{
+          connectionId: "connection-1",
+          rationale: "ok",
+          evidenceReference: null,
+          expirationUtc: "not-a-date",
+          status: null,
+        }] as never}
+      />,
+    );
+
+    expect(screen.getByText("Expiration was not a readable time.")).toBeInTheDocument();
   });
 });

@@ -185,16 +185,12 @@ export function ReviewChainOfCustodySection({
             <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
               <div>
                 <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Policy pack applied</dt>
-                <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
-                  {policyPackAppliedLabel}
-                </dd>
+                <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>{policyPackAppliedLabel}</dd>
               </div>
               {policyPackVersionLabel !== null ? (
                 <div>
                   <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Policy pack version</dt>
-                  <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
-                    {policyPackVersionLabel}
-                  </dd>
+                  <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>{policyPackVersionLabel}</dd>
                 </div>
               ) : null}
               {architectureRequestId !== null ? (

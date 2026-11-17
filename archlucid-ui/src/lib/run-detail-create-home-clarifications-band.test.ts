@@ -36,7 +36,7 @@ describe("create-home clarifications band regression (TB-1840)", () => {
     const rec = findUiRouteTrafficRow("REC");
 
     expect(rec).toBeDefined();
-    expect(rec?.path).toBe("/architecture/reviews/[reviewId]?reviewTab=decisions-remediation");
+    expect(rec?.path).toBe("/architecture/reviews/[reviewId]?archTab=clarifications");
     expect(rec?.section).toBe("Tab surface");
 
     for (const phrase of REC_TRAFFIC_HONESTY_PHRASES) {

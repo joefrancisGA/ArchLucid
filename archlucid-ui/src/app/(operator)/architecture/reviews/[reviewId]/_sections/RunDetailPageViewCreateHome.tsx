@@ -39,7 +39,7 @@ export type RunDetailPageViewCreateHomeProps = {
   readonly presentation: RunDetailPresentation;
   readonly createHomeActivityOutcomeCardsEl: React.JSX.Element;
   readonly reviewPackageDoThisNextEvidenceProps: {
-    readonly evidenceCoverageLinkedCount: number;
+    readonly evidenceCoverageLinkedCount: number | null;
     readonly evidenceCoverageTotalCount: number;
     readonly governanceDecisionRecorded: boolean;
     readonly pipelineDiagnosticContext: ReviewPipelineDiagnosticContext | null;
@@ -69,6 +69,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
     evidenceCoverageSummary,
     evidenceInventoryItems,
     findingsCiteEvidenceWithoutSourceNames,
+    hasFindingsSnapshot,
     evidenceReviewDateLabel,
     findingCoverageSummary,
     findingsTriageVisibleCount,
@@ -195,9 +196,11 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                 openFindingCount={evidenceCoverageSummary.totalCount}
                 items={evidenceInventoryItems}
                 findingsCiteEvidenceWithoutSourceNames={findingsCiteEvidenceWithoutSourceNames}
+                findingsSnapshotStored={hasFindingsSnapshot === true}
                 artifacts={m.artifacts}
                 runId={m.resolvedDetail.run.runId}
                 buyerPolished={m.buyerPolishedArtifactTable ?? false}
+                hasGraphSnapshot={m.resolvedDetail.run.hasGraphSnapshot}
               />
             ),
             governance: (
@@ -215,7 +218,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                   governanceGateOperatorLabel={m.governanceGateOperatorLabel}
                   blockingFindingCount={blockingApprovalCount}
                   manifestUnresolvedIssueCount={m.manifestSummary?.unresolvedIssueCount ?? null}
-                  hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
+                  hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings}
                   pagePrimaryOwnedElsewhere
                 />
                 {m.manifestId ? (

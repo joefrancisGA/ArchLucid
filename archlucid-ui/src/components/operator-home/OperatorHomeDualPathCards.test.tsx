@@ -197,10 +197,10 @@ describe("OperatorHomeDualPathCards", () => {
   it("navigates to the workspace featured completed sample from the explore card", () => {
     render(<OperatorHomeDualPathCards />);
 
-    fireEvent.click(screen.getByTestId("operator-home-explore-completed-review-cta"));
-
-    expect(prefetch).toHaveBeenCalledWith(featuredCompletedSampleReviewHref(featuredSampleRunId));
-    expect(push).toHaveBeenCalledWith(featuredCompletedSampleReviewHref(featuredSampleRunId));
+    expect(screen.getByTestId("operator-home-explore-completed-review-cta")).toHaveAttribute(
+      "href",
+      featuredCompletedSampleReviewHref(featuredSampleRunId),
+    );
   });
 
   it("uses compact variant without readiness clutter", () => {

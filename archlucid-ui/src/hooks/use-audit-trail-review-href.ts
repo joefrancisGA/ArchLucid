@@ -4,6 +4,7 @@ import { useMemo } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { resolveAuditTrailReviewHref } from "@/lib/resolve-audit-trail-review-href";
 
 export function useAuditTrailReviewHref(
@@ -18,7 +19,7 @@ export function useAuditTrailReviewHref(
       resolveAuditTrailReviewHref({
         workingMode: isWorkingMode,
         runId,
-        architectureId,
+        architectureId: architectureId ?? readCachedLastOpenArchitectureId(),
         draftRegistryEntries,
       }),
     [architectureId, draftRegistryEntries, isWorkingMode, runId],

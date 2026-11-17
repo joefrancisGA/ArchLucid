@@ -20,6 +20,39 @@ namespace ArchLucid.Application.Tests.Runs;
 public sealed class ArchitectureRunArchiveServiceTests
 {
     [Fact]
+    public async Task TryArchiveAsync_returns_already_archived_when_another_request_archives_first()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                RunId = runId,
+            },
+            CancellationToken.None);
+
+        Mock<IWorkOwnershipDeleteAuthorizationService> authorization = new();
+        authorization
+            .Setup(a => a.EnsureCanDeleteOwnedWorkAsync(It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Returns(async (string? _, CancellationToken ct) =>
+            {
+                RunArchiveByIdsResult otherArchive = await runs.ArchiveRunsByIdsAsync([runId], ct);
+                otherArchive.SucceededRunIds.Should().Equal(runId);
+            });
+        Mock<IAuditService> audit = new();
+        ArchitectureRunArchiveService service = CreateService(runs, scope, audit.Object, authorization.Object);
+
+        ArchitectureRunArchiveOutcome outcome = await service.TryArchiveAsync(runId, CancellationToken.None);
+
+        outcome.Should().Be(ArchitectureRunArchiveOutcome.AlreadyArchived);
+        audit.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task TryArchiveAsync_blocks_sealed_reviews()
     {
         Guid runId = Guid.NewGuid();
@@ -47,8 +80,10 @@ public sealed class ArchitectureRunArchiveServiceTests
         outcome.Should().Be(ArchitectureRunArchiveOutcome.SealedReviewBlocked);
     }
 
-    [Fact]
-    public async Task TryArchiveAsync_archives_in_flight_review_and_emits_audit()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TryArchiveAsync_archives_in_flight_review_and_emits_audit(bool cancelWhenAuditStarts)
     {
         Guid runId = Guid.NewGuid();
         ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
@@ -66,17 +101,25 @@ public sealed class ArchitectureRunArchiveServiceTests
             },
             CancellationToken.None);
 
+        using CancellationTokenSource request = new();
         Mock<IAuditService> audit = new();
         AuditEvent? captured = null;
         audit
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
-            .Callback<AuditEvent, CancellationToken>((evt, _) => captured = evt)
+            .Callback<AuditEvent, CancellationToken>((evt, ct) =>
+            {
+                if (cancelWhenAuditStarts)
+                    request.Cancel();
+
+                ct.ThrowIfCancellationRequested();
+                captured = evt;
+            })
             .Returns(Task.CompletedTask);
 
         ArchitectureRunArchiveService service = CreateService(runs, scope, audit.Object);
 
         ArchitectureRunArchiveOutcome outcome =
-            await service.TryArchiveAsync(runId, CancellationToken.None);
+            await service.TryArchiveAsync(runId, request.Token);
 
         outcome.Should().Be(ArchitectureRunArchiveOutcome.Archived);
 
@@ -86,12 +129,14 @@ public sealed class ArchitectureRunArchiveServiceTests
         secondOutcome.Should().Be(ArchitectureRunArchiveOutcome.AlreadyArchived);
         captured.Should().NotBeNull();
         captured!.EventType.Should().Be(AuditEventTypes.ArchitectureReviewArchived);
+        audit.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static ArchitectureRunArchiveService CreateService(
         InMemoryRunRepository runs,
         ScopeContext scope,
-        IAuditService? auditService = null)
+        IAuditService? auditService = null,
+        IWorkOwnershipDeleteAuthorizationService? authorization = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(scope);
@@ -105,7 +150,7 @@ public sealed class ArchitectureRunArchiveServiceTests
             scopeProvider.Object,
             auditService ?? new Mock<IAuditService>().Object,
             actor.Object,
-            Mock.Of<IWorkOwnershipDeleteAuthorizationService>(),
+            authorization ?? Mock.Of<IWorkOwnershipDeleteAuthorizationService>(),
             NullLogger<ArchitectureRunArchiveService>.Instance);
     }
 }

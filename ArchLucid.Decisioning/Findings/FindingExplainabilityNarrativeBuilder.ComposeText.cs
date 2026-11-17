@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text;
 
 using ArchLucid.Contracts.Persistence.Explanation;
@@ -8,6 +7,10 @@ namespace ArchLucid.Decisioning.Findings;
 
 public static partial class FindingExplainabilityNarrativeBuilder
 {
+    internal const string FindingIdNotStoredCopy = "Finding id was not stored.";
+
+    internal const string FindingIdStoredEmptyCopy = "Finding id was stored empty.";
+
     /// <summary>
     ///     Composes plain text suitable for UI or API consumers; never returns <see langword="null" /> (empty string when
     ///     nothing to say).
@@ -38,13 +41,28 @@ public static partial class FindingExplainabilityNarrativeBuilder
 
         StringBuilder sb = new();
 
-        AppendHeader(sb, findingId, title, engineType, traceCompletenessRatio);
+        AppendHeader(sb, findingId, title, engineType);
         AppendOptionalLine(sb, "Source agent execution trace id", trace.SourceAgentExecutionTraceId);
         AppendGraphNodeBulletSection(sb, trace.GraphNodeIdsExamined, graphNodeLabels);
-        AppendBulletSection(sb, "Rules applied", trace.RulesApplied);
-        AppendBulletSection(sb, "Decisions taken", trace.DecisionsTaken);
-        AppendBulletSection(sb, "Alternative paths considered", trace.AlternativePathsConsidered);
-        AppendBulletSection(sb, "Notes", trace.Notes);
+
+        bool includeOmittedSections =
+            !string.IsNullOrWhiteSpace(findingId) || !string.IsNullOrWhiteSpace(title);
+
+        if (includeOmittedSections)
+        {
+            AppendTraceListSection(sb, "Graph nodes examined", trace.GraphNodeIdsExamined);
+            AppendTraceListSection(sb, "Rules applied", trace.RulesApplied);
+            AppendTraceListSection(sb, "Decisions taken", trace.DecisionsTaken);
+            AppendTraceListSection(sb, "Alternative paths considered", trace.AlternativePathsConsidered);
+            AppendTraceListSection(sb, "Notes", trace.Notes);
+        }
+        else
+        {
+            AppendTraceListSection(sb, "Rules applied", trace.RulesApplied);
+            AppendTraceListSection(sb, "Decisions taken", trace.DecisionsTaken);
+            AppendTraceListSection(sb, "Alternative paths considered", trace.AlternativePathsConsidered);
+            AppendTraceListSection(sb, "Notes", trace.Notes);
+        }
 
         return sb.Length == 0 ? string.Empty : sb.ToString().TrimEnd();
     }
@@ -53,25 +71,51 @@ public static partial class FindingExplainabilityNarrativeBuilder
         StringBuilder sb,
         string findingId,
         string title,
-        string engineType,
-        double traceCompletenessRatio)
+        string engineType)
     {
         if (string.IsNullOrWhiteSpace(findingId) && string.IsNullOrWhiteSpace(title))
-            return;
+        {
+            sb.AppendLine(FindingIdNotStoredCopy);
+            sb.AppendLine("Finding title was not stored.");
+            string enginePartEmpty = string.IsNullOrWhiteSpace(engineType)
+                ? " (engine type was not stored)"
+                : $" (engine: {engineType.Trim()})";
+            sb.Append(enginePartEmpty.TrimStart());
+            sb.AppendLine();
+            sb.AppendLine("Trace completeness is not a stored quality score.");
+            sb.AppendLine();
 
-        string idPart = string.IsNullOrWhiteSpace(findingId) ? "Finding" : $"Finding {findingId}";
-        string titlePart = string.IsNullOrWhiteSpace(title) ? string.Empty : $": {title}";
-        string enginePart = string.IsNullOrWhiteSpace(engineType) ? string.Empty : $" (engine: {engineType})";
+            return;
+        }
+
+        string idPart = ResolveFindingIdHeaderPart(findingId);
+        string titlePart = string.IsNullOrWhiteSpace(title)
+            ? title.Length > 0
+                ? ": Finding title was stored empty."
+                : ": Finding title was not stored."
+            : $": {title.Trim()}";
+        string enginePart = string.IsNullOrWhiteSpace(engineType)
+            ? " (engine type was not stored)"
+            : $" (engine: {engineType.Trim()})";
 
         sb.Append(idPart);
         sb.Append(titlePart);
         sb.Append(enginePart);
         sb.AppendLine();
 
-        sb.Append("Explainability trace completeness: ");
-        sb.Append(traceCompletenessRatio.ToString("P0", CultureInfo.InvariantCulture));
+        sb.AppendLine("Trace completeness is not a stored quality score.");
         sb.AppendLine();
-        sb.AppendLine();
+    }
+
+    private static string ResolveFindingIdHeaderPart(string findingId)
+    {
+        if (findingId.Length == 0)
+            return FindingIdNotStoredCopy;
+
+        if (string.IsNullOrWhiteSpace(findingId))
+            return FindingIdStoredEmptyCopy;
+
+        return $"Finding {findingId.Trim()}";
     }
 
     private static void AppendOptionalLine(StringBuilder sb, string label, string? value)
@@ -83,6 +127,38 @@ public static partial class FindingExplainabilityNarrativeBuilder
         sb.Append(": ");
         sb.Append(value);
         sb.AppendLine();
+    }
+
+    private static string? DescribeListOmissionSuffix(IReadOnlyList<string>? items)
+    {
+        if (items is null)
+            return "were not stored.";
+
+        if (items.Count == 0)
+            return "were stored empty.";
+
+        if (items.All(static s => string.IsNullOrWhiteSpace(s)))
+            return "were stored blank.";
+
+        return null;
+    }
+
+    private static void AppendTraceListSection(StringBuilder sb, string heading, IReadOnlyList<string>? items)
+    {
+        string? omissionSuffix = DescribeListOmissionSuffix(items);
+
+        if (omissionSuffix is not null)
+        {
+            sb.Append(heading);
+            sb.Append(' ');
+            sb.Append(omissionSuffix);
+            sb.AppendLine();
+            sb.AppendLine();
+
+            return;
+        }
+
+        AppendBulletSection(sb, heading, items);
     }
 
     private static void AppendBulletSection(StringBuilder sb, string heading, IReadOnlyList<string>? items)

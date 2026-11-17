@@ -17,7 +17,10 @@ import {
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE } from "@/lib/sponsor/sponsor-roi-headline-estimate-honesty";
+import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { resolveSponsorHeadlineScopeLabel } from "@/lib/roi-sponsor-scope-labels";
 import {
   buildSponsorServerSavingsSummary,
@@ -27,6 +30,8 @@ import { formatUsd } from "@/lib/roi-assumptions";
 
 /** Compact sponsor ROI story on Overview after the first committed review. */
 export function OperatorHomeSponsorRoiStrip(): React.JSX.Element | null {
+  const { productLine } = useProductLine();
+  const findingsHref = findingsPathForProductLine(productLine);
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const summaryQuery = useSponsorRoiSummaryQuery({ enabled: hasCommittedArchitectureReview });
 
@@ -97,47 +102,71 @@ export function OperatorHomeSponsorRoiStrip(): React.JSX.Element | null {
         Sponsor ROI
       </h2>
       {showSavings && savingsLabel !== null ? (
-        <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}>
-          <span className="inline-flex items-baseline gap-1.5 font-medium text-al-text-primary">
-            {savingsLabel}
-            <RoiDispositionTrainingTooltip />
-          </span>
-          {" estimated savings from "}
-          {summary.latestRunCount} committed review
-          {summary.latestRunCount === 1 ? "" : "s"}
-          {" ("}
-          {scopeLabel}
-          {"). "}
-          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}{" "}
-          <Link
-            href="/insights/architecture-scorecard"
-            className={OPERATOR_LINK.optional}
-            data-testid="operator-home-roi-strip-open-scorecard"
+        <>
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}>
+            <span className="inline-flex items-baseline gap-1.5 font-medium text-al-text-primary">
+              {savingsLabel}
+              <RoiDispositionTrainingTooltip />
+            </span>
+            {" estimated savings from "}
+            {summary.latestRunCount} committed review
+            {summary.latestRunCount === 1 ? "" : "s"}
+            {" ("}
+            {scopeLabel}
+            {"). "}
+            {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}{" "}
+            <Link
+              href="/insights/architecture-scorecard"
+              className={OPERATOR_LINK.optional}
+              data-testid="operator-home-roi-strip-open-scorecard"
+            >
+              See architecture scorecard
+            </Link>
+          </p>
+          <p
+            className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+            data-testid="operator-home-roi-strip-model-estimate"
           >
-            See architecture scorecard
-          </Link>
-        </p>
+            {SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE}
+          </p>
+          <SecureNowSponsorRoiCollectionScopeHonestyLine
+            className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPE_SCALE.helper)}
+            testId="operator-home-roi-strip-collection-scope-honesty"
+          />
+        </>
       ) : (
-        <p
-          className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}
-          data-testid="operator-home-roi-strip-non-summing"
-        >
-          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}{" "}
-          <Link
-            href="/insights/architecture-scorecard"
-            className={OPERATOR_LINK.optional}
-            data-testid="operator-home-roi-strip-open-scorecard"
+        <>
+          <p
+            className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}
+            data-testid="operator-home-roi-strip-non-summing"
           >
-            See architecture scorecard
-          </Link>
-        </p>
+            {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}{" "}
+            <Link
+              href="/insights/architecture-scorecard"
+              className={OPERATOR_LINK.optional}
+              data-testid="operator-home-roi-strip-open-scorecard"
+            >
+              See architecture scorecard
+            </Link>
+          </p>
+          <p
+            className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+            data-testid="operator-home-roi-strip-model-estimate"
+          >
+            {SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE}
+          </p>
+          <SecureNowSponsorRoiCollectionScopeHonestyLine
+            className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPE_SCALE.helper)}
+            testId="operator-home-roi-strip-collection-scope-honesty"
+          />
+        </>
       )}
       <p
         className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
         data-testid="operator-home-disposition-next-action"
       >
         Record dispositions on decision-grade findings before sponsor send.{" "}
-        <Link href={GOVERNANCE_FINDINGS_PATH} className={OPERATOR_LINK.optional}>
+        <Link href={findingsHref} className={OPERATOR_LINK.optional}>
           Open findings queue
         </Link>
       </p>

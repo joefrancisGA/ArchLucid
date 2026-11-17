@@ -59,6 +59,13 @@ public sealed class FindingInspectResponse
         init;
     }
 
+    /// <summary><see langword="false" /> when the relational severity column was null or whitespace (default enum is not a stored fact).</summary>
+    public bool SeverityStored
+    {
+        get;
+        init;
+    }
+
     /// <summary>Primary rule identifier (first applied rule id from authority decisioning trace, else first trace rule text).</summary>
     public string? DecisionRuleId
     {
@@ -147,6 +154,13 @@ public sealed class FindingInspectResponse
     }
 
     public FindingHumanReviewStatus HumanReviewStatus
+    {
+        get;
+        init;
+    }
+
+    /// <summary><see langword="false" /> when the relational human-review column was null or whitespace (default enum is not a stored fact).</summary>
+    public bool HumanReviewStatusStored
     {
         get;
         init;

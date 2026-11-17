@@ -1,6 +1,8 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { isGovernanceFindingOpenRisk } from "@/lib/governance/governance-finding-open-risk";
 
 import { GOVERNANCE_QUEUE_DISPOSITION_NONE_LABEL } from "./architecture-risk-register-copy";
+import { hasExpiringRiskException } from "./architecture-risk-register-summary";
 
 export type RiskRegisterFilter =
   | "all"
@@ -25,7 +27,7 @@ export const RISK_REGISTER_FILTER_LABELS: Record<RiskRegisterFilter, string> = {
   "accepted-risk": "Accepted risk",
   "exception-granted": "Exception granted",
   "expiring-soon": "Expiring soon",
-  "no-owner": "No owner",
+  "no-owner": "No owner assigned",
   "overdue-review": "Overdue review",
   "high-severity": "High severity",
   "critical-error": "Critical and error",
@@ -47,7 +49,6 @@ export const RISK_REGISTER_QUICK_FILTERS: readonly RiskRegisterFilter[] = [
   "remediated-recent",
 ];
 
-const WAIVER_EXPIRING_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
 
 /** Reads an optional product-run scope from policy findings / advisory deep links. */
 export function scopedRunIdFromQuery(raw: string | null | undefined): string | null {
@@ -122,22 +123,6 @@ function isFindingRow(row: GovernanceFindingQueueRow): boolean {
   return row.recordKind === "finding";
 }
 
-function hasExpiringException(row: GovernanceFindingQueueRow, nowMs: number): boolean {
-  const expiresRaw = row.waiverExpiresAtUtc?.trim() ?? "";
-
-  if (expiresRaw.length === 0) {
-    return false;
-  }
-
-  const expiresMs = Date.parse(expiresRaw);
-
-  if (Number.isNaN(expiresMs)) {
-    return false;
-  }
-
-  return expiresMs <= nowMs + WAIVER_EXPIRING_WINDOW_MS;
-}
-
 function isOverdueReview(row: GovernanceFindingQueueRow, nowMs: number): boolean {
   const dueRaw = row.revisitDueUtc?.trim() ?? "";
 
@@ -155,21 +140,7 @@ function isOverdueReview(row: GovernanceFindingQueueRow, nowMs: number): boolean
 }
 
 function isOpenRisk(row: GovernanceFindingQueueRow): boolean {
-  if (!isFindingRow(row)) {
-    return false;
-  }
-
-  const normalized = row.status.toLowerCase();
-
-  if (normalized.includes("recorded")) {
-    return false;
-  }
-
-  if (normalized.includes("closed") || normalized.includes("resolved")) {
-    return false;
-  }
-
-  return true;
+  return isGovernanceFindingOpenRisk(row);
 }
 
 function isAcceptedRisk(row: GovernanceFindingQueueRow): boolean {
@@ -214,7 +185,7 @@ function isNeedsDecision(row: GovernanceFindingQueueRow): boolean {
     return false;
   }
 
-  if (humanReview.includes("pending")) {
+  if (humanReview === "human review pending" || humanReview === "pending review") {
     return true;
   }
 
@@ -277,7 +248,7 @@ export function matchesRiskRegisterFilter(
   }
 
   if (filter === "expiring-soon") {
-    return hasExpiringException(row, nowMs);
+    return hasExpiringRiskException(row, nowMs);
   }
 
   if (filter === "open") {

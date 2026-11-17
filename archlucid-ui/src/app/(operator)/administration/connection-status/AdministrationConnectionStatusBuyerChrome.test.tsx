@@ -22,3 +22,8 @@ describe("AdministrationConnectionStatusBuyerChrome (ADC)", () => {
     expect(screen.queryByTestId("connection-status-claim-discipline")).not.toBeInTheDocument();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

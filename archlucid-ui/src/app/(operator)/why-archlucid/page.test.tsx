@@ -17,6 +17,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/operator/OperatorApiProblem", () => ({
   OperatorApiProblem: ({ fallbackMessage }: { fallbackMessage: string }) => (
     <div data-testid="api-problem-mock">{fallbackMessage}</div>

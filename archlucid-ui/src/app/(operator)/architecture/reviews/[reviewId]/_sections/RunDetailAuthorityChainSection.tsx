@@ -38,32 +38,56 @@ export function resolveFinalizedReviewRecordLabel(manifestId: string | null | un
     : "Finalized review record was not stored.";
 }
 
+function resolveStoredIdLabel(
+  value: string | null | undefined,
+  notStored: string,
+  storedEmpty: string,
+): string {
+  if (value === null || value === undefined) {
+    return notStored;
+  }
+
+  if (value.length === 0) {
+    return storedEmpty;
+  }
+
+  if (value.trim().length === 0) {
+    return storedEmpty;
+  }
+
+  return value;
+}
+
 export function resolveArtifactBundleIdLabel(artifactBundleId: string | null | undefined): string {
-  return artifactBundleId ?? "Artifact bundle id was not stored.";
+  return resolveStoredIdLabel(
+    artifactBundleId,
+    "Artifact bundle id was not stored.",
+    "Artifact bundle id was stored empty.",
+  );
 }
 
 export function resolveContextSnapshotIdLabel(contextSnapshotId: string | null | undefined): string {
-  if (contextSnapshotId === null || contextSnapshotId === undefined) {
-    return "Context snapshot id was not stored.";
-  }
-
-  return contextSnapshotId;
+  return resolveStoredIdLabel(
+    contextSnapshotId,
+    "Context snapshot id was not stored.",
+    "Context snapshot id was stored empty.",
+  );
 }
 
 export function resolveGraphSnapshotIdLabel(graphSnapshotId: string | null | undefined): string {
-  if (graphSnapshotId === null || graphSnapshotId === undefined) {
-    return "Graph snapshot id was not stored.";
-  }
-
-  return graphSnapshotId;
+  return resolveStoredIdLabel(
+    graphSnapshotId,
+    "Graph snapshot id was not stored.",
+    "Graph snapshot id was stored empty.",
+  );
 }
 
 export function resolveFindingsSnapshotIdLabel(findingsSnapshotId: string | null | undefined): string {
-  if (findingsSnapshotId === null || findingsSnapshotId === undefined) {
-    return "Findings snapshot id was not stored.";
-  }
-
-  return findingsSnapshotId;
+  return resolveStoredIdLabel(
+    findingsSnapshotId,
+    "Findings snapshot id was not stored.",
+    "Findings snapshot id was stored empty.",
+  );
 }
 
 export function resolveDecisionTraceIdLabel(decisionTraceId: string | null | undefined): string {

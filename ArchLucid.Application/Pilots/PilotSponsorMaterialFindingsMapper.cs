@@ -16,7 +16,7 @@ public static class PilotSponsorMaterialFindingsMapper
             ? finding.Title.Trim()
             : !string.IsNullOrWhiteSpace(finding.Rationale)
                 ? finding.Rationale.Trim()
-                : finding.FindingId;
+                : PilotSponsorMaterialFindingsHonestyCopy.FindingTitleNotStored;
 
         List<string> evidenceRefs = [];
 
@@ -27,7 +27,9 @@ public static class PilotSponsorMaterialFindingsMapper
         {
             FindingId = finding.FindingId,
             Severity = finding.Severity,
-            Category = finding.Category ?? string.Empty,
+            Category = string.IsNullOrWhiteSpace(finding.Category)
+                ? PilotSponsorMaterialFindingsHonestyCopy.CategoryNotStored
+                : finding.Category.Trim(),
             Message = message,
             IsMuted = finding.IsMuted,
             EvaluationConfidenceScore = finding.EvaluationConfidenceScore,

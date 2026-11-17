@@ -1,10 +1,11 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { PinReviewToDeskButton } from "@/components/reviews/PinReviewToDeskButton";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveGlobalSearchDeskArchitectureId } from "@/lib/global-search-desk-architecture-id";
 import { cn } from "@/lib/utils";
 
 export type ComparePinToDeskActionsProps = {
@@ -15,15 +16,23 @@ export type ComparePinToDeskActionsProps = {
 /** DR-11 — open review desk with one compare side pinned beside the other. */
 export function ComparePinToDeskActions(props: ComparePinToDeskActionsProps): React.JSX.Element {
   const { isWorkingMode } = useWorkspaceMode();
+  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
-  const architectureId = searchParams.get("architectureId")?.trim() ?? "";
+  const baseline = props.baselineRunId.trim();
+  const updated = props.updatedRunId.trim();
+  const queryArchitectureId = searchParams.get("architectureId")?.trim() ?? "";
+  const deskArchitectureId =
+    queryArchitectureId.length > 0
+      ? queryArchitectureId
+      : resolveGlobalSearchDeskArchitectureId({
+          runId: updated.length > 0 ? updated : baseline,
+          pathname,
+          search: searchParams.toString(),
+        }) ?? "";
 
   if (!isWorkingMode) {
     return <></>;
   }
-
-  const baseline = props.baselineRunId.trim();
-  const updated = props.updatedRunId.trim();
 
   if (baseline.length === 0 || updated.length === 0 || baseline === updated) {
     return <></>;
@@ -45,14 +54,14 @@ export function ComparePinToDeskActions(props: ComparePinToDeskActionsProps): Re
         <PinReviewToDeskButton
           pinRunId={baseline}
           primaryRunId={updated}
-          architectureId={architectureId.length > 0 ? architectureId : undefined}
+          architectureId={deskArchitectureId.length > 0 ? deskArchitectureId : undefined}
           label="Pin baseline on updated desk"
           testId="compare-pin-baseline-on-updated"
         />
         <PinReviewToDeskButton
           pinRunId={updated}
           primaryRunId={baseline}
-          architectureId={architectureId.length > 0 ? architectureId : undefined}
+          architectureId={deskArchitectureId.length > 0 ? deskArchitectureId : undefined}
           label="Pin updated on baseline desk"
           testId="compare-pin-updated-on-baseline"
         />

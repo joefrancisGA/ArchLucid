@@ -1,7 +1,10 @@
+import { resolveLibReviewProvenanceHref } from "@/lib/architecture/lib-open-review-href";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const FINDING_DETAIL_CANONICAL_PATH_PATTERN =
   "/architecture/reviews/[reviewId]/findings/[findingId]" as const;
@@ -9,12 +12,15 @@ export const FINDING_DETAIL_CANONICAL_PATH_PATTERN =
 export const FINDING_DETAIL_CLAIM_DISCIPLINE =
   "This page summarizes one architecture review finding — not a full audit export by itself. Open Evidence trace, review provenance, or a finalized review record when you need the broader package.";
 
+export const FINDING_DETAIL_POLICY_CITATION_NOT_STORED =
+  "Policy citation was not stored." as const;
+
 export const FINDING_DETAIL_SOURCES_INTRO =
   "Use these follow-ups when finding triage leads into evidence trace, run provenance, or findings queue.";
 
 export const FINDING_DETAIL_FOLLOW_UPS_TITLE = "Where to go next";
 
-/** Static Sources when run/finding ids are unavailable. */
+/** Static Sources when run/finding ids are unavailable (architecture default). */
 export const FINDING_DETAIL_SOURCES_STATIC: readonly EvidenceSourceLink[] = [
   { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Findings help", href: inAppHelpHref("findings") },
@@ -24,13 +30,14 @@ export const FINDING_DETAIL_SOURCES_STATIC: readonly EvidenceSourceLink[] = [
 export function buildFindingDetailSources(
   runId: string,
   findingId: string,
+  productLine: ProductLineId = "architecture",
 ): readonly EvidenceSourceLink[] {
-  const encRun = encodeURIComponent(runId.trim());
+  const findingsQueueHref = findingsPathForProductLine(productLine);
 
   return [
     { label: "Evidence trace", href: getFindingEvidenceTraceHref(runId, findingId) },
-    { label: "Review provenance", href: `/architecture/reviews/${encRun}/provenance` },
-    { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
+    { label: "Review provenance", href: resolveLibReviewProvenanceHref(runId) },
+    { label: "Findings queue", href: findingsQueueHref },
     { label: "Findings help", href: inAppHelpHref("findings") },
     { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
   ] as const;
@@ -40,10 +47,11 @@ export function buildFindingDetailSources(
 export function buildFindingDetailOrientationSources(
   runId: string,
   findingId: string,
+  productLine: ProductLineId = "architecture",
 ): readonly EvidenceSourceLink[] {
   const evidenceTraceHref = getFindingEvidenceTraceHref(runId, findingId);
 
-  return buildFindingDetailSources(runId, findingId).filter(
+  return buildFindingDetailSources(runId, findingId, productLine).filter(
     (source) => source.href !== evidenceTraceHref,
   );
 }

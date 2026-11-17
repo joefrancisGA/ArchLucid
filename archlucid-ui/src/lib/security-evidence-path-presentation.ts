@@ -1,4 +1,74 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import {
+  SECURITY_EVIDENCE_PATH_HOP_ORDER_NOT_STORED,
+  SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED,
+} from "@/lib/security-evidence-path-types";
+
+/** Trimmed stored text, or the omission sentence when absent or whitespace-only. */
+export function securityEvidencePathStoredText(
+  value: string | null | undefined,
+  omissionLabel: string,
+): string {
+  const trimmed = value?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : omissionLabel;
+}
+
+export function isSecurityEvidenceStoredFieldOmission(value: string): boolean {
+  const trimmed = value.trim();
+
+  return trimmed.endsWith(" was not stored.") || trimmed.endsWith(" was not stored");
+}
+
+/** Reader-facing rank order — numeric when stored, otherwise one omission label. */
+export function formatSecurityEvidencePathRankOrderDisplay(rankOrder: number | null | undefined): string {
+  if (
+    rankOrder === null
+    || rankOrder === undefined
+    || !Number.isFinite(rankOrder)
+    || rankOrder < 0
+  ) {
+    return "Rank was not stored.";
+  }
+
+  return String(rankOrder);
+}
+
+/** Reader-facing hop order cell — numeric when stored, otherwise one omission label. */
+export function formatSecurityEvidencePathHopOrdinalDisplay(hopOrdinal: number | null | undefined): string {
+  if (
+    hopOrdinal === null
+    || hopOrdinal === undefined
+    || !Number.isFinite(hopOrdinal)
+    || hopOrdinal < 0
+  ) {
+    return SECURITY_EVIDENCE_PATH_HOP_ORDER_NOT_STORED;
+  }
+
+  return String(hopOrdinal);
+}
+
+type ParsedSecurityEvidencePathConfidenceBand = {
+  readonly trimmed: string;
+  readonly isMissing: boolean;
+  readonly isStoredEmpty: boolean;
+};
+
+function parseSecurityEvidencePathConfidenceBand(
+  band: string | null | undefined,
+): ParsedSecurityEvidencePathConfidenceBand {
+  if (band === null || band === undefined) {
+    return { trimmed: "", isMissing: true, isStoredEmpty: false };
+  }
+
+  const trimmed = band.trim();
+
+  if (trimmed.length === 0) {
+    return { trimmed: "", isMissing: false, isStoredEmpty: true };
+  }
+
+  return { trimmed, isMissing: false, isStoredEmpty: false };
+}
 
 const PATH_CONFIDENCE_BAND_LABELS: Readonly<Record<string, string>> = {
   Confirmed: "Confirmed",
@@ -9,7 +79,7 @@ const PATH_CONFIDENCE_BAND_LABELS: Readonly<Record<string, string>> = {
 };
 
 const PROVENANCE_KIND_LABELS: Readonly<Record<string, string>> = {
-  ObservedFact: "Observed fact",
+  ObservedFact: "Read from collected evidence. Not observed traffic by itself.",
   DerivedFact: "Derived fact",
   DeterministicInference: "Deterministic inference",
   AiInference: "AI inference",
@@ -17,9 +87,9 @@ const PROVENANCE_KIND_LABELS: Readonly<Record<string, string>> = {
 };
 
 const PATH_KIND_LABELS: Readonly<Record<string, string>> = {
-  IntendedReachability: "Can reach",
+  IntendedReachability: "Intended reachability. Observed reachability was not stored.",
   Privilege: "Privilege",
-  CapabilityToFlow: "May access",
+  CapabilityToFlow: "May access. Observed use was not stored.",
 };
 
 export function formatSecurityEvidencePathKindLabel(kind: string | null | undefined): string {
@@ -30,7 +100,7 @@ export function formatSecurityEvidencePathKindLabel(kind: string | null | undefi
   const trimmed = kind.trim();
 
   if (trimmed.length === 0) {
-    return "Path kind was not stored.";
+    return "Path kind was stored empty.";
   }
 
   const mapped = PATH_KIND_LABELS[trimmed];
@@ -42,43 +112,84 @@ export function formatSecurityEvidencePathKindLabel(kind: string | null | undefi
   return "Path kind was not recognized.";
 }
 
-export function formatSecurityEvidencePathConfidenceBandLabel(band: string | null | undefined): string {
-  const trimmed = band?.trim() ?? "";
+export function securityEvidencePathConfidenceBandCode(band: string): string {
+  return band.trim();
+}
 
-  if (trimmed.length === 0) {
+export function isInsufficientEvidencePathConfidenceBand(band: string): boolean {
+  return securityEvidencePathConfidenceBandCode(band) === "InsufficientEvidence";
+}
+
+export function formatSecurityEvidencePathConfidenceBandLabel(band: string | null | undefined): string {
+  const parsed = parseSecurityEvidencePathConfidenceBand(band);
+
+  if (parsed.isMissing) {
     return "Confidence band was not stored.";
   }
 
-  return PATH_CONFIDENCE_BAND_LABELS[trimmed] ?? "Guessed";
+  if (parsed.isStoredEmpty) {
+    return "Confidence band was stored empty.";
+  }
+
+  const trimmed = parsed.trimmed;
+
+  if (trimmed === "Confirmed") {
+    return "Stored band: Confirmed. Not observed traffic.";
+  }
+
+  if (trimmed === "HighlyLikely") {
+    return "Stored band: Highly likely. Not a probability and not observed traffic.";
+  }
+
+  return PATH_CONFIDENCE_BAND_LABELS[trimmed] ?? "Confidence band was not recognized.";
 }
 
 export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | undefined): string {
-  const trimmed = kind?.trim() ?? "";
-
-  if (trimmed.length === 0) {
-    return "Provenance was not stored.";
+  if (kind === null || kind === undefined) {
+    return "Provenance kind was not stored.";
   }
 
-  return PROVENANCE_KIND_LABELS[trimmed] ?? "Guessed";
+  const trimmed = kind.trim();
+
+  if (trimmed.length === 0) {
+    return "Provenance kind was stored empty.";
+  }
+
+  return PROVENANCE_KIND_LABELS[trimmed] ?? "Provenance kind was not recognized.";
 }
 
 const PATH_RELATIONSHIP_LABELS: Readonly<Record<string, string>> = {
   CAN_READ: "Role allows read. This is not observed use.",
   CAN_WRITE: "Role allows write. This is not observed use.",
-  USES_IDENTITY: "uses managed identity",
-  MEMBER_OF: "member of group",
-  PossibleMovement: "possible movement",
-  UnrestrictedEgress: "unrestricted egress (declared NSG allow)",
-  InsufficientEvidenceEgress: "egress not fully verified",
-  SharedControlFanOut: "shared control fan-out",
-  PublicNetworkAccess: "public network exposure",
+  USES_IDENTITY: "Identity is assigned. Use of that identity was not stored.",
+  MEMBER_OF: "Group membership was stored. Observed use of that membership was not stored.",
+  PossibleMovement: "Possible movement. An observed move was not stored.",
+  UnrestrictedEgress: "Declared NSG allow. Observed egress was not stored.",
+  InsufficientEvidenceEgress: "Egress was not stored as verified. This is not a partial pass.",
+  SharedControlFanOut: "Shared control fan-out. This line is not one observed path.",
+  PublicNetworkAccess: "Public network hop. Observed traffic was not stored.",
 };
 
 export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | null | undefined): string {
-  const trimmed = edgeType?.trim() ?? "";
+  if (edgeType === null || edgeType === undefined) {
+    return SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED;
+  }
+
+  const trimmed = edgeType.trim();
 
   if (trimmed.length === 0) {
-    return "Relationship type was not stored";
+    return SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED;
+  }
+
+  if (
+    trimmed === SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED
+    || trimmed === "Relationship type was not stored"
+  ) {
+    return SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED;
+  }
+
+  if (trimmed === "Relationship type was not stored") {
+    return trimmed;
   }
 
   const mapped = PATH_RELATIONSHIP_LABELS[trimmed];
@@ -87,12 +198,12 @@ export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | n
     return mapped;
   }
 
-  return trimmed;
+  return `Relationship type ${trimmed} was not recognized.`;
 }
 
 const PROVENANCE_KIND_MEANINGS: Readonly<Record<string, string>> = {
   ObservedFact: "This hop was read from collected evidence.",
-  DerivedFact: "This hop was calculated from collected evidence.",
+  DerivedFact: "This hop was calculated from collected evidence. It is not a separately observed hop.",
   DeterministicInference: "A fixed rule produced this hop.",
   AiInference: "A model proposed this hop. It is not an observed fact.",
   HumanAssertion: "A person recorded this hop.",
@@ -106,7 +217,13 @@ export function explainSecurityEvidenceProvenanceKind(kind: string | null | unde
 export function securityEvidencePathConfidenceBandStatusKind(
   band: string | null | undefined,
 ): EnterpriseStatusKind {
-  const trimmed = band?.trim() ?? "";
+  const parsed = parseSecurityEvidencePathConfidenceBand(band);
+
+  if (parsed.isMissing || parsed.isStoredEmpty) {
+    return "neutral";
+  }
+
+  const trimmed = parsed.trimmed;
 
   if (trimmed === "Confirmed" || trimmed === "HighlyLikely") {
     return "ready";

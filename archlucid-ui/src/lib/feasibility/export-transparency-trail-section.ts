@@ -65,28 +65,30 @@ export function formatTransparencyTrailMarkdownSection(
   if (section.asserted.length > 0) {
     for (const entry of section.asserted) {
       const responder =
-        typeof entry.responderLabel === "string" && entry.responderLabel.length > 0
-          ? ` — ${entry.responderLabel}`
+        typeof entry.responderLabel === "string" && entry.responderLabel.trim().length > 0
+          ? ` — ${entry.responderLabel.trim()}`
           : entry.responderLabel === null || entry.responderLabel === undefined
             ? " — Responder was not stored."
-            : "";
+            : typeof entry.responderLabel === "string"
+              ? " — Responder was stored empty."
+              : "";
       const questionId =
         typeof entry.questionId === "string" && entry.questionId.length > 0
           ? ` — Question id: ${entry.questionId}`
           : entry.questionId === null || entry.questionId === undefined
             ? " — Question id was not stored."
-            : "";
+            : " — Question id was stored empty.";
       const recordedUtc =
         typeof entry.recordedUtc === "string" && entry.recordedUtc.length > 0
           ? ` — Answer recorded time: ${entry.recordedUtc}`
           : entry.recordedUtc === null || entry.recordedUtc === undefined
             ? " — Answer recorded time was not stored."
-            : "";
+            : " — Answer recorded time was stored empty.";
 
       lines.push(`- ${formatAssertedTrailLine(entry)}${responder}${questionId}${recordedUtc}`);
     }
   } else {
-    lines.push("_None recorded._");
+    lines.push("Asserted entries were stored empty.");
   }
 
   lines.push("");
@@ -98,37 +100,36 @@ export function formatTransparencyTrailMarkdownSection(
       lines.push(`- ${formatInferredTrailEntryLabel(entry)}`);
     }
   } else {
-    lines.push("_None recorded._");
+    lines.push("Inferred entries were stored empty.");
   }
 
   const mustSkipped = section.skipped.filter((entry) => entry.tier === "Must");
   const shouldSkipped = section.skipped.filter((entry) => entry.tier !== "Must");
 
-  if (mustSkipped.length > 0) {
-    lines.push("");
-    lines.push(`### Skipped MUST questions (${mustSkipped.length})`);
-    lines.push("");
+  lines.push("");
+  lines.push(`### Skipped MUST questions (${mustSkipped.length})`);
+  lines.push("");
 
+  if (mustSkipped.length > 0) {
     for (const entry of mustSkipped) {
       lines.push(`- ${formatSkippedTrailQuestionKey(entry.questionKey)}`);
     }
+  } else {
+    lines.push("Skipped MUST questions were stored empty.");
   }
 
-  if (shouldSkipped.length > 0) {
-    lines.push("");
-    lines.push(`### Skipped SHOULD questions (${shouldSkipped.length})`);
-    lines.push("");
+  lines.push("");
+  lines.push(`### Skipped SHOULD questions (${shouldSkipped.length})`);
+  lines.push("");
 
+  if (shouldSkipped.length > 0) {
     for (const entry of shouldSkipped) {
       lines.push(`- ${formatSkippedTrailQuestionKey(entry.questionKey)}`);
     }
-  }
-
-  if (mustSkipped.length === 0 && shouldSkipped.length === 0) {
-    lines.push("");
-    lines.push("### Skipped questions (0)");
-    lines.push("");
+  } else if (section.skipped.length === 0) {
     lines.push("Skipped questions were not recorded on this transparency trail.");
+  } else {
+    lines.push("Skipped SHOULD questions were stored empty.");
   }
 
   const workingDocumentMarkdown = formatOpenQuestionsWorkingDocumentMarkdownSection(

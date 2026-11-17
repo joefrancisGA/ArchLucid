@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { CORE_PILOT_STEP_COUNT, CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 
@@ -25,6 +26,9 @@ describe("core-pilot-steps", () => {
 
     expect(hrefs).toContain("/administration/extract-upload");
     expect(hrefs).toContain(SPONSOR_DASHBOARD_HREF);
+    expect(CORE_PILOT_STEPS.find((step) => step.primaryHref === SPONSOR_DASHBOARD_HREF)?.detail).toContain(
+      SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE,
+    );
     expect(
       CORE_PILOT_STEPS.some(
         (step) =>
@@ -38,9 +42,9 @@ describe("core-pilot-steps", () => {
     const uploadStep = CORE_PILOT_STEPS[4];
 
     expect(uploadStep.title).toBe("Upload Azure inventory ZIP");
-    expect(uploadStep.shortBody).toContain("Azure packager ZIP");
-    expect(uploadStep.detail).toContain("Get-ArchLucidAzurePackage.ps1");
-    expect(uploadStep.detail).toContain("hosted extractor");
+    expect(uploadStep.shortBody.toLowerCase()).toContain("cloud inventory");
+    expect(uploadStep.detail?.toLowerCase()).toContain("cloud inventory");
+    expect(uploadStep.detail?.toLowerCase()).toContain("cloud inventory script");
     expect(uploadStep.primaryLabel).toBe("Upload Azure inventory ZIP");
     expect(uploadStep.primaryHref).toBe("/administration/extract-upload");
   });

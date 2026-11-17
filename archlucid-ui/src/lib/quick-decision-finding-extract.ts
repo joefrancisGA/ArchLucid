@@ -1,6 +1,10 @@
 export type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
 export { extractQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-finding-from-detail";
+export {
+  countRunDetailFindingsMissingFindingId,
+  formatRunDetailFindingsMissingFindingIdLine,
+} from "@/lib/quick-decision-finding-from-detail";
 
 export {
   isQuickDecisionDerivedFromExplanationTraces,

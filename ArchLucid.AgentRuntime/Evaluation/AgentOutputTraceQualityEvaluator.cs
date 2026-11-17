@@ -135,7 +135,12 @@ public static class AgentOutputTraceQualityEvaluator
         double? calibratedConfidence = null;
 
         if (calibratedConfidenceByTaskId is not null)
-            calibratedConfidenceByTaskId.TryGetValue(trace.TaskId, out calibratedConfidence);
+        {
+            string? taskKey = AgentEvaluationTaskIdKey.Normalize(trace.TaskId);
+
+            if (taskKey is not null)
+                calibratedConfidenceByTaskId.TryGetValue(taskKey, out calibratedConfidence);
+        }
 
         AgentOutputQualityGateOutcome gateOutcome =
             qualityGate.Evaluate(structuralScore, semanticScore, calibratedConfidence);
@@ -148,6 +153,10 @@ public static class AgentOutputTraceQualityEvaluator
 
         if (pilotStrict && options.PilotStrictMinEvidenceRefCount > 0 &&
             !AgentOutputTraceCitationGate.MeetsEvidenceRefFloor(trace.ParsedResultJson, options.PilotStrictMinEvidenceRefCount))
+            gateOutcome = AgentOutputQualityGateOutcome.Rejected;
+
+        if (pilotStrict && hasCitations &&
+            !AgentOutputTraceCitationGate.CitationSourcesWithinEvidenceRefs(trace.ParsedResultJson))
             gateOutcome = AgentOutputQualityGateOutcome.Rejected;
 
         AgentOutputTraceFaithfulnessEvaluator.ApplyAgentResultEvidenceFaithfulness(

@@ -1,0 +1,84 @@
+"use client";
+
+import Link from "next/link";
+
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
+import {
+  resolveSecureNowCollectionPrimaryBlocker,
+  resolveSecureNowCollectionYouAreHere,
+} from "@/lib/product-line/securenow-collection-setup-checklist";
+import { resolveSecureNowCollectionRecoveryLinkLabel } from "@/lib/product-line/securenow-collection-recovery-copy";
+import { resolveSecureNowCollectionBlockerKindLine } from "@/lib/product-line/securenow-collection-blocker-kind-copy";
+import { cn } from "@/lib/utils";
+
+export type SecureNowCollectionPrimaryBlockerLineProps = {
+  readonly input: SecureNowCollectionMissingInput;
+  readonly testIdPrefix: string;
+  readonly youAreHereMode?: boolean;
+};
+
+/** Surfaces the single blocking collection step above the full checklist. */
+export function SecureNowCollectionPrimaryBlockerLine(
+  props: SecureNowCollectionPrimaryBlockerLineProps,
+): React.JSX.Element | null {
+  const youAreHere = resolveSecureNowCollectionYouAreHere(props.input);
+  const blocker = resolveSecureNowCollectionPrimaryBlocker(props.input);
+  const blockerKindLine = blocker !== null ? resolveSecureNowCollectionBlockerKindLine(blocker.stepId) : null;
+
+  if (blocker === null || youAreHere === null) {
+    return null;
+  }
+
+  if (props.youAreHereMode === true) {
+    return (
+      <div
+        className={cn(
+          DESIGN_TOKENS.callout.warn, "space-y-2",
+        )}
+        data-testid={`${props.testIdPrefix}-collection-you-are-here`}
+      >
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+          <span className="font-medium text-al-text-primary">You are here:</span> step {youAreHere.stepIndex} of{" "}
+          {youAreHere.stepCount} — {youAreHere.stepLabel}. {blocker.detail}
+        </p>
+        {blockerKindLine !== null ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid={`${props.testIdPrefix}-collection-blocker-kind`}>
+            {blockerKindLine}
+          </p>
+        ) : null}
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={youAreHere.recoveryHref}
+            data-testid={`${props.testIdPrefix}-collection-you-are-here-recovery`}
+          >
+            {resolveSecureNowCollectionRecoveryLinkLabel(blocker.stepId)}
+          </Link>
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <p
+      className={cn(
+        "m-0", DESIGN_TOKENS.callout.warn,
+        OPERATOR_TYPOGRAPHY.body,
+      )}
+      data-testid={`${props.testIdPrefix}-collection-primary-blocker`}
+    >
+      <span className="font-medium text-al-text-primary">Blocking collection step:</span>{" "}
+      <Link className={OPERATOR_LINK.inline} href={blocker.recoveryHref}>
+        {resolveSecureNowCollectionRecoveryLinkLabel(blocker.stepId)}
+      </Link>
+      . {blocker.detail}
+      {blockerKindLine !== null ? (
+        <>
+          {" "}
+          <span data-testid={`${props.testIdPrefix}-collection-blocker-kind`}>{blockerKindLine}</span>
+        </>
+      ) : null}
+    </p>
+  );
+}

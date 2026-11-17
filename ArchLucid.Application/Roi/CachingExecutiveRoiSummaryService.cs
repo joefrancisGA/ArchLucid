@@ -75,7 +75,7 @@ public sealed class CachingSponsorRoiSummaryService(
             scope.WorkspaceId,
             scope.ProjectId);
 
-        response.ExpiringWaiversCount14Days = GovernanceWaiverExpiryWindow.CountExpiringWithinDays(
+        int expiringWaiversCount = GovernanceWaiverExpiryWindow.CountExpiringWithinDays(
             activeWaivers,
             TimeProvider.System.UtcNowDateTime(),
             GovernanceWaiverExpiryWindow.DefaultExpiringWithinDays);
@@ -84,9 +84,7 @@ public sealed class CachingSponsorRoiSummaryService(
             .GetRegisterAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, maxRows: 100, options: null, cancellationToken)
             .ConfigureAwait(false);
 
-        response.StaleArchitectureRiskCount = StaleArchitectureRiskCountCalculator.CountStale(register);
-
-        return response;
+        return response.WithGovernanceCounts(expiringWaiversCount, StaleArchitectureRiskCountCalculator.CountStale(register));
     }
 
     /// <inheritdoc />

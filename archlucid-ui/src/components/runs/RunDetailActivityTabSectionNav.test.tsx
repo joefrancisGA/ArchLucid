@@ -20,6 +20,10 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
 );
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => false,
+}));
+
 import { RunDetailActivityTabSectionNav } from "@/components/runs/RunDetailActivityTabSectionNav";
 
 describe("RunDetailActivityTabSectionNav", () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
+import { buildArchitectureCreatedHomeModel, mergeArchitectureCreatedHomeInput } from "@/lib/architecture/architecture-created-home-model";
 import { UNTITLED_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-draft-status";
 
 const baseInput = {
@@ -28,7 +28,7 @@ describe("buildArchitectureCreatedHomeModel", () => {
     const model = buildArchitectureCreatedHomeModel(baseInput);
 
     expect(model.definitionStatus).toBe("strong-foundation");
-    expect(model.definitionStatusLabel).toBe("Strong foundation");
+    expect(model.definitionStatusLabel).toBe("Brief meets minimum length checks");
     expect(model.summaryFields.map((field) => field.label)).toEqual(
       expect.arrayContaining(["Business purpose", "Primary users", "Major systems"]),
     );
@@ -125,5 +125,24 @@ describe("buildArchitectureCreatedHomeModel", () => {
     expect(model.missingItems[0]?.id).toBe("km-q-blocked");
     expect(model.clarificationGaps[0]?.label).toContain("Policy pack threshold");
     expect(model.clarificationGaps.some((item) => item.id === "business-outcome")).toBe(false);
+  });
+
+  it("mergeArchitectureCreatedHomeInput preserves baseline gap assertions (P-17)", () => {
+    const merged = mergeArchitectureCreatedHomeInput(
+      {
+        ...baseInput,
+        gapAssertion: { businessOutcome: false, peopleAndSystems: true },
+      },
+      {
+        runId: "run-1",
+        architectureName: "",
+        architectureOverview: "",
+        businessOutcome: "",
+        peopleAndSystems: [],
+        recordedAtUtc: "2026-07-11T12:00:00Z",
+      },
+    );
+
+    expect(merged.gapAssertion).toEqual({ businessOutcome: false, peopleAndSystems: true });
   });
 });

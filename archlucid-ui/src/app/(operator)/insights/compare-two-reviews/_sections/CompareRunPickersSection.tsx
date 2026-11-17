@@ -19,6 +19,8 @@ import { firstWhyDisabledCtaReason, whyDisabledBusy, whyDisabledIncompleteInput 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { RunSummary } from "@/types/authority";
+import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
+import { CompareRunPickersPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersPartialInventoryFootnote";
 
 export type CompareRunPickersSectionProps = {
   leftPickerLabel: string;
@@ -270,6 +272,10 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           ) : null}
         </div>
         <WhyDisabledCtaHint reason={compareActionsDisabled ? compareDisabledReason : null} />
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-run-pickers-second-seal-footnote">
+          {ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE}
+        </p>
+        <CompareRunPickersPartialInventoryFootnote />
       </div>
     </>
   );
@@ -290,6 +296,12 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
             {BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY}
           </summary>
+          <p
+            className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-change-reviews-collapsed-seal-footnote"
+          >
+            {ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE}
+          </p>
           <div className="mt-3 space-y-4">{pickerFields}</div>
         </details>
       ) : (

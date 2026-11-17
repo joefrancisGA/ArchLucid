@@ -25,10 +25,11 @@ public interface ICompareRunsApplicationFacade
         string rightVersion,
         CancellationToken ct);
 
-    AgentResultDiffResult CompareAgentResults(
+    Task<AgentResultDiffResult> CompareAgentResultsAsync(
         string leftRunId,
         ArchitectureRunDetail leftDetail,
         string rightRunId,
         ArchitectureRunDetail rightDetail,
-        CompareInputFingerprints? inputFingerprints = null);
+        CompareInputFingerprints? inputFingerprints = null,
+        CancellationToken cancellationToken = default);
 }

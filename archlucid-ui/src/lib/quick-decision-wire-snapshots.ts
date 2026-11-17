@@ -16,6 +16,25 @@ export type FindingWireSnapshot = {
   reasoningTrace: string;
 };
 
+export const FINDING_AI_REASONING_BUTTON_LABEL = "View AI reasoning" as const;
+export const FINDING_STORED_PAYLOAD_BUTTON_LABEL = "View stored finding payload" as const;
+
+export function resolveFindingAiReasoningButtonLabel(
+  snapshot: FindingWireSnapshot | null | undefined,
+): string {
+  if (snapshot === null || snapshot === undefined) {
+    return FINDING_STORED_PAYLOAD_BUTTON_LABEL;
+  }
+
+  const trace = snapshot.reasoningTrace;
+
+  if (typeof trace !== "string" || trace.trim().length === 0) {
+    return FINDING_STORED_PAYLOAD_BUTTON_LABEL;
+  }
+
+  return FINDING_AI_REASONING_BUTTON_LABEL;
+}
+
 /** Resolves finding trace rows from aggregate explanation payloads (top-level or nested). */
 export function resolveFindingTraceRowsFromSummary(
   summary: RunExplanationSummary | null,

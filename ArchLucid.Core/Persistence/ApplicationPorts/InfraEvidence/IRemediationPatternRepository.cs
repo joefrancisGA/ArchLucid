@@ -12,6 +12,12 @@ public interface IRemediationPatternRepository
 
     Task UpdatePatternAsync(RemediationPatternRecord pattern, CancellationToken cancellationToken = default);
 
+    // Approval must update the version and current pointer in one operation.
+    Task<bool> TryApproveVersionAsync(
+        RemediationPatternVersionRecord approvedVersion,
+        RemediationPatternStatus expectedStatus,
+        CancellationToken cancellationToken = default) => Task.FromResult(false);
+
     Task<RemediationPatternRecord?> TryGetPatternByIdAsync(
         Guid tenantId,
         Guid patternId,

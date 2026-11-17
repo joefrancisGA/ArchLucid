@@ -180,11 +180,11 @@ public sealed class TenantSuspendCommandService(
             new PlatformAuditEvent
             {
                 EventType = eventType,
-                ActorUserId = actorUserId,
-                ActorUserName = actorUserName,
+                ActorUserId = actorUserId.Trim(),
+                ActorUserName = actorUserName.Trim(),
                 SubjectTenantId = tenantId,
                 DataJson = JsonSerializer.Serialize(data),
-                CorrelationId = correlationId,
+                CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? null : correlationId.Trim(),
             },
             cancellationToken);
     }

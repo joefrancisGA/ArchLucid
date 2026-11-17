@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Findings;
+using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -53,10 +54,10 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                 FindingType = "SecurityControlFinding",
                 Category = "Security",
                 EngineType = EngineType,
-                Severity = string.Equals(status, "missing", StringComparison.OrdinalIgnoreCase)
+                Severity = SecurityBaselineFindingHonesty.IsMissingStatus(status)
                     ? FindingSeverity.Error
                     : FindingSeverity.Info,
-                Title = $"Security baseline control: {node.Label}",
+                Title = $"Security baseline control: {GraphNodeReviewerLabel.ForFindingTitle(node.Label)}",
                 Rationale = protectedIds.Count > 0
                     ? "A security baseline node was found; PROTECTS edges associate it with topology resources that should inherit control scope."
                     : "A security baseline node was found in the graph and should influence resolved architecture decisions.",
@@ -65,12 +66,10 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                 PayloadType = nameof(SecurityControlFindingPayload),
                 Payload = new SecurityControlFindingPayload
                 {
-                    ControlId = controlId ?? string.Empty,
-                    ControlName = node.Label,
-                    Status = status ?? "unknown",
-                    Impact = string.Equals(status, "missing", StringComparison.OrdinalIgnoreCase)
-                        ? "Security control is missing and should be enforced."
-                        : "Security control is present."
+                    ControlId = SecurityBaselineFindingHonesty.ResolveControlId(controlId),
+                    ControlName = GraphNodeReviewerLabel.ForFindingTitle(node.Label),
+                    Status = SecurityBaselineFindingHonesty.ResolveStatusPayload(status),
+                    Impact = SecurityBaselineFindingHonesty.ResolveImpact(status),
                 },
                 Trace = new ExplainabilityTrace
                 {
@@ -82,7 +81,7 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                             ? "Included topology targets linked via PROTECTS edges in explainability scope."
                             : "Converted security graph node into a security finding."
                     ],
-                    AlternativePathsConsidered = string.Equals(status, "missing", StringComparison.OrdinalIgnoreCase)
+                    AlternativePathsConsidered = SecurityBaselineFindingHonesty.IsMissingStatus(status)
                         ?
                         [
                             "Document compensating controls and accept residual risk for this control gap.",

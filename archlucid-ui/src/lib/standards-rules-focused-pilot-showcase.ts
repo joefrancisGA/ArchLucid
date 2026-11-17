@@ -1,11 +1,18 @@
 import { FOCUSED_PILOT_MODE_PACK_DISPLAY_NAMES } from "@/lib/focused-pilot-mode-policy-packs";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
 import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 const showcaseGraphBase = `/insights/evidence-graph?runId=${showcaseRunEnc}`;
-const showcaseFindingsHref = `/governance/findings?runId=${showcaseRunEnc}`;
+
+export function resolveFocusedPilotShowcaseFindingsHref(productLine: ProductLineId = "architecture"): string {
+  return `${findingsPathForProductLine(productLine)}?runId=${showcaseRunEnc}`;
+}
+
+const showcaseFindingsHref = resolveFocusedPilotShowcaseFindingsHref("architecture");
 
 export type FocusedPilotShowcaseRuleSeed = {
   readonly ruleKey: string;

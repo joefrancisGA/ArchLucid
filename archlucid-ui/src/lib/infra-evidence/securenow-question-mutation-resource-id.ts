@@ -1,4 +1,5 @@
 import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
+import { secureNowQuestionAnswerLabel } from "@/lib/infra-evidence/securenow-question-answer-label";
 
 function inferredConnectionIdFromQuestionKey(questionKey: string | null | undefined): string | null {
   const normalized = questionKey?.trim() ?? "";
@@ -15,6 +16,13 @@ function inferredConnectionIdFromQuestionKey(questionKey: string | null | undefi
   }
 
   return suffix.replace(/-/g, "").toLowerCase();
+}
+
+/** Whether the listed question key suffix encodes an inferred-connection identity. */
+export function secureNowQuestionDispositionQuestionKeyImpliesInferredConnection(
+  questionKey: string | null | undefined,
+): boolean {
+  return inferredConnectionIdFromQuestionKey(questionKey) !== null;
 }
 
 export function secureNowQuestionHasPackStyleDispositionScope(
@@ -36,8 +44,13 @@ export function secureNowQuestionIsPolicyPackDispositionRow(
 }
 
 /** Mirrors `SecureNowPackQuestionScopeKindResolver.ResolveFromPrompt` on the API. */
-export function secureNowQuestionPackScopeKindFromPrompt(questionText: string): "Subscription" | "ResourceGroup" {
-  if (questionText.toLowerCase().includes("resource group")) {
+export function secureNowQuestionPackScopeKindFromPrompt(
+  questionText: string | null | undefined,
+): "Subscription" | "ResourceGroup" {
+  // Listed prompts are OpenAPI-nullable; missing text matches the C# resolver's subscription default.
+  const prompt = questionText ?? "";
+
+  if (prompt.toLowerCase().includes("resource group")) {
     return "ResourceGroup";
   }
 
@@ -160,14 +173,28 @@ function secureNowQuestionReviewerScopeLabelFromKind(scopeKind: string): string 
   return null;
 }
 
-export function secureNowQuestionReviewerScopeLabel(
+export function secureNowQuestionPackAnswerChoiceLabel(
   question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey" | "questionText">,
-  matchesInferredConnection: boolean,
+  answerCode: string,
 ): string {
-  if (matchesInferredConnection) {
-    return "This resource.";
+  const label = secureNowQuestionAnswerLabel(answerCode);
+  const trimmedCode = answerCode.trim();
+
+  if (!secureNowQuestionIsPolicyPackDispositionRow(question) || trimmedCode.length === 0) {
+    return label;
   }
 
+  if (label.startsWith("Answer code ")) {
+    return label;
+  }
+
+  return `${label} (${trimmedCode})`;
+}
+
+export function secureNowQuestionReviewerScopeLabel(
+  question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey" | "questionText">,
+  _matchesInferredConnection: boolean,
+): string {
   const trimmedScope = question.scopeKind?.trim() ?? "";
   if (trimmedScope.length > 0) {
     const knownLabel = secureNowQuestionReviewerScopeLabelFromKind(trimmedScope);
@@ -175,16 +202,12 @@ export function secureNowQuestionReviewerScopeLabel(
   }
 
   if (secureNowQuestionIsPolicyPackDispositionRow(question)) {
-    return secureNowQuestionPackScopeKindFromPrompt(question.questionText) === "ResourceGroup"
-      ? "This resource group."
-      : "This subscription.";
-  }
-
-  const resolvedScope = secureNowQuestionDispositionMutationScopeKind(question);
-  if (resolvedScope) {
-    const mutationLabel = secureNowQuestionReviewerScopeLabelFromKind(resolvedScope);
-    if (mutationLabel) {
-      return mutationLabel;
+    const inferredScope = secureNowQuestionDispositionMutationScopeKind(question);
+    if (inferredScope !== null) {
+      const inferredLabel = secureNowQuestionReviewerScopeLabelFromKind(inferredScope);
+      if (inferredLabel !== null) {
+        return `${inferredLabel} Scope kind was not stored; inferred from pack prompt.`;
+      }
     }
   }
 
@@ -202,10 +225,6 @@ export function secureNowQuestionDispositionMutationScopeKind(
   const mutationSource = secureNowQuestionDispositionMutationSource(question);
   if (mutationSource === "PolicyPack") {
     return secureNowQuestionPackScopeKindFromPrompt(question.questionText);
-  }
-
-  if (mutationSource === "InventoryEvidence" || mutationSource === "InferredConnection") {
-    return "Resource";
   }
 
   return null;
@@ -241,32 +260,11 @@ export function secureNowQuestionReviewerEvidenceFingerprintLine(
 
 export function secureNowQuestionReviewerSourceLabel(
   question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey">,
-  matchesInferredConnection: boolean,
+  _matchesInferredConnection: boolean,
 ): string {
-  if (secureNowQuestionShowsInferredConnectionReviewerCopy(question, matchesInferredConnection)) {
-    return "Asked because a connection was inferred. Answering does not store a link.";
-  }
-
-  const resolvedSource = secureNowQuestionDispositionMutationSource(question);
-  if (resolvedSource) {
-    if (resolvedSource === "InventoryEvidence") {
-      return "Asked from inventory evidence.";
-    }
-
-    if (resolvedSource === "InferredConnection") {
-      return "Asked because a connection was inferred. Answering does not store a link.";
-    }
-
-    if (resolvedSource === "PolicyPack") {
-      return "Asked from an assigned policy pack.";
-    }
-
-    return `Question source code ${resolvedSource} has no reviewer label.`;
-  }
-
   const source = question.source;
 
-  if (source === null) {
+  if (source === null || source === undefined) {
     return "Question source was not stored.";
   }
 

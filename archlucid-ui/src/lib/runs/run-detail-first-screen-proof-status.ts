@@ -26,7 +26,7 @@ function structuralExecutionModeLabel(payload: PilotRunDeltasProofSummaryJson | 
   }
 
   if (raw === "") {
-    return "";
+    return "Execution mode was stored empty.";
   }
 
   if (raw === 0 || raw === "0" || raw === "Simulator") {
@@ -48,8 +48,26 @@ function structuralExecutionModeLabel(payload: PilotRunDeltasProofSummaryJson | 
   return String(raw);
 }
 
+function isStrictSponsorProofFlagStored(payload: PilotRunDeltasProofSummaryJson | null): boolean {
+  const satisfied = payload?.proofPackageCompleteness?.agentOutputPilotStrictEvidenceSatisfied;
+
+  return satisfied !== undefined && satisfied !== null;
+}
+
+function isFirstScreenStrictSponsorProofSatisfied(payload: PilotRunDeltasProofSummaryJson | null): boolean {
+  if (!isStrictSponsorProofFlagStored(payload)) {
+    return false;
+  }
+
+  return payload?.proofPackageCompleteness?.agentOutputPilotStrictEvidenceSatisfied === true;
+}
+
 function pilotStrictLabel(payload: PilotRunDeltasProofSummaryJson | null): string {
-  if (!isAgentOutputPilotStrictSponsorSafe(payload)) {
+  if (!isStrictSponsorProofFlagStored(payload)) {
+    return "Strict sponsor proof was not stored.";
+  }
+
+  if (!isFirstScreenStrictSponsorProofSatisfied(payload)) {
     return "HOLD — strict sponsor proof not satisfied";
   }
 
@@ -79,7 +97,7 @@ function roiBasisLabel(payload: PilotRunDeltasProofSummaryJson | null): string {
     return "HOLD — estimated savings without source catalog";
   }
 
-  return "Not collected — no unsourced dollar claims";
+  return "ROI source basis was not stored.";
 }
 
 function proofPacketLabel(readiness: ReturnType<typeof describeSponsorProofReadiness>): string {
@@ -143,15 +161,36 @@ function buildWhySafeToSendBullets(
   const executionMode = structuralExecutionModeLabel(payload);
 
   if (disposition === "READY") {
-    bullets.push(`Execution mode is ${executionMode} with strict AI quality checks satisfied.`);
-    bullets.push(roiLabel.startsWith("Classified") ? roiLabel : "No unsourced projected dollar claims detected.");
+    if (
+      executionMode === "Execution mode was not stored."
+      || executionMode === "Execution mode was stored empty."
+    ) {
+      bullets.push(executionMode);
+      bullets.push("Strict sponsor proof is satisfied.");
+    } else {
+      bullets.push(`Execution mode is ${executionMode} with strict AI quality checks satisfied.`);
+    }
+
+    if (roiLabel.includes("server ROI freshness status")) {
+      bullets.push(roiLabel);
+    } else if (roiLabel.startsWith("Classified") || roiLabel.startsWith("HOLD")) {
+      bullets.push(roiLabel);
+    } else if (roiLabel === "ROI source basis was not stored.") {
+      bullets.push(roiLabel);
+    } else {
+      bullets.push("No unsourced projected dollar claims detected.");
+    }
     bullets.push("Proof packet completeness reports sponsor-sendable posture from server-side labels.");
     bullets.push("Generate the proof-packet folder and keep limitations.md attached for external send.");
     return bullets;
   }
 
   if (!strictSafe) {
-    bullets.push("Strict AI quality evidence is not satisfied for export-ready agent output.");
+    if (!isStrictSponsorProofFlagStored(payload)) {
+      bullets.push("Strict sponsor proof was not stored.");
+    } else {
+      bullets.push("Strict AI quality evidence is not satisfied for export-ready agent output.");
+    }
   }
 
   if (roiLabel.startsWith("HOLD")) {
@@ -189,7 +228,8 @@ export function buildRunDetailFirstScreenProofSummary(
   options?: { readonly assertedTrailEmpty?: boolean },
 ): RunDetailFirstScreenProofSummary {
   const readiness = describeSponsorProofReadiness(payload);
-  const strictSafe = isAgentOutputPilotStrictSponsorSafe(payload);
+  const strictSafe = isFirstScreenStrictSponsorProofSatisfied(payload);
+  const strictFlagStored = isStrictSponsorProofFlagStored(payload);
   const roiLabel = roiBasisLabel(payload);
   const simulatorFallback =
     (payload as { realModeFellBackToSimulator?: boolean } | null)?.realModeFellBackToSimulator === true;
@@ -197,7 +237,11 @@ export function buildRunDetailFirstScreenProofSummary(
   let disposition: RunDetailFirstScreenProofDisposition = "READY";
 
   if (
-    readiness?.variant === "blocked"
+    payload === null
+    || payload.proofPackageCompleteness === undefined
+    || payload.proofPackageCompleteness === null
+    || readiness?.variant === "blocked"
+    || !strictFlagStored
     || !strictSafe
     || roiLabel.startsWith("HOLD")
     || simulatorFallback

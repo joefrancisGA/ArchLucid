@@ -12,6 +12,19 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
 {
     private const int MaxEvidenceSummaryChars = 280;
 
+    internal const string DecisionRuleNameNotStoredCopy = "Decision rule name was not stored.";
+
+    internal const string EvidenceExcerptNotStoredCopy = "Evidence excerpt was not stored.";
+
+    internal const string EvidenceExcerptTruncatedForSummaryCopy =
+        "Evidence excerpt was truncated for this summary.";
+
+    internal const string RiskCategoryNotStoredCopy = "Risk category was not stored.";
+
+    internal const string SeverityNotStoredCopy = "Severity was not stored.";
+
+    internal const string RecommendedActionNotStoredCopy = "Recommended action was not stored.";
+
     private static readonly JsonSerializerOptions FindingJsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
@@ -38,7 +51,7 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
         string? recommendationSentence = FirstSentence(recommendationSource);
 
         if (string.IsNullOrWhiteSpace(recommendationSentence))
-            return null;
+            recommendationSentence = RecommendedActionNotStoredCopy;
 
         string riskCategory = ResolveRiskCategory(typedFinding);
 
@@ -58,7 +71,10 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
         if (!string.IsNullOrWhiteSpace(name))
             return name;
 
-        return !string.IsNullOrWhiteSpace(id) ? $"rule '{id}' applied" : null;
+        if (!string.IsNullOrWhiteSpace(id))
+            return $"{DecisionRuleNameNotStoredCopy} (Decision rule id: {id.Trim()}.)";
+
+        return null;
     }
 
     private static string? ResolveTopEvidenceSummary(IReadOnlyList<FindingInspectEvidenceItem> evidence)
@@ -73,7 +89,7 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
             string? artifact = item.ArtifactId?.Trim();
 
             if (!string.IsNullOrWhiteSpace(artifact))
-                return $"artifact reference {artifact}";
+                return $"{EvidenceExcerptNotStoredCopy} (Artifact id: {artifact.Trim()}.)";
         }
 
         return null;
@@ -84,9 +100,13 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
         if (excerpt.Length <= MaxEvidenceSummaryChars)
             return excerpt;
 
-        StringBuilder b = new(MaxEvidenceSummaryChars + 1);
+        StringBuilder b = new(MaxEvidenceSummaryChars + EvidenceExcerptTruncatedForSummaryCopy.Length + 4);
         b.Append(excerpt.AsSpan(0, MaxEvidenceSummaryChars - 1));
         b.Append('…');
+        b.Append(' ');
+        b.Append('(');
+        b.Append(EvidenceExcerptTruncatedForSummaryCopy);
+        b.Append(')');
 
         return b.ToString();
     }
@@ -119,12 +139,7 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
                 return action.Trim();
         }
 
-        if (typedFinding is null)
-            return null;
-
-        string message = typedFinding.Message.Trim();
-
-        return message.Length > 0 ? message : null;
+        return null;
     }
 
     private static string? FirstSentence(string? text)
@@ -161,11 +176,11 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
     private static string ResolveRiskCategory(ArchitectureFinding? typedFinding)
     {
         if (typedFinding is null)
-            return "the assessed architecture risk";
+            return RiskCategoryNotStoredCopy;
 
         string raw = typedFinding.Category.Trim();
 
-        return raw.Length > 0 ? raw : "the assessed architecture risk";
+        return raw.Length > 0 ? raw : RiskCategoryNotStoredCopy;
     }
 
     private static string HumanizeSeverity(FindingSeverity severity) => severity switch
@@ -174,6 +189,6 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
         FindingSeverity.Warning => "warning",
         FindingSeverity.Error => "error",
         FindingSeverity.Critical => "critical",
-        _ => "informational",
+        _ => SeverityNotStoredCopy,
     };
 }

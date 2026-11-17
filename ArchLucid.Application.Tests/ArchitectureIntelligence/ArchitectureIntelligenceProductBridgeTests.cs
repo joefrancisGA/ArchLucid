@@ -35,6 +35,8 @@ public sealed class ArchitectureIntelligenceProductBridgeTests
 
         findings.Should().ContainSingle();
         findings[0].Severity.Should().Be(FindingSeverity.Error);
+        findings[0].Properties["architectureIntelligence.severityStored"].Should().Be(bool.TrueString);
+        findings[0].Properties["architectureIntelligence.specialistSeverity"].Should().Be("High");
         findings[0].Title.Should().Be(finding.Title);
         findings[0].QualityDimension.Should().Be(
             ArchitecturePillarRollup.ToStorageKey(ArchitecturePillarRollup.FromSpecialistDimension(QualityDimension.Security)));
@@ -60,7 +62,11 @@ public sealed class ArchitectureIntelligenceProductBridgeTests
         List<Finding> findings = ArchitectureIntelligenceProductBridge.ToHypothesisLaneFindings([challenge]);
 
         findings.Should().ContainSingle();
-        findings[0].Severity.Should().Be(FindingSeverity.Info);
+        findings[0].PolicyRuleId.Should().BeNull();
+        findings[0].QualityDimension.Should().BeNull();
+        findings[0].Rationale.Should().Be("Falsify/confirm with: Inventory-backed recovery tier evidence");
+        findings[0].HumanReviewStatus.Should().Be(FindingHumanReviewStatus.NotRequired);
+        findings[0].Properties["architectureIntelligence.humanReviewStatusStored"].Should().Be(bool.FalseString);
         findings[0].FindingType.Should().Be("ArchitectureIntelligence.AdversarialChallenge");
         findings[0].Properties["architectureIntelligence.adversarialLane"]
             .Should().Be(AdversarialLane.AdversarialChallenge.ToString());

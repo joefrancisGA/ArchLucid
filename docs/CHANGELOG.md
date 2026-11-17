@@ -5,6 +5,480 @@
 
 # ArchLucid changelog
 
+## 2026-11-17 - Score lift round 69 (batch 34): Connection status, hub audit tab, graph idle, and filter empties
+
+**Outcome.** Cloud connection status empty, digest browse scoped filter empty, compare correlation results, resource hub audit tab and degraded state, Terraform mapping empty, evidence graph idle, and sealed records filter and unscoped list repeat partial-capture discipline.
+
+**Surfaces.** Connection status, digest scoped filter, compare correlation results, hub audit tab, Terraform mapping empty, evidence graph idle, sealed records filter and unscoped list, honesty and mounted contract tests.
+
+## 2026-11-17 - Score lift round 68 (batch 33): Approval queue, needs attention, hub config, and browse partial capture
+
+**Outcome.** Governance approval workflow empty, needs-attention all-clear inbox, resource hub configuration empty, remediation workbench waves empty, digest browse setup empty, audit evidence lookup, compare insufficient-finalized, and sealed records list repeat partial-capture discipline.
+
+**Surfaces.** Approval queue empty, needs-attention inbox, hub config empty, remediation waves empty, digest browse setup, audit lookup, compare insufficient-finalized, signed records list, honesty and mounted contract tests.
+
+## 2026-11-17 - Score lift round 67 (batch 32): Search empty, hub drift and remediation, and satellite partial capture
+
+**Outcome.** Resource hub drift and remediation tabs repeat partial-capture recovery on tab and empty states. Search evidence zero hits, reviews hub inventory empty, governance findings results footer, approval lineage empties, audit control lineage, impact preview no-baseline, and scorecard zero metrics name partial inventory discipline.
+
+**Surfaces.** Resource hub drift and remediation tabs, search review evidence, reviews hub, findings results footer, approval lineage, audit control lineage, impact preview no-baseline, architecture scorecard empty, honesty and mounted contract tests.
+
+## 2026-11-17 - Score lift round 66 (batch 31): Resource hub tabs, satellite empties, and simulator partial capture
+
+**Outcome.** Resource hub overview, diagram, and Terraform tabs repeat partial-capture recovery. Declared connections, compare correlation empty, impact preview, signed records, and risk exceptions empties name partial inventory. Remediation factory simulator states partial-capture rank limits.
+
+**Surfaces.** Resource hub tabs, declared connections, compare correlation, impact preview, signed records, risk exceptions, remediation factory simulator, honesty and mounted contract tests.
+
+## 2026-11-17 - Score lift round 65 (batch 30): Ask drawer recovery, explorer empty, and infra workbench partial capture
+
+**Outcome.** Infrastructure Ask drawer mirrors full-page partial-capture recovery links. Resource explorer empty, policy pack detail, attack path unevaluated-only, sponsor drift chart, and diagrams and Terraform workbenches repeat partial-capture discipline.
+
+**Surfaces.** Infrastructure Ask drawer, resource explorer, policy pack detail, remediation factory attack path report, sponsor workspace health, diagrams workbench, Terraform workbench, honesty and mounted contract tests.
+
+## 2026-11-17 - Score lift round 64 (batch 29): Export partial capture, compare pickers, and hub findings honesty
+
+**Outcome.** Golden manifest and run deliverables show partial-capture recovery when exports block. Compare run pickers and insufficient-finalized empty name partial inventory. Resource hub findings empty, factory priority queue header, digest subscriptions empty, and first-review disabled CTAs repeat partial-capture discipline.
+
+**Surfaces.** Golden manifest export, run deliverables, compare pickers, resource hub findings, remediation factory priority queue, digest subscriptions, first-review guide, honesty and mounted contract tests.
+
+## 2026-11-16 - Score lift round 63 (batch 28): Compare partial inventory, digest scoped empty, and attack-path table honesty
+
+**Outcome.** Compare results name partial SecureNow inventory capture. Digest browse distinguishes scoped-review filter-empty from setup empty and load failure. Attack path report adds table partial-capture honesty and truncated path chip labels. Infrastructure Ask full page mirrors drawer partial-capture recovery. Remediation patterns filter-empty and decision register filter-empty repeat not-load-failure discipline.
+
+**Surfaces.** Compare two reviews, architecture digest browse, remediation factory attack path report, infrastructure Ask page, remediation patterns catalog, decision register filter empty, honesty and mounted contract tests.
+
+## 2026-11-16 - Score lift round 62 (batch 27): Infra workbench partial capture and scorecard annual discipline
+
+**Outcome.** Drift and diagram reconcile workbenches, path inspect, decision register empty, first-review prerequisites, and resource hub Terraform tab repeat partial-capture recovery or advisory-not-apply discipline. Scorecard savings hero states annual headline is not a sum of quarters when no quarterly estimate is shown.
+
+**Surfaces.** Drift, diagram reconcile, resource hub Terraform, path inspect, decision register empty, first-review guide, architecture scorecard savings hero, honesty and mounted contract tests.
+
+## 2026-11-16 - Score lift round 61 (batch 26): Satellite partial-capture honesty
+
+**Outcome.** Workspace health, findings empty queue, extract-upload accepted panel, remediation workbench, Infrastructure Ask drawer, collection second-capture, and attack path report name partial capture and recovery discipline. Execute advisory repeats gap posture under partial snapshots.
+
+**Surfaces.** Workspace health, governance findings empty, extract upload, remediation workbench, infrastructure Ask drawer, collection setup second capture, attack path report, honesty and mounted contract tests.
+
+## 2026-11-16 - Score lift round 60 (batch 25): Shared partial-capture recovery links and admin spine honesty
+
+**Outcome.** `SecureNowPartialCaptureRecoveryLinks` centralizes snapshot id plus cloud connections and extract-upload CTAs with return path. Home, findings, help, factory, sponsor flows, and collection ready states consume the shared component. Admin spine pages (first hour, self-service, pilot spine) and cloud connections show partial-capture recovery when setup is ready but the latest snapshot had gaps. Simulator output states breakdown does not re-run capture.
+
+**Surfaces.** Partial-capture recovery component, SecureNow home, findings, help connection status, remediation factory, collection setup, cloud connections, admin spine routes, honesty and mounted contract tests.
+
+## 2026-11-16 - Score lift round 59 (batch 24): Return-path labels, second-capture parity, drift export receipt
+
+**Outcome.** Return navigation labels name findings, sponsor path, pilot decision, investigation effort, and extract upload. Partial-capture strips on home, sponsor path, attack path, and the remediation priority queue add extract-upload links with return path and snapshot ids where missing. Drift Terraform export receipt states the ZIP is advisory text only.
+
+**Surfaces.** SecureNow home, sponsor path, pilot decision, investigation effort, remediation factory attack path and priority queue, cloud and extract return links, drift workbench, honesty and mounted contract tests.
+
+## 2026-11-16 - Score lift round 58 (batch 23): Second-capture return path, partial capture surfaces, drift Terraform honesty
+
+**Outcome.** Remediation factory ranked paths, pilot decision, and investigation effort name partial capture and link cloud connections with return path; extract-upload links and landing page honor `securenowReturnPath`. Drift Terraform ZIP export repeats advisory-not-apply discipline beside the control. Savings hero quarterly non-summing gains a render test.
+
+**Surfaces.** Remediation factory, collection setup, pilot decision, investigation effort, extract upload, drift workbench, scorecard tests, honesty and mounted contract tests.
+
+## 2026-11-16 - Score lift round 57 (batch 22): Rescore follow-ups — return path parity and scorecard operational bands
+
+**Outcome.** Partial-capture cloud-connections links on home, findings, sponsor path, connection-status help, and collection second-capture carry `securenowReturnPath`. Pilot scorecard operational metric tiles repeat non-summing discipline. Savings hero shows quarterly non-summing when a per-quarter estimate is present. Mounted contract and component tests cover return-path wiring and operational scorecard honesty.
+
+**Surfaces.** SecureNow home, findings header, sponsor path, connection-status help, collection setup, architecture scorecard, honesty and mounted contract tests.
+
+## 2026-11-15 - Score lift round 56 (batch 21): Scorecard non-summing bands, capture return path, and mounted contracts
+
+**Outcome.** Pilot scorecard summary tiles and savings hero repeat ROI non-summing beside headline bands. Attack-path partial capture links to cloud connections with a return path query; cloud connections shows return navigation when present. Stop ITSM handoff repeats confirm-before-send discipline. Mounted contract tests assert drift empties, Ask snapshot lines, and decision-register Report Problem wiring.
+
+**Surfaces.** Architecture scorecard, remediation factory attack path, cloud connections, pilot Stop ITSM handoff, decision register tests, honesty and mounted contract tests.
+
+## 2026-11-15 - Score lift round 55 (batch 20): Row expiry, KPI as-of, Ask stale pin, and sponsor partial capture
+
+**Outcome.** Declared connections repeat per-row expiry honesty beside stored UTC instants. Workspace health KPI cards repeat a short point-in-time line on every tile. Investigation effort shows a blocking banner when ROI cannot compute. Policy pack empty assignments are distinct from load failure. Guided intake scope states how policy packs and pilot mode bound agents. Infrastructure Ask marks answers when the snapshot pin moved after the question. Sponsor path repeats partial-capture recovery with snapshot id and cloud connections CTA.
+
+**Surfaces.** Declared connections, workspace health, investigation effort, policy packs, guided intake, infrastructure Ask, sponsor path, honesty tests.
+
+## 2026-11-15 - Score lift round 54 (batch 19): Filter honesty, catalog empties, and subscription catalog report problem
+
+**Outcome.** Terraform snippet preview states plan output does not apply in the subscription. Drift empty diffs name when unchanged rows are hidden. Diagram reconcile says when filters hide stored rows. Standards catalog empty and decision register success empty are distinct from load failure. Compare insufficient-finalized repeats two-sealed counts discipline. Resource hub findings empty aligns with explorer not-failure copy. Factory rank table shows long path-id overflow. Partial-capture strips name the partial snapshot id. First-review prerequisites distinguish sample spine from tenant seal. Golden manifest legacy blocked exports repeat commit-before-seal. Remediation patterns and digest subscription list hard failures register Report Problem.
+
+**Surfaces.** Terraform, drift, diagram reconcile, standards hub, decision register, compare, resource hub, remediation factory rank table, findings header, connection-status help, first-review guide, golden manifest export, remediation patterns, digest subscriptions, report-problem registry.
+
+## 2026-11-15 - Score lift round 53 (batch 18): Drift empties, compare seal footnotes, and disposition report problem
+
+**Outcome.** Drift workbench repeats not-failure honesty on empty diffs and inventory slices. Diagram reconcile warns when a stored run has zero correspondence rows. Compare quality delta adds two-sealed counts footnote; collapsed change reviews repeat seal discipline. SecureNow home names partial capture when collection completed with gaps. Attack path report states partial capture context. Infrastructure Ask insufficient-evidence names the pinned snapshot id. Remediation patterns and digest subscriptions empty views are distinct from load failure. Standards rules filter-empty is distinct from load failure. Remediation factory cut points warn on long path ids. Golden manifest export errors repeat commit-before-seal on both control variants. Decision register load failures and pilot disposition save errors register Report Problem.
+
+**Surfaces.** Drift, diagram reconcile, compare, SecureNow home, attack path report, infrastructure Ask, remediation patterns, digest subscriptions, standards hub, remediation factory cut points, golden manifest export, decision register, pilot decision, report-problem registry.
+
+## 2026-11-15 - Score lift round 52 (batch 17): Partial capture headers, empty-vs-failure footers, and sponsor save discipline
+
+**Outcome.** Findings queue and connection-status help name partial capture recovery CTAs. Compare run pickers repeat second-seal discipline. Workspace health states point-in-time KPIs. Governance approvals empty is distinct from load failure. Remediation factory top cut points clarify framework themes are not control passes. Resource explorer, drift, and diagram reconcile empty states repeat not-failure / not-clean honesty. First-review guide merges seal and walkthrough next-step copy. Path inspect warns on long path ids. Sponsor and pilot disposition save errors state prior audit unchanged; sponsor path registers Report Problem. Decision register empty teaching adds SecureNow collection honesty. Blocked golden manifest exports repeat commit-before-seal discipline.
+
+**Surfaces.** Findings header, compare pickers, workspace health, workflow approvals, remediation factory cut points, resource explorer, drift, diagram reconcile, first-review guide, path inspect, sponsor path, pilot decision, decision register, review export menu, connection-status help, report-problem registry.
+
+## 2026-11-15 - Score lift round 51 (batch 16): Compare deltas, assigned-to-me collection, and empty-vs-failure honesty
+
+**Outcome.** Compare insufficient-finalized and quality delta panels state second-sealed discipline. SecureNow assigned-to-me empty queue shows the primary collection blocker. Resource hub findings empty names snapshot-stored-not-failure. Extract upload accepted panel clarifies evaluation may be pending. Policy catalog empty is distinct from load failure. Remediation factory core-read failure explains retry does not re-rank. Diagram reconcile names URL-pinned snapshots. Deliverables repeat finalize discipline beside blocked exports.
+
+**Surfaces.** Compare, findings assigned-to-me, resource hub, extract upload, policy packs catalog, remediation factory, diagram reconcile, review deliverables.
+
+## 2026-11-15 - Score lift round 50 (batch 15): Findings collection blocker, compare seal, and remediation Execute discipline
+
+**Outcome.** SecureNow findings empty queue names the primary collection blocker when capture is missing. Compare two reviews states second-sealed review discipline on the page. Remediation Execute clarifies advisory-only emission. Attack path overflow copy names unlisted stored paths. ITSM create dialog repeats confirm-before-send discipline. First-review guide shows tenant seal line whenever prerequisites are complete.
+
+**Surfaces.** Findings queue empty state, compare two reviews, remediation workbench, attack path report, ITSM create dialog, first-review guide.
+
+## 2026-11-15 - Score lift round 49 (batch 14): Remediation workflow, Ask evidence, and SecureNow ROI discipline
+
+**Outcome.** Remediation workbench states workflow steps do not change Azure. Infrastructure Ask explains insufficient-evidence outcomes. Investigation effort labels operator ROI math as not customer-verified. Self-service names stored path rank until Reader capture.
+
+**Surfaces.** Remediation workbench, Infrastructure Ask, investigation effort, SecureNow self-service.
+
+## 2026-11-15 - Score lift round 48 (batch 13): Infrastructure snapshot honesty across drift, diagrams, Terraform, and explorer
+
+**Outcome.** Drift, diagrams, Terraform advisory, and resource explorer state they read stored inventory snapshots, not live ARM. Connection status summary strip reminds operators tiles are point-in-time until refresh.
+
+**Surfaces.** Drift, diagrams, Terraform, resource explorer, connection status readiness strip.
+
+## 2026-11-15 - Score lift round 47 (batch 12): Cloud pull honesty, snapshot inventory discipline, and home open-gate seal reminder
+
+**Outcome.** Cloud connections hub states that saving federation settings is not a Reader pull. Diagram reconcile and resource hub name snapshot inventory vs live ARM. Working home open-gate line reminds operators to Finalize before treating a package as tenant-sealed.
+
+**Surfaces.** Cloud connections, diagram reconcile, resource hub, operator home open gate.
+
+## 2026-11-15 - Score lift round 46 (batch 11): Connector configured honesty, connection status report problem, and tenant seal discipline
+
+**Outcome.** Connection status names what configured means and registers Report Problem on inventory load failure. First-review guide states evidence and Finalize before a sealed tenant review. Declared connections repeat expiry discipline. Pilot decision hydrates tenant audit time like sponsor path.
+
+**Surfaces.** Connection status, first-review guide, declared connections, pilot decision, report-problem registry.
+
+## 2026-11-15 - Score lift round 45 (batch 10): Arch first-review honesty, commit-before-seal, and sponsor audit on load
+
+**Outcome.** Platform health blocker copy, open-gate spine focus, and sample export badges on the first-review guide. Review deliverables and share-review explain evidence before finalize. Warn-only AI finalize discipline on the guide. Sponsor path hydrates tenant audit `recordedUtc` from server load.
+
+**Surfaces.** First-review guide, review deliverables, share review, path inspect disposition load, sponsor path.
+
+## 2026-11-14 - Score lift round 44 (batch 9): Sponsor audit time, investigation inputs, policy hub rank, and extract-upload baseline failure
+
+**Outcome.** Sponsor path disposition save surfaces tenant audit `recordedUtc`. Investigation effort ROI names missing inputs by field label. Policy packs hub states rank discipline. Extract and upload registers report-problem when inventory baseline status cannot load.
+
+**Surfaces.** Sponsor path, investigation effort, policy packs hub, extract and upload, report-problem registry.
+
+## 2026-11-14 - Score lift round 43 (batch 8): Open-gate primary label, collection blocker kinds, and remediation hard-failure report problem
+
+**Outcome.** SecureNow findings open-gate strip separates primary vs additional gates. Collection setup names Reader, subscription, and capture blockers explicitly. Path inspect hops expose copyable evidence references. Architect compare reuses second-capture delta honesty. Policy pack assign strip states rank discipline. Standards hub claim band clarifies it does not score controls. Remediation factory registers report-problem for concurrent core-read failures.
+
+**Surfaces.** Findings queue open gates, collection setup, path inspect hops, architect metrics, policy pack handoff, standards orientation, remediation factory, report-problem registry.
+
+## 2026-11-14 - Score lift round 42 (batch 7): Remaining rescore honesty — partial capture, findings empty states, and review citation copy
+
+**Outcome.** Round-41 gaps ship: partial capture on ranked paths, findings queue empty states for missing collection versus evaluated-empty, path inspect citation and cut-point copy, diagram path-focus hidden node counts, ITSM draft context, sponsor and scorecard ROI non-summing lines, second-seal compare honesty, and Arch review explanation citation discipline.
+
+**Surfaces.** Findings queue, remediation factory, path inspect, diagrams workbench, sponsor path, scorecard, stickiness, ITSM dialog, review AI panel, compliance axe tests.
+
+## 2026-11-14 - Score lift round 41 (batch 6): Rescore honesty batch — open-gate scope, fixture labels, and hosted OpenAI copy
+
+**Outcome.** SecureNow findings open-gate links preserve run and architecture scope on assigned-to-me and the main queue. Collection setup adds second-capture CTAs. Path inspect labels the fixture path, states allowed citation refs, and aligns diagram-empty copy. Remediation simulator and cut points add rank and path-id honesty. ArchLucid first-review guide names the tenant review next step after prerequisites. Troubleshooting repeats hosted Azure OpenAI posture. PilotStrict rejects mismatched citation sources.
+
+**Surfaces.** Findings queue, path inspect, remediation factory, collection setup, first-review guide, troubleshooting help, agent output quality gate tests, route and axe tests.
+
+## 2026-11-13 - Score lift round 40 (batch 5): SecureNow queue open-gate, path inspect honesty, and compliance hard-failure surfaces
+
+**Outcome.** SecureNow findings queue header adds open-gate filters, assigned-pack and WK-21 honesty strips, compliance breadcrumb handoff to policy packs, path inspect stored-rank discipline, remediation and infrastructure Reader-scope hints, collection second-capture honesty, synthetic fixture labels, attack-path diagram empty discipline, hosted SaaS OpenAI getting-started copy, compliance hub report-problem entries, and PilotStrict evidence anchors for compliance and critic tasks. Architecture defaults remain unchanged.
+
+**Surfaces.** Findings queue chrome, path inspect, remediation factory, infrastructure overview, operator home collection, help getting started, report-problem registry, agent output quality gate tests, route contract tests.
+
+## 2026-11-13 - Score lift round 39 (batch 4): SecureNow contextual help, provenance, and empty-teaching paths
+
+**Outcome.** Compliance policy-pack routes show contextual-help FAB affordances, public-demo nav omissions treat SecureNow compliance hubs like governance peers, decision-register empty teaching and pattern-library pack guidance link to `/compliance/findings` and `/compliance/policy-packs`, and provenance policy-pack references honor product line. Architecture defaults remain unchanged.
+
+**Surfaces.** Contextual help FAB, demo nav shell preset, decision register empty state, pattern library policy guidance, provenance reference links, route contract tests.
+
+## 2026-11-13 - Score lift round 38 (batch 3): SecureNow readiness, report-problem, and workspace health Sources
+
+**Outcome.** Compliance findings routes participate in report-problem registry, route readiness tiers, demo-mode nav allowlist, shell header search labels, troubleshooting issue CTAs, and workspace health evidence Sources on SecureNow. Architecture defaults remain unchanged.
+
+**Surfaces.** Report Problem registry, route readiness, header search chrome, troubleshooting help, workspace health page, route contract tests.
+
+## 2026-11-13 - Score lift round 37 (batch 2): SecureNow queue chrome, help readiness, and orientation Sources
+
+**Outcome.** Findings queue URL fallbacks, return-state persistence, page contextual hints, job-context orientation scoring, findings help readiness metrics, run-detail activity Sources, and sponsor workspace health Sources now preserve `/compliance/findings` on SecureNow. Architecture defaults remain unchanged.
+
+**Surfaces.** Findings queue scope/triage URL sync, return-state tracker, header hints, help findings readiness, review activity Sources, route contract tests.
+
+## 2026-11-13 - Score lift round 36 (batch 1): SecureNow help panel, recent views, and policy-pack hub paths
+
+**Outcome.** Help search panel route actions, page-help compliance prefixes, Home recent-view labels, policy-pack authoring URL fallbacks, create-home orientation Sources, approval-help Sources, and policy-pack delta demo Sources now preserve `/compliance/findings` and `/compliance/policy-packs` on SecureNow (assigned-to-me uses `/security/assigned-to-me`). Architecture defaults remain unchanged.
+
+**Surfaces.** Help drawer, contextual page help, operator Home resume, policy packs hub authoring, architecture create-home orientation, route contract tests.
+
+## 2026-11-13 - Score lift round 35: SecureNow sponsor, setup, help discovery, and policy-pack detail paths
+
+**Outcome.** Sponsor workspace health KPIs, first-review optional setup, new-review pack intent, recurrence schedules, focused-pilot showcase seeds, policy-pack page header, healthcare pack detail defaults, help topic routes, help search recommendations, findings queue next-review links, and risk-register export basenames now follow `/compliance/findings` and `/compliance/policy-packs` on SecureNow. Alt+G registry description is product-line neutral. Architecture defaults remain unchanged.
+
+**Surfaces.** Sponsor dashboard, first-review guide, reviews new intake, help panel, policy packs hub, route contract tests.
+
+## 2026-11-13 - Score lift round 34: SecureNow working findings, invitee home, and search-help paths
+
+**Outcome.** Working-mode Alt+G and architecture-desk Findings, review findings metrics, and the review/queue vocabulary rail stay on `/compliance/findings` for SecureNow even when an architecture is open. Invitee home orientation, the repeat-review help loop, and search-review-evidence next links and precondition copy follow the same product line. Architecture nested findings remain the Working default.
+
+**Surfaces.** Shortcuts, architecture desk command bar, review findings workspace, invitee home, repeat-review help, search-review-evidence help, route contract tests.
+
+## 2026-11-13 - Score lift round 33: SecureNow metrics, find-index, help tables, and settings catalog paths
+
+**Outcome.** Find-a-page curated index, reviews hub summary metrics, findings return-state persistence, working-desk bare-route guards, governance quickstart and policy breakdown CTAs, standards empty state, digests/standards/repeat-review help tables, and settings master catalog destinations now preserve `/compliance/findings` and `/compliance/policy-packs` on SecureNow. Architecture defaults remain unchanged.
+
+**Surfaces.** Reviews hub, header search index, help guides, settings catalog, compact empty states, route contract tests.
+
+## 2026-11-12 - Score lift round 32: SecureNow shortcuts, palette, and global navigation findings paths
+
+**Outcome.** Keyboard shortcuts, command palette tasks, help doc index fallbacks, contextual-help actions, sponsor KPI drill-through, approval lineage and sponsor dashboard links, home ROI strip, global search policy-pack hits, and related globals now preserve `/compliance/findings` and `/compliance/policy-packs` on SecureNow via `remapGovernanceOperatorHref`. Architecture defaults remain unchanged.
+
+**Surfaces.** Shortcuts, Ctrl+K, help hub, contextual help, sponsor dashboard, empty-state resolvers, route contract tests.
+
+## 2026-11-12 - Score lift round 31: SecureNow help, home, and route recognition findings paths
+
+**Outcome.** Getting started (SecureNow), improvement-planning and troubleshooting help, sponsor honesty panels, governance overview, operator home next step, first-review support, scorecard drill-down, working findings instruments, shell header search, and route view explanations now preserve `/compliance/findings` (and policy packs where applicable) on SecureNow. Architecture defaults remain unchanged.
+
+**Surfaces.** Help guides, home and overview CTAs, scorecard metrics, header search eligibility, route contract tests.
+
+## 2026-11-12 - Score lift round 30: SecureNow setup, standards, and vocabulary findings routes
+
+**Outcome.** Governance setup, standards and rules, assigned-to-me, recurrence schedules, evidence trace, signed-record artifacts, contextual help drawer, and alerts/decision/exceptions vocabulary rails now preserve `/compliance/findings` (and policy packs where applicable) on SecureNow. Architecture defaults remain unchanged.
+
+**Surfaces.** Hub and help orientation strips, vocabulary peer links, route contract tests.
+
+## 2026-11-12 - Score lift round 29: SecureNow governance and review hub findings routes
+
+**Outcome.** Decision register, risk exceptions, operator home, reviews hub and workspace, architecture intelligence, digests, search evidence, policy packs hub, signed records, planning, decisions-needed tiles, approval banner, and related Sources now preserve `/compliance/findings` (and policy hubs where applicable) on SecureNow. Architecture defaults remain unchanged.
+
+**Surfaces.** Governance and review hub orientation strips, stickiness KPI tiles, approval status banner, route contract tests.
+
+## 2026-11-12 - Score lift round 28: SecureNow operator hub findings handoffs
+
+**Outcome.** Settings, alerts, approval, audit, ask-review, advisory-scans, and Azure Boards setup Sources now preserve `/compliance/findings` (and alerts help policy hubs use compliance paths) when the SecureNow product line is active. Architecture defaults remain unchanged.
+
+**Surfaces.** Administration and alerts inbox Sources, approval queue and lineage, audit trail, ask-review Sources, architecture intelligence round-trip, Core Pilot whats-next, help alerts/advisory tiles, route contract tests.
+
+## 2026-11-12 - Score lift round 27: SecureNow finding detail and help queue routes
+
+**Outcome.** Finding detail Sources, findings queue back navigation, and SecureNow findings help primary/evidence actions now preserve `/compliance/findings` and `/compliance/standards-and-rules` instead of defaulting to governance paths. Architecture defaults remain unchanged.
+
+**Surfaces.** Finding detail orientation strip, evidence trace back nav, findings help guide content, route contract tests.
+
+## 2026-11-12 - Score lift round 26: SecureNow findings handoff continuity
+
+**Outcome.** SecureNow findings help, help-search findings actions, ITSM finding-ticket vocabulary, and review-package findings vocabulary now preserve `/compliance/findings` and `/compliance/policy-packs` instead of falling back to governance routes. Architecture defaults remain unchanged.
+
+**Surfaces.** SecureNow help Sources, help-search catalog, ITSM vocabulary rail, review-package findings rail, route contract tests.
+
+## 2026-11-12 - Score lift round 25: SecureNow vocabulary and committed pack handoffs
+
+**Outcome.** Product-line-aware vocabulary rails now keep SecureNow Policy packs, Standards and rules, setup, pattern-library, and pack-detail links in the `/compliance` namespace. Compare-two-reviews committed policy-pack links also preserve the active policy-pack hub instead of falling back to governance.
+
+**Surfaces.** Governance vocabulary rails, policy pack detail vocabulary, compare committed policy scope, route contract tests.
+
+## 2026-11-12 - Score lift round 24: standards next-review hub and policy packs hub resolver
+
+**Outcome.** The standards-and-rules next-review footer now preserves the SecureNow `/compliance/standards-and-rules` hub. Client policy-pack handoffs share `resolvePolicyPacksHubPath` / `usePolicyPacksHubPath` and product-line review-handoff helpers so links stay on the correct namespace.
+
+**Surfaces.** Standards next-review footer, policy packs next-review footer, impact preview panel, compliance route and handoff tests.
+
+## 2026-11-12 - Score lift round 23: SecureNow policy impact handoffs
+
+**Outcome.** Standards-and-rules and compare-two-reviews policy impact preview links now preserve the SecureNow `/compliance/policy-packs` hub instead of defaulting to governance.
+
+**Surfaces.** Standards and rules scoped banner, compare governance diff panel, regression tests.
+
+## 2026-11-12 - Score lift round 22: SecureNow policy clear-scope routes
+
+**Outcome.** Policy impact preview, visual builder, and rule wizard “Clear review scope” links now preserve the SecureNow `/compliance/policy-packs` hub instead of falling back to governance. Impact preview pack-comparison URL sync uses the same hub.
+
+**Surfaces.** Policy packs authoring and impact preview, regression tests.
+
+## 2026-11-12 - Score lift round 21: SecureNow next-review policy route
+
+**Outcome.** The policy-packs next-review footer now preserves the active product-line hub, so SecureNow operators remain on `/compliance/policy-packs` when continuing to another review.
+
+**Surfaces.** Policy-packs next-review footer, SecureNow compliance route, regression tests.
+
+## 2026-11-11 - Score lift round 20: SecureNow policy assignment route
+
+**Outcome.** Findings scoped to SecureNow now preserve the product-line policy packs hub when operators choose “Assign policy packs”; the link no longer falls back to the generic governance route.
+
+**Surfaces.** SecureNow findings queue, policy-pack assignment handoff, regression test.
+
+## 2026-11-11 - Score lift round 19: Impact Preview selection guard
+
+**Outcome.** Impact Preview now uses the same trimmed selection invariant for its Simulate action and checklist. Blank controlled candidate or baseline values no longer expose an actionable simulation path.
+
+**Surfaces.** Impact Preview setup card and regression tests.
+
+## 2026-11-11 - Score lift round 18: drift first-capture gate and SKU surface contract
+
+**Outcome.** Buyer-polished drift shows the working review open gate. Its no-snapshot state now distinguishes missing stored evidence from a load failure and links the operator to cloud connections. A cross-surface contract test keeps SecureNow SKU identifiers aligned across the public SKU card and quote packet list-price tables.
+
+**Surfaces.** drift workbench, SecureNow public SKU card, SecureNow quote packet, tests.
+
+## 2026-11-11 - Score lift round 17: reviews/graph open gates, sponsor ROI hint, capture pending
+
+**Outcome.** Buyer-polished reviews/new and evidence graph show the working open gate. Sponsor path surfaces investigation-effort ROI guardrail with link. Home pending capture regression test, list-price section SKU contract test, and jest-axe on scorecard and evidence-graph buyer chrome.
+
+**Surfaces.** reviews/new, evidence graph, sponsor path, SecureNow home, accessibility suite.
+
+## 2026-11-11 - Score lift round 16: scorecard open gate, partial capture, ROI honesty, axe
+
+**Outcome.** Architecture scorecard buyer shell shows the working open gate. SecureNow Home links partial captures to cloud connections with setup checklist parity. Review scorecard empty states ROI honesty note. List-price copy guard and scorecard empty jest-axe coverage.
+
+**Surfaces.** architecture scorecard, SecureNow home, published list price copy, accessibility suite.
+
+## 2026-11-11 - Score lift round 15: insights hint parity, ask open gate, procurement home test
+
+**Outcome.** Scorecard and evidence-graph zero-finalized empties share the open reviews spine hint with other Insights jobs. Buyer-polished ask hub shows the browser-local review open gate. First-review procurement evidence home section test locks guarded AL-EVAL href.
+
+**Surfaces.** ask, scorecard, evidence graph, first-review procurement map, tests.
+
+## 2026-11-11 - Score lift round 14: prerequisite hint parity, policy packs open gate, SN evidence map axe
+
+**Outcome.** Ask and impact-preview zero-finalized empties share the open reviews spine hint with compare. Buyer-polished policy packs hub shows the browser-local review open gate. jest-axe covers the SecureNow procurement evidence map section.
+
+**Surfaces.** compare, ask, impact preview, policy packs hub, accessibility suite.
+
+## 2026-11-11 - Score lift round 13: procurement evidence map, compare prerequisite hint, axe
+
+**Outcome.** Procurement help Sources links the in-product procurement evidence map. Compare zero-finalized empty names the open reviews spine hint. jest-axe covers the procurement evidence map section.
+
+**Surfaces.** help procurement, compare two reviews, accessibility suite.
+
+## 2026-11-11 - Score lift round 12: first-review open gate, procurement Sources eval links, axe
+
+**Outcome.** Buyer-polished first-review guide shows the browser-local review open gate. Procurement help Sources and diligence share guarded AL-EVAL and SN-EVAL anchor hrefs with copy tests. jest-axe covers first-review buyer chrome orientation.
+
+**Surfaces.** first-review guide, help procurement, accessibility suite.
+
+## 2026-11-11 - Score lift round 11: impact preview open gate, procurement eval CTAs, axe
+
+**Outcome.** Buyer-polished impact preview shows the browser-local review open gate. Procurement help diligence links AL-EVAL and SN-EVAL acceptance rows to guarded in-product anchors. jest-axe covers the procurement diligence CTA section.
+
+**Surfaces.** impact preview, help procurement, accessibility suite.
+
+## 2026-11-10 - Score lift round 10: ranked empty next step, compare open gate, procurement anchors
+
+**Outcome.** Ranked architect paths empty state tells buyers to open collection then select a row. Buyer-polished compare shows the browser-local review open gate. Quote packet and pricing quote form bind SN-EVAL and AL-EVAL anchors to the procurement evidence map constants. jest-axe covers the quote packet SN-EVAL section.
+
+**Surfaces.** Path inspect copy, compare two reviews, quote packet, pricing quote form, procurement map anchors, accessibility suite.
+
+## 2026-11-10 - Score lift round 9: Home collection check, reviews open gate, axe
+
+**Outcome.** SecureNow Home and collection errors link the self-service collection check. Working reviews hub shows the browser-local open gate. jest-axe covers investigation effort scope. Procurement guarded-anchor testId contract tightened.
+
+**Surfaces.** SecureNow Home, cloud connections, reviews hub, investigation effort, procurement map, accessibility suite.
+
+## 2026-11-10 - Score lift round 8: procurement anchors, fixture-path-02 Home, architecture open gate
+
+**Outcome.** Procurement evidence map eval acceptance hrefs share guarded anchors. SecureNow infrastructure Home recommends fixture-path-02 in Path inspect. Working architectures hub shows the browser-local review open gate. Remediation factory buyer-polished test asserts drift and ROI empty-state recovery.
+
+**Surfaces.** Procurement map, infrastructure overview, architecture identities hub, remediation factory, tests.
+
+## 2026-11-10 - Score lift round 7: walkthrough step, architect empty parity, Real fallback
+
+**Outcome.** First-review guide names the next checklist step when prerequisites are complete (buyer-polished test). Architect snapshot empty states add drift review and synthetic ROI when collection is ready. Path inspect surfaces Real-session fallback discipline. Drift buyer-polished test asserts post-capture next step.
+
+**Surfaces.** First-review guide, remediation factory, Path inspect, drift workbench, tests.
+
+## 2026-11-10 - Score lift round 6: working open gate, Path inspect mode, sponsor rehearsal
+
+**Outcome.** Working Home surfaces a one-line browser-local open gate from the last review spine. Path inspect names deterministic rank vs agent explanation mode. Sponsor path without `pathId` still rehearses Proceed / Extend / Stop. jest-axe covers drift post-capture and pricing AL-EVAL.
+
+**Surfaces.** Operator Home (working), Path inspect, sponsor path, accessibility suite.
+
+## 2026-11-10 - Score lift round 5: return-home walkthrough, procurement anchors, fixture-path-02
+
+**Outcome.** Architecture return-home marks the first-review walkthrough as start here when no open gate is stored. fixture-path-02 links to Path inspect; the accelerator index deep-links scenario walks. Quote packet exposes **#sn-eval**; pricing quote form exposes **#al-eval-acceptance**. jest-axe covers the drift collection panel.
+
+**Surfaces.** Architecture home return, accelerator index, scenario walks, quote packet, pricing, procurement map, accessibility suite.
+
+## 2026-11-10 - Score lift round 4: sponsor parity, drift collection, empty-state ROI
+
+**Outcome.** Sponsor path shares Proceed / Extend / Stop rehearsal panels with pilot decision. Drift shows collection setup when incomplete, or Path inspect next step when ready. Simulator and path-inspect select prompts add synthetic ROI when collection is ready. jest-axe covers sealed callout, ArchLucid trust strip, and Proceed rehearsal.
+
+**Surfaces.** sponsor path, pilot decision, snapshots-drift, remediation factory empty states, accessibility suite.
+
+## 2026-11-10 - Score lift round 3: drift next step, shared Home routing, Proceed pilot
+
+**Outcome.** Changes and drift names Path inspect as the next step when collection is ready and a snapshot is selected. Home, return-home, and drift share one next-step resolver. Pilot **Proceed** links quote and reviewer packets; **Stop** names the draft ITSM handoff before save. Priority-queue empty adds synthetic ROI when collection is ready. Procurement map adds **AL-EVAL** acceptance. Buyer-polished first-review and working reviews/new show procurement and sealed-package honesty.
+
+**Surfaces.** snapshots-drift, SecureNow Home return rows, pilot decision, remediation factory empty, procurement map, first-review guide, reviews/new.
+
+## 2026-11-10 - Score lift round 2: sealed-package honesty, Extend ROI, SN-EVAL row
+
+**Outcome.** Pilot decision Extend shows the synthetic ROI worksheet and links Investigation effort. Ranked-path empty adds a synthetic walkthrough when collection is ready. Return-home marks the row that matches collection next step. Path inspect links the ROI worksheet from Path rank. Reviews /new states that intake is not yet sealed. ArchLucid first-review guide and operator Home eval-empty show procurement trust and sample-versus-sealed checklist. SecureNow Home shows beta SKU contents while collection is incomplete. Procurement map adds SN-EVAL acceptance.
+
+**Surfaces.** Pilot decision, remediation factory empty, return home, path inspect, reviews /new, first-review guide, operator Home, procurement map.
+
+## 2026-11-10 - Score lift top-10: collection next step, sample checklist, ROI on sponsor path
+
+**Outcome.** After collection is ready, SecureNow names one next step toward ranked paths or Changes and drift. Return-home rows say do this next. Path inspect names simulator versus Real completion and honest blank ranking copy. The sponsor path includes the synthetic ROI walkthrough. The first-review guide lists what the sample shows versus a sealed tenant review. Procurement map adds the custom pack order row.
+
+**Surfaces.** SecureNow collection setup, Home return rows, remediation factory empty state, Path inspect, sponsor path, first-review guide, ArchLucid procurement map.
+
+## 2026-11-10 - Floor scores follow-up: dynamic first hour, stickiness, first-review a11y
+
+**Outcome.** SecureNow Home Start here follows capture status on the first-hour table (cloud connections or Changes and drift for the latest snapshot). Return-home names the latest capture when Home has not recorded a last-opened snapshot. The first-review open-gate starter adds the not-this-review line and describes the primary CTA for assistive tech. Pricing FAQ link has an explicit accessible name. Home environment context passes stickiness scope into capture delta again.
+
+**Surfaces.** SecureNow Home, first-review guide, `/pricing`, stickiness return rows.
+
+## 2026-11-10 - Owner accepts full ArchLucid commercial order book by quote
+
+**Outcome.** The owner accepts guided pilot, design partner, Enterprise evaluation, trial-to-paid, monthly Architect / Team / Professional, and custom policy-pack orders at published list prices by signed quote or order form. Stripe checkout is authorized when Prices are published. Until checkout is live, quote and order form remain binding. Beta remains **NO_GO**.
+
+**Surfaces.** `PRICING_PHILOSOPHY.md` §4, `/pricing`, beta SKU contents, procurement evidence map.
+
+## 2026-11-10 - Floor scores: accelerator start-here, snapshot on collection, quieter path inspect
+
+**Outcome.** The accelerator index starts on Manual upload or the latest Changes and drift snapshot. Collection setup names the latest snapshot id with a drift link. Path inspect collapses executive metrics and the path report after a path is selected. The first-review checklist sits under the sample starter. The procurement map names guided-pilot acceptance by signed quote.
+
+**Surfaces.** Accelerator index, collection setup, remediation factory, first-review guide, procurement map.
+
+## 2026-11-10 - Owner accepts ArchLucid guided-pilot evaluation orders
+
+**Outcome.** The owner accepts a guided-pilot evaluation order at the published list price in pricing philosophy §4 by signed quote. Checkout, Stripe, monthly tiers, design partner, Enterprise evaluation, and custom-pack rows stay unaccepted from a page.
+
+**Surfaces.** `PRICING_PHILOSOPHY.md` §4, `/pricing` sales-led note, beta evaluation contents on pricing and get-started.
+
+## 2026-11-10 - Home names an unreachable API and keeps the last snapshot
+
+**Outcome.** SecureNow Home says the workspace API is unreachable and links to System health when collection setup or unfinished work cannot load. The last opened snapshot stays on Home, with its id and a Changes and Drift link, including when it is the latest capture. Path inspect hides the ranked-path list after a path is selected. The first-review sample starter says policy-pack assignment is not this review.
+
+**Surfaces.** SecureNow Home, Changes and Drift, remediation factory, first-review guide.
+
+## 2026-11-10 - Capture id, collection checklist, and first-review starter
+
+**Outcome.** A failed snapshot list no longer also says there are no snapshots. Extractor upload returns the snapshot id when ingest created one, and Manual upload shows it. SecureNow collection treats a succeeded inventory snapshot as capture and sends the capture step to Manual upload. The accelerator index links Manual upload and Changes and drift. The first-review guide opens the sample review on the open-gate spine. ArchLucid evaluation orders stay quote-only.
+
+**Surfaces.** Changes and drift empty state, extract upload accepted panel, collection setup, accelerator index, first-review guide.
+
+## 2026-11-10 - Owner accepts SN-EVAL orders by signed quote
+
+**Outcome.** The owner accepts an SN-EVAL order at the published list price by signed quote, and attests a non-fixture Reader capture exists. The pricing philosophy, controlled-pilot note, SKU card, and quote packet say so. The capture id is not published. SN-ANNUAL, checkout, Stripe, and Marketplace stay unaccepted from a page. Beta remains **NO_GO**. The quote packet still cannot take payment.
+
+**Surfaces.** `PRICING_PHILOSOPHY.md` §9, `CONTROLLED_PILOT_OFFER.md`, published list-price lead, quote packet lead.
+
+## 2026-11-09 - Floor scores: ROI inputs, collection next step, buyer list prices
+
+**Outcome.** SecureNow investigation effort puts operator inputs first, collapses the synthetic worksheet, and shows scope when capture is missing or succeeded. Collection blockers name one next step (Reader grant, subscription, capture) and link extract-and-upload on the capture step. ArchLucid marketing copy states monthly list prices live on `/pricing` with quote-only checkout.
+
+**Surfaces.** Investigation effort page, collection setup sections, ArchLucid beta evaluation strip, `BUYER_SALES_LED_PRICING_NOTE`.
+
+## 2026-11-09 - SecureNow amounts are the public list price
+
+**Outcome.** Owner decision: the four SecureNow amounts in [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) §9 are the public list price, sold by quote only. The public SKU card and signed-in quote packet now render the same table with quote-only conditions. This is not a Stripe Price, not a Partner Center plan, and not permission to invoice. Beta remains **NO_GO**.
+
+**Surfaces.** `securenow-published-list-price-copy.ts`, `SecureNowPublishedListPriceSection`, SKU card and quote packet pages, [`PRIVATE_PRICE_SHEET.md`](securenow/PRIVATE_PRICE_SHEET.md) identity banner, pricing single-source and commercial-packaging checks.
+
+## 2026-11-09 - SecureNow quote fees have one source
+
+**Outcome.** The owner-approved SecureNow quote fees now live only in [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) §9. [`PRIVATE_PRICE_SHEET.md`](securenow/PRIVATE_PRICE_SHEET.md) keeps seller, tax, and payout identity and no longer repeats the amounts. The fees are still not a public list price, not checkout, and not permission to invoice. Beta remains **NO_GO**.
+
+**Surfaces.** `scripts/ci/check_pricing_single_source.py` locks the four fee phrases and the evaluation-fee credit sentence.
+
 ## 2026-09-18 - Azure extractor: customer-owned scheduled agent
 
 **Outcome.** Production Azure inventory collection can run as a customer-owned Automation runbook or Function timer so operators do not pull from a command line or UI. The agent reuses `Get-ArchLucidAzurePackage.ps1` and `POST /v1/azure-extractor/upload`.

@@ -26,7 +26,10 @@ public sealed class ItsmInboundServiceNowPayloadReader : IItsmInboundPayloadRead
             return false;
 
         string externalKey = keys.ExternalKey.Trim();
-        string stateNormalized = keys.StatusValue.Trim();
+        string stateNormalized = ItsmInboundJsonElementReader.NormalizeStatusText(keys.StatusValue);
+
+        if (string.IsNullOrEmpty(stateNormalized))
+            return false;
 
         if (externalKey.Length > MaxItsmExternalKeyLength)
             throw new ItsmInboundPayloadValidationException(
@@ -46,11 +49,21 @@ public sealed class ItsmInboundServiceNowPayloadReader : IItsmInboundPayloadRead
                 "state_too_long",
                 "ServiceNow incident state value exceeds maximum length.");
 
+        string? alternateStatusValue = keys.AlternateStatusValue;
+
+        if (!string.IsNullOrWhiteSpace(alternateStatusValue))
+        {
+            alternateStatusValue = ItsmInboundJsonElementReader.NormalizeStatusText(alternateStatusValue);
+
+            if (string.IsNullOrEmpty(alternateStatusValue))
+                alternateStatusValue = null;
+        }
+
         result = new ItsmInboundPayloadReadResult
         {
             ExternalKey = externalKey,
             StatusValue = stateNormalized,
-            AlternateStatusValue = keys.AlternateStatusValue,
+            AlternateStatusValue = alternateStatusValue,
         };
 
         return true;
@@ -100,20 +113,25 @@ public sealed class ItsmInboundServiceNowPayloadReader : IItsmInboundPayloadRead
         if (string.IsNullOrWhiteSpace(stateFromIncident))
             return null;
 
-        string incidentNormalized = stateFromIncident.Trim();
+        string incidentCanonical = ItsmInboundJsonElementReader.NormalizeStatusText(stateFromIncident);
+
+        if (string.IsNullOrEmpty(incidentCanonical))
+            return null;
 
         if (string.IsNullOrWhiteSpace(stateFromState))
             return null;
 
-        string stateNormalized = stateFromState.Trim();
+        string stateCanonical = ItsmInboundJsonElementReader.NormalizeStatusText(stateFromState);
 
-        if (string.Equals(stateNormalized, incidentNormalized, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(stateCanonical, incidentCanonical, StringComparison.OrdinalIgnoreCase))
             return null;
 
-        if (string.Equals(selectedStatusValue?.Trim(), incidentNormalized, StringComparison.OrdinalIgnoreCase))
+        string selectedCanonical = ItsmInboundJsonElementReader.NormalizeStatusText(selectedStatusValue);
+
+        if (string.Equals(selectedCanonical, incidentCanonical, StringComparison.OrdinalIgnoreCase))
             return null;
 
-        return incidentNormalized;
+        return stateFromIncident.Trim();
     }
 
     private sealed class ServiceNowInboundKeysReadResult

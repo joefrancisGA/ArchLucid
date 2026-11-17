@@ -14,6 +14,7 @@ import {
   secureNowQuestionDispositionMutationSubscriptionId,
   secureNowQuestionHasPackStyleDispositionScope,
   secureNowQuestionPackScopeKindFromPrompt,
+  secureNowQuestionPackAnswerChoiceLabel,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 
 const baseQuestion: SecureNowQuestion = {
@@ -146,7 +147,7 @@ describe("secureNowQuestionShowsInferredConnectionReviewerCopy", () => {
 });
 
 describe("secureNowQuestionReviewerScopeLabel", () => {
-  it("infers resource scope in details when scopeKind is omitted but source is inventory evidence", () => {
+  it("does not infer scope from inventory source when scopeKind is omitted", () => {
     expect(
       secureNowQuestionReviewerScopeLabel(
         {
@@ -157,7 +158,37 @@ describe("secureNowQuestionReviewerScopeLabel", () => {
         },
         false,
       ),
-    ).toBe("This resource.");
+    ).toBe("Question scope was not stored.");
+  });
+
+  it("does not infer pack scope from question text when scopeKind is omitted", () => {
+    expect(
+      secureNowQuestionReviewerScopeLabel(
+        {
+          source: "PolicyPack",
+          scopeKind: null,
+          questionKey: "rg-scope@v1",
+          questionText: "Which resource group owns this workload?",
+        },
+        false,
+      ),
+    ).toBe("This resource group. Scope kind was not stored; inferred from pack prompt.");
+  });
+});
+
+describe("secureNowQuestionPackAnswerChoiceLabel", () => {
+  it("includes stored answer codes on policy pack rows", () => {
+    expect(
+      secureNowQuestionPackAnswerChoiceLabel(
+        {
+          source: "PolicyPack",
+          scopeKind: "Subscription",
+          questionKey: "subscription-ownership@v1",
+          questionText: "Who owns this subscription workload?",
+        },
+        "Register",
+      ),
+    ).toBe("Register (Register)");
   });
 });
 
@@ -233,6 +264,9 @@ describe("secureNowQuestionDispositionMutationScopeKind", () => {
     expect(secureNowQuestionPackScopeKindFromPrompt("Which resource group owns this workload?")).toBe(
       "ResourceGroup",
     );
+    expect(secureNowQuestionPackScopeKindFromPrompt(null)).toBe("Subscription");
+    expect(secureNowQuestionPackScopeKindFromPrompt(undefined)).toBe("Subscription");
+    expect(secureNowQuestionPackScopeKindFromPrompt("")).toBe("Subscription");
     expect(
       secureNowQuestionDispositionMutationScopeKind({
         source: "PolicyPack",
@@ -241,6 +275,28 @@ describe("secureNowQuestionDispositionMutationScopeKind", () => {
         questionText: "Which resource group owns this workload?",
       }),
     ).toBe("ResourceGroup");
+  });
+
+  it("defaults pack scope to subscription when prompt text was not stored", () => {
+    expect(
+      secureNowQuestionDispositionMutationScopeKind({
+        source: "PolicyPack",
+        scopeKind: null,
+        questionKey: "subscription-ownership@v1",
+        questionText: null,
+      }),
+    ).toBe("Subscription");
+  });
+
+  it("does not default inventory rows to Resource scope when scopeKind was omitted", () => {
+    expect(
+      secureNowQuestionDispositionMutationScopeKind({
+        source: "InventoryEvidence",
+        scopeKind: null,
+        questionKey: "vm-reader@v1",
+        questionText: "What does this VM do?",
+      }),
+    ).toBeNull();
   });
 
   it("returns empty resource id for policy pack rows when scopeKind is omitted", () => {

@@ -80,7 +80,7 @@ public sealed class SponsorRoiExportBuilder(
                     Category = SponsorRoiRunCollector.NormalizeCategory(finding.Category),
                     Severity = finding.Severity.ToString(),
                     Title = finding.Message,
-                    AffectedResource = finding.EvidenceRefs.FirstOrDefault(),
+                    AffectedResource = ResolveAffectedResourceForExport(finding.EvidenceRefs.FirstOrDefault()),
                     EstimatedUsdSavings = finding.EstimatedUsdSavings,
                 });
 
@@ -116,4 +116,9 @@ public sealed class SponsorRoiExportBuilder(
             CostEvidenceStaleAfterDays = pricingLabels.Freshness.StaleAfterDays,
         };
     }
+
+    private static string ResolveAffectedResourceForExport(string? evidenceRef) =>
+        string.IsNullOrWhiteSpace(evidenceRef)
+            ? SponsorRoiOmissionLabels.AffectedResourceNotStored
+            : evidenceRef.Trim();
 }

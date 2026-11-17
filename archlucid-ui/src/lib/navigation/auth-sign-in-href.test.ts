@@ -13,7 +13,7 @@ describe("buildAuthSignInHref", () => {
         reason: "unauthorized",
         returnPath: "/sponsor/reviews",
       }),
-    ).toBe("/auth/signin?reason=unauthorized&returnUrl=%2Fexecutive%2Freviews");
+    ).toBe("/auth/signin?reason=unauthorized&returnUrl=%2Fsponsor%2Freviews");
   });
 
   it("drops unsafe return paths", () => {

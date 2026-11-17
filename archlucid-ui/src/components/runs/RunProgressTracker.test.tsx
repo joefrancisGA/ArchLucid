@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RunProgressTracker } from "@/components/runs/RunProgressTracker";
@@ -176,7 +176,7 @@ describe("RunProgressTracker", () => {
     expect(screen.getByRole("heading", { name: "Assessment progress" })).toBeInTheDocument();
     expect(screen.getByTestId("run-progress-stage-count")).toHaveTextContent("Progress: 3 / 3 stages");
     expect(screen.getByText(/Ready to finalize/i)).toBeInTheDocument();
-    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Pending");
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("This stage has not completed.");
     expect(screen.queryByText(/We're preparing this review/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /retry polling/i })).not.toBeInTheDocument();
   });
@@ -366,7 +366,7 @@ describe("RunProgressTracker", () => {
     });
 
     expect(screen.getByText(/Ready to finalize/i)).toBeInTheDocument();
-    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Pending");
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("This stage has not completed.");
     expect(screen.queryByText(/We're preparing this review/i)).not.toBeInTheDocument();
   });
 
@@ -432,8 +432,9 @@ describe("RunProgressTracker", () => {
       await Promise.resolve();
     });
 
-    expect(await screen.findByTestId("run-progress-stage-timeline-table")).toBeInTheDocument();
-    expect(screen.getAllByText("Jan 1, 2026, 12:00 AM UTC").length).toBeGreaterThanOrEqual(1);
+    const timelineTable = await screen.findByTestId("run-progress-stage-timeline-table");
+    expect(timelineTable).toBeInTheDocument();
+    expect(within(timelineTable).getByText("7.0 s")).toBeInTheDocument();
   });
 
   it("does not poll when run is already committed", async () => {
@@ -451,6 +452,19 @@ describe("RunProgressTracker", () => {
 
   it("polls and updates badges as stages complete", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    mockGetRunStageTimeline.mockResolvedValue([
+      {
+        stageName: "context_ingestion",
+        startedUtc: "2026-01-01T00:00:00.000Z",
+        completedUtc: "2026-01-01T00:00:01.000Z",
+      },
+      {
+        stageName: "graph",
+        startedUtc: "2026-01-01T00:00:01.000Z",
+        completedUtc: null,
+      },
+    ]);
 
     // SSE falls back to polling; Strict Mode doubles effects — many `getRunSummary` calls can run before
     // this assertion. Gate the "all stages ready" response until after we assert the partial snapshot.
@@ -493,7 +507,9 @@ describe("RunProgressTracker", () => {
 
     expect(mockGetRunSummary).toHaveBeenCalled();
     expect(screen.getAllByText("Complete").length).toBe(1);
-    expect(screen.getByTestId("run-progress-queue-status")).toHaveTextContent("Queue status: graph");
+    await waitFor(() => {
+      expect(screen.getByTestId("run-progress-queue-status")).toHaveTextContent(/Queue status:.*graph/i);
+    });
 
     allowFullSummary = true;
 

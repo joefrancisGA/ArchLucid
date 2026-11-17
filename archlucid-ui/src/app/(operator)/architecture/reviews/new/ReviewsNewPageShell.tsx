@@ -17,8 +17,10 @@ import {
 } from "@/lib/reviews-new-page-resume-hero";
 import { cn } from "@/lib/utils";
 
+import { ArchitectureReviewNewSealedPackageCallout } from "./ArchitectureReviewNewSealedPackageCallout";
 import { ReviewsNewBuyerChrome } from "./ReviewsNewBuyerChrome";
 import { ReviewsNewPageChrome } from "./ReviewsNewPageChrome";
+import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
 import {
   REVIEWS_NEW_FIRST_VIEWPORT_ID,
   REVIEWS_NEW_PRIMARY_CONTENT_ID,
@@ -61,6 +63,8 @@ export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.
       >
         <ReviewsNewPageChrome buyerPolishedShell={buyerPolishedShell} activePath={activePath} />
 
+        {buyerPolishedShell ? <OperatorHomeWorkingOpenGateStrip /> : null}
+
         <div
           id={REVIEWS_NEW_FIRST_VIEWPORT_ID}
           data-testid={REVIEWS_NEW_FIRST_VIEWPORT_ID}
@@ -71,6 +75,7 @@ export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.
         >
           {showBuyerChromeInShell ? <ReviewsNewBuyerChrome /> : null}
           {!onPathTab ? <ReviewsNewWizardResumeStrip /> : null}
+          {!onPathTab ? <ArchitectureReviewNewSealedPackageCallout /> : null}
           {props.children}
           {!onPathTab ? <ReviewsNewStarterTemplateGallery /> : null}
         </div>

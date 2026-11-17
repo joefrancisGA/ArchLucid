@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { HelpAuthenticationSignInActionPanel } from "@/app/(operator)/help/_sections/HelpAuthenticationSignInActionPanel";
@@ -33,7 +35,6 @@ import {
   AUTHENTICATION_SIGN_IN_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/authentication-sign-in-help-page-copy";
 import { splitAuthenticationSignInHelpMarkdown } from "@/lib/authentication-sign-in-help-guide-content";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
@@ -94,7 +95,7 @@ export function HelpAuthenticationSignInGuideView(
   props: HelpAuthenticationSignInGuideViewProps,
 ): React.ReactElement {
   const { entry, markdown } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const { productLine: productLineId } = useProductLine();
   const sourceDocPath = entry.sourcePaths[0] ?? "";
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {

@@ -90,9 +90,7 @@ public sealed class SegmentationSemanticsFindingEngine : IFindingEngine
         GraphNode? targetNode,
         int hopCount)
     {
-        string label = string.IsNullOrWhiteSpace(segmentationNode.Label)
-            ? segmentationNode.NodeId
-            : segmentationNode.Label.Trim();
+        string label = GraphNodeReviewerLabel.ForFindingTitle(segmentationNode.Label);
 
         List<string> relatedNodeIds = [segmentationNode.NodeId];
 

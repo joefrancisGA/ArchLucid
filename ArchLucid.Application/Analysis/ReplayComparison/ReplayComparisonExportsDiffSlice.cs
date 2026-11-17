@@ -71,12 +71,42 @@ public sealed class ReplayComparisonExportsDiffSlice(IExportRecordDiffService ex
         ArgumentNullException.ThrowIfNull(record);
 
         string exportType = record.ExportType.Trim();
-        string templateProfile = record.TemplateProfile?.Trim() ?? string.Empty;
+        string templateProfile = ResolveTemplateProfileForPairing(record);
         string format = record.Format?.Trim() ?? string.Empty;
-        string compareRunId = NormalizeCompareRunIdForPairing(record.CompareRunId);
-        string compareManifestVersion = record.CompareManifestVersion?.Trim() ?? string.Empty;
+        string compareRunId = NormalizeCompareRunIdForPairing(ResolveCompareRunIdForPairing(record));
+        string compareManifestVersion = ResolveCompareManifestVersionForPairing(record);
 
         return $"{exportType}|{templateProfile}|{format}|{compareRunId}|{compareManifestVersion}";
+    }
+
+    private static string? ResolveCompareRunIdForPairing(RunExportRecord record)
+    {
+        string? fromColumn = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.CompareRunId);
+        if (!string.IsNullOrEmpty(fromColumn))
+            return fromColumn;
+
+        PersistedAnalysisExportRequest? request = AnalysisExportRequestRehydrator.Rehydrate(record);
+        return request?.CompareRunId;
+    }
+
+    private static string ResolveCompareManifestVersionForPairing(RunExportRecord record)
+    {
+        string? fromColumn = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.CompareManifestVersion);
+        if (!string.IsNullOrEmpty(fromColumn))
+            return fromColumn;
+
+        PersistedAnalysisExportRequest? request = AnalysisExportRequestRehydrator.Rehydrate(record);
+        return PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(request?.CompareManifestVersion) ?? string.Empty;
+    }
+
+    private static string ResolveTemplateProfileForPairing(RunExportRecord record)
+    {
+        string? fromColumn = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.TemplateProfile);
+        if (!string.IsNullOrEmpty(fromColumn))
+            return fromColumn;
+
+        PersistedAnalysisExportRequest? request = AnalysisExportRequestRehydrator.Rehydrate(record);
+        return PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(request?.TemplateProfile) ?? string.Empty;
     }
 
     private static string NormalizeCompareRunIdForPairing(string? compareRunId)

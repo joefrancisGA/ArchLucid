@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -40,17 +41,28 @@ def repo_root() -> Path:
 
 
 def require_non_empty(name: str, value: str | None) -> str:
-    if value is None or not str(value).strip():
+    if value is None:
         raise ValueError(f"{name} is required for deploy lineage")
 
-    return str(value).strip()
+    raw = str(value)
+    # Check before stripping: a leading/trailing newline can forge summary lines too.
+    # Also reject literal escape sequences in untrusted CI metadata, which may be
+    # decoded by a downstream consumer after this summary has been generated.
+    if (any(ord(character) < 32 or ord(character) == 127 for character in raw)
+            or re.search(r"\\(?:[nrt]|x00)", raw, flags=re.IGNORECASE)):
+        raise ValueError(f"{name} contains control characters unsafe for deploy lineage")
+
+    normalized = raw.strip()
+    if not normalized:
+        raise ValueError(f"{name} is required for deploy lineage")
+    return normalized
 
 
 def require_digest(name: str, digest: str | None) -> str:
     normalized = require_non_empty(name, digest)
 
-    if not normalized.startswith("sha256:"):
-        raise ValueError(f"{name} must be a sha256 digest (got: {normalized!r})")
+    if re.fullmatch(r"sha256:[0-9a-fA-F]{64}", normalized) is None or int(normalized[7:], 16) == 0:
+        raise ValueError(f"{name} must be a full nonzero sha256 digest")
 
     return normalized
 
@@ -68,7 +80,9 @@ def build_tag_image_ref(registry: str, repository: str, image_tag: str) -> str:
     repository_n = require_non_empty("repository", repository)
     tag_n = require_non_empty("image_tag", image_tag)
 
-    if tag_n == "latest" or tag_n.startswith("latest-"):
+    if re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}", tag_n) is None:
+        raise ValueError("image_tag must be a valid Docker tag of at most 128 characters")
+    if tag_n.casefold() == "latest" or tag_n.casefold().startswith("latest-"):
         raise ValueError(f"image_tag must not be mutable latest* (got: {tag_n!r})")
 
     return f"{registry_n}/{repository_n}:{tag_n}"

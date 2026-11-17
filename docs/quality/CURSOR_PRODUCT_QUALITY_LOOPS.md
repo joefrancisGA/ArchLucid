@@ -120,6 +120,7 @@ Optional follow-up: turn the weekly package grade or the shadow-architect bake-o
 | First-run path and dismissal codes | `docs/library/CANONICAL_FIRST_RUN_PATH.md`, `docs/go-to-market/Architect_Evaluation/` |
 | Finding / RAG quality evidence | `docs/library/AGENT_OUTPUT_EVALUATION.md`, `docs/quality/faithfulness-report.md`, `docs/quality/agent-quality-dashboard.md` |
 | Live vs nightly finding-quality tripwire | `docs/library/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md` |
+| Light 47-quality desk + score-lift backlog | `.cursor/commands/al-light.md` (default **35** suggestions; optional count/focus) |
 | UI rate / lowest-route / screenshot audit | `.cursor/commands/al-ui-rate-lowest.md`, `.cursor/skills/lucid-ui-audit/SKILL.md` |
 | Zone bug hunt | `.cursor/commands/al-bug.md` |
 | Backlog ship loop | `.cursor/skills/ship-loop/SKILL.md` |

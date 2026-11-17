@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 
 import { GovernanceFindingsQueueDesktopTable } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueDesktopTable";
+import { resolveGovernanceFindingRunIdFromDisplayedRows } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
 import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
@@ -112,11 +113,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
   }
 
   function resolveFindingRunId(findingId: string): string | null {
-    const match = displayedRows.find(
-      (row) => row.recordKind === "finding" && row.findingId === findingId,
-    );
-
-    return match?.runId ?? null;
+    return resolveGovernanceFindingRunIdFromDisplayedRows(displayedRows, findingId);
   }
 
   function resolveBulkDispositionCorrectionTarget(

@@ -137,6 +137,10 @@ public sealed class ConfigLintCommandTests
             {
               "ArchLucidAuth": { "Mode": "ApiKey" },
               "Authentication": { "ApiKey": { "Enabled": true } },
+              "ArchLucid": {
+                "Governance": { "PreCommitGateEnabled": true },
+                "FinalizeQualityGate": { "Enabled": true }
+              },
               "Retrieval": {
                 "VectorIndex": "AzureSearch",
                 "AzureSearch": {

@@ -49,9 +49,9 @@ public sealed partial class TenantCatalogMigrationOrchestrator(
         {
             EventType = eventType,
             SubjectTenantId = tenantId,
-            ActorUserId = actorUserId,
-            ActorUserName = actorUserName,
-            CorrelationId = correlationId,
+            ActorUserId = actorUserId.Trim(),
+            ActorUserName = actorUserName.Trim(),
+            CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? null : correlationId.Trim(),
             DataJson = JsonSerializer.Serialize(payload),
         };
 

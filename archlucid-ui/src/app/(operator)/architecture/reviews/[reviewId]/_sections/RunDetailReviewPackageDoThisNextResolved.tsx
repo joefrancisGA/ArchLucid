@@ -124,7 +124,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
     serverFinalizeReadinessBlocks: props.serverFinalizeReadinessBlocks,
     finalizeReadinessEnabled: props.finalizeReadinessEnabled,
     findings: props.quickDecisionFindings,
-    blockingFindingCount: props.blockingFindingCount,
+    blockingFindingCount: props.blockingFindingCount ?? 0,
     requestAssumptionTexts: props.requestAssumptionTexts,
     transparencyTrail: props.transparencyTrail,
     degradedFindingCoverage: props.degradedFindingCoverage,
@@ -185,7 +185,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
           runId: props.runId,
           manifestId: props.manifestId,
           hasCommitBlockingFailures: props.hasCommitBlockingFailures,
-          blockingFindingCount: props.blockingFindingCount,
+          blockingFindingCount: props.blockingFindingCount ?? 0,
           buyerPolishedArtifactTable: props.buyerPolishedArtifactTable,
           operatorGovernanceDecision: props.operatorGovernanceDecision,
           manifestStatus: props.manifestStatus,
@@ -270,6 +270,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
       <RunDetailReviewPackageStampViewport
         hasGoldenManifest={props.hasGoldenManifest}
         runId={props.runId}
+        parentArchitectureId={props.parentArchitectureId}
         architectureRequestId={props.architectureRequestId}
         manifestVersion={props.manifestId}
         suppressMeasurementDenominator={suppressMeasurementDenominator}
@@ -282,6 +283,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         graphSnapshot={props.graphSnapshot}
         transparencyTrail={props.transparencyTrail ?? null}
         quickDecisionFindings={props.quickDecisionFindings}
+        hasFindingsSnapshot={props.pipelineSummary?.hasFindingsSnapshot}
         withheldFindingCount={props.withheldFindingCount}
         catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
         judgeSkippedByCap={props.judgeSkippedByCap}

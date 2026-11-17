@@ -8,7 +8,17 @@ import type { InfraEvidenceMermaidOutlineNode } from "@/lib/infra-evidence/parse
 export function resolveInfraEvidenceDiagramOutlineResourceName(
   node: InfraEvidenceMermaidOutlineNode,
 ): string {
-  const label = node.label.split(" · ", 1)[0]?.trim() ?? "";
+  const rawLabel = node.label.split(" · ", 1)[0] ?? "";
+
+  if (rawLabel.length === 0) {
+    return "Resource name was stored empty.";
+  }
+
+  const label = rawLabel.trim();
+
+  if (label.length === 0) {
+    return "Resource name was stored empty.";
+  }
 
   if (isSecureNowResourceDisplayNameMissing(label)) {
     return SECURE_NOW_RESOURCE_NAME_NOT_STORED_LABEL;

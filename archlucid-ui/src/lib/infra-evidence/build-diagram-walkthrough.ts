@@ -4,9 +4,14 @@ import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-inf
 export function buildDiagramWalkthrough(outline: InfraEvidenceMermaidOutline): string {
   const nodeCount = outline.nodes.length;
   const edgeCount = outline.edges.length;
+
+  if (nodeCount === 0) {
+    return "Stored inventory resources were not listed on this diagram snapshot.";
+  }
+
   const componentCount = countDiagramOutlineComponents(outline, { includeTrivial: true });
 
-  const groupLabel = componentCount === 1 ? "group" : "groups";
+  const componentLabel = componentCount === 1 ? "component" : "components";
   const sourceCounts = [
     { source: "observed", count: outline.edges.filter((edge) => edge.source === "observed").length },
     { source: "declared", count: outline.edges.filter((edge) => edge.source === "declared").length },
@@ -22,9 +27,11 @@ export function buildDiagramWalkthrough(outline: InfraEvidenceMermaidOutline): s
   )
     ? " Declared, probable, and inferred relationships are on this inventory diagram. They are not observed Azure connections."
     : "";
-  const relationshipSummary = relationshipSourceSummary.length > 0
-    ? ` ${edgeCount} relationships (${relationshipSourceSummary}).`
-    : ` ${edgeCount} relationships.`;
+  const relationshipSummary = edgeCount === 0
+    ? " No relationships were parsed from this diagram snapshot. That is not a stored finding that these resources have no links."
+    : relationshipSourceSummary.length > 0
+      ? ` ${edgeCount} relationships (${relationshipSourceSummary}).`
+      : ` ${edgeCount} relationships.`;
 
-  return `${nodeCount} resources in ${componentCount} ${groupLabel}. A group can be one resource with no relationship on this diagram.${relationshipSummary}${notObservedSentence}`;
+  return `${nodeCount} resources in stored inventory across ${componentCount} connected ${componentLabel}.${relationshipSummary}${notObservedSentence}`;
 }

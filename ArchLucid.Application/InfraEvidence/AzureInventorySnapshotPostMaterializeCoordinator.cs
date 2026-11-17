@@ -131,17 +131,7 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
             SecureNowArchitectConstants.SystemActorId,
             cancellationToken);
 
-        await pathRankingEngine.RunAsync(
-            scope,
-            snapshotId,
-            SecureNowArchitectConstants.SystemActorId,
-            cancellationToken);
-
-        await cutPointAnalysisEngine.RunAsync(
-            scope,
-            snapshotId,
-            SecureNowArchitectConstants.SystemActorId,
-            cancellationToken);
+        await RunRankingAndCutPointAnalysisAsync(scope, snapshotId, cancellationToken);
 
         await pathRoutingSyncService.SyncSnapshotAsync(scope, snapshotId, cancellationToken);
     }
@@ -159,16 +149,27 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
             SecureNowArchitectConstants.SystemActorId,
             cancellationToken);
 
-        await pathRankingEngine.RunAsync(
+        await RunRankingAndCutPointAnalysisAsync(scope, snapshotId, cancellationToken);
+    }
+
+    private async Task RunRankingAndCutPointAnalysisAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken)
+    {
+        PathRankingEngineResult ranking = await pathRankingEngine.RunAsync(
             scope,
             snapshotId,
             SecureNowArchitectConstants.SystemActorId,
             cancellationToken);
 
-        await cutPointAnalysisEngine.RunAsync(
-            scope,
-            snapshotId,
-            SecureNowArchitectConstants.SystemActorId,
-            cancellationToken);
+        if (ranking is { Succeeded: true })
+        {
+            await cutPointAnalysisEngine.RunAsync(
+                scope,
+                snapshotId,
+                SecureNowArchitectConstants.SystemActorId,
+                cancellationToken);
+        }
     }
 }

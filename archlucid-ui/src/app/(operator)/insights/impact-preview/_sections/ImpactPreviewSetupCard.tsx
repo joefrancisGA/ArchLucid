@@ -66,14 +66,16 @@ export function ImpactPreviewSetupCard(props: ImpactPreviewSetupCardProps): Reac
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
   const selectedCandidate = props.selectedCandidateId ?? "";
+  const candidatePicked = selectedCandidate.trim().length > 0;
+  const baselinePicked = (props.selectedBaselineId ?? "").trim().length > 0;
   const simulateSteps = resolveImpactPreviewSimulateSteps({
-    baselinePicked: (props.selectedBaselineId ?? "").trim().length > 0,
-    candidatePicked: selectedCandidate.trim().length > 0,
+    baselinePicked,
+    candidatePicked,
     simulateComplete: props.simulateComplete,
   });
   const simulateEmphasizedStepId = resolveImpactPreviewSimulateEmphasizedStepId({
-    baselinePicked: (props.selectedBaselineId ?? "").trim().length > 0,
-    candidatePicked: selectedCandidate.trim().length > 0,
+    baselinePicked,
+    candidatePicked,
     simulateComplete: props.simulateComplete,
   });
 
@@ -154,10 +156,10 @@ export function ImpactPreviewSetupCard(props: ImpactPreviewSetupCardProps): Reac
           </FilterChipGroup>
         </fieldset>
 
-        {props.canSimulate && props.selectedCandidateId !== null ? (
+        {props.canSimulate && candidatePicked ? (
           <Button
             type="button"
-            disabled={props.simulateBusy || props.selectedBaselineId === null}
+            disabled={props.simulateBusy || !baselinePicked}
             onClick={() => {
               props.onSimulate();
             }}

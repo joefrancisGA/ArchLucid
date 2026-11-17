@@ -4,7 +4,13 @@ import type { ReactElement } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { extractCounterfactualFromQuickDecisionFinding } from "@/lib/findings/finding-counterfactual-line";
+import {
+  extractCounterfactualFromQuickDecisionFinding,
+  FINDING_COUNTERFACTUAL_NOT_STORED,
+  FINDING_COUNTERFACTUAL_STORED_EMPTY,
+  FINDING_COUNTERFACTUAL_WIRE_NOT_READABLE,
+  formatFindingCounterfactualPresentation,
+} from "@/lib/findings/finding-counterfactual-line";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { cn } from "@/lib/utils";
 
@@ -23,16 +29,30 @@ export function FindingCounterfactualLine(props: FindingCounterfactualLineProps)
 
   const line = extractCounterfactualFromQuickDecisionFinding(props.finding);
 
-  if (line === null) {
-    return null;
+  if (line === FINDING_COUNTERFACTUAL_STORED_EMPTY) {
+    return (
+      <p
+        className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper, props.className)}
+        data-testid="finding-counterfactual-stored-empty"
+      >
+        {FINDING_COUNTERFACTUAL_STORED_EMPTY}
+      </p>
+    );
   }
+
+  const presentation =
+    line === null
+      ? FINDING_COUNTERFACTUAL_NOT_STORED
+      : line === FINDING_COUNTERFACTUAL_WIRE_NOT_READABLE
+        ? FINDING_COUNTERFACTUAL_WIRE_NOT_READABLE
+        : formatFindingCounterfactualPresentation(line);
 
   return (
     <p
       className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper, props.className)}
       data-testid={`finding-counterfactual-${props.finding.findingId}`}
     >
-      {line}
+      {presentation}
     </p>
   );
 }

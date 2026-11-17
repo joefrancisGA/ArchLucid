@@ -20,8 +20,8 @@ describe("webhooks-vs-dlq-vocabulary (TB-2264)", () => {
     expect(model.heading.toLowerCase()).toContain("webhook");
     expect(model.heading.toLowerCase()).toContain("dead letter");
     expect(model.whyTwo).toBe(WEBHOOKS_VS_DLQ_WHY_TWO);
-    expect(model.whyTwo.toLowerCase()).toContain("outbound delivery");
-    expect(model.whyTwo.toLowerCase()).toContain("ops recovery");
+    expect(model.whyTwo.toLowerCase()).toContain("destination urls");
+    expect(model.whyTwo.toLowerCase()).toContain("failed to send");
     expect(model.compactLine).toBe(WEBHOOKS_VS_DLQ_COMPACT_LINE);
 
     expect(model.webhooksLink).toEqual(WEBHOOKS_VS_DLQ_WEBHOOKS_LINK);

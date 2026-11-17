@@ -197,6 +197,31 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using System.Data.IDbTransaction tx = conn.BeginTransaction();
 
+        // Serialize replacements even when the snapshot has no rank rows yet.
+        const string lockSnapshotSql = """
+                                       SELECT SnapshotId
+                                       FROM dbo.AzureInventorySnapshots WITH (UPDLOCK, HOLDLOCK)
+                                       WHERE TenantId = @TenantId
+                                         AND WorkspaceId = @WorkspaceId
+                                         AND ProjectId = @ProjectId
+                                         AND SnapshotId = @SnapshotId;
+                                       """;
+
+        Guid? lockedSnapshotId = await conn.ExecuteScalarAsync<Guid?>(
+            new CommandDefinition(
+                lockSnapshotSql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, SnapshotId = snapshotId },
+                transaction: tx,
+                cancellationToken: cancellationToken));
+
+        if (lockedSnapshotId is null)
+        {
+            if (ranks.Count == 0)
+                return;
+
+            throw new InvalidOperationException("Scoped path rank target snapshot was not found.");
+        }
+
         const string deleteSql = """
                                  DELETE r
                                  FROM dbo.SecurityEvidencePathRanks r
@@ -327,15 +352,25 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        int totalCount = await conn.ExecuteScalarAsync<int>(
-            new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
+        // A single round trip still runs two statements. Hold the scoped read stable
+        // across both so a concurrent rank replacement cannot change the page after the count.
+        using System.Data.IDbTransaction transaction = conn.BeginTransaction(System.Data.IsolationLevel.Serializable);
+        int totalCount;
+        IEnumerable<RankRow> rows;
+        using (SqlMapper.GridReader grid = await conn.QueryMultipleAsync(
+            new CommandDefinition(
+                countSql + Environment.NewLine + listSql,
+                parameters,
+                transaction: transaction,
+                cancellationToken: cancellationToken)))
+        {
+            totalCount = await grid.ReadSingleAsync<int>();
+            rows = await grid.ReadAsync<RankRow>(buffered: true);
+        }
 
-        IEnumerable<RankRow> rows = await conn.QueryAsync<RankRow>(
-            new CommandDefinition(listSql, parameters, cancellationToken: cancellationToken));
+        transaction.Commit();
 
-        IReadOnlyList<SecurityEvidencePathRankRecord> items = rows.Select(MapRank).ToList();
-
-        return (items, totalCount);
+        return (rows.Select(MapRank).ToList(), totalCount);
     }
 
     public async Task<SecurityEvidencePathRankWeightsRecord?> TryGetWeightsAsync(

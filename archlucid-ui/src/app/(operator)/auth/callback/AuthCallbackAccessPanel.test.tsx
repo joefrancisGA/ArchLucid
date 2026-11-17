@@ -168,6 +168,31 @@ describe("AuthCallbackAccessPanel", () => {
     vi.unstubAllGlobals();
   });
 
+  it("sends multiline whitespace-only optional note as null", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.change(screen.getByLabelText("Brief note (optional)"), { target: { value: "\n  \n" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledOnce();
+    });
+
+    const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(requestInit.body)) as { note: string | null };
+
+    expect(body.note).toBeNull();
+    vi.unstubAllGlobals();
+  });
+
   it("cancel hides the form and clears a prior submit error", async () => {
     vi.stubGlobal(
       "fetch",
@@ -1178,6 +1203,12 @@ describe("AuthCallbackAccessPanel", () => {
     render(<AuthCallbackAccessPanel technicalDetail="   " />);
 
     expect(screen.queryByTestId("auth-callback-technical-detail")).not.toBeInTheDocument();
+  });
+
+  it("renders technical detail when the prop begins with a leading newline", () => {
+    render(<AuthCallbackAccessPanel technicalDetail={"\nSign-in blocked."} />);
+
+    expect(screen.getByTestId("auth-callback-technical-detail")).toHaveTextContent("Sign-in blocked.");
   });
 
   it("inserts a newline in the note field when Enter is pressed without submitting", async () => {

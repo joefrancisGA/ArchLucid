@@ -134,6 +134,29 @@ export const REMEDIATION_WORKBENCH_COLUMNS: readonly {
   { id: "closed", label: "Closed" },
 ];
 
+const REMEDIATION_INSTANCE_STATUS_VALUES: ReadonlySet<RemediationInstanceStatus> = new Set([
+  "Classified",
+  "PreflightPassed",
+  "PreflightBlocked",
+  "Approved",
+  "WaveAssigned",
+  "Executed",
+  "ChangeImplemented",
+  "Verified",
+  "VerificationFailed",
+  "Closed",
+]);
+
+export function parseRemediationInstanceStatusFilter(value: string): RemediationInstanceStatus | null {
+  const trimmed = value.trim();
+
+  if (!REMEDIATION_INSTANCE_STATUS_VALUES.has(trimmed as RemediationInstanceStatus)) {
+    return null;
+  }
+
+  return trimmed as RemediationInstanceStatus;
+}
+
 export function remediationInstanceStatusLabel(status: RemediationInstanceStatus): string {
   switch (status) {
     case "Executed":

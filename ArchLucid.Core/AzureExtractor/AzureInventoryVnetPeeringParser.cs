@@ -77,6 +77,39 @@ public static class AzureInventoryVnetPeeringParser
             .ToList();
     }
 
+    /// <summary>
+    ///     Remote VNet ARM ids for peerings whose stored state is <c>Connected</c> only.
+    /// </summary>
+    public static IReadOnlyList<string> EnumerateConnectedRemoteVnetArmIds(string? peeringsJson)
+    {
+        return ParsePeerings(peeringsJson)
+            .Where(record =>
+                !string.IsNullOrWhiteSpace(record.RemoteVirtualNetworkArmId)
+                && IsConnectedPeeringState(record.PeeringState))
+            .Select(record => record.RemoteVirtualNetworkArmId!)
+            .ToList();
+    }
+
+    public static string? TryReadPeeringStateFromProperties(IReadOnlyDictionary<string, string?>? properties)
+    {
+        if (properties is null)
+        {
+            return null;
+        }
+
+        foreach (KeyValuePair<string, string?> pair in properties)
+        {
+            if (!string.Equals(pair.Key, "peeringState", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            return string.IsNullOrWhiteSpace(pair.Value) ? null : pair.Value.Trim();
+        }
+
+        return null;
+    }
+
     public static IReadOnlyList<AzureInventoryVnetPeeringRecord> ParsePeerings(string? peeringsJson)
     {
         if (string.IsNullOrWhiteSpace(peeringsJson))
@@ -314,7 +347,14 @@ public static class AzureInventoryVnetPeeringParser
 
     private static string? NormalizeArmId(string? azureResourceId)
     {
-        string normalized = ArmResourceIdNormalizer.Normalize(azureResourceId);
+        if (string.IsNullOrWhiteSpace(azureResourceId))
+        {
+            return null;
+        }
+
+        string working = PercentDecodeBounded.Decode(azureResourceId.Trim());
+
+        string normalized = ArmResourceIdNormalizer.Normalize(working);
 
         return string.IsNullOrWhiteSpace(normalized) ? null : normalized;
     }

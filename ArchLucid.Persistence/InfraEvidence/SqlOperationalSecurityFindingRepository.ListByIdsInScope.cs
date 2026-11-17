@@ -8,6 +8,11 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public sealed partial class SqlOperationalSecurityFindingRepository
 {
+    private const int ScopedFindingIdBatchSize = 500;
+
+    private static IEnumerable<Guid[]> BuildScopedFindingIdBatches(IEnumerable<Guid> ids) =>
+        ids.Where(id => id != Guid.Empty).Distinct().Chunk(ScopedFindingIdBatchSize);
+
     public async Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByIdsInScopeAsync(
         ProjectScopeKey scope,
         IReadOnlyList<Guid> findingIds,
@@ -43,18 +48,24 @@ public sealed partial class SqlOperationalSecurityFindingRepository
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        IEnumerable<FindingRow> rows = await conn.QueryAsync<FindingRow>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    FindingIds = distinctFindingIds,
-                },
-                cancellationToken: cancellationToken));
+        List<OperationalSecurityFindingRecord> results = new(distinctFindingIds.Count);
+        foreach (Guid[] batch in BuildScopedFindingIdBatches(distinctFindingIds))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            IEnumerable<FindingRow> rows = await conn.QueryAsync<FindingRow>(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId,
+                        FindingIds = batch,
+                    },
+                    cancellationToken: cancellationToken));
+            results.AddRange(rows.Select(MapFinding));
+        }
 
-        return rows.Select(MapFinding).ToList();
+        return results;
     }
 }

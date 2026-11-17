@@ -1,0 +1,2 @@
+export const RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE =
+  "An empty findings tab on this resource does not prove the subscription has no findings when the latest inventory capture completed with gaps." as const;

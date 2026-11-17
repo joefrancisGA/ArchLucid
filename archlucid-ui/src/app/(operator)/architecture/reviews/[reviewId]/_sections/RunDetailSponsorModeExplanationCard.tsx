@@ -4,8 +4,8 @@ import type { ReactElement } from "react";
 import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidenceBasisBadges";
 import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
-import { compareFindingSeverity } from "@/lib/quick-decision-severity-labels";
+import { compareFindingSeverity, severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
+import { formatExportPreviewCapIntro, formatExportPreviewShortenedText } from "@/lib/export-preview-caption-honesty";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { isDeterministicExplanationFallback, normalizeFiniteRatio } from "@/types/explanation";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -16,19 +16,75 @@ type RunDetailSponsorModeExplanationCardProps = {
   readonly buyerPolishedArtifactTable: boolean;
 };
 
-function firstNonEmptyLine(value: string | null | undefined): string {
-  const text = value?.trim() ?? "";
-
-  if (text.length === 0) {
-    return "Narrative summary was not stored.";
+function formatRiskPosture(value: string | null | undefined): string {
+  if (value === null || value === undefined) {
+    return "Risk posture was not stored.";
   }
 
-  return text.split(/\r?\n/).find((line) => line.trim().length > 0)?.trim() ?? text;
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return "Risk posture was stored empty.";
+  }
+
+  return trimmed;
+}
+
+function firstNonEmptyLine(value: string): string {
+  return value.split(/\r?\n/).find((line) => line.trim().length > 0)?.trim() ?? value;
+}
+
+function formatNarrativeSummaryLine(explanationSummary: RunExplanationSummary | null): {
+  readonly line: string;
+  readonly sourceLabel: string;
+} {
+  if (explanationSummary === null) {
+    return { line: "Narrative summary was not stored.", sourceLabel: "Narrative summary was not stored." };
+  }
+
+  const fromOverall = explanationSummary.overallAssessment;
+  const fromExplanation = explanationSummary.explanation?.summary;
+
+  if (fromOverall !== null && fromOverall !== undefined && fromOverall.trim().length > 0) {
+    const nonEmptyLineCount = fromOverall.split(/\r?\n/).filter((line) => line.trim().length > 0).length;
+    const firstLine = firstNonEmptyLine(fromOverall);
+    const additionalLinesNote =
+      nonEmptyLineCount > 1
+        ? " First stored line only. Additional narrative lines were stored and are not shown on this card."
+        : "";
+
+    return {
+      line: `${firstLine}${additionalLinesNote}`,
+      sourceLabel: "Stored overall assessment narrative (not the shorter explanation summary field).",
+    };
+  }
+
+  if (fromExplanation !== null && fromExplanation !== undefined && fromExplanation.trim().length > 0) {
+    return {
+      line: firstNonEmptyLine(fromExplanation),
+      sourceLabel: "Stored explanation summary (overall assessment narrative was not stored).",
+    };
+  }
+
+  if (fromOverall !== null && fromOverall !== undefined && fromOverall.trim().length === 0) {
+    return { line: "Narrative summary was stored empty.", sourceLabel: "Overall assessment narrative was stored empty." };
+  }
+
+  if (fromExplanation !== null && fromExplanation !== undefined && fromExplanation.trim().length === 0) {
+    return { line: "Narrative summary was stored empty.", sourceLabel: "Explanation summary was stored empty." };
+  }
+
+  return { line: "Narrative summary was not stored.", sourceLabel: "Narrative summary was not stored." };
+}
+
+function visibleSponsorFindings(findings: readonly QuickDecisionFinding[]): QuickDecisionFinding[] {
+  return findings.filter(
+    (finding) => !finding.isMuted && !isReviewFindingDispositionClosed(finding),
+  );
 }
 
 function topFindings(findings: readonly QuickDecisionFinding[]): readonly QuickDecisionFinding[] {
-  return [...findings]
-    .filter((finding) => !finding.isMuted && !isReviewFindingDispositionClosed(finding))
+  return [...visibleSponsorFindings(findings)]
     .sort((a, b) => {
       const severityDelta = compareFindingSeverity(a.severityValue, b.severityValue);
 
@@ -45,9 +101,11 @@ export function RunDetailSponsorModeExplanationCard(
   props: RunDetailSponsorModeExplanationCardProps,
 ): ReactElement | null {
   const { explanationSummary, findings, buyerPolishedArtifactTable } = props;
+  const visibleFindings = visibleSponsorFindings(findings);
   const top = topFindings(findings);
+  const narrativeSummary = formatNarrativeSummaryLine(explanationSummary);
 
-  if (explanationSummary === null && top.length === 0) {
+  if (explanationSummary === null && findings.length === 0) {
     return null;
   }
 
@@ -56,7 +114,7 @@ export function RunDetailSponsorModeExplanationCard(
   const faithfulnessRatio = normalizeFiniteRatio(explanationSummary?.faithfulnessSupportRatio);
   const basisLabel =
     citations === undefined || citations === null
-      ? "Citations not returned"
+      ? "Citations were not stored."
       : citationCount > 0
         ? `${citationCount} persisted citation${citationCount === 1 ? "" : "s"}`
         : "0 citations were stored.";
@@ -76,9 +134,17 @@ export function RunDetailSponsorModeExplanationCard(
         </h3>
       </header>
 
-      <p className={cn("m-0 mt-3 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-        {firstNonEmptyLine(explanationSummary?.overallAssessment ?? explanationSummary?.explanation?.summary)}
-      </p>
+      <div className="mt-3 space-y-1">
+        <p className={cn("m-0 font-semibold text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
+          Narrative summary
+        </p>
+        <p className={cn("m-0 text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+          {narrativeSummary.sourceLabel}
+        </p>
+        <p className={cn("m-0 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+          {narrativeSummary.line}
+        </p>
+      </div>
 
       <dl className={cn("mt-3 grid gap-2 sm:grid-cols-3", OPERATOR_TYPOGRAPHY.helper)}>
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-2">
@@ -87,7 +153,7 @@ export function RunDetailSponsorModeExplanationCard(
         </div>
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-2">
           <dt className="font-semibold">Risk posture</dt>
-          <dd className="m-0 mt-1">{explanationSummary?.riskPosture?.trim() || "Risk posture was not stored."}</dd>
+          <dd className="m-0 mt-1">{formatRiskPosture(explanationSummary?.riskPosture)}</dd>
         </div>
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-2">
           <dt className="font-semibold">Trust label</dt>
@@ -102,21 +168,34 @@ export function RunDetailSponsorModeExplanationCard(
         </div>
       </dl>
 
-      {top.length > 0 ? (
-        <div className="mt-4">
-          <p className={cn("m-0 text-al-text-secondary dark:text-neutral-200", OPERATOR_NAV_GROUP_LABEL)}>
-            Top sponsor talking points
-          </p>
+      <div className="mt-4">
+        <p className={cn("m-0 text-al-text-secondary dark:text-neutral-200", OPERATOR_NAV_GROUP_LABEL)}>
+          Sponsor talking points ({formatExportPreviewCapIntro(top.length, visibleFindings.length, "preview lines")})
+        </p>
+        {top.length > 0 ? (
           <ul className="mt-2 space-y-2 pl-5">
             {top.map((finding) => (
               <li key={finding.findingId}>
                 <span className="font-semibold">{severityBadgeLabel(finding.severityValue)}:</span>{" "}
-                {finding.title}
+                {formatExportPreviewShortenedText(
+                  finding.title,
+                  "Finding title was not stored.",
+                  96,
+                  "Finding title was stored empty.",
+                )}
               </li>
             ))}
           </ul>
-        </div>
-      ) : null}
+        ) : visibleFindings.length === 0 && findings.length > 0 ? (
+          <p className={cn("m-0 mt-2 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+            Only muted or closed findings remain on this review; no open sponsor talking points were listed.
+          </p>
+        ) : (
+          <p className={cn("m-0 mt-2 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+            Sponsor talking points were not stored.
+          </p>
+        )}
+      </div>
 
       <p className={cn("m-0 mt-4 text-al-text-secondary dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
         Next action: {buyerPolishedArtifactTable ? "send the sponsor briefing export" : "open the sponsor briefing"}

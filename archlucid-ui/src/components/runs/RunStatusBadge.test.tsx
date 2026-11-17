@@ -205,6 +205,20 @@ describe("RunStatusBadge", () => {
     expect(pill?.className).toContain("text-[var(--al-status-ready-fg)]");
   });
 
+  it("adds a warnings tag on sealed reviews with governance warnings in engineering chrome", () => {
+    runStatusVocabularyPassForced.on = false;
+
+    renderRunStatusBadge({
+      ...base,
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+    });
+
+    expect(
+      screen.getByLabelText(/Architecture review pipeline status: Warnings on sealed review/i),
+    ).toBeInTheDocument();
+  });
+
   it("shows engineering pipeline labels when vocabulary pass is off", () => {
     runStatusVocabularyPassForced.on = false;
 

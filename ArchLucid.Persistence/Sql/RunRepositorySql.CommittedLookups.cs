@@ -89,8 +89,11 @@ internal static partial class RunRepositorySql
                                                                  """;
 
     public const string ClearGraphSnapshotForArchitecture = """
+                                                            DECLARE @UpdatedRuns TABLE (RunId UNIQUEIDENTIFIER NOT NULL);
+
                                                             UPDATE dbo.Runs
                                                             SET GraphSnapshotId = NULL
+                                                            OUTPUT inserted.RunId INTO @UpdatedRuns
                                                             WHERE TenantId = @TenantId
                                                               AND WorkspaceId = @WorkspaceId
                                                               AND ScopeProjectId = @ScopeProjectId
@@ -98,6 +101,8 @@ internal static partial class RunRepositorySql
                                                               AND ArchivedUtc IS NULL
                                                               AND GraphSnapshotId IS NOT NULL
                                                               AND GoldenManifestId IS NULL;
+
+                                                            SELECT RunId FROM @UpdatedRuns;
                                                             """;
 
     public const string SelectLatestRunIdForArchitecture = """

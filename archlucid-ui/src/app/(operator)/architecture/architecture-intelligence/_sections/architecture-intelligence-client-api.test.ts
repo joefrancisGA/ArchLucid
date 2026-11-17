@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
 
-import { getJson, postJson } from "./architecture-intelligence-client-api";
+import { getJson, postJson, primaryDescriptionFromSources } from "./architecture-intelligence-client-api";
 
 describe("architecture-intelligence-client-api", () => {
   beforeEach(() => {
@@ -47,5 +47,17 @@ describe("architecture-intelligence-client-api", () => {
     expect(headers.get("x-project-id")).toBe(projectId);
 
     vi.unstubAllGlobals();
+  });
+
+  it("does not treat an attachment-only source as the primary architecture description", () => {
+    expect(
+      primaryDescriptionFromSources([
+        {
+          fileName: "network-diagram.png",
+          contentType: "image/png",
+          content: "binary attachment metadata",
+        },
+      ]),
+    ).toBe("");
   });
 });

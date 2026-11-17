@@ -1,0 +1,2 @@
+export const REMEDIATION_PATTERNS_FILTER_NO_MATCH_NOT_LOAD_FAILURE_LINE =
+  "No patterns match the active registry filters while the catalog loaded successfully — widen filters before treating this as a load failure." as const;

@@ -9,12 +9,14 @@ import {
 import {
   HELP_PAGE_LAYOUT,
 } from "@/lib/help/help-page-layout";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 
 
 export type FindingDetailClaimOrientationStripProps = {
   readonly runId: string;
   readonly findingId: string;
+  readonly productLine?: ProductLineId;
   readonly readingBodyClassName?: string;
 };
 
@@ -29,7 +31,7 @@ export function FindingDetailClaimOrientationStrip(
       sourcesTestId="finding-detail-sources"
       sourcesTitle={FINDING_DETAIL_FOLLOW_UPS_TITLE}
       sourcesIntro={FINDING_DETAIL_SOURCES_INTRO}
-      sources={buildFindingDetailOrientationSources(props.runId, props.findingId)}
+      sources={buildFindingDetailOrientationSources(props.runId, props.findingId, props.productLine)}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />

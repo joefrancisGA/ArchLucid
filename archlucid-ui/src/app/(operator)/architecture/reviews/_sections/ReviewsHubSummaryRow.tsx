@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { countArchitectureDraftsReadyForReview } from "@/lib/architecture/architecture-draft-ready-for-review";
@@ -22,6 +23,8 @@ import {
   REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL,
   REVIEWS_HUB_SUMMARY_EMPTY_COUNTS_HINT,
   REVIEWS_HUB_SUMMARY_EMPTY_HINT,
+  REVIEWS_HUB_SUMMARY_FINDINGS_TOTAL_OMITTED_HINT,
+  REVIEWS_HUB_SUMMARY_OPEN_RISKS_TOTAL_OMITTED_HINT,
 } from "./reviews-hub-copy";
 import {
   resolveReviewsHubHeaderPrimary,
@@ -115,6 +118,7 @@ function renderMetricSeparator(index: number): React.JSX.Element | null {
 
 /** Compact workspace posture row on `/architecture/reviews` — emphasizes non-zero counts. */
 export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JSX.Element {
+  const { productLine } = useProductLine();
   const { summary } = props;
   const draftEntries = useArchitectureDraftRegistryEntries();
   const draftsReady = countArchitectureDraftsReadyForReview(draftEntries);
@@ -148,7 +152,7 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
     metrics.push({
       kind: "self-describing",
       testId: "reviews-hub-summary-findings",
-      presentation: reviewsHubOpenFindingsPresentation(summary.findings),
+      presentation: reviewsHubOpenFindingsPresentation(summary.findings, productLine),
     });
   }
 
@@ -156,7 +160,7 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
     metrics.push({
       kind: "self-describing",
       testId: "reviews-hub-summary-open-risks",
-      presentation: reviewsHubOpenRisksPresentation(summary.openRisks),
+      presentation: reviewsHubOpenRisksPresentation(summary.openRisks, productLine),
     });
   }
 
@@ -187,6 +191,8 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
 
   const showAttentionHint = attentionMetricsAllZero && summary.inProgress > 0;
   const showCountsHint = summary.inProgress === 0 && draftsReady === 0;
+  const showFindingsOmittedHint = summary.findingsTotalOmitted && summary.findings === 0;
+  const showOpenRisksOmittedHint = summary.openRisksTotalOmitted && summary.openRisks === 0;
 
   return (
     <section className="space-y-1" data-testid="reviews-hub-summary-row" aria-label="Workspace review summary">
@@ -217,6 +223,22 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
       {showCountsHint ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-summary-empty-hint">
           {REVIEWS_HUB_SUMMARY_EMPTY_COUNTS_HINT}
+        </p>
+      ) : null}
+      {showFindingsOmittedHint ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="reviews-hub-summary-findings-omitted-hint"
+        >
+          {REVIEWS_HUB_SUMMARY_FINDINGS_TOTAL_OMITTED_HINT}
+        </p>
+      ) : null}
+      {showOpenRisksOmittedHint ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="reviews-hub-summary-open-risks-omitted-hint"
+        >
+          {REVIEWS_HUB_SUMMARY_OPEN_RISKS_TOTAL_OMITTED_HINT}
         </p>
       ) : null}
     </section>

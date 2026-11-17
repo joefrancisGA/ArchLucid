@@ -61,7 +61,7 @@ describe("workspace-navigation-help-alignment", () => {
   });
 
   it("registers help topic in product documentation registry", () => {
-    const registry = readRepoFile("archlucid-ui/src/lib/product-documentation-registry.ts");
+    const registry = readRepoFile("archlucid-ui/src/lib/product-documentation-registry-entries-buyer.ts");
 
     expect(registry).toContain("pilot-guide");
     expect(registry).toContain(WORKSPACE_NAVIGATION_GUIDE_DOC_PATH);

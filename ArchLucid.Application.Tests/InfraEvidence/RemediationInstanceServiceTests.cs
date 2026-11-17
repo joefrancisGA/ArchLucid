@@ -68,6 +68,21 @@ public sealed class RemediationInstanceServiceTests
     }
 
     [Fact]
+    public void Preflight_blocks_when_the_snapshot_is_missing_the_target_resource()
+    {
+        RemediationInstancePreflightResult result = RemediationInstancePreflightEvaluator.Evaluate(
+            CreateScope(),
+            CreateInstance(Guid.NewGuid(), RemediationInstanceStatus.Classified, cloudResourceId: CloudResourceId),
+            CreateVersion(RemediationPatternStatus.Approved),
+            CreateMatch(RemediationPatternMatchKind.ExactMatch),
+            hasActiveException: true,
+            CreateSnapshot(SnapshotA, Guid.NewGuid(), present: false));
+
+        result.Passed.Should().BeFalse();
+        result.Blockers.Should().ContainSingle(blocker => blocker.Contains("Target cloud resource"));
+    }
+
+    [Fact]
     public async Task Execute_does_not_set_verified_status()
     {
         InMemoryRemediationInstanceRepository instanceRepository = new();
@@ -519,6 +534,37 @@ public sealed class RemediationInstanceServiceTests
         instanceRepository.Instances.Single().Status.Should().Be(RemediationInstanceStatus.PreflightPassed);
     }
 
+    [Theory]
+    [InlineData("tenant")]
+    [InlineData("workspace")]
+    [InlineData("project")]
+    public async Task ApproveAsync_rejects_cross_scope_instance_without_mutating_owner_record(string foreignDimension)
+    {
+        InMemoryRemediationInstanceRepository instances = new();
+        Guid instanceId = Guid.NewGuid();
+        instances.Instances.Add(CreateInstance(instanceId, RemediationInstanceStatus.PreflightPassed));
+
+        ScopeContext foreignScope = new()
+        {
+            TenantId = foreignDimension == "tenant" ? Guid.NewGuid() : TenantId,
+            WorkspaceId = foreignDimension == "workspace" ? Guid.NewGuid() : WorkspaceId,
+            ProjectId = foreignDimension == "project" ? Guid.NewGuid() : ProjectId,
+        };
+
+        RemediationInstanceService service = CreateSut(
+            instances,
+            new InMemoryRemediationPatternMatchRepository(),
+            new InMemoryRemediationPatternRepository());
+
+        RemediationInstanceOperationResult denied =
+            await service.ApproveAsync(foreignScope, instanceId, "approver");
+
+        denied.Succeeded.Should().BeFalse();
+        denied.ErrorMessage.Should().Be("Remediation instance was not found.");
+        instances.Instances.Should().ContainSingle();
+        instances.Instances[0].Status.Should().Be(RemediationInstanceStatus.PreflightPassed);
+    }
+
     [Fact]
     public async Task Passing_verify_with_control_and_snapshot_writes_one_association_and_detail_lists_it()
     {
@@ -727,6 +773,36 @@ public sealed class RemediationInstanceServiceTests
         result.ErrorMessage.Should().Be("Verified remediation association could not be saved.");
         harness.Instances.Instances.Single().Status.Should().Be(RemediationInstanceStatus.ChangeImplemented);
         harness.Instances.Instances.Single().VerificationSnapshotId.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Passing_verify_saves_the_association_when_the_caller_cancels_after_verifying()
+    {
+        using CancellationTokenSource cancellation = new();
+        Guid controlId = Guid.NewGuid();
+        Mock<IVerifiedRemediationControlAssociationRepository> associations = new();
+        PassingVerifyHarness harness = ArrangePassingVerify(controlId, assessmentId: null, associations.Object);
+        associations.Setup(repository => repository.UpsertAsync(
+                It.IsAny<ProjectScopeKey>(), It.IsAny<VerifiedRemediationControlAssociationRecord>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((ProjectScopeKey _, VerifiedRemediationControlAssociationRecord record, CancellationToken ct) =>
+            {
+                harness.Instances.Instances.Single().Status.Should().Be(RemediationInstanceStatus.Verified);
+                cancellation.Cancel();
+                return ct.IsCancellationRequested
+                    ? Task.FromCanceled<VerifiedRemediationControlAssociationRecord>(ct)
+                    : Task.FromResult(record);
+            });
+
+        RemediationInstanceOperationResult result = await harness.Service.VerifyAsync(
+            CreateScope(), harness.InstanceId, SnapshotB, "verifier", cancellation.Token);
+
+        result.Succeeded.Should().BeTrue();
+        associations.Verify(repository => repository.UpsertAsync(
+            CreateScope().ToProjectScopeKey(),
+            It.Is<VerifiedRemediationControlAssociationRecord>(record =>
+                record.InstanceId == harness.InstanceId && record.VerificationSnapshotId == SnapshotB && record.ControlId == controlId),
+            CancellationToken.None), Times.Once);
     }
 
     private static async Task AssertMissingControlWritesNoRowAsync(Guid? controlId)

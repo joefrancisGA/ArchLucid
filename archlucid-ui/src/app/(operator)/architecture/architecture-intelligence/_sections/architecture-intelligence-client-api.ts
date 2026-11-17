@@ -20,7 +20,11 @@ export function flattenFindings(result: ClosedLoopReasoningResult): SpecialistRe
   return result.specialistReviews.flatMap((review) => review.findings ?? []);
 }
 
-export function formatCountMap(counts: Record<string, number>): string {
+export function formatCountMap(counts: Record<string, number> | null | undefined): string {
+  if (counts === null || counts === undefined) {
+    return "Counts were not stored.";
+  }
+
   const entries = Object.entries(counts);
 
   if (entries.length === 0) {
@@ -113,8 +117,7 @@ export function buildRequest(
 }
 
 export function primaryDescriptionFromSources(sources: readonly ClosedLoopReasoningSourceText[]): string {
-  const descriptionSource =
-    sources.find((source) => source.fileName === DEFAULT_ARCHITECTURE_FILE_NAME) ?? sources[0];
+  const descriptionSource = sources.find((source) => source.fileName === DEFAULT_ARCHITECTURE_FILE_NAME);
 
   return descriptionSource?.content?.trim() ?? "";
 }

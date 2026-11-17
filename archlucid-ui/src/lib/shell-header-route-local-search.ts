@@ -1,6 +1,8 @@
 import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
 
 /** Reviews hub inventory — header search drives `?q=` on this path only. */
@@ -14,5 +16,10 @@ export function isReviewsHubInventoryHeaderSearchPath(pathname: string): boolean
 export function isGovernanceFindingsQueueHeaderSearchPath(pathname: string): boolean {
   const path = (pathname ?? "").split("?")[0]?.replace(/\/$/, "") ?? "";
 
-  return path === GOVERNANCE_FINDINGS_PATH || path === GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH;
+  return (
+    path === GOVERNANCE_FINDINGS_PATH
+    || path === GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH
+    || path === SECURENOW_FINDINGS_PATH
+    || path === SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH
+  );
 }

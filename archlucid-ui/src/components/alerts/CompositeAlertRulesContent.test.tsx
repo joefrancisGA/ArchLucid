@@ -24,10 +24,33 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => false,
 }));
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace: vi.fn() }),
-  useSearchParams: () => new URLSearchParams("tab=advanced-rules&runId=run-composite-test"),
+const compositeAlertRulesSearchParamsHarness = vi.hoisted(() => ({
+  query: "tab=advanced-rules&runId=run-composite-test",
+  applyHref(href: string): void {
+    const qIndex = href.indexOf("?");
+    compositeAlertRulesSearchParamsHarness.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
+  },
 }));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal as () => Promise<typeof import("next/navigation")>, {
+    useSearchParams: () => new URLSearchParams(compositeAlertRulesSearchParamsHarness.query),
+    useRouter: () =>
+      ({
+        back: vi.fn(),
+        forward: vi.fn(),
+        prefetch: vi.fn(),
+        push: vi.fn(),
+        refresh: vi.fn(),
+        replace: (href: string) => {
+          compositeAlertRulesSearchParamsHarness.applyHref(href);
+        },
+        bfcacheId: null,
+      }) as unknown as ReturnType<typeof import("next/navigation")["useRouter"]>,
+  });
+});
 
 const apiHoisted = vi.hoisted(() => ({
   listCompositeAlertRules: vi.fn(),

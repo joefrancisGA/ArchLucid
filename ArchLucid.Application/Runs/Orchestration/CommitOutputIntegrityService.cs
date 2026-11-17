@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Findings;
@@ -118,10 +119,16 @@ public sealed class CommitOutputIntegrityService(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<AgentExecutionTrace> traces =
-            await _agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken);
 
-        IReadOnlyList<string> architectureVersionPinReasons =
+        Persistence.Models.RunRecord? runHeader = null;
+
+        if (Guid.TryParseExact(runId, "N", out Guid runGuidForHeader) || Guid.TryParse(runId, out runGuidForHeader))
+        {
+            runHeader =
+                await _runRepository.GetByIdAsync(scope, runGuidForHeader, cancellationToken).ConfigureAwait(false);
+        }
+
+        (IReadOnlyList<string> architectureVersionPinReasons, Persistence.Models.RunRecord? architecturePinResolvedHeader) =
             await CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync(
                 scope,
                 runId,
@@ -129,44 +136,30 @@ public sealed class CommitOutputIntegrityService(
                 _runRepository,
                 _architectureVersionRepository,
                 _architectureKnowledgeModelAccess,
+                runHeader,
                 cancellationToken)
             .ConfigureAwait(false);
 
         if (architectureVersionPinReasons.Count > 0)
             throw new ConflictException(architectureVersionPinReasons[0]);
 
-        if (Guid.TryParseExact(runId, "N", out Guid runGuidForCreateTimePins) || Guid.TryParse(runId, out runGuidForCreateTimePins))
+        runHeader ??= architecturePinResolvedHeader;
+
+        if (runHeader is not null)
         {
-            Persistence.Models.RunRecord? headerForPins =
-                await _runRepository.GetByIdAsync(scope, runGuidForCreateTimePins, cancellationToken).ConfigureAwait(false);
+            IReadOnlyList<string> createTimePinReasons =
+                await CommitCreateTimePinIntegrityEvaluator.GetBlockingReasonsAsync(
+                    scope,
+                    runId,
+                    runHeader,
+                    _runPolicyPackPinService,
+                    _runEvidencePackagePinService,
+                    _draftRequestRepository,
+                    cancellationToken)
+                .ConfigureAwait(false);
 
-            if (headerForPins is not null)
-            {
-                IReadOnlyList<string> createTimePinReasons =
-                    await CommitCreateTimePinIntegrityEvaluator.GetBlockingReasonsAsync(
-                        scope,
-                        runId,
-                        headerForPins,
-                        _runPolicyPackPinService,
-                        _runEvidencePackagePinService,
-                        _draftRequestRepository,
-                        cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (createTimePinReasons.Count > 0)
-                    throw new ConflictException(createTimePinReasons[0]);
-            }
-        }
-
-        AgentOutputQualityGateOptions gateOptions = _qualityGateOptionsResolver.Resolve(cancellationToken);
-        IReadOnlyList<string> qualityReasons =
-            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, gateOptions, traces);
-
-        if (qualityReasons.Count > 0)
-        {
-            throw new ConflictException(
-                "Commit blocked: agent output quality gate rejected one or more traces. "
-                + string.Join(" ", qualityReasons));
+            if (createTimePinReasons.Count > 0)
+                throw new ConflictException(createTimePinReasons[0]);
         }
 
         IReadOnlyList<string> provenanceViolations = DecisionGradeFindingProvenanceValidator.GetViolations(findings);
@@ -192,27 +185,40 @@ public sealed class CommitOutputIntegrityService(
                 + string.Join(" ", assumptionGateReasons));
         }
 
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+        IReadOnlyList<AgentExecutionTrace> traces =
+            await AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync(
+                _agentExecutionTraceRepository,
+                scope,
+                canonicalRunId,
+                cancellationToken);
+
+        AgentOutputQualityGateOptions gateOptions = _qualityGateOptionsResolver.Resolve(cancellationToken);
+        IReadOnlyList<string> qualityReasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, gateOptions, traces);
+
+        if (qualityReasons.Count > 0)
+        {
+            throw new ConflictException(
+                "Commit blocked: agent output quality gate rejected one or more traces. "
+                + string.Join(" ", qualityReasons));
+        }
+
         // TB-2321: the UI scorecard already refuses these; the server must refuse them for direct API callers too.
         await _finalizeQualityGate
             .EnsurePassOrThrowAsync(scope, architectureRequest, findings, cancellationToken)
             .ConfigureAwait(false);
 
-        if (Guid.TryParseExact(runId, "N", out Guid runGuidForEvidence) || Guid.TryParse(runId, out runGuidForEvidence))
+        if (runHeader is not null)
         {
-            Persistence.Models.RunRecord? header =
-                await _runRepository.GetByIdAsync(scope, runGuidForEvidence, cancellationToken).ConfigureAwait(false);
+            IReadOnlyList<string> evidenceIntegrityReasons =
+                FindingEvidenceReferentialIntegrityValidator.GetBlockingReasons(runHeader, findings.Findings);
 
-            if (header is not null)
+            if (evidenceIntegrityReasons.Count > 0)
             {
-                IReadOnlyList<string> evidenceIntegrityReasons =
-                    FindingEvidenceReferentialIntegrityValidator.GetBlockingReasons(header, findings.Findings);
-
-                if (evidenceIntegrityReasons.Count > 0)
-                {
-                    throw new ConflictException(
-                        "Commit blocked: finding evidence referential integrity failed. "
-                        + string.Join(" ", evidenceIntegrityReasons));
-                }
+                throw new ConflictException(
+                    "Commit blocked: finding evidence referential integrity failed. "
+                    + string.Join(" ", evidenceIntegrityReasons));
             }
         }
 

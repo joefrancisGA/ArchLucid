@@ -10,6 +10,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
@@ -59,19 +64,27 @@ describe("HelpRoiSummaryGuideView buyer-polished shell (HRO)", () => {
     expect(screen.queryByTestId("help-topic-toc-mobile")).not.toBeInTheDocument();
     expect(screen.queryByTestId("scorecard-roi-vocabulary-rail")).not.toBeInTheDocument();
     expect(screen.queryByTestId("baseline-roi-vocabulary-rail")).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("help-roi-summary-sources")).getByRole("heading", {
+        name: ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE,
+      }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("help-roi-summary-sources")).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(ROI_SUMMARY_HELP_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(ROI_SUMMARY_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-roi-summary-action-panel");
-    const orientationBottom = screen.getByTestId("help-roi-summary-orientation-bottom");
     const sourcesSection = screen.getByTestId("help-roi-summary-sources");
+    const claimOrientationBottom = screen
+      .getByTestId("help-roi-summary-disposition-line")
+      .closest('[data-testid="help-roi-summary-orientation-bottom"]');
+    expect(claimOrientationBottom).toBeTruthy();
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(actionPanel);
-    expect(primaryContent).toContainElement(orientationBottom);
-    expect(orientationBottom).toContainElement(sourcesSection);
+    expect(primaryContent).toContainElement(sourcesSection);
+    expect(primaryContent).toContainElement(claimOrientationBottom!);
+    expect(claimOrientationBottom).not.toContainElement(sourcesSection);
     expect(screen.getByTestId("help-roi-summary-start-here-primary-cta")).toHaveAttribute(
       "href",
       ROI_SUMMARY_HELP_PRIMARY_ACTION.href,
@@ -79,6 +92,9 @@ describe("HelpRoiSummaryGuideView buyer-polished shell (HRO)", () => {
 
     expectWhereToGoNextFollowUpLinks(within(sourcesSection), ROI_SUMMARY_HELP_SOURCES, "/");
 
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(
+      firstViewport.compareDocumentPosition(claimOrientationBottom!) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 });
+

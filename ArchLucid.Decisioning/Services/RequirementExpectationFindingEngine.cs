@@ -23,6 +23,7 @@ public sealed class RequirementExpectationFindingEngine(IGraphCoverageAnalyzer a
             return Task.FromResult<IReadOnlyList<Finding>>([]);
 
         List<string> scopeNodeIds = WorkloadExpectationFindingGraphScope.CollectScopeNodeIds(graphSnapshot);
+        bool hasScopeMetadata = WorkloadScopeExpectationHonesty.HasWorkloadScopeMetadata(graphSnapshot);
 
         List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
             graphSnapshot,
@@ -36,8 +37,7 @@ public sealed class RequirementExpectationFindingEngine(IGraphCoverageAnalyzer a
             EngineType = EngineType,
             Severity = FindingSeverity.Warning,
             Title = "Workload-conditioned requirement themes are incomplete",
-            Rationale =
-                "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+            Rationale = WorkloadScopeExpectationHonesty.DescribeRequirementExpectationRationale(hasScopeMetadata),
             PayloadType = nameof(RequirementExpectationFindingPayload),
             Payload = new RequirementExpectationFindingPayload
             {
@@ -48,9 +48,7 @@ public sealed class RequirementExpectationFindingEngine(IGraphCoverageAnalyzer a
                 MissingThemes = result.MissingThemes
             },
             RecommendedActions =
-            [
-                "Add requirement nodes that cover the missing workload-conditioned themes."
-            ],
+                WorkloadScopeExpectationHonesty.RequirementExpectationRecommendedActions(hasScopeMetadata).ToList(),
             RelatedNodeIds = scopeNodeIds,
             EvidenceRefs = evidenceRefs,
             Trace = new ExplainabilityTrace

@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { resolveDeskContinuityProvenanceHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -15,6 +16,7 @@ import type { ReviewRunEngineProvenance } from "@/lib/review-engine-provenance-d
 import {
   deriveReviewRecordMetadataContext,
 } from "@/lib/run-detail-workspace-derive";
+import { RUN_DETAIL_ARCHITECTURE_REQUEST_ID_STORED_EMPTY } from "@/lib/run-detail-workspace-derive/review-metadata";
 import { resolveProvenanceMetadataAbsentReasons } from "@/lib/provenance-metadata-absent-reasons";
 import type { RunDetail } from "@/types/authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -36,14 +38,34 @@ export type RunDetailProvenanceSummaryCardProps = {
 /** TB-111: inline provenance context without leaving run detail. */
 export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummaryCardProps): ReactElement {
   const { runId, run, engineProvenance, manifestId } = props;
-  const architectureRequestId =
+  const architectureRequestIdStored =
     "architectureRequestId" in run && typeof run.architectureRequestId === "string"
       ? run.architectureRequestId
       : null;
+  const architectureRequestIdDisplay =
+    architectureRequestIdStored === null
+      ? null
+      : architectureRequestIdStored.trim().length === 0
+        ? RUN_DETAIL_ARCHITECTURE_REQUEST_ID_STORED_EMPTY
+        : architectureRequestIdStored.trim();
+  const architectureRequestIdCopyValue =
+    architectureRequestIdStored !== null && architectureRequestIdStored.trim().length > 0
+      ? architectureRequestIdStored.trim()
+      : null;
+  const architectureRequestIdHasStoredValue = architectureRequestIdCopyValue !== null;
   const metadataContext = deriveReviewRecordMetadataContext(manifestId);
   const absentReasons = resolveProvenanceMetadataAbsentReasons(metadataContext);
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const fullProvenanceHref = useMemo(
+    () =>
+      resolveDeskContinuityProvenanceHref(runId, {
+        pathname,
+        search: searchParams.toString(),
+        architectureId: architectureRequestIdStored,
+      }),
+    [architectureRequestIdStored, pathname, runId, searchParams],
+  );
   const urlIdentifiersOpen = parseRunDetailProvenanceIdentifiersOpenFromSearch(
     searchParams.get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM),
   );
@@ -54,11 +76,11 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
   const syncIdentifiersOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runDetailProvenanceIdentifiersDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        runDetailProvenanceIdentifiersDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setIdentifiersOpen = useCallback(
@@ -77,7 +99,7 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
   useEffect(() => {
     const syncIdentifiersOpenFromUrl = (): void => {
       const nextOpen = parseRunDetailProvenanceIdentifiersOpenFromSearch(
-        new URLSearchParams(window.location.search).get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM),
+        new URLSearchParams(readWindowLocationSearch()).get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM),
       );
 
       if (identifiersOpenRef.current === nextOpen) {
@@ -115,8 +137,9 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
         <CardHeader>
           <h3 className={runDetailSectionHeadingClass}>Provenance summary</h3>
           <CardDescription>
-            Snapshot and request identifiers for this review. Open the full provenance graph for coordinator linkage and
-            trace timeline.
+            Snapshot and request identifiers for this review. Graph snapshot IDs come from stored analysis output — not
+            from a live inventory collect pull. Open the full provenance graph for coordinator linkage and trace
+            timeline.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -146,20 +169,29 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
               </div>
               <div className="sm:col-span-2">
                 <dt className={definitionLabelClass}>Architecture request</dt>
-                <dd className={architectureRequestId ? monoValueClass : absentValueClass}>
-                  {architectureRequestId ?? absentReasons.architectureRequest}
-                  {architectureRequestId ? (
-                    <CopyIdButton value={architectureRequestId} aria-label="Copy architecture request ID" />
+                <dd className={architectureRequestIdHasStoredValue ? monoValueClass : absentValueClass}>
+                  {architectureRequestIdDisplay ?? absentReasons.architectureRequest}
+                  {architectureRequestIdCopyValue ? (
+                    <CopyIdButton value={architectureRequestIdCopyValue} aria-label="Copy architecture request ID" />
                   ) : null}
                 </dd>
               </div>
             </dl>
           </CollapsibleSection>
-          {engineProvenance ? <RunDetailEngineProvenanceRow provenance={engineProvenance} /> : null}
+          {engineProvenance ? (
+            <RunDetailEngineProvenanceRow provenance={engineProvenance} />
+          ) : (
+            <dl className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+              <div>
+                <dt className={definitionLabelClass}>Engine</dt>
+                <dd className={absentValueClass}>Engine provenance was not stored.</dd>
+              </div>
+            </dl>
+          )}
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <Link
               className={OPERATOR_LINK.nav}
-              href={`/architecture/reviews/${encodeURIComponent(runId)}/provenance`}
+              href={fullProvenanceHref}
             >
               View full provenance
             </Link>

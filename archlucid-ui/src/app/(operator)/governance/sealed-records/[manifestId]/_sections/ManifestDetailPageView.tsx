@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer/buyer-demo-content-gating";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { resolveSealedCollateralReviewDeskHref } from "@/lib/architecture/resolve-sealed-collateral-review-desk-href";
 import { ManifestDetailBundleExportButton } from "@/components/ManifestDetailBundleExportButton";
 import {
   BUYER_MANIFEST_AUTHORITY_SUMMARY,
@@ -40,6 +41,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import {
   SEALED_RECORD_DETAIL_BUYER_START_HERE_HELPER,
   SEALED_RECORD_DETAIL_PAGE_LEAD,
@@ -95,7 +97,11 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
     buyerPolishedLayout === true && showcasePackage === true;
 
   const primaryFindingHref = showcasePackage
-    ? `/architecture/reviews/${encodeURIComponent(canonicalizeDemoRunId(summary.runId.trim()))}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
+    ? resolveSealedCollateralReviewDeskHref({
+        runId: canonicalizeDemoRunId(summary.runId.trim()),
+        findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+        findingIdOnPath: true,
+      })
     : null;
 
   const overviewSummaryCard = (
@@ -178,7 +184,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <Link
           className={OPERATOR_LINK.nav}
-          href={`/architecture/reviews/${summary.runId}`}
+          href={resolveSealedCollateralReviewDeskHref({ runId: summary.runId })}
           data-testid="manifest-detail-back-to-review"
         >
           {buyerPolishedLayout === true && showcasePackage === true
@@ -272,7 +278,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           {" · "}
           <Link
             className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(listScopedRunId)}`}
+            href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(listScopedRunId)}
           >
             Open review
           </Link>

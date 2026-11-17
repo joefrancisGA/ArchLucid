@@ -1,0 +1,192 @@
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { ConversationMessage, ConversationThread } from "@/types/conversation";
+
+import { useAskPage } from "./use-ask-page";
+
+const mocks = vi.hoisted(() => ({
+  replace: vi.fn(),
+  useThreads: vi.fn(),
+  getMessages: vi.fn(),
+}));
+const router = { replace: mocks.replace };
+const searchParams = new URLSearchParams("thread=requested");
+
+vi.mock("next/navigation", async (importOriginal) => ({
+  ...await importOriginal<typeof import("next/navigation")>(),
+  useRouter: () => router,
+  useSearchParams: () => searchParams,
+}));
+vi.mock("@/hooks/use-conversation-threads-query", () => ({
+  useConversationThreadsQuery: mocks.useThreads,
+}));
+vi.mock("@/hooks/use-working-insights-architecture-bind", () => ({
+  useWorkingInsightsArchitectureBind: () => ({ bindPending: false, bindResult: null }),
+}));
+vi.mock("@/hooks/use-working-finding-inspect-href-options", () => ({
+  useWorkingFindingInspectHrefOptions: () => undefined,
+}));
+vi.mock("@/lib/conversation-api", () => ({
+  getConversationMessages: mocks.getMessages,
+}));
+
+const requestedThread: ConversationThread = {
+  threadId: "requested",
+  tenantId: "tenant",
+  workspaceId: "workspace",
+  projectId: "project",
+  runId: "run",
+  title: "Requested thread",
+  lastUpdatedUtc: "2026-02-01T00:00:00Z",
+  createdUtc: "2026-01-01T00:00:00Z",
+};
+const refetch = vi.fn();
+
+describe("useAskPage conversation list", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    searchParams.set("thread", "requested");
+    mocks.getMessages.mockResolvedValue([]);
+  });
+
+  it("opens the requested thread without rewriting the URL when the list is already cached", async () => {
+    mocks.useThreads.mockReturnValue({ data: [requestedThread], isError: false, refetch });
+
+    const { result } = renderHook(() => useAskPage());
+
+    await waitFor(() => expect(result.current.selectedThreadId).toBe("requested"));
+    expect(mocks.getMessages).toHaveBeenCalledWith("requested");
+    expect(mocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("preserves the thread link when the initial list request fails", () => {
+    mocks.useThreads.mockReturnValue({
+      data: undefined,
+      isError: true,
+      error: new Error("Could not load conversations"),
+      refetch,
+    });
+
+    renderHook(() => useAskPage());
+
+    expect(mocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("exposes an initial list failure and clears it when the list recovers", async () => {
+    mocks.useThreads.mockReturnValue({
+      data: undefined,
+      isError: true,
+      error: new Error("Could not load conversations"),
+      refetch,
+    });
+    const { result, rerender } = renderHook(() => useAskPage());
+
+    expect(result.current.listFailure?.message).toBe("Could not load conversations");
+
+    mocks.useThreads.mockReturnValue({ data: [requestedThread], isError: false, refetch });
+    rerender();
+
+    await waitFor(() => expect(result.current.selectedThreadId).toBe("requested"));
+    expect(result.current.listFailure).toBeNull();
+  });
+
+  it("exposes a refresh failure while keeping the last successful thread list", () => {
+    const threads = [requestedThread];
+    mocks.useThreads.mockReturnValue({ data: threads, isError: false, refetch });
+    const { result, rerender } = renderHook(() => useAskPage());
+
+    mocks.useThreads.mockReturnValue({
+      data: threads,
+      isError: true,
+      error: new Error("Could not refresh conversations"),
+      refetch,
+    });
+    rerender();
+
+    expect(result.current.listFailure?.message).toBe("Could not refresh conversations");
+    expect(result.current.threads).toEqual(threads);
+  });
+
+  it("waits for the refreshed list before replacing a thread absent from the cache", async () => {
+    const cachedThreads = [{ ...requestedThread, threadId: "cached" }];
+    mocks.useThreads.mockReturnValue({ data: cachedThreads, isError: false, isFetching: true, refetch });
+
+    const { result, rerender } = renderHook(() => useAskPage());
+
+    expect(result.current.threads).toEqual(cachedThreads);
+    expect(mocks.replace).not.toHaveBeenCalled();
+
+    mocks.useThreads.mockReturnValue({ data: [], isError: false, isFetching: false, refetch });
+    rerender();
+
+    await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith(
+      "/insights/ask-review-questions",
+      { scroll: false },
+    ));
+  });
+
+  it.each(["success", "failure"])("ignores a late %s from the previous conversation", async (outcome) => {
+    const selectedThread = { ...requestedThread, threadId: "next-thread" };
+    const messageFor = (threadId: string): ConversationMessage => ({
+      messageId: `${threadId}-message`,
+      threadId,
+      role: "Assistant",
+      content: `Answer for ${threadId}`,
+      createdUtc: "2026-02-02T00:00:00Z",
+      metadataJson: "{}",
+    });
+    const previousRequest = Promise.withResolvers<ConversationMessage[]>();
+    mocks.useThreads.mockReturnValue({ data: [requestedThread, selectedThread], isError: false, refetch });
+    mocks.getMessages.mockImplementation((threadId: string) => threadId === requestedThread.threadId
+      ? previousRequest.promise
+      : Promise.resolve([messageFor(threadId)]));
+    const { result } = renderHook(() => useAskPage());
+    await waitFor(() => expect(mocks.getMessages).toHaveBeenCalledWith(requestedThread.threadId));
+
+    await act(async () => {
+      await result.current.onSelectThread(selectedThread.threadId);
+    });
+    expect(result.current.messages).toEqual([messageFor(selectedThread.threadId)]);
+
+    await act(async () => {
+      if (outcome === "success") {
+        previousRequest.resolve([messageFor(requestedThread.threadId)]);
+      } else {
+        previousRequest.reject(new Error("Previous conversation failed to load"));
+      }
+    });
+
+    expect(result.current.selectedThreadId).toBe(selectedThread.threadId);
+    expect(result.current.messages).toEqual([messageFor(selectedThread.threadId)]);
+    expect(result.current.actionFailure).toBeNull();
+  });
+
+  it("automatically resumes an existing conversation when opening Ask without a thread link", async () => {
+    searchParams.delete("thread");
+    mocks.useThreads.mockReturnValue({ data: [requestedThread], isError: false, refetch });
+
+    const { result } = renderHook(() => useAskPage());
+
+    await waitFor(() => expect(result.current.selectedThreadId).toBe(requestedThread.threadId));
+    expect(mocks.getMessages).toHaveBeenCalledWith(requestedThread.threadId);
+  });
+
+  it("keeps a deliberately started conversation blank after the URL updates", async () => {
+    mocks.useThreads.mockReturnValue({ data: [requestedThread], isError: false, refetch });
+    const { result, rerender } = renderHook(() => useAskPage());
+    await waitFor(() => expect(result.current.selectedThreadId).toBe(requestedThread.threadId));
+    mocks.getMessages.mockClear();
+
+    act(() => result.current.onNewConversation());
+    searchParams.delete("thread");
+    rerender();
+
+    expect(result.current.selectedThreadId).toBe("");
+    expect(result.current.messages).toEqual([]);
+    expect(mocks.getMessages).not.toHaveBeenCalled();
+
+    await act(async () => result.current.onSelectThread(requestedThread.threadId));
+    expect(result.current.selectedThreadId).toBe(requestedThread.threadId);
+  });
+});

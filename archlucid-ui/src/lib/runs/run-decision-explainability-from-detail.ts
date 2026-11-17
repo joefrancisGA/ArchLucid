@@ -37,7 +37,7 @@ export type RunDecisionExplainabilityModel = {
     readonly pipeline: string;
     readonly decisionId: string;
     readonly topic: string;
-    readonly selectedOptionId: string | null;
+    readonly selectedOption: string;
     readonly rationale: string;
     readonly confidence: number | null;
     readonly supportingEvaluationIds: readonly string[];
@@ -67,11 +67,15 @@ function readStringArray(value: unknown): readonly string[] {
 }
 
 function readOptionalStringArray(value: unknown): readonly string[] | null {
-  if (value === undefined) {
+  if (value === undefined || value === null) {
     return null;
   }
 
-  return readStringArray(value);
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0);
 }
 
 function readFiniteNumber(value: unknown): number | null {
@@ -132,10 +136,10 @@ export function resolveRunDecisionExplainabilityFromDetail(
 
               return {
                 pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
-                decisionId: readString(record.decisionId) ?? "unknown",
-                category: readString(record.category) ?? "Category not returned",
+                decisionId: readString(record.decisionId) ?? "Decision id was not stored.",
+                category: readString(record.category) ?? "Decision category was not stored.",
                 title: readString(record.title) ?? "Decision title was not stored.",
-                selectedOption: readString(record.selectedOption) ?? "Selected option not returned",
+                selectedOption: readString(record.selectedOption) ?? "Selected option was not stored.",
                 rationale: readString(record.rationale) ?? "Decision rationale was not stored.",
                 confidence: readFiniteNumber(record.confidence),
                 confidenceSource: readString(record.confidenceSource),
@@ -161,9 +165,9 @@ export function resolveRunDecisionExplainabilityFromDetail(
 
               return {
                 pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
-                decisionId: readString(record.decisionId) ?? "unknown",
+                decisionId: readString(record.decisionId) ?? "Decision id was not stored.",
                 topic: readString(record.topic) ?? "Decision topic was not stored.",
-                selectedOptionId: readString(record.selectedOptionId),
+                selectedOption: readString(record.selectedOptionId) ?? "Selected option was not stored.",
                 rationale: readString(record.rationale) ?? "Decision rationale was not stored.",
                 confidence,
                 supportingEvaluationIds: readStringArray(record.supportingEvaluationIds),
@@ -184,16 +188,9 @@ export function resolveRunDecisionExplainabilityFromDetail(
               }
 
               const record = row as Record<string, unknown>;
-              const engineType = readString(record.engineType);
-              const category = readString(record.category);
-
-              if (engineType === null || category === null) {
-                return null;
-              }
-
               return {
-                engineType,
-                category,
+                engineType: readString(record.engineType) ?? "Engine type was not stored.",
+                category: readString(record.category) ?? "Failure category was not stored.",
                 exceptionType: readString(record.exceptionType) ?? "Exception type was not stored.",
                 errorMessage: readString(record.errorMessage) ?? "Error message was not stored.",
                 durationMs: readFiniteNumber(record.durationMs),
@@ -212,10 +209,10 @@ export function resolveRunDecisionExplainabilityFromDetail(
     const promptRefsWire = record.promptRefs;
 
     authorityRuleAudit = {
-      pipeline: readString(record.pipeline) ?? "authority",
+      pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
       decisionTraceId: readGuid(record.decisionTraceId),
-      ruleSetId: readString(record.ruleSetId) ?? "Rule set id not returned",
-      ruleSetVersion: readString(record.ruleSetVersion) ?? "Rule set version not returned",
+      ruleSetId: readString(record.ruleSetId) ?? "Rule set id was not stored.",
+      ruleSetVersion: readString(record.ruleSetVersion) ?? "Rule set version was not stored.",
       appliedRuleIds: readOptionalStringArray(record.appliedRuleIds),
       acceptedFindingIds: readOptionalStringArray(record.acceptedFindingIds),
       rejectedFindingIds: readStringArray(record.rejectedFindingIds),
@@ -236,7 +233,7 @@ export function resolveRunDecisionExplainabilityFromDetail(
 
               return {
                 templateId,
-                templateVersion: readString(prompt.templateVersion) ?? "Template version not returned",
+                templateVersion: readString(prompt.templateVersion) ?? "Template version was not stored.",
                 agentType: readString(prompt.agentType),
               };
             })

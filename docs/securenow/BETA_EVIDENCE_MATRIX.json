@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "product": "SecureNow",
+  "reference": "docs/securenow/SECURENOW_REQUIREMENTS.md",
+  "purpose": "Evidence coverage, not automatic release authorization",
+  "requirements": [
+    {
+      "id": "FR-EV-01",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "FR-EV-02",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "FR-EV-03",
+      "status": "UNKNOWN",
+      "evidence": "Existing related test file inspected: ArchLucid.Core.Tests/InfraEvidence/SecurityEvidencePathGuardTests.cs; result not executed or independently verified. Coverage may be partial.",
+      "candidate_test_command": "dotnet test ArchLucid.Core.Tests --filter FullyQualifiedName~SecurityEvidencePathGuardTests"
+    },
+    {
+      "id": "FR-AP-01",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "FR-AP-02",
+      "status": "UNKNOWN",
+      "evidence": "Existing related test file inspected: ArchLucid.Architecture.Tests/ProductCapability/SecureNowProductBoundaryTests.cs; result not executed or independently verified. Coverage may be partial.",
+      "candidate_test_command": "dotnet test ArchLucid.Architecture.Tests --filter FullyQualifiedName~SecureNowProductBoundaryTests"
+    },
+    {
+      "id": "FR-AP-03",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "FR-AP-04",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "FR-AP-05",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "FR-DG-01",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "FR-DG-02",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "FR-DG-03",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "FR-RM-01",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "FR-RM-02",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "FR-RM-03",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "FR-UI-01",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "FR-UI-02",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "NFR-01",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "NFR-02",
+      "status": "UNKNOWN",
+      "evidence": "Existing related test file inspected: ArchLucid.Core.Tests/InfraEvidence/SecurityEvidencePathGuardTests.cs; result not executed or independently verified. Coverage may be partial.",
+      "candidate_test_command": "dotnet test ArchLucid.Core.Tests --filter FullyQualifiedName~SecurityEvidencePathGuardTests"
+    },
+    {
+      "id": "NFR-03",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "NFR-04",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "NFR-05",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    },
+    {
+      "id": "NFR-06",
+      "status": "UNKNOWN",
+      "evidence": "No specific test execution evidence independently verified for this requirement."
+    }
+  ]
+}

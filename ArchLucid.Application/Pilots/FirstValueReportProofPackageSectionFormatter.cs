@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
@@ -16,7 +17,9 @@ public static class FirstValueReportProofPackageSectionFormatter
         PilotRunDeltas deltas,
         ProofPackageCompletenessResponse c,
         GoldenManifest? manifest,
-        ArchitectureRun run)
+        ArchitectureRun run,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null,
+        PilotBuyerSafeEvidenceGateResult? buyerSafeGate = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -31,72 +34,108 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine("| Required proof field | Status in this report |");
         sb.AppendLine("| --- | --- |");
         sb.AppendLine(
-            $"| Non-demo / external-share discipline | {(c.DemoTenantWarningRequired ? "**FAILED — non-negotiable demo warning.** Replace seeded identifiers before any sponsor-facing circulation." : "Pass — operator identifiers only per loaded tenant scope.")} |");
-        sb.AppendLine($"| Support run id | {FormatProofStatus(c.SupportRunIdPresent)} |");
-        sb.AppendLine($"| Committed manifest + status | {FormatProofStatus(c is { CommittedManifestPresent: true, RunInCommittedStatus: true })} |");
-        sb.AppendLine($"| Committed manifest timestamp (UTC) | {FormatCommittedManifestTimestampProofCell(deltas, c, manifest)} |");
-        sb.AppendLine($"| Artifact descriptor count | {FormatArtifactDescriptorsProofCell(c)} |");
-        sb.AppendLine($"| Time to committed manifest | {FormatProofStatus(c.TimeToCommittedManifestResolved)} |");
-        sb.AppendLine($"| Findings by severity | {FormatProofStatus(c.FindingsBySeverityPresent)} |");
+            $"| Non-demo / external-share discipline | {PilotDemoTenantDisciplineHonestyCopy.FormatProofPackageCell(PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))} |");
+        sb.AppendLine(
+            $"| Support run id | {PilotSupportRunIdHonestyCopy.FormatProofPackageCell(!string.IsNullOrWhiteSpace(run.RunId))} |");
+        sb.AppendLine($"| Committed manifest + status | {PilotCommittedManifestStatusHonestyCopy.FormatProofPackageCell(run, manifest)} |");
+        sb.AppendLine(
+            $"| Committed manifest timestamp (UTC) | {PilotCommittedManifestTimestampHonestyCopy.FormatProofPackageCell(deltas, c, manifest, run)} |");
+        sb.AppendLine($"| Artifact descriptor count | {PilotArtifactDescriptorCountHonestyCopy.FormatProofPackageCell(deltas, run, manifest)} |");
+        sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommittedManifestProofCell(deltas, run, manifest)} |");
+        sb.AppendLine($"| Findings by severity | {FormatFindingsBySeverityProofCell(deltas)} |");
         sb.AppendLine($"| Top finding evidence-chain pointer | {FormatTopFindingEvidenceProofCell(deltas)} |");
-        sb.AppendLine($"| Audit-row count or lower bound | {FormatProofStatus(c.AuditRowsPresentOrLowerBound)} |");
-        sb.AppendLine($"| LLM-call count | {FormatLlmCallCountProofCell(deltas, c)} |");
-        sb.AppendLine($"| ROI evidence confidence | **{c.RoiEvidenceConfidence}** — {c.RoiConfidenceLabel} |");
+        sb.AppendLine($"| Audit-row count or lower bound | {FormatAuditRowsProofCell(deltas, c)} |");
+        sb.AppendLine($"| LLM-call count | {PilotRunDeltasLlmCallCountFormatter.FormatProofPackageCell(deltas, c)} |");
+        PilotRoiEvidenceConfidence roiConfidenceForProofRow = roiClaimGate?.EvidenceConfidence ?? c.RoiEvidenceConfidence;
+        sb.AppendLine(
+            $"| ROI evidence confidence | {PilotRoiEvidenceConfidenceHonestyCopy.FormatProofPackageCell(roiConfidenceForProofRow, PilotRoiEvidenceConfidenceHonestyCopy.ResolveDisplayLabel(c, roiClaimGate))} |");
 
         if (c.RoiBaselineInputs is not null)
         {
             sb.AppendLine(
-                $"| ROI baseline inputs (per field) | {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(c.RoiBaselineInputs))} |");
-            sb.AppendLine(
-                $"| Projected dollar claims sponsor-safe | {(c.RoiBaselineInputs.ProjectedDollarClaimsSponsorSafe ? "Yes" : "**No** — do not lead with projected USD savings")} |");
+                $"| ROI baseline inputs (per field) | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(c.RoiBaselineInputs))} |");
         }
 
-        sb.AppendLine($"| Buyer-safe redaction profile | {c.BuyerSafeRedactionProfile} |");
+        if (!PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))
+        {
+            bool projectedDollarClaimsSponsorSafe = roiClaimGate?.ProjectedDollarClaimsSponsorSafe
+                ?? c.RoiBaselineInputs?.ProjectedDollarClaimsSponsorSafe == true;
+
+            sb.AppendLine(
+                $"| Projected dollar claims sponsor-safe | {PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatProofPackageCell(projectedDollarClaimsSponsorSafe)} |");
+        }
+
+        sb.AppendLine($"| Buyer-safe redaction profile | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.BuyerSafeRedactionProfile)} |");
         sb.AppendLine(
-            $"| PilotStrict agent-output posture | {(c.AgentOutputPilotStrictEvidenceSatisfied ? "Satisfied — no PilotStrict trace/faithfulness failures attested for this run." : "**FAILED** — PilotStrict quality gate reported rejecting signals; withhold sponsor-grade real-mode claims until traces pass.")} |");
-        sb.AppendLine($"| Evidence-basis labels | {FormatEvidenceBasisLabels(c, deltas, run)} |");
-        sb.AppendLine($"| Proof sendability (API mirror) | `{c.ProofSendability}` · `{c.PublishingTier}` · **{c.EvidenceCompleteness}** |");
+            $"| PilotStrict agent-output posture | {PilotAgentOutputPilotStrictHonestyCopy.FormatProofPackageCell(deltas)} |");
+        sb.AppendLine($"| Evidence-basis labels | {FormatEvidenceBasisLabels(c, deltas, run, roiClaimGate)} |");
+        sb.AppendLine(
+            $"| Proof sendability (API mirror) | {PilotSponsorSafeSendableAllClearHonestyCopy.FormatProofSendabilityMirrorCell(c)} |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Sponsor-proof readiness (classification) | {(Enum.TryParse(c.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification readiness) ? SponsorProofReadinessClassifier.DescribeForMarkdownTable(readiness) : "**Incomplete** — classification unavailable.")} |");
+            $"| Sponsor-proof readiness (classification) | {SponsorProofReadinessClassifier.FormatMarkdownTableCell(deltas, buyerSafeGate, c.SponsorProofReadiness)} |");
         sb.AppendLine();
     }
 
     private static string FormatEvidenceBasisLabels(
         ProofPackageCompletenessResponse c,
         PilotRunDeltas deltas,
-        ArchitectureRun run)
+        ArchitectureRun run,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
-        IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(c, deltas, run);
-        return SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
+        IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(c, deltas, run, deferredScopePresent: false, roiClaimGate);
+        string table = SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
+
+        return run.RealModeFellBackToSimulator
+            ? PilotSimulatorSubstitutionHonestyCopy.AppendToProofPackageEvidenceBasisCell(table)
+            : table;
     }
 
-    private static string FormatArtifactDescriptorsProofCell(ProofPackageCompletenessResponse c)
+    private static string FormatTimeToCommittedManifestProofCell(
+        PilotRunDeltas deltas,
+        ArchitectureRun run,
+        GoldenManifest? manifest)
     {
-        return !c.ArtifactDescriptorCountResolved ? "Missing — committed architecture manifest id absent or synthesized artifact query failed (see audit/logs rather than guessing)." : $"Present — `{c.ArtifactDescriptorCount}` descriptor(s) for this committed architecture manifest.";
+        ArgumentNullException.ThrowIfNull(deltas);
+        ArgumentNullException.ThrowIfNull(run);
+
+        if (!PilotSponsorCommittedPosture.HasCompleteCommittedPosture(run, manifest))
+        {
+            return PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
+        }
+
+        if (deltas.TimeToCommittedManifest is not null)
+        {
+            return PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas, proofCompleteness: null, run, manifest);
+        }
+
+        return PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
     }
 
-    private static string FormatCommittedManifestTimestampProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c, GoldenManifest? manifest)
+    private static string FormatFindingsBySeverityProofCell(PilotRunDeltas deltas)
     {
-        if (!c.CommittedManifestPresent)
-            return "Missing — no committed architecture manifest on this run detail.";
-        if (!c.CommittedManifestTimestampResolved)
-            return "Missing — `GoldenManifest.Metadata.CreatedUtc` is default / not a real commit timestamp.";
-        DateTime committedUtc = deltas.ManifestCommittedUtc ?? manifest!.Metadata.CreatedUtc;
-        return $"Present — `{committedUtc:O}` (`GoldenManifest.Metadata.CreatedUtc`).";
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        return PilotRunDeltasFindingsBySeverityPlainTextFormatter.FormatMarkdownProofPackageCell(deltas);
     }
 
-    private static string FormatTopFindingEvidenceProofCell(PilotRunDeltas deltas)
+    private static string FormatAuditRowsProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c)
     {
-        if (deltas.TopFindingId is null)
-            return "Not applicable — no findings on this run.";
-        return deltas.TopFindingEvidenceChain is not null ? "Present" : "Explicitly unavailable — persisted finding without resolvable evidence-chain pointers (see buyer-safe gate).";
+        ArgumentNullException.ThrowIfNull(deltas);
+        ArgumentNullException.ThrowIfNull(c);
+
+        return PilotRunDeltasAuditRowCountFormatter.FormatProofPackageCell(deltas, c);
     }
 
-    private static string FormatLlmCallCountProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c)
-    {
-        return !c.LlmCallCountResolved ? "Missing — execution trace query failed; count is not attested." : $"`{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}` row(s) in execution traces (zero may still be valid — disclose simulator substitution separately when flagged above).";
-    }
+    private static string FormatTopFindingEvidenceProofCell(PilotRunDeltas deltas) =>
+        PilotTopFindingEvidenceChainHonestyCopy.FormatMarkdownProofPackageCell(deltas);
 
-    private static string FormatProofStatus(bool present) => present ? "Present" : "Missing or not applicable; review before sponsor send";
+    private static string FormatProofStatus(bool present) => present ? "Present" : "Not present on this run.";
+
+    private static string FormatRoiConfidenceLabel(string? label)
+    {
+        return string.IsNullOrWhiteSpace(label)
+            ? "ROI confidence label was not stored."
+            : FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(label.Trim());
+    }
 }

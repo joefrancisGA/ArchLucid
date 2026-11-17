@@ -48,6 +48,7 @@ import {
   TROUBLESHOOTING_HELP_START_HERE_CARD_TITLE,
   TROUBLESHOOTING_PRIMARY_ACTIONS,
   troubleshootingBeforeContactItems,
+  troubleshootingHostedSaasOpenAiNote,
   troubleshootingDecisionTreeSteps,
   troubleshootingHelpOverview,
   troubleshootingStartHereItems,
@@ -231,6 +232,12 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                 Collect these details before you email support. A support bundle helps support reproduce platform issues
                 faster.
+              </p>
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="troubleshooting-hosted-saas-openai-note"
+              >
+                {troubleshootingHostedSaasOpenAiNote(productLineId)}
               </p>
               <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
                 {beforeContactItems.map((item) => (

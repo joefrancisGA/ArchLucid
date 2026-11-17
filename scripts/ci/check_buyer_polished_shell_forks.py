@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail when isBuyerPolishedOperatorShellEnv appears in production UI without manifest entry."""
+"""Fail when buyer-polished fork APIs appear in production UI without manifest entry."""
 
 from __future__ import annotations
 
@@ -13,7 +13,9 @@ UI_SRC = REPO_ROOT / "archlucid-ui" / "src"
 MANIFEST = REPO_ROOT / "docs" / "engineering" / "buyer-polished-shell-forks.manifest.txt"
 INVENTORY_DOC = REPO_ROOT / "docs" / "engineering" / "BUYER_POLISHED_SHELL_FORKS.md"
 
-CALL_PATTERN = re.compile(r"\bisBuyerPolishedOperatorShellEnv\b")
+CALL_PATTERN = re.compile(
+    r"\b(?:isBuyerPolishedOperatorShellEnv|useProductionEvalChrome)\s*\(",
+)
 
 EXCLUDED_SUFFIXES = (
     ".test.ts",
@@ -23,6 +25,7 @@ EXCLUDED_SUFFIXES = (
 )
 
 EXCLUDED_RELATIVE_PATHS = {
+    "archlucid-ui/src/hooks/useProductionDeskChrome.ts",
     "archlucid-ui/src/lib/demo-ui-env.ts",
     "archlucid-ui/src/testing/buyer-polished-shell-vitest-override.ts",
 }
@@ -108,13 +111,13 @@ def main() -> int:
     stale_manifest = sorted(set(manifest) - set(discovered))
 
     if missing_from_manifest:
-        print("Production files call isBuyerPolishedOperatorShellEnv but are not in manifest:", file=sys.stderr)
+        print("Production files call buyer-polished fork APIs but are not in manifest:", file=sys.stderr)
 
         for path in missing_from_manifest:
             print(f"  + {path}", file=sys.stderr)
 
     if stale_manifest:
-        print("Manifest entries no longer contain isBuyerPolishedOperatorShellEnv:", file=sys.stderr)
+        print("Manifest entries no longer call buyer-polished fork APIs:", file=sys.stderr)
 
         for path in stale_manifest:
             print(f"  - {path}", file=sys.stderr)

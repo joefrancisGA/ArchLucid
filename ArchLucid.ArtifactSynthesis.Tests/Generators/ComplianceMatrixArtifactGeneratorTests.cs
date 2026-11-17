@@ -86,7 +86,7 @@ public sealed class ComplianceMatrixArtifactGeneratorTests
         JsonElement rows = doc.RootElement.GetProperty("Rows");
 
         rows[0].GetProperty("ControlId").GetString().Should().Be("encrypt");
-        rows[0].GetProperty("Notes").GetString().Should().BeEmpty();
+        rows[0].GetProperty("Notes").GetString().Should().Be("Compliance gap notes were not stored.");
 
         rows[1].GetProperty("ControlId").GetString().Should().Be("encrypt-data");
         rows[1].GetProperty("Notes").GetString().Should().Contain("key rotation");

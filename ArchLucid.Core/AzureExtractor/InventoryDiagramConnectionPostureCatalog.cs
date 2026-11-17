@@ -18,6 +18,9 @@ public static class InventoryDiagramConnectionPostureCatalog
     public const string AccessConnectorNoWorkspaceCitationDetail =
         "No stored Databricks workspace cites this access connector.";
 
+    public const string VirtualMachineNoStoredSubnetPlacementDetail =
+        "No subnet placement was stored.";
+
     public const string PostureNotModeledDetail =
         "Connection posture is not modeled for this resource type.";
 

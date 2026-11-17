@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   comparePairGroundingForRuns,
   comparePairGroundingHasLinks,
+  type ComparePairGroundingForRunsOptions,
   type ComparePairSideGrounding,
 } from "@/lib/compare-pair-grounding-links";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -11,6 +12,7 @@ import { cn } from "@/lib/utils";
 export type ComparePairEvidenceCiteStripProps = {
   readonly baselineRunId: string;
   readonly updatedRunId: string;
+  readonly groundingOptions?: ComparePairGroundingForRunsOptions;
 };
 
 function SideCiteBlock(props: { readonly side: ComparePairSideGrounding }) {
@@ -22,13 +24,16 @@ function SideCiteBlock(props: { readonly side: ComparePairSideGrounding }) {
         {side.sideLabel} · {side.runId}
       </p>
       <ul className={cn("m-0 mt-1.5 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-        {side.links.map((link) => (
-          <li key={`${side.sideLabel}-${link.href}`}>
-            <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
-              {link.label}
-            </Link>
-          </li>
-        ))}
+        {side.links
+          .filter((link): link is typeof link & { href: string } =>
+            typeof link.href === "string" && link.href.length > 0)
+          .map((link) => (
+            <li key={`${side.sideLabel}-${link.href}`}>
+              <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
+                {link.label}
+              </Link>
+            </li>
+          ))}
       </ul>
     </div>
   );
@@ -36,7 +41,11 @@ function SideCiteBlock(props: { readonly side: ComparePairSideGrounding }) {
 
 /** Sponsor-safe pair cites — open review / evidence / search / audit for each compared run. */
 export function ComparePairEvidenceCiteStrip(props: ComparePairEvidenceCiteStripProps) {
-  const grounding = comparePairGroundingForRuns(props.baselineRunId, props.updatedRunId);
+  const grounding = comparePairGroundingForRuns(
+    props.baselineRunId,
+    props.updatedRunId,
+    props.groundingOptions,
+  );
 
   if (!comparePairGroundingHasLinks(grounding)) {
     return null;

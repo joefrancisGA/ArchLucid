@@ -29,8 +29,19 @@ import {
 } from "@/lib/findings/finding-explain-audit-disclosure-url";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { ARCHLUCID_HOSTED_SAAS_OPENAI_COPY } from "@/lib/getting-started-help-guide-content";
+import {
+  ARCH_REVIEW_EXPLANATION_CITATION_DISCIPLINE,
+  ARCH_REVIEW_EXPLANATION_CITATION_REJECTION_TAG,
+} from "@/lib/reviews/review-explanation-citation-rejection-copy";
+import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingConfidenceLevel, FindingEvidenceChain, FindingLlmAudit } from "@/types/explanation";
+
+export const FINDING_EVIDENCE_CHAIN_RELATED_GRAPH_NODES_NOT_STORED =
+  "Related graph node ids were not stored." as const;
+export const FINDING_EVIDENCE_CHAIN_AGENT_TRACES_NOT_STORED =
+  "Agent execution trace ids were not stored." as const;
 
 export type FindingExplainPanelProps = {
   runId: string;
@@ -149,6 +160,13 @@ export function FindingExplainPanel({
     <MutationErrorBoundary title="Finding explain panel failed to render">
     <div className="space-y-4 border-t border-neutral-200 pt-4 dark:border-neutral-700">
       <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Explain this finding</h4>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="finding-explain-hosted-openai">
+        {ARCHLUCID_HOSTED_SAAS_OPENAI_COPY}
+      </p>
+      <div data-testid="finding-explain-citation-discipline" className="space-y-1">
+        <StatusTag kind="neutral" label={ARCH_REVIEW_EXPLANATION_CITATION_REJECTION_TAG} />
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{ARCH_REVIEW_EXPLANATION_CITATION_DISCIPLINE}</p>
+      </div>
       {(confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low") ? (
         <div className="mt-1">
           <FindingConfidenceBadge level={confidenceLevel} />
@@ -217,7 +235,11 @@ export function FindingExplainPanel({
                 ))}
               </ul>
             </div>
-          ) : null}
+          ) : (
+            <p className={cn("m-0 font-mono text-[0.7rem]", OPERATOR_TYPOGRAPHY.helper)}>
+              {FINDING_EVIDENCE_CHAIN_RELATED_GRAPH_NODES_NOT_STORED}
+            </p>
+          )}
           {evidenceChain.agentExecutionTraceIds.length > 0 ? (
             <div>
               <p className={cn("m-0 mb-1 font-semibold text-violet-900 dark:text-violet-100", OPERATOR_TYPOGRAPHY.helper)}>Agent execution traces</p>
@@ -227,7 +249,11 @@ export function FindingExplainPanel({
                 ))}
               </ul>
             </div>
-          ) : null}
+          ) : (
+            <p className={cn("m-0 font-mono text-[0.7rem]", OPERATOR_TYPOGRAPHY.helper)}>
+              {FINDING_EVIDENCE_CHAIN_AGENT_TRACES_NOT_STORED}
+            </p>
+          )}
         </section>
       ) : null}
 
@@ -303,7 +329,9 @@ export function FindingExplainPanel({
                   System prompt (redacted) · trace {audit.traceId}
                 </p>
                 <pre className={cn("max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.micro)}>
-                  {audit.systemPromptRedacted.trim().length > 0 ? audit.systemPromptRedacted : "(empty)"}
+                  {audit.systemPromptRedacted.trim().length > 0
+                    ? audit.systemPromptRedacted
+                    : "System prompt was stored empty."}
                 </pre>
                 <p
                   id="finding-audit-user"
@@ -312,7 +340,9 @@ export function FindingExplainPanel({
                   User prompt (redacted)
                 </p>
                 <pre className={cn("max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.micro)}>
-                  {audit.userPromptRedacted.trim().length > 0 ? audit.userPromptRedacted : "(empty)"}
+                  {audit.userPromptRedacted.trim().length > 0
+                    ? audit.userPromptRedacted
+                    : "User prompt was stored empty."}
                 </pre>
                 <p
                   id="finding-audit-completion"
@@ -321,7 +351,9 @@ export function FindingExplainPanel({
                   LLM completion (redacted)
                 </p>
                 <pre className={cn("max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.micro)}>
-                  {audit.rawResponseRedacted.trim().length > 0 ? audit.rawResponseRedacted : "(empty)"}
+                  {audit.rawResponseRedacted.trim().length > 0
+                    ? audit.rawResponseRedacted
+                    : "LLM completion was stored empty."}
                 </pre>
                 <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   Model: {audit.modelDeploymentName ?? "Model deployment name was not stored."} · Agent:{" "}

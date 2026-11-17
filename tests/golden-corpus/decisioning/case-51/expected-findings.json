@@ -16,11 +16,11 @@
     ]
   },
   {
-    "findingId": "86b4bec8-9aee-4d43-7633-7e7215d18fbd",
+    "findingId": "214c06ad-908f-09b0-75a1-d5275bdcb623",
     "findingType": "OrphanedAwsResource",
     "category": "CostOptimization",
     "severity": "Warning",
-    "title": "Orphaned AWS resource: AWS::EC2::Volume",
+    "title": "Orphaned AWS resource: AWS::EC2::Volume. Resource name was not stored.",
     "rationale": "Unattached EBS volume (no active attachment).",
     "relatedNodeIds": [],
     "payloadType": "RequirementFindingPayload",
@@ -32,12 +32,12 @@
     ]
   },
   {
-    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
+    "findingId": "6e99d0aa-2efe-4ced-9894-5f96e2136e37",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",
     "title": "No topology resources were found",
-    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "rationale": "Required capabilities, topology hints, and constraints were not stored on the context snapshot; expected topology pillars use the engine legacy four-pillar default (not workload scope metadata). The graph does not contain any TopologyResource nodes.",
     "relatedNodeIds": [],
     "payloadType": "TopologyCoverageFindingPayload",
     "rulesApplied": [

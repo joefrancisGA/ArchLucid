@@ -48,13 +48,26 @@ describe("finding-semantic-support-band-export (AS-071)", () => {
     ).toBeNull();
   });
 
-  it("reports an omitted scorer version without replacing it", () => {
-    expect(resolveFindingSemanticSupportBandExportFields(sampleFinding({
-      semanticSupportBandScorerVersion: null,
-    }))).toEqual({
-      semanticSupportBand: "Unsupported",
-      semanticSupportBandScorerVersion: "Semantic support band scorer version was not stored",
+  it("labels stored-empty band and preserves scorer version when present", () => {
+    expect(
+      resolveFindingSemanticSupportBandExportFields(
+        sampleFinding({
+          semanticSupportBand: "",
+          semanticSupportBandScorerVersion: FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION,
+        }),
+      ),
+    ).toEqual({
+      semanticSupportBand: "Semantic support band was stored empty.",
+      semanticSupportBandScorerVersion: FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION,
     });
+  });
+
+  it("labels stored-empty scorer version separately from omitted version", () => {
+    expect(
+      resolveFindingSemanticSupportBandExportFields(
+        sampleFinding({ semanticSupportBandScorerVersion: "" }),
+      )?.semanticSupportBandScorerVersion,
+    ).toBe("Semantic support band scorer version was stored empty.");
   });
 
   it("buildSemanticSupportBandExportStamp matches stamp counts", () => {
@@ -103,7 +116,7 @@ describe("finding-semantic-support-band-export (AS-071)", () => {
       sampleFinding({ semanticSupportBand: "Supported" }),
     ]);
 
-    expect(markdown).toContain("## Semantic support");
+    expect(markdown).toContain("## Semantic support (decision-grade)");
     expect(markdown).toContain(FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION);
     expect(markdown).toContain("Supported");
     expect(markdown).not.toContain(CAREER_EXPORT_UNCHECKED_SEMANTIC_SUPPORT_WARN);

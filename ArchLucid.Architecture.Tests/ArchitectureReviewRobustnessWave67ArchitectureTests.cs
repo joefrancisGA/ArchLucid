@@ -51,6 +51,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
         approvalCreate.Should().Contain("EnsureSealedManifestReadAllowedAsync");
         approvalCreate.Should().Contain("Status409Conflict");
         approvalBatch.Should().Contain("BatchReviewApprovalRequests");
+        approvalBatch.Should().Contain("EnsureSealedManifestReadAllowedForApprovalRequestAsync");
         approvalBatch.Should().Contain("MapGovernanceSealedManifestConflict");
         approvalBatch.Should().Contain("Status409Conflict");
     }

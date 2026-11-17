@@ -77,7 +77,7 @@ describe("QuickDecisionSummaryFindingRow semantic support band (QR-29 / AS-061)"
     ["Supported", "Supported"],
     ["Unchecked", "Not yet scored"],
     ["Unsupported", "Unsupported"],
-    [undefined, "Not scored"],
+    [undefined, "Semantic support band was not stored"],
   ] as const)("renders %s as %s on decision-grade rows", (wireBand, label) => {
     render(
       <ul>

@@ -2,8 +2,11 @@ import type { ReactElement, ReactNode } from "react";
 
 import Link from "next/link";
 
+import { resolveDeskContinuityProvenanceHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
+
 import { Button } from "@/components/ui/button";
-import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
+import { resolveGlobalSearchDeskArchitectureId } from "@/lib/global-search-desk-architecture-id";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   RUN_DETAIL_CREATE_HOME_ACTIVITY_ORIENTATION_LEAD,
@@ -25,14 +28,16 @@ function shouldShowCreateHomeProvenanceAsOf(label: string): boolean {
     return false;
   }
 
-  return trimmed !== "Not recorded" && trimmed !== "Date not readable";
+  return trimmed !== "Not recorded"
+    && trimmed !== "Date not readable"
+    && trimmed !== "Provenance as-of was not loaded on this page.";
 }
 
 function formatCreateHomeProvenanceTimeHonesty(label: string): string | null {
   const trimmed = label.trim();
 
-  if (trimmed.length === 0 || trimmed === "Not recorded") {
-    return "Provenance time was not stored.";
+  if (trimmed.length === 0 || trimmed === "Not recorded" || trimmed === "—" || trimmed === " — ") {
+    return "Provenance as-of was not loaded on this page.";
   }
 
   if (trimmed === "Date not readable") {
@@ -68,11 +73,10 @@ function RunDetailCreateHomeActivityOrientation(props: {
   readonly pagePrimaryOwnedElsewhere?: boolean;
 }): ReactElement {
   const overviewVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
-  const overviewHref = buildReviewWorkspaceTabHref(props.runId, "overview", { includeCreateIntent: true });
-  const findingsHref = buildReviewWorkspaceTabHref(props.runId, "findings", { includeCreateIntent: true });
-  const clarificationsHref = buildReviewWorkspaceTabHref(props.runId, "decisions-remediation", {
-    includeCreateIntent: true,
-  });
+  const architectureId = resolveGlobalSearchDeskArchitectureId({ runId: props.runId.trim() });
+  const overviewHref = buildReviewDetailTabHref(props.runId, "overview", { architectureId });
+  const findingsHref = buildReviewDetailTabHref(props.runId, "findings", { architectureId });
+  const clarificationsHref = buildReviewDetailTabHref(props.runId, "decisions-remediation", { architectureId });
 
   return (
     <div
@@ -157,7 +161,7 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           <Link
             className={OPERATOR_LINK.nav}
-            href={`/architecture/reviews/${encodeURIComponent(props.runId)}/provenance`}
+            href={resolveDeskContinuityProvenanceHref(props.runId)}
             data-testid="run-detail-provenance-link"
           >
             Full provenance view

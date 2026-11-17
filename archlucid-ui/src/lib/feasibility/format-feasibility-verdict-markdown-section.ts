@@ -49,28 +49,45 @@ function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] 
 
       if (reference.length > 0) {
         lines.push(`- ${reference}${kind.length > 0 ? ` — ${kind}` : ""}${suffix}`);
-      }
-
-      if (citation.reference === null || citation.reference === undefined) {
+      } else if (citation.reference === null || citation.reference === undefined) {
         lines.push("- Citation reference was not stored.");
+      } else {
+        lines.push("- Citation reference was stored empty.");
       }
 
-      if (citation.kind === null || citation.kind === undefined) {
+      if (kind.length > 0) {
+        // kind already rendered on the citation line when reference is present.
+      } else if (citation.kind === null || citation.kind === undefined) {
         lines.push("- Citation kind was not stored.");
+      } else {
+        lines.push("- Citation kind was stored empty.");
       }
 
       if (invariantKeys === null || invariantKeys === undefined) {
         lines.push("- Citation invariant keys were not stored.");
+      } else if (invariantKeys.length === 0) {
+        lines.push("- Citation invariant keys were stored empty.");
       }
     }
 
     lines.push("");
+  } else {
+    lines.push("### Authority citations");
+    lines.push("");
+    lines.push("Authority citations were stored empty.");
+    lines.push("");
   }
 
-  const unsatCore = verdict.unsatCoreInvariantKeys ?? [];
+  const unsatCore = verdict.unsatCoreInvariantKeys;
 
-  if (unsatCore.length > 0) {
+  if (unsatCore === null || unsatCore === undefined) {
+    lines.push("**Unsat core:** Unsat core was not stored.");
+    lines.push("");
+  } else if (unsatCore.length > 0) {
     lines.push(`**Unsat core:** ${unsatCore.join(", ")}`);
+    lines.push("");
+  } else {
+    lines.push("**Unsat core:** Unsat core was stored empty.");
     lines.push("");
   }
 
@@ -110,15 +127,26 @@ function formatProposedRelaxationLines(verdict: ManifestFeasibilityVerdict): str
 
   const lines: string[] = ["### Proposed relaxations", ""];
 
+  if (proposedRelaxations.length === 0) {
+    lines.push("Proposed relaxations were stored empty.");
+    lines.push("");
+
+    return lines;
+  }
+
   for (const relaxation of proposedRelaxations) {
     const invariantKey =
       relaxation.invariantKey === null || relaxation.invariantKey === undefined
         ? "Relaxation invariant key was not stored."
-        : relaxation.invariantKey;
+        : relaxation.invariantKey.trim().length === 0
+          ? "Relaxation invariant key was stored empty."
+          : relaxation.invariantKey.trim();
     const tradeOffDescription =
       relaxation.tradeOffDescription === null || relaxation.tradeOffDescription === undefined
         ? "Trade-off description was not stored."
-        : relaxation.tradeOffDescription;
+        : relaxation.tradeOffDescription.trim().length === 0
+          ? "Trade-off description was stored empty."
+          : relaxation.tradeOffDescription.trim();
 
     lines.push(`- **${invariantKey}**: ${tradeOffDescription}`);
   }
@@ -158,6 +186,8 @@ export function formatFeasibilityVerdictMarkdownSection(
   lines.push("");
   if (verdict.summary === null || verdict.summary === undefined) {
     lines.push("Verdict summary was not stored.");
+  } else if (verdict.summary.trim().length === 0) {
+    lines.push("Verdict summary was stored empty.");
   } else {
     lines.push(verdict.summary.trim());
   }
@@ -173,6 +203,7 @@ export function formatFeasibilityVerdictMarkdownSection(
       hasHardInfeasibleCitation(verdict)
       || verdict.hardCitations === null
       || verdict.hardCitations === undefined
+      || verdict.hardCitations.length === 0
       || verdict.hardCitations.length > 0
     )
   ) {

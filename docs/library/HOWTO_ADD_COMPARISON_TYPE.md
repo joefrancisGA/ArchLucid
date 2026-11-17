@@ -207,7 +207,7 @@ ReplayComparisonResult (content + headers)
 ## 8. Operational considerations
 
 - Add `[Trait("Category", "Integration")]` to your integration tests.
-- Use `ComparisonReplayTestFixture.PersistEndToEndComparisonAsync` as a reference for how tests persist records and call replay.
+- Use `ReplaySession` (`CommitAndReplayAsync`, `PersistEndToEndComparisonAsync`) as a reference for how tests persist records and call replay.
 - Run `dotnet test --filter "Category=Integration"` after wiring to confirm no regression.
 - Replay is idempotent by design; ensure your formatter produces deterministic output for the same input.
 
@@ -231,4 +231,4 @@ ReplayComparisonResult (content + headers)
 | Service that persists a comparison | `EndToEndReplayComparisonService.cs` |
 | Replay dispatcher | `ComparisonReplayService.cs` |
 | Markdown formatter | `IEndToEndReplayComparisonSummaryFormatter.cs` / `MarkdownDriftReportFormatter.cs` |
-| Integration test | `ArchitectureComparisonReplayTests.cs`, `ComparisonReplayTestFixture.cs` |
+| Integration test | `ArchitectureComparisonReplayTests.cs`, `ReplaySession.cs` |

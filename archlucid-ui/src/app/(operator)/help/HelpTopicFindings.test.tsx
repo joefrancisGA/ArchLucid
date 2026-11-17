@@ -18,7 +18,6 @@ import {
 import {
   FINDINGS_HELP_CLAIM_DISCIPLINE,
   FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING,
-  FINDINGS_HELP_SOURCES,
 } from "@/lib/findings/findings-help-evidence-copy";
 import {
   FINDINGS_HELP_CLAIM_HEADING_ID,
@@ -29,7 +28,6 @@ import {
   FINDINGS_HELP_PAGE_TITLE,
   FINDINGS_HELP_PRIMARY_ACTIONS,
 } from "@/lib/findings/findings-help-guide-content";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_DEVELOPER_COPY = [
@@ -123,12 +121,7 @@ describe("HelpFindingsGuideView", () => {
     expect(screen.getByTestId("help-findings-anatomy-panel")).toBeInTheDocument();
     expect(screen.getByTestId("help-findings-severity-table")).toBeInTheDocument();
 
-    for (const source of FINDINGS_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      const matches = screen.getAllByRole("link", { name: accessibleName });
-
-      expect(matches.some((link) => link.getAttribute("href") === source.href)).toBe(true);
-    }
+    expect(screen.queryByTestId("help-findings-sources")).not.toBeInTheDocument();
 
     const evidenceActions = screen.getByTestId("help-findings-evidence-actions");
     for (const action of FINDINGS_HELP_EVIDENCE_ACTIONS) {

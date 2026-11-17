@@ -3,6 +3,7 @@ import { architectureRequestDraftMutationBlockedReason } from "@/lib/architectur
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { apiPostJson } from "./http";
+import { trimRequiredPathSegment, trimStringList } from "./api-boundary-normalization";
 
 /** Matches API minimum for POST /v1/architecture/request/draft. */
 export const ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS = 20;
@@ -39,11 +40,19 @@ export async function draftArchitectureRequest(
   input: DraftArchitectureRequestInput,
 ): Promise<DraftArchitectureRequestResponse> {
   try {
+    const freeTextDescription = trimRequiredPathSegment(input.freeTextDescription, "freeTextDescription");
+
+    if (freeTextDescription.length < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS) {
+      throw new Error(
+        `freeTextDescription must be at least ${ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS} characters.`,
+      );
+    }
+
     return await apiPostJson<DraftArchitectureRequestResponse>("/v1/architecture/request/draft", {
-      freeTextDescription: input.freeTextDescription,
-      currentConstraints: input.currentConstraints ?? [],
-      currentAssumptions: input.currentAssumptions ?? [],
-      confirmedAssumptions: input.confirmedAssumptions ?? [],
+      freeTextDescription,
+      currentConstraints: trimStringList(input.currentConstraints),
+      currentAssumptions: trimStringList(input.currentAssumptions),
+      confirmedAssumptions: trimStringList(input.confirmedAssumptions),
     });
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

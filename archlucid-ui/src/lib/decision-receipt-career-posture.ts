@@ -2,6 +2,7 @@ import { resolveCareerArtifactExportHonestyDoorFields } from "@/lib/career-artif
 import { isRehearsalStructuralExecutionMode } from "@/lib/governance/simulator-career-honesty";
 import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import {
+  EXECUTION_MODE_NOT_STORED_LABEL,
   normalizeStructuralExecutionModeWire,
   StructuralExecutionModeWire,
   type StructuralExecutionModeInput,
@@ -11,7 +12,7 @@ import type { RunSummary } from "@/types/authority";
 
 /** CG-025 — execute posture fields required on committed-run decision receipts. */
 export type DecisionReceiptCareerPosture = {
-  readonly structuralExecutionMode: StructuralExecutionModeWireValue;
+  readonly structuralExecutionMode: StructuralExecutionModeWireValue | typeof EXECUTION_MODE_NOT_STORED_LABEL;
   readonly workingCareerRehearsalDoor: WorkingCareerRehearsalDoorId;
   readonly rehearsalIncomplete: boolean;
 };
@@ -28,12 +29,12 @@ export function resolveDecisionReceiptCareerPosture(input: {
     liveDoor: input.liveDoor,
     progressSummary: input.progressSummary,
   });
-  const structuralExecutionMode =
-    normalizeStructuralExecutionModeWire(resolved.structuralExecutionMode ?? null)
-    ?? StructuralExecutionModeWire.Simulator;
+  const normalizedMode = normalizeStructuralExecutionModeWire(resolved.structuralExecutionMode ?? null);
+  const structuralExecutionMode = normalizedMode ?? EXECUTION_MODE_NOT_STORED_LABEL;
   const workingCareerRehearsalDoor = resolved.effectiveWorkingCareerRehearsalDoor;
   const rehearsalIncomplete =
-    isRehearsalStructuralExecutionMode(structuralExecutionMode)
+    normalizedMode !== null
+    && isRehearsalStructuralExecutionMode(normalizedMode)
     && workingCareerRehearsalDoor === "rehearsal";
 
   return {

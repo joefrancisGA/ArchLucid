@@ -42,7 +42,7 @@ describe("evidence-intake-help-guide-content", () => {
   });
 
   it("defines verify-intake steps with in-app follow-up links (TB-1354)", () => {
-    expect(EVIDENCE_INTAKE_HELP_VERIFY_STEPS).toHaveLength(3);
+    expect(EVIDENCE_INTAKE_HELP_VERIFY_STEPS).toHaveLength(4);
     expect(EVIDENCE_INTAKE_HELP_VERIFY_STEPS[0]?.action).toBeUndefined();
     expect(EVIDENCE_INTAKE_HELP_VERIFY_STEPS.some((step) => step.action?.href === "/architecture/reviews")).toBe(
       true,

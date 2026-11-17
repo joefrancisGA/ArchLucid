@@ -64,6 +64,46 @@ public static class GoldenCohortDriftMarkdown
         return sb.ToString();
     }
 
+    /// <summary>
+    ///     One row per cohort item so FluentAssertions <c>MaxLines</c> can show all 20 SHA actuals
+    ///     on nightly failure (the full markdown report is truncated around seven rows).
+    /// </summary>
+    public static string BuildCompactShaTable(IReadOnlyList<GoldenCohortDriftRow> rows)
+    {
+        if (rows is null)
+            throw new ArgumentNullException(nameof(rows));
+
+        StringBuilder sb = new();
+        sb.AppendLine("item\texpectedSha\tactualSha\tshaMatch\tcategoryMatch");
+
+        foreach (GoldenCohortDriftRow row in rows)
+        {
+            sb.Append(row.ItemId);
+            sb.Append('\t');
+            sb.Append(row.ExpectedSha);
+            sb.Append('\t');
+            sb.Append(row.ActualSha);
+            sb.Append('\t');
+            sb.Append(row.ShaMatches);
+            sb.Append('\t');
+            sb.AppendLine(row.CategoryMatches.ToString());
+        }
+
+        int shaMismatches = rows.Count(static r => !r.ShaMatches);
+        int categoryMismatches = rows.Count(static r => !r.CategoryMatches);
+        sb.Append("Summary: ");
+        sb.Append(shaMismatches.ToString(CultureInfo.InvariantCulture));
+        sb.Append('/');
+        sb.Append(rows.Count.ToString(CultureInfo.InvariantCulture));
+        sb.Append(" SHA mismatch, ");
+        sb.Append(categoryMismatches.ToString(CultureInfo.InvariantCulture));
+        sb.Append('/');
+        sb.Append(rows.Count.ToString(CultureInfo.InvariantCulture));
+        sb.AppendLine(" category mismatch.");
+
+        return sb.ToString();
+    }
+
     private static string Escape(string value) => value.Replace("|", "\\|", StringComparison.Ordinal);
 }
 

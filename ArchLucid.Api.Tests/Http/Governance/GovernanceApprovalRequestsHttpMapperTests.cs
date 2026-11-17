@@ -25,6 +25,34 @@ public sealed class GovernanceApprovalRequestsHttpMapperTests
     }
 
     [Fact]
+    public void ValidateBatchReviewRequest_accepts_zero_width_prefix_when_normalized_id_within_max_length()
+    {
+        string canonicalId = new string('a', GovernanceRequestValidationRules.ApprovalRequestIdMaxLength);
+        string prefixedId = $"\u200B{canonicalId}";
+
+        GovernanceHttpValidation? validation = GovernanceApprovalRequestsHttpMapper.ValidateBatchReviewRequest(
+            new GovernanceApprovalBatchReviewRequest
+            {
+                ApprovalRequestIds = [prefixedId],
+                Decision = "approve",
+            });
+
+        validation.Should().BeNull();
+    }
+
+    [Fact]
+    public void ValidateOptionalApprovalRequestId_accepts_zero_width_prefix_when_normalized_id_within_max_length()
+    {
+        string canonicalId = new string('b', GovernanceRequestValidationRules.ApprovalRequestIdMaxLength);
+        string prefixedId = $"\u200B{canonicalId}";
+
+        GovernanceHttpValidation? validation =
+            GovernanceApprovalRequestsHttpMapper.ValidateOptionalApprovalRequestId(prefixedId);
+
+        validation.Should().BeNull();
+    }
+
+    [Fact]
     public void ValidateBatchReviewRequest_rejects_overlong_approval_request_id()
     {
         string overlongId = new string('a', GovernanceRequestValidationRules.ApprovalRequestIdMaxLength + 1);

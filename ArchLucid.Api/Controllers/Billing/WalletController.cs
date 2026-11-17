@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Models.Billing;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -26,8 +27,12 @@ public sealed class WalletController(
     ILlmTenantWalletService walletService,
     IScopeContextProvider scopeProvider,
     IAuditService auditService,
+    IActorContext actorContext,
     IOptionsMonitor<BillingOptions> billingOptions) : ControllerBase
 {
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -85,15 +90,18 @@ public sealed class WalletController(
         if (updated is null)
             return this.ConflictProblem("Wallet settings could not be updated (validation or concurrency conflict).", ProblemTypes.Conflict);
 
-        string actor = User.Identity?.Name ?? "operator";
+        // AuditService replaces ActorUserId with NameIdentifier unless ExplicitActor is set.
+        string actorUserId = _actorContext.GetActorId();
+        string actorUserName = User?.Identity?.Name ?? actorUserId;
 
         await _auditService
             .LogAsync(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.LlmWalletSettingsUpdated,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
+                    ExplicitActor = true,
+                    ActorUserId = actorUserId,
+                    ActorUserName = actorUserName,
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,

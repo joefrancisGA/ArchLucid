@@ -1,0 +1,64 @@
+using System.Globalization;
+
+namespace ArchLucid.Application.Pilots;
+
+/// <summary>Shared findings-by-severity honesty for sponsor one-pager PDF delta rows.</summary>
+internal static class PilotRunDeltasFindingsBySeverityPlainTextFormatter
+{
+    internal static string Format(PilotRunDeltas deltas)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        if (deltas.FindingsBySeverity.Count > 0)
+        {
+            return string.Join(
+                ", ",
+                deltas.FindingsBySeverity.Select(static p =>
+                    $"{PilotPlainTextSafeLabelFormatter.FormatLabel(p.Key)}: {p.Value.ToString(CultureInfo.InvariantCulture)}"));
+        }
+
+        if (PilotRunDeltasFindingsEmptySeverityHonesty.HasMaterialFindingWithoutSeverityBuckets(deltas))
+        {
+            return PilotRunDeltasFindingsEmptySeverityHonesty.FindingsBySeverityNotAttestedLabel;
+        }
+
+        if (PilotRunDeltasFindingsEmptySeverityHonesty.IsMutedOnlyEmptySeverity(deltas))
+        {
+            return PilotRunDeltasFindingsTotalFormatter.MutedOnlyFindingsTotalLabel;
+        }
+
+        if (PilotRunDeltasFindingsEmptySeverityHonesty.IsSnapshotAttestedZeroUnmuted(deltas))
+        {
+            return PilotRunDeltasFindingsEmptySeverityHonesty.SnapshotZeroUnmutedFindingsPlainLabel;
+        }
+
+        if (PilotRunDeltasFindingsEmptySeverityHonesty.IsAgentResultsOmittedEmptySeverity(deltas))
+        {
+            return PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored;
+        }
+
+        if (PilotRunDeltasFindingsEmptySeverityHonesty.IsAgentResultsIncludedEmptySeverity(deltas))
+        {
+            return PilotRunDeltasFindingsEmptySeverityHonesty.AgentResultsIncludedEmptySeverityPlainLabel;
+        }
+
+        return PilotRunDeltasFindingsTotalFormatter.FindingsTotalNotAttestedLabel;
+    }
+
+    internal static string FormatMarkdownProofPackageCell(PilotRunDeltas deltas)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        if (deltas.FindingsBySeverity.Count > 0)
+        {
+            return string.Join(
+                ", ",
+                deltas.FindingsBySeverity.Select(static p =>
+                    FormattableString.Invariant(
+                        $"{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(p.Key)}: {p.Value.ToString(CultureInfo.InvariantCulture)}")));
+        }
+
+        return FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(Format(deltas));
+    }
+
+}

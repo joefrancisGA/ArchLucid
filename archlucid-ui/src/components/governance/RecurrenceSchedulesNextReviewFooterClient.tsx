@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { RecurrenceSchedulesNextReviewFooter, recurrenceSchedulesNextReviewFooterHref } from "@/components/governance/RecurrenceSchedulesNextReviewFooter";
 import { listRunsByProjectPaged } from "@/lib/api";
@@ -20,6 +20,16 @@ export function RecurrenceSchedulesNextReviewFooterClient(
   props: RecurrenceSchedulesNextReviewFooterClientProps,
 ): React.JSX.Element | null {
   const [runs, setRuns] = useState<readonly RunSummary[]>([]);
+  // Vitest tears down jsdom before late listRuns settles — skip setState then.
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const loadRuns = useCallback(async () => {
     const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
@@ -29,6 +39,10 @@ export function RecurrenceSchedulesNextReviewFooterClient(
       const raw: unknown = await listRunsByProjectPaged(projectId, 1, 100, { scopeHeaders });
       const coerced = coerceRunSummaryPaged(raw, { page: 1 });
 
+      if (!mountedRef.current) {
+        return;
+      }
+
       if (!coerced.ok) {
         setRuns([]);
 
@@ -37,7 +51,9 @@ export function RecurrenceSchedulesNextReviewFooterClient(
 
       setRuns(enrichRunsListWithStaticDemoFallback(coerced.value.items, projectId));
     } catch {
-      setRuns([]);
+      if (mountedRef.current) {
+        setRuns([]);
+      }
     }
   }, []);
 

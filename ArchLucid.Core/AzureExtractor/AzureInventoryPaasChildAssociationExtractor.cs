@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.InfraEvidence;
+
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
@@ -31,8 +33,8 @@ public static class AzureInventoryPaasChildAssociationExtractor
 
         row = new AzureInventoryPaasChildAssociationRow
         {
-            ParentResourceId = parentResourceId.Trim(),
-            ChildResourceId = childResourceId.Trim(),
+            ParentResourceId = CompanionArmIdNormalizer.Normalize(parentResourceId),
+            ChildResourceId = CompanionArmIdNormalizer.Normalize(childResourceId),
             ChildName = childName.Trim(),
             ChildType = childType,
             CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,

@@ -51,7 +51,7 @@ public static class PolicyPackCompoundingEvidenceLedgerMarkdownRenderer
     {
         if (citations.Count == 0)
         {
-            builder.AppendLine("- _(none)_");
+            builder.AppendLine("- No change-log citations were included in this ledger.");
             builder.AppendLine();
 
             return;

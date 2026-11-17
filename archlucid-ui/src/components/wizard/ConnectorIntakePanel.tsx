@@ -41,7 +41,7 @@ export function ConnectorIntakePanel(props: ConnectorIntakePanelProps) {
   const [tab, setTabState] = useState<ConnectorTab>(urlTab ?? "terraform");
   const [terraformJson, setTerraformJson] = useState("");
   const [gitRepositoryUrl, setGitRepositoryUrl] = useState("");
-  const [gitBranch, setGitBranch] = useState("main");
+  const [gitBranch, setGitBranch] = useState("");
   const [gitTerraformPath, setGitTerraformPath] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{
@@ -118,14 +118,18 @@ export function ConnectorIntakePanel(props: ConnectorIntakePanelProps) {
   }
 
   const canImport =
-    tab === "terraform" ? terraformJson.trim().length >= 20 : gitRepositoryUrl.trim().length > 0 && gitTerraformPath.trim().length > 0;
+    tab === "terraform"
+      ? terraformJson.trim().length >= 20
+      : gitRepositoryUrl.trim().length > 0
+        && gitBranch.trim().length > 0
+        && gitTerraformPath.trim().length > 0;
   const importDisabledReason = firstWhyDisabledCtaReason([
     busy ? whyDisabledBusy("Import") : null,
     !canImport
       ? whyDisabledIncompleteInput(
           tab === "terraform"
             ? "Paste terraform show -json output to import."
-            : "Enter repository URL and path to a .tf file to import.",
+            : "Enter repository URL, branch name, and path to a .tf file to import.",
         )
       : null,
   ]);
@@ -172,7 +176,7 @@ export function ConnectorIntakePanel(props: ConnectorIntakePanelProps) {
               value={gitBranch}
               onChange={(e) => setGitBranch(e.target.value)}
               disabled={busy}
-              placeholder="Branch (main)"
+              placeholder="Branch name"
               data-testid="connector-intake-git-branch"
             />
             <Input

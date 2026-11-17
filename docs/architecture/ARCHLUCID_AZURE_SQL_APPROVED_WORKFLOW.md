@@ -1,0 +1,9 @@
+# Approved Azure SQL capacity workflow
+
+The GitHub Actions workflow `archlucid-azure-sql-capacity.yml` is **manual-only** (`workflow_dispatch`) and gated by the protected `azure-sql-capacity-test` GitHub environment, its reviewers, and the explicit `I_APPROVE_TEST_BENCHMARK` input. It does not run on commits or PRs.
+
+Before enabling it, configure Azure workload-identity federation for the dedicated environment and set environment variables `AZURE_CAPACITY_CLIENT_ID`, `AZURE_CAPACITY_TENANT_ID`, `AZURE_CAPACITY_SUBSCRIPTION_ID` and the restricted secret `AZURE_CAPACITY_SQL_TEST_CONNECTION`. Provision an isolated disposable Azure SQL **test** database named `ArchLucidCapacityTest_...`, grant only the required SQL test/read permissions and Azure Monitoring Reader on that database. Configure network/firewall access separately. Review Azure cost impact and require an environment approver.
+
+The job validates the input resource name, builds the standalone test executor, performs bounded session-temporary-table queries, fetches the same resource's CPU metric through Azure CLI OIDC authentication, and attempts UTC correlation. It uploads only JSON evidence; connection strings and access tokens are never written to artifacts.
+
+**Limitations:** Azure Monitor is typically minute-granular while this benchmark can finish in seconds. Collection may fail because there are not two samples or no sample falls within the short benchmark window; this is an honest missing-evidence failure, not justification to interpolate fabricated utilization. ARM resource ID input is not independently attested against the SQL connection's server identity. Restrict the environment to a dedicated subscription/resource and do not use production credentials. This workflow does not establish query-specific CPU, capacity SLO, or calibrated worker-sizing and must not automatically modify scaling.

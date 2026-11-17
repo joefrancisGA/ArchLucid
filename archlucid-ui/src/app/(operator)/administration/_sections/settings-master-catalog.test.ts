@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
+
 import {
   INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION,
   INTERNAL_DEVELOPER_TOOLS_CATALOG_GATE_NOTE,
@@ -89,9 +91,15 @@ describe("settings-master-catalog (TB-1198)", () => {
     expect(destinations.find((entry) => entry.id === "system-health")).toMatchObject({
       href: "/administration/system-health",
     });
-    expect(destinations.find((entry) => entry.id === "api-keys")).toMatchObject({
-      href: "/administration/api-keys",
-    });
+    const apiKeys = destinations.find((entry) => entry.id === "api-keys");
+
+    if (isApiKeysSettingsSurfaceEnabled()) {
+      expect(apiKeys).toMatchObject({
+        href: "/administration/api-keys",
+      });
+    } else {
+      expect(apiKeys).toBeUndefined();
+    }
     expect(destinations.find((entry) => entry.id === "connection-status")).toMatchObject({
       href: "/administration/connection-status",
     });

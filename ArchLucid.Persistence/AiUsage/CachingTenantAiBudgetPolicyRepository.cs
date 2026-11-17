@@ -38,7 +38,10 @@ public sealed class CachingTenantAiBudgetPolicyRepository(
             cancellationToken);
 
         if (inserted)
-            await HotPathCacheEviction.RemoveTenantAiBudgetPolicyAsync(_hotPathReadCache, tenantId, cancellationToken);
+        {
+            // The durable policy must replace any cached miss even if the caller disconnects.
+            await HotPathCacheEviction.RemoveTenantAiBudgetPolicyAsync(_hotPathReadCache, tenantId, CancellationToken.None);
+        }
 
         return inserted;
     }

@@ -53,6 +53,7 @@ internal static class AzureInventorySnapshotRoleAssignmentEdgeHydrator
             GraphEdge? edge = AzureInventorySnapshotGraphEdgeAppender.TryAdd(
                 edges, edgeKeys, fromNodeId, toNodeId, GraphEdgeTypes.HasRole,
                 GraphEdgeInferenceSources.InventoryRbacAssignment,
+                label: GraphEdgeTypes.HasRole,
                 provenanceKind: ProvenanceKind.ObservedFact.ToString(),
                 promoteStrongerProvenance: false, allowSelfEdges: true,
                 identityKey: AzureInventoryRoleAssignmentIdentity.Create(principalId, scope, assignment.RoleDefinitionId));

@@ -84,6 +84,75 @@ public sealed class GraphRagNeighborExpanderTests
     }
 
     [Fact]
+    public async Task ExpandAsync_neighbor_score_scales_from_seed_hit_score()
+    {
+        Guid snapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = snapshotId,
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                new GraphNode { NodeId = "seed", NodeType = "TopologyResource", Label = "Seed" },
+                new GraphNode { NodeId = "neighbor", NodeType = "PolicyControl", Label = "Neighbor" },
+            ],
+            Edges =
+            [
+                new GraphEdge { FromNodeId = "seed", ToNodeId = "neighbor", EdgeType = "APPLIES_TO" },
+            ],
+        };
+
+        Mock<ArchLucid.Core.Persistence.Ports.IGraphSnapshotRepository> graphRepository = new();
+        graphRepository
+            .Setup(r => r.GetByIdAsync(
+                It.IsAny<ArchLucid.Core.Scoping.ScopeContext>(),
+                snapshotId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshot);
+
+        GraphRagNeighborExpander sut = new(
+            graphRepository.Object,
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(new AdvancedRetrievalOptions
+            {
+                Enabled = true,
+                EnableGraphRag = true,
+            }),
+            Mock.Of<ILogger<GraphRagNeighborExpander>>());
+
+        RetrievalQuery query = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            QueryText = "seed",
+            TopK = 8,
+        };
+
+        const double seedScore = 0.40;
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            new RetrievalHit
+            {
+                ChunkId = KnowledgeGraphNodeEmbeddingTextComposer.BuildChunkId(snapshotId, "seed"),
+                DocumentId = KnowledgeGraphNodeEmbeddingTextComposer.BuildDocumentId(snapshotId, "seed"),
+                CorpusKind = nameof(CorpusKind.KnowledgeGraphNode),
+                SourceType = "KnowledgeGraphNode",
+                SourceId = "seed",
+                Title = "Seed",
+                Text = "seed text",
+                Score = seedScore,
+            },
+        ];
+
+        IReadOnlyList<RetrievalHit> expanded = await sut.ExpandAsync(query, hits, CancellationToken.None);
+
+        RetrievalHit neighbor = expanded.Should().ContainSingle(hit => hit.SourceId == "neighbor").Subject;
+        neighbor.Score.Should().BeApproximately(seedScore * 0.85, 1e-6);
+    }
+
+    [Fact]
     public async Task ExpandAsync_fetches_each_distinct_snapshot_once_for_multiple_seeds()
     {
         Guid snapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
@@ -418,6 +487,99 @@ public sealed class GraphRagNeighborExpanderTests
 
         RetrievalHit sharedNeighbor = expanded.Single(hit => hit.SourceId == "shared");
         sharedNeighbor.Score.Should().BeApproximately(0.9 * 0.85, 0.0001);
+    }
+
+    [Fact]
+    public async Task ExpandAsync_preserves_relative_order_among_tied_manifest_hits_after_resort()
+    {
+        Guid snapshotId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = snapshotId,
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                new GraphNode { NodeId = "seed", NodeType = "TopologyResource", Label = "Seed" },
+                new GraphNode { NodeId = "neighbor", NodeType = "PolicyControl", Label = "Neighbor" },
+            ],
+            Edges =
+            [
+                new GraphEdge { FromNodeId = "seed", ToNodeId = "neighbor", EdgeType = "APPLIES_TO" },
+            ],
+        };
+
+        Mock<ArchLucid.Core.Persistence.Ports.IGraphSnapshotRepository> graphRepository = new();
+        graphRepository
+            .Setup(r => r.GetByIdAsync(
+                It.IsAny<ArchLucid.Core.Scoping.ScopeContext>(),
+                snapshotId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshot);
+
+        GraphRagNeighborExpander sut = new(
+            graphRepository.Object,
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(new AdvancedRetrievalOptions
+            {
+                Enabled = true,
+                EnableGraphRag = true,
+            }),
+            Mock.Of<ILogger<GraphRagNeighborExpander>>());
+
+        RetrievalQuery query = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            QueryText = "seed",
+            TopK = 8,
+        };
+
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            new RetrievalHit
+            {
+                ChunkId = "manifest-first",
+                DocumentId = "doc-1",
+                SourceType = "Manifest",
+                SourceId = "m1",
+                Title = "First",
+                Text = "first manifest",
+                Score = 0.5,
+            },
+            new RetrievalHit
+            {
+                ChunkId = "manifest-second",
+                DocumentId = "doc-2",
+                SourceType = "Manifest",
+                SourceId = "m2",
+                Title = "Second",
+                Text = "second manifest",
+                Score = 0.5,
+            },
+            new RetrievalHit
+            {
+                ChunkId = KnowledgeGraphNodeEmbeddingTextComposer.BuildChunkId(snapshotId, "seed"),
+                DocumentId = KnowledgeGraphNodeEmbeddingTextComposer.BuildDocumentId(snapshotId, "seed"),
+                CorpusKind = nameof(CorpusKind.KnowledgeGraphNode),
+                SourceType = "KnowledgeGraphNode",
+                SourceId = "seed",
+                Title = "Seed",
+                Text = "seed text",
+                Score = 0.95,
+            },
+        ];
+
+        IReadOnlyList<RetrievalHit> expanded = await sut.ExpandAsync(query, hits, CancellationToken.None);
+
+        IReadOnlyList<RetrievalHit> tiedManifestHits = expanded
+            .Where(hit => hit.Score == 0.5d)
+            .ToList();
+
+        tiedManifestHits.Should().HaveCount(2);
+        tiedManifestHits[0].ChunkId.Should().Be("manifest-first");
+        tiedManifestHits[1].ChunkId.Should().Be("manifest-second");
     }
 
     private static GraphSnapshot BuildLinearChainSnapshot(Guid graphSnapshotId, IReadOnlyList<string> nodeIds)

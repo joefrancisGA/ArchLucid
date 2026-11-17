@@ -45,7 +45,7 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
 
         md.Should().StartWith("# ArchLucid Analysis Report");
         md.Should().Contain("## Agent Execution Traces");
-        md.Should().Contain("No execution traces");
+        md.Should().Contain("Execution traces were not stored for this run.");
         md.Should().NotContain("```");
     }
 
@@ -79,10 +79,95 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
 
         string md = _sut.GenerateMarkdown(report);
 
-        int fences = md.Split("```", StringSplitOptions.None).Length - 1;
-        fences.Should().Be(6, "three fenced blocks per trace (text/text/json) => six fences total");
-        md.Should().Contain("```text");
-        md.Should().Contain("```json");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceSystemPromptStoredEmptyCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceUserPromptStoredEmptyCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceRawResponseStoredEmptyCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.ParsedResultNotStoredCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceErrorNotStoredBecauseParseSucceededCopy);
+        md.Should().NotContain("```text");
+    }
+
+    [Fact]
+    public void GenerateMarkdown_trace_prompt_fence_stays_closed_when_prompt_contains_backtick_fence()
+    {
+        const string prompt = "before\n```\ninside fence\n```\nafter";
+
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed
+                },
+            ExecutionTraces =
+            [
+                new AgentExecutionTrace
+                {
+                    AgentType = AgentType.Topology,
+                    TaskId = "11111111111111111111111111111111",
+                    TraceId = "22222222222222222222222222222222",
+                    SystemPrompt = prompt,
+                    ParseSucceeded = false,
+                    CreatedUtc = new DateTime(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc)
+                }
+            ],
+            Diagram = "graph TD\n  A[\"```\"]"
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        string systemSection = SliceSection(md, "#### System Prompt", "#### User Prompt");
+        systemSection.Should().Contain("````text");
+        string fenced = SliceSection(systemSection, "````text", "\n````");
+        fenced.Should().Contain("inside fence");
+        fenced.Should().Contain("after");
+
+        string diagramSection = SliceSection(md, "## Diagram", "## Architecture Summary");
+        diagramSection.Should().Contain("````mermaid");
+        string diagramFence = SliceSection(diagramSection, "````mermaid", "\n````");
+        diagramFence.Should().Contain("```");
+    }
+
+    private static string SliceSection(string markdown, string startMarker, string endMarker)
+    {
+        int start = markdown.IndexOf(startMarker, StringComparison.Ordinal);
+        start.Should().BeGreaterThanOrEqualTo(0);
+        int end = markdown.IndexOf(endMarker, start + startMarker.Length, StringComparison.Ordinal);
+        end.Should().BeGreaterThan(start);
+        return markdown.Substring(start, end - start);
+    }
+
+    [Fact]
+    public void GenerateMarkdown_trace_error_line_uses_stored_empty_copy_when_blank()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed
+                },
+            ExecutionTraces =
+            [
+                new AgentExecutionTrace
+                {
+                    AgentType = AgentType.Topology,
+                    TaskId = "11111111111111111111111111111111",
+                    TraceId = "22222222222222222222222222222222",
+                    ErrorMessage = "   ",
+                    ParseSucceeded = false,
+                    CreatedUtc = new DateTime(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc)
+                }
+            ]
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain($"- Error: {ArchitectureEvidenceRequestExport.TraceErrorStoredEmptyCopy}");
     }
 
     [Fact]
@@ -193,6 +278,9 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         md.Should().Contain("### Governance");
         md.Should().Contain("Risk Classification: High");
         md.Should().Contain("Cost Classification: Low");
+        md.Should().Contain(ArchitectureManifestGovernanceExport.RequiredControlsNotStoredLabel);
+        md.Should().Contain(ArchitectureManifestGovernanceExport.ComplianceTagsNotStoredLabel);
+        md.Should().Contain(ArchitectureManifestGovernanceExport.PolicyConstraintsNotStoredLabel);
     }
 
     [Fact]
@@ -264,13 +352,34 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         md.Should().Contain(ArchitectureEvidenceRequestExport.MissingEvidencePackageCopy);
         md.Should().Contain($"- Completed UTC: {ArchitectureEvidenceRequestExport.MissingCompletedTimeCopy}");
         md.Should().Contain("## Diagram");
-        md.Should().Contain(ArchitectureEvidenceRequestExport.DiagramNotStoredCopy);
+        md.Should().Contain(ConsultingDocxAppendixHonestyCopy.MermaidSourceNotStored);
         md.Should().Contain("## Architecture Summary");
         md.Should().Contain(ArchitectureEvidenceRequestExport.ArchitectureSummaryNotStoredCopy);
     }
 
     [Fact]
-    public void GenerateMarkdown_evidence_identity_fields_use_not_stored_copy_when_blank()
+    public void GenerateMarkdown_distinguishes_null_from_stored_empty_diagram_and_summary()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Diagram = "   ",
+            Summary = " ",
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain(ConsultingDocxAppendixHonestyCopy.MermaidSourceStoredEmpty);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.ArchitectureSummaryStoredEmptyCopy);
+    }
+
+    [Fact]
+    public void GenerateMarkdown_evidence_identity_fields_use_stored_empty_copy_when_whitespace()
     {
         ArchitectureAnalysisReport report = new()
         {
@@ -283,14 +392,17 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
             Evidence = new AgentEvidencePackage
             {
                 Request = new RequestEvidence { Description = "At least ten characters for export body." },
+                SystemName = "   ",
+                Environment = "   ",
+                CloudProvider = "   ",
             },
         };
 
         string md = _sut.GenerateMarkdown(report);
 
-        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingSystemNameCopy);
-        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingEnvironmentCopy);
-        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingCloudProviderCopy);
+        md.Should().Contain("System name was stored empty.");
+        md.Should().Contain("Environment was stored empty.");
+        md.Should().Contain("Cloud provider was stored empty.");
     }
 
     [Fact]
@@ -323,9 +435,28 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
 
         string md = _sut.GenerateMarkdown(report);
 
-        md.Should().Contain(ArchitectureEvidenceRequestExport.PolicySummaryNotStoredCopy);
+        md.Should().Contain("Policy summary was stored empty.");
         md.Should().Contain(ArchitectureEvidenceRequestExport.ServiceCatalogSummaryNotStoredCopy);
-        md.Should().Contain(ArchitectureEvidenceRequestExport.PatternSummaryNotStoredCopy);
+        md.Should().Contain("Pattern summary was stored empty.");
+    }
+
+    [Fact]
+    public void GenerateMarkdown_labels_missing_manifest_with_committed_manifest_honesty()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain("## Architecture Manifest");
+        md.Should().Contain(ConsultingDocxExportHonestyCopy.CommittedManifestNotStored);
     }
 
     [Fact]
@@ -352,5 +483,119 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         string md = _sut.GenerateMarkdown(report);
 
         md.Should().Contain($"- Description: {ArchitectureEvidenceRequestExport.MissingDescriptionCopy}");
+    }
+
+    [Fact]
+    public void GenerateMarkdown_emits_not_stored_copy_for_missing_compare_artifacts()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed,
+                },
+            ManifestDiff = new ManifestDiffResult { AddedServices = ["api"] },
+        };
+
+        string markdown = _sut.GenerateMarkdown(report);
+
+        markdown.Should().Contain(ConsultingDocxAppendixHonestyCopy.DeterminismCheckNotStored);
+        markdown.Should().Contain(ConsultingDocxAppendixHonestyCopy.AgentResultDiffNotStored);
+        markdown.Should().Contain("Added Services");
+    }
+
+    [Fact]
+    public void GenerateMarkdown_service_purpose_stays_on_one_bullet_when_purpose_contains_a_newline()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed,
+                },
+            Manifest =
+                new GoldenManifest
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    SystemName = "Acme",
+                    Metadata = new ManifestMetadata { ManifestVersion = "v2" },
+                    Services =
+                    [
+                        new ManifestService
+                        {
+                            ServiceName = "api",
+                            ServiceType = ServiceType.Api,
+                            RuntimePlatform = RuntimePlatform.AppService,
+                            Purpose = "Process payments\n## Injected heading",
+                        },
+                    ],
+                },
+        };
+
+        string markdown = _sut.GenerateMarkdown(report);
+
+        markdown.Should().Contain("  - Purpose: Process payments ## Injected heading");
+        markdown.Should().NotContain("\n## Injected heading");
+    }
+
+    [Fact]
+    public void CompareQuality_GenerateMarkdown_keeps_customer_text_on_its_bullet_when_a_newline_is_stored()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed,
+                },
+            Warnings = ["Stored warning\n## Injected heading"],
+            Evidence = new AgentEvidencePackage
+            {
+                SystemName = "Acme\n## Injected heading",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence
+                {
+                    Description = "Review the trust boundary\n## Injected heading",
+                    Constraints = ["Keep data in region\n## Injected heading"],
+                },
+            },
+            Manifest =
+                new GoldenManifest
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    SystemName = "Acme",
+                    Metadata = new ManifestMetadata { ManifestVersion = "v2" },
+                    Services =
+                    [
+                        new ManifestService
+                        {
+                            ServiceName = "billing-api\n## Injected heading",
+                            ServiceType = ServiceType.Api,
+                            RuntimePlatform = RuntimePlatform.AppService,
+                            Purpose = "Charge cards",
+                            RequiredControls = ["SOC2\n## Injected heading"],
+                        },
+                    ],
+                },
+        };
+
+        string markdown = _sut.GenerateMarkdown(report);
+
+        markdown.Should().Contain("- System Name: Acme ## Injected heading");
+        markdown.Should().Contain("- Description: Review the trust boundary ## Injected heading");
+        markdown.Should().Contain("  - Keep data in region ## Injected heading");
+        markdown.Should().Contain("- **billing-api ## Injected heading**");
+        markdown.Should().Contain("  - Required Controls: SOC2 ## Injected heading");
+        markdown.Should().Contain("- Stored warning ## Injected heading");
+        markdown.Should().NotContain("\n## Injected heading");
     }
 }

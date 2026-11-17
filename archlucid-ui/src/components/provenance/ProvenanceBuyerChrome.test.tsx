@@ -14,6 +14,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { PROVENANCE_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/provenance-page-copy";
 
 import { ProvenanceBuyerChrome } from "./ProvenanceBuyerChrome";

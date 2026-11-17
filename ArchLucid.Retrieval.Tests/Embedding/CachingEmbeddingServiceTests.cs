@@ -106,6 +106,118 @@ public sealed class CachingEmbeddingServiceTests
         inner.Verify(s => s.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
+    [Fact]
+    public void BuildCacheKey_includes_expected_dimension_in_cache_key()
+    {
+        IEmbeddingModelIdentity dim1536 = CreateModelIdentityMock("text-embedding-3-small", 1536).Object;
+        IEmbeddingModelIdentity dim3072 = CreateModelIdentityMock("text-embedding-3-small", 3072).Object;
+
+        string key1536 = CachingEmbeddingService.BuildCacheKey("same text", dim1536);
+        string key3072 = CachingEmbeddingService.BuildCacheKey("same text", dim3072);
+
+        key1536.Should().NotBe(key3072);
+        key1536.Should().Contain(":1536:");
+        key3072.Should().Contain(":3072:");
+    }
+
+    [Fact]
+    public async Task EmbedAsync_calls_inner_separately_when_cache_keys_differ_by_raw_text()
+    {
+        Mock<IEmbeddingService> inner = new();
+        float[] firstVector = [0.1f];
+        float[] secondVector = [0.2f];
+        inner
+            .SetupSequence(s => s.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(firstVector)
+            .ReturnsAsync(secondVector);
+
+        using MemoryCache memoryCache = new(new MemoryCacheOptions { SizeLimit = 128 });
+        CachingEmbeddingService sut = CreateSut(inner.Object, memoryCache);
+
+        float[] first = await sut.EmbedAsync("caf\u00e9", CancellationToken.None);
+        float[] second = await sut.EmbedAsync("cafe\u0301", CancellationToken.None);
+
+        first.Should().BeSameAs(firstVector);
+        second.Should().BeSameAs(secondVector);
+        inner.Verify(s => s.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task EmbedAsync_calls_inner_twice_when_texts_differ_only_by_outer_whitespace()
+    {
+        Mock<IEmbeddingService> inner = new();
+        float[] firstVector = [0.1f];
+        float[] secondVector = [0.2f];
+        inner
+            .SetupSequence(s => s.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(firstVector)
+            .ReturnsAsync(secondVector);
+
+        using MemoryCache memoryCache = new(new MemoryCacheOptions { SizeLimit = 128 });
+        CachingEmbeddingService sut = CreateSut(inner.Object, memoryCache);
+
+        float[] first = await sut.EmbedAsync("  hello world  ", CancellationToken.None);
+        float[] second = await sut.EmbedAsync("hello world", CancellationToken.None);
+
+        first.Should().BeSameAs(firstVector);
+        second.Should().BeSameAs(secondVector);
+        inner.Verify(s => s.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task EmbedManyAsync_maps_each_index_when_two_texts_share_normalized_cache_key()
+    {
+        Mock<IEmbeddingService> inner = new();
+        float[] sharedVector = [0.42f];
+        inner
+            .Setup(s => s.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => sharedVector).ToList());
+
+        using MemoryCache memoryCache = new(new MemoryCacheOptions { SizeLimit = 128 });
+        CachingEmbeddingService sut = CreateSut(inner.Object, memoryCache);
+
+        IReadOnlyList<float[]> vectors = await sut.EmbedManyAsync(
+            ["  hello world  ", "hello world"],
+            CancellationToken.None);
+
+        vectors.Should().HaveCount(2);
+        vectors[0].Should().BeSameAs(sharedVector);
+        vectors[1].Should().BeSameAs(sharedVector);
+        inner.Verify(
+            s => s.EmbedManyAsync(
+                It.Is<IReadOnlyList<string>>(texts => texts.Count == 2),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task EmbedAsync_when_cache_disabled_calls_inner_even_if_memory_contains_entry()
+    {
+        Mock<IEmbeddingService> inner = new();
+        float[] staleVector = [0.1f];
+        float[] freshVector = [0.9f];
+        inner
+            .Setup(s => s.EmbedAsync("hello", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(freshVector);
+
+        using MemoryCache memoryCache = new(new MemoryCacheOptions { SizeLimit = 128 });
+        string key = CachingEmbeddingService.BuildCacheKey("hello", CreateModelIdentity());
+        memoryCache.Set(key, staleVector, new MemoryCacheEntryOptions { Size = 1 });
+
+        EmbeddingContentHashCacheOptions disabled = new() { Enabled = false, AbsoluteExpirationSeconds = 600, MaxEntries = 128 };
+        CachingEmbeddingService sut = new(
+            inner.Object,
+            memoryCache,
+            Options.Create(disabled).ToMonitor(),
+            CreateModelIdentity());
+
+        float[] result = await sut.EmbedAsync("hello", CancellationToken.None);
+
+        result.Should().BeSameAs(freshVector);
+        inner.Verify(s => s.EmbedAsync("hello", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     private static CachingEmbeddingService CreateSut(
         IEmbeddingService inner,
         IMemoryCache memoryCache,

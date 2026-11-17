@@ -1,8 +1,21 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/compliance-journey",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
 
 import { ComplianceJourneyPageBody } from "@/components/marketing/ComplianceJourneyPageBody";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import {
+  COMPLIANCE_JOURNEY_CANONICAL_PATH,
   COMPLIANCE_JOURNEY_CLAIM_DISCIPLINE,
   COMPLIANCE_JOURNEY_FOLLOW_UPS_TITLE,
   COMPLIANCE_JOURNEY_SOURCES,
@@ -13,8 +26,6 @@ import {
   COMPLIANCE_JOURNEY_SKIP_LINK_LABEL,
   COMPLIANCE_JOURNEY_SKIP_TARGET_ID,
 } from "@/lib/compliance-journey-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 describe("ComplianceJourneyPageBody buyer-polished shell", () => {
   it("renders skip link, orientation above journey stages, and Sources links", () => {
@@ -51,9 +62,6 @@ describe("ComplianceJourneyPageBody buyer-polished shell", () => {
     expect(screen.getByRole("heading", { level: 2, name: COMPLIANCE_JOURNEY_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getAllByTestId("compliance-journey-sources")).toHaveLength(1);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(COMPLIANCE_JOURNEY_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), COMPLIANCE_JOURNEY_SOURCES, COMPLIANCE_JOURNEY_CANONICAL_PATH);
   });
 });

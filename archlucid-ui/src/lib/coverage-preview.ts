@@ -95,7 +95,10 @@ export function buildCoveragePreviewRequest(input: {
 }
 
 export const COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE =
-  "Cloud was not stored. This preview is not a stored cloud choice." as const;
+  "Cloud was not stored, so this coverage preview was not evaluated." as const;
+
+export const COVERAGE_PREVIEW_CLOUD_UNRECOGNIZED_MESSAGE =
+  "Cloud target was not recognized, so this coverage preview was not evaluated." as const;
 
 export const COVERAGE_PREVIEW_POLICY_PACK_VERSION_NOT_STORED_MESSAGE =
   "Policy pack version was not stored." as const;
@@ -113,6 +116,15 @@ export function formatCoveragePreviewPolicyPackVersion(policyPackVersion?: strin
 export function resolveCoveragePreviewCloudHonesty(cloudProvider?: string): string | null {
   if (cloudProvider === undefined || cloudProvider.trim().length === 0) {
     return COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE;
+  }
+
+  const normalized = cloudProvider.trim().toLowerCase();
+  if (normalized === "none") {
+    return COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE;
+  }
+
+  if (!["azure", "aws", "gcp"].includes(normalized)) {
+    return COVERAGE_PREVIEW_CLOUD_UNRECOGNIZED_MESSAGE;
   }
 
   return null;

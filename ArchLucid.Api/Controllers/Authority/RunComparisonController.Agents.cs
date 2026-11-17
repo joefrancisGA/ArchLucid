@@ -73,12 +73,13 @@ public sealed partial class RunComparisonController
         if (error is not null)
             return (error, null);
 
-        AgentResultDiffResult diff = _compareRunsFacade.CompareAgentResults(
+        AgentResultDiffResult diff = await _compareRunsFacade.CompareAgentResultsAsync(
             query.LeftRunId,
             leftDetail!,
             query.RightRunId,
             rightDetail!,
-            inputFingerprints);
+            inputFingerprints,
+            cancellationToken);
         return (null, diff);
     }
 

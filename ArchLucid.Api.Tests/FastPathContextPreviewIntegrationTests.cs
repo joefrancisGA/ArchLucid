@@ -17,11 +17,8 @@ public sealed class FastPathContextPreviewIntegrationTests(ArchLucidApiFactory f
     {
         HttpResponseMessage response = await Client.PostAsync(
             "/v1/architecture/fast-path/context-preview",
-            JsonContent(new FastPathContextPreviewRequest { RepositoryUrl = "https://github.com/contoso/order-service" }));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        FastPathContextPreviewResponse? body =
-            await response.Content.ReadFromJsonAsync<FastPathContextPreviewResponse>(JsonOptions);
+            JsonContent(new FastPathContextPreviewRequest { RepositoryUrl = "https://github.com/contoso/order-service" }));        FastPathContextPreviewResponse? body =
+            await response.ReadJsonForTestAsync<FastPathContextPreviewResponse>(JsonOptions);
         body.Should().NotBeNull();
         body.Elements.Should().NotBeEmpty();
         body.SourceUrl.Should().Contain("github.com");

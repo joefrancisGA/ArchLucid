@@ -35,6 +35,8 @@ import {
   runHomeListUsesCreatedTimestampFallback,
 } from "@/lib/operator/operator-home-run-list-insight";
 import { cn } from "@/lib/utils";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import { resolveOperatorHomeReviewHref } from "@/lib/operator/resolve-operator-home-review-href";
 import type { RunSummary } from "@/types/authority";
 
 export type OperatorHomeRecentReviewsTableProps = {
@@ -44,6 +46,8 @@ export type OperatorHomeRecentReviewsTableProps = {
   /** Total tenant rows in the preview pool when more than `runs.length` are available. */
   readonly remainingReviewCount?: number;
   readonly onShowAllReviews?: () => void;
+  /** Server-backed draft registry — resolves Working nested review desks when parent architecture is known. */
+  readonly draftRegistryEntries?: readonly ArchitectureDraftRegistryEntry[];
 };
 
 function isExampleReviewRow(run: RunSummary): boolean {
@@ -64,6 +68,8 @@ function resolveRecentReviewRowActionLabel(run: RunSummary): string {
 export function OperatorHomeRecentReviewsTable(
   props: OperatorHomeRecentReviewsTableProps,
 ): React.JSX.Element | null {
+  const draftRegistryEntries = props.draftRegistryEntries;
+
   if (props.runs.length === 0) {
     return null;
   }
@@ -92,7 +98,7 @@ export function OperatorHomeRecentReviewsTable(
         <EnterpriseTableBody>
           {props.runs.map((run) => {
             const runId = run.runId ?? "";
-            const href = `/architecture/reviews/${encodeURIComponent(runId)}`;
+            const href = resolveOperatorHomeReviewHref(run, draftRegistryEntries);
             const title = runListPrimaryTitle(run);
             const statusTag = resolveRunHomeStatusTag(run);
             const updatedPresentation = formatRunHomeListUpdatedLabel(run, "home-recent-reviews");

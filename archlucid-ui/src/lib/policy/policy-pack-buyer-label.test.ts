@@ -3,6 +3,7 @@ import { CUSTOMER_INTAKE_RULE_SET_VERSION } from "@/lib/samples/customer-intake-
 
 import { describe, expect, it } from "vitest";
 
+import { SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 
 describe("policyPackBuyerLabel", () => {
@@ -25,6 +26,11 @@ describe("policyPackBuyerLabel", () => {
   it("returns dash when empty", () => {
     expect(policyPackBuyerLabel("", "")).toBe("Policy pack not recorded");
     expect(policyPackBuyerLabel("custom-rules", "")).toBe("custom-rules · version not recorded");
+    expect(policyPackBuyerLabel("", "2.0")).toBe("Policy pack id was not stored.");
+  });
+
+  it("does not treat substring responsible-ai ids as sample aliases", () => {
+    expect(policyPackBuyerGovernanceDetailHref("my-responsible-ai-custom-pack")).toBeNull();
   });
 });
 
@@ -49,6 +55,15 @@ describe("policyPackBuyerGovernanceDetailHref", () => {
 
   it("resolves responsible AI sample id to governance detail route", () => {
     expect(policyPackBuyerGovernanceDetailHref("1")).toBe("/governance/policy-packs/1");
+  });
+
+  it("preserves the SecureNow policy packs namespace for detail routes", () => {
+    expect(
+      policyPackBuyerGovernanceDetailHref("1", SECURENOW_POLICY_PACKS_PATH),
+    ).toBe(`${SECURENOW_POLICY_PACKS_PATH}/1`);
+    expect(
+      policyPackBuyerGovernanceDetailHref("enterprise-privacy-v2", SECURENOW_POLICY_PACKS_PATH),
+    ).toBe(`${SECURENOW_POLICY_PACKS_PATH}/demo-enterprise-privacy-pack`);
   });
 
   it("returns null for unknown packs", () => {

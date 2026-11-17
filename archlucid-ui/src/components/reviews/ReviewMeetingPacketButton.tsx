@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
 
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { buildReviewWorkspaceRouteHref } from "@/lib/architecture/review-workspace-route";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
@@ -61,7 +62,7 @@ function buildMeetingPacketSteps(props: ReviewMeetingPacketButtonProps): readonl
       id: "diagram",
       label: "Architecture diagram",
       description: "Open the review topology graph for screen-share or print.",
-      href: props.diagramHref ?? `/architecture/reviews/${encodeURIComponent(runId)}#architecture-graph`,
+      href: props.diagramHref ?? resolveLibOpenReviewHref(runId, { hash: "architecture-graph" }),
     },
     {
       id: "findings",
@@ -87,7 +88,7 @@ function buildMeetingPacketSteps(props: ReviewMeetingPacketButtonProps): readonl
       id: "sponsor-synopsis",
       label: "Sponsor briefing export",
       description: "Executive bottom-line summary for non-architect attendees.",
-      href: props.sponsorSynopsisHref ?? `/architecture/reviews/${encodeURIComponent(runId)}#sponsor-briefing`,
+      href: props.sponsorSynopsisHref ?? resolveLibOpenReviewHref(runId, { hash: "sponsor-briefing" }),
     },
     {
       id: "meeting-capture",

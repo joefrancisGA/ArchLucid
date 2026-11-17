@@ -11,6 +11,14 @@ import type {
   SpecialistReviewFinding,
 } from "@/app/(operator)/architecture/architecture-intelligence/_sections/architecture-intelligence-types";
 import { resolvePublishBlockedAlertMessage } from "@/lib/architecture/architecture-intelligence-framing-interview";
+import {
+  ARCHITECTURE_INTELLIGENCE_ADVERSARIAL_COUNT_NOT_STORED,
+  formatArchitectureIntelligenceIntegrityLabel,
+  formatArchitectureIntelligenceReasoningConclusion,
+  formatArchitectureIntelligenceReasoningSeverity,
+  formatArchitectureIntelligenceSemanticAssessment,
+} from "@/lib/architecture/architecture-intelligence-reasoning-finding-display";
+import { ARCHITECTURE_INTELLIGENCE_FINDING_TITLE_NOT_STORED } from "@/lib/architecture/architecture-intelligence-findings";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
@@ -45,15 +53,15 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
   const adversarialChallengeCount = adversarialPayload?.challenges?.length ?? 0;
   const adversarialSubstantiatedDisplay =
     adversarialPayload === undefined
-      ? "Not returned"
+      ? ARCHITECTURE_INTELLIGENCE_ADVERSARIAL_COUNT_NOT_STORED
       : adversarialPayload.substantiatedFindings === undefined
-        ? "Not returned"
+        ? ARCHITECTURE_INTELLIGENCE_ADVERSARIAL_COUNT_NOT_STORED
         : String(adversarialPayload.substantiatedFindings.length);
   const adversarialChallengesDisplay =
     adversarialPayload === undefined
-      ? "Not returned"
+      ? ARCHITECTURE_INTELLIGENCE_ADVERSARIAL_COUNT_NOT_STORED
       : adversarialPayload.challenges === undefined
-        ? "Not returned"
+        ? ARCHITECTURE_INTELLIGENCE_ADVERSARIAL_COUNT_NOT_STORED
         : String(adversarialPayload.challenges.length);
   const verifyHypothesesLaneHref =
     runId.length > 0 && adversarialChallengeCount > 0
@@ -149,29 +157,21 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
         ) : (
           <ul className="m-0 list-none space-y-2 p-0">
             {props.findings.map((finding, index) => {
-              const findingId = finding.findingId ?? `${finding.title}-${index}`;
+              const titleTrimmed = finding.title?.trim() ?? "";
+              const findingTitle =
+                titleTrimmed.length > 0 ? titleTrimmed : ARCHITECTURE_INTELLIGENCE_FINDING_TITLE_NOT_STORED;
+              const findingId = finding.findingId ?? `${findingTitle}-${index}`;
               const validation = validationById.get(findingId);
               const product = props.result.productFindings?.find((item) => item.findingId === findingId);
               const provenanceBucket = product?.properties?.["architectureIntelligence.provenancePresentation"];
-              const integrityLabel = (() => {
-                if (finding.findingId) {
-                  if (integritySet.size > 0) {
-                    return integritySet.has(finding.findingId) ? "passed" : "failed / not cited";
-                  }
-
-                  if (validation?.overallPassedIntegrity != null) {
-                    return validation.overallPassedIntegrity ? "passed" : "failed / not cited";
-                  }
-
-                  return "Integrity outcome was not returned.";
-                }
-
-                if (validation?.overallPassedIntegrity != null) {
-                  return validation.overallPassedIntegrity ? "passed" : "failed / not cited";
-                }
-
-                return "Integrity outcome was not returned.";
-              })();
+              const integrityLabel = formatArchitectureIntelligenceIntegrityLabel({
+                findingId: finding.findingId,
+                integritySet,
+                validationPassed: validation?.overallPassedIntegrity,
+              });
+              const severityLabel = formatArchitectureIntelligenceReasoningSeverity(finding.severity);
+              const conclusionLabel = formatArchitectureIntelligenceReasoningConclusion(finding.conclusion);
+              const severityStored = (finding.severity?.trim() ?? "").length > 0;
               const integrityPassed =
                 integrityLabel === "passed"
                   ? true
@@ -193,19 +193,26 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
                     }
                   >
                     <CardHeader className="pb-2">
-                      <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>{finding.title}</CardTitle>
+                      <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>{findingTitle}</CardTitle>
                     </CardHeader>
                     <CardContent className={cn("space-y-1 pt-0", OPERATOR_TYPOGRAPHY.body)}>
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-al-text-secondary">Severity:</span>
-                        <SeverityTag severity={finding.severity} />
+                        {severityStored ? (
+                          <SeverityTag severity={finding.severity} />
+                        ) : (
+                          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                            {severityLabel}
+                          </span>
+                        )}
                       </div>
-                      <p className="m-0">Conclusion: {finding.conclusion}</p>
+                      <p className="m-0">Conclusion: {conclusionLabel}</p>
                       <p className="m-0">Integrity: {integrityLabel}</p>
                       {provenanceBucket ? <p className="m-0">Provenance: {provenanceBucket}</p> : null}
-                      {validation?.semanticAssessment ? (
-                        <p className="m-0">Semantic assessment: {validation.semanticAssessment}</p>
-                      ) : null}
+                      <p className="m-0">
+                        Semantic assessment:{" "}
+                        {formatArchitectureIntelligenceSemanticAssessment(validation?.semanticAssessment)}
+                      </p>
                       {publishedInspectHref ? (
                         <p className="m-0">
                           <Link

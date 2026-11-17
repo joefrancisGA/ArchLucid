@@ -1,6 +1,6 @@
 /** SecureNow Security shell home (`/`) — grouped destination cards. */
 
-import { GOVERNANCE_POLICY_PACKS_PATH, SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH, SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
@@ -32,7 +32,7 @@ export const SECURENOW_HOME_CONTEXTUAL_HELP_ENTRY: PageContextualHelpEntry = {
   },
   whereToConfigureAction: {
     label: OPERATOR_NAV_LINK_LABELS.policyPacks,
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
   },
   taskSteps: [
     "Open findings assigned to you to continue the oldest remediation item.",

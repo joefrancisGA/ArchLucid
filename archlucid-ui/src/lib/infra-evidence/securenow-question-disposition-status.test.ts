@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   secureNowQuestionCountsAsAnsweredFilterRow,
+  secureNowQuestionCountsAsMissingStatusFilterRow,
   secureNowQuestionCountsAsOpenQueueRow,
   secureNowQuestionQueueInitialReviewFilter,
   secureNowQuestionDispositionIsAnswered,
@@ -37,9 +38,9 @@ describe("secureNowQuestionDispositionIsAnswered", () => {
 });
 
 describe("secureNowQuestionDispositionIsOpen", () => {
-  it("treats omitted status as open for answer chrome", () => {
-    expect(secureNowQuestionDispositionIsOpen(null)).toBe(true);
-    expect(secureNowQuestionDispositionIsOpen("   ")).toBe(true);
+  it("does not treat omitted status as open", () => {
+    expect(secureNowQuestionDispositionIsOpen(null)).toBe(false);
+    expect(secureNowQuestionDispositionIsOpen("   ")).toBe(false);
   });
 
   it("treats padded Open status as open", () => {
@@ -48,6 +49,27 @@ describe("secureNowQuestionDispositionIsOpen", () => {
 
   it("treats case-variant open status as open", () => {
     expect(secureNowQuestionDispositionIsOpen("  open  ")).toBe(true);
+  });
+});
+
+describe("secureNowQuestionCountsAsMissingStatusFilterRow", () => {
+  it("includes rows with omitted status that are not inferred answered or dismissed", () => {
+    expect(
+      secureNowQuestionCountsAsMissingStatusFilterRow({
+        status: null,
+        answerCode: null,
+        answerText: null,
+        reason: null,
+      }),
+    ).toBe(true);
+    expect(
+      secureNowQuestionCountsAsMissingStatusFilterRow({
+        status: null,
+        answerCode: "Yes",
+        answerText: null,
+        reason: null,
+      }),
+    ).toBe(false);
   });
 });
 
@@ -81,13 +103,13 @@ describe("secureNowQuestionDispositionShowsStoredAnswerMetadata", () => {
 });
 
 describe("secureNowQuestionDispositionShowsAnswerActions", () => {
-  it("shows answer actions when omitted status only has whitespace disposition fields", () => {
+  it("hides answer actions when status was not stored even with whitespace disposition fields", () => {
     expect(secureNowQuestionDispositionShowsAnswerActions({
       status: null,
       answerCode: "   ",
       answerText: "",
       reason: "   ",
-    })).toBe(true);
+    })).toBe(false);
   });
 
   it("hides answer actions when omitted status still carries stored answer metadata", () => {
@@ -157,6 +179,17 @@ describe("secureNowQuestionCountsAsOpenQueueRow", () => {
       isExpired: false,
     })).toBe(false);
   });
+
+  it("excludes open rows with past expirationUtc when isExpired is omitted", () => {
+    expect(secureNowQuestionCountsAsOpenQueueRow({
+      status: "Open",
+      answerCode: null,
+      answerText: null,
+      reason: null,
+      expirationUtc: "2020-01-01T00:00:00.000Z",
+      isExpired: null,
+    })).toBe(false);
+  });
 });
 
 describe("secureNowQuestionCountsAsAnsweredFilterRow", () => {
@@ -189,13 +222,40 @@ describe("secureNowQuestionCountsAsAnsweredFilterRow", () => {
 });
 
 describe("secureNowQuestionDispositionReviewerStatusLabel", () => {
-  it("labels omitted status as Answered when answer metadata was stored", () => {
+  it("labels omitted status when answer metadata was stored without a disposition", () => {
     expect(secureNowQuestionDispositionReviewerStatusLabel({
       status: null,
       answerCode: "NamePeer",
       answerText: null,
       reason: null,
-    })).toBe("Answered");
+    })).toBe("Question status was not stored. Answer metadata is stored.");
+  });
+
+  it("labels Open status with answer metadata without implying Answered disposition", () => {
+    expect(secureNowQuestionDispositionReviewerStatusLabel({
+      status: "Open",
+      answerCode: "NamePeer",
+      answerText: null,
+      reason: null,
+    })).toBe("Open. Answer metadata is stored.");
+  });
+
+  it("labels Open status without answer metadata as Open", () => {
+    expect(secureNowQuestionDispositionReviewerStatusLabel({
+      status: "Open",
+      answerCode: null,
+      answerText: null,
+      reason: null,
+    })).toBe("Open");
+  });
+
+  it("labels whitespace-only status as stored empty", () => {
+    expect(secureNowQuestionDispositionReviewerStatusLabel({
+      status: "   ",
+      answerCode: null,
+      answerText: null,
+      reason: null,
+    })).toBe("Question status was stored empty.");
   });
 
   it("labels omitted status as Dismissed when only a dismiss reason was stored", () => {
@@ -252,10 +312,21 @@ describe("secureNowQuestionReviewerReasonTextLine", () => {
       "SecureNow found no peer.",
     );
   });
+
+  it("labels stored-empty reason separately from omitted reason", () => {
+    expect(secureNowQuestionReviewerReasonTextLine(null)).toBe("Reason was not stored.");
+    expect(secureNowQuestionReviewerReasonTextLine("   ")).toBe("Reason was stored empty.");
+  });
 });
 
 describe("secureNowQuestionReviewerSourceLine", () => {
   it("returns trimmed source lines for display", () => {
     expect(secureNowQuestionReviewerSourceLine("  Inventory evidence  ")).toBe("Inventory evidence");
+  });
+
+  it("labels omitted and stored-empty source lines separately", () => {
+    expect(secureNowQuestionReviewerSourceLine(null)).toBe("Source line was not stored.");
+    expect(secureNowQuestionReviewerSourceLine("")).toBe("Source line was stored empty.");
+    expect(secureNowQuestionReviewerSourceLine("   ")).toBe("Source line was stored empty.");
   });
 });

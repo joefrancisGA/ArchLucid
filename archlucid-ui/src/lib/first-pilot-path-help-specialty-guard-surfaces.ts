@@ -4,7 +4,7 @@
  */
 export const FIRST_PILOT_PATH_HELP_SPECIALTY_SOURCE_FILES: readonly string[] = [
   "src/app/(operator)/help/_sections/HelpCorePilotGuideView.tsx",
-  "src/app/(operator)/help/[...topic]/page.tsx",
+  "src/lib/help/help-topic-view-resolver-operate.tsx",
 ] as const;
 
 export const FIRST_PILOT_PATH_RETIRED_ALIAS_SLUG = "first-pilot-path";

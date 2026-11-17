@@ -30,7 +30,7 @@ public sealed partial class SponsorRoiRunCollector(
     /// <summary>Bounded fan-out for <see cref="IRunDetailQueryService.GetRunDetailForRoiAsync"/> / savings resolution.</summary>
     private const int RunDetailRoiFanOutMaxConcurrent = 8;
 
-    private const string UnspecifiedSystemName = "(unspecified)";
+    internal const string UnspecifiedSystemName = SponsorRoiOmissionLabels.SystemNameNotStored;
 
     private readonly ITenantEstimatedUsdSavingsResolver _tenantEstimatedUsdSavingsResolver =
         tenantEstimatedUsdSavingsResolver ?? throw new ArgumentNullException(nameof(tenantEstimatedUsdSavingsResolver));

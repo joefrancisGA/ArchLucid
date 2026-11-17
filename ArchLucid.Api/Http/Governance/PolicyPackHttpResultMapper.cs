@@ -77,6 +77,9 @@ internal static class PolicyPackHttpResultMapper
         return result.Outcome switch
         {
             PolicyPackVersionLookupOutcome.Found => controller.Ok(result.Version!),
+            PolicyPackVersionLookupOutcome.ScopeNotFound => controller.NotFoundProblem(
+                "Tenant or workspace was not found.",
+                ProblemTypes.ResourceNotFound),
             PolicyPackVersionLookupOutcome.PackNotFound => controller.ToResourceNotFoundProblem(
                 $"Policy pack '{result.PolicyPackId}' was not found in the current scope."),
             PolicyPackVersionLookupOutcome.VersionNotFound => controller.ToVersionNotFoundProblem(

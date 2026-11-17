@@ -1,4 +1,5 @@
 import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
 export const ALERT_ROUTING_SUBSCRIPTION_LAST_VIEWED_STORAGE_KEY =
@@ -49,22 +50,41 @@ function compareMostRecentDelivery(
   left: AlertRoutingSubscription,
   right: AlertRoutingSubscription,
 ): number {
-  const leftDelivered = left.lastDeliveredUtc?.trim() ?? "";
-  const rightDelivered = right.lastDeliveredUtc?.trim() ?? "";
+  const leftDelivered = parseIsoUtcMs(left.lastDeliveredUtc ?? "");
+  const rightDelivered = parseIsoUtcMs(right.lastDeliveredUtc ?? "");
+  const leftWasDelivered = !Number.isNaN(leftDelivered);
+  const rightWasDelivered = !Number.isNaN(rightDelivered);
 
-  if (leftDelivered.length > 0 && rightDelivered.length > 0) {
-    return rightDelivered.localeCompare(leftDelivered);
+  if (leftWasDelivered && rightWasDelivered) {
+    return rightDelivered - leftDelivered;
   }
 
-  if (leftDelivered.length > 0) {
+  if (leftWasDelivered) {
     return -1;
   }
 
-  if (rightDelivered.length > 0) {
+  if (rightWasDelivered) {
     return 1;
   }
 
-  return right.createdUtc.localeCompare(left.createdUtc);
+  const leftCreated = parseIsoUtcMs(left.createdUtc);
+  const rightCreated = parseIsoUtcMs(right.createdUtc);
+  const leftHasCreationTime = !Number.isNaN(leftCreated);
+  const rightHasCreationTime = !Number.isNaN(rightCreated);
+
+  if (leftHasCreationTime && rightHasCreationTime) {
+    return rightCreated - leftCreated;
+  }
+
+  if (leftHasCreationTime) {
+    return -1;
+  }
+
+  if (rightHasCreationTime) {
+    return 1;
+  }
+
+  return 0;
 }
 
 /** Resolves the alert-routing subscription to pin as Continue last viewed. */

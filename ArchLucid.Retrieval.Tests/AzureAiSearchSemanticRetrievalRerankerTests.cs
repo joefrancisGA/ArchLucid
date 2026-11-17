@@ -76,6 +76,29 @@ public sealed class AzureAiSearchSemanticRetrievalRerankerTests
         result[0].ChunkId.Should().Be("reranked");
     }
 
+    [Fact]
+    public async Task RerankAsync_when_semantic_client_throws_propagates_without_lexical_fallback()
+    {
+        List<RetrievalHit> candidates =
+        [
+            new() { ChunkId = "a", SourceId = "a", Title = "A", Text = "alpha", Score = 0.1 },
+        ];
+
+        Mock<IAzureSearchClient> client = new();
+        client.Setup(static c => c.IsConfigured).Returns(true);
+        client
+            .Setup(c => c.SemanticRerankAsync("q", candidates, 1, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("semantic ranker outage"));
+
+        AzureAiSearchSemanticRetrievalReranker sut = CreateSut(
+            new RetrievalRerankingOptions { Enabled = true, Provider = RetrievalRerankProvider.AzureAiSearchSemantic },
+            client.Object);
+
+        Func<Task> act = async () => await sut.RerankAsync("q", candidates, 1, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*semantic ranker outage*");
+    }
+
     private static AzureAiSearchSemanticRetrievalReranker CreateSut(
         RetrievalRerankingOptions options,
         bool searchConfigured)

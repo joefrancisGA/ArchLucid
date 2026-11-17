@@ -5,6 +5,7 @@ import { resolveBlockingFindingCountPresentation } from "./blocking-finding-coun
 describe("resolveBlockingFindingCountPresentation", () => {
   it("marks omitted counts as unknown", () => {
     expect(resolveBlockingFindingCountPresentation(undefined).known).toBe(false);
+    expect(resolveBlockingFindingCountPresentation(null).known).toBe(false);
     expect(resolveBlockingFindingCountPresentation(Number.NaN).known).toBe(false);
   });
 

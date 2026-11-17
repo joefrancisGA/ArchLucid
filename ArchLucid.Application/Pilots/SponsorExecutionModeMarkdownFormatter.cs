@@ -31,6 +31,17 @@ public static class SponsorExecutionModeMarkdownFormatter
         return $"**{label}** — {caveat}";
     }
 
+    public static string FormatSponsorFirstPageTableCell(ArchitectureRun run)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+
+        string line = FormatSponsorExecutionMode(run);
+
+        return run.RealModeFellBackToSimulator
+            ? PilotSimulatorSubstitutionHonestyCopy.AppendToProofPackageEvidenceBasisCell(line)
+            : line;
+    }
+
     public static void AppendMarkdownSection(StringBuilder sb, ArchitectureRun run)
     {
         ArgumentNullException.ThrowIfNull(sb);
@@ -44,7 +55,8 @@ public static class SponsorExecutionModeMarkdownFormatter
         {
             sb.AppendLine();
             sb.AppendLine(
-                "> **Simulator substitution:** This run recorded fallback from a real model path. Do not describe outputs as unqualified live-model proof.");
+                FormattableString.Invariant(
+                    $"> {PilotSimulatorSubstitutionHonestyCopy.FormatExecutionModeBlockquoteLine()}"));
         }
 
         sb.AppendLine();

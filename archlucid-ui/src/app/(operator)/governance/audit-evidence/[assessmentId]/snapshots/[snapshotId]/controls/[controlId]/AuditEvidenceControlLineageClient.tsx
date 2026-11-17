@@ -11,6 +11,7 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import {
   PAGE_HELP_SHORT_TRIGGER_TEXT,
@@ -21,6 +22,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useAuditEvidenceLineageQuery } from "@/hooks/use-audit-evidence-lineage-query";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import {
@@ -63,12 +65,18 @@ import {
   auditEvidenceLineageChainHrefFromSearch,
   resolveAuditEvidenceLineageChainExpanded,
 } from "@/lib/governance/audit-evidence-lineage-chain-url";
+import {
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_DOWNLOAD_LIMIT,
+  controlEvidenceMarkdownFileName,
+  formatAuditEvidenceControlLineageMarkdown,
+} from "@/lib/audit-evidence-control-lineage-markdown";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { formatGovernanceInfrastructureInlineActionError } from "@/lib/governance/governance-infrastructure-copy";
 
 import { formatShortId } from "@/lib/format-short-id";
 import { cn } from "@/lib/utils";
 
+import { AuditEvidenceControlLineagePartialCaptureFootnote } from "./AuditEvidenceControlLineagePartialCaptureFootnote";
 import { AuditEvidenceControlLineageBreadcrumb } from "./AuditEvidenceControlLineageBreadcrumb";
 import { AuditEvidenceControlLineageClaimOrientationStrip } from "./AuditEvidenceControlLineageClaimOrientationStrip";
 import { AuditEvidenceLineageRouteIdentifiersDisclosure } from "./AuditEvidenceLineageRouteIdentifiersDisclosure";
@@ -164,6 +172,22 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
       setPackageDownloadBusy(false);
     }
   }, [props.assessmentId, props.snapshotId]);
+
+  const onDownloadControlEvidence = useCallback(() => {
+    if (!lineage) {
+      return;
+    }
+
+    const blob = new Blob([formatAuditEvidenceControlLineageMarkdown(lineage)], {
+      type: "text/markdown;charset=utf-8",
+    });
+    const href = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = href;
+    anchor.download = controlEvidenceMarkdownFileName(lineage.controlNumber);
+    anchor.click();
+    URL.revokeObjectURL(href);
+  }, [lineage]);
 
   const onCopyLineageLink = useCallback(async () => {
     if (typeof window === "undefined") {
@@ -283,6 +307,25 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
                   {AUDIT_EVIDENCE_CONTROL_LINEAGE_SNAPSHOT_SCOPE_NOTE}
                 </p>
               </div>
+              {lineage ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    data-testid="audit-evidence-control-lineage-download"
+                    onClick={onDownloadControlEvidence}
+                  >
+                    Download control evidence
+                  </Button>
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+                    data-testid="audit-evidence-control-lineage-download-limit"
+                  >
+                    {AUDIT_EVIDENCE_CONTROL_LINEAGE_DOWNLOAD_LIMIT}
+                  </p>
+                </>
+              ) : null}
               <Button
                 type="button"
                 variant="outline"
@@ -370,6 +413,11 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
                 </div>
               }
             />
+            <OperatorErrorRecoveryContract
+              presentation={errorRecoveryContractForScenario("api-problem", {
+                failureSummary: lineageBlockedReason ?? AUDIT_EVIDENCE_CONTROL_LINEAGE_ERROR_BODY,
+              })}
+            />
           </div>
         ) : null}
 
@@ -421,6 +469,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
               snapshotId={props.snapshotId}
               controlId={props.controlId}
             />
+            <AuditEvidenceControlLineagePartialCaptureFootnote />
           </section>
         ) : null}
 

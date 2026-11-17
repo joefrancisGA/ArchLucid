@@ -42,4 +42,21 @@ public sealed class RetrievalCitationFormatterTests
 
         citation.Should().Be("[PriorManifest]/[chunk-fallback]@1");
     }
+
+    [Fact]
+    public void Format_uses_honesty_copy_when_corpus_kind_is_unknown()
+    {
+        RetrievalCitationFormatter sut = new();
+
+        string citation = sut.Format(
+            new RetrievalHit
+            {
+                ChunkId = "chunk-1",
+                CorpusKind = "Unknown",
+                SourceId = "src-1",
+                Text = "Body",
+            });
+
+        citation.Should().StartWith("[Corpus kind was not stored.]/[src-1]@");
+    }
 }

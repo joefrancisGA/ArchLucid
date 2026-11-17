@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Runs.TechnologyLedger;
@@ -108,7 +109,11 @@ public sealed partial class PreFinalizeChecklistService(
         string ledgerRunId = TechnologyLedgerRunIdKey.FromRunKey(runKey);
 
         IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
-            await _technologyLedgerRepository.GetByRunIdAsync(scope, ledgerRunId, cancellationToken).ConfigureAwait(false);
+            await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+                _technologyLedgerRepository,
+                scope,
+                AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(ledgerRunId),
+                cancellationToken).ConfigureAwait(false);
 
         int assumedTechnologyCount = ledgerEntries.Count(entry => entry.Status == TechnologyLedgerStatus.Assumed);
         items.Add(BuildAssumedTechnologyItem(assumedTechnologyCount));

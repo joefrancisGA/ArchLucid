@@ -8,6 +8,7 @@ export type DiagramNeighborhood = {
   readonly kind: string | null;
   readonly title: string | null;
   readonly resourceCount: number | null;
+  readonly typeGroupsTotal: number | null;
   readonly memberIds: readonly string[];
   readonly frameIds: readonly string[];
   readonly types: readonly DiagramNeighborhoodType[];
@@ -66,7 +67,7 @@ function identityForNeighborhoodKind(kind: string | null): { readonly id: string
     return { id: "unspecified", heading: "Neighborhood kind was not stored." };
   }
 
-  return { id: trimmed, heading: trimmed };
+  return { id: trimmed, heading: `Neighborhood kind ${trimmed} has no reviewer label.` };
 }
 
 function neighborhoodSectionRank(id: string): number {
@@ -129,6 +130,7 @@ export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhood
       kind: element.getAttribute("kind"),
       title: element.getAttribute("title"),
       resourceCount: readNonNegativeInteger(element, "resource-count"),
+      typeGroupsTotal: readNonNegativeInteger(element, "type-groups-total"),
       memberIds: [...element.querySelectorAll(":scope > member")]
         .map((member) => member.getAttribute("id") ?? "")
         .filter(Boolean),
@@ -139,8 +141,7 @@ export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhood
         .map((type) => ({
           name: type.getAttribute("name"),
           count: readNonNegativeInteger(type, "count"),
-        }))
-        .filter((type) => type.name !== null && type.name.length > 0),
+        })),
     }))
     .filter((neighborhood) => neighborhood.id.length > 0);
 

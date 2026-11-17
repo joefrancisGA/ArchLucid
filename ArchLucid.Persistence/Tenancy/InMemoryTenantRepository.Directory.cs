@@ -22,6 +22,9 @@ public sealed partial class InMemoryTenantRepository
     }
 
 
+    public Task<TenantRecord?> GetByIdUncachedAsync(Guid tenantId, CancellationToken ct) =>
+        GetByIdAsync(tenantId, ct);
+
     public Task<TenantRecord?> GetByIdFromControlPlaneCatalogAsync(Guid tenantId, CancellationToken ct)
     {
         return GetByIdAsync(tenantId, ct);

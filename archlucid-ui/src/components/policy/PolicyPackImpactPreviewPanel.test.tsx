@@ -10,12 +10,23 @@ vi.mock("@/lib/api/policy-governance-api", () => ({
 
 const replaceMock = vi.fn();
 
+vi.mock("@/lib/navigation/replace-if-href-changed", () => ({
+  commitHrefIfChanged: (href: string, options?: { notify?: boolean }) => {
+    replaceMock(href, options);
+  },
+}));
+
+const productLine = vi.hoisted(() => ({ value: "architecture" as "architecture" | "security" }));
+const pathname = vi.hoisted(() => ({ value: "/governance/policy-packs" }));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: replaceMock }),
+  usePathname: () => pathname.value,
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
-  useProductLine: () => ({ productLine: "architecture" as const }),
+  useProductLine: () => ({ productLine: productLine.value }),
 }));
 
 vi.mock("@/hooks/use-policy-pack-versions-query", () => ({
@@ -89,7 +100,29 @@ describe("PolicyPackComplianceRuleKeyDiffView", () => {
 });
 
 describe("PolicyPackImpactPreviewPanel", () => {
+  it("keeps clear review scope on the SecureNow policy packs hub", () => {
+    productLine.value = "security";
+    pathname.value = "/compliance/policy-packs";
+
+    render(
+      <PolicyPackImpactPreviewPanel
+        effectiveContent={{ complianceRuleKeys: ["alpha"] }}
+        selectedPackId="00000000-0000-0000-0000-000000000001"
+        packVersions={[]}
+        packs={samplePacks}
+        scopedReviewId="run-abc"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Clear review scope" })).toHaveAttribute(
+      "href",
+      "/compliance/policy-packs",
+    );
+  });
+
   it("syncs pack comparison ids to the policy packs URL when selects change", () => {
+    productLine.value = "architecture";
+    pathname.value = "/governance/policy-packs";
     replaceMock.mockClear();
 
     render(
@@ -110,7 +143,7 @@ describe("PolicyPackImpactPreviewPanel", () => {
 
     expect(replaceMock).toHaveBeenCalledWith(
       "/governance/policy-packs?reviewId=run-abc&packAId=00000000-0000-0000-0000-000000000002&packBId=00000000-0000-0000-0000-000000000002",
-      { scroll: false },
+      { notify: false },
     );
   });
 

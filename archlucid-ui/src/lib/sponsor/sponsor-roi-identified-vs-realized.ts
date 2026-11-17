@@ -19,6 +19,8 @@ export const SPONSOR_ROI_REALIZED_COMMITTED_DESCRIPTION =
   "Findings marked remediated in the approval workflow — defensible realized value, not headline potential.";
 export const SPONSOR_ROI_REALIZED_NOT_STORED_LABEL = "Realized savings were not stored.";
 
+export const SPONSOR_ROI_REALIZED_NOT_STORED_CTA = "Open decisions & remediation";
+
 /** Maps sponsor-report API fields to sponsor-facing identified vs realized buckets. */
 export function resolveSponsorRoiIdentifiedVsRealized(
   summary: SponsorRoiSummary,

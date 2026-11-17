@@ -1,0 +1,5 @@
+# SQL Server instance memory observations
+
+The scoped SQL evidence-path benchmark now captures SQL Server `sys.dm_os_process_memory` snapshots immediately before and after its measured read interval. Both `physical_memory_in_use_kb` and `virtual_address_space_committed_kb` are SQL Server **instance-wide** and include all activity on the server. The observer returns unavailable status when DMV permissions or connectivity prevent a reading. It does not claim per-query memory consumption, peak memory or SQL Server resource attribution. SQL CPU remains explicitly null: the available metrics are not a validated time-aligned server CPU counter. The collector is read-only and uses the SQL integration test catalog; no production database or user data is queried.
+
+Together with application-process CPU and before/after working set, this yields correlated **observation windows**, not isolated resource demand calibration. An isolated SQL server workload and reliable service-side CPU telemetry remain necessary for infrastructure sizing. No hard CI gate or autoscaling decision is based on these values.

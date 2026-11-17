@@ -1,13 +1,17 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import type { ReactElement } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { POLICY_PACK_UNMAPPED_FINDING_COUNT_NOT_STORED } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PolicyPackFindingGroup } from "@/lib/group-findings-by-policy-pack";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
 
 export type ReviewDetailPolicyPackFindingsBreakdownProps = {
@@ -30,17 +34,18 @@ function ImpactCountLine(props: {
   }
 
   const mappedCount = Math.max(0, Math.trunc(mapped));
+  const unmappedOmitted = unmapped === null || unmapped === undefined || !Number.isFinite(unmapped);
   const unmappedCount =
-    unmapped !== null && unmapped !== undefined && Number.isFinite(unmapped)
-      ? Math.max(0, Math.trunc(unmapped))
-      : 0;
+    !unmappedOmitted && typeof unmapped === "number" ? Math.max(0, Math.trunc(unmapped)) : 0;
 
   return (
     <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-pack-impact-counts">
       {mappedCount} finding{mappedCount === 1 ? "" : "s"} cite curated policy rules
-      {unmappedCount > 0
-        ? `; ${unmappedCount} remain unmapped to a pack rule and should be reviewed separately.`
-        : "."}
+      {unmappedOmitted
+        ? `; ${POLICY_PACK_UNMAPPED_FINDING_COUNT_NOT_STORED}`
+        : unmappedCount > 0
+          ? `; ${unmappedCount} remain unmapped to a pack rule and should be reviewed separately.`
+          : "."}
     </p>
   );
 }
@@ -50,14 +55,15 @@ export function ReviewDetailPolicyPackFindingsBreakdown(
   props: ReviewDetailPolicyPackFindingsBreakdownProps,
 ): ReactElement | null {
   const { groups, className, manifestRuleSetId, mappedFindingCount, unmappedFindingCount } = props;
+  const { productLine } = useProductLine();
+  const policyPacksHubHref = policyPacksPathForProductLine(productLine);
 
   if (groups.length === 0) {
     return null;
   }
-
   const manifestPackHref = resolveReviewDetailPolicyPackHref(manifestRuleSetId);
   const simulateHref =
-    manifestRuleSetId?.trim().length ? policyPacksEditHref(manifestRuleSetId.trim()) : GOVERNANCE_POLICY_PACKS_PATH;
+    manifestRuleSetId?.trim().length ? policyPacksEditHref(manifestRuleSetId.trim()) : policyPacksHubHref;
 
   return (
     <section
@@ -82,7 +88,14 @@ export function ReviewDetailPolicyPackFindingsBreakdown(
             className="flex flex-wrap items-center gap-2"
             data-testid={`policy-pack-breakdown-${group.groupKey}`}
           >
-            <StatusTag kind="in-progress" label={`${group.findingCount} from ${group.packDisplayName}`} />
+            <StatusTag
+              kind="in-progress"
+              label={`${group.findingCount} from ${group.packDisplayName}${
+                group.packNameInferredFromRuleKey
+                  ? " (pack name inferred from the rule key, not stored on the finding)"
+                  : ""
+              }`}
+            />
             {group.packHref !== null ? (
               <Link
                 href={group.packHref}

@@ -13,4 +13,10 @@ describe("buyerFindingSeverityDisplayLabel", () => {
     expect(buyerFindingSeverityDisplayLabel("Warning")).toBe("Warning");
     expect(buyerFindingSeverityDisplayLabel("Medium")).toBe("Medium");
   });
+
+  it("does not treat Unknown as a stored severity band", () => {
+    expect(buyerFindingSeverityDisplayLabel("Unknown")).toBe(
+      "Severity label was not a recognized stored value.",
+    );
+  });
 });

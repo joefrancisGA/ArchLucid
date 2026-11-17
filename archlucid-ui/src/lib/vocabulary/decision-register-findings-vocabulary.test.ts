@@ -22,8 +22,8 @@ describe("decision-register-findings-vocabulary (TB-2291)", () => {
     expect(model.heading.toLowerCase()).toContain("decision register");
     expect(model.heading.toLowerCase()).toContain("findings");
     expect(model.whyTwo).toBe(DECISION_REGISTER_FINDINGS_WHY_TWO);
-    expect(model.whyTwo.toLowerCase()).toContain("locked");
-    expect(model.whyTwo.toLowerCase()).toContain("triage");
+    expect(model.whyTwo.toLowerCase()).toContain("final");
+    expect(model.compactLine.toLowerCase()).toContain("triage");
     expect(model.compactLine).toBe(DECISION_REGISTER_FINDINGS_COMPACT_LINE);
 
     expect(model.decisionRegisterLink).toEqual(DECISION_REGISTER_FINDINGS_REGISTER_LINK);

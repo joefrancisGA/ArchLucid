@@ -68,14 +68,14 @@ public static class ReviewRunEngineProvenanceAggregator
             return "deterministic";
 
         if (traces.Count == 0)
-            return "azure-openai";
+            return string.Empty;
 
         List<AgentExecutionTrace> nonNullTraces = traces
             .Where(static trace => trace is not null)
             .ToList();
 
         if (nonNullTraces.Count == 0)
-            return "azure-openai";
+            return string.Empty;
 
         if (nonNullTraces.All(static trace =>
                 string.Equals(

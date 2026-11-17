@@ -111,6 +111,16 @@ public sealed class ManifestHashServiceTests
     }
 
     [Fact]
+    public void ComputeHash_CostCurrencyCode_affects_hash()
+    {
+        ManifestDocument withoutCurrency = BaseManifest();
+        ManifestDocument withCurrency = BaseManifest();
+        withCurrency.Cost.CurrencyCode = "USD";
+
+        _sut.ComputeHash(withoutCurrency).Should().NotBe(_sut.ComputeHash(withCurrency));
+    }
+
+    [Fact]
     public void ComputeHash_MatchesPinnedBaseline_v12()
     {
         string baselinePath = Path.Combine(

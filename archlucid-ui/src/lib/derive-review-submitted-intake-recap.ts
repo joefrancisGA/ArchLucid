@@ -16,6 +16,19 @@ const GENERATED_BRIEF_EVALUATION_DIRECTIVE_PATTERN =
 
 const MAX_RECAP_FIELD_VALUE_CHARS = 400;
 
+export const RECAP_FIELD_PREVIEW_TRUNCATION_NOTE =
+  "Preview shows the first 400 characters — full text was stored." as const;
+
+export const RECAP_IN_SCOPE_UNDERSTANDING_NOT_STORED =
+  "In-scope understanding was not stored." as const;
+
+export const RECAP_IN_SCOPE_UNDERSTANDING_STORED_EMPTY =
+  "In-scope understanding was stored empty." as const;
+
+export const RECAP_BUSINESS_OUTCOME_NOT_STORED = "Business outcome was not stored." as const;
+
+export const RECAP_BUSINESS_OUTCOME_STORED_EMPTY = "Business outcome was stored empty." as const;
+
 export type ReviewSubmittedIntakeRecapField = {
   readonly label: string;
   readonly value: string;
@@ -36,7 +49,7 @@ function truncateRecapValue(text: string): string {
     return text;
   }
 
-  return `${text.slice(0, MAX_RECAP_FIELD_VALUE_CHARS - 1).trimEnd()}…`;
+  return `${text.slice(0, MAX_RECAP_FIELD_VALUE_CHARS - 1).trimEnd()}… (${RECAP_FIELD_PREVIEW_TRUNCATION_NOTE})`;
 }
 
 function briefBodyWithoutScopeSection(description: string): string {
@@ -97,21 +110,36 @@ function pushScopeLineFields(
 export function deriveReviewSubmittedIntakeRecap(
   input: DeriveReviewSubmittedIntakeRecapInput,
 ): ReviewSubmittedIntakeRecap | null {
-  const description = (input.description ?? "").trim();
+  if (input.description === null || input.description === undefined) {
+    return {
+      fields: [{ label: "Intake description", value: "Intake description was not stored." }],
+      attachedFiles: [],
+    };
+  }
+
+  const description = input.description.trim();
 
   if (description.length === 0) {
-    return null;
+    return {
+      fields: [{ label: "Intake description", value: "Intake description was stored empty." }],
+      attachedFiles: [],
+    };
   }
 
   const attachedFiles = extractAttachedIntakeFileNames(description);
   const scopeLines = extractScopeUnderstandingLinesFromBrief(description);
   const fields: ReviewSubmittedIntakeRecapField[] = [];
 
-  const title =
-    extractGeneratedIntakeBriefTitle(description) ?? (input.systemName?.trim() || null);
+  const briefTitle = extractGeneratedIntakeBriefTitle(description);
+  const systemNameFromRecord = input.systemName?.trim() ?? "";
 
-  if (title !== null && title.length > 0) {
-    pushUniqueRecapField(fields, { label: "Review title", value: title });
+  if (briefTitle !== null && briefTitle.length > 0) {
+    pushUniqueRecapField(fields, { label: "Review title", value: briefTitle });
+  } else if (systemNameFromRecord.length > 0) {
+    pushUniqueRecapField(fields, {
+      label: "System name (review record)",
+      value: systemNameFromRecord,
+    });
   }
 
   if (isGeneratedIntakeBrief(description)) {
@@ -123,7 +151,7 @@ export function deriveReviewSubmittedIntakeRecap(
   } else {
     const briefBody = briefBodyWithoutScopeSection(description).trim();
 
-    if (briefBody.length > 0 && briefBody !== title) {
+    if (briefBody.length > 0 && briefBody !== briefTitle && briefBody !== systemNameFromRecord) {
       pushUniqueRecapField(fields, { label: "Architecture brief", value: truncateRecapValue(briefBody) });
     }
   }
@@ -141,7 +169,31 @@ export function deriveReviewSubmittedIntakeRecap(
         label: GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
         value: outcome,
       });
+    } else {
+      pushUniqueRecapField(fields, {
+        label: GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
+        value: RECAP_BUSINESS_OUTCOME_STORED_EMPTY,
+      });
     }
+  } else if (isGeneratedIntakeBrief(description)) {
+    pushUniqueRecapField(fields, {
+      label: GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
+      value: RECAP_BUSINESS_OUTCOME_NOT_STORED,
+    });
+  }
+
+  if (description.includes(SCOPE_UNDERSTANDING_SECTION_HEADER)) {
+    if (scopeLines.length === 0) {
+      pushUniqueRecapField(fields, {
+        label: "In-scope understanding",
+        value: RECAP_IN_SCOPE_UNDERSTANDING_STORED_EMPTY,
+      });
+    }
+  } else if (isGeneratedIntakeBrief(description)) {
+    pushUniqueRecapField(fields, {
+      label: "In-scope understanding",
+      value: RECAP_IN_SCOPE_UNDERSTANDING_NOT_STORED,
+    });
   }
 
   pushScopeLineFields(fields, scopeLines);

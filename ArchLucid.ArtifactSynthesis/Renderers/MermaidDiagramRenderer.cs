@@ -1,15 +1,24 @@
 using System.Text;
 
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Sanitization;
+using ArchLucid.Core.AzureExtractor;
+using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.ArtifactSynthesis.Renderers;
 
 public class MermaidDiagramRenderer : IDiagramRenderer
 {
+    internal const string RelationshipNotStoredEdgeLabel = "Relationship was not stored";
+    internal const string QuestionableReasonNotStoredLabel = "Questionable reason was not stored.";
+    internal const string QuestionableReasonStoredEmptyLabel = "Questionable reason was stored empty.";
+    internal const string QuestionableActionNotStoredLabel = "Questionable action was not stored.";
+    internal const string QuestionableActionStoredEmptyLabel = "Questionable action was stored empty.";
+
     public string Format => "mermaid";
 
     public string Render(DiagramAst ast)
@@ -27,10 +36,19 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             }
         }
 
+        if (ast.CaptionLines.Count == 0
+            && ast.Title.Contains("(Executive)", StringComparison.OrdinalIgnoreCase))
+        {
+            sb.AppendLine($"    %% {DiagramExecutiveRegionPlanner.DefaultExecutiveInventoryCaption}");
+        }
+
         foreach (DiagramDropGateRow row in ast.DropGateRows)
         {
-            sb.AppendLine(
-                $"    %% al-ledger-drop {EscapeCommentToken(row.Reason)} {EscapeCommentToken(row.FromNodeId)} {EscapeCommentToken(row.ToNodeId)}");
+            string fromToken = EscapeCommentToken(row.FromNodeId);
+            string toToken = string.IsNullOrWhiteSpace(row.ToNodeId)
+                ? "_"
+                : EscapeCommentToken(row.ToNodeId);
+            sb.AppendLine($"    %% al-ledger-drop {EscapeCommentToken(row.Reason)} {fromToken} {toToken}");
         }
 
         if (InventoryDiagramResourceGroupMapBuilder.TitleMarksResourceGroupMap(ast.Title))
@@ -170,13 +188,16 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
         if (node.ConnectionState is not null)
         {
-            tokens.Add($"al-state={node.ConnectionState.Value}");
+            string stateToken = node.ConnectionState == InventoryDiagramConnectionState.Unknown
+                ? "Connection state was not stored."
+                : node.ConnectionState.Value.ToString();
+            tokens.Add($"al-state={QuoteMetadataValue(stateToken)}");
         }
 
         if (node.QuestionableAttention is not null)
         {
-            tokens.Add($"al-questionable-reason={QuoteMetadataValue(node.QuestionableAttention.Reason)}");
-            tokens.Add($"al-questionable-action={QuoteMetadataValue(node.QuestionableAttention.RecommendedAction)}");
+            tokens.Add($"al-questionable-reason={QuoteMetadataValue(FormatQuestionableMetadataValue(node.QuestionableAttention.Reason, QuestionableReasonNotStoredLabel, QuestionableReasonStoredEmptyLabel))}");
+            tokens.Add($"al-questionable-action={QuoteMetadataValue(FormatQuestionableMetadataValue(node.QuestionableAttention.RecommendedAction, QuestionableActionNotStoredLabel, QuestionableActionStoredEmptyLabel))}");
         }
 
         foreach (string unresolvedDetail in node.UnresolvedRelationshipDetails)
@@ -193,6 +214,29 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         }
 
         return $"%% {string.Join(' ', tokens)}";
+    }
+
+    private static string FormatQuestionableMetadataValue(
+        string? value,
+        string notStoredLabel,
+        string storedEmptyLabel)
+    {
+        if (value is null)
+        {
+            return notStoredLabel;
+        }
+
+        if (value.Length == 0)
+        {
+            return notStoredLabel;
+        }
+
+        if (value.Trim().Length == 0)
+        {
+            return storedEmptyLabel;
+        }
+
+        return value.Trim();
     }
 
     private static string QuoteMetadataValue(string value)
@@ -255,13 +299,26 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
             if (string.IsNullOrWhiteSpace(safeLabel))
             {
-                sb.AppendLine($"    {fromId} {arrowToken} {toId}");
+                safeLabel = EscapeLabel(
+                    IsPrivateEndpointInventoryEdge(edge)
+                        ? InventoryDiagramRelationshipLabelTexts.PrivateEndpointAccessWasStoredLabel
+                        : RelationshipNotStoredEdgeLabel);
             }
-            else
-            {
-                sb.AppendLine($"    {fromId} {arrowToken}|\"{safeLabel}\"| {toId}");
-            }
+
+            sb.AppendLine($"    {fromId} {arrowToken}|\"{safeLabel}\"| {toId}");
         }
+    }
+
+    private static bool IsPrivateEndpointInventoryEdge(DiagramEdge edge)
+    {
+        return string.Equals(
+                   edge.InferenceSource,
+                   GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                   StringComparison.OrdinalIgnoreCase)
+               || string.Equals(
+                   edge.Label,
+                   InventoryDiagramRelationshipLabelTexts.PrivateAccess,
+                   StringComparison.OrdinalIgnoreCase);
     }
 
     private static string ResolveVisibleEdgeArrowToken(DiagramEdge edge)

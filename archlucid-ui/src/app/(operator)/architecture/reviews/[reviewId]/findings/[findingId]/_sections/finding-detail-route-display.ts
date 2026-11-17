@@ -3,10 +3,10 @@ import {
   typedPayloadLookupString,
   isPhiMinimizationFindingId,
   isPhiMinimizationSampleFinding,
-  phiMinimizationApprovalNarrative,
   phiMinimizationRecommendedActionFallback,
 } from "@/lib/findings/finding-display-from-inspect";
 import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer/buyer-finding-severity-display";
+import { coerceArchitectureFindingSeverity, humanReviewStatusDisplay, normalizeFindingHumanReviewStatus, severityBadgeLabel } from "@/lib/quick-decision-severity-labels";
 import { formatQuickDecisionRecommendedAction } from "@/lib/quick-decision-finding-links";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import type { FindingConfidenceLevel } from "@/types/explanation";
@@ -63,7 +63,7 @@ export function resolveFindingRiskOwnerLabel(
   const assigned = payload?.assignedToUserId?.trim() ?? "";
 
   if (assigned.length > 0) {
-    return assigned;
+    return `Risk owner name was not stored. Assignee id ${assigned}.`;
   }
 
   return RISK_OWNER_NOT_ASSIGNED;
@@ -104,7 +104,8 @@ export function formatFindingRemediationDueLabel(remediationDueUtc: string | nul
     year: "numeric",
     month: "short",
     day: "numeric",
-  });
+    timeZone: "UTC",
+  }) + " UTC";
 }
 
 export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): string {
@@ -112,20 +113,25 @@ export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): s
     return "Finding detail has not loaded.";
   }
 
-  if (payload.evidenceListReturned === false) {
-    return "Evidence list was not returned.";
+  if (payload.evidenceListReturned !== true) {
+    return "Evidence list was not stored.";
   }
 
   const evidenceCount = payload.evidence.length;
-  const ruleLabel = payload.decisionRuleName ?? payload.decisionRuleId;
+  const ruleName = payload.decisionRuleName?.trim() ?? "";
+  const ruleId = payload.decisionRuleId?.trim() ?? "";
   const citationLabel = evidenceCount === 1 ? "citation" : "citations";
 
   if (evidenceCount === 0) {
     return "0 evidence citations were stored.";
   }
 
-  if (ruleLabel !== null && ruleLabel.trim().length > 0) {
-    return `${evidenceCount} evidence ${citationLabel} tied to ${ruleLabel}.`;
+  if (ruleName.length > 0) {
+    return `${evidenceCount} evidence ${citationLabel} tied to ${ruleName}.`;
+  }
+
+  if (ruleId.length > 0) {
+    return `${evidenceCount} evidence ${citationLabel}. Rule name was not stored. Rule id ${ruleId}.`;
   }
 
   return `${evidenceCount} evidence ${citationLabel}. Rule was not stored.`;
@@ -151,6 +157,16 @@ export function fallbackStatus(payload: FindingInspectPayload | null, findingId:
     if (status !== null && status.trim().length > 0) {
       return status;
     }
+
+    if (payload.humanReviewStatusStored === false) {
+      return STATUS_NOT_STORED;
+    }
+
+    const reviewStatus = normalizeFindingHumanReviewStatus(payload.humanReviewStatus);
+
+    if (reviewStatus !== null) {
+      return humanReviewStatusDisplay(reviewStatus, { stored: payload.humanReviewStatusStored }).label;
+    }
   }
 
   return STATUS_NOT_STORED;
@@ -158,6 +174,28 @@ export function fallbackStatus(payload: FindingInspectPayload | null, findingId:
 
 export function fallbackSeverity(payload: FindingInspectPayload | null, findingId: string): string {
   if (payload !== null) {
+    if (payload.severityStored === false) {
+      return SEVERITY_NOT_STORED;
+    }
+
+    if (typeof payload.severity === "string") {
+      const trimmedSeverity = payload.severity.trim();
+
+      if (/^(high|medium)$/i.test(trimmedSeverity)) {
+        return trimmedSeverity.charAt(0).toUpperCase() + trimmedSeverity.slice(1).toLowerCase();
+      }
+    }
+
+    const wireSeverity = coerceArchitectureFindingSeverity(payload.severity);
+
+    if (wireSeverity !== null) {
+      if (resolveProductionEvalChromeFromStorage()) {
+        return buyerFindingSeverityDisplayLabel(severityBadgeLabel(wireSeverity), payload.findingId ?? findingId);
+      }
+
+      return severityBadgeLabel(wireSeverity);
+    }
+
     const severity = findingInspectPrimaryLabels(payload).severityLabel;
 
     if (resolveProductionEvalChromeFromStorage()) {
@@ -167,14 +205,6 @@ export function fallbackSeverity(payload: FindingInspectPayload | null, findingI
     if (severity !== null && severity.trim().length > 0) {
       return severity;
     }
-
-    if (isPhiMinimizationSampleFinding(payload)) {
-      return "High";
-    }
-  }
-
-  if (isPhiMinimizationFindingId(findingId)) {
-    return resolveProductionEvalChromeFromStorage() ? "High" : "High severity";
   }
 
   return SEVERITY_NOT_STORED;
@@ -209,7 +239,7 @@ export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | n
   const status = fallbackStatus(payload, findingId);
 
   if (status === STATUS_NOT_STORED) {
-    return "No disposition recorded for this finding.";
+    return "Disposition was not stored.";
   }
 
   return `Disposition: ${status}.`;
@@ -278,37 +308,31 @@ export function buyerFindingNextStepCopy(payload: FindingInspectPayload | null, 
     if (action !== null && action.trim().length > 0) {
       return action;
     }
-
-    if (isPhiMinimizationSampleFinding(payload)) {
-      return phiMinimizationRecommendedActionFallback();
-    }
-  }
-
-  if (isPhiMinimizationFindingId(findingId)) {
-    return phiMinimizationRecommendedActionFallback();
   }
 
   return mitigationPosture(payload, findingId);
 }
 
-export function validationRequirement(payload: FindingInspectPayload | null, findingId: string): string {
-  if (payload !== null && isPhiMinimizationSampleFinding(payload)) {
-    return phiMinimizationApprovalNarrative();
+export function validationRequirement(payload: FindingInspectPayload | null, _findingId: string): string {
+  if (payload === null) {
+    return "Audit record was not stored.";
   }
 
-  if (isPhiMinimizationFindingId(findingId)) {
-    return phiMinimizationApprovalNarrative();
+  const auditRowId = payload.auditRowId;
+
+  if (auditRowId === null || auditRowId === undefined) {
+    return "Audit record was not stored.";
   }
 
-  return "No audit requirement was stored on this finding.";
+  if (auditRowId.trim().length === 0) {
+    return "Audit record id was stored empty.";
+  }
+
+  return `Audit record id ${auditRowId.trim()} was stored.`;
 }
 
 /** Buyer-polished fallback when inspect payload has not loaded yet. */
-export function findingDetailLeadFallback(findingId: string): string {
-  if (isPhiMinimizationFindingId(findingId) && resolveProductionEvalChromeFromStorage()) {
-    return "Residual risk record for the finalized Claims Intake review.";
-  }
-
+export function findingDetailLeadFallback(_findingId: string): string {
   return "Finding detail has not loaded.";
 }
 
@@ -355,6 +379,10 @@ export function findingRecommendedActionParagraph(
   if (structured !== null && structured !== undefined) {
     if (structured.trim().length > 0) {
       return formatQuickDecisionRecommendedAction(structured);
+    }
+
+    if (payload.recommendedActionsReturned === false) {
+      return "Recommended actions were not stored.";
     }
 
     if (isPhiMinimizationSampleFinding(payload) || isPhiMinimizationFindingId(findingId)) {

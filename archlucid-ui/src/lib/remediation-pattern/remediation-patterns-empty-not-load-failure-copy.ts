@@ -1,0 +1,2 @@
+export const REMEDIATION_PATTERNS_EMPTY_NOT_LOAD_FAILURE_LINE =
+  "No remediation patterns match the current filters with a successful registry load — widen filters before treating this as a failure." as const;

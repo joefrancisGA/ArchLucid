@@ -79,6 +79,31 @@ public sealed class DiagramForestLongEdgeStubTests
     }
 
     [Fact]
+    public void Emit_uses_full_partner_name_in_title_when_chip_is_truncated()
+    {
+        string longPartner = new('b', 40);
+        double gap = new DiagramForestLayoutOptions().NodeHorizontalGap;
+        IReadOnlyList<XElement> stubs = DiagramForestLongEdgeStub.Emit(
+            Svg,
+            new DiagramEdge
+            {
+                FromNodeId = "alpha",
+                ToNodeId = "beta",
+                Label = "used by",
+            },
+            [(40, 10, 40, 410)],
+            "alpha",
+            longPartner,
+            "alpha",
+            "beta",
+            gap);
+
+        stubs.Should().HaveCount(2);
+        stubs[0].Element(Svg + "title")?.Value.Should().Be($"used by → {longPartner}");
+        stubs[0].Elements(Svg + "text").Single().Value.Should().Contain("…");
+    }
+
+    [Fact]
     public void Render_adjacent_used_by_edge_stays_a_full_line()
     {
         DiagramForestLayoutResult result = new DiagramForestLayoutSvgRenderer().Render(new DiagramAst

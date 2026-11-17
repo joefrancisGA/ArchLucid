@@ -69,12 +69,11 @@ describe("RunRetrievalGroundingPanel", () => {
 
     expect(screen.getByText("Agent name was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Corpus kind was not stored.")).toBeInTheDocument();
-    expect(screen.getByText(/Input token count was not stored\./)).toBeInTheDocument();
-    expect(screen.getByText(/0 out/)).toBeInTheDocument();
+    expect(screen.getByText(/Token count was not stored\. in \/ 0 out/)).toBeInTheDocument();
     expect(screen.getByText("0 nbr")).toBeInTheDocument();
   });
 
-  it("preserves a stored empty corpus kind", () => {
+  it("labels a stored empty corpus kind", () => {
     render(
       <RunRetrievalGroundingPanel
         payload={payload({ rows: [{ ...payload().rows[0]!, corpusKind: "" }] })}
@@ -82,7 +81,7 @@ describe("RunRetrievalGroundingPanel", () => {
       />,
     );
 
-    expect(screen.queryByText("Corpus kind was not stored.")).not.toBeInTheDocument();
+    expect(screen.getByText("Corpus kind was stored empty.")).toBeInTheDocument();
   });
 
   it("renders omission copy when all graph-RAG details are missing", () => {
@@ -125,7 +124,8 @@ describe("RunRetrievalGroundingPanel", () => {
     );
 
     expect(screen.getByRole("status")).toHaveTextContent(/metadata could not be parsed/i);
-    expect(screen.getAllByText("degraded")).toHaveLength(2);
+    expect(screen.getByText("Document metadata could not be parsed.")).toBeInTheDocument();
+    expect(screen.getByText("Score metadata could not be parsed.")).toBeInTheDocument();
   });
 
   it("renders absent data state without a noisy table", () => {

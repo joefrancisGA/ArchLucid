@@ -35,6 +35,7 @@ import { SimulatorRunRehearsalCaption } from "@/components/usability/SimulatorRu
 import { WorkingCareerRehearsalChooser } from "@/components/governance/WorkingCareerRehearsalChooser";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
@@ -74,11 +75,13 @@ import {
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { buildWorkspaceCardRenderedFindings } from "@/lib/quick-decision-finding-merge-and-sort";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { formatRunDetailFindingsMissingFindingIdLine } from "@/lib/quick-decision-summary-derive";
 import {
   BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE,
   formatFindingStreamDualCountLine,
 } from "@/lib/finding-stream-product-of-record-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
 export type RunDetailFindingsWorkspaceProps = {
@@ -109,6 +112,7 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly onNavigateActivity?: () => void;
   readonly onNavigateClarifications?: () => void;
   readonly parentArchitectureId?: string | null;
+  readonly findingsMissingFindingIdCount?: number;
 };
 
 /** Findings list with workspace toolbar filters for the review detail page. */
@@ -116,6 +120,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
+  const { productLine } = useProductLine();
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
   const urlClassificationBand = parseReviewFindingsClassificationBandFromSearch(
     searchParams.get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM),
@@ -346,7 +351,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       : null;
   const metricPresentation = createHomeSurface
     ? architectureAssessmentFindingsPresentation(props.runId, triageVisibleCount)
-    : reviewFindingsGovernanceQueuePresentation(props.runId, triageVisibleCount, workingInstrument);
+    : reviewFindingsGovernanceQueuePresentation(props.runId, triageVisibleCount, workingInstrument, productLine);
 
   const metricCountEl = (
     <div className="mb-3" data-testid="run-detail-findings-metric-count">
@@ -518,6 +523,15 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
           {BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE}
         </p>
       ) : null}
+      {(props.findingsMissingFindingIdCount ?? 0) > 0 ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-findings-missing-finding-id"
+          role="status"
+        >
+          {formatRunDetailFindingsMissingFindingIdLine(props.findingsMissingFindingIdCount ?? 0)}
+        </p>
+      ) : null}
       {hiddenFilterHonesty.hasHidden ? (
         <FindingsHiddenFilterHonestyBand honesty={hiddenFilterHonesty} onShowAll={showAllFilteredFindings} />
       ) : null}
@@ -533,43 +547,45 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
             {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
           </p>
           <EngineInsightNoveltyRatesFootnote />
-          <div
-            className="flex flex-wrap items-center gap-2"
-            role="tablist"
-            aria-label="Finding classification bands"
-            data-testid="run-detail-findings-classification-bands"
+          <Tabs
+            value={classificationBand}
+            variant="line"
+            onValueChange={(next) => {
+              setClassificationBand(next as ReviewFindingsClassificationBandId);
+            }}
           >
-            {(
-              [
-                ["decision-grade", `Decision-grade (${classificationCounts.decisionGrade})`],
-                ["checklist", `Checklist (${classificationCounts.checklist})`],
-                ["uncited", `Uncited (${classificationCounts.uncited})`],
-                ["all", `All (${confidenceVisibleScoped.length})`],
-              ] as const
-            ).map(([bandId, label]) => (
-              <button
-                key={bandId}
-                type="button"
-                role="tab"
-                aria-selected={classificationBand === bandId}
-                className={cn(
-                  "rounded-md border px-2 py-1 text-sm",
-                  classificationBand === bandId
-                    ? "border-neutral-500 bg-neutral-100 dark:bg-neutral-800"
-                    : "border-neutral-200 dark:border-neutral-700",
-                )}
-                onClick={() => {
-                  setClassificationBand(bandId);
-                }}
-                data-testid={`run-detail-findings-band-${bandId}`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+            <TabsList
+              aria-label="Finding classification bands"
+              data-testid="run-detail-findings-classification-bands"
+              className="flex flex-wrap justify-start"
+            >
+              {(
+                [
+                  ["decision-grade", `Decision-grade (${classificationCounts.decisionGrade})`],
+                  ["checklist", `Checklist (${classificationCounts.checklist})`],
+                  ["uncited", `Uncited (${classificationCounts.uncited})`],
+                  ["all", `All (${confidenceVisibleScoped.length})`],
+                ] as const
+              ).map(([bandId, label]) => (
+                <TabsTrigger key={bandId} value={bandId} data-testid={`run-detail-findings-band-${bandId}`}>
+                  {label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
           {classificationBand === "decision-grade" && classificationCounts.checklist > 0 && listFindings.length === 0 ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="run-detail-findings-checklist-remains-hint">
               {classificationCounts.checklist} checklist {classificationCounts.checklist === 1 ? "row remains" : "rows remain"} on this package — open the Checklist band to triage them.
+            </p>
+          ) : null}
+          {classificationCounts.unclassified > 0 ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="run-detail-findings-unclassified-hint"
+            >
+              {classificationCounts.unclassified}{" "}
+              {classificationCounts.unclassified === 1 ? "finding has" : "findings have"} no stored classification band
+              — they are not decision-grade exports.
             </p>
           ) : null}
         </div>

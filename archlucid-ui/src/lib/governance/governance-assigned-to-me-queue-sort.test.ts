@@ -25,6 +25,15 @@ const baseRow = (overrides: Partial<GovernanceFindingQueueRow>): GovernanceFindi
 });
 
 describe("governance-assigned-to-me-queue-sort", () => {
+  it("sorts by the displayed exception expiry when the revisit date is blank", () => {
+    const rows = sortGovernanceAssignedToMeQueueRows([
+      baseRow({ findingId: "later", revisitDueUtc: "2026-09-02T00:00:00Z" }),
+      baseRow({ findingId: "sooner", revisitDueUtc: " ", waiverExpiresAtUtc: "2026-09-01T00:00:00Z" }),
+    ], "due");
+
+    expect(rows.map((row) => row.findingId)).toEqual(["sooner", "later"]);
+  });
+
   it("defaults to severity then due date", () => {
     const rows = sortGovernanceAssignedToMeQueueRows([
       baseRow({ findingId: "low-later", severity: "Low", revisitDueUtc: "2026-09-01T00:00:00.000Z" }),

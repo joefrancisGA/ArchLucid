@@ -1,5 +1,6 @@
 using System.Data;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Manifest;
@@ -48,7 +49,7 @@ public sealed class ReRunExecuteSealedManifestPinGuardTests
         results
             .Setup(r => r.GetByRunIdAsync(
                 Scope,
-                runId.ToString("D"),
+                runId.ToString("N"),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IDbConnection?>(),
                 It.IsAny<IDbTransaction?>()))
@@ -126,7 +127,7 @@ public sealed class ReRunExecuteSealedManifestPinGuardTests
         results
             .Setup(r => r.GetByRunIdAsync(
                 Scope,
-                runId.ToString("D"),
+                runId.ToString("N"),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IDbConnection?>(),
                 It.IsAny<IDbTransaction?>()))
@@ -157,6 +158,93 @@ public sealed class ReRunExecuteSealedManifestPinGuardTests
             CancellationToken.None);
 
         await act.Should().NotThrowAsync();
+        hasher.Verify(h => h.ComputeHash(manifest), Times.Once);
+    }
+
+    [Fact]
+    public async Task CompareQuality_EnsureReExecuteSourceReadyOrThrowAsync_merges_agent_results_when_stored_under_legacy_run_id_key()
+    {
+        Guid runId = Guid.Parse("51515151-5151-5151-5151-515151515151");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+        Guid manifestId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+        ManifestDocument manifest = new()
+        {
+            ManifestId = manifestId,
+            RunId = runId,
+            ManifestHash = "sealed-hash",
+            RuleSetId = "r",
+            RuleSetVersion = "1",
+            RuleSetHash = "h",
+            CommittedArtifactInventory =
+            [
+                new CommittedArtifactInventoryEntry
+                {
+                    ArtifactName = "artifact-bundle",
+                    ContentType = "application/zip",
+                    ContentHashSha256 = "abc",
+                    Producer = "test",
+                    CapturedUtc = new DateTime(2025, 3, 1, 12, 0, 0, DateTimeKind.Utc),
+                },
+            ],
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ScopeProjectId = Scope.ProjectId,
+                GoldenManifestId = manifestId,
+                PinnedPolicyPackIdsHashSha256 = [1],
+                PinnedEvidencePackagePinsHashSha256 = [2],
+                PinnedArchitectureVersionContentHashSha256 = [3],
+                PinnedKnowledgeModelContentHashSha256 = [4],
+            });
+
+        List<AgentResult> legacyResults =
+        [
+            new AgentResult { ResultId = "r1", TaskId = "t1", RunId = legacyUpper },
+        ];
+
+        Mock<IAgentResultRepository> results = new();
+        results
+            .Setup(r => r.GetByRunIdAsync(Scope, canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        results
+            .Setup(r => r.GetByRunIdAsync(Scope, legacyUpper, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(legacyResults);
+        results
+            .Setup(r => r.GetByRunIdAsync(
+                Scope,
+                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailForManifestCompareAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runId },
+                GoldenManifest = manifest,
+            });
+
+        Mock<IManifestHashService> hasher = new();
+        hasher.Setup(h => h.ComputeHash(manifest)).Returns("sealed-hash");
+
+        await ReRunExecuteSealedManifestPinGuard.EnsureReExecuteSourceReadyOrThrowAsync(
+            canonicalRunId,
+            Scope,
+            runs.Object,
+            results.Object,
+            authority.Object,
+            hasher.Object,
+            CancellationToken.None);
+
         hasher.Verify(h => h.ComputeHash(manifest), Times.Once);
     }
 }

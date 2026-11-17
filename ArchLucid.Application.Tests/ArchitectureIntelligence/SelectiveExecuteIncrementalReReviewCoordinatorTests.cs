@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
@@ -46,7 +47,92 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
     }
 
     [Fact]
-    public async Task TryRunAfterSelectiveExecuteAsync_runs_scoped_re_review_for_topology()
+    public async Task CompareQuality_TryRunAfterSelectiveExecuteAsync_merges_scheduled_tasks_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+        string taskId = "task-topo-legacy";
+
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-legacy",
+            TenantId = TestScope.TenantId.ToString("D"),
+            RunId = canonicalRunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "component-legacy",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Gateway",
+                },
+            ],
+        };
+
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModelAccess = new();
+        knowledgeModelAccess
+            .Setup(k => k.GetForRunAsync(TestScope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(model);
+
+        Mock<IAgentTaskRepository> taskRepo = new();
+        taskRepo
+            .Setup(t => t.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new AgentTask
+                {
+                    RunId = legacyUpper,
+                    TaskId = taskId,
+                    AgentType = AgentType.Topology,
+                },
+            ]);
+        taskRepo
+            .Setup(t => t.GetByRunIdAsync(
+                TestScope,
+                It.Is<string>(id => id != canonicalRunId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IRunStageOutcomesRepository> stages = new();
+        stages
+            .Setup(s => s.RecordStageStartedAsync(
+                It.IsAny<Guid>(),
+                "incremental-re-review",
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
+            .Returns(Task.CompletedTask);
+        stages
+            .Setup(s => s.RecordStageCompletedAsync(
+                It.IsAny<Guid>(),
+                "incremental-re-review",
+                It.IsAny<string>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
+            .Returns(Task.CompletedTask);
+
+        SelectiveExecuteIncrementalReReviewCoordinator sut = CreateSut(
+            knowledgeModelAccess.Object,
+            taskRepo.Object,
+            stages.Object,
+            Mock.Of<IAuditService>());
+
+        IncrementalReReviewResult? result = await sut.TryRunAfterSelectiveExecuteAsync(
+            canonicalRunId,
+            new SelectiveAgentExecuteRequest { AgentTypes = ["Topology"] },
+            CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.Scope.AffectedElementIds.Should().Contain("component-legacy");
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TryRunAfterSelectiveExecuteAsync_records_terminal_outcome_for_topology(bool reviewFails)
     {
         string runId = Guid.NewGuid().ToString("N");
         string taskId = "task-topo";
@@ -110,17 +196,38 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        InvalidOperationException failure = new("Review failed.");
+        Mock<IIncrementalReReviewService> failingReview = new();
+        failingReview.Setup(service => service.ReReviewAsync(
+            It.IsAny<ArchitectureKnowledgeModel>(), It.IsAny<ReReviewScope>(),
+            It.IsAny<IAsyncSpecialistReviewService>(), It.IsAny<CancellationToken>())).ThrowsAsync(failure);
+
         SelectiveExecuteIncrementalReReviewCoordinator sut = CreateSut(
             knowledgeModelAccess.Object,
             taskRepo.Object,
             stages.Object,
-            audit.Object);
+            audit.Object,
+            reviewFails ? failingReview.Object : null);
 
-        IncrementalReReviewResult? result = await sut.TryRunAfterSelectiveExecuteAsync(
+        Func<Task<IncrementalReReviewResult?>> execute = () => sut.TryRunAfterSelectiveExecuteAsync(
             runId,
             new SelectiveAgentExecuteRequest { AgentTypes = ["Topology"] },
             CancellationToken.None);
 
+        if (reviewFails)
+        {
+            (await execute.Should().ThrowAsync<InvalidOperationException>()).Which.Should().BeSameAs(failure);
+            stages.Verify(repo => repo.RecordStageCompletedAsync(
+                Guid.Parse(runId), "incremental-re-review", "error", It.IsAny<DateTime>(), CancellationToken.None),
+                Times.Once);
+            audit.VerifyNoOtherCalls();
+            return;
+        }
+
+        IncrementalReReviewResult? result = await execute();
+        stages.Verify(repo => repo.RecordStageCompletedAsync(
+            Guid.Parse(runId), "incremental-re-review", It.Is<string>(status => status != "error"),
+            It.IsAny<DateTime>(), CancellationToken.None), Times.Once);
         result.Should().NotBeNull();
         result!.Scope.AffectedElementIds.Should().Contain("component-1");
         result.SpecialistResults.Should().NotBeEmpty();
@@ -205,7 +312,8 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
         IArchitectureKnowledgeModelAccess knowledgeModelAccess,
         IAgentTaskRepository? taskRepository = null,
         IRunStageOutcomesRepository? stageOutcomesRepository = null,
-        IAuditService? auditService = null)
+        IAuditService? auditService = null,
+        IIncrementalReReviewService? incrementalReReview = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
@@ -214,7 +322,7 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
             scopeProvider.Object,
             taskRepository ?? Mock.Of<IAgentTaskRepository>(),
             knowledgeModelAccess,
-            new IncrementalReReviewService(),
+            incrementalReReview ?? new IncrementalReReviewService(),
             new AsyncSpecialistReviewServiceAdapter(new SpecialistReviewService()),
             stageOutcomesRepository ?? Mock.Of<IRunStageOutcomesRepository>(),
             auditService ?? Mock.Of<IAuditService>(),

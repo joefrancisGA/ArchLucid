@@ -96,6 +96,22 @@ public sealed class FindingTrustLabelMapperTests
     }
 
     [Fact]
+    public void Map_EvidenceRefsAndMediumConfidence_ReturnsEstimatedWithMediumReason()
+    {
+        ArchitectureFinding finding = new()
+        {
+            EvidenceRefs = ["ref-a"],
+            EvaluationConfidenceScore = 55,
+            ConfidenceLevel = FindingConfidenceLevel.Medium,
+        };
+
+        FindingTrustSummary summary = _sut.Map(finding, LiveContext);
+
+        summary.Label.Should().Be(FindingTrustLabel.Estimated);
+        summary.ShortReason.Should().Contain("medium confidence");
+    }
+
+    [Fact]
     public void Map_EvidenceRefsAndLowScore_ReturnsEstimated()
     {
         ArchitectureFinding finding = new()

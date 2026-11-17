@@ -2,6 +2,7 @@
 
 import type { JSX } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   buildGovernanceSetupConfigHubsVocabulary,
   resolveGovernanceSetupConfigHubsLink,
@@ -22,9 +23,10 @@ export type GovernanceSetupConfigHubsVocabularyRailProps = {
 export function GovernanceSetupConfigHubsVocabularyRail(
   props: GovernanceSetupConfigHubsVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildGovernanceSetupConfigHubsVocabulary();
-  const peers = resolveGovernanceSetupConfigHubsPeerLinks(props.currentSurfaceId);
-  const currentLink = resolveGovernanceSetupConfigHubsLink(props.currentSurfaceId);
+  const { productLine } = useProductLine();
+  const model = props.model ?? buildGovernanceSetupConfigHubsVocabulary(productLine);
+  const peers = resolveGovernanceSetupConfigHubsPeerLinks(props.currentSurfaceId, productLine);
+  const currentLink = resolveGovernanceSetupConfigHubsLink(props.currentSurfaceId, productLine);
 
   return (
     <VocabularyRail

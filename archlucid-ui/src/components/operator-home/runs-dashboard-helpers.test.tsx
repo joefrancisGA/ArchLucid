@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   ArchitecturePackageOriginBadge,
   ArchitecturePackageOriginMetadataLine,
+  GOVERNANCE_AWAITING_COMPLETED_TIME_OMISSION_LABEL,
   deriveRunsDashboardTabCounts,
   formatRunsDashboardTabLabelWithCount,
   isRunApprovedPackage,
@@ -12,8 +13,10 @@ import {
   resolveRunHomeStatusTag,
   resolveShowcaseDemoRunForItems,
   runListPrimaryTitle,
+  runSummaryFromGovernanceAwaitingActionItem,
   runsDashboardTabLabel,
 } from "@/components/operator-home/runs-dashboard-helpers";
+import { formatRunHomeListUpdatedLabel } from "@/lib/operator/operator-home-run-list-insight";
 import { render, screen } from "@testing-library/react";
 import type { RunSummary } from "@/types/authority";
 
@@ -67,6 +70,26 @@ describe("runsDashboardTabLabel (TB-667)", () => {
       runsDashboardTabLabel("all", false, 2, { homePreviewMode: true, recentTotalCount: 4 }),
     ).toBe("Recent (2 of 4)");
     expect(runsDashboardTabLabel("all", false, 2, { homePreviewMode: true })).toBe("Recent (2)");
+  });
+});
+
+describe("runSummaryFromGovernanceAwaitingActionItem (P-11, P-12)", () => {
+  it("does not invent epoch completed time or a findings snapshot flag", () => {
+    const row = runSummaryFromGovernanceAwaitingActionItem(
+      {
+        runId: "queue-run",
+        name: "Awaiting review",
+        sourceRunId: "source-1",
+        newFindingCount: 0,
+        executedUtc: "",
+      },
+      "default",
+    );
+
+    expect(row.createdUtc).toBe("");
+    expect(row.hasFindingsSnapshot).toBe(false);
+    expect(row.homeListCompletedTimeOmissionLabel).toBe(GOVERNANCE_AWAITING_COMPLETED_TIME_OMISSION_LABEL);
+    expect(formatRunHomeListUpdatedLabel(row)?.relativeLabel).toBe(GOVERNANCE_AWAITING_COMPLETED_TIME_OMISSION_LABEL);
   });
 });
 

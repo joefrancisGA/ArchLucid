@@ -98,6 +98,13 @@ public static class HostedCloudExtractorCompositionModule
         services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
         services.AddScoped<CollectionRunIngestService>();
         services.AddSingleton<ICollectionRunTriggerIdempotencyStore, InMemoryCollectionRunTriggerIdempotencyStore>();
+        services.AddSingleton<ICollectionRunAdmissionCounter, CollectionRunAdmissionCounter>();
+        services.AddOptions<SecureNowCapacityOptions>()
+            .Bind(configuration.GetSection(SecureNowCapacityOptions.SectionName))
+            .Validate(o => o.MaxWaitingCollectionTriggers is >= 1 and <= 10000 && o.AdmissionTimeoutSeconds is >= 1 and <= 300,
+                "SecureNow capacity settings are out of range.")
+            .ValidateOnStart();
+        // Process-wide waiting budget; CollectionRunTriggerService stays scoped per request.
         services.AddScoped<CollectionRunTriggerService>();
         services
             .AddHttpClient<ICollectionRunTrigger, AzureAutomationCollectionRunTrigger>(static client =>

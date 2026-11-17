@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -25,7 +27,6 @@ import {
   GOVERNANCE_SETUP_PRIMARY_CONTENT_ID,
   GOVERNANCE_SETUP_SKIP_LINK_LABEL,
 } from "@/lib/governance-setup-page-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -45,7 +46,7 @@ type GovernanceSetupGuidePageViewProps = {
 };
 
 export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePageViewProps) {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const progress = summarizeGovernanceSetupProgress(model.stepStatuses, model.steps);
   const pageSubtitle = governanceSetupPageSubtitle(buyerPolishedShell);
 

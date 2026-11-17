@@ -1,27 +1,66 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
-  FINDING_EVIDENCE_GRAPH_DEFAULT_MODE,
-  getFindingEvidenceGraphHref,
-  graphTrailHrefWithOptionalNode,
-  SHIPPED_EVIDENCE_GRAPH_MODES,
+  graphFindingDetailHref,
+  graphFindingInspectHref,
+  graphReviewRunExplanationHref,
+  resolveGraphReviewDeskArchitectureId,
 } from "@/lib/graph-finding-deep-links";
 
-describe("graph-finding-deep-links (TB-1361)", () => {
-  it("uses provenance-full for finding graph deep links", () => {
-    expect(FINDING_EVIDENCE_GRAPH_DEFAULT_MODE).toBe("provenance-full");
-    expect(SHIPPED_EVIDENCE_GRAPH_MODES).toContain(FINDING_EVIDENCE_GRAPH_DEFAULT_MODE);
+vi.mock("@/lib/reviews/review-pin-run-url", () => ({
+  readRecentPrimaryReviewDeskTarget: (): { primaryRunId: string; architectureId: string | null } => ({
+    primaryRunId: "run-1",
+    architectureId: "arch-recent",
+  }),
+}));
 
-    const href = getFindingEvidenceGraphHref("run-1", "n-phi");
-
-    expect(href).toContain("/insights/evidence-graph");
-    expect(href).toContain("runId=run-1");
-    expect(href).toContain("mode=provenance-full");
-    expect(href).toContain("graphNodeId=n-phi");
-    expect(href).not.toContain("review-trail");
+describe("graph-finding-deep-links (desk continuity)", () => {
+  it("prefers explicit architecture id", () => {
+    expect(
+      resolveGraphReviewDeskArchitectureId("run-1", {
+        architectureId: "arch-explicit",
+        pathname: "/insights/evidence-graph",
+      }),
+    ).toBe("arch-explicit");
   });
 
-  it("delegates graphTrailHrefWithOptionalNode to getFindingEvidenceGraphHref", () => {
-    expect(graphTrailHrefWithOptionalNode("run-2", null)).toBe(getFindingEvidenceGraphHref("run-2"));
+  it("reads nested architecture id from pathname", () => {
+    expect(
+      resolveGraphReviewDeskArchitectureId("run-1", {
+        pathname: "/architecture/architectures/acme/reviews/run-1",
+      }),
+    ).toBe("acme");
+  });
+
+  it("falls back to recent primary desk when run ids match", () => {
+    expect(
+      resolveGraphReviewDeskArchitectureId("run-1", {
+        pathname: "/insights/evidence-graph",
+      }),
+    ).toBe("arch-recent");
+  });
+
+  it("builds nested run-explanation and finding hrefs when architecture is known", () => {
+    expect(graphReviewRunExplanationHref("run-1", "arch-desk")).toBe(
+      "/architecture/architectures/arch-desk/reviews/run-1#run-explanation",
+    );
+
+    expect(graphFindingDetailHref("run-1", "finding-9", "arch-desk")).toBe(
+      "/architecture/architectures/arch-desk/reviews/run-1/findings/finding-9",
+    );
+
+    expect(graphFindingInspectHref("run-1", "finding-9", "arch-desk")).toBe(
+      "/architecture/architectures/arch-desk/reviews/run-1/findings/finding-9/evidence-trace",
+    );
+  });
+
+  it("keeps peer hrefs when architecture id is unknown", () => {
+    expect(graphReviewRunExplanationHref("run-peer")).toBe(
+      "/architecture/reviews/run-peer#run-explanation",
+    );
+
+    expect(graphFindingDetailHref("run-peer", "finding-9")).toBe(
+      "/architecture/reviews/run-peer/findings/finding-9",
+    );
   });
 });

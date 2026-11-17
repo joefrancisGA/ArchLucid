@@ -39,7 +39,11 @@ internal static class AgentOutputTraceFaithfulnessEvaluator
         if (options.PilotStrictMinAgentResultFaithfulnessSupportRatio is not { } floor)
             return;
 
-        if (report.SupportRatio < floor)
+        double supportRatio = report.SupportRatio;
+
+        if (double.IsNaN(supportRatio)
+            || double.IsInfinity(supportRatio)
+            || supportRatio < floor)
             gateOutcome = AgentOutputQualityGateOutcome.Rejected;
     }
 

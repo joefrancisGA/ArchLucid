@@ -148,6 +148,36 @@ describe("ai-usage-dashboard-model", () => {
     expect(derived.activityRows.length).toBe(1);
   });
 
+  it("reports no change for flat spending over an odd number of days", () => {
+    const derived = buildAiUsageDashboardDerived({
+      costReporting: {
+        ...buildMockLlmCostReportingDashboard(),
+        daily: Array.from({ length: 5 }, (_, i) => ({
+          bucketUtc: `2026-07-0${i + 1}T00:00:00Z`,
+          estimatedCostUsd: 1,
+          promptTokens: 0,
+          completionTokens: 0,
+        })),
+      },
+      costReportingLoading: false,
+      costReportingError: false,
+      costReportingDelayed: false,
+      budgetStatus: baseBudgetStatus(),
+      budgetLoading: false,
+      budgetError: false,
+      budgetForbidden: false,
+      adminDashboard: baseAdminDashboard(),
+      adminLoading: false,
+      adminError: false,
+      adminForbidden: false,
+      filters: DEFAULT_AI_USAGE_DASHBOARD_FILTERS,
+      canViewBudgetDetails: true,
+      canManageBudget: true,
+    });
+
+    expect(derived.kpi.changeVsPrior30DaysPercent).toBe(0);
+  });
+
   it("marks warning threshold as approaching limit", () => {
     const derived = buildAiUsageDashboardDerived({
       costReporting: buildMockLlmCostReportingDashboard(),

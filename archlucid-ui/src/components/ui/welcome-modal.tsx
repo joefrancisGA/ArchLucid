@@ -24,6 +24,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { WELCOME_OPERATOR_EVIDENCE_STEP } from "@/lib/onboarding-secondary-surfaces";
+import { setWelcomeModalVisible } from "@/lib/operator/operator-onboarding-coordination";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export type WelcomeModalProps = {
@@ -72,7 +74,7 @@ const BUYER_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Welcome to ArchLucid",
     description:
-      "Walk through a completed sponsor revie — isk posture, evidence-linked findings, approval status, and audit-ready export — ithout advanced tooling upfront.",
+      "Walk through a completed sponsor review — risk posture, evidence-linked findings, approval status, and audit-ready export — without advanced tooling upfront.",
     Icon: Package,
   },
   {
@@ -100,6 +102,10 @@ export function WelcomeModal(props: WelcomeModalProps) {
   const [stepIndex, setStepIndex] = useState(0);
   const steps = buyerShell ? BUYER_WELCOME_STEPS : OPERATOR_WELCOME_STEPS;
   const operatorFirstRun = !buyerShell && onStartTour !== undefined;
+
+  useEffect(() => {
+    setWelcomeModalVisible(open);
+  }, [open]);
 
   useEffect(() => {
     if (open) {
@@ -130,7 +136,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
     onDismiss();
 
     if (buyerShell) {
-      router.push(`/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
+      router.push(resolveScopedInsightOpenReviewHrefWithDeskContinuity(SHOWCASE_STATIC_DEMO_RUN_ID));
 
       return;
     }

@@ -36,5 +36,17 @@ describe("resources-explorer-url", () => {
       "Showing 1–50 of 214",
     );
     expect(formatResourcesExplorerPageRangeLabel({ page: 1, pageSize: 50, totalCount: 0 })).toBe("Showing 0 of 0");
+    expect(formatResourcesExplorerPageRangeLabel({ page: 5, pageSize: 50, totalCount: 214 })).toBe(
+      "Showing 201–214 of 214",
+    );
+  });
+
+  it("shows zero rows when a bookmarked page is past the current result set", () => {
+    expect(formatResourcesExplorerPageRangeLabel({ page: 6, pageSize: 50, totalCount: 214 })).toBe(
+      "Showing 0 of 214",
+    );
+    expect(formatResourcesExplorerPageRangeLabel({ page: 3, pageSize: 50, totalCount: 100 })).toBe(
+      "Showing 0 of 100",
+    );
   });
 });

@@ -13,12 +13,14 @@ const {
   reconcileArchitectureDiagramMock,
   fetchArchitectureDiagramReconciliationMock,
   fetchAbsentInfrastructureDiagramDocumentationDecisionsMock,
+  fetchSealedInfrastructureDiagramDocumentationDecisionsMock,
   lookupOperationalSecurityFindingsMock,
 } = vi.hoisted(() => ({
   ingestArchitectureDiagramMock: vi.fn(async () => ({ warnings: [], sourceFingerprints: ["fp1"], model: { nodes: [], edges: [] } })),
   reconcileArchitectureDiagramMock: vi.fn(),
   fetchArchitectureDiagramReconciliationMock: vi.fn(),
   fetchAbsentInfrastructureDiagramDocumentationDecisionsMock: vi.fn(async () => []),
+  fetchSealedInfrastructureDiagramDocumentationDecisionsMock: vi.fn(async () => []),
   lookupOperationalSecurityFindingsMock: vi.fn(),
 }));
 
@@ -92,7 +94,7 @@ vi.mock("@/lib/infra-evidence/infra-evidence-diagram-reconcile-api", () => ({
   fetchArchitectureDiagramModel: vi.fn(async () => ({ nodes: [{ id: "n1", label: "api" }], edges: [] })),
   fetchArchitectureDiagramReconciliation: fetchArchitectureDiagramReconciliationMock,
   fetchAbsentInfrastructureDiagramDocumentationDecisions: fetchAbsentInfrastructureDiagramDocumentationDecisionsMock,
-  fetchSealedInfrastructureDiagramDocumentationDecisions: vi.fn(async () => []),
+  fetchSealedInfrastructureDiagramDocumentationDecisions: fetchSealedInfrastructureDiagramDocumentationDecisionsMock,
   ingestArchitectureDiagram: ingestArchitectureDiagramMock,
   reconcileArchitectureDiagram: reconcileArchitectureDiagramMock,
   ingestOperationalSecurityFindings: vi.fn(async () => ({ items: [] })),
@@ -128,6 +130,7 @@ describe("DiagramReconcileWorkbenchClient", () => {
 
   beforeEach(() => {
     window.sessionStorage.clear();
+    fetchSealedInfrastructureDiagramDocumentationDecisionsMock.mockClear();
     searchParams = new URLSearchParams(
       "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
     );
@@ -212,6 +215,21 @@ describe("DiagramReconcileWorkbenchClient", () => {
 
     expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+  });
+
+  it("reports a failed documentation decision read and retries without losing the reconciliation", async () => {
+    fetchSealedInfrastructureDiagramDocumentationDecisionsMock.mockRejectedValueOnce(new Error("network"));
+
+    render(<DiagramReconcileWorkbenchClient />);
+
+    expect(await screen.findByText("Could not load documentation decisions.")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Retry documentation decisions" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Could not load documentation decisions.")).not.toBeInTheDocument();
+    });
+    expect(fetchSealedInfrastructureDiagramDocumentationDecisionsMock).toHaveBeenCalledTimes(2);
   });
 
   it("reloads a recorded finding and keeps the finding and factory links", async () => {

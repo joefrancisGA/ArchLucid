@@ -29,7 +29,7 @@ describe("resolveOperatorShellAuditRunId", () => {
   });
 
   it("falls back to showcase run in buyer-polished shell", () => {
-    vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
+    vi.stubEnv("NEXT_PUBLIC_DEMO_STATIC_OPERATOR", "true");
 
     const resolved = resolveOperatorShellAuditRunId({
       pathname: "/",

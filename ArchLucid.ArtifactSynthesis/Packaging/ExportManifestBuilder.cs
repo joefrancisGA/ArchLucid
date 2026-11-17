@@ -45,9 +45,9 @@ public static class ExportManifestBuilder
             RunId = runId,
             ManifestId = manifestId,
             CreatedUtc = createdUtc,
-            CommittedManifestHash = committedManifestHash ?? string.Empty,
-            RuleSetId = ruleSetId ?? string.Empty,
-            RuleSetHash = ruleSetHash ?? string.Empty,
+            CommittedManifestHash = ExportManifestHonestyCopy.FormatCommittedManifestHash(committedManifestHash),
+            RuleSetId = ExportManifestHonestyCopy.FormatRuleSetId(ruleSetId),
+            RuleSetHash = ExportManifestHonestyCopy.FormatRuleSetHash(ruleSetHash),
             Files = fileEntries
         };
 

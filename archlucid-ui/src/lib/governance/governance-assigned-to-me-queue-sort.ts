@@ -1,4 +1,5 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { resolveGovernanceQueueDueDateMs } from "@/lib/governance/governance-queue-due-date";
 
 export type GovernanceAssignedToMeQueueSortKey = "severity" | "due" | "title" | "sourceReview";
 
@@ -9,18 +10,6 @@ const SEVERITY_ORDER: Readonly<Record<string, number>> = {
   Low: 3,
 };
 
-function parseDueUtc(row: GovernanceFindingQueueRow): number | null {
-  const raw = row.revisitDueUtc?.trim() ?? row.waiverExpiresAtUtc?.trim() ?? "";
-
-  if (raw.length === 0) {
-    return null;
-  }
-
-  const parsed = Date.parse(raw);
-
-  return Number.isNaN(parsed) ? null : parsed;
-}
-
 function compareSeverity(left: GovernanceFindingQueueRow, right: GovernanceFindingQueueRow): number {
   const leftRank = SEVERITY_ORDER[left.severity] ?? 99;
   const rightRank = SEVERITY_ORDER[right.severity] ?? 99;
@@ -29,8 +18,8 @@ function compareSeverity(left: GovernanceFindingQueueRow, right: GovernanceFindi
 }
 
 function compareDue(left: GovernanceFindingQueueRow, right: GovernanceFindingQueueRow): number {
-  const leftDue = parseDueUtc(left);
-  const rightDue = parseDueUtc(right);
+  const leftDue = resolveGovernanceQueueDueDateMs(left);
+  const rightDue = resolveGovernanceQueueDueDateMs(right);
 
   if (leftDue === null && rightDue === null) {
     return 0;

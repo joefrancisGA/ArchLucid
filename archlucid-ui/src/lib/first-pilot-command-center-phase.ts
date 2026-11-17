@@ -1,3 +1,4 @@
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
@@ -51,13 +52,13 @@ export type FirstPilotCommandCenterPhaseSummary = {
 
 function committedReviewHref(signals: FirstPilotOperatingRailSignals): string {
 
-  if (signals.firstCommittedRunId)
+  if (signals.firstCommittedRunId !== null) {
+    return resolveLibOpenReviewHref(signals.firstCommittedRunId);
+  }
 
-    return `/architecture/reviews/${encodeURIComponent(signals.firstCommittedRunId)}`;
-
-  if (signals.latestRunId)
-
-    return `/architecture/reviews/${encodeURIComponent(signals.latestRunId)}`;
+  if (signals.latestRunId !== null) {
+    return resolveLibOpenReviewHref(signals.latestRunId);
+  }
 
   return "/architecture/reviews";
 
@@ -162,7 +163,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
         "Continue the in-flight architecture review until the pipeline is ready to finalize. Use review detail for timeline and findings.",
 
-      href: signals.latestRunId ? `/architecture/reviews/${encodeURIComponent(signals.latestRunId)}` : "/architecture/reviews",
+      href: signals.latestRunId !== null ? resolveLibOpenReviewHref(signals.latestRunId) : "/architecture/reviews",
 
       cta: signals.latestRunId ? "Open latest review" : "Open reviews",
 
@@ -184,7 +185,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
         "The review pipeline looks complete. Finalize the architecture snapshot before sponsor export or proof collection.",
 
-      href: signals.latestRunId ? `/architecture/reviews/${encodeURIComponent(signals.latestRunId)}` : "/architecture/reviews",
+      href: signals.latestRunId !== null ? resolveLibOpenReviewHref(signals.latestRunId) : "/architecture/reviews",
 
       cta: signals.latestRunId ? "Open latest review" : "Open reviews",
 

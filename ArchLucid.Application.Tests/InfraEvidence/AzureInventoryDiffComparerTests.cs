@@ -143,6 +143,35 @@ public sealed class AzureInventoryDiffComparerTests
             .BeEquivalentTo([parentArmId, siblingArmId]);
     }
 
+    [Theory]
+    [InlineData("ABCDEF01-2345-6789-ABCD-EF0123456789", 0)]
+    [InlineData("BBCDEF01-2345-6789-ABCD-EF0123456789", 2)]
+    public void Compare_uses_case_insensitive_role_assignment_ids(string principalId, int expectedChanges)
+    {
+        const string scope = "/subscriptions/sub/resourceGroups/rg";
+        const string role = "/providers/Microsoft.Authorization/roleDefinitions/ABCDEF01-2345-6789-ABCD-EF0123456790";
+        AzureInventorySnapshotDetailReadModel snapshotA = new()
+        {
+            RoleAssignments =
+            [
+                new() { Scope = scope, PrincipalId = "abcdef01-2345-6789-abcd-ef0123456789", RoleDefinitionId = role },
+            ],
+        };
+        AzureInventorySnapshotDetailReadModel snapshotB = new()
+        {
+            RoleAssignments =
+            [
+                new() { Scope = scope.ToUpperInvariant(), PrincipalId = principalId, RoleDefinitionId = role.ToLowerInvariant() },
+            ],
+        };
+
+        List<AzureInventoryChangeRecord> changes =
+            AzureInventoryDiffComparer.Compare(snapshotA, snapshotB, Guid.NewGuid(), Guid.NewGuid());
+
+        changes.Select(change => change.ChangeType).Should()
+            .Equal(Enumerable.Repeat(AzureInventoryChangeType.PermissionChanged, expectedChanges));
+    }
+
     private static AzureInventorySnapshotDetailReadModel BuildSnapshot(
         Guid snapshotId,
         Guid resourceRowId,

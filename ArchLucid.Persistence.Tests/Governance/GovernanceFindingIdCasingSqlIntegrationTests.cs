@@ -31,9 +31,9 @@ public sealed class GovernanceFindingIdCasingSqlIntegrationTests(SqlServerPersis
     private const string CanonicalFindingId = "finding-1";
     private const string LegacyStoredFindingId = "FINDING-1";
 
-    private static readonly Guid TenantId = Guid.Parse("a4a4a4a4-a4a4-a4a4-a4a4-a4a4a4a4a4a4");
-    private static readonly Guid WorkspaceId = Guid.Parse("b5b5b5b5-b5b5-b5b5-b5b5-b5b5b5b5b5b5");
-    private static readonly Guid ProjectId = Guid.Parse("c6c6c6c6-c6c6-c6c6-c6c6-c6c6c6c6c6c6");
+    private readonly Guid TenantId = Guid.NewGuid();
+    private readonly Guid WorkspaceId = Guid.NewGuid();
+    private readonly Guid ProjectId = Guid.NewGuid();
 
     [SkippableFact]
     public async Task GetInspectAsync_sets_HasActiveWaiver_when_legacy_waiver_finding_id_differs_only_by_casing()

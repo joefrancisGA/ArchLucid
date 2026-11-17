@@ -23,10 +23,10 @@ public sealed class PreCommitGovernanceBlockExplainer(
         ArgumentNullException.ThrowIfNull(truncatedManifestJson);
 
         string userPrompt =
-            $"Gate reason: {gateResult.Reason ?? "unknown"}\n" +
-            $"Policy pack id: {gateResult.PolicyPackId ?? "unknown"}\n" +
-            $"Minimum blocking severity: {gateResult.MinimumBlockingSeverity?.ToString() ?? "unknown"}\n" +
-            $"Blocking finding ids: {(gateResult.BlockingFindingIds.Count == 0 ? "(none)" : string.Join(", ", gateResult.BlockingFindingIds))}\n\n" +
+            $"Gate reason: {FormatOptionalField(gateResult.Reason, "Gate reason")}\n" +
+            $"Policy pack id: {FormatOptionalField(gateResult.PolicyPackId, "Policy pack id")}\n" +
+            $"Minimum blocking severity: {FormatMinimumBlockingSeverity(gateResult.MinimumBlockingSeverity)}\n" +
+            $"Blocking finding ids: {FormatBlockingFindingIds(gateResult.BlockingFindingIds)}\n\n" +
             "Manifest excerpt:\n" +
             truncatedManifestJson;
 
@@ -39,4 +39,27 @@ public sealed class PreCommitGovernanceBlockExplainer(
 
         return string.IsNullOrWhiteSpace(response) ? null : response.Trim();
     }
+
+    private static string FormatOptionalField(string? value, string fieldLabel)
+    {
+        if (value is null)
+        {
+            return $"{fieldLabel} was not stored.";
+        }
+
+        if (value.Length == 0 || value.Trim().Length == 0)
+        {
+            return $"{fieldLabel} was stored empty.";
+        }
+
+        return value.Trim();
+    }
+
+    private static string FormatMinimumBlockingSeverity(int? severity) =>
+        severity?.ToString() ?? "Minimum blocking severity was not stored.";
+
+    private static string FormatBlockingFindingIds(IReadOnlyList<string> blockingFindingIds) =>
+        blockingFindingIds.Count == 0
+            ? "No blocking finding ids were stored on this gate result."
+            : string.Join(", ", blockingFindingIds);
 }

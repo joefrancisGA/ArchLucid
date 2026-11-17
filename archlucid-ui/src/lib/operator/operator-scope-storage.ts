@@ -24,6 +24,10 @@ import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID, getS
 
 export const OPERATOR_SCOPE_STORAGE_KEY = "archlucid_operator_scope_v1";
 
+/** Scope headers filter lists — they do not encode whether a review is finalized or only dispositioned. */
+export const OPERATOR_SCOPE_STORAGE_FINALIZE_STATE_NOT_STORED_NOTE =
+  "Workspace/project scope filters open work in this selection — not whether reviews are finalized." as const;
+
 const STORAGE_KEY = OPERATOR_SCOPE_STORAGE_KEY;
 
 /** Fired when {@link writeOperatorScopeToStorage} or {@link clearOperatorScopeStorage} mutates scope. */
@@ -107,15 +111,25 @@ function refreshOperatorScopeDependentClientState(): void {
     return;
   }
 
-  window.dispatchEvent(new CustomEvent(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT));
+  // Clear outgoing scope data before notifying subscribers: listeners may read
+  // the new tenant's scope synchronously during this event.
   clearFrictionlessTrialSessionForAuthenticatedOperator();
   clearOperatorShellStableCache();
-  clearOperatorShellStatusScopeAgnosticCaches(getOperatorQueryClient());
+  const queryClient = getOperatorQueryClient();
+  clearOperatorShellStatusScopeAgnosticCaches(queryClient);
+  // Shell-status keys are not an exhaustive registry. Other operator queries
+  // (including tenant identity-provider configuration and admin page bundles)
+  // omit tenant scope from their keys and could otherwise show tenant A's
+  // cached data after selecting tenant B. Evict every operator query before
+  // notifying observers; preserve account preferences under ["user"] and
+  // public marketing queries under ["marketing"].
+  queryClient.removeQueries({ queryKey: ["operator"] });
   clearOperatorRecentViewsStorage();
   clearHasExistingRunsCache();
   clearHasSeenWelcomeOnboarding();
   clearOperatorHomeDisclosureStorage();
   clearOperatorHomeRunsSnapshotStale();
+  window.dispatchEvent(new CustomEvent(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT));
 }
 
 function notifyOperatorScopeChanged(): void {

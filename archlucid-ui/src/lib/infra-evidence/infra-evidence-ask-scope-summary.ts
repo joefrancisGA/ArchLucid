@@ -3,14 +3,20 @@ import {
 } from "@/lib/architecture/architecture-inventory-snapshot-freshness";
 import { formatCloudResourceExplorerWorkQueueLabel } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
-import { formatInfraEvidenceSnapshotCapturedLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
+import {
+  formatInfraEvidenceSnapshotCapturedLabel,
+  formatInfraEvidenceSubscriptionLabel,
+} from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import { formatRelativeTime } from "@/lib/relative-time";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 
 export type InfraEvidenceAskScopeSummaryInput = {
   readonly cloudResourceId?: string;
   readonly snapshotId?: string;
   readonly snapshotCapturedUtc?: string | null;
+  readonly snapshotSubscriptionName?: string | null;
+  readonly snapshotSubscriptionId?: string | null;
   readonly diffId?: string;
   readonly findingId?: string;
   readonly instanceId?: string;
@@ -29,23 +35,6 @@ export type InfraEvidenceAskSnapshotFreshness = {
   readonly statusLabel: string;
 };
 
-function isInfraEvidenceSnapshotStale(
-  capturedUtc: string | null | undefined,
-  nowMs: number = Date.now(),
-): boolean {
-  if (capturedUtc == null || capturedUtc.trim().length === 0) {
-    return false;
-  }
-
-  const capturedMs = Date.parse(capturedUtc);
-
-  if (Number.isNaN(capturedMs)) {
-    return false;
-  }
-
-  return nowMs - capturedMs >= ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_MS;
-}
-
 export function resolveInfraEvidenceAskSnapshotFreshness(
   snapshotId: string,
   snapshotCapturedUtc: string | null | undefined,
@@ -58,16 +47,17 @@ export function resolveInfraEvidenceAskSnapshotFreshness(
   }
 
   const capturedLabel = formatInfraEvidenceSnapshotCapturedLabel(snapshotCapturedUtc);
-  const hasCaptureTime = snapshotCapturedUtc != null && snapshotCapturedUtc.trim().length > 0;
-  const ageLabel = hasCaptureTime ? formatRelativeTime(snapshotCapturedUtc ?? "", nowMs) : "capture time unknown";
-  const stale = hasCaptureTime && isInfraEvidenceSnapshotStale(snapshotCapturedUtc, nowMs);
+  const capturedMs = parseIsoUtcMs(snapshotCapturedUtc ?? "");
+  const hasCaptureTime = !Number.isNaN(capturedMs);
+  const ageLabel = hasCaptureTime ? formatRelativeTime(snapshotCapturedUtc ?? "", nowMs) : "Capture time was not stored.";
+  const stale = hasCaptureTime && nowMs - capturedMs >= ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_MS;
 
   return {
     snapshotId: trimmedSnapshotId,
     capturedLabel,
     ageLabel,
     statusKind: stale || !hasCaptureTime ? "needs-attention" : "ready",
-    statusLabel: stale ? "Stale snapshot" : hasCaptureTime ? "Current snapshot" : "Freshness unknown",
+    statusLabel: stale ? "Stale snapshot" : hasCaptureTime ? "Current snapshot" : "Snapshot freshness was not stored.",
   };
 }
 
@@ -99,11 +89,23 @@ export function formatInfraEvidenceAskScopeStack(input: InfraEvidenceAskScopeSum
   const segments: string[] = [];
 
   if (input.cloudResourceId != null && input.cloudResourceId.trim().length > 0) {
-    segments.push(`resource ${input.cloudResourceId.trim()}`);
+    const resourceId = input.cloudResourceId.trim();
+    segments.push(`Resource name was not stored. Resource id: ${resourceId}.`);
   }
 
   if (input.snapshotId != null && input.snapshotId.trim().length > 0) {
     segments.push(formatSnapshotScopeSegment(input.snapshotId, input.snapshotCapturedUtc));
+
+    const subscriptionLabel = formatInfraEvidenceSubscriptionLabel(
+      input.snapshotSubscriptionName,
+      input.snapshotSubscriptionId,
+    );
+
+    segments.push(
+      subscriptionLabel != null && subscriptionLabel.length > 0
+        ? subscriptionLabel
+        : "Subscription was not stored.",
+    );
   }
 
   if (input.diffId != null && input.diffId.trim().length > 0) {
@@ -142,4 +144,18 @@ export function formatInfraEvidenceAskScopeStack(input: InfraEvidenceAskScopeSum
   }
 
   return segments.join(" → ");
+}
+
+export const INFRA_EVIDENCE_ASK_SNAPSHOT_HONESTY_WITH_SNAPSHOT =
+  "Answers use the inventory snapshot on this page. They do not query live Azure." as const;
+
+export const INFRA_EVIDENCE_ASK_SNAPSHOT_HONESTY_WITHOUT_SNAPSHOT =
+  "No inventory snapshot is on this page. Ask does not query live Azure." as const;
+
+export function resolveInfraEvidenceAskSnapshotHonestyMessage(snapshotId: string | null | undefined): string {
+  if (snapshotId === null || snapshotId === undefined || snapshotId.trim().length === 0) {
+    return INFRA_EVIDENCE_ASK_SNAPSHOT_HONESTY_WITHOUT_SNAPSHOT;
+  }
+
+  return INFRA_EVIDENCE_ASK_SNAPSHOT_HONESTY_WITH_SNAPSHOT;
 }

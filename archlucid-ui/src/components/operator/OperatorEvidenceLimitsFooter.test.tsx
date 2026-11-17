@@ -15,6 +15,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -98,6 +103,9 @@ describe("OperatorEvidenceLimitsFooter", () => {
     );
 
     expect(screen.getByTestId("operator-evidence-limits-inspect-metadata")).toHaveTextContent(/dep-a/);
+    expect(screen.getByTestId("operator-evidence-limits-inspect-metadata")).toHaveTextContent(
+      /prompt template version was not stored/i,
+    );
 
     rerender(
       <OperatorEvidenceLimitsFooter runId="r1" inspectMetadata={{ modelDeploymentName: "", promptTemplateVersion: "v3" }} />,

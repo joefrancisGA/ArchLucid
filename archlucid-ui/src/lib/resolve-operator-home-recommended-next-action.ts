@@ -4,6 +4,7 @@ import {
   OPERATOR_HOME_RECOMMENDED_NEXT_START_REVIEW,
 } from "@/lib/buyer/buyer-polish-copy";
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
   showcaseSampleReviewPackageHref,
@@ -29,7 +30,7 @@ export function resolveOperatorHomeRecommendedNextAction(
   if (hasCommittedArchitectureReview && ctx?.latestRunId !== null && ctx?.latestRunId !== undefined) {
     return {
       message: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST,
-      href: `/architecture/reviews/${ctx.latestRunId}`,
+      href: resolveScopedInsightOpenReviewHrefWithDeskContinuity(ctx.latestRunId),
     };
   }
 
@@ -40,7 +41,7 @@ export function resolveOperatorHomeRecommendedNextAction(
   if (ctx.latestRunId !== null) {
     return {
       message: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST,
-      href: `/architecture/reviews/${ctx.latestRunId}`,
+      href: resolveScopedInsightOpenReviewHrefWithDeskContinuity(ctx.latestRunId),
     };
   }
 
@@ -54,7 +55,7 @@ export function resolveOperatorHomeRecommendedNextAction(
   if (ctx.hasCommittedManifest && ctx.firstCommittedRunId !== null) {
     return {
       message: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST,
-      href: `/architecture/reviews/${ctx.firstCommittedRunId}`,
+      href: resolveScopedInsightOpenReviewHrefWithDeskContinuity(ctx.firstCommittedRunId),
     };
   }
 

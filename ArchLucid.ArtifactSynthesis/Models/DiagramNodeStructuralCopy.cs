@@ -42,6 +42,8 @@ public static class DiagramNodeStructuralCopy
             PrivateEndpointAccessName = source.PrivateEndpointAccessName,
             HasPublicInternetExposure = source.HasPublicInternetExposure,
             HiddenPublicIpAddress = source.HiddenPublicIpAddress,
+            RollupMultipleHiddenPublicIpAddresses = source.RollupMultipleHiddenPublicIpAddresses,
+            RollupMultiplePrivateEndpointAccessNames = source.RollupMultiplePrivateEndpointAccessNames,
             IsExecutiveOverflow = source.IsExecutiveOverflow,
             IsUnresolvedPolicyOutlineOnly = source.IsUnresolvedPolicyOutlineOnly,
             ParentAttachmentDetails = source.ParentAttachmentDetails.ToList(),

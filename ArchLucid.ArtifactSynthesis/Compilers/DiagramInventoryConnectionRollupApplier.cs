@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.Core.AzureExtractor;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
@@ -21,12 +22,16 @@ internal static class DiagramInventoryConnectionRollupApplier
         {
             List<DiagramNode> members = group.ToList();
             DiagramNode first = members[0];
+            string rollupLabel = string.IsNullOrWhiteSpace(first.Label)
+                ? "Connection name was not stored."
+                : first.Label.Trim();
             string rollupId =
-                $"connection-rollup-{MermaidIdSanitizer.Sanitize(first.Label)}-{members.Count}";
+                $"connection-rollup-{MermaidIdSanitizer.Sanitize(rollupLabel)}-{members.Count}";
             DiagramNode rollup = new()
             {
                 NodeId = rollupId,
-                Label = $"{first.Label} ({members.Count})",
+                Label =
+                    $"{rollupLabel} ({members.Count}) · {InventoryDiagramRelationshipLabelTexts.ConnectionRollupCollapsedHonestySuffix}",
                 NodeType = first.NodeType,
                 SubgraphId = first.SubgraphId,
                 OrderKey = members.Min(member => member.OrderKey),

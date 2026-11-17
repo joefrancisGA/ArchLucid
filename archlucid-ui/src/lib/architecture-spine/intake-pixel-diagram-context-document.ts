@@ -12,6 +12,8 @@ export const INTAKE_PIXEL_DIAGRAM_EXTRACTION_METHOD_NONE = "None";
 
 export const INTAKE_PIXEL_DIAGRAM_VERIFICATION_STATUS_NOT_VERIFIABLE = "NotVerifiable";
 
+export const INTAKE_PIXEL_DIAGRAM_SOURCE_MIME_NOT_STORED = "Source MIME type was not stored.";
+
 export const INTAKE_PENDING_STORED_FILE_MARKER_PREFIX = "pending-stored-file:";
 
 export type IntakePixelDiagramContextStub = {
@@ -59,7 +61,7 @@ export function resolvePixelDiagramSourceMimeType(file: File): string {
     return "image/jpeg";
   }
 
-  return "image/unknown";
+  return INTAKE_PIXEL_DIAGRAM_SOURCE_MIME_NOT_STORED;
 }
 
 export function buildIntakePixelDiagramContextStub(input: {

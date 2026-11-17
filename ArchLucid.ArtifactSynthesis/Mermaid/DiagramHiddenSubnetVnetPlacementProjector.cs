@@ -106,7 +106,7 @@ internal static class DiagramHiddenSubnetVnetPlacementProjector
                 FromNodeId = placedNode.NodeId,
                 ToNodeId = vnet.NodeId,
                 EdgeType = GraphEdgeTypes.ConnectsTo,
-                Label = "in",
+                Label = InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved,
                 Weight = 1.0d,
                 InferenceSource = GraphEdgeInferenceSources.InventoryHiddenSubnetVnetPlacement,
                 ProvenanceKind = ProvenanceKind.DerivedFact.ToString(),

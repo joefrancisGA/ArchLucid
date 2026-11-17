@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Audit;
@@ -53,8 +54,13 @@ public sealed class AuthorityPipelineArtifactsStage(
         ArtifactBundle artifactBundle;
         try
         {
+            string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(run.RunId.ToString());
             IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
-                await _technologyLedgerRepository.GetByRunIdAsync(scope, run.RunId.ToString("D"), cancellationToken);
+                await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+                    _technologyLedgerRepository,
+                    scope,
+                    canonicalRunId,
+                    cancellationToken).ConfigureAwait(false);
 
             artifactBundle = await _artifactSynthesisService.SynthesizeAsync(
                 context.Manifest!,

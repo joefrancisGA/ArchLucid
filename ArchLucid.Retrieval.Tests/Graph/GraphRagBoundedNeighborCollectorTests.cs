@@ -31,6 +31,33 @@ public sealed class GraphRagBoundedNeighborCollectorTests
     }
 
     [Fact]
+    public void Collect_finds_neighbor_when_edge_is_oriented_from_neighbor_to_seed()
+    {
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                new GraphNode { NodeId = "seed", NodeType = "Resource", Label = "Seed" },
+                new GraphNode { NodeId = "neighbor", NodeType = "Resource", Label = "Neighbor" },
+            ],
+            Edges =
+            [
+                new GraphEdge { FromNodeId = "neighbor", ToNodeId = "seed", EdgeType = "CONNECTS_TO" },
+            ],
+        };
+
+        IReadOnlyList<GraphRagNeighborHop> neighbors =
+            GraphRagBoundedNeighborCollector.Collect(snapshot, "seed", maxHops: 1, maxNeighbors: 8);
+
+        neighbors.Should().ContainSingle();
+        neighbors[0].Node.NodeId.Should().Be("neighbor");
+    }
+
+    [Fact]
     public void Collect_stops_at_hop_budget_before_reaching_chain_end()
     {
         GraphSnapshot snapshot = BuildLinearChainSnapshot(["seed", "hop1", "hop2", "hop3"]);
@@ -95,6 +122,48 @@ public sealed class GraphRagBoundedNeighborCollectorTests
         IReadOnlyList<GraphRagNeighborHop> neighbors = GraphRagBoundedNeighborCollector.Collect(snapshot, "seed", maxHops: 1, maxNeighbors: 2);
 
         neighbors.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void Collect_applies_hop_and_neighbor_budget_independently_for_each_seed_invocation()
+    {
+        GraphSnapshot snapshot = BuildLinearChainSnapshot(["seed-a", "mid", "tail"]);
+
+        IReadOnlyList<GraphRagNeighborHop> seedANeighbors =
+            GraphRagBoundedNeighborCollector.Collect(snapshot, "seed-a", maxHops: 2, maxNeighbors: 8);
+        IReadOnlyList<GraphRagNeighborHop> midNeighbors =
+            GraphRagBoundedNeighborCollector.Collect(snapshot, "mid", maxHops: 2, maxNeighbors: 8);
+
+        seedANeighbors.Select(hop => hop.Node.NodeId).Should().Equal(["mid", "tail"]);
+        midNeighbors.Select(hop => hop.Node.NodeId).Should().Equal(["seed-a", "tail"]);
+    }
+
+    [Fact]
+    public void Collect_skips_dangling_edge_targets_missing_from_nodes_list()
+    {
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                new GraphNode { NodeId = "seed", NodeType = "TopologyResource", Label = "Seed" },
+                new GraphNode { NodeId = "present", NodeType = "TopologyResource", Label = "Present" },
+            ],
+            Edges =
+            [
+                new GraphEdge { FromNodeId = "seed", ToNodeId = "present", EdgeType = "CONTAINS" },
+                new GraphEdge { FromNodeId = "seed", ToNodeId = "missing-node", EdgeType = "CONTAINS" },
+            ],
+        };
+
+        IReadOnlyList<GraphRagNeighborHop> neighbors =
+            GraphRagBoundedNeighborCollector.Collect(snapshot, "seed", maxHops: 1, maxNeighbors: 8);
+
+        neighbors.Should().ContainSingle();
+        neighbors[0].Node.NodeId.Should().Be("present");
     }
 
     private static GraphSnapshot BuildLinearChainSnapshot(IReadOnlyList<string> nodeIds)

@@ -24,10 +24,17 @@ public sealed class RequirementsManifestSectionPopulator : IManifestSectionPopul
                 continue;
             }
 
+            string requirementName = string.IsNullOrWhiteSpace(payload.RequirementName)
+                ? "Requirement name was not stored."
+                : payload.RequirementName.Trim();
+            string requirementText = string.IsNullOrWhiteSpace(payload.RequirementText)
+                ? "Requirement text was not stored."
+                : payload.RequirementText.Trim();
+
             RequirementCoverageItem item = new()
             {
-                RequirementName = payload.RequirementName,
-                RequirementText = payload.RequirementText,
+                RequirementName = requirementName,
+                RequirementText = requirementText,
                 IsMandatory = payload.IsMandatory,
                 CoverageStatus = "Covered",
                 SupportingFindingIds = [finding.FindingId]
@@ -38,9 +45,9 @@ public sealed class RequirementsManifestSectionPopulator : IManifestSectionPopul
             ResolvedArchitectureDecision requirementDecision = new()
             {
                 Category = "Requirement",
-                Title = payload.RequirementName,
-                SelectedOption = "Accepted",
-                Rationale = payload.RequirementText,
+                Title = requirementName,
+                SelectedOption = "Selected option was not stored.",
+                Rationale = requirementText,
                 SupportingFindingIds = [finding.FindingId]
             };
             ManifestDecisionConfidenceProjector.ApplyTo(requirementDecision, finding);

@@ -11,6 +11,48 @@ namespace ArchLucid.Application.Tests.Runs.Orchestration;
 public sealed class TopologyProposalConsensusMergerTests
 {
     [Fact]
+    public void Merge_intersects_services_when_service_names_differ_only_by_zero_width_format_character()
+    {
+        const string withZeroWidth = "ap\u200Bi";
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceId = string.Empty,
+                    ServiceName = "api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                }
+            ]
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceId = string.Empty,
+                    ServiceName = withZeroWidth,
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                }
+            ]
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.AddedServices.Should().ContainSingle()
+            .Which.ServiceName.Should().Be("api");
+    }
+
+    [Fact]
     public void Merge_intersects_services_when_models_use_rename_alias_labels_for_same_service_id()
     {
         AgentTopologyProposal primary = new()
@@ -327,6 +369,71 @@ public sealed class TopologyProposalConsensusMergerTests
         TopologyProposalConsensusMergeResult result =
             TopologyProposalConsensusMerger.Merge(Proposal(" svc-api "), Proposal("svc-api"));
 
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Merge_intersects_relationships_when_endpoint_contains_zero_width_format_character()
+    {
+        const string sourceWithZeroWidth = "svc\u200B-api";
+
+        static List<ManifestService> Services() =>
+        [
+            new ManifestService
+            {
+                ServiceName = "api",
+                ServiceId = "svc-api",
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            }
+        ];
+
+        static List<ManifestDatastore> Datastores() =>
+        [
+            new ManifestDatastore
+            {
+                DatastoreName = "sql",
+                DatastoreId = "ds-sql",
+                DatastoreType = DatastoreType.Sql,
+                RuntimePlatform = RuntimePlatform.SqlServer,
+            }
+        ];
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "svc-api",
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                }
+            ],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = sourceWithZeroWidth,
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                }
+            ],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
         result.MergedProposal.AddedRelationships.Should().ContainSingle();
     }
 
@@ -1129,6 +1236,71 @@ public sealed class TopologyProposalConsensusMergerTests
         {
             SourceAgent = AgentType.Topology,
             RequiredControls = [" SOC2 "],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.RequiredControls.Should().ContainSingle().Which.Should().Be("SOC2");
+    }
+
+    [Fact]
+    public void Merge_reports_zero_disagreement_when_required_controls_differ_only_by_whitespace_and_duplicate_casing_on_one_model()
+    {
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            RequiredControls = ["pci  ", "PCI"],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            RequiredControls = ["pci"],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.RequiredControls.Should().ContainSingle().Which.Should().Be("pci");
+    }
+
+    [Fact]
+    public void Merge_reports_zero_disagreement_when_required_controls_differ_only_by_interior_whitespace_runs_on_one_model()
+    {
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            RequiredControls = ["encrypt at rest", "encrypt  at rest"],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            RequiredControls = ["encrypt at rest"],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.RequiredControls.Should().ContainSingle().Which.Should().Be("encrypt at rest");
+    }
+
+    [Fact]
+    public void Merge_reports_zero_disagreement_when_required_controls_differ_only_by_zero_width_space_on_one_model()
+    {
+        const string withZeroWidth = "SOC\u200B2";
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            RequiredControls = ["SOC2", withZeroWidth],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            RequiredControls = ["SOC2"],
         };
 
         TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);

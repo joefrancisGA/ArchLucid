@@ -7,7 +7,7 @@
 
 **Source alignment:** Shared Assessments SIG **Core** control families. Obtain the current SIG Core workbook from [Shared Assessments](https://sharedassessments.org/) and copy **authoritative SIG control IDs** into your vendor profile — the **A–H family headings** here are a **summary index**, not a complete SIG row checklist.
 
-**Dry-run note (procurement):** Status values (**Strong**, **Partial**, **In flight**, **Inherited**) are explained in-line with evidence links. **Partial** rows describe what exists in-repo vs what needs NDA or external artefact follow-up — they are **not** implicit full SIG “pass” without buyer mapping.
+**Dry-run note (procurement):** Status values (**Strong**, **Partial**, **Deferred**, **Inherited**) are explained in-line with evidence links. **Partial** rows describe what exists in-repo vs what needs NDA or external artefact follow-up — they are **not** implicit full SIG “pass” without buyer mapping.
 
 ## Control family A — Corporate governance
 
@@ -20,7 +20,7 @@
 | Control intent | Status | Evidence |
 |----------------|--------|----------|
 | Threat modeling | Partial | [`SYSTEM_THREAT_MODEL.md`](SYSTEM_THREAT_MODEL.md) |
-| Third-party pen test | In flight | [`pen-test-summaries/2026-Q2-SOW.md`](pen-test-summaries/2026-Q2-SOW.md) |
+| Third-party pen test | Deferred — no vendor engaged or test scheduled | [`pen-test-summaries/2026-Q2-SOW.md`](pen-test-summaries/2026-Q2-SOW.md) (planning template only; [deferred scope](../library/V1_DEFERRED.md)) |
 
 ## Control family C — Human resources
 

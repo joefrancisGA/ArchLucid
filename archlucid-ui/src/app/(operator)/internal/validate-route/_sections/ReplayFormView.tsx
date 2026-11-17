@@ -27,6 +27,7 @@ import {
   type WhyDisabledCtaReason,
 } from "@/lib/why-disabled-cta";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 import {
   REPLAY_MODIFY_CONFIRMATION_LABEL,
   REPLAY_PAGE_INTRO,
@@ -100,7 +101,7 @@ export function ReplayFormView(props: Props) {
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+              href={resolveOperatorScopedRunReviewHref(scopedRunId)}
             >
               Open review
             </Link>

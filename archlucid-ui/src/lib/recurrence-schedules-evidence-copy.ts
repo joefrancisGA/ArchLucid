@@ -10,6 +10,8 @@ import {
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_RECURRENCE_SCHEDULES_PATH } from "@/lib/governance/recurrence-schedules-route";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export const RECURRENCE_SCHEDULES_CLAIM_DISCIPLINE =
   "Recurrence schedules set when architecture reviews repeat — not a full audit export. Open Findings, approval queue, or Audit when you need resolution history or approval records.";
@@ -38,3 +40,9 @@ const RECURRENCE_SCHEDULES_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([
 export const RECURRENCE_SCHEDULES_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = RECURRENCE_SCHEDULES_SOURCES.filter(
   (source) => !RECURRENCE_SCHEDULES_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
 );
+
+export function resolveRecurrenceSchedulesOrientationSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapEvidenceSourceFindingsQueueHref(RECURRENCE_SCHEDULES_ORIENTATION_SOURCES, productLine);
+}

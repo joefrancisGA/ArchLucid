@@ -51,7 +51,7 @@ export function resolveGovernanceFindingsQueueHeaderNavHref(
 
   if (input.workingMode === true) {
     const persistedArchitectureId = parseArchitectureIdFromNestedFindingsPath(
-      readGovernanceFindingsReturnHref(),
+      readGovernanceFindingsReturnHref(input.productLineId ?? "architecture"),
     );
 
     if (persistedArchitectureId !== null) {

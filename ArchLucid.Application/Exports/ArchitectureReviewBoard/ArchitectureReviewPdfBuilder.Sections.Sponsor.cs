@@ -51,10 +51,11 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
         foreach (string line in bullets)
         {
-            if (string.IsNullOrWhiteSpace(line))
-                continue;
+            string bulletText = string.IsNullOrWhiteSpace(line)
+                ? ArchitectureReviewBoardExportHonestyCopy.OverviewItemStoredEmpty
+                : line.Trim();
 
-            AddBullet(column, line.Trim());
+            AddBullet(column, bulletText);
         }
 
         column.Item().Height(8);

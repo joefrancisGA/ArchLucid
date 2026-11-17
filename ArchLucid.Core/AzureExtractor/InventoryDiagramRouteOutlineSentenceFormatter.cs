@@ -16,7 +16,7 @@ public static class InventoryDiagramRouteOutlineSentenceFormatter
         {
             if (string.IsNullOrWhiteSpace(route.AddressPrefix))
             {
-                return "Address prefix was not stored. Next hop type is Internet.";
+                return "Address prefix was not stored. Next hop type is Internet. This is not observed traffic.";
             }
 
             return $"Route to {addressPrefix} uses next hop type Internet. This is not observed traffic.";
@@ -25,22 +25,22 @@ public static class InventoryDiagramRouteOutlineSentenceFormatter
         if (nextHopType.Equals("None", StringComparison.OrdinalIgnoreCase))
         {
             return string.IsNullOrWhiteSpace(route.AddressPrefix)
-                ? "Address prefix was not stored"
+                ? "Address prefix was not stored. Next hop type None was stored (no next-hop resource). This is not observed traffic."
                 : $"Route to {addressPrefix} uses next hop type None. This is not observed traffic.";
         }
 
         if (nextHopType.Equals("VnetLocal", StringComparison.OrdinalIgnoreCase))
         {
             return string.IsNullOrWhiteSpace(route.AddressPrefix)
-                ? "Address prefix was not stored. Next hop type is VnetLocal."
+                ? "Address prefix was not stored. Next hop type is VnetLocal. This is not observed traffic."
                 : $"Route to {addressPrefix} uses next hop type VnetLocal. This is not observed traffic.";
         }
 
         if (addressPrefix.Equals("0.0.0.0/0", StringComparison.Ordinal))
         {
             return string.IsNullOrWhiteSpace(nextHopType)
-                ? "Default route 0.0.0.0/0 was not drawn. Next hop type was not stored."
-                : $"Default route 0.0.0.0/0 was not drawn. Next hop type is {nextHopType}.";
+                ? "Default route 0.0.0.0/0 was not drawn. Next hop type was not stored. This is not observed traffic."
+                : $"Default route 0.0.0.0/0 was not drawn. Next hop type is {nextHopType}. This is not observed traffic.";
         }
 
         if (string.IsNullOrWhiteSpace(resolvedNextHopName))

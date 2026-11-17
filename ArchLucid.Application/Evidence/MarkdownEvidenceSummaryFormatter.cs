@@ -26,10 +26,14 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
 
         sb.AppendLine("### Request");
         sb.AppendLine();
-        sb.AppendLine($"- System Name: {evidence.SystemName}");
-        sb.AppendLine($"- Environment: {evidence.Environment}");
-        sb.AppendLine($"- Cloud Provider: {evidence.CloudProvider}");
-        sb.AppendLine($"- Description: {request.Description}");
+        sb.AppendLine(
+            $"- System Name: {MarkdownEvidenceSummaryExportHonesty.FormatInline(evidence.SystemName, MarkdownEvidenceSummaryExportHonesty.SystemNameNotStored)}");
+        sb.AppendLine(
+            $"- Environment: {MarkdownEvidenceSummaryExportHonesty.FormatInline(evidence.Environment, MarkdownEvidenceSummaryExportHonesty.EnvironmentNotStored)}");
+        sb.AppendLine(
+            $"- Cloud Provider: {MarkdownEvidenceSummaryExportHonesty.FormatInline(evidence.CloudProvider, MarkdownEvidenceSummaryExportHonesty.CloudProviderNotStored)}");
+        sb.AppendLine(
+            $"- Description: {MarkdownEvidenceSummaryExportHonesty.FormatInline(request.Description, MarkdownEvidenceSummaryExportHonesty.DescriptionNotStored)}");
 
         if (request.Constraints.Count > 0)
         {
@@ -72,17 +76,24 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
 
             foreach (PolicyEvidence policy in evidence.Policies.OrderBy(p => p.Title))
             {
-                sb.AppendLine($"- **{policy.Title}**");
-                sb.AppendLine($"  - Policy ID: {policy.PolicyId}");
-                sb.AppendLine($"  - Summary: {policy.Summary}");
+                string title = MarkdownEvidenceSummaryExportHonesty.FormatInline(
+                    policy.Title,
+                    MarkdownEvidenceSummaryExportHonesty.PolicyTitleNotStored);
+                sb.AppendLine($"- **{title}**");
+                sb.AppendLine(
+                    $"  - Policy ID: {MarkdownEvidenceSummaryExportHonesty.FormatInline(policy.PolicyId, MarkdownEvidenceSummaryExportHonesty.PolicyIdNotStored)}");
+                sb.AppendLine(
+                    $"  - Summary: {MarkdownEvidenceSummaryExportHonesty.FormatInline(policy.Summary, MarkdownEvidenceSummaryExportHonesty.PolicySummaryNotStored)}");
 
-                if (policy.RequiredControls.Count > 0)
+                sb.AppendLine(
+                    policy.RequiredControls.Count > 0
+                        ? $"  - Required Controls: {string.Join(", ", policy.RequiredControls)}"
+                        : $"  - Required Controls: {MarkdownEvidenceSummaryExportHonesty.RequiredControlsNotStored}");
 
-                    sb.AppendLine($"  - Required Controls: {string.Join(", ", policy.RequiredControls)}");
-
-                if (policy.Tags.Count > 0)
-
-                    sb.AppendLine($"  - Tags: {string.Join(", ", policy.Tags)}");
+                sb.AppendLine(
+                    policy.Tags.Count > 0
+                        ? $"  - Tags: {string.Join(", ", policy.Tags)}"
+                        : $"  - Tags: {MarkdownEvidenceSummaryExportHonesty.TagsNotStored}");
             }
         }
 
@@ -94,17 +105,24 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
 
             foreach (ServiceCatalogEvidence service in evidence.ServiceCatalog.OrderBy(s => s.ServiceName))
             {
-                sb.AppendLine($"- **{service.ServiceName}**");
-                sb.AppendLine($"  - Category: {service.Category}");
-                sb.AppendLine($"  - Summary: {service.Summary}");
+                string serviceName = MarkdownEvidenceSummaryExportHonesty.FormatInline(
+                    service.ServiceName,
+                    MarkdownEvidenceSummaryExportHonesty.ServiceNameNotStored);
+                sb.AppendLine($"- **{serviceName}**");
+                sb.AppendLine(
+                    $"  - Category: {MarkdownEvidenceSummaryExportHonesty.FormatInline(service.Category, MarkdownEvidenceSummaryExportHonesty.ServiceCategoryNotStored)}");
+                sb.AppendLine(
+                    $"  - Summary: {MarkdownEvidenceSummaryExportHonesty.FormatInline(service.Summary, MarkdownEvidenceSummaryExportHonesty.ServiceSummaryNotStored)}");
 
-                if (service.RecommendedUseCases.Count > 0)
+                sb.AppendLine(
+                    service.RecommendedUseCases.Count > 0
+                        ? $"  - Recommended Use Cases: {string.Join(", ", service.RecommendedUseCases)}"
+                        : $"  - Recommended Use Cases: {MarkdownEvidenceSummaryExportHonesty.RecommendedUseCasesNotStored}");
 
-                    sb.AppendLine($"  - Recommended Use Cases: {string.Join(", ", service.RecommendedUseCases)}");
-
-                if (service.Tags.Count > 0)
-
-                    sb.AppendLine($"  - Tags: {string.Join(", ", service.Tags)}");
+                sb.AppendLine(
+                    service.Tags.Count > 0
+                        ? $"  - Tags: {string.Join(", ", service.Tags)}"
+                        : $"  - Tags: {MarkdownEvidenceSummaryExportHonesty.TagsNotStored}");
             }
         }
 
@@ -116,17 +134,24 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
 
             foreach (PatternEvidence pattern in evidence.Patterns.OrderBy(p => p.Name))
             {
-                sb.AppendLine($"- **{pattern.Name}**");
-                sb.AppendLine($"  - Pattern ID: {pattern.PatternId}");
-                sb.AppendLine($"  - Summary: {pattern.Summary}");
+                string patternName = MarkdownEvidenceSummaryExportHonesty.FormatInline(
+                    pattern.Name,
+                    MarkdownEvidenceSummaryExportHonesty.PatternNameNotStored);
+                sb.AppendLine($"- **{patternName}**");
+                sb.AppendLine(
+                    $"  - Pattern ID: {MarkdownEvidenceSummaryExportHonesty.FormatInline(pattern.PatternId, MarkdownEvidenceSummaryExportHonesty.PatternIdNotStored)}");
+                sb.AppendLine(
+                    $"  - Summary: {MarkdownEvidenceSummaryExportHonesty.FormatInline(pattern.Summary, MarkdownEvidenceSummaryExportHonesty.PatternSummaryNotStored)}");
 
-                if (pattern.ApplicableCapabilities.Count > 0)
+                sb.AppendLine(
+                    pattern.ApplicableCapabilities.Count > 0
+                        ? $"  - Applicable Capabilities: {string.Join(", ", pattern.ApplicableCapabilities)}"
+                        : $"  - Applicable Capabilities: {MarkdownEvidenceSummaryExportHonesty.ApplicableCapabilitiesNotStored}");
 
-                    sb.AppendLine($"  - Applicable Capabilities: {string.Join(", ", pattern.ApplicableCapabilities)}");
-
-                if (pattern.SuggestedServices.Count > 0)
-
-                    sb.AppendLine($"  - Suggested Services: {string.Join(", ", pattern.SuggestedServices)}");
+                sb.AppendLine(
+                    pattern.SuggestedServices.Count > 0
+                        ? $"  - Suggested Services: {string.Join(", ", pattern.SuggestedServices)}"
+                        : $"  - Suggested Services: {MarkdownEvidenceSummaryExportHonesty.SuggestedServicesNotStored}");
             }
         }
 
@@ -135,21 +160,25 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             sb.AppendLine();
             sb.AppendLine("### Prior Manifest Context");
             sb.AppendLine();
-            sb.AppendLine($"- Manifest Version: {evidence.PriorManifest.ManifestVersion}");
-            sb.AppendLine($"- Summary: {evidence.PriorManifest.Summary}");
+            sb.AppendLine(
+                $"- Manifest Version: {MarkdownEvidenceSummaryExportHonesty.FormatInline(evidence.PriorManifest.ManifestVersion, MarkdownEvidenceSummaryExportHonesty.ManifestVersionNotStored)}");
+            sb.AppendLine(
+                $"- Summary: {MarkdownEvidenceSummaryExportHonesty.FormatInline(evidence.PriorManifest.Summary, MarkdownEvidenceSummaryExportHonesty.PriorManifestSummaryNotStored)}");
 
-            if (evidence.PriorManifest.ExistingServices.Count > 0)
+            sb.AppendLine(
+                evidence.PriorManifest.ExistingServices.Count > 0
+                    ? $"- Existing Services: {string.Join(", ", evidence.PriorManifest.ExistingServices)}"
+                    : $"- Existing Services: {MarkdownEvidenceSummaryExportHonesty.ExistingServicesNotStored}");
 
-                sb.AppendLine($"- Existing Services: {string.Join(", ", evidence.PriorManifest.ExistingServices)}");
+            sb.AppendLine(
+                evidence.PriorManifest.ExistingDatastores.Count > 0
+                    ? $"- Existing Datastores: {string.Join(", ", evidence.PriorManifest.ExistingDatastores)}"
+                    : $"- Existing Datastores: {MarkdownEvidenceSummaryExportHonesty.ExistingDatastoresNotStored}");
 
-            if (evidence.PriorManifest.ExistingDatastores.Count > 0)
-
-                sb.AppendLine($"- Existing Datastores: {string.Join(", ", evidence.PriorManifest.ExistingDatastores)}");
-
-            if (evidence.PriorManifest.ExistingRequiredControls.Count > 0)
-
-                sb.AppendLine(
-                    $"- Existing Required Controls: {string.Join(", ", evidence.PriorManifest.ExistingRequiredControls)}");
+            sb.AppendLine(
+                evidence.PriorManifest.ExistingRequiredControls.Count > 0
+                    ? $"- Existing Required Controls: {string.Join(", ", evidence.PriorManifest.ExistingRequiredControls)}"
+                    : $"- Existing Required Controls: {MarkdownEvidenceSummaryExportHonesty.ExistingRequiredControlsNotStored}");
         }
 
         if (evidence.Notes.Count <= 0)
@@ -160,8 +189,15 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
         sb.AppendLine();
 
         foreach (EvidenceNote note in evidence.Notes)
-
-            sb.AppendLine($"- **{note.NoteType}**: {note.Message}");
+        {
+            string noteType = MarkdownEvidenceSummaryExportHonesty.FormatInline(
+                note.NoteType,
+                MarkdownEvidenceSummaryExportHonesty.NoteTypeNotStored);
+            string message = MarkdownEvidenceSummaryExportHonesty.FormatInline(
+                note.Message,
+                MarkdownEvidenceSummaryExportHonesty.NoteMessageNotStored);
+            sb.AppendLine($"- **{noteType}**: {message}");
+        }
 
         return sb.ToString();
     }

@@ -40,12 +40,16 @@ export function useReviewPackageWhatIfExecute(baseRunId: string): UseReviewPacka
         const branchDraftId = response.branch.draftId;
         const draftBeforeSubmit = await getDraftRequest(branchDraftId);
         const result = await submitDraftRequest(branchDraftId, draftBeforeSubmit.updatedUtc);
-        const submittedDraft = await getDraftRequest(branchDraftId);
+        const submittedDraft = await getDraftRequest(branchDraftId).catch(() => null);
 
-        upsertArchitectureDraftRegistryEntry(
-          buildArchitectureDraftRegistryEntry(submittedDraft, { linkedReviewId: result.runId }),
-        );
-        await invalidateOperatorHomeRunsCaches();
+        if (submittedDraft !== null) {
+          upsertArchitectureDraftRegistryEntry(
+            buildArchitectureDraftRegistryEntry(submittedDraft, { linkedReviewId: result.runId }),
+          );
+        }
+
+        // A cache refresh failure must not strand a review that has already started.
+        await invalidateOperatorHomeRunsCaches().catch(() => undefined);
         trackReviewPipelineInFlight(result.runId);
         router.push(runDetailHrefWithParentRun(result.runId, baseRunId));
       } catch (error: unknown) {

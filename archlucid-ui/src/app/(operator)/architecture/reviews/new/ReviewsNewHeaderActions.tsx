@@ -1,7 +1,7 @@
 "use client";
 
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import type { ReviewsNewPathMode } from "@/lib/reviews-new-path-copy";
 
 type ReviewsNewHeaderActionsProps = {
@@ -10,7 +10,9 @@ type ReviewsNewHeaderActionsProps = {
 
 /** Header actions for `/architecture/reviews/new` (RNX). */
 export function ReviewsNewHeaderActions(props: ReviewsNewHeaderActionsProps): React.JSX.Element | null {
-  if (isBuyerPolishedOperatorShellEnv()) {
+  const buyerPolishedShell = useProductionEvalChrome();
+
+  if (buyerPolishedShell) {
     return null;
   }
 

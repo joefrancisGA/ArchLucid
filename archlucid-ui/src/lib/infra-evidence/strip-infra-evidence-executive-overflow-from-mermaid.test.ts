@@ -22,17 +22,40 @@ describe("stripExecutiveOverflowNodesFromInfraEvidenceMermaid", () => {
 
   it("removes executive overflow rollup nodes and their edges from display mermaid", () => {
     const source = `flowchart TD
-    executive_overflow_storage["+22 more storage accounts"]
-    executive_overflow_workloads["+13 more compute workloads"]
+    executive_overflow_storage["+22 more storage accounts not on this diagram"]
+    executive_overflow_workloads["+13 more compute workloads not on this diagram"]
     core_vnet["core-vnet"]
     core_vnet --> app_storage`;
 
     const stripped = stripExecutiveOverflowNodesFromInfraEvidenceMermaid(source);
 
-    expect(stripped).not.toContain("+22 more storage accounts");
-    expect(stripped).not.toContain("+13 more compute workloads");
+    expect(stripped).not.toContain("+22 more storage accounts not on this diagram");
+    expect(stripped).not.toContain("+13 more compute workloads not on this diagram");
     expect(stripped).toContain('core_vnet["core-vnet"]');
     expect(stripped).toContain("core_vnet --> app_storage");
+  });
+
+  it("keeps links whose labels or visible endpoint IDs contain an outline-only node ID", () => {
+    const source = `flowchart TD
+    %% al-outline-only=true
+    nsg_app["unresolved NSG"]
+    nsg_app_backup["backup NSG"]
+    core_vnet["core-vnet"]
+    core_vnet -->|"references nsg_app"| nsg_app_backup
+    nsg_app_backup -.-> core_vnet
+    core_vnet -->|"unresolved policy"| nsg_app
+    core_vnet ~~~ nsg_app
+    core_vnet ==>|"unresolved policy"| nsg_app
+    nsg_app-->core_vnet`;
+
+    const stripped = stripExecutiveOverflowNodesFromInfraEvidenceMermaid(source);
+
+    expect(stripped).toContain('core_vnet -->|"references nsg_app"| nsg_app_backup');
+    expect(stripped).toContain("nsg_app_backup -.-> core_vnet");
+    expect(stripped).not.toContain('core_vnet -->|"unresolved policy"| nsg_app');
+    expect(stripped).not.toContain("core_vnet ~~~ nsg_app");
+    expect(stripped).not.toContain('core_vnet ==>|"unresolved policy"| nsg_app');
+    expect(stripped).not.toContain("nsg_app-->core_vnet");
   });
 
   it("leaves non-overflow mermaid unchanged", () => {

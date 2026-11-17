@@ -36,7 +36,7 @@ export function buyerSafeTechnicalIdLabel(raw: string | null | undefined): strin
   }
 
   if (/^demo-/i.test(value) || /^corr-intake-demo/i.test(value) || /^sample-decision-/i.test(value)) {
-    return "Recorded in workspace audit trail";
+    return "Demo seed id — not a customer audit record.";
   }
 
   return value;

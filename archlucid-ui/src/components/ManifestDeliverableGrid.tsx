@@ -104,7 +104,7 @@ export function ManifestDeliverableGrid(props: ManifestDeliverableGridProps): Re
       return;
     }
 
-    const headline = systemName?.trim() ?? "Signed review";
+    const headline = systemName?.trim() ?? "Review title was not stored.";
     const body = [
       `# ${headline}`,
       "",

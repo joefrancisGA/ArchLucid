@@ -2,8 +2,6 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { sortQuickDecisionFindings } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { resolveFindingSemanticSupportBandExportFields } from "@/lib/findings/finding-semantic-support-band-export";
-import { deriveFindingTrustLabelName } from "@/lib/findings/finding-provenance-display";
-
 import {
   DEFAULT_MAX_FINDINGS,
   EXCERPT_CAP,
@@ -36,6 +34,18 @@ function asTrimmedStrings(values: unknown): string[] {
     .map((s) => s.trim());
 }
 
+function asTrimmedStringsOrAbsent(values: unknown): string[] | null {
+  if (values === null || values === undefined) {
+    return null;
+  }
+
+  if (!Array.isArray(values)) {
+    return null;
+  }
+
+  return asTrimmedStrings(values);
+}
+
 /**
  * Maps aggregate explanation API shape into a JSON-safe slice for ADR drafting.
  */
@@ -64,12 +74,12 @@ export function buildAdrExplanationSlice(summary: RunExplanationSummary | null):
   return {
     overallAssessment: typeof summary.overallAssessment === "string" ? summary.overallAssessment.trim() : "",
     riskPosture: typeof summary.riskPosture === "string" ? summary.riskPosture.trim() : "",
-    themeSummaries: asTrimmedStrings(summary.themeSummaries),
+    themeSummaries: asTrimmedStringsOrAbsent(summary.themeSummaries),
     summary: typeof exp?.summary === "string" ? exp.summary.trim() : "",
-    keyDrivers: asTrimmedStrings(exp?.keyDrivers),
-    riskImplications: asTrimmedStrings(exp?.riskImplications),
-    costImplications: asTrimmedStrings(exp?.costImplications),
-    complianceImplications: asTrimmedStrings(exp?.complianceImplications),
+    keyDrivers: asTrimmedStringsOrAbsent(exp?.keyDrivers),
+    riskImplications: asTrimmedStringsOrAbsent(exp?.riskImplications),
+    costImplications: asTrimmedStringsOrAbsent(exp?.costImplications),
+    complianceImplications: asTrimmedStringsOrAbsent(exp?.complianceImplications),
     detailedNarrative: typeof exp?.detailedNarrative === "string" ? exp.detailedNarrative.trim() : "",
     structuredReasoning: typeof structured?.reasoning === "string" ? structured.reasoning.trim() : null,
     alternativesConsidered:
@@ -89,41 +99,8 @@ export function buildAdrExplanationSlice(summary: RunExplanationSummary | null):
   };
 }
 
-function resolveAdrFindingProvenanceKind(finding: QuickDecisionFinding): string | null {
-  const storedTrustLabel = finding.trustLabel?.trim() ?? "";
-
-  if (storedTrustLabel.length === 0) {
-    return null;
-  }
-
-  if (storedTrustLabel.toLowerCase() === "unknown") {
-    return null;
-  }
-
-  const trustLabel = deriveFindingTrustLabelName({
-    trustLabel: storedTrustLabel,
-    policyRuleId: finding.policyRuleId ?? null,
-    evidenceRefCount: finding.evidenceRefCount ?? 0,
-  });
-
-  if (
-    trustLabel === "DeterministicRule"
-    || trustLabel === "DeterministicFallback"
-    || trustLabel === "EvidenceBacked"
-    || trustLabel === "RealModel"
-  ) {
-    return "Asserted";
-  }
-
-  if (
-    trustLabel === "Heuristic"
-    || trustLabel === "Estimated"
-    || trustLabel === "SimulatorDerived"
-  ) {
-    return "Inferred";
-  }
-
-  return storedTrustLabel;
+function resolveAdrFindingProvenanceKind(_finding: QuickDecisionFinding): string | null {
+  return null;
 }
 
 /**
@@ -149,8 +126,10 @@ export function buildAdrGeneratorRunInput(args: {
         ? args.maxFindings
         : DEFAULT_MAX_FINDINGS;
   const explanation = buildAdrExplanationSlice(args.explanationSummary);
+  const mutedFindingCount = args.quickDecisionFindings.filter((finding) => finding.isMuted === true).length;
   const sorted = sortQuickDecisionFindings(args.quickDecisionFindings).filter((f) => f.isMuted !== true);
   const capped = sorted.slice(0, Math.max(0, Math.trunc(maxFindings)));
+  const omittedCappedFindingCount = Math.max(0, sorted.length - capped.length);
   const findings: AdrGeneratorFindingSlice[] = capped.map((f) => {
     const semanticSupportFields = resolveFindingSemanticSupportBandExportFields(f);
 
@@ -178,5 +157,7 @@ export function buildAdrGeneratorRunInput(args: {
     manifestCounts: args.manifestCounts,
     explanation,
     findings,
+    omittedCappedFindingCount,
+    omittedMutedFindingCount: mutedFindingCount,
   };
 }

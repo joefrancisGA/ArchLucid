@@ -16,9 +16,6 @@ public static class ArchitectureIdentityDisplayNameResolver
         if (!string.IsNullOrWhiteSpace(document.SystemName))
             return document.SystemName.Trim();
 
-        if (!string.IsNullOrWhiteSpace(document.FreeTextIntent))
-            return document.FreeTextIntent.Trim();
-
         return ArchitectureIdentityDisplayNameDefaults.UntitledArchitecture;
     }
 

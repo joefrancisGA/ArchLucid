@@ -32,4 +32,9 @@ export const SECURENOW_COMPLIANCE_HOME_ROWS: readonly SecureNowHomeDestinationRo
     label: SECURENOW_NAV_LABELS[SECURENOW_AUDIT_EVIDENCE_PATH],
     summary: "Trace a control to the evidence behind it.",
   },
+  {
+    href: "/administration/securenow-compliance-notes",
+    label: "Duty split",
+    summary: "Who records disposition, and what this product does not certify.",
+  },
 ];

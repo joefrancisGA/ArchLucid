@@ -1,3 +1,5 @@
+import { HOURS_NOT_RETURNED } from "@/lib/amount-display-copy";
+
 import {
   DEFAULT_LOADED_HOURLY_USD,
   HOURS_PER_CRITICAL,
@@ -228,7 +230,7 @@ export function computeRoiSummaryPeriodMetrics(
 
 export function formatRoiSummaryHoursDisplay(hours: number): string {
   if (!Number.isFinite(hours)) {
-    return "Hours not returned";
+    return HOURS_NOT_RETURNED;
   }
 
   if (hours <= 1e-9) {

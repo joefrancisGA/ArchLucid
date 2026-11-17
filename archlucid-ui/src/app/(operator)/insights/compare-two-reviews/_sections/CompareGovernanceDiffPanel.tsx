@@ -27,11 +27,12 @@ export type CompareGovernanceDiffPanelProps = {
   readonly baselineCloudMismatchDetail?: string | null;
   readonly targetCloudMismatchDetail?: string | null;
   readonly targetRunId?: string | null;
+  readonly policyPacksHubPath?: string;
 };
 
 function formatRuleSetLabel(ruleSetId: string | null, ruleSetVersion: string | null): string {
   if (ruleSetId === null) {
-    return "Rule set not returned";
+    return "Rule set id was not stored.";
   }
 
   if (ruleSetVersion !== null && ruleSetVersion.length > 0) {
@@ -41,10 +42,26 @@ function formatRuleSetLabel(ruleSetId: string | null, ruleSetVersion: string | n
   return `${ruleSetId} · Rule set version was not stored.`;
 }
 
+function formatCompareGovernanceChangeSide(
+  value: string | null | undefined,
+  side: "baseline" | "updated",
+): string {
+  if (value === null || value === undefined) {
+    return side === "baseline" ? "Baseline value was not stored." : "Updated value was not stored.";
+  }
+
+  if (value.trim().length === 0) {
+    return side === "baseline" ? "Baseline value was stored empty." : "Updated value was stored empty.";
+  }
+
+  return value;
+}
+
 function renderAtCommitSnapshot(
   label: string,
   manifest: CompareManifestGovernanceSnapshot,
   testIdPrefix: string,
+  policyPacksHubPath?: string,
 ): ReactElement {
   const snapshot: CompareEffectiveGovernanceAtCommitSnapshot | null = manifest.atCommit;
 
@@ -69,7 +86,11 @@ function renderAtCommitSnapshot(
         data-testid={`${testIdPrefix}-empty-at-commit`}
       >
         <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{label}</p>
-        <PolicyAtCommitScopeSummary snapshot={snapshot} testIdPrefix={`${testIdPrefix}-scope`} />
+        <PolicyAtCommitScopeSummary
+          snapshot={snapshot}
+          testIdPrefix={`${testIdPrefix}-scope`}
+          policyPacksHubPath={policyPacksHubPath}
+        />
       </div>
     );
   }
@@ -81,7 +102,11 @@ function renderAtCommitSnapshot(
     >
       <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{label}</p>
       <div className="mt-2">
-        <PolicyAtCommitScopeSummary snapshot={snapshot} testIdPrefix={`${testIdPrefix}-scope`} />
+        <PolicyAtCommitScopeSummary
+          snapshot={snapshot}
+          testIdPrefix={`${testIdPrefix}-scope`}
+          policyPacksHubPath={policyPacksHubPath}
+        />
       </div>
     </div>
   );
@@ -141,6 +166,7 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
                   view.baselineManifest.ruleSetId,
                 view.targetManifest.atCommit?.packAssignments[0]?.policyPackId ?? view.targetManifest.ruleSetId,
               ),
+              props.policyPacksHubPath,
             )}
           >
             Open pack impact preview for this comparison
@@ -203,7 +229,8 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
             >
               <StatusTag kind="needs-attention" label={`Changed ${change.field}`} />
               <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {change.baselineValue ?? "Not returned"} → {change.targetValue ?? "Not returned"}
+                {formatCompareGovernanceChangeSide(change.baselineValue, "baseline")} →{" "}
+                {formatCompareGovernanceChangeSide(change.targetValue, "updated")}
               </p>
             </li>
           ))}
@@ -215,8 +242,18 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
       )}
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2" data-testid="compare-governance-at-commit-section">
-        {renderAtCommitSnapshot("Baseline policy at commit", view.baselineManifest, "compare-governance-baseline")}
-        {renderAtCommitSnapshot("Updated policy at commit", view.targetManifest, "compare-governance-target")}
+        {renderAtCommitSnapshot(
+          "Baseline policy at commit",
+          view.baselineManifest,
+          "compare-governance-baseline",
+          props.policyPacksHubPath,
+        )}
+        {renderAtCommitSnapshot(
+          "Updated policy at commit",
+          view.targetManifest,
+          "compare-governance-target",
+          props.policyPacksHubPath,
+        )}
       </div>
 
       {view.currentEffective !== null ? (

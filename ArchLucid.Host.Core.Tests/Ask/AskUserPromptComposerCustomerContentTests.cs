@@ -35,6 +35,34 @@ public sealed class AskUserPromptComposerCustomerContentTests
     }
 
     [Fact]
+    public void BuildUserPrompt_includes_scope_metadata_note_when_context_snapshot_has_no_scope_fields()
+    {
+        string prompt = AskUserPromptComposer.BuildUserPrompt(
+            contextJson: """{"contextSnapshot":{"requiredCapabilities":"","topologyHints":"","constraints":""}}""",
+            retrievalContext: null,
+            retrievalDegraded: false,
+            historyText: null,
+            question: "What pillars are expected?");
+
+        prompt.Should().Contain(AskWorkloadScopeMetadataHonesty.ScopeMetadataAbsentNote);
+    }
+
+    [Fact]
+    public void BuildUserPrompt_uses_honesty_copy_for_missing_retrieval_and_history()
+    {
+        string prompt = AskUserPromptComposer.BuildUserPrompt(
+            contextJson: "{}",
+            retrievalContext: null,
+            retrievalDegraded: false,
+            historyText: "   ",
+            question: "Q?");
+
+        prompt.Should().Contain("Retrieved evidence was not stored.");
+        prompt.Should().NotContain("(none)");
+        prompt.Should().Contain("Conversation history was stored empty.");
+    }
+
+    [Fact]
     public void BuildUserPrompt_escapes_embedded_delimiter_markers_in_question()
     {
         string prompt = AskUserPromptComposer.BuildUserPrompt(

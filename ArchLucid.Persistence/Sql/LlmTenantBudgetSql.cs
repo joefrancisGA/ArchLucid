@@ -19,6 +19,10 @@ internal static class LlmTenantBudgetSql
                                        UPDATE dbo.LlmDailyTenantTokenWindowState
                                        SET ReservedAssumedTokens = ReservedAssumedTokens + @Add,
                                            LastUpdatedUtc = SYSUTCDATETIME()
+                                       OUTPUT INSERTED.TotalTokens AS TokensConsumed,
+                                              INSERTED.ReservedAssumedTokens AS ReservedTokens,
+                                              INSERTED.WarnedApproaching,
+                                              INSERTED.RowVersion
                                        WHERE TenantId = @TenantId
                                          AND UtcDay = @UtcDay
                                          AND RowVersion = @RowVersion

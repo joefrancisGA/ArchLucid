@@ -16,7 +16,9 @@ public sealed partial class ImprovementSignalAnalyzer
                     SignalType = ImprovementSignalTypes.SecurityRegression,
                     Category = ImprovementSignalCategories.Security,
                     Title = $"Security posture changed: {delta.ControlName}",
-                    Description = $"{delta.BaseStatus ?? "—"} → {delta.TargetStatus ?? "—"}",
+                    Description = ImprovementSignalAnalyzerHonesty.FormatSecurityRegressionDescription(
+                        delta.BaseStatus,
+                        delta.TargetStatus),
                     Severity = ImprovementSignalSeverities.High
                 });
 
@@ -28,8 +30,10 @@ public sealed partial class ImprovementSignalAnalyzer
                 {
                     SignalType = ImprovementSignalTypes.CostIncrease,
                     Category = ImprovementSignalCategories.Cost,
-                    Title = "Estimated cost increased",
-                    Description = $"{delta.BaseCost:0.00} → {delta.TargetCost:0.00}",
+                    Title = "Estimated monthly max cost increased",
+                    Description = ImprovementSignalAnalyzerHonesty.FormatMonthlyCostIncreaseDescription(
+                        delta.BaseCost!.Value,
+                        delta.TargetCost!.Value),
                     Severity = ImprovementSignalSeverities.Medium
                 });
 
@@ -42,7 +46,7 @@ public sealed partial class ImprovementSignalAnalyzer
                     SignalType = ImprovementSignalTypes.DecisionRemoved,
                     Category = ImprovementSignalCategories.Requirement,
                     Title = $"Decision removed: {d.DecisionKey}",
-                    Description = $"Previously: {d.BaseValue ?? "—"}",
+                    Description = ImprovementSignalAnalyzerHonesty.FormatDecisionRemovedDescription(d.BaseValue),
                     Severity = ImprovementSignalSeverities.Medium
                 });
     }

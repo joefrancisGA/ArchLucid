@@ -60,8 +60,8 @@ describe("FindingPolicyCitationHero", () => {
     expect(screen.getByText(/Triggered by policy/)).toBeInTheDocument();
   });
 
-  it("returns null when no citation model data exists", () => {
-    const { container } = render(
+  it("labels omitted policy citation data instead of hiding the hero", () => {
+    render(
       <FindingPolicyCitationHero
         model={{
           pack: null,
@@ -71,6 +71,7 @@ describe("FindingPolicyCitationHero", () => {
       />,
     );
 
-    expect(container.firstChild).toBeNull();
+    expect(screen.getByTestId("finding-policy-citation-hero")).toBeInTheDocument();
+    expect(screen.getByText(/Policy citation details were not stored/i)).toBeInTheDocument();
   });
 });

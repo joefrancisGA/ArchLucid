@@ -90,6 +90,15 @@ public sealed class ApiKeyMaterialNormalizerTests
     }
 
     [Fact]
+    public void Normalize_compose_nfd_key_material_to_nfc_before_invisible_char_stripping()
+    {
+        const string nfc = "architecture-caf\u00e9-key";
+        const string nfd = "architecture-cafe\u0301-key";
+
+        ApiKeyMaterialNormalizer.Normalize(nfd).Should().Be(ApiKeyMaterialNormalizer.Normalize(nfc));
+    }
+
+    [Fact]
     public void Normalize_preserves_case_for_non_hex_key_material()
     {
         ApiKeyMaterialNormalizer.Normalize("api-key-bdr-Admin-aB3x").Should().Be("api-key-bdr-Admin-aB3x");
@@ -129,5 +138,115 @@ public sealed class ApiKeyMaterialNormalizerTests
     public void Normalize_strips_no_break_space_only_material_to_empty()
     {
         ApiKeyMaterialNormalizer.Normalize("\u00A0").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Normalize_strips_embedded_hangul_filler_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\u3164ret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_hangul_filler_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\u3164").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Normalize_strips_embedded_braille_blank_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\u2800ret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_braille_blank_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\u2800").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Normalize_strips_embedded_combining_grapheme_joiner_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\u034Fret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_combining_grapheme_joiner_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\u034F").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Normalize_strips_embedded_variation_selector_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\uFE00ret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_variation_selector_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\uFE00").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Normalize_strips_embedded_combining_grave_tone_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\u0340ret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_embedded_enclosing_mark_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\u0489ret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_enclosing_mark_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\u0489").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Normalize_strips_language_tag_char_embedded_in_key_material()
+    {
+        string withTag = "sec" + char.ConvertFromUtf32(0xE0020) + "ret-admin";
+        ApiKeyMaterialNormalizer.Normalize(withTag).Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_language_tag_char_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize(char.ConvertFromUtf32(0xE0020)).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Normalize_strips_variation_selector_supplement_embedded_in_key_material()
+    {
+        string withVs = "sec" + char.ConvertFromUtf32(0xE0100) + "ret-admin";
+        ApiKeyMaterialNormalizer.Normalize(withVs).Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_variation_selector_supplement_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize(char.ConvertFromUtf32(0xE0100)).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Normalize_strips_replacement_char_embedded_in_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\uFFFDret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_replacement_char_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\uFFFD").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Normalize_strips_ill_formed_utf16_lone_surrogate_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\uD800ret-admin").Should().Be("secret-admin");
     }
 }

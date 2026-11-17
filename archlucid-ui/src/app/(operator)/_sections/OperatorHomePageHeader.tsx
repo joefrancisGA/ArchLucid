@@ -5,10 +5,7 @@ import type { ReactNode } from "react";
 import { OperatorHomeWorkingPrimaryCta } from "@/components/operator-home/OperatorHomeWorkingPrimaryCta";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
-import {
-  PAGE_HELP_SHORT_TRIGGER_TEXT,
-  PageContextualHelpButton,
-} from "@/components/usability/PageContextualHelpButton";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { OPERATOR_HOME_DATA_CURRENCY_PREFIX } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
@@ -105,7 +102,7 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
       }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-header-actions">
-          <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+          <PageContextualHelpButton triggerText={OPERATOR_HOME_PAGE_TITLE} />
           <div
             className="flex flex-wrap items-center gap-2"
             data-testid="operator-home-data-currency"

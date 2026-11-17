@@ -7,12 +7,17 @@ import {
   emptyArchitectureDraftStructuredBrief,
   type ArchitectureDraftStructuredBriefState,
 } from "@/lib/architecture/architecture-draft-structured-brief";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import { isGuidedIntakeDraftSubmitBlocked } from "@/lib/architecture/architecture-draft-intake-mode";
 import {
   areGuidedIntakeClarificationsPersistedForSubmit,
   resolveGuidedIntakeClarificationProgress,
 } from "@/lib/guided-intake-clarification-progress";
+import { GUIDED_INTAKE_CLARIFICATION_SAVED_ON_PAGE_NOT_SUBMITTED } from "@/lib/guided-intake-copy";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { DraftElicitationQuestion, DraftRequestStatus } from "@/types/draft-intake";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
@@ -91,6 +96,8 @@ export type GuidedIntakeDraftWorkflow = ReturnType<typeof useGuidedIntakeDraftWo
 export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowOptions) {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const guidedIntakeViewAllClarificationsOpenParam = searchParams.get("guidedIntakeViewAllClarificationsOpen");
   const urlViewAllClarifications = parseGuidedIntakeViewAllClarificationsOpenFromSearch(
     guidedIntakeViewAllClarificationsOpenParam,
@@ -126,32 +133,43 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const [viewAllClarifications, setViewAllClarificationsState] = useState(urlViewAllClarifications);
   const viewAllClarificationsRef = useRef(viewAllClarifications);
   viewAllClarificationsRef.current = viewAllClarifications;
+  const pendingViewAllClarificationsUrlSyncRef = useRef(false);
 
   const syncViewAllClarificationsToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        guidedIntakeViewAllClarificationsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        guidedIntakeViewAllClarificationsDisclosureHrefFromSearch(
+          searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+          open,
+          pathname,
+        ),
         { notify: false },
       );
     },
     [pathname],
   );
 
-  const setViewAllClarifications = useCallback(
-    (value: SetStateAction<boolean>) => {
-      setViewAllClarificationsState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
+  const setViewAllClarifications = useCallback((value: SetStateAction<boolean>) => {
+    setViewAllClarificationsState((current) => {
+      const next = typeof value === "function" ? value(current) : value;
 
-        if (viewAllClarificationsRef.current !== next) {
-          viewAllClarificationsRef.current = next;
-          syncViewAllClarificationsToUrl(next);
-        }
+      if (viewAllClarificationsRef.current !== next) {
+        pendingViewAllClarificationsUrlSyncRef.current = true;
+        viewAllClarificationsRef.current = next;
+      }
 
-        return next;
-      });
-    },
-    [syncViewAllClarificationsToUrl],
-  );
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!pendingViewAllClarificationsUrlSyncRef.current) {
+      return;
+    }
+
+    pendingViewAllClarificationsUrlSyncRef.current = false;
+    syncViewAllClarificationsToUrl(viewAllClarifications);
+  }, [syncViewAllClarificationsToUrl, viewAllClarifications]);
 
   useEffect(() => {
     if (viewAllClarificationsRef.current !== urlViewAllClarifications) {
@@ -163,7 +181,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   useEffect(() => {
     const syncViewAllClarificationsFromUrl = (): void => {
       const next = parseGuidedIntakeViewAllClarificationsOpenFromSearch(
-        new URLSearchParams(window.location.search).get("guidedIntakeViewAllClarificationsOpen"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "guidedIntakeViewAllClarificationsOpen"),
       );
 
       if (viewAllClarificationsRef.current === next) {
@@ -298,7 +316,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
         const answer = answers[questionKey]?.trim() ?? "";
 
         if (answer.length > 0) {
-          return { kind: "ready", label: "Answered" };
+          return { kind: "draft", label: GUIDED_INTAKE_CLARIFICATION_SAVED_ON_PAGE_NOT_SUBMITTED };
         }
 
         return { kind: "draft", label: "Skipped" };

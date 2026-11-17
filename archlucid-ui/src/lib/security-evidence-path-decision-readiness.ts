@@ -1,5 +1,15 @@
 import type { RemediationInstanceSummary } from "@/lib/infra-evidence/infra-evidence-remediation-types";
-import type { SecurityEvidencePathDetail, SecurityEvidencePathRankDetail } from "@/lib/security-evidence-path-types";
+import {
+  SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED,
+  type SecurityEvidencePathDetail,
+  type SecurityEvidencePathRankDetail,
+} from "@/lib/security-evidence-path-types";
+
+function isHopEvidenceMissing(evidenceReference: string): boolean {
+  const trimmed = evidenceReference.trim();
+
+  return trimmed.length === 0 || trimmed === SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED;
+}
 
 export type PathDecisionReadiness = {
   readonly status: "READY_FOR_REVIEW" | "VERIFY_EVIDENCE";
@@ -16,11 +26,26 @@ export function buildPathDecisionReadiness(
 ): PathDecisionReadiness {
   const issues: string[] = [];
   if (path.hops.length === 0) issues.push("No path hops are available for inspection.");
-  if (path.hops.some((hop) => !hop.evidenceReference.trim())) {
+  if (path.hops.some((hop) => isHopEvidenceMissing(hop.evidenceReference))) {
     issues.push("One or more hops lack a source evidence reference.");
   }
-  if (path.hops.some((hop) => hop.provenanceKind !== "ObservedFact")) {
-    issues.push("At least one hop is inferred; confirm it before treating this path as observed access.");
+  for (const hop of path.hops) {
+    const kind = hop.provenanceKind?.trim() ?? "";
+    if (kind.length === 0) {
+      issues.push("Provenance was not stored on at least one hop.");
+      continue;
+    }
+    if (kind === "HumanAssertion") {
+      issues.push("At least one hop is a human assertion, not observed access.");
+      continue;
+    }
+    if (kind === "DerivedFact") {
+      issues.push("At least one hop is derived, not observed access.");
+      continue;
+    }
+    if (kind === "DeterministicInference" || kind === "AiInference") {
+      issues.push("At least one hop is inferred; confirm it before treating this path as observed access.");
+    }
   }
   if (rank != null && (rank.pathId !== path.pathId || rank.snapshotId !== path.snapshotId)) {
     issues.push("Rank and inspected path refer to different path or snapshot identities.");

@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Contracts.Governance;
@@ -69,10 +70,20 @@ public sealed class RecurrenceCompletionNotificationService(
         using (AmbientScopeContext.Push(scope))
         {
             Task<IReadOnlyList<ArchLucid.Contracts.Agents.AgentResult>> leftTask =
-                _agentResultRepository.GetRollupProjectionByRunIdAsync(scope, leftRunId, cancellationToken);
+                AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                    _agentResultRepository,
+                    scope,
+                    leftRunId,
+                    useRollupProjection: true,
+                    cancellationToken);
 
             Task<IReadOnlyList<ArchLucid.Contracts.Agents.AgentResult>> rightTask =
-                _agentResultRepository.GetRollupProjectionByRunIdAsync(scope, rightRunId, cancellationToken);
+                AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                    _agentResultRepository,
+                    scope,
+                    rightRunId,
+                    useRollupProjection: true,
+                    cancellationToken);
 
             await Task.WhenAll(leftTask, rightTask).ConfigureAwait(false);
 

@@ -14,6 +14,7 @@ import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu"
 import { ArtifactPreviewSponsorExportVocabularyRail } from "@/components/ArtifactPreviewSponsorExportVocabularyRail";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
 import { SponsorRoiBaselineGateNotice } from "@/components/SponsorRoiBaselineGateNotice";
+import { SecureNowInvestigationEffortSyntheticExamplePanel } from "@/components/product-line/SecureNowInvestigationEffortSyntheticExamplePanel";
 import { SponsorRehearsalPreviewPanel } from "@/components/reviews/SponsorRehearsalPreviewPanel";
 import type { SponsorRehearsalPreviewInput } from "@/lib/sponsor-rehearsal-preview";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ import {
   EXTRACTION_FIDELITY_GATE_MESSAGE,
   isExtractionFidelityGateSatisfied,
 } from "@/lib/review-quality/finalize-quality-scorecard";
+import { resolveReviewUrlStatePathname } from "@/lib/architecture/review-url-state-pathname";
 import type { ManifestSummary, RunSummary, RunTrustEvidenceCard } from "@/types/authority";
 import {
   parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch,
@@ -76,7 +78,8 @@ export function ReviewPackageSponsorHandoffStrip(
   const lowExtractionConfidenceCount = lowExtractionConfidenceCountKnown
     ? Math.max(0, Math.trunc(props.lowExtractionConfidenceCount!))
     : 0;
-  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const pathnameFromRoute = usePathname();
+  const pathname = pathnameFromRoute ?? resolveReviewUrlStatePathname(null, props.runId);
   const searchParams = useSearchParams();
   const urlMoreExportsOpen = parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(
     searchParams.get(REVIEW_PACKAGE_SPONSOR_HANDOFF_MORE_EXPORTS_OPEN_PARAM),
@@ -174,9 +177,25 @@ export function ReviewPackageSponsorHandoffStrip(
         {RUN_DETAIL_SPONSOR_HANDOFF_TITLE}
       </h2>
       <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)}>
-        {RUN_DETAIL_SPONSOR_HANDOFF_LEAD}
+        {!lowExtractionConfidenceCountKnown
+          ? "A sponsor download is not available until the low-confidence field count loads."
+          : RUN_DETAIL_SPONSOR_HANDOFF_LEAD}
       </p>
       <SponsorRoiBaselineGateNotice isFinalized />
+      <details
+        className="mt-3 rounded-md border border-neutral-200 bg-al-surface px-3 py-2 dark:border-neutral-800"
+        data-testid="review-package-sponsor-roi-synthetic-disclosure"
+      >
+        <summary className={cn("cursor-pointer select-none font-medium", OPERATOR_TYPOGRAPHY.body)}>
+          Synthetic ROI worksheet (training numbers)
+        </summary>
+        <div className="mt-3">
+          <SecureNowInvestigationEffortSyntheticExamplePanel
+            testId="review-package-sponsor-roi-synthetic-example"
+            headingId="review-package-sponsor-roi-synthetic-heading"
+          />
+        </div>
+      </details>
       {!lowExtractionConfidenceCountKnown ? (
         <p
           className={cn("m-0 mt-3 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
@@ -204,8 +223,8 @@ export function ReviewPackageSponsorHandoffStrip(
               {EXTRACTION_FIDELITY_GATE_MESSAGE}
             </Label>
             <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-              {lowExtractionConfidenceCount} critical finding
-              {lowExtractionConfidenceCount === 1 ? "" : "s"} were extracted with low confidence.
+              {lowExtractionConfidenceCount} Critical or Error severity finding
+              {lowExtractionConfidenceCount === 1 ? "" : "s"} were stored with Low confidence.
             </p>
           </div>
         </div>

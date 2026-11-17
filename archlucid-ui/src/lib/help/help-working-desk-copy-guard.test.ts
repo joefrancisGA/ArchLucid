@@ -52,7 +52,7 @@ describe("help working desk copy guard (AO-42 / WA-04)", () => {
 
     expect(gettingStartedSource).toContain("useWorkspaceMode");
     expect(gettingStartedSource).toContain("resolveGettingStartedHelpQuickStartTitle");
-    expect(gettingStartedSource).toContain("HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE");
+    expect(gettingStartedSource).toContain("evaluatingProductHelpSectionTitle");
 
     expect(corePilotSource).toContain("useWorkspaceMode");
     expect(corePilotSource).toContain("resolveCorePilotHelpSummaryTitle");

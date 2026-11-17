@@ -41,12 +41,23 @@ internal static class ComparisonRecordRunIdSql
         return !Guid.TryParse(value.Trim(), out Guid g) ? value.Trim() : g.ToString("N");
     }
 
+    internal static bool StoredRunIdMatchesLookup(string? storedRunId, string lookupRunId)
+    {
+        string? canonicalLookup = ToCanonicalRunIdStringOrNull(lookupRunId);
+        if (canonicalLookup is null)
+            return false;
+
+        string? canonicalStored = ToCanonicalRunIdStringOrNull(storedRunId);
+        return canonicalStored is not null
+               && string.Equals(canonicalStored, canonicalLookup, StringComparison.Ordinal);
+    }
+
     internal static void ThrowIfNonEmptyButNotGuid(string? value, string paramName)
     {
         if (string.IsNullOrWhiteSpace(value))
             return;
 
-        if (!Guid.TryParse(value, out _))
+        if (!Guid.TryParse(value.Trim(), out _))
             throw new ArgumentException("Run id must be empty or parseable as a RFC GUID when using SQL persistence.", paramName);
     }
 
@@ -55,6 +66,6 @@ internal static class ComparisonRecordRunIdSql
         if (string.IsNullOrWhiteSpace(value))
             return null;
 
-        return Guid.TryParse(value, out Guid g) ? g : null;
+        return Guid.TryParse(value.Trim(), out Guid g) ? g : null;
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -33,13 +33,11 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         StepTiming tGet = new("GET /v1/architecture/manifest/{version}");
 
         tCreate.Sw.Start();
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-E2E-{Guid.NewGuid():N}")));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-E2E-{Guid.NewGuid():N}"));
         tCreate.Sw.Stop();
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+                CreateRunResponseDto? created =
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         tSeed.Sw.Start();
@@ -48,11 +46,10 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         tSeed.Sw.Stop();
         await seedResponse.EnsureSuccessForTestAsync();
         tCommit.Sw.Start();
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         tCommit.Sw.Stop();
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commit =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+                CommitRunResponseDto? commit =
+            await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commit!.Manifest.Metadata.ManifestVersion;
         manifestVersion.Should().NotBeNullOrWhiteSpace();
 
@@ -101,21 +98,18 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
 
     private async Task<(string ManifestVersion, string RunId, CommitRunResponseDto Commit)> CreateCommittedRunAsync()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-MANIFEST-{Guid.NewGuid():N}")));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-MANIFEST-{Guid.NewGuid():N}"));
+                CreateRunResponseDto? created =
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage seedResponse =
             await Client.PostAsync($"/v1/internal/architecture/runs/{runId}/seed-fake-results", null);
         await seedResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commit =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
+                CommitRunResponseDto? commit =
+            await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commit!.Manifest.Metadata.ManifestVersion;
         manifestVersion.Should().NotBeNullOrWhiteSpace();
         return (manifestVersion, runId, commit);

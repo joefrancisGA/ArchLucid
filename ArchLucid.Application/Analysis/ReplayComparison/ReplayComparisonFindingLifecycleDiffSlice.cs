@@ -42,6 +42,7 @@ public sealed class ReplayComparisonFindingLifecycleDiffSlice(
             leftFindings,
             rightFindings);
         context.Report.FindingCorrelation = ComparisonFindingCorrelationMetadataBuilder.Build(correlation);
+        ComparisonFindingCorrelationMetadataNormalizer.NormalizeInPlace(context.Report.FindingCorrelation);
 
         CrossReviewFindingLifecycleResult lifecycle = await _crossReviewFindingLifecycleService.BuildAsync(
             new CrossReviewFindingLifecycleRequest

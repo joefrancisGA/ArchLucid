@@ -41,7 +41,7 @@ describe("RunsListContinueLastViewedRow", () => {
 
     expect(screen.getByTestId("runs-list-continue-last-viewed-open")).toHaveAttribute(
       "href",
-      "/architecture/architectures/architecture-identity-001/reviews/run-1",
+      "/architecture/architectures/architecture-identity-001?highlightReviewId=run-1",
     );
   });
 });

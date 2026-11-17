@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let searchParams = new URLSearchParams("");
 
@@ -117,6 +117,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
 
@@ -127,9 +132,74 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 });
 
 import { fetchRemediationInstanceDetail } from "@/lib/infra-evidence/infra-evidence-remediation-api";
+import type { RemediationInstanceDetail } from "@/lib/infra-evidence/infra-evidence-remediation-types";
 import { RemediationWorkbenchClient } from "./RemediationWorkbenchClient";
 
+const defaultRemediationInstanceDetail: RemediationInstanceDetail = {
+  instance: {
+    instanceId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    findingId: "22222222-2222-2222-2222-222222222222",
+    patternKey: "storage.encrypt-at-rest",
+    status: "PreflightBlocked",
+    automationLevel: "Guided",
+    cloudResourceId: "33333333-3333-3333-3333-333333333333",
+    waveId: null,
+    createdUtc: "2026-09-01T12:00:00Z",
+    updatedUtc: "2026-09-01T12:00:00Z",
+  },
+  finding: null,
+  activeMatch: null,
+  evidence: [],
+  verifiedRemediationAssociations: [],
+};
+
 describe("RemediationWorkbenchClient SecureNow /security/remediation-instances", () => {
+  beforeEach(() => {
+    vi.mocked(fetchRemediationInstanceDetail).mockReset();
+    vi.mocked(fetchRemediationInstanceDetail).mockResolvedValue(defaultRemediationInstanceDetail);
+  });
+
+  it.each(["response", "error"])("ignores a late detail %s for the previous instance", async (outcome) => {
+    const currentInstanceId = "bbbbbbbb-cccc-dddd-eeee-ffffffffffff";
+    const olderDetail = {
+      ...defaultRemediationInstanceDetail,
+      instance: { ...defaultRemediationInstanceDetail.instance, patternKey: "older.pattern" },
+    };
+    const currentDetail = {
+      ...defaultRemediationInstanceDetail,
+      instance: { ...defaultRemediationInstanceDetail.instance, instanceId: currentInstanceId, patternKey: "current.pattern" },
+    };
+    let completeOldRequest = () => {
+      throw new Error("Expected the first instance request to start.");
+    };
+    vi.mocked(fetchRemediationInstanceDetail)
+      .mockImplementationOnce(() => new Promise((resolve, reject) => {
+        completeOldRequest = () => {
+          if (outcome === "error") {
+            reject(new Error("Previous detail failed."));
+          } else {
+            resolve(olderDetail);
+          }
+        };
+      }))
+      .mockResolvedValue(currentDetail);
+
+    searchParams = new URLSearchParams({ instanceId: olderDetail.instance.instanceId });
+    const { rerender } = render(<RemediationWorkbenchClient />);
+    expect(fetchRemediationInstanceDetail).toHaveBeenCalledWith(olderDetail.instance.instanceId);
+
+    searchParams = new URLSearchParams({ instanceId: currentInstanceId });
+    rerender(<RemediationWorkbenchClient />);
+    expect(await screen.findByRole("heading", { name: "current.pattern" })).toBeInTheDocument();
+
+    await act(async () => {
+      completeOldRequest();
+    });
+
+    expect(screen.queryByRole("heading", { name: "current.pattern" })).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-remediation-load-error-panel")).toBeNull();
+  });
+
   it("renders context strip, refresh control, and blocked lifecycle reasons", async () => {
     searchParams = new URLSearchParams("");
     render(<RemediationWorkbenchClient />);
@@ -162,21 +232,8 @@ describe("RemediationWorkbenchClient SecureNow /security/remediation-instances",
     const verificationSnapshotId = "44444444-4444-4444-4444-444444444444";
     const controlId = "SC-28";
 
-    vi.mocked(fetchRemediationInstanceDetail).mockResolvedValueOnce({
-      instance: {
-        instanceId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-        findingId: "22222222-2222-2222-2222-222222222222",
-        patternKey: "storage.encrypt-at-rest",
-        status: "PreflightBlocked",
-        automationLevel: "Guided",
-        cloudResourceId: "33333333-3333-3333-3333-333333333333",
-        waveId: null,
-        createdUtc: "2026-09-01T12:00:00Z",
-        updatedUtc: "2026-09-01T12:00:00Z",
-      },
-      finding: null,
-      activeMatch: null,
-      evidence: [],
+    vi.mocked(fetchRemediationInstanceDetail).mockResolvedValue({
+      ...defaultRemediationInstanceDetail,
       verifiedRemediationAssociations: [
         {
           associationId: "assoc-1",
@@ -216,10 +273,7 @@ describe("RemediationWorkbenchClient SecureNow /security/remediation-instances",
 
     fireEvent.click(await screen.findByTestId("infra-remediation-card-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"));
 
-    await waitFor(() => {
-      expect(screen.getByTestId("infra-remediation-preflight-blocked-reason")).toBeInTheDocument();
-    });
-
+    expect(await screen.findByTestId("infra-remediation-preflight-blocked-reason")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-remediation-verified-associations")).not.toBeInTheDocument();
   });
 });

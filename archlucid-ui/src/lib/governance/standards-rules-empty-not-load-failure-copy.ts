@@ -1,0 +1,2 @@
+export const STANDARDS_RULES_EMPTY_NOT_LOAD_FAILURE_LINE =
+  "No expectation keys match the current filters while the standards list loaded successfully — this empty view is not a failed load." as const;

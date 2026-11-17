@@ -149,15 +149,19 @@ describe("AlertTuningContent TB-1590", () => {
   });
 
   it("tuning form source avoids raw html input and button elements", () => {
-    const source = readFileSync(
+    const formSource = readFileSync(
       join(process.cwd(), "src", "components", "alerts", "AlertTuningForm.tsx"),
       "utf8",
     );
+    const recommendSource = readFileSync(
+      join(process.cwd(), "src", "components", "alerts", "AlertTuningForm-recommend.tsx"),
+      "utf8",
+    );
 
-    expect(source).not.toMatch(/<input\b/);
-    expect(source).not.toMatch(/<button\b/);
-    expect(source).toContain('data-testid="alert-tuning-recommend-submit"');
-    expect(source).toContain('variant="primary"');
+    expect(formSource).not.toMatch(/<input\b/);
+    expect(formSource).not.toMatch(/<button\b/);
+    expect(recommendSource).toContain('data-testid="alert-tuning-recommend-submit"');
+    expect(recommendSource).toContain('variant="primary"');
   });
 });
 

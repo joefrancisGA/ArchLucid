@@ -147,4 +147,44 @@ public sealed class AzureInventoryMessagingAssociationEdgeMapperTests
             && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(archiveId)
             && r.InferenceSource == GraphEdgeInferenceSources.InventoryServiceBusForwardTo);
     }
+
+    [Fact]
+    public void MapAssociations_matches_forward_target_when_child_name_differs_only_by_case()
+    {
+        const string namespaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/sbns";
+        const string ordersId = $"{namespaceId}/queues/orders";
+        const string archiveId = $"{namespaceId}/queues/archive";
+
+        List<AzureInventoryMessagingAssociationRow> associations =
+        [
+            new()
+            {
+                ParentResourceId = namespaceId,
+                ChildResourceId = ordersId,
+                ChildName = "orders",
+                ChildType = AzureInventoryMessagingAssociationTypes.ServiceBusQueue,
+                ForwardToName = "Archive",
+            },
+            new()
+            {
+                ParentResourceId = namespaceId,
+                ChildResourceId = archiveId,
+                ChildName = "archive",
+                ChildType = AzureInventoryMessagingAssociationTypes.ServiceBusQueue,
+            },
+        ];
+
+        List<AzureInventoryResourceRelationshipWrite> relationships = [];
+        AzureInventoryMessagingAssociationEdgeMapper.MapAssociations(
+            associations,
+            relationships,
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase),
+            []);
+
+        relationships.Should().Contain(r =>
+            r.FromAzureResourceId == ArmResourceIdNormalizer.Normalize(ordersId)
+            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(archiveId)
+            && r.InferenceSource == GraphEdgeInferenceSources.InventoryServiceBusForwardTo);
+    }
 }

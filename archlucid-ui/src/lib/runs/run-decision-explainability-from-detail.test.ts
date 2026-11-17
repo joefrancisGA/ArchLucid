@@ -59,6 +59,38 @@ describe("resolveRunDecisionExplainabilityFromDetail", () => {
     expect(model?.manifestHonestyWarnings).toHaveLength(1);
   });
 
+  it("keeps coordinator decisions when confidence is missing", () => {
+    const detail = {
+      decisionExplainability: {
+        coordinatorDecisionNodes: [
+          {
+            decisionId: "node-no-confidence",
+            topic: "RetentionPolicy",
+            rationale: "Policy retained.",
+          },
+        ],
+      },
+    } as RunDetail;
+
+    const model = resolveRunDecisionExplainabilityFromDetail(detail);
+
+    expect(model?.coordinatorDecisionNodes).toHaveLength(1);
+    expect(model?.coordinatorDecisionNodes[0]?.confidence).toBeNull();
+    expect(model?.coordinatorDecisionNodes[0]?.selectedOption).toBe("Selected option was not stored.");
+  });
+
+  it("labels missing authority rule audit as not stored", () => {
+    const detail = {
+      decisionExplainability: {
+        coordinatorDecisionNodes: [],
+      },
+    } as RunDetail;
+
+    const model = resolveRunDecisionExplainabilityFromDetail(detail);
+
+    expect(model?.authorityRuleAudit).toBeNull();
+  });
+
   it("uses omission copy for absent decision explainability fields", () => {
     const detail = {
       decisionExplainability: {
@@ -95,6 +127,20 @@ describe("resolveRunDecisionExplainabilityFromDetail", () => {
     expect(model?.findingEngineFailures[0]?.errorMessage).toBe("Error message was not stored.");
   });
 
+  it("labels omitted decision ids without using unknown", () => {
+    const detail = {
+      decisionExplainability: {
+        manifestDecisions: [{ category: "Security" }],
+        coordinatorDecisionNodes: [{ topic: "Topology" }],
+      },
+    } as RunDetail;
+
+    const model = resolveRunDecisionExplainabilityFromDetail(detail);
+
+    expect(model?.manifestDecisions?.[0]?.decisionId).toBe("Decision id was not stored.");
+    expect(model?.coordinatorDecisionNodes?.[0]?.decisionId).toBe("Decision id was not stored.");
+  });
+
   it("distinguishes omitted id lists from stored empty lists on authority audit", () => {
     const detail = {
       decisionExplainability: {
@@ -110,6 +156,7 @@ describe("resolveRunDecisionExplainabilityFromDetail", () => {
 
     const model = resolveRunDecisionExplainabilityFromDetail(detail);
 
+    expect(model?.authorityRuleAudit?.pipeline).toBe("Pipeline was not stored.");
     expect(model?.authorityRuleAudit?.appliedRuleIds).toBeNull();
     expect(model?.authorityRuleAudit?.acceptedFindingIds).toBeNull();
     expect(model?.manifestDecisions).toEqual([]);
@@ -134,5 +181,21 @@ describe("resolveRunDecisionExplainabilityFromDetail", () => {
     expect(model?.coordinatorDecisionNodes).toBeNull();
     expect(model?.findingEngineFailures).toBeNull();
     expect(model?.authorityRuleAudit?.appliedRuleIds).toEqual([]);
+  });
+
+  it("uses stored omission copy for missing prompt template version", () => {
+    const detail = {
+      decisionExplainability: {
+        authorityRuleAudit: {
+          ruleSetId: "baseline",
+          ruleSetVersion: "1.0",
+          promptRefs: [{ templateId: "tpl-1", templateVersion: "  " }],
+        },
+      },
+    } as RunDetail;
+
+    const model = resolveRunDecisionExplainabilityFromDetail(detail);
+
+    expect(model?.authorityRuleAudit?.promptRefs[0]?.templateVersion).toBe("Template version was not stored.");
   });
 });

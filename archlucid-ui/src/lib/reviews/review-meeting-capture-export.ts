@@ -13,13 +13,26 @@ export const PACKAGE_PRINT_MEETING_CAPTURE_SECTION_ID = "package-print-meeting-c
 
 export const REVIEW_MEETING_CAPTURE_QUESTION_NOT_STORED = "Question was not stored." as const;
 export const REVIEW_MEETING_CAPTURE_ANSWER_NOT_STORED = "Answer was not stored." as const;
+export const REVIEW_MEETING_CAPTURE_QUESTION_KEY_STORED_EMPTY = "Question key was stored empty." as const;
 
 export function formatReviewMeetingCaptureQuestionLabel(questionLabel: string): string {
-  return questionLabel.trim().length > 0 ? questionLabel : REVIEW_MEETING_CAPTURE_QUESTION_NOT_STORED;
+  if (questionLabel.length === 0) {
+    return REVIEW_MEETING_CAPTURE_QUESTION_KEY_STORED_EMPTY;
+  }
+
+  if (questionLabel.trim().length === 0) {
+    return REVIEW_MEETING_CAPTURE_QUESTION_KEY_STORED_EMPTY;
+  }
+
+  return `Question text was not stored. Key: ${questionLabel.trim()}.`;
 }
 
-export function formatReviewMeetingCaptureAnswer(answer: string): string {
-  return answer.trim().length > 0 ? answer : REVIEW_MEETING_CAPTURE_ANSWER_NOT_STORED;
+export function formatReviewMeetingCaptureAnswer(answer: string | null | undefined): string {
+  if (answer === null || answer === undefined) {
+    return REVIEW_MEETING_CAPTURE_ANSWER_NOT_STORED;
+  }
+
+  return formatReviewMeetingCaptureAnswerLine(answer);
 }
 
 export type ReviewMeetingCaptureEntry = {
@@ -58,7 +71,15 @@ export function buildReviewMeetingCaptureMetaParts(
 
 /** Strips the presenter answer key prefix (`answer.`) for human-readable export labels. */
 export function formatReviewMeetingCaptureQuestionLine(questionLabel: string): string {
+  if (questionLabel.length === 0 || questionLabel.trim().length === 0) {
+    return REVIEW_MEETING_CAPTURE_QUESTION_KEY_STORED_EMPTY;
+  }
+
   const key = presenterAssertedQuestionLabel(questionLabel);
+
+  if (key.length === 0) {
+    return REVIEW_MEETING_CAPTURE_QUESTION_KEY_STORED_EMPTY;
+  }
 
   return `Question text was not stored. Key: ${key}.`;
 }
@@ -116,8 +137,10 @@ export function resolveReviewMeetingCaptureEntries(
   return buildReviewMeetingCaptureEntries(listPresenterAssertedAnswerEntries(trail));
 }
 
-export function hasReviewMeetingCapture(entries: readonly ReviewMeetingCaptureEntry[]): boolean {
-  return entries.length > 0;
+export function hasReviewMeetingCapture(
+  entries: readonly ReviewMeetingCaptureEntry[] | null | undefined,
+): boolean {
+  return entries !== null && entries !== undefined && entries.length > 0;
 }
 
 export function formatReviewMeetingCapturePlainText(
@@ -130,7 +153,7 @@ export function formatReviewMeetingCapturePlainText(
   const lines: string[] = [REVIEW_MEETING_CAPTURE_DISCLAIMER, ""];
 
   for (const entry of entries) {
-    lines.push(`Q: ${formatReviewMeetingCaptureQuestionLabel(entry.questionLabel)}`);
+    lines.push(`Q: ${formatReviewMeetingCaptureQuestionLine(entry.questionLabel)}`);
     lines.push(`A: ${formatReviewMeetingCaptureAnswer(entry.answer)}`);
 
     const metaParts = buildReviewMeetingCaptureMetaParts(entry);

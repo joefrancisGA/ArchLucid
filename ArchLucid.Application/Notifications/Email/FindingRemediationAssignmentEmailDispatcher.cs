@@ -68,7 +68,9 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
         string? operatorBase = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(emailOptions.OperatorBaseUrl);
 
         string trimmedFindingId = findingId.Trim();
-        string trimmedTitle = string.IsNullOrWhiteSpace(findingTitle) ? trimmedFindingId : findingTitle.Trim();
+        string trimmedTitle = string.IsNullOrWhiteSpace(findingTitle)
+            ? "Finding title was not stored."
+            : findingTitle.Trim();
         string displayFindingTitle = EmailHeaderFragmentSanitizer.Sanitize(trimmedTitle);
         string runHex = runId.ToString("N");
         string idempotencyKey =

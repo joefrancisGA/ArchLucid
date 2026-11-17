@@ -51,11 +51,11 @@ export function resolveShellHeaderSearchLabel(
     return "Search review change comparison";
   }
 
-  if (path.startsWith("/governance/findings")) {
+  if (path.startsWith("/governance/findings") || path.startsWith("/compliance/findings")) {
     return "Search findings";
   }
 
-  if (path.startsWith("/governance")) {
+  if (path.startsWith("/governance") || path.startsWith("/compliance")) {
     return "Search policy record";
   }
 
@@ -111,7 +111,7 @@ export function resolveShellHeaderSearchPlaceholder(
     return "Jump to sponsor report, evidence graph, finalized review record — or type a destination…";
   }
 
-  if (path.startsWith("/governance")) {
+  if (path.startsWith("/governance") || path.startsWith("/compliance")) {
     return "Jump to audit trail, findings, sponsor report…";
   }
 

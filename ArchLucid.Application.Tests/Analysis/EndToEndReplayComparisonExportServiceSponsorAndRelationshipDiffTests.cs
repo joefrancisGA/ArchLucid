@@ -1,4 +1,6 @@
-﻿using ArchLucid.Application.Analysis;
+﻿using System.Globalization;
+
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 
 using FluentAssertions;
@@ -25,7 +27,7 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
         EndToEndReplayComparisonExportService sut = new(formatter.Object);
         EndToEndReplayComparisonReport report = new()
         {
-            LeftRunId = "L-exec", RightRunId = "R-exec", RunDiff = new RunMetadataDiffResult { ChangedFields = ["Alpha"], RequestIdsDiffer = true }
+            LeftRunId = "L-exec", RightRunId = "R-exec", RunDiff = new RunMetadataDiffResult { ChangedFields = ["RequestId"], RequestIdsDiffer = true }
         };
 
         string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Sponsor);
@@ -119,9 +121,9 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
         string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Detailed);
 
         md.Should().Contain("### Added Relationships");
-        md.Should().Contain("s1 -> t1 (calls)");
+        md.Should().Contain("s1 -> t1 (calls). Relationship description was not stored.");
         md.Should().Contain("### Removed Relationships");
-        md.Should().Contain("s2 -> t2 (reads)");
+        md.Should().Contain("s2 -> t2 (reads). Relationship description was not stored.");
     }
 
     [SkippableFact]
@@ -136,8 +138,10 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
 
         string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
 
-        html.Should().Contain("Added relationship: s1 -&gt; t1 (calls)");
-        html.Should().Contain("Removed relationship: s2 -&gt; t2 (reads)");
+        html.Should().Contain(
+            "Added relationship: s1 -&gt; t1 (calls). Relationship description was not stored.");
+        html.Should().Contain(
+            "Removed relationship: s2 -&gt; t2 (reads). Relationship description was not stored.");
     }
 
     [SkippableFact]
@@ -179,6 +183,55 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
         html.Should().Contain("Removed warning: stale inventory");
     }
 
+    [Fact]
+    public void GenerateHtml_detailed_keeps_dotted_agent_confidence_when_current_culture_uses_comma_decimal()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = ArchLucid.Contracts.Common.AgentType.Topology,
+                        LeftExists = true,
+                        RightExists = true,
+                        LeftConfidence = 0.42,
+                        RightConfidence = 0.88,
+                    }
+                ]
+            }
+        };
+
+        CultureInfo previous = CultureInfo.CurrentCulture;
+        CultureInfo commaDecimal = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+        commaDecimal.NumberFormat.NumberDecimalSeparator = ",";
+        commaDecimal.NumberFormat.NumberGroupSeparator = ".";
+
+        try
+        {
+            CultureInfo.CurrentCulture = commaDecimal;
+            string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
+            html.Should().Contain("Left Confidence: 0.42");
+            html.Should().Contain("Right Confidence: 0.88");
+            html.Should().NotContain("0,42");
+            html.Should().NotContain("0,88");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previous;
+        }
+    }
+
     [SkippableFact]
     public void GenerateHtml_detailed_includes_export_request_flag_and_value_diffs()
     {
@@ -201,8 +254,8 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
                     ChangedTopLevelFields = ["TemplateProfile"],
                     RequestDiff = new ExportRecordRequestDiff
                     {
-                        ChangedFlags = ["IncludeAppendix"],
-                        ChangedValues = ["Format: Pdf -> Docx"],
+                        ChangedFlags = ["IncludeEvidence"],
+                        ChangedValues = ["TemplateProfile"],
                     },
                 }
             ]
@@ -210,8 +263,8 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
 
         string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
 
-        html.Should().Contain("Changed request flag: IncludeAppendix");
-        html.Should().Contain("Changed request value: Format: Pdf -&gt; Docx");
+        html.Should().Contain("Changed request flag: IncludeEvidence");
+        html.Should().Contain("Changed request value: TemplateProfile");
     }
 
     [SkippableFact]

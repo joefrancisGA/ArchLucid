@@ -45,4 +45,26 @@ describe("resolveContinueLastDigestSubscription", () => {
     expect(match?.subscriptionId).toBe("newer");
     expect(match?.name).toBe("Newer");
   });
+
+  it("orders deliveries by instant and ignores unreadable delivery timestamps", () => {
+    const match = resolveContinueLastDigestSubscription([
+      subscription({
+        subscriptionId: "invalid",
+        name: "Invalid",
+        lastDeliveredUtc: "not-a-timestamp",
+      }),
+      subscription({
+        subscriptionId: "older",
+        name: "Older",
+        lastDeliveredUtc: "2026-08-20T01:00:00+02:00",
+      }),
+      subscription({
+        subscriptionId: "newer",
+        name: "Newer",
+        lastDeliveredUtc: "2026-08-20T00:30:00Z",
+      }),
+    ]);
+
+    expect(match?.subscriptionId).toBe("newer");
+  });
 });

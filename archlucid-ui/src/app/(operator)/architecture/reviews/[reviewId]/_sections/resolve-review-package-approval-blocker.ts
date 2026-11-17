@@ -19,7 +19,7 @@ export function resolveReviewPackageApprovalBlockerKind(
     return "incomplete-assessment";
   }
 
-  if (input.blockingFindingCount > 0) {
+  if (input.blockingFindingCount !== null && input.blockingFindingCount > 0) {
     return "blocking-findings";
   }
 
@@ -33,7 +33,7 @@ export function buildReviewPackageRerunHref(runId: string): string {
 export function resolveReviewPackageBlockerHelperText(
   blockerKind: ReviewPackageApprovalBlockerKind,
   input: {
-    readonly blockingFindingCount: number;
+    readonly blockingFindingCount: number | null;
     readonly commitBlockedSummary: string | null;
   },
 ): string | null {
@@ -42,6 +42,10 @@ export function resolveReviewPackageBlockerHelperText(
     case "finding-coverage-failed":
       return input.commitBlockedSummary;
     case "blocking-findings": {
+      if (input.blockingFindingCount === null) {
+        return null;
+      }
+
       const count = Math.trunc(input.blockingFindingCount);
       const verb = count === 1 ? "blocks" : "block";
 

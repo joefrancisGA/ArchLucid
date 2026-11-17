@@ -684,6 +684,13 @@
       "ownerNote": null
     },
     {
+      "typeName": "ArchLucid.Api.Controllers.Authority.CollectionRunsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
       "typeName": "ArchLucid.Api.Controllers.Authority.DocxExportController",
       "capability": "authority",
       "productLine": "architecture",
@@ -1419,6 +1426,13 @@
       "ownerNote": null
     },
     {
+      "typeName": "ArchLucid.Api.Controllers.OperationalSecurity.OperationalSecurityInvestigationEffortController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
       "typeName": "ArchLucid.Api.Controllers.OperationalSecurity.OperationalSecurityPathsController",
       "capability": "infra-evidence",
       "productLine": "both",
@@ -1898,6 +1912,12 @@
       "ownerNote": null
     },
     {
+      "namespacePrefix": "ArchLucid.Application.CapacityPlanning",
+      "capability": "platform",
+      "status": "disputed",
+      "ownerNote": "Unclassified Application folder 'CapacityPlanning'."
+    },
+    {
       "namespacePrefix": "ArchLucid.Application.Clarifications",
       "capability": "authority",
       "status": "assigned",
@@ -2214,6 +2234,12 @@
       "capability": "platform",
       "status": "assigned",
       "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.SecureNow",
+      "capability": "platform",
+      "status": "disputed",
+      "ownerNote": "Unclassified Application folder 'SecureNow'."
     },
     {
       "namespacePrefix": "ArchLucid.Application.SponsorDigest",

@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Persistence.InfraEvidence;
@@ -25,4 +26,7 @@ public sealed class NoOpAuditAssessmentRepository : IAuditAssessmentRepository
         AuditAssessmentStatus status,
         CancellationToken cancellationToken = default)
         => Task.CompletedTask;
+    // Disabled persistence explicitly ignores scoped status mutations.
+    public Task UpdateStatusInScopeAsync(ProjectScopeKey scope, AuditAssessmentStatusMutation mutation,
+        CancellationToken cancellationToken = default) => Task.CompletedTask;
 }

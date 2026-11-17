@@ -36,14 +36,14 @@ describe("resolveActiveTenantContext", () => {
       false,
     );
 
-    expect(context.displayName).toBe("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    expect(context.displayName).toBe(TENANT_ORGANIZATION_NAME_UNAVAILABLE);
     expect(context.workspaceLabel).toBe("Pilot workspace");
   });
 
   it("falls back to dev scope headers when storage is empty", () => {
     const context = resolveActiveTenantContext(null, false);
 
-    expect(context.displayName).toBe(DEV_SCOPE_TENANT_ID);
+    expect(context.displayName).toBe(TENANT_ORGANIZATION_NAME_UNAVAILABLE);
   });
 });
 

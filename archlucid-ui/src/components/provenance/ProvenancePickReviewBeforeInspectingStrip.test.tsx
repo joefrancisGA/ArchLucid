@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { ProvenancePickReviewBeforeInspectingStrip } from "./ProvenancePickReviewBeforeInspectingStrip";
 
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({
-  useWorkspaceActiveRun: () => ({ runId: "run-prov-1", displayTitle: "Claims review" }),
+  useWorkspaceActiveRun: () => ({ activeRunId: "run-prov-1", displayTitle: "Claims review" }),
 }));
 
 vi.mock("@/components/AskRunIdPicker", () => ({

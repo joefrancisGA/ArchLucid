@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import {
   POLICY_PACKS_STANDARDS_COMPACT_LINE,
@@ -41,5 +43,12 @@ describe("policy-packs-standards-vocabulary (TB-2239)", () => {
     expect(resolvePolicyPacksStandardsPeerLink("standards-and-rules")).toEqual(
       POLICY_PACKS_STANDARDS_POLICY_PACKS_LINK,
     );
+  });
+
+  it("uses SecureNow compliance hubs when the security product line is active", () => {
+    const model = buildPolicyPacksStandardsVocabulary("security");
+
+    expect(model.policyPacksLink.href).toBe(SECURENOW_POLICY_PACKS_PATH);
+    expect(model.standardsLink.href).toBe(SECURENOW_STANDARDS_AND_RULES_PATH);
   });
 });

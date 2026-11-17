@@ -174,7 +174,7 @@ public sealed class PilotValueReportService(
                 RunId = runRef.RunId,
                 CreatedUtc = detail.Run.CreatedUtc,
                 CommittedUtc = committedUtc,
-                SystemName = detail.Manifest?.SystemName ?? string.Empty
+                SystemName = FormatPilotValueReportSystemName(detail.Manifest?.SystemName)
             });
         }
 
@@ -328,4 +328,19 @@ public sealed class PilotValueReportService(
     }
 
     private readonly record struct CommittedRunRef(string RunId, DateTime CreatedUtc);
+
+    private static string FormatPilotValueReportSystemName(string? systemName)
+    {
+        if (systemName is null)
+        {
+            return "System name was not stored.";
+        }
+
+        if (string.IsNullOrWhiteSpace(systemName))
+        {
+            return "System name was stored empty.";
+        }
+
+        return systemName.Trim();
+    }
 }

@@ -1,6 +1,8 @@
 "use client";
 
+import { useMemo, type ReactNode } from "react";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -13,20 +15,34 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
+import { remediationFactoryAttackPathReportErrorRecovery } from "@/lib/remediation-factory/remediation-factory-error-recovery";
 import type { SecurityEvidencePathAttackPathReport } from "@/lib/security-evidence-path-types";
 import { cn } from "@/lib/utils";
 
+import {
+  REMEDIATION_FACTORY_ATTACK_PATH_LOADING,
+  REMEDIATION_FACTORY_ATTACK_PATH_REPORT_LEAD,
+  REMEDIATION_FACTORY_ATTACK_PATH_REPORT_TITLE,
+  REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_EMPTY,
+  REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_TITLE,
+  REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_EMPTY,
+  REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_TITLE,
+} from "./remediation-factory-attack-path-report-copy";
+import { formatRemediationFactoryAttackPathOverflowLine } from "@/lib/remediation-factory/remediation-factory-attack-path-overflow-honesty-copy";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { REMEDIATION_FACTORY_ATTACK_PATH_PARTIAL_RERANK_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-partial-rerank-copy";
+import { REMEDIATION_FACTORY_ATTACK_PATH_TABLE_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-table-partial-capture-copy";
+import { REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_ONLY_PARTIAL_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-unevaluated-only-partial-copy";
+import {
+  attackPathReportPathChipOverflowLine,
+  formatAttackPathReportPathChipLabel,
+} from "@/lib/remediation-factory/attack-path-report-path-chip-label";
 import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
 import {
+  ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY,
   ATTACK_PATH_REPORT_NO_SNAPSHOT,
   ATTACK_PATH_REPORT_RANKED_SNAPSHOT_HINT,
 } from "./resolve-attack-path-report-snapshot-id";
-
-const REPORT_LEAD =
-  "Vulnerable means the recorded band is Confirmed, Highly likely, or Probable. This page does not claim exploitability or observed traffic.";
-
-const VULNERABLE_EMPTY = "No vulnerable attack paths in this snapshot.";
-const UNEVALUATED_EMPTY = "No unevaluated areas were recorded for this snapshot.";
 
 const MAX_PATH_LINKS = 5;
 
@@ -48,15 +64,25 @@ export function RemediationFactoryAttackPathReportSection(props: {
   readonly onSelectPath: (pathId: string) => void;
   readonly awaitingRankedSnapshot: boolean;
   readonly showRankedSnapshotHint: boolean;
+  readonly partialCapture?: boolean;
+  readonly partialCaptureSnapshotId?: string | null;
 }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const partialCaptureReturnPath = useMemo(() => {
+    const query = searchParams.toString();
+
+    return query.length > 0 ? `${pathname}?${query}` : pathname;
+  }, [pathname, searchParams]);
+
   if (props.snapshotId === null) {
     return (
-      <section className="space-y-2" aria-label="Attack path report" data-testid="attack-path-report-section">
-        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Attack path report</h2>
-        <p className={OPERATOR_TYPOGRAPHY.helper}>{REPORT_LEAD}</p>
+      <section className="space-y-2" aria-label={REMEDIATION_FACTORY_ATTACK_PATH_REPORT_TITLE} data-testid="attack-path-report-section">
+        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{REMEDIATION_FACTORY_ATTACK_PATH_REPORT_TITLE}</h2>
+        <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_ATTACK_PATH_REPORT_LEAD}</p>
         {props.awaitingRankedSnapshot ? (
           <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-awaiting-ranked">
-            Loading attack path report…
+            {REMEDIATION_FACTORY_ATTACK_PATH_LOADING}
           </p>
         ) : (
           <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-snapshot-required">
@@ -68,27 +94,33 @@ export function RemediationFactoryAttackPathReportSection(props: {
   }
 
   return (
-    <section className="space-y-4" aria-label="Attack path report" data-testid="attack-path-report-section">
+    <section className="space-y-4" aria-label={REMEDIATION_FACTORY_ATTACK_PATH_REPORT_TITLE} data-testid="attack-path-report-section">
       <header className="space-y-1">
-        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Attack path report</h2>
-        <p className={OPERATOR_TYPOGRAPHY.helper}>{REPORT_LEAD}</p>
+        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{REMEDIATION_FACTORY_ATTACK_PATH_REPORT_TITLE}</h2>
+        <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_ATTACK_PATH_REPORT_LEAD}</p>
         {props.showRankedSnapshotHint ? (
           <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-ranked-snapshot-hint">
             {ATTACK_PATH_REPORT_RANKED_SNAPSHOT_HINT}
           </p>
         ) : null}
+        {props.partialCapture === true ? (
+          <SecureNowPartialCaptureRecoveryParagraph
+            testId="attack-path-report-partial-capture"
+            partialCaptureSnapshotId={props.partialCaptureSnapshotId ?? null}
+            returnPath={partialCaptureReturnPath}
+            middleLine={REMEDIATION_FACTORY_ATTACK_PATH_PARTIAL_RERANK_LINE}
+            cloudConnectionsTestId="attack-path-report-partial-capture-cloud-connections"
+            extractUploadTestId="attack-path-report-partial-capture-extract-upload"
+          />
+        ) : null}
       </header>
 
       {props.reportQuery.isLoading ? (
-        <p className={OPERATOR_TYPOGRAPHY.helper}>Loading attack path report…</p>
+        <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_ATTACK_PATH_LOADING}</p>
       ) : props.reportQuery.isError ? (
         <>
           <OperatorErrorRecoveryContract
-            presentation={{
-              whatFailed: "Attack path report did not load.",
-              whatIsIntact: "The snapshot selection and ranked path table stay on this page.",
-              nextStep: "Retry the load. This does not change Azure.",
-            }}
+            presentation={remediationFactoryAttackPathReportErrorRecovery()}
             testId="attack-path-report-error-recovery"
           />
           <RefreshButton
@@ -100,72 +132,116 @@ export function RemediationFactoryAttackPathReportSection(props: {
         </>
       ) : props.reportQuery.isSuccess && props.reportQuery.data ? (
         <>
-          <div className="space-y-2">
-            <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>Vulnerable attack paths</h3>
-            {props.reportQuery.data.vulnerableAttackPaths.length === 0 ? (
-              <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-vulnerable-empty">
-                {VULNERABLE_EMPTY}
-              </p>
-            ) : (
-              <RemediationFactoryRankedPathsTable
-                rows={props.reportQuery.data.vulnerableAttackPaths}
-                selectedPathId={props.selectedPathId}
-                onSelect={props.onSelectPath}
-                scopeLabel="Attack path report · vulnerable"
-                totalCount={props.reportQuery.data.vulnerableAttackPaths.length}
-                page={1}
-                pageSize={props.reportQuery.data.vulnerableAttackPaths.length}
-                showSortKeyColumn={false}
-              />
-            )}
-          </div>
+          {props.partialCapture === true ? (
+            <p
+              className={OPERATOR_TYPOGRAPHY.helper}
+              data-testid="attack-path-report-table-partial-capture"
+            >
+              {REMEDIATION_FACTORY_ATTACK_PATH_TABLE_PARTIAL_CAPTURE_LINE}
+            </p>
+          ) : null}
+          {props.partialCapture === true
+          && props.reportQuery.data.vulnerableAttackPaths.length === 0
+          && props.reportQuery.data.unevaluatedGroups.length > 0 ? (
+            <p
+              className={OPERATOR_TYPOGRAPHY.helper}
+              data-testid="attack-path-report-unevaluated-only-partial"
+            >
+              {REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_ONLY_PARTIAL_LINE}
+            </p>
+          ) : null}
+          {props.reportQuery.data.vulnerableAttackPaths.length === 0
+          && props.reportQuery.data.unevaluatedGroups.length === 0 ? (
+            <p
+              className={OPERATOR_TYPOGRAPHY.helper}
+              data-testid="attack-path-report-diagram-filter-empty"
+            >
+              {ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY}
+            </p>
+          ) : null}
+          <RemediationFactoryAttackPathReportSubsection
+            title={REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_TITLE}
+            emptyTestId="attack-path-report-vulnerable-empty"
+            emptyCopy={REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_EMPTY}
+            isEmpty={props.reportQuery.data.vulnerableAttackPaths.length === 0}
+          >
+            <RemediationFactoryRankedPathsTable
+              rows={props.reportQuery.data.vulnerableAttackPaths}
+              selectedPathId={props.selectedPathId}
+              onSelect={props.onSelectPath}
+              scopeLabel="Attack path report · vulnerable"
+              totalCount={props.reportQuery.data.vulnerableAttackPaths.length}
+              page={1}
+              pageSize={props.reportQuery.data.vulnerableAttackPaths.length}
+              showSortKeyColumn={false}
+            />
+          </RemediationFactoryAttackPathReportSubsection>
 
-          <div className="space-y-2">
-            <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>Could not be fully evaluated</h3>
-            {props.reportQuery.data.unevaluatedGroups.length === 0 ? (
-              <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-unevaluated-empty">
-                {UNEVALUATED_EMPTY}
-              </p>
-            ) : (
-              <EnterpriseTable ariaLabel="Could not be fully evaluated" role="grid">
-                <EnterpriseTableHead>
-                  <EnterpriseTableRow>
-                    <EnterpriseTableHeaderCell>Reason</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Paths</EnterpriseTableHeaderCell>
+          <RemediationFactoryAttackPathReportSubsection
+            title={REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_TITLE}
+            emptyTestId="attack-path-report-unevaluated-empty"
+            emptyCopy={REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_EMPTY}
+            isEmpty={props.reportQuery.data.unevaluatedGroups.length === 0}
+          >
+            <EnterpriseTable ariaLabel={REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_TITLE} role="grid">
+              <EnterpriseTableHead>
+                <EnterpriseTableRow>
+                  <EnterpriseTableHeaderCell>Reason</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Paths</EnterpriseTableHeaderCell>
+                </EnterpriseTableRow>
+              </EnterpriseTableHead>
+              <EnterpriseTableBody>
+                {props.reportQuery.data.unevaluatedGroups.map((group) => (
+                  <EnterpriseTableRow key={`${group.reasonCode}-${group.engineName ?? "paths"}`}>
+                    <EnterpriseTableCell>
+                      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{group.whyText}</p>
+                      {group.engineName !== null ? (
+                        <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                          Engine: {group.engineName}
+                          {group.pathsEmitted !== null ? ` · Paths emitted: ${group.pathsEmitted}` : null}
+                        </p>
+                      ) : null}
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell>
+                      {group.pathIds.length === 0 ? (
+                        <span className={OPERATOR_TYPOGRAPHY.helper}>—</span>
+                      ) : (
+                        <UnevaluatedPathLinks
+                          pathIds={group.pathIds}
+                          pathCount={group.pathCount}
+                          onSelectPath={props.onSelectPath}
+                        />
+                      )}
+                    </EnterpriseTableCell>
                   </EnterpriseTableRow>
-                </EnterpriseTableHead>
-                <EnterpriseTableBody>
-                  {props.reportQuery.data.unevaluatedGroups.map((group) => (
-                    <EnterpriseTableRow key={`${group.reasonCode}-${group.engineName ?? "paths"}`}>
-                      <EnterpriseTableCell>
-                        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{group.whyText}</p>
-                        {group.engineName !== null ? (
-                          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-                            Engine: {group.engineName}
-                            {group.pathsEmitted !== null ? ` · Paths emitted: ${group.pathsEmitted}` : null}
-                          </p>
-                        ) : null}
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        {group.pathIds.length === 0 ? (
-                          <span className={OPERATOR_TYPOGRAPHY.helper}>—</span>
-                        ) : (
-                          <UnevaluatedPathLinks
-                            pathIds={group.pathIds}
-                            pathCount={group.pathCount}
-                            onSelectPath={props.onSelectPath}
-                          />
-                        )}
-                      </EnterpriseTableCell>
-                    </EnterpriseTableRow>
-                  ))}
-                </EnterpriseTableBody>
-              </EnterpriseTable>
-            )}
-          </div>
+                ))}
+              </EnterpriseTableBody>
+            </EnterpriseTable>
+          </RemediationFactoryAttackPathReportSubsection>
         </>
       ) : null}
     </section>
+  );
+}
+
+function RemediationFactoryAttackPathReportSubsection(props: {
+  readonly title: string;
+  readonly emptyTestId: string;
+  readonly emptyCopy: string;
+  readonly isEmpty: boolean;
+  readonly children: ReactNode;
+}) {
+  return (
+    <div className="space-y-2">
+      <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{props.title}</h3>
+      {props.isEmpty ? (
+        <p className={OPERATOR_TYPOGRAPHY.helper} data-testid={props.emptyTestId}>
+          {props.emptyCopy}
+        </p>
+      ) : (
+        props.children
+      )}
+    </div>
   );
 }
 
@@ -175,27 +251,41 @@ function UnevaluatedPathLinks(props: {
   readonly onSelectPath: (pathId: string) => void;
 }) {
   const visible = props.pathIds.slice(0, MAX_PATH_LINKS);
-  const remaining = (props.pathCount ?? props.pathIds.length) - visible.length;
+  const linkedCount = props.pathIds.length;
+  const storedPathCount = props.pathCount ?? linkedCount;
+  const displayCount = storedPathCount < linkedCount ? linkedCount : storedPathCount;
+  const remaining = displayCount - visible.length;
+  const pathChipOverflowLine = attackPathReportPathChipOverflowLine(props.pathIds);
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className={OPERATOR_TYPOGRAPHY.helper}>{props.pathCount ?? props.pathIds.length}</span>
-      {visible.map((pathId) => (
-        <Link
-          key={pathId}
-          href={`#path-${pathId}`}
-          className={cn(OPERATOR_LINK.inline, "font-mono text-xs")}
-          onClick={(event) => {
-            event.preventDefault();
-            props.onSelectPath(pathId);
-          }}
-          data-testid={`attack-path-report-path-link-${pathId}`}
-        >
-          {pathId}
-        </Link>
-      ))}
-      {remaining > 0 ? (
-        <span className={OPERATOR_TYPOGRAPHY.helper}>and {remaining} more</span>
+    <div className="space-y-1">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className={OPERATOR_TYPOGRAPHY.helper}>{displayCount}</span>
+        {visible.map((pathId) => (
+          <Link
+            key={pathId}
+            href={`#path-${pathId}`}
+            className={cn(OPERATOR_LINK.inline, "font-mono text-xs")}
+            title={pathId}
+            onClick={(event) => {
+              event.preventDefault();
+              props.onSelectPath(pathId);
+            }}
+            data-testid={`attack-path-report-path-link-${pathId}`}
+          >
+            {formatAttackPathReportPathChipLabel(pathId)}
+          </Link>
+        ))}
+        {remaining > 0 ? (
+          <span className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-overflow-honesty">
+            {formatRemediationFactoryAttackPathOverflowLine(remaining)}
+          </span>
+        ) : null}
+      </div>
+      {pathChipOverflowLine !== null ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="attack-path-report-path-chip-overflow">
+          {pathChipOverflowLine}
+        </p>
       ) : null}
     </div>
   );

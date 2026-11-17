@@ -7,6 +7,21 @@ title = "ArchLucid"
 [extend]
 useDefault = true
 
+# OIDC bug-hunt narrative uses "PKCE storage-key isolation, primary/supplemental
+# authorize redirect cleanup". Gitleaks generic-api-key captured exactly the
+# 20-character phrase "primary/supplemental" (entropy 3.584184) from commit
+# 65b95208, ledger line 3030. This is prose, NOT a credential. Require BOTH
+# the exact detected token and this one documentation path; never exempt the
+# whole ledger or generic API-key rule, so actual secrets still fail the gate.
+[[allowlists]]
+description = "OIDC review prose (AL_BUG_HUNT_LEDGER_3.md): only primary/supplemental, not an API key"
+paths = [
+  '''(?:^|/)docs/library/AL_BUG_HUNT_LEDGER_3\.md$''',
+]
+regexes = [
+  "^primary/supplemental$",
+]
+
 # v8.25+ requires [[allowlists]]; legacy [allowlist] is ignored (unlike rules.allowlist migration).
 # Path-only: gitleaks global allowlists default to condition AND; mixing these paths with
 # regexes below would require BOTH path and a regex match per finding — so eval fixtures
@@ -178,6 +193,34 @@ paths = [
 description = "First-pilot proof collector: ASP.NET configuration key names in remediation text only (no credential values); generic-api-key false positives on ArchLucidAuth paths"
 paths = [
   '''(?:^|/)scripts/collect-first-pilot-proof\.ps1$''',
+]
+
+
+# Historical-blob exemptions only: gitleaks scans full git history (ci.yml fetch-depth: 0) and
+# flagged two retired ledger phrases that were since rewritten at HEAD. Each entry is rule-scoped
+# (AND-matched: ledger path AND the exact non-secret literal), so every other rule and every other
+# finding keeps scanning all current and future ledger content.
+[[allowlists]]
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+description = "AL_BUG_HUNT_LEDGER_3 historical blob: `PKCE storage-key isolation, primary/supplemental` seed-hunt prose (PKCE storage-key is a browser storage slot name, `primary/supplemental` a flow pair — not a credential); generic-api-key false positive on the `storage-key ... primary/supplemental` shape, rewritten at HEAD"
+paths = [
+  '''(?:^|/)docs/library/AL_BUG_HUNT_LEDGER_[0-9]+\.md$''',
+]
+regexes = [
+  '''storage-key isolation, primary/supplemental''',
+]
+
+[[allowlists]]
+targetRules = ["github-pat"]
+condition = "AND"
+description = "AL_BUG_HUNT_LEDGER_4 historical blob: synthetic `ghp_` + alphabet-digits example input in a credential-detector candidate row (documentation placeholder, not a real PAT — never reuse); github-pat false positive, rewritten at HEAD"
+paths = [
+  '''(?:^|/)docs/library/AL_BUG_HUNT_LEDGER_[0-9]+\.md$''',
+]
+regexes = [
+  '''ghp_abcdefghijklmnopqrstuvwxyz1234567890''',
 ]
 
 [[allowlists]]

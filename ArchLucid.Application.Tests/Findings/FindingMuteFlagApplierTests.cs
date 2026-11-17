@@ -41,4 +41,30 @@ public sealed class FindingMuteFlagApplierTests
         b.IsMuted.Should().BeFalse();
         b.MuteReason.Should().BeNull();
     }
+
+    [Fact]
+    public void Apply_when_findings_set_to_null_uses_coalesced_empty_list()
+    {
+        AgentResult result = new()
+        {
+            ResultId = "r1",
+            TaskId = "t1",
+            RunId = "run1",
+            Findings =
+            [
+                new ArchitectureFinding { FindingId = "a", Message = "m1" }
+            ]
+        };
+
+        result.Findings = null!;
+
+        result.Findings.Should().BeEmpty();
+
+        Dictionary<string, FindingMuteFlag> flags = new(StringComparer.Ordinal)
+        {
+            ["a"] = new FindingMuteFlag(true, "noise")
+        };
+
+        FindingMuteFlagApplier.Apply([result], flags);
+    }
 }

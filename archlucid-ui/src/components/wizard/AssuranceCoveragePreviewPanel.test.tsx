@@ -92,4 +92,41 @@ describe("AssuranceCoveragePreviewPanel", () => {
       exclusionReason: "",
     });
   });
+
+  it("labels missing recommendation rationale and omitted cloud honestly", async () => {
+    vi.spyOn(coveragePreviewApi, "postCoveragePreview").mockResolvedValue({
+      focusedPilotModeEnabled: true,
+      summaryLine: "Preview",
+      providerNeutralBaselineCount: 1,
+      organizationRequiredCount: 0,
+      platformOverlayCount: 0,
+      contextualRecommendedCount: 0,
+      additionalOptionalCount: 0,
+      assignments: [
+        {
+          policyPackId: "11111111-1111-1111-1111-111111111111",
+          policyPackDisplayName: "Security Architecture Baseline",
+          policyPackVersion: "1.0.0",
+          coverageType: "ProviderNeutralBaseline",
+          selectionState: "AlwaysActive",
+          includedInRunEvaluation: true,
+          evaluationVersion: "preview-v1",
+        },
+      ],
+    });
+
+    renderWithQuery(
+      <AssuranceCoveragePreviewPanel
+        focusedPilotModeEnabled
+        cloudProvider=""
+        packOverrides={[]}
+        onPackOverrideChange={() => undefined}
+      />,
+    );
+
+    expect(
+      screen.getByText("Cloud was not stored, so this coverage preview was not evaluated."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Recommendation rationale was not stored.")).not.toBeInTheDocument();
+  });
 });

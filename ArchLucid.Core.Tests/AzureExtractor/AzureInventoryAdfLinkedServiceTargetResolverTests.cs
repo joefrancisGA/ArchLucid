@@ -31,6 +31,50 @@ public sealed class AzureInventoryAdfLinkedServiceTargetResolverTests
     }
 
     [Fact]
+    public void TryResolveTargetArmId_resolves_blob_linked_service_when_host_uses_uppercase_domain()
+    {
+        const string storageArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string factoryArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new()
+            {
+                AzureResourceId = storageArmId,
+                ResourceType = "Microsoft.Storage/storageAccounts",
+                Name = "sa1",
+            },
+        ];
+
+        AzureInventoryAdfLinkedServiceRow linkedService = new()
+        {
+            FactoryResourceId = factoryArmId,
+            LinkedServiceName = "BlobLs",
+            TargetHost = "SA1.BLOB.CORE.WINDOWS.NET",
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        };
+
+        Dictionary<string, string> visibleArmIds =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildVisibleArmIdSet(resources);
+        Dictionary<string, string> hostIndex =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
+
+        bool resolved = AzureInventoryAdfLinkedServiceTargetResolver.TryResolveTargetArmId(
+            linkedService,
+            visibleArmIds,
+            hostIndex,
+            out string? targetArmId,
+            out ProvenanceKind provenanceKind,
+            out _);
+
+        resolved.Should().BeTrue();
+        targetArmId.Should().Be(ArmResourceIdNormalizer.Normalize(storageArmId));
+        provenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+    }
+
+    [Fact]
     public void BuildHostIndex_omits_ambiguous_storage_hosts()
     {
         List<AzureExtractorExtendedResourceRow> resources =
@@ -237,6 +281,76 @@ public sealed class AzureInventoryAdfLinkedServiceTargetResolverTests
     }
 
     [Fact]
+    public void BuildHostIndex_maps_managed_redis_azure_net_host_when_location_present()
+    {
+        const string redisArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Cache/redis/myaccount";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new()
+            {
+                AzureResourceId = redisArmId,
+                ResourceType = "Microsoft.Cache/redis",
+                Name = "myaccount",
+                Location = "eastus",
+            },
+        ];
+
+        Dictionary<string, string> hostIndex =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
+
+        hostIndex.Should().ContainKey("myaccount.redis.cache.windows.net");
+        hostIndex.Should().ContainKey("myaccount.eastus.redis.azure.net");
+        hostIndex.Should().ContainKey("myaccount.privatelink.eastus.redis.azure.net");
+        hostIndex["myaccount.eastus.redis.azure.net"].Should().Be(ArmResourceIdNormalizer.Normalize(redisArmId));
+    }
+
+    [Fact]
+    public void TryResolveTargetArmId_infers_redis_linked_service_from_managed_redis_hostname()
+    {
+        const string factoryArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
+        const string redisArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Cache/redis/myaccount";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new()
+            {
+                AzureResourceId = redisArmId,
+                ResourceType = "Microsoft.Cache/redis",
+                Name = "myaccount",
+                Location = "eastus",
+            },
+        ];
+
+        Dictionary<string, string> visibleArmIds =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildVisibleArmIdSet(resources);
+        Dictionary<string, string> hostIndex =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
+        AzureInventoryAdfLinkedServiceRow row = new()
+        {
+            FactoryResourceId = factoryArmId,
+            LinkedServiceName = "RedisLinkedService",
+            LinkedServiceType = "AzureRedisCache",
+            TargetHost = "myaccount.eastus.redis.azure.net",
+        };
+
+        bool resolved = AzureInventoryAdfLinkedServiceTargetResolver.TryResolveTargetArmId(
+            row,
+            visibleArmIds,
+            hostIndex,
+            out string? targetArmId,
+            out ProvenanceKind provenanceKind,
+            out _);
+
+        resolved.Should().BeTrue();
+        targetArmId.Should().Be(ArmResourceIdNormalizer.Normalize(redisArmId));
+        provenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+    }
+
+    [Fact]
     public void TryResolveTargetArmId_infers_cosmos_linked_service_from_unique_host()
     {
         const string factoryArmId =
@@ -308,6 +422,49 @@ public sealed class AzureInventoryAdfLinkedServiceTargetResolverTests
             LinkedServiceName = "MySqlLinkedService",
             LinkedServiceType = "AzureMySql",
             TargetHost = "mysql-edw.mysql.database.azure.com",
+        };
+
+        bool resolved = AzureInventoryAdfLinkedServiceTargetResolver.TryResolveTargetArmId(
+            row,
+            visibleArmIds,
+            hostIndex,
+            out string? targetArmId,
+            out ProvenanceKind provenanceKind,
+            out _);
+
+        resolved.Should().BeTrue();
+        targetArmId.Should().Be(ArmResourceIdNormalizer.Normalize(mysqlArmId));
+        provenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+    }
+
+    [Fact]
+    public void TryResolveTargetArmId_resolves_mysql_linked_service_when_host_uses_uppercase_domain()
+    {
+        const string factoryArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
+        const string mysqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DBforMySQL/flexibleServers/mysql-edw";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new AzureExtractorExtendedResourceRow
+            {
+                AzureResourceId = mysqlArmId,
+                ResourceType = "Microsoft.DBforMySQL/flexibleServers",
+                Name = "mysql-edw",
+            },
+        ];
+
+        Dictionary<string, string> visibleArmIds =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildVisibleArmIdSet(resources);
+        Dictionary<string, string> hostIndex =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
+        AzureInventoryAdfLinkedServiceRow row = new()
+        {
+            FactoryResourceId = factoryArmId,
+            LinkedServiceName = "MySqlLinkedService",
+            LinkedServiceType = "AzureMySql",
+            TargetHost = "mysql-edw.MYSQL.DATABASE.AZURE.COM",
         };
 
         bool resolved = AzureInventoryAdfLinkedServiceTargetResolver.TryResolveTargetArmId(

@@ -13,7 +13,7 @@ describe("FocusedPilotPolicyPackAppliedCallout", () => {
     expect(screen.getByText(/ArchLucid default standards applied automatically/i)).toBeTruthy();
     expect(
       screen.getByText(
-        /For your first review, ArchLucid evaluates against its default architecture-quality standards — Security, Reliability, Cost, Performance, Operational Excellence, and Sustainability/i,
+        /For your first review, ArchLucid evaluates against six baseline standards — Security, Reliability, Cost, Performance, Operational Excellence, and Sustainability/i,
       ),
     ).toBeTruthy();
 

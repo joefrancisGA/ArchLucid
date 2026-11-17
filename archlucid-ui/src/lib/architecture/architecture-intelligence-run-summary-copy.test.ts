@@ -93,11 +93,35 @@ describe("architecture-intelligence-run-summary-copy", () => {
     ).toBe("Structured detail count was not stored.");
   });
 
+  it("labels omitted AI budget facts when the run was not budget-rejected (P-04)", () => {
+    const aiUsage = listArchitectureIntelligenceRunTechnicalDetails(
+      sampleResult({ budgetRejected: false }),
+    ).find((row) => row.label === "AI usage");
+
+    expect(aiUsage?.value).toBe("AI budget facts were not stored on this run.");
+  });
+
   it("describes fresh analysis runs in technical details", () => {
     const resultSource = listArchitectureIntelligenceRunTechnicalDetails(sampleResult()).find(
       (row) => row.label === "Result source",
     );
 
     expect(resultSource?.value).toBe("Fresh analysis run");
+  });
+
+  it("labels omitted cache reuse instead of a fresh run", () => {
+    const resultSource = listArchitectureIntelligenceRunTechnicalDetails(
+      sampleResult({ cacheHit: undefined }),
+    ).find((row) => row.label === "Result source");
+
+    expect(resultSource?.value).toBe("Analysis reuse was not stored.");
+  });
+
+  it("labels cache hits without a reuse reason as incomplete", () => {
+    const resultSource = listArchitectureIntelligenceRunTechnicalDetails(
+      sampleResult({ cacheHit: true, cacheReuseReason: null }),
+    ).find((row) => row.label === "Result source");
+
+    expect(resultSource?.value).toBe("Reused prior analysis. Reuse reason was not stored.");
   });
 });

@@ -1,6 +1,8 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export const AUDIT_TRAIL_HELP_CANONICAL_PATH = "/help/audit-trail" as const;
 
@@ -26,3 +28,9 @@ export const AUDIT_TRAIL_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Assurance status", href: "/assurance-status" },
   { label: "Findings help", href: inAppHelpHref("findings") },
 ] as const;
+
+export function resolveAuditTrailHelpSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapEvidenceSourceFindingsQueueHref(AUDIT_TRAIL_HELP_SOURCES, productLine);
+}

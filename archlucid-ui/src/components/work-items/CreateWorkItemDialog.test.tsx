@@ -48,7 +48,7 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
 const preview: ArchitectureWorkItemPreview = {
   title: "Implement architecture — Payments",
   description: "Overview",
-  priority: "High",
+  highestFindingSeverity: "High",
   owner: "Platform team",
   findingsIncluded: [
     {
@@ -58,6 +58,7 @@ const preview: ArchitectureWorkItemPreview = {
       recommendedAction: "Enable encryption.",
     },
   ],
+  findingsOmittedCount: 0,
   sourceArchitectureLink: "https://app.archlucid.test/architecture/reviews/run-1",
 };
 

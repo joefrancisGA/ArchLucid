@@ -93,4 +93,19 @@ describe("infra-evidence-drift-risk-display", () => {
     ).toBe(false);
     expect(isComparingTwoInventorySnapshots(null)).toBe(false);
   });
+
+  it("does not append risk to not-stored drift labels (P-15)", () => {
+    const tooltip = buildInfraEvidenceDriftRiskTooltip(buildChange({ riskClassification: null }));
+
+    expect(tooltip.split("\n")[0]).toBe("Drift risk was not stored.");
+  });
+
+  it("states omitted significance fields on the tooltip (P-16)", () => {
+    const tooltip = buildInfraEvidenceDriftRiskTooltip(
+      buildChange({ riskClassification: "elevated", securitySignificance: null, architectureSignificance: "" }),
+    );
+
+    expect(tooltip).toContain("Security significance was not stored.");
+    expect(tooltip).toContain("Architecture significance was stored empty.");
+  });
 });

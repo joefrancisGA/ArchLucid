@@ -5,11 +5,17 @@ import type {
   ArchitectureDigest,
 } from "@/types/advisory-scheduling";
 import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
+import {
+  positiveIntegerOrDefault,
+  recordsOnly,
+  trimRequiredPathSegment,
+  trimRequiredText,
+} from "./api-boundary-normalization";
 import { apiGet, apiPostJson, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "./http";
 
 /** Lists all advisory scan schedules for the current scope. */
 export async function listAdvisorySchedules(): Promise<AdvisoryScanSchedule[]> {
-  return apiGet<AdvisoryScanSchedule[]>("/v1/advisory-scheduling/schedules");
+  return recordsOnly<AdvisoryScanSchedule>(await apiGet<unknown>("/v1/advisory-scheduling/schedules"));
 }
 
 /** Creates a new advisory scan schedule with a cron expression. */
@@ -19,19 +25,22 @@ export async function createAdvisorySchedule(body: {
   runProjectSlug?: string;
   isEnabled?: boolean;
 }): Promise<AdvisoryScanSchedule> {
+  const runProjectSlug = body.runProjectSlug?.trim();
+
   return apiPostJson<AdvisoryScanSchedule>("/v1/advisory-scheduling/schedules", {
-    name: body.name,
-    cronExpression: body.cronExpression,
-    runProjectSlug: body.runProjectSlug?.trim() || "default",
+    name: trimRequiredText(body.name, "name"),
+    cronExpression: trimRequiredText(body.cronExpression, "cronExpression"),
+    ...(runProjectSlug !== undefined && runProjectSlug.length > 0 ? { runProjectSlug } : {}),
     isEnabled: body.isEnabled ?? true,
   });
 }
 
 /** Triggers an immediate execution of an advisory scan schedule. */
 export async function runAdvisoryScheduleNow(scheduleId: string): Promise<void> {
+  const normalizedScheduleId = trimRequiredPathSegment(scheduleId, "scheduleId");
   await ensureOidcBearerReady();
   const { url, headers } = await resolveRequest(
-    `/v1/advisory-scheduling/schedules/${encodeURIComponent(scheduleId)}/run`,
+    `/v1/advisory-scheduling/schedules/${encodeURIComponent(normalizedScheduleId)}/run`,
   );
   const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
@@ -48,19 +57,23 @@ export async function listScheduleExecutions(
   scheduleId: string,
   take = 30,
 ): Promise<AdvisoryScanExecution[]> {
-  return apiGet<AdvisoryScanExecution[]>(
-    `/v1/advisory-scheduling/schedules/${encodeURIComponent(scheduleId)}/executions?take=${take}`,
-  );
+  const normalizedScheduleId = trimRequiredPathSegment(scheduleId, "scheduleId");
+
+  return recordsOnly<AdvisoryScanExecution>(await apiGet<unknown>(
+    `/v1/advisory-scheduling/schedules/${encodeURIComponent(normalizedScheduleId)}/executions?take=${positiveIntegerOrDefault(take, 30)}`,
+  ));
 }
 
 /** Lists recent architecture digests (periodic summary reports). */
 export async function listArchitectureDigests(take = 20): Promise<ArchitectureDigest[]> {
-  return apiGet<ArchitectureDigest[]>(`/v1/advisory-scheduling/digests?take=${take}`);
+  return recordsOnly<ArchitectureDigest>(await apiGet<unknown>(
+    `/v1/advisory-scheduling/digests?take=${positiveIntegerOrDefault(take, 20)}`,
+  ));
 }
 
 /** Lists all digest delivery subscriptions (email, webhook, etc.). */
 export async function listDigestSubscriptions(): Promise<DigestSubscription[]> {
-  return apiGet<DigestSubscription[]>(`/${ApiV1Routes.digestSubscriptions}`);
+  return recordsOnly<DigestSubscription>(await apiGet<unknown>(`/${ApiV1Routes.digestSubscriptions}`));
 }
 
 /** Creates a new digest delivery subscription. */
@@ -71,19 +84,23 @@ export async function createDigestSubscription(body: {
   isEnabled?: boolean;
   metadataJson?: string;
 }): Promise<DigestSubscription> {
+  const metadataJson = body.metadataJson?.trim();
+
   return apiPostJson<DigestSubscription>(`/${ApiV1Routes.digestSubscriptions}`, {
-    name: body.name,
-    channelType: body.channelType,
-    destination: body.destination,
+    name: trimRequiredText(body.name, "name"),
+    channelType: trimRequiredText(body.channelType, "channelType"),
+    destination: trimRequiredText(body.destination, "destination"),
     isEnabled: body.isEnabled ?? true,
-    metadataJson: body.metadataJson ?? "{}",
+    ...(metadataJson !== undefined && metadataJson.length > 0 ? { metadataJson } : {}),
   });
 }
 
 /** Toggles a digest subscription between enabled and disabled. */
 export async function toggleDigestSubscription(subscriptionId: string): Promise<DigestSubscription> {
+  const normalizedSubscriptionId = trimRequiredPathSegment(subscriptionId, "subscriptionId");
+
   return apiPostJson<DigestSubscription>(
-    `/v1/digest-subscriptions/${encodeURIComponent(subscriptionId)}/toggle`,
+    `/v1/digest-subscriptions/${encodeURIComponent(normalizedSubscriptionId)}/toggle`,
     {},
   );
 }
@@ -93,7 +110,9 @@ export async function listSubscriptionDeliveryAttempts(
   subscriptionId: string,
   take = 50,
 ): Promise<DigestDeliveryAttempt[]> {
-  return apiGet<DigestDeliveryAttempt[]>(
-    `/${ApiV1Routes.digestSubscriptions}/${encodeURIComponent(subscriptionId)}/attempts?take=${take}`,
-  );
+  const normalizedSubscriptionId = trimRequiredPathSegment(subscriptionId, "subscriptionId");
+
+  return recordsOnly<DigestDeliveryAttempt>(await apiGet<unknown>(
+    `/${ApiV1Routes.digestSubscriptions}/${encodeURIComponent(normalizedSubscriptionId)}/attempts?take=${positiveIntegerOrDefault(take, 50)}`,
+  ));
 }

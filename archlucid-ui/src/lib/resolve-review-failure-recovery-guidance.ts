@@ -29,7 +29,7 @@ import { SUPPORT_REPORT_PROBLEM_HELP_HREF } from "@/lib/support-workspace-presen
 import type { RunSummary } from "@/types/authority";
 
 export const REVIEW_PRE_STAGE_FAILURE_INTACT_SUMMARY =
-  "Your submitted intake package was recorded. Processing stopped before the first pipeline stage — this is usually platform AI availability, not missing intake fields.";
+  "Your submitted intake package was recorded. Processing stopped before the first pipeline stage — this is usually platform AI availability, not missing intake fields. The intake recap below lists what was stored at submission time.";
 
 export type ReviewFailureRecoveryGuidance = {
   readonly headline: string;

@@ -1,6 +1,8 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_DECISION_REGISTER_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export const AUDIT_TRAIL_CANONICAL_PATH = GOVERNANCE_AUDIT_PATH;
 
@@ -26,7 +28,21 @@ export const AUDIT_TRAIL_SOURCES: readonly EvidenceSourceLink[] = [
 
 const AUDIT_TRAIL_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([AUDIT_TRAIL_CANONICAL_PATH]);
 
+export function resolveAuditTrailSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapEvidenceSourceFindingsQueueHref(AUDIT_TRAIL_SOURCES, productLine);
+}
+
 /** Audit-trail orientation Sources — excludes self-href to `/governance/audit` (AUD). */
 export const AUDIT_TRAIL_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = AUDIT_TRAIL_SOURCES.filter(
   (source) => !AUDIT_TRAIL_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
 );
+
+export function resolveAuditTrailOrientationSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return resolveAuditTrailSources(productLine).filter(
+    (source) => !AUDIT_TRAIL_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+  );
+}

@@ -210,6 +210,21 @@ public sealed class SecurityBaselineFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_OmittedStatus_UsesNotStoredCopy_NotUnknownOrPresent()
+    {
+        GraphNode node = SecurityNode("sec-missing-status", "Key Vault logging", controlId: null, status: null);
+        GraphSnapshot snapshot = SnapshotWith([node], []);
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
+
+        SecurityControlFindingPayload? payload = findings.Should().ContainSingle().Subject.Payload as SecurityControlFindingPayload;
+        payload.Should().NotBeNull();
+        payload!.Status.Should().Be("Control status was not stored.");
+        payload.ControlId.Should().Be("Control id was not stored.");
+        payload.Impact.Should().Be("Control status was not stored.");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_ProtectsTargetWithResourceId_CollectsTargetEvidence()
     {
         const string armResourceId =

@@ -1,4 +1,5 @@
 using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Rendering;
 
 using QuestPDF.Fluent;
@@ -41,6 +42,7 @@ public static class EndToEndReplayComparisonPdfExportFormatter
                     column.Item().PaddingBottom(5).Text($"Left: {report.LeftRunId}  |  Right: {report.RightRunId}  |  Profile: {p}");
                     column.Item().PaddingBottom(10).Text($"Generated: {TimeProvider.System.UtcNowDateTime():O}");
                     AppendFindingCorrelationMetadata(column, report);
+                    AppendFindingLifecycle(column, report);
                     column.Item().PaddingBottom(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     column.Item().PaddingBottom(5).Text("Summary").Bold().FontSize(12);
                     column.Item().PaddingBottom(10).Text(summaryMarkdown);
@@ -93,6 +95,15 @@ public static class EndToEndReplayComparisonPdfExportFormatter
         column.Item().PaddingBottom(3).Text($"Unmatched left findings: {metadata.UnmatchedLeftCount}");
         column.Item().PaddingBottom(3).Text($"Unmatched right findings: {metadata.UnmatchedRightCount}");
         column.Item().PaddingBottom(3).Text($"Correlation honesty: {metadata.HonestyNote}");
+    }
+
+    private static void AppendFindingLifecycle(ColumnDescriptor column, EndToEndReplayComparisonReport report)
+    {
+        if (report.FindingLifecycle is null)
+            return;
+
+        foreach (string line in CrossReviewFindingLifecycleExportLines.Build(report.FindingLifecycle))
+            column.Item().PaddingBottom(3).Text(line);
     }
 
     private static void AppendSponsorReport(ColumnDescriptor column, EndToEndReplayComparisonReport report)

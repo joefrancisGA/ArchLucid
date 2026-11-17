@@ -88,6 +88,22 @@ public sealed class DeclarationInventoryContradictionThreeWayGateTests
     }
 
     [Fact]
+    public void CompareQuality_DeclarationClaimsSecureControl_returns_true_when_network_acl_json_uses_default_action()
+    {
+        DeclarationInventoryContradictionMismatch mismatch = new(
+            "node-1",
+            "storage",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/st",
+            "tf.network_acls",
+            """{"default_action":"deny"}""",
+            "Allow",
+            "Azure",
+            "network-isolation");
+
+        DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(mismatch).Should().BeTrue();
+    }
+
+    [Fact]
     public void DeclarationClaimsSecureControl_returns_true_when_k8s_privileged_is_false()
     {
         DeclarationInventoryContradictionMismatch mismatch = new(
@@ -227,6 +243,49 @@ public sealed class DeclarationInventoryContradictionThreeWayGateTests
             "false",
             "Azure",
             "data-protection");
+
+        DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(mismatch).Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_DeclarationClaimsSecureControl_returns_true_when_declaration_requires_tls_1_2()
+    {
+        DeclarationInventoryContradictionMismatch dotted = new(
+            "app-1",
+            "app-pay",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-pay",
+            "tf.min_tls_version",
+            "1.2",
+            "1.0",
+            "Azure",
+            "transport-security");
+
+        DeclarationInventoryContradictionMismatch armLiteral = new(
+            "storage-1",
+            "stpayprod",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+            "tf.minimum_tls_version",
+            "TLS1_2",
+            "TLS1_0",
+            "Azure",
+            "transport-security");
+
+        DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(dotted).Should().BeTrue();
+        DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(armLiteral).Should().BeTrue();
+    }
+
+    [Fact]
+    public void CompareQuality_DeclarationClaimsSecureControl_returns_false_when_declaration_allows_tls_1_0()
+    {
+        DeclarationInventoryContradictionMismatch mismatch = new(
+            "app-1",
+            "app-pay",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-pay",
+            "tf.min_tls_version",
+            "1.0",
+            "1.2",
+            "Azure",
+            "transport-security");
 
         DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(mismatch).Should().BeFalse();
     }

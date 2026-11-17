@@ -2,6 +2,7 @@
 
 import type { JSX } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
   buildPolicyPackDetailHubPairwiseRail,
@@ -31,6 +32,7 @@ export type PolicyPackDetailHubVocabularyRailProps = {
 export function PolicyPackDetailHubVocabularyRail(
   props: PolicyPackDetailHubVocabularyRailProps,
 ): JSX.Element {
+  const { productLine } = useProductLine();
   const pairwiseModel =
     props.model !== undefined
       ? {
@@ -40,10 +42,11 @@ export function PolicyPackDetailHubVocabularyRail(
           currentLink: props.model.packsHubLink,
           peerLink: props.model.packDetailLink,
         }
-      : buildPolicyPackDetailHubPairwiseRail();
+      : buildPolicyPackDetailHubPairwiseRail(productLine);
   const peerLinkOverride = resolvePolicyPackDetailHubPeerLink(
     props.currentSurfaceId,
     props.policyPackId,
+    productLine,
   );
 
   return (

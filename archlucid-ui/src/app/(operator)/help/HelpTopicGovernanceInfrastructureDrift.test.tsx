@@ -14,8 +14,25 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => false,
+  useProductionDeskChrome: (): boolean => true,
+}));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/help/governance-infrastructure-drift",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
 import { HelpGovernanceInfrastructureDriftGuideView } from "@/app/(operator)/help/_sections/HelpGovernanceInfrastructureDriftGuideView";
 import {
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CANONICAL_PATH,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE_HEADING,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_FOLLOW_UPS_TITLE,
@@ -134,7 +151,11 @@ describe("HelpGovernanceInfrastructureDriftGuideView", () => {
     expect(screen.getByRole("heading", { name: GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const followUps = screen.getByTestId("help-governance-infrastructure-drift-sources");
-    expectWhereToGoNextFollowUpLinks(within(followUps), GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_SOURCES);
+    expectWhereToGoNextFollowUpLinks(
+      within(followUps),
+      GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_SOURCES,
+      GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CANONICAL_PATH,
+    );
   });
 
   it("links the primary action to the drift workbench", () => {

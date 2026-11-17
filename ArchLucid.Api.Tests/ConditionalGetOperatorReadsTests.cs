@@ -14,22 +14,15 @@ public sealed class ConditionalGetOperatorReadsTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task GetRun_returns_304_when_if_none_match_matches_row_version_etag()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-CONDGET-001")));
-        await createResponse.EnsureSuccessForTestAsync();
+        CreatedRunForTest created = await CreateRunForTestAsync();
+        string runId = created.RunId;
 
-        CreateRunResponseDto? createDoc =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = createDoc!.Run.RunId;
-
-        HttpResponseMessage first = await Client.GetAsync($"/v1/architecture/review/{runId}");
+        HttpResponseMessage first = await created.GetRunHttpAsync(Client);
         await first.EnsureSuccessForTestAsync();
         first.Headers.ETag.Should().NotBeNull();
         string etag = first.Headers.ETag!.Tag;
 
-        using HttpRequestMessage conditional = new(HttpMethod.Get, $"/v1/architecture/review/{runId}");
-        conditional.Headers.TryAddWithoutValidation("If-None-Match", etag);
+        using HttpRequestMessage conditional = created.CreateConditionalRunGetRequest(etag);
 
         HttpResponseMessage cached = await Client.SendAsync(conditional);
         cached.StatusCode.Should().Be(HttpStatusCode.NotModified);
@@ -40,31 +33,24 @@ public sealed class ConditionalGetOperatorReadsTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task GetRun_returns_new_etag_after_run_advances_row_version()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-CONDGET-002")));
-        await createResponse.EnsureSuccessForTestAsync();
+        CreatedRunForTest created = await CreateRunForTestAsync();
+        string runId = created.RunId;
 
-        CreateRunResponseDto? createDoc =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = createDoc!.Run.RunId;
-
-        HttpResponseMessage beforeExecute = await Client.GetAsync($"/v1/architecture/review/{runId}");
+        HttpResponseMessage beforeExecute = await created.GetRunHttpAsync(Client);
         await beforeExecute.EnsureSuccessForTestAsync();
         string etagBefore = beforeExecute.Headers.ETag!.Tag;
 
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        await ExecuteForTestAsync(runId);
+        HttpResponseMessage commitResponse = await FinalizeRunAsync(runId);
         await commitResponse.EnsureSuccessForTestAsync();
 
-        HttpResponseMessage afterCommit = await Client.GetAsync($"/v1/architecture/review/{runId}");
+        HttpResponseMessage afterCommit = await created.GetRunHttpAsync(Client);
         await afterCommit.EnsureSuccessForTestAsync();
         string etagAfter = afterCommit.Headers.ETag!.Tag;
 
         etagAfter.Should().NotBe(etagBefore);
 
-        using HttpRequestMessage stale = new(HttpMethod.Get, $"/v1/architecture/review/{runId}");
-        stale.Headers.TryAddWithoutValidation("If-None-Match", etagBefore);
+        using HttpRequestMessage stale = created.CreateConditionalRunGetRequest(etagBefore);
 
         HttpResponseMessage refreshed = await Client.SendAsync(stale);
         refreshed.StatusCode.Should().Be(HttpStatusCode.OK);

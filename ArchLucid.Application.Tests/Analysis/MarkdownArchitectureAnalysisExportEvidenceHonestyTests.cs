@@ -36,9 +36,12 @@ public sealed class MarkdownArchitectureAnalysisExportEvidenceHonestyTests
 
         string md = _sut.GenerateMarkdown(report);
 
-        md.Should().Contain(ArchitectureEvidenceRequestExport.PolicyEvidenceNotRecordedCopy);
-        md.Should().Contain(ArchitectureEvidenceRequestExport.ServiceCatalogEvidenceNotRecordedCopy);
-        md.Should().Contain(ArchitectureEvidenceRequestExport.PatternEvidenceNotRecordedCopy);
+        md.Should().Contain("### Policy Evidence");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.NoPolicyEvidenceRowsStoredCopy);
+        md.Should().Contain("### Service Catalog Hints");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.NoServiceCatalogRowsStoredCopy);
+        md.Should().Contain("### Pattern Hints");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.NoPatternRowsStoredCopy);
     }
 
     [Fact]
@@ -76,7 +79,7 @@ public sealed class MarkdownArchitectureAnalysisExportEvidenceHonestyTests
 
         md.Should().Contain(ArchitectureEvidenceRequestExport.PolicyTitleNotStoredCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.PolicyIdNotStoredCopy);
-        md.Should().Contain(ArchitectureEvidenceRequestExport.RequiredControlsNotRecordedCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.RequiredControlsNotStoredCopy);
     }
 
     [Fact]
@@ -142,5 +145,57 @@ public sealed class MarkdownArchitectureAnalysisExportEvidenceHonestyTests
         md.Should().Contain(ArchitectureEvidenceRequestExport.TraceSystemPromptStoredEmptyCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.TraceUserPromptStoredEmptyCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.TraceRawResponseStoredEmptyCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceParsedResultNotStoredCopy);
+    }
+
+    [Fact]
+    public void GenerateMarkdown_header_and_trace_fields_use_omission_copy_when_missing()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                RequestId = "  ",
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = null,
+            },
+            Evidence = new AgentEvidencePackage
+            {
+                EvidencePackageId = "ev-1",
+                SystemName = "Sys",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence { Description = "At least ten characters for export body." },
+                ServiceCatalog =
+                [
+                    new ServiceCatalogEvidence
+                    {
+                        ServiceName = "Storage",
+                        Category = "Data",
+                        Summary = "ok",
+                        RecommendedUseCases = [],
+                    },
+                ],
+            },
+            ExecutionTraces =
+            [
+                new AgentExecutionTrace
+                {
+                    AgentType = AgentType.Topology,
+                    TaskId = "",
+                    TraceId = "cccccccccccccccccccccccccccccccc",
+                    ParseSucceeded = false,
+                    CreatedUtc = new DateTime(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc),
+                },
+            ],
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain(ConsultingDocxExportHonestyCopy.RequestIdNotStored);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.CurrentManifestVersionNotStoredCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceTaskIdNotStoredCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.RecommendedUseCasesNotStoredCopy);
     }
 }

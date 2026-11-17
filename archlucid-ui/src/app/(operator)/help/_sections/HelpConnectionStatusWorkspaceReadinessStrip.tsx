@@ -15,6 +15,12 @@ import type {
   ConnectionStatusHelpWorkspaceReadinessSnapshot,
 } from "@/lib/use-connection-status-help-workspace-readiness";
 import { useConnectionStatusHelpWorkspaceReadiness } from "@/lib/use-connection-status-help-workspace-readiness";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 
 export const HELP_CONNECTION_STATUS_WORKSPACE_READINESS_HEADING_ID =
   "help-connection-status-workspace-readiness-heading";
@@ -65,6 +71,12 @@ export function HelpConnectionStatusWorkspaceReadinessStrip(
 ): React.ReactElement {
   const hookReadiness = useConnectionStatusHelpWorkspaceReadiness();
   const readiness = props.readiness ?? hookReadiness;
+  const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(
+    isSecureNowProductLine(productLine) && partialCapture,
+  );
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
 
   const scopeLine = useMemo((): string | null => {
     if (readiness.loading || readiness.workspaceScopeLabel === null) {
@@ -109,6 +121,15 @@ export function HelpConnectionStatusWorkspaceReadinessStrip(
         </h2>
         {headerMeta.length > 0 ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{headerMeta}</p>
+        ) : null}
+        {partialCapture ? (
+          <SecureNowPartialCaptureRecoveryParagraph
+            testId="help-connection-status-partial-capture"
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
+            returnPath={partialCaptureReturnPath}
+            cloudConnectionsTestId="help-connection-status-partial-capture-cloud-connections"
+            extractUploadTestId="help-connection-status-partial-capture-extract-upload"
+          />
         ) : null}
       </header>
 

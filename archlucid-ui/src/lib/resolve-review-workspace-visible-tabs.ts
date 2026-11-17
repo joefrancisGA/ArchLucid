@@ -77,6 +77,7 @@ export function resolveReviewWorkspaceTabFromSearchParams(
   searchParams: Pick<URLSearchParams, "get">,
   resolved: ReviewWorkspaceVisibleTabs,
   lifecycle: ReviewWorkspaceLifecycle,
+  preferredTabWhenAbsent?: ReviewDetailTabId | null,
 ): ReviewDetailTabId {
   const rawReviewTabParam = searchParams.get(REVIEW_DETAIL_TAB_PARAM);
   const rawArchTabParam = searchParams.get("archTab");
@@ -89,6 +90,10 @@ export function resolveReviewWorkspaceTabFromSearchParams(
     const mappedTab = resolveReviewDetailTabFromLocation(rawReviewTabParam, rawArchTabParam);
 
     return coerceReviewWorkspaceTabToVisible(mappedTab, resolved);
+  }
+
+  if (preferredTabWhenAbsent !== null && preferredTabWhenAbsent !== undefined) {
+    return coerceReviewWorkspaceTabToVisible(preferredTabWhenAbsent, resolved);
   }
 
   return resolveReviewWorkspaceTabForVisit(rawReviewTabParam, resolved, lifecycle);
@@ -106,6 +111,7 @@ export type ResolveActiveReviewDetailTabInput = {
   readonly tabLifecycle: ResolveReviewDetailVisibleTabsInput;
   readonly lifecycle?: ReviewWorkspaceLifecycle;
   readonly workingDesk?: boolean;
+  readonly preferredTabWhenAbsent?: ReviewDetailTabId | null;
 };
 
 /** Stage-aware active tab for chrome that cannot use `useReviewDetailWorkspaceTabs` (TB-2189). */
@@ -119,5 +125,10 @@ export function resolveActiveReviewDetailTabFromSearchParams(
     workingDesk: input.workingDesk === true,
   });
 
-  return resolveReviewWorkspaceTabFromSearchParams(input.searchParams, resolved, lifecycle);
+  return resolveReviewWorkspaceTabFromSearchParams(
+    input.searchParams,
+    resolved,
+    lifecycle,
+    input.preferredTabWhenAbsent,
+  );
 }

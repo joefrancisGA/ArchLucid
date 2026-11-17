@@ -28,6 +28,10 @@ public static class FindingVerificationReportMarkdownRenderer
         {
             builder.AppendLine($"- Verification findings snapshot: `{verificationSnapshotId:D}`");
         }
+        else
+        {
+            builder.AppendLine("- Verification findings snapshot: Findings snapshot id was not stored.");
+        }
 
         builder.AppendLine();
         builder.AppendLine("## Confirmed findings summary");
@@ -40,15 +44,15 @@ public static class FindingVerificationReportMarkdownRenderer
         foreach (FindingVerificationReportFindingRow finding in model.Findings)
         {
             builder.Append('|');
-            builder.Append(EscapeCell(finding.FindingId));
+            builder.Append(EscapeCell(finding.FindingId, "Finding ID"));
             builder.Append('|');
-            builder.Append(EscapeCell(finding.Title ?? string.Empty));
+            builder.Append(EscapeCell(finding.Title, "Title"));
             builder.Append('|');
-            builder.Append(EscapeCell(finding.Severity ?? string.Empty));
+            builder.Append(EscapeCell(finding.Severity, "Severity"));
             builder.Append('|');
-            builder.Append(EscapeCell(finding.Status));
+            builder.Append(EscapeCell(finding.Status, "Status"));
             builder.Append('|');
-            builder.Append(EscapeCell(finding.TraceText));
+            builder.Append(EscapeCell(finding.TraceText, "Trace"));
             builder.AppendLine("|");
         }
 
@@ -76,9 +80,20 @@ public static class FindingVerificationReportMarkdownRenderer
         }
     }
 
-    private static string EscapeCell(string value)
+    private static string EscapeCell(string? value, string fieldName)
     {
+        if (value is null)
+        {
+            return $"{fieldName} was not stored.";
+        }
+
         string sanitized = LlmArtifactFreeTextSanitizer.Sanitize(value);
+
+        if (string.IsNullOrWhiteSpace(sanitized))
+        {
+            return $"{fieldName} was stored empty.";
+        }
+
         return sanitized
             .Replace("|", "/", StringComparison.Ordinal)
             .Replace("\n", " ", StringComparison.Ordinal);

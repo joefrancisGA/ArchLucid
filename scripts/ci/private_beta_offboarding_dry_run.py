@@ -19,13 +19,20 @@ STEPS = (
 
 
 def build_plan(tenant_id: str, operator: str) -> dict[str, object]:
-    normalized_tenant_id = str(uuid.UUID(tenant_id))
+    parsed_tenant_id = uuid.UUID(tenant_id)
+    if parsed_tenant_id.int == 0:
+        raise ValueError("nil UUID cannot identify an offboarding tenant")
+    if not isinstance(operator, str) or not operator.strip():
+        raise ValueError("an identified operator is required")
+    if any(ord(character) < 32 or ord(character) == 127 for character in operator):
+        raise ValueError("operator identity must not contain control characters")
+    normalized_tenant_id = str(parsed_tenant_id)
 
     return {
         "planType": "private-beta-tenant-offboarding-dry-run",
         "dryRun": True,
         "tenantId": normalized_tenant_id,
-        "operator": operator,
+        "operator": operator.strip(),
         "generatedUtc": datetime.now(timezone.utc).isoformat(),
         "steps": [
             {"stepId": step_id, "description": description, "mutatesData": False}
@@ -45,7 +52,7 @@ def main() -> int:
     try:
         plan = build_plan(args.tenant_id, args.operator)
     except ValueError as error:
-        print(f"ERROR: invalid tenant id: {error}", file=sys.stderr)
+        print(f"ERROR: invalid offboarding identity: {error}", file=sys.stderr)
         return 1
 
     rendered = json.dumps(plan, indent=2) + "\n"

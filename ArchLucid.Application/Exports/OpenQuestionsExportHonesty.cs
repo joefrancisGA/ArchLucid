@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.Application.Exports;
@@ -10,6 +11,14 @@ public static class OpenQuestionsExportHonesty
     public const string WorkingDocumentHonestyLabel = "Working document — not sealed";
 
     public const string WorkingDocumentExportHeading = "Open questions (working document — not sealed)";
+
+    internal const string TrailKeyNotStoredLabel = "Key was not stored.";
+
+    internal const string TrailKeyStoredEmptyLabel = "Key was stored empty.";
+
+    internal const string TrailValueNotStoredLabel = "Value was not stored.";
+
+    internal const string TrailValueStoredEmptyLabel = "Value was stored empty.";
 
     public static bool IsOpenQuestionsTransparencyTrailKey(string key)
     {
@@ -81,9 +90,49 @@ public static class OpenQuestionsExportHonesty
 
         foreach (OpenQuestionsWorkingDocumentExportEntry entry in entries)
         {
-            sb.AppendLine($"- {entry.Key}: {entry.Value}");
+            sb.AppendLine($"- {FormatTrailKey(entry.Key)}: {FormatTrailValue(entry.Value)}");
         }
 
         sb.AppendLine();
+    }
+
+    internal static string FormatTrailKey(string? key)
+    {
+        if (key is null)
+        {
+            return TrailKeyNotStoredLabel;
+        }
+
+        if (key.Length == 0)
+        {
+            return TrailKeyStoredEmptyLabel;
+        }
+
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return TrailKeyStoredEmptyLabel;
+        }
+
+        return FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(key.Trim());
+    }
+
+    internal static string FormatTrailValue(string? value)
+    {
+        if (value is null)
+        {
+            return TrailValueNotStoredLabel;
+        }
+
+        if (value.Length == 0)
+        {
+            return TrailValueStoredEmptyLabel;
+        }
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return TrailValueStoredEmptyLabel;
+        }
+
+        return FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value.Trim());
     }
 }

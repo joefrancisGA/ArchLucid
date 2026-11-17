@@ -16,10 +16,16 @@ export function formatAssertedTrailValue(value: string | null | undefined): stri
   return value;
 }
 
-export function formatSkippedTrailQuestionKey(questionKey: string | null | undefined): string {
-  const trimmed = questionKey?.trim() ?? "";
+export const SKIPPED_QUESTION_KEY_STORED_EMPTY = "Question key was stored empty." as const;
 
-  return trimmed.length > 0 ? trimmed : SKIPPED_QUESTION_KEY_NOT_STORED;
+export function formatSkippedTrailQuestionKey(questionKey: string | null | undefined): string {
+  if (questionKey === null || questionKey === undefined) {
+    return SKIPPED_QUESTION_KEY_NOT_STORED;
+  }
+
+  const trimmed = questionKey.trim();
+
+  return trimmed.length > 0 ? trimmed : SKIPPED_QUESTION_KEY_STORED_EMPTY;
 }
 
 export function formatAssertedTrailLine(entry: AssertedTrailEntry): string {
@@ -33,11 +39,15 @@ export function formatAssertedTrailLine(entry: AssertedTrailEntry): string {
   return `${key}: ${formatAssertedTrailValue(entry.value)}`;
 }
 
+export const QUESTION_TIER_STORED_EMPTY = "Question tier was stored empty." as const;
+
 export function formatSkippedTrailExportLine(entry: SkippedQuestionTrailEntry): string {
   const tier =
     entry.tier === null || entry.tier === undefined
       ? "Question tier was not stored."
-      : entry.tier;
+      : entry.tier.trim().length === 0
+        ? QUESTION_TIER_STORED_EMPTY
+        : entry.tier;
 
   return `${formatSkippedTrailQuestionKey(entry.questionKey)} (${tier})`;
 }

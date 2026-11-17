@@ -22,7 +22,7 @@ public sealed class InventoryDiagramExcellenceSingletonTailRatchetTests
 
         layout.Succeeded.Should().BeTrue(layout.Error);
         layout.Svg.Should().Contain($"Other resource groups ({DiagramForestSingletonTailPlanner.SingletonThreshold + 1})");
-        layout.Svg.Should().NotContain("singleton-0", "isolated singleton cards must fold into the tail summary");
+        layout.Svg.Should().NotContain("id=\"node-singleton-0\"", "isolated singleton cards must fold into the tail summary");
         layout.Svg.Should().Contain("large-vm");
     }
 

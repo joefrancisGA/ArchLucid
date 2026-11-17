@@ -52,4 +52,54 @@ public sealed class ConsultingDocxSupplementalSectionsGovernanceTests
         text.Should().Contain("ReadsFrom");
         text.Should().Contain("Reads settlement rows");
     }
+
+    [Fact]
+    public void AddArchitectureDetails_labels_blank_service_datastore_and_relationship_fields()
+    {
+        Body body = new();
+        ArchitectureAnalysisReport report = new()
+        {
+            Manifest = new GoldenManifest
+            {
+                Services =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = " ",
+                        ServiceType = ServiceType.Unknown,
+                        RuntimePlatform = RuntimePlatform.Unknown,
+                    },
+                ],
+                Datastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "",
+                        DatastoreType = DatastoreType.Unknown,
+                        RuntimePlatform = RuntimePlatform.Unknown,
+                    },
+                ],
+                Relationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "svc",
+                        TargetId = "db",
+                        RelationshipType = ArchLucid.Contracts.Common.RelationshipType.Calls,
+                        Description = " ",
+                    },
+                ],
+            },
+        };
+
+        ConsultingDocxSupplementalSections.AddArchitectureDetails(body, report);
+
+        string text = body.InnerText;
+
+        text.Should().Contain(ConsultingDocxGovernanceHonestyCopy.ServiceNameNotStored);
+        text.Should().Contain(ConsultingDocxGovernanceHonestyCopy.ServicePurposeNotStored);
+        text.Should().Contain(ConsultingDocxGovernanceHonestyCopy.ServiceRequiredControlsNotStored);
+        text.Should().Contain(ConsultingDocxGovernanceHonestyCopy.DatastoreNameNotStored);
+        text.Should().Contain(ConsultingDocxGovernanceHonestyCopy.RelationshipDescriptionNotStored);
+    }
 }

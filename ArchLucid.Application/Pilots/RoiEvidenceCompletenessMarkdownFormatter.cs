@@ -9,6 +9,9 @@ namespace ArchLucid.Application.Pilots;
 /// <summary>ROI evidence-confidence block appended to sponsor first-value-report Markdown alongside baseline tables.</summary>
 public static class RoiEvidenceCompletenessMarkdownFormatter
 {
+    internal const string PartialTierSponsorSavingsWarningPlain =
+        "**Do not quote customer-specific savings** without tenant-captured baselines.";
+
     /// <summary>Appends a conservative sponsor-facing completeness section derived from persisted tenant ROI baseline posture.</summary>
     public static void AppendMarkdownSection(StringBuilder sb, ValueReportSnapshot snapshot)
     {
@@ -34,7 +37,7 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
         if (disposition is not null)
         {
             sb.AppendLine();
-            sb.AppendLine($"**Claim disposition:** {disposition.DispositionLeadLine}");
+            sb.AppendLine($"**Claim disposition:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(disposition.DispositionLeadLine)}");
         }
 
         sb.AppendLine();
@@ -52,7 +55,8 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
         SponsorRoiClaimDispositionResult? disposition)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
-        PilotRoiEvidenceConfidence tier = PilotRoiEvidenceConfidenceResolver.Resolve(snapshot);
+        PilotRoiEvidenceConfidence tier = disposition?.EvidenceConfidence
+            ?? PilotRoiEvidenceConfidenceResolver.Resolve(snapshot);
         string headline = tier.ToString();
 
         string body = tier switch
@@ -60,14 +64,14 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
             PilotRoiEvidenceConfidence.Strong => BuildStrongTierBody(snapshot),
             PilotRoiEvidenceConfidence.Partial =>
                 "Baseline hours **default from repository ROI model assumptions** (`docs/library/PILOT_ROI_MODEL.md`). "
-                + "**Do not quote customer-specific savings** without tenant-captured baselines.",
+                + PartialTierSponsorSavingsWarningPlain,
             PilotRoiEvidenceConfidence.Low or _ =>
                 "No tenant baseline measurements were captured for this cohort window; treat ROI tables as "
                 + "**illustrative / internal planning only** unless operators attach external baseline artefacts.",
         };
 
         if (disposition is not null)
-            body = $"{body} {disposition.NarrativeBlock}";
+            body = $"{body} {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(disposition.NarrativeBlock)}";
 
         return (headline, body);
     }
@@ -85,14 +89,14 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
         List<string> parts = [$"{prefix}."];
 
         if (snapshot.TenantBaselineReviewCycleCapturedUtc is { } cap)
-            parts.Add($"**Captured UTC:** `{cap.ToString("O", CultureInfo.InvariantCulture)}`.");
+            parts.Add($"**Captured UTC:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(cap.ToString("O", CultureInfo.InvariantCulture))}.");
 
         if (snapshot.TenantBaselineManualPrepHoursPerReview is { } manual)
-            parts.Add($"**Manual prep hrs/review:** `{manual.ToString(CultureInfo.InvariantCulture)}`.");
+            parts.Add($"**Manual prep hrs/review:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(manual.ToString(CultureInfo.InvariantCulture))}.");
 
         if (BaselineReviewCycleSourceMarkers.FormatReviewCycleSourceNoteForDisplay(snapshot.TenantBaselineReviewCycleSource)
             is { } noteTrimmed)
-            parts.Add($"**Source note:** {noteTrimmed}");
+            parts.Add($"**Source note:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(noteTrimmed)}");
 
         return string.Join(" ", parts);
     }

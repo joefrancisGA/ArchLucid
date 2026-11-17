@@ -76,4 +76,29 @@ public sealed class RequirementTraceabilityAnalyzerTests
         RequirementTraceabilityAnalyzer.Analyze(graph)
             .Should().NotContain(g => g.GapCode == "requirement-without-topology-link");
     }
+
+    [Fact]
+    public void Analyze_blank_requirement_label_uses_not_stored_copy_in_gap_title()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "req-1",
+                    NodeType = GraphNodeTypes.Requirement,
+                    Label = "",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+                },
+            ],
+        };
+
+        RequirementTraceabilityGap gap = RequirementTraceabilityAnalyzer.Analyze(graph)
+            .Should()
+            .ContainSingle(g => g.GapCode == "requirement-without-topology-link")
+            .Subject;
+
+        gap.Title.Should().Contain("Graph node label was not stored.");
+    }
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  AZURE_RESOURCE_NAME_NOT_STORED_LABEL,
   formatAzureResourceDisplay,
   formatAzureResourceTypeForDisplay,
   formatCloudResourceDisplayName,
@@ -11,17 +12,17 @@ import {
 describe("formatAzureResourceDisplay", () => {
   it("returns Name not recorded when the id is missing", () => {
     expect(formatAzureResourceDisplay(null)).toEqual({
-      name: "Name not recorded",
+      name: "Resource name was not stored.",
       resourceType: null,
       resourceGroup: null,
-      primaryLabel: "Name not recorded",
+      primaryLabel: "Resource name was not stored.",
       secondaryLabel: null,
     });
     expect(formatAzureResourceDisplay("   ")).toEqual({
-      name: "Name not recorded",
+      name: "Resource name was not stored.",
       resourceType: null,
       resourceGroup: null,
-      primaryLabel: "Name not recorded",
+      primaryLabel: "Resource name was not stored.",
       secondaryLabel: null,
     });
   });
@@ -68,6 +69,27 @@ describe("formatAzureResourceDisplay", () => {
     });
   });
 
+  it("uses the extension provider and type for an ARM extension resource", () => {
+    expect(
+      formatAzureResourceDisplay(
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/acct/blobServices/default/containers/data/providers/Microsoft.Authorization/roleAssignments/assignment-id",
+      ),
+    ).toMatchObject({
+      name: "assignment-id",
+      resourceType: "Authorization/roleAssignments",
+      resourceGroup: "rg",
+      secondaryLabel: "Authorization/roleAssignments · rg",
+    });
+  });
+
+  it("treats providers in a resource name as a name", () => {
+    expect(
+      formatAzureResourceDisplay(
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/providers/blobServices/default",
+      ).resourceType,
+    ).toBe("Storage/storageAccounts/blobServices");
+  });
+
   it("falls back to the last segment when the value is not an ARM id", () => {
     expect(formatAzureResourceDisplay("gateway-public-ip")).toEqual({
       name: "gateway-public-ip",
@@ -76,6 +98,24 @@ describe("formatAzureResourceDisplay", () => {
       primaryLabel: "gateway-public-ip",
       secondaryLabel: null,
     });
+  });
+
+  it("states when type and resource group were not stored on ARM ids (P-20)", () => {
+    expect(formatAzureResourceDisplay("/subscriptions/sub-id/custom-segment-only")).toEqual({
+      name: "custom-segment-only",
+      resourceType: null,
+      resourceGroup: null,
+      primaryLabel: "custom-segment-only",
+      secondaryLabel: "Resource type was not stored. Resource group was not stored.",
+    });
+  });
+
+  it("states when only resource group was not stored on ARM ids (P-19)", () => {
+    expect(
+      formatAzureResourceDisplay(
+        "/subscriptions/sub/providers/Microsoft.Storage/storageAccounts/acct1",
+      ).secondaryLabel,
+    ).toBe("Storage/storageAccounts · Resource group was not stored.");
   });
 });
 
@@ -86,7 +126,7 @@ describe("normalizeSecureNowResourceNameForDisplay", () => {
   });
 
   it("preserves the empty placeholder", () => {
-    expect(normalizeSecureNowResourceNameForDisplay("—")).toBe("—");
+    expect(normalizeSecureNowResourceNameForDisplay("—")).toBe("Resource name was not stored.");
   });
 
   it("treats empty and em-dash names as missing for outline omission copy (P-02)", () => {
@@ -112,14 +152,7 @@ describe("formatCloudResourceDisplayName", () => {
         displayName: null,
         externalResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/Gateway",
       }),
-    ).toBe("gateway");
-    expect(
-      formatCloudResourceDisplayName({
-        displayName: null,
-        externalResourceId:
-          "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/customerdata",
-      }),
-    ).toBe("customerdata");
+    ).toBe(AZURE_RESOURCE_NAME_NOT_STORED_LABEL);
   });
 });
 

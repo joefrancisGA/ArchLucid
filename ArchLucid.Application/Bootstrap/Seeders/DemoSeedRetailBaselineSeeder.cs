@@ -182,12 +182,23 @@ public sealed class DemoSeedRetailBaselineSeeder: IDemoSeedScenarioSeeder
         bool isHardened,
         CancellationToken cancellationToken)
     {
-        IReadOnlyList<AgentResult> existingResults = await _deps.ResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<AgentResult> existingResults =
+            await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                _deps.ResultRepository,
+                scope,
+                runId,
+                useRollupProjection: false,
+                cancellationToken).ConfigureAwait(false);
 
         if (existingResults.Count > 0)
             return;
 
-        IReadOnlyList<AgentTask> existingTasks = await _deps.TaskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<AgentTask> existingTasks =
+            await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+                _deps.TaskRepository,
+                scope,
+                runId,
+                cancellationToken).ConfigureAwait(false);
 
         if (existingTasks.Count == 0)
         {

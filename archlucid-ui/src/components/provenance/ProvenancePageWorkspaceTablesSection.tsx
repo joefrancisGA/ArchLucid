@@ -37,6 +37,7 @@ type ProvenanceGraphEdge = ArchitectureRunProvenanceGraph["edges"][number];
 
 export type ProvenancePageWorkspaceTablesSectionProps = {
   readonly runId: string;
+  readonly reviewPathname: string;
   readonly graph: ArchitectureRunProvenanceGraph;
   readonly selectedNodeId: string | null;
   readonly highlightedEdgeId: string | null;
@@ -61,6 +62,7 @@ export function ProvenancePageWorkspaceTablesSection(
 ): React.JSX.Element {
   const {
     runId,
+    reviewPathname,
     graph,
     selectedNodeId,
     highlightedEdgeId,
@@ -177,7 +179,12 @@ export function ProvenancePageWorkspaceTablesSection(
                         {provenanceNodeTypeLabel(node.type)}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell className="break-all border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
-                        <ProvenanceReferenceLink runId={runId} referenceId={node.referenceId} nodes={graph.nodes} />
+                        <ProvenanceReferenceLink
+                          runId={runId}
+                          pathname={reviewPathname}
+                          referenceId={node.referenceId}
+                          nodes={graph.nodes}
+                        />
                       </EnterpriseTableCell>
                       <EnterpriseTableCell className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
                         <Button

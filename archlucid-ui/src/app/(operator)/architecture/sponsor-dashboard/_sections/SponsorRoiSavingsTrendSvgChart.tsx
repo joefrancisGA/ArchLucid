@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { AMOUNT_NOT_RETURNED } from "@/lib/amount-display-copy";
+
 export type SponsorRoiSavingsTrendPoint = {
   readonly snapshotUtc: string;
   readonly totalEstimatedUsdSavings: number | null;
@@ -30,7 +32,7 @@ function formatMonthLabel(isoUtc: string): string {
 
 function formatUsdTooltip(value: number | null, monthLabel: string): string {
   if (value === null || !Number.isFinite(value)) {
-    return `Amount not returned — ${monthLabel}`;
+    return `${AMOUNT_NOT_RETURNED} — ${monthLabel}`;
   }
 
   const rounded = Math.round(value).toLocaleString();

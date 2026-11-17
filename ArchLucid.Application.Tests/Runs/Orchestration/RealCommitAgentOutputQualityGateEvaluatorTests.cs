@@ -2074,4 +2074,110 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
             .BeEmpty("Real-only gate; CommitOutputIntegrityService blocks Fallback via StructuralExecutionModeCommitGuard first");
     }
 
+    [Fact]
+    public void GetBlockingReasons_when_trace_element_null_fails_closed_like_empty_traces()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [null!]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("no agent execution traces");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_skips_null_trace_element_when_valid_trace_present()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace accepted = new()
+        {
+            TraceId = "trace-accepted",
+            AgentType = AgentType.Topology,
+            TaskId = "task-1",
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [null!, accepted])
+            .Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_null_and_rejected_trace_blocks_on_rejected_not_empty_trace_proof()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace rejected = new()
+        {
+            TraceId = "trace-rejected",
+            AgentType = AgentType.Topology,
+            TaskId = "task-1",
+            QualityRejected = true,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [null!, rejected]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-rejected");
+        reasons[0].Should().NotContain("no agent execution traces");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_warn_only_mode_with_rejected_and_null_trace_returns_empty()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.WarnOnly,
+        };
+        AgentExecutionTrace rejected = new()
+        {
+            TraceId = "trace-rejected",
+            AgentType = AgentType.Topology,
+            QualityRejected = true,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [null!, rejected])
+            .Should()
+            .BeEmpty("TB-2226 commit blocking is PilotStrict-only even when null elements are stripped first");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_null_only_payload_uses_same_empty_trace_proof_as_empty_list()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+
+        string nullOnlyProof = RealCommitAgentOutputQualityGateEvaluator
+            .GetBlockingReasons(run, options, [null!])
+            .Should().ContainSingle().Subject;
+        string emptyListProof = RealCommitAgentOutputQualityGateEvaluator
+            .GetBlockingReasons(run, options, [])
+            .Should().ContainSingle().Subject;
+
+        emptyListProof.Should().Be(nullOnlyProof);
+    }
+
 }

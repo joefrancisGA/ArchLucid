@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import type { EvolutionSimulationRunWithEvaluationResponse } from "@/types/evolution";
 import { parseEvolutionOutcomeJson } from "@/lib/evolution-outcome";
+import { resolveDeskContinuityReviewOpenHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 import { cn } from "@/lib/utils";
 
 const cardCls = "mb-3.5 overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700";
@@ -53,7 +54,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
       <div className={headerCls} id={`sim-run-${run.simulationRunId}`}>
         <span>
           <strong>Review baseline</strong>{" "}
-          <Link href={`/architecture/reviews/${encodeURIComponent(baselineId)}`} className={cn(OPERATOR_LINK.inline, "font-mono break-all")}>
+          <Link href={resolveDeskContinuityReviewOpenHref(baselineId)} className={cn(OPERATOR_LINK.inline, "font-mono break-all")}>
             {baselineId}
           </Link>
         </span>
@@ -78,7 +79,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
                   Linked reviews:{" "}
                   {planLinkedRunIds.map((id, idx) => (
                     <span key={`${id}-${idx}`} className="block">
-                      <Link href={`/architecture/reviews/${encodeURIComponent(id)}`} className={cn(OPERATOR_LINK.inline, "font-mono break-all")}>
+                      <Link href={resolveDeskContinuityReviewOpenHref(id)} className={cn(OPERATOR_LINK.inline, "font-mono break-all")}>
                         {id}
                       </Link>
                       {id === baselineId ? " ← this row" : null}

@@ -16,7 +16,7 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { formatArtifactCreatedUtcForDisplay } from "@/lib/artifacts/format-artifact-created-utc-display";
+import { SealedRecordArtifactGeneratedTimestamp } from "@/app/(operator)/governance/sealed-records/[manifestId]/_sections/sealed-record-artifact-generated-timestamp";
 import type { ArtifactDescriptor } from "@/types/authority";
 import { downloadArtifactFile } from "@/lib/api/downloads-blob-trigger-artifact-single";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -162,7 +162,7 @@ export function ArtifactListTable(props: {
             </EnterpriseTableCell>
           )}
           <EnterpriseTableCell className={createdCellClassName}>
-            {formatArtifactCreatedUtcForDisplay(artifact.createdUtc)}
+            <SealedRecordArtifactGeneratedTimestamp createdUtc={artifact.createdUtc} />
           </EnterpriseTableCell>
           <EnterpriseTableCell className={actionsCellClassName}>
             <Link href={reviewHref} className={OPERATOR_LINK.nav}>

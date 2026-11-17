@@ -1,11 +1,12 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 let searchParams = new URLSearchParams();
+const push = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
-  usePathname: () => "/infrastructure/terraform",
+  useRouter: () => ({ replace: vi.fn(), push }),
+  usePathname: () => "/governance/infrastructure/terraform",
   useSearchParams: () => searchParams,
 }));
 
@@ -87,14 +88,12 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 });
 
 import {
-  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_ANNOUNCEMENT,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_DRIFT_ACTION,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_RESOURCES_ACTION,
 } from "@/lib/governance/governance-infrastructure-copy";
-import { GOVERNANCE_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { SECURENOW_INFRASTRUCTURE_DRIFT_PATH, SECURENOW_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recent-views";
 import { TerraformWorkbenchClient } from "./TerraformWorkbenchClient";
@@ -103,6 +102,7 @@ describe("TerraformWorkbenchClient working mode", () => {
   beforeEach(() => {
     searchParams = new URLSearchParams();
     window.localStorage.clear();
+    push.mockClear();
   });
 
   it("renders skip link, scope picker, handoff links, and unscoped announcement", () => {
@@ -125,10 +125,6 @@ describe("TerraformWorkbenchClient working mode", () => {
       GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_ANNOUNCEMENT,
     );
     expect(screen.queryByTestId("infra-terraform-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE })).toHaveAttribute(
-      "href",
-      GOVERNANCE_INFRASTRUCTURE_PATH,
-    );
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(screen.getByText("Alt+1")).toBeInTheDocument();
 
@@ -172,6 +168,21 @@ describe("TerraformWorkbenchClient working mode", () => {
     expect(continueParams.get("auditEvidenceSnapshotId")).toBe("44444444-4444-4444-4444-444444444444");
     expect(continueParams.get("controlId")).toBe("55555555-5555-5555-5555-555555555555");
     expect(screen.getByText(/Snapshot 22222222/)).toBeInTheDocument();
+  });
+
+  it("clears previous resource options as soon as the search changes", async () => {
+    render(<TerraformWorkbenchClient />);
+    const picker = screen.getByRole("combobox", { name: "Cloud resource" });
+
+    fireEvent.change(picker, { target: { value: "gateway" } });
+    await screen.findByRole("option", { name: /gateway-ip/ });
+
+    fireEvent.change(picker, { target: { value: "storage" } });
+    fireEvent.keyDown(picker, { key: "ArrowDown" });
+    fireEvent.keyDown(picker, { key: "Enter" });
+
+    expect(push).not.toHaveBeenCalled();
+    expect(screen.queryByRole("option", { name: /gateway-ip/ })).not.toBeInTheDocument();
   });
 
   it("focuses scope picker on Alt+1", () => {

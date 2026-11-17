@@ -1,4 +1,4 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using System.Net;
 using System.Text.Json;
 
@@ -35,10 +35,9 @@ public sealed class BatchReplayIntegrationTests(ArchLucidApiFactory factory) : I
     [SkippableFact]
     public async Task BatchReplay_MixedValidAndInvalid_ReturnsZipWithManifestAndPartialHeader()
     {
-        (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
-            Client, JsonOptions, "REQ-BATCH-PARTIAL-001");
-        string comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
-            Client, runId, replayRunId);
+        CommittedReplayPair pair = await ArrangeCommittedPairAsync();
+        PersistedComparison persisted = await Replay.PersistEndToEndComparisonAsync(pair.RunId, pair.ReplayRunId);
+        string comparisonRecordId = persisted.ComparisonRecordId;
 
         object body = new
         {
@@ -63,8 +62,8 @@ public sealed class BatchReplayIntegrationTests(ArchLucidApiFactory factory) : I
         ZipArchiveEntry? manifest = zip.GetEntry(BatchReplayManifestSerializer.ManifestEntryName);
         manifest.Should().NotBeNull();
         await using Stream manifestStream = await manifest.OpenAsync();
-        JsonDocument doc = await JsonDocument.ParseAsync(manifestStream);
-        doc.RootElement.GetProperty("failed").GetArrayLength().Should().BeGreaterThan(0);
-        doc.RootElement.GetProperty("succeeded").GetArrayLength().Should().BeGreaterThan(0);
+        JsonElement manifestRoot = await manifestStream.ReadJsonElementForTestAsync();
+        manifestRoot.GetProperty("failed").GetArrayLength().Should().BeGreaterThan(0);
+        manifestRoot.GetProperty("succeeded").GetArrayLength().Should().BeGreaterThan(0);
     }
 }

@@ -282,6 +282,31 @@ describe("ArchitectureDiagramPanel", () => {
     expect(screen.getByRole("button", { name: ARCHITECTURE_DIAGRAM_DOWNLOAD_ACTION })).toBeVisible();
   });
 
+  it("shows unconfirmed inferred header copy when inferred components remain (P-01)", async () => {
+    render(
+      <ArchitectureDiagramPanel
+        runId="run-inferred-header"
+        architectureName="Claims platform"
+        sourceText={`## Systems and services
+- Inferred billing adapter
+## Users and stakeholders
+- Claims analyst
+## Data flows
+Claims analyst -> Inferred billing adapter`}
+        userAssertions={assertions}
+        canEdit
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-unconfirmed-inferred-header")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-diagram-unconfirmed-inferred-header")).toHaveTextContent(
+      /still need review before this diagram is treated as confirmed/,
+    );
+  });
+
   it("reports unconfirmed inferred count changes", async () => {
     const onCountChange = vi.fn();
 

@@ -27,6 +27,28 @@ import {
   parseWebhookEnableIdFromSearch,
   webhooksToggleConfirmHrefFromSearch,
 } from "@/lib/integrations/webhooks-toggle-confirm-url";
+import { readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+
+function resolveWebhookToggleIdForUrlSync(
+  paramName: "webhookDisableId" | "webhookEnableId",
+  routerRaw: string | null,
+): string {
+  const routerId =
+    paramName === "webhookDisableId"
+      ? parseWebhookDisableIdFromSearch(routerRaw)
+      : parseWebhookEnableIdFromSearch(routerRaw);
+  const committedRaw = new URLSearchParams(readWindowLocationSearch()).get(paramName);
+  const committedId =
+    paramName === "webhookDisableId"
+      ? parseWebhookDisableIdFromSearch(committedRaw)
+      : parseWebhookEnableIdFromSearch(committedRaw);
+
+  if (committedId !== routerId) {
+    return committedId;
+  }
+
+  return routerId;
+}
 
 export type WebhookEnableTarget = {
   readonly routingSubscriptionId: string;
@@ -39,6 +61,12 @@ export function formatCustomerApiFailure(failure: ApiLoadFailureState): string {
     failure.message,
   );
 }
+
+const WEBHOOK_TOGGLE_LIST_REFRESH_FAILURE_MESSAGE =
+  "Could not refresh the subscription list after updating. Try again.";
+
+const WEBHOOK_SAVE_LIST_REFRESH_FAILURE_MESSAGE =
+  "Could not refresh the subscription list after saving. Use Refresh and verify before saving again.";
 
 export type UseWebhooksSettingsMutationsOptions = {
   readonly canMutate: boolean;
@@ -82,8 +110,14 @@ export function useWebhooksSettingsMutations(
   const router = useRouter();
   const pathname = usePathname() ?? INTEGRATIONS_WEBHOOKS_PATH;
   const searchParams = useSearchParams();
-  const urlDisableId = parseWebhookDisableIdFromSearch(searchParams.get("webhookDisableId"));
-  const urlEnableId = parseWebhookEnableIdFromSearch(searchParams.get("webhookEnableId"));
+  const urlDisableId = resolveWebhookToggleIdForUrlSync(
+    "webhookDisableId",
+    searchParams.get("webhookDisableId"),
+  );
+  const urlEnableId = resolveWebhookToggleIdForUrlSync(
+    "webhookEnableId",
+    searchParams.get("webhookEnableId"),
+  );
   const [isSaving, setIsSaving] = useState(false);
   const isSavingRef = useRef(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
@@ -100,7 +134,7 @@ export function useWebhooksSettingsMutations(
     (state: { disableId: string | null; enableId: string | null }) => {
       router.replace(
         webhooksToggleConfirmHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           {
             disableRoutingSubscriptionId: state.disableId,
             enableRoutingSubscriptionId: state.enableId,
@@ -110,7 +144,7 @@ export function useWebhooksSettingsMutations(
         { scroll: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   const setPendingDisable = useCallback(
@@ -247,6 +281,27 @@ export function useWebhooksSettingsMutations(
     setEnableErrorMessage(null);
   }, [setPendingDisable, setPendingEnable]);
 
+  function presentSaveRefreshFailureAfterCreate(): void {
+    const loadFailure = options.getLastLoadFailure();
+
+    if (loadFailure !== null) {
+      options.setFailure({
+        ...loadFailure,
+        message: formatWebhooksSaveError(loadFailure.message),
+      });
+
+      return;
+    }
+
+    options.setFailure({
+      message: formatWebhooksCustomerError(WEBHOOK_SAVE_LIST_REFRESH_FAILURE_MESSAGE, null),
+      problem: null,
+      correlationId: null,
+      httpStatus: null,
+      retryAfterSeconds: null,
+    });
+  }
+
   async function executeToggle(routingSubscriptionId: string, generation: number): Promise<boolean> {
     if (options.scopeGenerationRef.current !== generation) {
       return false;
@@ -280,7 +335,12 @@ export function useWebhooksSettingsMutations(
 
     if (loadFailure !== null) {
       setDialogErrorMessage(formatCustomerApiFailure(loadFailure));
+      return;
     }
+
+    setDialogErrorMessage(
+      formatWebhooksCustomerError(WEBHOOK_TOGGLE_LIST_REFRESH_FAILURE_MESSAGE, null),
+    );
   }
 
   async function onToggle(routingSubscriptionId: string, subscriptionName: string, isEnabled: boolean) {
@@ -416,6 +476,8 @@ export function useWebhooksSettingsMutations(
       const refreshed = await options.load();
 
       if (!refreshed) {
+        presentSaveRefreshFailureAfterCreate();
+
         return;
       }
 

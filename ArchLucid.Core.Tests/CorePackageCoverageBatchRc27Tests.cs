@@ -389,18 +389,40 @@ public sealed class CorePackageCoverageBatchRc27Tests
     }
 
     [Fact]
-    public async Task InMemoryAuditRetryQueue_capacity_one_second_enqueue_is_dropped_from_channel()
+    public async Task InMemoryAuditRetryQueue_full_queue_rejects_enqueue_and_preserves_pending_count()
     {
-        // BoundedChannelFullMode.DropWrite keeps the buffered item and discards the write; TryWrite still returns true.
         InMemoryAuditRetryQueue queue = new(1);
         AuditEvent first = NewAuditEvent("First");
         AuditEvent second = NewAuditEvent("Second");
 
         queue.TryEnqueue(first).Should().BeTrue();
-        queue.TryEnqueue(second).Should().BeTrue();
+        queue.TryEnqueue(second).Should().BeFalse();
+        queue.ApproximatePendingCount.Should().Be(1);
 
         AuditEvent dequeued = await queue.DequeueAsync(CancellationToken.None);
         dequeued.EventType.Should().Be("First");
+        queue.NotifyPersistedSuccess();
+        queue.ApproximatePendingCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task InMemoryAuditRetryQueue_full_queue_rejects_failed_drain_and_removes_its_pending_count()
+    {
+        InMemoryAuditRetryQueue queue = new(1);
+        AuditEvent first = NewAuditEvent("First");
+        AuditEvent second = NewAuditEvent("Second");
+
+        queue.TryEnqueue(first).Should().BeTrue();
+        AuditEvent failed = await queue.DequeueAsync(CancellationToken.None);
+        queue.TryEnqueue(second).Should().BeTrue();
+        queue.ApproximatePendingCount.Should().Be(2);
+
+        queue.TryReturnToQueueAfterFailedDrain(failed).Should().BeFalse();
+        queue.ApproximatePendingCount.Should().Be(1);
+        AuditEvent retained = await queue.DequeueAsync(CancellationToken.None);
+        retained.EventId.Should().Be(second.EventId);
+        queue.NotifyPersistedSuccess();
+        queue.ApproximatePendingCount.Should().Be(0);
     }
 
     [Fact]

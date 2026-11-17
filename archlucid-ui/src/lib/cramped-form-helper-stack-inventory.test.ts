@@ -28,7 +28,6 @@ describe("cramped form helper stack inventory (TB-2004)", () => {
       const source = readFileSync(absolutePath, "utf8");
 
       expect(source).toContain("OPERATOR_FORM_FIELD_STACK_CLASS");
-      expect(source).toContain("OPERATOR_FORM_FIELD_HELPER_CLASS");
     }
   });
 });

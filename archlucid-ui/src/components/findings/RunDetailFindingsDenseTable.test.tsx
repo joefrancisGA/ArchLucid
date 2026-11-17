@@ -48,6 +48,14 @@ describe("RunDetailFindingsDenseTable", () => {
     });
   });
 
+  it("labels an empty findings list (P-17)", () => {
+    render(<RunDetailFindingsDenseTable runId="run-1" findings={[]} />);
+
+    expect(screen.getByTestId("run-detail-findings-dense-table-empty")).toHaveTextContent(
+      "No findings were stored on this review record.",
+    );
+  });
+
   it("renders a virtualized table for 50-row fixtures", () => {
     const findings = Array.from({ length: OPERATOR_LIST_VIRTUALIZE_MIN_ROWS }, (_, index) => sampleFinding(index));
 

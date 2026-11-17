@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   RUN_FINDING_EXPLAINABILITY_EVIDENCE_LINK_OMITTED,
+  RUN_FINDING_EXPLAINABILITY_GAPS_NOT_STORED,
+  RUN_FINDING_EXPLAINABILITY_GAPS_STORED_EMPTY,
   RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED,
   RUN_FINDING_EXPLAINABILITY_TRACE_LABEL_OMITTED,
 } from "@/components/runs/RunFindingExplainabilityTable";
@@ -22,5 +24,7 @@ describe("RunFindingExplainabilityTable omission copy (P-07, P-19)", () => {
       "Trace completeness was not stored.",
     );
     expect(RUN_FINDING_EXPLAINABILITY_CONFIDENCE_OMITTED).toBe("Confidence was not stored.");
+    expect(RUN_FINDING_EXPLAINABILITY_GAPS_NOT_STORED).toBe("Gaps were not stored");
+    expect(RUN_FINDING_EXPLAINABILITY_GAPS_STORED_EMPTY).toBe("Gaps were stored empty.");
   });
 });

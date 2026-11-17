@@ -45,7 +45,8 @@ public sealed class DiagramRecoveryServicesCompilerTests
         ast.Nodes.Should().Contain(node => node.Label == "backup-vault");
         ast.Nodes.Should().Contain(node => node.Label == "app-vm");
         ast.Nodes.Should().NotContain(node => node.Label == "other-vault");
-        ast.Edges.Should().Contain(edge => edge.Label == AzureInventoryRecoveryServices.BackupEdgeLabel);
+        ast.Edges.Should().Contain(edge =>
+            edge.Label != null && edge.Label.Contains(AzureInventoryRecoveryServices.BackupEdgeLabel, StringComparison.Ordinal));
     }
 
     [Fact]

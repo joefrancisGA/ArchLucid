@@ -17,6 +17,7 @@ import {
   parseFindingInspectWaiverRevokeConfirmOpenFromSearch,
   type FindingInspectGovernancePanelId,
 } from "@/lib/findings/finding-inspect-governance-panel-url";
+import { resolveScopedReviewPath } from "@/lib/architecture/review-url-state-pathname";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { FindingInspectDispositionControls } from "./FindingInspectDispositionControls";
@@ -33,7 +34,13 @@ export type { FindingInspectGovernanceStickinessPanelProps };
 export function FindingInspectGovernanceStickinessPanel(
   props: FindingInspectGovernanceStickinessPanelProps,
 ) {
-  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}/findings/${props.findingId}/inspect`;
+  const pathnameFromRoute = usePathname();
+  const pathname =
+    pathnameFromRoute ??
+    resolveScopedReviewPath(`/findings/${props.findingId}/inspect`, {
+      runId: props.runId,
+      pathname: null,
+    });
   const searchParams = useSearchParams();
   const searchParamsString = searchParams.toString();
   const readUrlStateFromParams = useCallback((params: URLSearchParams) => {
@@ -201,6 +208,7 @@ export function FindingInspectGovernanceStickinessPanel(
         runId={stickiness.runId}
         canMutate={stickiness.canMutate}
         history={stickiness.history}
+        dispositionHistoryLoading={stickiness.dispositionHistoryLoading}
         activeWaiver={stickiness.activeWaiver}
         assignedToUserId={stickiness.assignedToUserId}
         setAssignedToUserId={stickiness.setAssignedToUserId}

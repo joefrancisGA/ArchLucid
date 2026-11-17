@@ -33,7 +33,13 @@ describe("FindingsItsmExportToolbar", () => {
     render(
       <FindingsItsmExportToolbar
         runId="run-1"
-        findings={[finding({ findingId: "f-policy", enforcementTier: "PolicyViolation" })]}
+        findings={[
+          finding({
+            findingId: "f-policy",
+            enforcementTier: "PolicyViolation",
+            classification: "DecisionGradeFinding",
+          }),
+        ]}
         totalFindingCount={2}
         compact
       />,
@@ -42,6 +48,29 @@ describe("FindingsItsmExportToolbar", () => {
     expect(screen.getByText(/Exporting 1 rendered card — 1 advisory note collapsed/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Export 1 rendered CSV" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Export 1 rendered JSON" })).toBeInTheDocument();
+  });
+
+  it("labels export buttons when total finding count is omitted", () => {
+    render(
+      <FindingsItsmExportToolbar
+        runId="run-1"
+        findings={[
+          finding({
+            findingId: "f-policy",
+            enforcementTier: "PolicyViolation",
+            classification: "DecisionGradeFinding",
+          }),
+        ]}
+        compact
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Export 1 shown CSV. Total finding count was not stored." }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Export 1 shown JSON. Total finding count was not stored." }),
+    ).toBeInTheDocument();
   });
 
   it("labels checklist coverage omitted from ITSM export", () => {
@@ -59,6 +88,8 @@ describe("FindingsItsmExportToolbar", () => {
     expect(
       screen.getByText("Exporting 1 decision-grade finding (1 checklist coverage omitted)."),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Export 1 CSV" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Export 1 shown CSV. Total finding count was not stored." }),
+    ).toBeInTheDocument();
   });
 });

@@ -29,7 +29,7 @@ export type ResolveReviewPackagePrimaryActionInput = {
   readonly runId: string;
   readonly manifestId: string | null | undefined;
   readonly hasCommitBlockingFailures: boolean;
-  readonly blockingFindingCount: number;
+  readonly blockingFindingCount: number | null;
   readonly buyerPolishedArtifactTable: boolean;
   readonly operatorGovernanceDecision: string | null | undefined;
   readonly manifestStatus: string | null | undefined;
@@ -124,7 +124,7 @@ export function resolveReviewPackagePrimaryAction(
   }
 
   if (mode === "finalized") {
-    if (input.blockingFindingCount > 0) {
+    if (input.blockingFindingCount === null || input.blockingFindingCount > 0) {
       return applyNextActionLabelForFindings(
         buildLinkAction(input.runId, "review-findings"),
         input.nextAction,

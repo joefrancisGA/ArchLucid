@@ -10,25 +10,40 @@ import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/Workben
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ShortcutHint } from "@/components/ShortcutHint";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Textarea } from "@/components/ui/textarea";
 import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { INFRASTRUCTURE_ASK_PARTIAL_CAPTURE_HONESTY_LINE } from "@/lib/infra-evidence/infrastructure-ask-partial-capture-honesty-copy";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
   formatInfraEvidenceAskScopeStack,
   resolveInfraEvidenceAskSnapshotFreshness,
+  resolveInfraEvidenceAskSnapshotHonestyMessage,
 } from "@/lib/infra-evidence/infra-evidence-ask-scope-summary";
 import {
   formatInfraEvidenceAskApiError,
   submitInfraEvidenceAsk,
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
 import { infraEvidenceAskBlockedReason } from "@/lib/infra-evidence/infra-evidence-ask-blocked-reason";
+import { INFRASTRUCTURE_ASK_INSUFFICIENT_EVIDENCE_HONESTY_LINE } from "@/lib/infra-evidence/infrastructure-ask-insufficient-evidence-honesty-copy";
+import { formatInfrastructureAskInsufficientEvidenceSnapshotLine } from "@/lib/infra-evidence/infrastructure-ask-insufficient-evidence-snapshot-copy";
+import {
+  formatInfraEvidenceAskStaleSnapshotCitationLine,
+  shouldShowInfraEvidenceAskStaleSnapshotCitation,
+} from "@/lib/infra-evidence/infra-evidence-ask-stale-snapshot-citation-copy";
 import {
   buildInfraEvidenceAskScopeKey,
   mergeCannedQuestionIntoDraft,
@@ -40,6 +55,7 @@ import {
 import { formatInfraEvidenceAskTopicKindLabel } from "@/lib/infra-evidence/infra-evidence-ask-topic-kind-label";
 
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { buildAuditEvidenceLineageUiPath, buildResourceHubDiagramsWorkbenchHref, resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
@@ -162,6 +178,9 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
   const buyerPolishedShell = useProductionEvalChrome();
   const workingDeskChrome = useProductionDeskChrome();
   const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const pageTitle = resolveSecureNowPageHeading(
     productLine,
     GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE,
@@ -243,7 +262,11 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitErrorIsBlocked, setSubmitErrorIsBlocked] = useState(false);
   const [history, setHistory] = useState<InfraEvidenceAskTurn[]>([]);
-  const [snapshotCapturedUtc, setSnapshotCapturedUtc] = useState<string | null>(null);
+  const [loadedSnapshot, setLoadedSnapshot] = useState<InfraEvidenceSnapshotSummary | null>(null);
+  const activeSnapshot = loadedSnapshot?.snapshotId === snapshotId ? loadedSnapshot : null;
+  const snapshotCapturedUtc = activeSnapshot?.capturedUtc ?? null;
+  const snapshotSubscriptionName = activeSnapshot?.subscriptionName ?? null;
+  const snapshotSubscriptionId = activeSnapshot?.subscriptionId ?? null;
   const previousScopeKeyRef = useRef<string | null>(null);
   const historyRef = useRef(history);
   const questionRef = useRef(question);
@@ -255,22 +278,26 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
 
   useEffect(() => {
     if (snapshotId.length === 0) {
-      setSnapshotCapturedUtc(null);
-
+      setLoadedSnapshot(null);
       return;
     }
 
     let cancelled = false;
 
-    void fetchInfraEvidenceSnapshots(1, 50).then((response) => {
-      if (cancelled) {
-        return;
+    async function loadSnapshotMetadata() {
+      try {
+        const response = await fetchInfraEvidenceSnapshots(1, 50);
+        if (!cancelled) {
+          setLoadedSnapshot(response.items.find((item) => item.snapshotId === snapshotId) ?? null);
+        }
+      } catch {
+        if (!cancelled) {
+          setLoadedSnapshot(null);
+        }
       }
+    }
 
-      const match = response.items.find((item) => item.snapshotId === snapshotId);
-
-      setSnapshotCapturedUtc(match?.capturedUtc ?? null);
-    });
+    void loadSnapshotMetadata();
 
     return () => {
       cancelled = true;
@@ -342,6 +369,8 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
         cloudResourceId,
         snapshotId,
         snapshotCapturedUtc,
+        snapshotSubscriptionName,
+        snapshotSubscriptionId,
         diffId,
         findingId,
         instanceId,
@@ -362,6 +391,8 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
       instanceId,
       snapshotCapturedUtc,
       snapshotId,
+      snapshotSubscriptionId,
+      snapshotSubscriptionName,
       workQueue,
     ],
   );
@@ -723,7 +754,14 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
         auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
         controlId: controlId.length > 0 ? controlId : null,
       });
-      setHistory((current) => [...current, { question: trimmed, response: result }]);
+      setHistory((current) => [
+        ...current,
+        {
+          question: trimmed,
+          response: result,
+          askedSnapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+        },
+      ]);
       setQuestion("");
     } catch (error: unknown) {
       const failure = toApiLoadFailure(error);
@@ -851,6 +889,15 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
               Question: {turn.question}
             </p>
 
+            {shouldShowInfraEvidenceAskStaleSnapshotCitation(turn.askedSnapshotId, snapshotId) ? (
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="infra-ask-stale-snapshot-citation"
+              >
+                {formatInfraEvidenceAskStaleSnapshotCitationLine(turn.askedSnapshotId ?? "")}
+              </p>
+            ) : null}
+
             {turn.response.simulatorLabel != null ? (
               <p
                 className={cn(
@@ -867,8 +914,9 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
               <div className="grid gap-2" data-testid="infra-ask-insufficient-evidence">
                 <StatusTag kind="needs-attention" label="Insufficient evidence" />
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-ask-insufficient-evidence-scope">
-                  This snapshot does not have enough evidence to answer. Ask did not query live Azure.
+                  {formatInfrastructureAskInsufficientEvidenceSnapshotLine(snapshotId)}
                 </p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{INFRASTRUCTURE_ASK_INSUFFICIENT_EVIDENCE_HONESTY_LINE}</p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                   {formatInfraEvidenceAskAnswer(turn.response.answer)}
                 </p>
@@ -949,6 +997,12 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
                         {citation.id === null ? (
                           <span className="text-al-text-secondary">Citation id was not stored. </span>
                         ) : null}
+                        {citation.kind === "finding" || citation.kind === "finding-disposition" ? (
+                          <span className="text-al-text-secondary">
+                            {" "}
+                            Citation points at a finding or disposition trail — not finalize proof by itself.
+                          </span>
+                        ) : null}
                         {link != null ? (
                           <Link className="text-al-link hover:underline" href={link.href}>
                             Open cited inventory evidence
@@ -986,6 +1040,23 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
         )}
         data-testid="infra-ask-primary-content"
       >
+
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-ask-insufficient-evidence-honesty">
+        {INFRASTRUCTURE_ASK_INSUFFICIENT_EVIDENCE_HONESTY_LINE}
+      </p>
+
+      {!drawerPresentation && isSecureNowProductLine(productLine) && partialCapture ? (
+        <div className="space-y-2" data-testid="infrastructure-ask-page-partial-capture">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{INFRASTRUCTURE_ASK_PARTIAL_CAPTURE_HONESTY_LINE}</p>
+          <SecureNowPartialCaptureRecoveryParagraph
+            testId="infrastructure-ask-page-partial-capture-recovery"
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
+            returnPath={partialCaptureReturnPath}
+            cloudConnectionsTestId="infrastructure-ask-page-partial-capture-cloud-connections"
+            extractUploadTestId="infrastructure-ask-page-partial-capture-extract-upload"
+          />
+        </div>
+      ) : null}
 
       {cloudResourceId.length > 0 && (
         auditScope != null
@@ -1081,7 +1152,7 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
 
       <section className={cn("grid gap-3", cnCard)} aria-label="Infrastructure Ask prompt">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-ask-snapshot-honesty">
-          Answers use the inventory snapshot on this page. They do not query live Azure.
+          {resolveInfraEvidenceAskSnapshotHonestyMessage(snapshotId)}
         </p>
         <div className="grid gap-2">
           <Label htmlFor="infra-ask-question">{GOVERNANCE_INFRASTRUCTURE_ASK_QUESTION_LABEL}</Label>
@@ -1150,22 +1221,28 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
       </section>
 
       {submitError != null ? (
-        <div
-          className={cn("rounded-md border px-3 py-2", DESIGN_TOKENS.callout.warn)}
-          role="alert"
-          data-testid="infra-ask-submit-error"
-        >
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusTag
-              kind={submitErrorIsBlocked ? "blocked" : "needs-attention"}
-              label={
-                submitErrorIsBlocked
-                  ? GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_BLOCKED_LABEL
-                  : GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_FAILED_LABEL
-              }
-            />
+        <div className="space-y-2" data-testid="infra-ask-submit-error">
+          <div
+            className={cn("rounded-md border px-3 py-2", DESIGN_TOKENS.callout.warn)}
+            role="alert"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusTag
+                kind={submitErrorIsBlocked ? "blocked" : "needs-attention"}
+                label={
+                  submitErrorIsBlocked
+                    ? GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_BLOCKED_LABEL
+                    : GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_FAILED_LABEL
+                }
+              />
+            </div>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{submitError}</p>
           </div>
-          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{submitError}</p>
+          <OperatorErrorRecoveryContract
+            presentation={errorRecoveryContractForScenario("api-problem", {
+              failureSummary: submitError,
+            })}
+          />
         </div>
       ) : null}
 

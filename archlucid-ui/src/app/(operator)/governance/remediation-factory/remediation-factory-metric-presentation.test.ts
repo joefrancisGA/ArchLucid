@@ -6,10 +6,23 @@ import {
   formatArchitectOutcomeDeltaValue,
   REMEDIATION_FACTORY_METRICS_MEASUREMENT_BODY,
   remediationFactoryCountMetricPresentation,
+  remediationFactoryPercentMetricPresentation,
 } from "@/app/(operator)/governance/remediation-factory/remediation-factory-metric-presentation";
+import { buildRemediationFactoryExecutiveMetricTiles } from "@/lib/remediation-factory/remediation-factory-metrics-presentation";
 import type { RemediationFactoryMetrics } from "@/lib/remediation-factory-types";
 
 describe("remediation-factory-metric-presentation", () => {
+  it("keeps low API percentages in percentage points", () => {
+    expect(remediationFactoryPercentMetricPresentation({ value: 1, scopeNote: "scope" }).displayValue)
+      .toBe("1%");
+
+    const metrics = { patternCoverageExactMatchPercent: 0.1, automationPercent: 1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "pattern-exact")?.value).toBe("0%");
+    expect(tiles.find((tile) => tile.id === "automation")?.value).toBe("1%");
+  });
+
   it("renders a missing count as not measured", () => {
     expect(remediationFactoryCountMetricPresentation({ value: null, scopeNote: "scope" })).toEqual(
       expect.objectContaining({

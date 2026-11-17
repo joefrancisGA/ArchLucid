@@ -127,6 +127,25 @@ public sealed class RemediationPatternServiceTests
 
         approve.Succeeded.Should().BeTrue();
         approve.Status.Should().Be(RemediationPatternStatus.Approved);
+        repository.Patterns.Should().ContainSingle().Which.CurrentApprovedVersion.Should().Be(approve.Version);
+    }
+
+    [Fact]
+    public async Task ApproveAsync_leaves_the_version_under_review_when_the_pattern_is_missing()
+    {
+        InMemoryRemediationPatternRepository repository = new();
+        RemediationPatternService sut = new(repository, NullLogger<RemediationPatternService>.Instance);
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        const string author = "jwt:tenant:author";
+        RemediationPatternOperationResult draft = await sut.CreateDraftAsync(scope, CreateDraftRequest(), author);
+        await sut.SubmitForReviewAsync(scope, draft.PatternId!.Value, draft.Version!, author);
+        repository.Patterns.Clear();
+
+        RemediationPatternOperationResult approve = await sut.ApproveAsync(
+            scope, draft.PatternId.Value, draft.Version!, "jwt:tenant:approver");
+
+        approve.Succeeded.Should().BeFalse();
+        repository.Versions.Should().ContainSingle().Which.Status.Should().Be(RemediationPatternStatus.UnderReview);
     }
 
     private static RemediationPatternDraftRequest CreateDraftRequest() =>
@@ -198,6 +217,38 @@ public sealed class RemediationPatternServiceTests
                 Patterns[index] = pattern;
 
             return Task.CompletedTask;
+        }
+
+        public Task<bool> TryApproveVersionAsync(
+            RemediationPatternVersionRecord approvedVersion,
+            RemediationPatternStatus expectedStatus,
+            CancellationToken cancellationToken = default)
+        {
+            int versionIndex = Versions.FindIndex(row =>
+                row.TenantId == approvedVersion.TenantId &&
+                row.VersionId == approvedVersion.VersionId &&
+                row.PatternId == approvedVersion.PatternId &&
+                row.Status == expectedStatus);
+            int patternIndex = Patterns.FindIndex(row =>
+                row.TenantId == approvedVersion.TenantId && row.PatternId == approvedVersion.PatternId);
+            if (versionIndex < 0 || patternIndex < 0)
+                return Task.FromResult(false);
+
+            RemediationPatternRecord prior = Patterns[patternIndex];
+            Patterns[patternIndex] = new RemediationPatternRecord
+            {
+                PatternId = prior.PatternId,
+                TenantId = prior.TenantId,
+                PatternKey = prior.PatternKey,
+                DisplayName = prior.DisplayName,
+                Description = prior.Description,
+                CurrentApprovedVersion = approvedVersion.Version,
+                CreatedByActorKey = prior.CreatedByActorKey,
+                CreatedUtc = prior.CreatedUtc,
+                UpdatedUtc = approvedVersion.UpdatedUtc,
+            };
+            Versions[versionIndex] = approvedVersion;
+            return Task.FromResult(true);
         }
 
         public Task<RemediationPatternRecord?> TryGetPatternByIdAsync(

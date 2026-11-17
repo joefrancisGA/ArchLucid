@@ -7,12 +7,19 @@ namespace ArchLucid.Core.Tests.Manifest;
 [Trait("Category", "Unit")]
 public sealed class DecisionConfidenceSourceMapperTests
 {
+    [Fact]
+    public void ToBuyerLabel_null_or_whitespace_string_returns_not_stored_label()
+    {
+        DecisionConfidenceSourceMapper.ToBuyerLabel(null).Should().Be(BuyerDecisionConfidenceSource.NotStored);
+        DecisionConfidenceSourceMapper.ToBuyerLabel("   ").Should().Be(BuyerDecisionConfidenceSource.NotStored);
+    }
+
     [Theory]
     [InlineData(DecisionConfidenceSource.FindingEvaluation, BuyerDecisionConfidenceSource.EvidenceBacked)]
     [InlineData(DecisionConfidenceSource.RuleEngine, BuyerDecisionConfidenceSource.EvidenceBacked)]
     [InlineData(DecisionConfidenceSource.LlmAgent, BuyerDecisionConfidenceSource.ModelAssisted)]
     [InlineData(DecisionConfidenceSource.Unknown, BuyerDecisionConfidenceSource.Unknown)]
-    [InlineData(DecisionConfidenceSource.NotComputed, BuyerDecisionConfidenceSource.Unknown)]
+    [InlineData(DecisionConfidenceSource.NotComputed, BuyerDecisionConfidenceSource.NotComputed)]
     public void ToBuyerLabel_maps_internal_sources(DecisionConfidenceSource source, string expected)
     {
         DecisionConfidenceSourceMapper.ToBuyerLabel(source).Should().Be(expected);
@@ -25,7 +32,13 @@ public sealed class DecisionConfidenceSourceMapperTests
     }
 
     [Fact]
-    public void ToBuyerLabel_parses_string_encoded_whole_number_ordinal()
+    public void ToBuyerLabel_unrecognized_string_returns_unrecognized_label()
+    {
+        DecisionConfidenceSourceMapper.ToBuyerLabel("NotARealSource").Should().Be(BuyerDecisionConfidenceSource.Unrecognized);
+    }
+
+    [Fact]
+    public void ToBuyerLabel_unknown_enum_maps_to_unknown_not_unrecognized()
     {
         DecisionConfidenceSourceMapper.ToBuyerLabel("5.0").Should().Be(BuyerDecisionConfidenceSource.ModelAssisted);
     }

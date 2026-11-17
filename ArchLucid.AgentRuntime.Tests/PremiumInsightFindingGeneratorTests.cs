@@ -236,6 +236,28 @@ public sealed class PremiumInsightFindingGeneratorTests
     }
 
     [Fact]
+    public void InsightGeneratorFindingParser_uses_honesty_labels_when_category_and_severity_missing()
+    {
+        const string json = """
+                              {
+                                "findings": [
+                                  {
+                                    "title": "Title",
+                                    "rationale": "Because",
+                                    "evidenceRefs": ["graph-node:n1"]
+                                  }
+                                ]
+                              }
+                              """;
+
+        IReadOnlyList<InsightGeneratorProposal> proposals = InsightGeneratorFindingParser.TryParse(json, maxFindings: 8);
+
+        proposals.Should().ContainSingle();
+        proposals[0].Category.Should().Be(InsightGeneratorFindingHonesty.CategoryNotStored);
+        proposals[0].Rationale.Should().Contain(InsightGeneratorFindingHonesty.SeverityNotStoredRationaleSuffix);
+    }
+
+    [Fact]
     public void InsightGeneratorFindingParser_parses_valid_json()
     {
         const string json = """

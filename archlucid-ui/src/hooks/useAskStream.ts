@@ -101,11 +101,11 @@ export function useAskStream(): UseAskStreamResult {
           },
         },
         signal,
-      );
-
-      clearFlushTimer();
-      flushPending();
-      setIsStreaming(false);
+      ).finally(() => {
+        clearFlushTimer();
+        flushPending();
+        setIsStreaming(false);
+      });
 
       return { response, error: streamError };
     },

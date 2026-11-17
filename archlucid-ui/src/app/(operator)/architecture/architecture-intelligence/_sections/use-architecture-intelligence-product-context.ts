@@ -16,6 +16,7 @@ import {
   parseArchitectureIntelligenceTierFromSearch,
 } from "@/lib/architecture/architecture-intelligence-tier-url";
 import {
+  ARCHITECTURE_INTELLIGENCE_CONTEXT_RUN_PARAM,
   architectureIntelligenceContextRunHrefFromSearch,
   parseArchitectureIntelligenceContextRunIdFromSearch,
 } from "@/lib/architecture/architecture-intelligence-context-run-url";
@@ -24,7 +25,7 @@ import { useArchitectureIntelligenceSourceContextQuery } from "@/hooks/use-archi
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
 import { primaryDescriptionFromSources } from "./architecture-intelligence-client-api";
-import { architectureIntelligenceErrorToLoadFailure } from "./architecture-intelligence-page-helpers";
+import { architectureIntelligenceErrorToLoadFailure, shouldClearIntakeWhenInboundRunIdDropped } from "./architecture-intelligence-page-helpers";
 import { architectureIntelligenceSourceContextBlockedReason } from "@/lib/architecture/architecture-intelligence-source-context-blocked-reason";
 import type {
   ClosedLoopReasoningSourceText,
@@ -44,6 +45,12 @@ export type ArchitectureIntelligenceLoadingAction =
   | null;
 
 type ProductContextStatus = "idle" | "loading" | "loaded" | "empty" | "error";
+
+export function hasUsableArchitectureSourceText(
+  sources: readonly ClosedLoopReasoningSourceText[],
+): boolean {
+  return sources.some((source) => source.content.trim().length > 0);
+}
 
 export type UseArchitectureIntelligenceProductContextResult = {
   buyerPolishedShell: boolean;
@@ -92,6 +99,9 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   const router = useRouter();
   const pathname = usePathname() ?? ARCHITECTURE_INTELLIGENCE_PATH;
   const searchParams = useSearchParams();
+  // Next can return a new ReadonlyURLSearchParams wrapper on re-render.
+  // Effects that reset state must depend on URL values, not wrapper identity.
+  const searchParamsSerialized = searchParams.toString();
   const inboundRunId = searchParams.get("runId")?.trim() ?? "";
   const inboundFrom = searchParams.get("from")?.trim() ?? "";
   const urlContextRunId = parseArchitectureIntelligenceContextRunIdFromSearch(searchParams.get("contextRunId"));
@@ -103,6 +113,9 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   const previousUrlContextRunIdRef = useRef("");
   const previousInboundRunIdForScopeRef = useRef(inboundRunId);
   const actionGenerationRef = useRef(0);
+  const strippedInvalidTierRef = useRef<string | null>(null);
+  const clearedInboundContextConflictRef = useRef<string | null>(null);
+  const lastInboundHydrationSignatureRef = useRef<string | null>(null);
   const invalidateInFlightActions = useCallback(() => {
     actionGenerationRef.current += 1;
   }, []);
@@ -180,14 +193,24 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     previousUrlContextRunIdRef.current = urlContextRunId;
     previousInboundRunIdForScopeRef.current = inboundRunId;
 
+    if (
+      inboundRunId.length > 0 &&
+      urlContextRunId.length > 0 &&
+      urlContextRunId !== inboundRunId
+    ) {
+      return;
+    }
+
     if (urlContextRunId.length === 0) {
       return;
     }
 
-    const droppedInboundToDifferentContext =
-      previousInbound.length > 0 &&
-      inboundRunId.length === 0 &&
-      urlContextRunId !== previousInbound;
+    const droppedInboundToDifferentContext = shouldClearIntakeWhenInboundRunIdDropped(
+      previousInbound,
+      inboundRunId,
+      urlContextRunId,
+      activeRunId,
+    );
 
     const changedContextOnlyScope =
       inboundRunId.length === 0 &&
@@ -221,7 +244,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     }
 
     setActiveRunId(urlContextRunId);
-  }, [urlContextRunId, inboundRunId, invalidateInFlightActions]);
+  }, [urlContextRunId, inboundRunId, activeRunId, invalidateInFlightActions]);
 
   useEffect(() => {
     if (inboundRunId.length > 0 || urlContextRunId.length > 0) {
@@ -276,7 +299,37 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
 
   useEffect(() => {
     if (inboundRunId.length === 0) {
+      lastInboundHydrationSignatureRef.current = null;
       return;
+    }
+
+    // A router wrapper can change without a change in URL or hydration context.
+    // Run the destructive reset once per semantic input, not once per wrapper identity.
+    const hydrationSignature = JSON.stringify([
+      inboundRunId,
+      urlContextRunId,
+      productContextReloadNonce,
+      urlReviewTier,
+      pathname,
+      searchParamsSerialized,
+    ]);
+    if (lastInboundHydrationSignatureRef.current === hydrationSignature) {
+      return;
+    }
+    lastInboundHydrationSignatureRef.current = hydrationSignature;
+
+    if (urlContextRunId.length > 0 && urlContextRunId !== inboundRunId) {
+      const conflictKey = `${inboundRunId}|${urlContextRunId}`;
+
+      if (clearedInboundContextConflictRef.current !== conflictKey) {
+        clearedInboundContextConflictRef.current = conflictKey;
+        router.replace(
+          architectureIntelligenceContextRunHrefFromSearch(searchParamsSerialized, null, pathname),
+          { scroll: false },
+        );
+      }
+    } else {
+      clearedInboundContextConflictRef.current = null;
     }
 
     invalidateInFlightActions();
@@ -286,7 +339,26 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     setError(null);
     setPublishToProduct(false);
     setReviewTier(urlReviewTier ?? "Standard");
-  }, [inboundRunId, invalidateInFlightActions, productContextReloadNonce, urlReviewTier]);
+  }, [inboundRunId, invalidateInFlightActions, productContextReloadNonce, urlReviewTier, urlContextRunId, pathname, router, searchParamsSerialized]);
+
+  useEffect(() => {
+    const rawTier = searchParams.get("tier")?.trim() ?? "";
+
+    if (rawTier.length === 0 || urlReviewTier !== null) {
+      strippedInvalidTierRef.current = null;
+
+      return;
+    }
+
+    if (strippedInvalidTierRef.current === rawTier) {
+      return;
+    }
+
+    strippedInvalidTierRef.current = rawTier;
+    router.replace(architectureIntelligenceTierHrefFromSearch(searchParams.toString(), null, pathname), {
+      scroll: false,
+    });
+  }, [pathname, router, searchParams, urlReviewTier]);
 
   useEffect(() => {
     if (inboundRunId.length === 0 || sourceContextQuery.data === undefined) {
@@ -310,7 +382,14 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
 
       return hydratedDescriptionFromQuery;
     });
-    setActiveRunId(sourceContextQuery.data.runId?.trim() || inboundRunId);
+    const apiRunId = sourceContextQuery.data.runId?.trim() ?? "";
+    const resolvedActiveRunId = apiRunId.length > 0 ? apiRunId : inboundRunId;
+
+    if (apiRunId.length > 0 && apiRunId !== inboundRunId) {
+      setActiveRunIdWithUrl(apiRunId);
+    } else {
+      setActiveRunId(resolvedActiveRunId);
+    }
     setPrioritiesRaw((currentPriorities) => {
       if (hydratedPrioritiesFromQuery.trim().length > 0) {
         return hydratedPrioritiesFromQuery;
@@ -324,7 +403,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
       return hydratedPrioritiesFromQuery;
     });
 
-    setProductContextStatus(sources.length > 0 ? "loaded" : "empty");
+    setProductContextStatus(hasUsableArchitectureSourceText(sources) ? "loaded" : "empty");
     setLoadingAction(null);
   }, [
     hydratedDescriptionFromQuery,
@@ -462,7 +541,8 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
 
       const params = new URLSearchParams(searchParams.toString());
       params.set("runId", normalized);
-      router.replace(`${pathname}?${params.toString()}`);
+      params.delete(ARCHITECTURE_INTELLIGENCE_CONTEXT_RUN_PARAM);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     },
     [pathname, router, searchParams],
   );

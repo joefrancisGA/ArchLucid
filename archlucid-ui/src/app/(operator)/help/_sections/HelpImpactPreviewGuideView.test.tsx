@@ -5,8 +5,21 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/help/impact-preview",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
 import { HelpImpactPreviewGuideView } from "@/app/(operator)/help/_sections/HelpImpactPreviewGuideView";
+import { whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import {
+  IMPACT_PREVIEW_HELP_CANONICAL_PATH,
   IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE,
   IMPACT_PREVIEW_HELP_SOURCES,
 } from "@/lib/impact-preview-help-evidence-copy";
@@ -70,7 +83,10 @@ describe("HelpImpactPreviewGuideView", () => {
 
     const sourcesSection = screen.getByTestId("help-impact-preview-sources");
 
-    for (const source of IMPACT_PREVIEW_HELP_SOURCES) {
+    for (const source of whereToGoNextFollowUpLinksForTests(
+      IMPACT_PREVIEW_HELP_SOURCES,
+      IMPACT_PREVIEW_HELP_CANONICAL_PATH,
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

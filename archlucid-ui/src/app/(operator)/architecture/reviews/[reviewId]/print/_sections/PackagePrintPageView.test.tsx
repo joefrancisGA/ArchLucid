@@ -66,6 +66,52 @@ describe("PackagePrintPageView (TB-2205)", () => {
     );
   });
 
+  it("shows semantic support heading when stamp line is null", () => {
+    render(
+      <PackagePrintPageView
+        presentation={{
+          title: "Payments edge",
+          statusLabel: "Finalized",
+          statusKind: "approved",
+          findingsSummary: "3 findings",
+          sponsorSynopsis: null,
+          createdUtc: "2026-08-01T12:00:00Z",
+          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          manifestVersionForGuard: "manifest-1",
+          semanticSupportBandStampLine: null,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("package-print-semantic-support-band-line")).toHaveTextContent(
+      "Semantic support stamp was not stored on this print.",
+    );
+  });
+
+  it("labels zero decision-grade findings only when a findings snapshot is present", () => {
+    render(
+      <PackagePrintPageView
+        presentation={{
+          title: "Payments edge",
+          statusLabel: "Finalized",
+          statusKind: "approved",
+          findingsSummary: "3 findings",
+          sponsorSynopsis: null,
+          createdUtc: "2026-08-01T12:00:00Z",
+          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          manifestVersionForGuard: "manifest-1",
+          semanticSupportBandStampLine: null,
+          semanticSupportFindingsSnapshotPresent: true,
+          semanticSupportDecisionGradeCount: 0,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("package-print-semantic-support-band-line")).toHaveTextContent(
+      "No decision-grade findings were stored for semantic support.",
+    );
+  });
+
   it("renders semantic support stamp line when provided (AS-071)", () => {
     render(
       <PackagePrintPageView
@@ -105,8 +151,10 @@ describe("PackagePrintPageView (TB-2205)", () => {
       />,
     );
 
-    expect(screen.getByTestId("package-print-sponsor-synopsis")).toHaveTextContent("not published");
-    expect(screen.getByTestId("package-print-sponsor-synopsis")).toHaveTextContent("Working sponsor paragraph.");
+    const synopsis = screen.getByTestId("package-print-sponsor-synopsis");
+    expect(synopsis).toHaveTextContent("A stored sponsor synopsis was not on this print.");
+    expect(synopsis).toHaveTextContent("Draft review");
+    expect(synopsis).toHaveTextContent("Finding count was not stored.");
   });
 
   it("renders meeting capture blockedReason callout when capture is blocked (sealed-manifest 409)", () => {

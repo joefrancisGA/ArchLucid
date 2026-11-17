@@ -1,0 +1,5 @@
+# SQL and vector retrieval capacity evidence
+
+The `archlucid-sql-vector-capacity.yml` workflow uses the existing SQL Server integration test container to run `SqlSecurityEvidencePathRepositorySqlIntegrationTests` and the existing `RetrievalQueryServiceTests` with in-memory vector index. It uploads TRX files and an advisory versioned JSON suite-timing report. A missing, empty or failed TRX must not be reported as a successful measurement.
+
+These suites execute actual SQL-backed repository logic and actual retrieval query orchestration, but are **not controlled microbenchmarks**. Their durations include tests, assertions, test setup and runner scheduling. The vector index is in memory and is not an external vector database. Do not use these measurements to infer isolated CPU/memory, remote vector search latency, worker count, capacity SLO, or cloud spend. No tenant production data, network credentials or deployments are introduced. This is a foundation for a future dedicated calibrated benchmark with representative seeded volumes and controlled hardware.

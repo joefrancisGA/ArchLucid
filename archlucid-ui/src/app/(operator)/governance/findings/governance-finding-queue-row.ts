@@ -1,4 +1,5 @@
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 import type { FindingConfidenceLevel } from "@/types/explanation";
 import type { components } from "@/lib/api-types/schemas.generated";
 import type { FindingSemanticSupportBandValue } from "@/lib/findings/semantic-support-band-presentation";
@@ -55,9 +56,9 @@ export function governanceFindingQueueRowHasStoredRunId(row: GovernanceFindingQu
   return row.runId.trim().length > 0;
 }
 
-/** Review hub href for a queue row run id; trims padding before encoding. */
+/** Review hub href for a queue row run id; nested when architecture context is known. */
 export function governanceFindingQueueRowReviewHref(runId: string): string {
-  return `/architecture/reviews/${encodeURIComponent(runId.trim())}`;
+  return resolveGovernanceScopedReviewOpenHref({ runId });
 }
 
 /** Optional API policy rule keys must be non-empty after trim before traceability chrome renders. */
@@ -70,6 +71,12 @@ export function governanceFindingQueueRowHasDisplayCategory(row: GovernanceFindi
   return row.recordKind === "finding" && row.category.trim().length > 0;
 }
 
+export const GOVERNANCE_QUEUE_RECORD_ROLE_DECISION_HONESTY =
+  "Decision rows record architecture choices — severity and finding confidence do not apply." as const;
+
+export const GOVERNANCE_QUEUE_RECORD_ROLE_FINDING_HONESTY =
+  "Finding rows carry severity and trace confidence when the API stored them." as const;
+
 export function formatGovernanceQueueRecordKind(
   kind: GovernanceFindingQueueRecordKind,
   buyerPolishedShell: boolean,
@@ -79,4 +86,12 @@ export function formatGovernanceQueueRecordKind(
   }
 
   return buyerPolishedShell ? BUYER_SURFACE_VOCABULARY.finding : "Finding";
+}
+
+export function formatGovernanceQueueRecordRoleHonesty(
+  kind: GovernanceFindingQueueRecordKind,
+): string {
+  return kind === "decision"
+    ? GOVERNANCE_QUEUE_RECORD_ROLE_DECISION_HONESTY
+    : GOVERNANCE_QUEUE_RECORD_ROLE_FINDING_HONESTY;
 }

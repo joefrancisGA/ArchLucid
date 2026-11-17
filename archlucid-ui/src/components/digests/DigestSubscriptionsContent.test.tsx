@@ -212,6 +212,32 @@ describe("DigestSubscriptionsContent", () => {
     expect(createButton).toHaveAttribute("aria-describedby", "digest-subscription-create-disabled-hint");
   });
 
+  it("shows a bookmarked delivery history as unavailable when its request fails", async () => {
+    navigationState.search = "history=s1";
+    vi.mocked(listDigestSubscriptions).mockResolvedValue([
+      {
+        subscriptionId: "s1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Ops mailbox",
+        channelType: "Email",
+        destination: "ops@example.com",
+        isEnabled: true,
+        createdUtc: "2026-07-01T00:00:00Z",
+        metadataJson: "{}",
+      },
+    ]);
+    vi.mocked(listSubscriptionDeliveryAttempts).mockRejectedValue(new Error("Request failed."));
+
+    renderWithOperatorQuery(<DigestSubscriptionsContent healthSnap={null} />);
+
+    expect(await screen.findByTestId("digest-subscription-delivery-history-error")).toHaveTextContent(
+      "Delivery history unavailable.",
+    );
+    expect(screen.queryByText("No delivery attempts recorded for this subscription yet.")).toBeNull();
+  });
+
   it("renders subscription table with status and actions when rows exist", async () => {
     vi.mocked(listDigestSubscriptions).mockResolvedValue([
       {

@@ -176,7 +176,7 @@ public sealed class FallbackLlmResilienceCompositionTests
     }
 
     [SkippableFact]
-    public async Task TaskCanceledException_without_user_cancellation_is_not_fallback_eligible_even_after_retries()
+    public async Task TaskCanceledException_without_user_cancellation_falls_back_after_retries()
     {
         int primaryInnerCalls = 0;
         Mock<IAgentCompletionClient> primaryInner = new();
@@ -193,20 +193,51 @@ public sealed class FallbackLlmResilienceCompositionTests
 
         Mock<IAgentCompletionClient> secondary = new();
         secondary.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("fb", "fb"));
+        secondary
+            .Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("fallback-after-timeout");
 
         using CircuitBreakingAgentCompletionClient primaryChain = CreatePrimaryWithRetry(primaryInner.Object, maxRetryAttempts: 2);
 
-        FallbackAgentCompletionClient sut = new(
+        using FallbackAgentCompletionClient sut = new(
             primaryChain,
             secondary.Object,
             NullLogger<FallbackAgentCompletionClient>.Instance);
 
-        Func<Task> act = async () => await sut.CompleteJsonAsync("s", "u");
+        string result = await sut.CompleteJsonAsync("s", "u");
 
-        await act.Should().ThrowAsync<TaskCanceledException>();
-
+        result.Should().Be("fallback-after-timeout");
         primaryInnerCalls.Should().Be(3);
 
+        secondary.Verify(
+            c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task User_requested_cancellation_does_not_retry_or_invoke_fallback()
+    {
+        using CancellationTokenSource source = new();
+        source.Cancel();
+
+        Mock<IAgentCompletionClient> primary = new();
+        primary.SetupGet(c => c.Descriptor).Returns(PrimaryDescriptor);
+
+        Mock<IAgentCompletionClient> secondary = new();
+        secondary.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("fb", "fb"));
+
+        using FallbackAgentCompletionClient sut = new(
+            primary.Object,
+            secondary.Object,
+            NullLogger<FallbackAgentCompletionClient>.Instance);
+
+        Func<Task> act = () => sut.CompleteJsonAsync("s", "u", cancellationToken: source.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        primary.Verify(
+            c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
         secondary.Verify(
             c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Never);

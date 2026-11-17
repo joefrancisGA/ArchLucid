@@ -8,6 +8,7 @@ import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
 import { enrichRunsListWithStaticDemoFallback } from "@/lib/operator/operator-runs-list-with-demo-fallback";
+import { usePolicyPacksHubPath } from "@/lib/product-line/use-policy-packs-hub-path";
 import { resolveNextRunsListRow } from "@/lib/resolve-next-runs-list-row";
 import type { RunSummary } from "@/types/authority";
 
@@ -20,6 +21,7 @@ export type PolicyPacksNextReviewFooterClientProps = {
 export function PolicyPacksNextReviewFooterClient(
   props: PolicyPacksNextReviewFooterClientProps,
 ): React.JSX.Element | null {
+  const policyPacksHubPath = usePolicyPacksHubPath();
   const [runs, setRuns] = useState<readonly RunSummary[]>([]);
 
   const loadRuns = useCallback(async () => {
@@ -60,9 +62,9 @@ export function PolicyPacksNextReviewFooterClient(
     return {
       runId: target.runId,
       reviewTitle,
-      href: policyPacksNextReviewHref(target.runId),
+      href: policyPacksNextReviewHref(target.runId, policyPacksHubPath),
     };
-  }, [props.runId, runs]);
+  }, [policyPacksHubPath, props.runId, runs]);
 
   if (nextReview === null) {
     return null;

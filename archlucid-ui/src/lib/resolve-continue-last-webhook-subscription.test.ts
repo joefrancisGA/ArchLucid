@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   resolveContinueLastWebhookSubscription,
@@ -59,6 +59,22 @@ describe("resolveContinueLastWebhookSubscription", () => {
 
     expect(match?.subscriptionId).toBe("enabled-new");
     expect(match?.name).toBe("Enabled new");
+  });
+
+  it("orders offset-less SQL UTC times correctly across the browser's daylight-saving gap", () => {
+    window.localStorage.removeItem(WEBHOOK_SUBSCRIPTION_LAST_VIEWED_STORAGE_KEY);
+    vi.stubEnv("TZ", "America/New_York");
+
+    try {
+      const match = resolveContinueLastWebhookSubscription([
+        subscription({ routingSubscriptionId: "earlier", createdUtc: "2026-03-08T02:45:00" }),
+        subscription({ routingSubscriptionId: "latest", createdUtc: "2026-03-08T03:15:00" }),
+      ]);
+
+      expect(match?.subscriptionId).toBe("latest");
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it("returns null when stored id does not match any loaded subscription", () => {

@@ -6,7 +6,6 @@ import { ArchitectureDiagramInsufficientState } from "@/components/architecture/
 import { ArchitectureDiagramReadyView } from "@/components/architecture/ArchitectureDiagramReadyView";
 import { ArchitectureDiagramViewer } from "@/components/architecture/ArchitectureDiagramViewer";
 import { Button } from "@/components/ui/button";
-import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   ARCHITECTURE_DIAGRAM_DRAFT_LABEL,
@@ -20,6 +19,7 @@ import {
   ARCHITECTURE_DIAGRAM_RETRY_ACTION,
   ARCHITECTURE_DIAGRAM_SECTION_HEADING,
   ARCHITECTURE_DIAGRAM_STORAGE_WRITE_FAILURE,
+  formatArchitectureDiagramUnconfirmedInferredHeaderLine,
 } from "@/lib/architecture/architecture-diagram-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -33,6 +33,10 @@ export type { ArchitectureDiagramPanelProps };
 /** Post-creation architecture diagram with async generation, caching, and edit controls. */
 export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): React.JSX.Element {
   const panel = useArchitectureDiagramPanel(props);
+  const unconfirmedInferredHeaderLine =
+    panel.phase === "ready"
+      ? formatArchitectureDiagramUnconfirmedInferredHeaderLine(panel.unconfirmedInferredCount)
+      : null;
 
   if (panel.variant === "preview") {
     return (
@@ -74,7 +78,9 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
 
         {panel.phase === "error" || panel.phase === "invalid" ? (
           <div className="space-y-2" role="alert" data-testid="architecture-diagram-preview-failure">
-            <SeverityTag severity="high" label="Diagram unavailable" />
+            <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+              Diagram preview unavailable
+            </p>
             <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
               {ARCHITECTURE_DIAGRAM_RENDER_FAILURE}
             </p>
@@ -131,6 +137,14 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
               {ARCHITECTURE_DIAGRAM_DRAFT_LABEL}
             </p>
+            {unconfirmedInferredHeaderLine !== null ? (
+              <p
+                className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="architecture-diagram-unconfirmed-inferred-header"
+              >
+                {unconfirmedInferredHeaderLine}
+              </p>
+            ) : null}
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {ARCHITECTURE_DIAGRAM_NOT_AUTHORITATIVE}
             </p>
@@ -158,7 +172,9 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
 
       {panel.phase === "error" ? (
         <div className="space-y-3" data-testid="architecture-diagram-generation-failure" role="alert">
-          <SeverityTag severity="high" label="Diagram generation error" />
+          <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+            Diagram generation did not complete
+          </p>
           <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.body)}>
             {ARCHITECTURE_DIAGRAM_RENDER_FAILURE}
           </p>
@@ -170,7 +186,9 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
 
       {panel.phase === "invalid" ? (
         <div className="space-y-3" data-testid="architecture-diagram-invalid" role="alert">
-          <SeverityTag severity="medium" label="Invalid diagram source" />
+          <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+            Diagram source could not be rendered
+          </p>
           <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.body)}>
             The diagram source is invalid. Edit the diagram or regenerate after updating your brief.
           </p>

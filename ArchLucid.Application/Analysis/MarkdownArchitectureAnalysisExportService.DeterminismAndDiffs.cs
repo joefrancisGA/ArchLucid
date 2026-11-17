@@ -10,15 +10,27 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
 {
     private static void AppendDeterminismAndDiffs(StringBuilder sb, ArchitectureAnalysisReport report)
     {
+        bool hasCompareArtifacts =
+            report.Determinism is not null
+            || report.ManifestDiff is not null
+            || report.AgentResultDiff is not null;
+
+        if (!hasCompareArtifacts)
+        {
+            return;
+        }
+
         if (report.Determinism is not null)
         {
             sb.AppendLine("## Determinism Check");
             sb.AppendLine();
-            sb.AppendLine($"- Source Run ID: {report.Determinism.SourceRunId}");
+            sb.AppendLine(
+                $"- Source Run ID: {FormatDeterminismRunId(report.Determinism.SourceRunId, "Source run ID was not stored.")}");
             sb.AppendLine($"- Iterations: {report.Determinism.Iterations}");
             sb.AppendLine($"- Execution Mode: {report.Determinism.ExecutionMode}");
             sb.AppendLine($"- Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
-            sb.AppendLine($"- Baseline Replay Run ID: {report.Determinism.BaselineReplayRunId}");
+            sb.AppendLine(
+                $"- Baseline Replay Run ID: {FormatDeterminismRunId(report.Determinism.BaselineReplayRunId, "Baseline replay run ID was not stored.")}");
             sb.AppendLine();
 
             foreach (DeterminismIterationResult iteration in report.Determinism.IterationResults.OrderBy(x =>
@@ -26,27 +38,36 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             {
                 sb.AppendLine($"### Iteration {iteration.IterationNumber}");
                 sb.AppendLine();
-                sb.AppendLine($"- Replay Run ID: {iteration.ReplayRunId}");
                 sb.AppendLine(
-                    $"- Matches Baseline Agent Results: {(iteration.MatchesBaselineAgentResults ? "Yes" : "No")}");
-                sb.AppendLine($"- Matches Baseline Manifest: {(iteration.MatchesBaselineManifest ? "Yes" : "No")}");
+                    $"- Replay Run ID: {FormatMarkdownListText(DeterminismExportHonestyCopy.FormatReplayRunId(iteration.ReplayRunId))}");
+                sb.AppendLine(
+                    $"- Matches Baseline Agent Results: {DeterminismExportHonestyCopy.FormatAgentResultsMatch(iteration.MatchesBaselineAgentResults)}");
+                sb.AppendLine(
+                    $"- Matches Baseline Manifest: {DeterminismExportHonestyCopy.FormatManifestMatch(iteration)}");
 
                 if (iteration.AgentDriftWarnings.Count > 0)
                 {
                     sb.AppendLine("- Agent Drift Warnings:");
                     sb.AppendLine(string.Join(Environment.NewLine,
-                        iteration.AgentDriftWarnings.Select(static warning => $"  - {warning}")));
+                        iteration.AgentDriftWarnings.Select(static warning => $"  - {FormatMarkdownListText(warning)}")));
                 }
 
                 if (iteration.ManifestDriftWarnings.Count > 0)
                 {
                     sb.AppendLine("- Manifest Drift Warnings:");
                     sb.AppendLine(string.Join(Environment.NewLine,
-                        iteration.ManifestDriftWarnings.Select(static warning => $"  - {warning}")));
+                        iteration.ManifestDriftWarnings.Select(static warning => $"  - {FormatMarkdownListText(warning)}")));
                 }
 
                 sb.AppendLine();
             }
+        }
+        else
+        {
+            sb.AppendLine("## Determinism Check");
+            sb.AppendLine();
+            sb.AppendLine($"- {ConsultingDocxAppendixHonestyCopy.DeterminismCheckNotStored}");
+            sb.AppendLine();
         }
 
         if (report.ManifestDiff is not null)
@@ -72,9 +93,23 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
 
                 AppendList(sb, "Warnings", report.ManifestDiff.Warnings);
         }
+        else
+        {
+            sb.AppendLine("## Manifest Diff");
+            sb.AppendLine();
+            sb.AppendLine($"- {ConsultingDocxAppendixHonestyCopy.ManifestDiffNotStored}");
+            sb.AppendLine();
+        }
 
         if (report.AgentResultDiff is null)
+        {
+            sb.AppendLine("## Agent Result Diff");
+            sb.AppendLine();
+            sb.AppendLine($"- {ConsultingDocxAppendixHonestyCopy.AgentResultDiffNotStored}");
+            sb.AppendLine();
+
             return;
+        }
 
         sb.AppendLine("## Agent Result Diff");
         sb.AppendLine();
@@ -111,12 +146,14 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
 
         if (items.Count == 0)
         {
-            sb.AppendLine("- None");
+            sb.AppendLine($"- {ArchitectureEvidenceRequestExport.EmptyDiffListBulletCopy}");
             sb.AppendLine();
             return;
         }
 
-        sb.AppendLine(string.Join(Environment.NewLine, items.Select(static item => $"- {item}")));
+        sb.AppendLine(string.Join(
+            Environment.NewLine,
+            items.Select(static item => $"- {FormatMarkdownListText(ArchitectureEvidenceRequestExport.FormatDiffListEntry(item))}")));
 
         sb.AppendLine();
     }

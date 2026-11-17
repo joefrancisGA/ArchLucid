@@ -1,5 +1,6 @@
 import type { ReportProblemSubmitPayload } from "@/components/support/ReportProblemDialog";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { trimNullableText } from "./api-boundary-normalization";
 
 export const SUPPORT_PROBLEM_REPORT_PATH = "/api/proxy/v1/support/problem-reports";
 
@@ -43,13 +44,24 @@ export async function submitReportProblemIntake(
   payload: ReportProblemSubmitPayload,
   fetchFn: typeof fetch = fetch,
 ): Promise<SubmitReportProblemIntakeResult> {
+  const normalizedPayload: ReportProblemSubmitPayload = {
+    ...payload,
+    context: Object.fromEntries(
+      Object.entries(payload.context).map(([key, value]) => [
+        key,
+        typeof value === "string" ? value.trim() : value,
+      ]),
+    ) as ReportProblemSubmitPayload["context"],
+    operatorNote: trimNullableText(payload.operatorNote),
+  };
+
   try {
     const res = await fetchFn(
       SUPPORT_PROBLEM_REPORT_PATH,
       mergeRegistrationScopeForProxy({
         method: "POST",
         headers: { Accept: "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(normalizedPayload),
       }),
     );
 

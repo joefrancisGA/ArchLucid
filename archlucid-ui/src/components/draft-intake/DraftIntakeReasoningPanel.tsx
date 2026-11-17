@@ -17,6 +17,9 @@ import { reasonDraftRequest } from "@/lib/api/draft-intake-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
+  formatExportPreviewShortenedText,
+} from "@/lib/export-preview-caption-honesty";
+import {
   draftIntakeReasoningPanelHrefFromSearch,
   parseDraftIntakeReasonOpenFromSearch,
 } from "@/lib/draft-intake/draft-intake-reasoning-panel-url";
@@ -52,13 +55,13 @@ function summarizeLatestTurn(turns: DraftIntakeReasonTurn[]): string | null {
   }
 
   const latest = turns[turns.length - 1];
-  const preview = latest.answer.replace(/\s+/g, " ").trim();
 
-  if (preview.length <= 120) {
-    return preview;
-  }
-
-  return `${preview.slice(0, 117)}…`;
+  return formatExportPreviewShortenedText(
+    latest.answer,
+    "Intake assistant answer was not stored.",
+    120,
+    "Intake assistant answer was stored empty.",
+  );
 }
 
 /**

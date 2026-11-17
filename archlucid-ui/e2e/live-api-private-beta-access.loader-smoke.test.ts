@@ -43,6 +43,7 @@ describe("live-api-private-beta-access loader smoke", () => {
     expect(source).toContain("isArchitectureRequestCreateResponse");
     expect(source).toContain("readCreatedRunIdFromArchitectureRequestCreate");
     expect(source).toContain("uniquePrivateBetaSystemName");
+    expect(source).toContain("ensureSimplifiedPilotEnvironmentSelected");
     expect(source).not.toContain("waitForAsyncWizardRun");
     expect(source).not.toContain("interpretWizardCreateOperation");
   });

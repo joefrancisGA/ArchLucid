@@ -6,7 +6,10 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
-import { ARCHITECTURE_CREATED_CONFIRMATION, ARCHITECTURE_CREATED_OVERFLOW_LABEL } from "@/lib/architecture/architecture-created-home-copy";
+import {
+  ARCHITECTURE_CREATED_OVERFLOW_LABEL,
+  resolveArchitectureCreatedConfirmation,
+} from "@/lib/architecture/architecture-created-home-copy";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import {
   ARCHITECTURE_CREATED_OVERFLOW_OPEN_PARAM,
@@ -112,7 +115,7 @@ export function ArchitectureCreatedWorkspaceHeader(
       <div className="min-w-0 space-y-2">
         {!buyerPolishedShell ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {ARCHITECTURE_CREATED_CONFIRMATION}
+            {resolveArchitectureCreatedConfirmation(model.submittedBriefStored)}
           </p>
         ) : null}
         <h1

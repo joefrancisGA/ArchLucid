@@ -8,6 +8,7 @@ import {
   EVIDENCE_GRAPH_IDLE_PREVIEW_TITLE,
 } from "@/lib/evidence-graph-page";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GraphIdlePartialCaptureHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphIdlePartialCaptureHonesty";
 
 export type GraphIdlePlaceholderProps = {
   graphIdlePreset: ComponentProps<typeof EmptyState>;
@@ -31,6 +32,7 @@ export function GraphIdlePlaceholder(props: GraphIdlePlaceholderProps) {
       data-testid={prioritize ? "graph-idle-placeholder-primary" : "graph-idle-placeholder"}
     >
       <EmptyState {...graphIdlePreset} />
+      <GraphIdlePartialCaptureHonesty />
       <div
         className={cn(
           "rounded-xl border-2 border-dashed border-neutral-300 bg-neutral-50/70 p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-950/40",

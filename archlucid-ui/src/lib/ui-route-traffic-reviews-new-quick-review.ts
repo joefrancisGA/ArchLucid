@@ -8,7 +8,7 @@ import {
  * Traffic workbook row ID for Start review Quick start path tab.
  * Owner backlog shorthand: REQ.
  */
-export const REVIEWS_NEW_QUICK_REVIEW_TAB_TRAFFIC_ROW_ID = "REQ";
+export const REVIEWS_NEW_QUICK_REVIEW_TAB_TRAFFIC_ROW_ID = "ARQ";
 
 /** Canonical path tracked on the REQ workbook row. */
 export const REVIEWS_NEW_QUICK_REVIEW_TAB_TRAFFIC_PATH = REVIEWS_NEW_QUICK_REVIEW_HREF;
@@ -27,4 +27,4 @@ export const REVIEWS_NEW_QUICK_REVIEW_TAB_PRODUCT_LABEL = REVIEWS_NEW_QUICK_STAR
 export const REVIEWS_NEW_QUICK_REVIEW_TAB_PATH_TOKEN = REVIEWS_NEW_QUICK_REVIEW_PATH_TOKEN;
 
 export const REVIEWS_NEW_QUICK_REVIEW_TAB_TRAFFIC_NOTE =
-  `Start review ${REVIEWS_NEW_QUICK_START_TAB_LABEL} tab (path=${REVIEWS_NEW_QUICK_REVIEW_PATH_TOKEN}) (Tab surface) - inherits RNX hub Evidence chrome (ReviewsNewPageChrome PageContextualHelpButton + Category-1 registry on /architecture/reviews/new; Sources strip above path tabs). ReviewsNewPathSwitcher syncs ?path=${REVIEWS_NEW_QUICK_REVIEW_PATH_TOKEN}; mounts FirstPilotIntakeWizard. Sibling REN = detailed; ENE = guided-intake; RNX = hub. Score 58/100 (2026-08-08) - path-tab surface below RNX launcher; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.`;
+  "None";

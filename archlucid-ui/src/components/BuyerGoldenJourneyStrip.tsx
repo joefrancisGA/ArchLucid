@@ -22,6 +22,12 @@ export function BuyerGoldenJourneyStrip() {
         Follow the finalized review from sponsor decision through finalized review record, evidence graph, resolve
         outcomes, and audit trail.
       </p>
+      <p
+        className={cn("m-0 mt-2", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}
+        data-testid="buyer-golden-journey-showcase-honesty"
+      >
+        Showcase routes — same curated architecture package in the buyer demo, not a substitute for your tenant data.
+      </p>
       <ol className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-2 p-0", OPERATOR_TYPE_SCALE.body)}>
         {steps.map((item) => (
           <li key={item.step} className="min-w-0">

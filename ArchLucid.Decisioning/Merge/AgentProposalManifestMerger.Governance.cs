@@ -87,8 +87,7 @@ public sealed partial class AgentProposalManifestMerger
     {
         return new ManifestService
         {
-            ServiceId =
-                string.IsNullOrWhiteSpace(source.ServiceId) ? Guid.NewGuid().ToString("N") : source.ServiceId,
+            ServiceId = string.IsNullOrWhiteSpace(source.ServiceId) ? string.Empty : source.ServiceId.Trim(),
             ServiceName = source.ServiceName,
             ServiceType = source.ServiceType,
             RuntimePlatform = source.RuntimePlatform,
@@ -103,7 +102,7 @@ public sealed partial class AgentProposalManifestMerger
         return new ManifestDatastore
         {
             DatastoreId =
-                string.IsNullOrWhiteSpace(source.DatastoreId) ? Guid.NewGuid().ToString("N") : source.DatastoreId,
+                string.IsNullOrWhiteSpace(source.DatastoreId) ? string.Empty : source.DatastoreId.Trim(),
             DatastoreName = source.DatastoreName,
             DatastoreType = source.DatastoreType,
             RuntimePlatform = source.RuntimePlatform,
@@ -119,8 +118,8 @@ public sealed partial class AgentProposalManifestMerger
         {
             RelationshipId =
                 string.IsNullOrWhiteSpace(source.RelationshipId)
-                    ? Guid.NewGuid().ToString("N")
-                    : source.RelationshipId,
+                    ? string.Empty
+                    : source.RelationshipId.Trim(),
             SourceId = source.SourceId,
             TargetId = source.TargetId,
             RelationshipType = source.RelationshipType,

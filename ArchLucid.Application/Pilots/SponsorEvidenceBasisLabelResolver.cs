@@ -13,7 +13,8 @@ public static class SponsorEvidenceBasisLabelResolver
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
         ArchitectureRun run,
-        bool deferredScopePresent = false)
+        bool deferredScopePresent = false,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
         ArgumentNullException.ThrowIfNull(proof);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -24,13 +25,15 @@ public static class SponsorEvidenceBasisLabelResolver
         if (deferredScopePresent)
             labels.Add("Deferred scope");
 
-        if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
+        if (PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))
             labels.Add("Demo-derived");
 
-        if (!proof.AgentOutputPilotStrictEvidenceSatisfied)
+        if (!deltas.AgentOutputPilotStrictSignalsResolved || deltas.AgentOutputPilotStrictViolatesSponsorEvidence)
             labels.Add("Low support");
 
-        if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
+        PilotRoiEvidenceConfidence roiConfidence = roiClaimGate?.EvidenceConfidence ?? proof.RoiEvidenceConfidence;
+
+        if (roiConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
             labels.Add("Estimate");
 
         if (run.RealModeFellBackToSimulator)

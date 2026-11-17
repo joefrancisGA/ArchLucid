@@ -45,9 +45,13 @@ export function resolveCommitBlockedReason(
       return "Some checks must finish before this review can be finalized.";
     }
 
-    const failedEngines = findingCoverageSummary?.failedEngineLabels?.length
-      ? findingCoverageSummary.failedEngineLabels.join(", ")
-      : "one or more required finding engines";
+    const failedEngines =
+      findingCoverageSummary?.failedEngineLabels === null
+      || findingCoverageSummary?.failedEngineLabels === undefined
+        ? "Failed engine labels were not stored."
+        : findingCoverageSummary.failedEngineLabels.length > 0
+          ? findingCoverageSummary.failedEngineLabels.join(", ")
+          : "one or more required finding engines";
 
     return `Finding coverage is commit-blocking. Failed engines: ${failedEngines}.`;
   }
@@ -85,9 +89,12 @@ export function resolveReviewPolicyPackCallout(model: RunDetailPageModel): Revie
     return null;
   }
 
+  const ruleSetId = model.manifestSummaryForUi.ruleSetId?.trim() ?? "";
+  const ruleSetVersion = model.manifestSummaryForUi.ruleSetVersion?.trim() ?? "";
+
   return {
-    ruleSetId: model.manifestSummaryForUi.ruleSetId,
-    ruleSetVersion: model.manifestSummaryForUi.ruleSetVersion,
+    ruleSetId: ruleSetId.length > 0 ? ruleSetId : "Policy pack id was not stored.",
+    ruleSetVersion: ruleSetVersion.length > 0 ? ruleSetVersion : "Policy pack version was not stored.",
     effectiveGovernanceAtCommit: model.manifestSummaryForUi.effectiveGovernanceAtCommit ?? null,
   };
 }
@@ -123,7 +130,7 @@ export async function buildRunDetailGovernancePresentation(
     readonly findingCoverageSummary: FindingCoverageSummary | null;
     readonly coverageBlocking: boolean;
     readonly hasManifest: boolean;
-    readonly blockingApprovalCount: number;
+    readonly blockingApprovalCount: number | null;
     readonly quickDecisionFindings: readonly QuickDecisionFinding[];
   },
 ): Promise<RunDetailGovernancePresentation> {
@@ -146,12 +153,15 @@ export async function buildRunDetailGovernancePresentation(
     manifestStatus: model.manifestSummary?.status ?? null,
   });
   const governanceWouldBePrimaryAction =
-    input.hasManifest && !input.coverageBlocking && input.blockingApprovalCount === 0 && showGovernanceCta;
+    input.hasManifest
+    && !input.coverageBlocking
+    && input.blockingApprovalCount === 0
+    && showGovernanceCta;
 
   const governanceDecisionLabel =
     (model.resolvedDetail.run.operatorGovernanceDecision ?? "").trim().length > 0
       ? (model.resolvedDetail.run.operatorGovernanceDecision ?? "").trim()
-      : model.governanceGateLabel ?? "No approval decision recorded";
+      : model.governanceGateLabel ?? "Approval decision was not stored.";
 
   return {
     commitBlockedReason,

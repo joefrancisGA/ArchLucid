@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const evalChromeFixtureOn = vi.hoisted(() => ({ enabled: true }));
+
 import { ApiRequestError } from "@/lib/api-request-error";
 import type { FindingDispositionEvent } from "@/lib/api/governance-stickiness-api";
 import { formatDispositionConcurrentUpdateMessage } from "@/lib/findings/finding-disposition-concurrent-update";
@@ -37,6 +39,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: () => false,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => evalChromeFixtureOn.enabled,
+}));
 
 describe("FindingInspectGovernanceStickinessPanel", () => {
   beforeEach(() => {

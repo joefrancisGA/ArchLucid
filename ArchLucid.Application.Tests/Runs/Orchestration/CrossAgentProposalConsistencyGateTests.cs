@@ -988,4 +988,373 @@ public sealed class CrossAgentProposalConsistencyGateTests
         topology.ProposedChanges!.AddedRelationships.Should().ContainSingle();
         topology.ProposedChanges.AddedRelationships![0].SourceId.Should().Be("svc-api");
     }
+
+    [Fact]
+    public void ApplyToResults_drops_relationship_only_edge_referencing_rejected_duplicate_service_id()
+    {
+        AgentResult firstTopology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+            },
+        };
+
+        AgentResult conflictingTopology = new()
+        {
+            ResultId = "topology-2",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-2",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "svc-2",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([firstTopology, conflictingTopology]);
+
+        conflictingTopology.ProposedChanges!.AddedServices.Should().BeEmpty();
+        conflictingTopology.ProposedChanges.AddedRelationships.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ApplyToResults_drops_relationship_only_edge_referencing_rejected_duplicate_datastore_id()
+    {
+        AgentResult firstTopology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-1",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentResult conflictingTopology = new()
+        {
+            ResultId = "topology-2",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-2",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "ds-2",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([firstTopology, conflictingTopology]);
+
+        conflictingTopology.ProposedChanges!.AddedDatastores.Should().BeEmpty();
+        conflictingTopology.ProposedChanges.AddedRelationships.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ApplyToResults_drops_declared_proposal_edge_referencing_rejected_duplicate_service_id_in_same_payload()
+    {
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-2",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "svc-2",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([topology]);
+
+        topology.ProposedChanges!.AddedServices.Should().ContainSingle()
+            .Which.ServiceId.Should().Be("svc-1");
+        topology.ProposedChanges.AddedRelationships.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ApplyToResults_drops_relationship_only_edge_referencing_rejected_duplicate_terraform_service_id()
+    {
+        const string acceptedId = "azurerm_linux_virtual_machine.app[\"primary\"]";
+        const string rejectedId = "azurerm_linux_virtual_machine.app[\"secondary\"]";
+
+        AgentResult firstTopology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "app",
+                        ServiceId = acceptedId,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentResult conflictingTopology = new()
+        {
+            ResultId = "topology-2",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "app",
+                        ServiceId = rejectedId,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = rejectedId,
+                        TargetId = "external",
+                        RelationshipType = RelationshipType.Calls,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([firstTopology, conflictingTopology]);
+
+        conflictingTopology.ProposedChanges!.AddedServices.Should().BeEmpty();
+        conflictingTopology.ProposedChanges.AddedRelationships.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ApplyToResults_preserves_relationship_only_defer_edge_referencing_unindexed_terraform_root()
+    {
+        const string rootAddress = "azurerm_linux_virtual_machine.app";
+        const string indexedId = $"{rootAddress}[\"primary\"]";
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "app",
+                        ServiceId = indexedId,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = rootAddress,
+                        TargetId = "external-db",
+                        RelationshipType = RelationshipType.Calls,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([topology, cost]);
+
+        cost.ProposedChanges!.AddedRelationships.Should().ContainSingle();
+        cost.ProposedChanges.AddedRelationships![0].SourceId.Should().Be(rootAddress);
+    }
+
+    [Fact]
+    public void ApplyToResults_drops_relationship_only_edge_referencing_rejected_datastore_synthetic_id()
+    {
+        AgentResult firstTopology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-1",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentResult conflictingTopology = new()
+        {
+            ResultId = "topology-2",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-2",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "ds-2",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([firstTopology, conflictingTopology]);
+
+        conflictingTopology.ProposedChanges!.AddedDatastores.Should().BeEmpty();
+        conflictingTopology.ProposedChanges.AddedRelationships.Should().BeEmpty();
+    }
 }

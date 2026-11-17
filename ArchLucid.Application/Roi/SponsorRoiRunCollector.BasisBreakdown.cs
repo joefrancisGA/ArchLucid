@@ -153,7 +153,7 @@ public sealed partial class SponsorRoiRunCollector
             }
         }
 
-        return "unspecified";
+        return SponsorRoiOmissionLabels.EnvironmentNotStored;
     }
 
     public static string NormalizeSystemName(string? systemName)
@@ -166,8 +166,11 @@ public sealed partial class SponsorRoiRunCollector
 
     public static string NormalizeCategory(string? category)
     {
-        if (string.IsNullOrWhiteSpace(category))
-            return "(uncategorized)";
+        if (category is null)
+            return SponsorRoiOmissionLabels.CategoryNotStored;
+
+        if (category.Length == 0 || string.IsNullOrWhiteSpace(category))
+            return SponsorRoiOmissionLabels.CategoryStoredEmpty;
 
         return category.Trim();
     }

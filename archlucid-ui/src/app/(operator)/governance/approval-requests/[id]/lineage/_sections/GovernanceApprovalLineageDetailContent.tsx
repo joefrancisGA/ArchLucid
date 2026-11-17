@@ -28,6 +28,8 @@ import {
   PageContextualHelpButton,
 } from "@/components/usability/PageContextualHelpButton";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
+import { GovernanceApprovalLineagePartialEmptyHonesty } from "./GovernanceApprovalLineagePartialEmptyHonesty";
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import {
@@ -103,7 +105,7 @@ export function GovernanceApprovalLineageDetailContent({
     ? governanceRiskPostureStatusTagPresentation(data.riskPosture)
     : null;
   const approvalParentHref = governanceApprovalRequestParentHref(a.runId);
-  const reviewHref = `/architecture/reviews/${encodeURIComponent(a.runId)}`;
+  const reviewHref = resolveLibOpenReviewHref(a.runId);
   const manifestMetricFields = data.manifest
     ? buildGovernanceLineageManifestMetricFields({ manifest: data.manifest, runId: a.runId })
     : [];
@@ -267,7 +269,16 @@ export function GovernanceApprovalLineageDetailContent({
         </CardHeader>
         <CardContent>
           {data.topFindings.length === 0 ? (
-            <EnterpriseCompactEmptyState {...GOVERNANCE_APPROVAL_LINEAGE_FINDINGS_EMPTY_COMPACT} />
+            <EnterpriseCompactEmptyState
+              {...GOVERNANCE_APPROVAL_LINEAGE_FINDINGS_EMPTY_COMPACT}
+              footer={
+                <GovernanceApprovalLineagePartialEmptyHonesty
+                  testId="governance-approval-lineage-findings-empty-partial-capture"
+                  cloudConnectionsTestId="governance-approval-lineage-findings-empty-partial-capture-cloud"
+                  extractUploadTestId="governance-approval-lineage-findings-empty-partial-capture-extract"
+                />
+              }
+            />
           ) : (
             <ul className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)}>
               {data.topFindings.map((finding) => (

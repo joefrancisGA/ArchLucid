@@ -13,9 +13,11 @@ export type CompareGateOutcomeDeltaView = {
   readonly changed: boolean;
 };
 
+const GATE_OUTCOME_NOT_STORED = "Gate outcome was not stored." as const;
+
 function formatGateLabel(kind: FeasibilityVerdictKind | null): string {
   if (kind === null) {
-    return "Gate pending";
+    return GATE_OUTCOME_NOT_STORED;
   }
 
   return feasibilityVerdictKindLabel(kind);

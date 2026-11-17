@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -16,17 +16,15 @@ namespace ArchLucid.Api.Tests.Security;
 public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiFactory factory)
     : IClassFixture<ApiKeyReaderAndAdminArchLucidApiFactory>
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     [SkippableFact]
     public async Task Reader_key_cannot_POST_architecture_request_returns_403()
     {
         using HttpClient client = CreateReaderClient();
-        string body = JsonSerializer.Serialize(TestRequestFactory.CreateArchitectureRequest("REQ-BDR-POST-001"),
-            JsonOptions);
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/architecture/request",
-            new StringContent(body, Encoding.UTF8, "application/json"));
+
+        using HttpResponseMessage response = await client.PostArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(AuthorizationBoundaryTests))));
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -60,6 +58,19 @@ public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiF
 
         response.StatusCode.Should().NotBe(HttpStatusCode.Forbidden);
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NotFound);
+    }
+
+    [SkippableFact]
+    public async Task Reader_can_read_creator_delete_policy_and_cannot_change_it()
+    {
+        const string path = "/v1/admin/settings/work-ownership-delete-policy";
+        using HttpClient client = CreateReaderClient();
+
+        using HttpResponseMessage read = await client.GetAsync(path);
+        read.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using HttpResponseMessage write = await client.PutAsJsonAsync(path, new { allowCreatorDeleteOwnedWork = false });
+        write.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [SkippableFact]

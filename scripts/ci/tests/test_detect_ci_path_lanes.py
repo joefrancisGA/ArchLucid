@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import re
 import sys
 import tempfile
 import unittest
@@ -91,6 +92,37 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertTrue(lanes["run_dotnet"])
         self.assertTrue(lanes["run_terraform"])
         self.assertTrue(lanes["run_infra_diagrams_layout"])
+
+    def test_rolling_rc_push_concurrency_is_branch_scoped_and_merge_group_safe(self) -> None:
+        """RC push uses a branch-scoped group; merge_group never cancels in-progress."""
+        workflow = (_REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        concurrency = workflow.split("\nconcurrency:\n", 1)[1].split("\n\n", 1)[0]
+        match = re.search(r"(?m)^  push:\n    branches: \[([^\]]+)\]$", workflow)
+        self.assertIsNotNone(match)
+        branches = {branch.strip() for branch in match.group(1).split(",")}
+        self.assertTrue({"RC43", "RC44"}.issubset(branches))
+
+        # RC43 and RC44 must each use a branch-scoped group so different releases do not collide.
+        self.assertIn("github.event_name == 'push'", concurrency)
+        self.assertIn("github.ref == 'refs/heads/RC43'", concurrency)
+        self.assertIn("github.ref == 'refs/heads/RC44'", concurrency)
+        self.assertIn("format('rc-push-{0}', github.ref)", concurrency)
+        self.assertIn("(github.event.pull_request.number || github.ref)", concurrency)
+        self.assertNotIn("github.sha", concurrency)
+        # Both release-candidate pushes complete rather than being canceled by a second push.
+        self.assertIn(
+            "cancel-in-progress: ${{ github.event_name != 'merge_group' "
+            "&& !(github.event_name == 'push' && "
+            "(github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44')) }}",
+            concurrency,
+        )
+
+    def test_initial_rc_push_uses_first_parent_diff_for_guards(self) -> None:
+        """An all-zero before SHA on the first branch push must never disable diff guards."""
+        workflow = (_REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        self.assertIn('if [[ "$BEFORE_SHA" =~ ^0+$ ]]; then', workflow)
+        self.assertIn('git rev-parse --verify "${AFTER_SHA}^1"', workflow)
+        self.assertIn('BEFORE_SHA="$(git rev-parse "${AFTER_SHA}^1")"', workflow)
 
     def test_empty_diff_fail_open(self) -> None:
         lanes = DETECT.classify_paths([])

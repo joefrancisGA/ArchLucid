@@ -31,7 +31,7 @@ public static class AgentOutputQualityGateCareerHonestyPresenter
         StructuralExecutionMode structuralExecutionMode,
         bool isSampleRun,
         string? hostAgentExecutionMode,
-        AgentOutputQualityGateMode hostQualityGateMode,
+        AgentOutputQualityGateMode? hostQualityGateMode,
         AgentOutputQualityGateOutcome? aggregateQualityGateOutcome)
     {
         if (isSampleRun)
@@ -69,7 +69,7 @@ public static class AgentOutputQualityGateCareerHonestyPresenter
         StructuralExecutionMode structuralExecutionMode,
         bool isSampleRun,
         string? hostAgentExecutionMode,
-        AgentOutputQualityGateMode hostQualityGateMode,
+        AgentOutputQualityGateMode? hostQualityGateMode,
         AgentOutputQualityGateOutcome? aggregateQualityGateOutcome)
     {
         if (!RequiresWorkingCareerExportBlock(

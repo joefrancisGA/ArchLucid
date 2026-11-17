@@ -234,11 +234,13 @@ export function useGlobalSearchBar() {
       const href = resolveGlobalSearchRunHref(runId, {
         isWorkingMode,
         architectureId,
+        pathname,
+        search: typeof window !== "undefined" ? window.location.search.slice(1) : "",
       });
       router.push(href);
       closePanel();
     },
-    [closePanel, isWorkingMode, router],
+    [closePanel, isWorkingMode, pathname, router],
   );
 
   const navigateToFinding = useCallback(
@@ -246,11 +248,13 @@ export function useGlobalSearchBar() {
       const href = resolveGlobalSearchFindingHref(runId, findingId, {
         isWorkingMode,
         architectureId,
+        pathname,
+        search: typeof window !== "undefined" ? window.location.search.slice(1) : "",
       });
       router.push(href);
       closePanel();
     },
-    [closePanel, isWorkingMode, router],
+    [closePanel, isWorkingMode, pathname, router],
   );
 
   const resolveFindingHref = useCallback(
@@ -258,8 +262,10 @@ export function useGlobalSearchBar() {
       resolveGlobalSearchFindingHref(runId, findingId, {
         isWorkingMode,
         architectureId: architectureId ?? packageSearchScope.architectureId,
+        pathname,
+        search: typeof window !== "undefined" ? window.location.search.slice(1) : "",
       }),
-    [isWorkingMode, packageSearchScope.architectureId],
+    [isWorkingMode, packageSearchScope.architectureId, pathname],
   );
 
   return {

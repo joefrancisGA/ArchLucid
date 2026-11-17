@@ -39,6 +39,50 @@ function safeLocaleTime(iso: string): string {
   return date.toLocaleString();
 }
 
+function formatDemoPreviewThemeSummaries(themeSummaries: unknown): string {
+  if (!Array.isArray(themeSummaries) || themeSummaries.length === 0) {
+    return "Theme summaries were not stored.";
+  }
+
+  const joined = themeSummaries
+    .filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
+    .join(" · ");
+
+  return joined.length > 0 ? joined : "Theme summaries were stored empty.";
+}
+
+function formatDemoPreviewReviewScope(manifest: DemoCommitPagePreviewResponse["manifest"], runDescription: string | null | undefined): string {
+  const operatorSummary = manifest?.operatorSummary?.trim();
+
+  if (operatorSummary && operatorSummary.length > 0) {
+    return operatorSummary;
+  }
+
+  const description = runDescription?.trim();
+
+  if (description && description.length > 0) {
+    return description;
+  }
+
+  if (manifest !== null && manifest !== undefined) {
+    return "Review scope was stored empty.";
+  }
+
+  return "Review scope was not stored.";
+}
+
+function formatDemoPreviewArtifactTypes(artifacts: DemoCommitPagePreviewResponse["artifacts"]): string {
+  if (!Array.isArray(artifacts) || artifacts.length === 0) {
+    return "Artifact types were not stored.";
+  }
+
+  const types = artifacts
+    .map((artifact) => artifact.artifactType?.trim() ?? "")
+    .filter((type) => type.length > 0);
+
+  return types.length > 0 ? types.join(" · ") : "Artifact types were stored empty.";
+}
+
 export function DemoPreviewCompactTimeline(props: DemoPreviewCompactTimelineProps) {
   const runId = props.payload.run?.runId ?? "";
   const manifestId = props.payload.manifest?.manifestId ?? props.payload.authorityChain?.goldenManifestId ?? null;
@@ -49,10 +93,10 @@ export function DemoPreviewCompactTimeline(props: DemoPreviewCompactTimelineProp
     isRunDetailAvailable: props.isRunDetailAvailable,
   });
 
-  const themes = Array.isArray(props.payload.runExplanation?.themeSummaries)
-    ? props.payload.runExplanation.themeSummaries.join(" · ")
-    : "Not returned";
+  const themes = formatDemoPreviewThemeSummaries(props.payload.runExplanation?.themeSummaries);
   const manifest = props.payload.manifest;
+  const reviewScope = formatDemoPreviewReviewScope(manifest, props.payload.run?.description);
+  const artifactTypes = formatDemoPreviewArtifactTypes(props.payload.artifacts);
 
   return (
     <section
@@ -148,18 +192,16 @@ export function DemoPreviewCompactTimeline(props: DemoPreviewCompactTimelineProp
             Applied policy pack
           </dt>
           <dd className={cn("m-0 text-neutral-800 dark:text-neutral-200", MARKETING_TYPOGRAPHY.body)}>
-            {manifest ? policyPackBuyerLabel(manifest.ruleSetId ?? "", manifest.ruleSetVersion ?? "") : "Not returned"}
+            {manifest
+              ? policyPackBuyerLabel(manifest.ruleSetId ?? "", manifest.ruleSetVersion ?? "")
+              : "Applied policy pack was not stored."}
           </dd>
           <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", MARKETING_TYPOGRAPHY.meta)}>Review scope</dt>
-          <dd className={cn("m-0 text-neutral-800 dark:text-neutral-200", MARKETING_TYPOGRAPHY.body)}>
-            {manifest?.operatorSummary ?? props.payload.run?.description ?? "Not recorded"}
-          </dd>
+          <dd className={cn("m-0 text-neutral-800 dark:text-neutral-200", MARKETING_TYPOGRAPHY.body)}>{reviewScope}</dd>
           <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", MARKETING_TYPOGRAPHY.meta)}>
             Artifact types
           </dt>
-          <dd className={cn("m-0 text-neutral-800 dark:text-neutral-200", MARKETING_TYPOGRAPHY.body)}>
-            {(props.payload.artifacts ?? []).map((artifact) => artifact.artifactType).join(" · ") || "Not returned"}
-          </dd>
+          <dd className={cn("m-0 text-neutral-800 dark:text-neutral-200", MARKETING_TYPOGRAPHY.body)}>{artifactTypes}</dd>
         </dl>
       </details>
     </section>

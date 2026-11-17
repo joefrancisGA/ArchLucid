@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Contracts.Runs;
 using ArchLucid.Persistence.Data.Repositories;
@@ -17,7 +18,9 @@ public sealed class RunDetailDecisionExplainabilityEnrichmentSlice(
         string runHex = detail.Run.RunId.ToString("N");
 
         IReadOnlyList<DecisionNodeRecord> coordinatorNodes =
-            await _decisionNodeRepository.GetByRunIdAsync(runHex, cancellationToken).ConfigureAwait(false);
+            await AnalysisRunIdCanonicalization
+                .LoadDecisionNodesByRunIdAsync(_decisionNodeRepository, runHex, cancellationToken)
+                .ConfigureAwait(false);
 
         RunDecisionExplainabilityDto built = RunDecisionExplainabilityBuilder.Build(detail, coordinatorNodes);
 

@@ -51,6 +51,7 @@ public sealed class ItsmOutboundIssuesWireMockApiFactory : ArchLucidApiFactory
                         ["Integrations:ItsmOutbound:ServiceNow:Password"] = "pwd",
                         ["Integrations:Itsm:NativeEnabled"] = "true",
                         ["Integrations:ItsmOutbound:DurableAsyncCreateEnabled"] = "false",
+                        ["Integrations:ItsmOutbound:RequireTenantScopedCredentials"] = "false",
                     });
             });
 

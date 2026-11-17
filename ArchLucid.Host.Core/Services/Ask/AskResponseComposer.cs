@@ -43,10 +43,14 @@ public sealed class AskResponseComposer(
             ThreadId = prepared.Thread.ThreadId,
             Answer =
                 "The assistant could not be reached. Summarize from context manually or retry. " +
-                (prepared.Manifest is { Decisions: { Count: var decisionCount } }
+                (prepared.Manifest is { Decisions: { Count: > 0 and var decisionCount } }
                     ? $"Context included {decisionCount} decision(s)."
-                    : "Workspace-scoped context relies on retrieved evidence across reviews."),
+                    : prepared.Manifest is { Decisions: { Count: 0 } }
+                        ? "Manifest decisions were stored empty on this answer."
+                        : "Manifest decisions were not stored on this answer.")
+                + " Citations were not stored on this answer.",
             RetrievalDegraded = prepared.RetrievalDegraded,
+            IndexedSearchNotLimitedToReviewId = prepared.EffectiveRunId.HasValue,
         };
     }
 
@@ -54,7 +58,8 @@ public sealed class AskResponseComposer(
         new()
         {
             ThreadId = threadId,
-            Answer = "The assistant could not be reached. Review the finding details and retry."
+            Answer =
+                "The assistant could not be reached. Review the finding details and retry. Citations were not stored.",
         };
 
     public async Task<AskResponse> FinalizeAsync(
@@ -62,16 +67,17 @@ public sealed class AskResponseComposer(
         string? raw,
         CancellationToken cancellationToken)
     {
-        AskResponse response = Parse(prepared.Thread.ThreadId, raw);
+        (AskResponse response, LlmAskShape? parsed) = ParseWithShape(prepared.Thread.ThreadId, raw);
         response.RetrievalDegraded = prepared.RetrievalDegraded;
+        response.IndexedSearchNotLimitedToReviewId = prepared.EffectiveRunId.HasValue;
 
-        await PersistRunScopedTurnAsync(prepared, response, cancellationToken);
+        await PersistRunScopedTurnAsync(prepared, response, parsed, cancellationToken);
 
         return response;
     }
 
     public async Task PersistFallbackAsync(AskPreparedContext prepared, AskResponse response, CancellationToken cancellationToken) =>
-        await PersistRunScopedTurnAsync(prepared, response, cancellationToken);
+        await PersistRunScopedTurnAsync(prepared, response, parsed: null, cancellationToken);
 
     public async Task PersistFindingTurnAsync(
         Guid threadId,
@@ -90,41 +96,42 @@ public sealed class AskResponseComposer(
         await TryIndexFindingConversationAsync(threadId, question, response, metadataJson, cancellationToken);
     }
 
-    public AskResponse Parse(Guid threadId, string? raw)
+    public AskResponse Parse(Guid threadId, string? raw) => ParseWithShape(threadId, raw).Response;
+
+    private (AskResponse Response, LlmAskShape? Parsed) ParseWithShape(Guid threadId, string? raw)
     {
         string? unwrapped = UnwrapJsonFence(raw);
         LlmAskShape? parsed = TryDeserialize(unwrapped);
 
         if (parsed is null || string.IsNullOrWhiteSpace(parsed.Answer))
         {
-            return new AskResponse
+            return (new AskResponse
             {
                 ThreadId = threadId,
-                Answer = string.IsNullOrWhiteSpace(unwrapped)
-                    ? "No answer produced."
-                    : unwrapped.Trim(),
+                Answer = ResolveMissingAskAnswer(unwrapped, parsed),
                 ReferencedDecisions = [],
                 ReferencedFindings = [],
                 ReferencedArtifacts = []
-            };
+            }, parsed);
         }
 
-        return new AskResponse
+        return (new AskResponse
         {
             ThreadId = threadId,
-            Answer = parsed.Answer.Trim(),
+            Answer = AppendBlankCitationIdHonesty(parsed.Answer.Trim(), parsed),
             ReferencedDecisions = NormalizeList(parsed.ReferencedDecisions),
             ReferencedFindings = NormalizeList(parsed.ReferencedFindings),
             ReferencedArtifacts = NormalizeList(parsed.ReferencedArtifacts)
-        };
+        }, parsed);
     }
 
     private async Task PersistRunScopedTurnAsync(
         AskPreparedContext prepared,
         AskResponse response,
+        LlmAskShape? parsed,
         CancellationToken cancellationToken)
     {
-        string metadataJson = SerializeMetadata(response);
+        string metadataJson = SerializeMetadata(response, parsed);
 
         await _conversationService.AppendAssistantMessageAsync(
             prepared.Thread.ThreadId,
@@ -221,6 +228,22 @@ public sealed class AskResponseComposer(
         }
     }
 
+    private static string ResolveMissingAskAnswer(string? unwrapped, LlmAskShape? parsed)
+    {
+        if (string.IsNullOrWhiteSpace(unwrapped))
+            return "Ask answer was not stored.";
+
+        if (parsed is not null && string.IsNullOrWhiteSpace(parsed.Answer))
+            return "Ask answer was not stored.";
+
+        string trimmed = unwrapped.Trim();
+
+        if (trimmed.StartsWith('{') && trimmed.EndsWith('}'))
+            return "Ask answer was not stored.";
+
+        return $"This reply was not parsed as an Ask answer. {trimmed}";
+    }
+
     private LlmAskShape? TryDeserialize(string? json)
     {
         if (string.IsNullOrWhiteSpace(json))
@@ -238,10 +261,58 @@ public sealed class AskResponseComposer(
         }
     }
 
-    private static string SerializeMetadata(AskResponse response) =>
+    private static string SerializeMetadata(AskResponse response, LlmAskShape? parsed = null) =>
         JsonSerializer.Serialize(
-            new { response.ReferencedDecisions, response.ReferencedFindings, response.ReferencedArtifacts },
+            new
+            {
+                response.ReferencedDecisions,
+                response.ReferencedFindings,
+                response.ReferencedArtifacts,
+                referencedDecisionsStoredEmpty = parsed?.ReferencedDecisions is { Count: 0 },
+                referencedDecisionsNotStored = parsed?.ReferencedDecisions is null,
+                referencedFindingsStoredEmpty = parsed?.ReferencedFindings is { Count: 0 },
+                referencedFindingsNotStored = parsed?.ReferencedFindings is null,
+                referencedArtifactsStoredEmpty = parsed?.ReferencedArtifacts is { Count: 0 },
+                referencedArtifactsNotStored = parsed?.ReferencedArtifacts is null,
+            },
             ContractJson.CamelCaseCompact);
+
+    private static string AppendBlankCitationIdHonesty(string answer, LlmAskShape parsed)
+    {
+        if (!ContainsBlankCitationId(parsed))
+        {
+            return answer;
+        }
+
+        return answer.Contains("Citation id was not stored.", StringComparison.Ordinal)
+            ? answer
+            : $"{answer} Citation id was not stored on this answer.";
+    }
+
+    private static bool ContainsBlankCitationId(LlmAskShape parsed)
+    {
+        return ListContainsBlankEntry(parsed.ReferencedDecisions)
+            || ListContainsBlankEntry(parsed.ReferencedFindings)
+            || ListContainsBlankEntry(parsed.ReferencedArtifacts);
+    }
+
+    private static bool ListContainsBlankEntry(IEnumerable<string>? items)
+    {
+        if (items is null)
+        {
+            return false;
+        }
+
+        foreach (string item in items)
+        {
+            if (item is not null && item.Length > 0 && string.IsNullOrWhiteSpace(item))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private static List<string> NormalizeList(IEnumerable<string>? items) =>
         items?

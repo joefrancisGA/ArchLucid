@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 
-import { GOVERNANCE_POLICY_PACKS_PATH, SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
@@ -34,6 +35,7 @@ export type PolicyPacksPageHeaderProps = {
 /** Shared `/governance/policy-packs` hero — title, lead, contextual help, refresh, and resolution shortcut. */
 export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.JSX.Element {
   const { productLine } = useProductLine();
+  const policyPacksHubHref = policyPacksPathForProductLine(productLine);
   const pageTitle = resolveSecureNowPageHeading(productLine, POLICY_PACKS_PAGE_TITLE, SECURENOW_POLICY_PACKS_PATH);
   const freshnessLabel = props.refreshing
     ? POLICY_PACKS_ACTION_REFRESHING
@@ -45,7 +47,7 @@ export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.
 
   return (
     <OperatorPageHeader
-      navHref={GOVERNANCE_POLICY_PACKS_PATH}
+      navHref={policyPacksHubHref}
       title={pageTitle}
       titleTestId="policy-packs-page-title"
       subtitle={props.subtitle}

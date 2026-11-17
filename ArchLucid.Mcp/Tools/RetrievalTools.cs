@@ -36,6 +36,9 @@ public sealed class RetrievalTools(IRetrievalQueryService queryService)
         if (request.TenantId == Guid.Empty)
             throw new ArgumentException("TenantId is required.", nameof(request));
 
+        if (string.IsNullOrWhiteSpace(request.QueryText))
+            throw new ArgumentException("QueryText is required.", nameof(RetrievalMcpToolRequest.QueryText));
+
         int requestedTopK = Math.Clamp(request.TopK, 1, 25);
         int searchTopK = request.CorpusKindFilter.HasValue ? 25 : requestedTopK;
 

@@ -64,7 +64,7 @@ public sealed class ItsmInboundDispositionSync(
             {
                 FindingId = row.FindingId,
                 Disposition = mappedDisposition.Value,
-                Rationale = $"{InboundSyncRationalePrefix}: external status '{externalStatusLabel.Trim()}'.",
+                Rationale = $"{InboundSyncRationalePrefix}: external status '{ItsmInboundJsonElementReader.NormalizeStatusText(externalStatusLabel)}'.",
                 ExpectedCurrentDispositionRowVersionBase64 = currentDispositionRowVersionBase64,
             };
 

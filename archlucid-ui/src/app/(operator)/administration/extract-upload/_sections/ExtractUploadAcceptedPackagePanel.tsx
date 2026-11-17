@@ -25,12 +25,18 @@ import {
   EXTRACT_UPLOAD_PACKAGE_ID_COPY_ERROR_TITLE,
 } from "@/lib/extract-upload-settings-page-copy";
 import { extractUploadAcceptedPackageNextAction } from "@/lib/extract-upload-settings-evidence-copy";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import { formatGovernanceInfrastructureInlineActionError } from "@/lib/governance/governance-infrastructure-copy";
 import { formatInstantInPreferredTimeZone } from "@/lib/locale-datetime";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { showSuccess } from "@/lib/toast";
+import { EXTRACT_UPLOAD_ACCEPTED_NOT_EVALUATION_COMPLETE_LINE } from "@/lib/extract-upload/extract-upload-accepted-evaluation-honesty-copy";
+import { ExtractUploadPartialCaptureStrip } from "@/components/product-line/ExtractUploadPartialCaptureStrip";
 
 export type ExtractUploadAcceptedPackagePanelProps = {
   readonly record: ExtractUploadAcceptedPackageRecord;
@@ -49,6 +55,12 @@ export function ExtractUploadAcceptedPackagePanel(
 
   const packageIdDisplay = formatExtractUploadAcceptedPackageId(record.packageId);
   const packageIdCopyable = extractUploadPackageIdIsCopyable(record.packageId);
+  const snapshotId = record.snapshotId?.trim() ?? "";
+  const snapshotHref = snapshotId.length === 0
+    ? null
+    : `${isSecureNowProductLine(props.productLineId ?? "architecture")
+      ? SECURENOW_INFRASTRUCTURE_DRIFT_PATH
+      : GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}?snapshotId=${encodeURIComponent(snapshotId)}`;
 
   const onCopyPackageId = useCallback(async () => {
     setCopyPackageIdError(null);
@@ -73,11 +85,11 @@ export function ExtractUploadAcceptedPackagePanel(
   }, [packageIdCopyable, record.packageId]);
 
   const acceptedAtLabel =
-    record.acceptedAtUtc !== null &&
-    record.acceptedAtUtc !== undefined &&
-    record.acceptedAtUtc.trim().length === 0
-      ? "Accepted time was stored empty."
-      : formatInstantInPreferredTimeZone(record.acceptedAtUtc, ianaTimeZoneId);
+    record.acceptedAtUtc === null || record.acceptedAtUtc === undefined
+      ? "Accepted time was not stored."
+      : record.acceptedAtUtc.trim().length === 0
+        ? "Accepted time was stored empty."
+        : formatInstantInPreferredTimeZone(record.acceptedAtUtc, ianaTimeZoneId);
 
   return (
     <section
@@ -92,6 +104,13 @@ export function ExtractUploadAcceptedPackagePanel(
             </h2>
             <StatusTag kind="ready" label="Accepted" data-testid="extract-upload-accepted-package-status" />
           </div>
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="extract-upload-accepted-evaluation-honesty"
+          >
+            {EXTRACT_UPLOAD_ACCEPTED_NOT_EVALUATION_COMPLETE_LINE}
+          </p>
+          {isSecureNowProductLine(props.productLineId ?? "architecture") ? <ExtractUploadPartialCaptureStrip /> : null}
           <dl className="m-0 grid gap-2 sm:grid-cols-2">
             <div>
               <dt className={cn("font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
@@ -127,6 +146,23 @@ export function ExtractUploadAcceptedPackagePanel(
                 />
               ) : null}
             </div>
+            {snapshotHref !== null ? (
+              <div>
+                <dt className={cn("font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                  Snapshot id
+                </dt>
+                <dd className={cn("m-0 mt-0.5 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
+                  <span className="break-all font-mono" data-testid="extract-upload-accepted-snapshot-id">
+                    {snapshotId}
+                  </span>
+                  <Button type="button" variant="outline" size="sm" asChild>
+                    <Link href={snapshotHref} data-testid="extract-upload-accepted-snapshot-link">
+                      Open in Changes and drift
+                    </Link>
+                  </Button>
+                </dd>
+              </div>
+            ) : null}
             <div>
               <dt className={cn("font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                 Accepted

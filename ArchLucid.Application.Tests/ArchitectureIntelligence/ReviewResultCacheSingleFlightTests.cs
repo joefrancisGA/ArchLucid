@@ -8,6 +8,37 @@ namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 public sealed class ReviewResultCacheSingleFlightTests
 {
     [Fact]
+    public async Task CoalesceAsync_follower_runs_leader_work_when_prior_leader_already_completed()
+    {
+        ReviewSingleFlightCoordinator coordinator = new();
+        int calls = 0;
+
+        ClosedLoopReasoningResult first = await coordinator.CoalesceAsync(
+            "fast-complete-key",
+            async _ =>
+            {
+                Interlocked.Increment(ref calls);
+
+                return new ClosedLoopReasoningResult { RunId = "first-leader" };
+            },
+            CancellationToken.None);
+
+        ClosedLoopReasoningResult second = await coordinator.CoalesceAsync(
+            "fast-complete-key",
+            async _ =>
+            {
+                Interlocked.Increment(ref calls);
+
+                return new ClosedLoopReasoningResult { RunId = "second-leader" };
+            },
+            CancellationToken.None);
+
+        first.RunId.Should().Be("first-leader");
+        second.RunId.Should().Be("second-leader");
+        calls.Should().Be(2);
+    }
+
+    [Fact]
     public async Task CoalesceAsync_concurrent_leaders_invoke_work_once()
     {
         ReviewResultCache cache = new();
@@ -139,6 +170,50 @@ public sealed class ReviewResultCacheSingleFlightTests
         ClosedLoopReasoningResult waiterResult = await waiter;
         waiterResult.RunId.Should().Be("retried");
         calls.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task CoalesceAsync_follower_cancel_does_not_cancel_leader_flight()
+    {
+        ReviewSingleFlightCoordinator coordinator = new();
+        using CancellationTokenSource leaderToken = new();
+        using CancellationTokenSource followerToken = new();
+        TaskCompletionSource leaderEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        Task<ClosedLoopReasoningResult> leader = Task.Run(async () =>
+        {
+            return await coordinator.CoalesceAsync(
+                "follower-cancel-key",
+                async cancellationToken =>
+                {
+                    leaderEntered.TrySetResult();
+
+                    await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+
+                    return new ClosedLoopReasoningResult { RunId = "leader-survives" };
+                },
+                leaderToken.Token);
+        });
+
+        await leaderEntered.Task;
+
+        Task<ClosedLoopReasoningResult> follower = Task.Run(async () =>
+        {
+            return await coordinator.CoalesceAsync(
+                "follower-cancel-key",
+                _ => Task.FromException<ClosedLoopReasoningResult>(new InvalidOperationException("not leader")),
+                followerToken.Token);
+        });
+
+        followerToken.Cancel();
+
+        Func<Task> act = async () => await follower;
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        leaderToken.Cancel();
+
+        Func<Task> leaderAct = async () => await leader;
+        await leaderAct.Should().ThrowAsync<OperationCanceledException>();
     }
 
     [Fact]

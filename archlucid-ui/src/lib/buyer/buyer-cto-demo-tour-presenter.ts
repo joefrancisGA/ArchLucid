@@ -115,9 +115,9 @@ export function buildCtoDemoRunOfShowMarkdown(): string {
   const lines: string[] = [
     "# ArchLucid CTO Demo — 30-Minute Run of Show",
     "",
-    "Use **Start CTO demo** on the home page, confirm **Demo ready**, then follow the five steps below.",
+    "Use **Start CTO demo** on the home page, confirm **Demo ready**, then follow the four steps below.",
     "",
-    "**Keyboard shortcuts:** Press 1–5 to jump between journey steps. Toggle presenter notes in the tour overlay. End tour when finished.",
+    "**Keyboard shortcuts:** Press 1–4 to jump between journey steps. Toggle presenter notes in the tour overlay. End tour when finished.",
     "",
   ];
 

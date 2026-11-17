@@ -55,7 +55,7 @@ public sealed class CorrelationIdAuditIntegrationTests
         request.Headers.Add("X-ArchLucid-Test-Actor", "admin");
 
         HttpResponseMessage response = await client.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        await response.EnsureSuccessForTestAsync();
 
         await using SqlConnection connection = new(factory.SqlConnectionString);
         await connection.OpenAsync(CancellationToken.None);

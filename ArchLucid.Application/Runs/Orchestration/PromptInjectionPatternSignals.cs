@@ -147,7 +147,7 @@ public static class PromptInjectionPatternSignals
         for (int i = 0; i < text.Length; i++)
         {
             char ch = text[i];
-            char mapped = MapUnicodeHomoglyph(ch);
+            char mapped = ArchLucid.Contracts.Text.UnicodeLatinHomoglyphMapper.MapToLatinLookalike(ch);
 
             if (mapped != ch)
                 changed = true;
@@ -158,27 +158,4 @@ public static class PromptInjectionPatternSignals
         return changed ? buffer.ToString() : text;
     }
 
-    private static char MapUnicodeHomoglyph(char ch)
-    {
-        return ch switch
-        {
-            '\u0410' => 'A',
-            '\u0430' => 'a',
-            '\u0415' => 'E',
-            '\u0435' => 'e',
-            '\u041E' => 'O',
-            '\u043E' => 'o',
-            '\u0420' => 'P',
-            '\u0440' => 'p',
-            '\u0421' => 'C',
-            '\u0441' => 'c',
-            '\u0423' => 'Y',
-            '\u0443' => 'y',
-            '\u0425' => 'X',
-            '\u0445' => 'x',
-            '\u0406' => 'I',
-            '\u0456' => 'i',
-            _ => ch,
-        };
-    }
 }

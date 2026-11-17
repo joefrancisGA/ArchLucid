@@ -25,7 +25,7 @@ public sealed class CachingCompositeAlertRuleRepository(
             _hotPathReadCache,
             ScopeFor(rule),
             rule.CompositeRuleId,
-            ct);
+            CancellationToken.None);
     }
 
     /// <inheritdoc />
@@ -38,7 +38,7 @@ public sealed class CachingCompositeAlertRuleRepository(
             _hotPathReadCache,
             ScopeFor(rule),
             rule.CompositeRuleId,
-            ct);
+            CancellationToken.None);
     }
 
     /// <inheritdoc />

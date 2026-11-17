@@ -12,6 +12,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   WORKSPACE_SETTINGS_HELP_TOPIC_LABEL: "How workspace settings work",
   PageContextualHelpButton: () => <button type="button">Page help</button>,
@@ -53,6 +58,25 @@ vi.mock("@/lib/active-tenant-context-display", async (importOriginal) => {
   };
 });
 
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
+
 import {
   TENANT_SETTINGS_CLAIM_DISCIPLINE,
   TENANT_SETTINGS_FOLLOW_UPS_TITLE,
@@ -75,6 +99,8 @@ import {
 } from "@/lib/tenant-settings-settings-page-copy";
 import { TenantSettingsPageView } from "./TenantSettingsPageView";
 import type { TenantSettingsPageContentModel } from "./tenant-settings-page-view-model";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { TENANT_SETTINGS_CANONICAL_PATH } from "@/lib/tenant-settings-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -150,7 +176,12 @@ describe("TenantSettingsPageView buyer-polished shell (ATE)", () => {
     expect(workspace).toContainElement(organizationCard);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(TENANT_SETTINGS_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(TENANT_SETTINGS_SOURCES),
+      TENANT_SETTINGS_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

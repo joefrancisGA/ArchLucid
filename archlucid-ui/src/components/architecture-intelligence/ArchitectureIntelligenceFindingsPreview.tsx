@@ -63,11 +63,11 @@ export function ArchitectureIntelligenceFindingsPreview(
 
       {showFindingList ? (
         <ul className="m-0 list-none space-y-2 p-0">
-          {previews.map((finding) => (
+          {previews.map((finding, index) => (
             <li
-              key={finding.findingId}
+              key={finding.findingId ?? `${prefix}-missing-id-${index}`}
               className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-700"
-              data-testid={`${prefix}-item-${finding.findingId}`}
+              data-testid={`${prefix}-item-${finding.findingId ?? `missing-id-${index}`}`}
             >
               <div className="flex flex-wrap items-center gap-2">
                 <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
@@ -81,9 +81,12 @@ export function ArchitectureIntelligenceFindingsPreview(
                   </p>
                 )}
               </div>
-              {finding.conclusion !== null ? (
-                <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {finding.conclusion}
+              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {finding.conclusion}
+              </p>
+              {finding.findingIdIntegrityNote !== null ? (
+                <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+                  {finding.findingIdIntegrityNote}
                 </p>
               ) : null}
             </li>

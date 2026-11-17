@@ -7,6 +7,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_PATH } from "@/lib/ui-route-traffic-signed-record-artifact-preview";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export const SIGNED_RECORD_ARTIFACT_CANONICAL_PATH_PATTERN = SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_PATH;
 
@@ -36,3 +38,9 @@ export const SIGNED_RECORD_ARTIFACT_ORIENTATION_SOURCES: readonly EvidenceSource
   SIGNED_RECORD_ARTIFACT_SOURCES.filter(
     (source) => !source.href.startsWith(`${SIGNED_RECORD_ARTIFACT_DETAIL_PATH_PREFIX}`),
   );
+
+export function resolveSignedRecordArtifactOrientationSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapEvidenceSourceFindingsQueueHref(SIGNED_RECORD_ARTIFACT_ORIENTATION_SOURCES, productLine);
+}

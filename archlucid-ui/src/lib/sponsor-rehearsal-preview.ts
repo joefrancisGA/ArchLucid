@@ -149,13 +149,13 @@ function buildResidualRisksBody(input: SponsorRehearsalPreviewInput): { body: st
 }
 
 function buildExcludedBody(input: SponsorRehearsalPreviewInput): { body: string; isEmpty: boolean } {
-  const notes = (input.excludedNotes ?? [])
-    .map((note) => nonEmpty(note))
-    .filter((note): note is string => note !== null);
-
   if (input.excludedNotes === null || input.excludedNotes === undefined) {
     return { body: EXCLUDED_NOTES_NOT_STORED, isEmpty: true };
   }
+
+  const notes = input.excludedNotes
+    .map((note) => nonEmpty(note))
+    .filter((note): note is string => note !== null);
 
   if (notes.length === 0) {
     return { body: "Exclusion notes were stored empty.", isEmpty: true };

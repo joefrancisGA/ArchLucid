@@ -30,7 +30,7 @@ export function ArchitectureIdentityDeskDiagramSourcesStrip(
   const latestReviewId = props.latestReviewId?.trim() ?? "";
   const enabled = isWorkingMode && latestReviewId.length > 0;
   const query = useArchitectureDeskDiagramSourcesQuery(latestReviewId, { enabled });
-  const snapshotStored = query.data?.snapshotStored ?? true;
+  const snapshotStored = query.data?.snapshotStored === true;
   const rows = query.data?.rows ?? [];
 
   if (!enabled) {

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Planning;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Llm;
@@ -80,9 +81,42 @@ public sealed class ChatIntakeParserServiceTests
         ArchitectureRequest response = await sut.ParseAsync(new ChatIntakeRequest { RawText = raw }, CancellationToken.None);
 
         response.Description.Should().Be(raw);
-        response.SystemName.Should().Be("This");
-        response.Environment.Should().Be("prod");
+        response.SystemName.Should().Be(ArchitectureEvidenceRequestExport.MissingSystemNameCopy);
+        response.Environment.Should().BeEmpty();
         response.CloudProvider.Should().Be(Contracts.Common.CloudProvider.None);
+    }
+
+    [Fact]
+    public async Task ParseAsync_does_not_default_environment_to_prod_when_omitted()
+    {
+        const string json = """
+                            {
+                              "description": "A long enough architecture description for intake parsing.",
+                              "systemName": "NamedSystem",
+                              "environment": "",
+                              "cloudProvider": "None",
+                              "constraints": [],
+                              "requiredCapabilities": [],
+                              "assumptions": [],
+                              "inlineRequirements": [],
+                              "policyReferences": [],
+                              "topologyHints": [],
+                              "securityBaselineHints": []
+                            }
+                            """;
+
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(json);
+
+        ChatIntakeParserService sut = new(client.Object);
+
+        ArchitectureRequest response = await sut.ParseAsync(
+            new ChatIntakeRequest { RawText = "A long enough architecture description for intake parsing." },
+            CancellationToken.None);
+
+        response.Environment.Should().BeEmpty();
     }
 
     [Fact]

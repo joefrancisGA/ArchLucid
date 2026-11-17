@@ -362,8 +362,14 @@ public sealed class SponsorOnePagerPdfBuilderTests
                 new KeyValuePair<string, int>("Warning", 3),
             ],
             AuditRowCount = 5,
+            AuditRowCountResolved = true,
             LlmCallCount = 2,
+            LlmCallCountResolved = true,
             IsDemoTenant = false,
+            SynthesizedArtifactDescriptorCount = 1,
+            SynthesizedArtifactDescriptorCountResolved = true,
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = false,
         };
     }
 

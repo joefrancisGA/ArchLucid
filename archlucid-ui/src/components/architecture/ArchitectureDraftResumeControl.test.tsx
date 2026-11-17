@@ -8,9 +8,15 @@ const routerPush = vi.fn();
 const getDraftRequest = vi.fn();
 const reopenDraftRequest = vi.fn();
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: routerPush, replace: vi.fn() }),
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    useRouter: () => ({ push: routerPush, replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+    usePathname: () => "/architecture/drafts",
+  };
+});
 
 vi.mock("@/lib/api/draft-intake-api", () => ({
   getDraftRequest: (...args: unknown[]) => getDraftRequest(...args),
@@ -182,7 +188,7 @@ describe("ArchitectureDraftResumeControl", () => {
     });
 
     expect(screen.getByTestId("architecture-creation-resume-draft-continue-arch-001-inline-error")).toHaveTextContent(
-      "Could not unlock this architecture.",
+      "Unlock is not allowed for this architecture draft.",
     );
     expect(screen.queryByTestId("architecture-draft-intake-mode-dialog")).not.toBeInTheDocument();
   });

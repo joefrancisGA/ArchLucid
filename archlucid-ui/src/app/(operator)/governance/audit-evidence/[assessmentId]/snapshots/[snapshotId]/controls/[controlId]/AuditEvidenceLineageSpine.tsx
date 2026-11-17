@@ -52,15 +52,33 @@ const cnCard =
 const cnBrokenLinksPanel =
   "mt-4 rounded-md border border-dashed border-neutral-300 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/40";
 
-function formatLineageVersionLabel(value: string | null | undefined, notStoredLabel: string): string {
+function formatLineageVersionLabel(value: string | null | undefined, notStoredLabel: string): string | null {
   if (value === null || value === undefined) {
     return notStoredLabel;
   }
 
   const trimmed = value.trim();
 
-  if (trimmed.length === 0 || trimmed.toLowerCase() === "unknown") {
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  if (trimmed.toLowerCase() === "unknown") {
     return notStoredLabel;
+  }
+
+  return trimmed;
+}
+
+function formatStoredOptionalText(value: string | null | undefined, notStoredLabel: string): string {
+  if (value === null || value === undefined) {
+    return notStoredLabel;
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return "";
   }
 
   return trimmed;
@@ -215,7 +233,12 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
         <li data-testid="audit-evidence-spine-control">
           <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Audit control</p>
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {props.lineage.controlNumber ?? "Control number was not stored."} · {props.lineage.controlTitle ?? "Control title was not stored."}
+            {[
+              formatStoredOptionalText(props.lineage.controlNumber, "Control number was not stored."),
+              formatStoredOptionalText(props.lineage.controlTitle, "Control title was not stored."),
+            ]
+              .filter((part) => part.length > 0)
+              .join(" · ")}
           </p>
           {!buyerPolishedShell ? (
             <TechnicalIdentifierRow label="controlId" value={props.lineage.controlId} />
@@ -302,7 +325,8 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
         {(props.lineage.requirementChains ?? []).map((chain) => (
           <li key={chain.requirementId ?? chain.requirementName} data-testid={`audit-evidence-spine-requirement-${chain.requirementId}`}>
             <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>
-              Evidence requirement · {chain.requirementName ?? "Requirement name was not stored."}
+              Evidence requirement ·{" "}
+              {formatStoredOptionalText(chain.requirementName, "Requirement name was not stored.")}
             </p>
             <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Type: {chain.evidenceType ?? "Evidence type was not stored."}
@@ -334,9 +358,27 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
                     </Link>
                   ) : null}
                   <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    Collected {evidence.collectedUtc ? formatIsoUtcForDisplay(evidence.collectedUtc) : "Collected time was not stored."} · collector{" "}
-                    {formatLineageVersionLabel(evidence.collectorVersion, "Collector version was not stored.")} · selector{" "}
-                    {formatLineageVersionLabel(evidence.selectorVersion, "Selector version was not stored.")}
+                    {[
+                      `Collected ${evidence.collectedUtc ? formatIsoUtcForDisplay(evidence.collectedUtc) : "Collected time was not stored."}`,
+                      (() => {
+                        const label = formatLineageVersionLabel(
+                          evidence.collectorVersion,
+                          "Collector version was not stored.",
+                        );
+
+                        return label === null ? null : `collector ${label}`;
+                      })(),
+                      (() => {
+                        const label = formatLineageVersionLabel(
+                          evidence.selectorVersion,
+                          "Selector version was not stored.",
+                        );
+
+                        return label === null ? null : `selector ${label}`;
+                      })(),
+                    ]
+                      .filter((part): part is string => part !== null && part.length > 0)
+                      .join(" · ")}
                   </p>
                   {(evidence.missingLinkKinds?.length ?? 0) > 0 ? (
                     <p

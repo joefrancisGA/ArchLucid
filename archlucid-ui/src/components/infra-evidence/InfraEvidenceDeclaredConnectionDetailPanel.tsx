@@ -32,11 +32,15 @@ export type InfraEvidenceDeclaredConnectionDetailPanelProps = {
 };
 
 function formatStoredField(value: string | null | undefined, fieldLabel: string): string {
-  if (value == null || value.trim().length === 0) {
+  if (value == null) {
     return `${fieldLabel} was not stored.`;
   }
 
-  return value;
+  if (value.trim().length === 0) {
+    return `${fieldLabel} was stored empty.`;
+  }
+
+  return value.trim();
 }
 
 function formatExpiration(value: string | null | undefined): string {
@@ -47,7 +51,7 @@ function formatExpiration(value: string | null | undefined): string {
   const parsed = new Date(value);
 
   if (Number.isNaN(parsed.getTime())) {
-    return value;
+    return "Expiration was not a readable time.";
   }
 
   return parsed.toLocaleString();
@@ -149,6 +153,10 @@ export function InfraEvidenceDeclaredConnectionDetailPanel(
 
       <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         <div>
+          <dt className="text-al-text-secondary">Connection id</dt>
+          <dd className="m-0">{formatStoredField(props.edge.declaredConnectionId, "Declared connection id")}</dd>
+        </div>
+        <div>
           <dt className="text-al-text-secondary">From</dt>
           <dd className="m-0">{fromLabel}</dd>
         </div>
@@ -171,7 +179,9 @@ export function InfraEvidenceDeclaredConnectionDetailPanel(
               ? formatUnavailableConnectionField("Rationale", props)
               : matchedConnection.rationale === null || matchedConnection.rationale === undefined
                 ? "Rationale was not stored."
-                : formatStoredField(matchedConnection.rationale, "Rationale")}
+                : matchedConnection.rationale.trim().length === 0
+                  ? "Rationale was stored empty."
+                  : matchedConnection.rationale}
           </dd>
         </div>
         <div>
@@ -181,7 +191,7 @@ export function InfraEvidenceDeclaredConnectionDetailPanel(
         <div>
           <dt className="text-al-text-secondary">Approved by</dt>
           <dd className="m-0">
-            {props.edge.declaredConnectionId === null
+            {props.edge.declaredConnectionId === null || props.edge.declaredConnectionId.trim().length === 0
               ? "Approver was not stored."
               : props.connectionsLoading
                 ? "Loading approver…"

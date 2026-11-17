@@ -33,6 +33,8 @@ public sealed class ExecDigestComposer(
     private const int MaxRunDetailLookups = 40;
     private const int RunDetailLookupMaxConcurrent = 6;
     private const int TopRunCount = 3;
+
+    internal const string ComplianceDriftTopChangeTypesNotStoredLabel = "Top change types were not stored.";
     private readonly IAuthorityQueryService _authorityQueryService = authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 
     private readonly IComplianceDriftTrendService _complianceDriftTrendService =
@@ -55,10 +57,12 @@ public sealed class ExecDigestComposer(
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
         if (weekStartUtcInclusive >= weekEndUtcExclusive)
             throw new ArgumentOutOfRangeException(nameof(weekEndUtcExclusive));
-        string baseUrl = NormalizeBaseUrl(operatorBaseUrl);
+        bool operatorBaseStored = PilotExportLinkHonestyCopy.TryNormalizeOperatorLinkBase(operatorBaseUrl, out string baseUrl);
         string weekLabel = FormatWeekLabel(weekStartUtcInclusive, weekEndUtcExclusive);
         string? complianceMarkdown = await TryBuildComplianceMarkdownAsync(tenantId, weekStartUtcInclusive, weekEndUtcExclusive, cancellationToken);
-        string dashboardUrl = $"{baseUrl}/runs";
+        string dashboardUrl = operatorBaseStored
+            ? $"{baseUrl}/runs"
+            : PilotExportLinkHonestyCopy.OperatorLinkBaseNotStored;
         (int? manifestCount, List<ExecDigestHighlightedRun> highlights, string? latestRunHex, string? findingsDelta, ExecDigestCareerHonestySummary careerHonesty) =
             await TryBuildManifestAndFindingSectionsAsync(authorityScope, weekStartUtcInclusive, weekEndUtcExclusive, cancellationToken);
         Guid? latestArchitectureId = string.IsNullOrWhiteSpace(latestRunHex)
@@ -70,7 +74,9 @@ public sealed class ExecDigestComposer(
                 cancellationToken);
         string sponsorUrl = string.IsNullOrWhiteSpace(latestRunHex)
             ? dashboardUrl
-            : WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl(baseUrl, latestRunHex, latestArchitectureId);
+            : operatorBaseStored
+                ? WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl(baseUrl, latestRunHex, latestArchitectureId)
+                : PilotExportLinkHonestyCopy.OperatorLinkBaseNotStored;
         string? decisionNeededMarkdown = await governanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync(
             tenantId,
             authorityScope.WorkspaceId,
@@ -105,7 +111,7 @@ public sealed class ExecDigestComposer(
             foreach (ComplianceDriftTrendPoint p in points)
             {
                 string topTypes = p.ChangesByType.Count == 0
-                    ? "—"
+                    ? ComplianceDriftTopChangeTypesNotStoredLabel
                     : string.Join(", ", p.ChangesByType.OrderByDescending(static kv => kv.Value).Take(3).Select(static kv => $"`{kv.Key}`: {kv.Value}"));
                 sb.AppendLine($"| {p.BucketUtc:yyyy-MM-dd} | {p.ChangeCount} | {topTypes} |");
             }
@@ -242,16 +248,6 @@ public sealed class ExecDigestComposer(
         int newerTotal = ordered[^1].Score;
 
         return $"Findings (total severities) moved from {olderTotal} → {newerTotal} between earliest and latest commits in this UTC window.";
-    }
-
-    private static string NormalizeBaseUrl(string operatorBaseUrl)
-    {
-        if (string.IsNullOrWhiteSpace(operatorBaseUrl))
-            return "http://localhost:3000";
-
-        string? authority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBaseUrl);
-
-        return authority ?? "http://localhost:3000";
     }
 
     private static string FormatWeekLabel(DateTime startUtc, DateTime endUtc)

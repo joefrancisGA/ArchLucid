@@ -47,6 +47,11 @@ public static class FindingChecklistCoverageRouter
     {
         ArgumentNullException.ThrowIfNull(finding);
 
+        // Merge-conflict rows are operator triage records, not density-demoted engine
+        // findings. Resolution looks them up on snapshot.Findings.
+        if (string.Equals(finding.FindingType, "FindingMergeConflict", StringComparison.Ordinal))
+            return false;
+
         if (finding.Classification == FindingClassification.ChecklistCoverage)
         {
             return true;

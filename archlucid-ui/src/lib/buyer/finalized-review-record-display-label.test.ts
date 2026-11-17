@@ -54,13 +54,13 @@ describe("finalizedReviewRecordDisplayLabel", () => {
     const run = summary({ runId: "other-run", description: "" });
 
     expect(finalizedReviewRecordDisplayLabel(run, "9026d565-0000-0000-0000-0000000099e8")).toBe(
-      "9026d565…99e8",
+      "9026d565…99e8 (shortened for display)",
     );
   });
 
-  it("returns Untitled review when neither title nor manifest id is available", () => {
+  it("returns honesty copy when neither title nor manifest id is available (P-12)", () => {
     expect(finalizedReviewRecordDisplayLabel(summary({ runId: "other-run", description: "" }), null)).toBe(
-      "Untitled review",
+      "Review title was not stored.",
     );
   });
 });

@@ -17,7 +17,7 @@ public sealed class SpecialistReviewDataArchitectureRules
             return SpecialistReviewFindingFactory.CreatePassFinding(
                 model,
                 QualityDimension.DataArchitecture,
-                "No sensitive data signals requiring data-flow mapping",
+                "Sensitive-data language was not found in the submitted text.",
                 "Data architecture review did not find PII or sensitive-data language requiring explicit data-flow documentation.");
         }
 
@@ -41,7 +41,7 @@ public sealed class SpecialistReviewDataArchitectureRules
         return SpecialistReviewFindingFactory.CreatePassFinding(
             model,
             QualityDimension.DataArchitecture,
-            "Sensitive data references include data-flow documentation",
+            "Sensitive data references include data-flow documentation pass",
             "Data flows are documented alongside sensitive-data signals in the architecture model.",
             dataFlow);
     }

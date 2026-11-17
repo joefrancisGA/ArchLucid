@@ -67,6 +67,17 @@ export function GovernanceFindingsQueueQuietEnginesHint(
     return null;
   }
 
+  if (query.data.actorCount === null) {
+    return (
+      <ActorDependentFindingsQuietEnginesHint
+        show
+        hintKind="actor-count-not-stored"
+        runId={runId}
+        workingMode={isWorkingMode}
+      />
+    );
+  }
+
   const show = query.data.analysisComplete && query.data.actorCount === 0;
 
   return <ActorDependentFindingsQuietEnginesHint show={show} runId={runId} workingMode={isWorkingMode} />;

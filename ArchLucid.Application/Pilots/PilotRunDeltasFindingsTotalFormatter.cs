@@ -1,0 +1,65 @@
+using System.Globalization;
+
+namespace ArchLucid.Application.Pilots;
+
+/// <summary>Shared findings-total honesty for first-value markdown and sponsor one-pager PDF.</summary>
+internal static class PilotRunDeltasFindingsTotalFormatter
+{
+    internal const string FindingsTotalNotAttestedLabel = "Findings total was not attested.";
+
+    internal const string MutedOnlyFindingsTotalLabel =
+        "0 (muted findings were excluded from this total.)";
+
+    internal const string SnapshotZeroUnmutedFindingsTotalLabel =
+        "0 (no unmuted findings in persisted snapshot.)";
+
+    internal static string FormatFindingsTotal(PilotRunDeltas deltas)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        int unmutedTotal = deltas.FindingsBySeverity.Sum(static p => p.Value);
+
+        if (deltas.FindingsBySeverity.Count == 0 && unmutedTotal == 0)
+        {
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.HasMaterialFindingWithoutSeverityBuckets(deltas))
+            {
+                return FindingsTotalNotAttestedLabel;
+            }
+
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.IsMutedOnlyEmptySeverity(deltas))
+            {
+                return MutedOnlyFindingsTotalLabel;
+            }
+
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.IsSnapshotAttestedZeroUnmuted(deltas))
+            {
+                return SnapshotZeroUnmutedFindingsTotalLabel;
+            }
+
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.IsAgentResultsOmittedEmptySeverity(deltas))
+            {
+                return PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored;
+            }
+
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.IsAgentResultsIncludedEmptySeverity(deltas))
+            {
+                return PilotRunDeltasFindingsEmptySeverityHonesty.AgentResultsIncludedEmptySeverityPlainLabel;
+            }
+
+            return FindingsTotalNotAttestedLabel;
+        }
+
+        return unmutedTotal.ToString(CultureInfo.InvariantCulture);
+    }
+
+    internal static string FormatMarkdownTableCell(PilotRunDeltas deltas)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        string value = FormatFindingsTotal(deltas);
+
+        return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _)
+            ? value
+            : FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value);
+    }
+}

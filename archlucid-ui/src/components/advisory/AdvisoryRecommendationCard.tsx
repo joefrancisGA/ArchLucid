@@ -56,6 +56,10 @@ function impactLabel(recommendation: RecommendationRecord): string {
   }
 
   if (urgency.length > 0) {
+    if (/^(medium|high|low)$/i.test(urgency)) {
+      return `Impact was not stored. Urgency was ${urgency}.`;
+    }
+
     return urgency;
   }
 
@@ -120,7 +124,11 @@ export function AdvisoryRecommendationCard(props: AdvisoryRecommendationCardProp
             </li>
           ))}
         </ul>
-      ) : null}
+      ) : (
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          Source evidence links were not stored.
+        </p>
+      )}
 
       <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         <span className="font-medium text-neutral-900 dark:text-neutral-100">
@@ -129,12 +137,10 @@ export function AdvisoryRecommendationCard(props: AdvisoryRecommendationCardProp
         {optionalFieldLabel(recommendation.suggestedAction, "Suggested action was not stored.")}
       </p>
 
-      {recommendation.reviewedByUserName ? (
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">{ADVISORY_SCANS_CARD_OWNER_LABEL}:</span>{" "}
-          {recommendation.reviewedByUserName}
-        </p>
-      ) : null}
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        <span className="font-medium text-neutral-800 dark:text-neutral-200">{ADVISORY_SCANS_CARD_OWNER_LABEL}:</span>{" "}
+        {optionalFieldLabel(recommendation.reviewedByUserName ?? "", "Owner was not stored.")}
+      </p>
 
       {recommendation.reviewComment ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

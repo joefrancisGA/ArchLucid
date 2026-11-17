@@ -38,6 +38,9 @@ export function FindingJobViewLaneCallout(props: FindingJobViewLaneCalloutProps)
       </div>
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}>
         {findingJobViewLaneLead(props.jobView)}
+        {props.jobView === "disposition-closed"
+          ? " Use Record finding disposition on the workspace card only when you need to change the stored disposition."
+          : null}
       </p>
       {findingsLaneHref !== null ? (
         <p className="m-0 mt-2">

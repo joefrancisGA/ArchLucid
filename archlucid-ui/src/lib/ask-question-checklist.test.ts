@@ -48,8 +48,8 @@ describe("ask-question-checklist", () => {
     expect(steps[2]?.complete).toBe(false);
   });
 
-  it("treats loading or a user message as sent", () => {
-    expect(isAskQuestionSent({ loading: true, messages: [] })).toBe(true);
+  it("treats a user message as sent but not loading alone", () => {
+    expect(isAskQuestionSent({ loading: true, messages: [] })).toBe(false);
     expect(isAskQuestionSent({ loading: false, messages: [message("assistant")] })).toBe(false);
     expect(isAskQuestionSent({ loading: false, messages: [message("user")] })).toBe(true);
   });

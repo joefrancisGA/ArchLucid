@@ -23,6 +23,54 @@ public sealed class TenantDeletionServiceTests
         return lifecycleOptions.Object;
     }
 
+    [Theory]
+    [InlineData(true, "active legal hold")]
+    [InlineData(false, "explicitly approved")]
+    public async Task DeleteTenantAsync_uses_current_erasure_controls_before_deleting_data(
+        bool activeHold,
+        string expectedMessage)
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        Mock<ITenantRepository> tenantRepo = new();
+        tenantRepo.Setup(r => r.GetByIdAsync(tenantId, CancellationToken.None))
+            .ReturnsAsync(new TenantRecord { Id = tenantId, TenantErasureApprovedUtc = now });
+        tenantRepo.Setup(r => r.GetByIdUncachedAsync(tenantId, CancellationToken.None))
+            .ReturnsAsync(new TenantRecord
+            {
+                Id = tenantId,
+                TenantErasureApprovedUtc = activeHold ? now : null,
+                LegalHoldUntilUtc = activeHold ? now.AddDays(1) : null,
+            });
+
+        Mock<ITenantBlobPrefixDeletionService> blobs = new();
+        blobs.Setup(b => b.DeleteAllTenantPrefixesAsync(tenantId, CancellationToken.None))
+            .ReturnsAsync(new TenantBlobPrefixDeletionResult());
+        Mock<ITenantHardPurgeService> purge = new();
+        purge.Setup(p => p.PurgeTenantAsync(tenantId, It.IsAny<TenantHardPurgeOptions>(), CancellationToken.None))
+            .ReturnsAsync(new TenantHardPurgeResult { RowCountsByTable = new Dictionary<string, int>() });
+        TenantDeletionService sut = new(
+            purge.Object, blobs.Object, Mock.Of<IPlatformAuditRepository>(), DefaultLifecycleOptions(), tenantRepo.Object);
+
+        InvalidOperationException error = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            sut.DeleteTenantAsync(
+                tenantId,
+                new TenantDeletionInvocation { ActorUserId = "operator", ActorUserName = "Operator" },
+                CancellationToken.None));
+
+        error.Message.Should().Contain(expectedMessage);
+        blobs.Verify(b => b.DeleteAllTenantPrefixesAsync(tenantId, It.IsAny<CancellationToken>()), Times.Never);
+        purge.Verify(p => p.PurgeTenantAsync(tenantId, It.IsAny<TenantHardPurgeOptions>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private static Mock<ITenantRepository> CreateTenantRepository(MockBehavior behavior = MockBehavior.Loose)
+    {
+        Mock<ITenantRepository> tenantRepo = new(behavior);
+        tenantRepo.Setup(r => r.GetByIdUncachedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns((Guid tenantId, CancellationToken ct) => tenantRepo.Object.GetByIdAsync(tenantId, ct));
+        return tenantRepo;
+    }
+
     [Fact]
     public async Task DeleteTenantAsync_purges_sql_and_blobs_and_emits_platform_audit()
     {
@@ -55,7 +103,7 @@ public sealed class TenantDeletionServiceTests
         Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> lifecycleOptions = new();
         lifecycleOptions.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions { HardPurgeMaxRowsPerStatement = 500 });
 
-        Mock<ITenantRepository> tenantRepo = new();
+        Mock<ITenantRepository> tenantRepo = CreateTenantRepository();
         tenantRepo.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = tenantId, TenantErasureApprovedUtc = DateTimeOffset.UtcNow });
 
@@ -90,11 +138,66 @@ public sealed class TenantDeletionServiceTests
     }
 
     [Fact]
+    public async Task DeleteTenantAsync_trims_correlation_id_on_hard_purge_platform_audit()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-111111111111");
+        PlatformAuditEvent? captured = null;
+
+        Mock<ITenantHardPurgeService> purge = new();
+        purge
+            .Setup(p => p.PurgeTenantAsync(
+                tenantId,
+                It.IsAny<TenantHardPurgeOptions>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantHardPurgeResult { RowsDeleted = 1, RowCountsByTable = new Dictionary<string, int>() });
+
+        Mock<ITenantBlobPrefixDeletionService> blobs = new();
+        blobs
+            .Setup(b => b.DeleteAllTenantPrefixesAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantBlobPrefixDeletionResult());
+
+        Mock<IPlatformAuditRepository> platformAudit = new();
+        platformAudit
+            .Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> lifecycleOptions = new();
+        lifecycleOptions.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        Mock<ITenantRepository> tenantRepo = CreateTenantRepository();
+        tenantRepo
+            .Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = tenantId, TenantErasureApprovedUtc = DateTimeOffset.UtcNow });
+
+        TenantDeletionService sut = new(
+            purge.Object,
+            blobs.Object,
+            platformAudit.Object,
+            lifecycleOptions.Object,
+            tenantRepo.Object);
+
+        await sut.DeleteTenantAsync(
+            tenantId,
+            new TenantDeletionInvocation
+            {
+                ActorUserId = "actor-1",
+                ActorUserName = "actor@example.com",
+                CorrelationId = "  corr-trim-delete  ",
+            },
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.EventType.Should().Be(AuditEventTypes.TenantDataDeleted);
+        captured.CorrelationId.Should().Be("corr-trim-delete");
+    }
+
+    [Fact]
     public async Task DeleteTenantAsync_throws_not_found_when_tenant_row_is_missing()
     {
         Guid tenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
-        Mock<ITenantRepository> tenantRepo = new();
+        Mock<ITenantRepository> tenantRepo = CreateTenantRepository();
         tenantRepo
             .Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantRecord?)null);
@@ -140,7 +243,7 @@ public sealed class TenantDeletionServiceTests
             LegalHoldUntilUtc = now.AddDays(30),
         };
 
-        Mock<ITenantRepository> tenantRepo = new(MockBehavior.Strict);
+        Mock<ITenantRepository> tenantRepo = CreateTenantRepository(MockBehavior.Strict);
         tenantRepo
             .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(approved)
@@ -193,7 +296,7 @@ public sealed class TenantDeletionServiceTests
             TenantErasureApprovedUtc = null,
         };
 
-        Mock<ITenantRepository> tenantRepo = new(MockBehavior.Strict);
+        Mock<ITenantRepository> tenantRepo = CreateTenantRepository(MockBehavior.Strict);
         tenantRepo
             .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(approved)
@@ -249,7 +352,7 @@ public sealed class TenantDeletionServiceTests
             TenantErasureApprovedUtc = null,
         };
 
-        Mock<ITenantRepository> tenantRepo = new(MockBehavior.Strict);
+        Mock<ITenantRepository> tenantRepo = CreateTenantRepository(MockBehavior.Strict);
         tenantRepo
             .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(approved)
@@ -310,7 +413,7 @@ public sealed class TenantDeletionServiceTests
             TenantErasureApprovedUtc = null,
         };
 
-        Mock<ITenantRepository> tenantRepo = new(MockBehavior.Strict);
+        Mock<ITenantRepository> tenantRepo = CreateTenantRepository(MockBehavior.Strict);
         tenantRepo
             .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(approved)
@@ -362,7 +465,7 @@ public sealed class TenantDeletionServiceTests
             TenantErasureApprovedUtc = null,
         };
 
-        Mock<ITenantRepository> tenantRepo = new(MockBehavior.Strict);
+        Mock<ITenantRepository> tenantRepo = CreateTenantRepository(MockBehavior.Strict);
         tenantRepo
             .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(approved)
@@ -429,7 +532,7 @@ public sealed class TenantDeletionServiceTests
             LegalHoldUntilUtc = now.AddDays(30),
         };
 
-        Mock<ITenantRepository> tenantRepo = new(MockBehavior.Strict);
+        Mock<ITenantRepository> tenantRepo = CreateTenantRepository(MockBehavior.Strict);
         tenantRepo
             .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(approved)
@@ -496,7 +599,7 @@ public sealed class TenantDeletionServiceTests
             TenantErasureApprovedUtc = null,
         };
 
-        Mock<ITenantRepository> tenantRepo = new(MockBehavior.Strict);
+        Mock<ITenantRepository> tenantRepo = CreateTenantRepository(MockBehavior.Strict);
         tenantRepo
             .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(approved)
@@ -565,7 +668,7 @@ public sealed class TenantDeletionServiceTests
             LegalHoldUntilUtc = now.AddDays(30),
         };
 
-        Mock<ITenantRepository> tenantRepo = new(MockBehavior.Strict);
+        Mock<ITenantRepository> tenantRepo = CreateTenantRepository(MockBehavior.Strict);
         tenantRepo
             .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(approved)
@@ -634,7 +737,7 @@ public sealed class TenantDeletionServiceTests
             TenantErasureApprovedUtc = null,
         };
 
-        Mock<ITenantRepository> tenantRepo = new(MockBehavior.Strict);
+        Mock<ITenantRepository> tenantRepo = CreateTenantRepository(MockBehavior.Strict);
         tenantRepo
             .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(approved)
@@ -705,7 +808,7 @@ public sealed class TenantDeletionServiceTests
             LegalHoldUntilUtc = now.AddDays(30),
         };
 
-        Mock<ITenantRepository> tenantRepo = new(MockBehavior.Strict);
+        Mock<ITenantRepository> tenantRepo = CreateTenantRepository(MockBehavior.Strict);
         tenantRepo
             .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(approved)
@@ -763,7 +866,7 @@ public sealed class TenantDeletionServiceTests
     {
         Guid tenantId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
-        Mock<ITenantRepository> tenantRepo = new();
+        Mock<ITenantRepository> tenantRepo = CreateTenantRepository();
         tenantRepo
             .Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = tenantId, TenantErasureApprovedUtc = null });

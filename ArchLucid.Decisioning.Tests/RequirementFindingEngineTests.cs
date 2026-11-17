@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.KnowledgeGraph.Models;
@@ -54,6 +55,38 @@ public sealed class RequirementFindingEngineTests
         findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(2);
         findings[0].Trace.AlternativePathsConsidered.Should()
             .Contain(p => p.Contains("Extend RELATES_TO", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_blank_requirement_label_and_text_use_not_stored_copy()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "r-blank",
+                    NodeType = "Requirement",
+                    Label = "",
+                    Properties = new(),
+                },
+            ],
+            Edges = [],
+        };
+
+        RequirementFindingEngine sut = new();
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Title.Should().Contain("Graph node label was not stored.");
+        RequirementFindingPayload payload =
+            findings[0].Payload.Should().BeOfType<RequirementFindingPayload>().Subject;
+        payload.RequirementName.Should().Be("Requirement name was not stored.");
+        payload.RequirementText.Should().Be("Requirement text was not stored.");
+        payload.IsMandatory.Should().BeFalse();
+        findings[0].Trace!.Notes.Should().Contain("Requirement text was not stored.");
+        findings[0].Trace!.Notes.Should().Contain("Mandatory flag was not stored.");
     }
 
     [Fact]

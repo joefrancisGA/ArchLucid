@@ -1,3 +1,4 @@
+import { resolveProductionEvalChromeForServer } from "@/lib/production-desk-chrome";
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -41,7 +42,6 @@ import {
   AI_USAGE_HELP_START_HERE_HELPER,
   AI_USAGE_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/ai-usage-help-page-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -108,7 +108,7 @@ function AiUsageStartHerePanel(): React.ReactElement {
 /** Operator AI usage orientation for `/help/ai-usage`. */
 export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = resolveProductionEvalChromeForServer();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-ai-usage",
     AI_USAGE_HELP_GUIDE_HEADINGS,

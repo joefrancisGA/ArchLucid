@@ -1,3 +1,4 @@
+import { normalizeGovernanceQueueFindingId } from "@/lib/governance/governance-findings-queue-selection";
 import { REMEDIATION_FACTORY_ROW_ATTR } from "@/hooks/useRemediationFactoryShortcuts";
 
 const FINDING_EVIDENCE_LINK_SELECTOR = 'a[data-testid$="-evidence-link"]';
@@ -18,12 +19,34 @@ function focusHTMLElement(element: HTMLElement | null): boolean {
   return true;
 }
 
+function queryGovernanceFindingCardElement(findingId: string): HTMLElement | null {
+  const normalized = normalizeGovernanceQueueFindingId(findingId);
+
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  const direct = document.querySelector<HTMLElement>(`[data-finding-id="${CSS.escape(normalized)}"]`);
+
+  if (direct !== null) {
+    return direct;
+  }
+
+  for (const element of document.querySelectorAll<HTMLElement>("[data-finding-id]")) {
+    if (normalizeGovernanceQueueFindingId(element.getAttribute("data-finding-id") ?? "") === normalized) {
+      return element;
+    }
+  }
+
+  return null;
+}
+
 export function focusFindingCardEvidenceLink(findingId: string | null): boolean {
   if (findingId === null || findingId.trim().length === 0) {
     return false;
   }
 
-  const card = document.querySelector<HTMLElement>(`[data-finding-id="${findingId}"]`);
+  const card = queryGovernanceFindingCardElement(findingId);
 
   if (card === null) {
     return false;
@@ -39,7 +62,7 @@ export function focusFindingCardRow(findingId: string | null): boolean {
     return false;
   }
 
-  const card = document.querySelector<HTMLElement>(`[data-finding-id="${findingId}"]`);
+  const card = queryGovernanceFindingCardElement(findingId);
 
   return focusHTMLElement(card);
 }

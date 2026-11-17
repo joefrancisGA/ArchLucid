@@ -14,6 +14,19 @@ namespace ArchLucid.Decisioning.Tests.Services;
 public sealed class IdentityBlastRadiusFindingEngineTests
 {
     [Fact]
+    public async Task AnalyzeAsync_blank_actor_label_uses_not_stored_copy_in_title()
+    {
+        GraphSnapshot graph = BuildActorContributorKeyVaultFixture();
+        GraphNode actor = graph.Nodes.First(n => n.NodeId == "actor-checkout");
+        actor.Label = "";
+
+        IdentityBlastRadiusFindingEngine sut = new();
+        Finding finding = (await sut.AnalyzeAsync(graph, null, CancellationToken.None)).Should().ContainSingle().Subject;
+
+        finding.Title.Should().Contain("Graph node label was not stored.");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_finding_for_actor_contributor_keyvault_fixture()
     {
         GraphSnapshot graph = BuildActorContributorKeyVaultFixture();
@@ -27,7 +40,8 @@ public sealed class IdentityBlastRadiusFindingEngineTests
         finding.Category.Should().Be("Security");
         finding.Title.Should().Contain("checkout-func");
         finding.Title.Should().Contain("Contributor");
-        finding.Title.Should().Contain("kv-pay-prod");
+        finding.Title.Should().Contain("Pay prod key vault");
+        finding.Title.Should().NotContain("kv-pay-prod");
         finding.Trace!.Notes.Should().Contain("evidence:graph-node:kv-pay-prod");
 
         IdentityBlastRadiusFindingPayload payload =
@@ -138,7 +152,7 @@ public sealed class IdentityBlastRadiusFindingEngineTests
         {
             NodeId = "kv-pay-prod",
             NodeType = GraphNodeTypes.TopologyResource,
-            Label = "kv-pay-prod",
+            Label = "Pay prod key vault",
             Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 ["category"] = GraphTopologyCategories.Storage,

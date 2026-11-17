@@ -76,7 +76,32 @@ public sealed partial class SqlRunRepository
             return new RunArchiveByIdsResult();
 
         List<Guid> distinctOrdered = RunArchiveByIdsOutcome.DistinctInRequestOrder(runIds);
+        return await ArchiveRunsByIdsCoreAsync(
+            distinctOrdered, RunRepositorySql.ArchiveRunsByIds, new { RunIds = distinctOrdered }, ct).ConfigureAwait(false);
+    }
 
+    /// <inheritdoc />
+    public Task<RunArchiveByIdsResult> ArchiveUnsealedRunAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+        Guid[] runIds = [runId];
+        return ArchiveRunsByIdsCoreAsync(
+            runIds,
+            RunRepositorySql.ArchiveUnsealedRun,
+            new
+            {
+                RunIds = runIds,
+                scope.TenantId,
+                scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+            },
+            ct);
+    }
+
+    private async Task<RunArchiveByIdsResult> ArchiveRunsByIdsCoreAsync(
+        IReadOnlyList<Guid> distinctOrdered, string sql, object parameters, CancellationToken ct)
+    {
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct).ConfigureAwait(false);
 
@@ -87,10 +112,7 @@ public sealed partial class SqlRunRepository
         try
         {
             await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
-                new CommandDefinition(RunRepositorySql.ArchiveRunsByIds, new
-                {
-                    RunIds = distinctOrdered
-                }, tran, cancellationToken: ct)).ConfigureAwait(false);
+                new CommandDefinition(sql, parameters, tran, cancellationToken: ct)).ConfigureAwait(false);
 
             archived = (await multi.ReadAsync<ArchivedRunScopeRow>().ConfigureAwait(false)).ToList();
             alreadyArchivedRunIds = (await multi.ReadAsync<Guid>().ConfigureAwait(false)).ToList();

@@ -49,7 +49,11 @@ public sealed class DecisionReceiptComposerTests
         receipt.DraftId.Should().Be(draft.DraftId);
         receipt.Intake.Should().NotBeNull();
         receipt.Intake!.BusinessOutcome.Should().Be("Reduce triage time.");
+        receipt.Intake.SystemName.Should().Be("Triage Hub");
         receipt.CostStory.Label.Should().Be(DecisionReceiptConstants.CostEstimateLabel);
+        receipt.CostStory.SessionCostUsdEstimate.Should().Be(DecisionReceiptCostStory.SessionCostNotStored);
+        receipt.CostStory.AvoidedHumanArchitectCostUsdEstimate.Should()
+            .Be(DecisionReceiptCostStory.AvoidedHumanArchitectCostNotStored);
     }
 
     [Fact]
@@ -70,5 +74,15 @@ public sealed class DecisionReceiptComposerTests
             DecisionReceiptComposer.BuildForRun(Guid.NewGuid(), verdict, manifestHashSha256: "ABC123", manifestVersion: null);
 
         missingVersion.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void BuildFilename_WithoutIds_OmitsStandInToken()
+    {
+        string name = DecisionReceiptComposer.BuildFilename(null, null);
+
+        name.Should().StartWith("archlucid-decision-receipt-");
+        name.Should().EndWith(".json");
+        name.Should().NotContain("review-id-not-stored");
     }
 }

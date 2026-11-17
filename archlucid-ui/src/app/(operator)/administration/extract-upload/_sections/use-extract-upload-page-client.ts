@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -14,7 +16,6 @@ import { resolveOperatorPrincipalOwnerLabel } from "@/lib/action-actor-display";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import { countArchLucidAzurePackageResourcesFromFile } from "@/lib/count-arch-lucid-azure-package-resources";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   writeExtractUploadAcceptedPackageRecord,
   type ExtractUploadAcceptedPackageRecord,
@@ -55,11 +56,11 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   const [sessionAcceptedPackage, setSessionAcceptedPackage] = useState<ExtractUploadAcceptedPackageRecord | null>(
     null,
   );
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const baselineQuery = useExtractUploadBaselineQuery(productLine);
 
   const persistAcceptedPackage = useCallback(
-    async (packageId: string, fileLabel: string, file: File) => {
+    async (packageId: string, snapshotId: string | null, fileLabel: string, file: File) => {
       const resourceCount = await countArchLucidAzurePackageResourcesFromFile(file);
       const actorLabel =
         resolveOperatorPrincipalOwnerLabel({
@@ -73,6 +74,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
         resourceCount,
         fileLabel,
         associateRunId,
+        snapshotId,
       };
       writeExtractUploadAcceptedPackageRecord(record);
       setSessionAcceptedPackage(record);
@@ -89,7 +91,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
       const result = await upload.onUpload(request.file);
 
       if (result !== null) {
-        await persistAcceptedPackage(result.packageId, request.fileLabel, request.file);
+        await persistAcceptedPackage(result.packageId, result.snapshotId, request.fileLabel, request.file);
       }
     },
     [persistAcceptedPackage, upload],
@@ -134,6 +136,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   });
 
   const baselineLoading = baselineQuery.isPending;
+  const baselineLoadFailed = baselineQuery.isError;
   const hasBaselineArtifacts = baselineQuery.data?.hasBaselineArtifacts ?? null;
   const hasInventoryOnFile = resolveExtractUploadHasInventoryOnFile({
     hasBaselineArtifacts,
@@ -198,6 +201,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     setAdvancedCommandOpen,
     buyerPolishedShell,
     baselineLoading,
+    baselineLoadFailed,
     hasBaselineArtifacts,
     hasInventoryOnFile,
     extractorScriptVersion,

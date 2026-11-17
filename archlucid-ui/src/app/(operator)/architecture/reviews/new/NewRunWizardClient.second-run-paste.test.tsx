@@ -83,6 +83,7 @@ describe("NewRunWizardClient (SECOND_RUN paste)", () => {
     const toml = `
 name = "Pasted.Service"
 description = "Ten chars min for the architecture goals here."
+environment = "development"
 components = ["api"]
 `;
 

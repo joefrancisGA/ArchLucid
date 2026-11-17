@@ -48,6 +48,14 @@ public static class DiagramForestNodeSvgEmitter
                     "data-member-names",
                     string.Join("|", node.DataFlowRollupMemberNames)));
         }
+        else if (node?.IsCollapsedResourceGroupTail == true)
+        {
+            group.Add(new XAttribute("cursor", "pointer"));
+            group.Add(
+                new XAttribute(
+                    "data-member-names",
+                    string.Join("|", node.CollapsedResourceGroupTailMemberNames)));
+        }
         string? questionableTitle = metrics.IsQuestionable
             ? $"{accessibilityTitle} — Questionable; select the resource for the reason and recommended action"
             : null;

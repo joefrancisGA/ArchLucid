@@ -6,7 +6,7 @@ import { ArchitectureIntelligenceRefineNextSteps } from "@/components/architectu
 import { ArchitectureIntelligenceRunSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRunSummary";
 import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
 import type { ClosedLoopReasoningResult } from "@/lib/architecture/architecture-intelligence-api";
-import { resolvePublishBlockedAlertMessage } from "@/lib/architecture/architecture-intelligence-framing-interview";
+import { resolvePublishBlockedAlertMessage, ARCHITECTURE_INTELLIGENCE_BUDGET_REJECT_REASON_NOT_STORED } from "@/lib/architecture/architecture-intelligence-framing-interview";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +37,9 @@ export function ArchitectureIntelligenceRefineResultSummary(
           )}
         >
           Analysis not started:{" "}
-          {result.budgetRejectReason ?? "Pre-flight AI budget admission rejected this analysis."}
+          {result.budgetRejectReason?.trim().length
+            ? result.budgetRejectReason
+            : ARCHITECTURE_INTELLIGENCE_BUDGET_REJECT_REASON_NOT_STORED}
         </p>
       ) : null}
 

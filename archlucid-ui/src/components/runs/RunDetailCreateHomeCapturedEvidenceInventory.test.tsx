@@ -32,7 +32,9 @@ describe("RunDetailCreateHomeCapturedEvidenceInventory", () => {
     );
 
     expect(screen.getByText("missing.txt")).toBeInTheDocument();
-    expect(screen.getByText("Evidence item id was not stored.")).toBeInTheDocument();
+    expect(
+      screen.getByText(/File name is a label without a stored evidence item\. Evidence item id was not stored\./),
+    ).toBeInTheDocument();
 
     rerender(
       <RunDetailCreateHomeCapturedEvidenceInventory

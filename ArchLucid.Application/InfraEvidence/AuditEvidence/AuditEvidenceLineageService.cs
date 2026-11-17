@@ -20,13 +20,13 @@ public sealed class AuditEvidenceLineageService(
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
     IVerifiedRemediationControlAssociationRepository associationRepository,
-    IRemediationInstanceRepository remediationInstanceRepository,
+    IProjectScopedRemediationInstanceRepository remediationInstanceRepository,
     ILogger<AuditEvidenceLineageService> logger) : IAuditEvidenceLineageService
 {
     private readonly IVerifiedRemediationControlAssociationRepository _associationRepository =
         associationRepository ?? throw new ArgumentNullException(nameof(associationRepository));
 
-    private readonly IRemediationInstanceRepository _remediationInstanceRepository =
+    private readonly IProjectScopedRemediationInstanceRepository _remediationInstanceRepository =
         remediationInstanceRepository ?? throw new ArgumentNullException(nameof(remediationInstanceRepository));
 
     public async Task<AuditEvidenceLineageQueryResult> TryGetControlLineageAsync(
@@ -245,7 +245,7 @@ public sealed class AuditEvidenceLineageService(
             return new AuditEvidenceLineageQueryResult
             {
                 Succeeded = false,
-                ErrorMessage = ex.Message,
+                ErrorMessage = "Audit evidence lineage could not be retrieved. Contact support with the request reference.",
             };
         }
     }

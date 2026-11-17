@@ -78,6 +78,30 @@ public sealed class QuickScanServiceCoverageTests
         result.Findings.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task ScanAsync_labels_missing_finding_fields_and_source_agent_as_not_stored()
+    {
+        Mock<IAgentCompletionClient> completionClient = new();
+        completionClient
+            .Setup(client => client.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("""{"summary":"scan","findings":[{"message":""}]}""");
+
+        QuickScanService sut = CreateService(completionClient.Object);
+
+        QuickScanResult result = await sut.ScanAsync(new Dictionary<string, string>(), CancellationToken.None);
+
+        result.Findings.Should().ContainSingle();
+        result.Findings[0].Category.Should().Be("Category was not stored.");
+        result.Findings[0].Message.Should().Be("Finding message was not stored.");
+        result.Findings[0].SourceAgent.Should().Be(default);
+        result.Findings[0].ReasoningTrace.Should().Be("Severity was not stored.");
+    }
+
     private static QuickScanService CreateService(IAgentCompletionClient completionClient) =>
         new(
             completionClient,

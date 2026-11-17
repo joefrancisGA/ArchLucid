@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -7,12 +9,16 @@ import { GovernancePolicyPackBreadcrumb } from "@/components/governance/Governan
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { ResponsibleAiPolicyPackTechnicalDetailsDisclosure } from "@/app/(operator)/governance/policy-packs/[id]/ResponsibleAiPolicyPackTechnicalDetailsDisclosure";
+import { PolicyPackDetailPartialCaptureStrip } from "./PolicyPackDetailPartialCaptureStrip";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
-import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  findingsPathForProductLine,
+  policyPacksPathForProductLine,
+} from "@/lib/product-line/securenow-compliance-routes";
 import { POLICY_PACK_DETAIL_CLAIM_DISCIPLINE } from "@/lib/policy/policy-pack-detail-evidence-copy";
 import { POLICY_PACK_DETAIL_KEYBOARD_AFFORDANCE } from "@/lib/policy/policy-pack-detail-page-copy";
 import {
@@ -56,7 +62,6 @@ import {
 } from "@/lib/responsible-ai-policy-pack-detail-content";
 
 import { PolicyPackRulesTableSection } from "./PolicyPackRulesTableSection";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   PAGE_HELP_SHORT_TRIGGER_TEXT,
   PageContextualHelpButton,
@@ -201,9 +206,9 @@ function resolvePackProvenanceLabel(packRecord: PolicyPack | null, policyPackId:
 export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDetailProps): React.JSX.Element {
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
   const { productLine } = useProductLine();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const packsHubHref = props.packsHubHref ?? GOVERNANCE_POLICY_PACKS_PATH;
-  const findingsHref = props.findingsHref ?? GOVERNANCE_FINDINGS_PATH;
+  const buyerPolishedShell = useProductionEvalChrome();
+  const packsHubHref = props.packsHubHref ?? policyPacksPathForProductLine(productLine);
+  const findingsHref = props.findingsHref ?? findingsPathForProductLine(productLine);
   const showCrossProductActions = productLine !== "security";
   const primaryActionLabel = isEnabled
     ? RESPONSIBLE_AI_ACTION_MANAGE_WORKSPACE_ASSIGNMENT
@@ -275,6 +280,8 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
         }
         actions={headerActions}
       />
+
+      <PolicyPackDetailPartialCaptureStrip />
 
       <Card data-testid="policy-pack-summary-card">
         <CardHeader>

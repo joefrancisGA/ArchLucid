@@ -62,6 +62,10 @@ export type QuickDecisionSummaryProps = {
    */
   readonly sourceFindingsCount?: number;
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
+  readonly findingWireSnapshots?: globalThis.Record<
+    string,
+    import("@/lib/quick-decision-wire-snapshots").FindingWireSnapshot
+  > | null;
 };
 
 export type QuickDecisionSummaryDerivedData = {
@@ -75,8 +79,10 @@ export type QuickDecisionSummaryDerivedData = {
   readonly hiddenLowConfidenceHint: string | null;
   readonly policyViolations: readonly QuickDecisionFinding[];
   readonly advisoryNotes: readonly QuickDecisionFinding[];
+  readonly enforcementTierUnspecified: readonly QuickDecisionFinding[];
   readonly lowConfidencePolicyViolations: readonly QuickDecisionFinding[];
   readonly lowConfidenceAdvisoryNotes: readonly QuickDecisionFinding[];
+  readonly lowConfidenceEnforcementTierUnspecified: readonly QuickDecisionFinding[];
   readonly topGroups: readonly PolicyPackFindingGroupDetail[];
   readonly policyPackSummary: readonly PolicyPackFindingGroup[];
   readonly policyPackImpact: {

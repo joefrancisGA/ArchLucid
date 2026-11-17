@@ -229,7 +229,9 @@ public sealed partial class AuthorityRunOrchestrator
                     LogAgentExecutionStateTransition(run.RunId, "inline_authority_pipeline_stages", "authority_pipeline_finalize",
                         "(none)");
 
-                    await UpdateRunWithTransientRetryAsync(run, stagesUow, pipelineCt);
+                    // Do not UpdateRun here: artifacts already sealed GoldenManifestId (and sibling
+                    // evidence anchors). A second header write trips TB-310 immutability — same
+                    // ordering as AuthorityRunQueuedPipelineCompleter (finalize only).
 
                     RunRecord finalized = await _authorityCommittedPipelineFinalizer.FinalizeAsync(
                         run,

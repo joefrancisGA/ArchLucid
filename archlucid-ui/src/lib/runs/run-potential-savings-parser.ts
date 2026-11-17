@@ -148,7 +148,7 @@ function extractCostManagementOpportunityUsd(props: Record<string, unknown>): nu
 }
 
 function normalizeHeadingCell(h: string): string {
-  return h.replace(/\s+/g, "").toLowerCase();
+  return h.replace(/([a-z0-9])([A-Z])/g, "$1 $2").trim().toLowerCase();
 }
 
 function headingFromColumnDescriptor(cell: unknown): string {

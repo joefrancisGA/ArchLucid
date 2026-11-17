@@ -11,6 +11,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/help/MermaidDiagram", () => ({
   MermaidDiagram: ({ source }: { readonly source: string }) => (
     <div data-testid="mermaid-diagram">{source}</div>
@@ -29,8 +34,43 @@ vi.mock("@/components/help/HelpTopicPrintButton", () => ({
   HelpTopicPrintButton: () => <div data-testid="help-topic-print-button" />,
 }));
 
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/help/repeat-review-loop",
+    useSearchParams: () => new URLSearchParams("helpRepeatReviewLoopSourcesOpen=1"),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
+
 import { HelpRepeatReviewLoopGuideView } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopGuideView";
 import {
+  REPEAT_REVIEW_LOOP_HELP_CANONICAL_PATH,
   REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE,
   REPEAT_REVIEW_LOOP_HELP_FOLLOW_UPS_TITLE,
   REPEAT_REVIEW_LOOP_HELP_SOURCES,
@@ -97,7 +137,7 @@ describe("HelpRepeatReviewLoopGuideView buyer-polished shell (HRX)", () => {
     const workspace = screen.getByTestId(REPEAT_REVIEW_LOOP_HELP_WORKSPACE_TEST_ID);
     const stepper = screen.getByTestId("repeat-review-loop-workflow-stepper");
     const orientationBottom = screen.getByTestId(REPEAT_REVIEW_LOOP_HELP_ORIENTATION_BOTTOM_TEST_ID);
-    const sourcesSection = screen.getByTestId("repeat-review-loop-help-sources");
+    const sourcesSection = screen.getByTestId("help-repeat-review-loop-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(actionPanel);
@@ -117,6 +157,10 @@ describe("HelpRepeatReviewLoopGuideView buyer-polished shell (HRX)", () => {
     expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    expectWhereToGoNextFollowUpLinks(within(sourcesSection), REPEAT_REVIEW_LOOP_HELP_SOURCES, "/");
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      REPEAT_REVIEW_LOOP_HELP_SOURCES,
+      REPEAT_REVIEW_LOOP_HELP_CANONICAL_PATH,
+    );
   });
 });

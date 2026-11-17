@@ -21,7 +21,11 @@ export function RunTrustEvidenceFieldRow(props: {
       </div>
       {detail ? (
         <p className={cn("m-0 mt-2 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{detail}</p>
-      ) : null}
+      ) : (
+        <p className={cn("m-0 mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Detail was not stored for this field.
+        </p>
+      )}
     </div>
   );
 }

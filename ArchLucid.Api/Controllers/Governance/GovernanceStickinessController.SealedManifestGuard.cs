@@ -179,7 +179,12 @@ public sealed partial class GovernanceStickinessController
 
                 if (finding is null || finding.RunId == Guid.Empty)
                 {
-                    continue;
+                    string findingLabel = string.IsNullOrWhiteSpace(record.FindingId)
+                        ? "(empty)"
+                        : record.FindingId.Trim();
+
+                    throw new ConflictException(
+                        $"Decisions-needed summary blocked for waiver on finding '{findingLabel}': active risk exception has no run id and finding inspect did not resolve an attestable run.");
                 }
 
                 runId = finding.RunId;

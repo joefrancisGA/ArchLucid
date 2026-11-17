@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  API_KEYS_HELP_ACTION_PANEL_ID,
+  API_KEYS_HELP_CLAIM_HEADING_ID,
   API_KEYS_HELP_GUIDE_HEADINGS,
+  API_KEYS_HELP_INSTEAD_SECTION_ID,
   API_KEYS_HELP_PAGE_SUBTITLE,
   API_KEYS_HELP_PRIMARY_ACTIONS,
 } from "@/lib/api-keys-help-guide-content";
@@ -27,12 +30,13 @@ describe("api-keys-help-guide-content", () => {
     }
   });
 
-  it("lists four on-page headings so the TOC rail can render", () => {
-    expect(API_KEYS_HELP_GUIDE_HEADINGS).toHaveLength(4);
+  it("lists five on-page headings so the TOC rail can render", () => {
+    expect(API_KEYS_HELP_GUIDE_HEADINGS).toHaveLength(5);
     expect(API_KEYS_HELP_GUIDE_HEADINGS.map((heading) => heading.id)).toEqual([
-      "not-in-this-release-what-to-use-instead",
+      API_KEYS_HELP_ACTION_PANEL_ID,
       "what-api-keys-are-for",
-      "what-to-do-instead",
+      API_KEYS_HELP_INSTEAD_SECTION_ID,
+      API_KEYS_HELP_CLAIM_HEADING_ID,
       "where-to-go-next",
     ]);
   });

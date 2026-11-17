@@ -6,7 +6,8 @@ export const EVIDENCE_EXTRACTION_COMPLETE_HEADLINE = "Evidence processed";
  * Elapsed-time framing rather than a percentage: the extraction API reports no measurable
  * progress, and a frozen fake percentage reads worse than an honest indeterminate bar.
  */
-export const EVIDENCE_EXTRACTION_DURATION_EXPECTATION = "This usually takes 10–30 seconds.";
+export const EVIDENCE_EXTRACTION_DURATION_EXPECTATION =
+  "Duration is not stored. Processing continues until the extraction response returns.";
 
 export const EVIDENCE_EXTRACTION_CONTINUE_EDITING_NOTE =
   "You can continue editing while ArchLucid processes this evidence.";
@@ -47,10 +48,17 @@ export function formatEvidenceExtractionDocumentLine(
 }
 
 function formatExtractedCharacterCount(characterCount: number): string {
-  return `${characterCount.toLocaleString("en-US")} characters extracted`;
+  return `${new Intl.NumberFormat("en-US").format(characterCount)} characters extracted`;
 }
 
-function formatSuggestedAnswerCount(suggestedAnswerCount: number): string {
+export const EVIDENCE_EXTRACTION_SUGGESTIONS_NOT_RETURNED =
+  "Clarification suggestions were not returned.";
+
+function formatSuggestedAnswerCount(suggestedAnswerCount: number | null | undefined): string {
+  if (suggestedAnswerCount === null || suggestedAnswerCount === undefined) {
+    return EVIDENCE_EXTRACTION_SUGGESTIONS_NOT_RETURNED;
+  }
+
   if (suggestedAnswerCount === 0) {
     return "no clarification answers suggested";
   }
@@ -63,7 +71,7 @@ function formatSuggestedAnswerCount(suggestedAnswerCount: number): string {
 /** Ties the completion state back to what the extraction actually produced — never a rounded claim. */
 export function formatEvidenceExtractionCompletionSummary(input: {
   readonly extractedCharacterCount: number;
-  readonly suggestedAnswerCount: number;
+  readonly suggestedAnswerCount?: number | null;
 }): string {
   if (input.extractedCharacterCount <= 0) {
     return EVIDENCE_EXTRACTION_NO_TEXT_SUMMARY;

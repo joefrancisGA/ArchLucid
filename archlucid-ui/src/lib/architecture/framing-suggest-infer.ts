@@ -1,5 +1,5 @@
-import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import type { ArchitectureIntelligenceFramingQuestion } from "@/lib/architecture/architecture-intelligence-framing-interview";
+import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import {
   buildInferenceCorpus,
   extractLineValue,
@@ -15,6 +15,8 @@ import {
 } from "@/lib/architecture/architecture-draft-structured-brief";
 import { isReadableInferredClarificationAnswer } from "@/lib/inferred-clarification-answer-quality";
 import { deriveStatedConstraintContextFromTexts } from "@/lib/review-quality/stated-constraint-context";
+
+export const FRAMING_SUGGEST_INFERRED_FROM_BRIEF_PREFIX = "Inferred from brief: " as const;
 
 function inferBusinessOutcome(context: FramingSuggestContext): string | null {
   const outcome = context.businessOutcome?.trim() ?? "";
@@ -332,6 +334,32 @@ export function inferFramingAnswer(
   }
 }
 
+/** Wording-only inference — show beside the question, do not write into the answer field (P-20). */
+export function shouldAutoApplyFramingSuggestion(answer: string): boolean {
+  const trimmed = answer.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  const withoutPrefix = trimmed.startsWith(FRAMING_SUGGEST_INFERRED_FROM_BRIEF_PREFIX)
+    ? trimmed.slice(FRAMING_SUGGEST_INFERRED_FROM_BRIEF_PREFIX.length).trim()
+    : trimmed;
+
+  if (
+    withoutPrefix === "Availability and security called out in source material." ||
+    withoutPrefix === "Must-not-fail constraints referenced in source material."
+  ) {
+    return false;
+  }
+
+  if (/^(?:Migration|Greenfield|Extension|Modernization)$/i.test(withoutPrefix)) {
+    return false;
+  }
+
+  return acceptSuggestedAnswer(withoutPrefix) !== null;
+}
+
 export function acceptSuggestedAnswer(answer: string | null): string | null {
   if (answer === null) {
     return null;
@@ -343,5 +371,9 @@ export function acceptSuggestedAnswer(answer: string | null): string | null {
     return null;
   }
 
-  return trimmed;
+  if (trimmed.startsWith(FRAMING_SUGGEST_INFERRED_FROM_BRIEF_PREFIX)) {
+    return trimmed;
+  }
+
+  return `${FRAMING_SUGGEST_INFERRED_FROM_BRIEF_PREFIX}${trimmed}`;
 }

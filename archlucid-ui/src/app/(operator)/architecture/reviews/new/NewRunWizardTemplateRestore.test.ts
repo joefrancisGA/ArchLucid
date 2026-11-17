@@ -47,6 +47,7 @@ describe("useNewRunWizardTemplateRestore", () => {
     renderHook(() =>
       useNewRunWizardTemplateRestore({
         stepIndex: 0,
+        wizardStepCount: 9,
         templateWizardSessionState: buildDefaultWizardValues(),
         showFullWizardShell: true,
         reset,
@@ -60,6 +61,34 @@ describe("useNewRunWizardTemplateRestore", () => {
     });
 
     expect(setStepIndex).toHaveBeenCalledWith(2);
+    expect(reset).toHaveBeenCalledWith(savedState);
+  });
+
+  it("clamps restored step index to the current wizard definition length", () => {
+    const reset = vi.fn();
+    const setStepIndex = vi.fn();
+    const savedState: WizardFormValues = {
+      ...buildDefaultWizardValues(),
+      systemName: "Resumed on old step rail",
+    };
+
+    renderHook(() =>
+      useNewRunWizardTemplateRestore({
+        stepIndex: 0,
+        wizardStepCount: 9,
+        templateWizardSessionState: buildDefaultWizardValues(),
+        showFullWizardShell: true,
+        reset,
+        setStepIndex,
+        getValues: () => buildDefaultWizardValues(),
+      }),
+    );
+
+    act(() => {
+      templateRestoreArgs?.onRestore({ stepIndex: 99, state: savedState });
+    });
+
+    expect(setStepIndex).toHaveBeenCalledWith(8);
     expect(reset).toHaveBeenCalledWith(savedState);
   });
 });

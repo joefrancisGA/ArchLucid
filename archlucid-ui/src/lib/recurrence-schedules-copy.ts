@@ -1,4 +1,6 @@
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 /** Page copy and navigation targets for governance recurrence schedules. */
 
@@ -80,5 +82,17 @@ export const RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF = "/architecture/reviews"
 export const RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF = GOVERNANCE_APPROVAL_QUEUE_PATH;
 /** Architecture risk register. */
 export const RECURRENCE_SCHEDULES_RISK_REGISTER_HREF = "/governance/findings";
+
+export function resolveRecurrenceSchedulesRiskRegisterHref(productLine: ProductLineId = "architecture"): string {
+  return findingsPathForProductLine(productLine);
+}
+
+export function resolveRecurrenceScheduleBoardExampleWhenToUse(productLine: ProductLineId = "architecture"): string {
+  if (productLine === "security") {
+    return "Bring recurring compliance review checkpoints back on schedule for active programs.";
+  }
+
+  return RECURRENCE_SCHEDULE_EXAMPLES[3]?.whenToUse ?? "";
+}
 
 export const RECURRENCE_SCHEDULES_MANAGE_PATH = "/governance/recurrence-schedules";

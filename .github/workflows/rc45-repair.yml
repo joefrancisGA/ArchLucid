@@ -1,0 +1,124 @@
+name: RC45 repair checks
+
+on:
+  push:
+    branches: [RC45]
+  workflow_dispatch:
+    inputs:
+      test_project:
+        description: Root .NET test project name, such as ArchLucid.Api.Tests. Leave blank for guards only.
+        type: string
+      test_filter:
+        description: dotnet test filter for the specific failing tests.
+        type: string
+      sql:
+        description: Run with the disposable SQL Server used by CI.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rc45-repair-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  guards:
+    if: github.ref == 'refs/heads/RC45'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Run pre-corset guards
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]]; then
+            git fetch origin "$DEFAULT_BRANCH" --no-tags
+            base="origin/$DEFAULT_BRANCH"
+          elif [[ "$BEFORE_SHA" =~ ^0+$ ]]; then
+            base=$(git rev-parse 'HEAD^1')
+          else
+            base=$BEFORE_SHA
+          fi
+          export ARCHLUCID_GIT_DIFF_RANGE="$base...HEAD"
+          bash scripts/ci/run_guards_pre_corset.sh
+
+  focused-dotnet:
+    if: github.event_name == 'workflow_dispatch' && inputs.test_project != ''
+    needs: guards
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      sqlserver:
+        image: ${{ inputs.sql && 'mcr.microsoft.com/mssql/server:2022-latest' || '' }}
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: LocalTesting123!
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 60s
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate test selection
+        env:
+          TEST_PROJECT: ${{ inputs.test_project }}
+          TEST_FILTER: ${{ inputs.test_filter }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$TEST_PROJECT" =~ ^[A-Za-z0-9_.]+\.Tests$ || ! -f "$TEST_PROJECT/$TEST_PROJECT.csproj" || -z "${TEST_FILTER//[[:space:]]/}" ]]; then
+            echo '::error::Choose an existing root .Tests project and provide a dotnet test filter.'
+            exit 1
+          fi
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Wait for SQL Server
+        if: inputs.sql
+        uses: ./.github/actions/wait-for-sqlserver
+
+      - name: Create the test catalog
+        if: inputs.sql
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
+
+      - name: Run selected .NET tests in Release
+        env:
+          TEST_PROJECT: ${{ inputs.test_project }}
+          TEST_FILTER: ${{ inputs.test_filter }}
+          ARCHLUCID_SQL_TEST: ${{ inputs.sql && 'Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests' || '' }}
+        run: |
+          set -euo pipefail
+          dotnet test "$TEST_PROJECT/$TEST_PROJECT.csproj" -c Release --filter "$TEST_FILTER" \
+            --results-directory "$RUNNER_TEMP/rc45-test-results" --logger 'trx;LogFileName=tests.trx' \
+            --blame-hang --blame-hang-timeout 10m --blame-hang-dump-type mini
+          python3 - "$RUNNER_TEMP/rc45-test-results/tests.trx" <<'PY'
+          import sys
+          import xml.etree.ElementTree as ET
+
+          counters = ET.parse(sys.argv[1]).find('.//{*}Counters')
+          if counters is None or int(counters.get('executed', '0')) == 0:
+              sys.exit('The filter did not execute any tests.')
+          PY
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: rc45-focused-test-results
+          path: ${{ runner.temp }}/rc45-test-results
+          retention-days: 3
+          if-no-files-found: ignore

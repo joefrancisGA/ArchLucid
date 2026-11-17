@@ -11,15 +11,16 @@ describe("FindingConfidenceBadge", () => {
   ] as const)("renders %s with label and enterprise status styling", (level, label, statusToken) => {
     render(<FindingConfidenceBadge level={level} />);
 
-    const badge = screen.getByRole("status", { name: label });
+    const badge = screen.getByRole("status", { name: new RegExp(label) });
 
     expect(badge).toHaveAttribute("data-archlucid-confidence", level);
     expect(badge.className).toContain(statusToken);
   });
 
-  it.each([null, undefined] as const)("renders nothing when level is %s", (level) => {
-    const { container } = render(<FindingConfidenceBadge level={level} />);
+  it.each([null, undefined] as const)("labels omitted confidence when level is %s", (level) => {
+    render(<FindingConfidenceBadge level={level} />);
 
-    expect(container.querySelector(".finding-confidence-badge")).toBeNull();
+    expect(screen.getByText("Confidence was not stored.")).toBeInTheDocument();
+    expect(document.querySelector(".finding-confidence-badge")).toBeNull();
   });
 });

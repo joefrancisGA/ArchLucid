@@ -1,4 +1,5 @@
 import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM = "infraResourceHubTechnicalKey";
@@ -33,9 +34,11 @@ export function buildInfraResourceHubTechnicalDisclosureScopedHref(
   scope: {
     readonly snapshotId?: string;
     readonly runId?: string;
+    readonly tab?: ResourceHubTab;
   },
 ): string {
   const scopedHubHref = resourceHubFilterHrefFromSearch(cloudResourceId, currentSearch, {
+    tab: scope.tab,
     snapshotId: scope.snapshotId,
     runId: scope.runId,
   });

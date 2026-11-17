@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ArchitectureDiagramInferredPanel } from "@/components/architecture/ArchitectureDiagramInferredPanel";
+import { ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HELPER } from "@/lib/architecture/architecture-diagram-copy";
 import type { ArchitectureDiagramModel } from "@/lib/architecture/architecture-diagram-types";
 
 const model: ArchitectureDiagramModel = {
@@ -36,9 +37,13 @@ describe("ArchitectureDiagramInferredPanel", () => {
     render(<ArchitectureDiagramInferredPanel model={model} canEdit onNodeOverride={onNodeOverride} />);
 
     expect(screen.getByTestId("architecture-diagram-inferred-list")).toBeInTheDocument();
+    expect(screen.getByText(ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HELPER)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Accept inference" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove inference" })).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("architecture-diagram-accept-system_billing"));
     expect(onNodeOverride).toHaveBeenCalled();
 
+    expect(screen.getByRole("button", { name: "Restore inference" })).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("architecture-diagram-restore-system_removed"));
     expect(onNodeOverride).toHaveBeenCalledTimes(2);
   });

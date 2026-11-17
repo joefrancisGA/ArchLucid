@@ -17,6 +17,7 @@ import {
   DEFAULT_FINDING_JOB_VIEW,
   FINDING_JOB_VIEW_LABELS,
 } from "@/lib/findings/finding-job-view";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { cn } from "@/lib/utils";
 
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
@@ -75,7 +76,10 @@ export function GovernanceFindingsQueueScopeSection(
             Clear review scope
           </Link>
           {" · "}
-          <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(props.scopedRunId)}`}>
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(props.scopedRunId)}
+          >
             Open review
           </Link>
           {" · "}

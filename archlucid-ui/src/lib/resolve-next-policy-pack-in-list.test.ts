@@ -33,4 +33,16 @@ describe("resolveNextPolicyPackInList", () => {
 
     expect(next?.policyPackId).toBe("pack-old");
   });
+
+  it("uses activation instants when pack timestamps carry different offsets", () => {
+    const next = resolveNextPolicyPackInList(
+      [
+        pack({ policyPackId: "pack-later", activatedUtc: "2026-02-01T03:00:00-05:00" }),
+        pack({ policyPackId: "pack-earlier", activatedUtc: "2026-02-01T09:00:00+02:00" }),
+      ],
+      "pack-later",
+    );
+
+    expect(next?.policyPackId).toBe("pack-earlier");
+  });
 });

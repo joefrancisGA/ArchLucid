@@ -30,6 +30,7 @@ import {
   type ReviewDeliverableAudience,
   reviewExportDeliverablePanelsHrefFromSearch,
 } from "@/lib/reviews/review-export-deliverable-panels-url";
+import { resolveReviewUrlStatePathname } from "@/lib/architecture/review-url-state-pathname";
 
 type ExportDeliverableDialogProps = {
   readonly runId: string;
@@ -44,7 +45,7 @@ const AUDIENCE_OPTIONS: readonly { id: ReviewDeliverableAudience; label: string;
 
 /** Unified export/deliverable picker for post-commit reviews. */
 export function ExportDeliverableDialog(props: ExportDeliverableDialogProps) {
-  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const pathname = resolveReviewUrlStatePathname(usePathname(), props.runId);
   const [open, setOpenState] = useState(() =>
     parseReviewDeliverableOpenFromSearch(null),
   );

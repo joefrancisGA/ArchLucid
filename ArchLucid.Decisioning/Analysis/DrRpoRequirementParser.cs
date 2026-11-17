@@ -10,14 +10,9 @@ public static partial class DrRpoRequirementParser
     // Draft intake also copies a quality attribute such as "RPO 1 day" onto a requirement;
     // that materializer already treats a day as 24 hours, so this grammar must agree.
     [GeneratedRegex(
-        @"\b(?<kind>rpo|rto)\b\s*(?:<=|[:=]|[<≤]|-)?\s*(?:\b(?:under|within|below)\b|\bless\s+than\b|\bat\s+most\b|\bno\s+more\s+than\b)?\s*(?<value>\d+(?:\.\d+)?)\s*(?<unit>seconds?|secs?|minutes?|mins?|hours?|hrs?|days?|h|m|d)?\b",
+        @"\b(?<kind>rpo|rto)\b\s*(?:<=|[:=]|[<≤]|-)?\s*(?:\b(?:under|within|below)\b|\bless\s+than\b|\bat\s+most\b|\bno\s+more\s+than\b)?\s*(?:pt(?<isoMinutes>\d+)m|(?<value>\d+(?:\.\d+)?)\s*(?<unit>seconds?|secs?|minutes?|mins?|hours?|hrs?|days?|h|m|d)?)\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex ObjectiveRegex();
-
-    [GeneratedRegex(
-        @"\bpt(?<minutes>\d+)m\b",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
-    private static partial Regex IsoDurationMinutesRegex();
 
     public static bool TryParseRecoveryObjectives(
         string requirementLabel,
@@ -29,8 +24,8 @@ public static partial class DrRpoRequirementParser
 
         string combined = BuildCombinedText(requirementLabel, properties);
 
-        rpoMinutes = TryParseRpoMinutes(combined);
-        rtoMinutes = TryParseRtoMinutes(combined);
+        rpoMinutes = TryParseKindMinutes(combined, "rpo");
+        rtoMinutes = TryParseKindMinutes(combined, "rto");
 
         if (rpoMinutes is null && rtoMinutes is null)
         {
@@ -72,27 +67,6 @@ public static partial class DrRpoRequirementParser
         return string.Join(' ', segments);
     }
 
-    private static int? TryParseRpoMinutes(string combined)
-    {
-        int? parsed = TryParseKindMinutes(combined, "rpo");
-
-        if (parsed is not null)
-            return parsed;
-
-        Match isoMatch = IsoDurationMinutesRegex().Match(combined);
-
-        if (isoMatch.Success
-            && combined.Contains("rpo", StringComparison.OrdinalIgnoreCase))
-        {
-            return int.Parse(isoMatch.Groups["minutes"].Value, CultureInfo.InvariantCulture);
-        }
-
-        return null;
-    }
-
-    private static int? TryParseRtoMinutes(string combined) =>
-        TryParseKindMinutes(combined, "rto");
-
     private static int? TryParseKindMinutes(string combined, string kind)
     {
         Match match = ObjectiveRegex().Match(combined);
@@ -101,7 +75,10 @@ public static partial class DrRpoRequirementParser
         {
             if (match.Groups["kind"].Value.Equals(kind, StringComparison.OrdinalIgnoreCase))
             {
-                int? minutes = ParseDurationMinutes(match.Groups["value"].Value, match.Groups["unit"].Value);
+                Group isoMinutes = match.Groups["isoMinutes"];
+                int? minutes = isoMinutes.Success
+                    ? ParseDurationMinutes(isoMinutes.Value, "minutes")
+                    : ParseDurationMinutes(match.Groups["value"].Value, match.Groups["unit"].Value);
 
                 if (minutes is not null)
                     return minutes;
@@ -118,7 +95,9 @@ public static partial class DrRpoRequirementParser
         if (!decimal.TryParse(valueText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal value))
             return null;
 
-        if (value < 0)
+        // Seconds allow the largest input value for a representable minute count.
+        // Reject larger values before converting hours or days to minutes.
+        if (value < 0 || value > int.MaxValue * 60m)
             return null;
 
         decimal minutes = ConvertToMinutes(value, unitText);

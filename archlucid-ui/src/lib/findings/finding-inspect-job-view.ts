@@ -100,7 +100,10 @@ export function mapInspectPayloadToQuickDecisionFinding(payload: FindingInspectP
     labels.recommendedAction !== null && labels.recommendedAction.trim().length > 0
       ? labels.recommendedAction
       : "Recommended action was not stored.";
-  const reasoningTrace = payload.reasoningTrace ?? payload.reasoningSummary ?? "";
+  const reasoningTrace =
+    payload.reasoningTrace === null || payload.reasoningTrace === undefined
+      ? null
+      : payload.reasoningTrace;
   const enforcementTierRaw = typed?.enforcementTier ?? typed?.EnforcementTier;
   const classification = mapInspectExportClassification(resolveFindingInspectExportClassification(payload));
 
@@ -112,7 +115,7 @@ export function mapInspectPayloadToQuickDecisionFinding(payload: FindingInspectP
     findingOrder: 0,
     aiReasoning: {
       wireJson: wireJsonFromInspectPayload(payload),
-      reasoningTrace,
+      reasoningTrace: reasoningTrace ?? "",
     },
     isMuted: payload.isMuted === true,
     muteReason: payload.muteReason ?? null,

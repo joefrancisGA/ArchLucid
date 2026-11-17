@@ -73,6 +73,19 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
         $command | Should -Match '\$LASTEXITCODE -ne 0'
         $command | Should -Not -Match 'Write-Host \("'
         $command | Should -Match "Write-Host \('API build failed with exit code \{0\}"
+        $command | Should -Not -Match 'PilotStrict'
+    }
+
+    It 'sets PilotStrict and demo seed on the http-real window when Real mode is requested' {
+        [string]$command = Get-LocalApiWindowCommand `
+            -RepoRoot 'C:\ArchLucid\ArchLucid' `
+            -LaunchProfile 'http-real' `
+            -RealMode
+
+        $command | Should -Match '--launch-profile http-real'
+        $command | Should -Match '\$env:ArchLucid__AgentOutput__QualityGate__Mode = ''PilotStrict'''
+        $command | Should -Match '\$env:Demo__Enabled = ''true'''
+        $command | Should -Match '\$env:Demo__SeedOnStartup = ''true'''
     }
 
     It 'skips build-server shutdown and explicit build when requested' {
@@ -146,6 +159,22 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
         [string]$command = Get-LocalUiWindowCommand -UiRoot "C:\O'Brien\archlucid-ui"
 
         $command | Should -Match "Set-Location -LiteralPath 'C:\\O''Brien\\archlucid-ui'"
+    }
+
+    It 'prepends Node tools to PATH in spawned UI windows when the starter resolved node outside PATH' {
+        [string]$command = Get-LocalUiWindowCommand `
+            -UiRoot 'C:\ArchLucid\archlucid-ui' `
+            -NodeToolsDirectory 'C:\Program Files\nodejs'
+
+        $command | Should -Match '\$env:PATH = ''C:\\Program Files\\nodejs;'' \+ \$env:PATH'
+    }
+
+    It 'builds a PATH prepend command with escaped apostrophes in the Node directory' {
+        [string]$nodeDir = "C:\O'Brien\nodejs"
+        [string]$prepend = Get-LocalDevNodePathPrependCommand -NodeToolsDirectory $nodeDir
+        [string]$expected = '$env:PATH = ' + (ConvertTo-PowerShellSingleQuotedLiteral -Value ($nodeDir + ';')) + ' + $env:PATH'
+
+        $prepend | Should -Be $expected
     }
 
     It 'lists Architecture :3000 and Security :3001 by default' {

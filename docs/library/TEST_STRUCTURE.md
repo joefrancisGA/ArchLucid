@@ -270,8 +270,108 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 
 ## Fixtures and shared setup
 
-- **IntegrationTestBase** (Api.Tests) — `HttpClient`, `JsonOptions`, `JsonContent` via **`ArchLucidApiFactory`**.
-- **ComparisonReplayTestFixture** (Api.Tests) — comparison-replay flow helpers.
+**Two front doors (SQL lifecycle tests):**
+
+1. **`IntegrationTestBase` + `ArchLucidApiFactory`** — class fixture; `InitializeAsync` uses **`IntegrationTestSqlClientBootstrap`**.
+2. **`IntegrationTestIsolatedSqlScope.RunAsync`** — one-off factory/client when a class fixture is unnecessary.
+
+Do **not** mix (1) and (2) in the same test class — guard fact **#25**.
+
+```mermaid
+flowchart TD
+  A[SQL integration test] --> B{Class fixture?}
+  B -->|yes| C[IntegrationTestBase]
+  B -->|no / concurrency| D[IntegrationTestIsolatedSqlScope.RunAsync]
+  C --> E{Compare or replay?}
+  E -->|yes| F[ArrangeCommittedPairAsync]
+  E -->|no| G[ArrangeFinalizedAsync / ArrangeGovernanceCommittedAsync — no args]
+  D --> H[ReplaySession.OpenAsync]
+```
+
+Specialty auth, marketing, or multi-tenant security tests may use other factories; see **`AdminApiKeyIntegrationTestBase`** and **`IntegrationTestTenantIsolationClients`**.
+
+- **IntegrationTestBase** — `HttpClient`, `JsonOptions` (`CreateApiJsonOptions` / `CreateRelaxedEscapingJsonOptions`), `JsonContent`. Use **`CreateFinalizedRunAsync`** → **`FinalizedRun`** (not tuple deconstruction).
+- **IntegrationTestRunLifecycleSupport** — canonical routes and helpers (listed in the helper table; guarded by **`IntegrationTestHarnessDocumentationGuardSupport`**).
+- **ReplaySession** — `OpenCommittedPairAsync` / `CommitAndReplayAsync` → **`CommittedReplayPair`**; prefer **`IntegrationTestBase.Replay`** or **`ReplaySession.OpenAsync`**.
+
+### Api integration harness — which helper?
+
+| Goal | Use |
+|------|-----|
+| Parallel-safe request id | **`TestRequestIds.ForScenario`** (avoid redundant `ForScenario(nameof(fixture))` on **`IntegrationTestBase`** — guard **#34**) |
+| One-verb arrange module | **`HarnessArrange`** (`FinalizedAsync`, `GovernanceCommittedAsync`, `CommittedPairAsync`) — replaces `ArchitectureScenario` / `GovernanceScenario` |
+| Finalize in one verb | **`ArrangeFinalizedAsync()`** (no arguments; scenario = fixture class + caller test) → **`FinalizedRun`** (**`RequestId`**, **`RunGuid`**, **`SystemName`**) |
+| Committed replay pair | **`ArrangeCommittedPairAsync()`**; **`CommittedReplayPair.PersistEndToEndComparisonForTestAsync`**, **`ReadEndToEndCompareExportMarkdownAsync`** |
+| Intake run only | **`CreateRunForTestAsync()`** → **`CreatedRunForTest`** (**`RunGuid`**, **`SystemName`**) |
+| Intake + execute (no finalize) | **`RunReadyForExecuteAsync()`** → **`CreatedRunForTest`** |
+| Manifest summary / run reads after finalize | **`GetManifestSummaryAsync`**, **`GetRunDetailsAsync`**, **`GetEvidenceAsync`**, **`GetTracesAsync`**, **`GetDecisionsAsync`**, **`GetRoiAsync`**, **`GetExportsHistoryAsync`**, **`GetAuthorityRunSummaryAsync`**, **`ListAuthorityReviewsForProjectAsync`**, **`PostAnalysisReportAsync`**, **`PostAnalysisReportMarkdownExportAsync`**, **`PostAnalysisReportDocxHttpAsync`** on **`FinalizedRun`** |
+| Run reads after intake / execute (no finalize) | **`GetRunHttpAsync`**, **`GetEvidenceAsync`**, **`GetTracesAsync`**, **`PatchPinAsync`**, **`GetAuthorityRunSummaryAsync`** on **`CreatedRunForTest`** |
+| Authority GET/POST without raw URLs | **`AuthorityHarnessExtensions`** (`GetAuthorityReviewSummaryHttpAsync`, `GetAuthorityProjectReviewsHttpAsync`, `ReadAuthorityProjectReviewsAsync`, `ReadAuthorityProjectReviewsQueryAsync`, `GetAuthorityReviewsInScopeHttpAsync`, `ReadAuthorityReviewsInScopeAsync`) |
+| Review subresources (CSV, zip, evidence files, bulk) | **`ReviewSubresourceHarnessExtensions`**; finalized/created helpers on **`FinalizedRunHarnessExtensions`** / **`CreatedRunForTestHarnessExtensions`** |
+| Finding inspect, mute, remediation | **`FindingHarnessExtensions`** (`GetFindingInspectHttpAsync`, `GetReviewScopedFindingInspectHttpAsync`, `PostFindingMuteHttpAsync`, `PutFindingRemediationAssignmentHttpAsync`) |
+| Architecture manifest / templates GET (protocol matrix) | **`GetArchitectureManifestHttpAsync`**, **`GetArchitectureRequestTemplatesHttpAsync`** on **`CreatedRunForTestHarnessExtensions`** |
+| Canonical `/v1/runs/…` reads | **`RunsHarnessExtensions`** |
+| Stable negative-path GUIDs | **`HarnessWellKnownGuids`** |
+| Foreign tenant isolation header | **`HarnessWellKnownTenants.ForeignTenantHeaderValue`** |
+| Contoso demo baseline seed + finding id | **`HarnessDemoBaselineSupport`** (`EnsureSeededAsync`, `DemoRunId`, `DemoRunHardened`, `ManifestBaseline`, `AuthorityRunId`, `AuthorityRunHardenedId`, `AuthorityRunIdCompact`, `DemoPrimaryFindingId`, `CreateForeignTenantClient`, `AssertRunIdIsNotShowcase`, `AssertTextExcludesShowcaseRunKeys`, `AssertTextExcludesShowcaseAuthorityRunGuids`; `[Trait(Harness, DemoBaseline)]` on demo endpoint fixtures) |
+| Pilot snapshot / evidence pack GETs | **`PilotsHarnessExtensions`** (`GetWhyArchLucidSnapshotHttpAsync`, `GetSponsorEvidencePackHttpAsync`, `GetPilotOutcomeSummaryHttpAsync`, `GetPilotInProductScorecardHttpAsync`, `GetRecentPilotRunDeltasHttpAsync`) |
+| ITSM outbound issue POST | **`IntegrationsHarnessExtensions`** (`PostItsmOutboundIssueHttpAsync`, `CreateItsmOutboundIssueJsonContent`) |
+| Route-level protocol matrices (exempt from **#38** / **#39** / **#42** / **#47**) | **`[Trait(Harness, RouteProtocol)]`** on the fixture class (`HarnessGoldenPathGuardConstants`) |
+| Analysis report POST body | **`HarnessAnalysisReportRequestFactory.CreateDefaultJsonContent`** |
+| Authority-complete execute skip | **`HarnessSkipWhen.AuthorityPipelineCompleteOnCreateAsync`** |
+| Async job poll | **`IntegrationTestJobPollSupport.PollJobUntilTerminalStateAsync`** returns **`BackgroundJobInfo`** (terminal: Succeeded, Failed, **Canceled**); **`PollJobUntilSucceededAsync`** / **`PollJobUntilFailedAsync`** enforce the expected outcome; **`GetJobStatusHttpAsync`** owns status GETs; defaults in **`HarnessPollDefaults`** |
+| Pre-finalize readiness JSON | **`FinalizeReadinessHarnessExtensions.GetFinalizeReadinessAsync`** |
+| Bare architecture review GET + JSON | **`CreatedRunForTestHarnessExtensions.GetRunReviewForTestAsync`** → **`GetRunResponseDto`** (`Results` is **`List<AgentResult>`**); **`GetRunHttpAsync`** for raw response |
+| Run pin fields for manifest fingerprint tests | **`HarnessRunRecordFactory.FromRunDto`** |
+| ZIP / stream JSON in tests | **`ArchLucidHttpResponseIntegrationTestExtensions.ReadJsonElementForTestAsync`** |
+| ITSM integration scoped client + demo seed | **`ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync`** |
+| ITSM scoped client (headers only) | **`ItsmIntegrationTestClientSupport.CreateScopedClient`** |
+| Authority review detail GET | **`AuthorityHarnessExtensions.GetAuthorityReviewDetailHttpAsync`** |
+| Authority review bundle GET | **`AuthorityHarnessExtensions.GetAuthorityReviewBundleHttpAsync`**; page bundles: **`GetAuthorityReviewCriticalPageBundleHttpAsync`**, **`GetAuthorityReviewTimelinesBundleHttpAsync`**, **`GetAuthorityReviewWorkspaceContextBundleHttpAsync`** and typed **`ReadAuthorityReview…BundleAsync`** readers |
+| Review provenance explanation GET | **`ReviewSubresourceHarnessExtensions.GetReviewProvenanceExplanationHttpAsync`** |
+| Wire `goldenManifest` SHA-256 fingerprint | **`HarnessAuthorityGoldenManifestFingerprintSupport.GetWireGoldenManifestSha256HexAsync`** |
+| Pin-aware execute on `IntegrationTestBase` | **`ExecuteForTestAsync`** only (not `PostExecuteWithPinsAsync`) |
+| Stable skip strings (authority complete on create) | **`HarnessSkipReasons`** |
+| Idempotency-Key header value for custom POSTs | **`TestRequestIds.IdempotencyKey`** |
+| Governance committed run arrange | **`ArrangeGovernanceCommittedAsync()`** — finalize-only today (governance submit in test body); see **`HarnessArrange.GovernanceCommittedAsync`** XML |
+| Governance self-approval problem JSON | **`GovernanceProblemAssertions.AssertGovernanceSelfApprovalAsync`** |
+| Tenant isolation greenfield primer | **`TenantIsolationScenario.WithGreenfieldPrimerAsync`** |
+| Tenant A + tenant B clients | **`TenantIsolationScenario.WithTwoScopedClientsAsync`** |
+| Full ladder wiring smoke | **`HarnessGoldenPathSmokeTests`** (`Suite=Core`) |
+| Standard intake POST (factory body or object) | **`PostArchitectureRequestForTestAsync`** or **`CreateArchitectureRunForTestAsync`** |
+| JWT, custom body, or idempotency header on intake | **`CreateArchitectureRequestMessage`** → `SendAsync` |
+| Greenfield SQL with transient 503 retry + unique idempotency key | **`PostGreenfieldArchitectureRequestForTestAsync`** |
+| Execute / finalize / replay routes | **`ExecuteReviewRelativeUrl`**, **`FinalizeReviewRelativeUrl`**, **`ReplayReviewRelativeUrl`**, **`ComparisonReplayRelativeUrl`**, **`ArchitectureRequestRelativeUrl`**, **`EndToEndCompareSummaryRelativeUrl`**, **`EndToEndCompareExportMarkdownRelativeUrl`**, **`EndToEndCompareExportDocxRelativeUrl`**, **`EndToEndCompareExportFileRelativeUrl`**, **`PostExecuteForTestAsync`**, **`PostExecuteAndEnsureArchitectureVersionPinForTestAsync`**, **`PostFinalizeForTestAsync`**, **`PostReviewReplayForTestAsync`**, **`PostComparisonReplayForTestAsync`** |
+| Run through execute + finalize (low-level) | **`CreateFinalizedRunForTestAsync`**, **`CreateRunExecuteAndFinalizeForTestAsync`**, **`CreateFinalizedRunAsync(requestId)`** on **`IntegrationTestBase`** — fixtures prefer **`ArrangeFinalizedAsync`** |
+| Comparison / replay arrange | **`ArrangeCommittedPairAsync`** → **`CommittedReplayPair`**; protocol tests may use **`PostReviewReplayForTestAsync`**, **`PostComparisonReplayForTestAsync`** |
+| SQL integration client (bounded + scope headers + workspace pin) | **`IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync`** |
+| Per-test isolated SQL factory | **`IntegrationTestIsolatedSqlScope.RunAsync`** |
+| Isolated SQL + replay | **`IntegrationTestIsolatedSqlScope.RunWithReplayAsync`** |
+| Persist or query end-to-end compare summary | **`PostPersistEndToEndComparisonForTestAsync`** → **`PersistedComparison`**; **`PostEndToEndCompareSummaryForTestAsync`** |
+| End-to-end compare export (markdown, docx, file, ranged file) | **`GetEndToEndCompareExportMarkdownForTestAsync`**, **`GetEndToEndCompareExportDocxForTestAsync`**, **`GetEndToEndCompareExportFileForTestAsync`**, **`CreateEndToEndCompareExportFileRangeGetRequestForTest`** (each accepts **`CommittedReplayPair`** or run ids) |
+| JSON after HTTP success | **`ReadJsonForTestAsync`** (not `Content.ReadFromJsonAsync` in harness-tagged tests) |
+| Binary / export bodies after HTTP success | **`ReadBytesForTestAsync`** |
+| RFC 9457 negative paths | **`AssertProblemForTestAsync`** (optional **`detailContains`**; not `ReadJsonForTestAsync` on Problem Details) |
+| JSON body for requests | **`IntegrationTestHttpContent.CreateJson`** + **`CreateApiJsonOptions()`** |
+| Assert HTTP success with CI-friendly logs | **`EnsureSuccessForTestAsync`** |
+| Admin API-key clients | **`AdminApiKeyIntegrationTestBase.CreateAdminClient`** / **`CreateReaderClient`** |
+| Security primer + scoped clients | **`IntegrationTestTenantIsolationClients`** |
+
+**Anti-patterns (harness `#26`–`#52`):** see **`IntegrationTestHarnessGoldenPathGuardCatalog.Facts`** (titles + fix hints). Failures: **`IntegrationTestHarnessGoldenPathGuardTests`** with **`path:line`** where applicable. Ratchets: **`#40`** JsonDocument allowlist ≤ **`MaxJsonDocumentAllowlistedSourceFiles`** (**3**); **`#31`** ReadFromJson allowlist ≤ **`MaxReadFromJsonAllowlistedSourceFiles`** (**3**, extension/guard infrastructure only — see allowlist comment in **`IntegrationTestHarnessGoldenPathGuardSupport`**); **`#38`** subresource ≤ **4**; **`#42`** authority ≤ **3**; smoke **`[SkippableFact]`** ≥ **`MinHarnessGoldenPathSmokeSkippableFacts`** (**11**) — ladder wiring only.
+
+**ReadFromJson burn-down (historical):** fixture controllers cleared through slice 27 (`EvolutionControllerFlowTests` among last). Slice 32 cleared the concurrency warmup and stale security seed rows. Remaining allowlist is only the HTTP extension plus two guard sources.
+
+**JsonDocument burn-down (#40 allowlist):** guard sources + **`ArchLucidHttpResponseIntegrationTestExtensions`** only (cap **3** after slice 31). **`FinalizeConflictSqlIntegrationTests`** now uses **`FinalizeReadinessHarnessExtensions.GetFinalizeReadinessAsync`** for typed readiness and **`AssertProblemElementForTestAsync`** for conflict bodies; it no longer needs either the `#40` or `#31` allowlist. Slice 34 made the golden-cohort review read one typed **`GetRunResponseDto`** payload. Slice 35 typed **`GetRunResponseDto.Results`** as **`List<AgentResult>`** (no serialize round-trip), dropped the **`Governance/`** folder skip on the `#40` scan. Slice 36 uses **`AssertProblemElementForTestAsync`** on governance negatives and **`HarnessRunRecordFactory`** for pin mapping; execute/replay wire DTOs type **`Results`** as **`List<AgentResult>`**. Slice 37 delegates created-run CSV, ZIP, and evidence-file GETs to **`ReviewSubresourceHarnessExtensions`**, returns **`BackgroundJobInfo`** from the job poll, and reads greenfield review polls as **`GetRunResponseDto`**. Slice 38 delegates finalized-run subresource GETs and evidence/trace reads to shared helpers, removes `ConfigureAwait(false)` from touched harness helpers, and adds typed page-bundle readers. Slice 39 adds decisions, ROI, and export-history subresource helpers, fails job polls that never reach a terminal state, uses `CreateApiJsonOptions` in greenfield polls, and finishes `ConfigureAwait` cleanup in replay and skip helpers. Slice 40 moves harness problem wrappers to detached **`JsonElement`** results, adds the provenance explanation helper, adds **`PollJobUntilSucceededAsync`**, and wires smoke coverage to the shared readers. Slice 41 validates poll bounds, adds a failed-outcome poll helper and shared job-status GET, disposes typed subresource responses, removes remaining response-extension `ConfigureAwait(false)`, and uses **`ReadJsonForTestAsync`** in greenfield success probes.
+
+**Review subresource URL burn-down (#38 allowlist):** evidence uploads → findings CSV/inspect → `TraceabilityBundleZipEndpointTests`. Current allowlist is the four canonical harness extension files; cap is intentionally equal to the current count. **`ArchitectureAnalysisExportTests`** uses **`PostAnalysisReportMarkdownExportAsync`** (removed from allowlist in slice 16).
+
+**Authority URL burn-down (#42 allowlist):** the three canonical authority helper files remain; migrate new route URLs to **`AuthorityHarnessExtensions`** before adding allowlist rows. Slice 33 removed stale replay/buyer/page-bundle rows; slice 34 removed two non-harness controller-matrix rows. Current allowlist is three files; cap is intentionally equal to the current count. **`AuthorityQueryControllerListRunsPagedIntegrationTests`** migrated in slice 16.
+
+**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, **fifty-two** catalog facts). **`#40`** JsonDocument cap **3**; **`#31`** ReadFromJson cap **3**; **`#38`** cap **4**; **`#42`** cap **3**. ITSM uses **`CreateScopedClient`** / **`CreateDemoSeededClientAsync`**; job polling deserializes **`BackgroundJobInfo`** directly and treats **Canceled** as terminal; tuning lives in **`HarnessPollDefaults`** (slice 34–35).
+
+**Fast harness CI slice:** `dotnet test ArchLucid.Api.Tests --filter Suite=Core`
+
+**Guard regression slice:** `dotnet test ArchLucid.Api.Tests --filter FullyQualifiedName~IntegrationTestHarnessGoldenPathGuardTests`
 
 **Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.
 

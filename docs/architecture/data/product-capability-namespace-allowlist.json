@@ -12,6 +12,11 @@
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
     {
+      "typeName": "ArchLucid.Application.AzureExtractor.Stages.AzureExtractorPreparedZipPersistStage",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
       "typeName": "ArchLucid.Application.Bootstrap.CreatedSampleWorkspaceSeed",
       "forbiddenPrefix": "ArchLucid.Application.Authority",
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
@@ -37,6 +42,11 @@
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
     {
+      "typeName": "ArchLucid.Application.Bootstrap.Seeders.DemoSeedGovernanceSeeder",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
       "typeName": "ArchLucid.Application.Bootstrap.Seeders.DemoSeedMeridianAlpineSeeder",
       "forbiddenPrefix": "ArchLucid.Application.Authority",
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
@@ -53,7 +63,22 @@
     },
     {
       "typeName": "ArchLucid.Application.Bootstrap.Seeders.DemoSeedRetailBaselineSeeder",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.Seeders.DemoSeedRetailBaselineSeeder",
       "forbiddenPrefix": "ArchLucid.Application.Authority",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.Seeders.DemoSeedSealedExportReceiptRepair",
+      "forbiddenPrefix": "ArchLucid.Application.Exports",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Bootstrap.Seeders.DemoSeedSealedExportReceiptRepair",
+      "forbiddenPrefix": "ArchLucid.Application.Runs",
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
     {
@@ -92,8 +117,28 @@
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
     {
+      "typeName": "ArchLucid.Application.Decisions.FindingsBackedAgentEvaluationService",
+      "forbiddenPrefix": "ArchLucid.Application.Agents",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Diagrams.ManifestDiagramService",
+      "forbiddenPrefix": "ArchLucid.Application.Manifests",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
       "typeName": "ArchLucid.Application.Diagrams.MermaidDiagramGenerator",
       "forbiddenPrefix": "ArchLucid.Application.Manifests",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Diffs.AgentResultDiffService",
+      "forbiddenPrefix": "ArchLucid.Application.Agents",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Diffs.MarkdownAgentResultDiffSummaryFormatter",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
     {
@@ -109,6 +154,11 @@
     {
       "typeName": "ArchLucid.Application.Findings.ComparisonFindingCorrelationMetadataBuilder",
       "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.CrossReviewFindingSourceCoverageBuilder",
+      "forbiddenPrefix": "ArchLucid.Application.Agents",
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
     {
@@ -129,6 +179,11 @@
     {
       "typeName": "ArchLucid.Application.Findings.FindingInspectTrustLabelEnricher",
       "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Findings.FindingSemanticSupportBandLaneBComposeService",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
     {
@@ -238,6 +293,11 @@
     },
     {
       "typeName": "ArchLucid.Application.Governance.FinalizeReadinessService",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.FinalizeReadinessService",
       "forbiddenPrefix": "ArchLucid.Application.ArchitectureIntelligence",
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
@@ -257,6 +317,11 @@
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
     {
+      "typeName": "ArchLucid.Application.Governance.GovernanceDashboardRecentRunTokenAggregator",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
       "typeName": "ArchLucid.Application.Governance.GovernanceDigestDecisionNeededComposer",
       "forbiddenPrefix": "ArchLucid.Application.Roi",
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
@@ -267,8 +332,23 @@
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
     {
+      "typeName": "ArchLucid.Application.Governance.GovernanceLineageService",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.GovernanceMutationCorrectionService",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
       "typeName": "ArchLucid.Application.Governance.GovernanceMutationCorrectionService",
       "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.GovernancePromotionsActivationsFacade",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
     {
@@ -303,7 +383,17 @@
     },
     {
       "typeName": "ArchLucid.Application.Governance.PreCommitSupplementalFindingsAppender",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.PreCommitSupplementalFindingsAppender",
       "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.PreFinalizeChecklistService",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
     {
@@ -322,8 +412,18 @@
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
     {
+      "typeName": "ArchLucid.Application.Governance.RecurrenceCompletionNotificationService",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
       "typeName": "ArchLucid.Application.Governance.RecurringArchitectureReviewTriggerService",
       "forbiddenPrefix": "ArchLucid.Application.Runs",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Governance.ReviewsAwaitingActionQueryService",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
     {
@@ -404,6 +504,11 @@
     {
       "typeName": "ArchLucid.Application.Operations.OperationCancelService",
       "forbiddenPrefix": "ArchLucid.Application.Planning",
+      "reason": "Pre-OP-02 dependency; shrink by removing the reference."
+    },
+    {
+      "typeName": "ArchLucid.Application.Operations.OperationQueryService",
+      "forbiddenPrefix": "ArchLucid.Application.Analysis",
       "reason": "Pre-OP-02 dependency; shrink by removing the reference."
     },
     {

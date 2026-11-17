@@ -17,8 +17,8 @@ const HELP_TOPIC_VIEW_RESOLVER_OPERATE = join(
 );
 
 const PRODUCT_HANDOFF_SURFACES = [
-  "archlucid-ui/src/lib/product-documentation-registry-entries-operator-workspace.ts",
-  "archlucid-ui/src/lib/help/help-search-panel-catalog-topics.ts",
+  "archlucid-ui/src/lib/product-documentation-registry-entries-operator-governance.ts",
+  "archlucid-ui/src/lib/usability/page-help-topic-rows-operator-architecture.ts",
   "archlucid-ui/src/lib/usability/page-help-topic-rows-operator-architecture.ts",
   "docs/library/ARCHITECTURE_SHARE_ACL_CONTRACT.md",
 ] as const;

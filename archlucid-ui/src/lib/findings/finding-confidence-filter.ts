@@ -119,7 +119,7 @@ export function formatFindingsVisibilitySummaryLine(
   }
 
   if (hiddenByConfidenceCount > 0) {
-    return `Showing ${shownCount} of ${toolbarFilteredCount} — ${hiddenByConfidenceCount} hidden by confidence filter`;
+    return `Showing ${shownCount} of ${toolbarFilteredCount} — ${hiddenByConfidenceCount} hidden by confidence filter (still stored)`;
   }
 
   return `Showing ${shownCount} of ${toolbarFilteredCount}`;
@@ -146,5 +146,5 @@ export function evaluationScoreDisplay(score: number | null | undefined): string
 
   const normalized = normalizedEvaluationScore(score);
 
-  return `${Math.round(normalized)}`;
+  return `${Math.trunc(normalized)}`;
 }

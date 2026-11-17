@@ -43,6 +43,13 @@ public sealed class ArchitectureRunDetail
         set => results = ContractCollectionDefaults.Coalesce(value);
     }
 
+    /// <summary>When false, sponsor exports must not treat empty <see cref="Results" /> as zero stored findings.</summary>
+    public bool AgentResultsIncludedInDetail
+    {
+        get;
+        set;
+    } = true;
+
     /// <summary>
     ///     Golden manifest produced during commit, or <see langword="null" /> when the run
     ///     has not yet been committed or the manifest could not be loaded.

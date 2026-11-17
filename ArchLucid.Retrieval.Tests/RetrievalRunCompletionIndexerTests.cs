@@ -122,6 +122,115 @@ public sealed class RetrievalRunCompletionIndexerTests
             && d.Content.Contains("prior decision about managed identity", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task IndexAuthorityRunAsync_includes_graph_snapshot_documents_in_same_batch_as_findings()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid workspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid projectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        ManifestDocument manifest = new()
+        {
+            ManifestId = Guid.NewGuid(),
+            RunId = runId,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "hash-current",
+            RuleSetId = "rules",
+            RuleSetVersion = "1",
+            RuleSetHash = "hash-rules",
+        };
+
+        ArchLucid.Contracts.Persistence.Graph.GraphSnapshot graphSnapshot = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = runId,
+            CreatedUtc = DateTime.UtcNow,
+            Nodes = [new ArchLucid.Contracts.Persistence.Graph.GraphNode { NodeId = "n1", NodeType = "Resource", Label = "N1" }],
+            Edges = [],
+        };
+
+        FindingsSnapshot findingsSnapshot = new()
+        {
+            CreatedUtc = DateTime.UtcNow,
+            Findings = [new Finding { FindingId = "f1", Title = "Finding", Severity = FindingSeverity.Warning, Category = "sec", FindingType = "t", EngineType = "e", Rationale = "r" }],
+        };
+
+        Mock<IRetrievalDocumentBuilder> documentBuilder = new();
+        documentBuilder.Setup(b => b.BuildForManifest(manifest)).Returns([]);
+        documentBuilder.Setup(b => b.BuildForArtifacts(tenantId, workspaceId, projectId, It.IsAny<IReadOnlyList<SynthesizedArtifact>>()))
+            .Returns([]);
+        documentBuilder.Setup(b => b.BuildForProvenance(tenantId, workspaceId, projectId, runId, It.IsAny<DecisionProvenanceGraph>()))
+            .Returns([]);
+        documentBuilder
+            .Setup(b => b.BuildForFindings(
+                tenantId,
+                workspaceId,
+                projectId,
+                runId,
+                manifest.ManifestId,
+                findingsSnapshot.Findings,
+                findingsSnapshot.CreatedUtc))
+            .Returns(
+            [
+                new RetrievalDocument
+                {
+                    DocumentId = "finding-doc",
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    CorpusKind = CorpusKind.TenantManifest,
+                    SourceType = "ManifestFinding",
+                    Content = "finding body",
+                    CreatedUtc = findingsSnapshot.CreatedUtc,
+                },
+            ]);
+
+        List<RetrievalDocument> indexedDocuments = [];
+        Mock<IRetrievalIndexingService> indexingService = new();
+        indexingService
+            .Setup(s => s.IndexDocumentsAsync(It.IsAny<IReadOnlyList<RetrievalDocument>>(), It.IsAny<CancellationToken>()))
+            .Callback<IReadOnlyList<RetrievalDocument>, CancellationToken>((documents, _) => indexedDocuments.AddRange(documents))
+            .Returns(Task.CompletedTask);
+
+        Mock<IGoldenManifestRepository> goldenManifestRepository = new();
+        goldenManifestRepository
+            .Setup(r => r.ListPriorCommittedForRetrievalAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        RetrievalRunCompletionIndexer sut = new(
+            documentBuilder.Object,
+            indexingService.Object,
+            goldenManifestRepository.Object,
+            new MockOptionsMonitor<PriorManifestRetrievalOptions>(new PriorManifestRetrievalOptions { MaxPriorManifestsPerIndex = 0 }),
+            CreateEmptyCommunitySummarizationService());
+
+        await sut.IndexAuthorityRunAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            manifest,
+            [],
+            new DecisionProvenanceGraph(),
+            findingsSnapshot,
+            graphSnapshot,
+            CancellationToken.None);
+
+        indexedDocuments.Should().Contain(d => d.SourceType == "ManifestFinding");
+        indexedDocuments.Should().Contain(d => d.CorpusKind == CorpusKind.KnowledgeGraphNode);
+        indexingService.Verify(
+            s => s.IndexDocumentsAsync(It.IsAny<IReadOnlyList<RetrievalDocument>>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static IGraphCommunitySummarizationService CreateEmptyCommunitySummarizationService()
     {
         Mock<IGraphCommunitySummarizationService> service = new();

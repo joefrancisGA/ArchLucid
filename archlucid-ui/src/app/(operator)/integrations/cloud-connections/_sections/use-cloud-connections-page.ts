@@ -36,6 +36,7 @@ import {
 } from "@/lib/cloud-connections-connect-checklist";
 import { resolveContinueLastCloudProvider } from "@/lib/resolve-continue-last-cloud-provider";
 import { isCloudProviderSummaryConfigured } from "@/app/(operator)/integrations/cloud-connections/_sections/is-cloud-provider-summary-configured";
+import { formatAzureSubscriptionSummary } from "@/lib/azure-connection-present";
 
 function formatTimestamp(value: string | null | undefined): string {
   if (value === null || value === undefined || value.trim().length === 0) {
@@ -103,6 +104,8 @@ export function useCloudConnectionsPage() {
     gcp: DEFAULT_PROVIDER_SUMMARY,
   });
   const [zoneLoadSlices, setZoneLoadSlices] = useState<readonly IntegrationZoneLoadSlice[]>([]);
+  const [azureSubscriptionIdsPresent, setAzureSubscriptionIdsPresent] = useState(false);
+  const [azureSubscriptionScopeLabel, setAzureSubscriptionScopeLabel] = useState<string | null>(null);
 
   const refreshSummaries = useCallback(async () => {
     const loadAws = isCloudProviderSupportedForProductLine("aws", productLine);
@@ -160,6 +163,16 @@ export function useCloudConnectionsPage() {
         }),
       );
 
+      const subscriptionIdsPresent = azureConnections.some(
+        (connection) => connection.subscriptionIds.trim().length > 0,
+      );
+      setAzureSubscriptionIdsPresent(subscriptionIdsPresent);
+      const firstSubscriptionIds =
+        azureConnections.find((connection) => connection.subscriptionIds.trim().length > 0)?.subscriptionIds
+        ?? "";
+      setAzureSubscriptionScopeLabel(
+        subscriptionIdsPresent ? formatAzureSubscriptionSummary(firstSubscriptionIds) : null,
+      );
       setSuccessfulPullByProvider((previous) => ({ ...previous, azure: azureIndicatesPull }));
       setProviderSummaries((previous) => ({
         ...previous,
@@ -386,6 +399,8 @@ export function useCloudConnectionsPage() {
     cloudConnectEmphasizedStepId,
     hasConfiguredProvider,
     hasSuccessfulPull,
+    azureSubscriptionIdsPresent,
+    azureSubscriptionScopeLabel,
     connectedProviderCount,
     totalProviderCount: supportedProviderCount,
     visiblePlatformChipOptions,

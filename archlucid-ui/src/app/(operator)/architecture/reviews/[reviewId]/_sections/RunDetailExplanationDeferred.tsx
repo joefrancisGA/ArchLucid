@@ -7,6 +7,7 @@ import {
 } from "@/lib/findings/findings-withheld-band";
 import {
   buildFindingWireSnapshotsForRunDetail,
+  countRunDetailFindingsMissingFindingId,
   isQuickDecisionDerivedFromExplanationTraces,
   resolveQuickDecisionFindingsForRunDetail,
   resolveRunDetailFindingStreams,
@@ -77,6 +78,7 @@ export async function RunDetailExplanationDeferred(
 
   let explanationSummary = props.explanationSummary;
   let explanationFailure = props.explanationFailure ?? null;
+  let explanationUsesStaticDemo = false;
 
   if (explanationSummary === null && explanationFailure === null) {
     const loaded = await loadRunDetailExplanationSummary(runId);
@@ -93,6 +95,7 @@ export async function RunDetailExplanationDeferred(
 
       if (staticExplanation !== null && (staticExplanation.findingCount ?? 0) > 0) {
         explanationSummary = staticExplanation;
+        explanationUsesStaticDemo = true;
       }
     }
   }
@@ -114,6 +117,8 @@ export async function RunDetailExplanationDeferred(
   });
 
   const decisionExplainability = resolveRunDecisionExplainabilityFromDetail(resolvedDetail);
+
+  const findingsMissingFindingIdCount = countRunDetailFindingsMissingFindingId(resolvedDetail);
 
   return (
     <RunDetailRunExplanationCollapsibleDeferred
@@ -143,8 +148,10 @@ export async function RunDetailExplanationDeferred(
       requestAssumptionTexts={resolvedRequestAssumptionTexts}
       withheldFindings={withheldFindings}
       withheldListLoadState={withheldListLoadState}
+      explanationUsesStaticDemo={explanationUsesStaticDemo}
       structuralExecutionMode={resolvedDetail.run.structuralExecutionMode}
       parentArchitectureId={resolvedDetail.run.architectureId ?? null}
+      findingsMissingFindingIdCount={findingsMissingFindingIdCount}
     />
   );
 }

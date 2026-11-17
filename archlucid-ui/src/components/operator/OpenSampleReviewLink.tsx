@@ -4,10 +4,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactElement, ReactNode } from "react";
 
+import { OPERATOR_LINK } from "@/lib/design-tokens";
 import { visitSampleWorkspaceScope } from "@/lib/operator/operator-scope-actions";
+import { cn } from "@/lib/utils";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
-export const OPEN_SAMPLE_REVIEW_HREF = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+export const OPEN_SAMPLE_REVIEW_HREF = resolveScopedInsightOpenReviewHrefWithDeskContinuity(
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+);
 
 export type OpenSampleReviewLinkProps = {
   readonly children: ReactNode;
@@ -24,7 +29,7 @@ export function OpenSampleReviewLink(props: OpenSampleReviewLinkProps): ReactEle
   return (
     <Link
       href={href}
-      className={props.className}
+      className={cn(OPERATOR_LINK.inline, props.className)}
       data-testid={props["data-testid"]}
       onClick={(event) => {
         event.preventDefault();

@@ -22,7 +22,15 @@ public static class AnalysisExportRequestRehydrator
             return null;
         try
         {
-            return JsonSerializer.Deserialize<PersistedAnalysisExportRequest>(record.AnalysisRequestJson, JsonOptions);
+            string json = PersistedAnalysisExportRequestJsonReadNormalizer.NormalizeForRehydrate(record.AnalysisRequestJson);
+            PersistedAnalysisExportRequest? request =
+                JsonSerializer.Deserialize<PersistedAnalysisExportRequest>(json, JsonOptions);
+
+            PersistedAnalysisExportRequestMetadata.TrimOptionalStrings(request);
+            if (request is not null)
+                PersistedAnalysisExportRequestDeterminismNormalizer.ClearIterationsWhenCheckDisabled(request);
+
+            return request;
         }
         catch (JsonException ex)
         {

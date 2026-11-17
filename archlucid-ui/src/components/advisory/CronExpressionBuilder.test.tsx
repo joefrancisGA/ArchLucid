@@ -38,6 +38,37 @@ describe("CronExpressionBuilder", () => {
     expect(await screen.findAllByRole("listitem")).toHaveLength(5);
   });
 
+  it("withdraws the preview and save validity when the expression changes", async () => {
+    const onChange = vi.fn();
+    const onPreviewValidityChange = vi.fn();
+    const { rerender } = render(
+      <CronExpressionBuilder
+        value="0 7 * * *"
+        onChange={onChange}
+        onPreviewValidityChange={onPreviewValidityChange}
+      />,
+    );
+    expect(await screen.findAllByRole("listitem")).toHaveLength(5);
+    expect(onPreviewValidityChange).toHaveBeenLastCalledWith(true);
+
+    vi.mocked(governanceApi.previewRecurrenceScheduleRuns).mockResolvedValueOnce({
+      isValid: false,
+      validationError: "Unsupported or invalid cron expression.",
+      nextRunUtc: [],
+    });
+    rerender(
+      <CronExpressionBuilder
+        value="0 x * * *"
+        onChange={onChange}
+        onPreviewValidityChange={onPreviewValidityChange}
+      />,
+    );
+
+    expect(onPreviewValidityChange).toHaveBeenLastCalledWith(false);
+    expect(screen.queryAllByRole("listitem")).toHaveLength(0);
+    expect(await screen.findByRole("alert")).toHaveTextContent("Unsupported or invalid cron expression.");
+  });
+
   it("surfaces validation errors for unsupported cron expressions", async () => {
     vi.mocked(governanceApi.previewRecurrenceScheduleRuns).mockResolvedValue({
       isValid: false,

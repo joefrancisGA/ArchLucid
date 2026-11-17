@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { assessArchitectureDiagramReadiness } from "@/lib/architecture/architecture-diagram-readiness";
+import {
+  assessArchitectureDiagramReadiness,
+  formatArchitectureDiagramMissingExplanation,
+} from "@/lib/architecture/architecture-diagram-readiness";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 
 describe("assessArchitectureDiagramReadiness", () => {
@@ -30,5 +33,9 @@ describe("assessArchitectureDiagramReadiness", () => {
 
     expect(readiness.sufficient).toBe(false);
     expect(readiness.missingCategories).toContain("users-or-initiators");
+  });
+
+  it("labels missing diagram categories honestly when none are returned", () => {
+    expect(formatArchitectureDiagramMissingExplanation([])).toBe("Diagram readiness categories were not stored.");
   });
 });

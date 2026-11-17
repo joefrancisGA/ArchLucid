@@ -13,13 +13,27 @@ public static class AzureInventoryAzureFirewallNetworkRuleParser
 
     public const string ApplicationRuleCollectionsPropertyKey = "applicationRuleCollections";
 
-    public static bool HasNetworkRuleCollections(IReadOnlyDictionary<string, string> properties) =>
-        properties.ContainsKey(NetworkRuleCollectionsPropertyKey)
-        && !string.IsNullOrWhiteSpace(properties[NetworkRuleCollectionsPropertyKey]);
+    public static bool HasNetworkRuleCollections(IReadOnlyDictionary<string, string> properties)
+    {
+        if (!properties.ContainsKey(NetworkRuleCollectionsPropertyKey)
+            || string.IsNullOrWhiteSpace(properties[NetworkRuleCollectionsPropertyKey]))
+        {
+            return false;
+        }
 
-    public static bool HasApplicationRuleCollections(IReadOnlyDictionary<string, string> properties) =>
-        properties.ContainsKey(ApplicationRuleCollectionsPropertyKey)
-        && !string.IsNullOrWhiteSpace(properties[ApplicationRuleCollectionsPropertyKey]);
+        return Parse(properties).Count > 0;
+    }
+
+    public static bool HasApplicationRuleCollections(IReadOnlyDictionary<string, string> properties)
+    {
+        if (!properties.ContainsKey(ApplicationRuleCollectionsPropertyKey)
+            || string.IsNullOrWhiteSpace(properties[ApplicationRuleCollectionsPropertyKey]))
+        {
+            return false;
+        }
+
+        return JsonArrayHasElements(properties[ApplicationRuleCollectionsPropertyKey]);
+    }
 
     public static IReadOnlyList<AzureInventoryAzureFirewallNetworkRule> Parse(
         IReadOnlyDictionary<string, string> properties)
@@ -207,5 +221,20 @@ public static class AzureInventoryAzureFirewallNetworkRuleParser
         propertiesElement = default;
 
         return false;
+    }
+
+    private static bool JsonArrayHasElements(string collectionsJson)
+    {
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(collectionsJson);
+
+            return document.RootElement.ValueKind is JsonValueKind.Array
+                   && document.RootElement.GetArrayLength() > 0;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 }

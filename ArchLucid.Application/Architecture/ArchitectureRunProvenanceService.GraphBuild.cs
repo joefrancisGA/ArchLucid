@@ -34,7 +34,7 @@ public sealed partial class ArchitectureRunProvenanceService
             Id = requestNodeId,
             Type = ArchitectureLinkageKinds.Nodes.Request,
             ReferenceId = run.RequestId,
-            Name = request?.SystemName ?? run.RequestId,
+            Name = FormatProvenanceSystemName(request, detail.Manifest),
             Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["environment"] = request?.Environment ?? "" }
         });
         string runNodeId = $"run:{run.RunId}";
@@ -84,7 +84,7 @@ public sealed partial class ArchitectureRunProvenanceService
                 Id = taskNodeId,
                 Type = ArchitectureLinkageKinds.Nodes.AgentTask,
                 ReferenceId = task.TaskId,
-                Name = task.Objective.Length > 120 ? task.Objective[..120] + "…" : task.Objective,
+                Name = TruncateProvenanceNodeLabel(task.Objective, 120),
                 Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     ["agentType"] = task.AgentType.ToString(),
@@ -144,7 +144,7 @@ public sealed partial class ArchitectureRunProvenanceService
                     Id = findingNodeId,
                     Type = ArchitectureLinkageKinds.Nodes.ArchitectureFinding,
                     ReferenceId = finding.FindingId,
-                    Name = finding.Message.Length > 160 ? finding.Message[..160] + "…" : finding.Message,
+                    Name = TruncateProvenanceNodeLabel(finding.Message, 160),
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
                         ["severity"] = finding.Severity.ToString(),
@@ -282,5 +282,30 @@ public sealed partial class ArchitectureRunProvenanceService
         {
             nodes[node.Id] = node;
         }
+    }
+
+    private static string FormatProvenanceSystemName(ArchitectureRequest? request, GoldenManifest? manifest)
+    {
+        if (!string.IsNullOrWhiteSpace(request?.SystemName))
+        {
+            return request.SystemName.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(manifest?.SystemName))
+        {
+            return manifest.SystemName.Trim();
+        }
+
+        return "System name was not stored.";
+    }
+
+    internal static string TruncateProvenanceNodeLabel(string text, int maxChars)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+
+        if (text.Length <= maxChars)
+            return text;
+
+        return text[..maxChars].TrimEnd() + "… Label shortened; remainder omitted.";
     }
 }

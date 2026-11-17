@@ -18,6 +18,8 @@ import {
   resolveSponsorHeadlineScopeLabel,
   resolveSponsorSystemRowScopeLabel,
 } from "@/lib/roi-sponsor-scope-labels";
+import { SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE } from "@/lib/sponsor/sponsor-roi-headline-estimate-honesty";
+import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 
 export const SPONSOR_ROI_PROOF_STATUS_HELP_HREF = SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF;
 
@@ -78,6 +80,18 @@ export function SponsorRoiProofStatusStrip(props: SponsorRoiProofStatusStripProp
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {headlineScopeLabel}
       </p>
+
+      <p
+        className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="exec-roi-proof-model-estimate-honesty"
+      >
+        {SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE}
+      </p>
+
+      <SecureNowSponsorRoiCollectionScopeHonestyLine
+        className="mt-2 text-al-text-secondary"
+        testId="exec-roi-proof-collection-scope-honesty"
+      />
 
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {systemRowScopeLabel}{" "}

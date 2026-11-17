@@ -1,4 +1,5 @@
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
   governanceRegisterMetricPresentation,
   type MetricCountPresentation,
@@ -24,14 +25,21 @@ export function reviewsHubCommittedPresentation(count: number): MetricCountPrese
   return operatorHomeFinalizedPackagesPresentation(count);
 }
 
-export function reviewsHubOpenFindingsPresentation(count: number): MetricCountPresentation {
-  return workspaceOpenFindingsPresentation(count);
+export function reviewsHubOpenFindingsPresentation(
+  count: number,
+  productLine: ProductLineId = "architecture",
+): MetricCountPresentation {
+  return workspaceOpenFindingsPresentation(count, productLine);
 }
 
-export function reviewsHubOpenRisksPresentation(count: number): MetricCountPresentation {
+export function reviewsHubOpenRisksPresentation(
+  count: number,
+  productLine: ProductLineId = "architecture",
+): MetricCountPresentation {
   return governanceRegisterMetricPresentation({
     count,
     noun: count === 1 ? "open risk" : "open risks",
     filter: "open",
+    productLine,
   });
 }

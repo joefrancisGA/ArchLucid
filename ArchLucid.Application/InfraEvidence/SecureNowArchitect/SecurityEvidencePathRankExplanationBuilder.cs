@@ -82,7 +82,7 @@ public static class SecurityEvidencePathRankExplanationBuilder
     {
         string prose =
             $"Blast radius {FormatScore(rank.BlastRadiusScore)} of {FormatScore(SecurityEvidencePathRankConstants.DimensionCap)} "
-            + "from downstream resource fan-out and shared-control patterns.";
+            + "from downstream resource fan-out and shared-control patterns (structural rank; blast radius was not measured).";
 
         string? defenderPostureBand =
             SecurityEvidencePathRankBreakdownReader.TryReadDefenderPostureBandLabel(rank.BreakdownJson);

@@ -209,6 +209,7 @@ public static class AzureInventorySecurityEdgeMaterializer
             warnings);
         AddFederatedCredentialEdges(federatedCredentials, relationships, relationshipKeys);
         AddEntraGroupMembershipEdges(entraGroupMemberships, relationships, relationshipKeys);
+
         foreach (JsonElement association in networkAssociations)
         {
             AzureInventoryNetworkAssociationEdgeMapper.MapAssociation(
@@ -678,6 +679,17 @@ public static class AzureInventorySecurityEdgeMaterializer
                     continue;
                 }
 
+                string? peeringState = AzureInventoryVnetPeeringParser.TryReadPeeringStateFromProperties(
+                    resource.Properties.ToDictionary(
+                        pair => pair.Key,
+                        pair => (string?)pair.Value,
+                        StringComparer.OrdinalIgnoreCase));
+
+                if (!AzureInventoryVnetPeeringParser.IsConnectedPeeringState(peeringState))
+                {
+                    continue;
+                }
+
                 AddRelationship(
                     relationships,
                     relationshipKeys,
@@ -703,7 +715,7 @@ public static class AzureInventorySecurityEdgeMaterializer
                 continue;
             }
 
-            foreach (string remoteVnetId in AzureInventoryVnetPeeringParser.EnumerateRemoteVnetIds(peeringsJson))
+            foreach (string remoteVnetId in AzureInventoryVnetPeeringParser.EnumerateConnectedRemoteVnetArmIds(peeringsJson))
             {
                 AddRelationship(
                     relationships,

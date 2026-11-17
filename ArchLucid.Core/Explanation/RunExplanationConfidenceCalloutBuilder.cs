@@ -48,7 +48,7 @@ public static class RunExplanationConfidenceCalloutBuilder
     public static string ResolveDisposition(RunExplanationConfidenceSignals? signals)
     {
         if (signals is null)
-            return "PASS";
+            return "HOLD";
 
         if (signals.DeterministicFallbackUsed)
             return "HOLD";
@@ -101,6 +101,11 @@ public static class RunExplanationConfidenceCalloutBuilder
 
     public static string? BuildExportCallout(RunExplanationConfidenceSignals? signals)
     {
+        if (signals is null)
+        {
+            return "Explanation confidence: aggregate narrative was not collected — verify review detail before sponsor send.";
+        }
+
         string? line = BuildLimitationsLine(signals);
 
         if (line is null)

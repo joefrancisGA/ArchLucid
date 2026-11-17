@@ -1,7 +1,10 @@
 import type { NextRequest } from "next/server";
 import { describe, expect, it, vi } from "vitest";
 
-import { isSameOriginBffRequest } from "@/lib/proxy/bff-session-request";
+import {
+  isSameOriginBffRequest,
+  resolveOidcPostLogoutRedirectUri,
+} from "@/lib/proxy/bff-session-request";
 
 const ORIGIN = "http://127.0.0.1:3000";
 
@@ -71,5 +74,26 @@ describe("isSameOriginBffRequest", () => {
 
   it("rejects a request with no Origin, Sec-Fetch-Site, or Referer", () => {
     expect(isSameOriginBffRequest(mockRequest())).toBe(false);
+  });
+});
+
+describe("resolveOidcPostLogoutRedirectUri", () => {
+  it("strips zero-width and soft-hyphen copy/paste artifacts from configured post-logout redirect URIs", () => {
+    vi.stubEnv(
+      "NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI",
+      `\u200bhttps://app.example/\u00ADsigned-out\u200b`,
+    );
+
+    expect(resolveOidcPostLogoutRedirectUri(mockRequest())).toBe("https://app.example/signed-out");
+
+    vi.unstubAllEnvs();
+  });
+
+  it("falls back to the request origin when the env override is whitespace-only after normalization", () => {
+    vi.stubEnv("NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI", "   \u200b  ");
+
+    expect(resolveOidcPostLogoutRedirectUri(mockRequest())).toBe(`${ORIGIN}/`);
+
+    vi.unstubAllEnvs();
   });
 });

@@ -74,32 +74,6 @@ public sealed class LlmTenantWalletConsumeStage(
             return null;
         }
 
-        if (command.AutoReplenishEnabled == true
-            && normalizedStripeCustomerId is null
-            && normalizedStripePaymentMethodId is null)
-        {
-            walletStateForEnableValidation ??= await _repository
-                .GetOrCreateAsync(tenantId, cancellationToken)
-                .ConfigureAwait(false);
-
-            string? persistedCustomerId = NormalizeOptionalStripeId(walletStateForEnableValidation.StripeCustomerId);
-            string? persistedPaymentMethodId = NormalizeOptionalStripeId(walletStateForEnableValidation.StripePaymentMethodId);
-
-            if (string.IsNullOrWhiteSpace(persistedCustomerId) || string.IsNullOrWhiteSpace(persistedPaymentMethodId))
-                return null;
-
-            if (!await _stripeWalletPaymentIdentifierGuard
-                    .AllowsWalletUpdateAsync(
-                        tenantId,
-                        persistedCustomerId,
-                        persistedPaymentMethodId,
-                        cancellationToken)
-                    .ConfigureAwait(false))
-            {
-                return null;
-            }
-        }
-
         if (normalizedStripePaymentMethodId is not null && normalizedStripeCustomerId is null)
         {
             string? linkedCustomerId = await _stripeLinkedCustomerResolver
@@ -108,6 +82,32 @@ public sealed class LlmTenantWalletConsumeStage(
 
             if (!string.IsNullOrWhiteSpace(linkedCustomerId))
                 normalizedStripeCustomerId = linkedCustomerId;
+        }
+
+        if (command.AutoReplenishEnabled == true)
+        {
+            walletStateForEnableValidation ??= await _repository
+                .GetOrCreateAsync(tenantId, cancellationToken)
+                .ConfigureAwait(false);
+
+            string? effectiveCustomerId = normalizedStripeCustomerId
+                ?? NormalizeOptionalStripeId(walletStateForEnableValidation.StripeCustomerId);
+            string? effectivePaymentMethodId = normalizedStripePaymentMethodId
+                ?? NormalizeOptionalStripeId(walletStateForEnableValidation.StripePaymentMethodId);
+
+            if (string.IsNullOrWhiteSpace(effectiveCustomerId) || string.IsNullOrWhiteSpace(effectivePaymentMethodId))
+                return null;
+
+            if (!await _stripeWalletPaymentIdentifierGuard
+                    .AllowsWalletUpdateAsync(
+                        tenantId,
+                        effectiveCustomerId,
+                        effectivePaymentMethodId,
+                        cancellationToken)
+                    .ConfigureAwait(false))
+            {
+                return null;
+            }
         }
 
         LlmTenantWalletStateReadModel? updated = await _repository

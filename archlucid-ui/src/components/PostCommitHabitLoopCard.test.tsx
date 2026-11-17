@@ -12,6 +12,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 describe("PostCommitHabitLoopCard", () => {
   it("demotes the sponsor primary to optional links when the page Do-this-next strip owns primary", () => {
     render(

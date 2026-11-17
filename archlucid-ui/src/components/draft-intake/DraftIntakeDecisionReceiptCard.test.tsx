@@ -28,10 +28,9 @@ describe("DraftIntakeDecisionReceiptCard", () => {
     expect(screen.getByText(/actor set is required/i)).toBeInTheDocument();
     expect(screen.getByTestId("feasibility-verdict-drivers")).toBeInTheDocument();
 
-    const exportLink = screen.getByTestId("decision-receipt-export");
-    expect(exportLink).toHaveAttribute(
-      "href",
-      "/api/proxy/v1/architecture/draft/draft-1/decision-receipt",
+    expect(screen.getByRole("button", { name: /download decision receipt/i })).toHaveAttribute(
+      "data-testid",
+      "decision-receipt-export",
     );
   });
 });

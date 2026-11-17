@@ -42,7 +42,7 @@ public sealed class TenantDeletionService(
         ArgumentException.ThrowIfNullOrWhiteSpace(invocation.ActorUserId);
         ArgumentException.ThrowIfNullOrWhiteSpace(invocation.ActorUserName);
 
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+        TenantRecord? tenant = await _tenantRepository.GetByIdUncachedAsync(tenantId, cancellationToken);
 
         if (tenant is null)
             throw new InvalidOperationException($"Tenant '{tenantId:D}' was not found.");
@@ -236,11 +236,13 @@ public sealed class TenantDeletionService(
                 new PlatformAuditEvent
                 {
                     EventType = AuditEventTypes.TenantDataDeleted,
-                    ActorUserId = invocation.ActorUserId,
-                    ActorUserName = invocation.ActorUserName,
+                    ActorUserId = invocation.ActorUserId.Trim(),
+                    ActorUserName = invocation.ActorUserName.Trim(),
                     SubjectTenantId = tenantId,
                     DataJson = dataJson,
-                    CorrelationId = invocation.CorrelationId
+                    CorrelationId = string.IsNullOrWhiteSpace(invocation.CorrelationId)
+                        ? null
+                        : invocation.CorrelationId.Trim(),
                 },
                 cancellationToken)
             .ConfigureAwait(false);
@@ -256,7 +258,7 @@ public sealed class TenantDeletionService(
 
     private async Task<TenantRecord> RevalidateTenantForHardPurgeAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+        TenantRecord? tenant = await _tenantRepository.GetByIdUncachedAsync(tenantId, cancellationToken);
 
         if (tenant is null)
             throw new InvalidOperationException($"Tenant '{tenantId:D}' was not found.");

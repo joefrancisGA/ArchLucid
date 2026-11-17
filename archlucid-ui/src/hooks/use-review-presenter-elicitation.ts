@@ -1,11 +1,12 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 import {
   answerDraftQuestion,
   getDraftQuestions,
+  getDraftRequest,
 } from "@/lib/api/draft-intake-api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -20,11 +21,19 @@ import { evaluateFinalizeQualityScorecard } from "@/lib/review-quality/finalize-
 
 const DRAFT_QUESTIONS_QUERY_KEY = "draft-questions";
 
+export const REVIEW_PRESENTER_ELICITATION_RESPONDER_LABEL = "Presenter" as const;
+
 export const REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_HEADING =
   "Question list was not stored." as const;
 
 export const REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_BODY =
   "Question list was not stored. Do not treat this review as ready to finalize." as const;
+
+export const REVIEW_PRESENTER_DRAFT_QUESTIONS_LOADING_HEADING =
+  "Loading draft questions…" as const;
+
+export const REVIEW_PRESENTER_DRAFT_QUESTIONS_FAILED_HEADING =
+  "Draft questions could not be loaded" as const;
 
 export type PresenterRecordedAssertedEntry = {
   readonly questionKey: string;
@@ -47,17 +56,34 @@ export type UseReviewPresenterElicitationResult = {
   readonly questionsFailure: ApiLoadFailureState | null;
   readonly questionListStored: boolean;
   readonly questionListMissing: boolean;
+  readonly questionsLoading: boolean;
+  readonly primaryQuestionPromptStored: boolean;
 };
 
-function selectPrimaryPendingQuestion(
-  pendingMust: readonly DraftElicitationQuestion[],
-  allQuestions: readonly DraftElicitationQuestion[],
-): DraftElicitationQuestion | null {
-  if (pendingMust.length > 0) {
-    return pendingMust[0] ?? null;
+async function loadPresenterQuestions(draftId: string) {
+  const { selection } = await getDraftQuestions(draftId);
+  const pendingMust = selection?.pendingMustQuestions;
+  const primaryMust = pendingMust?.[0] ?? null;
+
+  if (pendingMust === undefined || primaryMust !== null) {
+    return { selection, primaryQuestion: primaryMust };
   }
 
-  return allQuestions[0] ?? null;
+  const optionalQuestions = selection.allQuestions?.filter((question) => question.tier === "Should") ?? [];
+
+  if (optionalQuestions.length === 0) {
+    return { selection, primaryQuestion: null };
+  }
+
+  const draft = await getDraftRequest(draftId);
+  const answeredKeys = new Set(
+    Object.entries(draft.document.questionAnswers ?? {})
+      .filter(([, answer]) => answer.trim().length > 0)
+      .map(([key]) => key.toLowerCase()),
+  );
+  const primaryQuestion = optionalQuestions.find((question) => !answeredKeys.has(question.questionKey.toLowerCase()));
+
+  return { selection, primaryQuestion: primaryQuestion ?? null };
 }
 
 /** Loads draft MUST/SHOULD questions for Working presenter elicitation (FD-01 / PC-09). */
@@ -74,7 +100,7 @@ export function useReviewPresenterElicitation(
 
   const query = useQuery({
     queryKey: [DRAFT_QUESTIONS_QUERY_KEY, trimmedDraftId],
-    queryFn: () => getDraftQuestions(trimmedDraftId),
+    queryFn: () => loadPresenterQuestions(trimmedDraftId),
     enabled: trimmedDraftId.length > 0,
     staleTime: 15_000,
   });
@@ -85,11 +111,7 @@ export function useReviewPresenterElicitation(
     && selection.pendingMustQuestions !== undefined
     && selection.allQuestions !== undefined;
   const pendingMust = selection?.pendingMustQuestions ?? [];
-  const allQuestions = selection?.allQuestions ?? [];
-  const primaryQuestion = useMemo(
-    () => selectPrimaryPendingQuestion(pendingMust, allQuestions),
-    [allQuestions, pendingMust],
-  );
+  const primaryQuestion = query.data?.primaryQuestion ?? null;
 
   const invalidate = useCallback(async (): Promise<void> => {
     await queryClient.invalidateQueries({ queryKey: [DRAFT_QUESTIONS_QUERY_KEY, trimmedDraftId] });
@@ -108,7 +130,7 @@ export function useReviewPresenterElicitation(
 
       const response = await answerDraftQuestion(trimmedDraftId, primaryQuestion.questionKey, answer, {
         presenterCapture: true,
-        responderLabel: "Room",
+        responderLabel: REVIEW_PRESENTER_ELICITATION_RESPONDER_LABEL,
       });
 
       const trail = response.document?.transparencyTrail ?? null;
@@ -116,7 +138,7 @@ export function useReviewPresenterElicitation(
       setLastRecordedEntry({
         questionKey: primaryQuestion.questionKey,
         answer,
-        responderLabel: "Room",
+        responderLabel: REVIEW_PRESENTER_ELICITATION_RESPONDER_LABEL,
       });
     },
     [primaryQuestion, trimmedDraftId],
@@ -166,10 +188,21 @@ export function useReviewPresenterElicitation(
   const readyToFinalize =
     trimmedDraftId.length === 0 || (query.isSuccess && questionListStored && primaryQuestion === null);
 
+  const primaryQuestionPromptStored =
+    primaryQuestion !== null && primaryQuestion.prompt.trim().length > 0;
+
   const title =
-    query.isSuccess && !questionListStored
-      ? REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_HEADING
-      : (primaryQuestion?.prompt ?? "Ready to finalize");
+    query.isLoading && trimmedDraftId.length > 0
+      ? REVIEW_PRESENTER_DRAFT_QUESTIONS_LOADING_HEADING
+      : query.isError
+        ? REVIEW_PRESENTER_DRAFT_QUESTIONS_FAILED_HEADING
+        : query.isSuccess && !questionListStored
+          ? REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_HEADING
+          : readyToFinalize
+            ? "Ready to finalize"
+            : primaryQuestionPromptStored
+              ? primaryQuestion!.prompt
+              : "Question text was not stored.";
 
   const effectiveTrail = transparencyTrail;
   const questionsFailure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;
@@ -190,6 +223,8 @@ export function useReviewPresenterElicitation(
     questionsFailure,
     questionListStored,
     questionListMissing: query.isSuccess && trimmedDraftId.length > 0 && !questionListStored,
+    questionsLoading: trimmedDraftId.length > 0 && query.isLoading,
+    primaryQuestionPromptStored,
   };
 }
 

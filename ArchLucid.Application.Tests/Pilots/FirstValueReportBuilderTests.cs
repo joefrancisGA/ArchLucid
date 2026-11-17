@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
@@ -207,10 +208,12 @@ public sealed class FirstValueReportBuilderTests
             IsDemoTenant = false,
         };
 
+        computed = PilotBuyerSafeStrongProofDeltas.WithStrongProofFields(computed);
+
         Mock<IPilotRunDeltaComputer> deltas = new();
         deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
 
-        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object);
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object, buyerProvidedScorecard: true);
 
         string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
 
@@ -229,16 +232,18 @@ public sealed class FirstValueReportBuilderTests
         proofStatusHeading.Should().BeGreaterThan(firstPageStatusHeading);
         md.Should().Contain("| Evidence source |");
         md.Should().Contain("| Execution mode | **Simulator**");
-        md.Should().Contain("| Quality disposition | PilotStrict posture satisfied");
+        md.Should().Contain("| Quality disposition | " + PilotAgentOutputPilotStrictHonestyCopy.SatisfiedPlain);
         md.Should().Contain("| ROI basis status | **Strong**");
         md.Should().Contain("## ROI narrative claim gate");
         md.Should().Contain("| ROI claim gate |");
         md.Should().Contain("**Claim disposition:**");
         md.Should().Contain("**Projected dollar claim disposition:**");
-        md.Should().Contain("| LLM call basis | **4** trace row(s)");
+        md.Should().Contain("| LLM call basis | `4` row(s) in execution traces.");
         md.Should().Contain("## ROI baseline inputs (per field)");
-        md.Should().Contain("| Projected dollar claims sponsor-safe | **No**");
-        md.Should().Contain("| Top findings | Error: m3<br />Warning: m1<br />Warning: m2 |");
+        md.Should().Contain("| Projected dollar claims sponsor-safe | **Yes** |");
+        md.Should().Contain("Error: `m3`");
+        md.Should().Contain("Warning: `m1`");
+        md.Should().Contain("Warning: `m2`");
         md.Should().Contain("SOC 2 CPA report, external third-party pen-test summary");
         md.Should().Contain("| Recommended next action | Send sponsor packet after human redaction review");
         md.Should().Contain("**Verdict:** **Sendable**");
@@ -254,7 +259,7 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("| PilotStrict agent-output posture |");
         md.Should().Contain("| Support run id | Present |");
         md.Should().Contain("| Committed manifest timestamp (UTC) | Present — `2026-04-01T00:10:00.0000000Z`");
-        md.Should().Contain("| Top finding evidence-chain pointer | Present |");
+        md.Should().Contain("| Top finding evidence-chain pointer | Present — decision trace");
         md.Should().Contain("| ROI evidence confidence | **Strong**");
         md.Should().Contain("| Evidence-basis labels | **Evidence-backed** |");
         md.Should().Contain("Sponsor-proof readiness:");
@@ -264,8 +269,8 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("Review-cycle delta (before vs measured)");
         md.Should().Contain("v2");
         md.Should().Contain("SysA");
-        md.Should().Contain("| Warning | 2 |");
-        md.Should().Contain("| Error | 1 |");
+        md.Should().Contain("| `Warning` | 2 |");
+        md.Should().Contain("| `Error` | 1 |");
         md.Should().Contain("LLM calls for this run");
         md.Should().Contain("| Audit rows for this run | 7 |");
         md.Should().Contain("Top-severity finding");
@@ -306,10 +311,10 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("## Sponsor first-page status");
         md.Should().Contain("## Sponsor-safe proof status");
         md.Should().Contain("**Verdict:** **Not sponsor-safe yet**");
-        md.Should().Contain("| Evidence source | **Demo-derived** — illustrative sample output; do not present as buyer outcome. |");
+        md.Should().Contain("| Evidence source | " + PilotDemoTenantDisciplineHonestyCopy.FailedPlain + " |");
         md.Should().Contain("| Recommended next action | Use this only as a demo walkthrough; run the same path on buyer evidence before sponsor send. |");
-        md.Should().Contain("| ROI claim gate | **HOLD**");
-        md.Should().Contain("Demo or sample tenant scope");
+        md.Should().Contain(SponsorRoiClaimDispositionRules.DescribeLeadLine(SponsorRoiClaimDisposition.Hold));
+        md.Should().Contain(PilotDemoTenantDisciplineHonestyCopy.FailedPlain);
         md.Should().Contain("must **not** be presented");
         // Banner must appear in the document preface AND immediately under the computed-deltas heading,
         // so a sponsor cannot crop the page and quote a single number out of context.
@@ -363,7 +368,7 @@ public sealed class FirstValueReportBuilderTests
         md.Should().NotBeNull();
         md.Should().Contain("**Verdict:** **Needs operator review**");
         md.Should().Contain("**Proof sendability:** **Sendable with caveats**");
-        md.Should().Contain("LLM-call count is unattested");
+        md.Should().Contain(PilotRunDeltasLlmCallCountFormatter.NotAttestedPlain);
         md.Should().Contain("Sponsor-proof readiness:");
         md.Should().Contain("**Incomplete**");
     }
@@ -399,6 +404,8 @@ public sealed class FirstValueReportBuilderTests
             },
             IsDemoTenant = false,
         };
+
+        computed = PilotBuyerSafeStrongProofDeltas.WithStrongProofFields(computed);
 
         Mock<IPilotRunDeltaComputer> deltas = new();
         deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
@@ -475,8 +482,8 @@ public sealed class FirstValueReportBuilderTests
         string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
 
         md.Should().NotBeNull();
-        md.Should().Contain("| ROI claim gate | **HOLD**");
-        md.Should().Contain("**HOLD:** Do not quote cycle-time savings percentages");
+        md.Should().Contain(SponsorRoiClaimDispositionRules.DescribeLeadLine(SponsorRoiClaimDisposition.Hold));
+        md.Should().Contain("Do not quote hours-saved percentages");
         md.Should().Contain("**Projected dollar claim disposition:** **HOLD**");
     }
 
@@ -566,7 +573,8 @@ public sealed class FirstValueReportBuilderTests
         IRunDetailQueryService query,
         IPilotRunDeltaComputer deltas,
         ValueReportRawMetrics? rawMetrics = null,
-        ITenantBrandingService? brandingService = null)
+        ITenantBrandingService? brandingService = null,
+        bool buyerProvidedScorecard = false)
     {
         Mock<IValueReportMetricsReader> metrics = new();
 
@@ -584,7 +592,7 @@ public sealed class FirstValueReportBuilderTests
                                                 TimeProvider.System.GetUtcNow(),
                                                 6m,
                                                 3,
-                                                null,
+                                                2m,
                                                 null,
                                                 null);
 
@@ -624,10 +632,14 @@ public sealed class FirstValueReportBuilderTests
         ITenantReportBrandingApplyHelper reportBranding =
             FirstValueReportBrandingTestDoubles.CreateApplyHelper(branding);
 
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Mock<IPilotBaselineRepository> pilotBaselines = new();
         pilotBaselines
             .Setup(b => b.GetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((PilotBaselineRecord?)null);
+            .ReturnsAsync(
+                buyerProvidedScorecard
+                    ? PilotBuyerSafeStrongProofDeltas.BuyerProvidedScorecard(tenantId)
+                    : null);
 
         IManifestHashService hashes = FirstValueReportBuilderTestDoubles.CreateManifestHashService();
 

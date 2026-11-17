@@ -34,6 +34,10 @@ public sealed class ProjectScopedOperationalSecurityFindingRepositoryAdapter(
     public Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(ProjectScopeKey scope, Guid cloudResourceId, int page, int pageSize, CancellationToken cancellationToken = default) =>
         inner.ListByCloudResourceIdPagedInScopeAsync(scope, cloudResourceId, page, pageSize, cancellationToken);
 
+    public Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByCloudResourceIdInScopeAsync(
+        ProjectScopeKey scope, Guid cloudResourceId, CancellationToken cancellationToken = default) =>
+        inner.ListByCloudResourceIdInScopeAsync(scope, cloudResourceId, cancellationToken);
+
     public Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdInScopeAsync(ProjectScopeKey scope, Guid pathId, CancellationToken cancellationToken = default) =>
         inner.ListFindingIdsByPathIdInScopeAsync(scope, pathId, cancellationToken);
 
@@ -110,6 +114,12 @@ public sealed class ProjectScopedRemediationInstanceRepositoryAdapter(
 
     public Task<IReadOnlyList<RemediationInstanceRecord>> ListByFindingIdInScopeAsync(ProjectScopeKey scope, Guid findingId, CancellationToken cancellationToken = default) =>
         inner.ListByFindingIdInScopeAsync(scope, findingId, cancellationToken);
+
+    public Task<IReadOnlyList<RemediationInstanceRecord>> ListByControlIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid controlId,
+        CancellationToken cancellationToken = default) =>
+        inner.ListByControlIdInScopeAsync(scope, controlId, cancellationToken);
 }
 
 public sealed class ProjectScopedAuditAssessmentRepositoryAdapter(

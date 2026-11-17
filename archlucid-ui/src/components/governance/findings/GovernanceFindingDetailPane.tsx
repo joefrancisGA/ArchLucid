@@ -25,18 +25,24 @@ import { cn } from "@/lib/utils";
 
 import {
   formatGovernanceQueueRecordKind,
+  formatGovernanceQueueRecordRoleHonesty,
   type GovernanceFindingQueueRow,
 } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
-import { GOVERNANCE_QUEUE_LINKED_REVIEW_RECORD_NOT_STORED } from "@/components/governance/findings/governance-findings-row-omission-copy";
+import {
+  GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED,
+  GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
+  GOVERNANCE_QUEUE_LINKED_REVIEW_RECORD_NOT_STORED,
+  GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
+} from "@/components/governance/findings/governance-findings-row-omission-copy";
+import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
 import {
   governanceFindingManifestRecordHref,
+  governanceFindingQueueRowReviewHrefForRow,
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
-import {
-  governanceQueueStatusTagKind,
-} from "@/components/governance/findings/governance-findings-buyer-labels";
 import { GovernanceFindingsQueueOperationalActions } from "@/components/governance/findings/governance-findings-queue-operational-actions";
 import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
+import { formatQuickDecisionConfidenceWorkspaceLabel } from "@/lib/findings/quick-decision-finding-display";
 
 export type GovernanceFindingDetailPaneProps = {
   readonly row: GovernanceFindingQueueRow;
@@ -98,7 +104,8 @@ function GovernanceFindingDetailPaneComponent({
               Severity, confidence, and review
             </summary>
             <p className="m-0 mt-2">
-              <span className="font-medium text-neutral-800 dark:text-neutral-200">Severity</span> {row.severity}
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">Severity</span>{" "}
+              <SeverityTag severity={row.severity} />
             </p>
             <p className="m-0 mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
               <span className="font-medium text-neutral-800 dark:text-neutral-200">Confidence</span>
@@ -107,14 +114,16 @@ function GovernanceFindingDetailPaneComponent({
               row.traceConfidenceLevel === "Low" ? (
                 <FindingConfidenceBadge level={row.traceConfidenceLevel} />
               ) : (
-                <span className="text-neutral-500">—</span>
+                <span className="text-neutral-500">
+                  {formatQuickDecisionConfidenceWorkspaceLabel(null)}
+                </span>
               )}
             </p>
             <p className="m-0 mt-2">
               <span className="font-medium text-neutral-800 dark:text-neutral-200">Review</span>{" "}
               <Link
                 className={OPERATOR_LINK.inline}
-                href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}
+                href={governanceFindingQueueRowReviewHrefForRow(row)}
               >
                 {row.runLabel}
               </Link>
@@ -157,6 +166,9 @@ function GovernanceFindingDetailPaneComponent({
         <p className="m-0 mt-0.5 text-al-text-secondary">
           {formatGovernanceQueueRecordKind(row.recordKind, buyerPolishedShell)}
         </p>
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {formatGovernanceQueueRecordRoleHonesty(row.recordKind)}
+        </p>
       </div>
       <div>
         <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Severity</span>
@@ -167,7 +179,11 @@ function GovernanceFindingDetailPaneComponent({
               <span className="sr-only">Severity does not apply to recorded decision rows.</span>
             </>
           ) : row.recordKind === "finding" ? (
-            <SeverityTag severity={row.severity} />
+            row.severity.trim().length === 0 || row.severity === GOVERNANCE_QUEUE_SEVERITY_NOT_STORED ? (
+              <span className="text-al-text-secondary">{GOVERNANCE_QUEUE_SEVERITY_NOT_STORED}</span>
+            ) : (
+              <SeverityTag severity={row.severity} />
+            )
           ) : (
             <span className="text-al-text-secondary">{row.severity}</span>
           )}
@@ -204,9 +220,17 @@ function GovernanceFindingDetailPaneComponent({
       <div>
         <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Status</span>
         <div className="mt-0.5">
-          <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
+          {row.status === GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED
+          || row.status === GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED
+          || row.status.trim().toLowerCase().includes("was not stored") ? (
+            <span className="text-al-text-secondary">{row.status}</span>
+          ) : (
+            <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
+          )}
         </div>
-        {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
+        {row.recordKind === "finding"
+        && row.humanReviewStatusLabel
+        && !row.humanReviewStatusLabel.toLowerCase().includes("was not stored") ? (
           <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {row.humanReviewStatusLabel}
           </p>
@@ -265,7 +289,7 @@ export function GovernanceFindingOperationalHeaderMeta(props: {
         <div className="mt-0.5">
           <Link
             className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}
+            href={governanceFindingQueueRowReviewHrefForRow(row)}
           >
             {row.runLabel}
           </Link>

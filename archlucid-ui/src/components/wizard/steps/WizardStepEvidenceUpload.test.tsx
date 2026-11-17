@@ -15,12 +15,20 @@ describe("WizardStepEvidenceUpload", () => {
     onSkipDemoData: vi.fn(),
   };
 
-  it("selects brief by default with brief panel and no cloud inventory upload on first render", () => {
+  it("starts with no evidence source selected until the reviewer chooses one", () => {
     render(<WizardStepEvidenceUpload {...baseProps} />);
+
+    expect(screen.getByTestId("wizard-evidence-source-brief")).toHaveAttribute("aria-checked", "false");
+    expect(screen.getByTestId("wizard-evidence-source-not-chosen")).toHaveTextContent(
+      "Evidence source was not chosen.",
+    );
+    expect(screen.queryByTestId("wizard-evidence-source-panel-brief")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("wizard-evidence-inventory-panel")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("wizard-evidence-source-brief"));
 
     expect(screen.getByTestId("wizard-evidence-source-brief")).toHaveAttribute("aria-checked", "true");
     expect(screen.getByTestId("wizard-evidence-source-panel-brief")).toBeInTheDocument();
-    expect(screen.queryByTestId("wizard-evidence-inventory-panel")).not.toBeInTheDocument();
   });
 
   it("renders Tier-1 inventory sources and AWS command panel when selected", () => {
@@ -107,8 +115,9 @@ describe("WizardStepEvidenceUpload", () => {
     fireEvent.click(screen.getByTestId("wizard-evidence-source-azure-export"));
 
     expect(screen.getByTestId("wizard-evidence-upload-skip-context")).toHaveTextContent(
-      "Skipping evidence is OK — you can add files or cloud inventory from the review detail page after the review is created. Findings without evidence may have lower confidence.",
+      "Skipping evidence does not store a confidence level on this step.",
     );
+    expect(screen.getByTestId("wizard-evidence-upload-skip-context")).not.toHaveTextContent("lower confidence");
     expect(screen.getByRole("button", { name: "Skip evidence for now" })).toBeInTheDocument();
   });
 

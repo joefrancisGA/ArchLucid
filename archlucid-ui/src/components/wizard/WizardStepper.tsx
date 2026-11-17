@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -23,6 +25,11 @@ export type WizardStepperProps = {
    */
   sticky?: boolean;
   className?: string;
+  /**
+   * Status rendered on the step-count line, above the numbered circles.
+   * Keep width-changing labels here so they cannot reflow the circle row.
+   */
+  headerAside?: ReactNode;
 };
 
 /**
@@ -34,6 +41,7 @@ export function WizardStepper({
   completedSteps,
   sticky = true,
   className,
+  headerAside,
 }: WizardStepperProps) {
   const completed = new Set(completedSteps);
   const stepPositionLabel = `Step ${currentStep + 1} of ${steps.length}`;
@@ -48,9 +56,15 @@ export function WizardStepper({
         {stepPositionLabel}
         {completed.has(currentStep) ? " — completed" : ""}
       </p>
-      <p className={cn("m-0 mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} aria-hidden="true">
-        {stepPositionLabel}
-      </p>
+      <div
+        className="mb-2 flex min-h-5 items-center justify-between gap-3"
+        data-testid="wizard-stepper-header"
+      >
+        <p className={cn("m-0 min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} aria-hidden="true">
+          {stepPositionLabel}
+        </p>
+        {headerAside != null ? <div className="shrink-0 whitespace-nowrap">{headerAside}</div> : null}
+      </div>
       <ol className="m-0 flex w-full list-none flex-wrap items-start gap-3 p-0 md:gap-6">
         {steps.map((step, index) => {
           const isActive = index === currentStep;

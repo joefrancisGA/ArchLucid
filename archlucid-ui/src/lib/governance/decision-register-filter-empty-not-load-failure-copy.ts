@@ -1,0 +1,2 @@
+export const DECISION_REGISTER_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE =
+  "No decisions match the current filters while the register loaded successfully — this filter-empty view is not a failed register read." as const;

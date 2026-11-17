@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Reporting;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
@@ -28,7 +29,8 @@ public static class SponsorDecisionDeltaNoveltyResolver
         ArgumentNullException.ThrowIfNull(buyerSafeGate);
 
         List<ArchitectureFinding> materialFindings = CollectMaterialFindings(detail, deltas);
-        string decisionDeltaSummary = BuildDecisionDeltaSummary(materialFindings, detail.IsCommitted);
+        int materialFindingTotal = PilotSponsorMaterialFindingsResolver.Resolve(detail, deltas).Count;
+        string decisionDeltaSummary = BuildDecisionDeltaSummary(materialFindings, materialFindingTotal, detail.IsCommitted);
         string nonObviousRationale = BuildNonObviousRationale(materialFindings, deltas, proof);
         SponsorNoveltyConfidence noveltyConfidence = ResolveNoveltyConfidence(materialFindings, deltas, proof, buyerSafeGate);
         string evidenceClassLabel = ResolveEvidenceClassLabel(proof, buyerSafeGate, deltas);
@@ -51,7 +53,10 @@ public static class SponsorDecisionDeltaNoveltyResolver
             .ToList();
     }
 
-    private static string BuildDecisionDeltaSummary(IReadOnlyList<ArchitectureFinding> findings, bool isCommitted)
+    private static string BuildDecisionDeltaSummary(
+        IReadOnlyList<ArchitectureFinding> findings,
+        int materialFindingTotal,
+        bool isCommitted)
     {
         if (!isCommitted)
         {
@@ -60,7 +65,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
 
         if (findings.Count == 0)
         {
-            return "No active findings recorded — ArchLucid did not surface a material recommended change in this package.";
+            return PilotSponsorMaterialFindingsHonestyCopy.MaterialFindingsSetStoredEmpty;
         }
 
         StringBuilder sb = new();
@@ -71,13 +76,22 @@ public static class SponsorDecisionDeltaNoveltyResolver
             string severity = finding.Severity.ToString();
             string category = string.IsNullOrWhiteSpace(finding.Category) ? "Category was not stored." : finding.Category.Trim();
             string message = Truncate(finding.Message, 180);
+            string categoryDisplay = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(category);
+            string messageDisplay = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(message);
 
-            sb.Append(CultureInfo.InvariantCulture, $"{index + 1}. **{severity}** ({category}) — {message}");
+            sb.Append(CultureInfo.InvariantCulture, $"{index + 1}. **{severity}** ({categoryDisplay}) — {messageDisplay}");
 
             if (index < findings.Count - 1)
             {
                 sb.Append("<br />");
             }
+        }
+
+        if (materialFindingTotal > findings.Count)
+        {
+            sb.Append("<br />");
+            sb.Append(PilotSponsorMaterialFindingsHonestyCopy.MaterialFindingsRemainderSuffix);
+            sb.Append(CultureInfo.InvariantCulture, $" ({findings.Count} listed; {materialFindingTotal} material findings stored.)");
         }
 
         return sb.ToString();
@@ -88,7 +102,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
         PilotRunDeltas deltas,
         ProofPackageCompletenessResponse proof)
     {
-        if (proof.DemoTenantWarningRequired)
+        if (PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))
         {
             return "Demo-derived output — treat as illustrative only; novelty is not attested for buyer outcomes.";
         }
@@ -121,10 +135,10 @@ public static class SponsorDecisionDeltaNoveltyResolver
         ProofPackageCompletenessResponse proof,
         PilotBuyerSafeEvidenceGateResult buyerSafeGate)
     {
-        if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
+        if (PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))
             return SponsorNoveltyConfidence.NotAssessed;
 
-        if (!IsBuyerSafeSendAllowed(buyerSafeGate) || !proof.AgentOutputPilotStrictEvidenceSatisfied)
+        if (!IsBuyerSafeSendAllowed(buyerSafeGate) || PilotStrictPostureBlocksSponsorGradeClaims(deltas))
             return SponsorNoveltyConfidence.Low;
 
         if (findings.Count == 0)
@@ -134,7 +148,10 @@ public static class SponsorDecisionDeltaNoveltyResolver
             finding.EvaluationConfidenceScore is >= 70
             || finding.ConfidenceLevel is FindingConfidenceLevel.High);
 
-        if (scoredFindings >= 2 && deltas.TopFindingEvidenceChain is not null && proof.LlmCallCountResolved)
+        if (scoredFindings >= 2
+            && deltas.TopFindingEvidenceChain is not null
+            && deltas.LlmCallCountResolved
+            && deltas.AuditRowCountResolved)
             return SponsorNoveltyConfidence.Strong;
 
         if (findings.Any(static finding => finding.EvidenceRefs.Count > 0))
@@ -148,19 +165,23 @@ public static class SponsorDecisionDeltaNoveltyResolver
         PilotBuyerSafeEvidenceGateResult buyerSafeGate,
         PilotRunDeltas deltas)
     {
-        if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
+        if (PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))
             return "Demo-derived (not buyer outcome evidence)";
 
         if (!IsBuyerSafeSendAllowed(buyerSafeGate))
             return "Internal review only — buyer-safe send gate failed";
 
-        if (proof.AgentOutputPilotStrictEvidenceSatisfied && proof.LlmCallCountResolved)
+        // Prefer the more conservative of live deltas vs proof DTO so a stale true flag cannot overclaim.
+        if (!deltas.LlmCallCountResolved || !proof.LlmCallCountResolved)
+            return "Persisted run proof — LLM call basis unresolved";
+
+        if (!deltas.AuditRowCountResolved || !proof.AuditRowCountResolved)
+            return "Persisted run proof — audit row basis unresolved";
+
+        if (PilotStrictPostureSatisfied(deltas))
             return "Persisted run proof with PilotStrict posture attested";
 
-        if (proof.LlmCallCountResolved)
-            return "Persisted run proof — PilotStrict posture incomplete";
-
-        return "Persisted run proof — LLM call basis unresolved";
+        return "Persisted run proof — PilotStrict posture incomplete";
     }
 
     private static string BuildConfidenceBasisSummary(
@@ -172,9 +193,10 @@ public static class SponsorDecisionDeltaNoveltyResolver
         List<string> parts =
         [
             $"active findings: {findings.Count.ToString(CultureInfo.InvariantCulture)}",
-            $"PilotStrict posture: {(proof.AgentOutputPilotStrictEvidenceSatisfied ? "satisfied" : "failed")}",
+            $"PilotStrict posture: {(PilotStrictPostureSatisfied(deltas) ? "satisfied" : "failed")}",
             $"buyer-safe send gate: {(IsBuyerSafeSendAllowed(buyerSafeGate) ? "allowed" : "blocked")}",
-            $"LLM trace rows resolved: {(proof.LlmCallCountResolved ? deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture) : "no")}",
+            $"LLM trace rows resolved: {(deltas.LlmCallCountResolved && proof.LlmCallCountResolved ? deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture) : "no")}",
+            $"audit row count resolved: {(deltas.AuditRowCountResolved && proof.AuditRowCountResolved ? "yes" : "no")}",
             "blind principal-architect sessions: not inferred — see repository `docs/go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`",
         ];
 
@@ -185,10 +207,16 @@ public static class SponsorDecisionDeltaNoveltyResolver
         buyerSafeGate.ProofSendability is ProofPackageSendability.Sendable
         or ProofPackageSendability.SendableWithCaveats;
 
+    private static bool PilotStrictPostureBlocksSponsorGradeClaims(PilotRunDeltas deltas) =>
+        !deltas.AgentOutputPilotStrictSignalsResolved || deltas.AgentOutputPilotStrictViolatesSponsorEvidence;
+
+    private static bool PilotStrictPostureSatisfied(PilotRunDeltas deltas) =>
+        deltas.AgentOutputPilotStrictSignalsResolved && !deltas.AgentOutputPilotStrictViolatesSponsorEvidence;
+
     private static string Truncate(string value, int maxLength)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return "(no message)";
+            return ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel;
 
         string trimmed = value.Trim();
 

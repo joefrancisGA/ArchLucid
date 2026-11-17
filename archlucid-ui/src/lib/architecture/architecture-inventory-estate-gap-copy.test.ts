@@ -23,6 +23,8 @@ describe("architecture-inventory-estate-gap-copy (AS-051)", () => {
     expect(formatArchitectureInventoryUnboundEstateGapLine({ isBound: true })).toBeNull();
     expect(formatArchitectureInventoryUnboundEstateGapLine(null)).toBeNull();
     expect(formatArchitectureInventoryUnboundEstateGapLine(undefined)).toBeNull();
+    expect(resolveArchitectureInventoryEstateGapState({ architectureId: "a", isBound: undefined })).toBe("unknown");
+    expect(formatArchitectureInventoryUnboundEstateGapLine({ architectureId: "a", isBound: undefined })).toBeNull();
   });
 
   it("includes the estate gap in career export markdown when inventory is unbound", () => {

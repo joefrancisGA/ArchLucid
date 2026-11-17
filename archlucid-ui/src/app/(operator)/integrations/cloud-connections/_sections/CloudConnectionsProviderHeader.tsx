@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -8,7 +10,6 @@ import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/compon
 import { CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE } from "@/lib/cloud-provider-connection-evidence-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +26,7 @@ export type CloudConnectionsProviderHeaderProps = {
 export function CloudConnectionsProviderHeader(props: CloudConnectionsProviderHeaderProps) {
   const { providerLabel, overview, buyerOverview, headerClaimDisciplineTestId, statusBadge, primaryAction } =
     props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const resolvedOverview = buyerPolishedShell ? (buyerOverview ?? overview) : overview;
 
   return (

@@ -9,6 +9,7 @@ import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 
 function formatRunId(runId: string): string {
   const normalized = runId.replace(/-/g, "");
@@ -65,7 +66,10 @@ export function ReviewsAwaitingActionCard() {
                   </p>
                 </div>
                 <Button asChild size="sm">
-                  <Link href={`/architecture/reviews/${runHex}`} data-testid={`reviews-awaiting-commit-${runHex}`}>
+                  <Link
+                    href={resolveGovernanceScopedReviewOpenHref({ runId: item.runId })}
+                    data-testid={`reviews-awaiting-commit-${runHex}`}
+                  >
                     Review &amp; commit
                   </Link>
                 </Button>

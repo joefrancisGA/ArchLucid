@@ -1,4 +1,6 @@
+import { remapArchitectureCreatedOrientationSources } from "@/lib/architecture/architecture-created-orientation-source-links";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export type ArchitectureCreatedDiagramSourceLink = {
   readonly label: string;
@@ -16,6 +18,12 @@ export const ARCHITECTURE_CREATED_DIAGRAM_SOURCES: readonly ArchitectureCreatedD
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Approval help", href: inAppHelpHref("governance-approval") },
 ] as const;
+
+export function resolveArchitectureCreatedDiagramSources(
+  productLine: ProductLineId,
+): readonly ArchitectureCreatedDiagramSourceLink[] {
+  return remapArchitectureCreatedOrientationSources(ARCHITECTURE_CREATED_DIAGRAM_SOURCES, productLine);
+}
 
 export const ARCHITECTURE_CREATED_DIAGRAM_SOURCES_INTRO =
   "Use these follow-ups when create-home Diagram orientation turns into evidence capture, findings triage, or export readiness.";

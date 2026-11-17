@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Decisioning.Merge;
@@ -60,7 +61,14 @@ public sealed class FindingIacStubGenerator(
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<AgentResult> existingResults = await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+        IReadOnlyList<AgentResult> existingResults =
+            await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                _agentResultRepository,
+                scope,
+                canonicalRunId,
+                useRollupProjection: false,
+                cancellationToken).ConfigureAwait(false);
 
         if (existingResults.Count == 0)
             return;
@@ -188,7 +196,31 @@ public sealed class FindingIacStubGenerator(
         if (muteFlags.Count == 0)
             return;
 
+        PrepareResultsForRelationalMuteApplication(results);
+
         FindingMuteFlagApplier.Apply(results, muteFlags);
+    }
+
+    private static void PrepareResultsForRelationalMuteApplication(List<AgentResult> results)
+    {
+        foreach (AgentResult result in results)
+        {
+            if (result is null)
+                continue;
+
+            if (result.Findings is null)
+            {
+                result.Findings = [];
+                continue;
+            }
+
+            if (result.Findings.Exists(static finding => finding is null))
+            {
+                result.Findings = result.Findings
+                    .Where(static finding => finding is not null)
+                    .ToList();
+            }
+        }
     }
 
     private static bool HasEvidenceReferences(ArchitectureFinding finding)

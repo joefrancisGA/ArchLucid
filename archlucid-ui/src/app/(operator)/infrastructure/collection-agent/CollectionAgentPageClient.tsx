@@ -17,13 +17,14 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { useCollectionRunsQuery, useTriggerCollectionRunMutation } from "@/hooks/use-collection-runs-query";
 import {
+  collectionRunTimeMs,
   formatCollectionRunDuration,
   formatCollectionRunSubscriptionsLabel,
   resolveCollectionAgentHealth,
   resolveCollectionAgentStaleSuccessDetail,
 } from "@/lib/collection-agent-presentation";
 import type { CollectionRun } from "@/lib/collection-runs-api";
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { formatIsoUtcForDisplay, parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { formatRelativeTime } from "@/lib/relative-time";
 import {
@@ -41,11 +42,12 @@ const COLLECTION_AGENT_PAGE_TITLE = resolveSecureNowPageHeading(
   SECURENOW_COLLECTION_AGENT_PATH,
 );
 import { OPERATOR_LINK, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isApiTransientLoadFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { cn } from "@/lib/utils";
 
 function collectionRunSortTime(run: CollectionRun): number {
-  return Date.parse(run.finishedUtc ?? run.startedUtc ?? "");
+  const time = collectionRunTimeMs(run);
+  return Number.isFinite(time) ? time : Number.NEGATIVE_INFINITY;
 }
 
 function sortCollectionRuns(runs: readonly CollectionRun[]): CollectionRun[] {
@@ -53,7 +55,13 @@ function sortCollectionRuns(runs: readonly CollectionRun[]): CollectionRun[] {
     const leftRunning = left.status === "Running" ? 1 : 0;
     const rightRunning = right.status === "Running" ? 1 : 0;
 
-    return rightRunning - leftRunning || collectionRunSortTime(right) - collectionRunSortTime(left);
+    if (leftRunning !== rightRunning) {
+      return rightRunning - leftRunning;
+    }
+
+    const leftTime = collectionRunSortTime(left);
+    const rightTime = collectionRunSortTime(right);
+    return leftTime === rightTime ? 0 : rightTime - leftTime;
   });
 }
 
@@ -81,7 +89,22 @@ export function collectionRunStatusLabel(status: CollectionRun["status"]): strin
     return "Capture status was not stored.";
   }
 
-  return status;
+  switch (status) {
+    case "Succeeded":
+      return "Collection succeeded.";
+    case "Failed":
+      return "Collection failed.";
+    case "Rejected":
+      return "Collection was rejected.";
+    case "Running":
+      return "Collection is running.";
+    case "Imported":
+      return "Collection was imported.";
+    case "PartiallySucceeded":
+      return "Partially succeeded. Collection did not finish.";
+    default:
+      return status;
+  }
 }
 
 export function collectionRunStartedUtcDisplay(startedUtc: string | undefined): string {
@@ -165,9 +188,26 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
   );
 }
 
+function formatSuccessfulRunLabel(run: CollectionRun | null): string {
+  if (run === null) {
+    return "No successful run was stored.";
+  }
+
+  const finishedUtc = run.finishedUtc?.trim();
+  if (!finishedUtc) {
+    return "Last successful run finish time was not stored.";
+  }
+
+  return Number.isFinite(parseIsoUtcMs(finishedUtc))
+    ? `Last successful run ${formatRelativeTime(finishedUtc)}`
+    : "Last successful run finish time could not be read.";
+}
+
 export function CollectionAgentPageClient(): React.JSX.Element {
   const query = useCollectionRunsQuery();
   const triggerMutation = useTriggerCollectionRunMutation();
+  const queryFailure = query.isError ? toApiLoadFailure(query.error) : null;
+  const showCachedRuns = query.isRefetchError && isApiTransientLoadFailure(queryFailure);
   const runs = useMemo(() => sortCollectionRuns(query.data ?? []), [query.data]);
   const health = resolveCollectionAgentHealth(runs);
   const staleSuccessDetail = resolveCollectionAgentStaleSuccessDetail(runs);
@@ -176,24 +216,18 @@ export function CollectionAgentPageClient(): React.JSX.Element {
   const triggerFailure = triggerMutation.error === null || triggerMutation.error === undefined
     ? null
     : toApiLoadFailure(triggerMutation.error);
-  const successfulRunLabel = health.successfulRun === null
-    ? "No successful run recorded"
-    : health.successfulRun.finishedUtc === null || health.successfulRun.finishedUtc === undefined
-      ? "Last successful run finish time was not stored."
-      : `Last successful run ${formatRelativeTime(health.successfulRun.finishedUtc)}`;
+  const successfulRunLabel = formatSuccessfulRunLabel(health.successfulRun);
 
   if (query.isPending) {
     return <p className={cn("p-6", OPERATOR_TYPOGRAPHY.body)}>Loading collection runs…</p>;
   }
 
-  if (query.isError) {
-    const failure = toApiLoadFailure(query.error);
-
+  if (queryFailure !== null && !showCachedRuns) {
     return (
       <OperatorPageContainer variant="workflow" className={cn("px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
         <OperatorPageHeader title={COLLECTION_AGENT_PAGE_TITLE} subtitle="Whether scheduled collection is running and what it found." />
         <div role="alert" className="rounded-md border border-rose-300 bg-rose-50 p-4 text-rose-950 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-100">
-          {failure.message}
+          {queryFailure.message}
         </div>
       </OperatorPageContainer>
     );
@@ -208,14 +242,19 @@ export function CollectionAgentPageClient(): React.JSX.Element {
         actions={
           <button
             type="button"
-            onClick={() => void triggerMutation.mutateAsync(crypto.randomUUID())}
-            disabled={triggerMutation.isPending || activeRun !== null}
+            onClick={() => triggerMutation.mutate(crypto.randomUUID())}
+            disabled={triggerMutation.isPending || activeRun !== null || showCachedRuns}
             className="rounded border border-teal-700 bg-transparent px-3 py-2 text-sm font-medium text-teal-800 hover:bg-teal-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-teal-300 dark:text-teal-200 dark:hover:bg-teal-950"
           >
             {triggerMutation.isPending ? "Starting…" : "Run now"}
           </button>
         }
       />
+      {showCachedRuns ? (
+        <div role="alert" className="rounded-md border border-rose-300 bg-rose-50 p-4 text-rose-950 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-100">
+          Collection history could not refresh. Showing the last loaded collection runs. {queryFailure?.message}
+        </div>
+      ) : null}
       {triggerFailure !== null ? (
         <div role="alert" className="rounded-md border border-rose-300 bg-rose-50 p-4 text-rose-950 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-100">
           {triggerFailure.message}
@@ -245,7 +284,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
         <section className="space-y-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-800" aria-labelledby="collection-agent-empty-heading">
           <h2 id="collection-agent-empty-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>No collection runs yet.</h2>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Set up scheduled collection or use a package while the agent is not available.
+            No collection runs were stored. Set up scheduled collection, or upload a package.
           </p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <Link href={inAppHelpHref("cloud-connections-azure")} className={cn(OPERATOR_LINK.inline, "font-medium")}>Collection agent setup help</Link>

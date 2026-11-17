@@ -150,6 +150,23 @@ public sealed class ClientErrorTelemetryControllerTests
     }
 
     [SkippableFact]
+    public void PostClientError_context_null_value_returns_400()
+    {
+        ClientErrorTelemetryController controller = CreateController();
+
+        IActionResult result = controller.PostClientError(
+            new ClientErrorReport
+            {
+                Message = "client error",
+                Context = new Dictionary<string, string> { ["feature"] = null! }
+            });
+
+        result.Should().BeAssignableTo<ObjectResult>();
+        ObjectResult problem = (ObjectResult)result;
+        problem.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [SkippableFact]
     public void PostClientError_context_too_many_entries_returns_400()
     {
         ClientErrorTelemetryController controller = CreateController();

@@ -1,4 +1,6 @@
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const POLICY_PACKS_REVIEW_ID_QUERY_PARAM = "reviewId";
 
@@ -44,6 +46,20 @@ export function buildPolicyPacksImpactPreviewHref(
 
 export function buildPolicyPacksHrefWithReviewId(reviewId: string, hubPath?: string): string {
   return buildPolicyPacksImpactPreviewHref({ reviewId }, hubPath);
+}
+
+export function buildPolicyPacksImpactPreviewHrefForProductLine(
+  handoff: PolicyPacksImpactPreviewHandoff,
+  productLine: ProductLineId,
+): string {
+  return buildPolicyPacksImpactPreviewHref(handoff, policyPacksPathForProductLine(productLine));
+}
+
+export function buildPolicyPacksHrefWithReviewIdForProductLine(
+  reviewId: string,
+  productLine: ProductLineId,
+): string {
+  return buildPolicyPacksHrefWithReviewId(reviewId, policyPacksPathForProductLine(productLine));
 }
 
 export function resolveCompareGovernancePackImpactHandoff(

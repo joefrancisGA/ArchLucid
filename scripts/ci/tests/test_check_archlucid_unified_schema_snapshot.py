@@ -27,6 +27,29 @@ class TestCheckArchlucidUnifiedSchemaSnapshot(unittest.TestCase):
         self.assertTrue((ROOT / "scripts" / "ci" / "update_archlucid_unified_schema_snapshot.sh").is_file())
         self.assertTrue((ROOT / "scripts" / "ci" / "update_archlucid_unified_schema_snapshot.ps1").is_file())
 
+    def test_tb_066_migration_range_sorts_numerically(self) -> None:
+        import tempfile
+        from unittest import mock
+
+        generator = ROOT / "scripts" / "ci" / "build_archlucid_unified_schema_sql.py"
+        spec = importlib.util.spec_from_file_location("build_unified_schema_numeric", generator)
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            migrations = Path(tmp)
+            for name in ("001_Initial.sql", "416_LastThreeDigit.sql",
+                         "9999_Extra.sql", "10001_Later.sql", "10002_Latest.sql"):
+                (migrations / name).write_text("-- test fixture", encoding="utf-8")
+            with mock.patch.object(mod, "MIGRATIONS", migrations):
+                self.assertEqual(
+                    mod.forward_migration_numbers(),
+                    ["001", "416", "9999", "10001", "10002"],
+                )
+                self.assertIn("001_*.sql … 10002_*.sql", mod.build_header())
+
     def test_tb_066_generator_module_loads(self) -> None:
         generator = ROOT / "scripts" / "ci" / "build_archlucid_unified_schema_sql.py"
         spec = importlib.util.spec_from_file_location("build_unified_schema", generator)

@@ -10,7 +10,8 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
     private const int MaxVisibleChips = 3;
 
     public static IReadOnlyList<DiagramNsgInboundRuleChip> BuildVisibleChips(
-        IReadOnlyList<AzureInventoryNsgSecurityRule> rules)
+        IReadOnlyList<AzureInventoryNsgSecurityRule> rules,
+        bool includeMissingDestinationHonesty = false)
     {
         List<AzureInventoryNsgSecurityRule> inboundRules = rules
             .Where(IsInboundRule)
@@ -18,7 +19,28 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
         if (inboundRules.Count == 0)
         {
-            return [];
+            List<DiagramNsgInboundRuleChip> honestyOnly = [];
+
+            int outboundOnlyCount = rules.Count(rule =>
+                string.Equals(rule.Direction, "Outbound", StringComparison.OrdinalIgnoreCase));
+
+            if (outboundOnlyCount > 0)
+            {
+                honestyOnly.Add(new DiagramNsgInboundRuleChip(
+                    $"{outboundOnlyCount} outbound rules were not listed on inbound chips.",
+                    IsRisky: false));
+            }
+
+            int directionMissingOnlyCount = rules.Count(rule => string.IsNullOrWhiteSpace(rule.Direction));
+
+            if (directionMissingOnlyCount > 0)
+            {
+                honestyOnly.Add(new DiagramNsgInboundRuleChip(
+                    $"Direction was not stored for {directionMissingOnlyCount} security rules.",
+                    IsRisky: false));
+            }
+
+            return honestyOnly;
         }
 
         List<AzureInventoryNsgSecurityRule> inboundWithPriority = inboundRules
@@ -43,7 +65,7 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
         foreach (AzureInventoryNsgSecurityRule rule in inboundWithPriority.Take(MaxVisibleChips))
         {
-            chips.Add(BuildChip(rule));
+            chips.Add(BuildChip(rule, includeMissingDestinationHonesty));
         }
 
         int remainder = inboundWithPriority.Count - MaxVisibleChips;
@@ -51,7 +73,26 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         if (remainder > 0)
         {
             chips.Add(new DiagramNsgInboundRuleChip(
-                $"{remainder} more inbound rules were stored and are not listed on this chip.",
+                $"{remainder} more inbound rules were not listed on this diagram.",
+                IsRisky: false));
+        }
+
+        int outboundRuleCount = rules.Count(rule =>
+            string.Equals(rule.Direction, "Outbound", StringComparison.OrdinalIgnoreCase));
+
+        if (outboundRuleCount > 0)
+        {
+            chips.Add(new DiagramNsgInboundRuleChip(
+                $"{outboundRuleCount} outbound rules were not listed on inbound chips.",
+                IsRisky: false));
+        }
+
+        int directionMissingRuleCount = rules.Count(rule => string.IsNullOrWhiteSpace(rule.Direction));
+
+        if (directionMissingRuleCount > 0)
+        {
+            chips.Add(new DiagramNsgInboundRuleChip(
+                $"Direction was not stored for {directionMissingRuleCount} security rules.",
                 IsRisky: false));
         }
 
@@ -68,37 +109,59 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
     private static bool IsInboundRule(AzureInventoryNsgSecurityRule rule) =>
         string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase);
 
-    private static DiagramNsgInboundRuleChip BuildChip(AzureInventoryNsgSecurityRule rule)
+    private static DiagramNsgInboundRuleChip BuildChip(
+        AzureInventoryNsgSecurityRule rule,
+        bool includeMissingDestinationHonesty)
     {
-        string port = FormatPort(rule.DestinationPortRange);
+        string port = FormatPort(rule);
         string protocol = FormatProtocol(rule.Protocol);
         string source = FormatSource(rule);
-        string accessLabel = string.IsNullOrWhiteSpace(rule.Access)
+        string destination = FormatDestination(rule);
+        string ruleName = string.IsNullOrWhiteSpace(rule.RuleName)
+            ? "Rule name was not stored"
+            : rule.RuleName.Trim();
+        string access = string.IsNullOrWhiteSpace(rule.Access)
             ? "Access was not stored"
-            : string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
-                ? "Allow"
-                : $"Access: {rule.Access.Trim()}";
-        string? directionLabel = string.IsNullOrWhiteSpace(rule.Direction) ? "Direction was not stored" : null;
-        string text = directionLabel is null
-            ? $"{accessLabel} · in {port}/{protocol} · {source}"
-            : $"{accessLabel} · {directionLabel} · in {port}/{protocol} · {source}";
+            : rule.Access.Trim();
+        string text = $"in {port}/{protocol} · {source} · to {destination} · {ruleName} · {access}";
         bool risky = string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase)
             && string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
             && string.Equals(source, "Internet", StringComparison.Ordinal)
             && (port.Equals("3389", StringComparison.Ordinal)
                 || port.Equals("22", StringComparison.Ordinal)
-                || port.Equals("any", StringComparison.OrdinalIgnoreCase));
+                || port.Equals("any", StringComparison.OrdinalIgnoreCase)
+                || port.StartsWith("3389,", StringComparison.Ordinal));
 
         return new DiagramNsgInboundRuleChip(text, risky);
     }
 
-    private static string FormatPort(string? destinationPortRange)
+    private static string FormatPort(AzureInventoryNsgSecurityRule rule)
     {
-        return string.IsNullOrWhiteSpace(destinationPortRange)
-            ? "Port was not stored"
-            : destinationPortRange.Trim() == "*"
-            ? "any"
-            : destinationPortRange.Trim();
+        if (rule.DestinationPortRange is null && rule.DestinationPortRanges.Count == 0)
+        {
+            return "Port was not stored";
+        }
+
+        if (rule.DestinationPortRange is not null
+            && (rule.DestinationPortRange.Length == 0 || string.IsNullOrWhiteSpace(rule.DestinationPortRange))
+            && rule.DestinationPortRanges.Count == 0)
+        {
+            return "Destination port was stored empty";
+        }
+
+        if (!string.IsNullOrWhiteSpace(rule.DestinationPortRange))
+        {
+            string trimmed = rule.DestinationPortRange.Trim();
+
+            return trimmed == "*" ? "any" : trimmed;
+        }
+
+        if (rule.DestinationPortRanges.Count > 0)
+        {
+            return string.Join(", ", rule.DestinationPortRanges.Select(static range => range.Trim()));
+        }
+
+        return "Port was not stored";
     }
 
     private static string FormatProtocol(string? protocol)
@@ -126,9 +189,12 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
         prefix = prefix.Trim();
 
-        if (prefix == "*"
-            || prefix.Equals("Internet", StringComparison.OrdinalIgnoreCase)
-            || prefix == "0.0.0.0/0")
+        if (prefix == "*")
+        {
+            return "Any source (prefix was stored as *; not Internet).";
+        }
+
+        if (prefix.Equals("Internet", StringComparison.OrdinalIgnoreCase) || prefix == "0.0.0.0/0")
         {
             prefix = "Internet";
         }
@@ -138,6 +204,41 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
             int extra = rule.SourceAddressPrefixes.Count - 1;
 
             return $"{prefix}; {extra} other source prefixes were not listed on this chip.";
+        }
+
+        return prefix;
+    }
+
+    private static string FormatDestination(AzureInventoryNsgSecurityRule rule)
+    {
+        string? prefix = rule.DestinationAddressPrefix;
+        int extraPrefixCount = 0;
+
+        if (string.IsNullOrWhiteSpace(prefix) && rule.DestinationAddressPrefixes.Count > 0)
+        {
+            prefix = rule.DestinationAddressPrefixes[0];
+            extraPrefixCount = rule.DestinationAddressPrefixes.Count - 1;
+        }
+
+        if (string.IsNullOrWhiteSpace(prefix))
+        {
+            return "Destination was not stored";
+        }
+
+        prefix = prefix.Trim();
+
+        if (prefix == "*")
+        {
+            prefix = "Any destination";
+        }
+        else if (prefix == "0.0.0.0/0")
+        {
+            prefix = "Any IPv4 destination";
+        }
+
+        if (extraPrefixCount > 0)
+        {
+            return $"{prefix}; {extraPrefixCount} other destination prefixes were not listed on this chip.";
         }
 
         return prefix;

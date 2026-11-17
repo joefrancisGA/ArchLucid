@@ -1,0 +1,139 @@
+using ArchLucid.Core.Ask;
+using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Host.Core.Services.Ask;
+
+using FluentAssertions;
+
+namespace ArchLucid.Host.Core.Tests.Ask;
+
+[Trait("Category", "Unit")]
+public sealed class AskResponseComposerTests
+{
+    [Fact]
+    public void BuildFindingFallbackResponse_includes_citation_honesty()
+    {
+        var composer = AskServiceTestFactory.CreateResponseComposer();
+        var threadId = Guid.NewGuid();
+
+        AskResponse response = composer.BuildFindingFallbackResponse(threadId);
+
+        response.Answer.Should().Contain("Citations were not stored.");
+    }
+
+    [Fact]
+    public void Parse_returns_not_stored_when_json_answer_is_empty()
+    {
+        var composer = AskServiceTestFactory.CreateResponseComposer();
+        var threadId = Guid.NewGuid();
+
+        AskResponse response = composer.Parse(threadId, """{"answer":"   "}""");
+
+        response.Answer.Should().Be("Ask answer was not stored.");
+    }
+
+    [Fact]
+    public void Parse_returns_not_stored_for_json_without_answer_field()
+    {
+        var composer = AskServiceTestFactory.CreateResponseComposer();
+        var threadId = Guid.NewGuid();
+
+        AskResponse response = composer.Parse(threadId, """{"referencedFindings":[]}""");
+
+        response.Answer.Should().Be("Ask answer was not stored.");
+    }
+
+    [Fact]
+    public void Parse_returns_trimmed_text_when_response_is_not_json()
+    {
+        var composer = AskServiceTestFactory.CreateResponseComposer();
+        var threadId = Guid.NewGuid();
+
+        AskResponse response = composer.Parse(threadId, "  Plain text answer.  ");
+
+        response.Answer.Should().Be("This reply was not parsed as an Ask answer. Plain text answer.");
+    }
+
+    [Fact]
+    public void BuildFallbackResponse_distinguishes_empty_manifest_decisions_from_missing_manifest()
+    {
+        var composer = AskServiceTestFactory.CreateResponseComposer();
+        var threadId = Guid.NewGuid();
+
+        AskResponse emptyDecisions = composer.BuildFallbackResponse(
+            new AskPreparedContext(
+                new ConversationThread { ThreadId = threadId },
+                "question",
+                string.Empty,
+                new ManifestDocument { Decisions = [] },
+                null,
+                null,
+                null,
+                null,
+                "{}",
+                string.Empty,
+                false,
+                new ScopeContext(),
+                []));
+
+        AskResponse missingManifest = composer.BuildFallbackResponse(
+            new AskPreparedContext(
+                new ConversationThread { ThreadId = threadId },
+                "question",
+                string.Empty,
+                null,
+                null,
+                null,
+                null,
+                null,
+                "{}",
+                string.Empty,
+                false,
+                new ScopeContext(),
+                []));
+
+        emptyDecisions.Answer.Should().Contain("Manifest decisions were stored empty on this answer.");
+        missingManifest.Answer.Should().Contain("Manifest decisions were not stored on this answer.");
+    }
+
+    [Fact]
+    public void Parse_appends_citation_id_honesty_when_referenced_artifact_id_is_blank()
+    {
+        var composer = AskServiceTestFactory.CreateResponseComposer();
+        var threadId = Guid.NewGuid();
+
+        AskResponse response = composer.Parse(
+            threadId,
+            """{"answer":"Summary.","referencedArtifacts":["   "]}""");
+
+        response.Answer.Should().Contain("Citation id was not stored on this answer.");
+        response.ReferencedArtifacts.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void BuildFallbackResponse_appends_citation_honesty_on_this_answer()
+    {
+        var composer = AskServiceTestFactory.CreateResponseComposer();
+        var threadId = Guid.NewGuid();
+
+        AskResponse response = composer.BuildFallbackResponse(
+            new AskPreparedContext(
+                new ConversationThread { ThreadId = threadId },
+                "question",
+                string.Empty,
+                null,
+                null,
+                null,
+                null,
+                null,
+                "{}",
+                string.Empty,
+                false,
+                new ScopeContext(),
+                []));
+
+        response.Answer.Should().Contain("Citations were not stored on this answer.");
+    }
+}

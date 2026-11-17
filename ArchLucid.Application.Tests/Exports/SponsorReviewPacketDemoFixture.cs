@@ -186,9 +186,10 @@ internal static class SponsorReviewPacketDemoFixture
                 new SponsorReviewPacketDecisionRow
                 {
                     Title = "PHI ingress classification",
+                    Category = "Security",
                     SelectedOption = "Enforce boundary classifier before persistence",
                     ConfidenceLabel = "Rule audit (0.92)",
-                    EvidenceHref = "/governance/decision-register"
+                    EvidenceHref = string.Empty
                 }
             ],
             PortfolioSignals = new SponsorReviewPacketPortfolioSignals
@@ -200,7 +201,6 @@ internal static class SponsorReviewPacketDemoFixture
                 NextActions =
                 [
                     "Review stale PHI minimization risk in the architecture risk register.",
-                    "Confirm EA-adjusted savings assumptions with FinOps before sponsor sign-off."
                 ]
             }
         };

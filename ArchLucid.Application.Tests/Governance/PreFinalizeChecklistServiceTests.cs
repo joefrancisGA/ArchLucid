@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
@@ -69,6 +70,56 @@ public sealed class PreFinalizeChecklistServiceTests
             new TechnologyLedgerEntry
             {
                 RunId = canonicalRunId,
+                Status = TechnologyLedgerStatus.Assumed,
+                TechnologyName = "Azure SQL",
+                Role = TechnologyLedgerRole.CloudPlatform,
+                ProviderFamily = CloudProvider.Azure,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs,
+            ledger: ledgerRepository);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(dashedRunId, CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+        result.Items.Should().Contain(item =>
+            item.ItemId == "technology-baseline-assumed"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
+    }
+
+    [Fact]
+    public async Task CompareQuality_BuildAsync_marks_not_ready_when_assumed_technology_rows_use_legacy_upper_run_id_key()
+    {
+        Guid runKey = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string dashedRunId = runKey.ToString("D");
+        string legacyUpper = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runKey.ToString()).ToUpperInvariant();
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runKey,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                LegacyRunStatus = "ReadyForCommit",
+                PinnedPolicyPackIdsJson = "[]",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryTechnologyLedgerRepository ledgerRepository = new();
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = legacyUpper,
                 Status = TechnologyLedgerStatus.Assumed,
                 TechnologyName = "Azure SQL",
                 Role = TechnologyLedgerRole.CloudPlatform,
@@ -167,6 +218,58 @@ public sealed class PreFinalizeChecklistServiceTests
             item.ItemId == "evidence-linkage-gaps"
             && item.Status == PreFinalizeChecklistItemStatus.Advisory
             && item.Count == 1);
+    }
+
+    [Fact]
+    public async Task BuildAsync_treats_null_linkage_evaluate_as_advisory_not_zero_gaps()
+    {
+        string runId = Guid.NewGuid().ToString("D");
+        Finding criticalFinding = new()
+        {
+            FindingId = "finding-1",
+            FindingType = "Security",
+            Category = "Security",
+            EngineType = "Test",
+            Severity = FindingSeverity.Critical,
+            Title = "Missing encryption",
+            Rationale = "Data at rest is unencrypted.",
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = Guid.Parse(runId),
+                FindingsSnapshotId = Guid.NewGuid(),
+            });
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(s => s.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot { Findings = [criticalFinding] });
+
+        Mock<IFindingEvidenceLinkageFindingEngine> linkage = new();
+        var sequence = new MockSequence();
+        linkage.InSequence(sequence)
+            .Setup(e => e.Evaluate(It.IsAny<string>(), It.IsAny<IReadOnlyList<Finding>>()))
+            .Returns([]);
+        linkage.InSequence(sequence)
+            .Setup(e => e.Evaluate(It.IsAny<string>(), It.IsAny<IReadOnlyList<Finding>>()))
+            .Returns((IReadOnlyList<Finding>)null!);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs.Object,
+            findingsSnapshotRepository: snapshots.Object,
+            linkageEngine: linkage.Object);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        PreFinalizeChecklistItem linkageItem = result.Items.Should().ContainSingle(item =>
+            item.ItemId == "evidence-linkage-gaps").Subject;
+
+        linkageItem.Status.Should().Be(PreFinalizeChecklistItemStatus.Advisory);
+        linkageItem.Detail.Should().Contain("was not returned");
     }
 
     [Fact]

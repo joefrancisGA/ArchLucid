@@ -10,12 +10,13 @@ import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SPONSOR_KPI_DRILL_THROUGH } from "@/lib/sponsor-kpi-drill-through-hrefs";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { AMOUNT_NOT_RETURNED } from "@/lib/amount-display-copy";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { presentSponsorKpiCount } from "@/lib/sponsor/sponsor-roi-kpi-display";
 
 function formatOrphanSavingsUsd(value: number | null | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "Amount not returned";
+    return AMOUNT_NOT_RETURNED;
   }
 
   return new Intl.NumberFormat(undefined, {

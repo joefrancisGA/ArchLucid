@@ -82,7 +82,7 @@ export function useSignedRecordsListFilters(options: {
   }, [urlDateRange, urlFromUtc, urlToUtc]);
 
   useEffect(() => {
-    if (urlDateRange !== null) {
+    if (urlDateRange !== null || (fromUtc === urlFromUtc && toUtc === urlToUtc)) {
       return;
     }
 
@@ -100,13 +100,17 @@ export function useSignedRecordsListFilters(options: {
     return () => {
       window.clearTimeout(handle);
     };
-  }, [fromUtc, router, searchParams, toUtc, urlDateRange]);
+  }, [fromUtc, router, searchParams, toUtc, urlDateRange, urlFromUtc, urlToUtc]);
 
   useEffect(() => {
     setSearchQuery(urlSearchQuery);
   }, [urlSearchQuery]);
 
   useEffect(() => {
+    if (searchQuery.trim() === urlSearchQuery.trim()) {
+      return;
+    }
+
     const handle = window.setTimeout(() => {
       const nextHref = signedRecordsListSearchHrefFromSearch(searchParams.toString(), searchQuery);
       const withCursorCleared = signedRecordsListClearCursorHrefFromSearch(
@@ -121,7 +125,7 @@ export function useSignedRecordsListFilters(options: {
     return () => {
       window.clearTimeout(handle);
     };
-  }, [router, searchParams, searchQuery]);
+  }, [router, searchParams, searchQuery, urlSearchQuery]);
 
   const clearLocalFilters = useCallback(() => {
     setSearchQuery("");

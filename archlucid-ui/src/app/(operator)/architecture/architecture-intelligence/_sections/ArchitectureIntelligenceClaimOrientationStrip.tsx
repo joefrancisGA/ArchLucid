@@ -3,6 +3,7 @@
 import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 import {
@@ -12,13 +13,14 @@ import {
 
 /** Claim discipline + Sources index for Architecture intelligence (AIN). */
 export function ArchitectureIntelligenceClaimOrientationStrip(): React.JSX.Element {
+  const { productLine } = useProductLine();
   const { isWorkingMode } = useWorkspaceMode();
 
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="architecture-intelligence"
       sourcesIntro={ARCHITECTURE_INTELLIGENCE_SOURCES_INTRO}
-      sources={buildArchitectureIntelligenceSources(isWorkingMode)}
+      sources={buildArchitectureIntelligenceSources(isWorkingMode, productLine)}
     />
   );
 }

@@ -1,8 +1,12 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { OnboardingSampleReviewShortcut } from "@/components/usability/OnboardingSampleReviewShortcut";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+
+vi.mock("@/lib/live-operator-shell-recovery", () => ({
+  isLiveOperatorShellRecoveryContext: () => false,
+}));
 
 describe("OnboardingSampleReviewShortcut", () => {
   it("links to the curated static demo review", () => {
@@ -10,5 +14,6 @@ describe("OnboardingSampleReviewShortcut", () => {
 
     const link = screen.getByRole("link", { name: "Open sample review" });
     expect(link).toHaveAttribute("href", `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`);
+    expect(screen.getByTestId("onboarding-sample-sealed-package-checklist")).toBeInTheDocument();
   });
 });

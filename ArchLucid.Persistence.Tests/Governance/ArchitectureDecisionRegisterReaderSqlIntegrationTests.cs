@@ -33,6 +33,51 @@ public sealed class ArchitectureDecisionRegisterReaderSqlIntegrationTests(SqlSer
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
+        // A run can have only one active manifest. Seed separate valid authority
+        // chains so the ordering/filtering assertion exercises three rows.
+        await SeedManifestForDecisionAsync(
+            connection,
+            Guid.NewGuid(),
+            new DateTime(2026, 8, 26, 12, 0, 0, DateTimeKind.Utc),
+            "Cost",
+            "cost-newest");
+
+        await SeedManifestForDecisionAsync(
+            connection,
+            Guid.NewGuid(),
+            new DateTime(2026, 8, 25, 12, 0, 0, DateTimeKind.Utc),
+            "Cost",
+            "cost-middle");
+
+        await SeedManifestForDecisionAsync(
+            connection,
+            Guid.NewGuid(),
+            new DateTime(2026, 8, 24, 12, 0, 0, DateTimeKind.Utc),
+            "Security",
+            "security-oldest");
+
+        ArchitectureDecisionRegisterReader reader = new(factory);
+
+        IReadOnlyList<ArchitectureDecisionRegisterEntry> decisions = await reader.ListAsync(
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            maxRows: 2,
+            new ArchitectureDecisionRegisterQueryOptions { Category = "Security" },
+            CancellationToken.None);
+
+        decisions.Should().ContainSingle();
+        decisions[0].DecisionId.Should().Be("security-oldest");
+        decisions[0].Category.Should().Be("Security");
+    }
+
+    private static async Task SeedManifestForDecisionAsync(
+        SqlConnection connection,
+        Guid manifestId,
+        DateTime createdUtc,
+        string category,
+        string decisionId)
+    {
         Guid runId = Guid.NewGuid();
         Guid contextId = Guid.NewGuid();
         Guid graphId = Guid.NewGuid();
@@ -52,10 +97,6 @@ public sealed class ArchitectureDecisionRegisterReaderSqlIntegrationTests(SqlSer
             "decision-register-filter-order",
             CancellationToken.None);
 
-        Guid newestCostManifestId = Guid.NewGuid();
-        Guid middleCostManifestId = Guid.NewGuid();
-        Guid oldestSecurityManifestId = Guid.NewGuid();
-
         await InsertManifestWithDecisionAsync(
             connection,
             runId,
@@ -63,48 +104,10 @@ public sealed class ArchitectureDecisionRegisterReaderSqlIntegrationTests(SqlSer
             graphId,
             findingsId,
             traceId,
-            newestCostManifestId,
-            new DateTime(2026, 8, 26, 12, 0, 0, DateTimeKind.Utc),
-            "Cost",
-            "cost-newest");
-
-        await InsertManifestWithDecisionAsync(
-            connection,
-            runId,
-            contextId,
-            graphId,
-            findingsId,
-            traceId,
-            middleCostManifestId,
-            new DateTime(2026, 8, 25, 12, 0, 0, DateTimeKind.Utc),
-            "Cost",
-            "cost-middle");
-
-        await InsertManifestWithDecisionAsync(
-            connection,
-            runId,
-            contextId,
-            graphId,
-            findingsId,
-            traceId,
-            oldestSecurityManifestId,
-            new DateTime(2026, 8, 24, 12, 0, 0, DateTimeKind.Utc),
-            "Security",
-            "security-oldest");
-
-        ArchitectureDecisionRegisterReader reader = new(factory);
-
-        IReadOnlyList<ArchitectureDecisionRegisterEntry> decisions = await reader.ListAsync(
-            TenantId,
-            WorkspaceId,
-            ProjectId,
-            maxRows: 2,
-            new ArchitectureDecisionRegisterQueryOptions { Category = "Security" },
-            CancellationToken.None);
-
-        decisions.Should().ContainSingle();
-        decisions[0].DecisionId.Should().Be("security-oldest");
-        decisions[0].Category.Should().Be("Security");
+            manifestId,
+            createdUtc,
+            category,
+            decisionId);
     }
 
     private static async Task InsertManifestWithDecisionAsync(

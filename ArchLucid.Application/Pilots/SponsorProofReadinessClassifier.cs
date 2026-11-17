@@ -13,6 +13,10 @@ public static class SponsorProofReadinessClassifier
     /// </summary>
     internal const string ComparativeBaselineNarrativeSoftGapToken = "ROI comparative narrative";
 
+    internal static string FormatComparativeBaselineBuyerSafeGateSoftGapLine() =>
+        FormattableString.Invariant(
+            $"{ComparativeBaselineNarrativeSoftGapToken} uses **partial / default** baseline posture (see **ROI evidence completeness** section) — avoid customer-specific dollar claims.");
+
     public static SponsorProofReadinessClassification Classify(PilotRunDeltas deltas, PilotBuyerSafeEvidenceGateResult gate)
     {
         ArgumentNullException.ThrowIfNull(deltas);
@@ -30,15 +34,51 @@ public static class SponsorProofReadinessClassifier
         if (gate.ProofSendability is not ProofPackageSendability.SendableWithCaveats)
             throw new ArgumentOutOfRangeException(nameof(gate), gate.ProofSendability, "Unexpected proof sendability.");
 
-        if (gate.SoftGaps.Count > 0 && gate.SoftGaps.All(IsComparativeBaselineSoftGap))
+        if (gate.SoftGaps.Count > 0 && gate.SoftGaps.All(IsBaselineFamilySoftGap))
             return SponsorProofReadinessClassification.NeedsBaseline;
 
         return SponsorProofReadinessClassification.Incomplete;
 
     }
 
-    private static bool IsComparativeBaselineSoftGap(string message) =>
-        message.Contains(ComparativeBaselineNarrativeSoftGapToken, StringComparison.OrdinalIgnoreCase);
+    /// <summary>
+    ///     Single markdown cell for sponsor-proof readiness across proof checklist, sponsor-safe status, and evidence card.
+    ///     Uses live gate classification when <paramref name="gate"/> is present; otherwise parses the proof DTO string.
+    /// </summary>
+    public static string FormatMarkdownTableCell(
+        PilotRunDeltas deltas,
+        PilotBuyerSafeEvidenceGateResult? gate,
+        string? sponsorProofReadinessFromProof)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        if (gate is not null)
+            return DescribeForMarkdownTable(Classify(deltas, gate));
+
+        return PilotSponsorProofReadinessUnresolvedHonestyCopy.FormatProofPackageCell(sponsorProofReadinessFromProof);
+    }
+
+    /// <summary>
+    ///     Soft gaps that share the same root cause as a weak comparative ROI baseline
+    ///     (narrative, confidence band, and projected-dollar sponsor-safety).
+    /// </summary>
+    private static bool IsBaselineFamilySoftGap(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+            return false;
+
+        if (message.Contains(ComparativeBaselineNarrativeSoftGapToken, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (message.Contains(
+                PilotRoiEvidenceConfidenceHonestyCopy.PartialOrLowSponsorWordingPlain,
+                StringComparison.Ordinal))
+            return true;
+
+        return message.Contains(
+            PilotProjectedDollarClaimsSponsorSafeHonestyCopy.NoPlain,
+            StringComparison.Ordinal);
+    }
 
     public static string DescribeForMarkdownTable(SponsorProofReadinessClassification classification) =>
         classification switch

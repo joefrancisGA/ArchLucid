@@ -29,6 +29,8 @@ import {
   workspaceAiAvailableDetail,
   workspaceAiUnavailableDetail,
 } from "@/lib/workspace-ai-availability";
+import { ARCHLUCID_HOSTED_SAAS_OPENAI_COPY } from "@/lib/getting-started-help-guide-content";
+import { ARCH_WORKSPACE_WARN_ONLY_FINALIZE_SHORT } from "@/lib/reviews/architecture-warn-only-finalize-copy";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -555,6 +557,15 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
       )}
       data-testid="review-package-workspace-ai-availability-panel"
     >
+      <p
+        className={cn("m-0 mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="workspace-ai-hosted-openai-discipline"
+      >
+        {ARCHLUCID_HOSTED_SAAS_OPENAI_COPY}
+      </p>
+      <p className={cn("m-0 mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="workspace-ai-warn-only-finalize">
+        {ARCH_WORKSPACE_WARN_ONLY_FINALIZE_SHORT}
+      </p>
       {scopingLabel !== null && scopingLabel !== undefined && scopingLabel.trim().length > 0 ? (
         <p className={cn("m-0 mb-2 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
           {scopingLabel}

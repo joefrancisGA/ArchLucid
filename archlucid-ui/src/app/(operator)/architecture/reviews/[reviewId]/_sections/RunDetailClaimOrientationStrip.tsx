@@ -3,6 +3,7 @@
 import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
@@ -20,6 +21,7 @@ export type RunDetailClaimOrientationStripProps = {
 export function RunDetailClaimOrientationStrip(
   props: RunDetailClaimOrientationStripProps,
 ): React.JSX.Element {
+  const { productLine } = useProductLine();
   const { isWorkingMode } = useWorkspaceMode();
 
   return (
@@ -29,7 +31,10 @@ export function RunDetailClaimOrientationStrip(
       sourcesTestId="review-detail-sources"
       sourcesTitle={REVIEW_WORKSPACE_FOLLOW_UPS_TITLE}
       sourcesIntro={REVIEW_WORKSPACE_SOURCES_INTRO}
-      sources={buildReviewWorkspaceSources(props.runId, props.architectureId, { workingMode: isWorkingMode })}
+      sources={buildReviewWorkspaceSources(props.runId, props.architectureId, {
+        workingMode: isWorkingMode,
+        productLine,
+      })}
       hubSecondary
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />

@@ -1,5 +1,8 @@
 import { RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL } from "@/lib/responsible-ai-policy-pack-detail-content";
-import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_POLICY_PACKS_PATH,
+  governancePolicyPackDetailPath,
+} from "@/lib/governance/governance-route-paths";
 import { resolveSampleScenarioByPolicyPackId } from "@/lib/samples/registry";
 
 /**
@@ -23,32 +26,44 @@ export function policyPackBuyerLabel(ruleSetId: string, ruleSetVersion: string):
     return ver.length === 0 ? `${id} · version not recorded` : id;
   }
 
+  if (ver.length > 0) {
+    return "Policy pack id was not stored.";
+  }
+
   return "Policy pack not recorded";
 }
 
 /**
  * When the manifest references a pack we route with a sponsor narrative, return that governance detail path.
  */
-export function policyPackBuyerGovernanceDetailHref(ruleSetId: string): string | null {
+export function policyPackBuyerGovernanceDetailHref(
+  ruleSetId: string,
+  hubPath: string = GOVERNANCE_POLICY_PACKS_PATH,
+): string | null {
   const scenario = resolveSampleScenarioByPolicyPackId(ruleSetId);
+  const detailHref = scenario?.policyPackDetailHref ?? (
+    ruleSetId.trim() === "1" || ruleSetId.trim() === "ai-governance-responsible-ai-v1"
+      ? governancePolicyPackDetailPath("1")
+      : null
+  );
 
-  if (scenario !== null) {
-    return scenario.policyPackDetailHref;
+  if (detailHref === null || hubPath === GOVERNANCE_POLICY_PACKS_PATH) {
+    return detailHref;
   }
 
-  const id = ruleSetId.trim();
-
-  if (id === "1" || id === "ai-governance-responsible-ai-v1") {
-    return governancePolicyPackDetailPath("1");
-  }
-
-  return null;
+  return detailHref.replace(GOVERNANCE_POLICY_PACKS_PATH, hubPath);
 }
 
 export function policyPackBuyerDisplayNameFromId(policyPackId: string): string | null {
+  const scenario = resolveSampleScenarioByPolicyPackId(policyPackId);
+
+  if (scenario !== null) {
+    return scenario.policyPackDisplayLabel;
+  }
+
   const id = policyPackId.trim();
 
-  if (id === "1" || id.includes("responsible-ai") || id.includes("ai-governance")) {
+  if (id === "1" || id === "ai-governance-responsible-ai-v1") {
     return RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL;
   }
 

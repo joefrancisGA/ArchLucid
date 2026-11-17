@@ -93,6 +93,19 @@ describe("RemediationPatternsClient", () => {
     routerReplaceMock.mockClear();
   });
 
+  it("keeps bookmarked pattern and version selections while the registry loads", () => {
+    const patternId = "11111111-1111-1111-1111-111111111111";
+    searchParams = new URLSearchParams({ patternId, version: "1.0.0" });
+    mockListQuery({ data: undefined, isLoading: true, isFetching: true, isSuccess: false });
+    mockDetailQuery({ data: undefined, isLoading: true, isFetching: true });
+
+    render(<RemediationPatternsClient />);
+
+    expect(screen.getByTestId("remediation-patterns-loading")).toBeInTheDocument();
+    expect(screen.queryByTestId("remediation-pattern-detail-section")).toBeInTheDocument();
+    expect(routerReplaceMock).not.toHaveBeenCalled();
+  });
+
   it("clears selected pattern when registry filter hides the selected row", () => {
     const approvedPatternId = "11111111-1111-1111-1111-111111111111";
 

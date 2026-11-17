@@ -335,10 +335,27 @@ internal static class TenantScopedSqlExpressionResolver
 
         ResolutionResult? fromInitializer = TryResolveFromDeclaratorInitializer(symbol, semanticModel);
         ResolutionResult? fromAssignment = TryResolveFromSimpleAssignments(symbol, semanticModel);
+
+        if (fromAssignment is not null &&
+            fromInitializer is { IsStaticallyResolved: true, SqlText: "" or null, BranchSqlTexts.Count: 0 })
+        {
+            return fromAssignment;
+        }
+
         ResolutionResult? merged = MergeBranchResolutions(fromInitializer, fromAssignment);
 
         if (merged is not null)
             return merged;
+
+        ResolutionResult? fromPrimaryConstructor = TryResolveFromPrimaryConstructorParameterDefault(symbol, semanticModel);
+
+        if (fromPrimaryConstructor is not null)
+            return fromPrimaryConstructor;
+
+        ResolutionResult? fromLocalFunctionParameter = TryResolveFromLocalFunctionParameterCallSites(symbol, semanticModel);
+
+        if (fromLocalFunctionParameter is not null)
+            return fromLocalFunctionParameter;
 
         if (expression is MemberAccessExpressionSyntax member &&
             (string.Equals(member.Name.Identifier.Text, "ScopeWhereClause", StringComparison.Ordinal) ||
@@ -380,6 +397,175 @@ internal static class TenantScopedSqlExpressionResolver
         }
 
         return null;
+    }
+
+    private static ResolutionResult? TryResolveFromPrimaryConstructorParameterDefault(
+        ISymbol? symbol,
+        SemanticModel semanticModel)
+    {
+        if (symbol is not IPropertySymbol property)
+            return null;
+
+        INamedTypeSymbol? containingType = property.ContainingType;
+
+        if (containingType is null || !containingType.IsRecord)
+            return null;
+
+        foreach (SyntaxReference syntaxReference in containingType.DeclaringSyntaxReferences)
+        {
+            if (syntaxReference.GetSyntax() is not RecordDeclarationSyntax recordDeclaration)
+                continue;
+
+            ParameterListSyntax? parameterList = recordDeclaration.ParameterList;
+
+            if (parameterList is null)
+                continue;
+
+            for (int parameterIndex = 0; parameterIndex < parameterList.Parameters.Count; parameterIndex++)
+            {
+                ParameterSyntax parameter = parameterList.Parameters[parameterIndex];
+
+                if (!string.Equals(parameter.Identifier.Text, property.Name, StringComparison.Ordinal))
+                    continue;
+
+                if (parameter.Default?.Value is ExpressionSyntax defaultExpression)
+                {
+                    SemanticModel modelForSyntax = GetSemanticModelForSyntax(parameter, semanticModel);
+
+                    return ResolveCore(defaultExpression, modelForSyntax, visitingInterpolatedHole: false);
+                }
+
+                ResolutionResult? fromThisInitializer = TryResolveFromRecordThisConstructorArgument(
+                    recordDeclaration,
+                    parameterIndex,
+                    semanticModel);
+
+                if (fromThisInitializer is not null)
+                    return fromThisInitializer;
+
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    private static ResolutionResult? TryResolveFromRecordThisConstructorArgument(
+        RecordDeclarationSyntax recordDeclaration,
+        int parameterIndex,
+        SemanticModel semanticModel)
+    {
+        foreach (MemberDeclarationSyntax member in recordDeclaration.Members)
+        {
+            if (member is not ConstructorDeclarationSyntax constructorDeclaration)
+                continue;
+
+            if (constructorDeclaration.Initializer is not ConstructorInitializerSyntax initializer ||
+                !initializer.IsKind(SyntaxKind.ThisConstructorInitializer))
+            {
+                continue;
+            }
+
+            SeparatedSyntaxList<ArgumentSyntax> arguments = initializer.ArgumentList!.Arguments;
+
+            if (parameterIndex >= arguments.Count)
+                continue;
+
+            ExpressionSyntax argumentExpression = arguments[parameterIndex].Expression;
+            SemanticModel modelForSyntax = GetSemanticModelForSyntax(argumentExpression, semanticModel);
+
+            if (argumentExpression is InvocationExpressionSyntax constructorArgumentInvocation &&
+                TryResolveFromMethodInvocation(
+                    constructorArgumentInvocation,
+                    modelForSyntax,
+                    out ResolutionResult methodResolution,
+                    allowParameterizedCallee: true) &&
+                (methodResolution.IsStaticallyResolved ||
+                 methodResolution.BranchSqlTexts.Count > 0 ||
+                 methodResolution.HasScopeHelperInvocation))
+            {
+                return methodResolution;
+            }
+
+            return ResolveCore(argumentExpression, modelForSyntax, visitingInterpolatedHole: false);
+        }
+
+        return null;
+    }
+
+    private static ResolutionResult? TryResolveFromLocalFunctionParameterCallSites(
+        ISymbol? symbol,
+        SemanticModel semanticModel)
+    {
+        if (symbol is not IParameterSymbol parameter)
+            return null;
+
+        SyntaxReference? syntaxReference = parameter.DeclaringSyntaxReferences.FirstOrDefault();
+
+        if (syntaxReference?.GetSyntax() is not ParameterSyntax parameterSyntax)
+            return null;
+
+        LocalFunctionStatementSyntax? localFunction = parameterSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
+
+        if (localFunction is null)
+            return null;
+
+        int parameterIndex = localFunction.ParameterList.Parameters.IndexOf(
+            candidate => string.Equals(candidate.Identifier.Text, parameter.Name, StringComparison.Ordinal));
+
+        if (parameterIndex < 0)
+            return null;
+
+        BlockSyntax? enclosingBlock = localFunction.FirstAncestorOrSelf<BlockSyntax>();
+
+        if (enclosingBlock is null)
+            return null;
+
+        SemanticModel modelForBlock = GetSemanticModelForSyntax(enclosingBlock, semanticModel);
+
+        if (semanticModel.GetDeclaredSymbol(localFunction) is not IMethodSymbol localFunctionSymbol)
+            return null;
+
+        string? resolvedSql = null;
+        int matchingCallSiteCount = 0;
+
+        foreach (InvocationExpressionSyntax invocation in enclosingBlock.DescendantNodes().OfType<InvocationExpressionSyntax>())
+        {
+            if (!SymbolEqualityComparer.Default.Equals(
+                    semanticModel.GetSymbolInfo(invocation).Symbol,
+                    localFunctionSymbol))
+            {
+                continue;
+            }
+
+            Microsoft.CodeAnalysis.Operations.IArgumentOperation? boundArgument =
+                (modelForBlock.GetOperation(invocation) as Microsoft.CodeAnalysis.Operations.IInvocationOperation)?.Arguments
+                    .FirstOrDefault(argument => SymbolEqualityComparer.Default.Equals(argument.Parameter, parameter));
+
+            if (boundArgument is null || boundArgument.IsImplicit || boundArgument.Value.Syntax is not ExpressionSyntax argumentExpression)
+                return null;
+            ResolutionResult argumentResolution = ResolveCore(
+                argumentExpression,
+                modelForBlock,
+                visitingInterpolatedHole: false);
+
+            if (!argumentResolution.IsStaticallyResolved || argumentResolution.SqlText is null)
+                return null;
+
+            if (resolvedSql is not null &&
+                !string.Equals(resolvedSql, argumentResolution.SqlText, StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            resolvedSql = argumentResolution.SqlText;
+            matchingCallSiteCount++;
+        }
+
+        if (matchingCallSiteCount == 0 || resolvedSql is null)
+            return null;
+
+        return new ResolutionResult(resolvedSql, true, false);
     }
 
     /// <summary>
@@ -644,6 +830,9 @@ internal static class TenantScopedSqlExpressionResolver
         if (ReferenceEquals(syntax.SyntaxTree, semanticModel.SyntaxTree))
             return semanticModel;
 
+        if (!semanticModel.Compilation.ContainsSyntaxTree(syntax.SyntaxTree))
+            return semanticModel;
+
         return semanticModel.Compilation.GetSemanticModel(syntax.SyntaxTree, ignoreAccessibility: false);
     }
 
@@ -691,14 +880,16 @@ internal static class TenantScopedSqlExpressionResolver
     private static bool TryResolveFromMethodInvocation(
         InvocationExpressionSyntax invocation,
         SemanticModel semanticModel,
-        out ResolutionResult result)
+        out ResolutionResult result,
+        bool allowParameterizedCallee = false)
     {
         result = null!;
 
         if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
             return false;
 
-        if (method.Parameters.Length > 0 || invocation.ArgumentList.Arguments.Count > 0)
+        if (!allowParameterizedCallee &&
+            (method.Parameters.Length > 0 || invocation.ArgumentList.Arguments.Count > 0))
             return false;
 
         SyntaxReference? syntaxReference = method.DeclaringSyntaxReferences.FirstOrDefault();

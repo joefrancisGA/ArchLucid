@@ -16,4 +16,13 @@ describe("resolveClarificationFollowUpHref", () => {
     expect(url.searchParams.get("priorRunId")).toBe("dddddddddddddddddddddddddddddddd");
     expect(url.searchParams.get("clarificationQuestionId")).toBe("abc123def4567890");
   });
+
+  it("omits blank review id from rerun handoff params (P-18)", () => {
+    expect(
+      resolveClarificationFollowUpHref({
+        runId: "   ",
+        priorRunId: null,
+      }),
+    ).toBeNull();
+  });
 });

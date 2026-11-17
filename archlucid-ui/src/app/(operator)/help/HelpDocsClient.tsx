@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useHelpDocsIndexQuery } from "@/hooks/use-help-docs-index-query";
 import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+import { resolveHelpDocsStaticEntries } from "@/lib/help/help-docs-static-entries";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
 import {
@@ -27,54 +29,6 @@ const CATEGORY_ORDER = [
   "API",
   "Go-to-Market",
 ] as const;
-
-/** Default reference links so Help always has content before /doc-index.json loads. */
-const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
-  {
-    title: "Choose your next step",
-    summary: "Path chooser — evaluate, mid-pilot recovery, procurement, sponsor output, or engineering support.",
-    category: "Getting Started",
-    url: "/help/choose-your-next-step",
-  },
-  { title: "Home (pilot)", summary: "Pilot checklist and recent reviews.", category: "Getting Started", url: "/" },
-  {
-    title: "New architecture request",
-    summary: "Start a guided architecture review request.",
-    category: "Getting Started",
-    url: "/architecture/reviews/new",
-  },
-  { title: "Reviews list", summary: "Browse reviews for the workspace.", category: "Operations", url: "/architecture/reviews" },
-  {
-    title: "Findings queue",
-    summary: "Review findings across reviews and policy signals.",
-    category: "Operations",
-    url: "/governance/findings",
-  },
-  {
-    title: "Policy packs",
-    summary: "Declarative policy bundles for review.",
-    category: "Security",
-    url: "/governance/policy-packs",
-  },
-  {
-    title: "Indexed search",
-    summary: "Search reviews, findings, and related records where enabled.",
-    category: "Operations",
-    url: "/insights/search-review-evidence",
-  },
-  {
-    title: "Troubleshooting",
-    summary: "Symptom-first architect triage for Home, reviews, exports, and permissions.",
-    category: "Operations",
-    url: "/help/troubleshooting",
-  },
-  {
-    title: "Admin diagnostics",
-    summary: "System status, readiness rows, and observability signals.",
-    category: "Operations",
-    url: "/help/admin-diagnostics",
-  },
-];
 
 function helpDocCategoryDomId(category: string): string {
   return `help-cat-${slugifyHelpHeading(category)}`;
@@ -142,20 +96,21 @@ function normalizeDocIndexUrlForDedupe(url: string): string {
 }
 
 function helpDocLinkHref(url: string): string {
-  const trimmed = url.trim();
-
-  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("//")) {
-    return normalizeDocIndexUrlForDedupe(trimmed);
-  }
-
-  return trimmed;
+  return url.trim();
 }
 
 function docIndexFetchedUrlHasDeepLinkSuffix(url: string): boolean {
   const trimmed = url.trim();
 
   if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("//")) {
-    return false;
+    try {
+      const schemeRelative = trimmed.startsWith("//");
+      const parsed = new URL(schemeRelative ? `https:${trimmed}` : trimmed);
+
+      return parsed.hash.length > 0;
+    } catch {
+      return trimmed.includes("#");
+    }
   }
 
   return trimmed.includes("?") || trimmed.includes("#");
@@ -184,6 +139,17 @@ function docIndexMergeDedupeKey(url: string): string {
   return normalizeDocIndexUrlForDedupe(url);
 }
 
+function mergedIncludesDeepLinkVariantForKey(
+  merged: readonly DocIndexEntry[],
+  mergeDedupeKey: string,
+): boolean {
+  return merged.some(
+    (row) =>
+      docIndexMergeDedupeKey(row.url) === mergeDedupeKey
+      && docIndexFetchedUrlHasDeepLinkSuffix(row.url),
+  );
+}
+
 function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEntry[] | null): DocIndexEntry[] {
   if (fetched === null || fetched.length === 0) {
     return [...staticRows];
@@ -205,7 +171,8 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
     const duplicateNormalizedPath =
       mergeDedupeKey !== "/help"
       && claimedUrls.has(mergeDedupeKey)
-      && !docIndexFetchedUrlHasDeepLinkSuffix(e.url);
+      && !docIndexFetchedUrlHasDeepLinkSuffix(e.url)
+      && !mergedIncludesDeepLinkVariantForKey(merged, mergeDedupeKey);
 
     if (seenKeys.has(k) || duplicateNormalizedPath) {
       continue;
@@ -234,7 +201,9 @@ function helpDocCategoriesForDisplay(grouped: Map<string, DocIndexEntry[]>): str
 export function HelpDocsClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { productLine } = useProductLine();
   const { localize } = useLocalizedProductCopy();
+  const helpDocsStaticEntries = useMemo(() => resolveHelpDocsStaticEntries(productLine), [productLine]);
   const currentSearch = searchParams.toString();
   const urlQuery = parseHelpHubSearchQuery(searchParams.get("q"));
   const indexQuery = useHelpDocsIndexQuery();
@@ -275,10 +244,10 @@ export function HelpDocsClient() {
   const indexRefreshWarning = loadError ?? emptyIndexWarning;
   const entries = indexQuery.isPending
     ? null
-    : mergeDocIndex(HELP_DOCS_STATIC_ENTRIES, indexQuery.data ?? null);
+    : mergeDocIndex(helpDocsStaticEntries, indexQuery.data ?? null);
 
   /** Same reference while `entries` is null — avoids a new array reference every render before fetch settles. */
-  const mergedEntries = useMemo(() => entries ?? [...HELP_DOCS_STATIC_ENTRIES], [entries]);
+  const mergedEntries = useMemo(() => entries ?? [...helpDocsStaticEntries], [entries, helpDocsStaticEntries]);
 
   const filtered = useMemo(() => {
     const q = normalizeHelpHubFilterQuery(query);

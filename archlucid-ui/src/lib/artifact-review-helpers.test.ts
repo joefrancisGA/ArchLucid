@@ -113,7 +113,7 @@ describe("getArtifactFormatLabel", () => {
   });
 
   it("preserves an explicitly stored empty format", () => {
-    expect(getArtifactFormatLabel("")).toBe("");
+    expect(getArtifactFormatLabel("")).toBe("Artifact format was stored empty.");
   });
 
   it("explains when the format was not stored", () => {
@@ -128,7 +128,7 @@ describe("getArtifactTypeLabel", () => {
   });
 
   it("splits unknown PascalCase", () => {
-    expect(getArtifactTypeLabel("FooBar")).toBe("Foo Bar");
+    expect(getArtifactTypeLabel("FooBar")).toBe("Artifact type FooBar has no reviewer label.");
   });
 });
 

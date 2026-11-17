@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 
 import {
   buildAdvisoryScheduleCronExpression,
@@ -36,6 +36,12 @@ import {
 
 import type { AdvisoryScheduleCreateFormProps } from "./advisory-schedule-create-form-props";
 
+const PENDING_PRESET_PREVIEW: AdvisorySchedulePreviewState = {
+  ...EMPTY_ADVISORY_SCHEDULE_PREVIEW,
+  loading: true,
+  isValid: false,
+};
+
 export function useAdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "/governance/advisory-scans";
@@ -43,7 +49,6 @@ export function useAdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormP
   const urlAdvancedOpen = parseAdvisorySchedulesAdvancedOpenFromSearch(searchParams.get("advanced"));
   const [form, setForm] = useState<AdvisoryScheduleFormState>(() => createDefaultAdvisoryScheduleFormState());
   const [advancedOpen, setAdvancedOpenState] = useState(urlAdvancedOpen);
-  const [preview, setPreview] = useState<AdvisorySchedulePreviewState>(EMPTY_ADVISORY_SCHEDULE_PREVIEW);
   const [customCronValid, setCustomCronValid] = useState(false);
   const ianaOptions = useMemo(() => getIanaTimeZoneSelectOptions(), []);
   const mutationDisabledHintId = "advisory-schedule-create-mutate-disabled-hint";
@@ -74,13 +79,33 @@ export function useAdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormP
     setAdvancedOpenState(parseAdvisorySchedulesAdvancedOpenFromSearch(searchParams.get("advanced")));
   }, [searchParams]);
 
+  // A new useRouter/useSearchParams wrapper can recreate syncAdvancedToUrl
+  // without a new reset request. Rebuilding the form object in that case
+  // caused an unbounded render/effect cycle (and potential worker OOM).
+  const handledFormResetKeyRef = useRef<number | null>(null);
   useEffect(() => {
+    if (handledFormResetKeyRef.current === props.formResetKey) {
+      return;
+    }
+
+    handledFormResetKeyRef.current = props.formResetKey;
     setForm(createDefaultAdvisoryScheduleFormState());
     setAdvancedOpenState(false);
     syncAdvancedToUrl(false);
   }, [props.formResetKey, syncAdvancedToUrl]);
 
   const cronExpression = useMemo(() => buildAdvisoryScheduleCronExpression(form), [form]);
+  const presetPreviewInput = useMemo(
+    () => form.frequency === "custom" ? null : { cronExpression, timeZoneId: form.timeZoneId },
+    [cronExpression, form.frequency, form.timeZoneId],
+  );
+  const [loadedPreview, setLoadedPreview] = useState<{
+    input: NonNullable<typeof presetPreviewInput>;
+    preview: AdvisorySchedulePreviewState;
+  } | null>(null);
+  const preview = presetPreviewInput === null
+    ? EMPTY_ADVISORY_SCHEDULE_PREVIEW
+    : loadedPreview?.input === presetPreviewInput ? loadedPreview.preview : PENDING_PRESET_PREVIEW;
   const suggestedName = useMemo(
     () => suggestedAdvisoryScheduleName(form, props.projectLabel),
     [form, props.projectLabel],
@@ -91,29 +116,22 @@ export function useAdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormP
 
   useEffect(() => {
     if (form.frequency === "custom") {
-      setPreview(EMPTY_ADVISORY_SCHEDULE_PREVIEW);
       setCustomCronValid(false);
     }
   }, [form.frequency]);
 
   useEffect(() => {
-    if (form.frequency === "custom") {
+    if (presetPreviewInput === null) {
       return;
     }
 
     let canceled = false;
-    setPreview((current) => ({ ...current, loading: true }));
 
     const timer = window.setTimeout(() => {
-      void loadAdvisoryScheduleUpcomingPreview(cronExpression, form.timeZoneId)
+      void loadAdvisoryScheduleUpcomingPreview(presetPreviewInput.cronExpression, presetPreviewInput.timeZoneId)
         .then((next) => {
           if (!canceled) {
-            setPreview(next);
-          }
-        })
-        .catch(() => {
-          if (!canceled) {
-            setPreview(EMPTY_ADVISORY_SCHEDULE_PREVIEW);
+            setLoadedPreview({ input: presetPreviewInput, preview: next });
           }
         });
     }, ADVISORY_SCHEDULE_PREVIEW_DEBOUNCE_MS);
@@ -122,7 +140,7 @@ export function useAdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormP
       canceled = true;
       window.clearTimeout(timer);
     };
-  }, [cronExpression, form.frequency, form.timeZoneId]);
+  }, [presetPreviewInput]);
 
   const showFormUpcomingPreview = form.frequency !== "custom";
   const advisoryCreateSteps = resolveAdvisoryScheduleCreateChecklistSteps({

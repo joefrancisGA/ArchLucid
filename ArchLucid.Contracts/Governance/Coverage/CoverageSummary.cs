@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Coverage;
 
 /// <summary>Read model aggregating coverage assignments for UI and API disclosure.</summary>
@@ -40,9 +42,11 @@ public sealed class CoverageSummary
         set;
     }
 
+    private IReadOnlyList<CoverageAssignment> assignments = [];
+
     public IReadOnlyList<CoverageAssignment> Assignments
     {
-        get;
-        set;
-    } = [];
+        get => assignments;
+        set => assignments = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

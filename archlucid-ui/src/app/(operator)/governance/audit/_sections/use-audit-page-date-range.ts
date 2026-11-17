@@ -15,8 +15,6 @@ import { toDatetimeLocalInputValue } from "./audit-page-helpers";
 import { shouldInjectAuditDemoOnSearchError } from "./resolve-audit-search-page-for-ui";
 
 type UseAuditPageDateRangeOptions = {
-  readonly buyerPolishedShell: boolean;
-  readonly events: readonly AuditEvent[];
   readonly eventType: string;
   readonly correlationId: string;
   readonly actorUserId: string;
@@ -38,8 +36,6 @@ type UseAuditPageDateRangeOptions = {
 
 export function useAuditPageDateRange(options: UseAuditPageDateRangeOptions) {
   const {
-    buyerPolishedShell,
-    events,
     eventType,
     correlationId,
     actorUserId,
@@ -72,23 +68,6 @@ export function useAuditPageDateRange(options: UseAuditPageDateRangeOptions) {
     setFromUtc(fromStr);
     setToUtc("");
   }, [setFromUtc, setToUtc, urlDatePreset]);
-
-  useEffect(() => {
-    if (!buyerPolishedShell || events.length === 0) {
-      return;
-    }
-
-    const sorted = [...events].map((e) => e.occurredUtc).sort((a, b) => a.localeCompare(b));
-    const firstUtc = sorted[0];
-    const lastUtc = sorted[sorted.length - 1];
-
-    if (firstUtc === undefined || lastUtc === undefined) {
-      return;
-    }
-
-    setFromUtc(toDatetimeLocalInputValue(new Date(firstUtc)));
-    setToUtc(toDatetimeLocalInputValue(new Date(lastUtc)));
-  }, [buyerPolishedShell, events, setFromUtc, setToUtc]);
 
   const runDateRangeSearch = useCallback(
     async (fromUtc: string, toUtc: string) => {

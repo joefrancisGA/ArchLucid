@@ -4,6 +4,7 @@ import {
 } from "@/lib/caiq-sig-response-help-guide-content";
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
+import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-page-copy";
 import { ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE } from "@/lib/admin-diagnostics-help-page-copy";
 import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
@@ -20,6 +21,9 @@ import {
   listProductDocumentationEntries,
   type ProductDocumentationEntry,
 } from "@/lib/product-documentation-registry";
+
+/** TB-1378 guard anchor — canonical first architecture review help handoff path. */
+export const HELP_CENTER_FIRST_ARCHITECTURE_REVIEW_PATH = FIRST_ARCHITECTURE_REVIEW_HELP_PATH;
 
 /** Customer help center layering — product, admin/integration, internal/engineering. */
 export type HelpCenterTier = "product" | "admin" | "internal";

@@ -73,6 +73,22 @@ public sealed class ApplicationPackageCoverageBatch4Tests
     }
 
     [Fact]
+    public void PriorManifestEvidenceMapper_labels_missing_system_and_manifest_version()
+    {
+        GoldenManifest manifest = new()
+        {
+            SystemName = "  ",
+            Metadata = new ManifestMetadata { ManifestVersion = "  " },
+            Governance = new ManifestGovernance(),
+        };
+
+        PriorManifestEvidence evidence = PriorManifestEvidenceMapper.Map(manifest);
+
+        evidence.Summary.Should().Contain("System name was not stored");
+        evidence.Summary.Should().Contain("Manifest version was not stored");
+    }
+
+    [Fact]
     public void ConsultingDocxExportBrandingMapper_parses_data_uri_and_rejects_invalid_base64()
     {
         byte[] logo = "logo-bytes"u8.ToArray();

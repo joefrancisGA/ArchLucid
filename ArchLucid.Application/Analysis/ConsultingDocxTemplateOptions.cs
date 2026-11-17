@@ -222,7 +222,8 @@ public sealed class ConsultingDocxTemplateOptions
     /// <summary>
     ///     Template string for the sponsor-report opening sentence.
     ///     Supports <c>{SystemName}</c>, <c>{OrganizationName}</c>, <c>{ServiceCount}</c>,
-    ///     <c>{DatastoreCount}</c>, and <c>{ControlCount}</c> placeholders.
+    ///     <c>{DatastoreCount}</c>, and <c>{ControlCount}</c> placeholders. When the committed manifest
+    ///     or governance block was not stored, count placeholders are replaced with not-stored copy rather than 0.
     /// </summary>
     public string SponsorReportTextTemplate
     {

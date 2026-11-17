@@ -81,7 +81,7 @@ public static class PolicyPackBeforeAfterDiffMarkdownRenderer
     {
         if (citations.Count == 0)
         {
-            builder.AppendLine("- _(none)_");
+            builder.AppendLine("- No audit citations were included in this diff.");
             builder.AppendLine();
 
             return;

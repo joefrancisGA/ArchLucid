@@ -18,34 +18,7 @@ export type SystemNotJobNestedReviewJobMintRow = {
  * when architecture id is known (SY-80 ratchet already blocks inbox; this shrinks peer leftovers).
  */
 export const SYSTEM_NOT_JOB_NESTED_REVIEW_JOB_MINT_ROWS: readonly SystemNotJobNestedReviewJobMintRow[] = [
-  {
-    relativePath:
-      "archlucid-ui/src/app/(operator)/insights/impact-preview/_sections/EvolutionReviewPageView.tsx",
-    surface: "impact-preview scoped run scope banner Open review",
-    ownerPrompt: "SN-010",
-  },
-  {
-    relativePath:
-      "archlucid-ui/src/app/(operator)/insights/impact-preview/_sections/ImpactPreviewEvidenceBasisSection.tsx",
-    surface: "impact-preview evidence basis baseline review link",
-    ownerPrompt: "SN-010",
-  },
-  {
-    relativePath: "archlucid-ui/src/app/(operator)/insights/compare-two-reviews/_sections/CompareForm.tsx",
-    surface: "compare scope banner Open updated review",
-    ownerPrompt: "SN-010",
-  },
-  {
-    relativePath: "archlucid-ui/src/app/(operator)/insights/evidence-graph/_sections/GraphLoadedExperience.tsx",
-    surface: "evidence graph open review package link",
-    ownerPrompt: "SN-010",
-  },
-  {
-    relativePath:
-      "archlucid-ui/src/app/(operator)/insights/evidence-graph/_sections/use-graph-page-control-filters.ts",
-    surface: "evidence graph controls review package href",
-    ownerPrompt: "SN-010",
-  },
+  // Pragmatic batches 23–26 closed scoped Open review surfaces listed here through 2026-11-05.
 ] as const;
 
 /** Unlinked legacy reviews keep peer inbox URLs — only nested when architecture id is known. */

@@ -53,9 +53,10 @@ export type AskMainPanelProps = {
   askAssistantGroundingLinks: readonly BuyerAskGroundingLink[] | null;
   askCitationActionFollowUps: readonly AskCitationActionFollowUp[];
   showPostAssistantFollowUps: boolean;
-  retrievalDegraded?: boolean;
+  retrievalDegraded?: boolean | null;
   hideRunPicker?: boolean;
   clearScopeHref?: string;
+  pinnedArchitectureId?: string;
 };
 
 export function AskMainPanel(props: AskMainPanelProps) {
@@ -87,9 +88,10 @@ export function AskMainPanel(props: AskMainPanelProps) {
     askAssistantGroundingLinks,
     askCitationActionFollowUps,
     showPostAssistantFollowUps,
-    retrievalDegraded = false,
+    retrievalDegraded = null,
     hideRunPicker = false,
     clearScopeHref,
+    pinnedArchitectureId,
   } = props;
 
   const reviewPicked = runId.trim().length > 0;
@@ -164,6 +166,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
             runId={runId}
             buyerPolishedShell={buyerPolishedShell}
             clearScopeHref={clearScopeHref}
+            pinnedArchitectureId={pinnedArchitectureId}
           />
           {reviewPicked ? <AskRunCoverageHonestyStrip runId={runId} /> : null}
           {hideCompareChrome ? null : (

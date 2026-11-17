@@ -1,5 +1,7 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
@@ -73,15 +75,18 @@ public sealed class DecisionEngineV2NodeMaterializer(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        IReadOnlyList<DecisionNode> existing = DecisionRecordMapper.ToDomain(
-            await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken));
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 
-        if (existing.Count > 0)
+        IReadOnlyList<DecisionNodeRecord> existingRecords = await AnalysisRunIdCanonicalization
+            .LoadDecisionNodesByRunIdAsync(_decisionNodeRepository, lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (existingRecords.Count > 0)
             return;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        if (!Guid.TryParse(runId, out Guid runGuid))
+        if (!Guid.TryParse(lookupRunId, out Guid runGuid))
             return;
 
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
@@ -93,25 +98,36 @@ public sealed class DecisionEngineV2NodeMaterializer(
             ?? throw new InvalidOperationException(
                 $"Architecture request '{run.ArchitectureRequestId}' not found for run '{runId}'.");
 
-        IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<AgentTask> tasks = await AnalysisRunIdCanonicalization
+            .LoadAgentTasksByRunIdAsync(_taskRepository, scope, lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
 
         if (tasks.Count == 0)
             return;
 
-        AgentEvidencePackage? evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
+        AgentEvidencePackage? evidence = await AnalysisRunIdCanonicalization
+            .LoadEvidencePackageByRunIdAsync(_agentEvidencePackageRepository, lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
 
         if (evidence is null)
             return;
 
-        IReadOnlyList<AgentResult> results = await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<AgentResult> results = await AnalysisRunIdCanonicalization
+            .LoadAgentResultsByRunIdAsync(
+                _agentResultRepository,
+                scope,
+                lookupRunId,
+                useRollupProjection: false,
+                cancellationToken)
+            .ConfigureAwait(false);
 
         if (results.Count == 0)
             return;
 
         IReadOnlyList<AgentEvaluation> evaluations =
-            await _agentEvaluationService.EvaluateAsync(runId, request, evidence, tasks, results, cancellationToken);
+            await _agentEvaluationService.EvaluateAsync(lookupRunId, request, evidence, tasks, results, cancellationToken);
         IReadOnlyList<DecisionNode> decisionNodes =
-            await _decisionEngineV2.ResolveAsync(runId, request, tasks, results, evaluations, cancellationToken);
+            await _decisionEngineV2.ResolveAsync(lookupRunId, request, tasks, results, evaluations, cancellationToken);
 
         if (decisionNodes.Count == 0)
             return;
@@ -119,7 +135,7 @@ public sealed class DecisionEngineV2NodeMaterializer(
         _logger.LogWarning(
             "{UnusedAppendixWarning} RunId={RunId} NodeCount={NodeCount}",
             UnusedAppendixWarning,
-            runId,
+            lookupRunId,
             decisionNodes.Count);
 
         await _decisionNodeRepository.CreateManyAsync(

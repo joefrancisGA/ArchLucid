@@ -2861,6 +2861,58 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void ResolveInspectClassification_parses_typed_payload_after_leading_invisible_format_characters()
+    {
+        JsonElement? typed = JsonSerializer.SerializeToElement(new { classification = "\u200BChecklistCoverage" });
+
+        FindingClassification? classification = FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed);
+
+        classification.Should().Be(FindingClassification.ChecklistCoverage);
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_parses_pascal_case_typed_payload_property()
+    {
+        using JsonDocument document = JsonDocument.Parse("{\"Classification\":\"ChecklistCoverage\"}");
+        JsonElement? typed = document.RootElement.Clone();
+
+        FindingClassification? classification = FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed);
+
+        classification.Should().Be(FindingClassification.ChecklistCoverage);
+    }
+
+    [Fact]
+    public void ResolveInspectTreatment_parses_numeric_string_typed_payload_after_leading_invisible_format_characters()
+    {
+        using JsonDocument document = JsonDocument.Parse("{\"treatment\":\"\\u200B1\"}");
+        JsonElement? typed = document.RootElement.Clone();
+
+        FindingTreatment? treatment = FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, typed);
+
+        treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+    }
+
+    [Fact]
+    public void ResolveInspectTreatment_parses_typed_payload_string_after_leading_invisible_format_characters()
+    {
+        JsonElement? typed = JsonSerializer.SerializeToElement(new { treatment = "\u200BDemoteToChecklist" });
+
+        FindingTreatment? treatment = FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, typed);
+
+        treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+    }
+
+    [Fact]
+    public void ResolveInspectSemanticSupportBand_parses_typed_payload_after_leading_invisible_format_characters()
+    {
+        JsonElement? typed = JsonSerializer.SerializeToElement(new { semanticSupportBand = "\u200BUnsupported" });
+
+        FindingSemanticSupportBand? band = FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(null, typed);
+
+        band.Should().Be(FindingSemanticSupportBand.Unsupported);
+    }
+
+    [Fact]
     public void ResolveInspectTreatment_falls_back_to_typed_payload_when_storage_null()
     {
         JsonElement? typed = JsonSerializer.SerializeToElement(new { treatment = 1 });
@@ -2890,5 +2942,256 @@ public sealed class FindingInspectReadRepositoryCoreTests
         FindingTreatment? treatment = FindingInspectReadRepositoryCore.ResolveInspectTreatment((byte)99, typed);
 
         treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_parses_typed_payload_when_property_name_has_surrounding_whitespace()
+    {
+        JsonElement typed = JsonDocument.Parse("""{" classification " : "ChecklistCoverage"}""").RootElement;
+
+        FindingClassification? classification = FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed);
+
+        classification.Should().Be(FindingClassification.ChecklistCoverage);
+    }
+
+    [Fact]
+    public void ResolveInspectSemanticSupportBand_parses_string_numeric_token_with_trailing_format_character_like_numeric_json()
+    {
+        JsonElement numeric = JsonSerializer.SerializeToElement(new { semanticSupportBand = 2 });
+        JsonElement withTrailingFormat = JsonDocument.Parse("""{"semanticSupportBand":"2\u200B"}""").RootElement;
+
+        FindingSemanticSupportBand? fromNumeric = FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(null, numeric);
+        FindingSemanticSupportBand? fromString = FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(null, withTrailingFormat);
+
+        fromNumeric.Should().Be(FindingSemanticSupportBand.Unsupported);
+        fromString.Should().Be(fromNumeric);
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_null_metadata_when_corrupt_payload_and_rationale_is_whitespace_only()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{not-json",
+            title: null,
+            rationale: "   ");
+
+        typed.Should().BeNull();
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_returns_null_disposition_for_undefined_numeric_ninety_nine_while_preserving_pointer_metadata()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            "99",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            reviewerUserId: "reviewer-1",
+            rowVersionStamp: [1, 2, 3]);
+
+        projection.LatestDisposition.Should().BeNull();
+        projection.LatestDispositionEventId.Should().Be(Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
+        projection.LatestDispositionReviewerUserId.Should().Be("reviewer-1");
+    }
+
+    [Fact]
+    public void FilterRecommendedActions_drops_invisible_format_character_only_entries()
+    {
+        FindingInspectReadRepositoryCore.FilterRecommendedActions(["\u200B", "Enable TLS"]).Should().Equal("Enable TLS");
+    }
+
+    [Fact]
+    public void ResolveInspectSemanticSupportBand_ignores_snake_case_typed_payload_property_name()
+    {
+        JsonElement typed = JsonSerializer.SerializeToElement(new { semantic_support_band = "Unsupported" });
+
+        FindingSemanticSupportBand? band = FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(null, typed);
+
+        band.Should().BeNull("exporters persist camelCase semanticSupportBand; snake_case is not aliased");
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_parses_string_numeric_token_with_trailing_format_character_like_numeric_json()
+    {
+        JsonElement numeric = JsonSerializer.SerializeToElement(new { classification = 1 });
+        JsonElement withTrailingFormat = JsonDocument.Parse("""{"classification":"1\u200B"}""").RootElement;
+
+        FindingClassification? fromNumeric = FindingInspectReadRepositoryCore.ResolveInspectClassification(null, numeric);
+        FindingClassification? fromString = FindingInspectReadRepositoryCore.ResolveInspectClassification(null, withTrailingFormat);
+
+        fromNumeric.Should().Be(FindingClassification.ChecklistCoverage);
+        fromString.Should().Be(fromNumeric);
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_sets_why_this_matters_from_rationale_when_corrupt_payload_and_title_is_whitespace_only()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{ not json",
+            "   ",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void NormalizeFindingId_preserves_leading_format_character()
+    {
+        FindingInspectReadRepositoryCore.NormalizeFindingId("\u200Bfinding-1").Should().Be("\u200Bfinding-1");
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_ignores_snake_case_typed_payload_property_name()
+    {
+        JsonElement camel = JsonSerializer.SerializeToElement(new { classification = "ChecklistCoverage" });
+        JsonElement snakeCaseKey = JsonDocument.Parse("""{"checklist_coverage":"ChecklistCoverage"}""").RootElement;
+
+        FindingInspectReadRepositoryCore.ResolveInspectClassification(null, camel)
+            .Should().Be(FindingClassification.ChecklistCoverage);
+
+        FindingInspectReadRepositoryCore.ResolveInspectClassification(null, snakeCaseKey).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectTreatment_ignores_snake_case_typed_payload_property_name()
+    {
+        JsonElement camel = JsonSerializer.SerializeToElement(new { treatment = 1 });
+        JsonElement snakeCaseKey = JsonDocument.Parse("""{"demote_to_checklist":1}""").RootElement;
+
+        FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, camel)
+            .Should().Be(FindingTreatment.DemoteToChecklist);
+
+        FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, snakeCaseKey).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectTreatment_parses_string_numeric_token_with_trailing_format_character_like_numeric_json()
+    {
+        JsonElement numeric = JsonSerializer.SerializeToElement(new { treatment = 1 });
+        JsonElement withTrailingFormat = JsonDocument.Parse("""{"treatment":"1\u200B"}""").RootElement;
+
+        FindingTreatment? fromNumeric = FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, numeric);
+        FindingTreatment? fromString = FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, withTrailingFormat);
+
+        fromNumeric.Should().Be(FindingTreatment.DemoteToChecklist);
+        fromString.Should().Be(fromNumeric);
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_falls_back_to_rationale_only_metadata_when_corrupt_payload_and_title_is_invisible_unicode()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{ not json",
+            "\u200B",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").ValueKind.Should().Be(JsonValueKind.Null);
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_falls_back_to_rationale_only_metadata_when_corrupt_payload_and_title_is_empty_string()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{ not json",
+            string.Empty,
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").ValueKind.Should().Be(JsonValueKind.Null);
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_ignores_decimal_string_classification_token()
+    {
+        JsonElement typed = JsonSerializer.Deserialize<JsonElement>("""{"classification":"2.0"}""");
+
+        FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectTreatment_ignores_fractional_json_number_in_typed_payload()
+    {
+        JsonElement typed = JsonSerializer.Deserialize<JsonElement>("""{"treatment":1.5}""");
+
+        FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, typed).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectSemanticSupportBand_ignores_fractional_json_number_in_typed_payload()
+    {
+        JsonElement typed = JsonSerializer.Deserialize<JsonElement>("""{"semanticSupportBand":2.5}""");
+
+        FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(null, typed).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_ignores_boolean_json_classification_token()
+    {
+        JsonElement typed = JsonSerializer.Deserialize<JsonElement>("""{"classification":true}""");
+
+        FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectTreatment_ignores_boolean_json_treatment_token()
+    {
+        JsonElement typed = JsonSerializer.Deserialize<JsonElement>("""{"treatment":true}""");
+
+        FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, typed).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectSemanticSupportBand_ignores_decimal_string_band_token()
+    {
+        JsonElement typed = JsonSerializer.Deserialize<JsonElement>("""{"semanticSupportBand":"2.0"}""");
+
+        FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(null, typed).Should().BeNull();
+    }
+
+    [Fact]
+    public void NormalizeFindingId_preserves_trailing_format_character()
+    {
+        FindingInspectReadRepositoryCore.NormalizeFindingId("finding-1\u200B").Should().Be("finding-1\u200B");
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_ignores_typed_payload_when_property_name_contains_interior_format_character()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"class\u200Bification":"ChecklistCoverage"}""");
+        JsonElement typed = document.RootElement.Clone();
+
+        FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_returns_null_when_typed_payload_root_is_json_boolean_true()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "true",
+            title: "t",
+            rationale: "r");
+
+        typed.Should().NotBeNull();
+        typed!.Value.ValueKind.Should().Be(JsonValueKind.True);
+        FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectSemanticSupportBand_falls_back_to_typed_payload_when_overlay_is_whitespace_only()
+    {
+        JsonElement typed = JsonSerializer.SerializeToElement(new { semanticSupportBand = "Supported" });
+
+        FindingSemanticSupportBand? band = FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(
+            "   ",
+            typed);
+
+        band.Should().Be(FindingSemanticSupportBand.Supported);
     }
 }

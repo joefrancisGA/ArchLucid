@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
@@ -49,7 +50,11 @@ public sealed class TechnologyLedgerEvidenceSeeder(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         IReadOnlyList<TechnologyLedgerEntry> existing =
-            await _technologyLedgerRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+            await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+                _technologyLedgerRepository,
+                scope,
+                AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId),
+                cancellationToken);
 
         List<TechnologyLedgerEntry> working = existing.ToList();
         DateTime utcNow = _timeProvider.GetUtcNow().UtcDateTime;

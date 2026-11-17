@@ -3,6 +3,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -31,13 +32,16 @@ public sealed class DiagramNicCollapseApplierTests
         ast.Nodes.Should().Contain(node => string.Equals(node.Label, "vm-bam-dev-01", StringComparison.Ordinal));
 
         DiagramEdge? exposesEdge = DiagramEdgeVisibility.VisibleEdges(ast.Edges)
-            .SingleOrDefault(edge => string.Equals(edge.Label, "exposes", StringComparison.OrdinalIgnoreCase));
+            .SingleOrDefault(edge =>
+                string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPublicIp, StringComparison.Ordinal));
         exposesEdge.Should().NotBeNull();
-        exposesEdge!.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryPublicIp);
+        exposesEdge!.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference.ToString());
 
         string mermaid = renderer.Render(ast);
-        mermaid.Should().Contain("-->|\"exposes\"|");
-        mermaid.Should().NotContain("vm-bam-dev-01-nic-01");
+        mermaid.Should().Contain(exposesEdge!.Label);
+        mermaid.Should().NotContain(
+            "vm-bam-dev-01-nic-01 (",
+            "because the collapsed NIC should not appear as its own diagram card");
     }
 
     [Fact]
@@ -54,7 +58,8 @@ public sealed class DiagramNicCollapseApplierTests
 
         DiagramEdgeVisibility.VisibleEdges(ast.Edges)
             .Should()
-            .ContainSingle(edge => string.Equals(edge.Label, "exposes", StringComparison.OrdinalIgnoreCase));
+            .ContainSingle(edge =>
+                string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPublicIp, StringComparison.Ordinal));
     }
 
     [Fact]
@@ -80,7 +85,8 @@ public sealed class DiagramNicCollapseApplierTests
             string.Equals(node.ArmResourceType, "Microsoft.Network/networkInterfaces", StringComparison.OrdinalIgnoreCase));
         DiagramEdgeVisibility.VisibleEdges(ast.Edges)
             .Should()
-            .NotContain(edge => string.Equals(edge.Label, "exposes", StringComparison.OrdinalIgnoreCase));
+            .NotContain(edge =>
+                string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPublicIp, StringComparison.Ordinal));
     }
 
     private static GraphSnapshot BuildVmPublicIpGraph(bool includeVirtualMachine = true)

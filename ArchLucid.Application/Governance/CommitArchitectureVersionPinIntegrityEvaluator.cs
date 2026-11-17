@@ -15,13 +15,14 @@ namespace ArchLucid.Application.Governance;
 /// </summary>
 public static class CommitArchitectureVersionPinIntegrityEvaluator
 {
-    public static async Task<IReadOnlyList<string>> GetBlockingReasonsAsync(
+    public static async Task<(IReadOnlyList<string> BlockingReasons, RunRecord? ResolvedRunHeader)> GetBlockingReasonsAsync(
         ScopeContext scope,
         string runId,
         ArchitectureRequest architectureRequest,
         IRunRepository runRepository,
         IArchitectureVersionRepository architectureVersionRepository,
         IArchitectureKnowledgeModelAccess architectureKnowledgeModelAccess,
+        RunRecord? preloadedRunHeader = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -33,15 +34,24 @@ public static class CommitArchitectureVersionPinIntegrityEvaluator
 
         if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid))
         {
-            return ["Commit blocked: run id is invalid for architecture version pin verification."];
+            return (
+                ["Commit blocked: run id is invalid for architecture version pin verification."],
+                null);
         }
 
-        RunRecord? header =
-            await runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+        RunRecord? header = preloadedRunHeader;
+
+        if (header is null)
+        {
+            header =
+                await runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+        }
 
         if (header?.ArchitectureVersionId is not Guid versionId || versionId == Guid.Empty)
         {
-            return ["Commit blocked: run is missing a pinned ArchitectureVersionId."];
+            return (
+                ["Commit blocked: run is missing a pinned ArchitectureVersionId."],
+                header);
         }
 
         ArchitectureVersionRecord? version = await architectureVersionRepository
@@ -50,7 +60,9 @@ public static class CommitArchitectureVersionPinIntegrityEvaluator
 
         if (version is null)
         {
-            return ["Commit blocked: pinned ArchitectureVersionId was not found."];
+            return (
+                ["Commit blocked: pinned ArchitectureVersionId was not found."],
+                header);
         }
 
         Contracts.ArchitectureIntelligence.ArchitectureKnowledgeModel? knowledgeModel =
@@ -62,22 +74,28 @@ public static class CommitArchitectureVersionPinIntegrityEvaluator
             ArchitectureVersionContentFingerprintVerifier.GetViolations(version, architectureRequest, knowledgeModel);
 
         if (versionMatchReasons.Count > 0)
-            return versionMatchReasons;
+            return (versionMatchReasons, header);
 
         if (header.PinnedArchitectureVersionContentHashSha256 is not { Length: > 0 } pinnedHash)
         {
-            return ["Commit blocked: run is missing create-time architecture version content hash (κ) pin."];
+            return (
+                ["Commit blocked: run is missing create-time architecture version content hash (κ) pin."],
+                header);
         }
 
         if (!version.ContentHashSha256.AsSpan().SequenceEqual(pinnedHash))
         {
-            return ["Commit blocked: create-time architecture version content hash (κ) drifted since run create."];
+            return (
+                ["Commit blocked: create-time architecture version content hash (κ) drifted since run create."],
+                header);
         }
 
         if (!string.IsNullOrWhiteSpace(header.KnowledgeModelId)
             && header.PinnedKnowledgeModelContentHashSha256 is not { Length: > 0 })
         {
-            return ["Commit blocked: run is missing create-time knowledge model content hash pin."];
+            return (
+                ["Commit blocked: run is missing create-time knowledge model content hash pin."],
+                header);
         }
 
         if (header.PinnedKnowledgeModelContentHashSha256 is { Length: > 0 } pinnedKnowledgeModelHash)
@@ -86,10 +104,12 @@ public static class CommitArchitectureVersionPinIntegrityEvaluator
 
             if (computed is null || !computed.AsSpan().SequenceEqual(pinnedKnowledgeModelHash))
             {
-                return ["Commit blocked: knowledge model content hash drifted since run create."];
+                return (
+                    ["Commit blocked: knowledge model content hash drifted since run create."],
+                    header);
             }
         }
 
-        return [];
+        return ([], header);
     }
 }

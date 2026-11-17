@@ -133,11 +133,15 @@ public sealed class SecurityManifestSectionPopulator : IManifestSectionPopulator
             if (!string.Equals(payload.Status, "missing", StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            manifest.Security.Gaps.Add($"{payload.ControlName} is missing");
+            string controlName = string.IsNullOrWhiteSpace(payload.ControlName)
+                ? "Control name was not stored."
+                : payload.ControlName.Trim();
+
+            manifest.Security.Gaps.Add($"{controlName} is missing");
             manifest.UnresolvedIssues.Items.Add(new ManifestIssue
             {
                 IssueType = "SecurityGap",
-                Title = $"Missing security control: {payload.ControlName}",
+                Title = $"Missing security control: {controlName}",
                 Description = payload.Impact,
                 Severity = finding.Severity.ToString(),
                 SupportingFindingIds = [finding.FindingId]
@@ -146,8 +150,8 @@ public sealed class SecurityManifestSectionPopulator : IManifestSectionPopulator
             ResolvedArchitectureDecision securityDecision = new()
             {
                 Category = "Security",
-                Title = $"Enforce control: {payload.ControlName}",
-                SelectedOption = "RequiredRemediation",
+                Title = $"Enforce control: {controlName}",
+                SelectedOption = "Selected option was not stored.",
                 Rationale = payload.Impact,
                 SupportingFindingIds = [finding.FindingId]
             };
@@ -186,9 +190,14 @@ public sealed class CostManifestSectionPopulator : IManifestSectionPopulator
             string capText = payload.MaxMonthlyCost.HasValue
                 ? payload.MaxMonthlyCost.Value.ToString("N0", CultureInfo.InvariantCulture)
                 : "Monthly cap was not stored.";
+            string costRisk = payload.CostRisk is null
+                ? "Cost risk was not stored."
+                : payload.CostRisk.Length == 0 || payload.CostRisk.Trim().Length == 0
+                    ? "Cost risk was stored empty."
+                    : payload.CostRisk.Trim();
 
             manifest.Assumptions.Add(
-                $"Preferred: Cost targets align with budget {budgetLabel} (monthly cap {capText}, risk {payload.CostRisk}).");
+                $"Preferred: Cost targets align with budget {budgetLabel} (monthly cap {capText}, risk {costRisk}).");
         }
     }
 }

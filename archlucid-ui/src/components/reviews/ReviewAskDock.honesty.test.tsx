@@ -62,6 +62,9 @@ describe("ReviewAskDock honesty", () => {
     render(<ReviewAskDock runId="run-1" reviewTitle="Claims API" />);
 
     expect(screen.getByTestId("review-ask-dock-panel")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Your question"), {
+      target: { value: "What risks remain open?" },
+    });
     fireEvent.click(screen.getByTestId("review-ask-dock-submit"));
 
     expect(await screen.findByText("Answer was not stored.")).toBeInTheDocument();

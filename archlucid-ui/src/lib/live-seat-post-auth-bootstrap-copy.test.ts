@@ -26,6 +26,6 @@ describe("live-seat post-auth bootstrap copy (LS-004, LS-005, LS-008, LS-016)", 
   });
 
   it("select workspace copy targets invited memberships", () => {
-    expect(POST_AUTH_BOOTSTRAP_COPY.selectWorkspaceLead).toMatch(/workspace you want/i);
+    expect(POST_AUTH_BOOTSTRAP_COPY.selectWorkspaceLead).toMatch(/invited|want to open/i);
   });
 });

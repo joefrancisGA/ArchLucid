@@ -11,7 +11,7 @@ export type InfraDiagramsDensityCoachInput = {
 };
 
 export function shouldShowInfraDiagramsDensityCoach(input: InfraDiagramsDensityCoachInput): boolean {
-  if (input.renderStatus === "Failed") {
+  if (input.renderStatus === "Failed" && !input.isExecutiveMode) {
     return false;
   }
 

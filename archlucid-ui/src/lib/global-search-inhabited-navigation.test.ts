@@ -45,6 +45,7 @@ describe("global search inhabited navigation (IP-003)", () => {
       architectureId: "architecture-identity-001",
     });
 
-    expect(href).toContain("/architecture/reviews/run-42/findings/finding-9/evidence-trace");
+    expect(href).toContain("/findings/finding-9/evidence-trace");
+    expect(href).toContain("/reviews/run-42");
   });
 });

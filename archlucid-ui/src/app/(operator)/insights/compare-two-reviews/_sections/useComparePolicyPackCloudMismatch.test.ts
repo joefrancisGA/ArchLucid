@@ -1,4 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
+import { createElement, type ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { useComparePolicyPackCloudMismatch } from "@/app/(operator)/insights/compare-two-reviews/_sections/useComparePolicyPackCloudMismatch";
@@ -35,8 +37,13 @@ describe("useComparePolicyPackCloudMismatch (TB-2322)", () => {
       ruleSetVersion: "2.0.0",
     });
 
-    const { result } = renderHook(() =>
-      useComparePolicyPackCloudMismatch("req-baseline", "req-target", baselineManifest, targetManifest),
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      createElement(QueryClientProvider, { client: queryClient }, children);
+
+    const { result } = renderHook(
+      () => useComparePolicyPackCloudMismatch("req-baseline", "req-target", baselineManifest, targetManifest),
+      { wrapper },
     );
 
     await waitFor(() => {

@@ -233,7 +233,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
         }
         catch (Exception ex)
         {
-            await HandleFailureAsync(jobId, row, ex, message, options.Value.MaxPendingJobs, stoppingToken);
+            await HandleFailureAsync(jobId, row, ex, message, stoppingToken);
         }
     }
 
@@ -242,7 +242,6 @@ public sealed class BackgroundJobQueueProcessorHostedService(
         BackgroundJobRow row,
         Exception ex,
         QueueMessage message,
-        int maxPendingJobs,
         CancellationToken stoppingToken)
     {
         BackgroundJobRow? current = await repository.GetAsync(jobId, stoppingToken);
@@ -284,7 +283,12 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                 return;
             }
 
-            await repository.MarkPendingRetryAsync(jobId, nextRetry, ex.Message, stoppingToken);
+            if (!await repository.MarkPendingRetryAsync(jobId, nextRetry, ex.Message, stoppingToken))
+            {
+                await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+                return;
+            }
 
             int baseDelayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
             int jitterSpan = baseDelayMs * 20 / 100;
@@ -300,53 +304,6 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                 return;
             }
 
-            int pending = await repository.CountNonTerminalAsync(stoppingToken);
-
-            if (pending >= maxPendingJobs)
-            {
-                logger.LogError(
-                    "Background job {JobId} could not be re-queued; non-terminal capacity exhausted.",
-                    LogSanitizer.Sanitize(jobId));
-
-                current = await repository.GetAsync(jobId, stoppingToken);
-
-                if (current is not null
-                    && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
-                {
-                    await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
-
-                    return;
-                }
-
-                current = await repository.GetAsync(jobId, stoppingToken);
-
-                if (current is not null && !IsRunningJobRow(current))
-                {
-                    await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
-
-                    return;
-                }
-
-                current = await repository.GetAsync(jobId, stoppingToken);
-
-                if (current is not null && !IsRunningJobRow(current))
-                {
-                    await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
-
-                    return;
-                }
-
-                await repository.MarkFailedTerminalAsync(
-                    jobId,
-                    "Retry skipped: job queue at capacity.",
-                    nextRetry,
-                    stoppingToken);
-
-                await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
-
-                return;
-            }
-
             current = await repository.GetAsync(jobId, stoppingToken);
 
             if (ShouldAbortRetryNotification(current))
@@ -356,6 +313,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                 return;
             }
 
+            // A pending retry already occupies a job slot. Only new jobs need admission.
             await queueClient.SendMessageAsync(jobId, stoppingToken);
             await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
 

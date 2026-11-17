@@ -40,7 +40,8 @@ export const BULK_EVIDENCE_UPLOAD_CANCEL_RECOVERY: ErrorRecoveryContractPresenta
 };
 
 /** Per-file failure reason when the batch stops before this file is stored. */
-export const BULK_EVIDENCE_UPLOAD_FILE_NOT_STORED_REASON = "Not stored";
+export const BULK_EVIDENCE_UPLOAD_FILE_NOT_STORED_REASON =
+  "This file was not stored. The batch stopped before it was saved.";
 
 /** Per-file failure reason for zero-byte files skipped during intake. */
 export const BULK_EVIDENCE_UPLOAD_EMPTY_FILE_REASON = "Empty file (skipped)";

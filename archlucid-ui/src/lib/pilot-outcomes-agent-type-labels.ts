@@ -10,7 +10,7 @@ const AGENT_TYPE_SPONSOR_LABELS: Record<string, string> = {
 export function formatPilotOutcomesAgentTypeLabel(agentType: string): string {
   const trimmed = agentType.trim();
 
-  if (trimmed.length === 0) {
+  if (trimmed.length === 0 || trimmed === "0") {
     return "Analysis type was not stored.";
   }
 

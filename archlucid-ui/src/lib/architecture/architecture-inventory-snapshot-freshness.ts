@@ -1,4 +1,5 @@
 import type { ArchitectureInventoryBindingResponse } from "@/lib/api/architecture-inventory-binding-api";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 
 /** AS-052 — bound snapshots this old (or older) are labeled stale. Warn only; never auto-collect. */
 export const ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_DAYS = 7 as const;
@@ -13,8 +14,23 @@ export const ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_LINE_PREFIX = "Bound snapshot
 
 export const ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_LINE_SUFFIX =
   "— may not reflect current estate." as const;
+export const ARCHITECTURE_INVENTORY_SNAPSHOT_FRESH_WITHIN_WINDOW_LINE_PREFIX =
+  "Bound snapshot captured" as const;
+
+export const ARCHITECTURE_INVENTORY_SNAPSHOT_FRESH_WITHIN_WINDOW_LINE_SUFFIX =
+  "— within the freshness window." as const;
+
 export const ARCHITECTURE_INVENTORY_SNAPSHOT_CAPTURE_TIME_MISSING_LINE =
   "Captured time was not stored" as const;
+
+export function formatArchitectureInventorySnapshotFreshWithinWindowLine(capturedUtc: string | Date): string {
+  const captured = typeof capturedUtc === "string" ? new Date(parseIsoUtcMs(capturedUtc)) : capturedUtc;
+  const year = captured.getUTCFullYear().toString().padStart(4, "0");
+  const month = (captured.getUTCMonth() + 1).toString().padStart(2, "0");
+  const day = captured.getUTCDate().toString().padStart(2, "0");
+
+  return `${ARCHITECTURE_INVENTORY_SNAPSHOT_FRESH_WITHIN_WINDOW_LINE_PREFIX} ${year}-${month}-${day} ${ARCHITECTURE_INVENTORY_SNAPSHOT_FRESH_WITHIN_WINDOW_LINE_SUFFIX}`;
+}
 
 export function isArchitectureInventorySnapshotStale(
   capturedUtc: string | Date | null | undefined,
@@ -25,7 +41,7 @@ export function isArchitectureInventorySnapshotStale(
   }
 
   const capturedMs =
-    typeof capturedUtc === "string" ? Date.parse(capturedUtc) : capturedUtc.getTime();
+    typeof capturedUtc === "string" ? parseIsoUtcMs(capturedUtc) : capturedUtc.getTime();
 
   if (Number.isNaN(capturedMs)) {
     return false;
@@ -35,7 +51,7 @@ export function isArchitectureInventorySnapshotStale(
 }
 
 export function formatArchitectureInventorySnapshotStaleLine(capturedUtc: string | Date): string {
-  const captured = typeof capturedUtc === "string" ? new Date(capturedUtc) : capturedUtc;
+  const captured = typeof capturedUtc === "string" ? new Date(parseIsoUtcMs(capturedUtc)) : capturedUtc;
   const year = captured.getUTCFullYear().toString().padStart(4, "0");
   const month = (captured.getUTCMonth() + 1).toString().padStart(2, "0");
   const day = captured.getUTCDate().toString().padStart(2, "0");
@@ -77,9 +93,23 @@ export function formatArchitectureInventorySnapshotFreshnessCareerExportMarkdown
     return "";
   }
 
-  if (!isArchitectureInventorySnapshotStale(capturedUtc, nowUtc)) {
+  const capturedMs = typeof capturedUtc === "string" ? parseIsoUtcMs(capturedUtc) : capturedUtc.getTime();
+
+  if (Number.isNaN(capturedMs)) {
+    return isBound
+      ? `## ${ARCHITECTURE_INVENTORY_SNAPSHOT_FRESHNESS_CAREER_EXPORT_HEADING}\n\nCaptured time could not be read.\n`
+      : "";
+  }
+
+  const captured = new Date(capturedMs);
+
+  if (!isArchitectureInventorySnapshotStale(captured, nowUtc)) {
+    if (isBound) {
+      return `## ${ARCHITECTURE_INVENTORY_SNAPSHOT_FRESHNESS_CAREER_EXPORT_HEADING}\n\n${formatArchitectureInventorySnapshotFreshWithinWindowLine(captured)}\n`;
+    }
+
     return "";
   }
 
-  return `## ${ARCHITECTURE_INVENTORY_SNAPSHOT_FRESHNESS_CAREER_EXPORT_HEADING}\n\n${formatArchitectureInventorySnapshotStaleLine(capturedUtc)}\n`;
+  return `## ${ARCHITECTURE_INVENTORY_SNAPSHOT_FRESHNESS_CAREER_EXPORT_HEADING}\n\n${formatArchitectureInventorySnapshotStaleLine(captured)}\n`;
 }

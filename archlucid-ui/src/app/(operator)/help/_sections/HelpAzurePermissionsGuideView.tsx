@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -83,7 +85,6 @@ import {
   AZURE_PERMISSIONS_HELP_START_HERE_HELPER,
   formatAzurePermissionsHelpRequirementsReviewedLine,
 } from "@/lib/azure-permissions-help-evidence-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   AZURE_PERMISSIONS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   AZURE_PERMISSIONS_HELP_PRIMARY_CONTENT_ID,
@@ -171,7 +172,7 @@ function CustomRoleActionsTable(): React.ReactElement {
 /** Manifest-driven Azure permissions guide for `/help/azure-permissions`. */
 export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const { productLine } = useProductLine();
   const returnHref = props.returnHref ?? CLOUD_CONNECTIONS_HUB_HREF;
   const otherProviders = AZURE_CLOUD_CONNECTION_RELATED_HELP.filter((link) => link.provider !== "azure");

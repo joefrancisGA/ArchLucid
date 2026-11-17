@@ -103,7 +103,9 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             {
                 NodeId = graphNodeId,
                 NodeType = MapDiagramNodeKindToGraphNodeType(node.Kind),
-                Label = string.IsNullOrWhiteSpace(node.Label) ? node.Id.Trim() : node.Label.Trim(),
+                Label = string.IsNullOrWhiteSpace(node.Label)
+                    ? "Resource name was not stored."
+                    : node.Label.Trim(),
                 SourceType = StructuredDiagramGraphSourceTypes.StructuredDiagram,
                 SourceId = node.Id.Trim(),
                 Properties = BuildNodeProperties(model, node, confidence, subgraphContexts),
@@ -454,9 +456,13 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
 
     private static string BuildNodeReasoningTrace(ArchitectureDiagramNodeRecord node, double confidence)
     {
+        string labelPart = string.IsNullOrWhiteSpace(node.Label)
+            ? "Diagram node label was not stored."
+            : node.Label.Trim();
+
         return confidence < 1d
-            ? $"Structured diagram node '{node.Id}' compiled from label-only hints (deterministic inference; not inventory ObservedFact)."
-            : $"Structured diagram node '{node.Id}' compiled from asserted diagram source.";
+            ? $"{labelPart} Diagram node id {node.Id} compiled from label-only hints (deterministic inference; not inventory ObservedFact)."
+            : $"{labelPart} Diagram node id {node.Id} compiled from asserted diagram source.";
     }
 
     private static string BuildEdgeReasoningTrace(ArchitectureDiagramEdgeRecord edge, double confidence)

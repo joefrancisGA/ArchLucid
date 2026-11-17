@@ -22,8 +22,8 @@ $ErrorActionPreference = 'Stop'
 $uiRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $uiRoot
 
-$expectedBuyer = 14
-$expectedOperator = 14
+$expectedBuyer = 16
+$expectedOperator = 16
 $expectedMarketing = 2
 # PNG counts must match e2e/ux-audit-route-registry.ts — guarded by scripts/ux-audit-harness-drift-guard.test.ts (TB-653).
 $screenshotRoot = Join-Path $uiRoot 'public/screenshots/ux-audit'

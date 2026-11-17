@@ -168,7 +168,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                """
             + SnapshotListSqlSeparator.BeforeOrderBy(PersistenceTenantScope.AndTripleWhere(scope, "s"))
             + """
-                               ORDER BY COALESCE(s.CapturedUtc, s.CreatedUtc) DESC
+                               ORDER BY COALESCE(s.CapturedUtc, s.CreatedUtc) DESC, s.SnapshotId DESC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """
             + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);

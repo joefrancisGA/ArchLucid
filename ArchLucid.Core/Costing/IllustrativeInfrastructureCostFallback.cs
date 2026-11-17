@@ -7,6 +7,9 @@ namespace ArchLucid.Core.Costing;
 /// </summary>
 public static class IllustrativeInfrastructureCostFallback
 {
+    public const string UnknownPlatformIllustrativeUsdPlaceholderSentence =
+        "Unknown runtime platform uses a $25/month illustrative placeholder — not measured spend.";
+
     /// <summary>Same values as fallback line items (deterministic).</summary>
     public static decimal EstimateIllustrativeMonthlyUsd(RuntimePlatform platform)
     {
@@ -68,8 +71,8 @@ public static class IllustrativeInfrastructureCostFallback
                 RuntimePlatform.Rds => "Amazon RDS",
                 RuntimePlatform.S3 => "Amazon S3",
                 RuntimePlatform.ElastiCache => "Amazon ElastiCache",
-                RuntimePlatform.Unknown => "AWS (unspecified)",
-                _ => "AWS workload",
+                RuntimePlatform.Unknown => "AWS product label was not stored.",
+                _ => "AWS product label was not stored.",
             };
         }
 
@@ -81,14 +84,14 @@ public static class IllustrativeInfrastructureCostFallback
                 RuntimePlatform.Gke => "Google Kubernetes Engine",
                 RuntimePlatform.CloudSql => "Google Cloud SQL",
                 RuntimePlatform.Gcs => "Google Cloud Storage",
-                RuntimePlatform.Unknown => "GCP (unspecified)",
-                _ => "GCP workload",
+                RuntimePlatform.Unknown => "GCP product label was not stored.",
+                _ => "GCP product label was not stored.",
             };
         }
 
         return platform switch
         {
-            RuntimePlatform.Unknown => "Azure (unspecified)",
+            RuntimePlatform.Unknown => "Azure product label was not stored.",
             RuntimePlatform.AppService => "Azure App Service",
             RuntimePlatform.Functions => "Azure Functions",
             RuntimePlatform.Aks => "Azure Kubernetes Service",
@@ -100,7 +103,7 @@ public static class IllustrativeInfrastructureCostFallback
             RuntimePlatform.Redis => "Azure Cache for Redis",
             RuntimePlatform.BlobStorage => "Azure Blob Storage",
             RuntimePlatform.KeyVault => "Azure Key Vault",
-            _ => "Azure workload",
+            _ => "Azure product label was not stored.",
         };
     }
 
@@ -120,8 +123,11 @@ public static class IllustrativeInfrastructureCostFallback
 
     private static decimal ScaleByQuantity(decimal unitUsd, int quantity)
     {
-        int q = quantity < 1 ? 1 : quantity;
+        if (quantity < 1)
+        {
+            return unitUsd;
+        }
 
-        return decimal.Multiply(unitUsd, q);
+        return decimal.Multiply(unitUsd, quantity);
     }
 }

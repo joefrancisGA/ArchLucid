@@ -27,6 +27,7 @@ import {
   SPONSOR_DASHBOARD_HREF,
 } from "@/lib/sponsor/sponsor-dashboard-route";
 import { resolveSponsorDashboardLatestFinalizedRunId } from "@/lib/resolve-sponsor-dashboard-latest-finalized-run";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
@@ -40,6 +41,7 @@ import { SponsorDashboardBuyerChrome } from "./SponsorDashboardBuyerChrome";
 import { SponsorDashboardLatestFinalizedReviewStrip } from "./SponsorDashboardLatestFinalizedReviewStrip";
 import { SponsorDashboardPickReviewBeforeKpisStrip } from "./SponsorDashboardPickReviewBeforeKpisStrip";
 import { SponsorDashboardReviewCoverageHonestyStrip } from "@/components/sponsor/SponsorDashboardReviewCoverageHonestyStrip";
+import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 import { SponsorRoiDashboardNextReviewFooterClient } from "./SponsorRoiDashboardNextReviewFooterClient";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import {
@@ -166,11 +168,12 @@ function SponsorRoiDashboardPortfolioSections({
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={`/architecture/reviews/${encodeURIComponent(selectedReviewId.trim())}`}
+              href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(selectedReviewId.trim())}
             >
               Open review
             </Link>
           </p>
+          <SecureNowSponsorRoiCollectionScopeHonestyLine testId="sponsor-dashboard-run-scope-collection-honesty" />
           <IntegrationConnectChecklist
             title="KPI checklist"
             steps={sponsorDashboardKpiChecklistSteps}

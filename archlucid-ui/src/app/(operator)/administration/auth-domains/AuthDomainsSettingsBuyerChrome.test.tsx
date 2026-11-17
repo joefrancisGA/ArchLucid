@@ -22,3 +22,8 @@ describe("AuthDomainsSettingsBuyerChrome (ADU)", () => {
     expect(screen.queryByTestId("auth-domains-settings-claim-discipline")).not.toBeInTheDocument();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

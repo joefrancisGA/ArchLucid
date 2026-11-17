@@ -14,7 +14,9 @@ import {
   parseCitationChipsTechnicalCitationKeyFromSearch,
 } from "@/lib/explanation/citation-chips-technical-citation-disclosure-url";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
+import { resolveAskGroundingLinkHref } from "@/lib/ask/resolve-ask-grounding-link-href";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveReviewUrlStatePathname, resolveScopedReviewPath } from "@/lib/architecture/review-url-state-pathname";
 import type { CitationReference } from "@/types/explanation";
 
 export type CitationChipsProps = {
@@ -22,31 +24,39 @@ export type CitationChipsProps = {
   runId: string;
 };
 
-function citationHref(c: CitationReference, runId: string, buyerPolishedShell: boolean): string | null {
+function citationHref(
+  c: CitationReference,
+  runId: string,
+  buyerPolishedShell: boolean,
+  pathname: string,
+): string | null {
   const trimmedRunId = runId.trim();
+  const trimmedCitationId = c.id?.trim() ?? "";
 
-  if (trimmedRunId.length === 0) {
+  if (trimmedRunId.length === 0 || trimmedCitationId.length === 0) {
     return null;
   }
 
+  const pathInput = { runId: trimmedRunId, pathname };
+
   switch (c.kind) {
     case "Manifest":
-      return signedRecordDetailPath(c.id);
+      return signedRecordDetailPath(trimmedCitationId);
     case "Finding":
 
       if (buyerPolishedShell) {
-        return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}/findings/${encodeURIComponent(c.id)}`;
+        return resolveScopedReviewPath(`/findings/${encodeURIComponent(trimmedCitationId)}`, pathInput);
       }
 
-      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}#finding-${encodeURIComponent(c.id)}`;
+      return `${resolveScopedReviewPath("", pathInput)}#finding-${encodeURIComponent(trimmedCitationId)}`;
     case "DecisionTrace":
     case "GraphSnapshot":
     case "ContextSnapshot":
-      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}/provenance`;
+      return resolveScopedReviewPath("/provenance", pathInput);
     case "EvidenceBundle":
-      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}`;
+      return resolveScopedReviewPath("", pathInput);
     default:
-      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}`;
+      return resolveScopedReviewPath("", pathInput);
   }
 }
 
@@ -54,6 +64,7 @@ function citationHref(c: CitationReference, runId: string, buyerPolishedShell: b
 export function CitationChips({ citations, runId }: CitationChipsProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
+  const urlStatePathname = resolveReviewUrlStatePathname(pathname, runId);
   const searchParams = useSearchParams();
   const citationChipsTechnicalCitationKeyParam = searchParams.get(CITATION_CHIPS_TECHNICAL_CITATION_KEY_PARAM);
   const [openCitationKey, setOpenCitationKeyState] = useState(() =>
@@ -62,11 +73,15 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
   const syncOpenCitationKeyToUrl = useCallback(
     (citationKey: string | null) => {
       router.replace(
-        citationChipsTechnicalCitationDisclosureHrefFromSearch(searchParams.toString(), citationKey, pathname),
+        citationChipsTechnicalCitationDisclosureHrefFromSearch(
+          searchParams.toString(),
+          citationKey,
+          urlStatePathname,
+        ),
         { scroll: false },
       );
     },
-    [pathname, router, searchParams],
+    [router, searchParams, urlStatePathname],
   );
   const setOpenCitationKey = useCallback(
     (citationKey: string | null) => {
@@ -79,11 +94,33 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
     setOpenCitationKeyState(parseCitationChipsTechnicalCitationKeyFromSearch(citationChipsTechnicalCitationKeyParam));
   }, [citationChipsTechnicalCitationKeyParam]);
 
-  if (!citations || citations.length === 0) {
-    return null;
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+
+  if (citations === undefined || citations === null) {
+    return (
+      <div className="mb-3" data-testid="citation-chips-empty">
+        <h4 className={cn("mb-1.5 font-semibold text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+          {buyerPolished ? "Evidence cited" : "Citations"}
+        </h4>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Citations were not stored on this explanation.
+        </p>
+      </div>
+    );
   }
 
-  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  if (citations.length === 0) {
+    return (
+      <div className="mb-3" data-testid="citation-chips-empty">
+        <h4 className={cn("mb-1.5 font-semibold text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+          {buyerPolished ? "Evidence cited" : "Citations"}
+        </h4>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Citations were stored empty.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mb-3">
@@ -92,7 +129,9 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
       </h4>
       <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
         {citations.map((c) => {
-          const href = citationHref(c, runId, buyerPolished);
+          const citationIdTrimmed = c.id?.trim() ?? "";
+          const citationIdMissing = citationIdTrimmed.length === 0;
+          const href = citationHref(c, runId, buyerPolished, pathname);
           const kindLabel = citationKindBuyerLabel(c.kind);
           const display = formatCitationBuyerDisplay(c, buyerPolished);
           const citationKey = `${c.kind}-${c.id}`;
@@ -107,7 +146,7 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
             <li key={`${c.kind}-${c.id}`}>
               {href !== null ? (
               <Link
-                href={href}
+                href={resolveAskGroundingLinkHref(href)}
                 className={chipClassName}
                 aria-label={`${kindLabel}: ${display.headline}`}
               >
@@ -116,9 +155,14 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
               ) : (
               <span
                 className={chipClassName}
-                aria-label={`${kindLabel}: ${display.headline}. Review id was not stored.`}
+                aria-label={
+                  citationIdMissing
+                    ? `${kindLabel}: ${display.headline}. Citation link was not stored.`
+                    : `${kindLabel}: ${display.headline}. Review id was not stored.`
+                }
               >
-                <span className="text-neutral-500 dark:text-neutral-400">{kindLabel}</span> · {display.headline}
+                <span className="text-neutral-500 dark:text-neutral-400">{kindLabel}</span> ·{" "}
+                {citationIdMissing ? "Citation link was not stored." : display.headline}
               </span>
               )}
               {buyerPolished && display.technicalId !== null ? (

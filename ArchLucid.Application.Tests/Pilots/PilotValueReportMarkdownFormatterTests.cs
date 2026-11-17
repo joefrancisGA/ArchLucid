@@ -172,6 +172,7 @@ public sealed class PilotValueReportMarkdownFormatterTests
     {
         PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
         DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        int cap = PilotValueReportService.DefaultRunDetailCap;
         PilotValueReport report = new()
         {
             TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -180,6 +181,7 @@ public sealed class PilotValueReportMarkdownFormatterTests
             TotalRunsCommitted = 3,
             TotalFindings = 0,
             RunDetailsTruncated = false,
+            RunDetailCap = cap,
             CommittedRunsTimeline = [],
         };
 
@@ -198,6 +200,10 @@ public sealed class PilotValueReportMarkdownFormatterTests
         markdown.Should().Contain(
             "| Committed runs | 3 (0 loaded for detail in partial sample) |");
         markdown.Should().NotContain("| Committed runs | 3 |");
+        markdown.Should().Contain(
+            FormattableString.Invariant(
+                $"| Run-detail cap | {cap} (truncated: false; 0 committed runs loaded for detail in the partial sample) |"));
+        markdown.Should().NotContain(FormattableString.Invariant($"| Run-detail cap | {cap} (truncated: False) |"));
     }
 
     [Fact]
@@ -582,7 +588,28 @@ public sealed class PilotValueReportMarkdownFormatterTests
 
         string markdown = sut.Format(report);
 
-        markdown.Should().Contain("| ROI source freshness disposition | HOLD |");
+        markdown.Should().Contain("| ROI source freshness disposition | `HOLD` |");
+    }
+
+    [Fact]
+    public void Format_when_roi_source_freshness_disposition_empty_does_not_emit_system_name_placeholder()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(1),
+            TotalRunsCommitted = 0,
+            RoiSourceFreshnessDisposition = string.Empty,
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain(
+            "| ROI source freshness disposition | ROI source freshness disposition was not computed. |");
+        markdown.Should().NotContain("| ROI source freshness disposition | System name was not stored. |");
     }
 
     [Fact]

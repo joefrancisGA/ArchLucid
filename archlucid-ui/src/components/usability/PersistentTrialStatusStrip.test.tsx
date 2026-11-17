@@ -52,3 +52,8 @@ describe("PersistentTrialStatusStrip", () => {
     expect(screen.getByTestId("persistent-trial-status-strip")).toBeInTheDocument();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

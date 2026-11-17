@@ -27,7 +27,7 @@ import {
 } from "@/lib/impact-preview-page-copy";
 import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
 import { SYSTEM_NOT_JOB_NESTED_IMPACT_PREVIEW_PAGE_SUBTITLE } from "@/lib/system-not-job-impact-preview-envelope-entry";
-import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { setImpactPreviewShellPageState } from "@/lib/impact-preview-route-shell-state";
 import type { ImpactPreviewPageState } from "@/lib/impact-preview-page-types";
@@ -42,6 +42,7 @@ import { ImpactPreviewContinueLastBaselinePairRow } from "./ImpactPreviewContinu
 import { ImpactPreviewEmptyState } from "./ImpactPreviewEmptyState";
 import { ImpactPreviewEvidenceBasisSection } from "./ImpactPreviewEvidenceBasisSection";
 import { ImpactPreviewHowItWorksSection } from "./ImpactPreviewHowItWorksSection";
+import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
 import { ImpactPreviewNextReviewFooterClient } from "./ImpactPreviewNextReviewFooterClient";
 import { ImpactPreviewLoadFailurePanel } from "./ImpactPreviewLoadFailurePanel";
 import { ImpactPreviewOutputPreviewPanel } from "./ImpactPreviewOutputPreviewPanel";
@@ -183,6 +184,8 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
         }}
       />
 
+      {buyerPolishedShell ? <OperatorHomeWorkingOpenGateStrip /> : null}
+
       {nestedPolicyEnvelopeEntry && pinnedArchitectureId.length > 0 ? (
         <ImpactPreviewPolicyEnvelopeEntryStrip architectureId={pinnedArchitectureId} />
       ) : null}
@@ -264,7 +267,9 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={resolveSystemNotJobWorkingReviewOpenHref(props.scopedRunId, pinnedArchitectureId)}
+            href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(props.scopedRunId, {
+              architectureId: pinnedArchitectureId.length > 0 ? pinnedArchitectureId : null,
+            })}
           >
             Open review
           </Link>

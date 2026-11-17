@@ -10,7 +10,7 @@ export const ADMIN_DIAGNOSTICS_HELP_TITLE_HONESTY_SOURCE_FILES: readonly string[
   "src/lib/admin-diagnostics-help-page-copy.ts",
   "src/lib/admin-diagnostics-help-evidence-copy.ts",
   "src/lib/admin-diagnostics-inbound-copy.ts",
-  "src/lib/product-documentation-registry.ts",
+  "src/lib/product-documentation-registry-entries-operator-workspace.ts",
   "src/lib/help/help-center-catalog.ts",
   "src/app/(operator)/help/_sections/HelpAdminDiagnosticsGuideView.tsx",
 ] as const;

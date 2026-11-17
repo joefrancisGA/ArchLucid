@@ -5,6 +5,7 @@ using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Host.Composition.Configuration;
 
@@ -26,6 +27,7 @@ partial class ArchLucidReferenceDataHotPathRegistrar
         services.AddScoped<DapperAuditRepository>();
         services.AddScoped<IAuditRepository>(sp => new CachingAuditRepository(
             sp.GetRequiredService<DapperAuditRepository>(),
-            sp.GetRequiredService<IHotPathReadCache>()));
+            sp.GetRequiredService<IHotPathReadCache>(),
+            sp.GetService<ILogger<CachingAuditRepository>>()));
     }
 }

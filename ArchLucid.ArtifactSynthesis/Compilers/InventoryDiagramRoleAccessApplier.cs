@@ -88,7 +88,14 @@ internal static class InventoryDiagramRoleAccessApplier
 
             if (distinctRoleNames.Count > 1)
             {
-                return "More than one role name was stored. This line does not list them.";
+                return
+                    $"{InventoryDiagramRelationshipLabelTexts.FormatRoleAssignmentAccessLabel(roleNames[0])} · {distinctRoleNames.Count} distinct role names were stored on this line.";
+            }
+
+            if (roleNames.Count > 1)
+            {
+                return
+                    $"{InventoryDiagramRelationshipLabelTexts.FormatRoleAssignmentAccessLabel(roleNames[0])} ({roleNames.Count} assignments on this line.)";
             }
         }
 
@@ -212,7 +219,12 @@ internal static class InventoryDiagramRoleAccessApplier
                 return $"Role name was not stored. Scope is resource group {resourceGroupName}.";
             }
 
-            return $"{roleName} on resource group {resourceGroupName}";
+            if (resourceGroupName.EndsWith('.'))
+            {
+                return $"{roleName} on resource group {resourceGroupName} {InventoryDiagramRelationshipLabelTexts.RoleAssignmentObservedUseNotStoredSuffix}";
+            }
+
+            return $"{roleName} on resource group {resourceGroupName}. {InventoryDiagramRelationshipLabelTexts.RoleAssignmentObservedUseNotStoredSuffix}";
         }
 
         string subscriptionId = ReadSubscriptionId(normalizedScope);
@@ -224,19 +236,44 @@ internal static class InventoryDiagramRoleAccessApplier
 
         if (roleNameMissing)
         {
-            return $"Role name was not stored. Scope is subscription {subscriptionId}.";
+            return $"Role name was not stored. Scope is subscription id {subscriptionId}. Subscription name was not stored.";
         }
 
-        return $"{roleName} on subscription {subscriptionId}";
+        return $"{roleName} at subscription scope (subscription id {subscriptionId}). Subscription name was not stored. Observed use was not stored.";
     }
 
     private static string ReadResourceName(string scope)
     {
+        const string resourceGroupsSegment = "/resourceGroups/";
+        int resourceGroupIndex = scope.IndexOf(resourceGroupsSegment, StringComparison.OrdinalIgnoreCase);
+        if (resourceGroupIndex >= 0)
+        {
+            int nameStart = resourceGroupIndex + resourceGroupsSegment.Length;
+            if (nameStart >= scope.Length)
+            {
+                return "Resource group name was stored empty.";
+            }
+
+            int nameEnd = scope.IndexOf('/', nameStart);
+            string resourceGroupName = (nameEnd < 0 ? scope[nameStart..] : scope[nameStart..nameEnd]).Trim();
+
+            return resourceGroupName.Length > 0
+                ? resourceGroupName
+                : "Resource group name was stored empty.";
+        }
+
         int lastSlash = scope.LastIndexOf('/');
 
-        return lastSlash >= 0 && lastSlash < scope.Length - 1
-            ? scope[(lastSlash + 1)..]
-            : scope;
+        if (lastSlash < 0 || lastSlash >= scope.Length - 1)
+        {
+            return "Resource group name was not stored.";
+        }
+
+        string trailingSegment = scope[(lastSlash + 1)..].Trim();
+
+        return trailingSegment.Length > 0
+            ? trailingSegment
+            : "Resource group name was stored empty.";
     }
 
     private static string ReadSubscriptionId(string scope)

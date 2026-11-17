@@ -1,4 +1,5 @@
 using ArchLucid.ArtifactSynthesis.Docx;
+using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.ArtifactSynthesis.Sanitization;
 using ArchLucid.Core.Manifest.Sections;
 
@@ -9,12 +10,16 @@ namespace ArchLucid.ArtifactSynthesis.Docx.Builders;
 
 public static class WordDocumentBuilder
 {
+    public const string MermaidSourceStoredEmptyCopy = "Mermaid source was stored empty.";
+
     private static string Sanitize(string? text)
     {
-        return text?.Replace("\r\n", " ", StringComparison.Ordinal)
-                   .Replace('\n', ' ')
-                   .Replace('\r', ' ')
-               ?? string.Empty;
+        // Preserve the display-only whitespace normalization, but remove XML-invalid
+        // control characters and spoofing marks before constructing OpenXml Text nodes.
+        return LlmArtifactFreeTextSanitizer.Sanitize(text)
+            .Replace("\r\n", " ", StringComparison.Ordinal)
+            .Replace('\n', ' ')
+            .Replace('\r', ' ');
     }
 
     private static string SanitizeTableCellText(string? text)
@@ -60,9 +65,11 @@ public static class WordDocumentBuilder
         }
 
         string[] blocks = text.Split(["\r\n\r\n", "\n\n"], StringSplitOptions.None);
+
         foreach (string block in blocks)
         {
             string line = block.Trim();
+
             if (line.Length > 0)
                 AddBodyText(body, line);
         }
@@ -107,10 +114,12 @@ public static class WordDocumentBuilder
     public static void AddSimpleTable(Body body, IEnumerable<(string, string)> rows, bool headerRow = false)
     {
         List<(string, string)> list = rows.ToList();
+
         if (list.Count == 0)
             return;
 
         Table table = CreateTableGrid();
+
         if (headerRow)
         {
             TableCell[] headerCells =
@@ -170,13 +179,14 @@ public static class WordDocumentBuilder
         {
             Run severityRun = new(new Text(SanitizeTableCellText(
                 DocxManifestFieldPresentation.FormatManifestTableCell(issue.Severity, "Severity"))));
+
             if (IsHighSeverity(issue.Severity))
                 severityRun.RunProperties = new RunProperties(
                     new Bold(),
                     new Color { Val = DocxIssueSeverityStyles.HighSeverityColorHex });
 
             string supportingFindings = issue.SupportingFindingIds.Count == 0
-                ? "No supporting findings were stored."
+                ? ArchitectureManifestNarrativeHonestyCopy.SupportingFindingsStoredEmpty
                 : string.Join(", ", issue.SupportingFindingIds);
 
             table.AppendChild(

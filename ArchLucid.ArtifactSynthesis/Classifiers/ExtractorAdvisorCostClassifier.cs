@@ -8,8 +8,11 @@ namespace ArchLucid.ArtifactSynthesis.Classifiers;
 /// <summary>Deterministic cost recommendations from extractor cost JSON (TB-2213 Azure; TB-2215 AWS/GCP).</summary>
 public static class ExtractorAdvisorCostClassifier
 {
-    private const string AzureDefaultTitle = "Azure Advisor cost recommendation";
-    private const string AzureDefaultIdPrefix = "advisor-cost-entry";
+    public const string RecommendationTitleNotStoredLabel = "Recommendation title was not stored.";
+
+    public const string RecommendationIdNotStoredLabel = "Recommendation id was not stored.";
+
+    public const string RecommendationCategoryNotStoredLabel = "Recommendation category was not stored.";
 
     private static readonly string[] RecommendationArrayPropertyNames =
     [
@@ -19,27 +22,21 @@ public static class ExtractorAdvisorCostClassifier
     ];
 
     /// <summary>Cost-optimization recommendations from extractor <c>advisor-cost.json</c>.</summary>
-    public static IReadOnlyList<AdvisorCostRecommendationFinding> ClassifyFromAdvisorCostJson(string advisorCostJson)
-    {
-        return ClassifyFromAdvisorCostJson(advisorCostJson, AzureDefaultTitle, AzureDefaultIdPrefix);
-    }
-
-    /// <summary>Cost-optimization recommendations with cloud-specific default title and id prefix.</summary>
     public static IReadOnlyList<AdvisorCostRecommendationFinding> ClassifyFromAdvisorCostJson(
         string advisorCostJson,
-        string defaultTitle,
-        string defaultIdPrefix)
+        string? _legacyDefaultTitle = null,
+        string? _legacyDefaultIdPrefix = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(advisorCostJson);
-        ArgumentException.ThrowIfNullOrWhiteSpace(defaultTitle);
-        ArgumentException.ThrowIfNullOrWhiteSpace(defaultIdPrefix);
+        _ = _legacyDefaultTitle;
+        _ = _legacyDefaultIdPrefix;
 
         using JsonDocument document = JsonDocument.Parse(advisorCostJson);
         JsonElement root = document.RootElement;
 
         if (root.ValueKind is JsonValueKind.Array)
         {
-            return ClassifyArray(root, defaultTitle, defaultIdPrefix);
+            return ClassifyArray(root);
         }
 
         if (root.ValueKind is not JsonValueKind.Object)
@@ -59,23 +56,20 @@ public static class ExtractorAdvisorCostClassifier
                 continue;
             }
 
-            return ClassifyArray(arrayElement, defaultTitle, defaultIdPrefix);
+            return ClassifyArray(arrayElement);
         }
 
         return [];
     }
 
-    private static IReadOnlyList<AdvisorCostRecommendationFinding> ClassifyArray(
-        JsonElement arrayElement,
-        string defaultTitle,
-        string defaultIdPrefix)
+    private static IReadOnlyList<AdvisorCostRecommendationFinding> ClassifyArray(JsonElement arrayElement)
     {
         List<AdvisorCostRecommendationFinding> findings = [];
         int index = 0;
 
         foreach (JsonElement row in arrayElement.EnumerateArray())
         {
-            AdvisorCostRecommendationFinding? finding = TryClassifyRow(row, index, defaultTitle, defaultIdPrefix);
+            AdvisorCostRecommendationFinding? finding = TryClassifyRow(row, index);
 
             if (finding is not null)
             {
@@ -88,11 +82,7 @@ public static class ExtractorAdvisorCostClassifier
         return findings;
     }
 
-    private static AdvisorCostRecommendationFinding? TryClassifyRow(
-        JsonElement row,
-        int entryIndex,
-        string defaultTitle,
-        string defaultIdPrefix)
+    private static AdvisorCostRecommendationFinding? TryClassifyRow(JsonElement row, int entryIndex)
     {
         if (row.ValueKind is not JsonValueKind.Object)
         {
@@ -115,12 +105,12 @@ public static class ExtractorAdvisorCostClassifier
 
         if (string.IsNullOrWhiteSpace(title))
         {
-            title = defaultTitle;
+            title = RecommendationTitleNotStoredLabel;
         }
 
         if (string.IsNullOrWhiteSpace(recommendationId))
         {
-            recommendationId = $"{defaultIdPrefix}-{entryIndex}";
+            recommendationId = RecommendationIdNotStoredLabel;
         }
 
         decimal? annualSavingsUsd = TryReadAnnualSavingsUsd(properties)
@@ -135,7 +125,7 @@ public static class ExtractorAdvisorCostClassifier
         return new AdvisorCostRecommendationFinding(
             recommendationId.Trim(),
             title.Trim(),
-            string.IsNullOrWhiteSpace(category) ? "Cost" : category.Trim(),
+            string.IsNullOrWhiteSpace(category) ? RecommendationCategoryNotStoredLabel : category.Trim(),
             entryIndex,
             annualSavingsUsd,
             inventoryResourceId);
@@ -145,6 +135,12 @@ public static class ExtractorAdvisorCostClassifier
     {
         foreach (string? candidate in EnumerateInventoryResourceIdCandidates(row, properties))
         {
+            if (string.IsNullOrWhiteSpace(candidate)
+                || candidate.Contains("/subscriptions/unknown/", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             List<string> probe = [];
             FindingEvidenceRefs.TryAppendInventoryResourceId(probe, candidate);
 

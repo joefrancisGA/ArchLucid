@@ -1,9 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+const navigationMocks = vi.hoisted(() => ({
+  router: { push: vi.fn(), replace: vi.fn() },
+  searchParams: new URLSearchParams(),
+}));
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => navigationMocks.router,
   usePathname: () => "/administration/identity/sso-wizard",
+  useSearchParams: () => navigationMocks.searchParams,
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -14,6 +20,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: (): boolean => true,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
 
 vi.mock("@/lib/admin-identity-provider-api", () => ({
   fetchTenantIdentityProviderConfiguration: vi.fn(async () => null),
@@ -62,3 +73,22 @@ describe("SsoWizardPageClient buyer-polished shell (ASS)", () => {
     expect(firstViewport).toContainElement(screen.getByTestId("sso-wizard-orientation-top"));
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+

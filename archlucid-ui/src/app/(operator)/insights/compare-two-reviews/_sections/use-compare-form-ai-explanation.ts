@@ -16,6 +16,8 @@ export function useCompareFormAiExplanation() {
   const [aiLoading, setAiLoading] = useState(false);
 
   const resetAiExplanation = () => {
+    aiGenerationRef.current += 1;
+    setAiLoading(false);
     setAiExplanation(null);
     setAiFailure(null);
     setAiMalformed(null);

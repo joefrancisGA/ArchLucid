@@ -43,7 +43,7 @@ describe("create-home activity band regression (TB-1835)", () => {
     const rea = findUiRouteTrafficRow("REA");
 
     expect(rea).toBeDefined();
-    expect(rea?.path).toBe("/architecture/reviews/[reviewId]?reviewTab=activity");
+    expect(rea?.path).toBe("/architecture/reviews/[reviewId]?archTab=activity");
     expect(rea?.section).toBe("Tab surface");
 
     for (const phrase of REA_TRAFFIC_HONESTY_PHRASES) {

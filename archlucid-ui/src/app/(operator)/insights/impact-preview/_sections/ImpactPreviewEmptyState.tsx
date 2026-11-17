@@ -1,13 +1,22 @@
 "use client";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { buildInsightsFinalizedReviewPrerequisiteEmpty } from "@/lib/insights-finalized-review-prerequisite-empty";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { IMPACT_PREVIEW_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/impact-preview-partial-capture-empty-copy";
+import { IMPACT_PREVIEW_PARTIAL_CAPTURE_NO_BASELINE_LINE } from "@/lib/impact-preview-partial-capture-no-baseline-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+import {
+  buildInsightsFinalizedReviewPrerequisiteEmpty,
+  INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT,
+} from "@/lib/insights-finalized-review-prerequisite-empty";
 import {
   IMPACT_PREVIEW_ACTION_CREATE_PROPOSED_CHANGE,
   IMPACT_PREVIEW_ACTION_OPEN_PLANNING,
   IMPACT_PREVIEW_ACTION_OPEN_REVIEW_PACKAGES,
   IMPACT_PREVIEW_ACTION_REQUEST_ACCESS,
   IMPACT_PREVIEW_CREATE_REVIEW_HREF,
+  IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY,
   IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_BODY,
   IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_TITLE,
   IMPACT_PREVIEW_EMPTY_PERMISSION_BODY,
@@ -24,6 +33,13 @@ export type ImpactPreviewEmptyStateProps = {
 };
 
 export function ImpactPreviewEmptyState(props: ImpactPreviewEmptyStateProps): React.JSX.Element | null {
+  const partialCapture = useLatestSnapshotCaptureIsPartial(true);
+  const partialCaptureFooter = partialCapture ? (
+    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="impact-preview-empty-partial-capture">
+      {IMPACT_PREVIEW_PARTIAL_CAPTURE_EMPTY_LINE}
+    </p>
+  ) : null;
+
   if (props.pageState === "ready") {
     return null;
   }
@@ -52,6 +68,19 @@ export function ImpactPreviewEmptyState(props: ImpactPreviewEmptyStateProps): Re
     return (
       <EnterpriseCompactEmptyState
         {...prerequisiteEmpty}
+        description={
+          <>
+            <p className="m-0">{IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY}</p>
+            <p className="m-0">{INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT}</p>
+          </>
+        }
+        footer={
+          partialCapture ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="impact-preview-no-baseline-partial-capture">
+              {IMPACT_PREVIEW_PARTIAL_CAPTURE_NO_BASELINE_LINE}
+            </p>
+          ) : undefined
+        }
         prominentBoundary
       />
     );
@@ -71,6 +100,7 @@ export function ImpactPreviewEmptyState(props: ImpactPreviewEmptyStateProps): Re
       title={IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_TITLE}
       description={IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_BODY}
       prominentBoundary
+      footer={partialCaptureFooter ?? undefined}
       actions={[
         { label: IMPACT_PREVIEW_ACTION_CREATE_PROPOSED_CHANGE, href: createHref, variant: "primary" },
         ...secondaryActions,

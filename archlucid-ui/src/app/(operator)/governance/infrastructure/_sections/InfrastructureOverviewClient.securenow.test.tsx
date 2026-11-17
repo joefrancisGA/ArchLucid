@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -7,6 +8,32 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
   useProductLine: () => ({ productLine: "security" }),
+}));
+
+vi.mock("@/hooks/use-operator-scope-query-key", () => ({
+  useOperatorScopeQueryKey: () => ({
+    tenantId: "tenant-1",
+    workspaceId: "ws-1",
+    projectId: "prj-1",
+  }),
+}));
+
+vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
+  fetchInfraEvidenceSnapshots: vi.fn(async () => ({
+    items: [],
+    totalCount: 0,
+    page: 1,
+    pageSize: 20,
+    hasMore: false,
+  })),
+}));
+
+vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
+  fetchRemediationInstances: vi.fn(async () => []),
+}));
+
+vi.mock("@/lib/security-evidence-path-api", () => ({
+  fetchSecurityEvidencePathAttackPathReport: vi.fn(async () => null),
 }));
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
@@ -43,28 +70,66 @@ import {
   SECURENOW_INFRASTRUCTURE_HOME_ROWS,
   SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING,
 } from "@/lib/product-line/securenow-infrastructure-home-copy";
+import {
+  SECURENOW_SPONSOR_HOME_ROWS,
+  SECURENOW_SPONSOR_HOME_SECTION_HEADING,
+} from "@/lib/product-line/securenow-sponsor-home-copy";
+import {
+  SECURENOW_FIRST_HOUR_HOME_ROWS,
+  SECURENOW_FIRST_HOUR_OPERATOR_PATH,
+} from "@/lib/product-line/securenow-first-hour-home-copy";
+import { SECURENOW_SELF_SERVICE_OPERATOR_PATH } from "@/lib/product-line/securenow-self-service-home-copy";
 import { InfrastructureOverviewClient } from "./InfrastructureOverviewClient";
+
+function renderSecureNowHome(): void {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
+  render(
+    <QueryClientProvider client={queryClient}>
+      <InfrastructureOverviewClient secureNowHome />
+    </QueryClientProvider>,
+  );
+}
 
 describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
 
-  it("renders Home sections in SecureNow sidebar order", () => {
-    render(<InfrastructureOverviewClient secureNowHome />);
+  it("renders Home sections in SecureNow sidebar order", async () => {
+    renderSecureNowHome();
 
     expect(screen.getByTestId("governance-infrastructure-overview-page-title")).toHaveTextContent(
       OPERATOR_NAV_LINK_LABELS.home,
     );
 
     const groupedSections = screen.getByTestId("securenow-grouped-home-sections");
-    const sectionTestIds = Array.from(groupedSections.children).map(
-      (element) => (element as HTMLElement).dataset.testid,
-    );
+    // First-hour Home deliberately wraps its destination section with capture-loading chrome.
+    // Preserve the section-order contract without treating that wrapper as a missing section.
+    const sectionTestIds = Array.from(groupedSections.children).map((element) => {
+      const directTestId = (element as HTMLElement).dataset.testid;
+      return (
+        directTestId ??
+        element.querySelector<HTMLElement>('[data-testid="securenow-first-hour-home-section"]')?.dataset.testid
+      );
+    });
 
     expect(sectionTestIds).toEqual([
       "securenow-home-environment-context",
+      "securenow-beta-sku-contents-section",
+      "securenow-accelerator-home-section",
+      "securenow-pilot-spine-home-section",
+      "securenow-readout-pack-home-section",
+      "securenow-first-hour-home-section",
+      "securenow-first-useful-answer-home-section",
+      "securenow-self-service-home-section",
       "securenow-home-work-summary",
+      "securenow-return-home-section",
+      "securenow-scenario-home-section",
+      "securenow-reviewer-home-section",
+      "securenow-sponsor-home-section",
       "securenow-findings-home-section",
       "securenow-infrastructure-home-section",
       "securenow-remediation-home-section",
@@ -79,10 +144,14 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     expect(screen.getByRole("heading", { name: "Data sources" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: SECURENOW_COMPLIANCE_HOME_SECTION_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: SECURENOW_SPONSOR_HOME_SECTION_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId(`securenow-compliance-home-link-${SECURENOW_POLICY_PACKS_PATH}`)).toHaveAttribute(
       "href",
       SECURENOW_POLICY_PACKS_PATH,
     );
+    expect(
+      screen.getByTestId("securenow-compliance-home-link-/administration/securenow-compliance-notes"),
+    ).toHaveAttribute("href", "/administration/securenow-compliance-notes");
     expect(screen.getByTestId("securenow-infrastructure-home-link-/infrastructure/resources")).toHaveAttribute(
       "href",
       "/infrastructure/resources",
@@ -93,6 +162,29 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     );
     expect(screen.queryByTestId("securenow-findings-home-link-/security/assigned-to-me")).not.toBeInTheDocument();
     expect(screen.getByTestId("securenow-data-sources-home-link-/integrations/cloud-connections")).toBeInTheDocument();
+    expect(
+      screen.getByTestId(`securenow-sponsor-home-link-${SECURENOW_SPONSOR_HOME_ROWS[0]?.href}`),
+    ).toHaveAttribute("href", SECURENOW_SPONSOR_HOME_ROWS[0]?.href);
+    expect(await screen.findByTestId("securenow-return-home-empty")).toHaveTextContent(
+      "Nothing unfinished on this workspace.",
+    );
+    expect(
+      screen.getByTestId(`securenow-first-hour-home-link-${SECURENOW_FIRST_HOUR_OPERATOR_PATH}`),
+    ).toHaveAttribute("href", SECURENOW_FIRST_HOUR_OPERATOR_PATH);
+    expect(
+      screen.getByTestId(`securenow-first-hour-home-link-${SECURENOW_FIRST_HOUR_HOME_ROWS[0]?.href}`),
+    ).toHaveAttribute("href", SECURENOW_FIRST_HOUR_HOME_ROWS[0]?.href);
+    expect(
+      screen.getByTestId(`securenow-first-hour-home-link-${SECURENOW_FIRST_HOUR_HOME_ROWS[1]?.href}`),
+    ).toHaveAttribute("href", SECURENOW_FIRST_HOUR_HOME_ROWS[1]?.href);
+    expect(
+      screen.getByTestId(
+        "securenow-first-useful-answer-home-link-/administration/securenow-first-hour#first-useful-answer",
+      ),
+    ).toHaveAttribute("href", "/administration/securenow-first-hour#first-useful-answer");
+    expect(
+      screen.getByTestId(`securenow-self-service-home-link-${SECURENOW_SELF_SERVICE_OPERATOR_PATH}#collection`),
+    ).toHaveAttribute("href", `${SECURENOW_SELF_SERVICE_OPERATOR_PATH}#collection`);
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/jira")).not.toBeInTheDocument();
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/servicenow")).not.toBeInTheDocument();
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/teams")).not.toBeInTheDocument();
@@ -104,7 +196,7 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
   it("uses the short SecureNow lead and does not claim seven destinations", () => {
     vi.stubEnv(SECURENOW_EDITION_ENV_NAME, "generic");
 
-    render(<InfrastructureOverviewClient secureNowHome />);
+    renderSecureNowHome();
 
     const primaryContent = screen.getByTestId("governance-infrastructure-overview-primary-content");
 
@@ -136,7 +228,7 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
   it("omits SecureNow home claim discipline on the uhg edition", () => {
     vi.stubEnv(SECURENOW_EDITION_ENV_NAME, "uhg");
 
-    render(<InfrastructureOverviewClient secureNowHome />);
+    renderSecureNowHome();
 
     expect(
       screen.queryByText(/Advice and inventory evidence on this page are not an official compliance report/i),

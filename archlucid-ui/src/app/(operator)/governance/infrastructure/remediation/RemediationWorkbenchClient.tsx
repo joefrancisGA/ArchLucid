@@ -11,6 +11,11 @@ import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { SECURENOW_REMEDIATION_INSTANCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  formatSecureNowPilotStopItsmDraftBody,
+  parseSecureNowStopItsmOutboundDraftFromSearch,
+  SECURENOW_PILOT_STOP_ITSM_FINDING_EXPORT_DRAFT_DISCIPLINE,
+} from "@/lib/product-line/securenow-stop-itsm-handoff";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -19,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RefreshButton } from "@/components/ui/refresh-button";
+import { Textarea } from "@/components/ui/textarea";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
@@ -51,6 +57,7 @@ import {
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
+import { ItsmOutboundCreateIssueDialog } from "@/components/itsm/ItsmOutboundCreateIssueDialog";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
@@ -72,6 +79,13 @@ import {
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { REMEDIATION_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-remediation-page-shortcuts";
+import { REMEDIATION_WORKBENCH_WORKFLOW_HONESTY_LINE } from "@/lib/infra-evidence/remediation-workbench-workflow-honesty-copy";
+import { REMEDIATION_WORKBENCH_EXECUTE_ADVISORY_HONESTY_LINE } from "@/lib/infra-evidence/remediation-workbench-execute-advisory-honesty-copy";
+import { RemediationWorkbenchWavesEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchWavesEmptyPartialHonesty";
+import { REMEDIATION_WORKBENCH_EXECUTE_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/remediation-workbench-partial-capture-honesty-copy";
+import { SecureNowRemediationWorkbenchPartialCaptureStrip } from "@/components/product-line/SecureNowRemediationWorkbenchPartialCaptureStrip";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   fetchInfraEvidenceSnapshots,
@@ -109,6 +123,7 @@ import {
 import {
   REMEDIATION_EXECUTE_DISCLAIMER,
   REMEDIATION_WORKBENCH_COLUMNS,
+  parseRemediationInstanceStatusFilter,
   remediationInstanceStatusLabel,
   type RemediationInstanceDetail,
   type RemediationInstanceSummary,
@@ -130,6 +145,7 @@ import {
   type RemediationLifecycleAction,
 } from "@/lib/infra-evidence/remediation-lifecycle-action-blocked-reason";
 import { remediationInstancesPathForProductLine } from "@/lib/product-line/securenow-remediation-instances-route";
+import { SECURENOW_REMEDIATION_WAVES_EMPTY_LABEL } from "@/lib/product-line/securenow-remediation-waves-empty-copy";
 import { auditEvidencePathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -219,6 +235,7 @@ function buildDiagramHubHref(context: {
 export function RemediationWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
   const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const nowMs = useOperatorRelativeFreshnessNowMs();
   const router = useRouter();
   const pathname = usePathname() ?? "";
@@ -311,6 +328,11 @@ export function RemediationWorkbenchClient() {
   }, [remediationVerifyHintOpenParam]);
 
   const urlFindingId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_FINDING_ID_PARAM));
+  const pilotStopItsmDraft = useMemo(
+    () => parseSecureNowStopItsmOutboundDraftFromSearch(searchParams),
+    [searchParams],
+  );
+  const showPilotStopFindingItsmExport = urlFindingId.length > 0 && pilotStopItsmDraft != null;
   const urlInstanceId = searchParams.get("instanceId")?.trim() ?? "";
   const urlCorrespondenceId = parseInfraEvidenceWorkbenchQueryValue(
     searchParams.get(REMEDIATION_WORKBENCH_CORRESPONDENCE_ID_PARAM),
@@ -326,7 +348,12 @@ export function RemediationWorkbenchClient() {
 
   const [instances, setInstances] = useState<RemediationInstanceSummary[]>([]);
   const [selectedInstanceId, setSelectedInstanceId] = useState(urlInstanceId);
-  const [detail, setDetail] = useState<RemediationInstanceDetail | null>(null);
+  const [loadedDetail, setLoadedDetail] = useState<{
+    instanceId: string;
+    data: RemediationInstanceDetail;
+  } | null>(null);
+  const detail = loadedDetail?.instanceId === selectedInstanceId ? loadedDetail.data : null;
+  const detailRequestVersion = useRef(0);
   const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState("");
   const [waves, setWaves] = useState<Array<{ waveId: string; name: string }>>([]);
@@ -337,6 +364,7 @@ export function RemediationWorkbenchClient() {
   const [rankedFindings, setRankedFindings] = useState<Array<{ findingId: string; explanationSummary: string }>>([]);
   const [wavePlanner, setWavePlanner] = useState<Array<{ waveId: string; name: string; memberCount: number; targetSize: number | null }>>([]);
   const [findingIdInput, setFindingIdInput] = useState(urlFindingId);
+  const [pilotStopFindingItsmDraftBody, setPilotStopFindingItsmDraftBody] = useState("");
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [actionBusy, setActionBusy] = useState(false);
@@ -485,8 +513,10 @@ export function RemediationWorkbenchClient() {
   }, [selectedSnapshotId, selectedWaveId, urlCloudResourceId, urlFindingId]);
 
   const loadDetail = useCallback(async (instanceId: string) => {
+    const requestVersion = ++detailRequestVersion.current;
     if (instanceId.length === 0) {
-      setDetail(null);
+      setLoadedDetail(null);
+      setDetailLoading(false);
       return;
     }
 
@@ -494,12 +524,18 @@ export function RemediationWorkbenchClient() {
 
     try {
       const response = await fetchRemediationInstanceDetail(instanceId);
-      setDetail(response);
+      if (requestVersion === detailRequestVersion.current) {
+        setLoadedDetail({ instanceId, data: response });
+      }
     } catch (error: unknown) {
-      setLoadError(formatRemediationWorkbenchApiError(error));
-      setDetail(null);
+      if (requestVersion === detailRequestVersion.current) {
+        setLoadError(formatRemediationWorkbenchApiError(error));
+        setLoadedDetail(null);
+      }
     } finally {
-      setDetailLoading(false);
+      if (requestVersion === detailRequestVersion.current) {
+        setDetailLoading(false);
+      }
     }
   }, []);
 
@@ -510,6 +546,18 @@ export function RemediationWorkbenchClient() {
   useEffect(() => {
     setFindingIdInput(urlFindingId);
   }, [urlFindingId]);
+
+  useEffect(() => {
+    if (pilotStopItsmDraft == null) {
+      setPilotStopFindingItsmDraftBody("");
+
+      return;
+    }
+
+    setPilotStopFindingItsmDraftBody(
+      formatSecureNowPilotStopItsmDraftBody(pilotStopItsmDraft.pathId, pilotStopItsmDraft.rationale),
+    );
+  }, [pilotStopItsmDraft?.pathId, pilotStopItsmDraft?.rationale, pilotStopItsmDraft]);
 
   useEffect(() => {
     if (urlInstanceId.length > 0) {
@@ -877,6 +925,11 @@ export function RemediationWorkbenchClient() {
       >
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-remediation-selection-announcer" />
 
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-workflow-honesty">
+        {REMEDIATION_WORKBENCH_WORKFLOW_HONESTY_LINE}
+      </p>
+      {isSecureNowProductLine(productLine) ? <SecureNowRemediationWorkbenchPartialCaptureStrip /> : null}
+
       <RemediationWorkbenchContextStrip
         freshnessLabel={freshnessLabel}
         lastRefreshedAt={lastRefreshedAt}
@@ -1012,6 +1065,35 @@ export function RemediationWorkbenchClient() {
         </section>
       ) : null}
 
+      {showPilotStopFindingItsmExport ? (
+        <section
+          className={cnCard}
+          data-testid="infra-remediation-pilot-stop-finding-itsm-export"
+          aria-labelledby="infra-remediation-pilot-stop-finding-itsm-export-heading"
+        >
+          <h2
+            id="infra-remediation-pilot-stop-finding-itsm-export-heading"
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            Pilot Stop — finding ITSM export draft
+          </h2>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_PILOT_STOP_ITSM_FINDING_EXPORT_DRAFT_DISCIPLINE}</p>
+          <div className="space-y-2 pt-2">
+            <Label htmlFor="infra-remediation-pilot-stop-itsm-draft-body">Draft body (paste into the ticket if needed)</Label>
+            <Textarea
+              id="infra-remediation-pilot-stop-itsm-draft-body"
+              readOnly
+              value={pilotStopFindingItsmDraftBody}
+              rows={4}
+              data-testid="infra-remediation-pilot-stop-itsm-draft-body"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-3 pt-3">
+            <ItsmOutboundCreateIssueDialog findingId={urlFindingId} prominent />
+          </div>
+        </section>
+      ) : null}
+
       <section className="grid gap-3 md:grid-cols-3" aria-label="Remediation factory metrics">
         <div className={cnCard}>
           <p className={OPERATOR_TYPOGRAPHY.helper}>Open findings</p>
@@ -1121,7 +1203,15 @@ export function RemediationWorkbenchClient() {
             <OperatorErrorRecoveryContract presentation={loadRecovery} />
           </div>
         ) : (
-          <p className="m-0 text-sm text-destructive" role="alert">{loadError}</p>
+          <div className="space-y-2" data-testid="infra-remediation-load-error-panel" role="alert">
+            <OperatorSectionLoadFailure
+              message={loadError}
+              onRetry={() => void loadWorkbench()}
+              retrying={loading}
+              testId="infra-remediation-load-error-panel"
+            />
+            <OperatorErrorRecoveryContract presentation={loadRecovery} />
+          </div>
         )
       ) : null}
 
@@ -1134,7 +1224,15 @@ export function RemediationWorkbenchClient() {
         <>
           {urlStatus.length > 0 ? (
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-status-filter">
-              Showing remediation instances with status: {remediationInstanceStatusLabel(urlStatus as RemediationInstanceSummary["status"])}.
+              {(() => {
+                const parsedStatus = parseRemediationInstanceStatusFilter(urlStatus);
+
+                if (parsedStatus == null) {
+                  return "Status filter was not recognized; showing all instances in scope.";
+                }
+
+                return `Showing remediation instances with status: ${remediationInstanceStatusLabel(parsedStatus)}.`;
+              })()}
             </p>
           ) : null}
           <section
@@ -1468,6 +1566,20 @@ export function RemediationWorkbenchClient() {
                   </Button>
                 ) : null}
               </div>
+              <p
+                className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="infra-remediation-execute-advisory-honesty"
+              >
+                {REMEDIATION_WORKBENCH_EXECUTE_ADVISORY_HONESTY_LINE}
+              </p>
+              {isSecureNowProductLine(productLine) && partialCapture ? (
+                <p
+                  className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="infra-remediation-execute-partial-capture-honesty"
+                >
+                  {REMEDIATION_WORKBENCH_EXECUTE_PARTIAL_CAPTURE_LINE}
+                </p>
+              ) : null}
               {buyerPolishedShell ? (
                 <div className="space-y-1">
                   <WhyDisabledCtaHint
@@ -1536,8 +1648,11 @@ export function RemediationWorkbenchClient() {
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{REMEDIATION_WAVES_HEADING}</h2>
         {wavePlanner.length === 0 ? (
           <div className="space-y-1">
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{REMEDIATION_WAVES_EMPTY_LABEL}</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              {productLine === "security" ? SECURENOW_REMEDIATION_WAVES_EMPTY_LABEL : REMEDIATION_WAVES_EMPTY_LABEL}
+            </p>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{REMEDIATION_WAVES_EMPTY_HELPER}</p>
+            {isSecureNowProductLine(productLine) ? <RemediationWorkbenchWavesEmptyPartialHonesty /> : null}
           </div>
         ) : (
           <ul className="m-0 grid gap-2 pl-5">

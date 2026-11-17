@@ -26,13 +26,13 @@ public sealed class SqlSecurityEvidencePathExplanationRepository(ISqlConnectionF
                            (
                                ExplanationId, PathId, TenantId, ExecutiveSummary,
                                BusinessImpactHypothesesJson, ProposedRemediationJson,
-                               CitedEvidenceRefsJson, ProvenanceKind, SimulatorLabel, CreatedUtc
+                               CitedEvidenceRefsJson, ProvenanceKind, SimulatorLabel, ModelOutputRejection, CreatedUtc
                            )
                            VALUES
                            (
                                @ExplanationId, @PathId, @TenantId, @ExecutiveSummary,
                                @BusinessImpactHypothesesJson, @ProposedRemediationJson,
-                               @CitedEvidenceRefsJson, @ProvenanceKind, @SimulatorLabel, @CreatedUtc
+                               @CitedEvidenceRefsJson, @ProvenanceKind, @SimulatorLabel, @ModelOutputRejection, @CreatedUtc
                            );
                            """;
 
@@ -52,6 +52,7 @@ public sealed class SqlSecurityEvidencePathExplanationRepository(ISqlConnectionF
                     CitedEvidenceRefsJson = JsonSerializer.Serialize(record.CitedEvidenceRefs, JsonOptions),
                     ProvenanceKind = (int)record.ProvenanceKind,
                     record.SimulatorLabel,
+                    record.ModelOutputRejection,
                     record.CreatedUtc,
                 },
                 cancellationToken: cancellationToken));
@@ -67,7 +68,7 @@ public sealed class SqlSecurityEvidencePathExplanationRepository(ISqlConnectionF
         const string sql = """
                            SELECT ExplanationId, PathId, TenantId, ExecutiveSummary,
                                   BusinessImpactHypothesesJson, ProposedRemediationJson,
-                                  CitedEvidenceRefsJson, ProvenanceKind, SimulatorLabel, CreatedUtc
+                                  CitedEvidenceRefsJson, ProvenanceKind, SimulatorLabel, ModelOutputRejection, CreatedUtc
                            FROM dbo.SecurityEvidencePathExplanations
                            WHERE TenantId = @TenantId AND PathId = @PathId
                            ORDER BY CreatedUtc DESC;
@@ -120,6 +121,7 @@ public sealed class SqlSecurityEvidencePathExplanationRepository(ISqlConnectionF
             CitedEvidenceRefs = citedEvidenceRefs,
             ProvenanceKind = (ProvenanceKind)row.ProvenanceKind,
             SimulatorLabel = row.SimulatorLabel,
+            ModelOutputRejection = row.ModelOutputRejection,
             CreatedUtc = row.CreatedUtc,
         };
     }
@@ -175,6 +177,12 @@ public sealed class SqlSecurityEvidencePathExplanationRepository(ISqlConnectionF
         }
 
         public string? SimulatorLabel
+        {
+            get;
+            init;
+        }
+
+        public string? ModelOutputRejection
         {
             get;
             init;

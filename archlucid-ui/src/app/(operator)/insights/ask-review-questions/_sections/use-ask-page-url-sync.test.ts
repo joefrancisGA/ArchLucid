@@ -81,4 +81,18 @@ describe("useAskPageUrlSync", () => {
     const replacedHref = String(routerReplaceMock.mock.calls.at(-1)?.[0] ?? "");
     expect(replacedHref).not.toContain("thread=stale-thread-id");
   });
+
+  it("resets retrieval mode to unknown on new conversation", () => {
+    const setRetrievalDegraded = vi.fn();
+    const { result } = renderHook(() =>
+      useAskPageUrlSync({
+        ...buildUrlSyncOptions([liveThread], true),
+        setRetrievalDegraded,
+      }),
+    );
+
+    result.current.onNewConversation();
+
+    expect(setRetrievalDegraded).toHaveBeenCalledWith(null);
+  });
 });

@@ -32,8 +32,24 @@ public static class DrRpoQualityAttributeParser
         return rpoMinutes is not null || rtoMinutes is not null;
     }
 
-    private static int ConvertHoursToMinutes(decimal hours) =>
-        (int)Math.Round(hours * 60m, MidpointRounding.AwayFromZero);
+    private static int? ConvertHoursToMinutes(decimal hours)
+    {
+        if (hours < 0 || hours > (int.MaxValue + 1m) / 60m)
+            return null;
+
+        decimal minutes = hours * 60m;
+        decimal rounded = Math.Round(minutes, MidpointRounding.AwayFromZero);
+        if (rounded > int.MaxValue)
+            return null;
+
+        // "RPO 0.5 minutes" is stored as 0.0083 hours. Rounding that product lands on 0,
+        // which the finding then states as an RPO of 0 minutes. A positive fraction stays
+        // at one minute, matching the requirement parser's whole-minute bound.
+        if (rounded == 0 && minutes > 0)
+            return 1;
+
+        return (int)rounded;
+    }
 
     private static bool TryGetHoursProperty(
         IReadOnlyDictionary<string, string> properties,

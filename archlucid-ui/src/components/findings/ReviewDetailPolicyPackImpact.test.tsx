@@ -1,10 +1,21 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { ReviewDetailPolicyPackFindingsBreakdown } from "@/components/findings/ReviewDetailPolicyPackFindingsBreakdown";
 import { ReviewDetailPolicyPackImpactCallout } from "@/components/findings/ReviewDetailPolicyPackImpactCallout";
+import * as policyPackLinks from "@/lib/group-findings-by-policy-pack";
 
 describe("ReviewDetailPolicyPackImpactCallout", () => {
+  it("shows governing pack id not stored when rule set id is blank", () => {
+    render(
+      <ReviewDetailPolicyPackImpactCallout ruleSetId="   " ruleSetVersion={null} runId="run-abc" />,
+    );
+
+    expect(screen.getByTestId("review-detail-policy-pack-impact-callout")).toHaveTextContent(
+      "Governing policy pack id was not stored.",
+    );
+  });
+
   it("surfaces governing pack links and simulate affordance", () => {
     render(
       <ReviewDetailPolicyPackImpactCallout
@@ -69,6 +80,22 @@ describe("ReviewDetailPolicyPackImpactCallout", () => {
       "/governance/audit?runId=run-abc",
     );
   });
+
+  it("shows policy pack link not stored when view href is unavailable", () => {
+    vi.spyOn(policyPackLinks, "resolveReviewDetailPolicyPackHref").mockReturnValue(null);
+
+    render(
+      <ReviewDetailPolicyPackImpactCallout
+        ruleSetId="healthcare-claims-v3"
+        ruleSetVersion="1.0.0"
+        runId="run-abc"
+      />,
+    );
+
+    expect(screen.getByTestId("review-detail-policy-pack-link-not-stored")).toHaveTextContent(
+      "Policy pack link was not stored.",
+    );
+  });
 });
 
 describe("ReviewDetailPolicyPackFindingsBreakdown", () => {
@@ -97,6 +124,28 @@ describe("ReviewDetailPolicyPackFindingsBreakdown", () => {
     expect(screen.getByTestId("policy-pack-impact-simulate-link")).toHaveAttribute(
       "href",
       "/governance/policy-packs?packId=healthcare-claims-v3",
+    );
+  });
+
+  it("labels omitted unmapped finding count without implying zero", () => {
+    render(
+      <ReviewDetailPolicyPackFindingsBreakdown
+        manifestRuleSetId="healthcare-claims-v3"
+        mappedFindingCount={2}
+        unmappedFindingCount={null}
+        groups={[
+          {
+            groupKey: "security architecture baseline",
+            packDisplayName: "Security Architecture Baseline",
+            findingCount: 2,
+            packHref: "/governance/policy-packs?ruleId=sec-base-001",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId("policy-pack-impact-counts")).toHaveTextContent(
+      "Unmapped finding count was not stored.",
     );
   });
 });

@@ -1,7 +1,10 @@
 import type { SponsorScorecardRecommendedAction } from "@/lib/sponsor/sponsor-scorecard-recommended-actions";
 
+export const SPONSOR_VALUE_NARRATIVE_REVIEWS_COUNT_NOT_STORED =
+  "Review count was not stored." as const;
+
 export type BuildSponsorValueNarrativeInput = {
-  readonly reviewsCount: number;
+  readonly reviewsCount: number | null;
   readonly findingsCount: number | null;
   readonly estimatedHoursSaved: number | null;
   readonly estimatedUsdSavings: number | null;
@@ -20,7 +23,10 @@ function formatUsdCompact(value: number): string {
 
 /** Deterministic synthesis line for sponsor scorecard and dashboard (TB-268). */
 export function buildSponsorValueNarrative(input: BuildSponsorValueNarrativeInput): string {
-  const reviewsLabel = input.reviewsCount === 1 ? "review" : "reviews";
+  const reviewsPhrase =
+    input.reviewsCount === null
+      ? SPONSOR_VALUE_NARRATIVE_REVIEWS_COUNT_NOT_STORED
+      : `${input.reviewsCount} ${input.reviewsCount === 1 ? "review" : "reviews"}`;
   const findingsPhrase =
     input.findingsCount === null
       ? "Finding count was not stored."
@@ -44,8 +50,5 @@ export function buildSponsorValueNarrative(input: BuildSponsorValueNarrativeInpu
         ? `~${hoursRounded} h saved (estimated)`
         : `${hoursRounded} h saved`;
 
-  return (
-    `This period: ${input.reviewsCount} ${reviewsLabel}, ${findingsPhrase}, ` +
-    `${savingsFragment}${hoursFragment}.${topActionFragment}`
-  );
+  return `This period: ${reviewsPhrase}, ${findingsPhrase}, ${savingsFragment}${hoursFragment}.${topActionFragment}`;
 }

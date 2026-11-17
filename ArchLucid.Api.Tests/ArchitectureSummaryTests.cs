@@ -1,6 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
-
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Tests.TestDtos;
 
@@ -17,32 +14,13 @@ public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetManifestSummary_ReturnsMarkdown()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-SUMMARY-001")));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
-
-        HttpResponseMessage summaryResponse =
-            await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/summary");
-
-        summaryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        ManifestMarkdownDocumentResponse? summaryPayload =
-            await summaryResponse.Content.ReadFromJsonAsync<ManifestMarkdownDocumentResponse>(JsonOptions);
+        ManifestMarkdownDocumentResponse summaryPayload =
+            await finalized.GetManifestSummaryAsync(Client, JsonOptions);
         summaryPayload.Should().NotBeNull();
         summaryPayload.Format.Should().Be("markdown");
-        summaryPayload.Content.Should().Contain("# Architecture Summary: EnterpriseRag");
+        summaryPayload.Content.Should().Contain($"# Architecture Summary: {finalized.SystemName}");
         summaryPayload.Content.Should().Contain("## Services");
         summaryPayload.Content.Should().Contain("rag-api");
         summaryPayload.Content.Should().Contain("rag-search");

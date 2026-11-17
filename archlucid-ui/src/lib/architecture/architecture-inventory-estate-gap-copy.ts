@@ -25,7 +25,11 @@ export function resolveArchitectureInventoryEstateGapState(
     return "bound";
   }
 
-  return "unbound";
+  if (binding.isBound === false) {
+    return "unbound";
+  }
+
+  return "unknown";
 }
 
 export function formatArchitectureInventoryUnboundEstateGapLine(

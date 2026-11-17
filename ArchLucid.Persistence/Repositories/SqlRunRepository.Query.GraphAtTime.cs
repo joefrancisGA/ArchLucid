@@ -48,7 +48,7 @@ public sealed partial class SqlRunRepository
         }
     }
 
-    public async Task ClearGraphSnapshotForArchitectureAsync(
+    public async Task<IReadOnlyList<Guid>> ClearGraphSnapshotForArchitectureAsync(
         ScopeContext scope,
         Guid architectureId,
         CancellationToken ct)
@@ -57,15 +57,17 @@ public sealed partial class SqlRunRepository
         PersistenceTenantScope.RequireScopedTenant(scope);
 
         if (architectureId == Guid.Empty)
-            return;
+            return [];
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
-        await connection.ExecuteAsync(
+        IEnumerable<Guid> runIds = await connection.QueryAsync<Guid>(
             new CommandDefinition(
                 RunRepositorySql.ClearGraphSnapshotForArchitecture,
                 RunListQueryParameters.ForClearGraphSnapshotForArchitecture(scope, architectureId),
                 cancellationToken: ct)).ConfigureAwait(false);
+
+        return runIds.AsList();
     }
 
     public async Task<Guid?> GetLatestRunIdForArchitectureAsync(

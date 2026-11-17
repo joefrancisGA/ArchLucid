@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   ARCHITECTURE_DIAGRAM_ACCEPT_INFERRED_ACTION,
   ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HEADING,
+  ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HELPER,
   ARCHITECTURE_DIAGRAM_REMOVE_INFERRED_ACTION,
   ARCHITECTURE_DIAGRAM_RESTORE_INFERRED_ACTION,
   ARCHITECTURE_DIAGRAM_REMOVED_INFERRED_HEADING,
@@ -45,6 +46,9 @@ export function ArchitectureDiagramInferredPanel(props: ArchitectureDiagramInfer
         <div className="space-y-2" data-testid="architecture-diagram-inferred-list">
           <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             {ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HEADING}
+          </p>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HELPER}
           </p>
           <ul className="m-0 list-none space-y-2 p-0">
             {pendingNodes.map((node) => (

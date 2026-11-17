@@ -17,7 +17,7 @@ public sealed record CareerExportCoverageHonestyInput(
     StructuralExecutionMode StructuralExecutionMode = StructuralExecutionMode.Simulator,
     bool IsSampleRun = false,
     string? HostAgentExecutionMode = null,
-    AgentOutputQualityGateMode HostQualityGateMode = AgentOutputQualityGateMode.WarnOnly,
+    AgentOutputQualityGateMode? HostQualityGateMode = null,
     AgentOutputQualityGateMode? RecordedQualityGateMode = null,
     AgentOutputQualityGateOutcome? AggregateQualityGateOutcome = null,
     int? JudgeSkippedByCap = null,
@@ -26,4 +26,5 @@ public sealed record CareerExportCoverageHonestyInput(
     DateTime? ArchitectureInventorySnapshotCapturedUtc = null,
     string? WorkingCareerRehearsalDoor = null,
     string? RuleSetId = null,
-    string? RuleSetVersion = null);
+    string? RuleSetVersion = null,
+    string? ReviewRecordStatus = null);

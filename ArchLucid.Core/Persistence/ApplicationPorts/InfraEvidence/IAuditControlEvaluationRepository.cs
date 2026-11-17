@@ -10,7 +10,7 @@ public interface IAuditControlEvaluationRepository
         ProjectScopeKey scope,
         AuditControlEvaluationPersistRequest request,
         CancellationToken cancellationToken = default) =>
-        InsertAsync(request, cancellationToken);
+        throw new NotSupportedException("A project-scoped audit repository implementation is required.");
 
     Task<AuditControlEvaluationRecord?> TryGetLatestByControlAsync(
         Guid tenantId,
@@ -23,7 +23,7 @@ public interface IAuditControlEvaluationRepository
         Guid controlId,
         Guid snapshotId,
         CancellationToken cancellationToken = default) =>
-        TryGetLatestByControlAsync(scope.TenantId, controlId, snapshotId, cancellationToken);
+        throw new NotSupportedException("A project-scoped audit repository implementation is required.");
 
     Task<IReadOnlyList<AuditEvidenceItemRecord>> ListEvidenceItemsByEvaluationAsync(
         Guid tenantId,
@@ -34,5 +34,5 @@ public interface IAuditControlEvaluationRepository
         ProjectScopeKey scope,
         Guid evaluationId,
         CancellationToken cancellationToken = default) =>
-        ListEvidenceItemsByEvaluationAsync(scope.TenantId, evaluationId, cancellationToken);
+        throw new NotSupportedException("A project-scoped audit repository implementation is required.");
 }

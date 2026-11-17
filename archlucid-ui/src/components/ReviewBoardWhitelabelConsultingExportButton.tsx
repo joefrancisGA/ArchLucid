@@ -33,6 +33,7 @@ import {
   reviewConsultingExportPanelsHrefFromSearch,
 } from "@/lib/reviews/review-consulting-export-panels-url";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { resolveReviewUrlStatePathname } from "@/lib/architecture/review-url-state-pathname";
 
 export type ReviewBoardWhitelabelConsultingExportButtonProps = {
   runId: string;
@@ -75,7 +76,7 @@ export function ReviewBoardWhitelabelConsultingExportButton(
   const { runId, manifestVersion = null } = props;
   const { currentPrincipal } = useOperatorNavAuthority();
   const router = useRouter();
-  const pathname = usePathname() ?? `/architecture/reviews/${runId}`;
+  const pathname = resolveReviewUrlStatePathname(usePathname(), runId);
   const searchParams = useSearchParams();
   const consultingExportOpenParam = searchParams.get("consultingExportOpen");
   const [open, setOpenState] = useState(() =>

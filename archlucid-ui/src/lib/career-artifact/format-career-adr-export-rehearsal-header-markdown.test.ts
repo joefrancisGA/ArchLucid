@@ -28,7 +28,7 @@ describe("formatCareerAdrExportRehearsalHeaderMarkdown (CG-024)", () => {
     });
 
     expect(strip).not.toBeNull();
-    expect(strip?.title).toMatch(/Rehearsal/i);
+    expect(strip?.title).toBe(PACKAGE_PRINT_REHEARSAL_STRIP_TITLE);
   });
 
   it("omits header for Real structural mode", () => {

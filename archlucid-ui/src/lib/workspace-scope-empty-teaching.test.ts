@@ -10,6 +10,7 @@ import {
   buildGovernanceFindingsHubWorkspaceScopeEmptyTeaching,
   buildReviewsHubWorkspaceScopeEmptyTeaching,
   buildSignedRecordsHubWorkspaceScopeEmptyTeaching,
+  WORKSPACE_SCOPE_EMPTY_REVIEWS_HUB_SWITCHER_HINT,
   buildWorkspaceScopeEmptyTeaching,
   resolveWorkspaceScopeEmptyTeachingForHub,
   resolveWorkspaceScopeEmptyTeachingScopeLabel,
@@ -115,7 +116,7 @@ describe("buildReviewsHubWorkspaceScopeEmptyTeaching", () => {
     );
 
     expect(copy.title).toBe("No reviews in Payments");
-    expect(copy.body).toBe(WORKSPACE_SCOPE_EMPTY_TEACHING_DEFAULT_SWITCHER_HINT);
+    expect(copy.body).toBe(WORKSPACE_SCOPE_EMPTY_REVIEWS_HUB_SWITCHER_HINT);
   });
 });
 

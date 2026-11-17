@@ -17,6 +17,10 @@ describe("FindingEvidenceLinkChip", () => {
     render(<FindingEvidenceLinkChip href="/architecture/reviews/run-1/graph" evidenceRefCount={3} />);
 
     expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("Evidence: 3 linked");
+    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveAttribute(
+      "aria-label",
+      expect.stringContaining("Graph link opens layout adjacency"),
+    );
   });
 
   it("falls back to evidence graph label without count", () => {
@@ -32,12 +36,13 @@ describe("FindingEvidenceLinkChip", () => {
       <FindingEvidenceLinkChip href="/architecture/reviews/run-1/graph" evidenceRefCount={0} />,
     );
 
-    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("Evidence: 0 linked");
+    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("No evidence references were stored");
 
     rerender(<FindingEvidenceLinkChip href="/architecture/reviews/run-1/graph" evidenceRefCount={null} />);
     expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent(
       "Evidence reference count was not stored",
     );
+    expect(screen.getByTestId("finding-evidence-link-chip").tagName).toBe("SPAN");
     expect(screen.getByTestId("finding-evidence-link-chip")).toHaveAttribute(
       "aria-label",
       "Evidence reference count was not stored",
@@ -56,7 +61,8 @@ describe("FindingEvidenceLinkChip", () => {
     const link = screen.getByTestId("finding-evidence-link-chip");
 
     expect(link).toHaveTextContent("2 linked");
-    expect(link).toHaveAttribute("aria-label", "Evidence: 2 linked");
+    expect(link).toHaveAttribute("aria-label", expect.stringContaining("Evidence: 2 linked"));
+    expect(link.getAttribute("aria-label")).toContain("Graph link opens layout adjacency");
     expect(link.textContent).not.toMatch(/^Evidence/i);
     expect(link.className).toContain("text-[13px]");
     expect(link.className).toContain("text-al-text-primary");

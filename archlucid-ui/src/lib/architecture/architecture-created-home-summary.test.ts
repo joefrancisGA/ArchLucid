@@ -68,4 +68,99 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
     );
     expect(fields).toContainEqual({ label: "Major systems", value: "Ledger API" });
   });
+
+  it("labels stored-empty key integrations separately from omitted (P-09)", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        keyIntegrations: [],
+      }),
+    );
+
+    expect(fields).toContainEqual({
+      label: "Key integrations",
+      value: "Integration names were not stored.",
+    });
+  });
+
+  it("lists stored integration names (P-08)", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        keyIntegrations: ["Payment gateway"],
+      }),
+    );
+
+    expect(fields).toContainEqual({
+      label: "Key integrations",
+      value: "Payment gateway",
+    });
+  });
+
+  it("shows integration narrative without treating commas as separate names (P-07)", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        keyIntegrations: ["Payment gateway, CRM sync, and legacy batch feed"],
+      }),
+    );
+
+    expect(fields).toContainEqual({
+      label: "Key integrations",
+      value: "Payment gateway, CRM sync, and legacy batch feed",
+    });
+  });
+
+  it("labels parsed actor names once when fromSubmittedParse (P-01)", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        peopleAndSystems: [{ label: "Payment gateway", kind: "Human", fromSubmittedParse: true }],
+      }),
+    );
+
+    const primaryUsers = fields.find((field) => field.label === "Primary users")?.value ?? "";
+
+    expect(primaryUsers).toBe("Payment gateway (submitted text, not operator-asserted)");
+    expect(primaryUsers.match(/\(submitted text, not operator-asserted\)/gu)?.length).toBe(1);
+  });
+
+  it("marks Both kind on primary users and major systems lines (P-02)", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        peopleAndSystems: [{ label: "Ops portal", kind: "Both", fromSubmittedParse: false }],
+      }),
+    );
+
+    expect(fields.find((field) => field.label === "Primary users")?.value).toContain("(stored as Both)");
+    expect(fields.find((field) => field.label === "Major systems")?.value).toContain("(stored as Both)");
+  });
+
+  it("labels missing actor kind on parsed primary users (P-17)", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        peopleAndSystems: [{ label: "Claims analyst", kind: "   ", fromSubmittedParse: false }],
+      }),
+    );
+
+    expect(fields.find((field) => field.label === "Primary users")?.value).toContain(
+      "Claims analyst — Actor kind was not stored.",
+    );
+  });
+
+  it("does not count blank actor names toward visible list overflow (P-15)", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        peopleAndSystems: [
+          { label: "Ledger API", kind: "Machine" },
+          { label: "   ", kind: "Machine" },
+          { label: "Billing API", kind: "Machine" },
+          { label: "Claims API", kind: "Machine" },
+          { label: "Auth API", kind: "Machine" },
+          { label: "Notify API", kind: "Machine" },
+        ],
+      }),
+    );
+
+    const majorSystems = fields.find((field) => field.label === "Major systems")?.value ?? "";
+
+    expect(majorSystems).toBe("Ledger API, Billing API, Claims API, Auth API (1 more entry was stored.)");
+    expect(majorSystems).not.toContain("was not stored");
+  });
 });

@@ -22,7 +22,7 @@ export function auditEventFriendlyTitle(eventType: string): string {
   const key = eventType.trim();
 
   if (key.length === 0) {
-    return "Event";
+    return "Event type was not stored.";
   }
 
   switch (key) {
@@ -84,7 +84,7 @@ export function auditEventFriendlyTitle(eventType: string): string {
       return "Inferred connection dismissed";
 
     default:
-      return humanizeUnknownAuditEventType(key);
+      return `Event type has no reviewer label: ${key}`;
   }
 }
 
@@ -124,17 +124,7 @@ export function auditEventLifecycleStage(eventType: string): ReviewAuditLifecycl
   }
 }
 
-/** Humanize unknown audit codes — mirrors Contracts `HumanizeUnknown` (last dotted segment, word-split, title case). */
+/** Unknown audit codes — reviewer label is not mapped in the UI catalog. */
 export function humanizeUnknownAuditEventType(raw: string): string {
-  const parts = raw.split(".").filter((p) => p.trim().length > 0);
-  const last = parts.length > 0 ? parts[parts.length - 1] : raw;
-  const words = last.replace(/-/g, " ").replace(/_/g, " ").split(/\s+/).filter((w) => w.length > 0);
-
-  if (words.length === 0) {
-    return raw;
-  }
-
-  return words
-    .map((w) => (w.length === 0 ? "" : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))
-    .join(" ");
+  return `Event type has no reviewer label: ${raw}`;
 }

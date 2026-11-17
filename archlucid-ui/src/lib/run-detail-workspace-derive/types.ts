@@ -30,7 +30,7 @@ export type ReviewHeaderPresentation = {
   readonly reviewIdentifierLabel: string;
 }
 export type EvidenceCoverageSummary = {
-  readonly linkedCount: number;
+  readonly linkedCount: number | null;
   readonly totalCount: number;
   readonly summaryLine: string;
 }

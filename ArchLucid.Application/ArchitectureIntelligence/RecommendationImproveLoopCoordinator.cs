@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Contracts.ArchitectureIntelligence;
@@ -240,9 +241,12 @@ public sealed class RecommendationImproveLoopCoordinator(
 
         try
         {
-            return await _technologyLedgerRepository
-                .GetByRunIdAsync(scope, runId.ToString("D"), cancellationToken)
-                .ConfigureAwait(false);
+            string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId.ToString());
+            return await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+                _technologyLedgerRepository,
+                scope,
+                canonicalRunId,
+                cancellationToken).ConfigureAwait(false);
         }
         catch (Exception) when (cancellationToken.IsCancellationRequested)
         {

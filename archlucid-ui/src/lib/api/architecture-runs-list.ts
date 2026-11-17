@@ -5,13 +5,23 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { runListBlockedReason } from "@/lib/runs/run-list-blocked-reason";
 
+import { encodeRequiredPathSegment, positiveIntegerOrDefault, recordsOnly } from "./api-boundary-normalization";
 import { apiGet } from "./http";
 
+/** Page size used when a caller passes a zero, negative, or non-finite take. */
+const DEFAULT_RUN_LIST_TAKE = 20;
+
+function runListTake(take: number): string {
+  return String(positiveIntegerOrDefault(take, DEFAULT_RUN_LIST_TAKE));
+}
+
 /** Lists recent runs for a project (GET /v1/authority/projects/{id}/reviews). */
-export async function listRunsByProject(projectId: string, take = 20): Promise<RunSummary[]> {
+export async function listRunsByProject(projectId: string, take = DEFAULT_RUN_LIST_TAKE): Promise<RunSummary[]> {
+  const encodedProjectId = encodeRequiredPathSegment(projectId, "projectId");
+
   try {
-    return await apiGet<RunSummary[]>(
-      `/v1/authority/projects/${encodeURIComponent(projectId)}/reviews?take=${take}`,
+    return recordsOnly<RunSummary>(
+      await apiGet<unknown>(`/v1/authority/projects/${encodedProjectId}/reviews?take=${runListTake(take)}`),
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -45,13 +55,14 @@ export async function listRunsByProjectPaged(
   },
 ): Promise<PagedResponse<RunSummary>> {
   void page;
+  const encodedProjectId = encodeRequiredPathSegment(projectId, "projectId");
   const q = new URLSearchParams();
-  q.set("take", String(pageSize));
+  q.set("take", runListTake(pageSize));
   q.set("cursor", options?.cursor ?? "");
 
   try {
     return await apiGet<PagedResponse<RunSummary>>(
-      `/v1/authority/projects/${encodeURIComponent(projectId)}/reviews?${q}`,
+      `/v1/authority/projects/${encodedProjectId}/reviews?${q}`,
       options?.scopeHeaders !== undefined ? { scopeHeaders: options.scopeHeaders } : undefined,
     );
   } catch (error: unknown) {
@@ -76,7 +87,7 @@ export async function listRunsInScopePaged(
 ): Promise<PagedResponse<RunSummary>> {
   void page;
   const q = new URLSearchParams();
-  q.set("take", String(pageSize));
+  q.set("take", runListTake(pageSize));
   q.set("cursor", options?.cursor ?? "");
 
   try {

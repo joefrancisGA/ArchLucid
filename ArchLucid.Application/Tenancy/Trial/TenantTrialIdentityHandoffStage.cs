@@ -73,8 +73,8 @@ public sealed class TenantTrialIdentityHandoffStage(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.TenantEntraDirectoryBound,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
+                    ActorUserId = actor.Trim(),
+                    ActorUserName = actor.Trim(),
                     TenantId = tenant.Id,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,
@@ -141,8 +141,8 @@ public sealed class TenantTrialIdentityHandoffStage(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.TrialLocalIdentityLinkedToEntra,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
+                    ActorUserId = actor.Trim(),
+                    ActorUserName = actor.Trim(),
                     TenantId = tenant.Id,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,

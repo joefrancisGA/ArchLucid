@@ -24,7 +24,7 @@ export function VocabularyRailCompactLink(props: VocabularyRailCompactLinkProps)
   const link = (
     <Link
       href={props.href}
-      className={props.className}
+      className={cn(OPERATOR_LINK.inline, props.className)}
       data-testid={props.testId}
       onClick={props.onClick}
     >

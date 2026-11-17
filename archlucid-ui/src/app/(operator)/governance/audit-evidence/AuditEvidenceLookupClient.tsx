@@ -69,6 +69,7 @@ import {
 import { cn } from "@/lib/utils";
 
 import { AuditEvidenceClaimOrientationStrip } from "./AuditEvidenceClaimOrientationStrip";
+import { AuditEvidenceLookupPartialCaptureFootnote } from "./AuditEvidenceLookupPartialCaptureFootnote";
 import { AuditEvidenceLookupBuildProvenanceStrip } from "./AuditEvidenceLookupBuildProvenanceStrip";
 import { AuditEvidenceLookupRecentLineageTable } from "./AuditEvidenceLookupRecentLineageTable";
 import { AuditEvidenceLookupScopeBanner } from "./AuditEvidenceLookupScopeBanner";
@@ -774,8 +775,15 @@ export function AuditEvidenceLookupClient() {
               {AUDIT_EVIDENCE_START_FROM_INVENTORY_ACTION}
             </Link>
           </p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link className={OPERATOR_LINK.inline} href="/administration/securenow-compliance-notes">
+              Duty split
+            </Link>{" "}
+            — Not a certification.
+          </p>
         </section>
 
+        <AuditEvidenceLookupPartialCaptureFootnote />
         {buyerPolishedShell ? <AuditEvidenceClaimOrientationStrip /> : null}
       </div>
     </div>

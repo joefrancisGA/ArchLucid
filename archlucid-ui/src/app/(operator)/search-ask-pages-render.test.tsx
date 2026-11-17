@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import AskPage from "@/app/(operator)/insights/ask-review-questions/page";
 import SearchPage from "@/app/(operator)/insights/search-review-evidence/page";
+import { BUYER_ASK_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { SEARCH_QUERY_FIELD_LABEL } from "@/app/(operator)/insights/search-review-evidence/_sections/search-page-copy";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
@@ -26,8 +27,30 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
   return {
     ...actual,
-    isBuyerPolishedOperatorShellEnv: () => false,
+    isBuyerPolishedOperatorShellEnv: () => true,
     isNextPublicDemoMode: () => false,
+  };
+});
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
   };
 });
 
@@ -94,8 +117,8 @@ describe("AskPage (operator shell)", () => {
     const page = await AskPage();
     renderWithOperatorQuery(page);
 
-    expect(screen.getByRole("heading", { name: /ask review questions/i })).toBeInTheDocument();
-    expect(screen.getByRole("textbox", { name: /^question$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: BUYER_ASK_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: /^your question$/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^ask$/i })).toBeInTheDocument();
   });
 });

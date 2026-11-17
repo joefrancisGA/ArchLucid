@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
@@ -20,6 +21,7 @@ import {
 
 /** Sources-only follow-ups for `/insights/ask-review-questions` buyer-polished shell (ASK). */
 export function AskSourcesOrientationStrip(): React.JSX.Element {
+  const { productLine } = useProductLine();
   const { isWorkingMode } = useWorkspaceMode();
   const router = useRouter();
   const pathname = usePathname() ?? "/";
@@ -63,7 +65,7 @@ export function AskSourcesOrientationStrip(): React.JSX.Element {
         headingId="where-to-go-next"
         title={ASK_REVIEW_QUESTIONS_FOLLOW_UPS_TITLE}
         intro={ASK_REVIEW_QUESTIONS_SOURCES_INTRO}
-        links={buildAskReviewQuestionsSources(isWorkingMode)}
+        links={buildAskReviewQuestionsSources(isWorkingMode, productLine)}
         style={EVIDENCE_SOURCES_STYLE.operatorRaised}
         layout="columns"
       />

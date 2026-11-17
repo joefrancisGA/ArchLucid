@@ -1,8 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { scrollToReviewDetailSection } from "./review-detail-section-scroll";
+import {
+  scheduleScrollToReviewDetailSection,
+  scheduleScrollToReviewFinding,
+  scrollToReviewDetailSection,
+  scrollToReviewFinding,
+} from "./review-detail-section-scroll";
 
 describe("scrollToReviewDetailSection", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    document.body.innerHTML = "";
+  });
+
   it("expands workspace disclosure and scrolls to the target section", () => {
     document.body.innerHTML = `
       <section id="artifacts-exports">
@@ -54,5 +64,76 @@ describe("scrollToReviewDetailSection", () => {
     scrollToReviewDetailSection("artifacts-exports");
 
     expect(window.location.hash).toBe("#artifacts-exports");
+  });
+
+  it("keeps retrying until a deferred review section mounts", () => {
+    vi.useFakeTimers();
+    document.body.innerHTML = "";
+
+    scheduleScrollToReviewDetailSection("deferred-evidence");
+    vi.advanceTimersByTime(450);
+
+    const target = document.createElement("section");
+    target.id = "deferred-evidence";
+    target.scrollIntoView = vi.fn();
+    document.body.append(target);
+
+    vi.advanceTimersByTime(50);
+
+    expect(target.scrollIntoView).toHaveBeenCalledOnce();
+  });
+
+  it("expands disclosure on first-review spine review-package anchor", () => {
+    document.body.innerHTML = `
+      <section id="run-detail-first-review-spine-review-package">
+        <details data-workspace-disclosure>
+          <summary>Review package</summary>
+        </details>
+      </section>
+    `;
+
+    const disclosure = document.querySelector("details");
+
+    expect(disclosure?.open).toBe(false);
+    expect(scrollToReviewDetailSection("run-detail-first-review-spine-review-package")).toBe(true);
+    expect(disclosure?.open).toBe(true);
+  });
+});
+
+describe("scrollToReviewFinding", () => {
+  afterEach(() => {
+    document.body.innerHTML = "";
+    vi.restoreAllMocks();
+  });
+
+  it("finds cards by data-finding-id", () => {
+    const card = document.createElement("article");
+    card.setAttribute("data-finding-id", "finding-abc");
+    card.scrollIntoView = vi.fn();
+    card.focus = vi.fn();
+    document.body.appendChild(card);
+
+    expect(scrollToReviewFinding("finding-abc")).toBe(true);
+    expect(card.scrollIntoView).toHaveBeenCalled();
+    expect(card.focus).toHaveBeenCalled();
+  });
+
+  it("keeps retrying finding scroll until the findings row mounts", () => {
+    vi.useFakeTimers();
+    document.body.innerHTML = "";
+
+    scheduleScrollToReviewFinding("finding-deferred");
+    vi.advanceTimersByTime(450);
+
+    const card = document.createElement("article");
+    card.setAttribute("data-finding-id", "finding-deferred");
+    card.scrollIntoView = vi.fn();
+    card.focus = vi.fn();
+    document.body.appendChild(card);
+
+    vi.advanceTimersByTime(50);
+
+    expect(card.scrollIntoView).toHaveBeenCalledOnce();
+    vi.useRealTimers();
   });
 });

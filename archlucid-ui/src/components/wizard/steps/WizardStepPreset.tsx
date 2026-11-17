@@ -13,6 +13,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Textarea } from "@/components/ui/textarea";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import { resolveDeskContinuityReviewOpenHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 import { applySecondRunPasteToWizard } from "@/lib/second-run-paste";
 import {
   parseWizardPresetImportOpenFromSearch,
@@ -211,7 +212,10 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           </CardHeader>
           <CardFooter>
             <Button asChild type="button" className={CTA_WIDTH.content}>
-              <Link href={`/architecture/reviews/${featuredSampleRunId}`} data-testid="wizard-open-trial-sample-run">
+              <Link
+                href={resolveDeskContinuityReviewOpenHref(featuredSampleRunId, { pathname })}
+                data-testid="wizard-open-trial-sample-run"
+              >
                 Open sample review
               </Link>
             </Button>

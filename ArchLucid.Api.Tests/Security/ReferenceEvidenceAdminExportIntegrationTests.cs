@@ -2,7 +2,6 @@ using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.TestSupport;
 
@@ -34,12 +33,13 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
             GreenfieldIntegrationTenantScope.WireScope(client, scope);
 
             string requestId = testTag[..Math.Min(testTag.Length, 32)];
-            HttpResponseMessage create = await PostArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest(requestId));
+            HttpResponseMessage create = await client.PostGreenfieldArchitectureRequestForTestAsync(
+                TestRequestFactory.CreateArchitectureRequest(requestId),
+                "tb291-ref-");
             await create.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
             string realRunId = created!.Run.RunId;
-            realRunId.Should().NotBe(ContosoRetailDemoIdentifiers.RunBaseline);
-            realRunId.Should().NotBe(ContosoRetailDemoIdentifiers.RunHardened);
+            HarnessDemoBaselineSupport.AssertRunIdIsNotShowcase(realRunId);
 
             await ArchitectureRequestConcurrencyTestSupport.PostExecuteWithGreenfieldTransientRetryAsync(client, realRunId);
             await ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync(client, realRunId);
@@ -49,8 +49,7 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
                 realRunId);
 
             readmeText.Should().Contain(realRunId, because: "bundle must anchor on tenant real committed run");
-            readmeText.Should().NotContain(ContosoRetailDemoIdentifiers.RunBaseline);
-            readmeText.Should().NotContain(ContosoRetailDemoIdentifiers.RunHardened);
+            HarnessDemoBaselineSupport.AssertTextExcludesShowcaseRunKeys(readmeText);
 
             HttpResponseMessage export = await client.GetAsync("/v1/admin/reference-evidence?includeDemo=false");
             export.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -69,12 +68,4 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
         }
     }
 
-    private static Task<HttpResponseMessage> PostArchitectureRequestAsync(HttpClient client, object body)
-    {
-        string idempotencyKey = "tb291-ref-" + Guid.NewGuid().ToString("N");
-        return ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestWithGreenfieldTransientRetryAsync(
-            client,
-            body,
-            idempotencyKey);
-    }
 }

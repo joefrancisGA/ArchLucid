@@ -47,6 +47,34 @@ public sealed class CutPointAnalysisEngineTests
         cutPointRepository.LastReplacedCutPoints.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task RunAsync_empty_snapshot_returns_failure_when_cut_point_cleanup_fails()
+    {
+        ScopeContext scope = CreateScope();
+        Mock<ISecurityEvidenceCutPointRepository> cutPointRepository = new();
+        cutPointRepository.Setup(repository => repository.ReplaceCutPointsForSnapshotInScopeAsync(
+                scope.ToProjectScopeKey(),
+                SnapshotId,
+                It.Is<IReadOnlyList<SecurityEvidenceCutPointRecord>>(rows => rows.Count == 0),
+                CancellationToken.None))
+            .ThrowsAsync(new InvalidOperationException("Storage unavailable"));
+
+        CutPointAnalysisEngine sut = new(
+            new InMemoryPathRepository(),
+            new InMemoryRankRepository(),
+            cutPointRepository.Object,
+            new Mock<IAzureInventorySnapshotRepository>().Object,
+            new InMemoryPatternRepository(),
+            NullLogger<CutPointAnalysisEngine>.Instance);
+
+        CutPointAnalysisEngineResult result = await sut.RunAsync(
+            scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None);
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Cut-point persist failed.");
+        cutPointRepository.VerifyAll();
+    }
+
     private static ScopeContext CreateScope() =>
         new()
         {

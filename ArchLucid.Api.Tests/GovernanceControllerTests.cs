@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
+using ArchLucid.Application.Common;
 
 using FluentAssertions;
 
@@ -14,22 +15,6 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    private async Task<string> CreateRunAsync(string requestId)
-    {
-        HttpResponseMessage response = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
-        await response.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-
-        payload.Should().NotBeNull();
-        payload.Run.Should().NotBeNull();
-        payload.Run.RunId.Should().NotBeNullOrWhiteSpace(
-            "CreateRun response must include Run.RunId so downstream governance calls validate.");
-
-        return payload.Run.RunId;
-    }
-
     /// <summary>
     ///     Governance payloads echo authority run identifiers; formatting may differ from create-run responses while still
     ///     referring to the same run GUID.
@@ -53,11 +38,12 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task SubmitApprovalRequest_ValidRun_ReturnsOk()
     {
-        string runId = await CreateRunAsync("REQ-GOV-SUBMIT-01");
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage response =
             await PostGovernanceApprovalRequestAsync(
-                runId,
+                committed.RunId,
+                manifestVersion: committed.ManifestVersion,
                 requestComment: "Ready for test",
                 testActorName: GovernanceSubmitterName,
                 testActorId: GovernanceSubmitterId);
@@ -72,7 +58,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         payload.ApprovalRequestId.Should().NotBeNullOrWhiteSpace();
         payload.Status.Should().Be("Submitted");
         payload.RequestedBy.Should().Be(GovernanceSubmitterName);
-        AssertSameArchitectureRunId(runId, payload.RunId);
+        AssertSameArchitectureRunId(committed.RunId, payload.RunId);
     }
 
     [SkippableFact]
@@ -100,25 +86,22 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task Approve_ValidRequest_ReturnsOkWithApprovedStatus()
     {
-        string runId = await CreateRunAsync("REQ-GOV-APPROVE-01");
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(
-            runId,
+            committed.RunId,
+            manifestVersion: committed.ManifestVersion,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        await submitResponse.EnsureSuccessForTestAsync();
-        GovernanceApprovalResponseDto? submitted =
-            await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+                GovernanceApprovalResponseDto? submitted =
+            await submitResponse.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         HttpResponseMessage approveResponse = await PostJsonAsTestActorAsync(
             $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve",
             GovernanceReviewDecisionJsonContent("reviewer1", "Approved"),
             "reviewer1",
-            "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
-
-        approveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        GovernanceApprovalResponseDto? result =
-            await approveResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+            "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");        GovernanceApprovalResponseDto? result =
+            await approveResponse.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
         result!.Status.Should().Be("Approved");
         result.ReviewedBy.Should().Be("reviewer1");
     }
@@ -128,39 +111,36 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task Reject_ValidRequest_ReturnsOkWithRejectedStatus()
     {
-        string runId = await CreateRunAsync("REQ-GOV-REJECT-01");
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(
-            runId,
+            committed.RunId,
+            manifestVersion: committed.ManifestVersion,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        await submitResponse.EnsureSuccessForTestAsync();
-        GovernanceApprovalResponseDto? submitted =
-            await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+                GovernanceApprovalResponseDto? submitted =
+            await submitResponse.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         HttpResponseMessage rejectResponse = await PostJsonAsTestActorAsync(
             $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/reject",
             GovernanceReviewDecisionJsonContent("reviewer2", "Not ready"),
             "reviewer2",
-            "cccccccc-cccc-cccc-cccc-cccccccccccc");
-
-        rejectResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        GovernanceApprovalResponseDto? result =
-            await rejectResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+            "cccccccc-cccc-cccc-cccc-cccccccccccc");        GovernanceApprovalResponseDto? result =
+            await rejectResponse.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
         result!.Status.Should().Be("Rejected");
     }
 
     [SkippableFact]
     public async Task Reject_SecondReject_ReturnsConflict()
     {
-        string runId = await CreateRunAsync("REQ-GOV-REJ2-01");
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(
-            runId,
+            committed.RunId,
+            manifestVersion: committed.ManifestVersion,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        await submitResponse.EnsureSuccessForTestAsync();
-        GovernanceApprovalResponseDto? submitted =
-            await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+                GovernanceApprovalResponseDto? submitted =
+            await submitResponse.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
         string url = $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/reject";
         HttpResponseMessage first = await PostJsonAsTestActorAsync(
             url,
@@ -170,9 +150,9 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         first.StatusCode.Should().Be(HttpStatusCode.OK);
         HttpResponseMessage second = await PostJsonAsTestActorAsync(
             url,
-            GovernanceReviewDecisionJsonContent("reviewer-rej2", "no"),
-            "reviewer-rej2",
-            "99999999-9999-9999-9999-999999999999");
+            GovernanceReviewDecisionJsonContent("reviewer-rej2-again", "no"),
+            "reviewer-rej2-again",
+            "88888888-8888-8888-8888-888888888888");
         second.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
@@ -181,10 +161,11 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task Promote_ToProd_WithoutApproval_Returns400()
     {
-        string runId = await CreateRunAsync("REQ-GOV-PROD-01");
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage response = await PostGovernancePromotionAsync(
-            runId,
+            committed.RunId,
+            manifestVersion: committed.ManifestVersion,
             promotedBy: "alice",
             sourceEnvironment: "test",
             targetEnvironment: "prod");
@@ -195,7 +176,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task Promote_ToProd_WithApprovedRequest_ReturnsOk()
     {
-        string runId = await CreateRunAsync("REQ-GOV-PROD-02");
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         // Same reviewer identity shape as Approve_ValidRequest_ReturnsOkWithApprovedStatus (stable vs DevelopmentBypass defaults on CI).
         const string prodReviewerName = "reviewer1";
@@ -203,7 +184,8 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
 
         HttpResponseMessage submitResponse =
             await PostGovernanceApprovalRequestAsync(
-                runId,
+                committed.RunId,
+                manifestVersion: committed.ManifestVersion,
                 sourceEnvironment: "test",
                 targetEnvironment: "prod",
                 testActorName: GovernanceSubmitterName,
@@ -235,6 +217,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         HttpResponseMessage response = await PostGovernancePromotionAsync(
             submitted.RunId,
             promotedBy: prodReviewerName,
+            manifestVersion: committed.ManifestVersion,
             sourceEnvironment: "test",
             targetEnvironment: "prod",
             approvalRequestId: submitted.ApprovalRequestId,
@@ -249,7 +232,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             JsonSerializer.Deserialize<GovernancePromotionResponseDto>(promoteBody, JsonOptions);
         result.Should().NotBeNull();
         result.TargetEnvironment.Should().Be("prod");
-        result.PromotedBy.Should().Be(prodReviewerName);
+        result.PromotedBy.Should().Be($"{ActorContextKeys.JwtActorKeyPrefix}{prodReviewerOid}");
     }
 
     // â”€â”€ Activate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -257,12 +240,12 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task Activate_ValidRun_ReturnsOkAndIsActive()
     {
-        string runId = await CreateRunAsync("REQ-GOV-ACTIVATE-01");
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage response =
             await PostGovernanceActivationAsync(
-                runId,
-                manifestVersion: "v1",
+                committed.RunId,
+                manifestVersion: committed.ManifestVersion,
                 environment: "dev",
                 testActorName: GovernanceSubmitterName,
                 testActorId: GovernanceSubmitterId);
@@ -275,7 +258,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             JsonSerializer.Deserialize<GovernanceActivationResponseDto>(body, JsonOptions);
         result.Should().NotBeNull();
         result.IsActive.Should().BeTrue();
-        AssertSameArchitectureRunId(runId, result.RunId);
+        AssertSameArchitectureRunId(committed.RunId, result.RunId);
         result.Environment.Should().Be("dev");
     }
 
@@ -284,54 +267,55 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task GetApprovalRequests_ByRunId_ReturnsRows()
     {
-        string runId = await CreateRunAsync("REQ-GOV-LIST-01");
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(
-            runId,
+            committed.RunId,
+            manifestVersion: committed.ManifestVersion,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
         await submitResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage listResponse = await Client.GetAsync($"/v1/governance/runs/{runId}/approval-requests");
+        HttpResponseMessage listResponse = await Client.GetAsync($"/v1/governance/runs/{committed.RunId}/approval-requests");
         listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         GovernanceApprovalResponseDto[]? items =
-            await listResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto[]>(JsonOptions);
+            await listResponse.ReadJsonForTestAsync<GovernanceApprovalResponseDto[]>(JsonOptions);
         items.Should().NotBeNullOrEmpty();
-        items.Should().Contain(x => SameArchitectureRunId(x.RunId, runId));
+        items.Should().Contain(x => SameArchitectureRunId(x.RunId, committed.RunId));
     }
 
     [SkippableFact]
     public async Task GetPromotions_ByRunId_ReturnsRows()
     {
-        string runId = await CreateRunAsync("REQ-GOV-LIST-02");
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         // FluentValidation requires PromotedBy on the body; Promote persists promotedBy from GetActor() (default "Developer").
         HttpResponseMessage promoteResponse =
-            await PostGovernancePromotionAsync(runId, promotedBy: "Developer");
+            await PostGovernancePromotionAsync(committed.RunId, promotedBy: "Developer", manifestVersion: committed.ManifestVersion);
 
         string promoteBody = await promoteResponse.Content.ReadAsStringAsync();
 
         promoteResponse.IsSuccessStatusCode.Should().BeTrue(
             $"Promote POST failed with {(int)promoteResponse.StatusCode}: {promoteBody}");
 
-        HttpResponseMessage listResponse = await Client.GetAsync($"/v1/governance/runs/{runId}/promotions");
+        HttpResponseMessage listResponse = await Client.GetAsync($"/v1/governance/runs/{committed.RunId}/promotions");
         listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         GovernancePromotionResponseDto[]? items =
-            await listResponse.Content.ReadFromJsonAsync<GovernancePromotionResponseDto[]>(JsonOptions);
+            await listResponse.ReadJsonForTestAsync<GovernancePromotionResponseDto[]>(JsonOptions);
         items.Should().NotBeNullOrEmpty();
-        items.Should().Contain(x => SameArchitectureRunId(x.RunId, runId));
+        items.Should().Contain(x => SameArchitectureRunId(x.RunId, committed.RunId));
     }
 
     [SkippableFact]
     public async Task GetActivations_ByRunId_ReturnsRows()
     {
-        string runId = await CreateRunAsync("REQ-GOV-LIST-03");
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage activateResponse =
             await PostGovernanceActivationAsync(
-                runId,
-                manifestVersion: "v1",
+                committed.RunId,
+                manifestVersion: committed.ManifestVersion,
                 environment: "test",
                 testActorName: GovernanceSubmitterName,
                 testActorId: GovernanceSubmitterId);
@@ -341,33 +325,30 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         activateResponse.IsSuccessStatusCode.Should().BeTrue(
             $"Activate POST failed with {(int)activateResponse.StatusCode}: {activateBody}");
 
-        HttpResponseMessage listResponse = await Client.GetAsync($"/v1/governance/runs/{runId}/activations");
+        HttpResponseMessage listResponse = await Client.GetAsync($"/v1/governance/runs/{committed.RunId}/activations");
         listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         GovernanceActivationResponseDto[]? items =
-            await listResponse.Content.ReadFromJsonAsync<GovernanceActivationResponseDto[]>(JsonOptions);
+            await listResponse.ReadJsonForTestAsync<GovernanceActivationResponseDto[]>(JsonOptions);
         items.Should().NotBeNullOrEmpty();
-        items.Should().Contain(x => SameArchitectureRunId(x.RunId, runId));
+        items.Should().Contain(x => SameArchitectureRunId(x.RunId, committed.RunId));
     }
 
     [SkippableFact]
     public async Task GetApprovalRequestRationale_AfterSubmit_ReturnsOk()
     {
-        string runId = await CreateRunAsync("REQ-GOV-RATIONALE-01");
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(
-            runId,
+            committed.RunId,
+            manifestVersion: committed.ManifestVersion,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        await submitResponse.EnsureSuccessForTestAsync();
-        GovernanceApprovalResponseDto? submitted =
-            await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+                GovernanceApprovalResponseDto? submitted =
+            await submitResponse.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         HttpResponseMessage rationaleResponse = await Client.GetAsync(
-            $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/rationale");
-
-        rationaleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        GovernanceRationaleResponseDto? payload =
-            await rationaleResponse.Content.ReadFromJsonAsync<GovernanceRationaleResponseDto>(JsonOptions);
+            $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/rationale");        GovernanceRationaleResponseDto? payload =
+            await rationaleResponse.ReadJsonForTestAsync<GovernanceRationaleResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.ApprovalRequestId.Should().Be(submitted.ApprovalRequestId);
         payload.Bullets.Should().NotBeEmpty();
@@ -376,14 +357,14 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task Approve_SecondApprove_ReturnsConflict()
     {
-        string runId = await CreateRunAsync("REQ-GOV-APR2-01");
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(
-            runId,
+            committed.RunId,
+            manifestVersion: committed.ManifestVersion,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        await submitResponse.EnsureSuccessForTestAsync();
-        GovernanceApprovalResponseDto? submitted =
-            await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+                GovernanceApprovalResponseDto? submitted =
+            await submitResponse.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
         HttpResponseMessage first = await PostJsonAsTestActorAsync(
             $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve",
             GovernanceReviewDecisionJsonContent("reviewer-dup", "ok"),
@@ -392,21 +373,22 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         first.StatusCode.Should().Be(HttpStatusCode.OK);
         HttpResponseMessage second = await PostJsonAsTestActorAsync(
             $"/v1/governance/approval-requests/{submitted.ApprovalRequestId}/approve",
-            GovernanceReviewDecisionJsonContent("reviewer-dup", "ok"),
-            "reviewer-dup",
-            "dddddddd-dddd-dddd-dddd-dddddddddddd");
+            GovernanceReviewDecisionJsonContent("reviewer-dup-two", "ok"),
+            "reviewer-dup-two",
+            "cccccccc-cccc-cccc-cccc-cccccccccccc");
         second.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
     [SkippableFact]
     public async Task Approve_ParallelDuplicateApproves_FromSameReviewer_HasConsistentOutcome()
     {
-        string runId = await CreateRunAsync("REQ-GOV-PAR-01");
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
         // Default DevelopmentBypass submitter (same pattern as GovernanceApprovalConcurrencyIntegrationTests).
-        HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(runId);
-        await submitResponse.EnsureSuccessForTestAsync();
-        GovernanceApprovalResponseDto? submitted =
-            await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+        HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(
+            committed.RunId,
+            manifestVersion: committed.ManifestVersion);
+                GovernanceApprovalResponseDto? submitted =
+            await submitResponse.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         submitted.Should().NotBeNull();
         submitted.ApprovalRequestId.Should().NotBeNullOrWhiteSpace();
@@ -438,149 +420,5 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             foreach (HttpResponseMessage response in responses)
                 response.Dispose();
         }
-    }
-}
-
-public sealed class GovernanceRationaleResponseDto
-{
-    public int SchemaVersion
-    {
-        get;
-        set;
-    }
-
-    public string ApprovalRequestId
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string Summary
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public List<string> Bullets
-    {
-        get;
-        set;
-    } = [];
-}
-
-public sealed class GovernanceApprovalResponseDto
-{
-    public string ApprovalRequestId
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string RunId
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string ManifestVersion
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string Status
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string RequestedBy
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string? ReviewedBy
-    {
-        get;
-        set;
-    }
-
-    public string? ReviewComment
-    {
-        get;
-        set;
-    }
-}
-
-public sealed class GovernancePromotionResponseDto
-{
-    public string PromotionRecordId
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string RunId
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string ManifestVersion
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string TargetEnvironment
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string PromotedBy
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string? ApprovalRequestId
-    {
-        get;
-        set;
-    }
-}
-
-public sealed class GovernanceActivationResponseDto
-{
-    public string ActivationId
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string RunId
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string ManifestVersion
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string Environment
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public bool IsActive
-    {
-        get;
-        set;
     }
 }

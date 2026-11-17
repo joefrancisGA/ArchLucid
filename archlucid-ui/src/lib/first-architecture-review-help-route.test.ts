@@ -13,6 +13,7 @@ import {
 } from "@/lib/marketing/public-marketing-seo-paths";
 
 const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
+const HELP_TOPIC_VIEW_RESOLVER = join(process.cwd(), "src", "lib", "help", "help-topic-view-resolver-operate.tsx");
 
 const PRODUCT_FIRST_REVIEW_HELP_SURFACES = FIRST_ARCHITECTURE_REVIEW_INBOUND_HANDOFF_SOURCE_FILES.map(
   (relativePath) => `archlucid-ui/${relativePath}` as const,
@@ -42,10 +43,12 @@ describe("first-architecture-review-help-route (COR)", () => {
 
   it("routes the canonical slug through HelpCorePilotGuideView instead of bare markdown", () => {
     const pageSource = readFileSync(HELP_TOPIC_PAGE, "utf8");
+    const resolverSource = readFileSync(HELP_TOPIC_VIEW_RESOLVER, "utf8");
 
-    expect(pageSource).toContain('loaded.entry.slug === "first-architecture-review"');
-    expect(pageSource).toContain("HelpCorePilotGuideView");
+    expect(pageSource).toContain("resolveHelpTopicView");
     expect(pageSource).toContain("FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA");
+    expect(resolverSource).toContain('loaded.entry.slug === "first-architecture-review"');
+    expect(resolverSource).toContain("HelpCorePilotGuideView");
   });
 
   it("keeps marketing SEO inventory off the in-app help path", () => {

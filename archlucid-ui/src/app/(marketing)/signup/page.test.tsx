@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import SignupPage from "@/app/(marketing)/signup/page";
-import { SIGNUP_CLAIM_DISCIPLINE_HEADING } from "@/lib/signup-evidence-copy";
 import {
   SIGNUP_PRIMARY_CONTENT_ID,
   SIGNUP_SKIP_LINK_LABEL,
@@ -33,9 +32,9 @@ describe("SignupPage buyer-polished shell (SIG)", () => {
       "href",
       `#${SIGNUP_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("signup-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("signup-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("signup-orientation-top")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: SIGNUP_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
+    expect(screen.getByTestId("signup-orientation-claim")).toBeInTheDocument();
     expect(screen.getByTestId("signup-primary-content")).toBeInTheDocument();
     expect(screen.getByTestId("signup-access-request-panel")).toBeInTheDocument();
     expect(screen.getByTestId("signup-evaluation-aside-rail")).toBeInTheDocument();

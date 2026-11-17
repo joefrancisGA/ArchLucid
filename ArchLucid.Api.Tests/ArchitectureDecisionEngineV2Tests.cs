@@ -19,32 +19,16 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task CommitRun_PersistsDecisionNodes()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DECISION-V2-001")));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
-        await commitResponse.EnsureSuccessForTestAsync();
-        await WaitForDecisionNodesAsync(runId);
-        HttpResponseMessage decisionsResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/decisions");
-        decisionsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        DecisionNodeResponseDto? payload =
-            await decisionsResponse.Content.ReadFromJsonAsync<DecisionNodeResponseDto>(JsonOptions);
-        payload.Should().NotBeNull();
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
+        await WaitForDecisionNodesAsync(finalized);
+        DecisionNodeResponseDto payload = await finalized.GetDecisionsAsync(Client, JsonOptions);
         payload.Decisions.Should().NotBeEmpty();
         payload.Decisions.Should().Contain(d => d.Topic == "TopologyAcceptance");
         payload.Decisions.Should().Contain(d => d.Topic == "SecurityControlPromotion");
         payload.Decisions.Should().Contain(d => d.Topic == "ComplexityDisposition");
     }
 
-    private async Task WaitForDecisionNodesAsync(string runId)
+    private async Task WaitForDecisionNodesAsync(FinalizedRun finalized)
     {
         IPostCommitProjectionOutboxProcessor processor =
             Factory.Services.GetRequiredService<IPostCommitProjectionOutboxProcessor>();
@@ -53,21 +37,20 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
         {
             await processor.ProcessPendingBatchAsync(CancellationToken.None);
 
-            HttpResponseMessage decisionsResponse =
-                await Client.GetAsync($"/v1/architecture/review/{runId}/decisions");
-
-            if (decisionsResponse.IsSuccessStatusCode)
+            try
             {
-                DecisionNodeResponseDto? payload =
-                    await decisionsResponse.Content.ReadFromJsonAsync<DecisionNodeResponseDto>(JsonOptions);
+                DecisionNodeResponseDto payload = await finalized.GetDecisionsAsync(Client, JsonOptions);
 
-                if (payload is not null && payload.Decisions.Count > 0)
+                if (payload.Decisions.Count > 0)
                     return;
+            }
+            catch (Exception)
+            {
             }
 
             await Task.Delay(100);
         }
 
-        throw new TimeoutException($"Decision nodes were not materialized for run '{runId}' within the test wait window.");
+        throw new TimeoutException($"Decision nodes were not materialized for run '{finalized.RunId}' within the test wait window.");
     }
 }

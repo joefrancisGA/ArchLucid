@@ -41,7 +41,7 @@ export const OPERATOR_LINE_TABS_TB1662_SURFACES: readonly OperatorLineTabsSurfac
   },
   {
     id: "runs-dashboard-operator",
-    modulePath: "components/operator-home/RunsDashboardPanelClient.tsx",
+    modulePath: "components/operator-home/RunsDashboardPanelChrome.tsx",
     kind: "tabs-line",
     tabListTestId: "runs-dashboard-status-filters",
     notes: "Operator shell status filters; buyer-polished shell uses FilterChip outside tablist.",
@@ -62,7 +62,7 @@ export const OPERATOR_LINE_TABS_TB1663_SURFACES: readonly OperatorLineTabsSurfac
 export const OPERATOR_LINE_TABS_GOLD_SURFACES: readonly OperatorLineTabsSurfaceEntry[] = [
   {
     id: "review-detail-workspace",
-    modulePath: "components/reviews/ReviewDetailWorkspace.tsx",
+    modulePath: "components/reviews/ReviewWorkspaceTabStrip.tsx",
     kind: "tabs-line",
     notes: "Review detail workspace sections — declares variant=\"line\".",
   },

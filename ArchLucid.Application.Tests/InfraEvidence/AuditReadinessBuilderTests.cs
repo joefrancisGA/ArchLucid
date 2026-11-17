@@ -110,6 +110,56 @@ public sealed class AuditReadinessBuilderTests
         readiness.OutstandingActions.Should().BeEmpty();
     }
 
+    [Theory]
+    [InlineData(AuditEvidenceCollectionStatus.Insufficient, null, AuditEvidenceFreshnessStatus.Unknown)]
+    [InlineData(AuditEvidenceCollectionStatus.Unsupported, null, AuditEvidenceFreshnessStatus.Unknown)]
+    [InlineData(AuditEvidenceCollectionStatus.Collected, null, AuditEvidenceFreshnessStatus.Unknown)]
+    [InlineData(AuditEvidenceCollectionStatus.Collected, AuditEvidenceFreshnessStatus.Fresh, AuditEvidenceFreshnessStatus.Unknown)]
+    [InlineData(AuditEvidenceCollectionStatus.Collected, AuditEvidenceFreshnessStatus.Stale, AuditEvidenceFreshnessStatus.Stale)]
+    public void BuildControlReadiness_does_not_report_unverified_freshness_as_current(
+        AuditEvidenceCollectionStatus collectionStatus,
+        AuditEvidenceFreshnessStatus? otherFreshness,
+        AuditEvidenceFreshnessStatus expectedFreshness)
+    {
+        AuditControlRecord control = new() { ControlId = Guid.NewGuid() };
+        AuditEvidenceRequirementRecord requirement = new()
+        {
+            RequirementId = Guid.NewGuid(),
+            ControlId = control.ControlId,
+        };
+        List<AuditEvidenceSnapshotItemRecord> items =
+        [
+            new()
+            {
+                RequirementId = requirement.RequirementId,
+                CollectionStatus = collectionStatus,
+                FreshnessStatus = AuditEvidenceFreshnessStatus.Unknown,
+            },
+        ];
+
+        if (otherFreshness is AuditEvidenceFreshnessStatus freshness)
+        {
+            items.Add(new AuditEvidenceSnapshotItemRecord
+            {
+                RequirementId = requirement.RequirementId,
+                CollectionStatus = AuditEvidenceCollectionStatus.Collected,
+                FreshnessStatus = freshness,
+            });
+        }
+
+        AuditControlEvaluationRecord evaluation = new()
+        {
+            ControlId = control.ControlId,
+            Outcome = AuditEvaluationOutcome.TechnicallySupported,
+        };
+
+        AuditControlReadinessRecord result = AuditReadinessBuilder.BuildControlReadiness(
+            control, [requirement], items, evaluation);
+
+        result.WorstFreshnessStatus.Should().Be(expectedFreshness);
+        result.ReadyForAuditorReview.Should().BeFalse();
+    }
+
     [Fact]
     public void BuildAssessmentSummary_default_aggregate_label_is_not_compliance_score()
     {

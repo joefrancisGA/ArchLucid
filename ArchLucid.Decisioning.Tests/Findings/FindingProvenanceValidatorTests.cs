@@ -50,6 +50,22 @@ public sealed class FindingProvenanceValidatorTests
     }
 
     [Fact]
+    public void GetEmissionViolation_exempts_merge_conflict_triage_rows()
+    {
+        Finding finding = new()
+        {
+            FindingId = "conflict-1",
+            FindingType = FindingMergeConflictPresenter.FindingType,
+            Category = "Security",
+            EngineType = FindingSnapshotConfluentMerger.ConflictEngineType,
+            RelatedNodeIds = [],
+            Trace = new ExplainabilityTrace { RulesApplied = [FindingMergeConflictPresenter.PolicyRuleId] },
+        };
+
+        _sut.GetEmissionViolation(finding).Should().BeNull();
+    }
+
+    [Fact]
     public void GetEmissionViolation_requires_typed_engine_nodes_and_rules()
     {
         Finding finding = new()

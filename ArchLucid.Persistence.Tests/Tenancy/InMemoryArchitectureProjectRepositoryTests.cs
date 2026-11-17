@@ -47,6 +47,10 @@ public sealed class InMemoryArchitectureProjectRepositoryTests
 
         (await sut.TrySoftDeleteAsync(tenantId, workspaceId, projectId, CancellationToken.None))
             .Should()
+            .Be(ArchitectureProjectSoftDeleteResult.Deleted);
+
+        (await sut.TrySoftDeleteAsync(tenantId, workspaceId, projectId, CancellationToken.None))
+            .Should()
             .Be(ArchitectureProjectSoftDeleteResult.AlreadyDeleted);
     }
 

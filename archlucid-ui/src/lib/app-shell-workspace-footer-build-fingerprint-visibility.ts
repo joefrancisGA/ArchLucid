@@ -1,5 +1,6 @@
+import { resolveProductionEvalChromeForServer } from "@/lib/production-desk-chrome";
 import { isReviewWorkspaceDetailRoutePath } from "@/lib/architecture/review-workspace-route";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
   pathMatchesGovernanceAlerts,
   pathMatchesGovernanceAudit,
@@ -19,7 +20,7 @@ export function isAppShellWorkspaceFooterBuildFingerprintVisible(pathname: strin
     || pathMatchesGovernancePolicyPacks(pathname)
     || isReviewWorkspaceDetailRoutePath(pathname);
 
-  if (isBuyerPolishedOperatorShellEnv()) {
+  if (resolveProductionEvalChromeForServer()) {
     return !hideWorkspaceHealthFooter;
   }
 

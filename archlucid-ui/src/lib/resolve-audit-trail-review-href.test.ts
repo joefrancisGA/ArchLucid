@@ -43,13 +43,13 @@ describe("resolveAuditTrailReviewHref (SY-28)", () => {
     ).toBe("/architecture/architectures/architecture-identity-001/reviews/run-abc");
   });
 
-  it("keeps peer review URL on Guided", () => {
+  it("uses scoped open review on Guided when architecture id is known", () => {
     expect(
       resolveAuditTrailReviewHref({
         workingMode: false,
         runId: "run-abc",
         architectureId: "architecture-identity-001",
       }),
-    ).toBe("/architecture/reviews/run-abc");
+    ).toBe("/architecture/architectures/architecture-identity-001/reviews/run-abc");
   });
 });

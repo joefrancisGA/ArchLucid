@@ -10,7 +10,7 @@ export type ArchitectureNewDraftRecoverySnapshot = {
 };
 
 type ArchitectureNewDraftRecoveryEnvelope = {
-  readonly fields: ArchitectureDraftFieldState;
+  readonly fields: Omit<ArchitectureDraftFieldState, "openQuestions"> & { readonly openQuestions?: unknown };
   readonly actorSet: ActorSet;
   readonly queuedAtUtc: string;
 };
@@ -58,7 +58,10 @@ export function readArchitectureNewDraftRecovery(): ArchitectureNewDraftRecovery
         : new Date().toISOString();
 
     return {
-      fields: parsed.fields,
+      fields: {
+        ...parsed.fields,
+        openQuestions: typeof parsed.fields.openQuestions === "string" ? parsed.fields.openQuestions : "",
+      },
       actorSet: parsed.actorSet,
       queuedAtUtc,
     };

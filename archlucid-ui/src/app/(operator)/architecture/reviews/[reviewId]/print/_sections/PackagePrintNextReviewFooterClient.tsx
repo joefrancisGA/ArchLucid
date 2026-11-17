@@ -8,6 +8,7 @@ import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
 import { enrichRunsListWithStaticDemoFallback } from "@/lib/operator/operator-runs-list-with-demo-fallback";
+import { resolveWorkingReviewChildSuffixHref } from "@/lib/architecture/working-review-child-suffix-href";
 import { resolveNextRunsListRow } from "@/lib/resolve-next-runs-list-row";
 import type { RunSummary } from "@/types/authority";
 
@@ -61,7 +62,7 @@ export function PackagePrintNextReviewFooterClient(
     return {
       runId: target.runId,
       reviewTitle,
-      href: `/architecture/reviews/${encodeURIComponent(target.runId)}/print`,
+      href: resolveWorkingReviewChildSuffixHref(target.runId, "print"),
     };
   }, [props.runId, runs]);
 

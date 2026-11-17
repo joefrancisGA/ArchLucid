@@ -30,6 +30,12 @@ public sealed partial class DocxExportService
         }
         else if (TryGetMermaidDiagramSource(artifacts) is { } mermaid)
         {
+            if (mermaid.Length == 0)
+            {
+                WordDocumentBuilder.AddBodyText(body, WordDocumentBuilder.MermaidSourceStoredEmptyCopy);
+            }
+            else
+            {
             byte[]? rendered = await diagramImageRenderer.RenderMermaidPngAsync(mermaid, ct);
 
             if (rendered is not null && rendered.Length > 0)
@@ -45,6 +51,7 @@ public sealed partial class DocxExportService
                     body,
                     "Mermaid source is embedded below. Enable ArchLucid:MermaidCli:Enabled and install the mmdc CLI on the API host to rasterize this diagram automatically, or render architecture.mmd from the bundle externally.");
                 WordDocumentBuilder.AddMonospaceSourceLines(body, mermaid);
+            }
             }
         }
         else
@@ -112,12 +119,8 @@ public sealed partial class DocxExportService
 
     private static void AppendManifestTopologySummaryForDiagramFallback(Body body, ManifestDocument manifest)
     {
-        int resourceCount = manifest.Topology.Resources.Count;
-        int patternCount = manifest.Topology.SelectedPatterns.Count;
-        int decisionCount = manifest.Decisions.Count;
-
         WordDocumentBuilder.AddBodyText(
             body,
-            $"Committed manifest includes {resourceCount} topology resource(s), {patternCount} selected pattern(s), and {decisionCount} decision(s). See Topology Posture and Decisions below for full detail.");
+            DocxExportManifestPostureHonesty.FormatDiagramFallbackTopologyCensusLine(manifest));
     }
 }

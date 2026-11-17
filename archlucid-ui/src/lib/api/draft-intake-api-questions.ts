@@ -7,13 +7,16 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { apiPostJson } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { trimOptionalText, trimRequiredPathSegment } from "./api-boundary-normalization";
 
 const DRAFT_BASE = "/v1/architecture/draft";
 
 export async function getDraftQuestions(draftId: string): Promise<DraftQuestionsResponse> {
+  const normalizedDraftId = trimRequiredPathSegment(draftId, "draftId");
+
   try {
     return await apiGetSealedManifestAware<DraftQuestionsResponse>(
-      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/questions`,
+      `${DRAFT_BASE}/${encodeURIComponent(normalizedDraftId)}/questions`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -34,12 +37,14 @@ export async function answerDraftQuestion(
   answer: string,
   options?: AnswerDraftQuestionOptions,
 ): Promise<DraftRequestResponse> {
+  const normalizedDraftId = trimRequiredPathSegment(draftId, "draftId");
+
   try {
-    return await apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/answer`, {
-      questionKey,
-      answer,
+    return await apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(normalizedDraftId)}/answer`, {
+      questionKey: trimRequiredPathSegment(questionKey, "questionKey"),
+      answer: trimRequiredPathSegment(answer, "answer"),
       presenterCapture: options?.presenterCapture === true,
-      responderLabel: options?.responderLabel,
+      responderLabel: trimOptionalText(options?.responderLabel),
     });
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -53,9 +58,11 @@ export async function skipDraftQuestion(
   draftId: string,
   questionKey: string,
 ): Promise<DraftRequestResponse> {
+  const normalizedDraftId = trimRequiredPathSegment(draftId, "draftId");
+
   try {
-    return await apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/skip`, {
-      questionKey,
+    return await apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(normalizedDraftId)}/skip`, {
+      questionKey: trimRequiredPathSegment(questionKey, "questionKey"),
     });
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

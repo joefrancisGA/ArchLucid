@@ -26,6 +26,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
 
@@ -34,6 +39,25 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
     PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
   };
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
 
 import {
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PRIMARY_CONTENT_ID,
@@ -56,7 +80,7 @@ describe("TerraformWorkbenchClient buyer-polished chrome", () => {
     expect(screen.getByTestId("infra-terraform-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("infra-terraform-unscoped-panel")).toBeInTheDocument();
     expect(screen.getByTestId("infra-terraform-scope-picker")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-terraform-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-terraform-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("governance-infrastructure-terraform-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();

@@ -12,6 +12,7 @@ import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import { formatActionActorName } from "@/lib/action-actor-display";
 import { formatRelativeTime } from "@/lib/relative-time";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
+import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 
 export type GovernanceApprovalInspectorPreviewProps = {
   request: GovernanceApprovalRequest;
@@ -55,7 +56,7 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
         </dt>
         <dd className="m-0 min-w-0">
           <Link
-            href={`/architecture/reviews/${encodeURIComponent(request.runId)}`}
+            href={resolveGovernanceScopedReviewOpenHref({ runId: request.runId })}
             className={cn("break-all font-mono", OPERATOR_LINK.optional)}
           >
             {request.runId}

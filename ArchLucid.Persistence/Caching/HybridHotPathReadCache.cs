@@ -39,8 +39,26 @@ public sealed class HybridHotPathReadCache(
 
         int factoryInvoked = 0;
 
-        HotPathTypedCacheSlot<T> slot = await _hybridCache
-            .GetOrCreateAsync(
+        HotPathTypedCacheSlot<T> slot = await ReadSlotAsync().ConfigureAwait(false);
+
+        if (slot.IsPresent && slot.Value is null)
+        {
+            // Omit cache key from logs — keys can embed tenant/role identifiers (cs/exposure-of-sensitive-information).
+            _logger.LogWarning(
+                "HotPath hybrid cache entry is invalid (present flag without value); refreshing.");
+
+            await _hybridCache.RemoveAsync(key, ct).ConfigureAwait(false);
+            slot = await ReadSlotAsync().ConfigureAwait(false);
+        }
+
+        if (factoryInvoked == 0)
+            ArchLucidInstrumentation.RecordHotPathReadCacheHit();
+
+        return slot.IsPresent ? slot.Value : null;
+
+        ValueTask<HotPathTypedCacheSlot<T>> ReadSlotAsync()
+        {
+            return _hybridCache.GetOrCreateAsync(
                 key,
                 async innerCt => await HotPathReadCacheSingleFlight.CoalesceAsync(
                     key,
@@ -55,27 +73,8 @@ public sealed class HybridHotPathReadCache(
                     },
                     innerCt),
                 entryOptions,
-                cancellationToken: ct)
-            .ConfigureAwait(false);
-
-        if (factoryInvoked == 0)
-            ArchLucidInstrumentation.RecordHotPathReadCacheHit();
-
-        if (!slot.IsPresent)
-            return null;
-
-        if (slot.Value is null)
-        {
-            // Omit cache key from logs — keys can embed tenant/role identifiers (cs/exposure-of-sensitive-information).
-            _logger.LogWarning(
-                "HotPath hybrid cache entry is invalid (present flag without value); refreshing.");
-
-            await _hybridCache.RemoveAsync(key, ct).ConfigureAwait(false);
-
-            return null;
+                cancellationToken: ct);
         }
-
-        return slot.Value;
     }
 
     /// <inheritdoc />
@@ -88,19 +87,20 @@ public sealed class HybridHotPathReadCache(
 
     private HybridCacheEntryOptions ResolveEntryOptions(int? absoluteExpirationSecondsOverride)
     {
-        int seconds =
-            absoluteExpirationSecondsOverride ?? _optionsMonitor.CurrentValue.AbsoluteExpirationSeconds;
+        HotPathCacheOptions options = _optionsMonitor.CurrentValue;
+        int seconds = absoluteExpirationSecondsOverride ?? options.AbsoluteExpirationSeconds;
 
         if (seconds < 1)
             seconds = 60;
 
         seconds = Math.Clamp(seconds, 1, 3600);
-        TimeSpan ttl = TimeSpan.FromSeconds(seconds);
+        bool distributedL2Enabled = options.Enabled &&
+            string.Equals(HotPathCacheProviderResolver.ResolveEffectiveProvider(options), "Redis", StringComparison.OrdinalIgnoreCase);
 
         return new HybridCacheEntryOptions
         {
-            Expiration = ttl,
-            LocalCacheExpiration = ttl
+            Expiration = TimeSpan.FromSeconds(seconds),
+            LocalCacheExpiration = HotPathCacheProviderResolver.ResolveLocalCacheExpiration(options, distributedL2Enabled, seconds),
         };
     }
 }

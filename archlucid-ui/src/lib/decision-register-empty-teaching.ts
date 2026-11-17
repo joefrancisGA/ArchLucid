@@ -17,6 +17,8 @@ import {
 } from "@/lib/architecture/architecture-routes";
 import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance/governance-findings-evidence-copy";
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export type DecisionRegisterEmptyTeachingActionId =
   | "triage-findings"
@@ -45,6 +47,9 @@ export const DECISION_REGISTER_EMPTY_TEACHING_BODY =
 export const DECISION_REGISTER_EMPTY_TEACHING_HONESTY =
   "An empty Decision register does not mean the findings queue is empty — triage risks there, then record decisions here after finalize." as const;
 
+export const DECISION_REGISTER_EMPTY_SECURENOW_COLLECTION_HONESTY =
+  "On SecureNow, this register stays empty until architecture-style finalize exists — finish inventory capture and path ranking first." as const;
+
 export const DECISION_REGISTER_EMPTY_TEACHING_FINDINGS_ACTION: DecisionRegisterEmptyTeachingAction =
   {
     id: "triage-findings",
@@ -69,13 +74,27 @@ export const DECISION_REGISTER_EMPTY_TEACHING_OPEN_REVIEWS_ACTION: DecisionRegis
 export type BuildDecisionRegisterEmptyTeachingInput = {
   readonly workingMode?: boolean;
   readonly lastOpenArchitectureId?: string | null;
+  readonly productLine?: ProductLineId;
 };
+
+function decisionRegisterFindingsAction(productLine: ProductLineId): DecisionRegisterEmptyTeachingAction {
+  return {
+    ...DECISION_REGISTER_EMPTY_TEACHING_FINDINGS_ACTION,
+    href: findingsPathForProductLine(productLine),
+  };
+}
 
 /** Full empty-teaching model (title, body, honesty, and next-step links). */
 export function buildDecisionRegisterEmptyTeaching(
   input?: BuildDecisionRegisterEmptyTeachingInput,
 ): DecisionRegisterEmptyTeachingModel {
   const workingMode = input?.workingMode === true;
+  const productLine = input?.productLine ?? "architecture";
+  const findingsAction = decisionRegisterFindingsAction(productLine);
+  const honestyLine =
+    productLine === "security"
+      ? `${DECISION_REGISTER_EMPTY_TEACHING_HONESTY} ${DECISION_REGISTER_EMPTY_SECURENOW_COLLECTION_HONESTY}`
+      : DECISION_REGISTER_EMPTY_TEACHING_HONESTY;
 
   if (workingMode) {
     const lastOpenArchitectureId = input?.lastOpenArchitectureId?.trim() ?? "";
@@ -87,9 +106,9 @@ export function buildDecisionRegisterEmptyTeaching(
     return {
       title: DECISION_REGISTER_EMPTY_TEACHING_TITLE,
       body: DECISION_REGISTER_EMPTY_TEACHING_BODY,
-      honestyLine: DECISION_REGISTER_EMPTY_TEACHING_HONESTY,
+      honestyLine,
       actions: [
-        DECISION_REGISTER_EMPTY_TEACHING_FINDINGS_ACTION,
+        findingsAction,
         {
           id: "start-review",
           label: START_REVIEW_LABEL,
@@ -107,9 +126,9 @@ export function buildDecisionRegisterEmptyTeaching(
   return {
     title: DECISION_REGISTER_EMPTY_TEACHING_TITLE,
     body: DECISION_REGISTER_EMPTY_TEACHING_BODY,
-    honestyLine: DECISION_REGISTER_EMPTY_TEACHING_HONESTY,
+    honestyLine,
     actions: [
-      DECISION_REGISTER_EMPTY_TEACHING_FINDINGS_ACTION,
+      findingsAction,
       DECISION_REGISTER_EMPTY_TEACHING_START_REVIEW_ACTION,
       DECISION_REGISTER_EMPTY_TEACHING_OPEN_REVIEWS_ACTION,
     ],

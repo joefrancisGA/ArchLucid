@@ -38,6 +38,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 const PILOT_ROI_MEASUREMENT_HELP_BANNED_SUBSTRINGS = [
   "ReadyForCommit",
   "Create review → Execute → Finalize",

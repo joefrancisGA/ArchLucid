@@ -10,6 +10,7 @@ import { ShortcutHint } from "@/components/ShortcutHint";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import {
@@ -17,6 +18,19 @@ import {
   type SecureNowArchitectOutcomeQueryState,
 } from "@/components/security/SecureNowArchitectOutcomeMetricsPanel";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SECURENOW_PARTIAL_CAPTURE_RANKED_PATHS_LINE } from "@/lib/product-line/securenow-partial-capture-honesty-copy";
+import { REMEDIATION_FACTORY_PRIORITY_QUEUE_PARTIAL_RANK_LINE } from "@/lib/remediation-factory/remediation-factory-priority-queue-partial-rank-copy";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
+import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/SecureNowPilotWalkthroughBanner";
+import { SecureNowRemediationFactoryStepFocusBanner } from "@/components/product-line/SecureNowRemediationFactoryStepFocusBanner";
+import { SecureNowRemediationFactoryCollectionSetupBanner } from "@/components/product-line/SecureNowRemediationFactoryCollectionSetupBanner";
+import { SecureNowReaderScopeWorkbenchStrip } from "@/components/product-line/SecureNowReaderScopeWorkbenchStrip";
+import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -39,6 +53,13 @@ import {
   focusRemediationFactoryQueueRow,
 } from "@/lib/governance/governance-findings-queue-keyboard-focus";
 import { fetchRemediationScoreExplanation } from "@/lib/remediation-factory-api";
+import {
+  REMEDIATION_FACTORY_SIMULATOR_NOT_INVENTORY_CAPTURE_LINE,
+  REMEDIATION_FACTORY_SIMULATOR_RANK_DISCIPLINE,
+} from "@/lib/remediation-factory-simulator-rank-honesty-copy";
+import { REMEDIATION_FACTORY_SIMULATOR_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-simulator-partial-capture-copy";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { REMEDIATION_FACTORY_CORE_READ_RETRY_RANK_UNCHANGED_LINE } from "@/lib/remediation-factory/remediation-factory-core-read-honesty-copy";
 import {
   remediationFactoryExecutiveMetricsErrorRecovery,
   remediationFactoryPriorityQueueErrorRecovery,
@@ -64,10 +85,16 @@ import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-h
 import { remediationFactoryPathForProductLine } from "@/lib/product-line/securenow-remediation-factory-route";
 import { remediationInstancesPathForProductLine } from "@/lib/product-line/securenow-remediation-instances-route";
 import {
+  remediationFactoryPathViewLabel,
+  resolveRemediationFactoryPathViewForRankedPath,
+  type RemediationFactoryPathView,
+} from "@/lib/governance/remediation-factory-path-view";
+import {
   SECURENOW_PATH_RANKED_PATHS_LEAD,
   SECURENOW_PATH_RANKED_PATHS_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { isInsufficientEvidencePathConfidenceBand } from "@/lib/security-evidence-path-presentation";
 import { cn } from "@/lib/utils";
 
 import { RemediationFactoryAttackPathReportSection } from "./RemediationFactoryAttackPathReportSection";
@@ -99,6 +126,11 @@ import {
   REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY,
   REMEDIATION_FACTORY_RANKED_PATHS_EMPTY,
   REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT,
+  resolveRemediationFactoryPathInspectSelectPrompt,
+  resolveRemediationFactoryPriorityQueueEmptyState,
+  resolveRemediationFactoryRankedPathsEmptyState,
+  resolveRemediationFactorySimulatorSelectPrompt,
+  resolveRemediationFactoryArchitectSnapshotsEmptyState,
 } from "./remediation-factory-empty-states";
 import {
   buildRemediationFactoryExecutiveMetricPresentations,
@@ -111,12 +143,16 @@ import {
   resolveRemediationFactoryLastRefreshedAt,
 } from "./remediation-factory-freshness";
 import { useRemediationFactoryUrlState } from "./use-remediation-factory-url-state";
-import { REMEDIATION_FACTORY_RANKED_PATHS_DEFAULT_PAGE_SIZE } from "./remediation-factory-url-state";
+import {
+  REMEDIATION_FACTORY_RANKED_PAGE_PARAM,
+  REMEDIATION_FACTORY_RANKED_PATHS_DEFAULT_PAGE_SIZE,
+} from "./remediation-factory-url-state";
 import {
   REMEDIATION_FACTORY_OPEN_WAVES_LABEL,
   REMEDIATION_FACTORY_PAGE_SUBTITLE,
   REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID,
   REMEDIATION_FACTORY_PRIMARY_CONTENT_ID,
+  REMEDIATION_FACTORY_RANKED_PATHS_LOADING,
   REMEDIATION_FACTORY_SKIP_LINK_LABEL,
 } from "./remediation-factory-page-copy";
 import { RemediationFactoryMetricsMeasurementDisclosure } from "./RemediationFactoryMetricsMeasurementDisclosure";
@@ -135,6 +171,10 @@ function ExecutiveMetricsGrid(props: { readonly metrics: RemediationFactoryMetri
           {REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE}
         </h2>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_EXECUTIVE_METRICS_SCOPE}</p>
+        <SecureNowSponsorRoiCollectionScopeHonestyLine
+          className={OPERATOR_TYPOGRAPHY.helper}
+          testId="remediation-executive-metrics-collection-scope-honesty"
+        />
       </header>
       <EnterpriseTable ariaLabel="Executive remediation metrics">
         <EnterpriseTableHead>
@@ -183,6 +223,8 @@ function RemediationSimulatorOutput(props: {
   readonly explanation: RemediationPrioritizationExplanation;
   readonly generatedAt: Date;
 }) {
+  const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const copyPayload = [
     `Finding ID: ${props.explanation.findingId}`,
     `Generated: ${props.generatedAt.toISOString()}`,
@@ -202,6 +244,17 @@ function RemediationSimulatorOutput(props: {
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         This explains the queue ranking; it does not apply a remediation.
       </p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-simulator-rank-discipline">
+        {REMEDIATION_FACTORY_SIMULATOR_RANK_DISCIPLINE}
+      </p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-simulator-not-inventory-capture">
+        {REMEDIATION_FACTORY_SIMULATOR_NOT_INVENTORY_CAPTURE_LINE}
+      </p>
+      {partialCapture ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-simulator-partial-capture">
+          {REMEDIATION_FACTORY_SIMULATOR_PARTIAL_CAPTURE_LINE}
+        </p>
+      ) : null}
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         Finding{" "}
         <span className="font-mono">{props.explanation.findingId}</span>
@@ -242,10 +295,61 @@ export function RemediationFactoryClient() {
     rankedPage,
     syncSelection,
     selectFinding,
-    selectPath,
+    selectPath: selectPathFromUrlState,
     setRankedPage,
     ...urlState
   } = useRemediationFactoryUrlState(productLine);
+  const { collectionInput, isPending: collectionInputPending } = useSecureNowCollectionSetupInput({
+    snapshotCaptureSucceeded: null,
+  });
+  const latestCapturePartial = useLatestSnapshotCaptureIsPartial(productLine === "security");
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(latestCapturePartial);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
+  const rankedPathsEmptyState = useMemo((): typeof REMEDIATION_FACTORY_RANKED_PATHS_EMPTY => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_RANKED_PATHS_EMPTY;
+    }
+
+    return resolveRemediationFactoryRankedPathsEmptyState(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
+  const priorityQueueEmptyState = useMemo((): typeof REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY;
+    }
+
+    return resolveRemediationFactoryPriorityQueueEmptyState(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
+  const simulatorSelectEmptyState = useMemo((): typeof REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT;
+    }
+
+    return resolveRemediationFactorySimulatorSelectPrompt(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
+  const architectSnapshotsEmptyState = useMemo((): typeof REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY;
+    }
+
+    return resolveRemediationFactoryArchitectSnapshotsEmptyState(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
+  const pathInspectSelectEmptyState = useMemo((): typeof REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT;
+    }
+
+    return resolveRemediationFactoryPathInspectSelectPrompt(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
   const nowMs = useOperatorRelativeFreshnessNowMs();
   const rankedQuery = useRemediationRankedFindingsQuery();
   const rankedPathsPageSize = REMEDIATION_FACTORY_RANKED_PATHS_DEFAULT_PAGE_SIZE;
@@ -277,11 +381,19 @@ export function RemediationFactoryClient() {
   );
   const attackPathReportQuery = useSecurityEvidencePathReportQuery(reportSnapshotId);
   const metricsQuery = useRemediationFactoryMetricsQuery();
+  const remediationFactoryHardFailure =
+    metricsQuery.isError && rankedQuery.isError && rankedPathsQuery.isError;
+  const remediationFactoryHardFailureSurfaceId =
+    productLine === "security"
+      ? "compliance-remediation-factory-hard-failure"
+      : "governance-remediation-factory-hard-failure";
   const [outcomeQueryState, setOutcomeQueryState] = useState<SecureNowArchitectOutcomeQueryState | null>(null);
   const [simulatorExplanation, setSimulatorExplanation] = useState<RemediationPrioritizationExplanation | null>(null);
   const [simulatorGeneratedAt, setSimulatorGeneratedAt] = useState<Date | null>(null);
   const [simulatorError, setSimulatorError] = useState<string | null>(null);
   const [simulatorFindingId, setSimulatorFindingId] = useState<string | null>(null);
+  const [pathViewFiltersExpanded, setPathViewFiltersExpanded] = useState(false);
+  const [remediationUpperChromeExpanded, setRemediationUpperChromeExpanded] = useState(false);
   const pathInspectPanelRef = useRef<HTMLElement | null>(null);
   const ranked = rankedQuery.data ?? [];
   const rankedPaths = rankedPathsQuery.data?.items ?? [];
@@ -294,14 +406,18 @@ export function RemediationFactoryClient() {
   rankedRef.current = ranked;
   rankedPathsRef.current = rankedPaths;
   const pathView = searchParams.get("pathView") ?? "all";
+  const pathInspectFocusMode =
+    productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0;
   const pathViewCounts = useMemo(
     () => computeRemediationFactoryRankedPathViewCounts(rankedPaths),
     [rankedPaths],
   );
 
   useEffect(() => {
-    setRankedPage(1);
-  }, [pathView, setRankedPage]);
+    if (selectedPathId === null) {
+      setPathViewFiltersExpanded(false);
+    }
+  }, [selectedPathId]);
 
   const visibleRankedPaths = useMemo(() => {
     switch (pathView) {
@@ -310,7 +426,7 @@ export function RemediationFactoryClient() {
       case "privilege":
         return rankedPaths.filter((row) => row.pathKind.toLowerCase().includes("privilege"));
       case "insufficient-evidence":
-        return rankedPaths.filter((row) => row.pathConfidenceBand === "InsufficientEvidence");
+        return rankedPaths.filter((row) => isInsufficientEvidencePathConfidenceBand(row.pathConfidenceBand));
       default:
         return rankedPaths;
     }
@@ -330,9 +446,11 @@ export function RemediationFactoryClient() {
       return null;
     }
 
-    const computedTimes = rankedPaths.map((row) => row.computedUtc.trim());
+    const computedTimes = rankedPaths
+      .map((row) => row.computedUtc.trim())
+      .filter((computedUtc) => computedUtc.length > 0 && !Number.isNaN(Date.parse(computedUtc)));
 
-    if (computedTimes.some((computedUtc) => computedUtc.length === 0)) {
+    if (computedTimes.length !== rankedPaths.length) {
       return null;
     }
 
@@ -342,7 +460,12 @@ export function RemediationFactoryClient() {
   }, [rankedPaths]);
 
   const setPathView = useCallback((value: string) => {
+    if (value === pathView) {
+      return;
+    }
+
     const params = new URLSearchParams(searchParams.toString());
+    params.delete(REMEDIATION_FACTORY_RANKED_PAGE_PARAM);
     if (value === "all") {
       params.delete("pathView");
     } else {
@@ -350,7 +473,20 @@ export function RemediationFactoryClient() {
     }
     const query = params.toString();
     router.replace(query.length > 0 ? `?${query}` : window.location.pathname, { scroll: false });
-  }, [router, searchParams]);
+  }, [pathView, router, searchParams]);
+
+  const selectPath = useCallback(
+    (nextPathId: string) => {
+      const row = rankedPathsRef.current.find((entry) => entry.pathId === nextPathId);
+
+      if (row !== undefined) {
+        setPathView(resolveRemediationFactoryPathViewForRankedPath(row));
+      }
+
+      selectPathFromUrlState(nextPathId);
+    },
+    [selectPathFromUrlState, setPathView],
+  );
 
   const refreshing =
     rankedQuery.isFetching
@@ -500,10 +636,33 @@ export function RemediationFactoryClient() {
   const onSelectPathAndFocusInspect = useCallback(
     (pathId: string) => {
       selectPath(pathId);
-      focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
+      window.requestAnimationFrame(() => {
+        focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
+        pathInspectPanelRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+      });
     },
     [selectPath],
   );
+
+  useEffect(() => {
+    if (productLine !== "security" || selectedPathId === null) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
+    });
+  }, [productLine, selectedPathId]);
+
+  useEffect(() => {
+    if (!pathInspectFocusMode) {
+      setRemediationUpperChromeExpanded(false);
+      return;
+    }
+
+    setRemediationUpperChromeExpanded(false);
+    setPathViewFiltersExpanded(false);
+  }, [pathInspectFocusMode, selectedPathId]);
 
   const onExplainScore = useCallback(() => {
     const findingId = selectedFindingIdRef.current;
@@ -573,6 +732,39 @@ export function RemediationFactoryClient() {
         }
       />
 
+      <SecureNowRemediationFactoryCollectionSetupBanner />
+
+      {remediationFactoryHardFailure ? (
+        <div role="alert" className="space-y-2" data-testid="remediation-factory-hard-failure">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            Executive metrics, priority queue, and ranked paths could not be loaded together.
+          </p>
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="remediation-factory-core-read-retry-rank-honesty"
+          >
+            {REMEDIATION_FACTORY_CORE_READ_RETRY_RANK_UNCHANGED_LINE}
+          </p>
+          <FatalPageReportProblemSupportRow
+            surfaceId={remediationFactoryHardFailureSurfaceId}
+            errorTitle={pageTitle}
+            errorCode="remediation-factory-core-read-failed"
+            correlationId={null}
+            httpStatus={null}
+          />
+        </div>
+      ) : null}
+
+      {productLine === "security" ? (
+        <SecureNowReaderScopeWorkbenchStrip testId="remediation-factory-reader-scope-workbench" />
+      ) : null}
+
+      <SecureNowPilotWalkthroughBanner productLine={productLine} />
+
+      {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 ? (
+        <SecureNowRemediationFactoryStepFocusBanner selectedPathId={selectedPathId} />
+      ) : null}
+
       <div
         id={REMEDIATION_FACTORY_PRIMARY_CONTENT_ID}
         className="scroll-mt-24 space-y-4"
@@ -592,71 +784,128 @@ export function RemediationFactoryClient() {
         entries={remediationFactoryPageShortcutsDisclosureEntries()}
       />
 
-      {metricsQuery.isError ? (
-        <>
-          <OperatorErrorRecoveryContract
-            presentation={remediationFactoryExecutiveMetricsErrorRecovery()}
-            testId="remediation-executive-metrics-error-recovery"
-          />
-          <RefreshButton
-            busy={metricsQuery.isFetching}
-            label="Retry executive metrics"
-            data-testid="remediation-executive-metrics-retry"
-            onClick={() => void metricsQuery.refetch()}
-          />
-        </>
-      ) : metricsQuery.data ? (
-        <ExecutiveMetricsGrid metrics={metricsQuery.data} openFindingsHref={openFindingsHref} />
+      {pathInspectFocusMode && !remediationUpperChromeExpanded ? (
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-factory-upper-chrome-collapsed">
+            Executive metrics, snapshot pair, attack-path report, and cut points are collapsed. Step focus is on the
+            selected path below.
+          </p>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            data-testid="remediation-factory-upper-chrome-expand"
+            onClick={() => setRemediationUpperChromeExpanded(true)}
+          >
+            Show metrics and path report
+          </Button>
+        </div>
       ) : (
-        <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_EXECUTIVE_METRICS_LOADING}</p>
+        <>
+          {metricsQuery.isError ? (
+            <>
+              <OperatorErrorRecoveryContract
+                presentation={remediationFactoryExecutiveMetricsErrorRecovery()}
+                testId="remediation-executive-metrics-error-recovery"
+              />
+              <RefreshButton
+                busy={metricsQuery.isFetching}
+                label="Retry executive metrics"
+                data-testid="remediation-executive-metrics-retry"
+                onClick={() => void metricsQuery.refetch()}
+              />
+            </>
+          ) : metricsQuery.data ? (
+            <ExecutiveMetricsGrid metrics={metricsQuery.data} openFindingsHref={openFindingsHref} />
+          ) : (
+            <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_EXECUTIVE_METRICS_LOADING}</p>
+          )}
+
+          <SecureNowArchitectOutcomeMetricsPanel
+            fromSnapshotId={urlState.fromSnapshotId}
+            toSnapshotId={urlState.toSnapshotId}
+            hasUrlSnapshotPair={urlState.hasSnapshotPair}
+            onSnapshotPairChange={urlState.setSnapshotPair}
+            onQueryStateChange={setOutcomeQueryState}
+            snapshotsEmptyPreset={architectSnapshotsEmptyState}
+          />
+
+          <RemediationFactoryAttackPathReportSection
+            snapshotId={reportSnapshotId}
+            reportQuery={attackPathReportQuery}
+            selectedPathId={selectedPathId}
+            onSelectPath={onSelectPathAndFocusInspect}
+            awaitingRankedSnapshot={
+              urlState.toSnapshotId === null
+              && urlState.fromSnapshotId === null
+              && rankedPathsQuery.isLoading
+            }
+            showRankedSnapshotHint={showAttackPathReportRankedSnapshotHint}
+            partialCapture={productLine === "security" && latestCapturePartial}
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
+          />
+
+          <RemediationFactoryTopCutPointsSection
+            cutPoints={rankedPathsQuery.data?.topCutPoints ?? []}
+            isLoading={rankedPathsQuery.isLoading}
+            isError={rankedPathsQuery.isError}
+            isFetching={rankedPathsQuery.isFetching}
+            isSuccess={rankedPathsQuery.isSuccess}
+            refetch={() => rankedPathsQuery.refetch()}
+            selectedPathId={selectedPathId}
+            onSelectPath={onSelectPathAndFocusInspect}
+          />
+          {pathInspectFocusMode ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              data-testid="remediation-factory-upper-chrome-collapse"
+              onClick={() => setRemediationUpperChromeExpanded(false)}
+            >
+              Collapse metrics and path report
+            </Button>
+          ) : null}
+        </>
       )}
 
-      <SecureNowArchitectOutcomeMetricsPanel
-        fromSnapshotId={urlState.fromSnapshotId}
-        toSnapshotId={urlState.toSnapshotId}
-        hasUrlSnapshotPair={urlState.hasSnapshotPair}
-        onSnapshotPairChange={urlState.setSnapshotPair}
-        onQueryStateChange={setOutcomeQueryState}
-        snapshotsEmptyPreset={REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY}
-      />
-
-      <RemediationFactoryAttackPathReportSection
-        snapshotId={reportSnapshotId}
-        reportQuery={attackPathReportQuery}
-        selectedPathId={selectedPathId}
-        onSelectPath={onSelectPathAndFocusInspect}
-        awaitingRankedSnapshot={
-          urlState.toSnapshotId === null
-          && urlState.fromSnapshotId === null
-          && rankedPathsQuery.isLoading
-        }
-        showRankedSnapshotHint={showAttackPathReportRankedSnapshotHint}
-      />
-
-      <RemediationFactoryTopCutPointsSection
-        cutPoints={rankedPathsQuery.data?.topCutPoints ?? []}
-        isLoading={rankedPathsQuery.isLoading}
-        isError={rankedPathsQuery.isError}
-        isFetching={rankedPathsQuery.isFetching}
-        isSuccess={rankedPathsQuery.isSuccess}
-        refetch={() => rankedPathsQuery.refetch()}
-        selectedPathId={selectedPathId}
-        onSelectPath={onSelectPathAndFocusInspect}
-      />
-
       <section className="space-y-3" aria-label="Operator priority table">
-        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Priority queue</h2>
-        <Link
-          href={`${remediationInstancesPathForProductLine(productLine)}#${REMEDIATION_WAVES_SECTION_ID}`}
-          className={OPERATOR_LINK.inline}
-          data-testid="remediation-factory-open-waves"
-        >
-          {REMEDIATION_FACTORY_OPEN_WAVES_LABEL}
-        </Link>
-        <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-findings-audience-line">
-          These are SecureNow findings for the current inventory snapshot.
-        </p>
-        {rankedQuery.isError ? (
+        {productLine === "security" && latestCapturePartial ? (
+          <SecureNowPartialCaptureRecoveryParagraph
+            testId="remediation-partial-capture-priority-queue"
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
+            returnPath={partialCaptureReturnPath}
+            middleLine={SECURENOW_PARTIAL_CAPTURE_RANKED_PATHS_LINE}
+            cloudConnectionsTestId="remediation-priority-queue-partial-capture-cloud-connections"
+            extractUploadTestId="remediation-priority-queue-partial-capture-extract-upload"
+          />
+        ) : null}
+        {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-factory-priority-queue-collapsed">
+            Priority queue: {ranked.length} finding{ranked.length === 1 ? "" : "s"} on this snapshot. Step focus is on the
+            selected path below.
+          </p>
+        ) : (
+          <>
+            <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Priority queue</h2>
+            <Link
+              href={`${remediationInstancesPathForProductLine(productLine)}#${REMEDIATION_WAVES_SECTION_ID}`}
+              className={OPERATOR_LINK.inline}
+              data-testid="remediation-factory-open-waves"
+            >
+              {REMEDIATION_FACTORY_OPEN_WAVES_LABEL}
+            </Link>
+            <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-findings-audience-line">
+              These are SecureNow findings for the current inventory snapshot.
+            </p>
+            {productLine === "security" && latestCapturePartial ? (
+              <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-priority-queue-partial-rank">
+                {REMEDIATION_FACTORY_PRIORITY_QUEUE_PARTIAL_RANK_LINE}
+              </p>
+            ) : null}
+          </>
+        )}
+        {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 ? null : rankedQuery.isError ? (
           <>
             <OperatorErrorRecoveryContract
               presentation={remediationFactoryPriorityQueueErrorRecovery()}
@@ -670,7 +919,7 @@ export function RemediationFactoryClient() {
             />
           </>
         ) : ranked.length === 0 ? (
-          <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY} />
+          <EnterpriseCompactEmptyState {...priorityQueueEmptyState} />
         ) : (
           <RemediationFactoryPriorityTable
             rows={ranked}
@@ -684,32 +933,69 @@ export function RemediationFactoryClient() {
       </section>
 
       <section className="space-y-3" aria-label={SECURENOW_PATH_RANKED_PATHS_TITLE}>
+        {productLine === "security" && latestCapturePartial ? (
+          <SecureNowPartialCaptureRecoveryParagraph
+            testId="remediation-partial-capture-ranked-paths"
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
+            returnPath={partialCaptureReturnPath}
+            middleLine={SECURENOW_PARTIAL_CAPTURE_RANKED_PATHS_LINE}
+            cloudConnectionsTestId="remediation-partial-capture-cloud-connections"
+            extractUploadTestId="remediation-partial-capture-extract-upload"
+          />
+        ) : null}
         <header className="space-y-1">
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{SECURENOW_PATH_RANKED_PATHS_TITLE}</h2>
-          <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_RANKED_PATHS_LEAD}</p>
-          <RemediationFactoryRankedPathsShortcutHints />
+          {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 && !pathViewFiltersExpanded ? null : (
+            <>
+              <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_RANKED_PATHS_LEAD}</p>
+              <RemediationFactoryRankedPathsShortcutHints />
+            </>
+          )}
         </header>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-ranked-path-filters-scope">
-          These filters narrow the path list only. Counts are for paths on this page.
-        </p>
-        <div className="flex flex-wrap items-center gap-2" aria-label="Ranked path views">
-          {PATH_VIEWS.map((view) => (
+        {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 && !pathViewFiltersExpanded ? null : (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-ranked-path-filters-scope">
+            These filters narrow the path list only. Counts are for paths on this page.
+          </p>
+        )}
+        {selectedPathId === null || pathViewFiltersExpanded ? (
+          <div className="flex flex-wrap items-center gap-2" aria-label="Ranked path views">
+            {PATH_VIEWS.map((view) => (
+              <Button
+                key={view.value}
+                type="button"
+                size="sm"
+                variant={pathView === view.value ? "default" : "outline"}
+                aria-pressed={pathView === view.value}
+                onClick={() => setPathView(view.value)}
+              >
+                {rankedPathsQuery.isSuccess
+                  ? `${view.label} · ${remediationFactoryRankedPathViewFilteredCount(view.value, pathViewCounts)}`
+                  : view.label}
+              </Button>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <p
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="remediation-ranked-path-view-selected-only"
+            >
+              Path view: {remediationFactoryPathViewLabel(pathView as RemediationFactoryPathView)} (matches selected
+              path).
+            </p>
             <Button
-              key={view.value}
               type="button"
               size="sm"
-              variant={pathView === view.value ? "default" : "outline"}
-              aria-pressed={pathView === view.value}
-              onClick={() => setPathView(view.value)}
+              variant="outline"
+              data-testid="remediation-ranked-path-view-change"
+              onClick={() => setPathViewFiltersExpanded(true)}
             >
-              {rankedPathsQuery.isSuccess
-                ? `${view.label} · ${remediationFactoryRankedPathViewFilteredCount(view.value, pathViewCounts)}`
-                : view.label}
+              Change path view
             </Button>
-          ))}
-        </div>
+          </div>
+        )}
         {rankedPathsQuery.isLoading ? (
-          <p className={OPERATOR_TYPOGRAPHY.helper}>Loading ranked paths…</p>
+          <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_RANKED_PATHS_LOADING}</p>
         ) : rankedPathsQuery.isError ? (
           <>
             <OperatorErrorRecoveryContract
@@ -723,7 +1009,7 @@ export function RemediationFactoryClient() {
               onClick={() => void rankedPathsQuery.refetch()}
             />
           </>
-        ) : (
+        ) : productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 && !pathViewFiltersExpanded ? null : (
           <>
             {rankedPathsComputedLine !== null ? (
               <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-ranked-paths-computed">
@@ -736,7 +1022,7 @@ export function RemediationFactoryClient() {
               </p>
             ) : null}
             {visibleRankedPaths.length === 0 ? (
-              <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY} />
+              <EnterpriseCompactEmptyState {...rankedPathsEmptyState} />
             ) : (
               <RemediationFactoryRankedPathsTable
                 rows={visibleRankedPaths}
@@ -761,7 +1047,7 @@ export function RemediationFactoryClient() {
         panelRef={pathInspectPanelRef}
         selectedFinding={selectedFinding}
         selectedPath={selectedPath}
-        selectPromptPreset={REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT}
+        selectPromptPreset={pathInspectSelectEmptyState}
       />
 
       <section
@@ -775,7 +1061,7 @@ export function RemediationFactoryClient() {
           <StatusTag kind="neutral" label="Simulator — not a live scanner feed" />
         </div>
         {selectedFindingId == null ? (
-          <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT} />
+          <EnterpriseCompactEmptyState {...simulatorSelectEmptyState} />
         ) : (
           <>
             <p className={OPERATOR_TYPOGRAPHY.helper}>

@@ -110,13 +110,10 @@ public sealed class AdvisorCostRecommendationFindingEngine(
                 [
                     "Emitted a typed finding for each Advisor cost recommendation row in advisor-cost.json."
                 ],
-                AlternativePathsConsidered =
-                [
-                    "Accept the recommendation and track realized savings after implementation.",
-                    "Dismiss the recommendation when the workload intentionally retains the current configuration."
-                ],
+                AlternativePathsConsidered = [],
                 Notes =
                 [
+                    "Alternative remediation paths were not stored in advisor-cost.json.",
                     "Evidence artifact: advisor-cost.json",
                     $"Recommendation id: {recommendation.RecommendationId}",
                     $"Entry index: {recommendation.EntryIndex}",

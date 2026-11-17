@@ -183,7 +183,7 @@ public sealed class ArchitectureFindingJsonConverterTests
     }
 
     [Fact]
-    public void Deserialize_omitted_enforcement_tier_defaults_to_advisory()
+    public void Deserialize_omitted_enforcement_tier_leaves_enforcement_tier_unstored()
     {
         const string json = """
                             {
@@ -198,7 +198,8 @@ public sealed class ArchitectureFindingJsonConverterTests
         ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
 
         finding.Should().NotBeNull();
-        finding!.EnforcementTier.Should().Be(FindingEnforcementTier.Advisory);
+        finding!.EnforcementTierStored.Should().BeFalse();
+        finding.EnforcementTier.Should().Be(FindingEnforcementTier.PolicyViolation);
     }
 
     [Fact]
@@ -430,7 +431,7 @@ public sealed class ArchitectureFindingJsonConverterTests
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void Deserialize_whitespace_only_severity_defaults_to_info(string severity)
+    public void Deserialize_whitespace_only_severity_marks_severity_unstored(string severity)
     {
         string json = $$"""
                         {
@@ -446,7 +447,7 @@ public sealed class ArchitectureFindingJsonConverterTests
         ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
 
         finding.Should().NotBeNull();
-        finding!.Severity.Should().Be(FindingSeverity.Info);
+        finding!.SeverityStored.Should().BeFalse();
     }
 
     [Fact]

@@ -10,6 +10,8 @@ public sealed class AuditRetryDrainHostedService(
     IServiceScopeFactory scopeFactory,
     ILogger<AuditRetryDrainHostedService> logger) : BackgroundService
 {
+    private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(1);
+
     private readonly IAuditRetryQueue _auditRetryQueue =
         auditRetryQueue ?? throw new ArgumentNullException(nameof(auditRetryQueue));
 
@@ -42,7 +44,7 @@ public sealed class AuditRetryDrainHostedService(
                 await audit.LogAsync(auditEvent, stoppingToken);
                 _auditRetryQueue.NotifyPersistedSuccess();
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            catch (Exception ex) when (ex is not OperationCanceledException || !stoppingToken.IsCancellationRequested)
             {
                 if (_auditRetryQueue.TryReturnToQueueAfterFailedDrain(auditEvent))
                 {
@@ -55,6 +57,8 @@ public sealed class AuditRetryDrainHostedService(
                     _logger.LogWarning(
                         ex,
                         "Audit retry drain failed and re-queue dropped (queue full); audit event may be lost.");
+
+                await Task.Delay(RetryDelay, stoppingToken);
             }
         }
     }

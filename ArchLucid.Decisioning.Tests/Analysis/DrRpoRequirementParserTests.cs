@@ -7,6 +7,62 @@ namespace ArchLucid.Decisioning.Tests.Analysis;
 [Trait("Category", "Unit")]
 public sealed class DrRpoRequirementParserTests
 {
+    [Theory]
+    [InlineData("hours")]
+    [InlineData("days")]
+    public void TryParseRecoveryObjectives_ignores_oversized_prose_duration_and_keeps_valid_target(string unit)
+    {
+        string label = $"RPO 79228162514264337593543950335 {unit}, RTO 5 minutes";
+
+        DrRpoRequirementParser.TryParseRecoveryObjectives(
+                label, new Dictionary<string, string>(), out int? rpoMinutes, out int? rtoMinutes)
+            .Should().BeTrue();
+
+        rpoMinutes.Should().BeNull();
+        rtoMinutes.Should().Be(5);
+    }
+
+    [Fact]
+    public void TryParseRecoveryObjectives_accepts_maximum_representable_minutes_from_seconds()
+    {
+        DrRpoRequirementParser.TryParseRecoveryObjectives(
+                "RPO 128849018820 seconds", new Dictionary<string, string>(), out int? rpoMinutes, out _)
+            .Should().BeTrue();
+
+        rpoMinutes.Should().Be(int.MaxValue);
+    }
+
+    [Fact]
+    public void TryParseRecoveryObjectives_binds_iso_durations_to_their_objectives()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["description"] = "Backup job runs every PT60M.",
+            ["rpo"] = "PT15M",
+            ["rto"] = "PT5M",
+        };
+
+        DrRpoRequirementParser.TryParseRecoveryObjectives(
+                "Recovery objectives", properties, out int? rpoMinutes, out int? rtoMinutes)
+            .Should().BeTrue();
+
+        rpoMinutes.Should().Be(15);
+        rtoMinutes.Should().Be(5);
+    }
+
+    [Theory]
+    [InlineData("RPO and backup schedule: every PT60M")]
+    [InlineData("RPO PT2147483648M")]
+    public void TryParseRecoveryObjectives_rejects_uncoupled_or_out_of_range_iso_duration(string label)
+    {
+        DrRpoRequirementParser.TryParseRecoveryObjectives(
+                label, new Dictionary<string, string>(), out int? rpoMinutes, out int? rtoMinutes)
+            .Should().BeFalse();
+
+        rpoMinutes.Should().BeNull();
+        rtoMinutes.Should().BeNull();
+    }
+
     [Fact]
     public void TryParseRecoveryObjectives_parses_rpo_minutes_from_text()
     {

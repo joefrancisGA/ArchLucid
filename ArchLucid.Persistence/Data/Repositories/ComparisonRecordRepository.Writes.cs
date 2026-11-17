@@ -16,10 +16,13 @@ public sealed partial class ComparisonRecordRepository
     {
         ArgumentNullException.ThrowIfNull(record);
 
-        ComparisonRecordRunIdSql.ThrowIfNonEmptyButNotGuid(record.LeftRunId, nameof(record.LeftRunId));
-        ComparisonRecordRunIdSql.ThrowIfNonEmptyButNotGuid(record.RightRunId, nameof(record.RightRunId));
-        Guid? leftRun = ComparisonRecordRunIdSql.ToNullableSqlGuid(record.LeftRunId);
-        Guid? rightRun = ComparisonRecordRunIdSql.ToNullableSqlGuid(record.RightRunId);
+        ComparisonRecord persistRecord = ComparisonRecordRepositoryCore.Clone(record);
+        ComparisonRecordPersistNormalizer.NormalizeForPersist(persistRecord);
+
+        ComparisonRecordRunIdSql.ThrowIfNonEmptyButNotGuid(persistRecord.LeftRunId, nameof(persistRecord.LeftRunId));
+        ComparisonRecordRunIdSql.ThrowIfNonEmptyButNotGuid(persistRecord.RightRunId, nameof(persistRecord.RightRunId));
+        Guid? leftRun = ComparisonRecordRunIdSql.ToNullableSqlGuid(persistRecord.LeftRunId);
+        Guid? rightRun = ComparisonRecordRunIdSql.ToNullableSqlGuid(persistRecord.RightRunId);
 
         const string sql = """
                            INSERT INTO ComparisonRecords
@@ -66,21 +69,21 @@ public sealed partial class ComparisonRecordRepository
             sql,
             new
             {
-                record.ComparisonRecordId,
-                record.ComparisonType,
+                persistRecord.ComparisonRecordId,
+                persistRecord.ComparisonType,
                 LeftRunId = leftRun,
                 RightRunId = rightRun,
-                record.LeftManifestVersion,
-                record.RightManifestVersion,
-                record.LeftExportRecordId,
-                record.RightExportRecordId,
-                record.Format,
-                record.SummaryMarkdown,
-                record.PayloadJson,
-                record.Notes,
-                record.CreatedUtc,
-                record.Label,
-                record.Tags
+                persistRecord.LeftManifestVersion,
+                persistRecord.RightManifestVersion,
+                persistRecord.LeftExportRecordId,
+                persistRecord.RightExportRecordId,
+                persistRecord.Format,
+                persistRecord.SummaryMarkdown,
+                persistRecord.PayloadJson,
+                persistRecord.Notes,
+                persistRecord.CreatedUtc,
+                persistRecord.Label,
+                persistRecord.Tags
             },
             cancellationToken: cancellationToken));
     }
@@ -92,19 +95,28 @@ public sealed partial class ComparisonRecordRepository
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
+        string normalizedComparisonRecordId = ComparisonRecordIdLookup.NormalizeLookupKey(comparisonRecordId);
 
-        const string sql = """
-                           UPDATE ComparisonRecords
-                           SET Label = @Label,
-                               Tags = @Tags
-                           WHERE ComparisonRecordId = @ComparisonRecordId;
-                           """;
+        string sql = $"""
+                      UPDATE ComparisonRecords
+                      SET Label = @Label,
+                          Tags = @Tags
+                      WHERE LOWER({ComparisonRecordIdSql.TrimmedColumnExpression}) = LOWER(@ComparisonRecordId);
+                      """;
+
+        (string? normalizedLabel, IReadOnlyList<string>? normalizedTags) =
+            ComparisonRecordRepositoryCore.NormalizeLabelAndTagsForUpdate(label, tags);
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        string? tagsJson = ComparisonRecordRepositoryCore.SerializeTagsForUpdate(tags);
+        string? tagsJson = ComparisonRecordRepositoryCore.SerializeTagsForUpdate(normalizedTags);
         int rows = await connection.ExecuteAsync(new CommandDefinition(
             sql,
-            new { ComparisonRecordId = comparisonRecordId, Label = label ?? (object)DBNull.Value, Tags = tagsJson ?? (object)DBNull.Value },
+            new
+            {
+                ComparisonRecordId = normalizedComparisonRecordId,
+                Label = normalizedLabel ?? (object)DBNull.Value,
+                Tags = tagsJson ?? (object)DBNull.Value
+            },
             cancellationToken: cancellationToken));
         return rows > 0;
     }

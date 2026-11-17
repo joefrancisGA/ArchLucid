@@ -69,8 +69,8 @@ public sealed class SponsorReviewPacketGoldenFixtureTests
             inputs.TopDecisions,
             inputs.PortfolioSignals);
 
-        markdown.Should().Contain("## Top decisions");
-        markdown.Should().Contain("## Portfolio signals (live)");
+        markdown.Should().Contain("## First five decisions (not ranked)");
+        markdown.Should().Contain("## Portfolio signals (snapshot at export)");
         markdown.Should().Contain("Review stale PHI minimization risk");
         markdown.Should().NotContain("(mock)");
         markdown.Should().Contain($"**Savings pricing basis:** {SponsorRoiSavingsPricingBasis.EaAdjusted}");
@@ -98,9 +98,9 @@ public sealed class SponsorReviewPacketGoldenFixtureTests
         [
             "## Manifest summary",
             "## Execution mode",
-            "## Top decisions",
+            "## First five decisions (not ranked)",
             "## Review summary",
-            "## Portfolio signals (live)",
+            "## Portfolio signals (snapshot at export)",
             "## ROI basis",
             "## Sponsor artifact evidence badges",
             "## ROI basis by disposition",

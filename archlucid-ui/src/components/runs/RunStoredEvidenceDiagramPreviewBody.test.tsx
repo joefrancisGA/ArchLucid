@@ -59,4 +59,19 @@ describe("RunStoredEvidenceDiagramPreviewBody", () => {
 
     expect(screen.getByRole("alert")).toHaveTextContent("Open file; shape id lane-1.");
   });
+
+  it("labels stored-empty mermaid source without attempting render (P-20)", () => {
+    render(
+      <RunStoredEvidenceDiagramPreviewBody
+        fileName="topology.mmd"
+        contentType="text/vnd.mermaid"
+        textContent="   "
+      />,
+    );
+
+    expect(screen.getByTestId("run-stored-evidence-diagram-source-stored-empty")).toHaveTextContent(
+      "Diagram source was stored empty.",
+    );
+    expect(mermaidRenderMock).not.toHaveBeenCalled();
+  });
 });

@@ -100,7 +100,8 @@ describe("OperatorHomeWorkingPrimaryCta (PC-05)", () => {
     render(<OperatorHomeWorkingPrimaryCta />);
 
     const primary = screen.getByTestId("operator-home-working-new-review-primary");
+    const pathOnly = (primary.getAttribute("href") ?? "").split("?")[0] ?? "";
 
-    expect(primary.getAttribute("href")).not.toMatch(/^\/architecture\/reviews\/(?!new$)[^/]+$/);
+    expect(pathOnly).not.toMatch(/^\/architecture\/reviews\/(?!new$)[^/]+$/);
   });
 });

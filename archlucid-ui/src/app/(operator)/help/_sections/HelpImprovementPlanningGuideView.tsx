@@ -16,7 +16,7 @@ import {
   IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION_TAG,
   IMPROVEMENT_PLANNING_HELP_GUIDE_HEADINGS,
   IMPROVEMENT_PLANNING_HELP_HOW_TO_READ_STEPS,
-  IMPROVEMENT_PLANNING_HELP_OUTPUT_TILE_ITEMS,
+  resolveImprovementPlanningHelpOutputTileItems,
   IMPROVEMENT_PLANNING_HELP_OVERVIEW,
   IMPROVEMENT_PLANNING_HELP_PAGE_SUBTITLE,
   IMPROVEMENT_PLANNING_HELP_PAGE_TITLE,
@@ -43,6 +43,7 @@ import {
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
@@ -84,6 +85,8 @@ function HelpTileList(props: {
 /** Improvement planning orientation for `/help/improvement-planning`. */
 export function HelpImprovementPlanningGuideView(props: HelpImprovementPlanningGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const productLineId = resolveProductLineIdFromEnv();
+  const outputTileItems = resolveImprovementPlanningHelpOutputTileItems(productLineId);
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-improvement-planning",
     IMPROVEMENT_PLANNING_HELP_GUIDE_HEADINGS,
@@ -179,7 +182,7 @@ export function HelpImprovementPlanningGuideView(props: HelpImprovementPlanningG
             >
               <HelpSectionHeading id="what-planning-returns">What planning returns</HelpSectionHeading>
               <HelpTileList
-                items={IMPROVEMENT_PLANNING_HELP_OUTPUT_TILE_ITEMS}
+                items={outputTileItems}
                 testId="help-improvement-planning-output-tile-items"
               />
             </section>

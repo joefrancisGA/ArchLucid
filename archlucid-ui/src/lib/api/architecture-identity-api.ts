@@ -13,6 +13,11 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiGet, apiPatchJson } from "./http";
+import {
+  encodeRequiredPathSegment,
+  positiveIntegerOrDefault,
+  trimOptionalText,
+} from "./api-boundary-normalization";
 
 const ARCHITECTURES_BASE = "/v1/architectures";
 
@@ -25,11 +30,11 @@ export async function listArchitectureIdentities(params?: {
   const search = new URLSearchParams();
 
   if (params?.page !== undefined) {
-    search.set("page", String(params.page));
+    search.set("page", String(positiveIntegerOrDefault(params.page, 1)));
   }
 
   if (params?.pageSize !== undefined) {
-    search.set("pageSize", String(params.pageSize));
+    search.set("pageSize", String(positiveIntegerOrDefault(params.pageSize, 20)));
   }
 
   if (params?.includeArchived === true) {
@@ -61,7 +66,7 @@ export async function getArchitectureIdentity(
     // distinguish an identity URL from a legacy draft URL. The sealed-aware
     // wrapper formats that error as a plain Error and loses its HTTP status.
     return await apiGet<ArchitectureIdentityDetail>(
-      `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}`,
+      `${ARCHITECTURES_BASE}/${encodeRequiredPathSegment(architectureId, "architectureId")}`,
       options,
     );
   } catch (error: unknown) {
@@ -86,10 +91,18 @@ export async function patchArchitectureIdentity(
   architectureId: string,
   body: PatchArchitectureIdentityBody,
 ): Promise<ArchitectureIdentityDetail> {
+  const request = {
+    ...(body.displayName !== undefined ? { displayName: body.displayName.trim() } : {}),
+    ...(body.description !== undefined
+      ? { description: body.description === null ? null : trimOptionalText(body.description) ?? null }
+      : {}),
+    ...(body.archived !== undefined ? { archived: body.archived } : {}),
+  };
+
   try {
     return await apiPatchJson<ArchitectureIdentityDetail>(
-      `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}`,
-      body,
+      `${ARCHITECTURES_BASE}/${encodeRequiredPathSegment(architectureId, "architectureId")}`,
+      request,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

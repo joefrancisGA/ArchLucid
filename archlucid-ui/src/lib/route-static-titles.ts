@@ -75,7 +75,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/": OPERATOR_NAV_LINK_LABELS.home,
   [ARCHITECTURES_LIST_PATH]: OPERATOR_NAV_LINK_LABELS.architectures,
   [ARCHITECTURES_NEW_PATH]: CREATE_ARCHITECTURE_LABEL,
-  "/architecture/reviews": RUNS_LIST_PAGE_TITLES.buyerPolished,
+  "/architecture/reviews": OPERATOR_NAV_LINK_LABELS.packages,
   "/architecture/reviews/new": START_REVIEW_LABEL,
   [COMPARE_TWO_REVIEWS_PATH]: OPERATOR_NAV_LINK_LABELS.compareTwoReviews,
   [EVIDENCE_GRAPH_PATH]: OPERATOR_NAV_LINK_LABELS.evidenceGraph,

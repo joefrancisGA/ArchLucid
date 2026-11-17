@@ -8,6 +8,7 @@ import { CORRELATION_ID_HEADER, applyTraceParentHeader, captureTraceContextFromR
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 
 import type { TenantItsmConnectorConnectionResponse } from "./itsm-outbound-connections-settings";
+import { trimOptionalText, trimRequiredPathSegment } from "./api-boundary-normalization";
 
 export type ItsmAtlassianOAuthConsentStartRequest = {
   instanceBaseUrl: string;
@@ -46,7 +47,21 @@ export async function startItsmAtlassianOAuthConsent(
 ): Promise<ItsmAtlassianOAuthConsentStartResponse> {
   return apiPostJson<ItsmAtlassianOAuthConsentStartResponse>(
     "/v1/integrations/itsm/connections/jira/oauth/consent/start",
-    body,
+    {
+      instanceBaseUrl: trimRequiredPathSegment(body.instanceBaseUrl, "instanceBaseUrl"),
+      redirectUri: trimOptionalText(body.redirectUri ?? undefined) ?? null,
+      oAuthClientIdKeyVaultSecretName: trimRequiredPathSegment(body.oAuthClientIdKeyVaultSecretName, "oAuthClientIdKeyVaultSecretName"),
+      oAuthClientSecretKeyVaultSecretName: trimRequiredPathSegment(
+        body.oAuthClientSecretKeyVaultSecretName,
+        "oAuthClientSecretKeyVaultSecretName",
+      ),
+      oAuthRefreshTokenKeyVaultSecretName: trimRequiredPathSegment(
+        body.oAuthRefreshTokenKeyVaultSecretName,
+        "oAuthRefreshTokenKeyVaultSecretName",
+      ),
+      inboundWebhookKeyVaultSecretName: trimOptionalText(body.inboundWebhookKeyVaultSecretName ?? undefined) ?? null,
+      label: trimOptionalText(body.label ?? undefined) ?? null,
+    },
   );
 }
 
@@ -71,7 +86,10 @@ export async function completeItsmAtlassianOAuthConsent(
   const response = await fetch(url, {
     method: "POST",
     headers: requestHeaders,
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      code: trimRequiredPathSegment(body.code, "code"),
+      state: trimRequiredPathSegment(body.state, "state"),
+    }),
     cache: "no-store",
   });
   captureTraceContextFromResponse(response);

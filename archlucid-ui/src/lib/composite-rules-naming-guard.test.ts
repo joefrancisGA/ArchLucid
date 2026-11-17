@@ -24,7 +24,7 @@ describe("composite rules naming guard (GOA P0-6)", () => {
       "utf8",
     );
     const contentSource = readFileSync(
-      join(process.cwd(), "src", "components", "alerts", "CompositeAlertRulesContent.tsx"),
+      join(process.cwd(), "src", "components", "alerts", "CompositeAlertRulesTable.tsx"),
       "utf8",
     );
 

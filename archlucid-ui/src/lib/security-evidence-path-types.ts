@@ -12,11 +12,33 @@ export type SecurityEvidencePathHop = {
 
 export const SECURITY_EVIDENCE_PATH_NODE_NAME_NOT_STORED = "Node name was not stored." as const;
 
+export const SECURITY_EVIDENCE_PATH_NODE_NAME_STORED_EMPTY = "Node name was stored empty." as const;
+
+export const SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED =
+  "Relationship type was not stored." as const;
+
+export const SECURITY_EVIDENCE_PATH_HOP_ORDER_NOT_STORED = "Hop order was not stored." as const;
+
+export const SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED = "Hop evidence was not stored." as const;
+
+export const SECURITY_EVIDENCE_PATH_PATTERN_NOT_STORED = "Pattern was not stored." as const;
+
+export const SECURITY_EVIDENCE_PATH_WEAKEST_HOP_REASON_NOT_STORED = "Weakest-hop reason was not stored." as const;
+
+export const SECURITY_EVIDENCE_PATH_BLAST_RADIUS_NOT_STORED = "Blast radius was not stored." as const;
+
+export const SECURITY_EVIDENCE_PATH_BLAST_RADIUS_PROSE_NOT_STORED =
+  "Blast radius prose was not stored." as const;
+
+export const SECURITY_EVIDENCE_PATH_RECOMMENDED_CHANGE_NOT_STORED = "Recommended change was not stored." as const;
+
+export const SECURITY_EVIDENCE_PATH_COMPUTED_UTC_NOT_STORED = "Computed time was not stored." as const;
+
 export function securityEvidencePathHopNodeName(label: string): string {
   const trimmed = label.trim();
 
   if (trimmed.length === 0) {
-    return SECURITY_EVIDENCE_PATH_NODE_NAME_NOT_STORED;
+    return SECURITY_EVIDENCE_PATH_NODE_NAME_STORED_EMPTY;
   }
 
   const lastSegment = trimmed.split("/").filter((segment) => segment.length > 0).at(-1);
@@ -35,14 +57,14 @@ export type SecurityEvidencePathWeakestHop = {
 export type SecurityEvidencePathCutPoint = {
   cutPointId: string;
   cutKind: string;
-  cutOrder: number;
+  cutOrder: number | null;
   fromNodeLabel: string | null;
   toNodeLabel: string | null;
   edgeType: string | null;
   explanationSummary: string;
   suggestedPatternKey: string | null;
   operationalCostClass: string;
-  pathsCollapsedCount: number;
+  pathsCollapsedCount: number | null;
   leverageScore: number | null;
   collapsedPathIds: ReadonlyArray<string>;
 };
@@ -152,6 +174,7 @@ export type SecurityEvidencePathRankDetail = {
     overall: string;
   };
   computedUtc: string;
+  nextStoredPathRankContext: string;
 };
 
 export type SecurityEvidencePathProposedRemediation = {
@@ -171,6 +194,7 @@ export type SecurityEvidencePathExplanation = {
   citedEvidenceRefs: ReadonlyArray<string>;
   provenanceKind: string;
   simulatorLabel: string | null;
+  modelOutputRejection: string | null;
   createdUtc: string;
 };
 

@@ -35,5 +35,11 @@ export function FindingPolicyCitationHero(props: FindingPolicyCitationHeroProps)
     );
   }
 
-  return null;
+  return (
+    <div data-testid="finding-policy-citation-hero">
+      <p className="m-0 text-al-text-secondary">
+        Policy citation details were not stored on this finding.
+      </p>
+    </div>
+  );
 }

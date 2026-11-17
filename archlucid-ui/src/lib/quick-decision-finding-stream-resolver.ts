@@ -94,12 +94,18 @@ function mapFindingSummaryRowToQuickDecision(
     isMuted: false,
     muteReason: null,
     enforcementTier: normalizeFindingEnforcementTier(row.enforcementTier),
+    enforcementTierStored:
+      typeof row.enforcementTier === "string" && row.enforcementTier.trim().length > 0,
     policyRuleId,
     streamBand: "sealed",
   };
 }
 
 function extractSealedFromFindingSummaries(detail: RunDetail): QuickDecisionFinding[] {
+  if (detail.run.hasFindingsSnapshot === false) {
+    return [];
+  }
+
   const summaries = readFindingSummaries(detail);
   const out: QuickDecisionFinding[] = [];
   let order = 0;

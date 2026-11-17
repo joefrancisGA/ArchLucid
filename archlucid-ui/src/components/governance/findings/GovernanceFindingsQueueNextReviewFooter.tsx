@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunDetailNextReviewTarget } from "@/lib/resolve-next-runs-list-row";
 import { cn } from "@/lib/utils";
@@ -44,10 +46,12 @@ export function GovernanceFindingsQueueNextReviewFooter(
 
 export function governanceFindingsQueueNextReviewHref(
   runId: string,
-  findingsHubPath: string = GOVERNANCE_FINDINGS_PATH,
+  findingsHubPath?: string,
+  productLine: ProductLineId = "architecture",
 ): string {
+  const hubPath = findingsHubPath ?? findingsPathForProductLine(productLine);
   const params = new URLSearchParams();
   params.set("runId", runId);
 
-  return `${findingsHubPath}?${params.toString()}`;
+  return `${hubPath}?${params.toString()}`;
 }

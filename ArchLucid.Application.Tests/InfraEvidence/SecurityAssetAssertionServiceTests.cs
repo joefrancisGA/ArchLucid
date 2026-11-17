@@ -86,6 +86,23 @@ public sealed class SecurityAssetAssertionServiceTests
     }
 
     [Fact]
+    public async Task SweepExpiredAsync_records_observations_for_findings_beyond_the_first_page()
+    {
+        DateTime utcNow = DateTime.UtcNow;
+        InMemorySecurityAssetAssertionRepository repository = new();
+        repository.Records.Add(CreateExpiredAssertion(Guid.NewGuid(), utcNow.AddMinutes(-5)));
+        InMemoryOperationalSecurityFindingRepository findings = new();
+        findings.Findings.AddRange(Enumerable.Range(0, 101).Select(_ => CreateFinding(Guid.NewGuid(), utcNow)));
+
+        SecurityAssetAssertionExpirySweepResult result = await CreateSut(repository, findings)
+            .SweepExpiredAsync(CreateScope());
+
+        result.ObservationsCreatedCount.Should().Be(101);
+        findings.Observations.Select(observation => observation.FindingId).Should()
+            .BeEquivalentTo(findings.Findings.Select(finding => finding.FindingId));
+    }
+
+    [Fact]
     public async Task SweepExpiredAsync_creates_expiry_observation_for_linked_finding()
     {
         Guid assertionId = Guid.NewGuid();
@@ -110,6 +127,27 @@ public sealed class SecurityAssetAssertionServiceTests
             observation.SourceSystem == SecurityAssetAssertionConstants.AssertionExpirySourceSystem);
         findingRepository.Findings.Single().PathId.Should().Be(
             Guid.Parse("12121212-1212-1212-1212-121212121212"));
+    }
+
+    [Fact]
+    public async Task SweepExpiredAsync_recovers_unprocessed_expiration_after_interruption()
+    {
+        DateTime utcNow = DateTime.UtcNow;
+        InMemorySecurityAssetAssertionRepository repository = new();
+        repository.Records.Add(CreateExpiredAssertion(Guid.NewGuid(), utcNow.AddMinutes(-5)));
+        await repository.MarkExpiredAsync(TenantId, utcNow);
+
+        InMemoryOperationalSecurityFindingRepository findings = new();
+        findings.Findings.Add(CreateFinding(Guid.NewGuid(), utcNow));
+        SecurityAssetAssertionService sut = CreateSut(repository, findings);
+
+        SecurityAssetAssertionExpirySweepResult retry = await sut.SweepExpiredAsync(CreateScope());
+        retry.ObservationsCreatedCount.Should().Be(1);
+        repository.Records.Single().ExpiryProcessedUtc.Should().NotBeNull();
+        findings.Observations.Should().ContainSingle();
+
+        (await sut.SweepExpiredAsync(CreateScope())).ExpiredCount.Should().Be(0);
+        findings.Observations.Should().ContainSingle();
     }
 
     [Fact]
@@ -470,7 +508,9 @@ public sealed class SecurityAssetAssertionServiceTests
             Guid tenantId,
             OperationalSecurityFindingStatus? status,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult<IReadOnlyList<OperationalSecurityFindingRecord>>([]);
+            Task.FromResult<IReadOnlyList<OperationalSecurityFindingRecord>>(Findings
+                .Where(finding => finding.TenantId == tenantId && (status is null || finding.Status == status))
+                .ToList());
 
         public Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
             Guid tenantId,
@@ -483,7 +523,8 @@ public sealed class SecurityAssetAssertionServiceTests
                 .Where(finding => finding.TenantId == tenantId && finding.CloudResourceId == cloudResourceId)
                 .ToList();
 
-            return Task.FromResult<(IReadOnlyList<OperationalSecurityFindingRecord>, int)>((items, items.Count));
+            return Task.FromResult<(IReadOnlyList<OperationalSecurityFindingRecord>, int)>(
+                (items.Skip((page - 1) * pageSize).Take(pageSize).ToList(), items.Count));
         }
 
         public Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdAsync(

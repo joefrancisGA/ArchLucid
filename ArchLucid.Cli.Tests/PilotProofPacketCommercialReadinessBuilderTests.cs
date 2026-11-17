@@ -46,7 +46,19 @@ public sealed class PilotProofPacketCommercialReadinessBuilderTests
             }
             """;
 
-        string json = PilotProofPacketCommercialReadinessBuilder.BuildJson("run-1", deltas, demoWarning: false, pilotStrictSatisfied: true);
+        const string passingExplanationJson = """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 2
+            }
+            """;
+
+        string json = PilotProofPacketCommercialReadinessBuilder.BuildJson(
+            "run-1",
+            deltas,
+            demoWarning: false,
+            pilotStrictSatisfied: true,
+            passingExplanationJson);
 
         using JsonDocument doc = JsonDocument.Parse(json);
         JsonElement root = doc.RootElement;

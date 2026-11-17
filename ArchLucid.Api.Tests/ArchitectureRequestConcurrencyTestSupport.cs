@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -129,8 +129,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         string idempotencyKey,
         CancellationToken cancellationToken)
     {
-        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request");
-        request.Content = JsonContent(body);
+        using HttpRequestMessage request = IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body));
 
         request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
@@ -496,9 +495,10 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                 + ".");
         }
 
-        CreateRunResponseDto? created = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions, cancellationToken);
+        CreateRunResponseDto created =
+            await response.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions, cancellationToken);
 
-        return created!.Run.RunId;
+        return created.Run.RunId;
     }
 
     internal static async Task PostExecuteWithGreenfieldTransientRetryAsync(
@@ -522,7 +522,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             try
             {
                 using HttpResponseMessage response = await client.PostAsync(
-                    $"/v1/architecture/review/{runId}/execute",
+                    IntegrationTestRunLifecycleSupport.ExecuteReviewRelativeUrl(runId),
                     null,
                     attemptBudget.Token);
 
@@ -626,7 +626,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             try
             {
                 using HttpResponseMessage response = await client.PostAsync(
-                    $"/v1/architecture/review/{runId}/finalize",
+                    IntegrationTestRunLifecycleSupport.FinalizeReviewRelativeUrl(runId),
                     null,
                     attemptBudget.Token);
 

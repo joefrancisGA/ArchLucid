@@ -4,8 +4,26 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
+const evalChromeShellState = vi.hoisted(() => ({ current: false }));
+const workingModeState = vi.hoisted(() => ({ current: false }));
+
 const listRunsByProjectPaged = vi.fn();
 const getPilotScorecard = vi.fn();
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => !evalChromeShellState.current,
+  useProductionEvalChrome: () => evalChromeShellState.current,
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({
+    mode: workingModeState.current ? "working" : "guided",
+    mounted: true,
+    accountSyncState: "synced",
+    isWorkingMode: workingModeState.current,
+    setAndPersist: vi.fn(),
+  }),
+}));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
@@ -202,7 +220,6 @@ vi.mock("./_sections/load-operator-home-runs-dashboard-model", () => ({
   loadOperatorHomeRunsDashboardModel: vi.fn(),
 }));
 
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { loadOperatorHomeRunsDashboardModel } from "./_sections/load-operator-home-runs-dashboard-model";
 import { OperatorHomeRunsDashboardAsync } from "./_sections/OperatorHomeRunsDashboardAsync";
 import type { OperatorHomeRunsDashboardModel } from "./_sections/operator-home-runs-dashboard-model";
@@ -259,10 +276,12 @@ function runsDashboardWithSampleRun(buyerPolishedShell = false): OperatorHomeRun
   };
 }
 
-async function renderHomePage(): Promise<void> {
+async function renderHomePage(buyerPolishedShell = evalChromeShellState.current): Promise<void> {
+  evalChromeShellState.current = buyerPolishedShell;
+
   // Resolve the Suspense child directly — page.tsx streams this under Suspense for FCP.
   const page = await OperatorHomeRunsDashboardAsync({
-    buyerPolishedShell: isBuyerPolishedOperatorShellEnv(),
+    buyerPolishedShell,
   });
 
   renderWithOperatorQuery(page);
@@ -274,9 +293,9 @@ afterEach(() => {
 });
 
 beforeEach(() => {
-  mockLoadOperatorHomeRunsDashboardModel.mockResolvedValue(
-    runsDashboardWithSampleRun(isBuyerPolishedOperatorShellEnv()),
-  );
+  evalChromeShellState.current = false;
+  workingModeState.current = false;
+  mockLoadOperatorHomeRunsDashboardModel.mockResolvedValue(runsDashboardWithSampleRun(false));
   useFeaturedCompletedSampleQuery.mockReturnValue(featuredCompletedSampleAvailable());
   listRunsByProjectPaged.mockResolvedValue({
     items: [],
@@ -322,9 +341,11 @@ describe("HomePage — buyer-polished shell", () => {
 
   it("keeps the buyer-polished launchpad focused on starting actions and recent reviews", async () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
+    evalChromeShellState.current = true;
+    workingModeState.current = false;
     mockLoadOperatorHomeRunsDashboardModel.mockResolvedValue(runsDashboardWithSampleRun(true));
 
-    await renderHomePage();
+    await renderHomePage(true);
 
     expect(screen.getByTestId("operator-home-primary-content")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-compact-starting-actions")).toBeInTheDocument();
@@ -377,7 +398,9 @@ describe("HomePage (55R smoke — landing)", () => {
   });
 
   it("exposes recent-reviews filter pills and Open all reviews beside the section heading", async () => {
-    mockLoadOperatorHomeRunsDashboardModel.mockResolvedValue(runsDashboardWithSampleRun());
+    workingModeState.current = false;
+    evalChromeShellState.current = false;
+    mockLoadOperatorHomeRunsDashboardModel.mockResolvedValue(runsDashboardWithSampleRun(false));
     listRunsByProjectPaged.mockResolvedValue({
       items: [sampleHomeRun],
       totalCount: 1,

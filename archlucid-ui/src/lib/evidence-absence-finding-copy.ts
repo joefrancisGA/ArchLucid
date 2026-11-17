@@ -26,7 +26,7 @@ export function isEvidenceAbsenceFindingTitle(title: string | null | undefined):
  */
 export function evidenceAbsenceFindingLabel(title: string): string {
   if (/no topology resources were found/i.test(title)) {
-    return "Evidence did not surface architecture components";
+    return `Evidence did not surface architecture components (stored finding title: ${title.trim()})`;
   }
 
   return title;

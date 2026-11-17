@@ -5,6 +5,8 @@ import {
   resolveGovernanceFindingsQueueDeskSelectionFromSearch,
   resolveGovernanceFindingsQueuePathInspectFindingIdForDeskUrl,
 } from "@/lib/governance/governance-findings-queue-desk-url";
+import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { governanceFindingsQueueAvailableFindingIdSet } from "@/lib/governance/governance-findings-queue-selection";
 
 describe("governanceFindingsQueueDeskHrefFromSearch", () => {
   it("writes bulk and findingId for a sole selection", () => {
@@ -52,5 +54,17 @@ describe("resolveGovernanceFindingsQueueDeskSelectionFromSearch", () => {
     expect(
       resolveGovernanceFindingsQueueDeskSelectionFromSearch("findingId=finding-b", available),
     ).toEqual(new Set(["finding-b"]));
+  });
+
+  it("matches bulkFindings to trimmed ids when register rows retain padding", () => {
+    const paddedRow = {
+      recordKind: "finding",
+      findingId: "  finding-a  ",
+    } as GovernanceFindingQueueRow;
+    const availableFromRows = governanceFindingsQueueAvailableFindingIdSet([paddedRow]);
+
+    expect(
+      resolveGovernanceFindingsQueueDeskSelectionFromSearch("bulkFindings=finding-a", availableFromRows),
+    ).toEqual(new Set(["finding-a"]));
   });
 });

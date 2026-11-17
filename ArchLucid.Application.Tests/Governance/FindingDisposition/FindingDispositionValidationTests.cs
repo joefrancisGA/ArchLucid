@@ -59,6 +59,23 @@ public sealed class FindingDispositionValidationTests
     }
 
     [Fact]
+    public void Validate_deferred_accepts_single_character_optional_rationale()
+    {
+        DateTimeOffset nowUtc = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Deferred,
+            RevisitDueUtc = nowUtc.AddDays(30),
+            Rationale = "x",
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request, nowUtc);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void Validate_deferred_disposition_requires_revisit()
     {
         RecordFindingDispositionRequest request = new()
@@ -363,6 +380,21 @@ public sealed class FindingDispositionValidationTests
         act.Should()
             .Throw<ArgumentException>()
             .WithMessage($"*exceed*{FindingDispositionValidation.MaximumRationaleLength}*");
+    }
+
+    [Fact]
+    public void Validate_remediated_accepts_two_character_optional_rationale()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Remediated,
+            Rationale = "ok",
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().NotThrow();
     }
 
     [Fact]

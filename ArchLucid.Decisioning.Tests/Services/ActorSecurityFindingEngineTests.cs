@@ -124,6 +124,37 @@ public sealed class ActorSecurityFindingEngineTests
 
         findings.Should().ContainSingle();
         findings[0].EngineType.Should().Be("external-exposure");
+        findings[0].Rationale.Should().Contain("Trust origin on this actor: PublicAnonymous");
+    }
+
+    [Fact]
+    public async Task ExternalExposureFindingEngine_title_uses_not_stored_copy_when_actor_label_missing()
+    {
+        GraphSnapshot snapshot = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "actor-1",
+                    NodeType = GraphNodeTypes.Actor,
+                    Label = "",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["trustOrigin"] = "PublicAnonymous",
+                        ["kind"] = "Human",
+                    },
+                },
+            ],
+        };
+
+        ExternalExposureFindingEngine sut = new(new FixedComplianceRulePackProvider(CreateFailOpenPack()));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Title.Should().Contain("Graph node label was not stored.");
+        findings[0].Title.Should().NotContain("actor-1");
     }
 
     [Fact]

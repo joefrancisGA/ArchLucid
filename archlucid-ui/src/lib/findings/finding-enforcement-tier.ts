@@ -7,6 +7,10 @@ export function normalizeFindingEnforcementTier(raw: unknown): FindingEnforcemen
 
   const normalized = raw.trim();
 
+  if (normalized.length === 0) {
+    return null;
+  }
+
   if (normalized.localeCompare("Advisory", undefined, { sensitivity: "accent" }) === 0) {
     return "Advisory";
   }

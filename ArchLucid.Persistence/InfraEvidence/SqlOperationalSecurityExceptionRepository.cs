@@ -182,7 +182,8 @@ public sealed partial class SqlOperationalSecurityExceptionRepository(ISqlConnec
     {
         const string sql = """
                            UPDATE dbo.OperationalSecurityExceptions
-                           SET Status = @ExpiredStatus, UpdatedUtc = @AsOfUtc
+                           SET Status = @ExpiredStatus,
+                               UpdatedUtc = CASE WHEN Status = @ActiveStatus THEN @AsOfUtc ELSE UpdatedUtc END
                            OUTPUT
                                INSERTED.ExceptionId, INSERTED.TenantId, INSERTED.WorkspaceId, INSERTED.ProjectId,
                                INSERTED.FindingId, INSERTED.PatternId, INSERTED.CloudResourceId,
@@ -194,8 +195,9 @@ public sealed partial class SqlOperationalSecurityExceptionRepository(ISqlConnec
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
                              AND ProjectId = @ProjectId
-                             AND Status = @ActiveStatus
-                             AND ExpirationUtc < @AsOfUtc;
+                             AND ExpiryProcessedUtc IS NULL
+                             AND (Status = @ExpiredStatus
+                                  OR (Status = @ActiveStatus AND ExpirationUtc < @AsOfUtc));
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);

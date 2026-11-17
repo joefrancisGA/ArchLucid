@@ -13,16 +13,15 @@ const ARCHITECTURE_SHARE_API_RELATIVE_PATH =
 
 const SHARE_OPENAPI_PATHS = [
   "/v1/architectures/{architectureId}/shares",
-  "/v1/architectures/{architectureId}/shares/{userId}",
+  "/v1/architectures/{architectureId}/shares/{targetActorOid}",
   "/v1/architectures/{architectureId}/restrict-to-shares",
 ] as const;
 
 const SHARE_OPENAPI_SCHEMAS = [
   "ArchitectureShareListResponse",
-  "ArchitectureShareGrantResponse",
-  "UpsertArchitectureShareRequest",
-  "SetArchitectureRestrictToSharesRequest",
-  "ArchitectureRestrictToSharesResponse",
+  "ArchitectureShareResponse",
+  "PutArchitectureShareRequest",
+  "PatchArchitectureRestrictToSharesRequest",
 ] as const;
 
 describe("architecture share API contract (AS-099)", () => {
@@ -51,8 +50,8 @@ describe("architecture share API contract (AS-099)", () => {
 
     expect(source).toContain('from "@/lib/api-types/schemas.generated"');
     expect(source).toContain("ArchitectureShareListResponse");
-    expect(source).toContain("UpsertArchitectureShareRequest");
-    expect(source).toContain("SetArchitectureRestrictToSharesRequest");
+    expect(source).toContain("PutArchitectureShareRequest");
+    expect(source).toContain("PatchArchitectureRestrictToSharesRequest");
     expect(source).toContain("/restrict-to-shares");
   });
 });

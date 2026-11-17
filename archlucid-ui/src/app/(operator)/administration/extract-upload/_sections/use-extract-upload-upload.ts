@@ -10,6 +10,7 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 
 export type ExtractUploadUploadSuccess = {
   readonly packageId: string;
+  readonly snapshotId: string | null;
 };
 
 export type UseExtractUploadUploadInput = {
@@ -63,17 +64,20 @@ export function useExtractUploadUpload(input: UseExtractUploadUploadInput = {}) 
       }
 
       let acceptedPackageId: string | null = null;
+      let acceptedSnapshotId: string | null = null;
 
       try {
-        const payload = JSON.parse(bodyText) as { packageId?: string };
+        const payload = JSON.parse(bodyText) as { packageId?: string; snapshotId?: string | null };
         acceptedPackageId = payload.packageId?.trim() ?? null;
+        const snapshotId = payload.snapshotId?.trim() ?? "";
+        acceptedSnapshotId = snapshotId.length > 0 ? snapshotId : null;
         setPackageId(acceptedPackageId);
       } catch {
         setPackageId(null);
       }
 
       if (acceptedPackageId !== null) {
-        const success = { packageId: acceptedPackageId };
+        const success = { packageId: acceptedPackageId, snapshotId: acceptedSnapshotId };
         input.onUploadAccepted?.(success);
         void getOperatorQueryClient().invalidateQueries({
           queryKey: operatorQueryKeys.extractUploadBaselineArtifacts,

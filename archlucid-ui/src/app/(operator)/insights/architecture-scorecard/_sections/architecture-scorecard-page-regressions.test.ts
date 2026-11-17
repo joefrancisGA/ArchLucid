@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { REVIEW_SCORECARD_PAGE_TITLE } from "@/lib/pilot-scorecard-present";
 import { ARCHITECTURE_SCORECARD_TRAFFIC_PATH } from "@/lib/ui-route-traffic-architecture-scorecard";
 import {
   REVIEW_SCORECARD_EMPTY_PRIMARY_CTA,
@@ -28,7 +29,7 @@ describe("architecture-scorecard Insights regressions (TB-1960)", () => {
 
     expect(topic?.slug).toBe("architecture-scorecard");
     expect(topic?.hashFragment).toBeUndefined();
-    expect(topic?.label).toBe("How architecture scorecards work");
+    expect(topic?.label).toBe(REVIEW_SCORECARD_PAGE_TITLE);
   });
 
   it("empty primary CTA uses buyer Start architecture review label (TB-1958)", () => {

@@ -43,13 +43,13 @@ describe("DraftIntakeActorEditor", () => {
     expect(screen.getByText(GUIDED_INTAKE_ACTORS_SECTION_HEADING)).toBeInTheDocument();
     expect(screen.getByText(GUIDED_INTAKE_TRUST_BOUNDARY_HINT)).toBeInTheDocument();
     expect(screen.getByText(GUIDED_INTAKE_ACTORS_EMPTY_STATE)).toBeInTheDocument();
-    expect(screen.getByTestId("draft-intake-actor-empty")).toHaveTextContent("trust-boundary");
+    expect(screen.getByTestId("draft-intake-actor-empty")).toHaveTextContent(GUIDED_INTAKE_ACTORS_EMPTY_STATE);
     expect(screen.getByText(GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON })).toBeDisabled();
     expect(screen.getByRole("button", { name: GUIDED_INTAKE_ADD_ACTOR_BUTTON })).toBeInTheDocument();
   });
 
-  it("adds an actor row and marks manual adds asserted", () => {
+  it("adds an inferred actor row for manual entry until confirmed", () => {
     const onChange = vi.fn();
 
     render(<DraftIntakeActorEditor actorSet={baseActorSet} intentText={sampleIntent} onChange={onChange} />);
@@ -64,8 +64,8 @@ describe("DraftIntakeActorEditor", () => {
           kind: "Human",
           trustOrigin: "Internal",
           contract: "Sync",
-          origin: "Asserted",
-          confidence: 100,
+          origin: "Inferred",
+          confidence: 70,
         },
       ],
     });
@@ -141,7 +141,7 @@ describe("DraftIntakeActorEditor", () => {
     );
   });
 
-  it("updates label and asserts the actor", () => {
+  it("updates label on an inferred actor without auto-asserting", () => {
     const onChange = vi.fn();
 
     render(<DraftIntakeActorEditor actorSet={baseActorSet} intentText={sampleIntent} onChange={onChange} />);
@@ -155,8 +155,6 @@ describe("DraftIntakeActorEditor", () => {
         {
           ...baseActorSet.actors[0],
           label: "Claims analyst",
-          origin: "Asserted",
-          confidence: 100,
         },
       ],
     });

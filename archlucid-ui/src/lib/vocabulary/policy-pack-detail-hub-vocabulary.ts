@@ -12,7 +12,9 @@
  * which reconciles pack assignment with effective standards.
  */
 
-import { GOVERNANCE_POLICY_PACKS_PATH, governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type PolicyPackDetailHubSurfaceId = "policy-packs" | "pack-detail";
@@ -57,19 +59,26 @@ export const POLICY_PACK_DETAIL_HUB_PACK_DETAIL_LINK: PolicyPackDetailHubLink = 
 };
 
 /** Pairwise model for Policy packs hub ↔ Pack detail (peer href may be scoped per pack). */
-export function buildPolicyPackDetailHubPairwiseRail(): PairwiseVocabularyRailModel<PolicyPackDetailHubSurfaceId> {
+export function buildPolicyPackDetailHubPairwiseRail(
+  productLine: ProductLineId = "architecture",
+): PairwiseVocabularyRailModel<PolicyPackDetailHubSurfaceId> {
   return {
     heading: POLICY_PACK_DETAIL_HUB_HEADING,
     whyTwo: POLICY_PACK_DETAIL_HUB_WHY_TWO,
     compactLine: POLICY_PACK_DETAIL_HUB_COMPACT_LINE,
-    currentLink: POLICY_PACK_DETAIL_HUB_PACKS_LINK,
+    currentLink: {
+      ...POLICY_PACK_DETAIL_HUB_PACKS_LINK,
+      href: policyPacksPathForProductLine(productLine),
+    },
     peerLink: POLICY_PACK_DETAIL_HUB_PACK_DETAIL_LINK,
   };
 }
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildPolicyPackDetailHubVocabulary(): PolicyPackDetailHubVocabularyModel {
-  const rail = buildPolicyPackDetailHubPairwiseRail();
+export function buildPolicyPackDetailHubVocabulary(
+  productLine: ProductLineId = "architecture",
+): PolicyPackDetailHubVocabularyModel {
+  const rail = buildPolicyPackDetailHubPairwiseRail(productLine);
 
   return {
     heading: rail.heading,
@@ -84,6 +93,7 @@ export function buildPolicyPackDetailHubVocabulary(): PolicyPackDetailHubVocabul
 export function resolvePolicyPackDetailHubPeerLink(
   currentSurfaceId: PolicyPackDetailHubSurfaceId,
   policyPackId?: string,
+  productLine: ProductLineId = "architecture",
 ): PolicyPackDetailHubLink {
   if (currentSurfaceId === "policy-packs") {
     const id = policyPackId?.trim() ?? "";
@@ -91,12 +101,18 @@ export function resolvePolicyPackDetailHubPeerLink(
     if (id.length > 0) {
       return {
         ...POLICY_PACK_DETAIL_HUB_PACK_DETAIL_LINK,
-        href: governancePolicyPackDetailPath(id),
+        href: `${policyPacksPathForProductLine(productLine)}/${encodeURIComponent(id)}`,
       };
     }
 
-    return POLICY_PACK_DETAIL_HUB_PACK_DETAIL_LINK;
+    return {
+      ...POLICY_PACK_DETAIL_HUB_PACK_DETAIL_LINK,
+      href: policyPacksPathForProductLine(productLine),
+    };
   }
 
-  return POLICY_PACK_DETAIL_HUB_PACKS_LINK;
+  return {
+    ...POLICY_PACK_DETAIL_HUB_PACKS_LINK,
+    href: policyPacksPathForProductLine(productLine),
+  };
 }

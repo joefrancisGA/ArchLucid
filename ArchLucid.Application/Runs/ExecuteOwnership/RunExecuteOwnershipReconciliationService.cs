@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -111,8 +112,14 @@ public sealed class RunExecuteOwnershipReconciliationService(
             ProjectId = header.ScopeProjectId,
         };
 
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId.ToString());
         IReadOnlyList<AgentResult> results =
-            await _agentResultRepository.GetByRunIdAsync(scope, runId.ToString("D"), cancellationToken).ConfigureAwait(false);
+            await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                _agentResultRepository,
+                scope,
+                canonicalRunId,
+                useRollupProjection: false,
+                cancellationToken).ConfigureAwait(false);
 
         ArchitectureRunStatus derived = results.Count > 0
             ? _runStateTransitionService.DeriveStatusAfterExecuteFailure(results)

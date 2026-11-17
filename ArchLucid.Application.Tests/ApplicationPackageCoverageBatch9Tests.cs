@@ -132,12 +132,27 @@ public sealed class ApplicationPackageCoverageBatch9Tests
 
         ManifestPresentation.ResolveComponentName("svc-1", manifest).Should().Be("Orders API");
         ManifestPresentation.ResolveComponentName("db-1", manifest).Should().Be("Orders DB");
-        ManifestPresentation.ResolveComponentName("missing", manifest).Should().Be("missing");
+        ManifestPresentation.ResolveComponentName("missing", manifest)
+            .Should()
+            .Be(ArchitectureManifestMarkdownSummaryExport.ComponentNameNotStored);
         ManifestPresentation.RelationshipLabel(RelationshipType.ReadsFrom).Should().Be("reads");
         ManifestPresentation.RelationshipLabel(RelationshipType.Calls).Should().Be("calls");
 
         Action nullManifest = () => ManifestPresentation.ResolveComponentName("svc-1", null!);
         nullManifest.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void ManifestPresentation_labels_whitespace_service_and_datastore_names_as_stored_empty()
+    {
+        GoldenManifest manifest = new()
+        {
+            Services = [new ManifestService { ServiceId = "svc-1", ServiceName = "   " }],
+            Datastores = [new ManifestDatastore { DatastoreId = "db-1", DatastoreName = "  " }],
+        };
+
+        ManifestPresentation.ResolveComponentName("svc-1", manifest).Should().Be("Service name was stored empty.");
+        ManifestPresentation.ResolveComponentName("db-1", manifest).Should().Be("Datastore name was stored empty.");
     }
 
     [Fact]

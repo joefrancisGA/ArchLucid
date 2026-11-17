@@ -1,9 +1,11 @@
 import { resolveCareerArtifactExportHonestyDoorFields } from "@/lib/career-artifact/resolve-career-artifact-export-honesty-input";
 import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
+import { formatCareerExportHonestyPlainText } from "@/lib/career-export-coverage-honesty";
 import { AUDIT_DUAL_CHANNEL_HONESTY_NOTE } from "@/lib/buyer-copy/audit";
 import { isRehearsalStructuralExecutionMode } from "@/lib/governance/simulator-career-honesty";
 import {
   normalizeStructuralExecutionModeWire,
+  EXECUTION_MODE_NOT_STORED_LABEL,
   StructuralExecutionModeWire,
   type StructuralExecutionModeInput,
 } from "@/lib/structural-execution-mode";
@@ -24,12 +26,12 @@ export function resolveAuditExportCareerPosture(input: {
   readonly liveDoor?: WorkingCareerRehearsalDoorId | null;
 }): AuditExportCareerPosture {
   const resolved = resolveCareerArtifactExportHonestyDoorFields(input);
-  const structuralExecutionMode =
-    normalizeStructuralExecutionModeWire(resolved.structuralExecutionMode ?? null)
-    ?? StructuralExecutionModeWire.Simulator;
+  const normalizedMode = normalizeStructuralExecutionModeWire(resolved.structuralExecutionMode ?? null);
+  const structuralExecutionMode = normalizedMode ?? EXECUTION_MODE_NOT_STORED_LABEL;
   const workingCareerRehearsalDoor = resolved.effectiveWorkingCareerRehearsalDoor;
   const rehearsalIncomplete =
-    isRehearsalStructuralExecutionMode(structuralExecutionMode)
+    normalizedMode !== null
+    && isRehearsalStructuralExecutionMode(normalizedMode)
     && workingCareerRehearsalDoor === "rehearsal";
 
   return {
@@ -66,7 +68,7 @@ export function resolveAuditExportCareerBlockedReason(input: {
     preCommitGateEnabled: true,
     workingDesk: true,
     transparencyTrail: {
-      asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+      asserted: [],
       inferred: [],
       skipped: [],
     },
@@ -95,12 +97,24 @@ export function buildAuditExportCsvHonestyPreambleLines(
     ];
   }
 
+  const coverageHonestyComment = formatCareerExportHonestyPlainText({
+    runId: "audit-csv",
+    progressSummary: null,
+    manifestSummary: null,
+    graphSnapshot: null,
+    enginesSucceeded: null,
+  })
+    .split("\n")
+    .filter((line) => line.trim().length > 0)
+    .map((line) => `# ${line}`);
+
   return [
     "# ArchLucid audit CSV export posture (CG-026)",
     `# structuralExecutionMode=${posture.structuralExecutionMode}`,
     `# workingCareerRehearsalDoor=${posture.workingCareerRehearsalDoor}`,
     `# rehearsalIncomplete=${posture.rehearsalIncomplete ? "True" : "False"}`,
     ...dualChannelLines,
+    ...coverageHonestyComment,
   ];
 }
 

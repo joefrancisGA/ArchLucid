@@ -20,6 +20,7 @@ import {
   GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT,
   GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_BUTTON,
   GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_DISABLED_HINT,
+  GUIDED_INTAKE_SUGGESTED_ACTORS_DISCLAIMER,
   GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING,
   GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON,
   GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT,
@@ -93,12 +94,14 @@ export function DraftIntakeSuggestionPanel(props: DraftIntakeSuggestionPanelProp
 
   const setSuggestionGateOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setSuggestionGateOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncActorGateToUrl(next);
+      let nextOpen = false;
 
-        return next;
+      setSuggestionGateOpenState((current) => {
+        nextOpen = typeof value === "function" ? value(current) : value;
+
+        return nextOpen;
       });
+      syncActorGateToUrl(nextOpen);
     },
     [syncActorGateToUrl],
   );
@@ -119,12 +122,14 @@ export function DraftIntakeSuggestionPanel(props: DraftIntakeSuggestionPanelProp
 
   const setSuggestionPanelOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setSuggestionPanelOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncActorSuggestOpenToUrl(next);
+      let nextOpen = false;
 
-        return next;
+      setSuggestionPanelOpenState((current) => {
+        nextOpen = typeof value === "function" ? value(current) : value;
+
+        return nextOpen;
       });
+      syncActorSuggestOpenToUrl(nextOpen);
     },
     [syncActorSuggestOpenToUrl],
   );
@@ -268,6 +273,12 @@ export function DraftIntakeSuggestionPanel(props: DraftIntakeSuggestionPanelProp
         >
           <p className={cn("m-0", OPERATOR_FORM_FIELD_LABEL_CLASS)}>
             {GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING}
+          </p>
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_FORM_FIELD_HELPER_CLASS)}
+            data-testid="draft-intake-actor-suggestions-disclaimer"
+          >
+            {GUIDED_INTAKE_SUGGESTED_ACTORS_DISCLAIMER}
           </p>
           {pendingSuggestions.length === 0 ? (
             <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>

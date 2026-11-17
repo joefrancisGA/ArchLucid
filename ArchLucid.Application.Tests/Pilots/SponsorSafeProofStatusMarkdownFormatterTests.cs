@@ -2,6 +2,7 @@ using System.Text;
 
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
@@ -22,6 +23,19 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
             CreatedUtc = DateTime.UtcNow
         };
 
+    private static GoldenManifest CommittedManifest() =>
+        new()
+        {
+            RunId = "r",
+            SystemName = "Sys",
+            Metadata = new ManifestMetadata
+            {
+                ManifestVersion = "v1",
+                CreatedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+            },
+            Governance = new ManifestGovernance(),
+        };
+
     private static ArchitectureRun SimulatorFallbackRun() =>
         new()
         {
@@ -40,7 +54,8 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
                 SponsorSafeProofDisposition.NeedsOperatorReview,
                 StrongProof(),
                 CompleteDeltas(topFindingId: null),
-                SimulatorFallbackRun())
+                SimulatorFallbackRun(),
+                CommittedManifest())
             .ToList();
 
         gaps.Should().Contain(s => s.Contains("Simulator substitution", StringComparison.Ordinal));
@@ -66,6 +81,30 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
             SimulatorFallbackRun());
 
         sb.ToString().Should().Contain("Simulator substitution");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_when_gate_mirror_evidence_completeness_contains_backtick_preserves_inline_code()
+    {
+        StringBuilder sb = new();
+        PilotBuyerSafeEvidenceGateResult gate = new(
+            PilotBuyerSafeEvidencePublishingTier.Complete,
+            ProofPackageSendability.Sendable,
+            [],
+            [],
+            []);
+
+        ProofPackageCompletenessResponse proof = StrongProof(evidenceCompleteness: "Strong`tenant");
+
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(
+            sb,
+            SponsorSafeProofDisposition.Sendable,
+            gate,
+            proof,
+            CompleteDeltas(topFindingId: null),
+            NonSimulatorRun());
+
+        sb.ToString().Should().Contain("``Strong`tenant``");
     }
 
     [Fact]
@@ -155,11 +194,38 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
             d,
             proof,
             deltas,
-            NonSimulatorRun()).ToList();
+            NonSimulatorRun(),
+            CommittedManifest()).ToList();
 
         gaps.Should().ContainSingle();
 
         gaps[0].Should().Contain("No remaining automated sponsor-blocking checks");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_sendable_sendability_note_matches_all_clear_concrete_gap()
+    {
+        StringBuilder sb = new();
+        PilotBuyerSafeEvidenceGateResult gate = new(
+            PilotBuyerSafeEvidencePublishingTier.Complete,
+            ProofPackageSendability.Sendable,
+            [],
+            [],
+            []);
+
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(
+            sb,
+            SponsorSafeProofDisposition.Sendable,
+            gate,
+            StrongProof(),
+            CompleteDeltas(topFindingId: null),
+            NonSimulatorRun());
+
+        string prose = PilotSponsorSafeSendableAllClearHonestyCopy.AllClearConcreteGapPlain;
+        string md = sb.ToString();
+        md.Should().Contain(prose);
+        md.Should().Contain("**Sendability note:**");
+        md.Should().NotContain("Structural sponsor-blocking checks are green");
     }
 
     [Fact]
@@ -171,12 +237,56 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
             .EnumerateConcreteGapsEnumerable(
                 SponsorSafeProofDisposition.NotSponsorSafeYet,
                 proof,
+                CompleteDeltas(topFindingId: null) with { IsDemoTenant = true },
+                NonSimulatorRun(),
+                CommittedManifest())
+            .ToList();
+
+        gaps.Should().Contain(s => s.Contains("non-negotiable demo warning", StringComparison.OrdinalIgnoreCase));
+        gaps.Should().Contain(PilotDemoTenantDisciplineHonestyCopy.FailedPlain);
+    }
+
+    [Fact]
+    public void EnumerateConcreteGaps_when_roi_baseline_inputs_null_includes_projected_dollar_gap()
+    {
+        ProofPackageCompletenessResponse proof = StrongProof();
+        proof = new ProofPackageCompletenessResponse
+        {
+            DemoTenantWarningRequired = proof.DemoTenantWarningRequired,
+            SupportRunIdPresent = proof.SupportRunIdPresent,
+            CommittedManifestPresent = proof.CommittedManifestPresent,
+            CommittedManifestTimestampResolved = proof.CommittedManifestTimestampResolved,
+            RunInCommittedStatus = proof.RunInCommittedStatus,
+            ArtifactDescriptorCount = proof.ArtifactDescriptorCount,
+            ArtifactDescriptorCountResolved = proof.ArtifactDescriptorCountResolved,
+            TimeToCommittedManifestResolved = proof.TimeToCommittedManifestResolved,
+            FindingsBySeverityPresent = proof.FindingsBySeverityPresent,
+            TopFindingEvidenceChainPresentOrNotApplicable = proof.TopFindingEvidenceChainPresentOrNotApplicable,
+            AuditRowsPresentOrLowerBound = proof.AuditRowsPresentOrLowerBound,
+            AuditRowCountResolved = proof.AuditRowCountResolved,
+            LlmCallCountResolved = proof.LlmCallCountResolved,
+            LlmCallCount = proof.LlmCallCount,
+            RoiEvidenceConfidence = proof.RoiEvidenceConfidence,
+            RoiConfidenceLabel = proof.RoiConfidenceLabel,
+            BuyerSafeRedactionProfile = proof.BuyerSafeRedactionProfile,
+            PublishingTier = proof.PublishingTier,
+            ProofSendability = proof.ProofSendability,
+            EvidenceCompleteness = proof.EvidenceCompleteness,
+            AgentOutputPilotStrictEvidenceSatisfied = proof.AgentOutputPilotStrictEvidenceSatisfied,
+            SponsorProofReadiness = proof.SponsorProofReadiness,
+            RoiBaselineInputs = null,
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                proof,
                 CompleteDeltas(topFindingId: null),
                 NonSimulatorRun())
             .ToList();
 
-        gaps.Should().Contain(s => s.Contains("Demo", StringComparison.Ordinal));
-        gaps.Should().Contain(s => s.Contains("customer ROI", StringComparison.OrdinalIgnoreCase));
+        gaps.Should()
+            .Contain(PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatSponsorSafeConcreteGapLine());
     }
 
     [Fact]
@@ -197,7 +307,8 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
 
     private static ProofPackageCompletenessResponse StrongProof(
         bool demoTenantWarningRequired = false,
-        PilotRoiEvidenceConfidence roiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong) =>
+        PilotRoiEvidenceConfidence roiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+        string evidenceCompleteness = "Strong") =>
         new()
         {
             DemoTenantWarningRequired = demoTenantWarningRequired,
@@ -218,19 +329,75 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
             BuyerSafeRedactionProfile = "x",
             PublishingTier = "Complete",
             ProofSendability = "Sendable",
-            EvidenceCompleteness = "Strong",
+            EvidenceCompleteness = evidenceCompleteness,
             AgentOutputPilotStrictEvidenceSatisfied = true,
             SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Sendable),
+            RoiBaselineInputs = SponsorSafeRoiBaselineInputs(),
         };
+
+    private static PilotRoiBaselineInputsStatusResponse SponsorSafeRoiBaselineInputs() =>
+        new() { ProjectedDollarClaimsSponsorSafe = true };
 
     private static PilotRunDeltas CompleteDeltas(string? topFindingId) =>
         new()
         {
             TopFindingId = topFindingId,
             AuditRowCount = 3,
+            AuditRowCountResolved = true,
             LlmCallCountResolved = true,
             SynthesizedArtifactDescriptorCountResolved = true,
             SynthesizedArtifactDescriptorCount = 1,
+            TimeToCommittedManifest = TimeSpan.FromHours(1),
+            ManifestCommittedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = false,
             IsDemoTenant = false,
         };
+
+    [Fact]
+    public void EnumerateConcreteGaps_unresolved_audit_count_is_not_zero_claim()
+    {
+        ProofPackageCompletenessResponse proof = StrongProof();
+        proof = new ProofPackageCompletenessResponse
+        {
+            DemoTenantWarningRequired = proof.DemoTenantWarningRequired,
+            SupportRunIdPresent = proof.SupportRunIdPresent,
+            CommittedManifestPresent = proof.CommittedManifestPresent,
+            CommittedManifestTimestampResolved = proof.CommittedManifestTimestampResolved,
+            RunInCommittedStatus = proof.RunInCommittedStatus,
+            ArtifactDescriptorCount = proof.ArtifactDescriptorCount,
+            ArtifactDescriptorCountResolved = proof.ArtifactDescriptorCountResolved,
+            TimeToCommittedManifestResolved = proof.TimeToCommittedManifestResolved,
+            FindingsBySeverityPresent = proof.FindingsBySeverityPresent,
+            TopFindingEvidenceChainPresentOrNotApplicable = proof.TopFindingEvidenceChainPresentOrNotApplicable,
+            AuditRowCountResolved = false,
+            AuditRowsPresentOrLowerBound = false,
+            LlmCallCountResolved = proof.LlmCallCountResolved,
+            LlmCallCount = proof.LlmCallCount,
+            RoiEvidenceConfidence = proof.RoiEvidenceConfidence,
+            RoiConfidenceLabel = proof.RoiConfidenceLabel,
+            BuyerSafeRedactionProfile = proof.BuyerSafeRedactionProfile,
+            PublishingTier = proof.PublishingTier,
+            ProofSendability = proof.ProofSendability,
+            EvidenceCompleteness = proof.EvidenceCompleteness,
+            AgentOutputPilotStrictEvidenceSatisfied = proof.AgentOutputPilotStrictEvidenceSatisfied,
+            SponsorProofReadiness = proof.SponsorProofReadiness,
+        };
+        PilotRunDeltas deltas = CompleteDeltas(topFindingId: null) with
+        {
+            AuditRowCountResolved = false,
+            AuditRowCount = 0,
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                proof,
+                deltas,
+                NonSimulatorRun())
+            .ToList();
+
+        gaps.Should().Contain(PilotRunDeltasAuditRowCountFormatter.NotAttestedPlain);
+        gaps.Should().NotContain(s => s.Contains("is **zero**", StringComparison.Ordinal));
+    }
 }

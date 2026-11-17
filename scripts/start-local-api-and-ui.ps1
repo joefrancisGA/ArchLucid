@@ -27,8 +27,15 @@
 #   .\scripts\start-local-api-and-ui.ps1 -SkipSecurityUi
 #   .\scripts\start-local-securenow.ps1   # API + generic SecureNow :3001 + UHG SecureNow :3002
 #   .\scripts\start-local-api-and-ui.ps1 -LaunchProfile http -MsBuildMaxCpuCount 1
+#   .\scripts\start-local-api-and-ui.ps1 -Real
 #   .\scripts\start-local-api-and-ui.ps1 -RunAnalyzers -UseTerminalLogger
 #   .\scripts\start-local-api-and-ui.ps1 -SkipExplicitBuild -SkipBuildServerShutdown
+#
+# -Real keeps the default Simulator start unchanged. It selects launch profile http-real
+# (AgentExecution Mode=Real), sets the agent-output quality gate to PilotStrict, and turns
+# demo seed back on (http-real and Development appsettings do not). Azure OpenAI endpoint,
+# key, and deployment must already be in the shell or in secrets/local-real-aoai.env.
+# Values are never printed.
 
 [CmdletBinding()]
 param(
@@ -45,6 +52,7 @@ param(
     [switch] $SkipSecurityUi,
     [switch] $SkipArchitectureUi,
     [switch] $IncludeUhgSecurityUi,
+    [switch] $Real,
     [ValidateNotNullOrEmpty()]
     [string] $LaunchProfile = "http",
     [ValidateRange(1, 64)]
@@ -61,6 +69,7 @@ $ErrorActionPreference = "Stop"
 
 $script:SkipApiSpawn = $false
 $script:SkipUiSpawnBySiteKey = @{}
+$script:LocalDevNodeToolsDirectory = ''
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $ApiProject = Join-Path $RepoRoot "ArchLucid.Api\ArchLucid.Api.csproj"
@@ -92,6 +101,37 @@ function Write-StageError {
 
 if ($SkipSecurityUi.IsPresent -and $SkipArchitectureUi.IsPresent -and -not $IncludeUhgSecurityUi.IsPresent) {
     Write-StageError -Stage "config" -Message "Cannot skip both Architecture and Security UI. Omit both -SkipSecurityUi and -SkipArchitectureUi, or use start-local-securenow.ps1 / -SkipArchitectureUi only."
+}
+
+if ($Real.IsPresent) {
+    if ($PSBoundParameters.ContainsKey('LaunchProfile') -and $LaunchProfile -ne 'http-real') {
+        Write-StageError -Stage "config" -Message "-Real uses launch profile http-real. Omit -LaunchProfile, or pass -LaunchProfile http-real."
+    }
+
+    $LaunchProfile = 'http-real'
+    . (Join-Path $PSScriptRoot 'Import-LocalRealAoaiEnv.ps1') -RepoRoot $RepoRoot
+
+    [System.Collections.Generic.List[string]] $missingAzureOpenAi = [System.Collections.Generic.List[string]]::new()
+
+    if ([string]::IsNullOrWhiteSpace($env:AZURE_OPENAI_ENDPOINT)) {
+        $missingAzureOpenAi.Add('AZURE_OPENAI_ENDPOINT')
+    }
+
+    if ([string]::IsNullOrWhiteSpace($env:AZURE_OPENAI_API_KEY)) {
+        $missingAzureOpenAi.Add('AZURE_OPENAI_API_KEY')
+    }
+
+    if ([string]::IsNullOrWhiteSpace($env:AZURE_OPENAI_DEPLOYMENT_NAME)) {
+        $missingAzureOpenAi.Add('AZURE_OPENAI_DEPLOYMENT_NAME')
+    }
+
+    if ($missingAzureOpenAi.Count -gt 0) {
+        Write-StageError -Stage "config" -Message (
+            "-Real needs {0} in this shell or in secrets/local-real-aoai.env. Do not commit the key." -f ($missingAzureOpenAi -join ', ')
+        )
+    }
+
+    Write-Host "-Real: launch profile http-real, quality gate PilotStrict, demo seed on. Azure OpenAI settings are loaded; values are not printed." -ForegroundColor Cyan
 }
 
 function Test-HttpStatus {
@@ -236,8 +276,13 @@ if (-not $SkipPreflight) {
         Write-StageError -Stage "preflight" -Message "dotnet SDK not found on PATH."
     }
 
-    if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-        Write-StageError -Stage "preflight" -Message "node not found on PATH."
+    if (-not (Ensure-LocalDevNodeOnPath -NodeToolsDirectoryForSpawn ([ref]$script:LocalDevNodeToolsDirectory))) {
+        Write-StageError -Stage "preflight" -Message @(
+            'node not found on PATH.'
+            'Install Node.js 22.x from https://nodejs.org/ (see docs/engineering/INSTALL_ORDER.md step 8).'
+            'After install, close and reopen PowerShell, then verify: node --version'
+            'Then in archlucid-ui run: npm ci'
+        ) -join ' '
     }
 
     if (-not (Test-Path $UiNodeModules)) {
@@ -312,6 +357,7 @@ if (-not $script:SkipApiSpawn) {
     $apiCmd = Get-LocalApiWindowCommand `
         -RepoRoot $RepoRoot `
         -LaunchProfile $LaunchProfile `
+        -RealMode:$Real.IsPresent `
         -MsBuildMaxCpuCount $MsBuildMaxCpuCount `
         -UseTerminalLogger $UseTerminalLogger.IsPresent `
         -RunAnalyzers $RunAnalyzers.IsPresent `
@@ -340,7 +386,10 @@ foreach ($site in $script:LocalUiSites) {
     }
 
     Write-Host ("Starting {0} UI in a new window (port {1}, Internal nav enabled)..." -f $site.ReadyLabel, $site.Port) -ForegroundColor Cyan
-    $uiCmd = Get-LocalUiWindowCommandForSite -UiRoot $UiRoot -Site $site
+    $uiCmd = Get-LocalUiWindowCommandForSite `
+        -UiRoot $UiRoot `
+        -Site $site `
+        -NodeToolsDirectory $script:LocalDevNodeToolsDirectory
     Start-Process -FilePath "powershell.exe" -ArgumentList @("-NoExit", "-Command", $uiCmd) | Out-Null
 }
 

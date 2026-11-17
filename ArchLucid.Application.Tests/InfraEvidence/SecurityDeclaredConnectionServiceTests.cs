@@ -76,6 +76,30 @@ public sealed class SecurityDeclaredConnectionServiceTests
     }
 
     [Fact]
+    public async Task RenewAsync_rejects_expired_connection_before_sweep_updates_status()
+    {
+        DateTime utcNow = DateTime.UtcNow;
+        Guid connectionId = Guid.NewGuid();
+        InMemorySecurityDeclaredConnectionRepository repository = new();
+        repository.Records.Add(CreateActiveConnection(connectionId, utcNow.AddMinutes(-5)));
+        SecurityDeclaredConnectionService sut = CreateSut(repository);
+
+        SecurityDeclaredConnectionRenewResult result = await sut.RenewAsync(
+            CreateScope(),
+            connectionId,
+            new SecurityDeclaredConnectionRenewRequest
+            {
+                ExpirationUtc = utcNow.AddDays(10),
+                RenewedByActorKey = "requester",
+                ApprovedByActorKey = "approver",
+            });
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Only active declared connections can be renewed.");
+        repository.Records.Single().ExpirationUtc.Should().Be(utcNow.AddMinutes(-5));
+    }
+
+    [Fact]
     public async Task ListAsync_excludes_same_tenant_rows_from_other_project()
     {
         DateTime utcNow = DateTime.UtcNow;
@@ -155,10 +179,25 @@ public sealed class SecurityDeclaredConnectionServiceTests
     {
         public List<SecurityDeclaredConnectionRecord> Records { get; } = [];
 
-        public Task InsertAsync(SecurityDeclaredConnectionRecord record, CancellationToken cancellationToken = default)
+        public Task<bool> TryInsertActiveAsync(SecurityDeclaredConnectionRecord record, CancellationToken cancellationToken = default)
         {
-            Records.Add(record);
-            return Task.CompletedTask;
+            lock (Records)
+            {
+                if (Records.Any(existing => existing.TenantId == record.TenantId
+                    && existing.WorkspaceId == record.WorkspaceId
+                    && existing.ProjectId == record.ProjectId
+                    && existing.FromCloudResourceId == record.FromCloudResourceId
+                    && existing.ToCloudResourceId == record.ToCloudResourceId
+                    && existing.RelationshipType == record.RelationshipType
+                    && existing.Status == SecurityDeclaredConnectionStatus.Active
+                    && existing.ExpirationUtc > record.CreatedUtc))
+                {
+                    return Task.FromResult(false);
+                }
+
+                Records.Add(record);
+                return Task.FromResult(true);
+            }
         }
 
         public Task<SecurityDeclaredConnectionRecord?> TryGetByIdAsync(

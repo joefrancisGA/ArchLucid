@@ -1,4 +1,6 @@
+import { remapArchitectureCreatedOrientationSources } from "@/lib/architecture/architecture-created-orientation-source-links";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export type ArchitectureCreatedOverviewSourceLink = {
   readonly label: string;
@@ -16,6 +18,12 @@ export const ARCHITECTURE_CREATED_OVERVIEW_SOURCES: readonly ArchitectureCreated
   { label: "Start review (guided intake)", href: "/architecture/reviews/new?path=guided-intake" },
   { label: "Approval help", href: inAppHelpHref("governance-approval") },
 ] as const;
+
+export function resolveArchitectureCreatedOverviewSources(
+  productLine: ProductLineId,
+): readonly ArchitectureCreatedOverviewSourceLink[] {
+  return remapArchitectureCreatedOrientationSources(ARCHITECTURE_CREATED_OVERVIEW_SOURCES, productLine);
+}
 
 export const ARCHITECTURE_CREATED_OVERVIEW_SOURCES_INTRO =
   "Use these follow-ups when create-home Overview orientation turns into clarifications, findings triage, or a corrected intake pass.";

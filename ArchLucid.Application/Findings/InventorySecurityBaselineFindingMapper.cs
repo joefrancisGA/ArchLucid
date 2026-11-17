@@ -32,7 +32,8 @@ internal static class InventorySecurityBaselineFindingMapper
             Category = "Security",
             EngineType = engineType,
             Severity = FindingSeverity.Warning,
-            Title = $"{cloudLabel} inventory security baseline gap: {gap.ResourceType}",
+            Title =
+                $"{cloudLabel} inventory security baseline gap: {ResolveResourceTypeLabel(gap.ResourceType)}",
             Rationale =
                 $"{cloudLabel} inventory resources.json cross-check flagged a security baseline gap grounded in measured inventory.",
             RelatedNodeIds = topologyNodes.Resolve(gap.ResourceId).ToList(),
@@ -40,7 +41,7 @@ internal static class InventorySecurityBaselineFindingMapper
             PayloadType = nameof(RequirementFindingPayload),
             Payload = new RequirementFindingPayload
             {
-                RequirementName = gap.ResourceId,
+                RequirementName = "Requirement name was not stored.",
                 RequirementText = gap.Message,
                 IsMandatory = false,
             },
@@ -54,11 +55,21 @@ internal static class InventorySecurityBaselineFindingMapper
                 ],
                 Notes =
                 [
-                    $"Resource type: {gap.ResourceType}",
-                    $"Resource id: {gap.ResourceId}",
-                    $"Control family: {gap.ControlFamily}",
+                    $"Resource type: {ResolveResourceTypeLabel(gap.ResourceType)}",
+                    $"Resource id: {ResolveResourceIdLabel(gap.ResourceId)}",
+                    $"Control family: {ResolveControlFamilyLabel(gap.ControlFamily)}",
+                    "Mandatory flag was not stored.",
                 ],
             },
         };
     }
+
+    private static string ResolveResourceTypeLabel(string? resourceType) =>
+        string.IsNullOrWhiteSpace(resourceType) ? "Resource type was not stored." : resourceType.Trim();
+
+    private static string ResolveResourceIdLabel(string? resourceId) =>
+        string.IsNullOrWhiteSpace(resourceId) ? "Resource id was not stored." : resourceId.Trim();
+
+    private static string ResolveControlFamilyLabel(string? controlFamily) =>
+        string.IsNullOrWhiteSpace(controlFamily) ? "Control family was not stored." : controlFamily.Trim();
 }

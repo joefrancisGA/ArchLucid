@@ -43,4 +43,15 @@ describe("resolveNextApprovalRequest", () => {
     expect(next?.href).toBe("/governance/approval-requests/older/lineage");
     expect(next?.title).toBe("Older");
   });
+
+  it("opens the next older request when timestamps use different offsets", () => {
+    const requests = [
+      request({ approvalRequestId: "older", requestedUtc: "2026-08-20T12:30:00+02:00" }),
+      request({ approvalRequestId: "unknown-date", requestedUtc: "unreadable" }),
+      request({ approvalRequestId: "newer", requestedUtc: "2026-08-20T11:00:00Z" }),
+    ];
+
+    expect(resolveNextApprovalRequest(requests, "newer")?.approvalRequestId).toBe("older");
+    expect(resolveNextApprovalRequest(requests, "older")?.approvalRequestId).toBe("unknown-date");
+  });
 });

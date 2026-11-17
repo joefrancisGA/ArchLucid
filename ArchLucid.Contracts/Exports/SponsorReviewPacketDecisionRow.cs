@@ -9,6 +9,12 @@ public sealed class SponsorReviewPacketDecisionRow
         set;
     } = string.Empty;
 
+    public string Category
+    {
+        get;
+        set;
+    } = string.Empty;
+
     public string SelectedOption
     {
         get;
@@ -26,4 +32,16 @@ public sealed class SponsorReviewPacketDecisionRow
         get;
         set;
     } = string.Empty;
+
+    public string? SupportingFindingIdsSummary
+    {
+        get;
+        set;
+    }
+
+    public string? Rationale
+    {
+        get;
+        set;
+    }
 }

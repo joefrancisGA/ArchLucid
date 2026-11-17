@@ -14,7 +14,8 @@ public sealed class InventoryDiagramRelationshipLabelTextsTests
         InventoryDiagramRelationshipLabelTexts
             .FormatPrivateEndpointConnectionLabel("Approved")
             .Should()
-            .Be("Private access · Approved");
+            .Be(
+                $"Private access · Approved. {InventoryDiagramRelationshipLabelTexts.PrivateAccess}");
     }
 
     [Theory]
@@ -29,12 +30,48 @@ public sealed class InventoryDiagramRelationshipLabelTextsTests
     }
 
     [Fact]
-    public void FormatPrivateEndpointConnectionLabel_blank_status_uses_not_stored_sentence()
+    public void FormatPrivateEndpointConnectionLabel_blank_status_uses_stored_empty_sentence()
     {
         InventoryDiagramRelationshipLabelTexts
             .FormatPrivateEndpointConnectionLabel("   ")
             .Should()
+            .Be(InventoryDiagramRelationshipLabelTexts.PrivateEndpointConnectionStatusStoredEmpty);
+    }
+
+    [Fact]
+    public void FormatPrivateEndpointConnectionLabel_null_status_uses_not_stored_sentence()
+    {
+        InventoryDiagramRelationshipLabelTexts
+            .FormatPrivateEndpointConnectionLabel(null)
+            .Should()
             .Be(InventoryDiagramRelationshipLabelTexts.PrivateEndpointConnectionStatusNotStored);
+    }
+
+    [Fact]
+    public void FormatPrivateEndpointConnectionLabel_empty_string_uses_stored_empty_sentence()
+    {
+        InventoryDiagramRelationshipLabelTexts
+            .FormatPrivateEndpointConnectionLabel(string.Empty)
+            .Should()
+            .Be(InventoryDiagramRelationshipLabelTexts.PrivateEndpointConnectionStatusStoredEmpty);
+    }
+
+    [Fact]
+    public void FormatPeeringConnectedOffCanvas_mentions_observed_traffic_not_stored()
+    {
+        InventoryDiagramRelationshipLabelTexts
+            .FormatPeeringConnectedOffCanvas("vnet-b")
+            .Should()
+            .Contain("Observed traffic was not stored.");
+    }
+
+    [Fact]
+    public void FormatBackendOffCanvasOutline_mentions_observed_traffic_not_stored()
+    {
+        InventoryDiagramRelationshipLabelTexts
+            .FormatBackendOffCanvasOutline("pool-vm-01")
+            .Should()
+            .Contain("Observed traffic was not stored.");
     }
 
     [Fact]
@@ -49,5 +86,10 @@ public sealed class InventoryDiagramRelationshipLabelTextsTests
             .FormatHiddenPublicIpCaption(null)
             .Should()
             .Contain(InventoryDiagramRelationshipLabelTexts.PublicIpAddressNotStored);
+
+        InventoryDiagramRelationshipLabelTexts
+            .FormatHiddenPublicIpCaption(string.Empty)
+            .Should()
+            .Contain(InventoryDiagramRelationshipLabelTexts.PublicIpAddressStoredEmpty);
     }
 }

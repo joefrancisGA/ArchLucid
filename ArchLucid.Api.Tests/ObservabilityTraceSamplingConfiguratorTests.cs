@@ -23,6 +23,8 @@ public sealed class ObservabilityTraceSamplingConfiguratorTests
     [SkippableFact]
     public void ConfigureTraceSampling_When_ratio_below_one_registers_parent_based_trace_id_ratio_sampler()
     {
+        SkipWhenOpenTelemetrySdkDisabled();
+
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(
             new Dictionary<string, string?> { ["Observability:Tracing:SamplingRatio"] = "0.1" }).Build();
 
@@ -41,6 +43,8 @@ public sealed class ObservabilityTraceSamplingConfiguratorTests
     [SkippableFact]
     public void ConfigureTraceSampling_When_always_sample_sources_configured_wraps_ratio_with_activity_source_sampler()
     {
+        SkipWhenOpenTelemetrySdkDisabled();
+
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(
             new Dictionary<string, string?>
             {
@@ -60,6 +64,8 @@ public sealed class ObservabilityTraceSamplingConfiguratorTests
     [SkippableFact]
     public void ConfigureTraceSampling_When_ratio_one_matches_default_built_in_sampler_shape()
     {
+        SkipWhenOpenTelemetrySdkDisabled();
+
         IConfiguration ratioOne = new ConfigurationBuilder().AddInMemoryCollection(
             new Dictionary<string, string?> { ["Observability:Tracing:SamplingRatio"] = "1" }).Build();
 
@@ -85,6 +91,8 @@ public sealed class ObservabilityTraceSamplingConfiguratorTests
     [SkippableFact]
     public void ConfigureTraceSampling_When_ratio_invalid_falls_back_to_full_sampling()
     {
+        SkipWhenOpenTelemetrySdkDisabled();
+
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(
             new Dictionary<string, string?> { ["Observability:Tracing:SamplingRatio"] = "not-a-number" }).Build();
 
@@ -95,6 +103,18 @@ public sealed class ObservabilityTraceSamplingConfiguratorTests
         Sampler sampler = GetTracerProviderSampler(provider);
 
         GetRootSampler((ParentBasedSampler)sampler).Should().BeOfType<AlwaysOnSampler>();
+    }
+
+    /// <summary>
+    /// Hosts that set OTEL_SDK_DISABLED=true (e.g. some Cloud Agent images) yield NoopTracerProvider with no Sampler.
+    /// </summary>
+    private static void SkipWhenOpenTelemetrySdkDisabled()
+    {
+        string? disabled = Environment.GetEnvironmentVariable("OTEL_SDK_DISABLED");
+
+        Skip.If(
+            string.Equals(disabled, "true", StringComparison.OrdinalIgnoreCase),
+            "OTEL_SDK_DISABLED=true yields NoopTracerProvider; unset it to assert sampler wiring.");
     }
 
     private static Sampler GetTracerProviderSampler(TracerProvider provider)

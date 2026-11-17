@@ -86,7 +86,9 @@ describe("mergeRephrasedClarificationAnswers", () => {
     expect(merged.mergedAnswers["l0.actor.additional-kinds"]).toBe(
       "Yes — partner integrations and service accounts also call the API.",
     );
-    expect(merged.mergedAnswers["l0.pillar.cloud-target"]).toBe("Azure");
+    expect(merged.mergedAnswers["l0.pillar.cloud-target"]).toBe(
+      "Azure was named in the source. A cloud target was not selected.",
+    );
     expect(merged.rephrasedQuestionKeys).toContain("l0.actor.additional-kinds");
   });
 

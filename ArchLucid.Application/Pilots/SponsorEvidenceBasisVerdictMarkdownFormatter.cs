@@ -16,7 +16,8 @@ public static class SponsorEvidenceBasisVerdictMarkdownFormatter
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
         ArchitectureRun run,
-        bool deferredScopePresent = false)
+        bool deferredScopePresent = false,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(proof);
@@ -27,7 +28,13 @@ public static class SponsorEvidenceBasisVerdictMarkdownFormatter
             proof,
             deltas,
             run,
-            deferredScopePresent);
+            deferredScopePresent,
+            roiClaimGate);
+
+        string labelsTable = SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
+
+        if (run.RealModeFellBackToSimulator)
+            labelsTable = PilotSimulatorSubstitutionHonestyCopy.AppendToProofPackageEvidenceBasisCell(labelsTable);
 
         sb.AppendLine("## Evidence basis");
         sb.AppendLine();
@@ -37,7 +44,7 @@ public static class SponsorEvidenceBasisVerdictMarkdownFormatter
         sb.AppendLine();
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"**Labels applied:** {SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels)}");
+            $"**Labels applied:** {labelsTable}");
         sb.AppendLine();
         sb.AppendLine(
             "> These labels describe **product evidence posture** only — not legal, compliance, SOC 2, or third-party audit attestation. See repository `docs/library/AGENT_OUTPUT_EVALUATION.md` for definitions.");

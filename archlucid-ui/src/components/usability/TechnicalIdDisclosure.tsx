@@ -86,7 +86,7 @@ export function TechnicalIdDisclosure(props: TechnicalIdDisclosureProps) {
   }, [disclosureKey]);
 
   if (trimmed.length === 0) {
-    return <span className="text-neutral-500">—</span>;
+    return <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Technical id was not stored.</span>;
   }
 
   if (!buyerPolished) {

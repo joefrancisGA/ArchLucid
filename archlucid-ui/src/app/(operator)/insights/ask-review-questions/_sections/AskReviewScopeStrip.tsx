@@ -15,6 +15,7 @@ import {
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { resolveScopedInsightOpenReviewHref } from "@/lib/insights/scoped-insight-open-review-href";
 import { getShowcaseCompareHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -27,6 +28,7 @@ export type AskReviewScopeStripProps = {
   readonly runId: string;
   readonly buyerPolishedShell: boolean;
   readonly clearScopeHref?: string;
+  readonly pinnedArchitectureId?: string;
 };
 
 /** Compact review context above the question input. */
@@ -81,7 +83,10 @@ export function AskReviewScopeStrip(props: AskReviewScopeStripProps) {
             Clear review scope
           </Link>
         ) : null}
-        <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${encodeURIComponent(canonical)}`}>
+        <Link
+          className={OPERATOR_LINK.nav}
+          href={resolveScopedInsightOpenReviewHref(canonical, { architectureId: props.pinnedArchitectureId })}
+        >
           Open review
         </Link>
         {isShowcase ? (

@@ -23,12 +23,10 @@ describe("CommitBlockingFindingsBanner", () => {
     ).toBeInTheDocument();
   });
 
-  it("falls back to a generic sentence when no reason is supplied", () => {
+  it("falls back to not-stored copy when no reason is supplied", () => {
     render(<CommitBlockingFindingsBanner runId="run-abc" reason={null} />);
 
-    expect(
-      screen.getByText("One or more required finding checks did not complete for this review."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Blocking reason was not stored.")).toBeInTheDocument();
   });
 
   it("links to the review findings tab rather than a per-finding route", () => {

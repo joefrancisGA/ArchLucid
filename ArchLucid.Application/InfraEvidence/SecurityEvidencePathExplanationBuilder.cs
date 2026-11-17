@@ -23,7 +23,8 @@ public static class SecurityEvidencePathExplanationBuilder
         SecurityEvidencePathRecord path,
         IReadOnlyList<SecurityEvidencePathHopRecord> hops,
         IReadOnlyList<SecurityEvidenceCutPointRecord> cutPoints,
-        IReadOnlyList<string> citedEvidenceRefs)
+        IReadOnlyList<string> citedEvidenceRefs,
+        string? rankContext = null)
     {
         ArgumentNullException.ThrowIfNull(path);
         ArgumentNullException.ThrowIfNull(hops);
@@ -31,10 +32,18 @@ public static class SecurityEvidencePathExplanationBuilder
         ArgumentNullException.ThrowIfNull(citedEvidenceRefs);
 
         SecurityEvidencePathProposedRemediation proposedRemediation = BuildProposedRemediation(path, hops, cutPoints);
+        string weakestHopReason = string.IsNullOrWhiteSpace(path.WeakestHopReason)
+            ? "Weakest-hop reason was not stored."
+            : path.WeakestHopReason.Trim();
+        string citedEvidence = citedEvidenceRefs.Count > 0
+            ? string.Join(", ", citedEvidenceRefs)
+            : "Cited evidence was not stored.";
         string executiveSummary =
-            $"[{SimulatorLabel}] {path.PathKind} path ({path.PathConfidenceBand}) with {hops.Count} hop(s). "
-            + $"Weakest link: hop {path.WeakestHopOrdinal} — {path.WeakestHopReason}. "
-            + $"Cited evidence: {string.Join(", ", citedEvidenceRefs)}.";
+            "Simulator template, not a stored inference: "
+            + $"[{SimulatorLabel}] {path.PathKind} path ({path.PathConfidenceBand}) with {hops.Count} hop(s). "
+            + $"Weakest link: hop {path.WeakestHopOrdinal} — {weakestHopReason} "
+            + $"Cited evidence: {citedEvidence}."
+            + (string.IsNullOrWhiteSpace(rankContext) ? string.Empty : $" {rankContext.Trim()}");
 
         IReadOnlyList<string> hypotheses =
         [
@@ -56,7 +65,8 @@ public static class SecurityEvidencePathExplanationBuilder
         IReadOnlyList<SecurityEvidencePathHopRecord> hops,
         IReadOnlyList<SecurityEvidenceCutPointRecord> cutPoints,
         SecurityEvidencePathExplanationTemplateResponse explanationTemplate,
-        IReadOnlyList<string> allowedEvidenceRefs)
+        IReadOnlyList<string> allowedEvidenceRefs,
+        string? rankContext = null)
     {
         ArgumentNullException.ThrowIfNull(path);
         ArgumentNullException.ThrowIfNull(hops);
@@ -75,6 +85,7 @@ public static class SecurityEvidencePathExplanationBuilder
             weakestHopReason = path.WeakestHopReason,
             allowedEvidenceRefs,
             explanationTemplate,
+            rankContext,
             hops = hops.Select(hop => new
             {
                 hop.HopOrdinal,
@@ -182,6 +193,17 @@ public static class SecurityEvidencePathExplanationBuilder
                 SuggestedPatternKey = proposedRemediation.SuggestedPatternKey,
             };
 
+            IReadOnlyList<string> disallowedCitedRefs = SecurityEvidencePathExplanationValidator.FindDisallowedCitedEvidenceRefs(
+                parsed.CitedEvidenceRefs,
+                allowedEvidenceRefs);
+
+            if (disallowedCitedRefs.Count > 0)
+            {
+                rejectionReason =
+                    $"Cited evidence refs outside the stored path: {string.Join(", ", disallowedCitedRefs)}.";
+                return false;
+            }
+
             IReadOnlyList<string> citedEvidenceRefs = SecurityEvidencePathExplanationValidator.FilterCitedEvidenceRefs(
                 parsed.CitedEvidenceRefs,
                 allowedEvidenceRefs);
@@ -279,6 +301,7 @@ public static class SecurityEvidencePathExplanationBuilder
             CitedEvidenceRefs = record.CitedEvidenceRefs,
             ProvenanceKind = record.ProvenanceKind.ToString(),
             SimulatorLabel = record.SimulatorLabel,
+            ModelOutputRejection = record.ModelOutputRejection,
             CreatedUtc = record.CreatedUtc,
         };
 

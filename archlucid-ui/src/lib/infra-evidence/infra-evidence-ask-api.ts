@@ -59,17 +59,27 @@ function parseDiagramViewPlan(raw: unknown): DiagramViewPlan | null {
   const row = raw as Record<string, unknown>;
 
   return {
-    mermaidMode: typeof row.mermaidMode === "string"
-      ? row.mermaidMode
-      : row.mermaidMode === null || row.mermaidMode === undefined
-        ? null
-        : "",
-    resourceGroupName: typeof row.resourceGroupName === "string" ? row.resourceGroupName : null,
-    seedNodeId: typeof row.seedNodeId === "string" ? row.seedNodeId : null,
-    snapshotId: typeof row.snapshotId === "string" ? row.snapshotId : null,
-    cloudResourceId: typeof row.cloudResourceId === "string" ? row.cloudResourceId : null,
-    fitTargetNodeId: typeof row.fitTargetNodeId === "string" ? row.fitTargetNodeId : null,
-    honestyLabel: typeof row.honestyLabel === "string" ? row.honestyLabel : row.honestyLabel == null ? null : "",
+    mermaidMode: typeof row.mermaidMode === "string" && row.mermaidMode.trim().length > 0
+      ? row.mermaidMode.trim()
+      : null,
+    resourceGroupName: typeof row.resourceGroupName === "string" && row.resourceGroupName.trim().length > 0
+      ? row.resourceGroupName.trim()
+      : null,
+    seedNodeId: typeof row.seedNodeId === "string" && row.seedNodeId.trim().length > 0
+      ? row.seedNodeId.trim()
+      : null,
+    snapshotId: typeof row.snapshotId === "string" && row.snapshotId.trim().length > 0
+      ? row.snapshotId.trim()
+      : null,
+    cloudResourceId: typeof row.cloudResourceId === "string" && row.cloudResourceId.trim().length > 0
+      ? row.cloudResourceId.trim()
+      : null,
+    fitTargetNodeId: typeof row.fitTargetNodeId === "string" && row.fitTargetNodeId.trim().length > 0
+      ? row.fitTargetNodeId.trim()
+      : null,
+    honestyLabel: typeof row.honestyLabel === "string" && row.honestyLabel.trim().length > 0
+      ? row.honestyLabel.trim()
+      : null,
   };
 }
 

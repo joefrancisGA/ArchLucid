@@ -40,6 +40,7 @@ internal static class AzureInventorySnapshotParentChildEdgeHydrator
                 pair.Value,
                 GraphEdgeTypes.Contains,
                 GraphEdgeInferenceSources.InventoryExplicitParentChild,
+                label: GraphEdgeTypes.Contains,
                 provenanceKind: ProvenanceKind.ObservedFact.ToString(),
                 promoteStrongerProvenance: false);
         }

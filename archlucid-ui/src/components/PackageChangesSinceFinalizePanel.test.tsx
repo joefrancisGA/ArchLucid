@@ -29,6 +29,14 @@ describe("PackageChangesSinceFinalizePanel", () => {
     );
   });
 
+  it("labels omitted change events separately from an empty timeline", () => {
+    render(<PackageChangesSinceFinalizePanel events={null} />);
+
+    expect(screen.getByTestId("package-changes-since-finalize-events-not-stored")).toHaveTextContent(
+      "Change events after finalize were not stored for this package.",
+    );
+  });
+
   it("shows honest empty copy when nothing moved after finalize", () => {
     render(
       <PackageChangesSinceFinalizePanel

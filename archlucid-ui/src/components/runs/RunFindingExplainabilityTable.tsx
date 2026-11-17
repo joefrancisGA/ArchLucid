@@ -52,6 +52,10 @@ export const RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED = "Finding title was not s
 
 export const RUN_FINDING_EXPLAINABILITY_TRACE_LABEL_OMITTED = "Trace label was not stored." as const;
 
+export const RUN_FINDING_EXPLAINABILITY_GAPS_NOT_STORED = "Gaps were not stored" as const;
+
+export const RUN_FINDING_EXPLAINABILITY_GAPS_STORED_EMPTY = "Gaps were stored empty." as const;
+
 function formatExplainabilityTraceLabel(label: string | null | undefined): string {
   const trimmed = label?.trim() ?? "";
 
@@ -67,13 +71,13 @@ export type RunFindingExplainabilityTableProps = {
 
 function gapsSummary(row: FindingTraceConfidenceDto): string {
   if (row.missingTraceFields === null || row.missingTraceFields === undefined) {
-    return "Gaps were not stored";
+    return RUN_FINDING_EXPLAINABILITY_GAPS_NOT_STORED;
   }
 
   const m = row.missingTraceFields.filter((s) => s.trim().length > 0);
 
   if (m.length === 0) {
-    return "No gaps recorded";
+    return RUN_FINDING_EXPLAINABILITY_GAPS_STORED_EMPTY;
   }
 
   if (m.length <= 2) {

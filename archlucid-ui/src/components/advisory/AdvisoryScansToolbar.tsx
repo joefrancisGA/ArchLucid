@@ -11,6 +11,7 @@ import {
   ADVISORY_SCANS_VIEW_SAMPLE_LABEL,
 } from "@/lib/advisory-copy";
 import { cn } from "@/lib/utils";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { AdvisoryScansContentState } from "./use-advisory-scans-content";
@@ -41,7 +42,7 @@ export function AdvisoryScansToolbar(props: AdvisoryScansToolbarProps): React.JS
             {" · "}
             <Link
               className={OPERATOR_BODY_INLINE_LINK_CLASS}
-              href={`/architecture/reviews/${encodeURIComponent(content.bootstrappedRunId)}`}
+              href={resolveOperatorScopedRunReviewHref(content.bootstrappedRunId)}
             >
               Open review
             </Link>

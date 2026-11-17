@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  INFRA_DIAGRAMS_BUYER_CAPTION_NOT_STORED,
   INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX,
   INFRA_DIAGRAMS_DATA_FLOW_NOT_STORED_CAPTION,
   isInfraEvidenceDataFlowMermaid,
@@ -74,7 +75,7 @@ describe("infra-evidence-data-flow-diagram", () => {
 
   it("keeps evidence sentences and classifies provenance comments as metadata", () => {
     const evidenceSentence =
-      "Evidence of possible or declared movement, not observed traffic. Reads from / Writes to are pipeline wiring. May access is identity authorization. Private network path is a DNS-joined private endpoint hop, not usage.";
+      "Evidence of possible or declared movement, not observed traffic. Configured dataset read/write labels are pipeline wiring, not observed reads or writes. Authorization may allow access labels are identity authorization, not observed use. Private network path is a DNS-joined private endpoint hop, not usage.";
     const mermaid = [
       "flowchart LR",
       `    %% ${evidenceSentence}`,
@@ -100,7 +101,7 @@ describe("infra-evidence-data-flow-diagram", () => {
     ]);
   });
 
-  it("uses the default honesty prefix when no buyer caption comment exists (P-17)", () => {
+  it("uses the default honesty prefix when no buyer caption comment exists (P-04)", () => {
     const mermaid = [
       "flowchart LR",
       "    %% al-type=microsoft.app/containerapps al-rg=rg-app",
@@ -109,6 +110,7 @@ describe("infra-evidence-data-flow-diagram", () => {
 
     expect(parseInfraDiagramsDataFlowCaptionPresentation(mermaid).honestyCaptions).toEqual([
       INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX,
+      INFRA_DIAGRAMS_BUYER_CAPTION_NOT_STORED,
     ]);
   });
 });

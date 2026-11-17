@@ -1,3 +1,4 @@
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { proxyJsonGet, proxyJsonPut } from "@/lib/proxy-json-client";
 import type {
   FeaturedCompletedSampleCandidate,
@@ -82,5 +83,5 @@ export async function putTenantHomepageSettingsClient(
 }
 
 export function featuredCompletedSampleReviewHref(runId: string): string {
-  return `/architecture/reviews/${encodeURIComponent(runId.trim())}`;
+  return resolveScopedInsightOpenReviewHrefWithDeskContinuity(runId.trim());
 }

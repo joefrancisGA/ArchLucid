@@ -9,6 +9,7 @@ import { IntegrationConnectChecklist } from "@/components/integrations/Integrati
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { ArchitectureScorecardBreadcrumb } from "@/components/insights/ArchitectureScorecardBreadcrumb";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
@@ -46,6 +47,7 @@ import {
   isReviewScorecardSampleMode,
 } from "@/lib/review-scorecard-empty-state";
 import { resolveReviewScorecardDisplayData } from "@/lib/review-scorecard-sample-data";
+import { resolveScopedInsightOpenReviewHref } from "@/lib/insights/scoped-insight-open-review-href";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 import {
   resolveScorecardScoringEmphasizedStepId,
@@ -57,6 +59,7 @@ import { useRoiTileCareerHonesty } from "@/hooks/use-roi-tile-career-honesty";
 import { useScorecardKpiCareerHonesty } from "@/hooks/use-scorecard-kpi-career-honesty";
 
 import { ArchitectureScorecardBuyerChrome } from "./ArchitectureScorecardBuyerChrome";
+import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
 import { PilotScorecardMethodology } from "./PilotScorecardMethodology";
 import { PilotScorecardPrimaryOutcomes } from "./PilotScorecardPrimaryOutcomes";
 import { PilotScorecardRoiPanel } from "./PilotScorecardRoiPanel";
@@ -90,10 +93,18 @@ function resolveSampleSavingsLabels(data: NonNullable<ReturnType<typeof resolveR
 export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { productLine } = useProductLine();
   const { isWorkingMode } = useWorkspaceMode();
   const sampleMode = isReviewScorecardSampleMode(searchParams);
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
+  const scopedOpenReviewHref = useMemo(
+    () =>
+      resolveScopedInsightOpenReviewHref(scopedRunId, {
+        architectureId: readCachedLastOpenArchitectureId(),
+      }),
+    [scopedRunId],
+  );
 
   const onPickReviewForScoring = useCallback(
     (reviewId: string) => {
@@ -150,6 +161,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
     ? buildReviewScorecardOperationalMetrics(displayData, {
         workingMode: isWorkingMode,
         lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+        productLine,
       })
     : [];
   const methodologyLines =
@@ -286,6 +298,8 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
             }
           />
 
+          {buyerPolishedShell ? <OperatorHomeWorkingOpenGateStrip /> : null}
+
           <ReportSurfaceCanonicalPointerStrip surfaceId="architecture-scorecard" />
 
           <ArchitectureScorecardBuyerChrome />
@@ -369,7 +383,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            href={scopedOpenReviewHref}
           >
             Open review
           </Link>

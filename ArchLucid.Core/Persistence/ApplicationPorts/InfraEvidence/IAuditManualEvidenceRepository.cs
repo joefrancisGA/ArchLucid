@@ -13,7 +13,7 @@ public interface IAuditManualEvidenceRepository
         ProjectScopeKey scope,
         AuditManualEvidenceSubmissionMutation mutation,
         CancellationToken cancellationToken = default) =>
-        InsertSubmissionAsync(mutation.ToRecord(scope.TenantId), cancellationToken);
+        throw new NotSupportedException("Project-scoped audit evidence writes require an explicit scoped repository implementation.");
 
     Task<IReadOnlyList<AuditManualEvidenceSubmissionRecord>> ListByAssessmentAsync(
         Guid tenantId,
@@ -24,7 +24,7 @@ public interface IAuditManualEvidenceRepository
         ProjectScopeKey scope,
         Guid assessmentId,
         CancellationToken cancellationToken = default) =>
-        ListByAssessmentAsync(scope.TenantId, assessmentId, cancellationToken);
+        throw new NotSupportedException("Project-scoped audit evidence reads require an explicit scoped repository implementation.");
 
     Task<IReadOnlyList<AuditManualEvidenceSubmissionRecord>> ListByControlAsync(
         Guid tenantId,
@@ -37,7 +37,7 @@ public interface IAuditManualEvidenceRepository
         Guid assessmentId,
         Guid controlId,
         CancellationToken cancellationToken = default) =>
-        ListByControlAsync(scope.TenantId, assessmentId, controlId, cancellationToken);
+        throw new NotSupportedException("Project-scoped audit evidence reads require an explicit scoped repository implementation.");
 
     Task<AuditManualEvidenceSubmissionRecord?> TryGetByIdAsync(
         Guid tenantId,
@@ -48,7 +48,7 @@ public interface IAuditManualEvidenceRepository
         ProjectScopeKey scope,
         Guid submissionId,
         CancellationToken cancellationToken = default) =>
-        TryGetByIdAsync(scope.TenantId, submissionId, cancellationToken);
+        throw new NotSupportedException("Project-scoped audit evidence reads require an explicit scoped repository implementation.");
 
     Task InsertArchitectureLinkAsync(
         AuditArchitectureEvidenceLinkRecord link,
@@ -58,7 +58,7 @@ public interface IAuditManualEvidenceRepository
         ProjectScopeKey scope,
         AuditArchitectureEvidenceLinkRecord link,
         CancellationToken cancellationToken = default) =>
-        InsertArchitectureLinkAsync(link, cancellationToken);
+        throw new NotSupportedException("Project-scoped audit evidence writes require an explicit scoped repository implementation.");
 
     Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByAssessmentAsync(
         Guid tenantId,
@@ -89,7 +89,7 @@ public interface IAuditManualEvidenceRepository
         ProjectScopeKey scope,
         Guid assessmentId,
         CancellationToken cancellationToken = default) =>
-        ListArchitectureLinksByAssessmentAsync(scope.TenantId, assessmentId, cancellationToken);
+        throw new NotSupportedException("Project-scoped audit evidence reads require an explicit scoped repository implementation.");
 
     Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByControlAsync(
         Guid tenantId,
@@ -102,7 +102,7 @@ public interface IAuditManualEvidenceRepository
         Guid assessmentId,
         Guid controlId,
         CancellationToken cancellationToken = default) =>
-        ListArchitectureLinksByControlAsync(scope.TenantId, assessmentId, controlId, cancellationToken);
+        throw new NotSupportedException("Project-scoped audit evidence reads require an explicit scoped repository implementation.");
 }
 
 

@@ -30,6 +30,8 @@ describe("ManifestDetailSummaryCountsGrid", () => {
       />,
     );
 
-    expect(screen.getAllByText("Not returned")).toHaveLength(3);
+    expect(screen.getByText("Decision count was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Warning count was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Unresolved issue count was not stored.")).toBeInTheDocument();
   });
 });

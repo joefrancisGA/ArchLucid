@@ -29,7 +29,7 @@ public sealed class IllustrativeInfrastructureCostFallbackTests
     [Theory]
     [InlineData(RuntimePlatform.AppService, "Azure App Service")]
     [InlineData(RuntimePlatform.SqlServer, "Azure SQL")]
-    [InlineData(RuntimePlatform.Unknown, "Azure (unspecified)")]
+    [InlineData(RuntimePlatform.Unknown, "Azure product label was not stored.")]
     public void FormatIllustrativeAzureProduct_matches_contract(RuntimePlatform platform, string expected) =>
         IllustrativeInfrastructureCostFallback.FormatIllustrativeAzureProduct(platform).Should().Be(expected);
 }

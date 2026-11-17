@@ -42,6 +42,7 @@ import {
   quickDecisionReasoningPanelsHrefFromSearch,
 } from "@/lib/reviews/quick-decision-reasoning-panels-url";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { resolveReviewUrlStatePathname } from "@/lib/architecture/review-url-state-pathname";
 
 import { QuickDecisionSummaryCardView } from "./QuickDecisionSummaryCardView";
 import { QuickDecisionSummaryDialogs } from "./QuickDecisionSummaryDialogs";
@@ -106,10 +107,12 @@ function useQuickDecisionSummaryDerivedData(props: QuickDecisionSummaryProps): Q
       ? 0
       : lowConfidenceFindings.length;
   const hiddenLowConfidenceHint = formatHiddenLowConfidenceHint(hiddenLowConfidenceCount);
-  const { policyViolations, advisoryNotes } = partitionQuickDecisionFindings(trustedFindings);
+  const { policyViolations, advisoryNotes, enforcementTierUnspecified } =
+    partitionQuickDecisionFindings(trustedFindings);
   const {
     policyViolations: lowConfidencePolicyViolations,
     advisoryNotes: lowConfidenceAdvisoryNotes,
+    enforcementTierUnspecified: lowConfidenceEnforcementTierUnspecified,
   } = partitionQuickDecisionFindings(lowConfidenceFindings);
   const topGroups = groupQuickDecisionFindingsByPolicyPack(
     policyViolations,
@@ -154,8 +157,10 @@ function useQuickDecisionSummaryDerivedData(props: QuickDecisionSummaryProps): Q
     hiddenLowConfidenceHint,
     policyViolations,
     advisoryNotes,
+    enforcementTierUnspecified,
     lowConfidencePolicyViolations,
     lowConfidenceAdvisoryNotes,
+    lowConfidenceEnforcementTierUnspecified,
     topGroups,
     policyPackSummary,
     policyPackImpact,
@@ -202,7 +207,7 @@ function splitDerivedState(state: QuickDecisionSummaryDerivedState): {
 
 /** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
 export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactElement {
-  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const pathname = resolveReviewUrlStatePathname(usePathname(), props.runId);
   const searchParams = useSearchParams();
   const muteFindingIdParam = searchParams.get("muteFindingId");
   const qdReasonIdParam = searchParams.get("qdReasonId");

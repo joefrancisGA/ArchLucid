@@ -12,6 +12,7 @@ import {
   buildActorDependentQuietEnginesArchitectureHref,
 } from "@/lib/findings/actor-dependent-findings-quiet-engines-recovery";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
+import { describeSkippedMustMeasurementGap } from "@/lib/intake/universal-intake-must-engine-coverage";
 import { listSkippedMustQuestionKeys } from "@/lib/review-quality/list-skipped-must-question-keys";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 import { cn } from "@/lib/utils";
@@ -70,7 +71,7 @@ export function RunDetailSealDeskCoverageStrip(
           </p>
           <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
             {skippedMustKeys.map((questionKey) => (
-              <li key={questionKey}>{questionKey}</li>
+              <li key={questionKey}>{describeSkippedMustMeasurementGap(questionKey)}</li>
             ))}
           </ul>
         </div>

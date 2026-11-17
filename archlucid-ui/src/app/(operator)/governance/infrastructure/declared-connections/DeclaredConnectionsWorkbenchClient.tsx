@@ -7,6 +7,7 @@ import { ArrowLeftRight, Loader2 } from "lucide-react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { InfraEvidenceWorkbenchBuildProvenanceStrip } from "@/components/infra-evidence/InfraEvidenceWorkbenchBuildProvenanceStrip";
 import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -28,6 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { StatusTag } from "@/components/ui/status-tag";
 import { Textarea } from "@/components/ui/textarea";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { CTA_WIDTH, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   clearDeclaredConnectionFormDraft,
@@ -53,6 +55,14 @@ import {
   resolveDeclaredConnectionDisplayStatus,
   sortDeclaredConnectionsByExpiry,
 } from "@/lib/governance/declared-connections-status";
+import { DECLARED_CONNECTIONS_EXPIRY_HONESTY_LINE } from "@/lib/governance/declared-connections-expiry-honesty-copy";
+import { DECLARED_CONNECTIONS_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/governance/declared-connections-empty-partial-capture-copy";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import {
+  DECLARED_CONNECTION_ROW_EXPIRY_HONESTY_LINE,
+  shouldShowDeclaredConnectionRowExpiryHonesty,
+} from "@/lib/governance/declared-connections-row-expiry-honesty-copy";
 import {
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_LOAD_ERROR_TITLE,
@@ -65,7 +75,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
   SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { formatIsoUtcForDisplay, parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -94,18 +104,28 @@ function defaultExpirationIso(): string {
 
 const DECLARED_CONNECTION_EXPIRATION_UNREADABLE = "Expiration could not be read." as const;
 
+function formatDeclaredConnectionField(value: string | null | undefined, notStoredLabel: string): string {
+  if (value == null || value.trim().length === 0) {
+    return notStoredLabel;
+  }
+
+  return value;
+}
+
 function formatRelativeExpiry(expirationUtc: string): string | null {
-  const expiryMs = Date.parse(expirationUtc);
-  const deltaMs = expiryMs - Date.now();
-  const days = Math.round(deltaMs / (24 * 60 * 60 * 1000));
+  const expiryMs = parseIsoUtcMs(expirationUtc);
 
   if (Number.isNaN(expiryMs)) {
     return null;
   }
 
-  if (days < 0) {
+  const deltaMs = expiryMs - Date.now();
+
+  if (deltaMs <= 0) {
     return "expired";
   }
+
+  const days = Math.round(deltaMs / (24 * 60 * 60 * 1000));
 
   if (days === 0) {
     return "expires today";
@@ -132,6 +152,7 @@ function statusTagKind(status: ReturnType<typeof resolveDeclaredConnectionDispla
 
 export function DeclaredConnectionsWorkbenchClient() {
   const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const pathname = usePathname() ?? GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH;
   const pageTitle = resolveSecureNowPageHeading(
     productLine,
@@ -382,6 +403,10 @@ export function DeclaredConnectionsWorkbenchClient() {
         }
       />
 
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-declared-connections-expiry-honesty">
+        {DECLARED_CONNECTIONS_EXPIRY_HONESTY_LINE}
+      </p>
+
       <main
         id={GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PRIMARY_CONTENT_ID}
         className="flex w-full max-w-none flex-col gap-4 scroll-mt-24"
@@ -389,17 +414,24 @@ export function DeclaredConnectionsWorkbenchClient() {
         aria-busy={loading}
       >
         {loadError != null ? (
-          <EnterpriseCompactEmptyState
-            role="alert"
-            title={GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_LOAD_ERROR_TITLE}
-            description={loadError}
-            testId="infra-declared-connections-load-error-panel"
-            footer={
-              <Button type="button" size="sm" variant="primary" onClick={() => void loadRows(false)}>
-                Retry load
-              </Button>
-            }
-          />
+          <div className="space-y-2" data-testid="infra-declared-connections-load-error">
+            <EnterpriseCompactEmptyState
+              role="alert"
+              title={GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_LOAD_ERROR_TITLE}
+              description={loadError}
+              testId="infra-declared-connections-load-error-panel"
+              footer={
+                <Button type="button" size="sm" variant="primary" onClick={() => void loadRows(false)}>
+                  Retry load
+                </Button>
+              }
+            />
+            <OperatorErrorRecoveryContract
+              presentation={errorRecoveryContractForScenario("api-problem", {
+                failureSummary: loadError,
+              })}
+            />
+          </div>
         ) : null}
 
         <section className="space-y-3 rounded-md border border-border p-4" aria-labelledby="declared-connection-form-heading">
@@ -586,6 +618,13 @@ export function DeclaredConnectionsWorkbenchClient() {
                   : "Change the status filter or clear it to see other declarations loaded in this workspace view."
               }
               testId="infra-declared-connections-empty-state"
+              footer={
+                partialCapture && isSecureNowProductLine(productLine) ? (
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="declared-connections-empty-partial-capture">
+                    {DECLARED_CONNECTIONS_EMPTY_PARTIAL_CAPTURE_LINE}
+                  </p>
+                ) : undefined
+              }
             />
           ) : (
             <EnterpriseTable ariaLabel="Declared connections">
@@ -640,9 +679,24 @@ export function DeclaredConnectionsWorkbenchClient() {
                         data-testid={`infra-declared-connection-row-${row.connectionId}`}
                         className={highlightRowId === row.connectionId ? "bg-teal-50/40 dark:bg-teal-950/20" : undefined}
                       >
-                        <EnterpriseTableCell className="font-mono text-xs">{row.fromCloudResourceId}</EnterpriseTableCell>
-                        <EnterpriseTableCell className="font-mono text-xs">{row.toCloudResourceId}</EnterpriseTableCell>
-                        <EnterpriseTableCell>{row.relationshipType}</EnterpriseTableCell>
+                        <EnterpriseTableCell className="font-mono text-xs">
+                          {formatDeclaredConnectionField(
+                            row.fromCloudResourceId,
+                            "Source resource id was not stored.",
+                          )}
+                        </EnterpriseTableCell>
+                        <EnterpriseTableCell className="font-mono text-xs">
+                          {formatDeclaredConnectionField(
+                            row.toCloudResourceId,
+                            "Destination resource id was not stored.",
+                          )}
+                        </EnterpriseTableCell>
+                        <EnterpriseTableCell>
+                          {formatDeclaredConnectionField(
+                            row.relationshipType,
+                            "Relationship type was not stored.",
+                          )}
+                        </EnterpriseTableCell>
                         <EnterpriseTableCell>
                           <StatusTag label={displayStatus === "NearExpiry" ? "Near expiry" : row.status} kind={statusTagKind(displayStatus)} />
                         </EnterpriseTableCell>
@@ -663,6 +717,14 @@ export function DeclaredConnectionsWorkbenchClient() {
                               <span className="ms-1 text-al-text-secondary">({relativeExpiry})</span>
                             );
                           })()}
+                          {shouldShowDeclaredConnectionRowExpiryHonesty(row.expirationUtc) ? (
+                            <p
+                              className={cn("m-0 mt-1 max-w-md", OPERATOR_TYPOGRAPHY.helper)}
+                              data-testid={`infra-declared-connection-row-expiry-honesty-${row.connectionId}`}
+                            >
+                              {DECLARED_CONNECTION_ROW_EXPIRY_HONESTY_LINE}
+                            </p>
+                          ) : null}
                         </EnterpriseTableCell>
                         <EnterpriseTableCell className="space-x-2">
                           <Button type="button" variant="outline" size="sm" onClick={() => setExpandedRowId(expanded ? null : row.connectionId)}>
@@ -679,7 +741,7 @@ export function DeclaredConnectionsWorkbenchClient() {
                               Revoke
                             </Button>
                           ) : (
-                            "—"
+                            <span className="text-al-text-secondary">Revoke applies to active declarations only.</span>
                           )}
                         </EnterpriseTableCell>
                       </EnterpriseTableRow>
@@ -689,7 +751,11 @@ export function DeclaredConnectionsWorkbenchClient() {
                             <dl className="m-0 grid gap-2 md:grid-cols-2">
                               <div>
                                 <dt className="font-medium">Rationale</dt>
-                                <dd className="m-0 text-al-text-secondary">{row.rationale}</dd>
+                                <dd className="m-0 text-al-text-secondary">
+                                  {row.rationale?.trim().length
+                                    ? row.rationale
+                                    : "Connection rationale was not stored."}
+                                </dd>
                               </div>
                               <div>
                                 <dt className="font-medium">Evidence reference</dt>

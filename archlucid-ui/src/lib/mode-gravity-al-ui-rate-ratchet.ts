@@ -1,5 +1,6 @@
 /** MG-009 — /al-ui-rate on Working rates the instrument, not buyer-confidence polish (WS-07). */
-export const MODE_GRAVITY_AL_UI_RATE_COMMAND_RELATIVE_PATH = ".cursor/commands/al-ui-rate.md" as const;
+export const MODE_GRAVITY_AL_UI_RATE_COMMAND_RELATIVE_PATH =
+  ".agents/skills/source-command-al-ui-rate/SKILL.md" as const;
 
 export const MODE_GRAVITY_AL_UI_RATE_WORKING_STANCE_MARKER = "Working instrument" as const;
 

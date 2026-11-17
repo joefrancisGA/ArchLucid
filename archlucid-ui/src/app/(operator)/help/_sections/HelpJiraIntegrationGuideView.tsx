@@ -1,3 +1,4 @@
+import { resolveProductionEvalChromeForServer } from "@/lib/production-desk-chrome";
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -18,7 +19,6 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   HELP_PAGE_LAYOUT,
   HELP_PAGE_MIN_TOC_HEADINGS,
@@ -116,7 +116,7 @@ function JiraIntegrationStartHerePanel(): React.ReactElement {
 /** Operator Jira integration orientation for `/help/jira-integration`. */
 export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = resolveProductionEvalChromeForServer();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-jira-integration",
     JIRA_INTEGRATION_HELP_GUIDE_HEADINGS,

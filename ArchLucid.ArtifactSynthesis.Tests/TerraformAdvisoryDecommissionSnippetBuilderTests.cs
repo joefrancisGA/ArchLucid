@@ -22,7 +22,7 @@ public sealed class TerraformAdvisoryDecommissionSnippetBuilderTests
             Title = "Retire idle resource group wiring",
             SelectedOption = "azurerm_resource_group.demo_rg",
             Rationale = "Avoid orphaned RG billing.",
-            RelatedNodeIds = ["azurerm_resource_group.demo_rg"]
+            RelatedNodeIds = [],
         };
 
         string snippet = TerraformAdvisoryDecommissionSnippetBuilder.BuildDecisionSection(decision);
@@ -31,6 +31,9 @@ public sealed class TerraformAdvisoryDecommissionSnippetBuilderTests
         snippet.Should().Contain(TerraformAdvisoryDecommissionSnippetBuilder.AdvisoryMdPointerLine);
         snippet.Should().Contain("Decision dec-42");
         snippet.Should().Contain("azurerm_resource_group.demo_rg");
+        snippet.Should().Contain("# Decision category: Cost");
+        snippet.Should().Contain("# Decision title: Retire idle resource group wiring");
+        snippet.Should().Contain("# Selected option: azurerm_resource_group.demo_rg");
 
         Assert.DoesNotContain("destroy", snippet, StringComparison.OrdinalIgnoreCase);
     }
@@ -51,6 +54,25 @@ public sealed class TerraformAdvisoryDecommissionSnippetBuilderTests
         string snippet = TerraformAdvisoryDecommissionSnippetBuilder.BuildDecisionSection(decision);
 
         snippet.Should().Contain("Terraform address was not stored.");
+    }
+
+    [Fact]
+    public void BuildDecisionSection_does_not_emit_graph_node_ids_as_terraform_address()
+    {
+        ResolvedArchitectureDecision decision = new()
+        {
+            DecisionId = "dec-graph",
+            Category = "Cost",
+            Title = "Retire node",
+            SelectedOption = "retire",
+            Rationale = "Graph only.",
+            RelatedNodeIds = ["topology-node-1"],
+        };
+
+        string snippet = TerraformAdvisoryDecommissionSnippetBuilder.BuildDecisionSection(decision);
+
+        snippet.Should().Contain("Graph node ids were stored but a Terraform address was not stored.");
+        snippet.Should().NotContain("topology-node-1");
     }
 
     [Fact]

@@ -10,16 +10,18 @@ public sealed partial class ArchitectureReviewDocxBuilder
     {
         ArchitectureReviewDocxOpenXmlPrimitives.AddHeading1(body, "Traceability appendix");
 
-        List<(string Key, string Value)> rows = [];
-
-        if (!string.IsNullOrWhiteSpace(model.HttpCorrelationId))
-            rows.Add(("HTTP correlation ID", model.HttpCorrelationId.Trim()));
-
-        if (!string.IsNullOrWhiteSpace(model.ManifestVersion))
-            rows.Add(("Architecture snapshot version", model.ManifestVersion.Trim()));
-
-        if (!string.IsNullOrWhiteSpace(model.ExtractorTimestampUtcLabel))
-            rows.Add(("Extractor timestamp (UTC)", model.ExtractorTimestampUtcLabel.Trim()));
+        List<(string Key, string Value)> rows =
+        [
+            ("HTTP correlation ID", string.IsNullOrWhiteSpace(model.HttpCorrelationId)
+                ? ArchitectureReviewBoardExportHonestyCopy.HttpCorrelationIdNotStored
+                : model.HttpCorrelationId.Trim()),
+            ("Architecture snapshot version", string.IsNullOrWhiteSpace(model.ManifestVersion)
+                ? ArchitectureReviewBoardExportHonestyCopy.ManifestVersionNotStored
+                : model.ManifestVersion.Trim()),
+            ("Extractor timestamp (UTC)", string.IsNullOrWhiteSpace(model.ExtractorTimestampUtcLabel)
+                ? ArchitectureReviewBoardExportHonestyCopy.ExtractorTimestampNotStored
+                : model.ExtractorTimestampUtcLabel.Trim()),
+        ];
 
         foreach (ArchitectureReviewBoardExportTraceRow line in model.TraceabilityLines ?? [])
         {

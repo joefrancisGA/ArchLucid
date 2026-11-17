@@ -10,6 +10,8 @@ import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -41,6 +43,9 @@ import {
   fetchInfraEvidenceSnapshots,
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import { shouldShowInfraDriftSnapshotsEmptyState } from "@/lib/infra-evidence/should-show-infra-drift-snapshots-empty-state";
+import { DRIFT_TWO_SNAPSHOTS_STORED_HONESTY_LINE } from "@/lib/infra-evidence/drift-two-snapshots-stored-honesty-copy";
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import type {
   InfraEvidenceDiffChange,
   InfraEvidenceDiffSummary,
@@ -117,6 +122,18 @@ import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evide
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { isAppShellWorkspaceFooterBuildFingerprintVisible } from "@/lib/app-shell-workspace-footer-build-fingerprint-visibility";
 import { driftWorkbenchHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-drift-filter-url";
+import { DRIFT_WORKBENCH_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/drift-workbench-empty-not-failure-copy";
+import { DRIFT_WORKBENCH_EMPTY_DIFFS_NOT_FAILURE_LINE } from "@/lib/infra-evidence/drift-empty-diffs-not-failure-copy";
+import {
+  DRIFT_WORKBENCH_EMPTY_DIFFS_UNCHANGED_FILTER_OFF_LINE,
+  shouldShowDriftEmptyDiffsUnchangedFilterOffHonesty,
+} from "@/lib/infra-evidence/drift-empty-diffs-unchanged-filter-off-copy";
+import { DRIFT_WORKBENCH_EMPTY_INVENTORY_NOT_FAILURE_LINE } from "@/lib/infra-evidence/drift-empty-inventory-not-failure-copy";
+import { DRIFT_TERRAFORM_EXPORT_RECEIPT_ADVISORY_LINE } from "@/lib/infra-evidence/drift-terraform-export-receipt-advisory-copy";
+import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
+import { DRIFT_WORKBENCH_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/infra-evidence-workbench-partial-capture-copy";
+import { SecureNowInfraPartialCaptureStrip } from "@/components/product-line/SecureNowInfraPartialCaptureStrip";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   formatGovernanceInfrastructureDriftCrossSubscriptionDiffDialogDescription,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE,
@@ -182,6 +199,7 @@ import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
 import { formatAbsoluteUpdatedAtTitle } from "@/lib/relative-time";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SecureNowDriftSecureNowCollectionPanel } from "@/components/product-line/SecureNowDriftSecureNowCollectionPanel";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import {
   formatInfraEvidenceDiffLabel,
@@ -193,6 +211,7 @@ import {
   resolveInfraEvidenceDiffOtherSnapshot,
   resolveInfraEvidenceSnapshotSubscriptionLabel,
 } from "@/lib/infra-evidence/infra-evidence-drift-subscription-scope";
+import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { cn } from "@/lib/utils";
 
 import { DriftBreadcrumb } from "./DriftBreadcrumb";
@@ -209,6 +228,7 @@ import {
   DriftChangesTableHead,
 } from "./DriftChangesTableHead";
 import { DriftClaimOrientationStrip } from "./DriftClaimOrientationStrip";
+import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
 import { DriftSnapshotIdentifiers } from "./DriftSnapshotIdentifiers";
 import { DriftSnapshotsTable } from "./DriftSnapshotsTable";
 
@@ -225,6 +245,7 @@ type PendingDriftSubscriptionConfirmation =
   | { readonly kind: "diff"; readonly diffId: string };
 
 export function DriftWorkbenchClient() {
+  const { ianaTimeZoneId } = useIanaTimeZonePreference();
   const { productLine } = useProductLine();
   const pageTitle = resolveSecureNowPageHeading(
     productLine,
@@ -388,10 +409,10 @@ export function DriftWorkbenchClient() {
   );
 
   const visibleSnapshots = useMemo(() => {
-    const filtered = filterDriftSnapshots(snapshots, snapshotTableFilterState);
+    const filtered = filterDriftSnapshots(snapshots, snapshotTableFilterState, ianaTimeZoneId);
 
     return sortDriftSnapshots(filtered, snapshotTableFilterState.sortBy, snapshotTableFilterState.sortDir);
-  }, [snapshots, snapshotTableFilterState]);
+  }, [snapshots, snapshotTableFilterState, ianaTimeZoneId]);
 
   const laterSnapshotsPartition = useMemo(() => {
     if (selectedSnapshot == null) {
@@ -580,9 +601,17 @@ export function DriftWorkbenchClient() {
         const items = response.items ?? [];
 
         if (!cancelled) {
-          setSnapshots((current) =>
-            tableFilterState.snapshotsPage > 1 ? [...current, ...items] : items,
-          );
+          setSnapshots((current) => {
+            if (tableFilterState.snapshotsPage === 1) {
+              return items;
+            }
+
+            const byId = new Map(current.map((snapshot) => [snapshot.snapshotId, snapshot]));
+            for (const snapshot of items) {
+              byId.set(snapshot.snapshotId, snapshot);
+            }
+            return [...byId.values()];
+          });
           setSnapshotsTotalCount(response.totalCount ?? items.length);
           setSnapshotsHasMore(response.hasMore === true);
 
@@ -1252,6 +1281,11 @@ export function DriftWorkbenchClient() {
                   : GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_BODY
               }
               testId="infra-drift-changes-empty-inventory"
+              footer={
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-inventory-empty-not-failure">
+                  {DRIFT_WORKBENCH_EMPTY_INVENTORY_NOT_FAILURE_LINE}
+                </p>
+              }
             />
           </EnterpriseTableCell>
         </EnterpriseTableRow>
@@ -1337,12 +1371,30 @@ export function DriftWorkbenchClient() {
         }
       />
 
+      {buyerPolishedShell ? <OperatorHomeWorkingOpenGateStrip /> : null}
+
+      <SecureNowDriftSecureNowCollectionPanel
+        selectedSnapshotId={selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId}
+      />
+
       <main
         id={GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID}
         className={cn("flex w-full flex-col gap-4 scroll-mt-24")}
         data-testid="infra-drift-primary-content"
       >
         <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-drift-selection-announcer" />
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-two-snapshots-stored-honesty">
+          {DRIFT_TWO_SNAPSHOTS_STORED_HONESTY_LINE}
+        </p>
+        {isSecureNowProductLine(productLine) ? (
+          <SecureNowInfraPartialCaptureStrip
+            testId="infra-drift-partial-capture"
+            middleLine={DRIFT_WORKBENCH_PARTIAL_CAPTURE_LINE}
+            cloudConnectionsTestId="infra-drift-partial-capture-cloud"
+            extractUploadTestId="infra-drift-partial-capture-extract"
+          />
+        ) : null}
 
         {showResumeLastComparisonRow && validatedResumeLastComparison != null ? (
           <DriftResumeLastComparisonRow onResume={handleResumeLastComparison} />
@@ -1412,17 +1464,29 @@ export function DriftWorkbenchClient() {
         ) : null}
 
         {loadError != null ? (
-          <EnterpriseCompactEmptyState
-            role="alert"
-            title={GOVERNANCE_INFRASTRUCTURE_DRIFT_LOAD_ERROR_TITLE}
-            description={loadError}
-            testId="infra-drift-load-error-panel"
-            footer={
-              <Button type="button" size="sm" variant="primary" onClick={retryWorkbenchLoad}>
-                Retry load
-              </Button>
-            }
-          />
+          <div className="space-y-2" data-testid="infra-drift-load-error-panel">
+            <EnterpriseCompactEmptyState
+              role="alert"
+              title={GOVERNANCE_INFRASTRUCTURE_DRIFT_LOAD_ERROR_TITLE}
+              description={loadError}
+              testId="infra-drift-load-error-empty"
+              footer={
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button type="button" size="sm" variant="primary" onClick={retryWorkbenchLoad}>
+                    Retry load
+                  </Button>
+                  <Button type="button" size="sm" variant="outline" asChild>
+                    <Link href={ADMINISTRATION_SYSTEM_HEALTH_PATH}>System health</Link>
+                  </Button>
+                </div>
+              }
+            />
+            <OperatorErrorRecoveryContract
+              presentation={errorRecoveryContractForScenario("api-problem", {
+                failureSummary: loadError,
+              })}
+            />
+          </div>
         ) : null}
 
         <section
@@ -1550,6 +1614,12 @@ export function DriftWorkbenchClient() {
               </div>
 
               <SponsorExportSendHonestyStrip testIdPrefix="infra-drift-export-terraform" />
+              <p
+                className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="infra-drift-export-terraform-not-apply"
+              >
+                {TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE}
+              </p>
 
               <DriftSnapshotIdentifiers
                 snapshotId={selectedSnapshotId}
@@ -1567,6 +1637,12 @@ export function DriftWorkbenchClient() {
                   </p>
                   <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {formatAbsoluteUpdatedAtTitle(exportReceipt.exportedAtUtc)}
+                  </p>
+                  <p
+                    className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="infra-drift-export-receipt-advisory"
+                  >
+                    {DRIFT_TERRAFORM_EXPORT_RECEIPT_ADVISORY_LINE}
                   </p>
                 </div>
               ) : null}
@@ -1695,15 +1771,24 @@ export function DriftWorkbenchClient() {
           </section>
         ) : null}
 
-        {!loadingSnapshots && snapshots.length === 0 ? (
+        {shouldShowInfraDriftSnapshotsEmptyState({
+          loadingSnapshots,
+          snapshotCount: snapshots.length,
+          loadError,
+        }) ? (
           <EnterpriseCompactEmptyState
             title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_TITLE}
             description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_BODY}
             testId="infra-drift-snapshots-empty-resolved"
             footer={
-              <Button asChild size="sm" variant="primary">
-                <Link href={CLOUD_CONNECTIONS_PATH}>{GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_ACTION}</Link>
-              </Button>
+              <div className="flex flex-col gap-2">
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-snapshots-empty-not-failure">
+                  {DRIFT_WORKBENCH_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <Button asChild size="sm" variant="primary">
+                  <Link href={CLOUD_CONNECTIONS_PATH}>{GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_ACTION}</Link>
+                </Button>
+              </div>
             }
           />
         ) : null}
@@ -1713,6 +1798,18 @@ export function DriftWorkbenchClient() {
             title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_TITLE}
             description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY}
             testId="infra-drift-diffs-empty-resolved"
+            footer={
+              <div className="grid gap-1">
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-diffs-empty-not-failure">
+                  {DRIFT_WORKBENCH_EMPTY_DIFFS_NOT_FAILURE_LINE}
+                </p>
+                {shouldShowDriftEmptyDiffsUnchangedFilterOffHonesty(tableFilterState.includeUnchanged) ? (
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-diffs-empty-unchanged-filter-off">
+                    {DRIFT_WORKBENCH_EMPTY_DIFFS_UNCHANGED_FILTER_OFF_LINE}
+                  </p>
+                ) : null}
+              </div>
+            }
           />
         ) : null}
 

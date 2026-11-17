@@ -1,0 +1,20 @@
+{
+  "executiveSummary": "Executive summary for cited path.",
+  "businessImpactHypotheses": [
+    "AiInference hypothesis: outage risk if identity hop remains."
+  ],
+  "proposedRemediation": {
+    "recommendedChange": "Remove weakest hop control gap.",
+    "recommendedChangeSource": "WeakestHop",
+    "verificationQueries": [
+      "path:hash-absent=abc"
+    ],
+    "preconditions": [
+      "Confirm with owners."
+    ]
+  },
+  "citedEvidenceRefs": [
+    "evidence-1",
+    "path:{{PATH_ID}}"
+  ]
+}

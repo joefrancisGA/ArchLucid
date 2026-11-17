@@ -17,7 +17,7 @@ describe("core-pilot-path-vocabulary", () => {
 
   it("flags banned governance and policy-pack phrases in pilot-path surfaces", () => {
     const violations = listCorePilotPathCopyViolations({
-      bad: "Open approval workflow and edit Policy Pack rules",
+      bad: "Open governance inbox and edit Policy Pack rules",
       good: CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeLead,
     });
 
@@ -39,6 +39,13 @@ describe("core-pilot-path-vocabulary", () => {
 
     expect(listCorePilotPathCopyViolations(surfaces)).toEqual([]);
     expect(CORE_PILOT_PATH_STREAMLINED_LABELS.focusedPilotToggleLabel).toBe("Focused review scope");
+    expect(CORE_PILOT_PATH_STREAMLINED_LABELS.focusedPilotToggleDescription).toBe(
+      "Limit this review to six baseline standards (Security, Reliability, Cost, Performance, Operational Excellence, and Sustainability) for your first package.",
+    );
+    expect(CORE_PILOT_PATH_STREAMLINED_LABELS.focusedPilotToggleDescription.toLowerCase()).not.toContain(
+      "actionable",
+    );
+    expect(CORE_PILOT_PATH_STREAMLINED_LABELS.focusedPilotToggleDescription).not.toContain("architecture-quality");
     expect(CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeAdvancedNote.toLowerCase()).not.toContain("pilot");
     expect(
       `${CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBannerLabel} ${CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBannerBody}`.toLowerCase(),

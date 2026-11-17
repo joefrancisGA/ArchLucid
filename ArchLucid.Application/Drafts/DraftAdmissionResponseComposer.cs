@@ -37,12 +37,12 @@ internal static class DraftAdmissionResponseComposer
     {
         FeasibilityVerdict verdict = admitted
             ? feasibilityVerdictBuilder.Feasible(
-                "Draft contains sufficient designable intent for admission.",
+                "Draft contains sufficient designable intent for admission. Admission does not finalize an architecture package.",
                 draft.Document.TransparencyTrail)
             : feasibilityVerdictBuilder.FromIntakeRedirect(
                 redirectReason ?? "Draft redirected.",
                 draft.Document.TransparencyTrail,
-                "Draft does not yet meet minimum designable-intent requirements.");
+                "Draft does not yet meet minimum designable-intent requirements. Redirect is not a sealed review record.");
 
         return new DraftAdmissionResponse
         {

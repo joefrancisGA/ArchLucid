@@ -82,6 +82,18 @@ function truncateLabel(text: string, maxLen: number): string {
   return `${s.slice(0, maxLen - 1)}…`;
 }
 
+function provenanceDiagramNodeLabel(name: string): string {
+  const trimmed = name.trim();
+
+  return trimmed.length > 0 ? truncateLabel(trimmed, 22) : "Name was not stored.";
+}
+
+function provenanceDiagramNodeDetailName(name: string): string {
+  const trimmed = name.trim();
+
+  return trimmed.length > 0 ? trimmed : "Node name was not stored.";
+}
+
 const LAYER_LABELS = [
   "Context / graph snapshots",
   "Findings",
@@ -197,7 +209,7 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
           x,
           y,
           fill,
-          label: truncateLabel(n.name || n.type, 22),
+          label: provenanceDiagramNodeLabel(n.name),
           layer,
           referenceId: n.referenceId,
           type: n.type,
@@ -325,7 +337,7 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
             </div>
             <div>
               <dt className="inline font-semibold text-neutral-800 dark:text-neutral-200">Name</dt>
-              <dd className="ml-2 inline text-neutral-700 dark:text-neutral-300">{selectedNode.name}</dd>
+              <dd className="ml-2 inline text-neutral-700 dark:text-neutral-300">{provenanceDiagramNodeDetailName(selectedNode.name)}</dd>
             </div>
             <div>
               <dt className="inline font-semibold text-neutral-800 dark:text-neutral-200">Reference</dt>

@@ -29,6 +29,12 @@ import {
   resolveBinaryGetRequest,
   withCorrelationHeaders,
 } from "./http";
+import {
+  encodeRequiredPathSegment,
+  trimOptionalText,
+  trimRequiredPathSegment,
+  trimRequiredText,
+} from "./api-boundary-normalization";
 
 /** Read-model inspector: typed payload, rules, evidence citations, audit correlation (ReadAuthority). */
 /** Run-scoped: GET /v1/architecture/review/{runId}/findings/{findingId}/inspect */
@@ -46,10 +52,12 @@ export async function getFindingInspect(
 ): Promise<FindingInspectPayload> {
   const includeTypedPayload = options?.includeTypedPayload ?? true;
   const query = includeTypedPayload ? "" : "?includeTypedPayload=false";
+  const encodedRunId = encodeRequiredPathSegment(runId, "runId");
+  const encodedFinding = encodeRequiredPathSegment(findingId, "findingId");
 
   try {
     const payload = await apiGet<Record<string, unknown>>(
-      `/v1/architecture/review/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect${query}`,
+      `/v1/architecture/review/${encodedRunId}/findings/${encodedFinding}/inspect${query}`,
     );
 
     return mapFindingInspectApiPayload(payload);
@@ -63,11 +71,12 @@ export async function getFindingInspect(
 
 /** Persisted explainability trace + narrative for a single finding (no LLM). */
 export async function getFindingExplainability(runId: string, findingId: string): Promise<FindingExplainability> {
-  const encodedFinding = encodeURIComponent(findingId);
+  const encodedRunId = encodeRequiredPathSegment(runId, "runId");
+  const encodedFinding = encodeRequiredPathSegment(findingId, "findingId");
 
   try {
     return await apiGet<FindingExplainability>(
-      `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/explainability`,
+      `/v1/explain/runs/${encodedRunId}/findings/${encodedFinding}/explainability`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -79,11 +88,12 @@ export async function getFindingExplainability(runId: string, findingId: string)
 
 /** Evidence-chain pointers for one finding (ReadAuthority; architecture query surface). */
 export async function getFindingEvidenceChain(runId: string, findingId: string): Promise<FindingEvidenceChain> {
-  const encodedFinding = encodeURIComponent(findingId);
+  const encodedRunId = encodeRequiredPathSegment(runId, "runId");
+  const encodedFinding = encodeRequiredPathSegment(findingId, "findingId");
 
   try {
     return await apiGet<FindingEvidenceChain>(
-      `/v1/architecture/review/${encodeURIComponent(runId)}/findings/${encodedFinding}/evidence-chain`,
+      `/v1/architecture/review/${encodedRunId}/findings/${encodedFinding}/evidence-chain`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -95,11 +105,12 @@ export async function getFindingEvidenceChain(runId: string, findingId: string):
 
 /** Redacted LLM prompt/completion audit for one finding (ReadAuthority). */
 export async function getFindingLlmAudit(runId: string, findingId: string): Promise<FindingLlmAudit> {
-  const encodedFinding = encodeURIComponent(findingId);
+  const encodedRunId = encodeRequiredPathSegment(runId, "runId");
+  const encodedFinding = encodeRequiredPathSegment(findingId, "findingId");
 
   try {
     return await apiGet<FindingLlmAudit>(
-      `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/llm-audit`,
+      `/v1/explain/runs/${encodedRunId}/findings/${encodedFinding}/llm-audit`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -115,11 +126,12 @@ export async function postFindingFeedback(
   findingId: string,
   score: -1 | 1,
 ): Promise<void> {
-  const encodedFinding = encodeURIComponent(findingId);
+  const encodedRunId = encodeRequiredPathSegment(runId, "runId");
+  const encodedFinding = encodeRequiredPathSegment(findingId, "findingId");
 
   try {
     await apiPostJson(
-      `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/feedback`,
+      `/v1/explain/runs/${encodedRunId}/findings/${encodedFinding}/feedback`,
       { score },
     );
   } catch (error: unknown) {
@@ -137,13 +149,15 @@ export async function postArchitectureFindingFeedback(
   isHelpful: boolean,
   comment?: string,
 ): Promise<void> {
-  const encodedFinding = encodeURIComponent(findingId);
+  const encodedFinding = encodeRequiredPathSegment(findingId, "findingId");
+  const normalizedRunId = trimRequiredText(runId, "runId");
 
   try {
     await apiPostJson(`/v1/architecture/finding/${encodedFinding}/feedback`, {
-      runId,
+      runId: normalizedRunId,
       isHelpful,
-      comment: comment ?? null,
+      // A blank comment is sent as null, the same as no comment.
+      comment: trimOptionalText(comment) ?? null,
     });
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -159,8 +173,10 @@ export async function downloadRunFindingsCsv(runId: string): Promise<void> {
     throw new Error("downloadRunFindingsCsv is only available in the browser.");
   }
 
+  const normalizedRunId = trimRequiredPathSegment(runId, "runId");
+
   await ensureOidcBearerReady();
-  const path = `/v1/architecture/review/${encodeURIComponent(runId)}/findings/export/csv`;
+  const path = `/v1/architecture/review/${encodeURIComponent(normalizedRunId)}/findings/export/csv`;
   const { url, headers } = await resolveBinaryGetRequest(path);
   const requestHeaders = withCorrelationHeaders(new Headers(headers));
   requestHeaders.set("Accept", "text/csv");
@@ -178,7 +194,7 @@ export async function downloadRunFindingsCsv(runId: string): Promise<void> {
   const blob = await response.blob();
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
-    `architecture-run-${runId}-findings.csv`;
+    `architecture-run-${normalizedRunId}-findings.csv`;
 
   await triggerBrowserBlobDownload(blob, fileName);
 }
@@ -189,12 +205,15 @@ export async function postFindingMute(
   findingId: string,
   reason: string,
 ): Promise<void> {
-  const encodedFinding = encodeURIComponent(findingId);
+  const encodedFinding = encodeRequiredPathSegment(findingId, "findingId");
+  const normalizedRunId = trimRequiredText(runId, "runId");
+  // The API rejects a blank reason, so stop here instead of posting one.
+  const normalizedReason = trimRequiredText(reason, "reason");
 
   try {
     await apiPostJson(`/v1/findings/${encodedFinding}/mute`, {
-      runId,
-      reason,
+      runId: normalizedRunId,
+      reason: normalizedReason,
     });
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

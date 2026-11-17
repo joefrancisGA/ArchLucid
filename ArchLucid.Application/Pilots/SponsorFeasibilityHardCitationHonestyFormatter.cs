@@ -34,7 +34,7 @@ public static class SponsorFeasibilityHardCitationHonestyFormatter
                     continue;
                 }
 
-                lines.Add($"- {citation.Kind}: {citation.Reference.Trim()}");
+                lines.Add($"- {citation.Kind}: {PilotPlainTextSafeLabelFormatter.FormatLabel(citation.Reference.Trim())}");
             }
 
             foreach (string key in verdict.UnsatCoreInvariantKeys)
@@ -44,7 +44,7 @@ public static class SponsorFeasibilityHardCitationHonestyFormatter
                     continue;
                 }
 
-                lines.Add($"- Invariant: {key.Trim()}");
+                lines.Add($"- Invariant: {PilotPlainTextSafeLabelFormatter.FormatLabel(key.Trim())}");
             }
 
             return lines;
@@ -55,7 +55,7 @@ public static class SponsorFeasibilityHardCitationHonestyFormatter
             return
             [
                 "Feasibility: soft infeasible envelope — labeled assumptions, not Career-hard proof.",
-                $"Envelope: {verdict.SoftEnvelope.EnvelopeDescription}",
+                $"Envelope: {PilotPlainTextSafeLabelFormatter.FormatLabel(verdict.SoftEnvelope.EnvelopeDescription)}",
             ];
         }
 

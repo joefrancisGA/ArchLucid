@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 
 import type { ReactNode } from "react";
@@ -50,7 +52,6 @@ import { SUBPROCESSORS_HELP_PRIMARY_ACTION } from "@/lib/subprocessors-help-evid
 
 import { HelpTopicCatchallSourcesOrientationStrip } from "@/components/help/HelpTopicCatchallSourcesOrientationStrip";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   HELP_TOPIC_CATCHALL_CLAIM_DISCIPLINE,
@@ -166,8 +167,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
   } = props;
 
-  const buyerCatchallResidualChrome =
-    catchallResidualBuyerChrome && isBuyerPolishedOperatorShellEnv();
+  const productionEvalChrome = useProductionEvalChrome();
+  const buyerCatchallResidualChrome = catchallResidualBuyerChrome && productionEvalChrome;
 
   const sourceDocPath = entry.sourcePaths[0] ?? "";
 

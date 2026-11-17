@@ -26,12 +26,14 @@ describe("FindingDetailDecisionSummary", () => {
     expect(screen.getByLabelText("Severity: High")).toBeTruthy();
     expect(screen.getByText("Accepted with monitoring")).toBeTruthy();
     expect(screen.getByText("Non-blocking for package approval")).toBeTruthy();
+    expect(screen.getByText("Recommended action")).toBeTruthy();
+    expect(screen.getByText("Remediation due")).toBeTruthy();
     expect(screen.getByText("Weekly exception monitoring")).toBeTruthy();
     expect(screen.getByText("Q3 2026")).toBeTruthy();
     expect(screen.getByText("Claims architecture lead")).toBeTruthy();
     expect(screen.getByTestId("finding-detail-record-disposition")).toHaveAttribute(
       "href",
-      "/architecture/reviews/run-1/findings/finding-9/evidence-trace#governance-disposition-heading",
+      "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-9#run-detail-first-review-spine-findings",
     );
   });
 });

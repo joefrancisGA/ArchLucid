@@ -3,6 +3,12 @@ import type { PagedResponse } from "@/types/pagination";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { askBlockedReason } from "@/lib/ask/ask-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import {
+  positiveIntegerOrDefault,
+  recordsOnly,
+  trimRequiredPathSegment,
+  trimRequiredText,
+} from "./api-boundary-normalization";
 
 import { apiGet, apiPostJson } from "./http";
 
@@ -18,7 +24,7 @@ export async function askArchLucid(payload: {
   targetRunId?: string;
 }): Promise<AskResponse> {
   const body: Record<string, unknown> = {
-    question: payload.question,
+    question: trimRequiredText(payload.question, "question"),
   };
   if (payload.threadId?.trim()) body.threadId = payload.threadId.trim();
   if (payload.runId?.trim()) body.runId = payload.runId.trim();
@@ -75,7 +81,7 @@ export function conversationThreadsFromListResponse(
 /** Lists recent conversation threads for the current scope. */
 export async function listConversationThreads(take = 50): Promise<ConversationThread[]> {
   const payload = await apiGet<PagedResponse<ConversationThread> | ConversationThread[]>(
-    `/v1/conversations?take=${take}`,
+    `/v1/conversations?take=${positiveIntegerOrDefault(take, 50)}`,
   );
 
   return conversationThreadsFromListResponse(payload);
@@ -83,5 +89,10 @@ export async function listConversationThreads(take = 50): Promise<ConversationTh
 
 /** Fetches messages for a conversation thread (most recent first). */
 export async function getConversationMessages(threadId: string, take = 200): Promise<ConversationMessage[]> {
-  return apiGet(`/v1/conversations/${encodeURIComponent(threadId)}/messages?take=${take}`);
+  const normalizedThreadId = trimRequiredPathSegment(threadId, "threadId");
+  const payload = await apiGet<unknown>(
+    `/v1/conversations/${encodeURIComponent(normalizedThreadId)}/messages?take=${positiveIntegerOrDefault(take, 200)}`,
+  );
+
+  return recordsOnly<ConversationMessage>(payload);
 }

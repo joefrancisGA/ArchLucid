@@ -36,14 +36,14 @@ public sealed class ManifestGovernance
         set => requiredControls = ContractCollectionDefaults.Coalesce(value);
     }
 
-    /// <summary>Risk tier for this architecture (e.g. <c>Low</c>, <c>Moderate</c>, <c>High</c>). Defaults to <c>Moderate</c>.</summary>
+    /// <summary>Risk tier for this architecture (e.g. <c>Low</c>, <c>Moderate</c>, <c>High</c>). Schema default <c>Moderate</c> is not a stored reviewer classification.</summary>
     public string RiskClassification
     {
         get;
         set;
     } = "Moderate";
 
-    /// <summary>Cost tier for this architecture (e.g. <c>Low</c>, <c>Moderate</c>, <c>High</c>). Defaults to <c>Moderate</c>.</summary>
+    /// <summary>Cost tier for this architecture (e.g. <c>Low</c>, <c>Moderate</c>, <c>High</c>). Schema default <c>Moderate</c> is not a stored reviewer classification.</summary>
     public string CostClassification
     {
         get;

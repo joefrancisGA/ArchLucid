@@ -1,7 +1,11 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { cn } from "@/lib/utils";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -19,13 +23,12 @@ import {
 import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
 import { saveItsmConnectorWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
 import {
-  DESIGN_TOKENS,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import {
   LivelihoodDocumentGuardDialog,
   useLivelihoodDocumentGuards,
@@ -282,7 +285,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
   const authMethod = formatJiraAuthMethod(connection?.authMode);
   const credentialStatus = resolveJiraCredentialStatusLabel(settings, credentialsReady);
   const connectionLabel = connection?.label?.trim();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
   const hasUnsavedSettingsEdits =
     settings !== null
@@ -301,13 +304,14 @@ export function JiraIntegrationPageClient(): React.ReactElement {
       <div className={cn(OPERATOR_LAYOUT.majorSectionGap)} data-operator-side-rail-kind="none">
         <div className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)} data-testid="jira-page-main">
           {loadError !== null ? (
-            <p
-              className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.helper)}
-              role="alert"
-              data-testid="jira-page-load-error"
-            >
-              {loadError}
-            </p>
+            <div className="space-y-2" data-testid="jira-page-load-error">
+              <OperatorSectionLoadFailure message={loadError} />
+              <OperatorErrorRecoveryContract
+                presentation={errorRecoveryContractForScenario("api-problem", {
+                  failureSummary: loadError,
+                })}
+              />
+            </div>
           ) : null}
 
           <section aria-labelledby="jira-status-heading" className="space-y-3" data-testid="jira-connection-status">

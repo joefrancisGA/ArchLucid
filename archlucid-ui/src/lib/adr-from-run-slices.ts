@@ -8,12 +8,12 @@ export type AdrGeneratorManifestCounts = {
 export type AdrGeneratorExplanationSlice = {
   overallAssessment: string;
   riskPosture: string;
-  themeSummaries: readonly string[];
+  themeSummaries: readonly string[] | null;
   summary: string;
-  keyDrivers: readonly string[];
-  riskImplications: readonly string[];
-  costImplications: readonly string[];
-  complianceImplications: readonly string[];
+  keyDrivers: readonly string[] | null;
+  riskImplications: readonly string[] | null;
+  costImplications: readonly string[] | null;
+  complianceImplications: readonly string[] | null;
   detailedNarrative: string;
   structuredReasoning: string | null;
   alternativesConsidered: readonly string[] | null;
@@ -46,6 +46,10 @@ export type AdrGeneratorRunInput = {
   manifestCounts: AdrGeneratorManifestCounts | null;
   explanation: AdrGeneratorExplanationSlice | null;
   findings: readonly AdrGeneratorFindingSlice[];
+  /** Non-muted findings omitted because of {@link DEFAULT_MAX_FINDINGS} cap. */
+  readonly omittedCappedFindingCount?: number;
+  /** Muted findings withheld from this ADR export. */
+  readonly omittedMutedFindingCount?: number;
   structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
   isSample?: boolean | null;
   aggregateQualityGateOutcome?: number | null;

@@ -10,6 +10,7 @@ import {
   INHABIT_WORKING_HOME_UNFINISHED_WORK_AWAITING_DISPOSITION_STATUS,
   INHABIT_WORKING_HOME_UNFINISHED_WORK_IN_PROGRESS_STATUS,
 } from "@/lib/inhabit/inhabit-working-home-copy";
+// AO-08: Landing hrefs delegate to resolveWorkingRunReviewLocator (via resolveWorkingInhabitedFindingsLandingHref).
 import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
@@ -285,6 +286,7 @@ function buildRunItems(
 
     const reviewHref = resolveWorkingInhabitedFindingsLandingHref({
       runId,
+      architectureId: run.architectureId,
       requestId: run.requestId,
       draftRegistryEntries,
       workingMode: workingMode === true,

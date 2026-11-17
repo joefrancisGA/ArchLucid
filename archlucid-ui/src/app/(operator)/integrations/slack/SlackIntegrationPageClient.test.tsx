@@ -43,6 +43,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => false,
+}));
+
 vi.mock("@/lib/api", () => ({
   listAlertRoutingSubscriptions: (...args: unknown[]) => mockList(...args),
   createAlertRoutingSubscription: (...args: unknown[]) => mockCreate(...args),
@@ -63,6 +68,7 @@ import {
 } from "@/lib/admin-integration-mutation-outcome-copy";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { SLACK_INTEGRATION_SOURCES } from "@/lib/slack-integration-evidence-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
@@ -133,7 +139,12 @@ describe("SlackIntegrationPageClient", () => {
 
     const sources = screen.getByTestId("slack-integration-sources");
 
-    for (const link of filterWhereToGoNextFollowUpLinks(SLACK_INTEGRATION_SOURCES)) {
+    const expectedLinks = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(SLACK_INTEGRATION_SOURCES),
+      "/integrations/slack",
+    );
+
+    for (const link of expectedLinks) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(link.href, link.label);
       expect(within(sources).getByRole("link", { name: accessibleName })).toHaveAttribute("href", link.href);
     }

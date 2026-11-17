@@ -146,4 +146,64 @@ public sealed class PreCommitGateEvaluatorTests
         result.Blocked.Should().BeFalse();
         result.BlockingFindingIds.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Evaluate_warn_only_when_warn_only_severities_use_lowercase_critical_label()
+    {
+        List<Finding> findings =
+        [
+            new Finding
+            {
+                FindingId = "f-blocking-critical",
+                FindingType = "Compliance",
+                Category = "Compliance",
+                EngineType = "Compliance",
+                Severity = FindingSeverity.Critical,
+                Title = "Policy breach",
+                Rationale = "Policy breach",
+                EnforcementTier = FindingEnforcementTier.PolicyViolation,
+            },
+        ];
+
+        PreCommitGateResult result = PreCommitGateEvaluator.Evaluate(
+            findings,
+            blockCommitOnCritical: true,
+            blockCommitMinimumSeverity: (int)FindingSeverity.Critical,
+            policyPackIdLabel: "pack-test",
+            warnOnlySeverities: ["critical"]);
+
+        result.Blocked.Should().BeFalse();
+        result.WarnOnly.Should().BeTrue();
+        result.BlockingFindingIds.Should().ContainSingle().Which.Should().Be("f-blocking-critical");
+    }
+
+    [Fact]
+    public void Evaluate_blocks_when_warn_only_list_names_finding_severity_but_threshold_label_is_higher()
+    {
+        List<Finding> findings =
+        [
+            new Finding
+            {
+                FindingId = "f-error",
+                FindingType = "Compliance",
+                Category = "Compliance",
+                EngineType = "Compliance",
+                Severity = FindingSeverity.Error,
+                Title = "Policy breach",
+                Rationale = "Policy breach",
+                EnforcementTier = FindingEnforcementTier.PolicyViolation,
+            },
+        ];
+
+        PreCommitGateResult result = PreCommitGateEvaluator.Evaluate(
+            findings,
+            blockCommitOnCritical: false,
+            blockCommitMinimumSeverity: (int)FindingSeverity.Warning,
+            policyPackIdLabel: "pack-test",
+            warnOnlySeverities: ["Error"]);
+
+        result.Blocked.Should().BeTrue(
+            "warn-only severities match the effective minimum threshold label (Warning), not each finding severity name");
+        result.WarnOnly.Should().BeFalse();
+    }
 }

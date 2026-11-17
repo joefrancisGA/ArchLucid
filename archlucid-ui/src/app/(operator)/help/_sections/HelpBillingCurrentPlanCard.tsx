@@ -71,12 +71,18 @@ function resolveSeatRow(
     return null;
   }
 
-  const used = seatsUsed ?? 0;
   const label = planKind === "tenant-trial" ? "Trial seats" : "Seats";
+
+  if (typeof seatsUsed !== "number" || !Number.isFinite(seatsUsed) || seatsUsed < 0) {
+    return {
+      label,
+      value: "Seat usage was not stored.",
+    };
+  }
 
   return {
     label,
-    value: `${used} of ${seatsLimit} in use`,
+    value: `${Math.trunc(seatsUsed)} of ${seatsLimit} in use`,
   };
 }
 

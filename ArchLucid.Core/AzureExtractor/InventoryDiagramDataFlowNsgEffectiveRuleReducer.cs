@@ -236,8 +236,12 @@ public static class InventoryDiagramDataFlowNsgEffectiveRuleReducer
 
         foreach (InventoryDiagramDataFlowNsgRuleReference ruleReference in evaluation.SupportingRules)
         {
-            string priority = string.IsNullOrWhiteSpace(ruleReference.Priority) ? "?" : ruleReference.Priority.Trim();
-            string ruleName = string.IsNullOrWhiteSpace(ruleReference.RuleName) ? "rule" : ruleReference.RuleName.Trim();
+            string priority = string.IsNullOrWhiteSpace(ruleReference.Priority)
+                ? "Priority was not stored."
+                : ruleReference.Priority.Trim();
+            string ruleName = string.IsNullOrWhiteSpace(ruleReference.RuleName)
+                ? "Rule name was not stored."
+                : ruleReference.RuleName.Trim();
 
             detailLines.Add(
                 $"{ruleReference.NsgName} / {ruleName} ({ruleReference.Direction}, priority {priority}, {ruleReference.AssociationKind})");

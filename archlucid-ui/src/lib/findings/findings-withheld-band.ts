@@ -1,3 +1,4 @@
+import { resolveLibReviewWorkspaceHref } from "@/lib/architecture/lib-open-review-href";
 import type { RunDetail } from "@/types/authority";
 
 export type WithheldFindingReason =
@@ -151,20 +152,36 @@ export function countEngineFailureAdvisoryWithheldRows(rows: readonly WithheldFi
   return rows.filter((row) => row.reason === "engine-failure-advisory").length;
 }
 
+export function formatWithheldFindingOpenLinkLabel(row: WithheldFindingRow): string {
+  if (row.traceTargetId === null && row.conflictFindingId === null) {
+    return "Open findings. A trace target was not stored.";
+  }
+
+  return "Open trace or conflict resolution";
+}
+
 export function buildWithheldFindingDeepLink(runId: string, row: WithheldFindingRow): string {
   if (row.reason === "engine-failure-advisory") {
-    return `/architecture/reviews/${encodeURIComponent(runId)}?reviewTab=findings`;
+    return resolveLibReviewWorkspaceHref({ runId, reviewTab: "findings" });
   }
 
   if (row.conflictFindingId !== null) {
-    return `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.conflictFindingId)}`;
+    return resolveLibReviewWorkspaceHref({
+      runId,
+      findingId: row.conflictFindingId,
+      findingIdOnPath: true,
+    });
   }
 
   if (row.traceTargetId !== null) {
-    return `/architecture/reviews/${encodeURIComponent(runId)}?reviewTab=activity#agent-forensics`;
+    return resolveLibReviewWorkspaceHref({
+      runId,
+      reviewTab: "activity",
+      hash: "agent-forensics",
+    });
   }
 
-  return `/architecture/reviews/${encodeURIComponent(runId)}?reviewTab=findings`;
+  return resolveLibReviewWorkspaceHref({ runId, reviewTab: "findings" });
 }
 
 export function formatStampWithheldHonestyLine(count: number | null | undefined): string | null {

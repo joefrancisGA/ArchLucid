@@ -1,3 +1,5 @@
+using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -24,6 +26,7 @@ public class RequirementFindingEngine : IFindingEngine
         foreach (GraphNode node in requirementNodes)
         {
             node.Properties.TryGetValue("text", out string? requirementText);
+            bool? isMandatory = TryReadMandatoryFlag(node.Properties);
 
             List<GraphEdge> relatesToEdges = graphSnapshot.Edges
                 .Where(edge =>
@@ -48,18 +51,24 @@ public class RequirementFindingEngine : IFindingEngine
 
                 relatedNodeIds.Add(id);
 
+            string requirementLabel = GraphNodeReviewerLabel.ForFindingTitle(node.Label);
+
+            string mandatoryRationale = isMandatory is null
+                ? DecisioningFindingHonestyCopy.MandatoryFlagNotStored
+                : isMandatory.Value
+                    ? "Mandatory flag was stored true."
+                    : "Mandatory flag was stored false.";
+
             Finding finding = FindingFactory.CreateRequirementFinding(
                 EngineType,
-                $"Requirement detected: {node.Label}",
-                "A requirement node exists and must be reflected in the resolved architecture.",
+                $"Requirement detected: {requirementLabel}",
+                $"A requirement node exists and must be reflected in the resolved architecture. {mandatoryRationale}",
                 node.Label,
-                requirementText ?? string.Empty,
-                true,
+                requirementText,
+                isMandatory ?? false,
                 relatedNodeIds);
 
             finding.RecommendedActions.Add("Carry this requirement into the ManifestDocument.");
-            string text = requirementText ?? string.Empty;
-
             finding.Trace = new ExplainabilityTrace
             {
                 GraphNodeIdsExamined = relatedNodeIds,
@@ -83,13 +92,7 @@ public class RequirementFindingEngine : IFindingEngine
                         "Add TopologyResource nodes and explicit relatedTopologyNodeIds on the requirement.",
                         "Track as backlog until architecture scope includes target resources."
                     ],
-                Notes =
-                [
-                    $"Related topology resources: {relatedFromGraph.Count}",
-                    string.IsNullOrWhiteSpace(text)
-                        ? "No requirement text provided."
-                        : $"Requirement text length: {text.Length} chars"
-                ]
+                Notes = BuildRequirementTraceNotes(relatedFromGraph.Count, requirementText, isMandatory),
             };
 
             findings.Add(finding);
@@ -97,4 +100,47 @@ public class RequirementFindingEngine : IFindingEngine
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }
+
+    private static bool? TryReadMandatoryFlag(IReadOnlyDictionary<string, string> properties)
+    {
+        foreach (string key in new[] { "mandatory", "isMandatory", "is_mandatory" })
+        {
+            if (!properties.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
+            {
+                continue;
+            }
+
+            if (bool.TryParse(raw.Trim(), out bool parsed))
+            {
+                return parsed;
+            }
+        }
+
+        return null;
+    }
+
+    private static List<string> BuildRequirementTraceNotes(int relatedCount, string? requirementText, bool? isMandatory)
+    {
+        List<string> notes =
+        [
+            $"Related topology resources: {relatedCount}",
+            FormatRequirementTextTraceNote(requirementText),
+        ];
+
+        if (isMandatory is null)
+        {
+            notes.Add(DecisioningFindingHonestyCopy.MandatoryFlagNotStored);
+        }
+
+        return notes;
+    }
+
+    private static string FormatRequirementTextTraceNote(string? requirementText) =>
+        requirementText is null
+            ? DecisioningFindingHonestyCopy.RequirementTextNotStored
+            : requirementText.Length == 0
+                ? DecisioningFindingHonestyCopy.RequirementTextNotStored
+                : string.IsNullOrWhiteSpace(requirementText)
+                    ? DecisioningFindingHonestyCopy.RequirementTextStoredEmpty
+                    : $"Requirement text length: {requirementText.Trim().Length} chars";
 }

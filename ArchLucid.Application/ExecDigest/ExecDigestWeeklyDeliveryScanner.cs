@@ -1,6 +1,7 @@
 using System.Globalization;
 
 using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -113,10 +114,14 @@ public sealed class ExecDigestWeeklyDeliveryScanner(
         DateTime weekEndUtc = weekStartUtc.AddDays(7);
         string isoKey = $"{isoYear}-W{isoWeek:00}";
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
-        string operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? "http://localhost:3000" : emailOptions.OperatorBaseUrl.Trim();
-        string apiBase = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBase) ?? operatorBase.TrimEnd('/');
+        string operatorBase = emailOptions.OperatorBaseUrl ?? string.Empty;
+        string apiBase = PilotExportLinkHonestyCopy.TryNormalizeOperatorLinkBase(operatorBase, out string normalizedApiBase)
+            ? normalizedApiBase
+            : string.Empty;
         string token = _unsubscribeTokenFactory.CreateToken(tenantId);
-        string unsubscribeUrl = $"{apiBase}/v1.0/notifications/exec-digest/unsubscribe?token={Uri.EscapeDataString(token)}";
+        string unsubscribeUrl = string.IsNullOrEmpty(apiBase)
+            ? PilotExportLinkHonestyCopy.OperatorLinkBaseNotStored
+            : $"{apiBase}/v1.0/notifications/exec-digest/unsubscribe?token={Uri.EscapeDataString(token)}";
         List<string> recipients = [];
         if (prefs.RecipientEmails is { Count: > 0 } configured)
             recipients.AddRange(configured.Where(static e => !string.IsNullOrWhiteSpace(e)).Select(static e => e.Trim()));

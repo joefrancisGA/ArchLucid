@@ -6,6 +6,7 @@ import {
   CONNECTION_STATUS_HELP_SOURCES,
 } from "@/lib/connection-status-help-evidence-copy";
 import {
+  CONNECTION_STATUS_HELP_CLAIM_HEADING_ID,
   CONNECTION_STATUS_HELP_GUIDE_HEADINGS,
   CONNECTION_STATUS_HELP_NEGATION_DRIFT_MARKERS,
   CONNECTION_STATUS_HELP_OVERVIEW,
@@ -35,14 +36,9 @@ describe("connection status help drift guard", () => {
     expect(CONNECTION_STATUS_HELP_OVERVIEW).not.toBe(CONNECTION_STATUS_HELP_PAGE_SUBTITLE);
   });
 
-  it("lists six guide headings including claim discipline", () => {
-    expect(CONNECTION_STATUS_HELP_GUIDE_HEADINGS).toHaveLength(6);
-    expect(CONNECTION_STATUS_HELP_GUIDE_HEADINGS[5]?.id).toBe("where-to-go-next");
-    expect(
-      CONNECTION_STATUS_HELP_GUIDE_HEADINGS.some(
-        (heading) => heading.id === "help-connection-status-claim-discipline-heading",
-      ),
-    ).toBe(true);
+  it("lists five guide headings for the on-page TOC rail", () => {
+    expect(CONNECTION_STATUS_HELP_GUIDE_HEADINGS).toHaveLength(5);
+    expect(CONNECTION_STATUS_HELP_GUIDE_HEADINGS[4]?.id).toBe("where-to-go-next");
   });
 
   it("lists connection status help sources with unique hrefs and no help self-href", () => {

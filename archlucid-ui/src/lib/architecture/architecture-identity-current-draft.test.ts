@@ -29,6 +29,19 @@ describe("resolveArchitectureIdentityCurrentDraftState", () => {
     expect(state).toEqual({ kind: "drafting", draftId: "draft-open" });
   });
 
+  it("opens the latest editable draft when timestamps share a second", () => {
+    const state = resolveArchitectureIdentityCurrentDraftState(
+      [
+        draft({ draftId: "newer", updatedUtc: "2026-01-02T00:00:00.1Z" }),
+        draft({ draftId: "older", updatedUtc: "2026-01-02T00:00:00Z" }),
+      ],
+      "newer",
+      null,
+    );
+
+    expect(state).toEqual({ kind: "drafting", draftId: "newer" });
+  });
+
   it("surfaces spawn-locked handoff when no drafting child exists", () => {
     const state = resolveArchitectureIdentityCurrentDraftState(
       [draft({ draftId: "spawned-1", status: "RunSpawned" })],

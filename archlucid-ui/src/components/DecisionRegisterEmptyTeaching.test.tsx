@@ -1,5 +1,20 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => ({
+      mode: "guided",
+      mounted: true,
+      accountSyncState: "synced",
+      isWorkingMode: false,
+      setAndPersist: vi.fn(),
+    }),
+  };
+});
 
 import { DecisionRegisterEmptyTeaching } from "@/components/DecisionRegisterEmptyTeaching";
 import {

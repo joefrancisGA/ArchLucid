@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -20,7 +20,7 @@ public sealed class ArchitectureIngestionIntegrationTests(ArchLucidApiFactory fa
     {
         ArchitectureRequest request = new()
         {
-            RequestId = "REQ-INGEST-INT-001",
+            RequestId = TestRequestIds.ForScenario(GetType().Name),
             Description =
                 "Design a secure Azure RAG system for enterprise internal documents using Azure AI Search, managed identity, private endpoints, SQL metadata storage, and moderate cost sensitivity.",
             SystemName = "IngestionIntegrationSys",
@@ -64,7 +64,7 @@ public sealed class ArchitectureIngestionIntegrationTests(ArchLucidApiFactory fa
             ]
         };
 
-        HttpResponseMessage response = await Client.PostAsync("/v1/architecture/request", JsonContent(request));
+        HttpResponseMessage response = await Client.PostArchitectureRequestForTestAsync(request);
 
         if (response.StatusCode != HttpStatusCode.Created)
         {
@@ -72,7 +72,7 @@ public sealed class ArchitectureIngestionIntegrationTests(ArchLucidApiFactory fa
             response.StatusCode.Should().Be(HttpStatusCode.Created, $"response: {problemBody}");
         }
 
-        CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? payload = await response.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Run.RunId.Should().NotBeNullOrWhiteSpace();
         payload.Tasks.Should().NotBeEmpty();

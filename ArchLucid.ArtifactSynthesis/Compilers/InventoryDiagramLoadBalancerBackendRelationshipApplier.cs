@@ -66,8 +66,20 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
 
                     if (frontDiagramNode is not null)
                     {
-                        string backendName = ReadResourceName(backendTarget.TargetArmId);
-                        string outlineSentence = InventoryDiagramRelationshipLabelTexts.FormatBackendOffCanvasOutline(backendName);
+                        GraphNode? backendGraphNode = graphNodesById.Values.FirstOrDefault(node =>
+                            string.Equals(
+                                ArmResourceIdNormalizer.Normalize(DiagramAstGraphNodeClassifier.ReadArmId(node)),
+                                ArmResourceIdNormalizer.Normalize(backendTarget.TargetArmId),
+                                StringComparison.OrdinalIgnoreCase));
+                        string backendName = InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+                            backendTarget.TargetArmId,
+                            backendGraphNode?.Label,
+                            backendGraphNode?.NodeId,
+                            InventoryDiagramArmSegmentResourceNames.BackendNameNotStored);
+                        string outlineSentence =
+                            string.Equals(backendName, InventoryDiagramArmSegmentResourceNames.BackendNameNotStored, StringComparison.Ordinal)
+                                ? "Backend name was not stored. Target is not on this diagram."
+                                : InventoryDiagramRelationshipLabelTexts.FormatBackendOffCanvasOutline(backendName);
 
                         if (!frontDiagramNode.UnresolvedRelationshipDetails.Contains(outlineSentence, StringComparer.Ordinal))
                         {
@@ -78,7 +90,9 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
                     continue;
                 }
 
-                string label = InventoryDiagramRelationshipLabelTexts.FormatBackendPoolMembershipConfigured(backendTarget.RulePort);
+                string label = backendTarget.RulePort is null
+                    ? InventoryDiagramRelationshipLabelTexts.FormatSendsTrafficToBackend(null)
+                    : InventoryDiagramRelationshipLabelTexts.FormatBackendPoolMembershipConfigured(backendTarget.RulePort);
                 InventoryDiagramRelationshipEdgeHelper.RemoveGenericEdgesBetween(ast, frontDiagramNodeId, backendDiagramNodeId);
                 InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
                     ast,
@@ -86,7 +100,7 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
                     backendDiagramNodeId,
                     label,
                     GraphEdgeInferenceSources.InventoryLbBackend,
-                    ProvenanceKind.ObservedFact.ToString());
+                    ProvenanceKind.DerivedFact.ToString());
             }
         }
     }
@@ -110,18 +124,6 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
         }
 
         return null;
-    }
-
-    private static string ReadResourceName(string armId)
-    {
-        int lastSlash = armId.LastIndexOf('/');
-
-        if (lastSlash < 0 || lastSlash >= armId.Length - 1)
-        {
-            return "Backend name was not stored.";
-        }
-
-        return armId[(lastSlash + 1)..];
     }
 
     private static Dictionary<string, string> BuildArmIdToDiagramNodeId(

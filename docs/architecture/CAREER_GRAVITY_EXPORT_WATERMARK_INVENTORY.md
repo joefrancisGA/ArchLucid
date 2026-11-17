@@ -52,6 +52,7 @@ Working Career must not be confused with these waivers.
 | `archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageClient.tsx` | **Yes** | Door-stamp rehearsal strip (print-only); repeating watermark is CG-041 | covered | CG-041 |
 | `archlucid-ui/src/lib/export-markdown.ts` | **Yes** | Honesty markdown + demo chrome helper | covered | CG-022 |
 | `archlucid-ui/src/lib/sealed-manifest-json-export.ts` | **Yes** | Working fail-closed; no rehearsal JSON flag unless honesty input carries it | covered | CG-044 |
+| `archlucid-ui/src/lib/audit/audit-export-career-posture.ts` | **Yes** | CSV preamble/columns + filename suffix when rehearsal incomplete | covered | CG-026 |
 | `archlucid-ui/src/components/reviews/RunDetailCareerArtifactHonestyStrip.tsx` | **Yes** | Screen strip, not a file | covered | CG-029 adjacent |
 | `archlucid-ui/src/components/use-email-run-to-sponsor-banner.ts` | **Yes** | Blocks send; not a watermarked attachment | covered | CG-029 |
 

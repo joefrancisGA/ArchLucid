@@ -4,8 +4,12 @@ export type RunPackageExportFormat = "docx" | "pdf" | "html";
 export const SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT =
   "Downloads aren't available for this sample review. Start a review with your own input to export a package.";
 
+function encodeTrimmedPathSegment(value: string): string {
+  return encodeURIComponent(value.trim());
+}
+
 export function getArtifactDownloadUrl(manifestId: string, artifactId: string): string {
-  return `/api/proxy/v1/artifacts/signed-review-records/${manifestId}/artifact/${artifactId}`;
+  return `/api/proxy/v1/artifacts/signed-review-records/${encodeTrimmedPathSegment(manifestId)}/artifact/${encodeTrimmedPathSegment(artifactId)}`;
 }
 
 /**
@@ -13,37 +17,37 @@ export function getArtifactDownloadUrl(manifestId: string, artifactId: string): 
  * Prefer this over {@link getArtifactDownloadUrl} with the profile token — artifact routes require a GUID id.
  */
 export function getRunPackageExportUrl(runId: string, format: RunPackageExportFormat): string {
-  return `/api/proxy/v1/runs/${encodeURIComponent(runId)}/export/${format}`;
+  return `/api/proxy/v1/runs/${encodeTrimmedPathSegment(runId)}/export/${format}`;
 }
 
 /** Returns the proxy URL for downloading the full artifact bundle ZIP for a manifest. */
 export function getBundleDownloadUrl(manifestId: string): string {
-  return `/api/proxy/v1/artifacts/signed-review-records/${manifestId}/bundle`;
+  return `/api/proxy/v1/artifacts/signed-review-records/${encodeTrimmedPathSegment(manifestId)}/bundle`;
 }
 
 /** Returns the proxy URL for the advisory Terraform placeholder export ZIP. */
 export function getTerraformAdvisoryExportDownloadUrl(runId: string): string {
-  return `/api/proxy/v1/artifacts/runs/${encodeURIComponent(runId)}/terraform-advisory-export`;
+  return `/api/proxy/v1/artifacts/runs/${encodeTrimmedPathSegment(runId)}/terraform-advisory-export`;
 }
 
 /** Returns the proxy URL for downloading the full run export ZIP. */
 export function getRunExportDownloadUrl(runId: string): string {
-  return `/api/proxy/v1/artifacts/runs/${runId}/export`;
+  return `/api/proxy/v1/artifacts/runs/${encodeTrimmedPathSegment(runId)}/export`;
 }
 
 /** Returns the proxy URL for the ADR 0052 decision receipt JSON on a committed infeasible run. */
 export function getRunDecisionReceiptDownloadUrl(runId: string): string {
-  return `/api/proxy/v1/artifacts/runs/${encodeURIComponent(runId)}/decision-receipt`;
+  return `/api/proxy/v1/artifacts/runs/${encodeTrimmedPathSegment(runId)}/decision-receipt`;
 }
 
 /** Returns the proxy URL for the ADR 0052 decision receipt JSON on a redirected intake draft. */
 export function getDraftDecisionReceiptDownloadUrl(draftId: string): string {
-  return `/api/proxy/v1/architecture/draft/${encodeURIComponent(draftId)}/decision-receipt`;
+  return `/api/proxy/v1/architecture/draft/${encodeTrimmedPathSegment(draftId)}/decision-receipt`;
 }
 
 /** Returns the proxy URL for the traceability ZIP (run summary + audit slice + decision traces, size-capped on API). */
 export function getTraceabilityBundleDownloadUrl(runId: string): string {
-  return `/api/proxy/v1/runs/${encodeURIComponent(runId)}/review-trail/export`;
+  return `/api/proxy/v1/runs/${encodeTrimmedPathSegment(runId)}/review-trail/export`;
 }
 
 /** Returns the proxy URL for sponsor ROI findings export JSON (`GET /v1/roi/sponsor-report/export`). */
@@ -54,20 +58,28 @@ export function getSponsorRoiCsvExportUrl(): string {
 /** Returns the proxy URL for manifest compare markdown export file download. */
 export function getManifestCompareExportDownloadUrl(leftVersion: string, rightVersion: string): string {
   const params = new URLSearchParams();
-  params.set("leftVersion", leftVersion.trim());
-  params.set("rightVersion", rightVersion.trim());
+  const normalizedLeftVersion = leftVersion.trim();
+  const normalizedRightVersion = rightVersion.trim();
+
+  if (normalizedLeftVersion.length > 0) {
+    params.set("leftVersion", normalizedLeftVersion);
+  }
+
+  if (normalizedRightVersion.length > 0) {
+    params.set("rightVersion", normalizedRightVersion);
+  }
 
   return `/api/proxy/v1/architecture/manifest/compare/export/file?${params.toString()}`;
 }
 
 /** Returns the proxy URL for the sponsor summary markdown export. */
 export function getRunSummaryExportUrl(runId: string): string {
-  return `/api/proxy/v1/architecture/run/${encodeURIComponent(runId)}/export/summary`;
+  return `/api/proxy/v1/architecture/run/${encodeTrimmedPathSegment(runId)}/export/summary`;
 }
 
 /** Returns the proxy URL for downloading the original ArchitectureRequest JSON. */
 export function getArchitectureRequestDownloadUrl(requestId: string): string {
-  return `/api/proxy/v1/architecture/request/${encodeURIComponent(requestId)}`;
+  return `/api/proxy/v1/architecture/request/${encodeTrimmedPathSegment(requestId)}`;
 }
 
 export type ConsultingDocxExportBrandingPayload = {
@@ -96,6 +108,7 @@ export function getArchitecturePackageDocxUrl(
   }
 
   const q = params.toString();
+  const encodedRunId = encodeURIComponent(runId.trim());
 
-  return `/api/proxy/v1/docx/runs/${runId}/architecture-package${q ? `?${q}` : ""}`;
+  return `/api/proxy/v1/docx/runs/${encodedRunId}/architecture-package${q ? `?${q}` : ""}`;
 }

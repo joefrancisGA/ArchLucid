@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 
 using FluentAssertions;
 
@@ -11,10 +11,9 @@ public sealed class ComparisonReplayValidationTests(ArchLucidApiFactory factory)
     [SkippableFact]
     public async Task ReplayComparison_InvalidFormatAndReplayMode_Returns400WithValidationErrors()
     {
-        (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
-            Client, JsonOptions, "REQ-VALIDATE-001");
-        string comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
-            Client, runId, replayRunId);
+        CommittedReplayPair pair = await ArrangeCommittedPairAsync();
+        PersistedComparison persisted = await Replay.PersistEndToEndComparisonAsync(pair.RunId, pair.ReplayRunId);
+        string comparisonRecordId = persisted.ComparisonRecordId;
 
         var invalidBody = new { format = "invalid", replayMode = "bad" };
         HttpResponseMessage response = await Client.PostAsync(

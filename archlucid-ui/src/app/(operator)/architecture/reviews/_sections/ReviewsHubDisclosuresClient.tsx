@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
-import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type SetStateAction } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import type { OperatorAttentionKindId } from "@/lib/operator/operator-attention-taxonomy";
@@ -63,23 +63,42 @@ function readReviewsHubDisclosureState(searchParams: URLSearchParams): ReviewsHu
 export function ReviewsHubDisclosuresClient(props: ReviewsHubDisclosuresClientProps): ReactElement {
   const { attentionSuppressKinds, firstCommittedRunId } = props;
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const disclosureFromSearchParams = useMemo(
+    () => readReviewsHubDisclosureState(searchParams),
+    [searchParams],
+  );
 
   const [disclosureState, setDisclosureState] = useState<ReviewsHubDisclosureUrlState>(() =>
-    readReviewsHubDisclosureState(
-      typeof window === "undefined" ? new URLSearchParams() : new URLSearchParams(window.location.search),
-    ),
+    disclosureFromSearchParams,
   );
   const disclosureStateRef = useRef(disclosureState);
   disclosureStateRef.current = disclosureState;
 
   const syncDisclosuresToUrl = useCallback(
     (state: ReviewsHubDisclosureUrlState) => {
-      commitHrefIfChanged(reviewsHubDisclosureHrefFromSearch(readWindowLocationSearch(), state, pathname), {
+      commitHrefIfChanged(reviewsHubDisclosureHrefFromSearch(searchParams.toString(), state, pathname), {
         notify: false,
       });
     },
-    [pathname],
+    [pathname, searchParams],
   );
+
+  useEffect(() => {
+    setDisclosureState((current) => {
+      if (
+        current.moreWaysOpen === disclosureFromSearchParams.moreWaysOpen
+        && current.medianDeltaOpen === disclosureFromSearchParams.medianDeltaOpen
+        && current.reviewCycleDeltaOpen === disclosureFromSearchParams.reviewCycleDeltaOpen
+      ) {
+        return current;
+      }
+
+      disclosureStateRef.current = disclosureFromSearchParams;
+
+      return disclosureFromSearchParams;
+    });
+  }, [disclosureFromSearchParams]);
 
   const setDisclosurePanelOpen = useCallback(
     (key: keyof ReviewsHubDisclosureUrlState, value: SetStateAction<boolean>) => {

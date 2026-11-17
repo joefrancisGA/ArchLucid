@@ -43,12 +43,26 @@ public sealed class FindingTrustLabelMapper : IFindingTrustLabelMapper
     private static FindingTrustSummary MapEvidenceBacked(ArchitectureFinding finding, AgentTrustContext context)
     {
         bool isHighConfidence = finding.EvaluationConfidenceScore >= HighConfidenceScoreThreshold
-            || finding.ConfidenceLevel is FindingConfidenceLevel.High or FindingConfidenceLevel.Medium;
+            || finding.ConfidenceLevel is FindingConfidenceLevel.High;
 
         if (isHighConfidence)
         {
             FindingTrustLabel label = context.IsRealModel ? FindingTrustLabel.RealModel : FindingTrustLabel.EvidenceBacked;
             return new FindingTrustSummary(label, "Supported by retrieved evidence.");
+        }
+
+        if (finding.ConfidenceLevel is FindingConfidenceLevel.Medium)
+        {
+            return new FindingTrustSummary(
+                FindingTrustLabel.Estimated,
+                "Evidence available; medium confidence — verify independently.");
+        }
+
+        if (finding.ConfidenceLevel is null && finding.EvaluationConfidenceScore is null)
+        {
+            return new FindingTrustSummary(
+                FindingTrustLabel.Estimated,
+                "Evidence references are stored; confidence was not stored.");
         }
 
         return new FindingTrustSummary(FindingTrustLabel.Estimated, "Evidence available; confidence is limited.");

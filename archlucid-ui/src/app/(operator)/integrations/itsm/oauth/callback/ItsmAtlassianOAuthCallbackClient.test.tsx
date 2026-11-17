@@ -27,7 +27,9 @@ import {
 } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
+const oauthRouter = vi.hoisted(() => ({ replace: vi.fn() }));
 const completeItsmAtlassianOAuthConsent = vi.fn();
 const readOperatorScopeFromStorage = vi.fn();
 let searchParams = new URLSearchParams("code=oauth-code&state=oauth-state");
@@ -41,7 +43,14 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("next/navigation", () => ({
+  useRouter: () => oauthRouter,
+  usePathname: () => "/integrations/itsm/oauth/callback",
   useSearchParams: () => searchParams,
 }));
 
@@ -81,6 +90,7 @@ describe("ItsmAtlassianOAuthCallbackClient operator shell", () => {
       tenantId: "tenant-1",
     });
     completeItsmAtlassianOAuthConsent.mockReset();
+    oauthRouter.replace.mockReset();
   });
 
   it("renders operator chrome while consent completion is in flight", () => {
@@ -136,7 +146,9 @@ describe("ItsmAtlassianOAuthCallbackClient operator shell", () => {
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
 
-    expect(document.activeElement).toBe(screen.getByTestId("itsm-oauth-callback-outcome"));
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByTestId("itsm-oauth-callback-outcome"));
+    });
   });
 });
 
@@ -173,7 +185,9 @@ describe("ItsmAtlassianOAuthCallbackClient failure branches", () => {
     const sources = screen.getByTestId("itsm-oauth-callback-sources");
     expect(within(sources).getByRole("link", { name: /Open Audit/i })).toHaveAttribute("href", GOVERNANCE_AUDIT_PATH);
 
-    expect(document.activeElement).toBe(screen.getByTestId("itsm-oauth-callback-outcome"));
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByTestId("itsm-oauth-callback-outcome"));
+    });
   }
 
   it("maps IdP denial to blocked callout with unchanged connector state", async () => {
@@ -240,6 +254,22 @@ describe("ItsmAtlassianOAuthCallbackClient failure branches", () => {
     );
   });
 
+  it("keeps support disclosure state on the callback URL without a full navigation", async () => {
+    searchParams = new URLSearchParams("error=access_denied");
+
+    render(<ItsmAtlassianOAuthCallbackClient />);
+    await expectFailureChrome();
+
+    fireEvent.click(screen.getByText("Details for support"));
+
+    await waitFor(() => {
+      expect(oauthRouter.replace).toHaveBeenCalledWith(
+        expect.stringContaining("itsmOAuthCallbackSupportDetailsOpen=1"),
+        { scroll: false },
+      );
+    });
+  });
+
   it("exposes support reference disclosure without forbidden substrings", async () => {
     searchParams = new URLSearchParams("error=access_denied");
 
@@ -279,12 +309,12 @@ describe("ItsmAtlassianOAuthCallbackClient sources strip", () => {
     });
 
     const sources = screen.getByTestId("itsm-oauth-callback-sources");
-    const visibleSources = filterWhereToGoNextFollowUpLinks(ITSM_OAUTH_CALLBACK_SOURCES);
 
-    for (const link of visibleSources) {
-      const linkName = link.href.startsWith("/help") ? `Read ${link.label}` : `Open ${link.label}`;
-      expect(within(sources).getByRole("link", { name: linkName })).toHaveAttribute("href", link.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sources),
+      filterWhereToGoNextFollowUpLinks(ITSM_OAUTH_CALLBACK_SOURCES),
+      ITSM_OAUTH_CALLBACK_CANONICAL_PATH,
+    );
 
     expect(within(sources).queryByRole("link", { name: "Open Integration readiness" })).not.toBeInTheDocument();
 

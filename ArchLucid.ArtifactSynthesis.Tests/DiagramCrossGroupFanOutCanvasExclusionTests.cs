@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 
 using FluentAssertions;
 
@@ -19,7 +20,7 @@ public sealed class DiagramCrossGroupFanOutCanvasExclusionTests
         DiagramForestLayoutResult result = renderer.Render(ast);
 
         result.Succeeded.Should().BeTrue();
-        result.Svg.Should().Contain("likely · in");
+        result.Svg!.ToLowerInvariant().Should().Contain(InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel.ToLowerInvariant());
         result.Svg.Should().NotContain("likely · applies");
         result.Svg.Should().Contain("connects");
     }
@@ -38,27 +39,29 @@ public sealed class DiagramCrossGroupFanOutCanvasExclusionTests
     }
 
     [Fact]
-    public void FilterCanvasEdges_excludes_only_cross_group_applies_and_likely_prefix()
+    public void FilterCanvasEdges_excludes_only_cross_group_applies_and_inferred_prefixes()
     {
         DiagramNode left = Node("left", "rg-a");
         DiagramNode right = Node("right", "rg-b");
         IReadOnlyList<DiagramNode> nodes = [left, right];
-        DiagramEdge sameGroupLikely = Edge("left", "left", "likely · in");
+        DiagramEdge sameGroupLikely = Edge("left", "left", InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel);
         DiagramEdge crossGroupLikely = Edge("left", "right", "likely · applies");
+        DiagramEdge crossGroupInferred = Edge("left", "right", "inferred · connects");
         DiagramEdge crossGroupConnects = Edge("left", "right", "connects");
 
         IReadOnlyList<DiagramEdge> filtered = DiagramCrossGroupFanOutCanvasExclusion
-            .FilterCanvasEdges(nodes, [sameGroupLikely, crossGroupLikely, crossGroupConnects], includeCrossGroupFanOut: false)
+            .FilterCanvasEdges(nodes, [sameGroupLikely, crossGroupLikely, crossGroupInferred, crossGroupConnects], includeCrossGroupFanOut: false)
             .ToList();
 
         filtered.Should().Contain(sameGroupLikely);
         filtered.Should().Contain(crossGroupConnects);
         filtered.Should().NotContain(crossGroupLikely);
+        filtered.Should().NotContain(crossGroupInferred);
 
         DiagramCrossGroupFanOutCanvasExclusion
-            .FilterCanvasEdges(nodes, [sameGroupLikely, crossGroupLikely, crossGroupConnects], includeCrossGroupFanOut: true)
+            .FilterCanvasEdges(nodes, [sameGroupLikely, crossGroupLikely, crossGroupInferred, crossGroupConnects], includeCrossGroupFanOut: true)
             .Should()
-            .ContainInOrder(sameGroupLikely, crossGroupLikely, crossGroupConnects);
+            .ContainInOrder(sameGroupLikely, crossGroupLikely, crossGroupInferred, crossGroupConnects);
     }
 
     [Fact]
@@ -70,7 +73,7 @@ public sealed class DiagramCrossGroupFanOutCanvasExclusionTests
         DiagramForestLayoutResult result = renderer.Render(ast);
 
         result.Succeeded.Should().BeTrue();
-        result.Svg.Should().Contain("likely · in");
+        result.Svg!.ToLowerInvariant().Should().Contain(InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel.ToLowerInvariant());
         result.Svg.Should().Contain("likely · applies");
     }
 
@@ -87,7 +90,7 @@ public sealed class DiagramCrossGroupFanOutCanvasExclusionTests
             ],
             Edges =
             [
-                Edge("vm-a1", "vm-a2", "likely · in"),
+                Edge("vm-a1", "vm-a2", InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel),
                 Edge("vm-a1", "vm-b", "likely · applies"),
                 Edge("vm-a1", "vm-b", "connects"),
             ],

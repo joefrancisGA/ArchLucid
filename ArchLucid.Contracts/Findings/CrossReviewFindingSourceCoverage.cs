@@ -13,17 +13,21 @@ namespace ArchLucid.Contracts.Findings;
 /// </summary>
 public sealed class CrossReviewFindingSourceCoverage
 {
+    private HashSet<AgentType> priorAgentTypes = [];
+
     public IReadOnlySet<AgentType> PriorAgentTypes
     {
-        get;
-        init;
-    } = new HashSet<AgentType>();
+        get => priorAgentTypes;
+        init => priorAgentTypes = value is null ? [] : [.. value];
+    }
+
+    private HashSet<AgentType> currentAgentTypes = [];
 
     public IReadOnlySet<AgentType> CurrentAgentTypes
     {
-        get;
-        init;
-    } = new HashSet<AgentType>();
+        get => currentAgentTypes;
+        init => currentAgentTypes = value is null ? [] : [.. value];
+    }
 
     /// <summary>Analyses that produced results in the prior review but not in the newer one.</summary>
     public IReadOnlyList<AgentType> AgentTypesMissingFromCurrent =>

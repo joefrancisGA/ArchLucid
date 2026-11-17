@@ -46,7 +46,12 @@ public sealed class SponsorEvidenceBasisLabelResolverTests
             RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Low,
         };
 
-        PilotRunDeltas deltas = new() { IsDemoTenant = true };
+        PilotRunDeltas deltas = new()
+        {
+            IsDemoTenant = true,
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = true,
+        };
         ArchitectureRun run = new() { RealModeFellBackToSimulator = true };
 
         IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(proof, deltas, run);
@@ -78,5 +83,33 @@ public sealed class SponsorEvidenceBasisLabelResolverTests
 
         labels.Should().Contain("Deferred scope");
         SponsorEvidenceBasisLabelResolver.DescribeVerdict(labels).Should().Contain("Deferred scope");
+    }
+
+    [Fact]
+    public void ResolveLabels_when_stale_proof_strong_but_roi_claim_gate_low_includes_estimate()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+        };
+
+        var roiClaimGate = new SponsorRoiClaimDispositionResult(
+            SponsorRoiClaimDisposition.Hold,
+            PilotRoiEvidenceConfidence.Low,
+            "review-cycle baseline: No measurement yet",
+            false,
+            "Hold",
+            "Hold narrative");
+
+        IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(
+            proof,
+            new PilotRunDeltas(),
+            new ArchitectureRun(),
+            roiClaimGate: roiClaimGate);
+
+        labels.Should().Contain("Estimate");
+        labels.Should().NotEqual(new[] { "Evidence-backed" });
+        SponsorEvidenceBasisLabelResolver.DescribeVerdict(labels).Should().Contain("Estimate-heavy");
     }
 }

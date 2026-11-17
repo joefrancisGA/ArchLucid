@@ -18,7 +18,16 @@ describe("run-export-lineage-verify (DR-10)", () => {
     expect(formatRunExportLineageStatusLabel(result)).toBe("Integrity check passed");
   });
 
-  it("treats NotAttested and Mismatch as integrity check failed", () => {
+  it("labels omitted verify status as not stored (P-03)", () => {
+    const omitted: RunExportLineageVerificationResult = {
+      status: "StatusNotStored",
+      runId: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    };
+
+    expect(formatRunExportLineageStatusLabel(omitted)).toBe("Export lineage status was not stored.");
+  });
+
+  it("labels NotAttested separately from hash mismatch (P-03)", () => {
     const notAttested: RunExportLineageVerificationResult = {
       status: "NotAttested",
       runId: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
@@ -26,7 +35,7 @@ describe("run-export-lineage-verify (DR-10)", () => {
     };
 
     expect(isRunExportLineageAttested(notAttested)).toBe(false);
-    expect(formatRunExportLineageStatusLabel(notAttested)).toBe("Integrity check failed");
+    expect(formatRunExportLineageStatusLabel(notAttested)).toBe("Export lineage was not attested.");
 
     const mismatch: RunExportLineageVerificationResult = {
       status: "Mismatch",
@@ -34,6 +43,7 @@ describe("run-export-lineage-verify (DR-10)", () => {
     };
 
     expect(isRunExportLineageAttested(mismatch)).toBe(false);
+    expect(formatRunExportLineageStatusLabel(mismatch)).toBe("Integrity check failed");
   });
 
   it("builds TB-2155 recovery copy for blocked verify", () => {

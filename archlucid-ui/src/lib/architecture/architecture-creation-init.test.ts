@@ -77,6 +77,7 @@ describe("initializeArchitectureCreation", () => {
       freeTextIntent: "",
       businessOutcome: "Reduce manual routing",
       systemName: "Claims intake",
+      openQuestions: "",
       structuredBrief: expect.any(Object),
     });
   });
@@ -92,6 +93,7 @@ describe("initializeArchitectureCreation", () => {
       freeTextIntent: "",
       businessOutcome: "",
       systemName: "",
+      openQuestions: "",
       structuredBrief: expect.any(Object),
     });
   });
@@ -114,6 +116,7 @@ describe("initializeArchitectureCreation", () => {
       freeTextIntent: "Vertex tenant migration.",
       businessOutcome: "faster and better",
       systemName: "Vertex",
+      openQuestions: "",
       structuredBrief: expect.any(Object),
     });
   });

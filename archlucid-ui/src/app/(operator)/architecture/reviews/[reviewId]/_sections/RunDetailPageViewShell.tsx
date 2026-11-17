@@ -14,7 +14,10 @@ import { ArchitectureIntelligenceReviewToolStrip } from "@/components/Architectu
 import { GovernanceModePresentationGate } from "@/components/governance/GovernanceModePresentationGate";
 import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
 import { resolveRunDetailDeferredSurfaceFindingCount } from "@/lib/runs/run-detail-findings-tab-badge-count";
-import { resolveRunDetailOutcomeCardsFindingCountDisplay } from "./run-detail-outcome-cards-finding-count";
+import {
+  resolveRunDetailOutcomeCardsFindingCountDisplay,
+  resolveRunDetailOutcomeCardsMaterialFindingTitleDisplay,
+} from "./run-detail-outcome-cards-finding-count";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
@@ -68,7 +71,7 @@ export type RunDetailPageViewChrome = {
   readonly governanceCtaEl: React.JSX.Element | null;
   readonly tabbedWorkspaceEl: React.JSX.Element;
   readonly reviewPackageDoThisNextEvidenceProps: {
-    readonly evidenceCoverageLinkedCount: number;
+    readonly evidenceCoverageLinkedCount: number | null;
     readonly evidenceCoverageTotalCount: number;
     readonly governanceDecisionRecorded: boolean;
     readonly pipelineDiagnosticContext: RunDetailPageModel["pipelineDiagnosticContext"];
@@ -129,6 +132,8 @@ export function resolveRunDetailPageViewChrome(
     m.findingCountDisplay,
     quickDecisionFindings,
   );
+  const outcomeCardsMaterialFindingTitleDisplay =
+    resolveRunDetailOutcomeCardsMaterialFindingTitleDisplay(quickDecisionFindings);
 
   const createHomeActivityOutcomeCardsEl = (
     <RunDetailOutcomeCardsDeferred
@@ -136,6 +141,7 @@ export function resolveRunDetailPageViewChrome(
       manifestId={m.manifestId}
       artifactCount={m.artifacts.length}
       findingCountDisplay={outcomeCardsFindingCountDisplay}
+      materialFindingTitleDisplay={outcomeCardsMaterialFindingTitleDisplay}
       warningCountDisplay={m.warningCountDisplay}
       hasGoldenManifest={Boolean(m.manifestId)}
       unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}
@@ -271,6 +277,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
       signedReviewRecordIdLabel={signedReviewRecordIdLabel}
       workspaceStatus={workspaceStatus}
       reviewOwner={reviewOwnerLabel}
+      governanceDecisionRecordedByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId}
       templateLabel={templateLabel}
       finalizedAtLabel={finalizedAtLabel}
       packageVersionLabel={packageVersionLabel}
@@ -411,14 +418,21 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
         <RunDetailCtoDemoReviewRouteGuardDeferred runId={m.resolvedDetail.run.runId} />
 
         <HelpPageSituationRegistrarDeferred
-          situation={blockingApprovalCount > 0 ? "review-approval-blocked" : null}
+          situation={
+            blockingApprovalCount !== null && blockingApprovalCount > 0
+              ? "review-approval-blocked"
+              : null
+          }
         />
 
         {!showArchitectureCreatedHome ? (
           <Suspense fallback={null}>
             <ReviewGenerationCreatedNoticeDeferred
               analysisInProgress={m.showProgressTracker}
-              approvalBlocked={blockingApprovalCount > 0 || commitBlockedReason !== null}
+              approvalBlocked={
+                (blockingApprovalCount !== null && blockingApprovalCount > 0)
+                || commitBlockedReason !== null
+              }
               packageFinalized={Boolean(m.manifestId)}
             />
           </Suspense>

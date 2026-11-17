@@ -2,7 +2,9 @@ import { render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   BUYER_ONBOARDING_PAGE_TITLE,
@@ -61,6 +63,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 const loadedGuideState = {
   hasLoadedContext: true,
   isPending: false,
@@ -101,6 +108,7 @@ const loadedGuideState = {
     secondaryHref: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
   },
   requiredBlockers: [],
+  onePrerequisite: null,
   canExecute: true,
   readyToFinalize: false,
   latestRunHref: null,
@@ -145,12 +153,49 @@ describe("FirstReviewGuidePageClient buyer-polished shell (ARF)", () => {
     expect(firstViewport).not.toContainElement(pageHeader);
     expect(firstViewport).toContainElement(orientationTop);
     expect(firstViewport).toContainElement(onboardingProgress);
+    expect(firstViewport).toContainElement(screen.getByTestId("first-review-open-gate-starter"));
+    expect(firstViewport).toContainElement(screen.getByTestId("first-review-sample-sealed-package-checklist"));
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(onboardingProgress) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(FIRST_REVIEW_GUIDE_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(FIRST_REVIEW_GUIDE_SOURCES),
+      FIRST_REVIEW_GUIDE_PATH,
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
   });
+
+  it("names the next walkthrough step when prerequisites are complete", () => {
+    render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
+
+    const nextStep = screen.getByTestId("first-review-walkthrough-next-step");
+    expect(nextStep).toHaveTextContent("Next checklist step: Define the architecture");
+    expect(within(nextStep).getByRole("link", { name: "Start review" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new",
+    );
+  });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+

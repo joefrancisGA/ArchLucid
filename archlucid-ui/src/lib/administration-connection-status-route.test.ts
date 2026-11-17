@@ -19,6 +19,15 @@ const CONNECTION_STATUS_APP_PAGE = join(
   "connection-status",
   "page.tsx",
 );
+const CONNECTION_STATUS_APP_CLIENT = join(
+  process.cwd(),
+  "src",
+  "app",
+  "(operator)",
+  "administration",
+  "connection-status",
+  "AdministrationConnectionStatusPageClient.tsx",
+);
 const CONNECTION_STATUS_APP_LAYOUT = join(
   process.cwd(),
   "src",
@@ -31,7 +40,7 @@ const CONNECTION_STATUS_APP_LAYOUT = join(
 
 const PRODUCT_CONNECTION_STATUS_SURFACES = [
   "archlucid-ui/src/lib/operator/operator-admin-nav-group-builder.ts",
-  "archlucid-ui/src/lib/help/help-search-panel-catalog.ts",
+  "archlucid-ui/src/lib/help/help-search-panel-catalog-topics.ts",
   "archlucid-ui/src/app/(operator)/integrations/azure-boards/_sections/AzureBoardsIntegrationPageHeader.test.tsx",
 ] as const;
 
@@ -46,11 +55,13 @@ describe("administration-connection-status-route (ADC)", () => {
 
   it("ships the connector dashboard page with layout metadata", () => {
     const pageSource = readFileSync(CONNECTION_STATUS_APP_PAGE, "utf8");
+    const clientSource = readFileSync(CONNECTION_STATUS_APP_CLIENT, "utf8");
     const layoutSource = readFileSync(CONNECTION_STATUS_APP_LAYOUT, "utf8");
 
-    expect(pageSource).toContain("ConnectorOperationsDashboard");
-    expect(pageSource).toContain("PageContextualHelpButton");
+    expect(pageSource).toContain("AdministrationConnectionStatusPageClient");
     expect(pageSource).not.toContain('"use client"');
+    expect(clientSource).toContain("ConnectorOperationsDashboard");
+    expect(clientSource).toContain("PageContextualHelpButton");
     expect(layoutSource).toContain("ADMINISTRATION_CONNECTION_STATUS_ROUTE_METADATA");
   });
 

@@ -9,6 +9,13 @@ import {
 } from "@/lib/governance/governance-stickiness-register-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
+  finiteNumberOrUndefined,
+  normalizeCountFields,
+  nonNegativeFiniteOrDefault,
+  positiveIntegerOrDefault,
+  trimOptionalText,
+} from "./api-boundary-normalization";
+import {
   type ArchitectureDecisionRegisterFilters,
   type ArchitectureDecisionRegisterResponse,
   type ArchitecturePostureSummary,
@@ -25,16 +32,18 @@ export async function getArchitectureRiskRegister(
 ): Promise<ArchitectureRiskRegisterResponse> {
   const query = new URLSearchParams();
 
-  if (options?.projectId) {
-    query.set("projectId", options.projectId);
+  const projectId = trimOptionalText(options?.projectId);
+
+  if (projectId !== undefined) {
+    query.set("projectId", projectId);
   }
 
   if (options?.assignedToMe) {
     query.set("assignedToMe", "true");
   }
 
-  if (typeof options?.maxRows === "number") {
-    query.set("maxRows", String(options.maxRows));
+  if (options?.maxRows !== undefined) {
+    query.set("maxRows", String(positiveIntegerOrDefault(options.maxRows, 100)));
   }
 
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
@@ -48,16 +57,24 @@ export async function getGovernanceAssignedToMeFindingsCount(
 ): Promise<GovernanceAssignedToMeFindingsCountResponse> {
   const query = new URLSearchParams();
 
-  if (projectId) {
-    query.set("projectId", projectId);
+  const normalizedProjectId = trimOptionalText(projectId);
+
+  if (normalizedProjectId !== undefined) {
+    query.set("projectId", normalizedProjectId);
   }
 
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
 
   try {
-    return await apiGet<GovernanceAssignedToMeFindingsCountResponse>(
+    const payload = await apiGet<unknown>(
       `${governanceStickinessBase()}/risk-register/assigned-to-me-count${suffix}`,
     );
+
+    return {
+      count: nonNegativeFiniteOrDefault(
+        payload !== null && typeof payload === "object" ? (payload as { count?: unknown }).count : undefined,
+      ),
+    };
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceAssignedToMeCountBlockedReason(failure);
@@ -76,12 +93,14 @@ export async function fetchGovernanceFindingsRegistersBundle(options?: {
 }> {
   const query = new URLSearchParams();
 
-  if (options?.projectId) {
-    query.set("projectId", options.projectId);
+  const normalizedProjectId = trimOptionalText(options?.projectId);
+
+  if (normalizedProjectId !== undefined) {
+    query.set("projectId", normalizedProjectId);
   }
 
-  if (typeof options?.maxRows === "number") {
-    query.set("maxRows", String(options.maxRows));
+  if (options?.maxRows !== undefined) {
+    query.set("maxRows", String(positiveIntegerOrDefault(options.maxRows, 100)));
   }
 
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
@@ -94,13 +113,21 @@ export async function getArchitectureDecisionRegister(
   filters?: ArchitectureDecisionRegisterFilters,
 ): Promise<ArchitectureDecisionRegisterResponse> {
   const query = new URLSearchParams();
-  if (projectId) query.set("projectId", projectId);
-  if (filters?.category) query.set("category", filters.category);
-  if (filters?.recordedAfterUtc) query.set("recordedAfterUtc", filters.recordedAfterUtc);
-  if (filters?.recordedBeforeUtc) query.set("recordedBeforeUtc", filters.recordedBeforeUtc);
-  if (typeof filters?.minConfidence === "number") query.set("minConfidence", String(filters.minConfidence));
-  if (typeof filters?.maxConfidence === "number") query.set("maxConfidence", String(filters.maxConfidence));
-  if (filters?.buyerConfidenceSource) query.set("buyerConfidenceSource", filters.buyerConfidenceSource);
+  const normalizedProjectId = trimOptionalText(projectId);
+  const category = trimOptionalText(filters?.category);
+  const recordedAfterUtc = trimOptionalText(filters?.recordedAfterUtc);
+  const recordedBeforeUtc = trimOptionalText(filters?.recordedBeforeUtc);
+  const buyerConfidenceSource = trimOptionalText(filters?.buyerConfidenceSource);
+  const minConfidence = finiteNumberOrUndefined(filters?.minConfidence);
+  const maxConfidence = finiteNumberOrUndefined(filters?.maxConfidence);
+
+  if (normalizedProjectId !== undefined) query.set("projectId", normalizedProjectId);
+  if (category !== undefined) query.set("category", category);
+  if (recordedAfterUtc !== undefined) query.set("recordedAfterUtc", recordedAfterUtc);
+  if (recordedBeforeUtc !== undefined) query.set("recordedBeforeUtc", recordedBeforeUtc);
+  if (minConfidence !== undefined && minConfidence >= 0) query.set("minConfidence", String(minConfidence));
+  if (maxConfidence !== undefined && maxConfidence >= 0) query.set("maxConfidence", String(maxConfidence));
+  if (buyerConfidenceSource !== undefined) query.set("buyerConfidenceSource", buyerConfidenceSource);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
   return apiGetSealedManifestAware<ArchitectureDecisionRegisterResponse>(
     `${governanceStickinessBase()}/decision-register${suffix}`,
@@ -124,7 +151,9 @@ export async function getGovernanceDecisionsNeededSummary(
   projectId?: string,
 ): Promise<GovernanceDecisionsNeededSummary> {
   const query = new URLSearchParams();
-  if (projectId) query.set("projectId", projectId);
+  const normalizedProjectId = trimOptionalText(projectId);
+
+  if (normalizedProjectId !== undefined) query.set("projectId", normalizedProjectId);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
 
   try {
@@ -145,7 +174,23 @@ export async function getGovernancePosture(projectId?: string): Promise<Architec
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
 
   try {
-    return await apiGet<ArchitecturePostureSummary>(`${governanceStickinessBase()}/posture${suffix}`);
+    const payload = await apiGet<unknown>(`${governanceStickinessBase()}/posture${suffix}`);
+
+    const posture = normalizeCountFields(payload) as ArchitecturePostureSummary;
+    const validExaminationStates = new Set(["Examined", "PartiallyExamined", "NotExamined", "Unavailable"]);
+
+    return {
+      ...posture,
+      pillars: posture.pillars.map((pillar) => ({
+        ...pillar,
+        examination: {
+          ...pillar.examination,
+          state: validExaminationStates.has(pillar.examination.state)
+            ? pillar.examination.state
+            : "Unavailable",
+        },
+      })),
+    };
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governancePostureBlockedReason(failure);

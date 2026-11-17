@@ -1,4 +1,4 @@
-import { ARCHITECTURE_CREATED_PRIMARY_ACTIONS } from "@/lib/architecture/architecture-created-home-copy";
+import { ARCHITECTURE_CREATED_PRIMARY_ACTIONS, ARCHITECTURE_CREATED_OPEN_ASSESSMENT_ACTIVITY_LABEL } from "@/lib/architecture/architecture-created-home-copy";
 import { buildCreateHomeReviewTabHref } from "@/lib/unified-review-workspace-tabs";
 
 import type { BuildArchitectureCreatedHomeModelInput } from "./architecture-created-home-summary";
@@ -105,7 +105,7 @@ export function buildOverflowActions(
   runId: string,
 ): readonly { readonly label: string; readonly href: string }[] {
   return [
-    { label: "View assessment details", href: buildCreateHomeReviewTabHref(runId, "findings") },
+    { label: ARCHITECTURE_CREATED_OPEN_ASSESSMENT_ACTIVITY_LABEL, href: buildCreateHomeReviewTabHref(runId, "findings") },
     { label: "Architecture diagram", href: buildCreateHomeReviewTabHref(runId, "diagram") },
     { label: "Add evidence", href: buildCreateHomeReviewTabHref(runId, "evidence") },
     { label: "Submitted architecture", href: buildCreateHomeReviewTabHref(runId, "overview") },

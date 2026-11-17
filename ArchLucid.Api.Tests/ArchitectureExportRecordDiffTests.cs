@@ -1,6 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
-
 using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
@@ -16,89 +13,31 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task CompareExportRecords_ReturnsDifferencesBetweenTwoExports()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-EXPORT-DIFF-001")));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
-        await commitResponse.EnsureSuccessForTestAsync();
-        var executiveRequest = new
-        {
-            templateProfile = "sponsor",
-            audience = "Executives",
-            externalDelivery = true,
-            executiveFriendly = true,
-            regulatedEnvironment = false,
-            needDetailedEvidence = false,
-            needExecutionTraces = false,
-            needDeterminismOrCompareAppendices = false,
-            includeEvidence = true,
-            includeExecutionTraces = false,
-            includeManifest = true,
-            includeDiagram = true,
-            includeSummary = true,
-            includeDeterminismCheck = false,
-            determinismIterations = 3,
-            includeManifestCompare = false,
-            compareManifestVersion = (string?)null,
-            includeAgentResultCompare = false,
-            compareRunId = (string?)null
-        };
-
-        var internalRequest = new
-        {
-            templateProfile = "internal",
-            audience = "Internal architects",
-            externalDelivery = false,
-            executiveFriendly = false,
-            regulatedEnvironment = false,
-            needDetailedEvidence = true,
-            needExecutionTraces = true,
-            needDeterminismOrCompareAppendices = true,
-            includeEvidence = true,
-            includeExecutionTraces = true,
-            includeManifest = true,
-            includeDiagram = true,
-            includeSummary = true,
-            includeDeterminismCheck = true,
-            determinismIterations = 3,
-            includeManifestCompare = false,
-            compareManifestVersion = (string?)null,
-            includeAgentResultCompare = false,
-            compareRunId = (string?)null
-        };
-
-        HttpResponseMessage executiveExport = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/analysis-report/export/docx/consulting",
-            JsonContent(executiveRequest));
+        HttpResponseMessage executiveExport = await finalized.PostAnalysisReportConsultingDocxHttpAsync(
+            Client,
+            JsonOptions,
+            HarnessConsultingExportRequestFactory.CreateExecutiveSponsorBody());
         await executiveExport.EnsureSuccessForTestAsync();
-        HttpResponseMessage internalExport = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/analysis-report/export/docx/consulting",
-            JsonContent(internalRequest));
+
+        HttpResponseMessage internalExport = await finalized.PostAnalysisReportConsultingDocxHttpAsync(
+            Client,
+            JsonOptions,
+            HarnessConsultingExportRequestFactory.CreateInternalArchitectBody());
         await internalExport.EnsureSuccessForTestAsync();
-        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/exports");
-        await historyResponse.EnsureSuccessForTestAsync();
-        RunExportHistoryResponse? history =
-            await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
-        history.Should().NotBeNull();
+
+        RunExportHistoryResponse history = await finalized.GetExportsHistoryAsync(Client, JsonOptions);
         history.Exports.Should().HaveCountGreaterThanOrEqualTo(2);
 
         string leftId = history.Exports[0].ExportRecordId;
         string rightId = history.Exports[1].ExportRecordId;
 
-        HttpResponseMessage compareResponse = await Client.GetAsync(
-            $"/v1/architecture/review/exports/compare?leftExportRecordId={leftId}&rightExportRecordId={rightId}");
-
-        compareResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        HttpResponseMessage compareResponse =
+            await finalized.GetExportRecordDiffHttpAsync(Client, leftId, rightId);
 
         ExportRecordDiffResponse? payload =
-            await compareResponse.Content.ReadFromJsonAsync<ExportRecordDiffResponse>(JsonOptions);
+            await compareResponse.ReadJsonForTestAsync<ExportRecordDiffResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Diff.ChangedTopLevelFields.Should().NotBeEmpty();
     }

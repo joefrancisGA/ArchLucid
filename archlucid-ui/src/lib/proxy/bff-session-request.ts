@@ -1,5 +1,7 @@
 import type { NextRequest } from "next/server";
 
+import { normalizeOidcOAuthFormString } from "@/lib/oidc/oauth-callback-messages";
+
 function resolveConfiguredBffOrigins(): readonly string[] {
   const configuredOrigins = process.env.ARCHLUCID_BFF_ALLOWED_ORIGINS ?? "";
 
@@ -42,10 +44,14 @@ export function isSameOriginBffRequest(request: NextRequest): boolean {
 }
 
 function resolvePostLogoutRedirectUri(request: NextRequest): string {
-  const fixed = process.env.NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI?.trim() ?? "";
+  const fixed = process.env.NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI;
 
-  if (fixed.length > 0) {
-    return fixed;
+  if (fixed !== undefined) {
+    const normalized = normalizeOidcOAuthFormString(fixed);
+
+    if (normalized.length > 0) {
+      return normalized;
+    }
   }
 
   return `${request.nextUrl.origin}/`;

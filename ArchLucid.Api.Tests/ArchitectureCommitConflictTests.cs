@@ -1,9 +1,4 @@
-﻿using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
-
-using ArchLucid.Api.Tests.TestDtos;
-
+using System.Net;
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
@@ -17,20 +12,11 @@ public sealed class ArchitectureCommitConflictTests(ArchLucidApiFactory factory)
     [SkippableFact]
     public async Task CommitBeforeExecute_Returns409Conflict()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-CONFLICT-001")));
+        CreatedRunForTest created = await CreateRunForTestAsync();
+        string runId = created.RunId;
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
+        HttpResponseMessage commit = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        HttpResponseMessage commit = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
-
-        commit.StatusCode.Should().Be(HttpStatusCode.Conflict);
-        using JsonDocument doc = JsonDocument.Parse(await commit.Content.ReadAsStringAsync());
-        doc.RootElement.GetProperty("title").GetString().Should().Be("Conflict");
-        doc.RootElement.GetProperty("status").GetInt32().Should().Be(409);
+        await commit.AssertProblemForTestAsync(HttpStatusCode.Conflict, detailContains: "execute");
     }
 }

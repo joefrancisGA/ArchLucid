@@ -24,7 +24,8 @@ public static partial class RunToolInvocationForensicsBuilder
 
         ArgumentNullException.ThrowIfNull(traces);
 
-        if (structuredRecords is { Count: > 0 })
+        if (structuredRecords is { Count: > 0 }
+            && structuredRecords.Any(static record => record is not null))
             return BuildFromStructured(runId, structuredRecords, traces);
 
         return BuildFromTraces(runId, traces);

@@ -23,9 +23,9 @@ describe("InfraEvidenceDataFlowCaptionDisclosure", () => {
 
   it("renders honesty sentences and omits compiler comments", () => {
     const evidenceSentence =
-      "Evidence of possible or declared movement, not observed traffic. Reads from / Writes to are pipeline wiring. May access is identity authorization. Private network path is a DNS-joined private endpoint hop, not usage.";
+      "Evidence of possible or declared movement, not observed traffic. Configured dataset read/write labels are pipeline wiring, not observed reads or writes. Authorization may allow access labels are identity authorization, not observed use. Private network path is a DNS-joined private endpoint hop, not usage.";
     const directionSentence =
-      "Pipeline direction was not in this package. Re-collect Azure inventory to see reads from / writes to.";
+      "Pipeline direction was not stored in this package. Re-collect Azure inventory to refresh pipeline metadata.";
     const mermaid = [
       "flowchart LR",
       `    %% ${evidenceSentence}`,

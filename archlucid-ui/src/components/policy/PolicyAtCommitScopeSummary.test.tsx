@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { PolicyAtCommitScopeSummary } from "@/components/policy/PolicyAtCommitScopeSummary";
+import { SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 
 describe("PolicyAtCommitScopeSummary", () => {
   it("lists pack assignments and coverage exclusions at commit", () => {
@@ -41,5 +42,62 @@ describe("PolicyAtCommitScopeSummary", () => {
     expect(screen.getByTestId("policy-at-commit-test-exclusions")).toHaveTextContent("Out of pilot scope");
     expect(screen.getByTestId("policy-at-commit-test-coverage")).toHaveTextContent("Reliability");
     expect(screen.getByTestId("policy-at-commit-test-counts")).toHaveTextContent("merge conflict");
+  });
+
+  it("does not invent a policy pack detail link when none is stored (P-03)", () => {
+    render(
+      <PolicyAtCommitScopeSummary
+        snapshot={{
+          generatedUtc: null,
+          ruleSetHash: null,
+          complianceRuleKeyCount: 0,
+          complianceRuleKeys: [],
+          conflictCount: 0,
+          hasEffectivePolicy: true,
+          packAssignments: [
+            {
+              policyPackId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              policyPackVersion: "1.0.0",
+              scopeLevel: "Tenant",
+            },
+          ],
+          coverageAssignments: [],
+        }}
+        testIdPrefix="policy-at-commit-link-test"
+      />,
+    );
+
+    expect(screen.getByText(/Policy pack detail link was not stored\./)).toBeInTheDocument();
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("keeps committed pack detail links in the SecureNow namespace", () => {
+    render(
+      <PolicyAtCommitScopeSummary
+        snapshot={{
+          generatedUtc: null,
+          ruleSetHash: null,
+          complianceRuleKeyCount: 0,
+          complianceRuleKeys: [],
+          conflictCount: 0,
+          hasEffectivePolicy: true,
+          packAssignments: [
+            {
+              policyPackId: "1",
+              policyPackVersion: "1.0.0",
+              scopeLevel: "Tenant",
+            },
+          ],
+          coverageAssignments: [],
+        }}
+        policyPacksHubPath={SECURENOW_POLICY_PACKS_PATH}
+        testIdPrefix="securenow-policy-at-commit-link-test"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "1" })).toHaveAttribute(
+      "href",
+      `${SECURENOW_POLICY_PACKS_PATH}/1`,
+    );
   });
 });

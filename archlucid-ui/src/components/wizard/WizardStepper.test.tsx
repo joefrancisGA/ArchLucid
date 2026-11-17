@@ -71,6 +71,26 @@ describe("WizardStepper", () => {
     expect(nav.className.split(/\s+/)).not.toContain("sticky");
   });
 
+  it("keeps a header aside out of the numbered circle row", () => {
+    render(
+      <WizardStepper
+        steps={sampleSteps}
+        currentStep={0}
+        completedSteps={[]}
+        headerAside={<span data-testid="wizard-stepper-aside">Unsaved changes</span>}
+      />,
+    );
+
+    const aside = screen.getByTestId("wizard-stepper-aside");
+    const header = screen.getByTestId("wizard-stepper-header");
+    const list = screen.getByRole("list");
+
+    expect(header.contains(aside)).toBe(true);
+    expect(header).toHaveClass("min-h-5");
+    expect(list.contains(aside)).toBe(false);
+    expect(list).toHaveClass("w-full");
+  });
+
   it("exposes step position as visible and screen-reader text (P0-6)", () => {
     render(
       <WizardStepper steps={sampleSteps} currentStep={1} completedSteps={[0]} />,

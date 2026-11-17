@@ -3541,7 +3541,10 @@
             "items": {
               "$ref": "#/components/schemas/AgentExecutionTrace"
             },
-            "type": "array"
+            "type": [
+              "null",
+              "array"
+            ]
           },
           "manifest": {
             "anyOf": [
@@ -4845,7 +4848,10 @@
             "type": "string"
           },
           "requiresHumanApproval": {
-            "type": "boolean"
+            "type": [
+              "null",
+              "boolean"
+            ]
           },
           "riskReduction": {
             "$ref": "#/components/schemas/RiskReductionEstimate"
@@ -5171,6 +5177,9 @@
           "humanReviewStatus": {
             "$ref": "#/components/schemas/FindingHumanReviewStatus"
           },
+          "humanReviewStatusStored": {
+            "type": "boolean"
+          },
           "isStale": {
             "type": "boolean"
           },
@@ -5416,6 +5425,9 @@
                 "$ref": "#/components/schemas/RunAgentLlmCostEstimateDto"
               }
             ]
+          },
+          "agentResultsIncludedInDetail": {
+            "type": "boolean"
           },
           "agentTaskLoopComplete": {
             "type": "boolean"
@@ -5981,6 +5993,9 @@
               "null",
               "string"
             ]
+          },
+          "indexedSearchNotLimitedToReviewId": {
+            "type": "boolean"
           },
           "referencedArtifacts": {
             "items": {
@@ -10792,6 +10807,12 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "currencyCode": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "maxMonthlyCost": {
             "format": "double",
@@ -16354,6 +16375,9 @@
           "humanReviewStatus": {
             "$ref": "#/components/schemas/FindingHumanReviewStatus"
           },
+          "humanReviewStatusStored": {
+            "type": "boolean"
+          },
           "isMuted": {
             "type": "boolean"
           },
@@ -16501,6 +16525,9 @@
           },
           "severity": {
             "$ref": "#/components/schemas/FindingSeverity"
+          },
+          "severityStored": {
+            "type": "boolean"
           },
           "trackedExternally": {
             "type": "boolean"
@@ -18606,6 +18633,14 @@
           },
           "disclaimer": {
             "type": "string"
+          },
+          "omittedFindingLinesCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "omittedThemeSummariesCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -19264,6 +19299,13 @@
               "string"
             ]
           },
+          "securityEvidencePathId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "sinceUtc": {
             "format": "date-time",
             "type": [
@@ -19432,7 +19474,10 @@
         "properties": {
           "edgeCount": {
             "format": "int32",
-            "type": "integer"
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "key": {
             "type": "string"
@@ -19442,7 +19487,10 @@
           },
           "nodeCount": {
             "format": "int32",
-            "type": "integer"
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "status": {
             "type": "string"
@@ -19726,10 +19774,7 @@
             "items": {
               "$ref": "#/components/schemas/HeldCheckLedgerRollupEntry"
             },
-            "type": [
-              "null",
-              "array"
-            ]
+            "type": "array"
           },
           "heldCheckSecondPass": {
             "anyOf": [
@@ -19763,19 +19808,13 @@
             "items": {
               "$ref": "#/components/schemas/ProseAssumptionHeldCheckAsk"
             },
-            "type": [
-              "null",
-              "array"
-            ]
+            "type": "array"
           },
           "proseAssumptionRegisterEntries": {
             "items": {
               "$ref": "#/components/schemas/ProseAssumptionRegisterEntry"
             },
-            "type": [
-              "null",
-              "array"
-            ]
+            "type": "array"
           },
           "retainedFindingCount": {
             "format": "int32",
@@ -24758,6 +24797,9 @@
             "format": "int32",
             "type": "integer"
           },
+          "auditRowCountResolved": {
+            "type": "boolean"
+          },
           "auditRowCountTruncated": {
             "type": "boolean"
           },
@@ -27350,6 +27392,9 @@
             ]
           },
           "artifactDescriptorCountResolved": {
+            "type": "boolean"
+          },
+          "auditRowCountResolved": {
             "type": "boolean"
           },
           "auditRowsPresentOrLowerBound": {
@@ -30068,6 +30113,12 @@
                 "$ref": "#/components/schemas/RemediationPatternRollbackDefinition"
               }
             ]
+          },
+          "safeRolloutSteps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -33897,6 +33948,7 @@
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
             "type": [
+              "null",
               "number",
               "string"
             ]
@@ -33931,15 +33983,24 @@
           },
           "totalGraphRagNeighborsAdded": {
             "format": "int32",
-            "type": "integer"
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "totalGraphRagSeedHits": {
             "format": "int32",
-            "type": "integer"
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "totalRetrievalTokensIn": {
             "format": "int32",
-            "type": "integer"
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "totalRetrievedChunks": {
             "format": "int32",
@@ -34449,6 +34510,128 @@
             ]
           },
           "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowInvestigationEffortInputsResponse": {
+        "properties": {
+          "afterHours": {
+            "type": "string"
+          },
+          "annualCost": {
+            "type": "string"
+          },
+          "annualInvestigations": {
+            "type": "string"
+          },
+          "baselineHours": {
+            "type": "string"
+          },
+          "hourlyRate": {
+            "type": "string"
+          },
+          "recordedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowInvestigationEffortInputsSaveResult": {
+        "properties": {
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "inputs": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SecureNowInvestigationEffortInputsResponse"
+              }
+            ]
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowInvestigationEffortInputsWriteRequest": {
+        "properties": {
+          "afterHours": {
+            "type": "string"
+          },
+          "annualCost": {
+            "type": "string"
+          },
+          "annualInvestigations": {
+            "type": "string"
+          },
+          "baselineHours": {
+            "type": "string"
+          },
+          "hourlyRate": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowPilotPathDispositionResponse": {
+        "properties": {
+          "outcome": {
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "recordedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowPilotPathDispositionSaveResult": {
+        "properties": {
+          "disposition": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SecureNowPilotPathDispositionResponse"
+              }
+            ]
+          },
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowPilotPathDispositionWriteRequest": {
+        "properties": {
+          "outcome": {
+            "type": "string"
+          },
+          "rationale": {
             "type": "string"
           }
         },
@@ -35180,6 +35363,12 @@
             "format": "uuid",
             "type": "string"
           },
+          "modelOutputRejection": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "pathId": {
             "format": "uuid",
             "type": "string"
@@ -35391,6 +35580,9 @@
             "$ref": "#/components/schemas/SecurityEvidencePathRankDimensionProseResponse"
           },
           "explanationSummary": {
+            "type": "string"
+          },
+          "nextStoredPathRankContext": {
             "type": "string"
           },
           "pathConfidenceBand": {
@@ -36825,6 +37017,7 @@
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
             "type": [
+              "null",
               "number",
               "string"
             ]
@@ -37133,7 +37326,15 @@
         },
         "type": "object"
       },
-      "StructuralExecutionMode": {},
+      "StructuralExecutionMode": {
+        "enum": [
+          "Simulator",
+          "Real",
+          "Fallback",
+          "Mixed"
+        ],
+        "type": "string"
+      },
       "StructuredBriefSuggestionKind": {
         "enum": [
           "Constraint",
@@ -49057,6 +49258,9 @@
     },
     {
       "name": "OperationalSecurityFindings"
+    },
+    {
+      "name": "OperationalSecurityInvestigationEffort"
     },
     {
       "name": "OperationalSecurityPaths"

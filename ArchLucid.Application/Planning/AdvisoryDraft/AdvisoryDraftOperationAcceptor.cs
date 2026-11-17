@@ -2,11 +2,14 @@ using ArchLucid.Application.Operations;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Planning.AdvisoryDraft;
 
 public sealed class AdvisoryDraftOperationAcceptor(
     IAdvisoryDraftOperationStore store,
-    AdvisoryDraftOperationQueue queue) : IAdvisoryDraftOperationAcceptor
+    AdvisoryDraftOperationQueue queue,
+    ILogger<AdvisoryDraftOperationAcceptor>? logger = null) : IAdvisoryDraftOperationAcceptor
 {
     private readonly IAdvisoryDraftOperationStore _store =
         store ?? throw new ArgumentNullException(nameof(store));
@@ -31,14 +34,31 @@ public sealed class AdvisoryDraftOperationAcceptor(
 
         string operationId = OperationIdCodec.ForDraft(createResult.Record.OperationId);
 
-        await _queue.EnqueueAsync(
-            new AdvisoryDraftOperationWorkItem
+        try
+        {
+            await _queue.EnqueueAsync(
+                new AdvisoryDraftOperationWorkItem
+                {
+                    OperationId = operationId,
+                    Scope = scope,
+                    Input = input,
+                },
+                cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            try
             {
-                OperationId = operationId,
-                Scope = scope,
-                Input = input,
-            },
-            cancellationToken);
+                await _store.MarkCanceledAsync(scope, operationId, CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                logger?.LogWarning(ex, "Could not close advisory draft operation {OperationId} after canceled queue handoff.",
+                    operationId);
+            }
+
+            throw;
+        }
 
         return operationId;
     }

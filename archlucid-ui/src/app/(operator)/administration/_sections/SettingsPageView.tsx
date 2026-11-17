@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { useBooleanSearchParamUrlSync } from "@/hooks/use-boolean-search-param-url-sync";
 
-import { SETTINGS_MASTER_SECTIONS, settingsMasterSectionDomId } from "./settings-master-catalog";
+import { buildSettingsMasterSections, settingsMasterSectionDomId } from "./settings-master-catalog";
 import { buildSettingsMasterVisibleSections, countSettingsMasterMatchingDestinations, type SettingsMasterVisibleSection } from "./settings-master-page-model";
 import type { SettingsMasterDestination } from "./settings-master-types";
 import { SettingsMasterDestinationCard } from "./SettingsMasterDestinationCard";
@@ -105,9 +105,14 @@ export function SettingsPageView() {
     commitHrefIfChanged(settingsMasterClearSearchHrefFromSearch(readWindowLocationSearch()), { notify: false });
   }, []);
 
+  const settingsMasterSections = useMemo(
+    () => buildSettingsMasterSections(productLine),
+    [productLine],
+  );
+
   const visibleSections = useMemo(
     () =>
-      buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
+      buildSettingsMasterVisibleSections(settingsMasterSections, {
         callerAuthorityRank,
         isAuthorityLoading,
         showInternalShell: isArchLucidInternalOperatorShellEnv(),
@@ -116,12 +121,12 @@ export function SettingsPageView() {
         productLine,
         productLineAssignmentOverrides: assignmentOverrides,
       }),
-    [assignmentOverrides, callerAuthorityRank, isAuthorityLoading, productLine, searchQuery, showAdvanced],
+    [assignmentOverrides, callerAuthorityRank, isAuthorityLoading, productLine, searchQuery, settingsMasterSections, showAdvanced],
   );
 
   const matchingDestinationCount = useMemo(
     () =>
-      countSettingsMasterMatchingDestinations(SETTINGS_MASTER_SECTIONS, {
+      countSettingsMasterMatchingDestinations(settingsMasterSections, {
         callerAuthorityRank,
         isAuthorityLoading,
         showInternalShell: isArchLucidInternalOperatorShellEnv(),
@@ -130,10 +135,10 @@ export function SettingsPageView() {
         productLine,
         productLineAssignmentOverrides: assignmentOverrides,
       }),
-    [assignmentOverrides, callerAuthorityRank, isAuthorityLoading, productLine, searchQuery, showAdvanced],
+    [assignmentOverrides, callerAuthorityRank, isAuthorityLoading, productLine, searchQuery, settingsMasterSections, showAdvanced],
   );
 
-  const hasAdvancedCatalog = SETTINGS_MASTER_SECTIONS.some((section) => section.tier === "advanced");
+  const hasAdvancedCatalog = settingsMasterSections.some((section) => section.tier === "advanced");
   const showAdvancedToggle = hasAdvancedCatalog && searchQuery.trim().length === 0;
   const canViewPrerequisitesBoard = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 

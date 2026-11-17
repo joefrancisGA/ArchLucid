@@ -60,8 +60,6 @@ public static class AgentResultMergeNormalizer
 
             if (hasName && !hasId)
                 service.ServiceId = service.ServiceName.Trim();
-            else if (!hasName && hasId)
-                service.ServiceName = service.ServiceId.Trim();
         }
 
         proposal.AddedServices = proposal.AddedServices
@@ -76,8 +74,6 @@ public static class AgentResultMergeNormalizer
 
             if (hasName && !hasId)
                 datastore.DatastoreId = datastore.DatastoreName.Trim();
-            else if (!hasName && hasId)
-                datastore.DatastoreName = datastore.DatastoreId.Trim();
         }
 
         proposal.AddedDatastores = proposal.AddedDatastores
@@ -94,11 +90,10 @@ public static class AgentResultMergeNormalizer
             if (string.IsNullOrWhiteSpace(relationship.RelationshipId))
                 relationship.RelationshipId = Guid.NewGuid().ToString("N");
 
-            // JsonStringEnumConverter (registered before RelationshipTypeJsonConverter) serializes
-            // undefined enum values as their raw integer, which fails the schema's string enum
-            // constraint. Coerce any undefined value to Calls so the wire document stays valid.
-            if (!Enum.IsDefined(relationship.RelationshipType))
-                relationship.RelationshipType = RelationshipType.Calls;
         }
+
+        proposal.AddedRelationships = proposal.AddedRelationships
+            .Where(r => Enum.IsDefined(r.RelationshipType))
+            .ToList();
     }
 }

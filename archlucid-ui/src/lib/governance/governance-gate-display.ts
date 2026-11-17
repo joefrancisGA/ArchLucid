@@ -10,7 +10,7 @@ export function governanceGateLabelFromManifestStatus(status: string | undefined
   const t = status.trim();
 
   if (t.length === 0) {
-    return "Status not recognized";
+    return "Manifest status was stored empty.";
   }
 
   if (/^committed$/i.test(t) || /^finalized$/i.test(t) || /^approved$/i.test(t)) {
@@ -62,7 +62,7 @@ export function buyerGovernanceApprovalDisplayLabel(gateLabel: string | undefine
   const t = (gateLabel ?? "").trim();
 
   if (t.length === 0) {
-    return "Not configured";
+    return "Approval check was not stored.";
   }
 
   if (t === "Passed") {

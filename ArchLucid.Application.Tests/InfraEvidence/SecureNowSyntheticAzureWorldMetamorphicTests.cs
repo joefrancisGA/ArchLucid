@@ -64,13 +64,16 @@ public sealed class SecureNowSyntheticAzureWorldMetamorphicTests
 
         transformedOrder.Should().Equal(baselineOrder);
 
-        IReadOnlyList<string> baselineCuts = CutPointShape(baseline);
-        IReadOnlyList<string> transformedCuts = CutPointShape(transformed);
+        IReadOnlyList<SecurityEvidenceCutPointCandidate> baselineCutPoints =
+            SecurityEvidenceCutPointAnalyzer.Analyze(Materialize(baseline), new Dictionary<Guid, string?>());
+        IReadOnlyList<SecurityEvidenceCutPointCandidate> transformedCutPoints =
+            SecurityEvidenceCutPointAnalyzer.Analyze(Materialize(transformed), new Dictionary<Guid, string?>());
 
-        baselineCuts.Should().NotBeEmpty();
-        transformedCuts.Should().NotBeEmpty();
-        transformedCuts[0].Should().Be(baselineCuts[0]);
-        transformedCuts[0].Should().Be($"node:{SyntheticAzureWorldCatalog.SharedManagedIdentityNode}");
+        baselineCutPoints.Should().NotBeEmpty();
+        transformedCutPoints.Should().NotBeEmpty();
+        transformedCutPoints[0].CutKey.Should().Be(baselineCutPoints[0].CutKey);
+        transformedCutPoints[0].CutKey.Should().Be(baseline.ExpectedTopCutKey);
+        transformedCutPoints[0].CollapsedPathIds.Should().HaveCount(baseline.ExpectedTopCutCollapsedPathCount!.Value);
     }
 
     [Fact]

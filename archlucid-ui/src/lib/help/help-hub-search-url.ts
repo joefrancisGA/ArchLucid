@@ -7,7 +7,7 @@ export function parseHelpHubSearchQuery(raw: string | null | undefined): string 
     return "";
   }
 
-  return raw;
+  return raw.trim();
 }
 
 export function helpHubSearchHrefFromSearch(

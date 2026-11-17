@@ -139,7 +139,7 @@ export function NewRunWizardStepPanels(props: NewRunWizardStepPanelsProps): Reac
   }
 
   if (props.stepIndex === REVIEW_STEP_INDEX) {
-    return <WizardStepReview focusedPilotModeEnabled={props.focusedPilotModeEnabled} />;
+    return <WizardStepReview focusedPilotModeEnabled={props.focusedPilotModeEnabled} baselineReviewCycleHours={props.baselineReviewCycleHours} baselineConfidence={props.baselineConfidence} />;
   }
 
   if (props.stepIndex === TRACK_STEP_INDEX && props.runId) {

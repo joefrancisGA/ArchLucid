@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.OperationalSecurity;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
@@ -45,7 +46,9 @@ public sealed class OperationalSecurityPathsControllerTests
             rankQueryService.Object,
             Mock.Of<ISecurityEvidencePathReportQueryService>(),
             Mock.Of<ISecurityEvidencePathExplanationService>(),
-            scopeProvider.Object)
+            Mock.Of<ISecureNowPilotPathDispositionService>(),
+            scopeProvider.Object,
+            Mock.Of<IActorContext>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -91,7 +94,9 @@ public sealed class OperationalSecurityPathsControllerTests
             rankQueryService.Object,
             Mock.Of<ISecurityEvidencePathReportQueryService>(),
             Mock.Of<ISecurityEvidencePathExplanationService>(),
-            scopeProvider.Object)
+            Mock.Of<ISecureNowPilotPathDispositionService>(),
+            scopeProvider.Object,
+            Mock.Of<IActorContext>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -137,7 +142,9 @@ public sealed class OperationalSecurityPathsControllerTests
             Mock.Of<ISecurityEvidencePathRankQueryService>(),
             reportQueryService.Object,
             Mock.Of<ISecurityEvidencePathExplanationService>(),
-            scopeProvider.Object)
+            Mock.Of<ISecureNowPilotPathDispositionService>(),
+            scopeProvider.Object,
+            Mock.Of<IActorContext>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

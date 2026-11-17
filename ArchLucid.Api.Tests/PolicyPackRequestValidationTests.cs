@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.Json;
 
 using FluentAssertions;
 
@@ -65,11 +64,10 @@ public sealed class PolicyPackRequestValidationTests(ArchLucidApiFactory factory
                         }),
                     requestTimeout.Token);
 
-                createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-                using JsonDocument created = JsonDocument.Parse(
-                    await createResponse.Content.ReadAsStringAsync(requestTimeout.Token));
+                PolicyPackCreateResponse created =
+                    await createResponse.ReadJsonForTestAsync<PolicyPackCreateResponse>(JsonOptions);
 
-                Guid packId = created.RootElement.GetProperty("policyPackId").GetGuid();
+                Guid packId = created.PolicyPackId;
 
                 HttpResponseMessage publishResponse = await Client.PostAsync(
                     $"/v1/policy-packs/{packId}/publish",
@@ -105,11 +103,10 @@ public sealed class PolicyPackRequestValidationTests(ArchLucidApiFactory factory
                         }),
                     requestTimeout.Token);
 
-                createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-                using JsonDocument created = JsonDocument.Parse(
-                    await createResponse.Content.ReadAsStringAsync(requestTimeout.Token));
+                PolicyPackCreateResponse created =
+                    await createResponse.ReadJsonForTestAsync<PolicyPackCreateResponse>(JsonOptions);
 
-                Guid packId = created.RootElement.GetProperty("policyPackId").GetGuid();
+                Guid packId = created.PolicyPackId;
 
                 HttpResponseMessage assignResponse = await Client.PostAsync(
                     $"/v1/policy-packs/{packId}/assign",
@@ -121,5 +118,14 @@ public sealed class PolicyPackRequestValidationTests(ArchLucidApiFactory factory
                 text.Should().ContainEquivalentOf("ScopeLevel");
             },
             IntegrationTestDeadline.SharedHostTestTimeout);
+    }
+
+    private sealed class PolicyPackCreateResponse
+    {
+        public Guid PolicyPackId
+        {
+            get;
+            init;
+        }
     }
 }

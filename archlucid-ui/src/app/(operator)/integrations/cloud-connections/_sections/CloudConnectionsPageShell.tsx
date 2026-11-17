@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+
 import { cn } from "@/lib/utils";
 
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -13,9 +16,29 @@ import {
 } from "@/lib/cloud-connections-copy";
 import { CLOUD_CONNECTIONS_CLAIM_DISCIPLINE } from "@/lib/cloud-connections-evidence-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  formatSecureNowHomeSubscriptionScopeLine,
+  resolveSecureNowCloudConnectionsSubscriptionScopeLabel,
+  resolveSecureNowCollectionMissingDetail,
+  SECURENOW_COLLECTION_READER_ROLE_LINE,
+  shouldShowSecureNowCollectionMissingBlock,
+} from "@/lib/product-line/securenow-collection-missing-reason";
+import { SecureNowCollectionPrimaryBlockerLine } from "@/components/product-line/SecureNowCollectionPrimaryBlockerLine";
+import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
+import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/SecureNowPilotWalkthroughBanner";
+import { SecureNowCloudConnectionsPartialCaptureStrip } from "@/components/product-line/SecureNowCloudConnectionsPartialCaptureStrip";
+import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
+import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
+import { SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF } from "@/lib/product-line/securenow-self-service-home-copy";
+import { CLOUD_CONNECTIONS_READER_PULL_HONESTY_LINE } from "@/lib/integrations/cloud-connections-reader-pull-honesty-copy";
+import {
+  CLOUD_CONNECTIONS_RETURN_PATH_HONESTY_LINE,
+  formatCloudConnectionsReturnLinkLabel,
+} from "@/lib/integrations/cloud-connections-return-path-honesty-copy";
+import { resolveSecureNowReturnPathFromSearch } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
 
 import { CloudConnectionsProviderList } from "./CloudConnectionsProviderList";
 import {
@@ -30,18 +53,119 @@ import {
 } from "./cloud-connections-page-copy";
 import type { CloudConnectionsPageViewModel } from "./use-cloud-connections-page";
 
+const SECURENOW_FIRST_HOUR_HREF = "/administration/securenow-first-hour" as const;
+
 export type CloudConnectionsPageShellProps = CloudConnectionsPageViewModel;
 
 export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps) {
-  const { showConnectionContent, cloudConnectSteps, cloudConnectEmphasizedStepId } = props;
+  const { showConnectionContent, cloudConnectSteps, cloudConnectEmphasizedStepId, productLine } = props;
+  const searchParams = useSearchParams();
+  const secureNowReturnPath = resolveSecureNowReturnPathFromSearch(searchParams);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const collectionMissingInput = {
+    hasConfiguredProvider: props.hasConfiguredProvider,
+    azureSubscriptionIdsPresent: props.azureSubscriptionIdsPresent,
+    hasSuccessfulPull: props.hasSuccessfulPull,
+  };
+  const showCollectionMissing =
+    productLine === "security"
+    && showConnectionContent
+    && shouldShowSecureNowCollectionMissingBlock(collectionMissingInput);
+  const collectionSetupComplete = isSecureNowCollectionSetupComplete(collectionMissingInput);
+  const showCollectionReady =
+    productLine === "security"
+    && showConnectionContent
+    && !showCollectionMissing
+    && collectionSetupComplete;
+  const showCollectionInProgress =
+    productLine === "security"
+    && showConnectionContent
+    && !showCollectionMissing
+    && !collectionSetupComplete;
+  const collectionMissingDetail = resolveSecureNowCollectionMissingDetail(collectionMissingInput);
+  const collectionMissingSubscriptionLabel = resolveSecureNowCloudConnectionsSubscriptionScopeLabel({
+    azureSubscriptionIdsPresent: props.azureSubscriptionIdsPresent,
+    azureSubscriptionSummary: props.azureSubscriptionScopeLabel,
+  });
 
-  const checklist = showConnectionContent ? (
+  const showSecureNowCollectionBlock =
+    productLine === "security"
+    && showConnectionContent
+    && (showCollectionMissing || showCollectionInProgress || showCollectionReady);
+
+  const checklist = showConnectionContent && !showSecureNowCollectionBlock ? (
     <IntegrationConnectChecklist
       title="Connect cloud inventory"
       steps={cloudConnectSteps}
       emphasizedStepId={cloudConnectEmphasizedStepId}
       testIdPrefix="cloud-connections"
+    />
+  ) : null;
+
+  const collectionStatus = showCollectionMissing ? (
+    <section
+      className="rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+      aria-labelledby="cloud-connections-collection-status-heading"
+      data-testid="securenow-collection-missing"
+    >
+      <h2 id="cloud-connections-collection-status-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+        Collection status: Missing
+      </h2>
+      <div className="mt-2">
+        <SecureNowCollectionPrimaryBlockerLine input={collectionMissingInput} testIdPrefix="cloud-connections" />
+      </div>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)} data-testid="cloud-connections-collection-missing-detail">
+        {collectionMissingDetail}
+      </p>
+      <div className="mt-3">
+        <SecureNowCollectionSetupChecklist
+          input={collectionMissingInput}
+          testIdPrefix="cloud-connections"
+          titleHeadingLevel="helper"
+        />
+      </div>
+      <p
+        className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="cloud-connections-collection-missing-subscription-scope"
+      >
+        {formatSecureNowHomeSubscriptionScopeLine(collectionMissingSubscriptionLabel)}
+      </p>
+      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+        {SECURENOW_COLLECTION_READER_ROLE_LINE} SecureNow does not change Azure.
+      </p>
+      <p
+        className={cn("m-0 mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="cloud-connections-collection-missing-recovery-links"
+      >
+        <Link
+          href={SECURENOW_FIRST_HOUR_HREF}
+          className={OPERATOR_LINK.inline}
+          data-testid="cloud-connections-collection-missing-first-hour-link"
+        >
+          First hour
+        </Link>
+        <Link
+          href={SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF}
+          className={OPERATOR_LINK.inline}
+          data-testid="cloud-connections-collection-missing-collection-check-link"
+        >
+          Collection check
+        </Link>
+      </p>
+    </section>
+  ) : null;
+
+  const collectionReady = showCollectionReady ? (
+    <SecureNowCollectionSetupStatusSection
+      testIdPrefix="cloud-connections"
+      collectionInput={collectionMissingInput}
+    />
+  ) : null;
+
+  const collectionInProgress = showCollectionInProgress ? (
+    <SecureNowCollectionSetupStatusSection
+      testIdPrefix="cloud-connections"
+      collectionInput={collectionMissingInput}
     />
   ) : null;
 
@@ -54,6 +178,18 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
   );
 
   const providerList = <CloudConnectionsProviderList {...props} />;
+
+  const returnPathStrip =
+    secureNowReturnPath !== null ? (
+      <div className="space-y-1" data-testid="cloud-connections-return-path">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link className={OPERATOR_LINK.inline} href={secureNowReturnPath}>
+            {formatCloudConnectionsReturnLinkLabel(secureNowReturnPath)}
+          </Link>
+        </p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_RETURN_PATH_HONESTY_LINE}</p>
+      </div>
+    ) : null;
 
   if (!buyerPolishedShell) {
     return (
@@ -79,7 +215,20 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
           }
         />
 
+        <SecureNowPilotWalkthroughBanner productLine={productLine} />
+        {returnPathStrip}
+        {productLine === "security" && showCollectionReady ? <SecureNowCloudConnectionsPartialCaptureStrip /> : null}
+
+        {collectionStatus}
+        {collectionInProgress}
+        {collectionReady}
         {checklist}
+        <p
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="cloud-connections-reader-pull-honesty"
+        >
+          {CLOUD_CONNECTIONS_READER_PULL_HONESTY_LINE}
+        </p>
         {orientationStrip}
         {providerList}
       </OperatorPageContainer>
@@ -141,7 +290,20 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
             </p>
           </section>
 
+          <SecureNowPilotWalkthroughBanner productLine={productLine} />
+          {returnPathStrip}
+          {productLine === "security" && showCollectionReady ? <SecureNowCloudConnectionsPartialCaptureStrip /> : null}
+
+          {collectionStatus}
+          {collectionInProgress}
+          {collectionReady}
           {checklist}
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="cloud-connections-reader-pull-honesty"
+          >
+            {CLOUD_CONNECTIONS_READER_PULL_HONESTY_LINE}
+          </p>
           {providerList}
         </div>
 

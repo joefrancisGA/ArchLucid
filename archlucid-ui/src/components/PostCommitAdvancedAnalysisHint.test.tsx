@@ -9,6 +9,7 @@ const BACKUP_ENV = process.env;
 vi.mock("@/hooks/use-prior-same-request-compare-href", () => ({
   usePriorSameRequestCompareHref: () => ({
     compareWithPriorHref: null,
+    compareFallbackFailure: null,
     hasSameRequestPrior: false,
   }),
 }));

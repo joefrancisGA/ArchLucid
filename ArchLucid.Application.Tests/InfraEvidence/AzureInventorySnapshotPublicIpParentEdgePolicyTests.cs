@@ -141,7 +141,17 @@ public sealed class AzureInventorySnapshotPublicIpParentEdgePolicyTests
     public void Other_shared_appender_callers_still_default_to_observed_fact()
     {
         List<GraphEdge> edges = [];
-        AzureInventorySnapshotGraphEdgeAppender.TryAdd(edges, new(StringComparer.Ordinal), "from", "to", GraphEdgeTypes.Exposes, "source");
+        HashSet<string> keys = new(StringComparer.Ordinal);
+        AzureInventorySnapshotGraphEdgeAppender.TryAdd(
+            edges,
+            keys,
+            "from",
+            "to",
+            GraphEdgeTypes.Contains,
+            GraphEdgeInferenceSources.InventoryExplicitParentChild,
+            label: GraphEdgeTypes.Contains,
+            provenanceKind: ProvenanceKind.ObservedFact.ToString(),
+            promoteStrongerProvenance: false);
         Assert.Equal(nameof(ProvenanceKind.ObservedFact), Assert.Single(edges).ProvenanceKind);
     }
 

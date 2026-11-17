@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 
 import { FAQ_CLAIM_DISCIPLINE, FAQ_SOURCES } from "@/lib/faq-evidence-copy";
 import { EVALUATION_SOURCES_TITLE } from "@/lib/evaluation-sources-title";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { FAQ_CANONICAL_PATH } from "@/lib/faq-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import {
   MARKETING_FAQ_FIRST_VIEWPORT_ID,
@@ -51,7 +53,12 @@ describe("MarketingFaqPageClient buyer-polished shell", () => {
     expect(screen.getByRole("heading", { level: 2, name: EVALUATION_SOURCES_TITLE })).toBeInTheDocument();
     expect(screen.getAllByTestId("faq-sources")).toHaveLength(1);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(FAQ_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(FAQ_SOURCES),
+      FAQ_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       expect(within(sourcesSection).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
     }
   });

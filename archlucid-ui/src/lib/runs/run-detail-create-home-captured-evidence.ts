@@ -12,12 +12,16 @@ export const RUN_DETAIL_CAPTURED_EVIDENCE_EVIDENCE_ITEM_ID_STORED_EMPTY_COPY =
 export const RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY =
   "File name was not stored." as const;
 
+export const RUN_DETAIL_CAPTURED_EVIDENCE_CONTENT_TYPE_NOT_ON_ROW_YET_COPY =
+  "Content type is not on this row yet." as const;
+
 export type RunDetailCreateHomeCapturedEvidenceItem = {
   readonly key: string;
   readonly fileName: string;
   readonly ingestedUtc: string | null;
   readonly evidenceItemId?: string | null;
   readonly contentType?: string | null;
+  readonly contentTypeCatalogPending?: boolean;
 };
 
 const CAPTURED_EVIDENCE_STORAGE_PREFIX = "archlucid_create_home_captured_evidence_v1_";
@@ -143,10 +147,10 @@ export function deriveCapturedEvidenceFromCatalog(
 export function mergeCapturedEvidenceUploadOutcomes(
   existing: readonly RunDetailCreateHomeCapturedEvidenceItem[],
   outcomes: readonly BulkEvidenceFileOutcome[],
-  ingestedUtc: string,
+  ingestedUtc: string | null,
   evidenceItemIds: readonly string[] = [],
 ): RunDetailCreateHomeCapturedEvidenceItem[] {
-  const map = new Map(existing.map((item) => [item.fileName.toLowerCase(), item]));
+  const items = [...existing];
   let evidenceIdIndex = 0;
 
   for (const outcome of outcomes) {
@@ -154,25 +158,31 @@ export function mergeCapturedEvidenceUploadOutcomes(
       continue;
     }
 
-    const fileName =
-      outcome.fileName === null || outcome.fileName === undefined
-        ? RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY
-        : outcome.fileName;
+    const fileName = resolveCapturedEvidenceFileName(outcome.fileName ?? "");
     const evidenceItemId = evidenceItemIds[evidenceIdIndex] ?? null;
+    const rowKey =
+      evidenceItemId !== null && evidenceItemId.trim().length > 0
+        ? evidenceItemId.trim()
+        : fileName === RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY
+          ? `upload:missing-name:${evidenceIdIndex}`
+          : `upload:${fileName}:${evidenceIdIndex}`;
 
     evidenceIdIndex += 1;
 
-    const mapKey = fileName.trim().length > 0 ? fileName.toLowerCase() : `upload:${evidenceIdIndex}`;
+    if (items.some((item) => item.key === rowKey)) {
+      continue;
+    }
 
-    map.set(mapKey, {
-      key: evidenceItemId ?? `upload:${mapKey}`,
+    items.push({
+      key: rowKey,
       fileName,
       ingestedUtc,
       evidenceItemId,
+      contentTypeCatalogPending: true,
     });
   }
 
-  return [...map.values()].sort((left, right) =>
+  return items.sort((left, right) =>
     left.fileName.localeCompare(right.fileName, undefined, { sensitivity: "base" }),
   );
 }
@@ -184,11 +194,11 @@ export function reconcileCapturedEvidenceInventory(
 ): RunDetailCreateHomeCapturedEvidenceItem[] {
   const catalogAuthoritative = options?.catalogAuthoritative ?? false;
 
-  if (catalogAuthoritative && serverItems.length > 0) {
+  if (catalogAuthoritative) {
     const map = new Map(serverItems.map((item) => [item.fileName.toLowerCase(), item]));
 
     for (const item of sessionItems) {
-      if ((item.evidenceItemId ?? "").length === 0) {
+      if (item.contentTypeCatalogPending !== true) {
         continue;
       }
 

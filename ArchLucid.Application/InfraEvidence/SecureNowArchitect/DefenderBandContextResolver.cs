@@ -178,7 +178,7 @@ public static class DefenderBandContextResolver
         if (subscriptionBand is DefenderSecureScoreOrdinalBand.Low or DefenderSecureScoreOrdinalBand.Medium)
         {
             weakControlNames = context.DefenderScoreControls
-                .Where(control => control.MaxScore > 0)
+                .Where(control => control.MaxScore > 0 && control.CurrentScore < control.MaxScore)
                 .OrderByDescending(control => control.MaxScore - control.CurrentScore)
                 .ThenBy(control => control.ControlName, StringComparer.OrdinalIgnoreCase)
                 .Take(3)

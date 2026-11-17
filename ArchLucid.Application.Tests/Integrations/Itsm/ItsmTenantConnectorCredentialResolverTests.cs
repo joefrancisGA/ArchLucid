@@ -125,6 +125,112 @@ public sealed class ItsmTenantConnectorCredentialResolverTests
     }
 
     [Fact]
+    public async Task TryResolveInboundWebhookSecretAsync_skips_deployment_fallback_when_outbound_requires_tenant_scoped_credentials()
+    {
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> inboundMonitor = new();
+        inboundMonitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions
+        {
+            AllowDeploymentWideWebhookSecrets = true,
+            ServiceNowWebhookSecret = "deployment-wide-secret",
+        });
+
+        Mock<IOptionsMonitor<IntegrationsItsmOutboundOptions>> outboundMonitor = new();
+        outboundMonitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmOutboundOptions
+        {
+            RequireTenantScopedCredentials = true,
+        });
+
+        ItsmTenantConnectorCredentialResolver sut = new(
+            new InMemoryTenantItsmConnectorConnectionRepository(),
+            new DictionarySecretProvider(),
+            outboundMonitor.Object,
+            inboundMonitor.Object);
+
+        string? resolved = await sut.TryResolveInboundWebhookSecretAsync(
+            TenantId,
+            TenantItsmConnectorProvider.ServiceNow,
+            CancellationToken.None);
+
+        resolved.Should().BeNull(
+            "inbound webhook auth must honor RequireTenantScopedCredentials and not use deployment-wide secrets");
+    }
+
+    [Fact]
+    public async Task TryResolveInboundWebhookSecretAsync_returns_null_when_tenant_inbound_secret_name_configured_but_keyvault_value_missing()
+    {
+        InMemoryTenantItsmConnectorConnectionRepository repository = new();
+        await repository.UpsertAsync(
+            TenantId,
+            TenantItsmConnectorProvider.ServiceNow,
+            new TenantItsmConnectorConnectionUpsertCommand
+            {
+                InstanceBaseUrl = "https://tenant.service-now.com",
+                InboundWebhookKeyVaultSecretName = "kv-sn-inbound-missing",
+            },
+            CancellationToken.None);
+
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> inboundMonitor = new();
+        inboundMonitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions
+        {
+            AllowDeploymentWideWebhookSecrets = true,
+            ServiceNowWebhookSecret = "deployment-wide-secret",
+        });
+
+        ItsmTenantConnectorCredentialResolver sut = new(
+            repository,
+            new DictionarySecretProvider(),
+            Mock.Of<IOptionsMonitor<IntegrationsItsmOutboundOptions>>(),
+            inboundMonitor.Object);
+
+        string? resolved = await sut.TryResolveInboundWebhookSecretAsync(
+            TenantId,
+            TenantItsmConnectorProvider.ServiceNow,
+            CancellationToken.None);
+
+        resolved.Should().BeNull(
+            "tenant-scoped inbound secret names must not fall back to deployment-wide secrets when Key Vault lookup is empty");
+    }
+
+    [Fact]
+    public async Task TryResolveInboundWebhookSecretAsync_returns_null_when_tenant_connector_disabled_even_if_deployment_secret_allowed()
+    {
+        InMemoryTenantItsmConnectorConnectionRepository repository = new();
+        await repository.UpsertAsync(
+            TenantId,
+            TenantItsmConnectorProvider.ServiceNow,
+            new TenantItsmConnectorConnectionUpsertCommand
+            {
+                InstanceBaseUrl = "https://tenant.service-now.com",
+                InboundWebhookKeyVaultSecretName = "kv-sn-inbound",
+                IsEnabled = false,
+            },
+            CancellationToken.None);
+
+        DictionarySecretProvider secrets = new();
+        secrets.Set("kv-sn-inbound", "tenant-inbound-secret");
+
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> inboundMonitor = new();
+        inboundMonitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions
+        {
+            AllowDeploymentWideWebhookSecrets = true,
+            ServiceNowWebhookSecret = "deployment-wide-secret",
+        });
+
+        ItsmTenantConnectorCredentialResolver sut = new(
+            repository,
+            secrets,
+            Mock.Of<IOptionsMonitor<IntegrationsItsmOutboundOptions>>(),
+            inboundMonitor.Object);
+
+        string? resolved = await sut.TryResolveInboundWebhookSecretAsync(
+            TenantId,
+            TenantItsmConnectorProvider.ServiceNow,
+            CancellationToken.None);
+
+        resolved.Should().BeNull("disabled tenant ITSM connectors must not fall back to deployment-wide inbound webhook secrets");
+    }
+
+    [Fact]
     public async Task TryResolveInboundWebhookSecretAsync_returns_null_for_jira_when_only_service_now_tenant_inbound_secret_exists()
     {
         InMemoryTenantItsmConnectorConnectionRepository repository = new();

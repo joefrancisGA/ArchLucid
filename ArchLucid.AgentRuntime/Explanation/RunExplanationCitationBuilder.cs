@@ -12,6 +12,8 @@ public static class RunExplanationCitationBuilder
 {
     private const int MaxFindingCitations = 40;
 
+    internal const string FindingTitleNotStoredCopy = "Finding title was not stored.";
+
     /// <summary>Produces stable citations for manifest-scoped runs; empty when no golden manifest.</summary>
     public static IReadOnlyList<CitationReference> Build(RunDetailDto detail)
     {
@@ -35,7 +37,9 @@ public static class RunExplanationCitationBuilder
             for (int i = 0; i < take; i++)
             {
                 Finding f = snap.Findings[i];
-                string title = string.IsNullOrWhiteSpace(f.Title) ? f.FindingId : $"{f.FindingId}: {f.Title}";
+                string title = string.IsNullOrWhiteSpace(f.Title)
+                    ? $"{FindingTitleNotStoredCopy} Finding id {f.FindingId}."
+                    : $"{f.FindingId}: {f.Title.Trim()}";
                 list.Add(new CitationReference(CitationKind.Finding, f.FindingId, title, runId));
             }
         }

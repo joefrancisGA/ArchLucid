@@ -8,6 +8,12 @@ public class CostSection
         set;
     }
 
+    public string? CurrencyCode
+    {
+        get;
+        set;
+    }
+
     public List<string> CostRisks
     {
         get;

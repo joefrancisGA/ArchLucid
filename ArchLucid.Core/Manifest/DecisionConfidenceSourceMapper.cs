@@ -9,7 +9,7 @@ public static class DecisionConfidenceSourceMapper
     public static string ToBuyerLabel(string? confidenceSource)
     {
         if (string.IsNullOrWhiteSpace(confidenceSource))
-            return BuyerDecisionConfidenceSource.Unknown;
+            return BuyerDecisionConfidenceSource.NotStored;
 
         string trimmed = confidenceSource.Trim();
 
@@ -25,7 +25,7 @@ public static class DecisionConfidenceSourceMapper
             return ToBuyerLabel((DecisionConfidenceSource)ordinal);
         }
 
-        return BuyerDecisionConfidenceSource.Unknown;
+        return BuyerDecisionConfidenceSource.Unrecognized;
     }
 
     /// <summary>Returns the buyer-facing label for an internal confidence source.</summary>
@@ -39,8 +39,8 @@ public static class DecisionConfidenceSourceMapper
             DecisionConfidenceSource.Calibrated => BuyerDecisionConfidenceSource.EvidenceBacked,
             DecisionConfidenceSource.LlmAgent => BuyerDecisionConfidenceSource.ModelAssisted,
             DecisionConfidenceSource.Unknown => BuyerDecisionConfidenceSource.Unknown,
-            DecisionConfidenceSource.NotComputed => BuyerDecisionConfidenceSource.Unknown,
-            _ => BuyerDecisionConfidenceSource.Unknown,
+            DecisionConfidenceSource.NotComputed => BuyerDecisionConfidenceSource.NotComputed,
+            _ => BuyerDecisionConfidenceSource.Unrecognized,
         };
     }
 

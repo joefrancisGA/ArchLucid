@@ -38,6 +38,10 @@ ALLOWED_PATHS_REL = {
     os.path.normpath("docs/go-to-market/TRIAL_AND_SIGNUP.md"),
     os.path.normpath("docs/CHANGELOG.md"),
     os.path.normpath("scripts/ci/check_pricing_single_source.py"),
+    # SecureNow §9 list prices on the SKU card and quote packet only.
+    os.path.normpath(
+        "archlucid-ui/src/lib/product-line/securenow-published-list-price-copy.ts"
+    ),
 }
 
 # Exact price strings that must not appear outside ALLOWED_PATHS.
@@ -57,6 +61,13 @@ PRICE_PATTERNS = [
     "$25,000",
     "$65,000",
     "$100,000",
+    # SecureNow quote fees — PRICING_PHILOSOPHY.md §9. Phrases are specific so
+    # unrelated "$1,500" / "$6,000" amounts elsewhere are not locked.
+    "**$8,000** once",
+    "**$24,000** per year",
+    "**$6,000** per year",
+    "**$1,500** prepaid",
+    "**$8,000** evaluation fee",
 ]
 
 # Extensions to scan. Skip binary files and generated artefacts.

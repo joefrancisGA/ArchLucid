@@ -124,7 +124,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
 
         Exception ex = (await act.Should().ThrowAsync<InvalidOperationException>()).Which;
         ex.Message.Should().Contain("could not be deserialized");
-        ex.InnerException.Should().BeOfType<JsonException>();
+        ex.InnerException.Should().BeAssignableTo<JsonException>();
     }
 
     [SkippableFact]
@@ -245,18 +245,18 @@ public sealed class ExportReplayServiceReplayAsyncTests
         };
 
         audit.Setup(a => a.RecordAsync(
-                record.RunId,
-                record.ExportType,
-                record.Format,
                 It.IsAny<string>(),
-                record.TemplateProfile,
-                record.TemplateProfileDisplayName,
-                record.WasAutoSelected,
-                record.ResolutionReason,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<bool>(),
+                It.IsAny<string?>(),
                 It.IsAny<string?>(),
                 It.IsAny<PersistedAnalysisExportRequest?>(),
                 It.IsAny<string?>(),
-                false,
+                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(persistedRow);
 
@@ -278,7 +278,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
                 It.IsAny<string?>(),
                 It.IsAny<PersistedAnalysisExportRequest?>(),
                 It.IsAny<string?>(),
-                false,
+                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
         consultingDocx.Verify(

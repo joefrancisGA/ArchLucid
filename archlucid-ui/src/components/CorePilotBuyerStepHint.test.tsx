@@ -22,6 +22,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { CorePilotBuyerStepHint } from "@/components/CorePilotBuyerStepHint";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";

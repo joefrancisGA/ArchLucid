@@ -289,6 +289,7 @@ export function QuickScanEvidenceOrientationStrip(): React.JSX.Element {
       sources={QUICK_SCAN_SOURCES}
       sourcesTitle={QUICK_SCAN_FOLLOW_UPS_TITLE}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
+      maxLinks={QUICK_SCAN_SOURCES.length}
       claimHeading=""
       claim=""
     />

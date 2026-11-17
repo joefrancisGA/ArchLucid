@@ -3,8 +3,9 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { getRunSummary } from "@/lib/api/architecture-runs";
 import { architectureGraphReadBlockedReason, architectureGraphTemporalSnapshotBlockedReason } from "@/lib/graph/architecture-graph-temporal-snapshot-blocked-reason";
 import { provenanceGraphAliasBlockedReason } from "@/lib/graph/provenance-graph-alias-blocked-reason";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "@/lib/api/http";
+import { apiGet, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "@/lib/api/http";
 import type { components } from "@/lib/openapi-schemas";
 import type { GraphNodesPageResponse, GraphViewModel } from "@/types/graph";
 
@@ -23,8 +24,12 @@ export async function getProvenanceGraph(runId: string): Promise<GraphViewModel>
 /** Fetches the full architecture graph for a run (may return 413 when node count exceeds API limit). */
 export async function getArchitectureGraph(runId: string): Promise<GraphViewModel> {
   try {
-    return await apiGetSealedManifestAware<GraphViewModel>(`/v1/evidence-graph/reviews/${runId}`);
+    return await apiGet<GraphViewModel>(`/v1/evidence-graph/reviews/${runId}`);
   } catch (error: unknown) {
+    if (isApiRequestError(error) && error.httpStatus === 413) {
+      throw error;
+    }
+
     const failure = toApiLoadFailure(error);
     const blockedReason = architectureGraphReadBlockedReason(failure);
 
@@ -134,14 +139,17 @@ export async function getArchitectureGraphPage(
   page = 1,
   pageSize = 200,
 ): Promise<GraphNodesPageResponse> {
+  const normalizedRunId = runId.trim();
+  const normalizedPage = Number.isFinite(page) && page >= 1 ? Math.floor(page) : 1;
+  const normalizedPageSize = Number.isFinite(pageSize) && pageSize >= 1 ? Math.floor(pageSize) : 200;
   const q = new URLSearchParams({
-    page: String(page),
-    pageSize: String(pageSize),
+    page: String(normalizedPage),
+    pageSize: String(normalizedPageSize),
   });
 
   try {
     return await apiGetSealedManifestAware<GraphNodesPageResponse>(
-      `/v1/evidence-graph/reviews/${runId}/nodes?${q.toString()}`,
+      `/v1/evidence-graph/reviews/${encodeURIComponent(normalizedRunId)}/nodes?${q.toString()}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -165,7 +173,13 @@ export async function mergeArchitectureGraphPages(
   const seenEdge = new Set<string>();
   let page = 1;
 
+  const maximumPages = 1000;
+
   for (;;) {
+    if (page > maximumPages) {
+      throw new Error("Architecture graph pagination did not converge.");
+    }
+
     const slice = await getArchitectureGraphPage(runId, page, pageSize);
 
     for (const n of slice.nodes) {
@@ -219,9 +233,11 @@ export async function getNodeNeighborhood(
   nodeId: string,
   depth = 1,
 ): Promise<GraphViewModel> {
+  const normalizedDepth = Number.isFinite(depth) && depth >= 0 ? Math.floor(depth) : 1;
+
   try {
     return await apiGetSealedManifestAware<GraphViewModel>(
-      `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/node/${encodeURIComponent(nodeId)}?depth=${depth}`,
+      `/v1/provenance/runs/${encodeURIComponent(runId.trim())}/graph/node/${encodeURIComponent(nodeId.trim())}?depth=${normalizedDepth}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

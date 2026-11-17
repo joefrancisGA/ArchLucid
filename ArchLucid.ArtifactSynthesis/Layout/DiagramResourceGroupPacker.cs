@@ -31,6 +31,10 @@ public static class DiagramResourceGroupPacker
         return !string.IsNullOrWhiteSpace(cell.GroupName);
     }
 
+    /// <summary>Legend line when RG frames replace per-node group captions on the canvas.</summary>
+    public const string ResourceGroupFrameSuppressesNodeGroupLine =
+        "Resource group frames show the group name; node cards omit duplicate group lines inside framed cells.";
+
     public static IReadOnlyList<ResourceGroupCell> PartitionCells(IReadOnlyList<DiagramNode> nodes)
     {
         ArgumentNullException.ThrowIfNull(nodes);
@@ -108,6 +112,11 @@ public static class DiagramResourceGroupPacker
                     continue;
                 }
 
+                if (DiagramSharedServiceCatalog.IsSharedService(node.ArmResourceType))
+                {
+                    continue;
+                }
+
                 suppressed.Add(node.NodeId);
             }
         }
@@ -149,7 +158,7 @@ public static class DiagramResourceGroupPacker
 
             DiagramNode anchorNode = members[0].Node;
             string? groupName = string.Equals(frameCellId, "shared-services", StringComparison.Ordinal)
-                ? "Shared services"
+                ? "Shared service types. This frame is not a resource group."
                 : DiagramForestCollapsedSingletonTailLabels.ResolveResourceGroupCaption(anchorNode, frameCellId);
 
             if (groupName is null)

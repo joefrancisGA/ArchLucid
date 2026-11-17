@@ -12,8 +12,10 @@ import {
   ARCHITECTURE_DIAGRAM_EDIT_ACTION,
   ARCHITECTURE_DIAGRAM_INFERRED_LOCKED_FOR_HAND_EDIT,
   ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE,
+  ARCHITECTURE_DIAGRAM_SAVED_MERMAID_VS_GENERATED_MODEL_NOTICE,
   ARCHITECTURE_DIAGRAM_REGENERATE_ACTION,
   ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION,
+  formatArchitectureDiagramUnlabeledComponentsNotice,
 } from "@/lib/architecture/architecture-diagram-copy";
 import { formatArchitectureDiagramMermaidSourceForDisclosure } from "@/lib/architecture/format-architecture-diagram-mermaid-source-display";
 import {
@@ -96,19 +98,44 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
     <>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,18rem)]">
         <div className="min-w-0 space-y-2">
+          {panel.diagramModel === null ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="architecture-diagram-structured-model-not-stored"
+            >
+              Structured diagram metadata was not stored — the Mermaid view below is the only persisted diagram artifact.
+            </p>
+          ) : null}
           {panel.diagramModel !== null && panel.diagramModel.skippedUnlabeledEntityCount > 0 ? (
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="architecture-diagram-skipped-unlabeled-entities"
             >
-              Skipped {panel.diagramModel.skippedUnlabeledEntityCount} unlabeled{" "}
-              {panel.diagramModel.skippedUnlabeledEntityCount === 1 ? "entity" : "entities"} — diagram labels were
-              not stored on the structured brief.
+              {formatArchitectureDiagramUnlabeledComponentsNotice(panel.diagramModel.skippedUnlabeledEntityCount)}
             </p>
           ) : null}
+          {panel.diagramModel?.entitySectionHonestyLines?.map((line) => (
+            <p
+              key={line}
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="architecture-diagram-section-honesty"
+            >
+              {line}
+            </p>
+          )) ?? null}
+          {panel.diagramModel?.diagramHonestyNotes?.map((note) => (
+            <p
+              key={note}
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="architecture-diagram-honesty-note"
+            >
+              {note}
+            </p>
+          )) ?? null}
           <ArchitectureDiagramViewer
             mermaidSource={panel.displayMermaidSource}
             textAlternative={panel.textAlternative}
+            unmatchedDataFlows={panel.diagramModel?.unmatchedDataFlows ?? []}
             onRetry={() => void panel.runGeneration(false)}
           />
         </div>
@@ -164,6 +191,14 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE}
             </p>
+            {!panel.liveModelSynced && panel.diagramModel !== null ? (
+              <p
+                className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="architecture-diagram-saved-mermaid-honesty"
+              >
+                {ARCHITECTURE_DIAGRAM_SAVED_MERMAID_VS_GENERATED_MODEL_NOTICE}
+              </p>
+            ) : null}
             <pre className="max-h-48 overflow-auto rounded-md bg-neutral-50 p-3 text-xs dark:bg-neutral-900">
               {formatArchitectureDiagramMermaidSourceForDisclosure(panel.mermaidSource)}
             </pre>

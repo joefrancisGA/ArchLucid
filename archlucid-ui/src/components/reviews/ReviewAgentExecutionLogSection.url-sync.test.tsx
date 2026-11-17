@@ -117,4 +117,29 @@ describe("ReviewAgentExecutionLogSection URL sync", () => {
 
     expect(details()).toHaveAttribute("open");
   });
+
+  it("orders execution rows by instant when createdUtc values use different offsets", () => {
+    render(
+      <ReviewAgentExecutionLogSection
+        results={[
+          {
+            ...sampleResults[0],
+            resultId: "result-cost",
+            agentType: 2,
+            createdUtc: "2026-10-30T06:30:00-04:00",
+          },
+          {
+            ...sampleResults[0],
+            resultId: "result-topology",
+            agentType: 1,
+            createdUtc: "2026-10-30T10:00:00Z",
+          },
+        ]}
+      />,
+    );
+
+    const rows = screen.getAllByRole("row");
+    expect(rows[1]).toHaveTextContent("Architecture structure");
+    expect(rows[2]).toHaveTextContent("Cost");
+  });
 });

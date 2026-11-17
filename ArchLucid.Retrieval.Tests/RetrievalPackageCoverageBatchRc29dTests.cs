@@ -113,10 +113,11 @@ public sealed class RetrievalPackageCoverageBatchRc29dTests
 
         IReadOnlyList<RetrievalDocument> documents = builder.BuildForManifest(manifest);
 
-        documents.Should().HaveCount(2);
+        documents.Should().HaveCount(3);
         documents[0].SourceType.Should().Be("Manifest");
-        documents[1].SourceType.Should().Be("ManifestDecision");
-        documents[1].Title.Should().Be("Use WAF");
+        documents[1].SourceType.Should().Be("ManifestMandatedMarkdown");
+        documents[2].SourceType.Should().Be("ManifestDecision");
+        documents[2].Title.Should().Be("Use WAF");
     }
 
     [Fact]

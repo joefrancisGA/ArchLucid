@@ -21,6 +21,7 @@ import {
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_LABEL,
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_PLACEHOLDER,
 } from "@/lib/governance/governance-workflow-release-copy";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type GovernanceWorkflowQueryCardProps = {
@@ -74,7 +75,7 @@ export function GovernanceWorkflowQueryCard(props: GovernanceWorkflowQueryCardPr
           {" · "}
           <Link
             className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(activeRunId)}`}
+            href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(activeRunId)}
           >
             Open review
           </Link>

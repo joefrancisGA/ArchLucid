@@ -59,6 +59,7 @@ import {
   reviewFinalizeConfirmHrefFromSearch,
 } from "@/lib/reviews/review-finalize-confirm-url";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 
 /** Nav and review-detail copy  —  replay/compare stay available post-finalize (see UI_GLOSSARY_V1). */
 export const FINALIZE_REPLAY_COMPARE_TOOLTIP = FINALIZE_REPLAY_COMPARE_NOTE;
@@ -92,7 +93,12 @@ export function CommitRunButton({
 }: CommitRunButtonProps) {
   const { isWorkingMode } = useWorkspaceMode();
   const router = useRouter();
-  const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const parentArchitectureIdTrimmedPreview = parentArchitectureId?.trim() ?? "";
+  const reviewBaseHref = resolveArchitectureReviewHref(
+    runId,
+    parentArchitectureIdTrimmedPreview.length > 0 ? parentArchitectureIdTrimmedPreview : null,
+  );
+  const pathname = usePathname() ?? reviewBaseHref;
   const searchParams = useSearchParams();
   const livelihoodReturnPath =
     searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
@@ -268,7 +274,7 @@ export function CommitRunButton({
   const preCommitGovernanceBlock =
     error === null ? null : resolvePreCommitGovernanceBlockView(error.problem);
 
-  const parentArchitectureIdTrimmed = parentArchitectureId?.trim() ?? "";
+  const parentArchitectureIdTrimmed = parentArchitectureIdTrimmedPreview;
   const workingFinalizeSuccessDeskHref =
     isWorkingMode && parentArchitectureIdTrimmed.length > 0
       ? resolveFinalizeSuccessDeskHref(parentArchitectureIdTrimmed, runId)
@@ -278,6 +284,8 @@ export function CommitRunButton({
     runId,
     isWorkingMode,
   });
+  const postFinalizeCompareHref = `${reviewBaseHref}/compare`;
+  const postFinalizeGraphHref = `${reviewBaseHref}/graph`;
 
   if (disabled) {
     return (
@@ -457,12 +465,12 @@ export function CommitRunButton({
                 <Link href="#sponsor-handoff">Send to sponsor</Link>
               </Button>
               <Button variant="outline" asChild className="justify-start">
-                <Link href={`/architecture/reviews/${encodeURIComponent(runId)}/compare`}>
+                <Link href={postFinalizeCompareHref}>
                   Compare
                 </Link>
               </Button>
               <Button variant="outline" asChild className="justify-start">
-                <Link href={`/architecture/reviews/${encodeURIComponent(runId)}/graph`}>
+                <Link href={postFinalizeGraphHref}>
                   Knowledge Graph
                 </Link>
               </Button>

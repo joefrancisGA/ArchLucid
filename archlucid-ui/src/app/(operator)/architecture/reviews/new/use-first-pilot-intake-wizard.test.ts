@@ -1,4 +1,4 @@
-import { renderHook, act, waitFor, type ReactNode } from "@testing-library/react";
+import { renderHook, act, waitFor, fireEvent, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -6,7 +6,7 @@ import type { ScopeUnderstandingBullet } from "@/lib/architecture/architecture-s
 
 const scopeGateSearchParamsHarness = vi.hoisted(() => {
   const listeners = new Set<() => void>();
-  const state = { query: "" };
+  const state = { query: "", windowQuery: null as string | null };
 
   return {
     state,
@@ -26,12 +26,28 @@ const scopeGateSearchParamsHarness = vi.hoisted(() => {
         state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
       }
 
+      state.windowQuery = state.query;
+
       for (const listener of listeners) {
         listener();
       }
     },
+    applySearchParamsQuery(query: string): void {
+      state.query = query;
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    setWindowLocationSearch(query: string): void {
+      state.windowQuery = query;
+    },
+    readWindowLocationSearch(): string {
+      return state.windowQuery ?? state.query;
+    },
     reset(): void {
       state.query = "";
+      state.windowQuery = null;
     },
   };
 });
@@ -41,7 +57,7 @@ vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
 
   return {
     ...actual,
-    readWindowLocationSearch: () => scopeGateSearchParamsHarness.state.query,
+    readWindowLocationSearch: () => scopeGateSearchParamsHarness.readWindowLocationSearch(),
     commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
       scopeGateSearchParamsHarness.applyHref(href);
 
@@ -142,20 +158,36 @@ type CapturedPersistenceArgs = {
 
 let capturedPersistence: CapturedPersistenceArgs | null = null;
 
-vi.mock("@/hooks/use-wizard-session-persistence", () => ({
-  useWizardSessionPersistence: (args: CapturedPersistenceArgs) => {
-    capturedPersistence = args;
-
-    return {
-      saveState: "idle",
-      lastSavedUtc: null,
-      pendingRestore: null,
-      acceptRestore: vi.fn(),
-      dismissRestore: vi.fn(),
-      clearSession: vi.fn(),
-    };
-  },
+const sessionRestoreOnMountHarness = vi.hoisted(() => ({
+  snapshot: null as CapturedPersistenceArgs["state"] | null,
 }));
+
+vi.mock("@/hooks/use-wizard-session-persistence", async () => {
+  const React = await import("react");
+
+  return {
+    useWizardSessionPersistence: (args: CapturedPersistenceArgs) => {
+      capturedPersistence = args;
+
+      React.useEffect(() => {
+        const snapshot = sessionRestoreOnMountHarness.snapshot;
+
+        if (snapshot !== null) {
+          args.onRestore({ state: snapshot });
+        }
+      }, []);
+
+      return {
+        saveState: "idle",
+        lastSavedUtc: null,
+        pendingRestore: null,
+        acceptRestore: vi.fn(),
+        dismissRestore: vi.fn(),
+        clearSession: vi.fn(),
+      };
+    },
+  };
+});
 
 import { mergeScopeBulletsIntoBrief } from "@/lib/architecture/architecture-scope-understanding-check";
 
@@ -175,6 +207,7 @@ describe("useFirstPilotIntakeWizard prior-run prefill", () => {
   beforeEach(() => {
     replaceMock.mockReset();
     capturedPersistence = null;
+    sessionRestoreOnMountHarness.snapshot = null;
     scopeGateSearchParamsHarness.reset();
     useRunSummaryQuery.mockReturnValue({ data: undefined });
     getPriorPackageSemanticCounts.mockReset();
@@ -446,6 +479,21 @@ describe("useFirstPilotIntakeWizard scope gate URL sync", () => {
     useRunSummaryQuery.mockReturnValue({ data: undefined });
   });
 
+  it("keeps scope gate closed from useSearchParams when popstate reads lagging window.location.search", () => {
+    scopeGateSearchParamsHarness.applySearchParamsQuery("");
+    scopeGateSearchParamsHarness.setWindowLocationSearch("scopeGate=1");
+
+    const { result } = renderHook(() => useFirstPilotIntakeWizard({}), {
+      wrapper: ScopeGateSearchParamsRerenderHost,
+    });
+
+    expect(result.current.scopeGateOpen).toBe(false);
+
+    fireEvent(window, new PopStateEvent("popstate"));
+
+    expect(result.current.scopeGateOpen).toBe(false);
+  });
+
   it("follows scopeGate= URL changes without a popstate event", () => {
     scopeGateSearchParamsHarness.state.query = "scopeGate=1";
 
@@ -460,12 +508,34 @@ describe("useFirstPilotIntakeWizard scope gate URL sync", () => {
 
     expect(result.current.scopeGateOpen).toBe(false);
   });
+
+  it("clears stale scopeGate from the address bar when closing the gate after URL ref syncs before React state", () => {
+    scopeGateSearchParamsHarness.applyHref("/architecture/reviews/new?scopeGate=1");
+
+    const { result, rerender } = renderHook(() => useFirstPilotIntakeWizard({}), {
+      wrapper: ScopeGateSearchParamsRerenderHost,
+    });
+
+    expect(result.current.scopeGateOpen).toBe(true);
+
+    act(() => {
+      scopeGateSearchParamsHarness.applySearchParamsQuery("");
+      scopeGateSearchParamsHarness.setWindowLocationSearch("scopeGate=1");
+      rerender();
+      result.current.setScopeGateOpen(false);
+    });
+
+    const lastHref = scopeGateSearchParamsHarness.readWindowLocationSearch();
+    expect(lastHref.includes("scopeGate=")).toBe(false);
+    expect(result.current.scopeGateOpen).toBe(false);
+  });
 });
 
 describe("useFirstPilotIntakeWizard session restore", () => {
   beforeEach(() => {
     replaceMock.mockReset();
     capturedPersistence = null;
+    sessionRestoreOnMountHarness.snapshot = null;
     scopeGateSearchParamsHarness.state.query = "scopeGate=1";
     useRunSummaryQuery.mockReturnValue({ data: undefined });
   });
@@ -485,6 +555,28 @@ describe("useFirstPilotIntakeWizard session restore", () => {
     });
 
     expect(capturedPersistence?.state.scopeBullets).toEqual(sampleScopeBullets);
+  });
+
+  it("keeps restored quick-start title when template= deeplink and session auto-restore run on the same mount", async () => {
+    scopeGateSearchParamsHarness.state.query = "template=customer-intake-modernization";
+    sessionRestoreOnMountHarness.snapshot = {
+      runTitle: "Restored quick-start title",
+      briefText: "Restored operator brief body.",
+      focusedPilotModeEnabled: true,
+      l0Answers: {},
+      l0SkippedQuestionKeys: [],
+      scopeGateOpen: false,
+      scopeBullets: [],
+    };
+
+    const { result } = renderHook(() => useFirstPilotIntakeWizard({}));
+
+    await waitFor(() => {
+      expect(result.current.runTitle).toBe("Restored quick-start title");
+    });
+
+    expect(result.current.briefText).toBe("Restored operator brief body.");
+    expect(result.current.runTitle).not.toBe("Enterprise customer intake");
   });
 
   it("restores scope gate and bullets from session so submit keeps merged scope", async () => {

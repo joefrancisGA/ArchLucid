@@ -5,6 +5,8 @@ import { ArchitectureStructuredSectionView } from "@/components/architecture/Arc
 import {
   ARCHITECTURE_STRUCTURED_ASSERTED_LABEL,
   ARCHITECTURE_STRUCTURED_INFERRED_LABEL,
+  ARCHITECTURE_STRUCTURED_SECTION_ENTITIES_NOT_STORED,
+  ARCHITECTURE_STRUCTURED_SECTION_ENTITIES_STORED_EMPTY,
 } from "@/lib/architecture/architecture-structured-content-copy";
 import type { ArchitectureStructuredSection } from "@/lib/architecture/architecture-structured-content-types";
 
@@ -72,6 +74,59 @@ describe("ArchitectureStructuredSectionView", () => {
     expect(screen.getByText("Detail was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Detail was stored empty.")).toBeInTheDocument();
     expect(screen.getByText("Empty")).toBeInTheDocument();
+  });
+
+  it("labels omitted entity lists separately from stored-empty lists (P-12)", () => {
+    const { rerender } = render(
+      <ArchitectureStructuredSectionView
+        section={{
+          key: "scope",
+          title: "Scope",
+          provenance: "asserted",
+          narrativeMarkdown: null,
+        }}
+        defaultOpen
+        correctionHref={null}
+      />,
+    );
+
+    expect(screen.getByText(ARCHITECTURE_STRUCTURED_SECTION_ENTITIES_NOT_STORED)).toBeInTheDocument();
+
+    rerender(
+      <ArchitectureStructuredSectionView
+        section={{
+          key: "scope",
+          title: "Scope",
+          provenance: "asserted",
+          narrativeMarkdown: null,
+          entities: [],
+        }}
+        defaultOpen
+        correctionHref={null}
+      />,
+    );
+
+    expect(screen.getByText(ARCHITECTURE_STRUCTURED_SECTION_ENTITIES_STORED_EMPTY)).toBeInTheDocument();
+  });
+
+  it("shows working-document honesty on open-questions sections", () => {
+    render(
+      <ArchitectureStructuredSectionView
+        section={{
+          key: "open-questions",
+          title: "Open questions",
+          provenance: "inferred",
+          narrativeMarkdown: "Who owns DNS cutover?",
+          entities: [],
+        }}
+        defaultOpen
+        correctionHref="/architecture/reviews/new?path=guided-intake"
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-open-questions-working-document-honesty")).toHaveTextContent(
+      "Working document",
+    );
   });
 
   it("labels a stored empty entity heading", () => {

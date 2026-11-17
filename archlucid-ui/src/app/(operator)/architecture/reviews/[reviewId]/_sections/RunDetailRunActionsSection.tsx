@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import type { ReactElement } from "react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+
+import { resolveDeskContinuityReviewOpenHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
 import { ShareReviewPackageButton } from "@/components/ShareReviewPackageButton";
@@ -48,6 +51,16 @@ type RunDetailRunActionsSectionProps = {
 
 export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProps): ReactElement {
   const { runId, systemName, manifestId, manifestVersion, hasCommitBlockingFailures, operatorGovernanceDecision = null } = props;
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const sponsorReportReviewHref = useMemo(
+    () =>
+      resolveDeskContinuityReviewOpenHref(runId, {
+        pathname,
+        search: searchParams.toString(),
+      }),
+    [pathname, runId, searchParams],
+  );
   const evalChromeShell = useProductionEvalChrome();
   const workingDesk = useProductionDeskChrome();
   const packageCommitted =
@@ -172,7 +185,7 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
             )}
             {manifestId && !evalChromeShell ? (
               <Button variant="outline" size="sm" asChild>
-                <Link href={`/architecture/reviews/${encodeURIComponent(runId)}`}>Open sponsor report</Link>
+                <Link href={sponsorReportReviewHref}>Open sponsor report</Link>
               </Button>
             ) : null}
           </div>

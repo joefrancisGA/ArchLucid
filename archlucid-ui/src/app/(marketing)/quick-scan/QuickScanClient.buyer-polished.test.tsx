@@ -15,7 +15,19 @@ vi.mock("@/lib/auth/turnstile-config", () => ({
   readTurnstileSiteKey: vi.fn(() => "site-key-test"),
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/quick-scan",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
 import { QuickScanClient } from "@/app/(marketing)/quick-scan/QuickScanClient";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import {
   QUICK_SCAN_BUYER_OVERVIEW,
   QUICK_SCAN_FIRST_VIEWPORT_TEST_ID,
@@ -27,12 +39,11 @@ import {
   QUICK_SCAN_SKIP_TARGET_ID,
 } from "@/app/(marketing)/quick-scan/quick-scan-page-content";
 import {
+  QUICK_SCAN_CANONICAL_PATH,
   QUICK_SCAN_CLAIM_DISCIPLINE,
   QUICK_SCAN_FOLLOW_UPS_TITLE,
   QUICK_SCAN_SOURCES,
 } from "@/lib/quick-scan-evidence-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 describe("QuickScanClient buyer-polished shell (QXX)", () => {
   beforeEach(() => {
@@ -85,10 +96,7 @@ describe("QuickScanClient buyer-polished shell (QXX)", () => {
     expect(within(workspace).getByTestId("quick-scan-submit")).toBeInTheDocument();
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(QUICK_SCAN_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), QUICK_SCAN_SOURCES, QUICK_SCAN_CANONICAL_PATH);
 
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

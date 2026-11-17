@@ -45,6 +45,83 @@ public sealed class RunTrustEvidenceCardBuilderTests
     }
 
     [Fact]
+    public async Task CompareQuality_BuildAsync_includes_legacy_keyed_trace_count_on_trust_card()
+    {
+        Guid runGuid = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        string canonicalRunId = runGuid.ToString("N");
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+        ArchitectureRunDetail detail = BuildCommittedDetail(runGuid);
+        detail.Run.RunId = canonicalRunId;
+
+        InMemoryAgentExecutionTraceRepository traceRepository = new();
+        await traceRepository.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trust-trace-1",
+                RunId = legacyUpper,
+                AgentType = AgentType.Topology,
+            },
+            CancellationToken.None);
+        await traceRepository.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trust-trace-2",
+                RunId = legacyUpper,
+                AgentType = AgentType.Compliance,
+            },
+            CancellationToken.None);
+
+        Mock<IAuditRepository> audit = new();
+        audit.Setup(a => a.CountFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IFindingEvidenceChainService> evidence = new();
+        Mock<IRunExplanationSummaryService> explanation = new();
+        explanation.Setup(x => x.GetSummaryAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunExplanationSummary
+            {
+                Explanation = new ExplanationResult(),
+                ThemeSummaries = [],
+                OverallAssessment = "ok",
+                RiskPosture = "neutral",
+                FindingCount = 0,
+                DecisionCount = 0,
+                UnresolvedIssueCount = 0,
+                ComplianceGapCount = 0,
+                FaithfulnessSupportRatio = 0.9,
+                DeterministicFallbackUsed = false,
+            });
+
+        RunTrustEvidenceCardBuilder builder = new(
+            audit.Object,
+            traceRepository,
+            evidence.Object,
+            explanation.Object,
+            scopeProvider.Object,
+            CreateSealedManifestAuthorityMock(scope).Object,
+            CreateSealedManifestHashMock());
+
+        RunTrustEvidenceCard? card = await builder.BuildAsync(detail, "Real", CancellationToken.None);
+
+        card.Should().NotBeNull();
+        card!.AgentTraces.Detail.Should().Contain("2");
+    }
+
+    [Fact]
     public async Task BuildAsync_WhenCommitted_IncludesAuditCountAndLinks()
     {
         Guid runGuid = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");

@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Governance.Coverage;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Governance.PolicyPacks;
 
@@ -68,9 +69,11 @@ public class PolicyPack
 
     public string Status
     {
-        get;
-        set;
-    } = PolicyPackStatus.Draft;
+        get => status;
+        set => status = ContractCollectionDefaults.CoalesceStringDefault(value, PolicyPackStatus.Draft);
+    }
+
+    private string status = PolicyPackStatus.Draft;
 
     public DateTime CreatedUtc
     {

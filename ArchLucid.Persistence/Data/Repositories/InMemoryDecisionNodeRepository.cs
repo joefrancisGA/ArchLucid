@@ -44,13 +44,34 @@ public sealed class InMemoryDecisionNodeRepository : IDecisionNodeRepository
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
         lock (_gate)
         {
-            if (!_byRunId.TryGetValue(runId, out List<DecisionNodeRecord>? list))
-                return Task.FromResult<IReadOnlyList<DecisionNodeRecord>>([]);
+            Dictionary<string, DecisionNodeRecord> merged = new(StringComparer.OrdinalIgnoreCase);
 
-            List<DecisionNodeRecord> ordered = list
+            foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(runId))
+            {
+                if (!_byRunId.TryGetValue(lookupKey, out List<DecisionNodeRecord>? list))
+                    continue;
+
+                foreach (DecisionNodeRecord decision in list.OrderBy(d => d.CreatedUtc))
+                {
+                    string mergeKey = string.IsNullOrWhiteSpace(decision.DecisionId)
+                        ? $"{decision.Topic}:{decision.RunId}"
+                        : decision.DecisionId;
+
+                    if (!merged.TryGetValue(mergeKey, out DecisionNodeRecord? existing)
+                        || decision.CreatedUtc > existing.CreatedUtc)
+                    {
+                        merged[mergeKey] = decision;
+                    }
+                }
+            }
+
+            List<DecisionNodeRecord> ordered = merged.Values
                 .OrderBy(d => d.CreatedUtc)
+                .ThenBy(d => d.DecisionId, StringComparer.OrdinalIgnoreCase)
                 .Select(Clone)
                 .ToList();
 

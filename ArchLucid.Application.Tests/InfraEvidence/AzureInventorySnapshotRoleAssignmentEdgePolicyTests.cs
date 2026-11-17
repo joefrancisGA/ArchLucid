@@ -73,7 +73,17 @@ public sealed class AzureInventorySnapshotRoleAssignmentEdgePolicyTests
             Assert.Equal(2, roles.Select(edge => edge.EdgeId).Distinct().Count());
             var diagram = new DiagramAstFromGraphCompiler().Compile(graph, DiagramMode.FullSubscription);
             var access = Assert.Single(diagram.Edges, edge => edge.InferenceSource == GraphEdgeInferenceSources.InventoryRbacAssignment);
-            Assert.Equal("Has access", access.Label);
+            string expectedDiagramLabel = mode switch
+            {
+                "two-principals" or "duplicate-scopes" =>
+                    $"{InventoryDiagramRelationshipLabelTexts.FormatRoleAssignmentAccessLabel("Reader")} · 2 distinct role names were stored on this line.",
+                "reader-first" =>
+                    $"{InventoryDiagramRelationshipLabelTexts.FormatRoleAssignmentAccessLabel("Reader")} · 2 distinct role names were stored on this line.",
+                "owner-first" =>
+                    $"{InventoryDiagramRelationshipLabelTexts.FormatRoleAssignmentAccessLabel("Owner")} · 2 distinct role names were stored on this line.",
+                _ => throw new ArgumentOutOfRangeException(nameof(mode)),
+            };
+            Assert.Equal(expectedDiagramLabel, access.Label);
         }
     }
 

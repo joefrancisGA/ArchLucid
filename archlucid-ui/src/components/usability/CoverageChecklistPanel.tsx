@@ -3,7 +3,15 @@ import type { ReactElement } from "react";
 
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { ChecklistCoverageItem } from "@/lib/findings/findings-snapshot-insight-density";
+import {
+  FINDINGS_SNAPSHOT_CHECKLIST_CATEGORY_NOT_STORED,
+  FINDINGS_SNAPSHOT_CHECKLIST_RECOMMENDATION_NOT_STORED,
+  type ChecklistCoverageItem,
+} from "@/lib/findings/findings-snapshot-insight-density";
+import {
+  severityBadgeLabel,
+  severityKindFromNumericValue,
+} from "@/lib/quick-decision-severity-labels";
 
 export type CoverageChecklistPanelProps = {
   readonly items: readonly ChecklistCoverageItem[];
@@ -44,15 +52,21 @@ export function CoverageChecklistPanel(props: CoverageChecklistPanelProps): Reac
             data-testid={`coverage-checklist-item-${item.findingId}`}
           >
             <div className="flex flex-wrap items-center gap-2">
-              <SeverityTag severity={null} kind="info" label="Checklist" />
+              <SeverityTag
+                severity={severityBadgeLabel(item.severityValue)}
+                kind={severityKindFromNumericValue(item.severityValue)}
+                label={severityBadgeLabel(item.severityValue)}
+              />
               <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{item.title}</span>
             </div>
-            {item.category !== null ? (
-              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{item.category}</p>
-            ) : null}
-            {item.recommendation !== null && item.recommendation.length > 0 ? (
-              <p className={cn("m-0 mt-1 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.recommendation}</p>
-            ) : null}
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {item.category ?? FINDINGS_SNAPSHOT_CHECKLIST_CATEGORY_NOT_STORED}
+            </p>
+            <p className={cn("m-0 mt-1 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              {item.recommendation !== null && item.recommendation.trim().length > 0
+                ? item.recommendation
+                : FINDINGS_SNAPSHOT_CHECKLIST_RECOMMENDATION_NOT_STORED}
+            </p>
           </li>
         ))}
       </ul>

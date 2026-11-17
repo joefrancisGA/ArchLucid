@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 
@@ -26,6 +26,7 @@ import {
 } from "@/lib/alerts-inbox-triage-checklist";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 
 export type AlertsInboxInteractiveClientProps = {
   /** Server-loaded inbox snapshot for first paint (TB-564). */
@@ -94,7 +95,7 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
           {" · "}
           <Link
             className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(controller.scopedRunId)}`}
+            href={resolveOperatorScopedRunReviewHref(controller.scopedRunId)}
           >
             Open review
           </Link>

@@ -12,6 +12,12 @@ describe("SeverityTag", () => {
     expect(badge.className).toContain("pointer-events-none");
   });
 
+  it("labels null severity as not stored instead of Unclassified (P-11)", () => {
+    render(<SeverityTag severity={null} />);
+    expect(screen.getByText("Severity was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("Unclassified")).not.toBeInTheDocument();
+  });
+
   it("renders contract FindingSeverity enum names without unknown fallback (TB-328)", () => {
     render(<SeverityTag severity="Warning" />);
     expect(screen.getByText("Warning").tagName).toBe("SPAN");

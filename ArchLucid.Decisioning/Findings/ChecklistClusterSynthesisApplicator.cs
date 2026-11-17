@@ -94,7 +94,7 @@ public static partial class ChecklistClusterSynthesisApplicator
     {
         if (string.IsNullOrWhiteSpace(title))
         {
-            return "unspecified-control";
+            return DecisioningFindingHonestyCopy.FindingTitleNotStored;
         }
 
         string stem = QuotedSegmentRegex().Replace(title.Trim(), " ");
@@ -104,7 +104,7 @@ public static partial class ChecklistClusterSynthesisApplicator
 
         if (string.IsNullOrWhiteSpace(stem))
         {
-            return "unspecified-control";
+            return DecisioningFindingHonestyCopy.FindingTitleNotStored;
         }
 
         return stem;
@@ -146,6 +146,7 @@ public static partial class ChecklistClusterSynthesisApplicator
 
         string controlLabel = ResolveControlLabel(clusterKey, members);
         int memberCount = members.Count;
+        string title = FormatClusterTitle(clusterKey, controlLabel, memberCount);
 
         return new Finding
         {
@@ -157,7 +158,7 @@ public static partial class ChecklistClusterSynthesisApplicator
             Classification = FindingClassification.DecisionGradeFinding,
             Treatment = FindingTreatment.Promote,
             InsightDensityScore = 80,
-            Title = $"{controlLabel} missing on {memberCount} services",
+            Title = title,
             Rationale =
                 $"{memberCount} demoted checklist findings share root cause '{clusterKey}'. One platform remediation may address the cluster.",
             DecisionConsequence =
@@ -185,6 +186,23 @@ public static partial class ChecklistClusterSynthesisApplicator
         };
     }
 
+    private static string FormatClusterTitle(string clusterKey, string controlLabel, int memberCount)
+    {
+        if (clusterKey.StartsWith("policy:", StringComparison.Ordinal))
+        {
+            string ruleId = clusterKey["policy:".Length..];
+
+            return $"Control name was not stored. Policy rule id {ruleId}. Missing on {memberCount} services.";
+        }
+
+        if (string.Equals(controlLabel, DecisioningFindingHonestyCopy.FindingTitleNotStored, StringComparison.Ordinal))
+        {
+            return $"Control name was not stored. Missing on {memberCount} services.";
+        }
+
+        return $"{controlLabel} missing on {memberCount} services";
+    }
+
     private static string ResolveControlLabel(string clusterKey, IReadOnlyList<Finding> members)
     {
         if (clusterKey.StartsWith("policy:", StringComparison.Ordinal))
@@ -207,7 +225,7 @@ public static partial class ChecklistClusterSynthesisApplicator
         Finding representative = members[0];
 
         return string.IsNullOrWhiteSpace(representative.Title)
-            ? "Shared control gap"
+            ? DecisioningFindingHonestyCopy.FindingTitleNotStored
             : representative.Title;
     }
 
@@ -215,7 +233,7 @@ public static partial class ChecklistClusterSynthesisApplicator
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            return "Shared control gap";
+            return DecisioningFindingHonestyCopy.FindingTitleNotStored;
         }
 
         if (value.Length == 1)

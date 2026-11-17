@@ -11,6 +11,9 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
     private const string SummaryFill = "#374151";
     private const double SummaryFontSize = 12.0d;
 
+    internal const string MessagingInStorageStageFrameSentence =
+        "Service Bus and Event Hubs namespaces in the Storage stage frame are layout grouping only — not a stored data-pipeline fact.";
+
     public static XElement? EmitLayer(
         XNamespace svgNamespace,
         IReadOnlyList<DiagramForestDataFlowColumnLayout.ColumnInfo> columns,
@@ -83,15 +86,27 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
             {
                 int used = 0;
                 int none = 0;
+                int missingStatus = 0;
                 string? nonePhrase = null;
+                bool hasMessagingNamespace = false;
 
                 foreach (DiagramForestDataFlowColumnLayout.NodePlacement placement in entry.Value)
                 {
+                    string? armType = placement.Node.ArmResourceType;
+
+                    if (!string.IsNullOrWhiteSpace(armType)
+                        && (armType.StartsWith("Microsoft.ServiceBus/", StringComparison.OrdinalIgnoreCase)
+                            || armType.StartsWith("Microsoft.EventHub/", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        hasMessagingNamespace = true;
+                    }
+
                     string? status = placement.Node.DataFlowRollupStatusLine
                         ?? placement.Metrics.ConsumerStatusLine;
 
                     if (status is null)
                     {
+                        missingStatus++;
                         continue;
                     }
 
@@ -99,7 +114,7 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
                     {
                         used++;
                     }
-                    else if (status.StartsWith("No diagram neighbor on this view", StringComparison.Ordinal))
+                    else if (status.StartsWith(DiagramForestDiagramNeighborOnViewCopy.NoNeighborOnViewStatus, StringComparison.Ordinal))
                     {
                         none++;
                         nonePhrase = "no diagram neighbor on this view";
@@ -111,9 +126,21 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
                     }
                 }
 
+                if (missingStatus > 0)
+                {
+                    segment += missingStatus == 1
+                        ? " (1 neighbor status was not stored.)"
+                        : $" ({missingStatus} neighbor statuses were not stored.)";
+                }
+
                 if (used + none > 0 && nonePhrase is not null)
                 {
                     segment += $" ({used} with diagram neighbors, {none} {nonePhrase})";
+                }
+
+                if (hasMessagingNamespace)
+                {
+                    segment += $" — {MessagingInStorageStageFrameSentence}";
                 }
             }
 
@@ -122,7 +149,21 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
 
         if (segments.Count == 0)
         {
-            return null;
+            if (hasExplicitNotStagedLabel && notStagedCount > 0
+                && stageLabelByIndex.TryGetValue(notStagedStageIndex, out string? notStagedColumnLabel))
+            {
+                segments.Add($"{notStagedCount} {notStagedColumnLabel}");
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else if (hasExplicitNotStagedLabel
+                 && notStagedCount > 0
+                 && stageLabelByIndex.TryGetValue(notStagedStageIndex, out string? notStagedColumnLabel))
+        {
+            segments.Add($"{notStagedCount} {notStagedColumnLabel}");
         }
 
         StringBuilder summary = new();
@@ -130,8 +171,10 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
 
         if (notStagedCount > 0)
         {
-            summary.Append(CultureInfo.InvariantCulture, $" · {notStagedCount} not staged");
+            summary.Append(CultureInfo.InvariantCulture, $" · {notStagedCount} resources whose stage was not stored.");
         }
+
+        summary.Append(" · ").Append(DiagramForestDiagramNeighborOnViewCopy.IsolationDisclaimer);
 
         double leftX = columns.Min(column => column.LeftX);
         double rightX = columns.Max(column => column.LeftX + column.Width);

@@ -29,7 +29,7 @@ public static class WeeklyDigestIsoWeekIdempotencyKeyValidator
     {
         foreach (char character in value)
         {
-            if (character is '\r' or '\n' or '\u0085' or '\u2028' or '\u2029')
+            if (character is '\r' or '\n' or '\f' or '\u000B' or '\u0085' or '\u2028' or '\u2029')
             {
                 return true;
             }

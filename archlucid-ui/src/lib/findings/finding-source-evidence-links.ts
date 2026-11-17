@@ -7,11 +7,8 @@ import { graphEvidenceHrefFromInspect, preferredGraphNodeIdForFindingDeepLink } 
 import { findingInspectEvidenceCitationLabel } from "@/lib/findings/finding-policy-evidence-citations";
 import { normalizeEvidenceRefSnippet } from "@/lib/findings/finding-evidence-ref-snippet";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
-import {
-  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
-  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
-} from "@/lib/showcase-static-demo";
 import type { FindingInspectEvidence, FindingInspectPayload } from "@/types/finding-inspect";
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { signedRecordSectionPath } from "@/lib/signed-records-paths";
 
 export type FindingSourceEvidenceLinkKind =
@@ -53,13 +50,9 @@ function nonEmpty(value: string | null | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function encodeRunPath(runId: string): string {
-  return encodeURIComponent(runId.trim());
-}
-
 /** In-app run detail section anchor (`#manifest-summary`, `#artifacts-exports`, …). */
 export function runDetailSectionHref(runId: string, sectionId: string): string {
-  return `/architecture/reviews/${encodeRunPath(runId)}#${sectionId.trim()}`;
+  return resolveLibOpenReviewHref(runId, { hash: sectionId.trim() });
 }
 
 /** Manifest record page section anchor (`#manifest-decisions`, …). */
@@ -159,10 +152,16 @@ function showcaseInspectEvidenceLink(
 
   return linkFromKind(
     "graphNode",
-    `Open ${artifactLabel} in evidence trail`,
+    evidenceTrailLinkLabelForArtifactId(row.artifactId ?? ""),
     graphTrailHrefWithOptionalNode(ctx.runId, graphFocusId),
     detail,
   );
+}
+
+const EVIDENCE_TRAIL_ARTIFACT_NAME_OMISSION_LINK = "Artifact name was not stored. Open the evidence trail." as const;
+
+function evidenceTrailLinkLabelForArtifactId(_artifactId: string): string {
+  return EVIDENCE_TRAIL_ARTIFACT_NAME_OMISSION_LINK;
 }
 
 function inspectRowSourceLink(
@@ -228,7 +227,7 @@ function inspectRowSourceLink(
     if (graphFocusId !== null) {
       return linkFromKind(
         "graphNode",
-        `Open ${artifactId} in evidence trail`,
+        evidenceTrailLinkLabelForArtifactId(artifactId),
         graphTrailHrefWithOptionalNode(ctx.runId, graphFocusId),
         detail,
       );
@@ -236,7 +235,7 @@ function inspectRowSourceLink(
 
     return linkFromKind(
       "artifactSection",
-      `Open ${artifactId}`,
+      evidenceTrailLinkLabelForArtifactId(artifactId),
       runDetailSectionHref(ctx.runId, "artifacts-exports"),
       detail,
     );
@@ -259,9 +258,9 @@ function inspectRowSourceLink(
   }
 
   return linkFromKind(
-    "manifestSection",
-    manifestRecordSectionLinkLabel(ctx),
-    runDetailSectionHref(ctx.runId, "manifest-summary"),
+    "artifactSection",
+    UNRESOLVED_EVIDENCE_REF_LABEL,
+    "",
     detail,
   );
 }
@@ -344,7 +343,7 @@ export function parseEvidenceRefToSourceLink(
   return linkFromKind(
     "artifactSection",
     UNRESOLVED_EVIDENCE_REF_LABEL,
-    runDetailSectionHref(ctx.runId, "artifacts-exports"),
+    "",
     snippet,
   );
 }
@@ -402,20 +401,7 @@ export function linksIncludeManifestSection(links: readonly FindingSourceEvidenc
   return links.some((link) => link.kind === "manifestSection" || link.kind === "manifestRecord");
 }
 
-/** Default manifest id for the curated showcase finding when callers omit manifest context. */
-export function defaultManifestIdForShowcaseFinding(runId: string, findingId: string): string | null {
-  const graphFocusId = preferredGraphNodeIdForFindingDeepLink(runId, findingId);
-
-  if (graphFocusId === null) {
-    return null;
-  }
-
-  const fid = findingId.trim().toLowerCase();
-  const primary = SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID.toLowerCase();
-
-  if (fid === primary || fid.startsWith(`${primary}-`)) {
-    return SHOWCASE_STATIC_DEMO_MANIFEST_ID;
-  }
-
+/** @deprecated Callers must pass an explicit manifest id from the run record — no showcase backfill. */
+export function defaultManifestIdForShowcaseFinding(_runId: string, _findingId: string): string | null {
   return null;
 }

@@ -16,11 +16,12 @@ internal static class PilotPreflightProductionLikeConfigLintSteps
     {
         ArgumentNullException.ThrowIfNull(localConfiguration);
 
-        string envName =
-            localConfiguration["ASPNETCORE_ENVIRONMENT"]
-            ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
-            ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
-            ?? (simulateProduction ? Environments.Production : Environments.Development);
+        string envName = simulateProduction
+            ? Environments.Production
+            : localConfiguration["ASPNETCORE_ENVIRONMENT"]
+                ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
+                ?? Environments.Development;
 
         OperatorConfigurationLintSnapshot lintSnapshot =
             OperatorConfigurationLintEvaluator.Evaluate(localConfiguration, envName.Trim());

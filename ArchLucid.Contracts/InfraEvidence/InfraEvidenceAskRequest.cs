@@ -56,6 +56,12 @@ public sealed class InfraEvidenceAskRequest
         set;
     }
 
+    public Guid? SecurityEvidencePathId
+    {
+        get;
+        set;
+    }
+
     public bool UseSimulator
     {
         get;

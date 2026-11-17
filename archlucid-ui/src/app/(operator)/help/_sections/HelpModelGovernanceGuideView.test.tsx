@@ -5,9 +5,22 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal as () => Promise<typeof import("next/navigation")>, {
+    usePathname: () => "/help/model-governance",
+  });
+});
+
 import { HelpModelGovernanceGuideView } from "@/app/(operator)/help/_sections/HelpModelGovernanceGuideView";
-import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import {
+  expectClaimDisciplineBandContent,
+  expectWhereToGoNextFollowUpLinks,
+  whereToGoNextFollowUpLinksForTests,
+} from "@/lib/claim-discipline-test-helpers";
+import {
+  MODEL_GOVERNANCE_HELP_CANONICAL_PATH,
   MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE,
   MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE_HEADING,
   MODEL_GOVERNANCE_HELP_SOURCES,
@@ -18,7 +31,6 @@ import {
   MODEL_GOVERNANCE_HELP_PRIMARY_ACTION,
 } from "@/lib/model-governance-help-guide-content";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpModelGovernanceGuideView", () => {
@@ -54,15 +66,14 @@ describe("HelpModelGovernanceGuideView", () => {
 
     const sourcesSection = screen.getByTestId("help-model-governance-sources");
 
-    for (const source of MODEL_GOVERNANCE_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      const link = within(sourcesSection).queryByRole("link", { name: accessibleName });
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      MODEL_GOVERNANCE_HELP_SOURCES,
+      MODEL_GOVERNANCE_HELP_CANONICAL_PATH,
+    );
 
-      if (link !== null) {
-        expect(link).toHaveAttribute("href", source.href);
-      }
-    }
-
-    expect(within(sourcesSection).getAllByRole("link")).toHaveLength(6);
+    expect(within(sourcesSection).getAllByRole("link")).toHaveLength(
+      whereToGoNextFollowUpLinksForTests(MODEL_GOVERNANCE_HELP_SOURCES, MODEL_GOVERNANCE_HELP_CANONICAL_PATH).length,
+    );
   });
 });

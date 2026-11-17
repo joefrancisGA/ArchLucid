@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Findings.HeldCheck;
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.Common;
@@ -83,7 +84,6 @@ public sealed class AzureExtractorPreparedZipPersistStage(
 
                 if (headerResult.Succeeded && headerResult.SnapshotId is Guid createdSnapshotId)
                 {
-                    snapshotId = createdSnapshotId;
                     AzureInventoryCaptureMethod captureMethod = manifest.RawJson.Contains(
                         "\"captureMethod\":\"HostedReader\"",
                         StringComparison.OrdinalIgnoreCase)
@@ -93,7 +93,7 @@ public sealed class AzureExtractorPreparedZipPersistStage(
                         ? AzureInventoryCaptureMethod.HostedReader
                         : AzureInventoryCaptureMethod.CustomerScript;
 
-                    await _inventorySnapshotMaterializer.TryMaterializePackageAsync(
+                    AzureInventorySnapshotMaterializeResult materialized = await _inventorySnapshotMaterializer.TryMaterializePackageAsync(
                         scope,
                         createdSnapshotId,
                         packageId,
@@ -101,6 +101,8 @@ public sealed class AzureExtractorPreparedZipPersistStage(
                         captureMethod,
                         manifest.ScriptVersion,
                         ct);
+                    if (materialized.Succeeded)
+                        snapshotId = createdSnapshotId;
                 }
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -148,7 +150,12 @@ public sealed class AzureExtractorPreparedZipPersistStage(
     private async Task TryAttachEvidenceBundleAsync(Guid runGuid, AzureExtractorPackageRecord record, CancellationToken ct)
     {
         ScopeContext attachScope = _scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<AgentTask> tasks = await _agentTaskRepository.GetByRunIdAsync(attachScope, runGuid.ToString("N"), ct);
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        IReadOnlyList<AgentTask> tasks = await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+            _agentTaskRepository,
+            attachScope,
+            lookupRunId,
+            ct);
         string? bundleRef = tasks.Select(t => t.EvidenceBundleRef?.Trim()).FirstOrDefault(r => !string.IsNullOrWhiteSpace(r));
         if (string.IsNullOrWhiteSpace(bundleRef)) return;
         EvidenceBundle? bundle = await _evidenceBundleRepository.GetByIdAsync(bundleRef, ct);

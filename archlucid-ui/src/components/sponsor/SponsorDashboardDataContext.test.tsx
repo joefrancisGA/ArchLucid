@@ -1,15 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/fetch-sponsor-roi-summary-client", () => ({
-  fetchSponsorRoiSummaryClient: vi.fn().mockResolvedValue({
-    systemCount: 1,
-    totalEstimatedUsdSavings: 1000,
+vi.mock("@/hooks/use-sponsor-dashboard-bundle-query", () => ({
+  useSponsorDashboardBundleQuery: () => ({
+    data: {
+      sponsorReport: { systemCount: 1, totalEstimatedUsdSavings: 1000 },
+      complianceDriftTrend: [],
+    },
+    isPending: false,
+    isFetched: true,
+    isError: false,
+    isFetching: false,
   }),
-}));
-
-vi.mock("@/lib/api", () => ({
-  getComplianceDriftTrend: vi.fn().mockResolvedValue([]),
 }));
 
 import {

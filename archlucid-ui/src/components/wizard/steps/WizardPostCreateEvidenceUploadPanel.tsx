@@ -39,12 +39,15 @@ export function WizardPostCreateEvidenceUploadPanel(props: WizardPostCreateEvide
   }
 
   if (uploadState === "success") {
+    const uploadedFileName = pendingFile?.name?.trim() ?? "";
+
     return (
       <p
         className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.body)}
         data-testid="wizard-evidence-upload-success"
       >
-        Evidence uploaded and linked to this review.
+        Upload finished for {uploadedFileName.length > 0 ? uploadedFileName : "the selected file"}. It is linked to
+        this review but was not parsed into the diagram yet.
       </p>
     );
   }
@@ -52,7 +55,7 @@ export function WizardPostCreateEvidenceUploadPanel(props: WizardPostCreateEvide
   if (uploadState === "uploading") {
     return (
       <AzureExtractorUploadProgressBar
-        label="Uploading architecture package to this review…"
+        label="Uploading the selected file. This is not yet a stored architecture package."
         percent={uploadProgressPercent}
         testId="wizard-evidence-upload-uploading"
       />

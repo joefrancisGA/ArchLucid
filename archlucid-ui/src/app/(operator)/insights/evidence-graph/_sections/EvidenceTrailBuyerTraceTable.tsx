@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import { getFindingEvidenceTraceHref, resolveQuickDecisionFindingWorkspaceHref } from "@/lib/findings/finding-evidence-navigation";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import Link from "next/link";
 
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
@@ -26,7 +27,7 @@ const rowGridClass = cn(
 export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTableProps) {
   const { runId, rows, onOpenGraphView } = props;
   const runTrim = runId.trim();
-  const reviewPackageHref = `/architecture/reviews/${encodeURIComponent(runTrim)}`;
+  const reviewPackageHref = resolveScopedInsightOpenReviewHrefWithDeskContinuity(runTrim);
 
   if (rows.length === 0) {
     return (
@@ -95,16 +96,16 @@ export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTable
               {explainGraphHref !== null ? (
                 <FindingEvidenceLinkChip href={explainGraphHref} evidenceRefCount={row.evidenceRefCount} />
               ) : (
-                "Not returned"
+                "Evidence graph link was not stored."
               )}
             </div>
             <div className={cn("min-w-0 break-words text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
-              {row.ruleId && row.ruleId.trim().length > 0 ? row.ruleId : "Not returned"}
+              {row.ruleId && row.ruleId.trim().length > 0 ? row.ruleId : "Rule id was not stored."}
             </div>
             <div className={cn("min-w-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
               {row.traceConfidenceLabel && row.traceConfidenceLabel.trim().length > 0
                 ? row.traceConfidenceLabel
-                : "Not returned"}
+                : "Trace confidence label was not stored."}
             </div>
             <div className={cn("flex min-w-0 flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
               <Link className="underline" href={reviewPackageHref}>
@@ -112,7 +113,7 @@ export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTable
               </Link>
               <Link
                 className="underline"
-                href={`/architecture/reviews/${encodeURIComponent(runTrim)}/findings/${encodeURIComponent(row.findingId)}`}
+                href={resolveQuickDecisionFindingWorkspaceHref(runTrim, row.findingId)}
                 prefetch={false}
               >
                 Finding record

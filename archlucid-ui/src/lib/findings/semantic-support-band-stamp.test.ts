@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   countDecisionGradeSemanticSupportBands,
+  FINDING_SEMANTIC_SUPPORT_BAND_UNRECOGNIZED_COPY,
   formatStampSemanticSupportBandLine,
   formatStampUnsupportedSemanticSupportLabels,
   listUnsupportedDecisionGradeSemanticSupportFindings,
@@ -48,6 +49,8 @@ describe("semantic support band stamp (AS-062)", () => {
       unsupported: 1,
       notScored: 0,
       missingStoredBand: 0,
+      storedEmptyBand: 0,
+      unrecognizedBand: 0,
       decisionGradeTotal: 3,
     });
   });
@@ -127,5 +130,30 @@ describe("semantic support band stamp (AS-062)", () => {
 
     expect(stampSemanticSupportShowsAllClear(unchecked)).toBe(false);
     expect(stampSemanticSupportShowsAllClear(missingBand)).toBe(false);
+  });
+
+  it("counts unrecognized semantic support bands separately (P-10)", () => {
+    const counts = countDecisionGradeSemanticSupportBands([
+      sampleFinding({ semanticSupportBand: "TotallyMadeUp" }),
+    ]);
+
+    expect(counts.unrecognizedBand).toBe(1);
+    expect(formatStampSemanticSupportBandLine(counts)).toContain(
+      FINDING_SEMANTIC_SUPPORT_BAND_UNRECOGNIZED_COPY,
+    );
+  });
+
+  it("counts stored-empty band separately and surfaces honesty on the stamp line", () => {
+    const counts = countDecisionGradeSemanticSupportBands([
+      sampleFinding({ semanticSupportBand: "" }),
+      sampleFinding({ findingId: "f-2", semanticSupportBand: "Supported" }),
+    ]);
+
+    expect(counts.storedEmptyBand).toBe(1);
+    expect(counts.supported).toBe(1);
+    expect(formatStampSemanticSupportBandLine(counts)).toContain(
+      "Semantic support band was stored empty.",
+    );
+    expect(stampSemanticSupportShowsAllClear(counts)).toBe(false);
   });
 });

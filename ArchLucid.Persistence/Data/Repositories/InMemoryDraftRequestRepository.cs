@@ -119,7 +119,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
     {
         int effectiveBatchSize = DraftRequestRepositoryCore.ClampReaperBatchSize(batchSize);
         DateTime cutoff = updatedBeforeUtc.UtcDateTime;
-        List<Guid> deleted = [];
+        List<DraftIntakeReapedDraft> deleted = [];
 
         foreach (KeyValuePair<Guid, InMemoryDraftRequestStoredDraft> entry in _drafts.ToArray())
         {
@@ -131,11 +131,15 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
             if (!DraftRequestRepositoryCore.IsReaperEligible(stored.Status, stored.UpdatedUtc, cutoff))
                 continue;
 
-            if (_drafts.TryRemove(entry.Key, out _))
-                deleted.Add(entry.Key);
+            if (_drafts.TryRemove(entry.Key, out InMemoryDraftRequestStoredDraft? removed))
+                deleted.Add(new DraftIntakeReapedDraft(removed.DraftId, removed.TenantId, removed.WorkspaceId, removed.ProjectId));
         }
 
-        return Task.FromResult(new DraftIntakeReaperBatchResult { DeletedDraftIds = deleted });
+        return Task.FromResult(new DraftIntakeReaperBatchResult
+        {
+            DeletedDraftIds = deleted.Select(draft => draft.DraftId).ToList(),
+            DeletedDrafts = deleted,
+        });
     }
 
     /// <inheritdoc />

@@ -61,35 +61,68 @@ export function architectureDraftRequirementsImportErrorMessage(fileName: string
   return `Could not read ${fileName}. Paste the text into Architecture overview or try another file.`;
 }
 
+export const GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_CHARS = 10;
+
+export const GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER =
+  `Enter at least ${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_CHARS} characters describing the business outcome you expect.`;
+
+function formatGuidedIntakeCharacterCount(count: number): string {
+  const noun = count === 1 ? "character" : "characters";
+
+  return `${count} ${noun}`;
+}
+
+/**
+ * "11 / 100" is the usual current/maximum counter, so readers treat 100 as a cap.
+ * These fields enforce a floor. State how many characters are in and how many are still required.
+ */
+export function guidedIntakeMinimumLengthHelperText(
+  trimmedLength: number,
+  minimumChars: number,
+  minimumHelper: string,
+): string {
+  if (!Number.isFinite(trimmedLength) || trimmedLength <= 0) {
+    return minimumHelper;
+  }
+
+  const entered = Math.floor(trimmedLength);
+
+  if (entered < minimumChars) {
+    const remaining = minimumChars - entered;
+    const remainingNoun = remaining === 1 ? "character" : "characters";
+
+    return `${formatGuidedIntakeCharacterCount(entered)} so far, ${remaining} more ${remainingNoun} needed. ${minimumHelper}`;
+  }
+
+  return `${formatGuidedIntakeCharacterCount(entered)}.`;
+}
+
 export function guidedIntakeArchitectureIntentHelperText(trimmedLength: number): string {
-  if (trimmedLength === 0) {
-    return GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER;
-  }
-
-  if (trimmedLength < GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
-    return `${trimmedLength} / ${GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS} characters. ${GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER}`;
-  }
-
-  return `${trimmedLength} characters.`;
+  return guidedIntakeMinimumLengthHelperText(
+    trimmedLength,
+    GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
+    GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
+  );
 }
 
 export function guidedIntakeCreationArchitectureOverviewHelperText(trimmedLength: number): string {
-  if (trimmedLength === 0) {
-    return GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_MIN_HELPER;
-  }
+  return guidedIntakeMinimumLengthHelperText(
+    trimmedLength,
+    GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
+    GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_MIN_HELPER,
+  );
+}
 
-  if (trimmedLength < GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
-    return `${trimmedLength} / ${GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS} characters. ${GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_MIN_HELPER}`;
-  }
-
-  return `${trimmedLength} characters.`;
+export function guidedIntakeCreationBusinessOutcomeHelperText(trimmedLength: number): string {
+  return guidedIntakeMinimumLengthHelperText(
+    trimmedLength,
+    GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_CHARS,
+    GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER,
+  );
 }
 
 export const GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER =
   "Example: Reduce intake cycle time, improve auditability, and give operations teams a single structured workflow for claims submissions.";
-
-export const GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER =
-  "Enter at least 10 characters describing the business outcome you expect.";
 
 export const GUIDED_INTAKE_ACTORS_SECTION_HEADING = "People, systems, and integrations";
 
@@ -106,7 +139,7 @@ export const GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT =
   "Add people and systems manually, or enter an architecture overview to generate suggestions.";
 
 export const GUIDED_INTAKE_ACTORS_EMPTY_STATE =
-  "No people or systems added yet. IaC-only uploads stay quiet on trust-boundary and privileged-access until you add actors here.";
+  "No people or systems are stored on this architecture draft yet. That is not a claim the system has none. Trust-boundary and privileged-access findings need actors from this step.";
 
 /**
  *     Interaction is a timing axis, but its first option is named after a channel
@@ -256,6 +289,9 @@ export const GUIDED_INTAKE_OVERVIEW_REWRITE_RESUGGEST_HINT =
 
 export const GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING = "Suggested people and systems";
 
+export const GUIDED_INTAKE_SUGGESTED_ACTORS_DISCLAIMER =
+  "Suggestions are inferred from your overview — confirm each row before you rely on it in review.";
+
 /** Gate dialog when Start architecture review is blocked by an open suggestion panel (TB-2006). */
 export const GUIDED_INTAKE_ACTOR_SUGGESTIONS_GATE_TITLE = "Resolve suggested people and systems";
 
@@ -286,13 +322,25 @@ export const GUIDED_INTAKE_CLOUD_TARGET_CONTROL_HINT =
 
 export const GUIDED_INTAKE_SAVE_ANSWER_LABEL = "Save answer";
 
+export const GUIDED_INTAKE_CLARIFICATION_ANSWER_NOT_STORED_UNTIL_SUBMIT =
+  "This answer is not stored until you submit the intake." as const;
+
+export const GUIDED_INTAKE_CLARIFICATION_SAVED_ON_PAGE_NOT_SUBMITTED =
+  "Saved on page — not submitted" as const;
+
 export const GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL = "Save and continue";
+
+export const GUIDED_INTAKE_SAVE_AND_CONTINUE_FOOTER_HELPER =
+  "Save and continue stores each answer on this architecture draft only. Submit the intake to persist answers on the review." as const;
 
 export function guidedIntakeClarificationsAnsweredCounter(
   answeredCount: number,
+  skippedCount: number,
   totalCount: number,
 ): string {
-  return `${answeredCount} of ${totalCount} answered`;
+  const skippedSegment = skippedCount > 0 ? `, ${skippedCount} skipped` : "";
+
+  return `${answeredCount} answered${skippedSegment} of ${totalCount} required`;
 }
 
 export const GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT =
@@ -306,6 +354,8 @@ export const GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_HELPER =
 
 export const GUIDED_INTAKE_REVIEW_ANSWERS_LABEL = "Review answers";
 
+export const GUIDED_INTAKE_CLARIFICATIONS_SAVE_AND_CONTINUE_LABEL = "Save answers and continue";
+
 export const GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL = "Start review";
 
 /** Clarifications-step footer CTA — advances to create-review once every MUST is handled. */
@@ -318,7 +368,7 @@ export function resolveGuidedIntakeClarificationsDoneLabel(
   }
 
   if (allClarificationsHandled) {
-    return GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL;
+    return GUIDED_INTAKE_CLARIFICATIONS_SAVE_AND_CONTINUE_LABEL;
   }
 
   return GUIDED_INTAKE_REVIEW_ANSWERS_LABEL;
@@ -331,7 +381,7 @@ export const GUIDED_INTAKE_STEP2_CARD_DESCRIPTION =
   "Submit your answers to start the architecture review.";
 
 export const GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION =
-  "Submit uses the same review-start path as Quick start and Templates and imports.";
+  "Submit uses the same review-start path as Quick start and Templates and imports. Suggested clarification answers are inferred from your brief and evidence until you edit and store them.";
 
 export const GUIDED_INTAKE_READINESS_SUCCESS_TOAST =
   "Readiness checks passed — answer the required clarifications to continue.";
@@ -365,8 +415,19 @@ export const GUIDED_INTAKE_REQUEST_FAILED_FALLBACK = "Guided questions request f
 
 /** Heading for the read-only confirmed-scope recap on the submit step. */
 export const GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING = "Confirmed in-scope items";
+
+/** Heading when the recap includes inferred scope lines from intake. */
+export const GUIDED_INTAKE_CONFIRMED_SCOPE_INFERRED_SUMMARY_HEADING =
+  "Confirmed and inferred in-scope items" as const;
+
+/** Shown on confirm when optional intake fields are still empty before submit. */
+export const GUIDED_INTAKE_CONFIRM_INTENT_NOT_STORED_YET = "Intent was not stored yet." as const;
+export const GUIDED_INTAKE_CONFIRM_OUTCOME_NOT_STORED_YET = "Outcome was not stored yet." as const;
+export const GUIDED_INTAKE_CONFIRM_SYSTEM_NOT_STORED_YET = "System name was not stored yet." as const;
+
+/** Shown on the submit step when no in-scope confirmation lines were stored. */
 export const GUIDED_INTAKE_CONFIRMED_SCOPE_NOT_STORED =
-  "Confirmed scope lines were not recorded on this step.";
+  "Confirmed in-scope items were not stored." as const;
 
 export function buildGuidedIntakeCreationAdvanceBlockerMessage(blockers: readonly string[]): string {
   if (blockers.length === 0) {

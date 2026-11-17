@@ -19,6 +19,7 @@ import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance
 import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPacksStandardsVocabularyRail";
 import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { ShortcutHint } from "@/components/ShortcutHint";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import {
@@ -32,6 +33,7 @@ import {
 } from "@/lib/design-tokens";
 import { formatGovernanceResolutionWorkingResultsLabel } from "@/lib/governance/governance-resolution-collection-count-display";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import {
   GOVERNANCE_STANDARDS_RULES_BUYER_START_HERE_HELPER,
   GOVERNANCE_STANDARDS_RULES_LOAD_ERROR,
@@ -42,6 +44,7 @@ import {
 } from "@/lib/governance-standards-rules-page-copy";
 import { STANDARDS_RULES_LOAD_RETRY_LABEL } from "@/lib/standards-rules-page";
 import { GOVERNANCE_STANDARDS_AND_RULES_PATH, SECURENOW_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { formatGovernanceResolutionResultsSummaryLabel } from "@/lib/governance/governance-resolution-results-label";
 import { buildPolicyPacksImpactPreviewHref } from "@/lib/policy-packs-review-handoff";
@@ -57,6 +60,7 @@ import {
 } from "@/lib/standards-rules-page";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
+import { STANDARDS_RULES_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/standards-rules-empty-not-load-failure-copy";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -118,14 +122,17 @@ export function GovernanceResolutionPageView(props: Props) {
       {" · "}
       <Link
         className={OPERATOR_BODY_INLINE_LINK_CLASS}
-        href={`/architecture/reviews/${encodeURIComponent(rows.scopedRunId)}`}
+        href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(rows.scopedRunId)}
       >
         Open review
       </Link>
       {" · "}
       <Link
         className={OPERATOR_BODY_INLINE_LINK_CLASS}
-        href={buildPolicyPacksImpactPreviewHref({ reviewId: rows.scopedRunId })}
+        href={buildPolicyPacksImpactPreviewHref(
+          { reviewId: rows.scopedRunId },
+          policyPacksPathForProductLine(productLine),
+        )}
         data-testid="standards-and-rules-policy-impact-preview-handoff"
       >
         Preview policy pack impact
@@ -189,6 +196,15 @@ export function GovernanceResolutionPageView(props: Props) {
               {STANDARDS_RULES_LOAD_RETRY_LABEL}
             </Button>
             <OperatorErrorRecoveryContract presentation={loadRecovery} />
+            {productLine === "security" ? (
+              <FatalPageReportProblemSupportRow
+                surfaceId="compliance-standards-rules-hard-failure"
+                errorTitle={standardsPageTitle}
+                errorCode="standards-rules-load-failed"
+                correlationId={null}
+                httpStatus={null}
+              />
+            ) : null}
           </div>
         ) : null}
 
@@ -272,17 +288,22 @@ export function GovernanceResolutionPageView(props: Props) {
                 title={STANDARDS_RULES_FILTER_NO_MATCH_TITLE}
                 description={STANDARDS_RULES_FILTER_NO_MATCH_BODY}
                 footer={
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    data-testid="standards-rules-clear-filters"
-                    onClick={() => {
-                      rows.setFilters(EMPTY_STANDARDS_RULES_FILTER_STATE);
-                    }}
-                  >
-                    {STANDARDS_RULES_RESET_FILTERS}
-                  </Button>
+                  <div className="grid gap-2">
+                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="standards-rules-filter-empty-not-load-failure">
+                      {STANDARDS_RULES_EMPTY_NOT_LOAD_FAILURE_LINE}
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      data-testid="standards-rules-clear-filters"
+                      onClick={() => {
+                        rows.setFilters(EMPTY_STANDARDS_RULES_FILTER_STATE);
+                      }}
+                    >
+                      {STANDARDS_RULES_RESET_FILTERS}
+                    </Button>
+                  </div>
                 }
               />
             ) : null}

@@ -30,6 +30,16 @@ vi.mock("@/lib/operator/operator-static-demo", async (importOriginal) => {
   };
 });
 
+vi.mock("@/lib/buyer/buyer-demo-content-gating", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/buyer/buyer-demo-content-gating")>();
+
+  return {
+    ...actual,
+    isExplicitStaticDemoMarketingBuild: () =>
+      demoUiEnvMock.demoMode || demoUiEnvMock.staticOperator,
+  };
+});
+
 const emptyFilters = {
   eventType: "",
   fromUtc: "",

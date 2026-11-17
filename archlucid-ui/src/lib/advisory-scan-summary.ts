@@ -13,8 +13,13 @@ export type AdvisoryScanSummary = {
 };
 
 function isHighImpactRecommendation(rec: RecommendationRecord): boolean {
-  const impact = rec.expectedImpact.toLowerCase();
-  const urgency = rec.urgency.toLowerCase();
+  const impact = rec.expectedImpact.trim().toLowerCase();
+
+  if (impact.length === 0 || impact.includes("was not stored")) {
+    return false;
+  }
+
+  const urgency = rec.urgency.trim().toLowerCase();
 
   return impact.includes("high") || urgency.includes("high") || urgency.includes("critical");
 }

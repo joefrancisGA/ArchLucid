@@ -156,6 +156,15 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
         </p>
       ) : null}
 
+      {loaded && !busy && iacStub !== null && iacStub.length === 0 ? (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="finding-iac-stub-stored-empty"
+        >
+          IaC stub was stored empty.
+        </p>
+      ) : null}
+
       {iacStub !== null && iacStub.length > 0 ? (
         <div className="space-y-2">
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>

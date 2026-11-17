@@ -16,10 +16,10 @@ describe("last-visited-watermark", () => {
     window.localStorage.clear();
   });
 
-  it("treats activity as new when no watermark exists", () => {
+  it("does not treat activity as new when no watermark exists (P-12)", () => {
     const key = reviewTabWatermarkKey("run-1", "findings");
 
-    expect(isActivityNewSinceLastVisit(key, "2026-08-09T12:00:00.000Z")).toBe(true);
+    expect(isActivityNewSinceLastVisit(key, "2026-08-09T12:00:00.000Z")).toBe(false);
   });
 
   it("marks activity as seen after watermark write", () => {

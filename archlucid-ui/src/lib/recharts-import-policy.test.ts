@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   expectSourceContains,
+  expectSourceNotContains,
   expectSourceNotMatches,
   readRegisteredSource,
 } from "@/testing/source-scan-harness";
@@ -44,13 +45,18 @@ describe("recharts import policy (TB-570)", () => {
     expect(rechartsImporters).toEqual([allowed]);
   });
 
-  it("loads the trend chart through a dynamic import in the sponsor ROI section", () => {
+  it("loads the trend chart through a deferred chunk in the sponsor ROI section", () => {
     const roiSectionSource = readRegisteredSource("sponsor-roi-summary-section");
 
-    expectSourceContains(roiSectionSource, "dynamic(", "sponsor-roi-summary-section");
     expectSourceContains(
       roiSectionSource,
-      "SponsorRoiSystemicIssueTrendChart",
+      "SponsorRoiSystemicIssueTrendChartDeferred",
+      "sponsor-roi-summary-section",
+    );
+    expectSourceNotContains(roiSectionSource, 'from "next/dynamic"', "sponsor-roi-summary-section");
+    expectSourceNotContains(
+      roiSectionSource,
+      'from "@/components/SponsorRoiSystemicIssueTrendChart"',
       "sponsor-roi-summary-section",
     );
   });

@@ -34,7 +34,7 @@ describe("ClarificationGapRow", () => {
       "/architecture/reviews/new?path=guided-intake&rerun=run-1",
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Not applicable" }));
+    fireEvent.click(screen.getByRole("button", { name: /Hide for now — does not record an answer/i }));
     expect(onDismiss).toHaveBeenCalledWith("business-outcome");
   });
 });

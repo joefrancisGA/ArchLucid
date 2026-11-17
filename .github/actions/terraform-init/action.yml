@@ -1,5 +1,5 @@
 name: "Terraform init (registry-resilient)"
-description: "Cache Terraform provider plugins and retry init when registry.terraform.io rate-limits (HTTP 429)."
+description: "Cache Terraform provider plugins and retry init when registry.terraform.io rate-limits (HTTP 429) or GitHub checksum endpoints time out (HTTP 504)."
 inputs:
   working-directory:
     description: "Directory containing the Terraform root module"
@@ -17,27 +17,6 @@ runs:
 
     - name: terraform init (no backend)
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
       run: |
         set -euo pipefail
-        export TF_PLUGIN_CACHE_DIR="${HOME}/.terraform.d/plugin-cache"
-        mkdir -p "${TF_PLUGIN_CACHE_DIR}"
-
-        # Lock file pins provider versions; never upgrade during CI validate.
-        max_attempts=6
-        attempt=1
-        while true; do
-          if terraform init -backend=false -upgrade=false; then
-            exit 0
-          fi
-
-          if [ "${attempt}" -ge "${max_attempts}" ]; then
-            echo "terraform init failed after ${max_attempts} attempts in $(pwd)" >&2
-            exit 1
-          fi
-
-          sleep_seconds=$((attempt * 20))
-          echo "terraform init failed (attempt ${attempt}/${max_attempts}); retrying in ${sleep_seconds}s..." >&2
-          sleep "${sleep_seconds}"
-          attempt=$((attempt + 1))
-        done
+        bash scripts/ci/terraform_init_registry_resilient.sh "${{ inputs.working-directory }}"

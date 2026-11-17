@@ -5,7 +5,11 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import {
+  GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
+  GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_MIN_HELPER,
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER,
+  GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER,
+  GUIDED_INTAKE_CLARIFICATIONS_SAVE_AND_CONTINUE_LABEL,
   GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
   GUIDED_INTAKE_NOT_READY_RECEIPT_TITLE,
   GUIDED_INTAKE_READINESS_SUCCESS_TOAST,
@@ -13,6 +17,9 @@ import {
   GUIDED_INTAKE_REVIEW_ANSWERS_LABEL,
   GUIDED_INTAKE_STEP2_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION,
+  guidedIntakeArchitectureIntentHelperText,
+  guidedIntakeCreationArchitectureOverviewHelperText,
+  guidedIntakeCreationBusinessOutcomeHelperText,
   resolveGuidedIntakeClarificationsDoneLabel,
 } from "@/lib/guided-intake-copy";
 import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
@@ -44,6 +51,40 @@ function expectNoBannedBuyerPhrases(values: readonly string[], label: string): v
   }
 }
 
+describe("guided intake minimum character counters", () => {
+  it("states characters still needed instead of a current/maximum fraction", () => {
+    expect(guidedIntakeArchitectureIntentHelperText(11)).toBe(
+      `11 characters so far, 89 more characters needed. ${GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER}`,
+    );
+    expect(guidedIntakeArchitectureIntentHelperText(11)).not.toMatch(/\d+\s*\/\s*100/);
+  });
+
+  it("uses the singular when one more character is required", () => {
+    expect(guidedIntakeArchitectureIntentHelperText(99)).toBe(
+      `99 characters so far, 1 more character needed. ${GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER}`,
+    );
+    expect(guidedIntakeCreationBusinessOutcomeHelperText(9)).toBe(
+      `9 characters so far, 1 more character needed. ${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER}`,
+    );
+  });
+
+  it("drops the requirement once the minimum is met", () => {
+    expect(guidedIntakeArchitectureIntentHelperText(100)).toBe("100 characters.");
+    expect(guidedIntakeArchitectureIntentHelperText(140)).toBe("140 characters.");
+    expect(guidedIntakeCreationBusinessOutcomeHelperText(10)).toBe("10 characters.");
+  });
+
+  it("keeps the instruction alone until the field has text", () => {
+    expect(guidedIntakeArchitectureIntentHelperText(0)).toBe(GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER);
+    expect(guidedIntakeCreationArchitectureOverviewHelperText(0)).toBe(
+      GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_MIN_HELPER,
+    );
+    expect(guidedIntakeCreationArchitectureOverviewHelperText(11)).toBe(
+      `11 characters so far, 89 more characters needed. ${GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_MIN_HELPER}`,
+    );
+  });
+});
+
 describe("guided-intake-copy (TB-773)", () => {
   it("uses cloud-neutral creation overview placeholder", () => {
     expect(GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER).toMatch(/private networking/i);
@@ -53,9 +94,9 @@ describe("guided-intake-copy (TB-773)", () => {
 });
 
 describe("resolveGuidedIntakeClarificationsDoneLabel", () => {
-  it("shows Start review once every clarification is handled", () => {
+  it("shows Save answers and continue once every clarification is handled", () => {
     expect(resolveGuidedIntakeClarificationsDoneLabel(true, false)).toBe(
-      GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
+      GUIDED_INTAKE_CLARIFICATIONS_SAVE_AND_CONTINUE_LABEL,
     );
   });
 

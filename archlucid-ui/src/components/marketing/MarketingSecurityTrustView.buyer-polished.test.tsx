@@ -3,8 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/product-line/resolve-product-line-id", () => ({
   resolveProductLineIdFromEnv: () => "architecture",
+  resolveProductLineId: () => "architecture",
 }));
 
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { SECURITY_TRUST_CANONICAL_PATH } from "@/lib/security-trust-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { MarketingSecurityTrustView } from "@/components/marketing/MarketingSecurityTrustView";
 import {
@@ -47,7 +50,12 @@ describe("MarketingSecurityTrustView buyer-polished shell (SEC)", () => {
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(vocabularyDisclosure) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(securityTrustEvidenceSources("architecture"))) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(securityTrustEvidenceSources("architecture")),
+      SECURITY_TRUST_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       expect(within(sourcesSection).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
     }
   });

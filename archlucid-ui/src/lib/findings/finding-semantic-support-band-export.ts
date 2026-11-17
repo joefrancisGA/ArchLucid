@@ -74,7 +74,7 @@ export function resolveFindingSemanticSupportBandExportFields(
 
   if (rawBand === "") {
     return {
-      semanticSupportBand: "",
+      semanticSupportBand: "Semantic support band was stored empty.",
       semanticSupportBandScorerVersion: resolveFindingSemanticSupportBandScorerVersion(finding),
     };
   }
@@ -96,7 +96,17 @@ export function resolveFindingSemanticSupportBandScorerVersion(
     return "Semantic support band scorer version was not stored";
   }
 
-  return finding.semanticSupportBandScorerVersion.trim();
+  if (finding.semanticSupportBandScorerVersion.length === 0) {
+    return "Semantic support band scorer version was stored empty.";
+  }
+
+  const trimmed = finding.semanticSupportBandScorerVersion.trim();
+
+  if (trimmed.length === 0) {
+    return "Semantic support band scorer version was stored empty.";
+  }
+
+  return trimmed;
 }
 
 export function resolveSemanticSupportBandStampScorerVersion(
@@ -170,7 +180,7 @@ export function formatCareerExportSemanticSupportBandMarkdownSection(
   }
 
   const lines = [
-    "## Semantic support",
+    "## Semantic support (decision-grade)",
     "",
     `Scorer version: \`${stamp.scorerVersion}\`.`,
     stamp.stampLine,

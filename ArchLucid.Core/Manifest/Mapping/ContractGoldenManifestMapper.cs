@@ -77,7 +77,7 @@ public static class ContractGoldenManifestMapper
                 Controls =
                 [
                     .. contract.Services.SelectMany(s => s.RequiredControls.Select(c =>
-                        new SecurityPostureItem { ControlName = c, Status = "stated", ControlId = c, Impact = string.Empty }))
+                        new SecurityPostureItem { ControlName = c, Status = string.Empty, ControlId = c, Impact = string.Empty }))
                 ]
             },
             Compliance =
@@ -85,7 +85,13 @@ public static class ContractGoldenManifestMapper
                 Controls =
                 [
                     .. contract.Governance.ComplianceTags
-                        .Select(t => new CompliancePostureItem { ControlName = t, ControlId = t, AppliesToCategory = "governance", Status = "Tagged" })
+                        .Select(t => new CompliancePostureItem
+                        {
+                            ControlName = t,
+                            ControlId = t,
+                            AppliesToCategory = string.Empty,
+                            Status = string.Empty,
+                        })
                 ]
             },
             Policy = { Notes = [.. contract.Governance.PolicyConstraints] }

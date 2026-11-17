@@ -1,3 +1,4 @@
+import { resolveProductionEvalChromeForServer } from "@/lib/production-desk-chrome";
 import Link from "next/link";
 
 import { HelpArchitectureIntelligenceClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpArchitectureIntelligenceClaimOrientationStrip";
@@ -9,16 +10,15 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_CANONICAL_PATH,
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE,
   ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_CLAUSE,
   ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK,
 } from "@/lib/architecture-intelligence-help-evidence-copy";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID,
-  ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS,
   ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS,
   ARCHITECTURE_INTELLIGENCE_HELP_HOW_TO_READ_STEPS,
   ARCHITECTURE_INTELLIGENCE_HELP_ORIENTATION_BOTTOM_TEST_ID,
@@ -31,6 +31,7 @@ import {
   ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_HELPER,
   ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_SCOPE_NOTE,
   architectureIntelligenceHelpPageSubtitle,
+  resolveArchitectureIntelligenceHelpFeatureItems,
 } from "@/lib/architecture-intelligence-help-guide-content";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_FIRST_VIEWPORT_TEST_ID,
@@ -71,7 +72,9 @@ export function HelpArchitectureIntelligenceGuideView(
   props: HelpArchitectureIntelligenceGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const productLineId = resolveProductLineIdFromEnv();
+  const featureItems = resolveArchitectureIntelligenceHelpFeatureItems(productLineId);
+  const buyerPolishedShell = resolveProductionEvalChromeForServer();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-architecture-intelligence",
     ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS,
@@ -131,7 +134,7 @@ export function HelpArchitectureIntelligenceGuideView(
           className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
           data-testid="help-architecture-intelligence-feature-items"
         >
-          {ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS.map((item) => (
+          {featureItems.map((item) => (
             <div key={item.label}>
               <dt className="font-medium text-al-text-primary">
                 <Link className={OPERATOR_LINK.nav} href={item.href}>

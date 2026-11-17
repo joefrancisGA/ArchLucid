@@ -171,6 +171,24 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.getByTestId("cloud-connection-card-gcp-primary-cta")).toHaveTextContent("Configure");
   });
 
+  it("links an empty provider selection to the SecureNow collection check", async () => {
+    writeCloudPlatformScopeToStorage({
+      "evidence-only": false,
+      azure: false,
+      aws: false,
+      gcp: false,
+    });
+
+    render(<CloudConnectionsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Collection check" })).toHaveAttribute(
+        "href",
+        "/administration/securenow-self-service#collection",
+      );
+    });
+  });
+
   it("uses Open connection as the sole primary CTA when a provider is configured (TB-1141)", async () => {
     listAwsTier2Connections.mockResolvedValueOnce([
       {
@@ -208,7 +226,7 @@ describe("CloudConnectionsPageClient", () => {
       {
         connectionId: "aws-1",
         status: "Configured",
-        updatedUtc: "2026-07-01T00:00:00Z",
+        updatedUtc: null,
         lastPolledUtc: null,
       },
     ]);

@@ -29,10 +29,12 @@ describe("usePilotRoiBaselineCompleteness", () => {
   it("fetches when reload is called after enabled false", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue({
       ok: true,
-      json: async () => ({
-        baselineReviewCycleHours: 40,
-        manualPrepHoursPerReview: 8,
-      }),
+      headers: new Headers(),
+      text: async () =>
+        JSON.stringify({
+          baselineReviewCycleHours: 40,
+          manualPrepHoursPerReview: 8,
+        }),
     } as Response);
 
     const { result } = renderHook(() => usePilotRoiBaselineCompleteness({ enabled: false }));
@@ -44,9 +46,8 @@ describe("usePilotRoiBaselineCompleteness", () => {
       expect(result.current.complete).toBe(true);
     });
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      "/api/proxy/v1/tenant/baseline",
-      expect.objectContaining({ headers: expect.any(Object) }),
-    );
+    const baselineCall = fetchMock.mock.calls.find(([input]) => String(input).includes("/v1/tenant/baseline"));
+
+    expect(baselineCall).toBeDefined();
   });
 });

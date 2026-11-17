@@ -18,6 +18,7 @@ import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { REPLAY_VALIDATION_HISTORY_EMPTY } from "@/lib/replay-validation-copy";
 import {
   formatReplayDurationLabel,
+  formatReplayValidationModeTitle,
   replayValidationModeDefinition,
   replayValidationOutcomeLabel,
   type ReplayValidationHistoryEntry,
@@ -78,9 +79,12 @@ export function ReplayValidationHistorySection(props: ReplayValidationHistorySec
             {entries.map((entry) => (
               <EnterpriseTableRow key={entry.id}>
                 <EnterpriseTableCell>{formatInstantForLocale(entry.occurredUtc)}</EnterpriseTableCell>
-                <EnterpriseTableCell>{replayValidationModeDefinition(entry.mode).title}</EnterpriseTableCell>
+                <EnterpriseTableCell>{formatReplayValidationModeTitle(entry.mode)}</EnterpriseTableCell>
                 <EnterpriseTableCell>
-                  <StatusTag kind={historyOutcomeKind(entry.outcome)} label={replayValidationOutcomeLabel(entry.outcome)} />
+                  <StatusTag
+                    kind={historyOutcomeKind(entry.outcome)}
+                    label={entry.outcomeLabel ?? replayValidationOutcomeLabel(entry.outcome)}
+                  />
                 </EnterpriseTableCell>
                 <EnterpriseTableCell>{formatReplayDurationLabel(entry.durationMs)}</EnterpriseTableCell>
                 <EnterpriseTableCell>{entry.aiUsageLabel}</EnterpriseTableCell>
