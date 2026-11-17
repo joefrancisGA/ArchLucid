@@ -8,8 +8,10 @@ import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { SIMPLIFIED_PILOT_ADVANCED_CONFIG_OPEN_PARAM } from "@/lib/architecture/simplified-pilot-advanced-config-disclosure-url";
 import { isAcceleratorPackId } from "@/lib/accelerator-wizard-presets";
+import { GUIDED_INTAKE_VIEW_ALL_CLARIFICATIONS_OPEN_PARAM } from "@/lib/guided-intake/guided-intake-view-all-clarifications-disclosure-url";
 import { FIRST_PILOT_STANDARDS_SELECTION_OPEN_PARAM } from "@/lib/reviews/first-pilot-standards-selection-disclosure-url";
 import { REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM } from "@/lib/reviews/reviews-new-more-ways-to-start-disclosure-url";
+import { REVIEWS_NEW_RETURNING_JOB_CHOOSER_OPEN_PARAM } from "@/lib/reviews/reviews-new-returning-job-chooser-disclosure-url";
 import {
   ACCELERATOR_JOB_CHOOSER_HEADING,
   ACCELERATOR_JOB_CHOOSER_LEAD,
@@ -199,6 +201,8 @@ export function ReviewsNewPathSwitcher() {
       params.delete(FIRST_PILOT_STANDARDS_SELECTION_OPEN_PARAM);
       params.delete(SIMPLIFIED_PILOT_ADVANCED_CONFIG_OPEN_PARAM);
       params.delete(REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM);
+      params.delete(REVIEWS_NEW_RETURNING_JOB_CHOOSER_OPEN_PARAM);
+      params.delete(GUIDED_INTAKE_VIEW_ALL_CLARIFICATIONS_OPEN_PARAM);
     }
 
     if (path === "guided-intake") {

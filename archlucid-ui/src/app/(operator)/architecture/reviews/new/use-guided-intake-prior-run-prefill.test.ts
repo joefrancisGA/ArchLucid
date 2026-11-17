@@ -183,4 +183,30 @@ describe("useGuidedIntakePriorRunPrefill", () => {
       expect(setSystemName).toHaveBeenCalledWith("Rerun package");
     });
   });
+
+  it("clears prior-package attachment names when priorRunId becomes null without remounting", () => {
+    const setPriorAttachedFileNames = vi.fn();
+    const initialProps = {
+      priorRunId: "run-rerun",
+      freeTextIntent: "",
+      businessOutcome: "",
+      systemName: "",
+      actorSet: { actors: [] },
+      scopeBullets: [] as readonly ScopeUnderstandingBullet[],
+      setFreeTextIntent: vi.fn(),
+      setBusinessOutcome: vi.fn(),
+      setSystemName: vi.fn(),
+      setActorSet: vi.fn(),
+      setScopeBullets: vi.fn(),
+      setScopeGateOpen: vi.fn(),
+      setPriorAttachedFileNames,
+    };
+
+    const { rerender } = renderHook((props) => useGuidedIntakePriorRunPrefill(props), { initialProps });
+
+    setPriorAttachedFileNames.mockClear();
+    rerender({ ...initialProps, priorRunId: null });
+
+    expect(setPriorAttachedFileNames).toHaveBeenCalledWith([]);
+  });
 });

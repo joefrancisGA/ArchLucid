@@ -139,7 +139,16 @@ export function useGuidedIntakePriorRunPrefill(options: Options): GuidedIntakePr
   }, [priorRunId, enabled]);
 
   useEffect(() => {
-    if (!enabled || priorRunId === null || appliedRef.current) {
+    if (!enabled || priorRunId === null) {
+
+      if (priorRunId === null) {
+        setPriorAttachedFileNames([]);
+      }
+
+      return;
+    }
+
+    if (appliedRef.current) {
       return;
     }
 
@@ -175,7 +184,7 @@ export function useGuidedIntakePriorRunPrefill(options: Options): GuidedIntakePr
     return () => {
       cancelled = true;
     };
-  }, [enabled, priorRunId]);
+  }, [enabled, priorRunId, setPriorAttachedFileNames]);
 
   return { priorRunPrefillCopiedFromLine };
 }
