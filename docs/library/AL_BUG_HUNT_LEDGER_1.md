@@ -24656,15 +24656,23 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-08-25 thorough hunt #1 (dry): cheap-disproved cancel token and background-path hypotheses.
 
 ## Zone: architecture-intelligence-orchestrator
-**Hunts:** 1 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
+**Hunts:** 2 · **Bugs found:** 0 · **Consecutive dry hunts:** 1
+
+2026-11-17 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five post-reset `(candidate)` rows against cache regression family (capacity/tombstone/TTL/manifest/run-id contract). Scoped filter **512/512** (`RunAnalyzers=false`). Reseeded five `(candidate)` rows below. Private beta: n/a.
+
+- [x] (valid-no-repro) `ReviewResultCache.Set` — silent return when `MaxEntries` and `TryEvictOldestUnpinnedEntry` fails — **cheap-disproof 2026-11-17 thorough hunt:** intentional capacity shedding; unpinned eviction path covered by `Set_overwrites_existing_key_when_cache_is_full` / `Set_inserts_when_cache_at_max_entries_because_all_pinned_state_is_unreachable`; all-pinned overload is bounded by `MaxDistinctPinnedStorageKeys`.
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — tombstone cap may refuse new tombstones while pins held — **cheap-disproof 2026-11-17 thorough hunt:** `AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries` + deferred flush on unpin; misses while tombstoned (`TryGet_misses_when_run_id_is_tombstoned_even_if_entry_is_pinned`).
+- [x] (invalid) `ReviewResultCache.TryGet` — pinned TTL refresh may serve tombstoned run — **cheap-disproof 2026-11-17 thorough hunt:** `TryGet_misses_tombstoned_pinned_expired_entry_without_refreshing_ttl` (opposite wrong outcome).
+- [x] (invalid) `ReviewCacheManifestBuilder` — `ReuseReason` split with hash-equivalent priorities — **cheap-disproof 2026-11-17 thorough hunt:** `ReviewCacheKeyBuilder.Build` omits `ReuseReason`; `Build_matches_content_hash_when_baseline_declared_priorities_are_whitespace_only_vs_empty_list`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — omitted then supplied `RunId` may duplicate spend — **cheap-disproof 2026-11-17 thorough hunt:** intentional cache partition contract; `RunAsync_does_not_reuse_cached_result_identity_when_run_id_is_omitted`, `Build_partitions_content_hash_when_client_run_id_omitted_vs_supplied_with_same_sources`.
+
+- [ ] (candidate) `ReviewResultCache.CoalesceAsync` — follower may attach to leader whose `Set` was skipped under capacity, returning success without warming storage for subsequent manifests; locus: coalesce vs `Set` gate; input: 128-way pinned pressure during leader completion; wrong outcome: thundering herd on identical manifest; reachability: concurrent architecture-intelligence reviews on busy host.
+- [ ] (candidate) `ReviewSingleFlightCoordinator` — leader cancellation after headers-only progress may leave in-flight key until timeout while tombstoned run blocks re-entry; locus: single-flight removal vs invalidate; input: cancel mid-coalesce then invalidate run; wrong outcome: permanent coalesce denial until TTL; reachability: operator cancel during long closed-loop review.
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.Cache` path — `PinScope` dual manifest may pin secondary storage key not written when primary `Set` fails silently; locus: composite pin vs single-key insert; input: full cache with mismatched primary/resolved manifests; wrong outcome: pin reservation without readable cache row; reachability: first full-run with client `RunId` under cache pressure.
+- [ ] (candidate) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — continue manifest hashes tenant+run+content but omits workspace/project drift in continue-only budget path; locus: continue coalesce hash; input: same run id moved across workspaces with identical sources; wrong outcome: cross-workspace cache hit; reachability: workspace transfer + continue-existing-run API.
+- [ ] (candidate) `ReviewResultCache.InvalidateForRun` — flush on unpin may evict unrelated oldest unpinned entries under mixed pin pressure, evicting hot manifests; locus: `OnStorageKeyFullyUnpinned` eviction loop; input: mass unpin after deferred invalidations; wrong outcome: surprise cache misses for unrelated reviews; reachability: operator invalidates one run after batch pin during coalesce storm.
 
 2026-11-17 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Re-read closed-loop orchestrator, `ReviewResultCache` eviction/tombstone/pin paths, and `ReviewCacheManifestBuilder`. Scoped filter **512/512** (`RunAnalyzers=false`). No hunt-ready promotion; seeded five `(candidate)` rows below. Private beta: n/a.
-
-- [ ] (candidate) `ReviewResultCache.Set` — when `MaxEntries` is reached and `TryEvictOldestUnpinnedEntry` fails, insert returns silently so coalesced leaders can complete without cache write; locus: `Set` capacity gate; input: 128 unpinned entries + pin reservation storm; wrong outcome: followers miss cache hit on identical manifest; reachability: concurrent closed-loop reviews under cache pressure.
-- [ ] (candidate) `ReviewResultCache.InvalidateForRun` — tombstone cap `MaxTombstonedRunIds` may refuse new tombstones when every pending run still has pinned storage keys, leaving stale hits after invalidate; locus: `AddTombstonedRunId` early return; input: 64+ distinct runs invalidated while pins held; wrong outcome: resurrected cache entries for logically invalidated runs; reachability: long-running coalesce with deferred flush.
-- [ ] (candidate) `ReviewResultCache.TryGet` — TTL refresh for pinned expired entries extends `ExpiresUtc` without revalidating tombstone added during pin window; locus: pinned TTL slide; input: invalidate while entry pinned then get after expiry boundary; wrong outcome: blocked run id served from cache; reachability: operator invalidates review then immediate continue with same run id.
-- [ ] (candidate) `ReviewCacheManifestBuilder` — continue vs full-run manifests may hash-equivalent on whitespace-normalized priorities while `ReuseReason` differs, splitting coalesce unnecessarily; locus: manifest field selection; input: continue call with whitespace-only priorities vs prior full run empty list; wrong outcome: cache miss + duplicate expensive reasoning; reachability: continue-existing-run API on architecture intelligence page.
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — omitted client `RunId` on first call vs supplied id on immediate retry may partition cache keys so success path appears as cold run despite identical sources; locus: run id omission contract; input: omit then resubmit with generated id; wrong outcome: duplicate model spend; reachability: UI retry after network blip before adopting run id.
 
 2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; re-read tombstone compare (`IsRunIdTombstoned` / `ClosedLoopRunIdComparer`), client `RunId` cache partition contract, single-flight leader `finally` + follower attach, `ReviewCacheKeyBuilder.Build` field set, and continue publish coalesce partitioning; seeded five mechanism-backed `(candidate)` rows below; scoped filter 512/512 (`RunAnalyzers=false`); no production code changed.
 
@@ -25541,9 +25549,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-17
 - **last-bug:** never
 - **related-pd-tb:** none
