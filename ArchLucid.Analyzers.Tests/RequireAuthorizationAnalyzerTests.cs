@@ -2471,39 +2471,6 @@ namespace N
         }.RunAsync();
     }
 
-    [Fact]
-    public async Task Does_not_report_AL0001_when_AllowAnonymous_only_on_partial_action_implementation()
-    {
-        const string testCode = AspNetCoreStubs +
-            """
-
-namespace N
-{
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
-
-    public partial class PartialAllowAnonymousController : ControllerBase
-    {
-        [HttpPost]
-        public partial IActionResult Post();
-    }
-
-    public partial class PartialAllowAnonymousController
-    {
-        [AllowAnonymous]
-        public partial IActionResult Post() => Ok();
-    }
-}
-""";
-
-        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
-        {
-            TestCode = testCode,
-            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
-            SolutionTransforms = { ProductAssemblyNameTransform }
-        }.RunAsync();
-    }
-
     private static Solution ProductAssemblyNameTransform(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
 
@@ -2536,6 +2503,79 @@ namespace Shared.Controllers
         Assert.True(emit.Success, string.Join(Environment.NewLine, emit.Diagnostics));
 
         return MetadataReference.CreateFromImage(image.ToArray());
+    }
+
+    [Fact]
+    public async Task Reports_inherited_get_when_partial_outer_nests_unrelated_authorized_controller_class()
+    {
+        CSharpCompilation compilation = CSharpCompilation.Create(
+            "ArchLucid.Api",
+            [
+                CSharpSyntaxTree.ParseText(
+                    AspNetCoreStubs +
+                    """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public class InheritedGetBaseController : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult Get() => Ok();
+    }
+
+    public partial class PartialOuterWithNestedAuthorizedController : InheritedGetBaseController
+    {
+        public sealed class NestedAuthorizedController : ControllerBase
+        {
+            [Authorize]
+            [HttpGet]
+            public IActionResult NestedGet() => Ok();
+        }
+    }
+}
+""")
+            ],
+            TrustedPlatformReferences(),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        ImmutableArray<Diagnostic> diagnostics =
+            await compilation
+                .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new RequireAuthorizationAnalyzer()))
+                .GetAnalyzerDiagnosticsAsync();
+
+        Assert.Contains(
+            diagnostics,
+            diagnostic => diagnostic.Id == Al0001Descriptor.Rule.Id &&
+                          diagnostic.GetMessage().Contains("InheritedGet", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Does_not_report_struct_symbols_because_require_authorization_scans_classes_only()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public struct StructControllerProbe
+    {
+        [HttpPost]
+        public void Post() { }
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
     }
 
     private static IEnumerable<MetadataReference> TrustedPlatformReferences() =>
