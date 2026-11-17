@@ -9,9 +9,11 @@ public sealed class InMemoryRecommendationLearningProfileRepository : IRecommend
     public Task SaveAsync(RecommendationLearningProfile profile, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(profile);
+        RecommendationLearningProfile snapshot = Copy(profile);
         lock (_gate)
         {
-            _profiles.Add(new StoredProfile(Guid.NewGuid(), profile));
+            _profiles.Add(new StoredProfile(Guid.NewGuid(), snapshot));
             RecommendationLearningProfileRepositoryCore.TrimInMemoryEntries(_profiles);
         }
 
@@ -29,7 +31,7 @@ public sealed class InMemoryRecommendationLearningProfileRepository : IRecommend
         {
             StoredProfile? latest = FindLatestForScope(tenantId, workspaceId, projectId);
 
-            return Task.FromResult<RecommendationLearningProfile?>(latest?.Profile);
+            return Task.FromResult(latest is null ? null : Copy(latest.Profile));
         }
     }
 
@@ -110,7 +112,32 @@ public sealed class InMemoryRecommendationLearningProfileRepository : IRecommend
     }
 
     private static RecommendationLearningProfileRecord ToRecord(StoredProfile stored) =>
-        RecommendationLearningProfileRepositoryCore.ToRecord(stored.ProfileId, stored.Profile);
+        RecommendationLearningProfileRepositoryCore.ToRecord(stored.ProfileId, Copy(stored.Profile));
+
+    private static RecommendationLearningProfile Copy(RecommendationLearningProfile profile) => new()
+    {
+        TenantId = profile.TenantId,
+        WorkspaceId = profile.WorkspaceId,
+        ProjectId = profile.ProjectId,
+        GeneratedUtc = profile.GeneratedUtc,
+        CategoryStats = profile.CategoryStats.Select(Copy).ToList(),
+        UrgencyStats = profile.UrgencyStats.Select(Copy).ToList(),
+        SignalTypeStats = profile.SignalTypeStats.Select(Copy).ToList(),
+        CategoryWeights = new(profile.CategoryWeights, profile.CategoryWeights.Comparer),
+        UrgencyWeights = new(profile.UrgencyWeights, profile.UrgencyWeights.Comparer),
+        SignalTypeWeights = new(profile.SignalTypeWeights, profile.SignalTypeWeights.Comparer),
+        Notes = [..profile.Notes],
+    };
+
+    private static RecommendationOutcomeStats Copy(RecommendationOutcomeStats stats) => new()
+    {
+        Key = stats.Key,
+        ProposedCount = stats.ProposedCount,
+        AcceptedCount = stats.AcceptedCount,
+        RejectedCount = stats.RejectedCount,
+        DeferredCount = stats.DeferredCount,
+        ImplementedCount = stats.ImplementedCount,
+    };
 
     private sealed record StoredProfile(Guid ProfileId, RecommendationLearningProfile Profile);
 }
