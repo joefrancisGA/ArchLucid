@@ -627,6 +627,14 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             return false;
         }
 
+        foreach (IfStatementSyntax ifStatementSyntax in logAsyncSyntaxNode.Ancestors().OfType<IfStatementSyntax>())
+        {
+            if (IsLogAsyncInUnreachableIfBranch(logAsyncSyntaxNode, ifStatementSyntax, semanticModel, cancellationToken))
+            {
+                return false;
+            }
+        }
+
         SwitchSectionSyntax? switchSectionSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<SwitchSectionSyntax>();
 
         if (switchSectionSyntax is null)
@@ -693,6 +701,61 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         }
 
         return true;
+    }
+
+    private static bool IsLogAsyncInUnreachableIfBranch(
+        SyntaxNode logAsyncSyntaxNode,
+        IfStatementSyntax ifStatementSyntax,
+        SemanticModel? semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (TryGetConstantBoolean(ifStatementSyntax.Condition, semanticModel, cancellationToken) is not bool constantCondition)
+        {
+            return false;
+        }
+
+        if (!constantCondition)
+        {
+            return logAsyncSyntaxNode.AncestorsAndSelf().Any(ancestor => ReferenceEquals(ancestor, ifStatementSyntax.Statement));
+        }
+
+        if (ifStatementSyntax.Else is null)
+        {
+            return false;
+        }
+
+        return logAsyncSyntaxNode.AncestorsAndSelf().Any(ancestor => ReferenceEquals(ancestor, ifStatementSyntax.Else.Statement));
+    }
+
+    private static bool? TryGetConstantBoolean(
+        ExpressionSyntax expressionSyntax,
+        SemanticModel? semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (semanticModel is not null)
+        {
+            Optional<object?> constantOptional = semanticModel.GetConstantValue(expressionSyntax, cancellationToken);
+
+            if (constantOptional.HasValue && constantOptional.Value is bool booleanValue)
+            {
+                return booleanValue;
+            }
+        }
+
+        if (expressionSyntax is LiteralExpressionSyntax literalExpressionSyntax)
+        {
+            if (literalExpressionSyntax.IsKind(SyntaxKind.TrueLiteralExpression))
+            {
+                return true;
+            }
+
+            if (literalExpressionSyntax.IsKind(SyntaxKind.FalseLiteralExpression))
+            {
+                return false;
+            }
+        }
+
+        return null;
     }
 
     private static bool IsSyntaxNodeWithinExpression(SyntaxNode descendant, ExpressionSyntax rootExpression)
