@@ -10318,7 +10318,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 131 · **Bugs found:** 126 · **Consecutive dry hunts:** 0
+**Hunts:** 132 · **Bugs found:** 130 · **Consecutive dry hunts:** 0
+
+2026-11-17 thorough hunt #498 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Closed five stale picker `(candidate)` rows left open from hunt **#197** reseed after hunts **#200**/**#201** already shipped — **valid-no-repro** `contentHash` / `format` / `highLevelSummary` (**hit #200** regressions), **valid-no-repro** legacy `page: 0` and `ruleSetId` (**#200** regressions). Attempted failing repro on five pass-**#201** monitor rows — **proven** list row whitespace `name`, optional artifact `manifestId` / `runId`, and optional manifest `operatorSummary` (plain `z.string()` allowed padded values); **valid-no-repro** whitespace-only `status` (already on `operatorNonEmptyTrimmedString` since hunt **#197**; regression `rejects whitespace-only status`). Scoped `operator-response-guards.test.ts` **55/55**. Private beta: Invited operators no longer see artifact list rows or review summary blobs hydrate from API payloads whose optional or list name fields are whitespace-only.
+
+- [x] (valid-no-repro) `coerceArtifactDescriptor` — whitespace-only `contentHash` passes zod string checks — **cheap-disproof 2026-11-17 thorough hunt #498:** hunt **#200** regression `rejects whitespace-only contentHash`.
+- [x] (valid-no-repro) `coerceArtifactDescriptor` — whitespace-only `format` passes zod string checks — **cheap-disproof 2026-11-17 thorough hunt #498:** hunt **#200** regression `rejects whitespace-only format`.
+- [x] (valid-no-repro) `coerceRunSummaryPaged` — legacy offset envelope accepts `page: 0` — **cheap-disproof 2026-11-17 thorough hunt #498:** hunt **#200** regression `rejects legacy offset envelope when page is zero`.
+- [x] (valid-no-repro) `coerceComparisonExplanation` — whitespace-only `highLevelSummary` passes zod string checks — **cheap-disproof 2026-11-17 thorough hunt #498:** hunt **#200** regression `rejects whitespace-only highLevelSummary`.
+- [x] (valid-no-repro) `coerceManifestSummary` — whitespace-only `ruleSetId` passes zod string checks — **cheap-disproof 2026-11-17 thorough hunt #498:** hunt **#200** regression `rejects whitespace-only ruleSetId`.
+
+- [x] (proven) `coerceArtifactDescriptorList` — whitespace-only list row `name` passes zod string checks — **hit 2026-11-17 thorough hunt #498:** `operatorNonEmptyTrimmedString` on list `name`; regression `rejects whitespace-only list row name`.
+- [x] (proven) `coerceArtifactDescriptor` — whitespace-only optional `manifestId` passes when present — **hit 2026-11-17 thorough hunt #498:** trim guard on optional ids; regression `rejects whitespace-only optional manifestId when present`.
+- [x] (proven) `coerceArtifactDescriptor` — whitespace-only optional `runId` passes when present — **hit 2026-11-17 thorough hunt #498:** regression `rejects whitespace-only optional runId when present`.
+- [x] (valid-no-repro) `coerceManifestSummary` — whitespace-only `status` passes zod string checks — **cheap-disproof 2026-11-17 thorough hunt #498:** hunt **#197** scalar guard; regression `rejects whitespace-only status`.
+- [x] (proven) `coerceManifestSummary` — whitespace-only optional `operatorSummary` passes when present — **hit 2026-11-17 thorough hunt #498:** `operatorNonEmptyTrimmedString.optional()`; regression `rejects whitespace-only optional operatorSummary when present`.
+
+- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only optional `contentUrl` passes when present — locus: passthrough optional string; input: padded `contentUrl`; monitor; pass 27 reseed.
+- [ ] (candidate) `coerceGoldenManifestComparison` — whitespace-only optional `baseManifestId` passes when present — locus: golden compare schema; input: padded base manifest id; monitor; pass 27 reseed.
+- [ ] (candidate) `coerceReplayResponse` — whitespace-only `mode` passes zod string checks — locus: replay `mode` trim guard regression lane; input: `{ mode: " " }`; monitor; pass 27 reseed.
+- [ ] (candidate) `coerceGraphViewModel` — whitespace-only node `id` in nodes array passes — locus: graph node schema; input: `{ nodes: [{ id: " " }], edges: [] }`; monitor; pass 27 reseed.
+- [ ] (candidate) `coerceRunSummaryPaged` — keyset envelope accepts `nextCursor` whitespace string — locus: cursor field trim; input: `{ items: [], hasMore: true, nextCursor: "  " }`; monitor; pass 27 reseed.
 
 2026-11-02 thorough hunt #201 (hit): no rotation (`shouldRotate: false`; reason: No low-yield streak; keep default picker choice). Promoted four open `(candidate)` scalar guard gaps from hunt **#200** reseed — `coerceArtifactDescriptor` accepting whitespace-only `artifactType`, `name`, or `createdUtc`, and `coerceComparisonExplanation` accepting whitespace-only `narrative` — so malformed artifact detail or run-compare AI payloads could render blank type/name/timestamp labels or empty narrative bodies; extend `operatorNonEmptyTrimmedString` on those fields and unify artifact manual fallbacks; regressions `rejects whitespace-only artifactType`, `rejects whitespace-only name`, `rejects whitespace-only createdUtc`, and `rejects whitespace-only narrative`; cheap-disproof closed **valid-no-repro** whitespace-only `ruleSetVersion` (summary scalars on `operatorNonEmptyTrimmedString` since hunt **#197**; regression `rejects whitespace-only ruleSetVersion`); 50/50 `operator-response-guards.test.ts`. Private beta: Invited operators no longer hydrate artifact panels or run-compare AI sections from API payloads whose type, name, created timestamp, or narrative fields are whitespace-only.
 
@@ -10327,12 +10347,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `coerceArtifactDescriptor` — whitespace-only `createdUtc` passes zod string checks — **hit 2026-11-02 thorough hunt #201:** `operatorNonEmptyTrimmedString` on `createdUtc`; regression `rejects whitespace-only createdUtc`.
 - [x] (proven) `coerceComparisonExplanation` — whitespace-only `narrative` passes zod string checks — **hit 2026-11-02 thorough hunt #201:** trim guard on `narrative`; regression `rejects whitespace-only narrative`.
 - [x] (valid-no-repro) `coerceManifestSummary` — whitespace-only `ruleSetVersion` passes zod string checks — **cheap-disproof 2026-11-02 thorough hunt #201:** hunt **#197** summary scalar trim guard; regression `rejects whitespace-only ruleSetVersion`.
-
-- [ ] (candidate) `coerceArtifactDescriptorList` — whitespace-only list row `name` passes zod string checks — locus: `artifactListRowSchema`; input: `[{ artifactId: "a", name: "  " }]`.
-- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only optional `manifestId` passes when present — locus: optional manifest id field; input: `{ manifestId: "  ", …required fields }`.
-- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only optional `runId` passes when present — locus: optional run id field; input: `{ runId: " ", …required fields }`.
-- [ ] (candidate) `coerceManifestSummary` — whitespace-only `status` passes zod string checks — locus: `manifestSummarySchema`; input: `{ status: "  ", …required fields }`.
-- [ ] (candidate) `coerceManifestSummary` — whitespace-only optional `operatorSummary` passes when present — locus: optional operator summary string; input: `{ operatorSummary: "  ", …required fields }`.
 
 - [x] (superseded) pass **#201** open `(candidate)` queue (hunt **#200** reseed) — **superseded 2026-11-02 thorough hunt #201 (hit):** four proven + one cheap-disproof; see hunt **#201** header reseed.
 
@@ -10367,12 +10381,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `coerceReplayResponse` — whitespace-only `replayedUtc` passes zod string checks — **hit 2026-11-02 thorough hunt #197:** trim guard on `replayedUtc`/`mode`; regression `rejects whitespace-only replayedUtc`.
 - [x] (valid-no-repro) `coerceRunComparison` — whitespace-only `leftRunId` passes after empty guard — **cheap-disproof 2026-11-02 thorough hunt #197:** `operatorNonEmptyTrimmedString` on compare ids; regression `reports missing run identifiers when leftRunId or rightRunId is whitespace-only`.
 - [x] (invalid) `coerceComparisonExplanation` — missing required narrative fields fail with generic object message — **cheap-disproof 2026-11-02 thorough hunt #197:** partial envelope returns `AI explanation is missing highLevelSummary or narrative strings.`
-
-- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only `contentHash` passes zod string checks — locus: artifact descriptor schema; input: `{ contentHash: "  ", …required fields }`.
-- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only `format` passes zod string checks — locus: artifact descriptor schema; input: `{ format: " ", …required fields }`.
-- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset envelope accepts `page: 0` — locus: `isLegacyOffsetPagedRunEnvelope`; input: `{ page: 0, pageSize: 20, totalCount: 0, hasMore: false, items: [] }`.
-- [ ] (candidate) `coerceComparisonExplanation` — whitespace-only `highLevelSummary` passes zod string checks — locus: explanation schema; input: `{ highLevelSummary: " ", narrative: "n", majorChanges: [], keyTradeoffs: [] }`.
-- [ ] (candidate) `coerceManifestSummary` — whitespace-only `ruleSetId` passes zod string checks — locus: `manifestSummarySchema`; input: `{ ruleSetId: "  ", …required fields }`.
 
 2026-11-01 thorough hunt (hit): extended **`operatorNonEmptyTrimmedString` to legacy compare, manifest summary, and replay coercion** — `coerceRunComparison`, `coerceManifestSummary`, and `coerceReplayResponse` still accepted empty or whitespace-only primary run/manifest ids; wired shared trim guard on compare `leftRunId`/`rightRunId`, summary `manifestId`/`runId`, and replay `runId`; regressions `rejects empty leftRunId`, `rejects whitespace-only manifestId`, and `rejects whitespace-only runId`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 137 scoped response-guards, tenant-counting, live-runs-dashboard, recent-reviews-outcome, attention-dedup, and review-total-resolution vitest passed. Private beta: Invited operators no longer render run compare, review header manifest summaries, or replay panels from API payloads whose primary ids are blank or whitespace-only.
 
@@ -11040,11 +11048,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 39
-- **bugs-found:** 36
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — whitespace-only runId accepted in runs list coercion
+- **hunts:** 40
+- **bugs-found:** 40
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-17
+- **last-bug:** 2026-11-17 — optional artifact/manifest scalar trim gaps in response guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
