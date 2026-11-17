@@ -66,7 +66,7 @@ public static partial class DeclarationPremiseConflictClassifier
             "data-protection" => PrivateNetworkConflictKind,
             "transport-security" => HttpsTlsConflictKind,
             "workload-isolation" => WorkloadIsolationConflictKind,
-            "network-isolation" when TryGetK8sProperty(properties, "hostNetwork", out _) => WorkloadIsolationConflictKind,
+            "network-isolation" when IsK8sPropertyTruthy(properties, "hostNetwork") => WorkloadIsolationConflictKind,
             "network-isolation" => AdminIngressConflictKind,
             "encryption" when HasPublicNetworkProperty(properties) => PrivateNetworkConflictKind,
             "encryption" when HasWeakTlsProperty(properties) => HttpsTlsConflictKind,
@@ -124,6 +124,17 @@ public static partial class DeclarationPremiseConflictClassifier
         }
         value = null;
         return false;
+    }
+
+    private static bool IsK8sPropertyTruthy(IReadOnlyDictionary<string, string> properties, string keySuffix)
+    {
+        if (!TryGetK8sProperty(properties, keySuffix, out string? value))
+            return false;
+
+        return string.Equals(value, "true", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "1", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "allow", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "enabled", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool ContainsAnyPhrase(string normalizedIntentText, IReadOnlyList<string> phrases)

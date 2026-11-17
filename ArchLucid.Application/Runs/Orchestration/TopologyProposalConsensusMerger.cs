@@ -296,8 +296,12 @@ public static class TopologyProposalConsensusMerger
         return keys.Count;
     }
 
-    private static string CanonicalizeConsensusManifestEndpointReference(string value) =>
-        TopologyProposalRelationshipEndpointIndex.CanonicalizeTerraformEndpointReferenceForLookup(value);
+    private static string CanonicalizeConsensusManifestEndpointReference(string value)
+    {
+        string stripped = TopologyProposalRequiredControlKeys.NormalizeManifestEndpointIdentity(value);
+
+        return TopologyProposalRelationshipEndpointIndex.CanonicalizeTerraformEndpointReferenceForLookup(stripped);
+    }
 
     private static string RelationshipKey(
         ManifestRelationship relationship,

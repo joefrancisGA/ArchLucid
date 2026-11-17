@@ -43,6 +43,21 @@ public sealed class RequirementRedundancyParserTests
     }
 
     [Fact]
+    public void TryParse_multi_region_wins_over_zone_redundant_in_combined_text()
+    {
+        bool parsed = RequirementRedundancyParser.TryParse(
+            "Global payment ledger — multi-region active",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["description"] = "Zone-redundant SLA within each region.",
+            },
+            out RequirementRedundancyLevel level);
+
+        parsed.Should().BeTrue();
+        level.Should().Be(RequirementRedundancyLevel.MultiRegion);
+    }
+
+    [Fact]
     public void TryParse_returns_false_when_no_redundancy_language()
     {
         bool parsed = RequirementRedundancyParser.TryParse(

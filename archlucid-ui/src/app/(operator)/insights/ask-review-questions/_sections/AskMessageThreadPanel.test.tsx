@@ -104,6 +104,20 @@ describe("AskMessageThreadPanel", () => {
     expect(screen.getByTestId("ask-streaming-uuid-links-note")).toHaveTextContent(/UUIDs in the text are not linked/i);
   });
 
+  it("labels an empty streaming answer as stored empty", () => {
+    render(
+      <AskMessageThreadPanel
+        {...baseProps}
+        messages={[]}
+        streamingAssistantContent=""
+      />,
+    );
+
+    expect(screen.getByTestId("ask-streaming-assistant")).toHaveTextContent(
+      "Answer text was stored empty.",
+    );
+  });
+
   it("mounts citation action follow-ups after the latest assistant answer", () => {
     render(
       <AskMessageThreadPanel
@@ -180,6 +194,7 @@ describe("AskMessageThreadPanel", () => {
     );
 
     expect(screen.getByTestId("ask-assistant-answer-follow-ups")).toBeInTheDocument();
+    expect(screen.getByText("Ask a follow-up")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Why is this the top risk?" })).toBeInTheDocument();
   });
 });

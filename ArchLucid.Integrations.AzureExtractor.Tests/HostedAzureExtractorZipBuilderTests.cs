@@ -499,6 +499,47 @@ public sealed class HostedAzureExtractorZipBuilderTests
     }
 
     [Fact]
+    public void BuildZip_round_trips_service_bus_forward_target_names()
+    {
+        const string namespaceId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/sbns";
+
+        AzureInventoryMessagingAssociationRow topic = new()
+        {
+            ParentResourceId = namespaceId,
+            ChildResourceId = $"{namespaceId}/topics/orders",
+            ChildName = "orders",
+            ChildType = AzureInventoryMessagingAssociationTypes.ServiceBusTopic,
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+            ForwardToName = "archive",
+            ForwardDeadLetteredMessagesToName = "deadletters",
+        };
+
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            Array.Empty<HostedAzureArmResourceRecord>(),
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            messagingAssociations: [topic]);
+
+        using MemoryStream stream = new(zipBytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+        using Stream messagingStream = archive.GetEntry(AzureExtractorPackageZipEntryNames.MessagingAssociations)!.Open();
+        using StreamReader messagingReader = new(messagingStream);
+        using JsonDocument messagingDocument = JsonDocument.Parse(messagingReader.ReadToEnd());
+
+        bool parsed = AzureInventoryMessagingAssociationParser.TryParse(
+            messagingDocument.RootElement[0],
+            out AzureInventoryMessagingAssociationRow? row,
+            out string? error);
+
+        Assert.True(parsed, error);
+        Assert.Equal("archive", row!.ForwardToName);
+        Assert.Equal("deadletters", row.ForwardDeadLetteredMessagesToName);
+        Assert.Null(row.CaptureStorageAccountId);
+    }
+
+    [Fact]
     public void BuildZip_writes_paas_child_association_companion_entries()
     {
         const string serverId =

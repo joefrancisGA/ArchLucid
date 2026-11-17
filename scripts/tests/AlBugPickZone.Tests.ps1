@@ -322,7 +322,7 @@ Describe 'al-bug-pick-zone.ps1' {
         $result.zoneId | Should -Be 'zone-open'
     }
 
-    It 'picks cooling when no open zone remains' {
+    It 'leaves a ledger-cooling zone out until a hint' {
         $content = @"
 # fixture
 
@@ -346,10 +346,15 @@ Describe 'al-bug-pick-zone.ps1' {
 - [ ] Still open in cooling
 "@
         [string]$ledger = New-LedgerFixture -Content $content
-        $result = Invoke-Picker -LedgerPath $ledger
+        $stopped = Invoke-Picker -LedgerPath $ledger
+        $hinted = Invoke-Picker -LedgerPath $ledger -Hint 'zone-cool'
 
-        $result.zoneId | Should -Be 'zone-cool'
-        $result.status | Should -Be 'cooling'
+        $stopped.zoneId | Should -BeNullOrEmpty
+        $stopped.exhaustedAll | Should -Be $true
+        $stopped.cooldownFallback | Should -Be $false
+        $hinted.zoneId | Should -Be 'zone-cool'
+        $hinted.status | Should -Be 'cooling'
+        $hinted.hintOverride | Should -Be $true
     }
 
     It 'returns exhaustedAll when no zone is eligible' {
@@ -1529,6 +1534,8 @@ Describe 'al-bug-pick-zone.ps1' {
             for ($i = 0; $i -lt 8; $i++) {
                 $lines += "{`"at`":`"2026-09-06T1$i`:00:00Z`",`"zoneId`":`"$zoneId`",`"outcome`":`"seed-only`"}"
             }
+
+            $lines += "{`"at`":`"2026-09-06T19:00:00Z`",`"zoneId`":`"$zoneId`",`"outcome`":`"hit`"}"
         }
         Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
 
@@ -1539,7 +1546,7 @@ Describe 'al-bug-pick-zone.ps1' {
         $result.seedOnlySaturated | Should -Be $true
     }
 
-    It 'keeps hunting when every open zone is hit-rate cooled' {
+    It 'stops when every open zone is hit-rate cooled until a hint' {
         $content = @"
 # fixture
 
@@ -1590,12 +1597,285 @@ Describe 'al-bug-pick-zone.ps1' {
         Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
 
         $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-08-19T18:00:00Z'
+        $hinted = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-08-19T18:00:00Z' -Hint 'zone-hot-a'
 
-        $result.zoneId | Should -Be 'zone-hot-a'
+        $result.zoneId | Should -BeNullOrEmpty
+        $result.exhaustedAll | Should -BeTrue
+        $result.eligibleCount | Should -Be 0
+        $result.cooldownFallback | Should -BeFalse
+        $hinted.zoneId | Should -Be 'zone-hot-a'
+        $hinted.hintOverride | Should -BeTrue
+    }
+
+    It 'parks a zone after three low-yield outcomes on its own tail' {
+        $content = @"
+# fixture
+
+## Zone: zone-hot
+
+- **id:** zone-hot
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/Hot.cs
+- **test-filter:** FullyQualifiedName~Hot
+- **hunts:** 30
+- **bugs-found:** 20
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-08-01
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Still open on the hot zone
+
+## Zone: zone-other
+
+- **id:** zone-other
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/Other.cs
+- **test-filter:** FullyQualifiedName~Other
+- **hunts:** 1
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Other hypothesis
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'park-interleave.jsonl'
+        $lines = @(
+            '{"at":"2026-11-04T01:00:00Z","zoneId":"zone-hot","outcome":"dry"}',
+            '{"at":"2026-11-04T01:01:00Z","zoneId":"zone-other","outcome":"hit"}',
+            '{"at":"2026-11-04T01:02:00Z","zoneId":"zone-hot","outcome":"dry"}',
+            '{"at":"2026-11-04T01:03:00Z","zoneId":"zone-other","outcome":"hit"}',
+            '{"at":"2026-11-04T01:04:00Z","zoneId":"zone-hot","outcome":"dry"}'
+        )
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-11-04T02:00:00Z'
+        $hinted = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-11-04T02:00:00Z' -Hint 'zone-hot'
+
+        $result.zoneId | Should -Be 'zone-other'
+        @($result.parkedZoneIds) | Should -Contain 'zone-hot'
+        $result.parkedByLowYield | Should -BeFalse
+        $hinted.zoneId | Should -Be 'zone-hot'
+        $hinted.parkedByLowYield | Should -BeTrue
+        $hinted.lowYieldStreak | Should -Be 3
+        ($hinted.why -join ' ') | Should -Match 'low-yield park waived by hint'
+    }
+
+    It 'keeps a zone eligible when its own low-yield streak is below three' {
+        $content = @"
+# fixture
+
+## Zone: zone-hot
+
+- **id:** zone-hot
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/Hot.cs
+- **test-filter:** FullyQualifiedName~Hot
+- **hunts:** 30
+- **bugs-found:** 20
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-08-01
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Still open on the hot zone
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'park-two.jsonl'
+        $lines = @(
+            '{"at":"2026-11-04T01:00:00Z","zoneId":"zone-hot","outcome":"dry"}',
+            '{"at":"2026-11-04T01:01:00Z","zoneId":"zone-hot","outcome":"dry"}'
+        )
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-11-04T02:00:00Z'
+
+        $result.zoneId | Should -Be 'zone-hot'
+        $result.lowYieldStreak | Should -Be 2
+        $result.parkedByLowYield | Should -BeFalse
         $result.exhaustedAll | Should -BeFalse
-        $result.eligibleCount | Should -Be 2
-        $result.cooldownFallback | Should -BeTrue
-        ($result.why -join ' ') | Should -Match 'cooldown fallback'
+    }
+
+    It 'clears a low-yield park when the zone tail is a hit' {
+        $content = @"
+# fixture
+
+## Zone: zone-hot
+
+- **id:** zone-hot
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/Hot.cs
+- **test-filter:** FullyQualifiedName~Hot
+- **hunts:** 30
+- **bugs-found:** 20
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Still open on the hot zone
+
+## Zone: zone-other
+
+- **id:** zone-other
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/Other.cs
+- **test-filter:** FullyQualifiedName~Other
+- **hunts:** 1
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Other hypothesis
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'park-cleared.jsonl'
+        $lines = @(
+            '{"at":"2026-11-04T01:00:00Z","zoneId":"zone-hot","outcome":"dry"}',
+            '{"at":"2026-11-04T01:01:00Z","zoneId":"zone-hot","outcome":"seed-only"}',
+            '{"at":"2026-11-04T01:02:00Z","zoneId":"zone-hot","outcome":"held-for-triage"}',
+            '{"at":"2026-11-04T01:03:00Z","zoneId":"zone-hot","outcome":"hit"}'
+        )
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-11-04T02:00:00Z'
+
+        $result.zoneId | Should -Be 'zone-hot'
+        $result.lowYieldStreak | Should -Be 0
+        @($result.parkedZoneIds | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }).Count | Should -Be 0
+    }
+
+    It 'parks seed-only and held-for-triage streaks the same way as dry streaks' {
+        $content = @"
+# fixture
+
+## Zone: zone-seed
+
+- **id:** zone-seed
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/Seed.cs
+- **test-filter:** FullyQualifiedName~Seed
+- **hunts:** 10
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Seed hypothesis
+
+## Zone: zone-held
+
+- **id:** zone-held
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/Held.cs
+- **test-filter:** FullyQualifiedName~Held
+- **hunts:** 10
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Held hypothesis
+
+## Zone: zone-fresh
+
+- **id:** zone-fresh
+- **status:** unseeded
+- **impact:** medium
+- **paths:** ArchLucid.Application/Fresh.cs
+- **test-filter:** FullyQualifiedName~Fresh
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (candidate) Lens
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'park-seed-held.jsonl'
+        $lines = @(
+            '{"at":"2026-11-04T01:00:00Z","zoneId":"zone-seed","outcome":"seed-only"}',
+            '{"at":"2026-11-04T01:01:00Z","zoneId":"zone-seed","outcome":"seed-only"}',
+            '{"at":"2026-11-04T01:02:00Z","zoneId":"zone-seed","outcome":"seed-only"}',
+            '{"at":"2026-11-04T01:03:00Z","zoneId":"zone-held","outcome":"held-for-triage"}',
+            '{"at":"2026-11-04T01:04:00Z","zoneId":"zone-held","outcome":"held-for-triage"}',
+            '{"at":"2026-11-04T01:05:00Z","zoneId":"zone-held","outcome":"held-for-triage"}'
+        )
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-11-04T02:00:00Z'
+
+        $result.zoneId | Should -Be 'zone-fresh'
+        @($result.parkedZoneIds) | Should -Contain 'zone-seed'
+        @($result.parkedZoneIds) | Should -Contain 'zone-held'
+    }
+
+    It 'does not let git churn reopen a parked exhausted zone' {
+        $content = @"
+# fixture
+
+## Zone: zone-d
+
+- **id:** zone-d
+- **status:** exhausted
+- **aliases:** done zone
+- **paths:** ArchLucid.Application/Done.cs
+- **test-filter:** FullyQualifiedName~DoneTests
+- **hunts:** 5
+- **bugs-found:** 5
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-07-01
+- **last-bug:** 2026-06-01
+- **related-pd-tb:** none
+- **code-changed-since:** 2
+
+### Hypotheses
+
+- [x] Covered
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'park-exhausted.jsonl'
+        $lines = @(
+            '{"at":"2026-11-04T01:00:00Z","zoneId":"zone-d","outcome":"dry"}',
+            '{"at":"2026-11-04T01:01:00Z","zoneId":"zone-d","outcome":"dry"}',
+            '{"at":"2026-11-04T01:02:00Z","zoneId":"zone-d","outcome":"dry"}'
+        )
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $stopped = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-11-04T02:00:00Z' -Refresh
+        $hinted = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-11-04T02:00:00Z' -Refresh -Hint 'zone-d'
+
+        $stopped.zoneId | Should -BeNullOrEmpty
+        $stopped.exhaustedAll | Should -BeTrue
+        @($stopped.parkedZoneIds) | Should -Contain 'zone-d'
+        ($stopped.why -join ' ') | Should -Match 'low-yield park'
+        $hinted.zoneId | Should -Be 'zone-d'
+        $hinted.reopened | Should -BeTrue
+        $hinted.codeChangedSince | Should -Be 2
     }
 
     It 'does not hit-rate cool a zone whose hypothesis list is empty' {

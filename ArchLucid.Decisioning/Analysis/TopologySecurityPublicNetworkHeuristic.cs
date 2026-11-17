@@ -24,16 +24,11 @@ internal static class TopologySecurityPublicNetworkHeuristic
                 DeclarationSecurityPropertyLogicalNames.AllowBlobPublicAccess,
                 out _,
                 out string? blobPublicAccess)
-            && IsTruthy(blobPublicAccess))
+            && DecisioningDeclarationTruthyToken.IsTruthy(blobPublicAccess))
         {
             return true;
         }
 
         return false;
     }
-
-    private static bool IsTruthy(string? value) =>
-        string.Equals(value, "true", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(value, "allow", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(value, "enabled", StringComparison.OrdinalIgnoreCase);
 }

@@ -7,7 +7,9 @@
   Reads the set run log from the end and counts consecutive low-yield outcomes
   (dry, seed-only, held-for-triage) on the same zoneId. When the streak meets
   -MinLowYieldStreak (default 3), emits shouldRotate=true and avoidZoneId so the
-  picker can choose the next eligible zone via -AvoidZoneId.
+  picker can choose the next eligible zone via -AvoidZoneId. The picker also
+  parks every zone with that streak on its own tail, so a later hunt does not
+  return to it until a hint or a hit.
 
   Use -PreviewPick to run al-bug-pick-zone.ps1 in the same invocation (respects
   -AvoidZoneId when rotating; skips avoidance when -Hint is set).

@@ -188,13 +188,17 @@ export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | n
     return SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED;
   }
 
+  if (trimmed === "Relationship type was not stored") {
+    return trimmed;
+  }
+
   const mapped = PATH_RELATIONSHIP_LABELS[trimmed];
 
   if (mapped !== undefined) {
     return mapped;
   }
 
-  return `Relationship type ${trimmed} has no reviewer label.`;
+  return `Relationship type ${trimmed} was not recognized.`;
 }
 
 const PROVENANCE_KIND_MEANINGS: Readonly<Record<string, string>> = {

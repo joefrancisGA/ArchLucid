@@ -104,42 +104,33 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         if (string.Equals(left, right, StringComparison.OrdinalIgnoreCase))
             return true;
 
+        if (string.Equals(
+                CanonicalizeTerraformEndpointReferenceForLookup(left),
+                CanonicalizeTerraformEndpointReferenceForLookup(right),
+                StringComparison.OrdinalIgnoreCase))
+            return true;
+
         return string.Equals(
-            CanonicalizeTerraformEndpointReferenceForLookup(left),
-            CanonicalizeTerraformEndpointReferenceForLookup(right),
+            TopologyProposalRequiredControlKeys.NormalizeManifestEndpointIdentity(left),
+            TopologyProposalRequiredControlKeys.NormalizeManifestEndpointIdentity(right),
             StringComparison.OrdinalIgnoreCase);
     }
 
-    internal static bool DeclaredEndpointKeySetContains(HashSet<string> declaredEndpointKeys, string? endpoint)
-    {
-        if (string.IsNullOrWhiteSpace(endpoint))
-            return false;
-
-        string trimmed = endpoint.Trim();
-
-        if (declaredEndpointKeys.Contains(trimmed))
-            return true;
-
-        string canonical = CanonicalizeTerraformEndpointReferenceForLookup(trimmed);
-
-        if (!string.Equals(canonical, trimmed, StringComparison.OrdinalIgnoreCase)
-            && declaredEndpointKeys.Contains(canonical))
-        {
-            return true;
-        }
-
-        string? normalizedIdentity =
-            TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(trimmed);
-
-        return normalizedIdentity is not null && declaredEndpointKeys.Contains(normalizedIdentity);
-    }
+    internal static bool DeclaredEndpointKeySetContains(HashSet<string> declaredEndpointKeys, string? endpoint) =>
+        EndpointKeyIsKnown(endpoint, declaredEndpointKeys);
 
     internal static void AddEndpointKey(HashSet<string> knownEndpointKeys, string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return;
 
-        knownEndpointKeys.Add(value.Trim());
+        string trimmed = value.Trim();
+        knownEndpointKeys.Add(trimmed);
+
+        string withoutFormatCharacters = TopologyProposalRequiredControlKeys.NormalizeManifestEndpointIdentity(trimmed);
+
+        if (!string.Equals(withoutFormatCharacters, trimmed, StringComparison.Ordinal))
+            knownEndpointKeys.Add(withoutFormatCharacters);
     }
 
     internal static void AddCanonicalTerraformInstanceKeyEndpointKey(HashSet<string> knownEndpointKeys, string? terraformSourceId)

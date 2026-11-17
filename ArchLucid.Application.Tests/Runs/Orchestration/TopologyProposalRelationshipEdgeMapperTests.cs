@@ -197,6 +197,53 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_applies_declared_endpoint_alias_when_key_already_mapped_from_node_label()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-legacy",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "shared-api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new(),
+            },
+            new()
+            {
+                NodeId = "svc-canonical",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "canonical-api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new(),
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new(),
+            },
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["shared-api"] = "svc-canonical",
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [new ManifestRelationship { SourceId = "shared-api", TargetId = "ds-1", RelationshipType = RelationshipType.ReadsFrom }],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-canonical" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first()
     {
         List<GraphNode> nodes =

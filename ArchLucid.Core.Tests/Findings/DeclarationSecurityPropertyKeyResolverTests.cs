@@ -65,6 +65,25 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
     }
 
     [Fact]
+    public void TryGet_resolves_compacted_tf_publiclyaccessible()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.publiclyaccessible"] = "false",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.publiclyaccessible");
+        value.Should().Be("false");
+    }
+
+    [Fact]
     public void TryGet_resolves_arm_publicNetworkAccess()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
@@ -81,6 +100,25 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
         found.Should().BeTrue();
         canonicalKey.Should().Be("publicNetworkAccess");
         value.Should().Be("enabled");
+    }
+
+    [Fact]
+    public void TryGet_resolves_compacted_tf_sslenforcementenabled()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.sslenforcementenabled"] = "Disabled",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.sslenforcementenabled");
+        value.Should().Be("Disabled");
     }
 
     [Fact]
@@ -157,6 +195,82 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
         found.Should().BeTrue();
         canonicalKey.Should().Be("tf.network_acls");
         value.Should().Contain("0.0.0.0/0");
+    }
+
+    [Fact]
+    public void TryGet_resolves_compacted_tf_minimaltlsversion()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.minimaltlsversion"] = "TLS1_2",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.minimaltlsversion");
+        value.Should().Be("TLS1_2");
+    }
+
+    [Fact]
+    public void TryGet_resolves_tf_ssl_enforcement_shorthand_on_sql_bags()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.ssl_enforcement"] = "Enabled",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.ssl_enforcement");
+        value.Should().Be("Enabled");
+    }
+
+    [Fact]
+    public void TryGet_resolves_compacted_tf_sslenforcement_without_enabled_suffix()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.sslenforcement"] = "Enabled",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.sslenforcement");
+        value.Should().Be("Enabled");
+    }
+
+    [Fact]
+    public void TryGet_resolves_compacted_tf_enablehttpstrafficonly()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.enablehttpstrafficonly"] = "true",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.HttpsOnly,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.enablehttpstrafficonly");
+        value.Should().Be("true");
     }
 
     [Fact]

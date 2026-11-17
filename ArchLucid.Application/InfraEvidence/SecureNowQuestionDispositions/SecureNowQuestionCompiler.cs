@@ -40,7 +40,9 @@ public sealed class SecureNowQuestionCompiler
                 StringComparer.OrdinalIgnoreCase)
             .ToDictionary(
                 group => group.Key,
-                group => group.OrderByDescending(record => record.UpdatedUtc).First(),
+                group => group.OrderByDescending(record => record.UpdatedUtc)
+                    .ThenByDescending(record => record.DispositionId)
+                    .First(),
                 StringComparer.OrdinalIgnoreCase);
         List<SecureNowQuestionRecord> questions = [];
         HashSet<string> emitted = new(StringComparer.OrdinalIgnoreCase);

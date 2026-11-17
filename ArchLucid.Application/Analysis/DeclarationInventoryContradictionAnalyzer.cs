@@ -77,6 +77,12 @@ public static class DeclarationInventoryContradictionAnalyzer
                     || string.IsNullOrWhiteSpace(inventoryValue))
                     continue;
 
+                if (logicalName == DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess
+                    && cloudProvider is InventoryTopologyCloudProvider.Azure
+                    && DeclarationInventorySecurityPropertyInventoryReader.IsUncontradictableAzurePublicNetworkAccessInventoryValue(
+                        inventoryValue))
+                    continue;
+
                 if (DeclarationInventorySecurityPropertyValueComparer.ValuesMatch(
                         DeclarationInventorySecurityPropertyValueComparer.ComparableToken(logicalName, declarationValue),
                         DeclarationInventorySecurityPropertyValueComparer.ComparableToken(logicalName, inventoryValue)))

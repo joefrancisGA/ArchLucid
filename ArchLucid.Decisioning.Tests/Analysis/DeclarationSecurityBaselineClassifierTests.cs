@@ -76,6 +76,20 @@ public sealed class DeclarationSecurityBaselineClassifierTests
     }
 
     [Fact]
+    public void Classify_flags_terraform_public_network_access_enabled_yes()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.public_network_access_enabled"] = "yes",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("sql", properties);
+
+        signals.Should().ContainSingle(signal => signal.Theme == "data-protection");
+    }
+
+    [Fact]
     public void Classify_flags_terraform_public_network_access_enabled_true()
     {
         // azurerm and infra/terraform-storage use public_network_access_enabled = true.
@@ -106,6 +120,20 @@ public sealed class DeclarationSecurityBaselineClassifierTests
     }
 
     [Fact]
+    public void Classify_flags_allow_blob_public_access_when_value_is_yes()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["allowBlobPublicAccess"] = "yes",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("storage", properties);
+
+        signals.Should().ContainSingle(signal => signal.Theme == "data-protection");
+    }
+
+    [Fact]
     public void Classify_flags_arm_publicNetworkAccess()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
@@ -131,6 +159,34 @@ public sealed class DeclarationSecurityBaselineClassifierTests
             DeclarationSecurityBaselineClassifier.Classify("api", properties);
 
         signals.Should().ContainSingle(signal => signal.Theme == "workload-isolation");
+    }
+
+    [Fact]
+    public void Classify_flags_k8s_privileged_workload_when_privileged_is_numeric_one()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["k8s.privileged"] = "1",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("api", properties);
+
+        signals.Should().ContainSingle(signal => signal.Theme == "workload-isolation");
+    }
+
+    [Fact]
+    public void Classify_flags_weak_transport_when_https_only_is_no_token()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["httpsOnly"] = "no",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("api", properties);
+
+        signals.Should().ContainSingle(signal => signal.Theme == "transport-security");
     }
 
     [Fact]

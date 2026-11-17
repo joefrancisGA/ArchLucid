@@ -152,7 +152,7 @@ export function formatCareerExportClassificationBandLine(
   counts: CareerExportClassificationCounts | null | undefined,
 ): string | null {
   if (counts === null || counts === undefined) {
-    return null;
+    return "Finding bands were not stored.";
   }
 
   const decisionGrade = Math.max(0, Math.trunc(counts.decisionGrade));
@@ -160,7 +160,7 @@ export function formatCareerExportClassificationBandLine(
   const total = decisionGrade + checklist;
 
   if (total === 0) {
-    return null;
+    return "Finding bands were stored empty.";
   }
 
   return `Decision-grade: ${decisionGrade} · Checklist: ${checklist} (ADR 0070 gate classification on this package snapshot).`;
@@ -177,7 +177,7 @@ function formatSkippedMustExportHeaderMarkdown(
     return "";
   }
 
-  return `## Skipped required questions\n\n- ${skippedMustKeys.join(", ")}\n`;
+  return `## Skipped MUST questions\n\n- ${skippedMustKeys.join(", ")}\n`;
 }
 
 /** Shared markdown honesty block for sponsor PDF, ADR, print, and manifest exports (PC-13). */
