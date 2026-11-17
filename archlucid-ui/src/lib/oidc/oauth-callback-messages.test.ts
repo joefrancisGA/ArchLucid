@@ -128,12 +128,36 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("\u203b\u203b")).toBe("");
   });
 
-  it("returns empty for plus-only token-endpoint JSON error_description values", () => {
-    expect(readOAuthJsonErrorDescription("++")).toBe("");
+  it("returns empty for dagger-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2020\u2020")).toBe("");
   });
 
-  it("returns empty for colon-only token-endpoint JSON error_description values", () => {
-    expect(readOAuthJsonErrorDescription("::")).toBe("");
+  it("returns empty for double-dagger-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2021\u2021")).toBe("");
+  });
+
+  it("returns empty for asterisk-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("**")).toBe("");
+  });
+
+  it("returns empty for equals-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("==")).toBe("");
+  });
+
+  it("returns empty for hash-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("##")).toBe("");
+  });
+
+  it("returns empty for ampersand-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("&&")).toBe("");
+  });
+
+  it("returns empty for pipe-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("||")).toBe("");
+  });
+
+  it("returns empty for plus-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("++")).toBe("");
   });
 
   it("preserves ZWNJ in Persian token error_description copy", () => {
@@ -383,6 +407,34 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("%E2%80%BB")).toBe("");
   });
 
+  it("returns empty for dagger-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%A0")).toBe("");
+  });
+
+  it("returns empty for double-dagger-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%A1")).toBe("");
+  });
+
+  it("returns empty for asterisk-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%2A%2A")).toBe("");
+  });
+
+  it("returns empty for equals-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%3D%3D")).toBe("");
+  });
+
+  it("returns empty for hash-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%23%23")).toBe("");
+  });
+
+  it("returns empty for ampersand-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%26%26")).toBe("");
+  });
+
+  it("returns empty for pipe-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%7C%7C")).toBe("");
+  });
+
   it("returns empty for percent-encoded punctuation-only error descriptions", () => {
     expect(decodeOAuthErrorDescription("%2E%2E%2E")).toBe("");
   });
@@ -429,6 +481,10 @@ describe("humanizeAuthorizeCallbackError", () => {
 
   it("maps access_denied when the error query glues the code with a soft hyphen", () => {
     expect(humanizeAuthorizeCallbackError("access\u00ADdenied", "")).toContain("canceled sign-in");
+  });
+
+  it("maps access_denied when the authorize error query contains trailing control characters", () => {
+    expect(humanizeAuthorizeCallbackError("access_denied\u000b", "")).toContain("canceled sign-in");
   });
 
   it("includes emoji ZWJ detail on access_denied authorize callback copy", () => {
@@ -1030,6 +1086,42 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toContain("canceled sign-in");
     expect(message).not.toContain("🔒");
+  });
+
+  it("uses canceled-sign-in copy when access_denied error_description is the literal null string", () => {
+    const detail = decodeOAuthErrorDescription("null");
+    const message = humanizeAuthorizeCallbackError("access_denied", detail);
+
+    expect(detail).toBe("");
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/:\s*null\b/i);
+  });
+
+  it("uses canceled-sign-in copy when access_denied error_description is a broken object coercion string", () => {
+    const detail = decodeOAuthErrorDescription("[object Object]");
+    const message = humanizeAuthorizeCallbackError("access_denied", detail);
+
+    expect(detail).toBe("");
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toContain("[object Object]");
+  });
+
+  it("uses canceled-sign-in copy when access_denied error_description is the literal true string", () => {
+    const detail = decodeOAuthErrorDescription("true");
+    const message = humanizeAuthorizeCallbackError("access_denied", detail);
+
+    expect(detail).toBe("");
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/:\s*true\b/i);
+  });
+
+  it("uses canceled-sign-in copy when access_denied error_description is the literal NaN string", () => {
+    const detail = decodeOAuthErrorDescription("NaN");
+    const message = humanizeAuthorizeCallbackError("access_denied", detail);
+
+    expect(detail).toBe("");
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/:\s*NaN\b/i);
   });
 
   it("omits colon-only authorize error descriptions from access_denied copy", () => {
