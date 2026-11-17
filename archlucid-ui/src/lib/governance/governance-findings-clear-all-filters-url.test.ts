@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import { GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM } from "./governance-findings-bulk-disposition-confirm-url";
 import { GOVERNANCE_FINDINGS_BULK_PARAM } from "./governance-findings-bulk-selection-url";
+import {
+  FINDING_KEYBOARD_TRIAGE_ACTION_PARAM,
+  FINDING_KEYBOARD_TRIAGE_FINDING_ID_PARAM,
+} from "./finding-keyboard-triage-confirm-url";
 import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "./governance-findings-resource-group-disclosure-url";
 import { governanceFindingsClearAllFiltersHref, governanceFindingsShowAllFilteredFindingsHref } from "./governance-findings-clear-all-filters-url";
 
@@ -45,6 +49,17 @@ describe("governanceFindingsClearAllFiltersHref", () => {
     expect(href).toBe("/governance/findings?runId=run-1");
     expect(href).not.toContain(`${GOVERNANCE_FINDINGS_BULK_PARAM}=`);
     expect(href).not.toContain(`${GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM}=`);
+  });
+
+  it("clears keyboard disposition confirm params when clearing filters", () => {
+    const href = governanceFindingsClearAllFiltersHref(
+      `filter=open&${FINDING_KEYBOARD_TRIAGE_FINDING_ID_PARAM}=finding-1&${FINDING_KEYBOARD_TRIAGE_ACTION_PARAM}=accepted`,
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings");
+    expect(href).not.toContain(`${FINDING_KEYBOARD_TRIAGE_FINDING_ID_PARAM}=`);
+    expect(href).not.toContain(`${FINDING_KEYBOARD_TRIAGE_ACTION_PARAM}=`);
   });
 
   it("clears hideGeneric when showing all filtered findings", () => {
