@@ -134,6 +134,35 @@ public sealed class TenantBrandingServiceTests
         presentation.ShowArchLucidMarkInMasthead.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task GetSurfacePresentationAsync_uses_same_profile_for_name_and_logo_during_invalidation()
+    {
+        using MemoryCache memory = new(new MemoryCacheOptions());
+        TenantBrandingResolvedProfileCache cache = new(memory);
+        Mock<ITenantBrandingProfileRepository> repository = new();
+        repository.SetupSequence(repo => repo.TryGetActiveAsync(TenantA, CancellationToken.None))
+            .ReturnsAsync(BuildProfile(TenantA, BrandingProfileStatus.Active, DateTime.UtcNow, "Tenant A Holdings"))
+            .ReturnsAsync((TenantBrandingProfileRecord?)null);
+        repository.Setup(repo => repo.TryGetDefaultAsync(TenantA, CancellationToken.None))
+            .ReturnsAsync((TenantBrandingProfileRecord?)null);
+        Mock<ITenantFirstValueReportBrandingRepository> legacy = new();
+        legacy.Setup(repo => repo.TryGetAsync(TenantA, CancellationToken.None))
+            .ReturnsAsync(() =>
+            {
+                cache.InvalidateTenantCache(TenantA);
+                return (TenantFirstValueReportBrandingRow?)null;
+            });
+        TenantBrandingService service = new(repository.Object, legacy.Object, Mock.Of<IBrandAssetService>(), cache);
+
+        TenantBrandingSurfacePresentation presentation = await service.GetSurfacePresentationAsync(
+            TenantA, BrandingDisplayContext.ApplicationHeader, CancellationToken.None);
+
+        presentation.MastheadDisplayName.Should().Be("Tenant A Holdings");
+        presentation.UsesTenantVisualBrand.Should().BeTrue();
+        presentation.Logo.IsProductBrand.Should().BeFalse();
+        repository.Verify(repo => repo.TryGetActiveAsync(TenantA, CancellationToken.None), Times.Once);
+    }
+
     private static TenantBrandingService CreateService(
         ITenantBrandingProfileRepository profileRepository,
         TenantBrandingResolvedProfileCache? cache = null)
