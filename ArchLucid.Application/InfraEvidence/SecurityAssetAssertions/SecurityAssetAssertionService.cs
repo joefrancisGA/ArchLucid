@@ -359,12 +359,10 @@ public sealed class SecurityAssetAssertionService(
         DateTime utcNow,
         CancellationToken cancellationToken)
     {
-        (IReadOnlyList<OperationalSecurityFindingRecord> findings, _) =
-            await findingRepository.ListByCloudResourceIdPagedInScopeAsync(
+        IReadOnlyList<OperationalSecurityFindingRecord> findings =
+            await findingRepository.ListByCloudResourceIdInScopeAsync(
                 scope.ToProjectScopeKey(),
                 expired.CloudResourceId,
-                page: 1,
-                pageSize: 100,
                 cancellationToken);
 
         if (findings.Count == 0)
