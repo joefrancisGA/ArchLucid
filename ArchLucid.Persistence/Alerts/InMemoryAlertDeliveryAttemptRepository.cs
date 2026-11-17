@@ -1,3 +1,4 @@
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Alerts;
@@ -43,6 +44,7 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
             List<AlertDeliveryAttempt> result = _items
                 .Where(x => x.AlertId == alertId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
+                .Take(PaginationDefaults.MaxPageSize)
                 .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<AlertDeliveryAttempt>>(result);
