@@ -42,7 +42,8 @@ public sealed class ArchitectureRecommendationEngine : IArchitectureRecommendati
         finding.GovernanceDisposition is GovernanceDisposition.Accepted
             or GovernanceDisposition.ExceptionGranted
             or GovernanceDisposition.Deferred
-            or GovernanceDisposition.RemediationPlanned;
+            or GovernanceDisposition.RemediationPlanned
+            or GovernanceDisposition.HumanDecisionRequired;
 
     private static ArchitectureRecommendation CreateRecommendation(
         SpecialistReviewFinding finding,

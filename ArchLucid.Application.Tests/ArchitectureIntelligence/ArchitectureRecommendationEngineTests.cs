@@ -187,6 +187,24 @@ public sealed class ArchitectureRecommendationEngineTests
     }
 
     [Fact]
+    public void BuildRecommendations_skips_fail_findings_whose_governance_disposition_is_human_decision_required()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding pendingHuman = CreateFailingFinding(
+            "f-human",
+            QualityDimension.Security,
+            "Exposure awaiting human disposition");
+        pendingHuman.GovernanceDisposition = GovernanceDisposition.HumanDecisionRequired;
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            CreateModel(),
+            [pendingHuman],
+            ["Security"]);
+
+        recommendations.Should().BeEmpty();
+    }
+
+    [Fact]
     public void BuildRecommendations_stamps_system_proposed_indirectly_supported_when_evidence_is_insufficient()
     {
         ArchitectureRecommendationEngine sut = new();
@@ -200,6 +218,26 @@ public sealed class ArchitectureRecommendationEngineTests
             CreateModel(),
             [insufficient],
             ["Security"]);
+
+        recommendations.Should().ContainSingle();
+        recommendations[0].Provenance.SupportStatus.Should().Be(SupportStatus.IndirectlySupported);
+        recommendations[0].Provenance.Origin.Should().Be(ClaimOrigin.SystemProposed);
+    }
+
+    [Fact]
+    public void BuildRecommendations_stamps_system_proposed_indirectly_supported_when_fail_evidence_is_unverified()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding unverified = CreateFailingFinding(
+            "f-unverified",
+            QualityDimension.Cost,
+            "Spend signal without corroboration");
+        unverified.EvidenceCondition = EvidenceCondition.Unverified;
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            CreateModel(),
+            [unverified],
+            ["Cost"]);
 
         recommendations.Should().ContainSingle();
         recommendations[0].Provenance.SupportStatus.Should().Be(SupportStatus.IndirectlySupported);

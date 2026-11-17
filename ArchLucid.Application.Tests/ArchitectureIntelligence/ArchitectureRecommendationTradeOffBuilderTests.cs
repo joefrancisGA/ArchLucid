@@ -64,6 +64,52 @@ public sealed class ArchitectureRecommendationTradeOffBuilderTests
     }
 
     [Fact]
+    public void BuildRecommendations_omits_security_cost_trade_off_when_security_finding_is_remediation_planned()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding plannedSecurity = CreateFailFinding(
+            "sec-planned",
+            QualityDimension.Security,
+            "Trust boundary gap with scheduled remediation");
+        plannedSecurity.GovernanceDisposition = GovernanceDisposition.RemediationPlanned;
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Monthly ceiling is unspecified");
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [plannedSecurity, costFinding],
+            ["Security", "Cost"]);
+
+        recommendations.Should().ContainSingle();
+        recommendations[0].TradeOffs.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void BuildRecommendations_omits_security_cost_trade_off_when_security_finding_awaits_human_decision()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding pendingSecurity = CreateFailFinding(
+            "sec-human",
+            QualityDimension.Security,
+            "Trust boundary exposure awaiting human disposition");
+        pendingSecurity.GovernanceDisposition = GovernanceDisposition.HumanDecisionRequired;
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Monthly ceiling is unspecified");
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [pendingSecurity, costFinding],
+            ["Security", "Cost"]);
+
+        recommendations.Should().ContainSingle();
+        recommendations[0].TradeOffs.Should().BeEmpty();
+    }
+
+    [Fact]
     public void BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_non_security()
     {
         ArchitectureRecommendationEngine sut = new();
