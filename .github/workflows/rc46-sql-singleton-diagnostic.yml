@@ -7,6 +7,9 @@ on:
     paths:
       - .github/workflows/rc46-sql-singleton-diagnostic.yml
       - ArchLucid.AgentRuntime.Tests/AgentModelTierResolverTestsHelper.cs
+      - .github/workflows/ci.yml
+      - scripts/ci/rc46_sql_partition.py
+      - ArchLucid.Api.Tests/CreateRunIdempotencyConcurrencyIntegrationTests.cs
       - ArchLucid.AgentRuntime/AgentModelAliases/CatalogBackedAgentModelAliasRegistry.cs
   workflow_dispatch:
 
@@ -129,5 +132,106 @@ jobs:
         with:
           name: rc46-sql-idempotency-singleton-evidence
           path: ${{ runner.temp }}/rc46-sql-singleton
+          retention-days: 3
+          if-no-files-found: warn
+
+  sql-slow-complementary-halves:
+    name: SQL forensic - complementary Slow SQL half ${{ matrix.half }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        half: [0, 1]
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: 'LocalTesting123!'
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 60s
+    env:
+      DOTNET_USE_POLLING_FILE_WATCHER: '1'
+      ARCHLUCID_SQL_TEST: 'Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests'
+      ARCHLUCID_INTEGRATION_TEST_DIAG: '1'
+      PARTITION_HALF: ${{ matrix.half }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            '**/*.csproj'
+      - name: Restore and build SQL API tests
+        run: |
+          dotnet restore ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+          dotnet build ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-restore -c Release
+      - name: Wait for disposable SQL Server
+        uses: ./.github/actions/wait-for-sqlserver
+      - name: Initialize disposable test catalog
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
+      - name: Discover and deterministically partition ALL actual Slow SQL test IDs
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/rc46-sql-half-$PARTITION_HALF"
+          mkdir -p "$out"
+          git rev-parse HEAD > "$out/head.txt"
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-build -c Release --list-tests \
+            --filter 'Category=Slow&FullyQualifiedName!~AskThreadIntegrationTests&FullyQualifiedName!~RetrievalQuerySmokeIntegrationTests' \
+            > "$out/discovered-slow-tests.txt" 2>&1
+          python3 scripts/ci/rc46_sql_partition.py prepare \
+            --discovery "$out/discovered-slow-tests.txt" --half "$PARTITION_HALF" \
+            --sha "$(git rev-parse HEAD)" --output "$out"
+      - name: Run bounded complementary subset with TRX, blame and SQL wait diagnostics
+        timeout-minutes: 29
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/rc46-sql-half-$PARTITION_HALF"
+          container=$(docker ps --filter 'ancestor=mcr.microsoft.com/mssql/server:2022-latest' --format '{{.ID}}' | head -n 1)
+          if [ -z "$container" ]; then echo 'Missing disposable SQL service' > "$out/sql-error.txt"; exit 1; fi
+          (
+            while true; do
+              printf '\n--- UTC %s ---\n' "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$out/sql-waits.log"
+              docker exec "$container" /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -W \
+                -Q "SET NOCOUNT ON; SELECT session_id, blocking_session_id, wait_type, wait_time, status, command FROM sys.dm_exec_requests WHERE session_id > 50 ORDER BY wait_time DESC; SELECT request_session_id, resource_type, request_mode, request_status FROM sys.dm_tran_locks WHERE request_status = 'WAIT';" \
+                >> "$out/sql-waits.log" 2>&1 || true
+              sleep 20
+            done
+          ) &
+          sampler_pid=$!
+          trap 'kill "$sampler_pid" 2>/dev/null || true' EXIT
+          filter="$(cat "$out/filter.txt")"
+          set +e
+          timeout --signal=TERM --kill-after=30s 25m \
+            dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-build -c Release \
+              --filter "$filter" --results-directory "$out" \
+              --logger 'trx;LogFileName=subset.trx' --diag "$out/vstest.diag.log" \
+              --blame-hang --blame-hang-timeout 20min --blame-hang-dump-type mini \
+              > "$out/vstest.stdout.log" 2> "$out/vstest.stderr.log"
+          rc=$?
+          set -e
+          echo "$rc" > "$out/exit-code.txt"
+          tail -n 70 "$out/vstest.stdout.log" || true
+          if ! python3 scripts/ci/rc46_sql_partition.py verify --output "$out"; then
+            echo 'Subset metadata/result mismatch; no isolation conclusion is valid'
+            exit 2
+          fi
+          exit "$rc"
+      - name: Upload complementary half evidence (exact IDs, filters, TRX, waits and dumps)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rc46-sql-half-${{ matrix.half }}-evidence
+          path: ${{ runner.temp }}/rc46-sql-half-${{ matrix.half }}
           retention-days: 3
           if-no-files-found: warn

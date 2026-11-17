@@ -3674,6 +3674,9 @@ jobs:
 
       - name: Test â€” ArchLucid.Api.Tests Slow (SQL / greenfield â€” exclude InMemory Ask+Retrieval)
         env:
+          # CI host creates hundreds of isolated WebApplicationFactory instances; avoid
+          # Linux runner 128 inotify-instance exhaustion without skipping any test assertions.
+          DOTNET_USE_POLLING_FILE_WATCHER: '1'
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
           ARCHLUCID_INTEGRATION_TEST_DIAG: "1"
         # Blame must exceed ParallelCreateRunHangGuard (~100m) + GreenfieldSqlHostBootstrapBudget (~30m) slack on cold CI SQL.

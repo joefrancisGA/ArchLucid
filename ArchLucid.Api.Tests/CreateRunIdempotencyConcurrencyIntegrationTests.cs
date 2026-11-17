@@ -158,7 +158,10 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
 
             foreach (HttpResponseMessage response in responses)
             {
-                response.StatusCode.Should().BeOneOf(HttpStatusCode.Created, HttpStatusCode.OK);
+                string diagnosticBody = await response.Content.ReadAsStringAsync(ct);
+                response.StatusCode.Should().BeOneOf(
+                    [HttpStatusCode.Created, HttpStatusCode.OK],
+                    $"each idempotent parallel POST must succeed; HTTP response body: {diagnosticBody}");
 
                 CreateRunResponseDto? dto = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(
                     ArchitectureRequestConcurrencyTestSupport.JsonOptions);
