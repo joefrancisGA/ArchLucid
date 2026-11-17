@@ -130,6 +130,23 @@ public sealed class RequirementSkuTierFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_emits_finding_when_geo_redundant_requirement_and_zone_redundant_sku()
+    {
+        GraphSnapshot graph = BuildFixture(
+            sku: "Premium_ZRS",
+            includeZoneRedundantText: false,
+            requirementText: "Payment storage must be geo-redundant.");
+
+        RequirementSkuTierFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.Title.Should().Contain("geo-redundant");
+        finding.Title.Should().Contain("Premium_ZRS");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_none_when_sku_missing()
     {
         GraphSnapshot graph = BuildFixture(sku: null, includeZoneRedundantText: true);
