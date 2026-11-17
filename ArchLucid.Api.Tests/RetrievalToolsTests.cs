@@ -252,6 +252,43 @@ public sealed class RetrievalToolsTests
     }
 
     [Fact]
+    public async Task PolicyPackSearchAsync_returns_empty_when_vector_hits_rank_only_prior_decision_corpus()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalHit
+                {
+                    ChunkId = "prior-chunk-1",
+                    DocumentId = "prior-doc-1",
+                    Title = "Prior manifest",
+                    Text = "committed architecture decision",
+                    Score = 0.99,
+                    CorpusKind = CorpusKind.PriorManifest.ToString(),
+                    SourceType = "PriorManifest",
+                    SourceId = "prior-1"
+                }
+            ]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "baseline",
+            TopK = 3,
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> hits =
+            await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        hits.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task PriceRowLookupAsync_returns_empty_when_vector_hits_exclude_retail_corpus()
     {
         Mock<IRetrievalQueryService> queryService = new();

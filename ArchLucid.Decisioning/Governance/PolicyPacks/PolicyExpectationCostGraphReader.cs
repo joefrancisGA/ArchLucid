@@ -166,6 +166,8 @@ public static class PolicyExpectationCostGraphReader
   private static bool IsExportFormattingSpace(char c) =>
       c == '\u00A0'
       || c == '\u2002'
+      || c == '\u2003'
+      || c == '\u2004'
       || c == '\u2007'
       || c == '\u2008'
       || c == '\u2009'
