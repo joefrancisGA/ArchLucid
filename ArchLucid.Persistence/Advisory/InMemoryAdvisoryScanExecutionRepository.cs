@@ -16,7 +16,7 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
     {
         _ = ct;
         lock (_gate)
-            _items.Add(execution);
+            _items.Add(Copy(execution));
         return Task.CompletedTask;
     }
 
@@ -28,7 +28,7 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
         {
             int i = _items.FindIndex(x => x.ExecutionId == execution.ExecutionId && SameScope(x, execution));
             if (i >= 0)
-                _items[i] = execution;
+                _items[i] = Copy(execution);
         }
 
         return Task.CompletedTask;
@@ -75,11 +75,26 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
                 .Where(x => x.ScheduleId == scheduleId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.StartedUtc)
                 .Take(take)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<AdvisoryScanExecution>>(result);
         }
     }
+
+    private static AdvisoryScanExecution Copy(AdvisoryScanExecution execution) => new()
+    {
+        ExecutionId = execution.ExecutionId,
+        ScheduleId = execution.ScheduleId,
+        TenantId = execution.TenantId,
+        WorkspaceId = execution.WorkspaceId,
+        ProjectId = execution.ProjectId,
+        StartedUtc = execution.StartedUtc,
+        CompletedUtc = execution.CompletedUtc,
+        Status = execution.Status,
+        ResultJson = execution.ResultJson,
+        ErrorMessage = execution.ErrorMessage,
+    };
 
     private static bool MatchesScope(AdvisoryScanExecution execution, ScopeContext scope) =>
         execution.TenantId == scope.TenantId &&
