@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-16 - Score lift round 63 (batch 28): Compare partial inventory, digest scoped empty, and attack-path table honesty
+
+**Outcome.** Compare results name partial SecureNow inventory capture. Digest browse distinguishes scoped-review filter-empty from setup empty and load failure. Attack path report adds table partial-capture honesty and truncated path chip labels. Infrastructure Ask full page mirrors drawer partial-capture recovery. Remediation patterns filter-empty and decision register filter-empty repeat not-load-failure discipline.
+
+**Surfaces.** Compare two reviews, architecture digest browse, remediation factory attack path report, infrastructure Ask page, remediation patterns catalog, decision register filter empty, honesty and mounted contract tests.
+
 ## 2026-11-16 - Score lift round 62 (batch 27): Infra workbench partial capture and scorecard annual discipline
 
 **Outcome.** Drift and diagram reconcile workbenches, path inspect, decision register empty, first-review prerequisites, and resource hub Terraform tab repeat partial-capture recovery or advisory-not-apply discipline. Scorecard savings hero states annual headline is not a sum of quarters when no quarterly estimate is shown.

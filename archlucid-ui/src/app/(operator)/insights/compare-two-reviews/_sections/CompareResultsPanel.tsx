@@ -12,6 +12,7 @@ import { CompareResultsPanelVerdictChrome } from "@/app/(operator)/insights/comp
 import { useCompareResultsPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-results-panel";
 import { comparisonDriftReportBlockedReason } from "@/lib/compare/comparison-drift-blocked-reason";
 import { comparisonSearchBlockedReason } from "@/lib/compare/comparison-search-blocked-reason";
+import { CompareResultsPanelPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanelPartialInventoryFootnote";
 
 export type CompareResultsPanelProps = {
   showStaleInputsWarning: boolean;
@@ -38,11 +39,19 @@ export type CompareResultsPanelProps = {
   buyerPolished?: boolean;
   /** Places results above collapsed pickers in buyer insight-first layout. */
   resultsFirst?: boolean;
+  /** Show SecureNow partial-inventory footnote when comparison output is present. */
+  showPartialInventoryFootnote?: boolean;
 };
 
 export function CompareResultsPanel(props: CompareResultsPanelProps) {
   const viewModel = useCompareResultsPanel(props);
-  const { resultsRegionRef, resultsFirst = false, comparisonSearchBlockedReason: searchBlockedReason, comparisonDriftBlockedReason: driftBlockedReason } = viewModel;
+  const {
+    resultsRegionRef,
+    comparisonSearchBlockedReason: searchBlockedReason,
+    comparisonDriftBlockedReason: driftBlockedReason,
+  } = viewModel;
+  const resultsFirst = props.resultsFirst ?? false;
+  const showPartialInventoryFootnote = props.showPartialInventoryFootnote ?? false;
 
   return (
     <section
@@ -62,6 +71,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
           {driftBlockedReason}
         </p>
       ) : null}
+      <CompareResultsPanelPartialInventoryFootnote visible={showPartialInventoryFootnote} />
       <CompareResultsPanelVerdictChrome viewModel={viewModel} />
       <CompareResultsPanelDiffStack viewModel={viewModel} />
     </section>

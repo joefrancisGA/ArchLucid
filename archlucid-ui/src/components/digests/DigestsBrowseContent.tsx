@@ -33,6 +33,11 @@ import {
   DIGESTS_BROWSE_SETUP_UNKNOWN_TITLE,
 } from "@/lib/digests-browse-copy";
 import {
+  DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_DESCRIPTION,
+  DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE,
+  DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_TITLE,
+} from "@/lib/digests-browse-scoped-filter-empty-copy";
+import {
   digestsBrowseDisclosureHrefFromSearch,
   parseDigestsBrowseIncludesOpenFromSearch,
   parseDigestsTechnicalDetailsOpenFromSearch,
@@ -176,7 +181,18 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
 
       {showEmptyComposition ? (
         <div className="mt-4 space-y-3" data-testid="digests-browse-empty-state">
-          {setupChecklist !== null ? (
+          {scopedRunFilterActive ? (
+            <EnterpriseCompactEmptyState
+              testId="digests-browse-scoped-filter-empty-state"
+              title={DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_TITLE}
+              description={DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_DESCRIPTION}
+              footer={
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digests-browse-scoped-filter-empty-not-load-failure">
+                  {DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+              }
+            />
+          ) : setupChecklist !== null ? (
             <DigestsBrowseSetupChecklist items={setupChecklist} />
           ) : (
             <EnterpriseCompactEmptyState
