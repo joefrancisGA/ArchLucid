@@ -129,6 +129,39 @@ public sealed class AlertTeamsWebhookDeliveryChannelTests
     }
 
     [Fact]
+    public async Task SendAsync_TeamsPayload_strips_vertical_tab_from_severity_in_title_prefix()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
+
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    ChatOpsWebhookTarget.Teams,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
+            .Returns(Task.CompletedTask);
+
+        AlertTeamsWebhookDeliveryChannel sut = new(delivery.Object);
+        AlertDeliveryPayload payload = CreatePayload("https://outlook.office.com/webhook/x");
+        payload.Alert.Severity = "High\u000B";
+        payload.Alert.Title = "Latency spike";
+
+        await sut.SendAsync(payload, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        object body = ChatOpsIncomingWebhookBodies.ForTeams(captured!);
+        string title = GetStringProperty(body, "title");
+
+        title.Should().Be("[High] Latency spike");
+        title.Should().NotContain("\u000B");
+    }
+
+    [Fact]
     public async Task SendAsync_TeamsPayload_strips_form_feed_from_description_in_posted_text()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();
