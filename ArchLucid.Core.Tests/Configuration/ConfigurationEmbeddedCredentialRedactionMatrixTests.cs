@@ -11858,6 +11858,34 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         AssertRedacts(effectiveValue);
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_session_value_uses_plus_instead_of_space()
+    {
+        const string effectiveValue = "Cookie: session=abc+defghijklmnop";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_digest_challenge_uses_plus_sign_delimiters()
+    {
+        const string effectiveValue = "WWW-Authenticate:+Digest+response=deadbeef0123";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_partially_percent_encoded_with_literal_plus()
+    {
+        const string effectiveValue = "Authorization%20Basic%2BdXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_json_array_wraps_plus_delimited_bearer_authorization_paste()
+    {
+        const string effectiveValue = """["Authorization:+Bearer+eyJhbGciOiJIUzI1NiJ9"]""";
+        AssertRedacts(effectiveValue);
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
