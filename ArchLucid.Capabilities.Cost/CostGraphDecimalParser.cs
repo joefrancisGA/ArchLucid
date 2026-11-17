@@ -98,6 +98,7 @@ internal static class CostGraphDecimalParser
 
     private static bool IsExportFormattingSpace(char c) =>
         c == '\u00A0'
+        || c == '\u2000'
         || c == '\u2002'
         || c == '\u2003'
         || c == '\u2004'
