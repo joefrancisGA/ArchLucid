@@ -11718,6 +11718,41 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         AssertRedacts(effectiveValue);
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_negotiate_header_is_fully_percent_encoded()
+    {
+        const string effectiveValue = "Authorization%3A%20Negotiate%20YIIeAYeAABQAAAABAAA%3D";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_ntlm_header_is_fully_percent_encoded()
+    {
+        const string effectiveValue = "Authorization%3A%20NTLM%20TlRMTVNTUAABAAAABlIAA%3D";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_doubly_percent_encoded()
+    {
+        const string effectiveValue = "Authorization%253A%2520Basic%2520dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_proxy_authorization_basic_paste()
+    {
+        const string effectiveValue = """{"hdr":"Proxy-Authorization%3A%20Basic%20dXNlcjpwYXNz"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_is_fully_percent_encoded()
+    {
+        const string effectiveValue = "Cookie%3A%20session%3D12345678";
+        AssertRedacts(effectiveValue);
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
