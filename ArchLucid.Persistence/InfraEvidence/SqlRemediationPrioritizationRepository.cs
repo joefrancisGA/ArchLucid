@@ -40,7 +40,7 @@ public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectio
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-                           MERGE dbo.RemediationPrioritizationWeights AS target
+                           MERGE dbo.RemediationPrioritizationWeights WITH (HOLDLOCK) AS target
                            USING (SELECT @TenantId AS TenantId) AS source
                            ON target.TenantId = source.TenantId
                            WHEN MATCHED THEN
