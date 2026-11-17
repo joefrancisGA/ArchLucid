@@ -74,6 +74,30 @@ public sealed class SecureNowQuestionDispositionServiceTests
     }
 
     [Fact]
+    public async Task Ignore_rejects_disposition_that_expires_while_loading_the_question()
+    {
+        InMemoryDispositionRepository repository = new();
+        DateTimeOffset initial = new(2026, 11, 1, 10, 0, 0, TimeSpan.Zero);
+        Mock<TimeProvider> clock = new();
+        clock.SetupSequence(provider => provider.GetUtcNow())
+            .Returns(initial)
+            .Returns(initial.AddMinutes(1));
+        SecureNowQuestionDispositionService sut = CreateSut(repository, timeProvider: clock.Object);
+        SecureNowQuestionDispositionWriteRequest request =
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource") with
+            {
+                ExpirationUtc = initial.UtcDateTime.AddMinutes(1),
+            };
+
+        SecureNowQuestionDispositionMutationResult result = await sut.IgnoreAsync(
+            Scope, SnapshotId, request, "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("ExpirationUtc must be in the future.");
+        repository.Rows.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Resource_identity_is_case_insensitive()
     {
         InMemoryDispositionRepository repository = new();
@@ -679,7 +703,8 @@ public async Task Foreign_snapshot_cannot_read_or_write()
         bool includeInventoryQuestion = true,
         bool includePackElicitation = false,
         bool inferredConnectionsUnavailable = false,
-        IReadOnlyList<OperatorInferredConnectionRecord>? inferredConnections = null)
+        IReadOnlyList<OperatorInferredConnectionRecord>? inferredConnections = null,
+        TimeProvider? timeProvider = null)
     {
         Mock<IAzureInventorySnapshotRepository> snapshots = new();
         snapshots
@@ -791,7 +816,8 @@ public async Task Foreign_snapshot_cannot_read_or_write()
             audit.Object,
             inferredConnectionsMock?.Object,
             governanceLoader?.Object,
-            graphResolver?.Object);
+            graphResolver?.Object,
+            timeProvider);
     }
 
     private static SecureNowQuestionDispositionWriteRequest CreateWriteRequest(

@@ -19,8 +19,10 @@ public sealed class SecureNowQuestionDispositionService(
     IAuditService auditService,
     IOperatorInferredConnectionRepository? inferredConnectionRepository = null,
     IEffectiveGovernanceLoader? effectiveGovernanceLoader = null,
-    IAzureInventorySnapshotGraphResolver? graphResolver = null) : ISecureNowQuestionDispositionService
+    IAzureInventorySnapshotGraphResolver? graphResolver = null,
+    TimeProvider? timeProvider = null) : ISecureNowQuestionDispositionService
 {
+    private readonly TimeProvider clock = timeProvider ?? TimeProvider.System;
     private readonly SecureNowQuestionCompiler questionCompiler = new();
     private readonly SecureNowPackQuestionCandidateBuilder packQuestionCandidateBuilder = new();
     private static readonly TimeSpan MaximumDispositionLifetime = TimeSpan.FromDays(90);
@@ -261,7 +263,8 @@ public sealed class SecureNowQuestionDispositionService(
             request,
             actorKey,
             status,
-            dispositionResourceId);
+            dispositionResourceId,
+            clock.UtcNowDateTime());
 
         if (validationError is not null)
             return Failed(validationError);
@@ -283,8 +286,6 @@ public sealed class SecureNowQuestionDispositionService(
                 return Failed(mutationValidationError);
         }
 
-        DateTime now = TimeProvider.System.UtcNowDateTime();
-        DateTime expirationUtc = request.ExpirationUtc ?? now.Add(MaximumDispositionLifetime);
         SecureNowQuestionDispositionRecord? existing =
             await dispositionRepository.TryGetByIdentityAsync(
                 scope.TenantId,
@@ -293,6 +294,12 @@ public sealed class SecureNowQuestionDispositionService(
                 NormalizeQuestionKey(request.QuestionKey),
                 cancellationToken);
 
+        DateTime now = clock.UtcNowDateTime();
+        string? expirationError = ValidateExpiration(request.ExpirationUtc, now);
+        if (expirationError is not null)
+            return Failed(expirationError);
+
+        DateTime expirationUtc = request.ExpirationUtc ?? now.Add(MaximumDispositionLifetime);
         SecureNowQuestionDispositionRecord record = new()
         {
             DispositionId = existing?.DispositionId ?? Guid.NewGuid(),
@@ -419,7 +426,8 @@ public sealed class SecureNowQuestionDispositionService(
         SecureNowQuestionDispositionWriteRequest request,
         string actorKey,
         SecureNowQuestionDispositionStatus status,
-        string dispositionResourceId)
+        string dispositionResourceId,
+        DateTime now)
     {
         string? identityError = ValidateIdentity(
             request.SubscriptionId,
@@ -444,7 +452,7 @@ public sealed class SecureNowQuestionDispositionService(
             && string.IsNullOrWhiteSpace(request.AnswerCode))
             return "AnswerCode is required.";
 
-        return ValidateExpiration(request.ExpirationUtc);
+        return ValidateExpiration(request.ExpirationUtc, now);
     }
 
     private static string? ValidateIdentity(
@@ -477,9 +485,8 @@ public sealed class SecureNowQuestionDispositionService(
         return null;
     }
 
-    private static string? ValidateExpiration(DateTime? expirationUtc)
+    private static string? ValidateExpiration(DateTime? expirationUtc, DateTime now)
     {
-        DateTime now = TimeProvider.System.UtcNowDateTime();
         DateTime expiration = expirationUtc ?? now.Add(MaximumDispositionLifetime);
 
         if (expiration <= now)
