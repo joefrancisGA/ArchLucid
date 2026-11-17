@@ -139,44 +139,44 @@ public sealed class RemediationWaveService(
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         Guid waveId = Guid.NewGuid();
 
-        await waveRepository.InsertWaveInScopeAsync(
-            projectScope,
-            new RemediationWaveCreateMutation
-            {
-                WaveId = waveId,
-                Name = name.Trim(),
-                TargetSize = hasTargetSize ? targetSize : selected.Count,
-                Status = RemediationWaveStatus.Active,
-                CreatedByActorKey = actorKey.Trim(),
-                CreatedUtc = utcNow,
-                UpdatedUtc = utcNow,
-            },
-            cancellationToken);
+        RemediationWaveCreateMutation wave = new()
+        {
+            WaveId = waveId,
+            Name = name.Trim(),
+            TargetSize = hasTargetSize ? targetSize : selected.Count,
+            Status = RemediationWaveStatus.Active,
+            CreatedByActorKey = actorKey.Trim(),
+            CreatedUtc = utcNow,
+            UpdatedUtc = utcNow,
+        };
 
+        List<RemediationWaveMemberMutation> members = new(selected.Count);
         int rank = 1;
 
         foreach (RemediationPrioritizedFinding finding in selected)
         {
             approvedInstancesByFindingId.TryGetValue(finding.FindingId, out RemediationInstanceRecord? approvedInstance);
 
-            await waveRepository.InsertMemberInScopeAsync(
-                projectScope,
-                new RemediationWaveMemberMutation
-                {
-                    MemberId = Guid.NewGuid(),
-                    WaveId = waveId,
-                    FindingId = finding.FindingId,
-                    InstanceId = approvedInstance?.InstanceId,
-                    CloudResourceId = finding.CloudResourceId,
-                    PriorityRank = rank++,
-                    PriorityScore = finding.TotalScore,
-                    CreatedUtc = utcNow,
-                },
-                cancellationToken);
-
-            if (approvedInstance is not null)
+            members.Add(new RemediationWaveMemberMutation
             {
-                await instanceService.AssignWaveAsync(scope, approvedInstance.InstanceId, waveId, actorKey, cancellationToken);
+                MemberId = Guid.NewGuid(),
+                WaveId = waveId,
+                FindingId = finding.FindingId,
+                InstanceId = approvedInstance?.InstanceId,
+                CloudResourceId = finding.CloudResourceId,
+                PriorityRank = rank++,
+                PriorityScore = finding.TotalScore,
+                CreatedUtc = utcNow,
+            });
+        }
+
+        await waveRepository.InsertWaveWithMembersInScopeAsync(projectScope, wave, members, cancellationToken);
+
+        foreach (RemediationWaveMemberMutation member in members)
+        {
+            if (member.InstanceId is Guid instanceId)
+            {
+                await instanceService.AssignWaveAsync(scope, instanceId, waveId, actorKey, cancellationToken);
             }
         }
 
