@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
@@ -169,7 +171,8 @@ public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectio
                                 WHERE TenantId = @TenantId
                                   AND WorkspaceId = @WorkspaceId
                                   AND ProjectId = @ProjectId
-                                  AND FindingId IN @FindingIds;
+                                  AND FindingId IN (
+                                      SELECT Id FROM OPENJSON(@FindingIdsJson) WITH (Id uniqueidentifier '$'));
                                 """;
 
         const string mergeSql = """
@@ -203,7 +206,7 @@ public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectio
                     scope.TenantId,
                     scope.WorkspaceId,
                     scope.ProjectId,
-                    FindingIds = findingIds,
+                    FindingIdsJson = JsonSerializer.Serialize(findingIds),
                 },
                 cancellationToken: cancellationToken));
 
