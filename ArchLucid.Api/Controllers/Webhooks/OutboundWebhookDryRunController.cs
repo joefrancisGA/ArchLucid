@@ -55,7 +55,7 @@ public sealed class OutboundWebhookDryRunController(
         {
             TransportSucceeded = outcome.TransportSucceeded,
             StatusCode = outcome.StatusCode,
-            ReasonPhrase = outcome.ReasonPhrase,
+            ReasonPhrase = outcome.ReasonPhrase ?? string.Empty,
             ResponseBodyPreview = outcome.ResponseBodyPreview,
             ResponseBodyTruncated = outcome.ResponseBodyTruncated,
             Error = outcome.Error
@@ -69,7 +69,7 @@ public sealed class OutboundWebhookDryRunController(
                     EventType = AuditEventTypes.OutboundWebhookDryRunProbeExecuted,
                     DataJson = JsonSerializer.Serialize(new
                     {
-                        targetAuthority = body.TargetUrl.GetLeftPart(UriPartial.Authority),
+                        targetAuthority = AllowedOutboundWebhookProbeUrlPolicy.FormatTargetAuthorityForAudit(body.TargetUrl),
                         path = body.TargetUrl.AbsolutePath,
                         scheme = body.TargetUrl.Scheme,
                         hasSharedSecret = !string.IsNullOrEmpty(body.SharedSecret?.Trim()),
