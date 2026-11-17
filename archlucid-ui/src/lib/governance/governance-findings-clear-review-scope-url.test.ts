@@ -6,6 +6,11 @@ import {
   FINDING_KEYBOARD_TRIAGE_ACTION_PARAM,
   FINDING_KEYBOARD_TRIAGE_FINDING_ID_PARAM,
 } from "./finding-keyboard-triage-confirm-url";
+import {
+  GOVERNANCE_RECORD_CORRECTION_KIND_PARAM,
+  GOVERNANCE_RECORD_CORRECTION_RUN_ID_PARAM,
+  GOVERNANCE_RECORD_CORRECTION_SUBJECT_ID_PARAM,
+} from "./governance-record-correction-confirm-url";
 import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "./governance-findings-resource-group-disclosure-url";
 import { governanceFindingsClearReviewScopeHref } from "./governance-findings-clear-review-scope-url";
 
@@ -59,5 +64,17 @@ describe("governanceFindingsClearReviewScopeHref", () => {
     expect(href).toBe("/governance/findings");
     expect(href).not.toContain(`${FINDING_KEYBOARD_TRIAGE_FINDING_ID_PARAM}=`);
     expect(href).not.toContain(`${FINDING_KEYBOARD_TRIAGE_ACTION_PARAM}=`);
+  });
+
+  it("clears record-correction confirm params when clearing review scope", () => {
+    const href = governanceFindingsClearReviewScopeHref(
+      `runId=run-1&${GOVERNANCE_RECORD_CORRECTION_KIND_PARAM}=governance_quick_approve&${GOVERNANCE_RECORD_CORRECTION_SUBJECT_ID_PARAM}=sub-1&${GOVERNANCE_RECORD_CORRECTION_RUN_ID_PARAM}=run-1`,
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings");
+    expect(href).not.toContain(`${GOVERNANCE_RECORD_CORRECTION_KIND_PARAM}=`);
+    expect(href).not.toContain(`${GOVERNANCE_RECORD_CORRECTION_SUBJECT_ID_PARAM}=`);
+    expect(href).not.toContain(`${GOVERNANCE_RECORD_CORRECTION_RUN_ID_PARAM}=`);
   });
 });
