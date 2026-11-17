@@ -69,6 +69,7 @@ import { RunDetailExportRecordComparisonHistoryCallout } from "./RunDetailExport
 import { RunDetailAssuranceGuardCallouts } from "./RunDetailAssuranceGuardCallouts";
 import { RunDetailExportBlobPushPanel } from "@/components/runs/RunDetailExportBlobPushPanel";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
+import { ExportPartialCaptureRecoveryHonesty } from "@/components/exports/ExportPartialCaptureRecoveryHonesty";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -563,6 +564,12 @@ export function RunDetailArtifactsExportsSection(
 
           <div className="mt-4 flex flex-col gap-3">
             <SponsorExportSendHonestyStrip testIdPrefix="run-detail-exports" />
+            <ExportPartialCaptureRecoveryHonesty
+              show={collateralExportBlockedReason !== null}
+              testId="run-detail-deliverables-partial-capture-recovery"
+              cloudConnectionsTestId="run-detail-deliverables-partial-capture-cloud-connections"
+              extractUploadTestId="run-detail-deliverables-partial-capture-extract-upload"
+            />
             {buyerPolishedArtifactTable ? (
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex max-w-[14rem] flex-col gap-1">

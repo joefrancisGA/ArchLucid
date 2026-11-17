@@ -37,6 +37,8 @@ import { RESOURCE_HUB_INVENTORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-eviden
 import { formatResourceHubFindingsStoredEmptyLine } from "@/lib/infra-evidence/resource-hub-findings-empty-honesty-copy";
 import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
 import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
+import { RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-partial-capture-copy";
+import { SecureNowInfraPartialCaptureStrip } from "@/components/product-line/SecureNowInfraPartialCaptureStrip";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
@@ -2285,6 +2287,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid={`infra-resource-hub-findings-empty-not-failure-${stream.streamKind}`}>
                           {RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE}
                         </p>
+                        <SecureNowInfraPartialCaptureStrip
+                          testId={`infra-resource-hub-findings-empty-partial-capture-${stream.streamKind}`}
+                          middleLine={RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE}
+                          cloudConnectionsTestId={`infra-resource-hub-findings-empty-partial-cloud-${stream.streamKind}`}
+                          extractUploadTestId={`infra-resource-hub-findings-empty-partial-extract-${stream.streamKind}`}
+                        />
                       </div>
                     }
                   />
