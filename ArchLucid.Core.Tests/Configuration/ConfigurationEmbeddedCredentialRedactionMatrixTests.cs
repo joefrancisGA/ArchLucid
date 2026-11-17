@@ -11753,6 +11753,76 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         AssertRedacts(effectiveValue);
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_triply_percent_encoded()
+    {
+        const string effectiveValue = "Authorization%25253A%252520Basic%252520dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_bearer_authorization_paste()
+    {
+        const string effectiveValue = """{"hdr":"Authorization%3A%20Bearer%20eyJhbGciOiJIUzI1NiJ9"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_negotiate_challenge_is_fully_percent_encoded()
+    {
+        const string effectiveValue = "WWW-Authenticate%3A%20Negotiate%20YIIeAYeAABQAAAABAAA%3D";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie2_header_is_fully_percent_encoded()
+    {
+        const string effectiveValue = "Set-Cookie2%3A%20session%3D12345678";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_json_array_wraps_percent_encoded_digest_authorization_paste()
+    {
+        const string effectiveValue = """["Authorization%3A%20Digest%20response%3Ddeadbeef0123"]""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_only_basic_scheme_space_is_percent_encoded()
+    {
+        const string effectiveValue = "Authorization: Basic%20dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_negotiate_header_is_fully_percent_encoded()
+    {
+        const string effectiveValue = "Proxy-Authorization%3A%20Negotiate%20YIIeAYeAABQAAAABAAA%3D";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_digest_challenge_is_fully_percent_encoded()
+    {
+        const string effectiveValue = "WWW-Authenticate%3A%20Digest%20response%3Ddeadbeef0123";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_uses_plus_sign_instead_of_percent_twenty_space()
+    {
+        const string effectiveValue = "Authorization: Basic+dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_fully_plus_sign_delimited()
+    {
+        const string effectiveValue = "Authorization:+Basic+dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)

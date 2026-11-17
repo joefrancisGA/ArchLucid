@@ -182,8 +182,8 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
             int absoluteBasicIndex = searchStart + basicIndex;
             ReadOnlySpan<char> afterBasic = trimmed.Slice(absoluteBasicIndex + "Basic".Length);
 
-            if (!afterBasic.IsEmpty && char.IsWhiteSpace(afterBasic[0])
-                && TryBasicAuthorizationHeaderToken(afterBasic))
+            if (!afterBasic.IsEmpty && IsAuthorizationHeaderTokenDelimiter(afterBasic[0])
+                && TryBasicAuthorizationHeaderToken(TrimAuthorizationHeaderDelimiters(afterBasic)))
                 return true;
 
             searchStart = absoluteBasicIndex + "Basic".Length;
@@ -192,9 +192,27 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         return false;
     }
 
+    private static bool IsAuthorizationHeaderTokenDelimiter(char character) =>
+        char.IsWhiteSpace(character) || character == '+';
+
+    private static ReadOnlySpan<char> TrimAuthorizationHeaderDelimiters(ReadOnlySpan<char> value)
+    {
+        int start = 0;
+
+        while (start < value.Length && IsAuthorizationHeaderTokenDelimiter(value[start]))
+            start++;
+
+        int end = value.Length;
+
+        while (end > start && char.IsWhiteSpace(value[end - 1]))
+            end--;
+
+        return value.Slice(start, end - start);
+    }
+
     private static bool TryBasicAuthorizationHeaderToken(ReadOnlySpan<char> afterBasic)
     {
-        ReadOnlySpan<char> token = TrimLeadingByteOrderMarks(afterBasic.Trim());
+        ReadOnlySpan<char> token = TrimLeadingByteOrderMarks(TrimAuthorizationHeaderDelimiters(afterBasic));
 
         if (TryBasicAuthorizationPayloadFromToken(token))
             return true;
@@ -588,10 +606,10 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         ReadOnlySpan<char> afterBearer = trimmed.Slice(bearerIndex + "Bearer".Length);
 
-        if (afterBearer.IsEmpty || !char.IsWhiteSpace(afterBearer[0]))
+        if (afterBearer.IsEmpty || !IsAuthorizationHeaderTokenDelimiter(afterBearer[0]))
             return false;
 
-        ReadOnlySpan<char> token = afterBearer.Trim();
+        ReadOnlySpan<char> token = TrimAuthorizationHeaderDelimiters(afterBearer);
 
         return CollapsedBearerCredentialLength(token) >= 8;
     }
@@ -620,10 +638,10 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         ReadOnlySpan<char> afterDigest = trimmed.Slice(digestIndex + "Digest".Length);
 
-        if (afterDigest.IsEmpty || !char.IsWhiteSpace(afterDigest[0]))
+        if (afterDigest.IsEmpty || !IsAuthorizationHeaderTokenDelimiter(afterDigest[0]))
             return false;
 
-        ReadOnlySpan<char> digestPart = afterDigest.Trim();
+        ReadOnlySpan<char> digestPart = TrimAuthorizationHeaderDelimiters(afterDigest);
 
         int responseIndex = digestPart.IndexOf("response=", StringComparison.OrdinalIgnoreCase);
 
@@ -673,10 +691,10 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         ReadOnlySpan<char> afterNegotiate = trimmed.Slice(negotiateIndex + "Negotiate".Length);
 
-        if (afterNegotiate.IsEmpty || !char.IsWhiteSpace(afterNegotiate[0]))
+        if (afterNegotiate.IsEmpty || !IsAuthorizationHeaderTokenDelimiter(afterNegotiate[0]))
             return false;
 
-        ReadOnlySpan<char> token = afterNegotiate.Trim();
+        ReadOnlySpan<char> token = TrimAuthorizationHeaderDelimiters(afterNegotiate);
 
         return CollapsedBearerCredentialLength(token) >= 8;
     }
@@ -690,10 +708,10 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         ReadOnlySpan<char> afterNtlm = trimmed.Slice(ntlmIndex + "NTLM".Length);
 
-        if (afterNtlm.IsEmpty || !char.IsWhiteSpace(afterNtlm[0]))
+        if (afterNtlm.IsEmpty || !IsAuthorizationHeaderTokenDelimiter(afterNtlm[0]))
             return false;
 
-        ReadOnlySpan<char> token = afterNtlm.Trim();
+        ReadOnlySpan<char> token = TrimAuthorizationHeaderDelimiters(afterNtlm);
 
         return CollapsedBearerCredentialLength(token) >= 8;
     }
