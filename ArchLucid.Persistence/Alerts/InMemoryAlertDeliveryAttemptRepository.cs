@@ -12,7 +12,7 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
     {
         _ = ct;
         lock (_gate)
-            _items.Add(attempt);
+            _items.Add(Copy(attempt));
         return Task.CompletedTask;
     }
 
@@ -25,7 +25,7 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
             int i = _items.FindIndex(x =>
                 x.AlertDeliveryAttemptId == attempt.AlertDeliveryAttemptId && SameScope(x, attempt));
             if (i >= 0)
-                _items[i] = attempt;
+                _items[i] = Copy(attempt);
         }
 
         return Task.CompletedTask;
@@ -43,6 +43,7 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
             List<AlertDeliveryAttempt> result = _items
                 .Where(x => x.AlertId == alertId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
+                .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<AlertDeliveryAttempt>>(result);
         }
@@ -62,10 +63,27 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
                 .Where(x => x.RoutingSubscriptionId == routingSubscriptionId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
                 .Take(take)
+                .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<AlertDeliveryAttempt>>(result);
         }
     }
+
+    private static AlertDeliveryAttempt Copy(AlertDeliveryAttempt attempt) => new()
+    {
+        AlertDeliveryAttemptId = attempt.AlertDeliveryAttemptId,
+        AlertId = attempt.AlertId,
+        RoutingSubscriptionId = attempt.RoutingSubscriptionId,
+        TenantId = attempt.TenantId,
+        WorkspaceId = attempt.WorkspaceId,
+        ProjectId = attempt.ProjectId,
+        AttemptedUtc = attempt.AttemptedUtc,
+        Status = attempt.Status,
+        ErrorMessage = attempt.ErrorMessage,
+        ChannelType = attempt.ChannelType,
+        Destination = attempt.Destination,
+        RetryCount = attempt.RetryCount,
+    };
 
     private static bool MatchesScope(AlertDeliveryAttempt attempt, ScopeContext scope) =>
         attempt.TenantId == scope.TenantId &&
