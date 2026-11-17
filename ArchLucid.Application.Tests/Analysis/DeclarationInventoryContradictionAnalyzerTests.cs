@@ -208,6 +208,54 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_detects_minimum_tls_mismatch_when_declaration_uses_compacted_tf_minimaltlsversion()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.minimaltlsversion"] = "TLS1_2",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "minimumTlsVersion": "TLS1_0"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.minimaltlsversion");
+        mismatch.DeclarationValue.Should().Be("TLS1_2");
+        mismatch.InventoryValue.Should().Be("TLS1_0");
+        mismatch.SecurityTheme.Should().Be("transport-security");
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_compacted_tf_enablehttpstrafficonly()
     {
         GraphSnapshot graph = new()

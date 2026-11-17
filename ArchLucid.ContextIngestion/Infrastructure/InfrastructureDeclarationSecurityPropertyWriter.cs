@@ -13,6 +13,8 @@ internal static class InfrastructureDeclarationSecurityPropertyWriter
             ["allowblobpublicaccess"] = "allowBlobPublicAccess",
             ["httpsonly"] = "httpsOnly",
             ["minimumtlsversion"] = "minimumTlsVersion",
+            ["minimaltlsversion"] = "minimalTlsVersion",
+            ["minimal_tls_version"] = "minimalTlsVersion",
             ["min_tls_version"] = "minTlsVersion",
             ["supportshttpstrafficonly"] = "supportsHttpsTrafficOnly",
             ["enablehttpstrafficonly"] = "enableHttpsTrafficOnly",

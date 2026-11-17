@@ -179,6 +179,25 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
     }
 
     [Fact]
+    public void TryGet_resolves_compacted_tf_minimaltlsversion()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.minimaltlsversion"] = "TLS1_2",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.minimaltlsversion");
+        value.Should().Be("TLS1_2");
+    }
+
+    [Fact]
     public void TryGet_resolves_compacted_tf_enablehttpstrafficonly()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
