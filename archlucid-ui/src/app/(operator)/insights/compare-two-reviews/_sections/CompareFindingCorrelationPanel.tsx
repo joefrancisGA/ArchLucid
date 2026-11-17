@@ -16,6 +16,7 @@ import { CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE } from "@/lib/vocabulary/f
 import { COMPARE_FINDING_CORRELATION_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { CompareFindingCorrelationPartialEmptyHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationPartialEmptyHonesty";
 import { CompareFindingCorrelationPartialResultsHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationPartialResultsHonesty";
+import { CompareFindingCorrelationZeroCountsHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationZeroCountsHonesty";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareFindingCorrelationPanelProps = {
@@ -154,6 +155,7 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
       ) : null}
 
       <CompareFindingCorrelationPartialResultsHonesty />
+      <CompareFindingCorrelationZeroCountsHonesty metadata={metadata} />
 
       <CompareFindingLifecycleBlock
         summary={lifecycle}
