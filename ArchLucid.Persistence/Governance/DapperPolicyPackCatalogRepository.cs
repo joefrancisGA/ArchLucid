@@ -119,7 +119,7 @@ public sealed class DapperPolicyPackCatalogRepository(ISqlConnectionFactory conn
 
                                 IF @Id IS NULL
                                 BEGIN
-                                    SET @Id = NEWSEQUENTIALID();
+                                    SET @Id = NEWID();
                                     INSERT INTO dbo.PolicyPackCatalogEntry
                                     (
                                         PolicyPackCatalogEntryId, DisplayName, Description, PackType,
