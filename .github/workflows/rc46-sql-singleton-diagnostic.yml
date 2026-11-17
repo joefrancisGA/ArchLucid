@@ -98,6 +98,16 @@ jobs:
           set -e
           printf '%s\n' "$rc" > "$out/exit-code.txt"
           cat "$out/vstest.stdout.log"
+          # Use the captured dump for managed stack evidence on the matching .NET 10 runner.
+          # A debugging-tool error never overrides the original test's exit status.
+          dump="$(find "$out" -name '*hangdump.dmp' -type f -print -quit)"
+          if [ -n "$dump" ]; then
+            export PATH="$PATH:$HOME/.dotnet/tools"
+            if dotnet tool install --global dotnet-dump > "$out/dotnet-dump-install.log" 2>&1; then
+              timeout 120s dotnet-dump analyze "$dump" --command 'threads' > "$out/managed-threads.log" 2>&1 || true
+              timeout 180s dotnet-dump analyze "$dump" --command 'clrstack -all' > "$out/managed-clrstacks.log" 2>&1 || true
+            fi
+          fi
           if [ "$rc" -ne 0 ]; then
             echo "Diagnostic singleton exited $rc; this is NOT a release acceptance result"
             exit "$rc"

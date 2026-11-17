@@ -281,13 +281,20 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             async ct =>
             {
                 AlignHttpClientTimeoutForSqlIdempotencyLockChain(client, GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+                Console.Error.WriteLine("[GreenfieldSqlWarmup] readiness probe starting " + DateTime.UtcNow.ToString("O"));
                 await HealthReadyProbe.EnsureReadyAsync(client, ct);
+                Console.Error.WriteLine("[GreenfieldSqlWarmup] readiness probe completed " + DateTime.UtcNow.ToString("O"));
+
+                Console.Error.WriteLine("[GreenfieldSqlWarmup] list-runs path starting " + DateTime.UtcNow.ToString("O"));
                 await WarmListRunsPathAsync(client, ct);
+                Console.Error.WriteLine("[GreenfieldSqlWarmup] list-runs path completed " + DateTime.UtcNow.ToString("O"));
 
                 if (!includePostCreateRunWarmup)
                     return;
 
+                Console.Error.WriteLine("[GreenfieldSqlWarmup] create-run path starting " + DateTime.UtcNow.ToString("O"));
                 await WarmSingleCreateRunPathAsync(client, ct);
+                Console.Error.WriteLine("[GreenfieldSqlWarmup] create-run path completed " + DateTime.UtcNow.ToString("O"));
             });
     }
 

@@ -91,6 +91,12 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
             client,
             includePostCreateRunWarmup: false);
 
+        // A swallowed warmup timeout must never allow a green result without the SQL assertions.
+        if (GreenfieldSqlIntegrationWarmup.ShardWarmupTimedOut)
+            throw new TimeoutException(
+                "Parallel idempotency test could not complete greenfield SQL warmup; " +
+                "single-run and durable SQL assertions were not executed.");
+
         using CancellationTokenSource hangGuard = new();
         hangGuard.CancelAfter(ParallelCreateRunHangGuard);
         CancellationToken ct = hangGuard.Token;
