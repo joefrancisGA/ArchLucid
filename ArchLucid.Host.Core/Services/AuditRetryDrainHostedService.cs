@@ -44,7 +44,7 @@ public sealed class AuditRetryDrainHostedService(
                 await audit.LogAsync(auditEvent, stoppingToken);
                 _auditRetryQueue.NotifyPersistedSuccess();
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            catch (Exception ex) when (ex is not OperationCanceledException || !stoppingToken.IsCancellationRequested)
             {
                 if (_auditRetryQueue.TryReturnToQueueAfterFailedDrain(auditEvent))
                 {
