@@ -17,6 +17,24 @@ public sealed class CollectionRunRepositoryStateTests(SqlServerPersistenceFixtur
     public Task In_memory_preserves_import_when_the_running_write_arrives_late() =>
         AssertPreservesImportAsync(new InMemoryCollectionRunRepository(), CreateRunningRun());
 
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task In_memory_does_not_write_a_run_when_the_operation_is_already_canceled()
+    {
+        InMemoryCollectionRunRepository repository = new();
+        CollectionRun run = CreateRunningRun();
+        ScopeContext scope = new()
+        {
+            TenantId = run.TenantId,
+            WorkspaceId = run.WorkspaceId,
+            ProjectId = run.ProjectId,
+        };
+
+        Func<Task> write = () => repository.UpsertAsync(run, new CancellationToken(canceled: true));
+        await write.Should().ThrowAsync<OperationCanceledException>();
+        (await repository.GetAsync(scope, run.RunId)).Should().BeNull();
+    }
+
     [SkippableFact]
     [Trait("Category", "SqlServerContainer")]
     public async Task Sql_preserves_import_when_the_running_write_arrives_late()

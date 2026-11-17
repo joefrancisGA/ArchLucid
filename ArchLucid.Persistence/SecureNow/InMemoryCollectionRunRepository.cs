@@ -13,6 +13,7 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
     public Task UpsertAsync(CollectionRun collectionRun, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(collectionRun);
+        cancellationToken.ThrowIfCancellationRequested();
         _runs.AddOrUpdate(
             Key(collectionRun.TenantId, collectionRun.WorkspaceId, collectionRun.ProjectId, collectionRun.RunId),
             collectionRun,
