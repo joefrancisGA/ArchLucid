@@ -11823,6 +11823,41 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         AssertRedacts(effectiveValue);
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_compound_uses_plus_sign_between_attributes()
+    {
+        const string effectiveValue = "Cookie: session=12345678+Path=/; HttpOnly";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_plus_delimited_authorization_basic_paste()
+    {
+        const string effectiveValue = """{"hdr":"Authorization:+Basic+dXNlcjpwYXNz"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_bearer_uses_plus_sign_delimiters()
+    {
+        const string effectiveValue = "Proxy-Authorization:+Bearer+eyJhbGciOiJIUzI1NiJ9";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_scheme_less_userinfo_uses_plus_before_password_pair()
+    {
+        const string effectiveValue = "dbuser:dbpass+Password=other@db.example.com";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_has_consecutive_plus_sign_delimiters()
+    {
+        const string effectiveValue = "Authorization++Basic++dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
