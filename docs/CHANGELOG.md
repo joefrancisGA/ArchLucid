@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-17 - Score lift round 66 (batch 31): Resource hub tabs, satellite empties, and simulator partial capture
+
+**Outcome.** Resource hub overview, diagram, and Terraform tabs repeat partial-capture recovery. Declared connections, compare correlation empty, impact preview, signed records, and risk exceptions empties name partial inventory. Remediation factory simulator states partial-capture rank limits.
+
+**Surfaces.** Resource hub tabs, declared connections, compare correlation, impact preview, signed records, risk exceptions, remediation factory simulator, honesty and mounted contract tests.
+
 ## 2026-11-17 - Score lift round 65 (batch 30): Ask drawer recovery, explorer empty, and infra workbench partial capture
 
 **Outcome.** Infrastructure Ask drawer mirrors full-page partial-capture recovery links. Resource explorer empty, policy pack detail, attack path unevaluated-only, sponsor drift chart, and diagrams and Terraform workbenches repeat partial-capture discipline.

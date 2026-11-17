@@ -56,6 +56,9 @@ import {
   sortDeclaredConnectionsByExpiry,
 } from "@/lib/governance/declared-connections-status";
 import { DECLARED_CONNECTIONS_EXPIRY_HONESTY_LINE } from "@/lib/governance/declared-connections-expiry-honesty-copy";
+import { DECLARED_CONNECTIONS_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/governance/declared-connections-empty-partial-capture-copy";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   DECLARED_CONNECTION_ROW_EXPIRY_HONESTY_LINE,
   shouldShowDeclaredConnectionRowExpiryHonesty,
@@ -149,6 +152,7 @@ function statusTagKind(status: ReturnType<typeof resolveDeclaredConnectionDispla
 
 export function DeclaredConnectionsWorkbenchClient() {
   const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const pathname = usePathname() ?? GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH;
   const pageTitle = resolveSecureNowPageHeading(
     productLine,
@@ -614,6 +618,13 @@ export function DeclaredConnectionsWorkbenchClient() {
                   : "Change the status filter or clear it to see other declarations loaded in this workspace view."
               }
               testId="infra-declared-connections-empty-state"
+              footer={
+                partialCapture && isSecureNowProductLine(productLine) ? (
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="declared-connections-empty-partial-capture">
+                    {DECLARED_CONNECTIONS_EMPTY_PARTIAL_CAPTURE_LINE}
+                  </p>
+                ) : undefined
+              }
             />
           ) : (
             <EnterpriseTable ariaLabel="Declared connections">

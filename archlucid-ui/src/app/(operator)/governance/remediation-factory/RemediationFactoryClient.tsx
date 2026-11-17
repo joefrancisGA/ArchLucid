@@ -57,6 +57,8 @@ import {
   REMEDIATION_FACTORY_SIMULATOR_NOT_INVENTORY_CAPTURE_LINE,
   REMEDIATION_FACTORY_SIMULATOR_RANK_DISCIPLINE,
 } from "@/lib/remediation-factory-simulator-rank-honesty-copy";
+import { REMEDIATION_FACTORY_SIMULATOR_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-simulator-partial-capture-copy";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { REMEDIATION_FACTORY_CORE_READ_RETRY_RANK_UNCHANGED_LINE } from "@/lib/remediation-factory/remediation-factory-core-read-honesty-copy";
 import {
   remediationFactoryExecutiveMetricsErrorRecovery,
@@ -221,6 +223,8 @@ function RemediationSimulatorOutput(props: {
   readonly explanation: RemediationPrioritizationExplanation;
   readonly generatedAt: Date;
 }) {
+  const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const copyPayload = [
     `Finding ID: ${props.explanation.findingId}`,
     `Generated: ${props.generatedAt.toISOString()}`,
@@ -246,6 +250,11 @@ function RemediationSimulatorOutput(props: {
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-simulator-not-inventory-capture">
         {REMEDIATION_FACTORY_SIMULATOR_NOT_INVENTORY_CAPTURE_LINE}
       </p>
+      {partialCapture ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-simulator-partial-capture">
+          {REMEDIATION_FACTORY_SIMULATOR_PARTIAL_CAPTURE_LINE}
+        </p>
+      ) : null}
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         Finding{" "}
         <span className="font-mono">{props.explanation.findingId}</span>

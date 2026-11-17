@@ -19,6 +19,10 @@ import {
   resolveSignedRecordsListEmptyPrimaryHref,
   resolveSignedRecordsListEmptySecondaryHref,
 } from "./signed-records-list-copy";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { SIGNED_RECORDS_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/governance/signed-records-empty-partial-capture-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type SignedRecordsListEmptyStatesProps = {
   readonly showEmptyState: boolean;
@@ -36,6 +40,12 @@ export function SignedRecordsListEmptyStates({
   onClearFilters,
 }: SignedRecordsListEmptyStatesProps) {
   const { isWorkingMode } = useWorkspaceMode();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(true);
+  const partialCaptureFooter = partialCapture ? (
+    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="signed-records-empty-partial-capture">
+      {SIGNED_RECORDS_EMPTY_PARTIAL_CAPTURE_LINE}
+    </p>
+  ) : null;
 
   if (showEmptyState) {
     if (workspaceScopeTeaching !== null) {
@@ -52,6 +62,7 @@ export function SignedRecordsListEmptyStates({
       <EnterpriseCompactEmptyState
         title={SIGNED_RECORDS_LIST_EMPTY_TITLE}
         description={SIGNED_RECORDS_LIST_EMPTY_BODY}
+        footer={partialCaptureFooter ?? undefined}
         actions={[
           {
             label: SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL,

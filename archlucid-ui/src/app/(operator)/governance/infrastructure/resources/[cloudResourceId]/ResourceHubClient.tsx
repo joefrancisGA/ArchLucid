@@ -38,7 +38,13 @@ import { formatResourceHubFindingsStoredEmptyLine } from "@/lib/infra-evidence/r
 import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
 import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
 import { RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-partial-capture-copy";
+import {
+  RESOURCE_HUB_DIAGRAM_TAB_PARTIAL_CAPTURE_LINE,
+  RESOURCE_HUB_OVERVIEW_PARTIAL_CAPTURE_LINE,
+  RESOURCE_HUB_TERRAFORM_TAB_PARTIAL_CAPTURE_LINE,
+} from "@/lib/infra-evidence/resource-hub-tab-partial-capture-copy";
 import { SecureNowInfraPartialCaptureStrip } from "@/components/product-line/SecureNowInfraPartialCaptureStrip";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
@@ -1561,6 +1567,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               Overview combines the selected resource&apos;s captured configuration, findings, and recent changes.
             </p>
+            {isSecureNowProductLine(productLine) ? (
+              <SecureNowInfraPartialCaptureStrip
+                testId="infra-resource-hub-overview-partial-capture"
+                middleLine={RESOURCE_HUB_OVERVIEW_PARTIAL_CAPTURE_LINE}
+                cloudConnectionsTestId="infra-resource-hub-overview-partial-capture-cloud"
+                extractUploadTestId="infra-resource-hub-overview-partial-capture-extract"
+              />
+            ) : null}
             {hub.auditLineageLink.available !== true ? (
               <InfraAuditLineageUnavailableBanner
                 degradedReason={formatStoredInfraEvidenceHubField(
@@ -2041,6 +2055,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               This compares diagram correspondence with captured inventory; it does not redraw Azure.
             </p>
+            {isSecureNowProductLine(productLine) ? (
+              <SecureNowInfraPartialCaptureStrip
+                testId="infra-resource-hub-diagram-tab-partial-capture"
+                middleLine={RESOURCE_HUB_DIAGRAM_TAB_PARTIAL_CAPTURE_LINE}
+                cloudConnectionsTestId="infra-resource-hub-diagram-tab-partial-capture-cloud"
+                extractUploadTestId="infra-resource-hub-diagram-tab-partial-capture-extract"
+              />
+            ) : null}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
               <Link
                 className={OPERATOR_LINK.inline}
@@ -2155,6 +2177,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="terraform" className="mt-4 space-y-3">
+            {isSecureNowProductLine(productLine) ? (
+              <SecureNowInfraPartialCaptureStrip
+                testId="infra-resource-hub-terraform-tab-partial-capture"
+                middleLine={RESOURCE_HUB_TERRAFORM_TAB_PARTIAL_CAPTURE_LINE}
+                cloudConnectionsTestId="infra-resource-hub-terraform-tab-partial-capture-cloud"
+                extractUploadTestId="infra-resource-hub-terraform-tab-partial-capture-extract"
+              />
+            ) : null}
             {!hasTerraformMapping ? (
               <EnterpriseCompactEmptyState
                 title={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_TITLE}
