@@ -107,15 +107,17 @@ public interface ISecurityAssetAssertionRepository
         SecurityAssetAssertionRecord record,
         CancellationToken cancellationToken = default);
 
+    /// <summary>Marks due assertions expired and returns scoped expiry work still awaiting processing.</summary>
     async Task<IReadOnlyList<SecurityAssetAssertionRecord>> MarkExpiredInScopeAsync(
         ProjectScopeKey scope,
         DateTime asOfUtc,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<SecurityAssetAssertionRecord> rows =
-            await MarkExpiredAsync(scope.TenantId, asOfUtc, cancellationToken);
+        await MarkExpiredAsync(scope.TenantId, asOfUtc, cancellationToken);
+        IReadOnlyList<SecurityAssetAssertionRecord> rows = await ListByScopeAsync(scope, cancellationToken);
 
-        return rows.Where(row => scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId)).ToList();
+        return rows.Where(row => row.Status == SecurityAssetAssertionStatus.Expired
+            && !row.ExpiryProcessedUtc.HasValue).ToList();
     }
 
     async Task MarkExpiryProcessedInScopeAsync(
