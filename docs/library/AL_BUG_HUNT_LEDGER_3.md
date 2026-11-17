@@ -4454,18 +4454,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-17 thorough hunt #497 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five pass-24 `(candidate)` monitor rows reseeded after hunt **#495** — **valid-no-repro** vertical-tab PKCE `nonce` tamper (`pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session nonce contains interior vertical tab control characters`), **valid-no-repro** equals-only JSON `error_description` (existing regression `returns empty for equals-only token-endpoint JSON error_description values`), **valid-no-repro** equals-only percent-encoded authorize `error_description` (existing regression `returns empty for equals-only percent-encoded error descriptions`), **valid-no-repro** token-endpoint HTTP 200 JSON root `14` (regression `throws when a successful token response body is the JSON number 14`), **valid-no-repro** BFF refresh HTTP `519` soft-fail without session clear (regression `soft-fails refresh without clearing session when the refresh route returns 519 in opaque BFF refresh parity sequence`). Reseeded five pass-25 `(candidate)` monitor rows below. Scoped `src/lib/oidc` vitest **1049/1050** (one pre-existing `trimTokenFormParams` authorization-code normalization failure on this checkout unrelated to this hunt). Private beta: n/a.
+
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `nonce` session value with interior vertical tab (`U+000B`) before callback — **cheap-disproof 2026-11-17 thorough hunt #497:** regression above.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — equals-only (`U+003D`) JSON `error_description` — **cheap-disproof 2026-11-17 thorough hunt #497:** existing regression above.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — equals-only percent-encoded authorize `error_description` — **cheap-disproof 2026-11-17 thorough hunt #497:** existing regression `returns empty for equals-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `14` — **cheap-disproof 2026-11-17 thorough hunt #497:** regression above.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `519` without clearing session — **cheap-disproof 2026-11-17 thorough hunt #497:** regression above.
+
+- [ ] (candidate) `readPkceStateForFlow` — PKCE `nonce` session value with interior form-feed (`U+000C`) before callback — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered nonce with interior FF; monitor; pass 25 reseed.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — colon-only (`U+003A`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint `":::"`; monitor; pass 25 reseed.
+- [ ] (candidate) `decodeOAuthErrorDescription` — colon-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: `%3A%3A%3A`; monitor; pass 25 reseed.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `15` — locus: `parseOidcTokenResponse`; input: numeric root `15`; monitor; pass 25 reseed.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `520` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `520`; monitor; pass 25 reseed.
+
 2026-11-17 thorough hunt #495 (dry): no rotation (shouldRotate: false; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five pass-23 `(candidate)` monitor rows reseeded after the 2026-11-04 seed pass — **valid-no-repro** bell PKCE `code_verifier` tamper (`pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session verifier contains interior bell control characters`), **valid-no-repro** plus-only JSON `error_description` (regression `returns empty for plus-only token-endpoint JSON error_description values`), **valid-no-repro** plus-only percent-encoded authorize `error_description` (existing regression `returns empty for percent-encoded plus-only error descriptions`), **valid-no-repro** token-endpoint HTTP 200 JSON root `13` (regression `throws when a successful token response body is the JSON number 13`), **valid-no-repro** BFF refresh HTTP `518` soft-fail without session clear (regression `soft-fails refresh without clearing session when the refresh route returns 518 in opaque BFF refresh parity sequence`). Reseeded five pass-24 `(candidate)` monitor rows below. Scoped `src/lib/oidc` vitest **1046/1047** passed (one pre-existing `trimTokenFormParams` authorization-code normalization failure on this checkout unrelated to this hunt). Private beta: n/a.
 - [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `code_verifier` session value with interior bell (`U+0007`) before callback — **cheap-disproof 2026-11-17 thorough hunt #495:** regression above.
 - [x] (valid-no-repro) `readOAuthJsonErrorDescription` — plus-only (`U+002B`) JSON `error_description` — **cheap-disproof 2026-11-17 thorough hunt #495:** regression above.
 - [x] (valid-no-repro) `decodeOAuthErrorDescription` — plus-only percent-encoded authorize `error_description` — **cheap-disproof 2026-11-17 thorough hunt #495:** regression above.
 - [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `13` — **cheap-disproof 2026-11-17 thorough hunt #495:** regression above.
 - [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `518` without clearing session — **cheap-disproof 2026-11-17 thorough hunt #495:** regression above.
-
-- [ ] (candidate) `readPkceStateForFlow` — PKCE `nonce` session value with interior vertical tab (`U+000B`) before callback — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered nonce key; monitor; pass 24 reseed.
-- [ ] (candidate) `readOAuthJsonErrorDescription` — equals-only (`U+003D`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint `"=="`; monitor; pass 24 reseed.
-- [ ] (candidate) `decodeOAuthErrorDescription` — equals-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: `%3D%3D`; monitor; pass 24 reseed.
-- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `14` — locus: `parseOidcTokenResponse`; input: numeric root `14`; monitor; pass 24 reseed.
-- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `519` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `519`; monitor; pass 24 reseed.
 
 2026-11-04 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseed pass after empty open-hypothesis queue; cheap-disproof closed five header `(candidate)` monitor rows from pass-22 reseed — **valid-no-repro** bell PKCE `state` tamper (`pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session state contains interior bell control characters`), **valid-no-repro** pipe-only JSON `error_description` (`oauth-callback-messages.test.ts` parity), **valid-no-repro** pipe-only authorize `error_description` (percent-encoded parity), **valid-no-repro** token-endpoint HTTP 200 JSON roots `10`/`11`/`12` (`parseOidcTokenResponse` rejects non-object roots; regressions added), **valid-no-repro** BFF refresh HTTP `515`/`516`/`517` soft-fail without session clear (parity regressions added). Reseeded five follow-on `(candidate)` monitor rows below; scoped `src/lib/oidc` vitest **1040/1040**. Private beta: n/a.
 
@@ -7730,9 +7738,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 104
+- **hunts:** 105
 - **bugs-found:** 74
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-11-17
 - **last-bug:** 2026-11-03 — token POST left non-trim C0 on authorization code and PKCE verifier
 - **related-pd-tb:** none
