@@ -42,10 +42,43 @@ public sealed class SqlRemediationWaveRepository(ISqlConnectionFactory connectio
                 cancellationToken: cancellationToken));
     }
 
+    public async Task InsertWaveWithMembersInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationWaveCreateMutation wave,
+        IReadOnlyList<RemediationWaveMemberMutation> members,
+        CancellationToken cancellationToken = default)
+    {
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using System.Data.IDbTransaction transaction = conn.BeginTransaction();
+
+        await ExecuteInsertWaveAsync(conn, scope, wave, transaction, cancellationToken);
+
+        foreach (RemediationWaveMemberMutation member in members)
+        {
+            if (member.WaveId != wave.WaveId)
+                throw new InvalidOperationException("Scoped remediation wave member must reference the wave being created.");
+
+            await ExecuteInsertMemberAsync(conn, scope, member, transaction, cancellationToken);
+        }
+
+        transaction.Commit();
+    }
+
     public async Task InsertWaveInScopeAsync(
         ProjectScopeKey scope,
         RemediationWaveCreateMutation mutation,
         CancellationToken cancellationToken = default)
+    {
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await ExecuteInsertWaveAsync(conn, scope, mutation, transaction: null, cancellationToken);
+    }
+
+    private static Task<int> ExecuteInsertWaveAsync(
+        System.Data.IDbConnection conn,
+        ProjectScopeKey scope,
+        RemediationWaveCreateMutation mutation,
+        System.Data.IDbTransaction? transaction,
+        CancellationToken cancellationToken)
     {
         const string sql = """
                            INSERT INTO dbo.RemediationWaves
@@ -56,8 +89,7 @@ public sealed class SqlRemediationWaveRepository(ISqlConnectionFactory connectio
                                 @CreatedByActorKey, @CreatedUtc, @UpdatedUtc);
                            """;
 
-        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        await conn.ExecuteAsync(
+        return conn.ExecuteAsync(
             new CommandDefinition(
                 sql,
                 new
@@ -73,6 +105,7 @@ public sealed class SqlRemediationWaveRepository(ISqlConnectionFactory connectio
                     mutation.CreatedUtc,
                     mutation.UpdatedUtc,
                 },
+                transaction: transaction,
                 cancellationToken: cancellationToken));
     }
 
@@ -270,6 +303,17 @@ public sealed class SqlRemediationWaveRepository(ISqlConnectionFactory connectio
         RemediationWaveMemberMutation mutation,
         CancellationToken cancellationToken = default)
     {
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await ExecuteInsertMemberAsync(conn, scope, mutation, transaction: null, cancellationToken);
+    }
+
+    private static Task<int> ExecuteInsertMemberAsync(
+        System.Data.IDbConnection conn,
+        ProjectScopeKey scope,
+        RemediationWaveMemberMutation mutation,
+        System.Data.IDbTransaction? transaction,
+        CancellationToken cancellationToken)
+    {
         const string sql = """
                            IF NOT EXISTS (
                                SELECT 1
@@ -310,8 +354,7 @@ public sealed class SqlRemediationWaveRepository(ISqlConnectionFactory connectio
                                 @PriorityRank, @PriorityScore, @CreatedUtc);
                            """;
 
-        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        await conn.ExecuteAsync(
+        return conn.ExecuteAsync(
             new CommandDefinition(
                 sql,
                 new
@@ -328,6 +371,7 @@ public sealed class SqlRemediationWaveRepository(ISqlConnectionFactory connectio
                     mutation.PriorityScore,
                     mutation.CreatedUtc,
                 },
+                transaction: transaction,
                 cancellationToken: cancellationToken));
     }
 
