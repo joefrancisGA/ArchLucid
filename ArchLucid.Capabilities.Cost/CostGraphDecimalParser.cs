@@ -98,11 +98,13 @@ internal static class CostGraphDecimalParser
 
     private static bool IsExportFormattingSpace(char c) =>
         c == '\u00A0'
+        || c == '\u2002'
         || c == '\u2007'
         || c == '\u2008'
         || c == '\u2009'
         || c == '\u200A'
-        || c == '\u202F';
+        || c == '\u202F'
+        || c == '\u205F';
 
     private static string StripUtf8ByteOrderMark(string value)
     {
