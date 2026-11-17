@@ -96,9 +96,9 @@ public static class AzureInventoryPublicIpReferenceParser
     {
         if (element.ValueKind is JsonValueKind.String)
         {
-            string? direct = element.GetString();
+            string? direct = AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(element);
 
-            return direct?.StartsWith("/", StringComparison.Ordinal) == true ? direct : null;
+            return IsPublicIpArmId(direct) ? direct : null;
         }
 
         if (element.ValueKind is not JsonValueKind.Object)
@@ -106,27 +106,26 @@ public static class AzureInventoryPublicIpReferenceParser
             return null;
         }
 
-        if (element.TryGetProperty("id", out JsonElement idElement)
-            && idElement.ValueKind is JsonValueKind.String)
-        {
-            string? id = idElement.GetString();
+        string? fromRoot = AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(element);
 
-            if (id?.Contains("/publicIPAddresses/", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return id;
-            }
+        if (IsPublicIpArmId(fromRoot))
+        {
+            return fromRoot;
         }
 
-        if (element.TryGetProperty("properties", out JsonElement properties)
-            && properties.ValueKind is JsonValueKind.Object
-            && properties.TryGetProperty("publicIPAddress", out JsonElement publicIpElement)
-            && publicIpElement.ValueKind is JsonValueKind.Object
-            && publicIpElement.TryGetProperty("id", out JsonElement nestedId)
-            && nestedId.ValueKind is JsonValueKind.String)
+        string? fromNested = AzureInventoryArmNestedObjectPropertyReader.TryReadString(element, "publicIPAddress");
+
+        if (IsPublicIpArmId(fromNested))
         {
-            return nestedId.GetString();
+            return fromNested;
         }
 
         return null;
+    }
+
+    private static bool IsPublicIpArmId(string? armId)
+    {
+        return !string.IsNullOrWhiteSpace(armId)
+            && armId.Contains("/publicIPAddresses/", StringComparison.OrdinalIgnoreCase);
     }
 }

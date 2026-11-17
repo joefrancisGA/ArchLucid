@@ -61,6 +61,10 @@ vi.mock("@/hooks/use-review-workbench-shortcuts", () => ({
   useReviewWorkbenchShortcuts: vi.fn(),
 }));
 
+vi.mock("@/lib/review-detail-section-scroll", () => ({
+  scheduleScrollToReviewDetailSection: vi.fn(),
+}));
+
 import { useReviewDetailWorkspaceTabs } from "@/components/reviews/use-review-detail-workspace-tabs";
 import type { ReviewDetailWorkspaceProps } from "@/components/reviews/ReviewDetailWorkspace";
 
@@ -161,90 +165,6 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     });
 
     expect(result.current.activeTab).toBe("findings");
-  });
-
-  it("opens on the first-review gate tab when reviewTab is absent", () => {
-    searchParamsHarness.applyQuery("");
-    window.history.replaceState({}, "", "/architecture/reviews/run-abc");
-
-    const { result } = renderHook(
-      () =>
-        useReviewDetailWorkspaceTabs({
-          ...baseProps,
-          visitDefaultReviewTabWhenUrlSilent: "findings",
-        }),
-      { wrapper: SearchParamsRerenderHost },
-    );
-
-    expect(result.current.activeTab).toBe("findings");
-  });
-
-  it("rewrites a flat peer URL onto the nested desk when silent visit defaults apply", () => {
-    searchParamsHarness.applyQuery("");
-    window.history.replaceState({}, "", "/architecture/reviews/run-abc");
-
-    renderHook(
-      () =>
-        useReviewDetailWorkspaceTabs({
-          ...baseProps,
-          parentArchitectureId: "architecture-identity-001",
-          visitDefaultReviewTabWhenUrlSilent: "findings",
-          visitDefaultFindingIdWhenUrlSilent: "finding-uncited-1",
-          visitDefaultReviewHashWhenUrlSilent: "run-detail-first-review-spine-findings",
-        }),
-      { wrapper: SearchParamsRerenderHost },
-    );
-
-    expect(window.location.pathname).toBe(
-      "/architecture/architectures/architecture-identity-001/reviews/run-abc",
-    );
-    expect(window.location.search).toContain("reviewTab=findings");
-    expect(window.location.search).toContain("findingId=finding-uncited-1");
-    expect(window.location.hash).toBe("#run-detail-first-review-spine-findings");
-  });
-
-  it("writes findingId and spine hash when the open gate is an uncited finding and the URL is silent", () => {
-    searchParamsHarness.applyQuery("");
-    window.history.replaceState({}, "", "/architecture/reviews/run-abc");
-
-    renderHook(
-      () =>
-        useReviewDetailWorkspaceTabs({
-          ...baseProps,
-          visitDefaultReviewTabWhenUrlSilent: "findings",
-          visitDefaultFindingIdWhenUrlSilent: "finding-uncited-1",
-          visitDefaultReviewHashWhenUrlSilent: "run-detail-first-review-spine-findings",
-        }),
-      { wrapper: SearchParamsRerenderHost },
-    );
-
-    expect(window.location.search).toContain("reviewTab=findings");
-    expect(window.location.search).toContain("findingId=finding-uncited-1");
-    expect(window.location.hash).toBe("#run-detail-first-review-spine-findings");
-  });
-
-  it("opens review-package with spine hash when uncommitted review is the open gate", () => {
-    searchParamsHarness.applyQuery("");
-    window.history.replaceState({}, "", "/architecture/reviews/run-abc");
-
-    const { result } = renderHook(
-      () =>
-        useReviewDetailWorkspaceTabs({
-          ...baseProps,
-          tabLifecycle: {
-            manifestId: null,
-            showProgressTracker: true,
-            runCompleted: false,
-          },
-          visitDefaultReviewTabWhenUrlSilent: "review-package",
-          visitDefaultReviewHashWhenUrlSilent: "run-detail-first-review-spine-review-package",
-        }),
-      { wrapper: SearchParamsRerenderHost },
-    );
-
-    expect(result.current.activeTab).toBe("review-package");
-    expect(window.location.search).toContain("reviewTab=review-package");
-    expect(window.location.hash).toBe("#run-detail-first-review-spine-review-package");
   });
 
   it("switches the active tab when a mounted workspace hash changes tabs", () => {

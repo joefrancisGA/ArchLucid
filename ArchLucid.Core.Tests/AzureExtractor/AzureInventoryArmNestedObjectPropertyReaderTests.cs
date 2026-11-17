@@ -120,6 +120,28 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
     }
 
     [Fact]
+    public void TryReadScalarString_reads_subscription_arm_id_from_triply_nested_json_reference_object()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/store";
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+              {
+                "id": {
+                  "id": {
+                    "id": "{{armId}}"
+                  }
+                }
+              }
+              """);
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(document.RootElement)
+            .Should()
+            .Be(armId);
+    }
+
+    [Fact]
     public void TryReadScalarString_reads_percent_encoded_subscription_arm_path_on_plain_string_scalar()
     {
         const string armId =

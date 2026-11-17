@@ -85,6 +85,38 @@ public sealed class DigestSlackWebhookDeliveryChannelTests
     }
 
     [Fact]
+    public async Task SendAsync_SlackPayload_strips_form_feed_from_digest_summary_in_posted_text()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
+
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    ChatOpsWebhookTarget.Slack,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
+            .Returns(Task.CompletedTask);
+
+        DigestSlackWebhookDeliveryChannel sut = new(delivery.Object);
+        DigestDeliveryPayload payload = CreatePayload("https://hooks.slack.com/x");
+        payload.Digest.Summary = "Three\f findings.";
+
+        await sut.SendAsync(payload, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        object body = ChatOpsIncomingWebhookBodies.ForSlack(captured!);
+        string text = GetStringProperty(body, "text");
+
+        text.Should().Contain("Three  findings.");
+        text.Should().NotContain("\f");
+    }
+
+    [Fact]
     public async Task SendAsync_SlackPayload_preserves_form_feed_in_digest_title_after_mrkdwn_escape()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();

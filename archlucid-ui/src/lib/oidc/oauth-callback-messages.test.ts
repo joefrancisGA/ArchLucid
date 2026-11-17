@@ -156,6 +156,10 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("||")).toBe("");
   });
 
+  it("returns empty for plus-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("++")).toBe("");
+  });
+
   it("preserves ZWNJ in Persian token error_description copy", () => {
     const detail = "دسترسی\u200cرد";
 

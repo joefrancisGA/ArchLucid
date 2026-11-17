@@ -44,6 +44,40 @@ describe("coerceRunSummaryList", () => {
 });
 
 describe("coerceRunSummaryPaged", () => {
+  it("trims padding on keyset nextCursor tokens", () => {
+    const result = coerceRunSummaryPaged(
+      {
+        items: [{ runId: "r1", projectId: "default", createdUtc: "2020-01-01T00:00:00Z" }],
+        requestedTake: 20,
+        hasMore: true,
+        nextCursor: "  cursor-token  ",
+      },
+      { page: 1 },
+    );
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.nextCursor).toBe("cursor-token");
+    }
+  });
+
+  it("drops whitespace-only nextCursor from keyset envelopes", () => {
+    const result = coerceRunSummaryPaged(
+      {
+        items: [{ runId: "r1", projectId: "default", createdUtc: "2020-01-01T00:00:00Z" }],
+        requestedTake: 20,
+        hasMore: true,
+        nextCursor: "  ",
+      },
+      { page: 1 },
+    );
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.nextCursor).toBeNull();
+    }
+  });
+
   it("accepts cursor keyset envelope (requestedTake + hasMore) and synthesizes totals", () => {
     const result = coerceRunSummaryPaged(
       {
@@ -199,6 +233,20 @@ describe("coerceRunComparison", () => {
     ).toBe(false);
   });
 
+  it("rejects manifestComparison object without diffs array", () => {
+    const result = coerceRunComparison({
+      leftRunId: "L",
+      rightRunId: "R",
+      runLevelDiffs: [],
+      manifestComparison: {},
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('manifestComparison is missing "diffs" array.');
+    }
+  });
+
   it("reports missing run identifiers when leftRunId or rightRunId is whitespace-only", () => {
     const blankLeft = coerceRunComparison({
       leftRunId: "   ",
@@ -316,6 +364,24 @@ describe("coerceReplayResponse", () => {
     expect(result.ok).toBe(true);
   });
 
+  it("rejects validation.notes entries that are not strings", () => {
+    const result = coerceReplayResponse({
+      runId: "r",
+      mode: "m",
+      replayedUtc: "2020-01-01T00:00:00Z",
+      validation: {
+        notes: [null],
+        manifestHashMatches: true,
+        artifactBundlePresentAfterReplay: false,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Replay response has invalid "validation.notes" entries (expected strings).');
+    }
+  });
+
   it("rejects missing validation.notes", () => {
     const result = coerceReplayResponse({
       runId: "r",
@@ -346,6 +412,24 @@ describe("coerceReplayResponse", () => {
     const result = coerceReplayResponse({
       runId: "   ",
       mode: "m",
+      replayedUtc: "2020-01-01T00:00:00Z",
+      validation: {
+        notes: [],
+        manifestHashMatches: true,
+        artifactBundlePresentAfterReplay: false,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe("Replay response is missing runId, mode, or replayedUtc.");
+    }
+  });
+
+  it("rejects whitespace-only mode", () => {
+    const result = coerceReplayResponse({
+      runId: "r",
+      mode: " ",
       replayedUtc: "2020-01-01T00:00:00Z",
       validation: {
         notes: [],
@@ -539,6 +623,47 @@ describe("coerceManifestSummary", () => {
     }
   });
 
+  it("rejects whitespace-only status", () => {
+    const result = coerceManifestSummary({
+      manifestId: "m",
+      runId: "r",
+      createdUtc: "2020-01-01T00:00:00Z",
+      manifestHash: "hash",
+      ruleSetId: "rs",
+      ruleSetVersion: "1",
+      status: "  ",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Review record summary is missing or invalid "status".');
+    }
+  });
+
+  it("rejects whitespace-only optional operatorSummary when present", () => {
+    const result = coerceManifestSummary({
+      manifestId: "m",
+      runId: "r",
+      createdUtc: "2020-01-01T00:00:00Z",
+      manifestHash: "hash",
+      ruleSetId: "rs",
+      ruleSetVersion: "1",
+      status: "Committed",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+      operatorSummary: "  ",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Review record summary is missing or invalid "operatorSummary".');
+    }
+  });
+
   it("rejects whitespace-only ruleSetId", () => {
     const result = coerceManifestSummary({
       manifestId: "m",
@@ -576,6 +701,43 @@ describe("coerceManifestSummary", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.message).toBe('Review record summary is missing or invalid "ruleSetVersion".');
+    }
+  });
+
+  const validManifestSummary = {
+    manifestId: "m",
+    runId: "r",
+    createdUtc: "2020-01-01T00:00:00Z",
+    manifestHash: "h",
+    ruleSetId: "rs",
+    ruleSetVersion: "1",
+    decisionCount: 0,
+    warningCount: 0,
+    unresolvedIssueCount: 0,
+    status: "Committed",
+  };
+
+  it("rejects fractional manifest counter values", () => {
+    const result = coerceManifestSummary({
+      ...validManifestSummary,
+      decisionCount: 1.5,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Review record summary is missing or invalid "decisionCount".');
+    }
+  });
+
+  it("rejects non-finite manifest counter values", () => {
+    const result = coerceManifestSummary({
+      ...validManifestSummary,
+      decisionCount: Number.NaN,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Review record summary is missing or invalid "decisionCount".');
     }
   });
 });
@@ -714,6 +876,40 @@ describe("coerceArtifactDescriptor", () => {
       expect(result.message).toBe('Artifact descriptor is missing or invalid "createdUtc".');
     }
   });
+
+  it("rejects whitespace-only optional manifestId when present", () => {
+    const result = coerceArtifactDescriptor({
+      artifactId: "a",
+      artifactType: "Inventory",
+      name: "n",
+      format: "json",
+      createdUtc: "2020-01-01T00:00:00Z",
+      contentHash: "h",
+      manifestId: "  ",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Artifact descriptor is missing or invalid "manifestId".');
+    }
+  });
+
+  it("rejects whitespace-only optional runId when present", () => {
+    const result = coerceArtifactDescriptor({
+      artifactId: "a",
+      artifactType: "Inventory",
+      name: "n",
+      format: "json",
+      createdUtc: "2020-01-01T00:00:00Z",
+      contentHash: "h",
+      runId: " ",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Artifact descriptor is missing or invalid "runId".');
+    }
+  });
 });
 
 describe("coerceArtifactDescriptorList", () => {
@@ -723,6 +919,15 @@ describe("coerceArtifactDescriptorList", () => {
 
   it("rejects row without artifactId", () => {
     expect(coerceArtifactDescriptorList([{ name: "n" }]).ok).toBe(false);
+  });
+
+  it("rejects whitespace-only list row name", () => {
+    const result = coerceArtifactDescriptorList([{ artifactId: "a", name: "  " }]);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe("One or more artifacts are missing artifactId or name.");
+    }
   });
 });
 

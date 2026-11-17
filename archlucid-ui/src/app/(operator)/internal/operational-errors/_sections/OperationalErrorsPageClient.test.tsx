@@ -69,6 +69,23 @@ describe("OperationalErrorsPageClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("closes the detail panel when browser navigation removes its URL selection", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [httpErrorRow],
+    }));
+    useSearchParamsMock.mockReturnValue(new URLSearchParams({ errorId: httpErrorRow.id }));
+    const view = render(<OperationalErrorsPageClient />);
+    expect(await screen.findByText("Error detail")).toBeInTheDocument();
+
+    useSearchParamsMock.mockReturnValue(new URLSearchParams());
+    view.rerender(<OperationalErrorsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.queryByText("Error detail")).not.toBeInTheDocument();
+    });
+  });
+
   it("closes the detail panel when the selected row no longer matches active filters", async () => {
     vi.stubGlobal(
       "fetch",

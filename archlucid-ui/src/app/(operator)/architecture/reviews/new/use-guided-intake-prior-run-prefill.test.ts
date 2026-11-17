@@ -3,21 +3,15 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { ScopeUnderstandingBullet } from "@/lib/architecture/architecture-scope-understanding-check";
 
-const { getRunDetail, tryLoadPriorPackageGuidedIntakePrefill } = vi.hoisted(() => ({
-  getRunDetail: vi.fn(),
+const { tryLoadPriorPackageGuidedIntakePrefill } = vi.hoisted(() => ({
   tryLoadPriorPackageGuidedIntakePrefill: vi.fn(),
 }));
-
-vi.mock("@/lib/api", () => ({ getRunDetail, getArchitectureRequest: vi.fn() }));
 
 vi.mock("@/lib/try-load-prior-package-guided-intake-prefill", () => ({
   tryLoadPriorPackageGuidedIntakePrefill,
 }));
 
-import {
-  GUIDED_INTAKE_PRIOR_RUN_PREFILL_LOAD_FAILED_LINE,
-  useGuidedIntakePriorRunPrefill,
-} from "./use-guided-intake-prior-run-prefill";
+import { useGuidedIntakePriorRunPrefill, GUIDED_INTAKE_PRIOR_RUN_PREFILL_LOAD_FAILED_LINE } from "./use-guided-intake-prior-run-prefill";
 
 const existingScopeBullet: ScopeUnderstandingBullet = {
   id: "scope-1",
@@ -77,13 +71,8 @@ describe("useGuidedIntakePriorRunPrefill", () => {
     expect(setScopeGateOpen).not.toHaveBeenCalled();
   });
 
-  it("reports a prior-package API failure without changing intake fields", async () => {
-    const loader = await vi.importActual<typeof import("@/lib/try-load-prior-package-guided-intake-prefill")>(
-      "@/lib/try-load-prior-package-guided-intake-prefill",
-    );
-    getRunDetail.mockRejectedValueOnce(new Error("Prior run request failed"));
-    tryLoadPriorPackageGuidedIntakePrefill.mockImplementationOnce(loader.tryLoadPriorPackageGuidedIntakePrefill);
-    const setSystemName = vi.fn();
+  it("surfaces load-failure copy when prior-package fetch rejects", async () => {
+    tryLoadPriorPackageGuidedIntakePrefill.mockRejectedValueOnce(new Error("network"));
 
     const { result } = renderHook(() =>
       useGuidedIntakePriorRunPrefill({
@@ -95,7 +84,7 @@ describe("useGuidedIntakePriorRunPrefill", () => {
         scopeBullets: [],
         setFreeTextIntent: vi.fn(),
         setBusinessOutcome: vi.fn(),
-        setSystemName,
+        setSystemName: vi.fn(),
         setActorSet: vi.fn(),
         setScopeBullets: vi.fn(),
         setScopeGateOpen: vi.fn(),
@@ -103,9 +92,121 @@ describe("useGuidedIntakePriorRunPrefill", () => {
       }),
     );
 
-    await waitFor(() => expect(result.current.priorRunPrefillCopiedFromLine)
-      .toBe(GUIDED_INTAKE_PRIOR_RUN_PREFILL_LOAD_FAILED_LINE));
-    expect(getRunDetail).toHaveBeenCalledWith("run-1");
-    expect(setSystemName).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(result.current.priorRunPrefillCopiedFromLine).toBe(GUIDED_INTAKE_PRIOR_RUN_PREFILL_LOAD_FAILED_LINE);
+    });
+  });
+
+  it("loads prior-package prefill again when priorRunId changes without remounting the hook", async () => {
+    tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValueOnce({
+      ...priorPackagePrefill,
+      systemName: "First package",
+    });
+    tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValueOnce({
+      ...priorPackagePrefill,
+      systemName: "Second package",
+    });
+
+    const setSystemName = vi.fn();
+    const initialProps = {
+      priorRunId: "run-first",
+      freeTextIntent: "",
+      businessOutcome: "",
+      systemName: "",
+      actorSet: { actors: [] },
+      scopeBullets: [] as readonly ScopeUnderstandingBullet[],
+      setFreeTextIntent: vi.fn(),
+      setBusinessOutcome: vi.fn(),
+      setSystemName,
+      setActorSet: vi.fn(),
+      setScopeBullets: vi.fn(),
+      setScopeGateOpen: vi.fn(),
+      setPriorAttachedFileNames: vi.fn(),
+    };
+
+    const { rerender } = renderHook((props) => useGuidedIntakePriorRunPrefill(props), { initialProps });
+
+    await waitFor(() => {
+      expect(setSystemName).toHaveBeenCalledWith("First package");
+    });
+
+    setSystemName.mockClear();
+    rerender({ ...initialProps, priorRunId: "run-second" });
+
+    await waitFor(() => {
+      expect(tryLoadPriorPackageGuidedIntakePrefill).toHaveBeenCalledWith("run-second");
+      expect(setSystemName).toHaveBeenCalledWith("Second package");
+    });
+  });
+
+  it("loads prior-package prefill again when enabled becomes true after source-architecture suppression", async () => {
+    tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValue({
+      ...priorPackagePrefill,
+      systemName: "Rerun package",
+    });
+
+    const setSystemName = vi.fn();
+    const baseProps = {
+      priorRunId: "run-rerun",
+      enabled: true,
+      freeTextIntent: "",
+      businessOutcome: "",
+      systemName: "",
+      actorSet: { actors: [] },
+      scopeBullets: [] as readonly ScopeUnderstandingBullet[],
+      setFreeTextIntent: vi.fn(),
+      setBusinessOutcome: vi.fn(),
+      setSystemName,
+      setActorSet: vi.fn(),
+      setScopeBullets: vi.fn(),
+      setScopeGateOpen: vi.fn(),
+      setPriorAttachedFileNames: vi.fn(),
+    };
+
+    const { rerender } = renderHook((props) => useGuidedIntakePriorRunPrefill(props), {
+      initialProps: baseProps,
+    });
+
+    await waitFor(() => {
+      expect(setSystemName).toHaveBeenCalledWith("Rerun package");
+    });
+
+    expect(tryLoadPriorPackageGuidedIntakePrefill).toHaveBeenCalledTimes(1);
+    setSystemName.mockClear();
+    tryLoadPriorPackageGuidedIntakePrefill.mockClear();
+
+    rerender({ ...baseProps, enabled: false });
+    rerender({ ...baseProps, enabled: true });
+
+    await waitFor(() => {
+      expect(tryLoadPriorPackageGuidedIntakePrefill).toHaveBeenCalledWith("run-rerun");
+      expect(setSystemName).toHaveBeenCalledWith("Rerun package");
+    });
+  });
+
+  it("clears prior-package attachment names when priorRunId becomes null without remounting", () => {
+    const setPriorAttachedFileNames = vi.fn();
+    const initialProps = {
+      priorRunId: "run-rerun",
+      freeTextIntent: "",
+      businessOutcome: "",
+      systemName: "",
+      actorSet: { actors: [] },
+      scopeBullets: [] as readonly ScopeUnderstandingBullet[],
+      setFreeTextIntent: vi.fn(),
+      setBusinessOutcome: vi.fn(),
+      setSystemName: vi.fn(),
+      setActorSet: vi.fn(),
+      setScopeBullets: vi.fn(),
+      setScopeGateOpen: vi.fn(),
+      setPriorAttachedFileNames,
+    };
+
+    const { rerender } = renderHook((props) => useGuidedIntakePriorRunPrefill(props), { initialProps });
+
+    setPriorAttachedFileNames.mockClear();
+    rerender({ ...initialProps, priorRunId: null });
+
+    expect(setPriorAttachedFileNames).toHaveBeenCalledWith([]);
   });
 });

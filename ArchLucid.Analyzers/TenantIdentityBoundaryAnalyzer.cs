@@ -35,6 +35,9 @@ public sealed class TenantIdentityBoundaryAnalyzer : DiagnosticAnalyzer
 
         context.RegisterSyntaxNodeAction(c => AnalyzeIdentifierOrGeneric(c, symbols), SyntaxKind.IdentifierName);
         context.RegisterSyntaxNodeAction(c => AnalyzeIdentifierOrGeneric(c, symbols), SyntaxKind.GenericName);
+        context.RegisterSyntaxNodeAction(
+            c => AnalyzeInvocation(c, symbols, c.SemanticModel, (InvocationExpressionSyntax)c.Node),
+            SyntaxKind.InvocationExpression);
     }
 
     private static bool ShouldAnalyzeAssembly(string? assemblyName)
@@ -101,6 +104,33 @@ public sealed class TenantIdentityBoundaryAnalyzer : DiagnosticAnalyzer
             return;
 
         context.ReportDiagnostic(Arch001Descriptor.Create(generic.Identifier.GetLocation(), named.ToDisplayString()));
+    }
+
+    private static void AnalyzeInvocation(
+        SyntaxNodeAnalysisContext context,
+        TenantIdentityBoundaryTypeSymbols symbols,
+        SemanticModel model,
+        InvocationExpressionSyntax invocation)
+    {
+        if (IsInNameOf(invocation) || IsInTypeOf(invocation))
+            return;
+
+        if (model.GetSymbolInfo(invocation, context.CancellationToken).Symbol is not IMethodSymbol method)
+            return;
+
+        ITypeSymbol returnType = method.ReturnType;
+
+        if (!IsOrUsesBannedType(returnType, symbols))
+            return;
+
+        Location location = invocation.Expression switch
+        {
+            MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.GetLocation(),
+            IdentifierNameSyntax identifierName => identifierName.Identifier.GetLocation(),
+            _ => invocation.GetLocation(),
+        };
+
+        context.ReportDiagnostic(Arch001Descriptor.Create(location, returnType.ToDisplayString()));
     }
 
     private static void AnalyzeIdentifierName(

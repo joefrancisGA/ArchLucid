@@ -145,6 +145,10 @@ async function skipEvidenceStep() {
     fireEvent.click(screen.getByTestId("wizard-evidence-source-brief"));
   });
 
+  await waitFor(() => {
+    expect(screen.getByTestId("wizard-evidence-brief-continue")).toBeInTheDocument();
+  });
+
   await act(async () => {
     fireEvent.click(screen.getByTestId("wizard-evidence-brief-continue"));
   });
