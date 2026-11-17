@@ -51,6 +51,7 @@ public static class DeclarationSecurityPropertyKeyResolver
             [DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled] =
             [
                 "tf.ssl_enforcement_enabled",
+                "tf.ssl_enforcement",
                 "tf.sslenforcementenabled",
                 "sslEnforcementEnabled",
             ],

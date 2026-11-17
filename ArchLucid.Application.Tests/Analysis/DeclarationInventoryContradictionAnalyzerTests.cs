@@ -256,6 +256,54 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_detects_ssl_enforcement_mismatch_when_declaration_uses_tf_ssl_enforcement_shorthand()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "pg-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pgflex",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DBforPostgreSQL/flexibleServers/pgflex",
+                        ["tf.ssl_enforcement"] = "Disabled",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.DBforPostgreSQL/flexibleServers",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DBforPostgreSQL/flexibleServers/pgflex",
+                "properties": {
+                  "sslEnforcementEnabled": "Enabled"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.ssl_enforcement");
+        mismatch.DeclarationValue.Should().Be("Disabled");
+        mismatch.InventoryValue.Should().Be("Enabled");
+        mismatch.SecurityTheme.Should().Be("transport-security");
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_detects_ssl_enforcement_mismatch_when_declaration_uses_compacted_tf_sslenforcementenabled()
     {
         GraphSnapshot graph = new()

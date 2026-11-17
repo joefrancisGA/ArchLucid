@@ -217,6 +217,25 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
     }
 
     [Fact]
+    public void TryGet_resolves_tf_ssl_enforcement_shorthand_on_sql_bags()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.ssl_enforcement"] = "Enabled",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.ssl_enforcement");
+        value.Should().Be("Enabled");
+    }
+
+    [Fact]
     public void TryGet_resolves_compacted_tf_enablehttpstrafficonly()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
