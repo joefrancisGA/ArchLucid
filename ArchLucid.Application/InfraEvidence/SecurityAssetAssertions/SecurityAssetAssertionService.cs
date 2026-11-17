@@ -335,7 +335,8 @@ public sealed class SecurityAssetAssertionService(
                 AuditEventTypes.SecurityAssetAssertionExpired,
                 expired.AssertionId,
                 expired,
-                cancellationToken);
+                cancellationToken,
+                explicitActor: true);
         }
 
         if (expiredRecords.Count > 0)
@@ -513,7 +514,8 @@ public sealed class SecurityAssetAssertionService(
         string eventType,
         Guid assertionId,
         object payload,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool explicitActor = false)
     {
         await auditService.LogAsync(
             new AuditEvent
@@ -521,6 +523,7 @@ public sealed class SecurityAssetAssertionService(
                 EventType = eventType,
                 ActorUserId = actorId,
                 ActorUserName = actorId,
+                ExplicitActor = explicitActor,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
