@@ -6454,6 +6454,28 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 ---
 
 ## Zone: storage-vs-data-category
+**Hunts:** 1 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
+
+2026-11-17 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Post-catalog-reset re-read of `AgentProposalStructuralPostProcessor` and `CrossAgentProposalConsistencyGate` (storage vs service endpoint claiming, brief grounding, merge ordering). Scoped filter **45/45** (`RunAnalyzers=false`). No row met hunt-ready bar; seeded five `(candidate)` rows below. Private beta: n/a.
+
+- [ ] (candidate) `AgentProposalStructuralPostProcessor.ApplyBriefGroundingToProposal` — confirmed HTTPS brief applies `SuggestsPlainHttp` only when `applyHttpsRule: true` on services while datastores always pass `applyHttpsRule: false` (`L250-273`); locus: asymmetric grounding between `ManifestService` and `ManifestDatastore`; input: datastore named `http-legacy-blob` with confirmed HTTPS constraint; wrong outcome: contradicting storage node survives structural post-process; reachability: multi-agent topology proposal after structured brief confirmation.
+- [ ] (candidate) `AgentProposalStructuralPostProcessor.ApplyToProposal` — `DedupeRequiredControls` runs only for `AgentType.Compliance` and `AgentType.Critic` (`L39-40`); locus: per-agent required-control cleanup; input: Topology agent emits duplicate `RequiredControls` strings in one proposal; wrong outcome: duplicate controls reach merge gate unchanged; reachability: LLM topology pass before cross-agent gate.
+- [ ] (candidate) `CrossAgentProposalConsistencyGate.ApplyToResults` — separate `claimedServiceEndpointKeys` and `claimedDatastoreEndpointKeys` never compete on the same logical label; locus: `ClaimServices` vs `ClaimDatastores` (`L23-24`, `L37-46`); input: Topology adds `ManifestService` and Cost adds `ManifestDatastore` sharing the same trimmed `DatastoreName`/`ServiceName`; wrong outcome: both nodes accepted with divergent storage-vs-compute semantics; reachability: multi-agent batch on mirrored LLM labels.
+- [ ] (candidate) `AgentProposalStructuralPostProcessor.ShouldRetainDeclaredProposalRelationship` — when either relationship endpoint is not in `declaredEndpointKeys`, edge is retained unconditionally (`L96-97`); locus: single-proposal `FilterRelationships`; input: duplicate datastore dedupe rejects loser id but edge still targets loser strict id while source is undeclared external id; wrong outcome: edge to rejected storage identity survives pre-gate post-process; reachability: topology agent relationship-only follow-up after dedupe.
+- [ ] (candidate) `AgentProposalStructuralPostProcessor.PruneRelationshipsAfterGroundingDrops` — removal uses `declaredEndpointKeysBefore` snapshot taken before service/datastore drops (`L239-241`, `L318-328`); locus: grounding prune vs synthetic `ds-{name}` keys not in pre-drop declared set; input: encryption-at-rest brief drops unencrypted datastore while relationship targets synthetic display-name key only; wrong outcome: stale edge references dropped storage node; reachability: confirmed capability brief on data-category nodes.
+
+- **id:** storage-vs-data-category
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
+- **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
+- **hunts:** 1
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-17
+- **last-bug:** never
+- **code-changed-since:** 1
+
 
 2026-11-02 thorough hunt (dry, hunt 292): **rotation fired** at pick time (`shouldRotate: true`; **`-AvoidZoneId commit-output-integrity`** after **3** consecutive dry hunts **125**, **126**, **127** on that zone; picker returned **`storage-vs-data-category`**). Run-log low-yield streak on **`storage-vs-data-category`** is **0/3** before this record — commit-output dry **125**–**127** at tail since storage dry **291**). Cheap-disproof closed five header `(candidate)` monitor rows from hunt 291 reseed — **valid-no-repro** rejected duplicate service display-name alias re-entry blocked by exclusive-rejected purge and strict identity keys (strict-identity regression family; hunt **280** parity), **valid-no-repro** indexed Terraform leaf rejected-key registration vs unindexed root defer edges (defer-edge regression family; hunt **280** parity), **valid-no-repro** relationship-only edge to rejected synthetic `ds-{name}` before pre-scan (`CollectDeclaredBatchEndpointKeys` pre-scan; pre-scan regression family; hunt **280** parity), **valid-no-repro** private-networking brief drop vs rejected duplicate ARM id edges (`ApplyBriefGrounding_prunes_relationships_to_dropped_services`; hunt **280** parity), **valid-no-repro** trimmed display-name relationship target after duplicate datastore dedupe (synthetic-key regression family; hunt **280** parity). Reseeded five alternate `(candidate)` monitor rows below; scoped post-processor and consistency-gate filter **45/45** (`RunAnalyzers=false`). **This dry starts 1/3** on `storage-vs-data-category` in the run log. Private beta: n/a.
 
