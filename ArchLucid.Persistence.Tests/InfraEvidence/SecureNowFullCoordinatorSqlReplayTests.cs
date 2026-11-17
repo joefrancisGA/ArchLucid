@@ -285,6 +285,26 @@ public sealed class SecureNowFullCoordinatorSqlReplayTests(SqlServerPersistenceF
                 .Order());
         (await rankRepository.ListBySnapshotAsync(ownSnapshot)).Should()
             .HaveCount(secondPass.Count);
+
+        Guid routingPathId = secondPass[0].Path.PathId;
+        string longResourceId = storageArmId.PadRight(1024, 'a');
+        string longReference = $"{SecurityEvidencePathRoutingConstants.SourcePrefixTag}{SecurityEvidencePathRoutingConstants.TagKeyVerificationOwner}@{longResourceId}";
+        await routingRepository.ReplaceRoutingForPathInScopeAsync(ownProject, routingPathId,
+        [
+            new SecurityEvidencePathRoutingRecord
+            {
+                RoutingRowId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                PathId = routingPathId,
+                Role = SecurityEvidencePathRoutingRole.VerificationOwner,
+                ProvenanceKind = ProvenanceKind.DerivedFact,
+                SourceReference = longReference,
+                CreatedUtc = now,
+                UpdatedUtc = now,
+            },
+        ]);
+        (await routingRepository.ListByPathIdInScopeAsync(ownProject, routingPathId))
+            .Should().ContainSingle().Which.SourceReference.Should().Be(longReference);
     }
 
     private static byte[] BuildZip(string subscriptionId, string storageArmId, string ownerTagValue)
