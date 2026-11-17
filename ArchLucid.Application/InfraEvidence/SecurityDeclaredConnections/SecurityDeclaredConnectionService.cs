@@ -125,7 +125,8 @@ public sealed class SecurityDeclaredConnectionService(
             };
         }
 
-        if (existing.Status != SecurityDeclaredConnectionStatus.Active)
+        if (existing.Status != SecurityDeclaredConnectionStatus.Active
+            || existing.ExpirationUtc <= TimeProvider.System.UtcNowDateTime())
         {
             return new SecurityDeclaredConnectionRenewResult
             {
