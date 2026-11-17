@@ -26,4 +26,18 @@ internal static class ChatOpsAlertEvaluationFragments
 
         return $"Category: {safeCategory}\nTrigger: {safeTrigger}";
     }
+
+    public static string BuildTeamsDescriptionBody(string? description)
+    {
+        string sanitized = ChatOpsWebhookUserFragments.SanitizeUserLine(description ?? string.Empty);
+
+        return WebUtility.HtmlEncode(sanitized);
+    }
+
+    public static string BuildSlackDescriptionBody(string? description)
+    {
+        string sanitized = ChatOpsWebhookUserFragments.SanitizeUserLine(description ?? string.Empty);
+
+        return ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(sanitized);
+    }
 }

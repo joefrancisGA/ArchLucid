@@ -30,7 +30,7 @@ public sealed class AlertTeamsWebhookDeliveryChannel(IChatOpsWebhookDeliveryServ
             SupportingParagraph = ChatOpsAlertEvaluationFragments.BuildTeamsCategoryTriggerParagraph(
                 payload.Alert.Category,
                 payload.Alert.TriggerValue),
-            Body = WebUtility.HtmlEncode(payload.Alert.Description ?? string.Empty),
+            Body = ChatOpsAlertEvaluationFragments.BuildTeamsDescriptionBody(payload.Alert.Description),
         };
 
         string destination = ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow(

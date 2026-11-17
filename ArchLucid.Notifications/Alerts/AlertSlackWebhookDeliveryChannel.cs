@@ -27,8 +27,7 @@ public sealed class AlertSlackWebhookDeliveryChannel(IChatOpsWebhookDeliveryServ
             SupportingParagraph = ChatOpsAlertEvaluationFragments.BuildSlackCategoryTriggerParagraph(
                 payload.Alert.Category,
                 payload.Alert.TriggerValue),
-            Body = ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(
-                payload.Alert.Description ?? string.Empty),
+            Body = ChatOpsAlertEvaluationFragments.BuildSlackDescriptionBody(payload.Alert.Description),
         };
 
         string destination = ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow(
