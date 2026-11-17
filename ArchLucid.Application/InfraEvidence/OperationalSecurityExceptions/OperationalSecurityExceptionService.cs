@@ -166,7 +166,9 @@ public sealed class OperationalSecurityExceptionService(
             },
             cancellationToken);
 
-        if (existing.FindingId is Guid findingId)
+        if (existing.FindingId is Guid findingId
+            && !await exceptionRepository.HasActiveExceptionForFindingInScopeAsync(
+                scope.ToProjectScopeKey(), findingId, utcNow, cancellationToken))
         {
             await ReopenFindingAsync(scope, findingId, utcNow, summary: "Exception revoked.", cancellationToken);
         }
@@ -204,7 +206,9 @@ public sealed class OperationalSecurityExceptionService(
             if (expired.ExpiryProcessedUtc.HasValue)
                 continue;
 
-            if (expired.FindingId is Guid findingId)
+            if (expired.FindingId is Guid findingId
+                && !await exceptionRepository.HasActiveExceptionForFindingInScopeAsync(
+                    scope.ToProjectScopeKey(), findingId, utcNow, cancellationToken))
             {
                 bool reopened = await ReopenFindingWithExpiryObservationAsync(
                     scope,
