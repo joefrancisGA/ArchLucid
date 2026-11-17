@@ -15,6 +15,18 @@ public sealed class SqlTenantBrandingProfileRepository(ISqlConnectionFactory con
     {
         ArgumentNullException.ThrowIfNull(record);
 
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await InsertAsync(conn, record, transaction: null, cancellationToken);
+    }
+
+    private static async Task InsertAsync(
+        System.Data.IDbConnection conn,
+        TenantBrandingProfileRecord record,
+        System.Data.IDbTransaction? transaction,
+        CancellationToken cancellationToken)
+    {
         const string sql = """
                            INSERT INTO dbo.TenantBrandingProfiles
                            (
@@ -35,9 +47,6 @@ public sealed class SqlTenantBrandingProfileRepository(ISqlConnectionFactory con
                                @CreatedUtc, @UpdatedUtc, @CreatedBy, @UpdatedBy, @CoBrandingEnabled
                            );
                            """;
-
-        using System.Data.IDbConnection conn =
-            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         try
         {
@@ -76,6 +85,7 @@ public sealed class SqlTenantBrandingProfileRepository(ISqlConnectionFactory con
                         record.UpdatedBy,
                         record.CoBrandingEnabled,
                     },
+                    transaction: transaction,
                     commandTimeout: DapperCommandTimeoutSeconds.Report,
                     cancellationToken: cancellationToken));
         }
@@ -115,13 +125,17 @@ public sealed class SqlTenantBrandingProfileRepository(ISqlConnectionFactory con
         using System.Data.IDbConnection conn =
             await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
+        using System.Data.IDbTransaction transaction = conn.BeginTransaction();
+
         await conn.ExecuteAsync(
             new CommandDefinition(
                 deleteSql,
                 new { record.TenantId, BrandingStatus = (int)BrandingProfileStatus.Draft },
+                transaction: transaction,
                 cancellationToken: cancellationToken));
 
-        await InsertAsync(record, cancellationToken);
+        await InsertAsync(conn, record, transaction, cancellationToken);
+        transaction.Commit();
     }
 
     public async Task UpdateStatusForTenantAsync(
