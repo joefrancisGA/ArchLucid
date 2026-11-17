@@ -36,6 +36,14 @@ public interface IRemediationPatternMatchRepository
         CancellationToken cancellationToken = default) =>
         InsertConflictAsync(conflict, cancellationToken);
 
+    Task ReplaceActiveMatchInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        RemediationPatternMatchResultRecord? matchResult,
+        RemediationPatternMatchConflictRecord? conflict,
+        CancellationToken cancellationToken = default) =>
+        throw new NotSupportedException("Atomic remediation match replacement is not supported.");
+
     Task<RemediationPatternMatchResultRecord?> TryGetActiveMatchAsync(
         Guid tenantId,
         Guid findingId,

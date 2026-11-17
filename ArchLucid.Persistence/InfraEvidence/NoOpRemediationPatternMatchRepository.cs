@@ -21,6 +21,13 @@ public sealed class NoOpRemediationPatternMatchRepository : IRemediationPatternM
         CancellationToken cancellationToken = default)
         => Task.CompletedTask;
 
+    public Task ReplaceActiveMatchInScopeAsync(
+        ProjectScopeKey scope,
+        Guid findingId,
+        RemediationPatternMatchResultRecord? matchResult,
+        RemediationPatternMatchConflictRecord? conflict,
+        CancellationToken cancellationToken = default) => Task.CompletedTask;
+
     public Task<RemediationPatternMatchResultRecord?> TryGetActiveMatchAsync(
         Guid tenantId,
         Guid findingId,
