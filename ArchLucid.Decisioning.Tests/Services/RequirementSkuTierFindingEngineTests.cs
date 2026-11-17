@@ -147,6 +147,23 @@ public sealed class RequirementSkuTierFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_emits_finding_when_multi_region_requirement_and_grs_sku()
+    {
+        GraphSnapshot graph = BuildFixture(
+            sku: "GRS",
+            includeZoneRedundantText: false,
+            requirementText: "Payment storage must be multi-region active-active.");
+
+        RequirementSkuTierFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.Title.Should().Contain("multi-region");
+        finding.Title.Should().Contain("GRS");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_none_when_sku_missing()
     {
         GraphSnapshot graph = BuildFixture(sku: null, includeZoneRedundantText: true);

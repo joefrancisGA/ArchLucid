@@ -272,6 +272,23 @@ public sealed class DeclarationPremiseConflictClassifierTests
     }
 
     [Fact]
+    public void Classify_emits_none_when_only_allow_privilege_escalation_is_no()
+    {
+        GraphNode topology = CreateTopology("workload", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["k8s.allowPrivilegeEscalation"] = "no",
+        });
+
+        GraphNode baseline = CreateIntent("baseline-pss", "Restricted pod security standard");
+
+        IReadOnlyList<DeclarationPremiseConflictSignal> signals = DeclarationPremiseConflictClassifier.Classify(
+            topology,
+            [new ApplicableIntentNode(baseline, true)]);
+
+        signals.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Classify_maps_network_isolation_to_admin_ingress_when_host_network_is_false()
     {
         GraphNode topology = CreateTopology("nsg", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
