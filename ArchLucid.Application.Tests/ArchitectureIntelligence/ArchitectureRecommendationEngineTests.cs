@@ -133,6 +133,24 @@ public sealed class ArchitectureRecommendationEngineTests
     }
 
     [Fact]
+    public void BuildRecommendations_skips_fail_findings_whose_governance_disposition_is_exception_granted()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding excepted = CreateFailingFinding(
+            "f-excepted",
+            QualityDimension.Security,
+            "Documented exception for legacy exposure");
+        excepted.GovernanceDisposition = GovernanceDisposition.ExceptionGranted;
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            CreateModel(),
+            [excepted],
+            ["Security"]);
+
+        recommendations.Should().BeEmpty();
+    }
+
+    [Fact]
     public void FromFinding_throws_when_finding_is_null()
     {
         Action act = () => ArchitectureRecommendationStableId.FromFinding(null!, "proposed");

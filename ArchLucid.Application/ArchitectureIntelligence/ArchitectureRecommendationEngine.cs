@@ -32,12 +32,15 @@ public sealed class ArchitectureRecommendationEngine : IArchitectureRecommendati
         if (finding.Conclusion is not (ReviewConclusion.Fail or ReviewConclusion.Indeterminate))
             return false;
 
-        // Risk-accepted findings stay failed for audit but must not spawn must-change recommendations.
-        if (finding.GovernanceDisposition is GovernanceDisposition.Accepted)
+        if (IsGovernanceClosedForRecommendation(finding))
             return false;
 
         return true;
     }
+
+    internal static bool IsGovernanceClosedForRecommendation(SpecialistReviewFinding finding) =>
+        finding.GovernanceDisposition is GovernanceDisposition.Accepted
+            or GovernanceDisposition.ExceptionGranted;
 
     private static ArchitectureRecommendation CreateRecommendation(
         SpecialistReviewFinding finding,

@@ -551,7 +551,7 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         if (finding.Conclusion is not (ReviewConclusion.Fail or ReviewConclusion.Indeterminate))
             return false;
 
-        if (finding.GovernanceDisposition is GovernanceDisposition.Accepted)
+        if (ArchitectureRecommendationEngine.IsGovernanceClosedForRecommendation(finding))
             return false;
 
         return ProvenancePresentationMapper.MapFinding(finding) != ProvenancePresentationBucket.Unverified;

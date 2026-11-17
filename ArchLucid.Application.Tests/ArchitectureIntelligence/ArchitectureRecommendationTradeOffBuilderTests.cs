@@ -41,6 +41,29 @@ public sealed class ArchitectureRecommendationTradeOffBuilderTests
     }
 
     [Fact]
+    public void BuildRecommendations_omits_security_cost_trade_off_when_security_finding_is_accepted()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding acceptedSecurity = CreateFailFinding(
+            "sec-accepted",
+            QualityDimension.Security,
+            "Legacy exposure with accepted risk");
+        acceptedSecurity.GovernanceDisposition = GovernanceDisposition.Accepted;
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Monthly ceiling is unspecified");
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [acceptedSecurity, costFinding],
+            ["Security", "Cost"]);
+
+        recommendations.Should().ContainSingle();
+        recommendations[0].TradeOffs.Should().BeEmpty();
+    }
+
+    [Fact]
     public void BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_non_security()
     {
         ArchitectureRecommendationEngine sut = new();
