@@ -85,6 +85,38 @@ public sealed class SecurityEvidenceCutPointAnalyzerTests
         results.Should().BeEmpty();
     }
 
+    [Fact]
+    public void ToRecord_bounds_long_edge_keys_and_retains_full_endpoints()
+    {
+        string from = new('a', 400);
+        string to = new('b', 400);
+        string otherTo = to[..^1] + "c";
+        var candidates = SecurityEvidenceCutPointAnalyzer.Analyze(
+            [BuildPath(Path1, BuildIdentityHop(Path1, from, to)),
+             BuildPath(Path2, BuildIdentityHop(Path2, from, otherTo))],
+            new Dictionary<Guid, string?>());
+        var first = candidates.Single(item => item.FromNodeId == from && item.ToNodeId == to);
+        var second = candidates.Single(item => item.FromNodeId == from && item.ToNodeId == otherTo);
+
+        var firstRecord = SecurityEvidenceCutPointAnalyzer.ToRecord(first, TenantId, SnapshotId, 1, DateTime.UnixEpoch, null);
+        var secondRecord = SecurityEvidenceCutPointAnalyzer.ToRecord(second, TenantId, SnapshotId, 2, DateTime.UnixEpoch, null);
+        var repeated = SecurityEvidenceCutPointAnalyzer.ToRecord(first, TenantId, SnapshotId, 3, DateTime.UnixEpoch, null);
+
+        firstRecord.CutKey.Length.Should().BeLessThanOrEqualTo(768);
+        firstRecord.CutKey.Should().Be(repeated.CutKey).And.NotBe(secondRecord.CutKey);
+        firstRecord.FromNodeId.Should().Be(from);
+        firstRecord.ToNodeId.Should().Be(to);
+    }
+
+    [Fact]
+    public void ToRecord_preserves_a_cut_key_at_the_sql_limit()
+    {
+        var candidate = new SecurityEvidenceCutPointCandidate { CutKey = "edge:" + new string('a', 763) };
+        var record = SecurityEvidenceCutPointAnalyzer.ToRecord(candidate, TenantId, SnapshotId, 1, DateTime.UnixEpoch, null);
+
+        record.CutKey.Should().Be(candidate.CutKey);
+    }
+
     private static (SecurityEvidencePathRecord Path, IReadOnlyList<SecurityEvidencePathHopRecord> Hops) BuildPath(
         Guid pathId,
         IReadOnlyList<SecurityEvidencePathHopRecord> hops)
