@@ -98,6 +98,32 @@ public sealed class OperationalSecurityExceptionServiceTests
     }
 
     [Fact]
+    public async Task SweepExpiredAsync_recovers_work_interrupted_after_marking_an_exception_expired()
+    {
+        Guid findingId = Guid.NewGuid();
+        Guid exceptionId = Guid.NewGuid();
+        DateTime utcNow = DateTime.UtcNow;
+        InMemoryOperationalSecurityFindingRepository findings = new();
+        findings.Findings.Add(CreateFinding(findingId, OperationalSecurityFindingStatus.Exception, utcNow));
+        InMemoryOperationalSecurityExceptionRepository exceptions = new();
+        exceptions.Records.Add(CloneException(
+            CreateExpiredException(exceptionId, findingId, utcNow.AddMinutes(-5)),
+            status: OperationalSecurityExceptionStatus.Expired));
+        OperationalSecurityExceptionService sut = CreateSut(exceptions, findings);
+
+        OperationalSecurityExceptionExpirySweepResult retry = await sut.SweepExpiredAsync(CreateScope());
+
+        retry.FindingsReopenedCount.Should().Be(1);
+        retry.ObservationsCreatedCount.Should().Be(1);
+        findings.Findings.Single().Status.Should().Be(OperationalSecurityFindingStatus.Open);
+        findings.Observations.Should().ContainSingle();
+        exceptions.Records.Single().ExpiryProcessedUtc.Should().NotBeNull();
+
+        (await sut.SweepExpiredAsync(CreateScope())).ExpiredCount.Should().Be(0);
+        findings.Observations.Should().ContainSingle();
+    }
+
+    [Fact]
     public async Task SweepExpiredAsync_does_not_create_observation_for_active_exception()
     {
         Guid findingId = Guid.NewGuid();
