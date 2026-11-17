@@ -407,7 +407,7 @@
 2026-10-06 seed hunt (seed→hit): reseeded weekly-digest-email after scheme-only operator-base fix; proved `OperatorBaseUrl` values with embedded userinfo leaked credentials into weekly Sponsor report logo URLs; fixed authority-only logo URL composition; regressions above.
 
 - **id:** weekly-digest-email
-- **status:** unseeded
+- **status:** open
 - **impact:** low
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
@@ -1178,7 +1178,7 @@
 - [x] (valid-no-repro) `UseArchLucidWorkerPipeline` / `AddArchLucidOpenTelemetry` — health paths excluded from trace instrumentation but not metrics — **cheap-disproof 2026-10-07 thorough hunt:** `IsHealthCheckRequest` filters ASP.NET Core tracing only; metrics instrumentation intentionally includes health routes; documented in `ObservabilityExtensions`.
 
 - **id:** worker-host
-- **status:** unseeded
+- **status:** open
 - **impact:** low
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
@@ -1614,7 +1614,7 @@
 2026-10-21 seed hunt (seed-only): lane B; cheap-disproof closed five open `(candidate)` rows; no hunt-ready promotion; seeded five follow-on candidates; Host.Core 77/77; Api 97 passed (9 SQL integration unavailable on Linux VM).
 
 - **id:** host-core-jobs
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
@@ -1706,7 +1706,7 @@
 2026-10-12 thorough hunt (hit): invalid-payload and capacity-exhausted terminal paths still called `MarkFailedTerminalAsync` after watchdog reclaim to `Pending` (cancel-only re-reads); processor now requires `Running` before those terminal writes and `MarkFailedTerminalAsync` SQL guards `State = N'Running'` (parity with `MarkSucceededAsync`); regressions `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_job_reclaimed_to_pending_before_invalid_payload_assignment` and `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_job_reclaimed_to_pending_before_capacity_exhausted_terminal_assignment`; cheap-disproof reaffirmed orphan-blob and in-memory `_files` hygiene candidates; 30 processor + 76 Host.Core scoped tests passed.
 
 - **id:** host-core-jobs
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
@@ -1915,12 +1915,24 @@
 
 ## Zone: security-analyzers
 
+2026-11-17 seed hunt (seed→hit): no rotation (shouldRotate: false; post-catalog-reset re-read security-analyzers while picker showed **unseeded** with zero open candidates). Promoted switch-expression discard-arm LogAsync reachability gap — **proven** parity with hunt #873 switch-statement constant discriminant; regression `AL0003_reports_when_LogAsync_only_in_switch_expression_arm_never_selected_by_constant`. Reseeded five `(candidate)` rows below. Scoped filter **195/195** passed (`RunAnalyzers=false`, Release). Private beta: RC35 builds again flag mutating actions that hide `LogAsync` behind unreachable switch-expression discard arms.
+
+- [x] (proven) `MutatingControllerAuditAnalyzer` — `LogAsync` only in switch-expression discard arm when governing expression is a compile-time constant matched by another arm suppresses AL0003 — **hit 2026-11-17 seed hunt:** `IsSwitchExpressionArmReachableForConstantDiscriminant`; regression above. [class:fail-open-validation]
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` inside switch-expression arm with relational constant pattern suppresses AL0003 when governing expression is compile-time zero — locus: `IsSwitchExpressionArmReachableForConstantDiscriminant`; input: `0 switch { 0 => CompletedTask, > 0 => LogAsync }`; wrong outcome: dead arm satisfies AL0003; reachability: mutating API actions.
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — type-level `[Authorize]` on file-local nested partial class does not satisfy AL0001 for outer shell public GET — locus: `NestedDerivedControllerTypesSatisfyEmptyOuterShell`; input: empty outer controller nesting unauthorized partial; wrong outcome: type-level AL0001 suppressed; reachability: multi-file partial controllers.
+- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — banned type in `ref readonly` parameter is missed — locus: `AnalyzeIdentifierName` symbol switch; input: `ref readonly HttpContext` in Application layer; wrong outcome: tenant boundary bypass in signatures; reachability: inner-layer service APIs.
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — `[AllowAnonymous]` on property accessor of route-marked action suppresses AL0001 without scanning sibling HTTP verbs — locus: `ActionHasAuthorization`; input: class with anonymous GET accessor plus unauthorized POST; wrong outcome: POST escapes AL0001; reachability: minimal API style controllers.
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `AnalyzeReferencedBaseActions` skips shadowed virtual mutating actions when override only adds `[NonAction]` without removing verb from metadata — locus: `IsShadowedVirtualMutatingAction`; input: derived override hides base POST; wrong outcome: unaudited inherited mutating route; reachability: virtual controller hierarchies.
+
+
 - **id:** security-analyzers
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 
 2026-11-17 thorough hunt #905 (dry): no rotation (shouldRotate: false). Cheap-disproof closed five `(candidate)` rows reseeded after hunt #904 — **valid-no-repro** switch `default` arm with unreachable `goto case` (`AL0003_reports_when_LogAsync_only_in_switch_default_arm_with_unreachable_goto_case`; constant-discriminant reachability parity with #873), **invalid** static nested authorized shell vs outer GET (`Reports_AL0001_on_outer_get_when_static_shell_nests_authorized_controller`), **valid-no-repro** file-scoped `using` alias to `HttpContext` (`Reports_HttpContext_parameter_when_type_is_file_scoped_using_alias`), **valid-no-repro** `await using` constructor initializer `LogAsync` (`AL0003_reports_when_LogAsync_runs_only_in_await_using_constructor_initializer`), **invalid** partial controller with authorized default-interface POST still reports inherited GET (`Reports_inherited_get_when_partial_controller_implements_authorized_default_interface_post`). Reseeded five `(candidate)` rows below. Scoped filter **194/194** passed (`RunAnalyzers=false`, Release). Private beta: n/a.
@@ -2092,7 +2104,7 @@
 2026-10-07 seed hunt #23 (seed-only): re-read the three analyzer implementations and scoped regressions; no hunt-ready row promoted; seeded five `(candidate)` rows; 61 scoped analyzer tests passed (`RunAnalyzers=false`).
 
 - **id:** security-analyzers
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
@@ -2359,7 +2371,7 @@
 - [x] (invalid) `AgenticRetrievalQueryExpander.ExpandAsync` — HyDE append pushes embed text above provider token cap without truncation guard — **cheap-disproof 2026-10-28 thorough hunt #714:** HyDE failures fall back to heuristic document or rewrite-only embed; no silent truncation contract.
 
 2026-09-13 seed hunt #2391 (seed-only): reseeded retrieval; no new hunt-ready rows.
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
@@ -2593,7 +2605,7 @@
 - **id:** retrieval
 
 2026-09-13 seed hunt #2391 (seed-only): reseeded retrieval; no new hunt-ready rows.
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
@@ -5785,7 +5797,7 @@
 - (candidate) `refreshBffSessionCookie` — `expires_at_ms` JSON number with fractional epoch — locus: `parseBffExpiresAtMs` numeric path; input: `1730000000000.9`; wrong outcome: skew acceptance vs truncation.
 
 - **id:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
@@ -11221,7 +11233,7 @@
 
 - **id:** core-azure-extractor
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
@@ -11246,7 +11258,7 @@
 
 - **id:** core-azure-extractor
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
@@ -16889,7 +16901,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-configuration-summary
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
@@ -16989,7 +17001,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-configuration-summary
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
@@ -17217,7 +17229,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-findings-advice
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
@@ -17408,7 +17420,7 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 
 - **id:** core-requests-constraints
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
@@ -17624,7 +17636,7 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 
 - **id:** core-authority-runs
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
@@ -18042,7 +18054,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-tenancy-commercial
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
@@ -18090,7 +18102,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-tenancy-commercial
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
@@ -18175,7 +18187,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-safety-network
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
@@ -20270,7 +20282,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 2026-09-13 seed hunt #2393 (seed-only): reseeded core-costing; no new hunt-ready rows.
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
@@ -20427,7 +20439,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 - **id:** core-explanation-json
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
@@ -20586,7 +20598,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 - **id:** core-explanation-json
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
@@ -22986,7 +22998,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-13 seed hunt #2396 (seed-only): reseeded context-ingestion; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2390 (seed-only): reseeded context-ingestion; no new hunt-ready rows.
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
@@ -26693,7 +26705,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-30 seed hunt #1001 (seed-only): re-read graph compiler, structured diagram merge/materialization, graph validation, inventory overlay rebinding, and provenance hashing paths; no hunt-ready promotion. The delimiter candidates require confirmation that authoring contracts permit delimiter-bearing identifiers before a repro is justified, so five mechanism-backed `(candidate)` rows are recorded for a later pass. Scoped Provenance and KnowledgeGraph tests passed (153 and 228 respectively). Private beta: n/a.
 
 - **id:** knowledge-graph-provenance
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
@@ -29477,7 +29489,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `InMemoryGraphSnapshotRepository.SaveAsync` — capacity eviction used insertion order instead of `CreatedUtc`, dropping a newer graph snapshot for a context — **hit 2026-10-21 seed hunt:** evict oldest `CreatedUtc`; regression `GetLatestByContextSnapshotIdAsync_after_capacity_eviction_retains_newer_snapshot_for_context`.
 
 - **id:** knowledge-graph-provenance
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
@@ -29893,7 +29905,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-13 seed hunt (seed→hit): proved sponsor deep-link `SignInUrl` leaked `OperatorBaseUrl` userinfo; 163 scoped notification/digest Application tests passed.
 
 - **id:** notifications-pipeline
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
@@ -31002,7 +31014,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `InMemoryValueReportJobQueue.Enqueue` — distributed pending write failure surfaces a failed poll — **cheap-disproof 2026-10-30 thorough hunt #984:** enqueue persistence failure intentionally creates a terminal failed local entry and existing fail-fast regressions cover the behavior.
 
 - **id:** host-composition
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
@@ -31230,7 +31242,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `OperationalErrorsCompositionRegistrar` registers `OperationalErrorRetentionHostedService` on Api — **cheap-disproof 2026-09-10 seed hunt #1565:** retention purge is Worker+Combined gated (`OperationalErrorsCompositionRegistrar.cs` line 36); regression `AddArchLucidApplicationServices_Api_role_does_not_register_operational_error_retention_hosted_service`
 
 - **id:** host-composition
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
@@ -32014,7 +32026,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 
 - **id:** cloud-extractors
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
@@ -32277,7 +32289,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-11 thorough hunt (hit): hosted Azure Policy Insights and Actual Cost pagination validated same-subscription cursors but not the collection path, so reachable `@odata.nextLink` / `properties.nextLink` values for `roleAssignments` or `CostManagement/budgets` were fetched and merged as if they belonged to the original query. Reused `EnsureTargetsArmRelativeListingPath` for both expected query paths; regressions `QueryPolicyComplianceAsync_rejects_same_subscription_next_link_for_another_resource` and `TryQueryActualCostSummaryAsync_rejects_same_subscription_next_link_for_another_resource` failed first and passed after the fix.
 
 - **id:** cloud-extractors
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
@@ -33544,7 +33556,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor` — sequential-only batch drain while export/retrieval use parallel processing — **cheap-disproof 2026-11-01 thorough hunt #1118:** see diary row above.
 
 - **id:** host-core-coordination
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
@@ -33808,7 +33820,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-31 thorough hunt #1059 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `core-tenancy-commercial` (dry ×3; run log). Picker rotated with **`-AvoidZoneId`** to `chatops-delivery`. Cheap-disproof closed five header `(candidate)` rows from hunt #963 — **valid-no-repro** both Slack and Teams notify flags disabled completing integration handling (`NotifyAsync_skips_delivery_when_disabled_or_uri_invalid`; operator opt-out is intentional — not fail-closed; hunt #1369 misconfiguration-skip family), **valid-no-repro** `Guid.Empty` tenant/run ids forwarded without handler guard (producer contract; telemetry carries correlation — no in-handler rejection by design), **valid-no-repro** whitespace-only `Description` with non-zero `FindingCount` using generic body copy while headline still reports finding count (`BuildMessage` headline includes `FindingCount`; body fallback `"Run finished successfully."` is intentional when detail absent — regression lock in hook tests), **valid-no-repro** Slack delivery success while Teams skipped for invalid URI without throw (`DeliverIfEnabledAsync` skip before attempt; partial sibling success completes event — hunt #1368 `#1369`), **invalid** integration handler ignoring finding deep links beyond array length (notice contract maps `FindingCount` + `Description` only; link fan-out is out of scope for informational ChatOps hook). Reseeded five `(candidate)` rows; scoped **22** AuthorityRunCommitted/Completed ChatOps tests passed. Private beta: n/a.
 
 - **id:** chatops-delivery
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** chatops webhook; authority commit notification; slack teams delivery
 - **paths:** ArchLucid.Notifications/AuthorityRunCommittedChatOpsHook.cs; ArchLucid.Notifications/AuthorityRunCompletedChatOpsIntegrationEventHandler.cs
@@ -33905,7 +33917,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five promotion attempts; seeded five follow-on `(candidate)` rows below; 25 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
 
 - **id:** host-infra-evidence-composition
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs

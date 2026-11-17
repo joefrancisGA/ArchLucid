@@ -469,13 +469,6 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         yield return arrowClauseScoped.Expression;
     }
 
-    private static bool LocalFunctionIsInvokedFromContainingMethod(
-        LocalFunctionStatementSyntax localFunctionStatementSyntax,
-        MethodDeclarationSyntax containingMethodDeclarationSyntax)
-    {
-        return IsLocalFunctionReachableFromMethodEntry(localFunctionStatementSyntax, containingMethodDeclarationSyntax);
-    }
-
     private static bool IsLocalFunctionReachableFromMethodEntry(
         LocalFunctionStatementSyntax targetLocalFunctionStatementSyntax,
         MethodDeclarationSyntax containingMethodDeclarationSyntax)
@@ -568,6 +561,103 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                memberAccessExpressionSyntax.Name.Identifier.Text == localFunctionName;
     }
 
+    // Stored lambdas that are never invoked do not run on the request; count LogAsync only when the lambda is used.
+    private static bool AnonymousFunctionsAroundLogAsyncSyntaxAreInvoked(
+        SyntaxNode logAsyncSyntaxNode,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        foreach (SyntaxNode ancestor in logAsyncSyntaxNode.Ancestors())
+        {
+            if (ReferenceEquals(ancestor, containingMethodDeclarationSyntax))
+                break;
+
+            if (ancestor is not AnonymousFunctionExpressionSyntax anonymousFunction)
+                continue;
+
+            if (!AnonymousFunctionIsInvoked(anonymousFunction, containingMethodDeclarationSyntax))
+                return false;
+        }
+
+        return true;
+    }
+
+    private static bool AnonymousFunctionIsInvoked(
+        AnonymousFunctionExpressionSyntax anonymousFunction,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        SyntaxNode usedNode = anonymousFunction;
+
+        while (usedNode.Parent is ParenthesizedExpressionSyntax or CastExpressionSyntax)
+            usedNode = usedNode.Parent;
+
+        SyntaxNode? useSite = usedNode.Parent;
+
+        if (useSite is ArgumentSyntax)
+            return true;
+
+        if (useSite is InvocationExpressionSyntax invocationExpression &&
+            ReferenceEquals(invocationExpression.Expression, usedNode))
+        {
+            return true;
+        }
+
+        if (useSite is EqualsValueClauseSyntax equalsValueClause &&
+            equalsValueClause.Parent is VariableDeclaratorSyntax variableDeclarator)
+        {
+            return LocalNameIsInvokedOutsideAnonymousFunction(
+                variableDeclarator.Identifier.Text,
+                containingMethodDeclarationSyntax,
+                anonymousFunction);
+        }
+
+        if (useSite is AssignmentExpressionSyntax assignmentExpression &&
+            ReferenceEquals(assignmentExpression.Right, usedNode) &&
+            assignmentExpression.Left is IdentifierNameSyntax assignedName)
+        {
+            return LocalNameIsInvokedOutsideAnonymousFunction(
+                assignedName.Identifier.Text,
+                containingMethodDeclarationSyntax,
+                anonymousFunction);
+        }
+
+        return false;
+    }
+
+    private static bool LocalNameIsInvokedOutsideAnonymousFunction(
+        string localName,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax,
+        AnonymousFunctionExpressionSyntax definingAnonymousFunction)
+    {
+        foreach (InvocationExpressionSyntax invocationSyntax in containingMethodDeclarationSyntax
+                     .DescendantNodes()
+                     .OfType<InvocationExpressionSyntax>())
+        {
+            if (IsInsideAnonymousFunction(invocationSyntax, definingAnonymousFunction))
+                continue;
+
+            if (invocationSyntax.Expression is IdentifierNameSyntax identifierNameSyntax &&
+                identifierNameSyntax.Identifier.Text == localName)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsInsideAnonymousFunction(
+        SyntaxNode node,
+        AnonymousFunctionExpressionSyntax anonymousFunction)
+    {
+        for (SyntaxNode? current = node.Parent; current is not null; current = current.Parent)
+        {
+            if (ReferenceEquals(current, anonymousFunction))
+                return true;
+        }
+
+        return false;
+    }
+
     private static bool LogAsyncMemberAccessCountsForAuditProof(
         MemberAccessExpressionSyntax memberAccessExpressionSyntax,
         MethodDeclarationSyntax containingMethodDeclarationSyntax,
@@ -577,38 +667,55 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (!string.Equals(memberAccessExpressionSyntax.Name.Identifier.Text, "LogAsync", StringComparison.Ordinal))
             return false;
 
-        LocalFunctionStatementSyntax? enclosingLocalFunction =
-            memberAccessExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
-
-        if (enclosingLocalFunction is null)
-        {
-            if (memberAccessExpressionSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
-                return false;
-
-            return IsLogAsyncSyntaxProofReachable(semanticModel, memberAccessExpressionSyntax, cancellationToken);
-        }
-
-        return LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax);
+        return LogAsyncSyntaxCountsForAuditProof(
+            memberAccessExpressionSyntax,
+            containingMethodDeclarationSyntax,
+            semanticModel,
+            cancellationToken);
     }
 
     private static bool AuditLogAsyncInvocationCountsForAuditProof(
         InvocationExpressionSyntax invocationExpressionSyntax,
         MethodDeclarationSyntax containingMethodDeclarationSyntax,
         SemanticModel? semanticModel,
+        CancellationToken cancellationToken) =>
+        LogAsyncSyntaxCountsForAuditProof(
+            invocationExpressionSyntax,
+            containingMethodDeclarationSyntax,
+            semanticModel,
+            cancellationToken);
+
+    private static bool LogAsyncSyntaxCountsForAuditProof(
+        SyntaxNode logAsyncSyntaxNode,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax,
+        SemanticModel? semanticModel,
         CancellationToken cancellationToken)
     {
         LocalFunctionStatementSyntax? enclosingLocalFunction =
-            invocationExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
+            logAsyncSyntaxNode.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
 
-        if (enclosingLocalFunction is null)
+        if (enclosingLocalFunction is not null &&
+            !IsLocalFunctionReachableFromMethodEntry(enclosingLocalFunction, containingMethodDeclarationSyntax))
         {
-            if (invocationExpressionSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
-                return false;
-
-            return IsLogAsyncSyntaxProofReachable(semanticModel, invocationExpressionSyntax, cancellationToken);
+            return false;
         }
 
-        return LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax);
+        if (!AnonymousFunctionsAroundLogAsyncSyntaxAreInvoked(logAsyncSyntaxNode, containingMethodDeclarationSyntax))
+            return false;
+
+        return LogAsyncSyntaxIsOnExecutedPath(logAsyncSyntaxNode, semanticModel, cancellationToken);
+    }
+
+    // Catch filters and constant-unselected switch arms do not run, including when they sit inside a reachable local.
+    private static bool LogAsyncSyntaxIsOnExecutedPath(
+        SyntaxNode logAsyncSyntaxNode,
+        SemanticModel? semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (logAsyncSyntaxNode.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
+            return false;
+
+        return IsLogAsyncSyntaxProofReachable(semanticModel, logAsyncSyntaxNode, cancellationToken);
     }
 
     private static bool IsLogAsyncSyntaxProofReachable(
@@ -627,32 +734,165 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             return false;
         }
 
-        foreach (IfStatementSyntax ifStatementSyntax in logAsyncSyntaxNode.Ancestors().OfType<IfStatementSyntax>())
+        SwitchSectionSyntax? switchSectionSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<SwitchSectionSyntax>();
+
+        if (switchSectionSyntax is not null &&
+            switchSectionSyntax.Parent is SwitchStatementSyntax switchStatementSyntax)
         {
-            if (IsLogAsyncInUnreachableIfBranch(logAsyncSyntaxNode, ifStatementSyntax, semanticModel, cancellationToken))
+            if (semanticModel is not null)
+            {
+                return IsSwitchSectionReachableForConstantDiscriminant(
+                    switchStatementSyntax,
+                    switchSectionSyntax,
+                    semanticModel,
+                    cancellationToken);
+            }
+
+            return IsSwitchSectionReachableForSyntaxLiteralDiscriminant(switchStatementSyntax, switchSectionSyntax);
+        }
+
+        SwitchExpressionArmSyntax? switchExpressionArmSyntax =
+            logAsyncSyntaxNode.FirstAncestorOrSelf<SwitchExpressionArmSyntax>();
+
+        if (switchExpressionArmSyntax is not null &&
+            switchExpressionArmSyntax.Parent is SwitchExpressionSyntax switchExpressionSyntax)
+        {
+            if (semanticModel is not null)
+            {
+                return IsSwitchExpressionArmReachableForConstantDiscriminant(
+                    switchExpressionSyntax,
+                    switchExpressionArmSyntax,
+                    semanticModel,
+                    cancellationToken);
+            }
+
+            return IsSwitchExpressionArmReachableForSyntaxLiteralDiscriminant(
+                switchExpressionSyntax,
+                switchExpressionArmSyntax);
+        }
+
+        return true;
+    }
+
+    private static bool IsSwitchExpressionArmReachableForSyntaxLiteralDiscriminant(
+        SwitchExpressionSyntax switchExpressionSyntax,
+        SwitchExpressionArmSyntax armSyntax)
+    {
+        if (switchExpressionSyntax.GoverningExpression is not LiteralExpressionSyntax discriminantLiteralSyntax)
+            return true;
+
+        if (!TryGetSwitchLiteralValue(discriminantLiteralSyntax, out string? discriminantText))
+            return true;
+
+        if (armSyntax.Pattern is ConstantPatternSyntax constantPatternSyntax &&
+            constantPatternSyntax.Expression is LiteralExpressionSyntax armLiteralSyntax &&
+            TryGetSwitchLiteralValue(armLiteralSyntax, out string? armText) &&
+            string.Equals(discriminantText, armText, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        if (armSyntax.Pattern is not DiscardPatternSyntax)
+            return false;
+
+        foreach (SwitchExpressionArmSyntax otherArmSyntax in switchExpressionSyntax.Arms)
+        {
+            if (otherArmSyntax.Pattern is not ConstantPatternSyntax otherConstantPatternSyntax)
+                continue;
+
+            if (otherConstantPatternSyntax.Expression is LiteralExpressionSyntax otherArmLiteralSyntax &&
+                TryGetSwitchLiteralValue(otherArmLiteralSyntax, out string? otherArmText) &&
+                string.Equals(discriminantText, otherArmText, StringComparison.Ordinal))
             {
                 return false;
             }
         }
 
-        SwitchSectionSyntax? switchSectionSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<SwitchSectionSyntax>();
+        return true;
+    }
 
-        if (switchSectionSyntax is null)
+    private static bool IsSwitchExpressionArmReachableForConstantDiscriminant(
+        SwitchExpressionSyntax switchExpressionSyntax,
+        SwitchExpressionArmSyntax armSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        Optional<object?> discriminantOptional =
+            semanticModel.GetConstantValue(switchExpressionSyntax.GoverningExpression, cancellationToken);
+
+        if (!discriminantOptional.HasValue)
             return true;
 
-        if (switchSectionSyntax.Parent is not SwitchStatementSyntax switchStatementSyntax)
-            return true;
+        object? discriminant = discriminantOptional.Value;
 
-        if (semanticModel is not null)
+        if (armSyntax.Pattern is ConstantPatternSyntax constantPatternSyntax)
         {
-            return IsSwitchSectionReachableForConstantDiscriminant(
-                switchStatementSyntax,
-                switchSectionSyntax,
-                semanticModel,
-                cancellationToken);
+            Optional<object?> patternConstantOptional =
+                semanticModel.GetConstantValue(constantPatternSyntax.Expression, cancellationToken);
+
+            if (patternConstantOptional.HasValue &&
+                AuditProofConstantValuesEqual(discriminant, patternConstantOptional.Value))
+            {
+                return true;
+            }
         }
 
-        return IsSwitchSectionReachableForSyntaxLiteralDiscriminant(switchStatementSyntax, switchSectionSyntax);
+        if (armSyntax.Pattern is not DiscardPatternSyntax)
+            return false;
+
+        foreach (SwitchExpressionArmSyntax otherArmSyntax in switchExpressionSyntax.Arms)
+        {
+            if (otherArmSyntax.Pattern is not ConstantPatternSyntax otherConstantPatternSyntax)
+                continue;
+
+            Optional<object?> otherPatternConstantOptional =
+                semanticModel.GetConstantValue(otherConstantPatternSyntax.Expression, cancellationToken);
+
+            if (otherPatternConstantOptional.HasValue &&
+                AuditProofConstantValuesEqual(discriminant, otherPatternConstantOptional.Value))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsSyntaxNodeWithinExpression(SyntaxNode descendant, ExpressionSyntax rootExpression)
+    {
+        foreach (SyntaxNode? ancestor in descendant.Ancestors())
+        {
+            if (ancestor is ExpressionSyntax expressionSyntax && ReferenceEquals(expressionSyntax, rootExpression))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsCoalesceLeftOperandNeverNull(
+        ExpressionSyntax leftExpressionSyntax,
+        SemanticModel? semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (semanticModel is null)
+            return false;
+
+        Optional<object?> constantOptional = semanticModel.GetConstantValue(leftExpressionSyntax, cancellationToken);
+
+        if (constantOptional.HasValue && constantOptional.Value is not null)
+            return true;
+
+        if (leftExpressionSyntax is not InvocationExpressionSyntax invocationExpressionSyntax)
+            return false;
+
+        IMethodSymbol? methodSymbol =
+            semanticModel.GetSymbolInfo(invocationExpressionSyntax, cancellationToken).Symbol as IMethodSymbol;
+
+        if (methodSymbol is null)
+            return false;
+
+        return string.Equals(methodSymbol.Name, "FromResult", StringComparison.Ordinal) &&
+               string.Equals(methodSymbol.ContainingType?.Name, "Task", StringComparison.Ordinal);
     }
 
     private static bool IsSwitchSectionReachableForSyntaxLiteralDiscriminant(
@@ -701,98 +941,6 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         }
 
         return true;
-    }
-
-    private static bool IsLogAsyncInUnreachableIfBranch(
-        SyntaxNode logAsyncSyntaxNode,
-        IfStatementSyntax ifStatementSyntax,
-        SemanticModel? semanticModel,
-        CancellationToken cancellationToken)
-    {
-        if (TryGetConstantBoolean(ifStatementSyntax.Condition, semanticModel, cancellationToken) is not bool constantCondition)
-        {
-            return false;
-        }
-
-        if (!constantCondition)
-        {
-            return logAsyncSyntaxNode.AncestorsAndSelf().Any(ancestor => ReferenceEquals(ancestor, ifStatementSyntax.Statement));
-        }
-
-        if (ifStatementSyntax.Else is null)
-        {
-            return false;
-        }
-
-        return logAsyncSyntaxNode.AncestorsAndSelf().Any(ancestor => ReferenceEquals(ancestor, ifStatementSyntax.Else.Statement));
-    }
-
-    private static bool? TryGetConstantBoolean(
-        ExpressionSyntax expressionSyntax,
-        SemanticModel? semanticModel,
-        CancellationToken cancellationToken)
-    {
-        if (semanticModel is not null)
-        {
-            Optional<object?> constantOptional = semanticModel.GetConstantValue(expressionSyntax, cancellationToken);
-
-            if (constantOptional.HasValue && constantOptional.Value is bool booleanValue)
-            {
-                return booleanValue;
-            }
-        }
-
-        if (expressionSyntax is LiteralExpressionSyntax literalExpressionSyntax)
-        {
-            if (literalExpressionSyntax.IsKind(SyntaxKind.TrueLiteralExpression))
-            {
-                return true;
-            }
-
-            if (literalExpressionSyntax.IsKind(SyntaxKind.FalseLiteralExpression))
-            {
-                return false;
-            }
-        }
-
-        return null;
-    }
-
-    private static bool IsSyntaxNodeWithinExpression(SyntaxNode descendant, ExpressionSyntax rootExpression)
-    {
-        foreach (SyntaxNode? ancestor in descendant.Ancestors())
-        {
-            if (ancestor is ExpressionSyntax expressionSyntax && ReferenceEquals(expressionSyntax, rootExpression))
-                return true;
-        }
-
-        return false;
-    }
-
-    private static bool IsCoalesceLeftOperandNeverNull(
-        ExpressionSyntax leftExpressionSyntax,
-        SemanticModel? semanticModel,
-        CancellationToken cancellationToken)
-    {
-        if (semanticModel is null)
-            return false;
-
-        Optional<object?> constantOptional = semanticModel.GetConstantValue(leftExpressionSyntax, cancellationToken);
-
-        if (constantOptional.HasValue && constantOptional.Value is not null)
-            return true;
-
-        if (leftExpressionSyntax is not InvocationExpressionSyntax invocationExpressionSyntax)
-            return false;
-
-        IMethodSymbol? methodSymbol =
-            semanticModel.GetSymbolInfo(invocationExpressionSyntax, cancellationToken).Symbol as IMethodSymbol;
-
-        if (methodSymbol is null)
-            return false;
-
-        return string.Equals(methodSymbol.Name, "FromResult", StringComparison.Ordinal) &&
-               string.Equals(methodSymbol.ContainingType?.Name, "Task", StringComparison.Ordinal);
     }
 
     private static bool TryGetSwitchLiteralValue(LiteralExpressionSyntax literalExpressionSyntax, out string? normalizedText)
