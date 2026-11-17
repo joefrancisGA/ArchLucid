@@ -59,6 +59,38 @@ public sealed class DatastoreSkuReaderTests
     }
 
     [Fact]
+    public void TryRead_maps_single_region_when_geo_redundant_is_no_token()
+    {
+        bool parsed = DatastoreSkuReader.TryRead(
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["geoRedundant"] = "no",
+            },
+            out DatastoreSkuTier tier,
+            out string observedSku);
+
+        parsed.Should().BeTrue();
+        tier.Should().Be(DatastoreSkuTier.SingleRegion);
+        observedSku.Should().Be("geoRedundant=false");
+    }
+
+    [Fact]
+    public void TryRead_maps_geo_redundant_when_geo_redundant_is_yes_token()
+    {
+        bool parsed = DatastoreSkuReader.TryRead(
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["geoRedundant"] = "yes",
+            },
+            out DatastoreSkuTier tier,
+            out string observedSku);
+
+        parsed.Should().BeTrue();
+        tier.Should().Be(DatastoreSkuTier.GeoRedundant);
+        observedSku.Should().Be("geoRedundant=true");
+    }
+
+    [Fact]
     public void TryRead_returns_false_when_sku_missing()
     {
         bool parsed = DatastoreSkuReader.TryRead(
