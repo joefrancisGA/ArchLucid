@@ -14,12 +14,13 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
     {
         ArgumentNullException.ThrowIfNull(collectionRun);
         cancellationToken.ThrowIfCancellationRequested();
+        CollectionRun snapshot = CopyHash(collectionRun);
         _runs.AddOrUpdate(
             Key(collectionRun.TenantId, collectionRun.WorkspaceId, collectionRun.ProjectId, collectionRun.RunId),
-            collectionRun,
-            (_, current) => collectionRun.Status == CollectionRunStatus.Running && current.Status != CollectionRunStatus.Running
+            snapshot,
+            (_, current) => snapshot.Status == CollectionRunStatus.Running && current.Status != CollectionRunStatus.Running
                 ? current
-                : collectionRun);
+                : snapshot);
         return Task.CompletedTask;
     }
 
@@ -31,7 +32,7 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
         ArgumentNullException.ThrowIfNull(scope);
 
         CollectionRun? result = _runs.TryGetValue(Key(scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId), out CollectionRun? run)
-            ? run
+            ? CopyHash(run)
             : null;
         return Task.FromResult(result);
     }
@@ -51,6 +52,7 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
             .ThenByDescending(run => run.RunId)
             .Skip(safeOffset)
             .Take(safeLimit)
+            .Select(CopyHash)
             .ToArray();
         return Task.FromResult(result);
     }
@@ -75,6 +77,9 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
             .FirstOrDefault();
         return Task.FromResult(result);
     }
+
+    private static CollectionRun CopyHash(CollectionRun run) =>
+        run.ZipSha256 is byte[] hash ? run with { ZipSha256 = (byte[])hash.Clone() } : run;
 
     private static bool IsInScope(CollectionRun run, ScopeContext scope) =>
         run.TenantId == scope.TenantId &&
