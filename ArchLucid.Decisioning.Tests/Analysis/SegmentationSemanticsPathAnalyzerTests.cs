@@ -60,6 +60,57 @@ public sealed class SegmentationSemanticsPathAnalyzerTests
             .BeTrue();
     }
 
+    [Fact]
+    public void HasPathToSensitiveTarget_includes_datastore_at_max_hop_count()
+    {
+        GraphNode nsg = CreateSegmentationNode("nsg-1");
+        GraphNode n1 = CreateTopologyNode("hop-1", "n1");
+        GraphNode n2 = CreateTopologyNode("hop-2", "n2");
+        GraphNode sql = CreateTopologyNode("sql-pay-prod", "/providers/Microsoft.Sql/servers/sql-pay-prod");
+
+        GraphSnapshot graph = new()
+        {
+            Nodes = [nsg, n1, n2, sql],
+            Edges =
+            [
+                CreateEdge(nsg.NodeId, n1.NodeId),
+                CreateEdge(n1.NodeId, n2.NodeId),
+                CreateEdge(n2.NodeId, sql.NodeId),
+            ],
+        };
+
+        bool found = SegmentationSemanticsPathAnalyzer.HasPathToSensitiveTarget(
+            graph,
+            nsg.NodeId,
+            out GraphNode? target,
+            out int hopCount);
+
+        found.Should().BeTrue();
+        target.Should().Be(sql);
+        hopCount.Should().Be(SegmentationSemanticsPathAnalyzer.MaxHopCount);
+    }
+
+    private static GraphEdge CreateEdge(string fromNodeId, string toNodeId) =>
+        new()
+        {
+            FromNodeId = fromNodeId,
+            ToNodeId = toNodeId,
+            EdgeType = GraphEdgeTypes.ConnectsTo,
+            Weight = 1.0,
+        };
+
+    private static GraphNode CreateSegmentationNode(string nodeId) =>
+        new()
+        {
+            NodeId = nodeId,
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = nodeId,
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_network_security_group",
+            },
+        };
+
     private static GraphNode CreateTopologyNode(string label, string sourceId)
     {
         return new GraphNode
