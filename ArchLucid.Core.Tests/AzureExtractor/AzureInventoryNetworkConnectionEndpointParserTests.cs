@@ -74,6 +74,21 @@ public sealed class AzureInventoryNetworkConnectionEndpointParserTests
     }
 
     [Fact]
+    public void Parse_reads_id_from_json_blob_when_only_ResourceId_key_present()
+    {
+        const string gatewayId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworkGateways/gw-a";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["virtualNetworkGateway1"] = $$"""{"ResourceId":"{{gatewayId}}"}""",
+        };
+
+        AzureInventoryNetworkConnectionEndpointParser.Parse(properties)
+            .Endpoint1ArmId.Should().Be(ArmResourceIdNormalizer.Normalize(gatewayId));
+    }
+
+    [Fact]
     public void Parse_reads_id_from_a_fully_percent_encoded_json_reference()
     {
         const string gatewayId =

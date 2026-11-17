@@ -16,6 +16,22 @@ public sealed class AzureInventoryAccessConnectorTargetParserTests
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stexternal";
 
     [Fact]
+    public void ParseParentArmId_reads_arm_id_from_json_blob_when_inner_key_uses_capital_Id_casing()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["arm.parentId"] =
+                """
+                {"Id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Synapse/workspaces/syn"}
+                """,
+        };
+
+        AzureInventoryAccessConnectorTargetParser.ParseParentArmId(properties)
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(ParentArmId));
+    }
+
+    [Fact]
     public void ParseParentArmId_reads_hydrated_parent_reference()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
