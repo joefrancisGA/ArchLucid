@@ -37,6 +37,7 @@ import { RESOURCE_HUB_INVENTORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-eviden
 import { formatResourceHubFindingsStoredEmptyLine } from "@/lib/infra-evidence/resource-hub-findings-empty-honesty-copy";
 import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
 import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
+import { RESOURCE_HUB_AUDIT_TAB_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-hub-audit-tab-partial-capture-copy";
 import { RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-config-partial-capture-copy";
 import { RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-partial-capture-copy";
 import {
@@ -2676,6 +2677,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="audit" className="mt-4 space-y-3">
+            {isSecureNowProductLine(productLine) ? (
+              <SecureNowInfraPartialCaptureStrip
+                testId="infra-resource-hub-audit-tab-partial-capture"
+                middleLine={RESOURCE_HUB_AUDIT_TAB_PARTIAL_CAPTURE_LINE}
+                cloudConnectionsTestId="infra-resource-hub-audit-tab-partial-capture-cloud"
+                extractUploadTestId="infra-resource-hub-audit-tab-partial-capture-extract"
+              />
+            ) : null}
             {resolvedAuditLineage != null ? (
               <>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
@@ -2767,6 +2776,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     "No audit evidence snapshot rows reference this cloud resource yet.",
                   )}
                 </p>
+                {isSecureNowProductLine(productLine) ? (
+                  <SecureNowInfraPartialCaptureStrip
+                    testId="infra-resource-hub-audit-degraded-partial-capture"
+                    middleLine={RESOURCE_HUB_AUDIT_TAB_PARTIAL_CAPTURE_LINE}
+                    cloudConnectionsTestId="infra-resource-hub-audit-degraded-partial-cloud"
+                    extractUploadTestId="infra-resource-hub-audit-degraded-partial-extract"
+                  />
+                ) : null}
               </section>
             )}
           </EnterpriseTabsContent>

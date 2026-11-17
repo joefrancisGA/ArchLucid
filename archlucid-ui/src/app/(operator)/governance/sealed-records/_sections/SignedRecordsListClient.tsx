@@ -50,6 +50,7 @@ import { SignedRecordsListToolbar } from "./SignedRecordsListToolbar";
 import { SignedRecordsListTableDeferred } from "./signed-records-list-deferred-chunks";
 import { SignedRecordsListEmptyStates } from "./SignedRecordsListEmptyStates";
 import { SignedRecordsListPartialCaptureFootnote } from "./SignedRecordsListPartialCaptureFootnote";
+import { SignedRecordsUnscopedListPartialHonesty } from "./SignedRecordsUnscopedListPartialHonesty";
 import { useSignedRecordsListClient } from "./use-signed-records-list-client";
 
 export default function SignedRecordsListClient() {
@@ -192,6 +193,10 @@ export default function SignedRecordsListClient() {
         showcaseSampleAvailable={showcaseSampleAvailable}
         onClearFilters={clearFilters}
       />
+
+      {!scopedRunFilterActive && hasRows && !loading ? (
+        <SignedRecordsUnscopedListPartialHonesty />
+      ) : null}
 
       {scopedRunFilterActive && showListChrome ? (
         <div className="mb-4 space-y-2" data-testid="signed-records-list-chrome">

@@ -23,6 +23,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { DigestsBrowseHistorySkeleton } from "@/components/digests/DigestsBrowseHistorySkeleton";
 import { DigestsBrowseIncludesPreview } from "@/components/digests/DigestsBrowseIncludesPreview";
+import { DigestsBrowseScopedFilterPartialHonesty } from "@/components/digests/DigestsBrowseScopedFilterPartialHonesty";
 import { DigestsBrowseSetupEmptyPartialHonesty } from "@/components/digests/DigestsBrowseSetupEmptyPartialHonesty";
 import { DigestsBrowseSetupChecklist } from "@/components/digests/DigestsBrowseSetupChecklist";
 import {
@@ -188,9 +189,12 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
               title={DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_TITLE}
               description={DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_DESCRIPTION}
               footer={
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digests-browse-scoped-filter-empty-not-load-failure">
-                  {DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
-                </p>
+                <div className="space-y-2">
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digests-browse-scoped-filter-empty-not-load-failure">
+                    {DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                  <DigestsBrowseScopedFilterPartialHonesty />
+                </div>
               }
             />
           ) : setupChecklist !== null ? (

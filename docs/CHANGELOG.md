@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-17 - Score lift round 69 (batch 34): Connection status, hub audit tab, graph idle, and filter empties
+
+**Outcome.** Cloud connection status empty, digest browse scoped filter empty, compare correlation results, resource hub audit tab and degraded state, Terraform mapping empty, evidence graph idle, and sealed records filter and unscoped list repeat partial-capture discipline.
+
+**Surfaces.** Connection status, digest scoped filter, compare correlation results, hub audit tab, Terraform mapping empty, evidence graph idle, sealed records filter and unscoped list, honesty and mounted contract tests.
+
 ## 2026-11-17 - Score lift round 68 (batch 33): Approval queue, needs attention, hub config, and browse partial capture
 
 **Outcome.** Governance approval workflow empty, needs-attention all-clear inbox, resource hub configuration empty, remediation workbench waves empty, digest browse setup empty, audit evidence lookup, compare insufficient-finalized, and sealed records list repeat partial-capture discipline.

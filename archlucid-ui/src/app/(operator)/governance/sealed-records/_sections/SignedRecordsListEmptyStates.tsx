@@ -20,6 +20,7 @@ import {
   resolveSignedRecordsListEmptySecondaryHref,
 } from "./signed-records-list-copy";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { SignedRecordsFilterEmptyPartialHonesty } from "@/app/(operator)/governance/sealed-records/_sections/SignedRecordsFilterEmptyPartialHonesty";
 import { SIGNED_RECORDS_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/governance/signed-records-empty-partial-capture-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -88,15 +89,18 @@ export function SignedRecordsListEmptyStates({
         title={SIGNED_RECORDS_LIST_FILTER_NO_MATCH_TITLE}
         description={SIGNED_RECORDS_LIST_FILTER_NO_MATCH_BODY}
         footer={
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            data-testid="signed-records-list-clear-filters"
-            onClick={onClearFilters}
-          >
-            {SIGNED_RECORDS_LIST_FILTER_CLEAR_ACTION}
-          </Button>
+          <div className="space-y-2">
+            <SignedRecordsFilterEmptyPartialHonesty />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              data-testid="signed-records-list-clear-filters"
+              onClick={onClearFilters}
+            >
+              {SIGNED_RECORDS_LIST_FILTER_CLEAR_ACTION}
+            </Button>
+          </div>
         }
       />
     );
