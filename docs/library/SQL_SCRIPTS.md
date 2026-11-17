@@ -217,6 +217,7 @@ sequenceDiagram
 | **335_DropUnusedFineTunedModelRegistryEntries.sql** | **`DROP TABLE dbo.FineTunedModelRegistryEntries`** (267 reserved shell; never written). **`FineTuningTrainingExportAudits`** stays. Rollback: **`Rollback/R335_*.sql`**. |
 | **414_VerifiedRemediationControlAssociations.sql** | Identifier row for a verified remediation instance, its verification inventory snapshot, and a control. No payload. Rollback: **`Rollback/R414_VerifiedRemediationControlAssociations.sql`**. |
 | **422_SecurityEvidencePathRoutingPrincipalWidth.sql** | Widens the SecureNow routing principal to match inventory tag values. Rollback: **`Rollback/R422_SecurityEvidencePathRoutingPrincipalWidth.sql`**. |
+| **423_SecurityEvidencePathRoutingReferenceWidth.sql** | Widens the SecureNow routing source reference to preserve the full inventory resource ID. Rollback: **`Rollback/R423_SecurityEvidencePathRoutingReferenceWidth.sql`**. |
 
 **Note:** Authority-chain tables also appear in **`ArchLucid.sql`** for Persistence bootstrap parity.
 
