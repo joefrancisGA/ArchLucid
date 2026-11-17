@@ -36,6 +36,6 @@ public sealed class CachingTenantIdentityProviderConfigurationRepository(
         await HotPathCacheEviction.RemoveTenantIdentityProviderConfigurationAsync(
             _hotPathReadCache,
             record.TenantId,
-            cancellationToken);
+            CancellationToken.None);
     }
 }
