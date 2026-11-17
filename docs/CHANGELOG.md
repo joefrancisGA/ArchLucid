@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-17 - Score lift round 64 (batch 29): Export partial capture, compare pickers, and hub findings honesty
+
+**Outcome.** Golden manifest and run deliverables show partial-capture recovery when exports block. Compare run pickers and insufficient-finalized empty name partial inventory. Resource hub findings empty, factory priority queue header, digest subscriptions empty, and first-review disabled CTAs repeat partial-capture discipline.
+
+**Surfaces.** Golden manifest export, run deliverables, compare pickers, resource hub findings, remediation factory priority queue, digest subscriptions, first-review guide, honesty and mounted contract tests.
+
 ## 2026-11-16 - Score lift round 63 (batch 28): Compare partial inventory, digest scoped empty, and attack-path table honesty
 
 **Outcome.** Compare results name partial SecureNow inventory capture. Digest browse distinguishes scoped-review filter-empty from setup empty and load failure. Attack path report adds table partial-capture honesty and truncated path chip labels. Infrastructure Ask full page mirrors drawer partial-capture recovery. Remediation patterns filter-empty and decision register filter-empty repeat not-load-failure discipline.

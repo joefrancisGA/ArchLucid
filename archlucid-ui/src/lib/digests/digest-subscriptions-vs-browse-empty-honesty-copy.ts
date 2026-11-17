@@ -1,0 +1,2 @@
+export const DIGEST_SUBSCRIPTIONS_VS_BROWSE_EMPTY_HONESTY_LINE =
+  "An empty subscriptions list after a successful read is not the same as a failed load or as an empty generated-digest browse — use the Browse tab to inspect digest history." as const;

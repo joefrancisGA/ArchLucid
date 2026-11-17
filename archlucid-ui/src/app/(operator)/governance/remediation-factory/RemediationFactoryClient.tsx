@@ -23,6 +23,7 @@ import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-ca
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 import { SECURENOW_PARTIAL_CAPTURE_RANKED_PATHS_LINE } from "@/lib/product-line/securenow-partial-capture-honesty-copy";
+import { REMEDIATION_FACTORY_PRIORITY_QUEUE_PARTIAL_RANK_LINE } from "@/lib/remediation-factory/remediation-factory-priority-queue-partial-rank-copy";
 import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/SecureNowPilotWalkthroughBanner";
@@ -888,6 +889,11 @@ export function RemediationFactoryClient() {
             <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-findings-audience-line">
               These are SecureNow findings for the current inventory snapshot.
             </p>
+            {productLine === "security" && latestCapturePartial ? (
+              <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-priority-queue-partial-rank">
+                {REMEDIATION_FACTORY_PRIORITY_QUEUE_PARTIAL_RANK_LINE}
+              </p>
+            ) : null}
           </>
         )}
         {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 ? null : rankedQuery.isError ? (
