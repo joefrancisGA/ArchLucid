@@ -24640,6 +24640,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-08-25 thorough hunt #1 (dry): cheap-disproved cancel token and background-path hypotheses.
 
 ## Zone: architecture-intelligence-orchestrator
+**Hunts:** 1 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
+
+2026-11-17 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Re-read closed-loop orchestrator, `ReviewResultCache` eviction/tombstone/pin paths, and `ReviewCacheManifestBuilder`. Scoped filter **512/512** (`RunAnalyzers=false`). No hunt-ready promotion; seeded five `(candidate)` rows below. Private beta: n/a.
+
+- [ ] (candidate) `ReviewResultCache.Set` — when `MaxEntries` is reached and `TryEvictOldestUnpinnedEntry` fails, insert returns silently so coalesced leaders can complete without cache write; locus: `Set` capacity gate; input: 128 unpinned entries + pin reservation storm; wrong outcome: followers miss cache hit on identical manifest; reachability: concurrent closed-loop reviews under cache pressure.
+- [ ] (candidate) `ReviewResultCache.InvalidateForRun` — tombstone cap `MaxTombstonedRunIds` may refuse new tombstones when every pending run still has pinned storage keys, leaving stale hits after invalidate; locus: `AddTombstonedRunId` early return; input: 64+ distinct runs invalidated while pins held; wrong outcome: resurrected cache entries for logically invalidated runs; reachability: long-running coalesce with deferred flush.
+- [ ] (candidate) `ReviewResultCache.TryGet` — TTL refresh for pinned expired entries extends `ExpiresUtc` without revalidating tombstone added during pin window; locus: pinned TTL slide; input: invalidate while entry pinned then get after expiry boundary; wrong outcome: blocked run id served from cache; reachability: operator invalidates review then immediate continue with same run id.
+- [ ] (candidate) `ReviewCacheManifestBuilder` — continue vs full-run manifests may hash-equivalent on whitespace-normalized priorities while `ReuseReason` differs, splitting coalesce unnecessarily; locus: manifest field selection; input: continue call with whitespace-only priorities vs prior full run empty list; wrong outcome: cache miss + duplicate expensive reasoning; reachability: continue-existing-run API on architecture intelligence page.
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — omitted client `RunId` on first call vs supplied id on immediate retry may partition cache keys so success path appears as cold run despite identical sources; locus: run id omission contract; input: omit then resubmit with generated id; wrong outcome: duplicate model spend; reachability: UI retry after network blip before adopting run id.
 
 2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; re-read tombstone compare (`IsRunIdTombstoned` / `ClosedLoopRunIdComparer`), client `RunId` cache partition contract, single-flight leader `finally` + follower attach, `ReviewCacheKeyBuilder.Build` field set, and continue publish coalesce partitioning; seeded five mechanism-backed `(candidate)` rows below; scoped filter 512/512 (`RunAnalyzers=false`); no production code changed.
 
@@ -25511,15 +25520,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (invalid) `ClosedLoopFramingAnswersNormalizer` — framing answer keys differing only by Unicode compatibility case folding — **cheap-disproof 2026-10-21 seed hunt:** keys merge via `StringComparer.OrdinalIgnoreCase` (ASCII casing); Turkish `I`/`ı` compatibility folding is not a reachable OpenAPI/UI framing-key shape in this path.
 
 - **id:** architecture-intelligence-orchestrator
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-11-17
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
