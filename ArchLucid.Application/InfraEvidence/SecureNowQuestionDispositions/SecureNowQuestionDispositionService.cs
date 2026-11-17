@@ -234,7 +234,9 @@ public sealed class SecureNowQuestionDispositionService(
                 .ToList(),
         };
 
-        await dispositionRepository.UpsertAsync(reopened, cancellationToken);
+        if (!await dispositionRepository.TryUpsertAsync(reopened, existing.AuditEntries.Count, cancellationToken))
+            return Failed("Question disposition changed. Reload it before saving.");
+
         await WriteAuditAsync(scope, snapshotId, actorKey, "Reopened", reopened, request.Reason, cancellationToken);
         return new SecureNowQuestionDispositionMutationResult { Succeeded = true, Record = reopened };
     }
@@ -329,7 +331,9 @@ public sealed class SecureNowQuestionDispositionService(
                 .ToList(),
         };
 
-        await dispositionRepository.UpsertAsync(record, cancellationToken);
+        if (!await dispositionRepository.TryUpsertAsync(record, existing?.AuditEntries.Count, cancellationToken))
+            return Failed("Question disposition changed. Reload it before saving.");
+
         await WriteAuditAsync(scope, snapshotId, actorKey, status.ToString(), record, request.Reason, cancellationToken);
         return new SecureNowQuestionDispositionMutationResult { Succeeded = true, Record = record };
     }
