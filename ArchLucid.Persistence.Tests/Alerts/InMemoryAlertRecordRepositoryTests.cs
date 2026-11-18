@@ -108,7 +108,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
     }
 
     [SkippableFact]
-    public async Task UpdateAsync_replaces_existing_alert_by_AlertId()
+    public async Task UpdateAsync_changes_only_lifecycle_fields()
     {
         InMemoryAlertRecordRepository repo = new();
         Guid alertId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
@@ -123,7 +123,8 @@ public sealed class InMemoryAlertRecordRepositoryTests
         AlertRecord? loaded = await repo.GetByIdAsync(Scope, alertId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Status.Should().Be(AlertStatus.Resolved);
-        loaded.Title.Should().Be("updated");
+        loaded.Title.Should().Be(original.Title);
+        loaded.CreatedUtc.Should().Be(original.CreatedUtc);
     }
 
     [SkippableFact]
