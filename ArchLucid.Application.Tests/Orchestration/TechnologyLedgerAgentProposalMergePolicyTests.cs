@@ -1672,6 +1672,85 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
             .BeNull();
     }
 
+    [Fact]
+    public void Resolve_keeps_distinct_topology_subkeys_when_subkey_differs_only_by_zero_width_space()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Azure);
+        existing.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal:p1:\u200Bsvc-api";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_keeps_distinct_refs_when_topology_prefix_contains_format_character()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Azure);
+        existing.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal\u200B:p1:svc-api";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_inserts_topology_candidate_when_agent_assumed_row_carries_inventory_ref()
+    {
+        TechnologyLedgerEntry agentInventoryAssumed = CreateCandidate(CloudProvider.Azure);
+        agentInventoryAssumed.Source = TechnologyLedgerSource.AgentProposed;
+        agentInventoryAssumed.EvidenceRef = "inventory:arm:sql";
+        agentInventoryAssumed.TechnologyName = "Azure SQL";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal:p2:db";
+        candidate.TechnologyName = "Azure SQL Database";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [agentInventoryAssumed])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_inserts_when_locked_neutral_evidence_chosen_and_candidate_name_is_whitespace_only()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.None);
+        chosen.TechnologyName = "PostgreSQL";
+        chosen.EvidenceRef = "inventory:postgresql";
+        chosen.Source = TechnologyLedgerSource.Evidence;
+        chosen.IsLocked = true;
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "   ";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:runtime";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_skips_cross_provider_candidate_when_topology_evidence_ref_matches_assumed_row()
+    {
+        TechnologyLedgerEntry awsAssumed = CreateCandidate(CloudProvider.Aws);
+        awsAssumed.EvidenceRef = "agentTopologyProposal:p1:shared";
+        awsAssumed.TechnologyName = "shared";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal:p1:shared";
+        candidate.TechnologyName = null!;
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [awsAssumed])
+            .Should()
+            .BeNull();
+    }
+
     private static TechnologyLedgerEntry CreateChosen(CloudProvider provider) =>
         new()
         {
