@@ -260,6 +260,7 @@ public static class TopologyProposalRelationshipEdgeMapper
                 else
                 {
                     // Declared aliases override inferred labels, but cannot remap a real topology node ID.
+
                     if (!topologyNodes.Any(node =>
                             string.Equals(node.NodeId, trimmedKey, StringComparison.OrdinalIgnoreCase)))
                         endpointKeyToNodeId[trimmedKey] = resolvedNodeId;
