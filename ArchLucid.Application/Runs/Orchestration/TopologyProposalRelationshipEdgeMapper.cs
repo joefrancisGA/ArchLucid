@@ -282,6 +282,7 @@ public static class TopologyProposalRelationshipEdgeMapper
 
         // The shared leaf stays in the ambiguous fan-out map. Leaving it as a unique key
         // made a different module prefix resolve to whichever module was indexed first.
+
         foreach (string sharedLeaf in ambiguousSharedTerraformLeafNodeIds.Keys)
             endpointKeyToNodeId.Remove(sharedLeaf);
 
