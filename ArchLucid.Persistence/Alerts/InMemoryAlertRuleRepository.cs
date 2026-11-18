@@ -34,7 +34,11 @@ public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
             // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
             int i = _items.FindIndex(x => x.RuleId == rule.RuleId && SameScope(x, rule));
             if (i >= 0)
-                _items[i] = Copy(rule);
+            {
+                AlertRule updated = Copy(rule);
+                updated.CreatedUtc = _items[i].CreatedUtc;
+                _items[i] = updated;
+            }
         }
 
         return Task.CompletedTask;
