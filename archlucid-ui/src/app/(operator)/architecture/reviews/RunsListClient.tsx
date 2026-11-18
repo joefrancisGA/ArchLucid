@@ -51,6 +51,8 @@ import { RunsListSearchFilterEmptyPartialHonesty } from "./RunsListSearchFilterE
 import { REVIEWS_HUB_PACKAGE_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-package-scope-filter-empty-not-load-failure-copy";
 import { REVIEWS_HUB_SEARCH_AND_PACKAGE_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-search-and-package-scope-filter-empty-not-load-failure-copy";
 import { RunsListPackageScopeFilterEmptyPartialHonesty } from "./RunsListPackageScopeFilterEmptyPartialHonesty";
+import { REVIEWS_HUB_LIST_CONTEXT_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-list-context-filter-empty-not-load-failure-copy";
+import { RunsListListContextFilterEmptyPartialHonesty } from "./RunsListListContextFilterEmptyPartialHonesty";
 import { inspectorTitle } from "./runs-list-row-presentation";
 import { shouldIgnoreRunsListRowActivation } from "./runs-list-row-activation";
 
@@ -442,6 +444,20 @@ export function RunsListClient(props: RunsListClientProps) {
                   {REVIEWS_HUB_PACKAGE_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
                 </p>
                 <RunsListPackageScopeFilterEmptyPartialHonesty />
+              </div>
+            ) : null}
+            {showBuyerPackageCards ? null : filteredSorted.length === 0
+            && listContextFilter !== null
+            && listContextFilter.trim().length > 0
+            && listContextFilter !== "orphan-candidates"
+            && filterText.trim().length === 0
+            && !(buyerPolished === true && buyerPackageScope !== "all")
+            && sourceRunCount > 0 ? (
+              <div className="space-y-2" data-testid="reviews-hub-list-context-filter-empty">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-list-context-filter-empty-not-load-failure">
+                  {REVIEWS_HUB_LIST_CONTEXT_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <RunsListListContextFilterEmptyPartialHonesty />
               </div>
             ) : null}
             {showBuyerPackageCards ? null : filteredSorted.length === 0 ? (

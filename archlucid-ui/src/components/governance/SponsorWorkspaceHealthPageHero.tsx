@@ -9,6 +9,7 @@ import {
   SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE,
   SPONSOR_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL,
 } from "@/lib/sponsor-workspace-health-page-copy";
+import { WORKSPACE_HEALTH_PAGE_REFRESH_DISCIPLINE_LINE } from "@/lib/insights/workspace-health-page-refresh-discipline-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type SponsorWorkspaceHealthPageHeroProps = {
@@ -44,6 +45,12 @@ export function SponsorWorkspaceHealthPageHero({
           </HeadingTag>
           <p className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             {executiveWorkspaceHealthPageLead(buyerPolishedShell)}
+          </p>
+          <p
+            className={cn("m-0 max-w-3xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="sponsor-workspace-health-page-refresh-discipline"
+          >
+            {WORKSPACE_HEALTH_PAGE_REFRESH_DISCIPLINE_LINE}
           </p>
         </div>
         <div
