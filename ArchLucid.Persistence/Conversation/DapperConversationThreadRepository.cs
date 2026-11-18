@@ -92,7 +92,7 @@ public sealed class DapperConversationThreadRepository(
                              AND WorkspaceId = @WorkspaceId
                              AND ProjectId = @ProjectId
                              AND ArchivedUtc IS NULL
-                           ORDER BY LastUpdatedUtc DESC;
+                           ORDER BY LastUpdatedUtc DESC, ThreadId ASC;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -126,7 +126,7 @@ public sealed class DapperConversationThreadRepository(
                                  AND WorkspaceId = @WorkspaceId
                                  AND ProjectId = @ProjectId
                                  AND ArchivedUtc IS NULL
-                               ORDER BY LastUpdatedUtc DESC
+                               ORDER BY LastUpdatedUtc DESC, ThreadId ASC
                                OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
                                """;
 
