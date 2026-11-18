@@ -140,11 +140,11 @@ public sealed class InMemoryRunExportBlobPushOutboxRepository : IRunExportBlobPu
         ct.ThrowIfCancellationRequested();
         int take = CoordinationOutboxRepositoryCore.ClampDequeueBatch(maxBatch);
         int lease = CoordinationOutboxRepositoryCore.ClampLeaseDurationSeconds(leaseDurationSeconds);
-        DateTime now = _utcNow();
         TimeSpan leaseSpan = TimeSpan.FromSeconds(lease);
 
         lock (_sync)
         {
+            DateTime now = _utcNow();
             List<Stored> batch = CoordinationOutboxRepositoryCore
                 .OrderEligibleForDequeue(
                     _rows,
