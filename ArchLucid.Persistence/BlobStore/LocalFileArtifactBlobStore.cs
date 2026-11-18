@@ -78,6 +78,8 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
 
     public async Task<string?> ReadAsync(string blobUri, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         if (string.IsNullOrWhiteSpace(blobUri))
             return null;
 
