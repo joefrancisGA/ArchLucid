@@ -42,4 +42,15 @@ public sealed class InMemorySentEmailLedgerTests
 
         dup.Should().BeFalse();
     }
+    [SkippableFact]
+    public async Task IsRecordedAsync_only_returns_true_for_the_recorded_tenant()
+    {
+        InMemorySentEmailLedger ledger = new();
+        Guid recordedTenant = Guid.NewGuid();
+        Guid otherTenant = Guid.NewGuid();
+        await ledger.TryRecordSentAsync(new("key", recordedTenant, "t", "p", null), CancellationToken.None);
+
+        (await ledger.IsRecordedAsync(recordedTenant, "key", CancellationToken.None)).Should().BeTrue();
+        (await ledger.IsRecordedAsync(otherTenant, "key", CancellationToken.None)).Should().BeFalse();
+    }
 }
