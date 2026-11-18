@@ -10,7 +10,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
 
     public Task CreateAsync(AlertRoutingSubscription subscription, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
             _items.Add(Copy(subscription));
         return Task.CompletedTask;
@@ -18,7 +18,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
 
     public Task UpdateAsync(AlertRoutingSubscription subscription, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             AlertRoutingSubscription? stored = _items.Find(x =>
@@ -65,7 +65,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             AlertRoutingSubscription? stored = _items.FirstOrDefault(x =>
@@ -109,7 +109,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<AlertRoutingSubscription> result = _items
@@ -127,7 +127,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<AlertRoutingSubscription> result = _items
