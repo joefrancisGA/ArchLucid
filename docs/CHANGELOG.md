@@ -5,6 +5,11 @@
 
 # ArchLucid changelog
 
+## 2026-11-18 - Score lift round 79 (batch 44): CI score-lift chain, reviews package scope, golden disabled export, findings register plus NL facets, mounted depth
+
+**Outcome.** CI runs the score-lift assert chain through round 79. Reviews hub package scope and combined search plus scope filter empties, golden manifest disabled-export affordance, and findings queue combined register plus NL facet filter footers repeat not-failure and partial-capture discipline. Mounted contract depth test locks rounds 73–78.
+
+**Surfaces.** CI doc-markdown-links job, architecture reviews list, golden manifest export menu, governance findings queue, honesty and mounted contract tests.
 ## 2026-11-18 - Score lift round 78 (batch 43): Golden export pre-block, reviews search filter, findings register filter, graph load RP, policy pack detail RP, and score-lift umbrella
 
 **Outcome.** Golden manifest sponsor-blocked export shows commit-before-seal before the blocked reason. Reviews hub search filter-empty, findings register filter-no-match, evidence graph hard-failure Report Problem, and policy pack detail load Report Problem repeat not-failure and partial-capture discipline. CI gains an umbrella assert for score-lift rounds 65–77.
@@ -2597,3 +2602,5 @@ Added aggregate run explanation endpoint (`/v1/explain/runs/{runId}/aggregate`) 
 1. Add a new `## <version> ï¿½ <title>` section **above** the previous one.
 2. Use the subsections: **Area**, **Key deliverables**, and (optionally) **Intentionally deferred**.
 3. Keep entries to a navigable summary; put fine-grained prompt records in a new `docs/archive/CHANGE_SET_<id>.md` file and link from here.
+
+

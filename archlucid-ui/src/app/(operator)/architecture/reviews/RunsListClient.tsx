@@ -48,6 +48,9 @@ import { BuyerPackageScopeFilterChips } from "./BuyerPackageScopeFilterChips";
 import { RunsListWorkQueueTable } from "./RunsListWorkQueueTable";
 import { REVIEWS_HUB_SEARCH_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-search-filter-empty-not-load-failure-copy";
 import { RunsListSearchFilterEmptyPartialHonesty } from "./RunsListSearchFilterEmptyPartialHonesty";
+import { REVIEWS_HUB_PACKAGE_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-package-scope-filter-empty-not-load-failure-copy";
+import { REVIEWS_HUB_SEARCH_AND_PACKAGE_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-search-and-package-scope-filter-empty-not-load-failure-copy";
+import { RunsListPackageScopeFilterEmptyPartialHonesty } from "./RunsListPackageScopeFilterEmptyPartialHonesty";
 import { inspectorTitle } from "./runs-list-row-presentation";
 import { shouldIgnoreRunsListRowActivation } from "./runs-list-row-activation";
 
@@ -414,6 +417,31 @@ export function RunsListClient(props: RunsListClientProps) {
                   {REVIEWS_HUB_SEARCH_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
                 </p>
                 <RunsListSearchFilterEmptyPartialHonesty />
+              </div>
+            ) : null}
+            {showBuyerPackageCards ? null : filteredSorted.length === 0
+            && buyerPolished === true
+            && buyerPackageScope !== "all"
+            && filterText.trim().length > 0
+            && sourceRunCount > 0 ? (
+              <div className="space-y-2" data-testid="reviews-hub-search-and-package-scope-filter-empty">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-search-and-package-scope-filter-empty-not-load-failure">
+                  {REVIEWS_HUB_SEARCH_AND_PACKAGE_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <RunsListSearchFilterEmptyPartialHonesty />
+                <RunsListPackageScopeFilterEmptyPartialHonesty />
+              </div>
+            ) : null}
+            {showBuyerPackageCards ? null : filteredSorted.length === 0
+            && buyerPolished === true
+            && buyerPackageScope !== "all"
+            && filterText.trim().length === 0
+            && sourceRunCount > 0 ? (
+              <div className="space-y-2" data-testid="reviews-hub-package-scope-filter-empty">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-package-scope-filter-empty-not-load-failure">
+                  {REVIEWS_HUB_PACKAGE_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <RunsListPackageScopeFilterEmptyPartialHonesty />
               </div>
             ) : null}
             {showBuyerPackageCards ? null : filteredSorted.length === 0 ? (
