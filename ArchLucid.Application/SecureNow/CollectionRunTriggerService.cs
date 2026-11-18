@@ -65,6 +65,7 @@ public sealed class CollectionRunTriggerService(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
         ArgumentNullException.ThrowIfNull(subscriptionIds);
+        cancellationToken.ThrowIfCancellationRequested();
 
         SecureNowCapacityOptions limits = capacityOptions?.Value ?? new SecureNowCapacityOptions();
         limits.Validate();

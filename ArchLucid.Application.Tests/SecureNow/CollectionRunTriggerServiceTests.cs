@@ -17,6 +17,23 @@ namespace ArchLucid.Application.Tests.SecureNow;
 public sealed class CollectionRunTriggerServiceTests
 {
     [Fact]
+    public async Task Pre_canceled_request_does_not_consume_admission_capacity()
+    {
+        Mock<ICollectionRunAdmissionCounter> counter = new(MockBehavior.Strict);
+        CollectionRunTriggerService service = new(
+            Mock.Of<ICollectionRunRepository>(),
+            Mock.Of<ICollectionRunTrigger>(),
+            new InMemoryCollectionRunTriggerIdempotencyStore(),
+            Mock.Of<IAuditService>(),
+            counter.Object);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            service.TriggerAsync(new ScopeContext(), "key", ["sub"], new CancellationToken(canceled: true)));
+
+        counter.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Durable_duplicate_without_persisted_run_never_replays_external_start()
     {
         ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
