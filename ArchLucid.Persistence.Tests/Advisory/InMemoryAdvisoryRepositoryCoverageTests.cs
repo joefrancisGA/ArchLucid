@@ -40,6 +40,16 @@ public sealed class InMemoryAdvisoryRepositoryCoverageTests
     }
 
     [Fact]
+    public async Task Advisory_scan_execution_repository_honors_canceled_history_read()
+    {
+        InMemoryAdvisoryScanExecutionRepository sut = new();
+        CancellationToken token = new(canceled: true);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            sut.ListByScheduleAsync(new ScopeContext(), Guid.NewGuid(), take: 1, token));
+    }
+
+    [Fact]
     public async Task Advisory_scan_execution_repository_publishes_changes_only_after_update()
     {
         InMemoryAdvisoryScanExecutionRepository sut = new();
