@@ -22,6 +22,7 @@ internal static class PrivilegePathMaterializer
             // Only anchor this hop to an exact resource in the same captured snapshot.
             // Missing/non-resource endpoints must remain unassigned, not inferred.
             Guid? cloudResourceId = null;
+
             if (resourcesByArmId is not null
                 && resourcesByArmId.TryGetValue(hop.ToNodeId, out AzureInventoryResourceRecord? resource)
                 && resource.CloudResourceId is Guid resourceId
