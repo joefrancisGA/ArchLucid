@@ -21,7 +21,9 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
                              AND target.WorkspaceId = source.WorkspaceId
                              AND target.ProjectId = source.ProjectId
                              AND target.RunId = source.RunId
-                           WHEN MATCHED AND (@Status <> @RunningStatus OR target.Status = @RunningStatus) THEN
+                           WHEN MATCHED
+                                AND (@Status <> @RunningStatus OR target.Status = @RunningStatus)
+                                AND (target.Status <> @ImportedStatus OR @Status = @ImportedStatus) THEN
                                UPDATE SET AgentVersion = @AgentVersion,
                                           Schedule = @Schedule,
                                           StartedUtc = @StartedUtc,
@@ -55,6 +57,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
                 collectionRun.FinishedUtc,
                 Status = (int)collectionRun.Status,
                 RunningStatus = (int)CollectionRunStatus.Running,
+                ImportedStatus = (int)CollectionRunStatus.Imported,
                 collectionRun.SubscriptionsCoveredJson,
                 collectionRun.ErrorSummary,
                 collectionRun.ZipPath,
