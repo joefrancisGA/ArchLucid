@@ -25,7 +25,7 @@ export function resolveSecureNowCollectionSetupSteps(
     },
     {
       id: "capture",
-      label: "Latest capture succeeded",
+      label: "Successful capture available",
       complete: input.hasSuccessfulPull,
     },
   ];
