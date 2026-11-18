@@ -107,6 +107,7 @@ import { RemediationFactoryExecutiveMetricsLoadFailurePartialHonesty } from "./R
 import { RemediationFactoryRankedPathsLoadFailurePartialHonesty } from "./RemediationFactoryRankedPathsLoadFailurePartialHonesty";
 import { RemediationFactoryRankedPathsEmptyPartialHonesty } from "./RemediationFactoryRankedPathsEmptyPartialHonesty";
 import { RemediationFactoryRankedPathsViewFilterEmptyPartialHonesty } from "./RemediationFactoryRankedPathsViewFilterEmptyPartialHonesty";
+import { RemediationFactorySimulatorLoadFailurePartialHonesty } from "./RemediationFactorySimulatorLoadFailurePartialHonesty";
 import { REMEDIATION_FACTORY_RANKED_PATHS_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/remediation-factory-ranked-paths-empty-not-load-failure-copy";
 import { REMEDIATION_FACTORY_RANKED_PATHS_VIEW_FILTER_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/remediation-factory-ranked-paths-view-filter-not-load-failure-copy";
 import { RemediationFactoryRankedPathsShortcutHints } from "./RemediationFactoryRankedPathsShortcutHints";
@@ -1165,7 +1166,23 @@ export function RemediationFactoryClient() {
             </Button>
           </>
         )}
-        {simulatorError ? <StatusTag kind="needs-attention" label={simulatorError} /> : null}
+        {simulatorError ? (
+          <div className="space-y-2" data-testid="remediation-simulator-load-failure">
+            <StatusTag kind="needs-attention" label={simulatorError} />
+            {productLine === "security" ? (
+              <>
+                <FatalPageReportProblemSupportRow
+                  surfaceId="compliance-remediation-factory-simulator-explain-failed"
+                  errorTitle="Remediation factory score simulator"
+                  errorCode="remediation-factory-simulator-explain-failed"
+                  correlationId={null}
+                  httpStatus={null}
+                />
+                <RemediationFactorySimulatorLoadFailurePartialHonesty />
+              </>
+            ) : null}
+          </div>
+        ) : null}
         {simulatorExplanation != null
           && simulatorGeneratedAt != null
           && simulatorFindingId !== null
