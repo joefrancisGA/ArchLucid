@@ -62,10 +62,11 @@ public sealed class AgentTraceOrphanBlobCleanupService(
         DateTimeOffset cutoff,
         CancellationToken cancellationToken)
     {
+        string containerDir = AgentTraceOrphanBlobEnumerator.ResolveLocalContainerDirectory(blobOpts);
         Dictionary<string, List<string>> filesByRunPrefix =
-            AgentTraceOrphanBlobEnumerator.EnumerateLocalBlobsByRunPrefix(blobOpts, cutoff, cancellationToken);
+            AgentTraceOrphanBlobEnumerator.EnumerateLocalBlobsByRunPrefix(containerDir, cutoff, cancellationToken);
 
-        return await DeleteOrphanedRunPrefixesAsync(filesByRunPrefix, cancellationToken).ConfigureAwait(false);
+        return await DeleteOrphanedRunPrefixesAsync(filesByRunPrefix, containerDir, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<int> DeleteOrphanedAzureBlobsAsync(
@@ -112,6 +113,7 @@ public sealed class AgentTraceOrphanBlobCleanupService(
 
     private async Task<int> DeleteOrphanedRunPrefixesAsync(
         Dictionary<string, List<string>> filesByRunPrefix,
+        string containerDir,
         CancellationToken cancellationToken)
     {
         int deleted = 0;
@@ -124,7 +126,7 @@ public sealed class AgentTraceOrphanBlobCleanupService(
                     .ConfigureAwait(false))
                 continue;
 
-            deleted += AgentTraceOrphanBlobDeleter.DeleteLocalOrphanFiles(filePaths);
+            deleted += AgentTraceOrphanBlobDeleter.DeleteLocalOrphanFiles(filePaths, containerDir);
         }
 
         AgentTraceOrphanBlobDeleter.LogLocalDeletion(_logger, deleted);
