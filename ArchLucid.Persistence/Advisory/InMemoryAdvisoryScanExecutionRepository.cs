@@ -74,7 +74,7 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
             List<AdvisoryScanExecution> result = _items
                 .Where(x => x.ScheduleId == scheduleId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.StartedUtc)
-                .Take(take)
+                .Take(Math.Clamp(take, 1, 200))
                 .Select(Copy)
                 .ToList();
 
