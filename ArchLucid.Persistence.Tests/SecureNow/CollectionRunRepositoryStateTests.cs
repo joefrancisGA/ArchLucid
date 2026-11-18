@@ -35,6 +35,39 @@ public sealed class CollectionRunRepositoryStateTests(SqlServerPersistenceFixtur
         (await repository.GetAsync(scope, run.RunId)).Should().BeNull();
     }
 
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task In_memory_breaks_timestamp_ties_in_sql_run_id_order()
+    {
+        InMemoryCollectionRunRepository repository = new();
+        byte[] hash = new byte[32];
+        CollectionRun first = CreateRunningRun() with
+        {
+            RunId = Guid.Parse("20000000-0000-0000-0000-000000000001"),
+            Status = CollectionRunStatus.Imported,
+            ImportedSnapshotId = Guid.NewGuid(),
+            ZipSha256 = hash,
+        };
+        CollectionRun second = first with
+        {
+            RunId = Guid.Parse("10000000-0000-0000-0000-000000000002"),
+            ImportedSnapshotId = Guid.NewGuid(),
+        };
+        ScopeContext scope = new()
+        {
+            TenantId = first.TenantId,
+            WorkspaceId = first.WorkspaceId,
+            ProjectId = first.ProjectId,
+        };
+
+        await repository.UpsertAsync(first);
+        await repository.UpsertAsync(second);
+
+        IReadOnlyList<CollectionRun> page = await repository.ListAsync(scope, offset: 0, limit: 1);
+        page.Should().ContainSingle().Which.RunId.Should().Be(second.RunId);
+        (await repository.FindImportedSnapshotIdByHashAsync(scope, hash)).Should().Be(second.ImportedSnapshotId);
+    }
+
     [SkippableFact]
     [Trait("Category", "SqlServerContainer")]
     public async Task Sql_preserves_import_when_the_running_write_arrives_late()

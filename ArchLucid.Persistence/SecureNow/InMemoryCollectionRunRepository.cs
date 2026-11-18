@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Data.SqlTypes;
 
 using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Scoping;
@@ -51,7 +52,7 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
         IReadOnlyList<CollectionRun> result = _runs.Values
             .Where(run => IsInScope(run, scope))
             .OrderByDescending(run => run.StartedUtc)
-            .ThenByDescending(run => run.RunId)
+            .ThenByDescending(run => new SqlGuid(run.RunId))
             .Skip(safeOffset)
             .Take(safeLimit)
             .Select(CopyHash)
@@ -75,7 +76,7 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
                 run.ZipSha256 is not null &&
                 run.ZipSha256.SequenceEqual(zipSha256))
             .OrderByDescending(run => run.StartedUtc)
-            .ThenByDescending(run => run.RunId)
+            .ThenByDescending(run => new SqlGuid(run.RunId))
             .Select(run => run.ImportedSnapshotId)
             .FirstOrDefault();
         return Task.FromResult(result);
