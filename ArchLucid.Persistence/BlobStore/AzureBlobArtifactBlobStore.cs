@@ -68,6 +68,8 @@ public sealed class AzureBlobArtifactBlobStore(
 
     public async Task<string?> ReadAsync(string blobUri, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         if (string.IsNullOrWhiteSpace(blobUri))
             return null;
 
