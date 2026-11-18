@@ -20,6 +20,8 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
         ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
         ArgumentException.ThrowIfNullOrWhiteSpace(blobName);
 
+        ct.ThrowIfCancellationRequested();
+
         string safeContainer = SanitizeSegment(containerName);
         string scopedLogical = ArtifactBlobTenantPaths.PrefixWithTenant(_scopeProvider, blobName);
         string safeName = SanitizeBlobName(scopedLogical);
@@ -28,7 +30,27 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
         string fullPath = Path.Combine(dir, safeName);
         string directory = Path.GetDirectoryName(fullPath)!;
         Directory.CreateDirectory(directory);
-        await File.WriteAllTextAsync(fullPath, content, ct);
+        // Stage the entire write beside the destination so readers never see a partial payload.
+        string temporaryPath = Path.Combine(directory, $".{Guid.NewGuid():N}.tmp");
+        try
+        {
+            await File.WriteAllTextAsync(temporaryPath, content, ct);
+            ct.ThrowIfCancellationRequested();
+            File.Move(temporaryPath, fullPath, overwrite: true);
+        }
+        catch
+        {
+            try
+            {
+                File.Delete(temporaryPath);
+            }
+            catch (Exception cleanupError) when (cleanupError is IOException or UnauthorizedAccessException)
+            {
+                // Preserve the original write error.
+            }
+
+            throw;
+        }
         return new Uri(fullPath).AbsoluteUri;
     }
 
