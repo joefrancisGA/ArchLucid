@@ -97,6 +97,33 @@ public sealed class CachingGoldenManifestRepositoryTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task UpdateSealedHasherBoundSliceAsync_evicts_after_write_cancels_the_caller_token()
+    {
+        using CancellationTokenSource caller = new();
+        Mock<IGoldenManifestRepository> inner = new();
+        Mock<IHotPathReadCache> cache = new();
+        ScopeContext scope = NewScope();
+        ManifestDocument manifest = new() { ManifestId = Guid.NewGuid() };
+        string cacheKey = HotPathCacheKeys.Manifest(scope, manifest.ManifestId);
+
+        inner.Setup(i => i.UpdateSealedHasherBoundSliceAsync(scope, manifest, caller.Token))
+            .Returns(() =>
+            {
+                caller.Cancel();
+                return Task.CompletedTask;
+            });
+        cache.Setup(c => c.RemoveAsync(cacheKey, It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken token) =>
+                token.IsCancellationRequested ? Task.FromCanceled(token) : Task.CompletedTask);
+
+        CachingGoldenManifestRepository sut = new(inner.Object, cache.Object);
+
+        await sut.UpdateSealedHasherBoundSliceAsync(scope, manifest, caller.Token);
+
+        cache.Verify(c => c.RemoveAsync(cacheKey, CancellationToken.None), Times.Once);
+    }
+
     private static ScopeContext NewScope()
     {
         return new ScopeContext
