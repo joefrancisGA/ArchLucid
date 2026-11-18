@@ -9,23 +9,8 @@ namespace ArchLucid.Api.Validation;
 /// </summary>
 public static class ApiRequestNullCollectionElementsGuard
 {
-    // NullabilityInfoContext stores member metadata in a Dictionary. One shared instance
-    // throws when overlapping requests read collection nullability at the same time.
-    private static readonly ThreadLocal<NullabilityInfoContext> NullabilityContexts =
-        new(static () => new NullabilityInfoContext());
-
-    private static NullabilityInfoContext NullabilityContext
-    {
-        get
-        {
-            NullabilityInfoContext? context = NullabilityContexts.Value;
-
-            if (context is null)
-                throw new InvalidOperationException("Nullability context was not created for this thread.");
-
-            return context;
-        }
-    }
+    // NullabilityInfoContext is not safe for concurrent Create calls on different members; keep one per thread.
+    private static readonly ThreadLocal<NullabilityInfoContext> NullabilityContext = new(() => new NullabilityInfoContext());
 
     public const string ValidationMessage =
         "Request body collection properties must not be null when required, and collections must not contain null elements.";
@@ -181,7 +166,7 @@ public static class ApiRequestNullCollectionElementsGuard
         if (!IsEnumerableCollection(parameterType) || !parameterType.IsInstanceOfType(root))
             return false;
 
-        NullabilityInfo parameterNullability = NullabilityContext.Create(bodyParameter);
+        NullabilityInfo parameterNullability = NullabilityContext.Value!.Create(bodyParameter);
         invalid = VisitCollection((IEnumerable)root, parameterNullability, visited);
 
         return true;
@@ -242,7 +227,7 @@ public static class ApiRequestNullCollectionElementsGuard
     }
 
     private static bool VisitCollection(IEnumerable enumerable, PropertyInfo owningProperty, HashSet<object> visited) =>
-        VisitCollection(enumerable, NullabilityContext.Create(owningProperty), visited);
+        VisitCollection(enumerable, NullabilityContext.Value!.Create(owningProperty), visited);
 
     private static bool VisitCollection(IEnumerable enumerable, NullabilityInfo collectionNullability, HashSet<object> visited)
     {
@@ -350,7 +335,7 @@ public static class ApiRequestNullCollectionElementsGuard
         if (!IsEnumerableCollection(propertyType))
             return false;
 
-        return !AllowsNullProperty(NullabilityContext.Create(property));
+        return !AllowsNullProperty(NullabilityContext.Value!.Create(property));
     }
 
     internal static bool AllowsNullProperty(NullabilityInfo nullability)
