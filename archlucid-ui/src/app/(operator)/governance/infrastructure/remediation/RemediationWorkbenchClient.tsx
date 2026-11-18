@@ -85,6 +85,7 @@ import { RemediationWorkbenchWavesEmptyPartialHonesty } from "@/app/(operator)/g
 import { RemediationWorkbenchStatusFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchStatusFilterEmptyPartialHonesty";
 import { RemediationWorkbenchWaveFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchWaveFilterEmptyPartialHonesty";
 import { RemediationWorkbenchCombinedFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchCombinedFilterEmptyPartialHonesty";
+import { RemediationWorkbenchActiveFiltersSummaryLine } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchActiveFiltersSummaryLine";
 import { REMEDIATION_WORKBENCH_STATUS_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/remediation-workbench-status-filter-empty-partial-capture-copy";
 import { REMEDIATION_WORKBENCH_WAVE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/remediation-workbench-wave-filter-empty-not-load-failure-copy";
 import { REMEDIATION_WORKBENCH_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/remediation-workbench-combined-filter-empty-not-load-failure-copy";
@@ -1241,6 +1242,20 @@ export function RemediationWorkbenchClient() {
         </p>
       ) : (
         <>
+          {urlStatus.length > 0 && urlWaveId.length > 0 ? (
+            <RemediationWorkbenchActiveFiltersSummaryLine
+              statusLabel={(() => {
+                const parsedStatus = parseRemediationInstanceStatusFilter(urlStatus);
+
+                if (parsedStatus == null) {
+                  return urlStatus;
+                }
+
+                return remediationInstanceStatusLabel(parsedStatus);
+              })()}
+              waveId={urlWaveId}
+            />
+          ) : null}
           {urlStatus.length > 0 ? (
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-status-filter">
               {(() => {
