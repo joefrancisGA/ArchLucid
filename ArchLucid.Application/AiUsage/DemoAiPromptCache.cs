@@ -10,6 +10,7 @@ namespace ArchLucid.Application.AiUsage;
 public sealed class DemoAiPromptCache(IOptionsMonitor<AiUsageControlsOptions> aiUsageOptions) : IDemoAiPromptCache
 {
     private readonly ConcurrentDictionary<string, string> _entries = new(StringComparer.Ordinal);
+    private readonly object _writeLock = new();
 
     private readonly IOptionsMonitor<AiUsageControlsOptions> _aiUsageOptions =
         aiUsageOptions ?? throw new ArgumentNullException(nameof(aiUsageOptions));
@@ -20,16 +21,18 @@ public sealed class DemoAiPromptCache(IOptionsMonitor<AiUsageControlsOptions> ai
     {
         int maxEntries = Math.Max(16, _aiUsageOptions.CurrentValue.DemoPromptCacheMaxEntries);
 
-        if (_entries.Count >= maxEntries)
+        lock (_writeLock)
         {
-            string? firstKey = _entries.Keys.FirstOrDefault();
-
-            if (firstKey is not null)
+            if (!_entries.ContainsKey(cacheKey))
             {
-                _entries.TryRemove(firstKey, out _);
+                while (_entries.Count >= maxEntries)
+                {
+                    string firstKey = _entries.Keys.First();
+                    _entries.TryRemove(firstKey, out _);
+                }
             }
-        }
 
-        _entries[cacheKey] = responseJson;
+            _entries[cacheKey] = responseJson;
+        }
     }
 }
