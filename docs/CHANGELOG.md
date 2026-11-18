@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-18 - Score lift round 74 (batch 39): Instance status filter, attack path report, simulator explain, and cut-point chips
+
+**Outcome.** Remediation instance status filter empty, attack path report read failure, attack path diagram-filter empty, and score simulator explain failure repeat partial-capture discipline and Report Problem. Collapsed cut-point path ids render as truncated chips.
+
+**Surfaces.** Remediation workbench status filter, attack path report load and empty, simulator explain failure, cut-point collapsed chips, honesty and mounted contract tests.
+
 ## 2026-11-18 - Score lift round 73 (batch 38): Factory metrics and ranked paths reads, path view empty, and patterns catalog
 
 **Outcome.** Remediation factory executive metrics and ranked paths isolated read failures, ranked paths catalog and path-view filter empties, and remediation patterns catalog empty repeat partial-capture discipline and Report Problem on section read failures.
