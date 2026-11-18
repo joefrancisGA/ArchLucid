@@ -30,8 +30,6 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
                 stored.Destination = subscription.Destination;
                 stored.MinimumSeverity = subscription.MinimumSeverity;
                 stored.IsEnabled = subscription.IsEnabled;
-                stored.CreatedUtc = subscription.CreatedUtc;
-                stored.CreatedByActor = subscription.CreatedByActor;
                 stored.LastModifiedByActor = subscription.LastModifiedByActor;
                 stored.LastModifiedUtc = subscription.LastModifiedUtc;
                 stored.MetadataJson = subscription.MetadataJson;
