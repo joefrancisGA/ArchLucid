@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+
+## 2026-11-18 - Score lift round 81 (batch 46): Findings register plus job view, triple filter, assigned collection preface, orphan context, list context plus search
+
+**Outcome.** Findings queue combined register plus job view and triple register-job-NL filter empties, assigned-to-me empty collection preface, reviews hub orphan-candidate context empty, and list context plus search combined empty repeat not-failure and partial-capture discipline. Mounted contract depth extends through round 80.
+
+**Surfaces.** Governance findings queue and assigned empty, architecture reviews list, honesty and mounted contract tests.
 ## 2026-11-18 - Score lift round 80 (batch 45): Operator home collection blocker, job view plus NL facets, reviews list context, workspace health refresh, policy assignments empty
 
 **Outcome.** SecureNow operator home names collection before open-gate navigation. Findings queue combined job view plus NL facet filter empties, reviews hub list-context filter empty, workspace health page refresh discipline, and policy pack featured assignments empty repeat not-failure and partial-capture discipline. Mounted contract depth extends through round 79.
