@@ -1,5 +1,6 @@
 using ArchLucid.Core.Tenancy;
 
+using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
@@ -84,20 +85,28 @@ public sealed class TenantBlobPrefixDeletionService(
             BlobContainerClient container = azureClient.GetBlobContainerClient(containerName.ToLowerInvariant());
             int deleted = 0;
 
-            await foreach (BlobItem item in container.GetBlobsAsync(
-                               BlobTraits.None,
-                               BlobStates.All,
-                               prefix: prefix,
-                               cancellationToken: cancellationToken)
-                           .ConfigureAwait(false))
+            try
             {
-                await container.DeleteBlobIfExistsAsync(
-                        item.Name,
-                        DeleteSnapshotsOption.IncludeSnapshots,
-                        cancellationToken: cancellationToken)
-                    .ConfigureAwait(false);
+                await foreach (BlobItem item in container.GetBlobsAsync(
+                                   BlobTraits.None,
+                                   BlobStates.All,
+                                   prefix: prefix,
+                                   cancellationToken: cancellationToken)
+                               .ConfigureAwait(false))
+                {
+                    await container.DeleteBlobIfExistsAsync(
+                            item.Name,
+                            DeleteSnapshotsOption.IncludeSnapshots,
+                            cancellationToken: cancellationToken)
+                        .ConfigureAwait(false);
 
-                deleted++;
+                    deleted++;
+                }
+            }
+            catch (RequestFailedException error) when (
+                string.Equals(error.ErrorCode, BlobErrorCode.ContainerNotFound.ToString(), StringComparison.Ordinal))
+            {
+                // The absent container has no tenant artifacts to delete.
             }
 
             byContainer[containerName] = deleted;
