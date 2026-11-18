@@ -25,9 +25,12 @@ public sealed class SqlRunTelemetryRepository(IDbConnectionFactory connectionFac
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string sql = """
-                           IF NOT EXISTS (SELECT 1 FROM dbo.RunTelemetry WHERE RunId = @RunId)
-                           INSERT INTO dbo.RunTelemetry (RunId, RequestDurationMs, AgentExecutionDurationMs, ManualReviewDurationMs, EstimatedHoursSaved)
-                           VALUES (@RunId, @RequestDurationMs, @AgentExecutionDurationMs, @ManualReviewDurationMs, @EstimatedHoursSaved);
+                           INSERT INTO dbo.RunTelemetry
+                               (RunId, RequestDurationMs, AgentExecutionDurationMs, ManualReviewDurationMs, EstimatedHoursSaved)
+                           SELECT @RunId, @RequestDurationMs, @AgentExecutionDurationMs, @ManualReviewDurationMs, @EstimatedHoursSaved
+                           WHERE NOT EXISTS (
+                               SELECT 1 FROM dbo.RunTelemetry WITH (UPDLOCK, HOLDLOCK) WHERE RunId = @RunId
+                           );
                            """;
 
         await connection.ExecuteAsync(
