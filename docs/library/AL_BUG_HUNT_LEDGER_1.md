@@ -8110,7 +8110,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: orchestrator-transient-retry
 
-**Hunts:** 0 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
+**Hunts:** 1 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
+
+2026-11-18 seed hunt (seed-only): no rotation (`shouldRotate: false`; streak zone `application-agents` without a low-yield park). Picker **`orchestrator-transient-retry`** (`unseeded`, zero open rows). Promoted one hunt-ready row — wrapper `InnerException` chain with shallow all-transient `AggregateException` linked to deeper mixed aggregate — **valid-no-repro**; regression `ExecuteAsync_does_not_retry_when_wrapper_chain_merges_transient_aggregate_with_deeper_mixed_aggregate`. Scoped **101/101** Persistence `OrchestratorTransientDbRetryTests` + **29/29** Application `CommitRunTransientRetryPolicyTests` (`RunAnalyzers=false`). Seeded five follow-on `(candidate)` rows below. Private beta: n/a.
+
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — wrapper chain merges populated aggregates on `InnerException` walk — **cheap-disproof 2026-11-18 seed hunt:** mixed deeper aggregate inners keep `inners.All` fail-fast; regression `ExecuteAsync_does_not_retry_when_wrapper_chain_merges_transient_aggregate_with_deeper_mixed_aggregate`.
+
+- [ ] (candidate) `OrchestratorTransientDbRetry` — fourth Polly retry after three transient SQL failures exhausts `MaxRetryAttempts` — locus: `BuildPipeline` `maxRetryAttempts = 3`; input: action throws transient `1205` on every invocation; wrong outcome: fourth inner execution beyond cap.
+- [ ] (candidate) `SqlTransientDetector.IsTransient` — `SqlException` `40197` service processing error nested only under `Win32Exception` without `AggregateException` — locus: inner-walk loop; input: repository throws `Win32Exception` whose inner is Azure capacity SQL; wrong outcome: orchestrator skips retry.
+- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync<T>` — `AggregateException` with `TaskCanceledException` sibling beside transient `10928` resource throttle — locus: `IsParallelPersistAggregateInnerRetriable`; input: parallel persist lists throttle and cooperative cancel; wrong outcome: full action retries despite cancel sibling.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.IsExhausted` — attempt at `MaxAttempts - 1` with `elapsed` one millisecond below budget while manifest reconcile poll sum already equals budget — locus: independent poll vs attempt gates; input: synthetic stopwatch/counter restored from JSON; wrong outcome: outer loop continues past wall clock.
+- [ ] (candidate) `OrchestratorTransientDbRetry` — bare `SqlException` `10053` transport failure wrapped by `HttpRequestException` at root without aggregate — locus: `SqlTransientDetector` chain vs `TryGetParallelPersistInners`; input: HTTP client wrapper from SQL transport; wrong outcome: fail-fast before network-transient classification.
 
 2026-11-04 thorough hunt (dry, hunt 356): no rotation at pick time (`shouldRotate: false`; **`alert-simulation`** completed **3/3** dry on run-log tail — zone now low-yield parked; picker returned **`orchestrator-transient-retry`** among **~2** eligible zones). Cheap-disproof closed five post–hunt **353** `(candidate)` monitor rows — **invalid** null void `action` at Polly boundary (`NullReferenceException` on invoke; caller contract), **invalid** null generic `action` (same path; shared pipeline), **invalid** `RetryDelay` `int.MaxValue` overflow (pure helper; authority loop indices bounded; regression `RetryDelay_at_attempt_above_max_remains_linear_without_clamp`), **invalid** `ManifestReconcilePollDelay` `int.MaxValue` overflow (same; regression `RetryDelay_and_manifest_poll_delay_use_bounded_authority_loop_indices`), **invalid** negative `attempt` on `IsExhausted` (monitor-only corrupted state; orchestrator never supplies `attempt < 0`; `attempt >= MaxAttempts` still gates). Reseeded five follow-on `(candidate)` monitor rows below (hunt **356** reseed); scoped **100/100** Persistence `OrchestratorTransientDbRetryTests` + **29/29** Application `CommitRunTransientRetryPolicyTests` (`RunAnalyzers=false`). Run-log low-yield streak on **`orchestrator-transient-retry`** is **1/3** after this dry (prior tail dry **353**/**352**). Private beta: n/a.
 
@@ -8215,15 +8225,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-26 seed hunt (seed-only): reseeded orchestrator-transient-retry; cheap-disproof closed mixed `AggregateException` retry (`inners.All(SqlTransientDetector.IsTransient)` fail-fast remains intentional per `ExecuteAsync_does_not_retry_mixed_transient_and_permanent_aggregate`); budget/attempt/delay boundaries and SQL transient codes remain covered; no new hunt-ready rows; 50 scoped transient-retry tests passed (34 Persistence + 16 Application).
 
 - **id:** orchestrator-transient-retry
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-11-18
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
