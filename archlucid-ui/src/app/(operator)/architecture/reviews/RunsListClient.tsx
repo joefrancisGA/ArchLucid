@@ -46,6 +46,8 @@ import { useRunsList } from "./use-runs-list";
 import { RunsListContinueLastViewedRow } from "./RunsListContinueLastViewedRow";
 import { BuyerPackageScopeFilterChips } from "./BuyerPackageScopeFilterChips";
 import { RunsListWorkQueueTable } from "./RunsListWorkQueueTable";
+import { REVIEWS_HUB_SEARCH_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-search-filter-empty-not-load-failure-copy";
+import { RunsListSearchFilterEmptyPartialHonesty } from "./RunsListSearchFilterEmptyPartialHonesty";
 import { inspectorTitle } from "./runs-list-row-presentation";
 import { shouldIgnoreRunsListRowActivation } from "./runs-list-row-activation";
 
@@ -68,6 +70,7 @@ function activateBuyerFeaturedCard(
  * Large viewports show an inline inspector; smaller viewports use a slide-over sheet.
  */
 export function RunsListClient(props: RunsListClientProps) {
+  const sourceRunCount = props.runs.length;
   const pathname = usePathname() ?? "/architecture/reviews";
   const { isWorkingMode } = useWorkspaceMode();
   const draftRegistryEntries = useArchitectureDraftRegistryEntries();
@@ -404,6 +407,15 @@ export function RunsListClient(props: RunsListClientProps) {
               </div>
             ) : null}
 
+            
+            {showBuyerPackageCards ? null : filteredSorted.length === 0 && filterText.trim().length > 0 && sourceRunCount > 0 ? (
+              <div className="space-y-2" data-testid="reviews-hub-search-filter-empty">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-search-filter-empty-not-load-failure">
+                  {REVIEWS_HUB_SEARCH_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <RunsListSearchFilterEmptyPartialHonesty />
+              </div>
+            ) : null}
             {showBuyerPackageCards ? null : filteredSorted.length === 0 ? (
               <EnterpriseTable ariaLabel="Architecture reviews (empty)">
                 <EnterpriseTableHead>
