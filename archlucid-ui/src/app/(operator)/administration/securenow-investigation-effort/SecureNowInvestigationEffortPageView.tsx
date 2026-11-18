@@ -136,7 +136,16 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
             data-testid="securenow-investigation-effort-blocking-banner"
           >
             <p className={OPERATOR_TYPOGRAPHY.body}>{formatSecureNowInvestigationEffortBlockingBanner(resultState.reason)}</p>
-            <SecureNowInvestigationEffortMissingFieldLabelsLine inputs={inputs} />
+            {resultState.incompleteReason === "missing_fields" ? (
+              <SecureNowInvestigationEffortMissingFieldLabelsLine inputs={inputs} />
+            ) : (
+              <p
+                className={OPERATOR_TYPOGRAPHY.helper}
+                data-testid="securenow-investigation-effort-blocking-validation-reason"
+              >
+                {resultState.reason}
+              </p>
+            )}
           </div>
         ) : null}
         <section aria-labelledby="securenow-investigation-effort-inputs-heading" className="space-y-3">
