@@ -26,9 +26,15 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.ExecutionId == execution.ExecutionId && SameScope(x, execution));
-            if (i >= 0)
-                _items[i] = Copy(execution);
+            AdvisoryScanExecution? stored = _items.Find(x =>
+                x.ExecutionId == execution.ExecutionId && SameScope(x, execution));
+            if (stored is not null)
+            {
+                stored.CompletedUtc = execution.CompletedUtc;
+                stored.Status = execution.Status;
+                stored.ResultJson = execution.ResultJson;
+                stored.ErrorMessage = execution.ErrorMessage;
+            }
         }
 
         return Task.CompletedTask;
