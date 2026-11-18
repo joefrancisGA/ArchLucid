@@ -20,7 +20,7 @@ import {
   BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION,
   BUYER_RISK_REGISTER_EMPTY_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_LINK } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import {
   assignedToMeFindingsHref,
@@ -52,6 +52,8 @@ import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-l
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { GOVERNANCE_ASSIGNED_TO_ME_EMPTY_COLLECTION_BLOCKER_PREFACE_LINE } from "@/lib/governance/governance-assigned-to-me-empty-collection-blocker-preface-copy";
+import { cn } from "@/lib/utils";
 import { SECURENOW_FINDINGS_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/product-line/securenow-findings-empty-partial-capture-copy";
 
 export function GovernanceFindingsQueueOutcomeSection(
@@ -256,6 +258,14 @@ export function GovernanceFindingsQueueOutcomeSection(
               props.isAssignedToMe ? (
                 <div className="space-y-3">
                   {findingsEmptyPartialCaptureStrip}
+                  {secureNowCollectionMissing ? (
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="governance-assigned-to-me-empty-collection-blocker-preface"
+                    >
+                      {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_COLLECTION_BLOCKER_PREFACE_LINE}
+                    </p>
+                  ) : null}
                   {secureNowCollectionMissing && collectionInput !== null ? (
                     <SecureNowCollectionPrimaryBlockerLine
                       input={collectionInput}
