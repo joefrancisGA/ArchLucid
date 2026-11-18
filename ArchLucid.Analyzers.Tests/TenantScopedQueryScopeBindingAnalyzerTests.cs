@@ -1294,6 +1294,48 @@ public sealed class ConditionalScopeHelperRunsRepository
     }
 
     [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_conditional_literal_arm_when_other_arm_uses_scope_helper_and_sql_is_concatenated_with_static_suffix()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Sql
+{
+    public static class RunChildRunScopeSql
+    {
+        public static string AndTripleWhere(string sql) => sql;
+    }
+}
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using ArchLucid.Persistence.Sql;
+using Dapper;
+
+public sealed class ConditionalScopeHelperConcatSuffixRunsRepository
+{
+    public void Load(IDbConnection connection, bool useScopeHelper)
+    {
+        string sql = (useScopeHelper
+                ? RunChildRunScopeSql.AndTripleWhere("SELECT 1")
+                : "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL")
+            + " ORDER BY CreatedUtc DESC";
+        _ = SqlMapper.Query<int>(connection, sql);
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(98, 13, 98, 50)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
     public async Task ARCH006_reports_unscoped_sql_for_property_assigned_before_command_definition()
     {
         const string testCode = SharedStubs +

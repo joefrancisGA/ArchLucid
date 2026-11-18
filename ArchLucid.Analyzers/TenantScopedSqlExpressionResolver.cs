@@ -253,8 +253,31 @@ internal static class TenantScopedSqlExpressionResolver
 
         if (left.IsStaticallyResolved && right.IsStaticallyResolved)
         {
+            string rightText = right.SqlText ?? string.Empty;
+
+            if (left.BranchSqlTexts.Count > 0)
+            {
+                List<string> mergedBranchSqlTexts = new();
+
+                foreach (string branchSqlText in left.BranchSqlTexts)
+                    mergedBranchSqlTexts.Add(branchSqlText + rightText);
+
+                return new ResolutionResult(mergedBranchSqlTexts[0], true, hasScopeHelper, mergedBranchSqlTexts);
+            }
+
+            if (right.BranchSqlTexts.Count > 0)
+            {
+                string leftText = left.SqlText ?? string.Empty;
+                List<string> mergedBranchSqlTexts = new();
+
+                foreach (string branchSqlText in right.BranchSqlTexts)
+                    mergedBranchSqlTexts.Add(leftText + branchSqlText);
+
+                return new ResolutionResult(mergedBranchSqlTexts[0], true, hasScopeHelper, mergedBranchSqlTexts);
+            }
+
             return new ResolutionResult(
-                (left.SqlText ?? string.Empty) + (right.SqlText ?? string.Empty),
+                (left.SqlText ?? string.Empty) + rightText,
                 true,
                 hasScopeHelper);
         }
