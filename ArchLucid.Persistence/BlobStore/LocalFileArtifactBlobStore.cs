@@ -109,7 +109,18 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
                 "Local blob path tenant folder does not match the current tenant scope.");
 
 
-        return await File.ReadAllTextAsync(path, ct);
+        try
+        {
+            return await File.ReadAllTextAsync(path, ct);
+        }
+        catch (FileNotFoundException)
+        {
+            return null;
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return null;
+        }
     }
 
     private static string ToLocalPath(string blobUri)
