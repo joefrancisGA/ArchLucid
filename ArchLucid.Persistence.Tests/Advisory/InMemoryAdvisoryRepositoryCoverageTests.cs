@@ -138,6 +138,26 @@ public sealed class InMemoryAdvisoryRepositoryCoverageTests
         bySubscription.Should().HaveCount(2);
     }
 
+    [Fact]
+    public async Task Digest_delivery_attempt_repository_does_not_apply_canceled_writes()
+    {
+        InMemoryDigestDeliveryAttemptRepository sut = new();
+        DigestDeliveryAttempt attempt = new() { Status = DigestDeliveryStatus.Started };
+        CancellationToken canceled = new(canceled: true);
+        ScopeContext scope = new();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => sut.CreateAsync(attempt, canceled));
+        (await sut.ListByDigestAsync(scope, attempt.DigestId, CancellationToken.None)).Should().BeEmpty();
+
+        await sut.CreateAsync(attempt, CancellationToken.None);
+        attempt.Status = DigestDeliveryStatus.Succeeded;
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => sut.UpdateAsync(attempt, canceled));
+        IReadOnlyList<DigestDeliveryAttempt> history =
+            await sut.ListByDigestAsync(scope, attempt.DigestId, CancellationToken.None);
+
+        history.Should().ContainSingle().Which.Status.Should().Be(DigestDeliveryStatus.Started);
+    }
+
     [Theory]
     [InlineData(0, 1)]
     [InlineData(201, 200)]
