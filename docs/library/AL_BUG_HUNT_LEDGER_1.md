@@ -6454,15 +6454,23 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 ---
 
 ## Zone: storage-vs-data-category
-**Hunts:** 2 · **Bugs found:** 0 · **Consecutive dry hunts:** 1
+**Hunts:** 3 · **Bugs found:** 0 · **Consecutive dry hunts:** 2
+
+2026-11-18 thorough hunt (dry, hunt 3): no rotation (`shouldRotate: false`; TL merge **1×** dry at tail, not **3/3** park). Picker **`storage-vs-data-category`** with **5** open `(candidate)` rows from 2026-11-17 reseed. Cheap-disproof closed all five — **invalid** unknown `AgentType` merge order mutating prior agent proposals (gate edits only the current envelope; regression `ApplyToResults_processes_unresolved_agent_type_after_critic_without_mutating_prior_proposals`), **valid-no-repro** defer-path exclusive-rejected filter on relationship-only rows (regressions `ApplyToResults_drops_relationship_only_edge_referencing_rejected_duplicate_datastore_id` / synthetic id family), **valid-no-repro** capability-only brief applies encryption heuristic without HTTPS on datastores while services still honor HTTPS when constraints present (regression `ApplyBriefGrounding_applies_encryption_from_capabilities_when_constraints_empty` + `ApplyBriefGrounding_filters_services_only_not_datastores_for_https`), **valid-no-repro** rename-alias datastore acceptance on claimed primary id (regression `ApplyToResults_preserves_cost_rename_alias_datastore_when_topology_claimed_primary_id` + defer-edge rename family), **valid-no-repro** structural relationship-only pass defers rejected-key purge to cross-agent gate (regression `ApplyToProposal_relationship_only_proposals_defer_rejected_key_filtering_to_cross_agent_gate` + `ApplyToProposal_preserves_relationship_only_proposals_for_commit_merge_gate_validation`). Seeded five follow-on `(candidate)` rows below. Scoped **59/59** gate + structural + brief-grounding tests (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (invalid) `CrossAgentProposalConsistencyGate.GetMergeOrder` — unresolved agent type after critic — **cheap-disproof 2026-11-18 thorough hunt:** merge order does not mutate other envelopes; regression above.
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — defer edges to rejected duplicate strict id — **cheap-disproof 2026-11-18 thorough hunt:** exclusive-rejected filter on defer path; existing drop regressions cited above.
+- [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.ApplyBriefGrounding` — null/empty constraints with capability-only encryption — **cheap-disproof 2026-11-18 thorough hunt:** asymmetric https flag intentional on datastores; regression above.
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.TryAcceptRenameAliasDatastore` — rename alias on claimed batch ids — **cheap-disproof 2026-11-18 thorough hunt:** regression `ApplyToResults_preserves_cost_rename_alias_datastore_when_topology_claimed_primary_id`.
+- [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.FilterRelationships` — relationship-only rejected-key filter — **cheap-disproof 2026-11-18 thorough hunt:** intentional defer to cross-agent gate; regression above.
+
+- [ ] (candidate) `CrossAgentProposalConsistencyGate.BuildRelationshipValidationEndpointKeys` — rejected batch service label may re-enter validation set when accepted batch node uses different casing for the same logical name — locus: declared key normalization vs exclusive-rejected purge; input: duplicate `ServiceName` with casing drift; wrong outcome: false defer or false drop.
+- [ ] (candidate) `AgentProposalStructuralPostProcessor.RegisterRejectedManifestDatastoreEndpointKeys` — indexed datastore leaf rejection may suppress defer edges keyed by shared unindexed display-name root — locus: leaf vs root rejected-key registration; input: sibling datastores sharing display root; wrong outcome: over-prune defer edges.
+- [ ] (candidate) `CrossAgentProposalConsistencyGate.FilterRelationships` — relationship-only Cost follow-up may retain edge referencing undeclared rename label before Topology acceptance registers synthetic keys — locus: pre-scan `CollectDeclaredBatchEndpointKeys` ordering; input: Cost edges before Topology rename alias row; wrong outcome: premature drop.
+- [ ] (candidate) `AgentProposalStructuralPostProcessor.ApplyBriefGrounding` — private-networking brief may drop public duplicate service while relationship still references rejected duplicate ARM id on surviving sibling — locus: grounding prune vs declared endpoint sets; input: sibling services same Terraform root; wrong outcome: stale edge to rejected ARM id.
+- [ ] (candidate) `CrossAgentProposalConsistencyGate` — declared batch rejected service label before exclusive-rejected second pass may leave validation endpoint key that defers relationship-only row incorrectly — locus: validation key build ordering (hunt **#1176** family); input: duplicate service display-name with rejected strict id; wrong outcome: false retain on relationship-only row.
 
 2026-11-17 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on `storage-vs-data-category` is **1/3** before this record — seed-only at zone tail). Fixed concatenated JSONL in `AL_BUG_HUNT_RUN_LOG_1.jsonl` (line 8). Cheap-disproof closed five header `(candidate)` rows from 2026-11-17 seed hunt — **invalid** HTTPS heuristic skipped for datastores by design (`ApplyBriefGrounding_filters_services_only_not_datastores_for_https`), **invalid** non-Compliance/Critic control dedupe deferred to cross-agent gate (`ApplyToProposal_leaves_cost_required_controls_undeduplicated_by_design`), **valid-no-repro** parallel service vs datastore claim namespaces (distinct manifest/synthetic keys by design), **valid-no-repro** undeclared-endpoint retain bypass blocked by exclusive-rejected filter (`ApplyToProposal_drops_edge_referencing_duplicate_datastore_id_rejected_during_dedupe`), **valid-no-repro** brief-grounding relationship prune after datastore drop (encryption/prune regression family). Reseeded five `(candidate)` monitor rows below. Scoped **55/55** post-processor, consistency-gate, and brief-grounding tests passed (`RunAnalyzers=false`). **This dry starts 1/3** on `storage-vs-data-category` in the run log. Private beta: n/a.
-
-- [ ] (candidate) `CrossAgentProposalConsistencyGate.GetMergeOrder` — agent types outside Topology/Cost/Compliance/Critic sort to order **100** and run after critic, mutating proposals that earlier agents already relationship-filtered; locus: default merge order (`L103-111`); input: malformed envelope `AgentType` from deserializer; wrong outcome: late agent strips edges topology already validated (monitor; post-seed reseed).
-- [ ] (candidate) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — defer edges referencing batch-external endpoints (`L307-308`) may retain relationship targeting rejected duplicate strict id when neither endpoint is batch-declared; locus: defer path vs `RelationshipReferencesExclusiveRejectedEndpoint`; input: relationship-only Cost row before Topology datastore acceptance (monitor; pre-scan regression family).
-- [ ] (candidate) `AgentProposalStructuralPostProcessor.ApplyBriefGrounding` — `BuildBriefGroundingRules` accepts JSON-null `Constraints` but empty confirmed list still runs datastore encryption heuristic while skipping HTTPS on storage nodes; locus: `BuildBriefGroundingRules` (`L388-405`) vs asymmetric https flag; input: capability-only brief with null constraints array; wrong outcome: asymmetric drop set confuses operator drop log (monitor; post-seed reseed).
-- [ ] (candidate) `CrossAgentProposalConsistencyGate.TryAcceptRenameAliasDatastore` — rename alias accepted per-agent may register extra endpoint keys on `claimedDatastoreEndpointKeys` that downstream relationship validation treats as batch-owned storage ids; locus: alias accept path (`L199-214`); input: Cost rename-alias datastore after Topology claimed primary id; wrong outcome: defer edge promoted to declared batch edge with wrong category (monitor; rename regression family).
-- [ ] (candidate) `AgentProposalStructuralPostProcessor.FilterRelationships` — when `ProposalDeclaresEndpoints` is false, `CopyNonNullRelationships` returns all edges without rejected-key filtering (`L52-53`); locus: relationship-only post-process pass; input: duplicate loser ids already registered in `rejectedEndpointKeys` during prior service dedupe in same proposal; wrong outcome: rejected storage id edge survives to merge gate (monitor; relationship-only regression family).
 
 2026-11-17 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Post-catalog-reset re-read of `AgentProposalStructuralPostProcessor` and `CrossAgentProposalConsistencyGate` (storage vs service endpoint claiming, brief grounding, merge ordering). Scoped filter **45/45** (`RunAnalyzers=false`). No row met hunt-ready bar; seeded five `(candidate)` rows below. Private beta: n/a.
 
@@ -6477,10 +6485,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **impact:** medium
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-17
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-11-18
 - **last-bug:** never
 - **code-changed-since:** 1
 
@@ -7972,9 +7980,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-18
 - **last-bug:** 2026-11-18
 - **related-pd-tb:** none
