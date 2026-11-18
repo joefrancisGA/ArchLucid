@@ -58,7 +58,8 @@ public sealed class InMemoryCollectionTriggerClaimRepository : ICollectionTrigge
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_claims.TryGetValue(ClaimKey(scope, idempotencyKey.Trim()), out ClaimRecord? claim))
+        string key = ClaimKey(scope, idempotencyKey.Trim());
+        if (!_claims.TryGetValue(key, out ClaimRecord? claim))
         {
             return Task.FromResult(false);
         }
@@ -68,17 +69,16 @@ public sealed class InMemoryCollectionTriggerClaimRepository : ICollectionTrigge
             return Task.FromResult(false);
         }
 
-        claim.State = 1;
-        return Task.FromResult(true);
+        return Task.FromResult(_claims.TryUpdate(key, claim with { State = 1 }, claim));
     }
 
     private static string ClaimKey(ProjectScopeKey scope, string idempotencyKey) =>
         $"{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{idempotencyKey}";
 
-    private sealed class ClaimRecord
+    private sealed record ClaimRecord
     {
         public required Guid RunId { get; init; }
 
-        public byte State { get; set; }
+        public byte State { get; init; }
     }
 }

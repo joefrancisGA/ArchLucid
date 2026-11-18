@@ -65,6 +65,29 @@ public sealed class InMemoryCollectionTriggerClaimRepositoryTests
     }
 
     [Fact]
+    public async Task ReconcilePersistedRunAsync_only_one_caller_transitions_the_claim()
+    {
+        InMemoryCollectionTriggerClaimRepository repository = new();
+        ProjectScopeKey scope = ProjectScopeKey.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+        Guid runId = Guid.NewGuid();
+        await repository.TryReserveAsync(scope, "concurrent", runId);
+
+        TaskCompletionSource start = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Task<bool>[] callers = Enumerable.Range(0, 16).Select(async _ =>
+        {
+            await start.Task;
+            return await repository.ReconcilePersistedRunAsync(scope, "concurrent", runId);
+        }).ToArray();
+
+        start.SetResult();
+        bool[] results = await Task.WhenAll(callers);
+
+        results.Where(changed => changed).Should().ContainSingle();
+        (_, _, byte state) = await repository.TryReserveAsync(scope, "concurrent", Guid.NewGuid());
+        state.Should().Be(1);
+    }
+
+    [Fact]
     public async Task TryReserveAsync_rejects_empty_run_id_and_oversized_key()
     {
         InMemoryCollectionTriggerClaimRepository repository = new();
