@@ -2729,8 +2729,14 @@
 ---
 
 ## Zone: archlucid-core
-**Hunts:** 2 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
+**Hunts:** 3 · **Bugs found:** 1 · **Consecutive dry hunts:** 0
+2026-11-18 seed hunt (seed-only): no rotation at pick time (shouldRotate: false; reason: *No low-yield streak; keep default picker choice.* — run-log low-yield streak **0** on set 4 tail). Picker **seed hunt** after 2026-11-17 hit/dry pair; re-read `ArchLucid.Core/` outside inventory-host ladder saturation per `docs/library/AL_BUG_INVENTORY_HOST_LADDER_SATURATION.md` (DeclarationSecurityPropertyKeyResolver, AllowedRunExportBlobDestinationUrlPolicy, AllowedOutboundWebhookProbeUrlPolicy, EmailHeaderFragmentSanitizer). Seeded five fresh `(candidate)` monitor rows below; no row promoted to hunt-ready (no failing repro). Spot-check **69/69** Core + **2/2** `EmailHeaderFragmentSanitizer` Application parity tests (RunAnalyzers=false). Private beta: n/a.
 
+- [ ] (candidate) `DeclarationSecurityPropertyKeyResolver.TryGetDirect` — `foreach` over property bags returns the first case-insensitive key match in enumeration order when duplicate keys differ only by casing — locus: `StringComparison.OrdinalIgnoreCase` without canonical key pick; input: `publicNetworkAccess=Disabled` and `publicnetworkaccess=Enabled` in same bag; wrong outcome: wrong declaration security posture; reachability: merged ARM/Terraform declaration property inventory.
+- [ ] (candidate) `DeclarationSecurityPropertyKeyResolver.TryGet` — `NetworkAclDefaultAction` and `IngressBlob` both alias `tf.networkrules` / `tf.network_rules` keys — locus: overlapping candidate lists; input: single `tf.network_rules` JSON blob consumed by both logical readers; wrong outcome: conflated ingress vs default-action semantics; reachability: declaration inventory contradiction passes (monitor).
+- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.IsAzureBlobStorageHost` — empty account label before `.blob.core.windows.net` still passes suffix check — locus: `TryGetAzureBlobStorageAccountLabel` slice without length guard; input: `https://.blob.core.windows.net/c?sas=token`; wrong outcome: export push accepts malformed blob authority; reachability: operator paste SAS destination URL.
+- [ ] (candidate) `EmailHeaderFragmentSanitizer.Sanitize` — horizontal tab (`U+0009`) remains after VT/FF/`LS`/`PS` collapse — locus: selective replacement list; input: product display name with embedded TAB smuggling; wrong outcome: SMTP subject layout surprise; reachability: configured branding strings (monitor; notifications #1100 VT/FF family).
+- [ ] (candidate) `AllowedOutboundWebhookProbeUrlPolicy.FormatTargetAuthorityForAudit` — implicit default HTTPS port in `GetLeftPart(UriPartial.Authority)` may not match explicit `:443` audit peers — locus: authority formatting; input: probe URL with and without explicit port; wrong outcome: duplicate audit rows for same target; reachability: webhook dry-run audit JSON (monitor).
 2026-11-17 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Post-catalog-reset re-read outside saturated inventory-host ladder classes per `docs/library/AL_BUG_INVENTORY_HOST_LADDER_SATURATION.md` (`LogSanitizer`, `AllowedOutboundWebhookProbeUrlPolicy`, `ArtifactCursorCodec`, `ApiKeyMaterialMasker`). Fixed concatenated JSONL in `AL_BUG_HUNT_RUN_LOG_4.jsonl`. Spot-check **42/42** Core tests on those areas (`RunAnalyzers=false`). No row met hunt-ready bar; seeded five `(candidate)` rows below. Private beta: n/a.
 
 - [x] (proven) `LogSanitizer.Sanitize` — only normalizes CR/LF before the `char.IsControl` scan (`L21-22`); locus: log forging hardening; input: operator-controlled label containing Unicode line/paragraph separators (U+2028/U+2029); wrong outcome: multiline log injection in plaintext sinks; reachability: structured logging of unsanitized external text. — **hit 2026-11-17 thorough hunt:** regression `Sanitize_strips_unicode_line_and_paragraph_separators`.
@@ -2745,8 +2751,8 @@
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 2
-- **last-hunt:** 2026-11-17
+- **hunts:** 3
+- **last-hunt:** 2026-11-18
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-bug:** never
