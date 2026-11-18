@@ -28,7 +28,7 @@ public sealed class CachingGoldenManifestRepository(
         await _inner.SaveAsync(manifest, ct, connection, transaction);
 
         await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, AmbientScope(manifest), manifest.ManifestId,
-            ct);
+            transaction is null ? CancellationToken.None : ct);
     }
 
     /// <inheritdoc />
@@ -51,7 +51,8 @@ public sealed class CachingGoldenManifestRepository(
             connection,
             transaction,
             authorityPersistBody);
-        await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, scope, result.ManifestId, ct);
+        await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, scope, result.ManifestId,
+            transaction is null ? CancellationToken.None : ct);
         return result;
     }
 
