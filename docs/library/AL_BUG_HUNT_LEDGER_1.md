@@ -6441,16 +6441,26 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: content-safety-admission
 
+**Hunts:** 1 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
+
+2026-11-18 seed hunt (seed-only): no rotation (`shouldRotate: false`; tail `orchestrator-transient-retry` **1×** dry, not parked). Picker **`content-safety-admission`** (`unseeded`, zero open rows). Reread `DefaultRequestContentSafetyPrecheck`, `CompositeRequestContentSafetyPrecheck`, `LlmSemanticAdmissionGate`, and `ArchitectureRequestAgentReachableStringPaths`. Promotion attempts — **invalid** composite fail-open when an inner returns `IsAllowed = false` with empty `Reasons` (production inners tie allow to `reasons.Count`; misbehaving injectable only), **invalid** undiscovered agent string field (regression `Every_non_exempt_agent_reachable_string_field_blocks_prompt_injection` + catalog/exemption parity test). No hunt-ready row; seeded five `(candidate)` monitor rows below. Scoped **14/14** picker filter + **2/2** `ArchitectureRequestContentSafetyFieldCoverageArchitectureTests` spot-check (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `CompositeRequestContentSafetyPrecheck.EvaluateAsync` — inner precheck returns `IsAllowed = false` with empty `Reasons` — locus: final `allReasons.Count == 0` gate; input: misconfigured or future inner violates result contract; wrong outcome: composite allows request.
+- [ ] (candidate) `LlmSemanticAdmissionGate.EvaluateAsync` — whitespace-only `Description` while off-domain prose lives only in `TopologyHints[]` — locus: semantic gate skips blank description; input: wizard leaves description empty; wrong outcome: non-architecture intent reaches agents without semantic rejection (deterministic precheck must still block).
+- [ ] (candidate) `LlmSemanticAdmissionGate` — architecture keyword homoglyph in `Description` satisfies `ArchitectureDomainAdmissionPattern` while deterministic scan misses unicode-normalized injection — locus: regex domain heuristic vs `PromptInjectionPatternSignals`; input: Cyrillic lookalike inside domain token; wrong outcome: semantic allow + injection delivery.
+- [ ] (candidate) `CompositeRequestContentSafetyPrecheck` — registration order runs semantic gate after default so combined `Reasons` omit semantic rejection when default already failed — locus: `AuthorityCommitPipelineCompositionRegistrar` ordering; input: both layers reject same request; wrong outcome: operator loses semantic rejection text in API surface (observability-only).
+- [ ] (candidate) `DefaultRequestContentSafetyPrecheck` — `cancellationToken` not forwarded into `PromptInjectionPatternSignals` scan — locus: `EvaluateAsync` boundary; input: very large request with linked token already canceled; wrong outcome: admission blocks instead of honoring cancel.
+
 - **id:** content-safety-admission
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** content safety; admission gate; prompt injection
 - **paths:** ArchLucid.Application/Runs/Orchestration/CompositeRequestContentSafetyPrecheck.cs; ArchLucid.Application/Runs/Orchestration/LlmSemanticAdmissionGate.cs; ArchLucid.Application/Runs/Orchestration/DefaultRequestContentSafetyPrecheck.cs
 - **test-filter:** FullyQualifiedName~DefaultRequestContentSafetyPrecheckTests|FullyQualifiedName~LlmSemanticAdmissionGateTests
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-11-18
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
