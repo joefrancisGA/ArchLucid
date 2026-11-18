@@ -9,6 +9,27 @@ namespace ArchLucid.Persistence.Tests.Orchestration.RunStageOutcomes;
 public sealed class InMemoryRunStageOutcomesRepositoryCoverageTests
 {
     [Fact]
+    public async Task Canceled_operations_leave_the_stage_timeline_unchanged()
+    {
+        InMemoryRunStageOutcomesRepository sut = new();
+        Guid runId = Guid.NewGuid();
+        DateTime startedUtc = new(2026, 7, 10, 10, 0, 0, DateTimeKind.Utc);
+        CancellationToken canceled = new(canceled: true);
+        await sut.RecordStageStartedAsync(runId, "artifacts", startedUtc);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            sut.RecordStageStartedAsync(runId, "decisioning", startedUtc, canceled));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            sut.RecordStageCompletedAsync(runId, "artifacts", "succeeded", startedUtc.AddMinutes(1), canceled));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => sut.ListByRunIdAsync(runId, canceled));
+
+        StageTimelineSummary remaining = Assert.Single(await sut.ListByRunIdAsync(runId));
+        remaining.StageName.Should().Be("artifacts");
+        remaining.OutcomeStatus.Should().Be("running");
+        remaining.CompletedUtc.Should().BeNull();
+    }
+
+    [Fact]
     public async Task Repository_records_started_completed_and_lists_timeline()
     {
         InMemoryRunStageOutcomesRepository sut = new();
