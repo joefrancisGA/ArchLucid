@@ -522,6 +522,22 @@
 
 ## Zone: outbound-webhook-dry-run
 
+**Hunts:** 4 · **Bugs found:** 1 · **Consecutive dry hunts:** 1
+
+2026-11-18 thorough hunt (dry, hunt 4): no rotation (`shouldRotate: false`; tail `archlucid-core` **2×** low-yield, not set-4 park). Cheap-disproof closed five post-hit `(candidate)` rows — **invalid** `WebhookSimulationController` audit userinfo (same `AllowedOutboundWebhookProbeUrlPolicy` rejects embedded credentials before probe; dry-run uses `FormatTargetAuthorityForAudit` hit **2026-11-17**), **valid-no-repro** megabyte `reasonPhrase` on transport failure envelope (#1364 audit forensics class; dry **2026-11-17**), **valid-no-repro** cancel during DNS after sync pass (hit **2026-11-17** `OperationCanceledException` propagates), **invalid** shared-secret trim after request build (`sharedSecret?.Trim()` precedes `ComputeSha256Hex`; regression `ProbeWithBodyAsync_omits_signature_header_when_shared_secret_is_whitespace_only`), **invalid** `RunToolInvocationForensicsBuilder` (outside zone `paths`). Reseeded five follow-on `(candidate)` rows below. Scoped **25/25** (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (invalid) `WebhookSimulationController.SimulateAsync` — audit authority without userinfo strip — **cheap-disproof 2026-11-18 thorough hunt (hunt 4):** SSRF guard blocks credentialed URLs; simulation audit unreachable.
+- [x] (valid-no-repro) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — unbounded transport failure `reasonPhrase` — **cheap-disproof 2026-11-18 thorough hunt (hunt 4):** #1364 monitor class; dry **2026-11-17**.
+- [x] (valid-no-repro) `OutboundWebhookDryRunController.DryRunAsync` — DNS gate ignores aborted client token — **cheap-disproof 2026-11-18 thorough hunt (hunt 4):** hit **2026-11-17** cancel propagation.
+- [x] (invalid) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — shared secret trim ordering — **cheap-disproof 2026-11-18 thorough hunt (hunt 4):** trim before signature header.
+- [x] (invalid) `RunToolInvocationForensicsBuilder.Build` — null-padding structured rows — **cheap-disproof 2026-11-18 thorough hunt (hunt 4):** not in zone paths.
+
+- [ ] (candidate) `WebhookSimulationController.SimulateAsync` — should align audit `targetAuthority` with `FormatTargetAuthorityForAudit` for defense in depth — locus: L70 `GetLeftPart`; input: future relaxed URL policy; wrong outcome: credential echo in audit JSON; reachability: simulate endpoint (monitor).
+- [ ] (candidate) `OutboundWebhookDryRunController.DryRunAsync` — `reasonPhrase` in audit JSON not coalesced when probe returns null — locus: audit serialize vs response DTO; input: HTTP/2 null phrase on success path; wrong outcome: audit null vs operator empty string split; reachability: audit forensics parity.
+- [ ] (candidate) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — `HttpCompletionOption.ResponseHeadersRead` with cancel during body read — locus: preview loop; input: slow trickle body + client abort; wrong outcome: cancel vs partial preview envelope; reachability: operator cancel (#1361 family).
+- [ ] (candidate) `OutboundWebhookDryRunController.DryRunAsync` — rate limit `429` without `Retry-After` hint — locus: `EnableRateLimiting`; input: burst dry-run clicks; wrong outcome: operator over-retries; reachability: Operator UI (monitor).
+- [ ] (candidate) `OutboundWebhookDryRunService` — synthetic CloudEvents `source` uses `archlucid.local` literal — locus: `BuildSyntheticFindingCreatedWebhookBodyUtf8`; input: strict subscriber allow-list; wrong outcome: subscriber rejects syntactic source; reachability: subscriber contract (monitor).
+
 2026-11-17 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; zone low-yield streak **2/3** before this record). Hunted five post-seed `(candidate)` monitor rows. **Hit:** `OutboundWebhookDryRunService.ProbeWithBodyAsync` and controller response mapping coalesced null `HttpResponseMessage.ReasonPhrase` to empty string for HTTP/2-style responses; regression `DryRunAsync_returns_empty_reason_phrase_when_probe_returns_null_reason_phrase`. **Hit (defense in depth):** `AllowedOutboundWebhookProbeUrlPolicy.FormatTargetAuthorityForAudit` strips userinfo before audit `targetAuthority` JSON; regression `FormatTargetAuthorityForAudit_strips_embedded_userinfo` (sync guard already rejects embedded credentials on the probe URL — cheap-disproof below). Cheap-disproof closed sibling monitors — **valid-no-repro** cancellation during DNS resolve (ASP.NET propagates `OperationCanceledException`; not conflated with validation `400`), **invalid** audit userinfo on live probe path (`TryGetRejectionReason` rejects embedded credentials before audit), **invalid** burst `429` rate-limit vs cached UI (client UX outside API contract), **valid-no-repro** UTF-8 preview char-cap (diagnostic preview is best-effort; truncation flag is char-based per `PreviewMaxChars` design). Reseeded five monitor `(candidate)` rows below. Scoped filter **25/25** Api dry-run + **14/14** policy tests (`RunAnalyzers=false`, Release). Private beta: invited operators using webhook dry-run under Execute Authority see non-null `reasonPhrase` in probe results when subscribers return HTTP/2 responses with no phrase, and audit metadata never stores credential-bearing authority segments if userinfo is present on the URI.
 
 - [x] (proven) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — null `ReasonPhrase` on HTTP/2 responses — **hit 2026-11-17 thorough hunt:** coalesce to empty string; regression above. [class:other]
@@ -530,12 +546,6 @@
 - [x] (invalid) `OutboundWebhookDryRunController.DryRunAsync` — audit echoes credential-bearing authority on successful probe — **cheap-disproof 2026-11-17 thorough hunt:** embedded credentials rejected before probe (`TryGetRejectionReason_WhenUrlEmbedsCredentials_Rejects`).
 - [x] (invalid) `OutboundWebhookDryRunController` — burst dry-run `429` vs stale client cache — **cheap-disproof 2026-11-17 thorough hunt:** rate limit is intentional API contract; UI cache out of zone scope.
 - [x] (valid-no-repro) `OutboundWebhookDryRunService.ReadResponseBodyPreviewAsync` — UTF-8 surrogate split under char cap — **cheap-disproof 2026-11-17 thorough hunt:** preview is best-effort operator diagnostics; char `PreviewMaxChars` contract.
-
-- [ ] (candidate) `WebhookSimulationController.SimulateAsync` — audit `targetAuthority` still uses `GetLeftPart(Authority)` without userinfo strip when simulation path shares formatter — locus: audit block; input: simulation URL that bypasses embedded-credential guard; wrong outcome: credentials in audit; reachability: integration simulate endpoint.
-- [ ] (candidate) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — audit `error` and `reasonPhrase` length unbounded on transport failure envelope — locus: exception message path; input: subscriber returning megabyte `ReasonPhrase`; wrong outcome: oversized audit rows; reachability: hostile subscriber (monitor; #1364 class).
-- [ ] (candidate) `OutboundWebhookDryRunController.DryRunAsync` — pre-probe DNS async gate does not honor aborted client token when sync guard already passed — locus: `TryGetRejectionReasonAfterDnsResolveAsync`; input: cancel during slow DNS; wrong outcome: probe runs after client disconnect; reachability: operator navigates away mid-validation.
-- [ ] (candidate) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — `sharedSecret` trim happens after `HttpRequestMessage` built with raw spacing — locus: signature header; input: secret with leading newline; wrong outcome: unsigned POST despite operator believing secret configured; reachability: pasted webhook secret in Operator UI.
-- [ ] (candidate) `RunToolInvocationForensicsBuilder.Build` — choosing structured vs trace-derived rows when structured list contains only null slots — locus: `Any(record => record is not null)` gate; input: ledger replay with null padding; wrong outcome: wrong disclaimer branch; reachability: run-detail tool forensics tab.
 
 **Hunts:** 3 · **Bugs found:** 1 · **Consecutive dry hunts:** 0
 
@@ -558,8 +568,11 @@
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
+- **hunts:** 4
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 1
-- **last-bug:** never
+- **last-hunt:** 2026-11-18
+- **last-bug:** 2026-11-17
 - **related-pd-tb:** none
 - **code-changed-since:** 7
 
