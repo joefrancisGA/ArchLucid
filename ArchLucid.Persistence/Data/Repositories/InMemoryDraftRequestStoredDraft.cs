@@ -2,95 +2,95 @@ using ArchLucid.Contracts.Drafts;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
-internal sealed class InMemoryDraftRequestStoredDraft
+internal sealed record InMemoryDraftRequestStoredDraft
 {
     public Guid DraftId
     {
         get;
-        set;
+        init;
     }
 
     public Guid TenantId
     {
         get;
-        set;
+        init;
     }
 
     public Guid WorkspaceId
     {
         get;
-        set;
+        init;
     }
 
     public Guid ProjectId
     {
         get;
-        set;
+        init;
     }
 
     public string CreatedByUserId
     {
         get;
-        set;
+        init;
     } = string.Empty;
 
     public Guid? ArchitectureId
     {
         get;
-        set;
+        init;
     }
 
     public DraftRequestStatus Status
     {
         get;
-        set;
+        init;
     }
 
     public DraftRequestDocument Document
     {
         get;
-        set;
+        init;
     } = new();
 
     public string? RedirectReason
     {
         get;
-        set;
+        init;
     }
 
     public string? SpawnedRunId
     {
         get;
-        set;
+        init;
     }
 
     public Guid? SpawnedArchitectureVersionId
     {
         get;
-        set;
+        init;
     }
 
     public byte[]? DocumentContentHashSha256
     {
         get;
-        set;
+        init;
     }
 
     public byte[]? SpawnedDocumentContentHashSha256
     {
         get;
-        set;
+        init;
     }
 
     public DateTime CreatedUtc
     {
         get;
-        set;
+        init;
     }
 
     public DateTime UpdatedUtc
     {
         get;
-        set;
+        init;
     }
 }

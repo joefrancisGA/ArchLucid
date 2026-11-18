@@ -84,31 +84,35 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        if (!_drafts.TryGetValue(draftId, out InMemoryDraftRequestStoredDraft? stored))
-            return Task.FromResult<DraftRequestResponse?>(null);
+        while (_drafts.TryGetValue(draftId, out InMemoryDraftRequestStoredDraft? stored))
+        {
+            if (!DraftRequestRepositoryCore.MatchesProjectScope(
+                    tenantId,
+                    workspaceId,
+                    projectId,
+                    stored.TenantId,
+                    stored.WorkspaceId,
+                    stored.ProjectId))
+                break;
 
-        if (!DraftRequestRepositoryCore.MatchesProjectScope(
-                tenantId,
-                workspaceId,
-                projectId,
-                stored.TenantId,
-                stored.WorkspaceId,
-                stored.ProjectId))
-            return Task.FromResult<DraftRequestResponse?>(null);
+            InMemoryDraftRequestStoredDraft updated = stored with
+            {
+                Status = status,
+                Document = DraftRequestRepositoryCore.CloneDocument(document, JsonOptions),
+                RedirectReason = redirectReason,
+                SpawnedRunId = spawnedRunId,
+                SpawnedArchitectureVersionId = spawnedArchitectureVersionId,
+                DocumentContentHashSha256 = DraftDocumentContentFingerprint.Compute(document),
+                SpawnedDocumentContentHashSha256 = spawnedDocumentContentHashSha256?.ToArray()
+                    ?? stored.SpawnedDocumentContentHashSha256,
+                UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            };
 
-        stored.Status = status;
-        stored.Document = DraftRequestRepositoryCore.CloneDocument(document, JsonOptions);
-        stored.RedirectReason = redirectReason;
-        stored.SpawnedRunId = spawnedRunId;
-        stored.SpawnedArchitectureVersionId = spawnedArchitectureVersionId;
-        stored.DocumentContentHashSha256 = DraftDocumentContentFingerprint.Compute(document);
+            if (_drafts.TryUpdate(draftId, updated, stored))
+                return Task.FromResult<DraftRequestResponse?>(Map(updated));
+        }
 
-        if (spawnedDocumentContentHashSha256 is not null)
-            stored.SpawnedDocumentContentHashSha256 = spawnedDocumentContentHashSha256.ToArray();
-
-        stored.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-
-        return Task.FromResult<DraftRequestResponse?>(Map(stored));
+        return Task.FromResult<DraftRequestResponse?>(null);
     }
 
     /// <inheritdoc />
@@ -131,8 +135,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
             if (!DraftRequestRepositoryCore.IsReaperEligible(stored.Status, stored.UpdatedUtc, cutoff))
                 continue;
 
-            if (_drafts.TryRemove(entry.Key, out InMemoryDraftRequestStoredDraft? removed))
-                deleted.Add(new DraftIntakeReapedDraft(removed.DraftId, removed.TenantId, removed.WorkspaceId, removed.ProjectId));
+            if (_drafts.TryRemove(entry))
+                deleted.Add(new DraftIntakeReapedDraft(stored.DraftId, stored.TenantId, stored.WorkspaceId, stored.ProjectId));
         }
 
         return Task.FromResult(new DraftIntakeReaperBatchResult
@@ -310,22 +314,28 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         Guid architectureId,
         CancellationToken cancellationToken)
     {
-        if (!_drafts.TryGetValue(draftId, out InMemoryDraftRequestStoredDraft? stored))
-            return Task.FromResult(false);
+        while (_drafts.TryGetValue(draftId, out InMemoryDraftRequestStoredDraft? stored))
+        {
+            if (!DraftRequestRepositoryCore.MatchesProjectScope(
+                    tenantId,
+                    workspaceId,
+                    projectId,
+                    stored.TenantId,
+                    stored.WorkspaceId,
+                    stored.ProjectId))
+                break;
 
-        if (!DraftRequestRepositoryCore.MatchesProjectScope(
-                tenantId,
-                workspaceId,
-                projectId,
-                stored.TenantId,
-                stored.WorkspaceId,
-                stored.ProjectId))
-            return Task.FromResult(false);
+            InMemoryDraftRequestStoredDraft updated = stored with
+            {
+                ArchitectureId = architectureId,
+                UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            };
 
-        stored.ArchitectureId = architectureId;
-        stored.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+            if (_drafts.TryUpdate(draftId, updated, stored))
+                return Task.FromResult(true);
+        }
 
-        return Task.FromResult(true);
+        return Task.FromResult(false);
     }
 
     /// <inheritdoc />
