@@ -82,6 +82,7 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
                     s.WorkspaceId == workspaceId &&
                     s.ProjectId == projectId)
                 .OrderByDescending(s => s.CreatedUtc)
+                .Take(200)
                 .Select(Copy)
                 .ToList();
 
