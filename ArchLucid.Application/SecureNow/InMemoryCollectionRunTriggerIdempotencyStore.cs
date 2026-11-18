@@ -16,7 +16,9 @@ public sealed class InMemoryCollectionRunTriggerIdempotencyStore : ICollectionRu
             return true;
         }
 
-        _entries.TryRemove(key, out _);
+        if (entry is not null)
+            _entries.TryRemove(new KeyValuePair<string, Entry>(key, entry));
+
         runId = Guid.Empty;
         return false;
     }
