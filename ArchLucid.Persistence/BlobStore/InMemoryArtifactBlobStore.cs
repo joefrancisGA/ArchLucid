@@ -9,6 +9,7 @@ public sealed class InMemoryArtifactBlobStore : IArtifactBlobStore
 
     public Task<string> WriteAsync(string containerName, string blobName, string content, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
         string key = $"memory://{containerName}/{blobName}";
         _blobs[key] = content;
         return Task.FromResult(key);
