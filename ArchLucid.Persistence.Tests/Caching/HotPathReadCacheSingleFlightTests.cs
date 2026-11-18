@@ -3,12 +3,14 @@ namespace ArchLucid.Persistence.Tests.Caching;
 [Trait("Category", "Unit")]
 public sealed class HotPathReadCacheSingleFlightTests
 {
+    private readonly HotPathReadCacheSingleFlight _singleFlight = new();
+
     [SkippableFact]
     public async Task CoalesceAsync_active_follower_recovers_after_leader_cancellation()
     {
         using CancellationTokenSource leaderCancellation = new();
         const string key = "cancelled-leader";
-        Task<string> leader = HotPathReadCacheSingleFlight.CoalesceAsync(
+        Task<string> leader = _singleFlight.CoalesceAsync(
             key,
             async ct =>
             {
@@ -16,7 +18,7 @@ public sealed class HotPathReadCacheSingleFlightTests
                 return "leader";
             },
             leaderCancellation.Token);
-        Task<string> follower = HotPathReadCacheSingleFlight.CoalesceAsync(
+        Task<string> follower = _singleFlight.CoalesceAsync(
             key,
             _ => Task.FromResult("follower"),
             CancellationToken.None);
@@ -40,7 +42,7 @@ public sealed class HotPathReadCacheSingleFlightTests
             {
                 await startGate.Task;
 
-                return await HotPathReadCacheSingleFlight.CoalesceAsync(
+                return await _singleFlight.CoalesceAsync(
                     "flight-key",
                     async ct =>
                     {
@@ -72,7 +74,7 @@ public sealed class HotPathReadCacheSingleFlightTests
             {
                 await startGate.Task;
 
-                Func<Task> act = () => HotPathReadCacheSingleFlight.CoalesceAsync<string>(
+                Func<Task> act = () => _singleFlight.CoalesceAsync<string>(
                     "fault-key",
                     async ct =>
                     {
@@ -94,7 +96,7 @@ public sealed class HotPathReadCacheSingleFlightTests
 
         calls.Should().Be(1);
 
-        Func<Task> retry = () => HotPathReadCacheSingleFlight.CoalesceAsync<string>(
+        Func<Task> retry = () => _singleFlight.CoalesceAsync<string>(
             "fault-key",
             async _ =>
             {
@@ -124,7 +126,7 @@ public sealed class HotPathReadCacheSingleFlightTests
             {
                 await startGate.Task;
 
-                return await HotPathReadCacheSingleFlight.CoalesceAsync(
+                return await _singleFlight.CoalesceAsync(
                     "dedupe-key",
                     async ct =>
                     {

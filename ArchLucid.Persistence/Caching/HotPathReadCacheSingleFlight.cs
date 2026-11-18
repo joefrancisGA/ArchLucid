@@ -5,9 +5,9 @@ using ArchLucid.Core.Diagnostics;
 namespace ArchLucid.Persistence.Caching;
 
 /// <summary>
-///     Per-key in-process single-flight so concurrent hybrid-cache misses share one loader (TB-2160).
+///     Per-cache single-flight so concurrent misses for a key share one loader (TB-2160).
 /// </summary>
-internal static class HotPathReadCacheSingleFlight
+internal sealed class HotPathReadCacheSingleFlight
 {
     private sealed class InFlightEntry
     {
@@ -24,10 +24,10 @@ internal static class HotPathReadCacheSingleFlight
         }
     }
 
-    private static readonly ConcurrentDictionary<string, InFlightEntry> InFlight =
+    private readonly ConcurrentDictionary<string, InFlightEntry> _inFlight =
         new(StringComparer.Ordinal);
 
-    public static async Task<T> CoalesceAsync<T>(
+    public async Task<T> CoalesceAsync<T>(
         string key,
         Func<CancellationToken, Task<T>> leaderWork,
         CancellationToken cancellationToken)
@@ -44,7 +44,7 @@ internal static class HotPathReadCacheSingleFlight
                 Completion = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously),
             };
 
-            if (InFlight.TryAdd(key, entry))
+            if (_inFlight.TryAdd(key, entry))
             {
                 try
                 {
@@ -56,7 +56,7 @@ internal static class HotPathReadCacheSingleFlight
                 catch (OperationCanceledException operationCanceledException)
                 {
                     // Clear the flight before waking followers that can retry.
-                    InFlight.TryRemove(new KeyValuePair<string, InFlightEntry>(key, entry));
+                    _inFlight.TryRemove(new KeyValuePair<string, InFlightEntry>(key, entry));
                     entry.Completion.TrySetCanceled(operationCanceledException.CancellationToken);
 
                     throw;
@@ -69,11 +69,11 @@ internal static class HotPathReadCacheSingleFlight
                 }
                 finally
                 {
-                    InFlight.TryRemove(new KeyValuePair<string, InFlightEntry>(key, entry));
+                    _inFlight.TryRemove(new KeyValuePair<string, InFlightEntry>(key, entry));
                 }
             }
 
-            if (!InFlight.TryGetValue(key, out InFlightEntry? existing))
+            if (!_inFlight.TryGetValue(key, out InFlightEntry? existing))
                 continue;
 
             ArchLucidInstrumentation.RecordHotPathReadCacheInFlightDedupe();
