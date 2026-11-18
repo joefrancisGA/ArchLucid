@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-18 - Score lift round 73 (batch 38): Factory metrics and ranked paths reads, path view empty, and patterns catalog
+
+**Outcome.** Remediation factory executive metrics and ranked paths isolated read failures, ranked paths catalog and path-view filter empties, and remediation patterns catalog empty repeat partial-capture discipline and Report Problem on section read failures.
+
+**Surfaces.** Factory executive metrics load failure, ranked paths load failure, ranked paths empty and view filter, remediation patterns catalog empty, honesty and mounted contract tests.
+
 ## 2026-11-18 - Score lift round 72 (batch 37): Working standards catalog, factory queue load failure, patterns filter, and sealed date range
 
 **Outcome.** Working-mode standards rules catalog with filter empties, remediation factory priority queue load failure, remediation patterns registry filter empty, and signed records date-range filter empty repeat partial-capture discipline.

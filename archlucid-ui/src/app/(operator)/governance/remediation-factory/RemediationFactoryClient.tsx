@@ -103,6 +103,12 @@ import { RemediationFactoryContextStrip } from "./RemediationFactoryContextStrip
 import { RemediationFactoryPriorityTable } from "./RemediationFactoryPriorityTable";
 import { RemediationFactoryPriorityQueueEmptyPartialHonesty } from "./RemediationFactoryPriorityQueueEmptyPartialHonesty";
 import { RemediationFactoryPriorityQueueLoadFailurePartialHonesty } from "./RemediationFactoryPriorityQueueLoadFailurePartialHonesty";
+import { RemediationFactoryExecutiveMetricsLoadFailurePartialHonesty } from "./RemediationFactoryExecutiveMetricsLoadFailurePartialHonesty";
+import { RemediationFactoryRankedPathsLoadFailurePartialHonesty } from "./RemediationFactoryRankedPathsLoadFailurePartialHonesty";
+import { RemediationFactoryRankedPathsEmptyPartialHonesty } from "./RemediationFactoryRankedPathsEmptyPartialHonesty";
+import { RemediationFactoryRankedPathsViewFilterEmptyPartialHonesty } from "./RemediationFactoryRankedPathsViewFilterEmptyPartialHonesty";
+import { REMEDIATION_FACTORY_RANKED_PATHS_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/remediation-factory-ranked-paths-empty-not-load-failure-copy";
+import { REMEDIATION_FACTORY_RANKED_PATHS_VIEW_FILTER_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/remediation-factory-ranked-paths-view-filter-not-load-failure-copy";
 import { RemediationFactoryRankedPathsShortcutHints } from "./RemediationFactoryRankedPathsShortcutHints";
 import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
 import { remediationFactoryPageShortcutsDisclosureEntries } from "./remediation-factory-page-shortcuts-disclosure";
@@ -393,6 +399,14 @@ export function RemediationFactoryClient() {
     productLine === "security"
       ? "compliance-remediation-factory-priority-queue-read-failed"
       : "governance-remediation-factory-priority-queue-read-failed";
+  const remediationFactoryExecutiveMetricsFailureSurfaceId =
+    productLine === "security"
+      ? "compliance-remediation-factory-executive-metrics-read-failed"
+      : "governance-remediation-factory-executive-metrics-read-failed";
+  const remediationFactoryRankedPathsFailureSurfaceId =
+    productLine === "security"
+      ? "compliance-remediation-factory-ranked-paths-read-failed"
+      : "governance-remediation-factory-ranked-paths-read-failed";
   const [outcomeQueryState, setOutcomeQueryState] = useState<SecureNowArchitectOutcomeQueryState | null>(null);
   const [simulatorExplanation, setSimulatorExplanation] = useState<RemediationPrioritizationExplanation | null>(null);
   const [simulatorGeneratedAt, setSimulatorGeneratedAt] = useState<Date | null>(null);
@@ -820,6 +834,18 @@ export function RemediationFactoryClient() {
                 data-testid="remediation-executive-metrics-retry"
                 onClick={() => void metricsQuery.refetch()}
               />
+              {productLine === "security" && !remediationFactoryHardFailure ? (
+                <>
+                  <FatalPageReportProblemSupportRow
+                    surfaceId={remediationFactoryExecutiveMetricsFailureSurfaceId}
+                    errorTitle="Remediation factory executive metrics"
+                    errorCode="remediation-factory-executive-metrics-load-failed"
+                    correlationId={null}
+                    httpStatus={null}
+                  />
+                  <RemediationFactoryExecutiveMetricsLoadFailurePartialHonesty />
+                </>
+              ) : null}
             </>
           ) : metricsQuery.data ? (
             <ExecutiveMetricsGrid metrics={metricsQuery.data} openFindingsHref={openFindingsHref} />
@@ -1029,6 +1055,18 @@ export function RemediationFactoryClient() {
               data-testid="remediation-ranked-paths-retry"
               onClick={() => void rankedPathsQuery.refetch()}
             />
+            {productLine === "security" && !remediationFactoryHardFailure ? (
+              <>
+                <FatalPageReportProblemSupportRow
+                  surfaceId={remediationFactoryRankedPathsFailureSurfaceId}
+                  errorTitle="Remediation factory ranked paths"
+                  errorCode="remediation-factory-ranked-paths-load-failed"
+                  correlationId={null}
+                  httpStatus={null}
+                />
+                <RemediationFactoryRankedPathsLoadFailurePartialHonesty />
+              </>
+            ) : null}
           </>
         ) : productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 && !pathViewFiltersExpanded ? null : (
           <>
@@ -1043,7 +1081,34 @@ export function RemediationFactoryClient() {
               </p>
             ) : null}
             {visibleRankedPaths.length === 0 ? (
-              <EnterpriseCompactEmptyState {...rankedPathsEmptyState} />
+              <EnterpriseCompactEmptyState
+                {...rankedPathsEmptyState}
+                footer={
+                  <div className="space-y-2">
+                    {rankedPaths.length > 0 ? (
+                      <>
+                        <p
+                          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                          data-testid="remediation-factory-ranked-paths-view-filter-empty-not-failure"
+                        >
+                          {REMEDIATION_FACTORY_RANKED_PATHS_VIEW_FILTER_NOT_LOAD_FAILURE_LINE}
+                        </p>
+                        <RemediationFactoryRankedPathsViewFilterEmptyPartialHonesty />
+                      </>
+                    ) : (
+                      <>
+                        <p
+                          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                          data-testid="remediation-factory-ranked-paths-empty-not-failure"
+                        >
+                          {REMEDIATION_FACTORY_RANKED_PATHS_EMPTY_NOT_LOAD_FAILURE_LINE}
+                        </p>
+                        <RemediationFactoryRankedPathsEmptyPartialHonesty />
+                      </>
+                    )}
+                  </div>
+                }
+              />
             ) : (
               <RemediationFactoryRankedPathsTable
                 rows={visibleRankedPaths}
