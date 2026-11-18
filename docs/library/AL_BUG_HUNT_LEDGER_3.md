@@ -12530,6 +12530,22 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-11-18 thorough hunt #510 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**34** monitor rows — **valid-no-repro** `governanceFindingsClearAllFiltersHref` / `governanceFindingsClearReviewScopeHref` retaining `hideGeneric` (view-density param; atomic clear is `governanceFindingsShowAllFilteredFindingsHref` hunt **#1375** / **#507**); **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `focusedFinding` when register filters preserved (triage cursor independent of pick-review scope swap; hunt **#509**); **invalid** `GovernanceFindingsFilterBar` `removePresetId` surviving saved-view load (`onLoadFindingsSavedView` / saved-view href helpers full-replace URL); **invalid** `useGovernanceFindingsQueueSavedViews.dismissActiveFilterChip` register chip URL gap (export unused — hook not wired in queue client). Scoped vitest **22/22** on clear-all, clear-review-scope, pick-review URL helpers, and `use-governance-findings-queue-saved-views`. Reseeded five pass-**35** `(candidate)` rows below.
+
+- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — may retain `hideGeneric` when clearing register/facet filters — **valid-no-repro 2026-11-18 thorough hunt #510:** density toggle not a register/facet param; show-all helper clears it.
+- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — **valid-no-repro 2026-11-18 thorough hunt #510:** same intentional retention as clear-all.
+- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when switching `runId` with register filters preserved — **valid-no-repro 2026-11-18 thorough hunt #510:** triage cursor not cleared on pick-review; hunt **#507** / **#509**.
+- [x] (invalid) `GovernanceFindingsFilterBar` — `removePresetId` confirm may survive saved-view load — **invalid 2026-11-18 thorough hunt #510:** saved-view load replaces URL from filter payload, not prior query merge.
+- [x] (invalid) `useGovernanceFindingsQueueFacets.dismissActiveFilterChip` — register chip clear may skip URL sync when only `setRegisterFilter` runs — **invalid 2026-11-18 thorough hunt #510:** `dismissActiveFilterChip` is dead export (saved-views hook has no production consumer).
+
+- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — may retain `removePresetId` when clearing register/facet filters — locus: clear-all helper; input: `removePresetId` armed + clear all; monitor; pass 35 reseed.
+- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `removePresetId` when clearing review scope — locus: clear-review-scope helper; input: scoped run + `removePresetId`; monitor; pass 35 reseed.
+- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `removePresetId` when switching `runId` — locus: pick-review href; input: armed preset remove + pick another review; monitor; pass 35 reseed.
+- [ ] (candidate) `governanceFindingsWorkspaceSavedViewHref` — may retain `hideGeneric` when loading workspace saved view — locus: workspace saved-view href; input: `hideGeneric=1` + load saved view; monitor; pass 35 reseed.
+- [ ] (candidate) `GovernanceFindingsFilterBar` — `removePresetId` confirm may survive register filter chip navigation — locus: FilterChip href vs armed remove dialog; input: `removePresetId` + register chip click; monitor; pass 35 reseed.
+
+- [x] (superseded) pass **#34** monitor `(candidate)` queue — **superseded 2026-11-18 thorough hunt #510:** see hunt **#510** header and pass **#35** reseed.
+
 2026-11-18 thorough hunt #509 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**33** monitor rows — **invalid** `governanceFindingsWorkspaceSavedViewHref` / `governanceFindingsRunScopedSavedViewHref` retaining `govCorrection*` / `kbDisp*` (saved-view load uses `router.replace` with hrefs rebuilt from filter helpers, not `currentSearch` merge); **valid-no-repro** `governanceFindingsClearAllFiltersHref` + `focusedFinding` (triage cursor independent of filter clears; hunt **#507**); **valid-no-repro** `useGovernanceRecordCorrectionUrlSync` vs pick-review navigation (`governanceFindingsPickReviewForTriageHref` strips confirm params hunt **#508**; URL effect closes dialog when params absent); **valid-no-repro** `GovernanceFindingsQueueScopeSection` clear review scope + `focusedFinding` (triage cursor retained by design, parity with clear-all). Scoped vitest **25/25** on saved-view load, clear-all, clear-review-scope, and pick-review URL helpers plus `use-governance-findings-queue-saved-views` (round-robin verification after `npm ci`). Reseeded five pass-**34** `(candidate)` rows below.
 
 - [x] (invalid) `governanceFindingsWorkspaceSavedViewHref` — saved workspace view load may retain `govCorrection*` from prior URL — **invalid 2026-11-18 thorough hunt #509:** href builder does not read prior query; `onLoadFindingsSavedView` full-replaces URL.
@@ -12537,12 +12553,6 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — may retain `focusedFinding` when clearing filters — **valid-no-repro 2026-11-18 thorough hunt #509:** triage cursor not a register/facet param; hunt **#507**.
 - [x] (valid-no-repro) `useGovernanceRecordCorrectionUrlSync` — correction dialog vs pick-review navigation ordering — **valid-no-repro 2026-11-18 thorough hunt #509:** pick-review href + hook URL sync; hunt **#508**.
 - [x] (valid-no-repro) `GovernanceFindingsQueueScopeSection` — clear review scope link vs `focusedFinding` triage cursor — **valid-no-repro 2026-11-18 thorough hunt #509:** intentional cursor retention after scope clear.
-
-- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — may retain `hideGeneric` when clearing register/facet filters — locus: clear-all helper; input: `hideGeneric=1` + clear all; monitor; pass 34 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — locus: clear-review-scope helper; input: scoped run + `hideGeneric=1`; monitor; pass 34 reseed.
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when switching `runId` with register filters preserved — locus: pick-review href; input: `focusedFinding` + pick another review; monitor; pass 34 reseed.
-- [ ] (candidate) `GovernanceFindingsFilterBar` — `removePresetId` confirm may survive saved-view load — locus: preset remove URL; input: armed remove preset + load saved view; monitor; pass 34 reseed.
-- [ ] (candidate) `useGovernanceFindingsQueueFacets.dismissActiveFilterChip` — register chip clear may skip URL sync when only `setRegisterFilter` runs — locus: saved-views hook chip dismiss; input: register chip + stale `filter=` URL; monitor; pass 34 reseed.
 
 - [x] (superseded) pass **#33** monitor `(candidate)` queue — **superseded 2026-11-18 thorough hunt #509:** see hunt **#509** header and pass **#34** reseed.
 
@@ -12616,7 +12626,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 62`n- **bugs-found:** 42`n- **consecutive-dry-hunts:** 1`n- **last-hunt:** 2026-11-18
+- **hunts:** 63
+- **bugs-found:** 42
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-11-18
 - **last-bug:** 2026-11-17 — pick-review / clear-scope left correction confirm URLs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
