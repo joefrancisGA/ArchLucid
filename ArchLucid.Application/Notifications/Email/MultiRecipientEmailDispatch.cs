@@ -33,6 +33,8 @@ internal static class MultiRecipientEmailDispatch
 
         foreach (string mailbox in distinctMailboxes)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             string mailboxIdempotencyKey = BuildMailboxIdempotencyKey(idempotencyKeyPrefix, mailbox);
             SentEmailLedgerEntry ledgerEntry = new(
                 mailboxIdempotencyKey,
@@ -57,7 +59,8 @@ internal static class MultiRecipientEmailDispatch
                 throw;
             }
 
-            if (await sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken).ConfigureAwait(false))
+            // The provider confirmed the send. Persist the ledger before honoring caller cancellation.
+            if (await sentEmailLedger.TryRecordSentAsync(ledgerEntry, CancellationToken.None).ConfigureAwait(false))
                 recordedAny = true;
         }
 
