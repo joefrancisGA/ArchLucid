@@ -723,6 +723,11 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         SyntaxNode logAsyncSyntaxNode,
         CancellationToken cancellationToken)
     {
+        if (semanticModel is not null &&
+            !IsLogAsyncSyntaxInsideReachableIfBranches(logAsyncSyntaxNode, semanticModel, cancellationToken))
+        {
+            return false;
+        }
         BinaryExpressionSyntax? coalesceExpressionSyntax =
             logAsyncSyntaxNode.FirstAncestorOrSelf<BinaryExpressionSyntax>(
                 static binary => binary.IsKind(SyntaxKind.CoalesceExpression));
@@ -736,164 +741,68 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
         SwitchSectionSyntax? switchSectionSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<SwitchSectionSyntax>();
 
-        if (switchSectionSyntax is not null &&
-            switchSectionSyntax.Parent is SwitchStatementSyntax switchStatementSyntax)
-        {
-            if (semanticModel is not null)
-            {
-                return IsSwitchSectionReachableForConstantDiscriminant(
-                    switchStatementSyntax,
-                    switchSectionSyntax,
-                    semanticModel,
-                    cancellationToken);
-            }
-
-            return IsSwitchSectionReachableForSyntaxLiteralDiscriminant(switchStatementSyntax, switchSectionSyntax);
-        }
-
-        SwitchExpressionArmSyntax? switchExpressionArmSyntax =
-            logAsyncSyntaxNode.FirstAncestorOrSelf<SwitchExpressionArmSyntax>();
-
-        if (switchExpressionArmSyntax is not null &&
-            switchExpressionArmSyntax.Parent is SwitchExpressionSyntax switchExpressionSyntax)
-        {
-            if (semanticModel is not null)
-            {
-                return IsSwitchExpressionArmReachableForConstantDiscriminant(
-                    switchExpressionSyntax,
-                    switchExpressionArmSyntax,
-                    semanticModel,
-                    cancellationToken);
-            }
-
-            return IsSwitchExpressionArmReachableForSyntaxLiteralDiscriminant(
-                switchExpressionSyntax,
-                switchExpressionArmSyntax);
-        }
-
-        return true;
-    }
-
-    private static bool IsSwitchExpressionArmReachableForSyntaxLiteralDiscriminant(
-        SwitchExpressionSyntax switchExpressionSyntax,
-        SwitchExpressionArmSyntax armSyntax)
-    {
-        if (switchExpressionSyntax.GoverningExpression is not LiteralExpressionSyntax discriminantLiteralSyntax)
+        if (switchSectionSyntax is null)
             return true;
 
-        if (!TryGetSwitchLiteralValue(discriminantLiteralSyntax, out string? discriminantText))
+        if (switchSectionSyntax.Parent is not SwitchStatementSyntax switchStatementSyntax)
             return true;
-
-        if (IsSwitchExpressionArmWhenClauseCompileTimeFalse(armSyntax, semanticModel: null, cancellationToken: default))
-            return false;
-
-        if (armSyntax.Pattern is ConstantPatternSyntax constantPatternSyntax &&
-            constantPatternSyntax.Expression is LiteralExpressionSyntax armLiteralSyntax &&
-            TryGetSwitchLiteralValue(armLiteralSyntax, out string? armText) &&
-            string.Equals(discriminantText, armText, StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        if (armSyntax.Pattern is not DiscardPatternSyntax)
-            return false;
-
-        foreach (SwitchExpressionArmSyntax otherArmSyntax in switchExpressionSyntax.Arms)
-        {
-            if (otherArmSyntax.Pattern is not ConstantPatternSyntax otherConstantPatternSyntax)
-                continue;
-
-            if (otherConstantPatternSyntax.Expression is LiteralExpressionSyntax otherArmLiteralSyntax &&
-                TryGetSwitchLiteralValue(otherArmLiteralSyntax, out string? otherArmText) &&
-                string.Equals(discriminantText, otherArmText, StringComparison.Ordinal))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static bool IsSwitchExpressionArmReachableForConstantDiscriminant(
-        SwitchExpressionSyntax switchExpressionSyntax,
-        SwitchExpressionArmSyntax armSyntax,
-        SemanticModel semanticModel,
-        CancellationToken cancellationToken)
-    {
-        Optional<object?> discriminantOptional =
-            semanticModel.GetConstantValue(switchExpressionSyntax.GoverningExpression, cancellationToken);
-
-        if (!discriminantOptional.HasValue)
-            return true;
-
-        object? discriminant = discriminantOptional.Value;
-
-        if (IsSwitchExpressionArmWhenClauseCompileTimeFalse(armSyntax, semanticModel, cancellationToken))
-            return false;
-
-        if (armSyntax.Pattern is ConstantPatternSyntax constantPatternSyntax)
-        {
-            Optional<object?> patternConstantOptional =
-                semanticModel.GetConstantValue(constantPatternSyntax.Expression, cancellationToken);
-
-            if (patternConstantOptional.HasValue &&
-                AuditProofConstantValuesEqual(discriminant, patternConstantOptional.Value))
-            {
-                return true;
-            }
-        }
-
-        if (armSyntax.Pattern is not DiscardPatternSyntax)
-            return false;
-
-        foreach (SwitchExpressionArmSyntax otherArmSyntax in switchExpressionSyntax.Arms)
-        {
-            if (otherArmSyntax.Pattern is not ConstantPatternSyntax otherConstantPatternSyntax)
-                continue;
-
-            Optional<object?> otherPatternConstantOptional =
-                semanticModel.GetConstantValue(otherConstantPatternSyntax.Expression, cancellationToken);
-
-            if (otherPatternConstantOptional.HasValue &&
-                AuditProofConstantValuesEqual(discriminant, otherPatternConstantOptional.Value))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static bool IsSwitchExpressionArmWhenClauseCompileTimeFalse(
-        SwitchExpressionArmSyntax armSyntax,
-        SemanticModel? semanticModel,
-        CancellationToken cancellationToken)
-    {
-        if (armSyntax.WhenClause is null)
-            return false;
-
-        ExpressionSyntax whenCondition = armSyntax.WhenClause.Condition;
 
         if (semanticModel is not null)
         {
-            Optional<object?> whenConstantOptional =
-                semanticModel.GetConstantValue(whenCondition, cancellationToken);
+            return IsSwitchSectionReachableForConstantDiscriminant(
+                switchStatementSyntax,
+                switchSectionSyntax,
+                semanticModel,
+                cancellationToken);
+        }
 
-            if (whenConstantOptional.HasValue && whenConstantOptional.Value is bool whenBool)
-                return !whenBool;
+        return IsSwitchSectionReachableForSyntaxLiteralDiscriminant(switchStatementSyntax, switchSectionSyntax);
+    }
 
+
+    // Constant-false if branches and their else counterparts when the condition is constant true never run.
+    private static bool IsLogAsyncSyntaxInsideReachableIfBranches(
+        SyntaxNode logAsyncSyntaxNode,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        foreach (IfStatementSyntax ifStatementSyntax in logAsyncSyntaxNode.Ancestors().OfType<IfStatementSyntax>())
+        {
+            if (IsLogAsyncSyntaxUnderIfBranch(ifStatementSyntax.Statement, logAsyncSyntaxNode) &&
+                IsBooleanConditionKnown(ifStatementSyntax.Condition, semanticModel, cancellationToken, expected: false))
+            {
+                return false;
+            }
+
+            if (ifStatementSyntax.Else?.Statement is SyntaxNode elseStatementSyntax &&
+                IsLogAsyncSyntaxUnderIfBranch(elseStatementSyntax, logAsyncSyntaxNode) &&
+                IsBooleanConditionKnown(ifStatementSyntax.Condition, semanticModel, cancellationToken, expected: true))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsLogAsyncSyntaxUnderIfBranch(SyntaxNode branchStatementSyntax, SyntaxNode logAsyncSyntaxNode) =>
+        branchStatementSyntax.FullSpan.Contains(logAsyncSyntaxNode.Span);
+
+    private static bool IsBooleanConditionKnown(
+        ExpressionSyntax conditionSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken,
+        bool expected)
+    {
+        Optional<object?> constantOptional = semanticModel.GetConstantValue(conditionSyntax, cancellationToken);
+
+        if (!constantOptional.HasValue || constantOptional.Value is not bool boolValue)
+        {
             return false;
         }
 
-        if (whenCondition is LiteralExpressionSyntax literalExpressionSyntax &&
-            literalExpressionSyntax.IsKind(SyntaxKind.FalseLiteralExpression))
-        {
-            return true;
-        }
-
-        return false;
+        return boolValue == expected;
     }
-
     private static bool IsSyntaxNodeWithinExpression(SyntaxNode descendant, ExpressionSyntax rootExpression)
     {
         foreach (SyntaxNode? ancestor in descendant.Ancestors())
