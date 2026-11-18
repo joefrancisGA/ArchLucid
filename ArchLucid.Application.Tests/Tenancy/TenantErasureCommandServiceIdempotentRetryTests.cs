@@ -771,7 +771,9 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
             "corr",
             CancellationToken.None));
 
-        (await tenants.GetByIdAsync(tenantId, CancellationToken.None))!.LegalHoldUntilUtc.Should().Be(holdUntil);
+        TenantRecord? afterFailedClearHoldAudit = await tenants.GetByIdAsync(tenantId, CancellationToken.None);
+        afterFailedClearHoldAudit!.LegalHoldUntilUtc.Should().Be(holdUntil);
+        afterFailedClearHoldAudit.LegalHoldSetByUserId.Should().Be("counsel@example.com");
 
         (await sut.TryClearLegalHoldAsync(
                 tenantId,

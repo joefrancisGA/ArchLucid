@@ -1196,6 +1196,20 @@
 
 ## Zone: tenant-erasure
 
+2026-11-18 thorough hunt (dry #245): no rotation (`shouldRotate: false`). Cheap-disproof closed five monitor `(candidate)` rows from dry **#244** — **valid-no-repro** offboard marker without prior suspend still resumes suspend on side-effect retry (`TryOffboardTenantAsync_resumes_suspend_and_audit_when_marker_exists_without_suspension`; monitor seed **#244**); **valid-no-repro** concurrent approve atomic loser skips duplicate approve audit (`TryApproveErasureAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`; dry **#939**); **valid-no-repro** set-hold deterministic `EventId` includes normalized reason so changed reason after rollback yields a new id by design (`CreateSetLegalHoldAuditEventId` ~695–703; monitor seed **#244**); **invalid** backslash-normalized lifecycle offboard path — same encoded-path prerequisite class as dry **#279** / hit **2026-10-13**; **valid-no-repro** clear-hold audit rollback reapply preserves `LegalHoldSetByUserId` (`RollbackClearLegalHoldAfterFailedAuditAsync`; strengthened `TryClearLegalHoldAsync_retries_failed_clear_hold_audit_with_same_event_id_when_hold_rollback_reapplies`). Seeded five follow-on `(candidate)` monitor rows; scoped **93/93** Application + Api `TenantErasure` tests (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `TenantErasureCommandService.CompleteOffboardSideEffectsAsync` — offboard marker without `SuspendedUtc` must not skip suspension on operator retry — **cheap-disproof 2026-11-18 thorough hunt #245:** regression `TryOffboardTenantAsync_resumes_suspend_and_audit_when_marker_exists_without_suspension`; monitor seed **#244**.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — concurrent approve audit losers must not append duplicate approve events — **cheap-disproof 2026-11-18 thorough hunt #245:** regression above; dry **#939**; monitor seed **#244**.
+- [x] (valid-no-repro) `TenantErasureCommandService.TrySetLegalHoldAsync` — set-hold audit `EventId` must differ when normalized reason changes after rollback — **cheap-disproof 2026-11-18 thorough hunt #245:** reason token in deterministic hash; monitor seed **#244**.
+- [x] (invalid) `TenantErasureQuarantineMiddleware.Skip` — backslash-normalized lifecycle offboard path — **cheap-disproof 2026-11-18 thorough hunt #245:** no encoded-path prerequisite; dry **#279**; monitor seed **#244**.
+- [x] (valid-no-repro) `TenantErasureCommandService.RollbackClearLegalHoldAfterFailedAuditAsync` — clear-hold rollback must preserve `LegalHoldSetByUserId` when reapplying prior hold — **cheap-disproof 2026-11-18 thorough hunt #245:** assertion on clear-hold rollback regression; hit **#292**; monitor seed **#244**.
+
+- [ ] (candidate) `TenantErasureCommandService.TryRevertTenantErasureApprovalAsync` — revert audit failure leaves approval cleared while identical retry returns success without audit — locus: revert rollback parity with approve hit **#291**; input: audit outage after revert (monitor seed **#245**).
+- [ ] (candidate) `TenantErasureCommandService.CompleteOffboardSideEffectsAsync` — idempotent side-effect retry must not append duplicate offboard audit when suspend and marker already committed — locus: `CreateOffboardAuditEventId`; input: audit outage on second side-effect pass (monitor seed **#245** / dry **#279**).
+- [ ] (candidate) `TenantErasureCommandService.TrySetLegalHoldAsync` — set-hold audit `EventId` must change when `untilUtc` changes after rollback — locus: `CreateSetLegalHoldAuditEventId` ticks token; input: change hold end then retry (monitor seed **#245**).
+- [ ] (candidate) `TenantErasureQuarantineMiddleware.Skip` — percent-encoded semicolon on lifecycle approve path — locus: path normalization; input: `%3B` segment (monitor seed **#245** / dry **#279**).
+- [ ] (candidate) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit `EventId` must differ when configured quarantine span changes on retry — locus: `CreateRestoreAuditEventId`; input: quarantine day change after rollback (monitor seed **#245** / hit **#290**).
+
 2026-11-18 thorough hunt (dry #244): no rotation (`shouldRotate: false`). Cheap-disproof closed five monitor `(candidate)` rows from dry **#241** — **valid-no-repro** first-time offboard audit outage leaves quarantine marker and retries audit via `CompleteOffboardSideEffectsAsync` (`TryOffboardTenantAsync_retries_failed_audit_with_same_event_id_when_already_suspended`; dry **#279**); **valid-no-repro** approve audit failure rollback clears approval while offboard marker persists for intentional retry (`TryApproveErasureAsync_retries_failed_approve_audit_with_same_event_id_when_approval_rollback_reapplies`; hit **#291**); **valid-no-repro** set-hold idempotent retry skips duplicate audit when reason differs only by casing (`TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_casing`; hit **#239**); **invalid** double-encoded `%252E` lifecycle dot lacks reachable encoded `PathString` prerequisite (dry **#279**); **valid-no-repro** set-hold audit rollback restores prior `LegalHoldSetByUserId` when changing hold (`TrySetLegalHoldAsync_retries_failed_set_hold_audit_with_same_event_id_when_hold_rollback_restores_prior_hold`; hit **#239**). Seeded five follow-on `(candidate)` monitor rows; scoped **93/93** Application + Api `TenantErasure` tests (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit failure without quarantine rollback before operator retry leaves suspended tenant without offboard audit until side-effects path — **cheap-disproof 2026-11-18 thorough hunt #244:** regression above; monitor seed **#241** / dry **#279**.
@@ -1513,10 +1527,10 @@
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 292
+- **hunts:** 293
 - **bugs-found:** 496
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-04
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-11-18
 - **last-bug:** 2026-11-04 — clear legal hold audit retry after transient audit failure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
