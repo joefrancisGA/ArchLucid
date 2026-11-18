@@ -11,13 +11,14 @@ namespace ArchLucid.Api.Http;
 /// </summary>
 public static class ApiRequestBodyTypeCatalog
 {
-    private static readonly NullabilityInfoContext NullabilityContext = new();
+    // NullabilityInfoContext is not safe for concurrent Create calls on different members; keep one per thread.
+    private static readonly ThreadLocal<NullabilityInfoContext> NullabilityContext = new(() => new NullabilityInfoContext());
 
     public static bool CollectionPropertyAllowsNull(PropertyInfo property)
     {
         ArgumentNullException.ThrowIfNull(property);
 
-        return NullabilityContext.Create(property).ReadState == NullabilityState.Nullable;
+        return NullabilityContext.Value!.Create(property).ReadState == NullabilityState.Nullable;
     }
 
     public static IReadOnlyList<Type> DiscoverFromBodyRequestTypes(Assembly apiAssembly)
