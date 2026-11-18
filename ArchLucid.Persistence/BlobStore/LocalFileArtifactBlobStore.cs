@@ -36,6 +36,7 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
         ArgumentException.ThrowIfNullOrWhiteSpace(logicalBlobName);
+        ct.ThrowIfCancellationRequested();
 
         string safeContainer = SanitizeSegment(containerName);
         string scopedLogical = ArtifactBlobTenantPaths.PrefixWithTenant(_scopeProvider, logicalBlobName);
