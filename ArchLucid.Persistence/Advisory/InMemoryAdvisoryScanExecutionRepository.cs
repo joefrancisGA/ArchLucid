@@ -14,7 +14,7 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
     /// <inheritdoc />
     public Task CreateAsync(AdvisoryScanExecution execution, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
             _items.Add(Copy(execution));
         return Task.CompletedTask;
@@ -23,7 +23,7 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
     /// <inheritdoc />
     public Task UpdateAsync(AdvisoryScanExecution execution, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             int i = _items.FindIndex(x => x.ExecutionId == execution.ExecutionId && SameScope(x, execution));

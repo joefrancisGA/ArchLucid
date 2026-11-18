@@ -11,6 +11,25 @@ namespace ArchLucid.Persistence.Tests.Advisory;
 public sealed class InMemoryAdvisoryRepositoryCoverageTests
 {
     [Fact]
+    public async Task Advisory_scan_execution_repository_does_not_apply_canceled_writes()
+    {
+        InMemoryAdvisoryScanExecutionRepository sut = new();
+        AdvisoryScanExecution execution = new() { Status = "Started" };
+        CancellationToken canceled = new(canceled: true);
+        ScopeContext scope = new();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => sut.CreateAsync(execution, canceled));
+        Assert.Empty(await sut.ListByScheduleAsync(scope, execution.ScheduleId, 1, CancellationToken.None));
+
+        await sut.CreateAsync(execution, CancellationToken.None);
+        execution.Status = "Completed";
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => sut.UpdateAsync(execution, canceled));
+        AdvisoryScanExecution saved = Assert.Single(
+            await sut.ListByScheduleAsync(scope, execution.ScheduleId, 1, CancellationToken.None));
+        Assert.Equal("Started", saved.Status);
+    }
+
+    [Fact]
     public async Task Advisory_scan_execution_repository_lists_by_schedule()
     {
         InMemoryAdvisoryScanExecutionRepository sut = new();
