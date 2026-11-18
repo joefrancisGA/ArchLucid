@@ -792,6 +792,84 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
     }
 
     [Fact]
+    public async Task TrySetLegalHoldAsync_retries_failed_set_hold_audit_with_same_event_id_when_hold_rollback_clears()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 11, 18, 15, 0, 0, TimeSpan.Zero);
+        DateTimeOffset holdUntil = now.AddDays(14);
+        FakeTimeProvider clock = new(now);
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "Set Hold Audit Retry Org",
+            "set-hold-audit-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+        await tenants.TryStartTenantErasureOffboardAsync(
+            tenantId,
+            now.AddDays(-1),
+            now.AddDays(29),
+            CancellationToken.None);
+
+        Mock<IPlatformAuditRepository> audit = new();
+        List<Guid> setHoldAuditEventIds = [];
+        audit.Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) =>
+            {
+                if (auditEvent.EventType == AuditEventTypes.TenantErasureLegalHoldSet)
+                    setHoldAuditEventIds.Add(auditEvent.EventId);
+            })
+            .Returns<PlatformAuditEvent, CancellationToken>((auditEvent, _) =>
+                auditEvent.EventType == AuditEventTypes.TenantErasureLegalHoldSet
+                && setHoldAuditEventIds.Count == 1
+                    ? Task.FromException(new InvalidOperationException("Audit storage unavailable."))
+                    : Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions());
+
+        TenantErasureCommandService sut = new(
+            tenants,
+            audit.Object,
+            clock,
+            options.Object);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.TrySetLegalHoldAsync(
+            tenantId,
+            holdUntil,
+            "litigation",
+            "counsel@example.com",
+            "Counsel",
+            requireErasureQuarantine: true,
+            "corr",
+            CancellationToken.None));
+
+        (await tenants.GetByIdAsync(tenantId, CancellationToken.None))!.LegalHoldUntilUtc.Should().BeNull();
+
+        (await sut.TrySetLegalHoldAsync(
+                tenantId,
+                holdUntil,
+                "litigation",
+                "counsel@example.com",
+                "Counsel",
+                requireErasureQuarantine: true,
+                "corr",
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantErasureLegalHoldSet),
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+        setHoldAuditEventIds.Should().HaveCount(2);
+        setHoldAuditEventIds[1].Should().Be(setHoldAuditEventIds[0]);
+    }
+
+    [Fact]
     public async Task TryApproveErasureAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition()
     {
         Guid tenantId = Guid.NewGuid();
