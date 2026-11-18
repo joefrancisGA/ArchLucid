@@ -1,10 +1,12 @@
+using System.Collections.Concurrent;
+
 using ArchLucid.Core.AiUsage;
 
 namespace ArchLucid.Persistence.AiUsage;
 
 public sealed class InMemoryTenantAiBudgetPolicyRepository : ITenantAiBudgetPolicyRepository
 {
-    private readonly Dictionary<Guid, TenantAiBudgetPolicyRow> _rows = new();
+    private readonly ConcurrentDictionary<Guid, TenantAiBudgetPolicyRow> _rows = new();
 
     public Task<TenantAiBudgetPolicyRow?> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
@@ -19,12 +21,7 @@ public sealed class InMemoryTenantAiBudgetPolicyRepository : ITenantAiBudgetPoli
         DateTimeOffset trialExpirationUtc,
         CancellationToken cancellationToken = default)
     {
-        if (_rows.ContainsKey(tenantId))
-        {
-            return Task.FromResult(false);
-        }
-
-        _rows[tenantId] = new TenantAiBudgetPolicyRow
+        TenantAiBudgetPolicyRow policy = new()
         {
             TenantId = tenantId,
             BudgetAmountUsd = budgetAmountUsd,
@@ -33,6 +30,6 @@ public sealed class InMemoryTenantAiBudgetPolicyRepository : ITenantAiBudgetPoli
             TrialExpirationUtc = trialExpirationUtc,
         };
 
-        return Task.FromResult(true);
+        return Task.FromResult(_rows.TryAdd(tenantId, policy));
     }
 }
