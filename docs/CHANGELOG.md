@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-18 - Score lift round 77 (batch 42): Remediation dual-filter summary, golden manifest commit-first export errors, policy catalog Report Problem, connection category filter empty, attack path unevaluated honesty, and findings job-view filter empty
+
+**Outcome.** Remediation workbench names concurrent status and wave filters. Golden manifest export errors lead with commit-before-seal discipline. Policy pack catalog hard failures gain Report Problem and partial-capture teaching. Connection status category chip empties are distinct from load failure. Attack path report separates unevaluated-only from diagram filter empty. Findings queue job-view filter-no-match repeats not-load-failure and partial capture.
+
+**Surfaces.** Remediation workbench, golden manifest export menu, policy packs catalog, connection status dashboard, remediation factory attack path report, governance findings queue, honesty and mounted contract tests.
+
 ## 2026-11-18 - Score lift round 76 (batch 41): Findings NL facet filter empty, combined remediation filters, approval list Report Problem, terraform advisory line, and ROI validation hierarchy
 
 **Outcome.** Findings severity and status chip filter empties, combined remediation status and wave filter empty, approval list hard-failure Report Problem, terraform workbench advisory-not-apply line, and investigation-effort blocking banner validation vs missing-field hierarchy repeat partial-capture discipline.

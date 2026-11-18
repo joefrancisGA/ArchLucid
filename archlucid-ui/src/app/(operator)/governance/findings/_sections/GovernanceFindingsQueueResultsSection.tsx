@@ -20,6 +20,8 @@ import { cn } from "@/lib/utils";
 
 import { GovernanceFindingsFilterNoMatchPartialHonesty } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsFilterNoMatchPartialHonesty";
 import { GovernanceFindingsNlFacetFilterNoMatchPartialHonesty } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsNlFacetFilterNoMatchPartialHonesty";
+import { GovernanceFindingsJobViewFilterNoMatchPartialHonesty } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsJobViewFilterNoMatchPartialHonesty";
+import { GOVERNANCE_FINDINGS_JOB_VIEW_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/governance-findings-job-view-filter-empty-not-load-failure-copy";
 import { hasGovernanceFindingsNlFacetFilterActive } from "@/lib/governance/governance-findings-nl-facet-filter-active";
 import { GovernanceFindingsQueueResultsPartialCaptureFootnote } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueResultsPartialCaptureFootnote";
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
@@ -59,11 +61,24 @@ export function GovernanceFindingsQueueResultsSection(
               : props.filterNoMatchPreset.description
           }
           footer={
-            nlFacetFilterActive ? (
-              <GovernanceFindingsNlFacetFilterNoMatchPartialHonesty />
-            ) : (
-              <GovernanceFindingsFilterNoMatchPartialHonesty />
-            )
+            <div className="space-y-2">
+              {props.jobViewFilterActive ? (
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="governance-findings-job-view-filter-empty-not-load-failure"
+                >
+                  {GOVERNANCE_FINDINGS_JOB_VIEW_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+              ) : null}
+              {props.jobViewFilterActive ? (
+                <GovernanceFindingsJobViewFilterNoMatchPartialHonesty />
+              ) : null}
+              {nlFacetFilterActive ? (
+                <GovernanceFindingsNlFacetFilterNoMatchPartialHonesty />
+              ) : (
+                <GovernanceFindingsFilterNoMatchPartialHonesty />
+              )}
+            </div>
           }
         />
       ) : null}
