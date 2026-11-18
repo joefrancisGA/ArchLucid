@@ -18,9 +18,11 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
         _runs.AddOrUpdate(
             Key(collectionRun.TenantId, collectionRun.WorkspaceId, collectionRun.ProjectId, collectionRun.RunId),
             snapshot,
-            (_, current) => snapshot.Status == CollectionRunStatus.Running && current.Status != CollectionRunStatus.Running
-                ? current
-                : snapshot);
+            (_, current) =>
+                (snapshot.Status == CollectionRunStatus.Running && current.Status != CollectionRunStatus.Running) ||
+                (current.Status == CollectionRunStatus.Imported && snapshot.Status != CollectionRunStatus.Imported)
+                    ? current
+                    : snapshot);
         return Task.CompletedTask;
     }
 

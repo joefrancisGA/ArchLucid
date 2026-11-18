@@ -14,7 +14,7 @@ public sealed class CollectionRunRepositoryStateTests(SqlServerPersistenceFixtur
 {
     [Fact]
     [Trait("Category", "Unit")]
-    public Task In_memory_preserves_import_when_the_running_write_arrives_late() =>
+    public Task In_memory_preserves_import_when_an_unsuccessful_write_arrives_late() =>
         AssertPreservesImportAsync(new InMemoryCollectionRunRepository(), CreateRunningRun());
 
     [Fact]
@@ -37,7 +37,7 @@ public sealed class CollectionRunRepositoryStateTests(SqlServerPersistenceFixtur
 
     [SkippableFact]
     [Trait("Category", "SqlServerContainer")]
-    public async Task Sql_preserves_import_when_the_running_write_arrives_late()
+    public async Task Sql_preserves_import_when_an_unsuccessful_write_arrives_late()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
@@ -77,6 +77,8 @@ public sealed class CollectionRunRepositoryStateTests(SqlServerPersistenceFixtur
         (await repository.GetAsync(scope, running.RunId))!.Status.Should().Be(CollectionRunStatus.Running);
         await repository.UpsertAsync(imported);
         await repository.UpsertAsync(running);
+        await repository.UpsertAsync(running with { Status = CollectionRunStatus.Rejected, ErrorSummary = "Invalid manifest" });
+        await repository.UpsertAsync(running with { Status = CollectionRunStatus.Failed, ErrorSummary = "Import failed" });
 
         CollectionRun? stored = await repository.GetAsync(scope, running.RunId);
         stored.Should().BeEquivalentTo(imported);
