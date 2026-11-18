@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecureNowInvestigationEffortMissingFieldLabelsLine } from "@/components/product-line/SecureNowInvestigationEffortMissingFieldLabelsLine";
 import { SecureNowInvestigationEffortScopeLine } from "@/components/product-line/SecureNowInvestigationEffortScopeLine";
 import { SecureNowInvestigationEffortSyntheticExamplePanel } from "@/components/product-line/SecureNowInvestigationEffortSyntheticExamplePanel";
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
@@ -135,6 +136,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
             data-testid="securenow-investigation-effort-blocking-banner"
           >
             <p className={OPERATOR_TYPOGRAPHY.body}>{formatSecureNowInvestigationEffortBlockingBanner(resultState.reason)}</p>
+            <SecureNowInvestigationEffortMissingFieldLabelsLine inputs={inputs} />
           </div>
         ) : null}
         <section aria-labelledby="securenow-investigation-effort-inputs-heading" className="space-y-3">

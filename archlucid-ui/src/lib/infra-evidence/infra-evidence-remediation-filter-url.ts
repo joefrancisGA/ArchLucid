@@ -8,6 +8,7 @@ import {
   REMEDIATION_WORKBENCH_RUN_ID_PARAM,
   REMEDIATION_WORKBENCH_SNAPSHOT_ID_PARAM,
   REMEDIATION_WORKBENCH_STATUS_PARAM,
+  REMEDIATION_WORKBENCH_WAVE_PARAM,
   type InfraEvidenceWorkbenchContext,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import {
@@ -42,6 +43,9 @@ export function remediationWorkbenchHrefFromSearch(
       : null,
     status: readParam(REMEDIATION_WORKBENCH_STATUS_PARAM, patch.status)?.length
       ? readParam(REMEDIATION_WORKBENCH_STATUS_PARAM, patch.status)
+      : null,
+    waveId: readParam(REMEDIATION_WORKBENCH_WAVE_PARAM, patch.waveId)?.length
+      ? readParam(REMEDIATION_WORKBENCH_WAVE_PARAM, patch.waveId)
       : null,
     findingId: readParam(REMEDIATION_WORKBENCH_FINDING_ID_PARAM, patch.findingId)?.length
       ? readParam(REMEDIATION_WORKBENCH_FINDING_ID_PARAM, patch.findingId)
