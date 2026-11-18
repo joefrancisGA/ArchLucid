@@ -8,6 +8,7 @@ namespace ArchLucid.Persistence.Data.Repositories;
 public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepository
 {
     private readonly ConcurrentDictionary<Guid, OperatorSavedViewStoredRow> _views = new();
+    private readonly Lock _createGate = new();
 
     /// <inheritdoc />
     public Task<IReadOnlyList<OperatorSavedViewResponse>> ListAsync(
@@ -44,11 +45,6 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
         bool isShared,
         CancellationToken cancellationToken)
     {
-        if (OperatorSavedViewRepositoryCore.IsDuplicateName(_views.Values, tenantId, userId, surface, name))
-        {
-            throw OperatorSavedViewRepositoryCore.CreateDuplicateNameException(name, surface);
-        }
-
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
         OperatorSavedViewStoredRow stored = new()
         {
@@ -64,7 +60,13 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
             UpdatedUtc = now,
         };
 
-        _views[stored.Id] = stored;
+        lock (_createGate)
+        {
+            if (OperatorSavedViewRepositoryCore.IsDuplicateName(_views.Values, tenantId, userId, surface, name))
+                throw OperatorSavedViewRepositoryCore.CreateDuplicateNameException(name, surface);
+
+            _views[stored.Id] = stored;
+        }
 
         return Task.FromResult<OperatorSavedViewResponse?>(
             OperatorSavedViewRepositoryCore.MapToResponse(stored, userId));
