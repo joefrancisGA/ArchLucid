@@ -23,10 +23,14 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
         lock (_gate)
         {
             // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
-            int i = _items.FindIndex(x =>
+            AlertDeliveryAttempt? stored = _items.Find(x =>
                 x.AlertDeliveryAttemptId == attempt.AlertDeliveryAttemptId && SameScope(x, attempt));
-            if (i >= 0)
-                _items[i] = Copy(attempt);
+            if (stored is not null)
+            {
+                stored.Status = attempt.Status;
+                stored.ErrorMessage = attempt.ErrorMessage;
+                stored.RetryCount = attempt.RetryCount;
+            }
         }
 
         return Task.CompletedTask;
