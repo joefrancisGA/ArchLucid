@@ -117,7 +117,7 @@ public abstract class RecoverableOutboxProcessorBase<TEntry, TRepository, TOptio
         {
             await ProcessEntryAsync(scope, outbox, entry, opts, cancellationToken).ConfigureAwait(false);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             throw;
         }
