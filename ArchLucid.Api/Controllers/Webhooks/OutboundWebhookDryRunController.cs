@@ -51,11 +51,13 @@ public sealed class OutboundWebhookDryRunController(
         OutboundWebhookDryRunResult outcome =
             await probe.ProbeAsync(body.TargetUrl, body.SharedSecret, cancellationToken);
 
+        string reasonPhrase = outcome.ReasonPhrase ?? string.Empty;
+
         OutboundWebhookDryRunResponse response = new()
         {
             TransportSucceeded = outcome.TransportSucceeded,
             StatusCode = outcome.StatusCode,
-            ReasonPhrase = outcome.ReasonPhrase ?? string.Empty,
+            ReasonPhrase = reasonPhrase,
             ResponseBodyPreview = outcome.ResponseBodyPreview,
             ResponseBodyTruncated = outcome.ResponseBodyTruncated,
             Error = outcome.Error
@@ -75,7 +77,7 @@ public sealed class OutboundWebhookDryRunController(
                         hasSharedSecret = !string.IsNullOrEmpty(body.SharedSecret?.Trim()),
                         transportSucceeded = outcome.TransportSucceeded,
                         statusCode = outcome.StatusCode,
-                        reasonPhrase = outcome.ReasonPhrase,
+                        reasonPhrase,
                         responseBodyTruncated = outcome.ResponseBodyTruncated,
                         error = outcome.Error
                     })
