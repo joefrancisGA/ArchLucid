@@ -7213,6 +7213,34 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-11-18 thorough hunt (hit #248): no rotation (`shouldRotate: false`; picker/script unavailable — **ENOSPC** on `C:`). Failing repro on monitor seeds **#247** — comma-folded `Authorization` with medium black circle (`U+26AB`) or white medium star (`U+2B50`) after `Bearer` misclassified glued segment and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+26AB` and `U+2B50`; regressions `HandleAuthenticateAsync_succeeds_when_u26ab_medium_black_circle_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_u2b50_white_medium_star_only_bearer_segment_precedes_valid_comma_folded_credential`. Cheap-disproof closed three remaining monitor `(candidate)` rows — **valid-no-repro** fresh `auth_time` wins over stale `iat` when both present (`HasRecentAuthentication_returns_true_when_fresh_auth_time_present_even_if_iat_is_stale`; seed **#136**); **valid-no-repro** non-Guid auth-version fail-closed (`ValidateAsync_rejects_non_guid_auth_version_claim_for_platform_user`; seed **#137**); **valid-no-repro** blank inbound role skipped before substantive value (`Apply_skips_whitespace_only_inbound_role_values`). Seeded five follow-on `(candidate)` monitor rows; scoped tests **not re-run** (host **ENOSPC**). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+26AB or U+2B50 placeholder before a valid token.
+
+- [x] (proven) `ScimBearerAuthenticationHandler` — medium black circle (`U+26AB`) glued after `Bearer` — **hit 2026-11-18 thorough hunt #248:** regressions above (monitor seed **#247**).
+- [x] (proven) `ScimBearerAuthenticationHandler` — white medium star (`U+2B50`) glued after `Bearer` — **hit 2026-11-18 thorough hunt #248:** same fix and regressions (monitor seed **#247**).
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — stale `iat` with newer fresh `auth_time` prefers `auth_time` — **cheap-disproof 2026-11-18 thorough hunt #248:** regression above; monitor seed **#247**.
+- [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — non-Guid auth-version string rejected for platform user — **cheap-disproof 2026-11-18 thorough hunt #248:** regression above; monitor seed **#247**.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — empty-string role on configured source skipped — **cheap-disproof 2026-11-18 thorough hunt #248:** regression above; monitor seed **#247**.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — black star (`U+2605`) glued after `Bearer` — locus: star symbols; reachability: proxy comma-fold monitor (seed **#248**).
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — shadowed white star (`U+2730`) glued after `Bearer` — locus: Dingbats; reachability: proxy comma-fold monitor (seed **#248**).
+- [ ] (candidate) `RecentAuthenticationEvaluator` — garbage `auth_time` with fresh `iat` falls back to `iat` — locus: precedence; input: unparseable auth_time plus fresh iat (monitor seed **#248**).
+- [ ] (candidate) `PlatformUserAuthVersionValidator` — braceless Guid auth-version rejected — locus: `Guid.TryParse`; input: 32-hex without dashes (monitor seed **#248** / seed **#137**).
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — two configured role sources with same role value deduped once — locus: `HasClaim` guard; input: duplicate sources (monitor seed **#248**).
+
+2026-11-18 thorough hunt (hit #247): no rotation (`shouldRotate: false`). Failing repro on monitor seeds **#246** — comma-folded `Authorization` with black large circle (`U+2B24`) or black medium small circle (`U+2B25`) after `Bearer` misclassified glued segment and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+2B24` and `U+2B25`; regressions `HandleAuthenticateAsync_succeeds_when_u2b24_black_large_circle_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_u2b25_black_medium_small_circle_only_bearer_segment_precedes_valid_comma_folded_credential`. Cheap-disproof closed three remaining monitor `(candidate)` rows — **valid-no-repro** future `iat` without `auth_time` rejected (`HasRecentAuthentication_returns_false_when_only_future_iat_is_present_without_auth_time`; seed **#136**); **valid-no-repro** whitespace-only auth-version on Guid `sub` (`ValidateAsync_rejects_platform_user_tokens_with_whitespace_only_auth_version_claim`; monitor seed **#246**); **valid-no-repro** two values on one role source promote both roles (`Apply_promotes_both_distinct_roles_when_single_source_emits_two_values`). Seeded five follow-on `(candidate)` monitor rows; scoped **306/306** focused Api + Application auth tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+2B24 or U+2B25 placeholder before a valid token.
+
+- [x] (proven) `ScimBearerAuthenticationHandler` — black large circle (`U+2B24`) glued after `Bearer` — **hit 2026-11-18 thorough hunt #247:** regressions above (monitor seed **#246**).
+- [x] (proven) `ScimBearerAuthenticationHandler` — black medium small circle (`U+2B25`) glued after `Bearer` — **hit 2026-11-18 thorough hunt #247:** same fix and regressions (monitor seed **#246**).
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — future `iat` without `auth_time` rejected — **cheap-disproof 2026-11-18 thorough hunt #247:** regression above; monitor seed **#246**.
+- [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — whitespace-only auth-version claim rejected for Guid `sub` — **cheap-disproof 2026-11-18 thorough hunt #247:** regression above; monitor seed **#246**.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — two values on one configured role source promotes both roles — **cheap-disproof 2026-11-18 thorough hunt #247:** regression above; monitor seed **#246**.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — medium black circle (`U+26AB`) glued after `Bearer` — locus: Dingbats set; reachability: proxy comma-fold monitor (seed **#247**).
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — circled white star (`U+2B50`) glued after `Bearer` — locus: Miscellaneous Symbols; reachability: proxy comma-fold monitor (seed **#247**).
+- [ ] (candidate) `RecentAuthenticationEvaluator` — stale `iat` with newer fresh `auth_time` prefers `auth_time` — locus: instant precedence; input: stale iat plus fresh auth_time (monitor seed **#247** / seed **#136**).
+- [ ] (candidate) `PlatformUserAuthVersionValidator` — non-Guid auth-version string rejected for platform user — locus: `Guid.TryParse` gate; input: literal `stale` claim (monitor seed **#247** / seed **#137**).
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — empty-string role on configured source skipped — locus: `IsNullOrWhiteSpace` guard; input: blank role attribute then Operator (monitor seed **#247**).
+
 2026-11-18 thorough hunt (hit #246): no rotation (`shouldRotate: false`). Failing repro on monitor seeds **#243** — comma-folded `Authorization` with medium white circle (`U+26AA`) or medium small white circle (`U+26AC`) after `Bearer` misclassified glued segment and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+26AA` and `U+26AC`; regressions `HandleAuthenticateAsync_succeeds_when_u26aa_medium_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_u26ac_medium_small_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`. Cheap-disproof closed three remaining monitor `(candidate)` rows — **valid-no-repro** future-skewed `auth_time` rejected (`HasRecentAuthentication_returns_false_for_future_auth_time`; seed **#136**); **valid-no-repro** Guid `sub` without auth-version on local issuer (`ValidateAsync_rejects_platform_user_tokens_without_auth_version_claim` and `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; seed **#137**); **valid-no-repro** distinct roles from two configured inbound sources union onto surface claims by design (`PromoteIncomingRoleValues` per source; dedupe regressions **#135**). Seeded five follow-on `(candidate)` monitor rows; scoped **302/302** focused Api + Application auth tests (`RunAnalyzers=false`; wide picker filter still has pre-existing Admin SAML integration failures). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+26AA or U+26AC placeholder before a valid token.
 
 - [x] (proven) `ScimBearerAuthenticationHandler` — medium white circle (`U+26AA`) glued after `Bearer` — **hit 2026-11-18 thorough hunt #246:** regressions above (monitor seed **#243**).
@@ -8841,11 +8869,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 166
-- **bugs-found:** 177
+- **hunts:** 168
+- **bugs-found:** 181
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-18
-- **last-bug:** 2026-11-18 — SCIM Bearer mix guard rejected U+26AA/U+26AC placeholders before valid comma-folded token
+- **last-bug:** 2026-11-18 — SCIM Bearer mix guard rejected U+26AB/U+2B50 placeholders before valid comma-folded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
