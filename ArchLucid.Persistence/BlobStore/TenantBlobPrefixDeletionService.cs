@@ -33,6 +33,7 @@ public sealed class TenantBlobPrefixDeletionService(
     public async Task<TenantBlobPrefixDeletionResult> DeleteAllTenantPrefixesAsync(Guid tenantId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         ArtifactLargePayloadOptions opts = _payloadOptions.CurrentValue;
         Dictionary<string, int> byContainer = new(StringComparer.OrdinalIgnoreCase);
 
@@ -51,6 +52,7 @@ public sealed class TenantBlobPrefixDeletionService(
 
                 foreach (string container in PrefixContainers)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     string cdir = Path.Combine(root, SanitizeFileToken(container), safeSegment);
 
                     if (!Directory.Exists(cdir))
@@ -61,6 +63,7 @@ public sealed class TenantBlobPrefixDeletionService(
                     }
 
                     int files = Directory.GetFiles(cdir, "*", SearchOption.AllDirectories).Length;
+                    cancellationToken.ThrowIfCancellationRequested();
                     Directory.Delete(cdir, recursive: true);
                     byContainer[container] = files;
                 }
