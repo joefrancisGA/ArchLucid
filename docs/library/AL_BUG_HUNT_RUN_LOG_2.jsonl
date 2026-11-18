@@ -3,3 +3,4 @@
 {"at":"2026-11-18T14:45:36.1828761Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantOrganizationDuplicateDetector.cs","ArchLucid.Application.Tests/Tenancy/TenantOrganizationDuplicateDetectorTests.cs"]}
 {"at":"2026-11-18T14:48:49.1564318Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-11-18T14:51:30.0000000Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantOrganizationDuplicateDetector.cs","ArchLucid.Application.Tests/Tenancy/TenantOrganizationDuplicateDetectorTests.cs"]}
+{"at":"2026-11-18T14:57:00.0000000Z","zoneId":"tenant-scoped-analyzer","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/TenantScopedSqlExpressionResolver.cs","ArchLucid.Analyzers.Tests/TenantScopedQueryScopeBindingAnalyzerTests.cs"]}

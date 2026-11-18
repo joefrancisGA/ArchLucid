@@ -309,7 +309,7 @@ public sealed class BracketedDynamicRunsRepository
 """;
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
-            .Diagnostic(Arch006Descriptor.UnanalyzableSqlRule)
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
             .WithSpan(85, 13, 87, 81)
             .WithArguments("dbo.Runs");
 
@@ -395,7 +395,7 @@ public sealed class DynamicRunsRepository
 """;
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
-            .Diagnostic(Arch006Descriptor.UnanalyzableSqlRule)
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
             .WithSpan(85, 13, 87, 77)
             .WithArguments("dbo.Runs");
 
@@ -658,7 +658,7 @@ public sealed class DynamicLocalRunsRepository
 """;
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
-            .Diagnostic(Arch006Descriptor.UnanalyzableSqlRule)
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
             .WithSpan(86, 13, 86, 50)
             .WithArguments("dbo.Runs");
 
@@ -691,7 +691,39 @@ public sealed class ConstHeadConcatRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(72, 13, 72, 50)
+            .WithSpan(88, 13, 88, 50)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
+    public async Task ARCH006_reports_unscoped_sql_when_interpolated_string_retains_literal_segments_with_runtime_hole()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System;
+using System.Data;
+using Dapper;
+
+public sealed class InterpolatedLiteralRunsRepository
+{
+    public void Load(IDbConnection connection, Guid tenantId)
+    {
+        _ = SqlMapper.Query<int>(
+            connection,
+            $"SELECT RunId FROM dbo.Runs WHERE TenantId = {tenantId}");
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(86, 13, 88, 71)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -723,7 +755,7 @@ public sealed class StringConcatRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(69, 13, 70, 86)
+            .WithSpan(86, 13, 88, 90)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);

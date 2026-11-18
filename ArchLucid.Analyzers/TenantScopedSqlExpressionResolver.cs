@@ -314,6 +314,10 @@ internal static class TenantScopedSqlExpressionResolver
         if (allStatic)
             return new ResolutionResult(builder.ToString(), true, hasScopeHelper);
 
+        // A runtime interpolation hole must not drop static literal SQL (see ResolveBinaryAdd).
+        if (builder.Length > 0)
+            return new ResolutionResult(builder.ToString(), true, hasScopeHelper);
+
         return new ResolutionResult(null, false, hasScopeHelper);
     }
 
