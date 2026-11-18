@@ -21,6 +21,7 @@ import {
 } from "./signed-records-list-copy";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { SignedRecordsFilterEmptyPartialHonesty } from "@/app/(operator)/governance/sealed-records/_sections/SignedRecordsFilterEmptyPartialHonesty";
+import { SignedRecordsDateRangeFilterEmptyPartialHonesty } from "@/app/(operator)/governance/sealed-records/_sections/SignedRecordsDateRangeFilterEmptyPartialHonesty";
 import { SIGNED_RECORDS_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/governance/signed-records-empty-partial-capture-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ import { cn } from "@/lib/utils";
 export type SignedRecordsListEmptyStatesProps = {
   readonly showEmptyState: boolean;
   readonly showFilterNoMatch: boolean;
+  readonly dateRangeFilterActive: boolean;
   readonly workspaceScopeTeaching: ReturnType<typeof resolveWorkspaceScopeEmptyTeachingForHub>;
   readonly showcaseSampleAvailable: boolean;
   readonly onClearFilters: () => void;
@@ -36,6 +38,7 @@ export type SignedRecordsListEmptyStatesProps = {
 export function SignedRecordsListEmptyStates({
   showEmptyState,
   showFilterNoMatch,
+  dateRangeFilterActive,
   workspaceScopeTeaching,
   showcaseSampleAvailable,
   onClearFilters,
@@ -91,6 +94,7 @@ export function SignedRecordsListEmptyStates({
         footer={
           <div className="space-y-2">
             <SignedRecordsFilterEmptyPartialHonesty />
+            {dateRangeFilterActive ? <SignedRecordsDateRangeFilterEmptyPartialHonesty /> : null}
             <Button
               type="button"
               variant="outline"

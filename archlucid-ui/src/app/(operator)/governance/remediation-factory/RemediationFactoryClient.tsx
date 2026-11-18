@@ -102,6 +102,7 @@ import { RemediationFactoryTopCutPointsSection } from "./RemediationFactoryTopCu
 import { RemediationFactoryContextStrip } from "./RemediationFactoryContextStrip";
 import { RemediationFactoryPriorityTable } from "./RemediationFactoryPriorityTable";
 import { RemediationFactoryPriorityQueueEmptyPartialHonesty } from "./RemediationFactoryPriorityQueueEmptyPartialHonesty";
+import { RemediationFactoryPriorityQueueLoadFailurePartialHonesty } from "./RemediationFactoryPriorityQueueLoadFailurePartialHonesty";
 import { RemediationFactoryRankedPathsShortcutHints } from "./RemediationFactoryRankedPathsShortcutHints";
 import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
 import { remediationFactoryPageShortcutsDisclosureEntries } from "./remediation-factory-page-shortcuts-disclosure";
@@ -388,6 +389,10 @@ export function RemediationFactoryClient() {
     productLine === "security"
       ? "compliance-remediation-factory-hard-failure"
       : "governance-remediation-factory-hard-failure";
+  const remediationFactoryPriorityQueueFailureSurfaceId =
+    productLine === "security"
+      ? "compliance-remediation-factory-priority-queue-read-failed"
+      : "governance-remediation-factory-priority-queue-read-failed";
   const [outcomeQueryState, setOutcomeQueryState] = useState<SecureNowArchitectOutcomeQueryState | null>(null);
   const [simulatorExplanation, setSimulatorExplanation] = useState<RemediationPrioritizationExplanation | null>(null);
   const [simulatorGeneratedAt, setSimulatorGeneratedAt] = useState<Date | null>(null);
@@ -918,6 +923,18 @@ export function RemediationFactoryClient() {
               data-testid="remediation-priority-queue-retry"
               onClick={() => void rankedQuery.refetch()}
             />
+            {productLine === "security" ? (
+              <>
+                <FatalPageReportProblemSupportRow
+                  surfaceId={remediationFactoryPriorityQueueFailureSurfaceId}
+                  errorTitle="Remediation factory priority queue"
+                  errorCode="remediation-factory-priority-queue-load-failed"
+                  correlationId={null}
+                  httpStatus={null}
+                />
+                <RemediationFactoryPriorityQueueLoadFailurePartialHonesty />
+              </>
+            ) : null}
           </>
         ) : ranked.length === 0 ? (
           <>
