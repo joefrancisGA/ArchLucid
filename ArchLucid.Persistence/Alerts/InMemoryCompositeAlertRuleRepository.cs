@@ -11,7 +11,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
     public Task CreateAsync(CompositeAlertRule rule, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(rule);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
             _items.Add(CompositeAlertRuleRepositoryCore.CloneRule(rule));
         return Task.CompletedTask;
@@ -20,7 +20,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
     public Task UpdateAsync(CompositeAlertRule rule, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(rule);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
@@ -39,7 +39,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
     public Task<CompositeAlertRule?> GetByIdAsync(ScopeContext scope, Guid compositeRuleId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             CompositeAlertRule? found = CompositeAlertRuleRepositoryCore
@@ -55,7 +55,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<CompositeAlertRule> result = CompositeAlertRuleRepositoryCore
@@ -72,7 +72,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<CompositeAlertRule> result = CompositeAlertRuleRepositoryCore
