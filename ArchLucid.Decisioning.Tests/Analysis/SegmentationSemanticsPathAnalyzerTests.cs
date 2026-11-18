@@ -115,7 +115,7 @@ public sealed class SegmentationSemanticsPathAnalyzerTests
     {
         return new GraphNode
         {
-            NodeId = "node-1",
+            NodeId = sourceId,
             NodeType = GraphNodeTypes.TopologyResource,
             Label = label,
             SourceId = sourceId,

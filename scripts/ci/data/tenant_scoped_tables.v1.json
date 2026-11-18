@@ -129,6 +129,7 @@
     "dbo.PlatformTenantAuthRecoveryGrants",
     "dbo.SecurityEvidencePathExplanations",
     "dbo.SecurityEvidencePathRankWeights",
+    "dbo.SecurityEvidencePathRouting",
     "dbo.SentEmails",
     "dbo.TenantAiBudgetPolicy",
     "dbo.TenantAwsConnectionRecords",
