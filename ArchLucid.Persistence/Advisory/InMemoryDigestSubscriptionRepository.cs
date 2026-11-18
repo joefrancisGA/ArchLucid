@@ -41,7 +41,6 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
                 stored.ChannelType = subscription.ChannelType;
                 stored.Destination = subscription.Destination;
                 stored.IsEnabled = subscription.IsEnabled;
-                stored.CreatedUtc = subscription.CreatedUtc;
                 stored.MetadataJson = subscription.MetadataJson;
 
                 if (stored.LastDeliveredUtc is null || subscription.LastDeliveredUtc > stored.LastDeliveredUtc)
