@@ -34,6 +34,7 @@ import {
 } from "./GovernanceWorkflowApprovalsQueue";
 import { GovernanceWorkflowApprovalsStatusFilterBar } from "./GovernanceWorkflowApprovalsStatusFilterBar";
 import { GovernanceWorkflowApprovalsStatusFilterEmptyPartialHonesty } from "./GovernanceWorkflowApprovalsStatusFilterEmptyPartialHonesty";
+import { GovernanceWorkflowApprovalsListLoadFailureHonesty } from "./GovernanceWorkflowApprovalsListLoadFailureHonesty";
 import type { GovernanceWorkflowPendingReview } from "./governance-workflow-helpers";
 
 export type GovernanceWorkflowApprovalsListProps = {
@@ -140,6 +141,8 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
   return (
     <div className="mt-6 grid gap-4">
       {activeRunId !== null && approvals.length > 0 ? <GovernanceWorkflowApprovalsStatusFilterBar /> : null}
+
+      <GovernanceWorkflowApprovalsListLoadFailureHonesty listFailure={listFailure} />
 
       <GovernanceWorkflowApprovalsEmpty
         workflowState={workflowState}

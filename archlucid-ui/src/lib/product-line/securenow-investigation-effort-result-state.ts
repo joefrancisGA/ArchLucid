@@ -7,8 +7,17 @@ import {
   listSecureNowInvestigationEffortMissingFieldLabels,
 } from "@/lib/product-line/securenow-investigation-effort-missing-fields";
 
+export type SecureNowInvestigationEffortIncompleteReason =
+  | "missing_fields"
+  | "invalid_after_hours";
+
 export type SecureNowInvestigationEffortResultState =
-  | { readonly kind: "incomplete"; readonly headline: "ROI not calculated."; readonly reason: string }
+  | {
+      readonly kind: "incomplete";
+      readonly headline: "ROI not calculated.";
+      readonly reason: string;
+      readonly incompleteReason: SecureNowInvestigationEffortIncompleteReason;
+    }
   | { readonly kind: "fixture"; readonly headline: "ROI not calculated. Those values are the fixture worksheet." }
   | {
       readonly kind: "calculated";
@@ -45,6 +54,7 @@ export function resolveSecureNowInvestigationEffortResultState(
       kind: "incomplete",
       headline: "ROI not calculated.",
       reason: formatSecureNowInvestigationEffortMissingFieldsReason(missingLabels),
+      incompleteReason: "missing_fields",
     };
   }
 
@@ -53,6 +63,7 @@ export function resolveSecureNowInvestigationEffortResultState(
       kind: "incomplete",
       headline: "ROI not calculated.",
       reason: "After-product hours must not exceed baseline hours for a positive capacity delta.",
+      incompleteReason: "invalid_after_hours",
     };
   }
 

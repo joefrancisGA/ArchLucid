@@ -84,8 +84,10 @@ import { REMEDIATION_WORKBENCH_EXECUTE_ADVISORY_HONESTY_LINE } from "@/lib/infra
 import { RemediationWorkbenchWavesEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchWavesEmptyPartialHonesty";
 import { RemediationWorkbenchStatusFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchStatusFilterEmptyPartialHonesty";
 import { RemediationWorkbenchWaveFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchWaveFilterEmptyPartialHonesty";
+import { RemediationWorkbenchCombinedFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchCombinedFilterEmptyPartialHonesty";
 import { REMEDIATION_WORKBENCH_STATUS_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/remediation-workbench-status-filter-empty-partial-capture-copy";
 import { REMEDIATION_WORKBENCH_WAVE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/remediation-workbench-wave-filter-empty-not-load-failure-copy";
+import { REMEDIATION_WORKBENCH_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/remediation-workbench-combined-filter-empty-not-load-failure-copy";
 import { REMEDIATION_WORKBENCH_EXECUTE_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/remediation-workbench-partial-capture-honesty-copy";
 import { SecureNowRemediationWorkbenchPartialCaptureStrip } from "@/components/product-line/SecureNowRemediationWorkbenchPartialCaptureStrip";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
@@ -1272,7 +1274,28 @@ export function RemediationWorkbenchClient() {
               Showing remediation instances in wave {urlWaveId}.
             </p>
           ) : null}
-          {urlWaveId.length > 0 && instancesAfterStatusFilter.length > 0 && visibleInstances.length === 0 ? (
+          {urlStatus.length > 0
+          && urlWaveId.length > 0
+          && instances.length > 0
+          && visibleInstances.length === 0 ? (
+            <div className="space-y-2" data-testid="infra-remediation-combined-filter-empty">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-combined-filter-empty-not-failure">
+                {REMEDIATION_WORKBENCH_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+              </p>
+              <Link
+                className="text-al-link hover:underline"
+                href={remediationWorkbenchHrefFromSearch(searchParams, { status: null, waveId: null })}
+                data-testid="infra-remediation-combined-filter-clear"
+              >
+                Clear status and wave filters
+              </Link>
+              {isSecureNowProductLine(productLine) ? <RemediationWorkbenchCombinedFilterEmptyPartialHonesty /> : null}
+            </div>
+          ) : null}
+          {urlWaveId.length > 0
+          && urlStatus.length === 0
+          && instancesAfterStatusFilter.length > 0
+          && visibleInstances.length === 0 ? (
             <div className="space-y-2" data-testid="infra-remediation-wave-filter-empty">
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-wave-filter-empty-not-failure">
                 {REMEDIATION_WORKBENCH_WAVE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}

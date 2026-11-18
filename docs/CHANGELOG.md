@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-18 - Score lift round 76 (batch 41): Findings NL facet filter empty, combined remediation filters, approval list Report Problem, terraform advisory line, and ROI validation hierarchy
+
+**Outcome.** Findings severity and status chip filter empties, combined remediation status and wave filter empty, approval list hard-failure Report Problem, terraform workbench advisory-not-apply line, and investigation-effort blocking banner validation vs missing-field hierarchy repeat partial-capture discipline.
+
+**Surfaces.** Findings queue NL facets, remediation combined filters, governance approval list load failure, terraform workbench header, investigation effort ROI banner, honesty and mounted contract tests.
+
 ## 2026-11-18 - Score lift round 75 (batch 40): Ranked path chips, approval status filter empty, wave filter empty, and investigation effort field labels
 
 **Outcome.** Factory ranked-path rows truncate long path ids like cut-point chips. Approval queue status filter empty, remediation wave filter empty, and investigation-effort blocking banner field labels repeat partial-capture and filter-not-failure discipline.

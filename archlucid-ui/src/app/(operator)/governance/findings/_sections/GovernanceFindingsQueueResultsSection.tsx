@@ -19,6 +19,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { GovernanceFindingsFilterNoMatchPartialHonesty } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsFilterNoMatchPartialHonesty";
+import { GovernanceFindingsNlFacetFilterNoMatchPartialHonesty } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsNlFacetFilterNoMatchPartialHonesty";
+import { hasGovernanceFindingsNlFacetFilterActive } from "@/lib/governance/governance-findings-nl-facet-filter-active";
 import { GovernanceFindingsQueueResultsPartialCaptureFootnote } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueResultsPartialCaptureFootnote";
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
 
@@ -27,6 +29,7 @@ export function GovernanceFindingsQueueResultsSection(
 ): React.JSX.Element {
   const pathname = usePathname();
   const { productLine } = useProductLine();
+  const nlFacetFilterActive = hasGovernanceFindingsNlFacetFilterActive(props.nlFacets);
   const inhabitedFindingsDocument =
     resolveInhabitedFindingsDocumentPresentation({
       workingMode: props.isWorkingMode,
@@ -55,7 +58,13 @@ export function GovernanceFindingsQueueResultsSection(
               ? `${props.filterNoMatchPreset.description} Active filters: ${props.activeFiltersSummary}.`
               : props.filterNoMatchPreset.description
           }
-          footer={<GovernanceFindingsFilterNoMatchPartialHonesty />}
+          footer={
+            nlFacetFilterActive ? (
+              <GovernanceFindingsNlFacetFilterNoMatchPartialHonesty />
+            ) : (
+              <GovernanceFindingsFilterNoMatchPartialHonesty />
+            )
+          }
         />
       ) : null}
 
