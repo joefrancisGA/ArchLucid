@@ -97,8 +97,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
         lock (_gate)
         {
             ConversationThread? thread = _threads.FirstOrDefault(x => x.ThreadId == threadId);
-            if (thread is { ArchivedUtc: null })
-
+            if (thread is { ArchivedUtc: null } && thread.LastUpdatedUtc < updatedUtc)
                 thread.LastUpdatedUtc = updatedUtc;
         }
 
