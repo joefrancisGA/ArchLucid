@@ -1,10 +1,12 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SecureNowDriftSecureNowCollectionPanel } from "./SecureNowDriftSecureNowCollectionPanel";
 
+const productLineContext = vi.hoisted(() => ({ productLine: "security" }));
+
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
-  useProductLine: () => ({ productLine: "security" as const }),
+  useProductLine: () => productLineContext,
 }));
 
 vi.mock("@/hooks/use-securenow-collection-setup-input", () => ({
@@ -24,6 +26,21 @@ import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collecti
 const mockSetup = vi.mocked(useSecureNowCollectionSetupInput);
 
 describe("SecureNowDriftSecureNowCollectionPanel", () => {
+  afterEach(() => {
+    productLineContext.productLine = "security";
+    mockSetup.mockReset();
+  });
+
+  it("disables the setup query on the ArchLucid Drift page", () => {
+    productLineContext.productLine = "architecture";
+    mockSetup.mockReturnValue({ collectionInput: null, isPending: true, isError: false });
+
+    const { container } = render(<SecureNowDriftSecureNowCollectionPanel selectedSnapshotId="snap-1" />);
+
+    expect(mockSetup).toHaveBeenCalledWith({ snapshotCaptureSucceeded: null, enabled: false });
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("shows collection setup when incomplete", () => {
     mockSetup.mockReturnValue({
       collectionInput: {
@@ -37,6 +54,7 @@ describe("SecureNowDriftSecureNowCollectionPanel", () => {
 
     render(<SecureNowDriftSecureNowCollectionPanel selectedSnapshotId="snap-1" />);
 
+    expect(mockSetup).toHaveBeenCalledWith({ snapshotCaptureSucceeded: null, enabled: true });
     expect(screen.getByTestId("drift-collection-setup-stub")).toBeInTheDocument();
   });
 
