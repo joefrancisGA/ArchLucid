@@ -23,6 +23,31 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
         ProjectId = ProjectId,
     };
 
+    [Fact]
+    public async Task Pre_canceled_operations_preserve_routing_settings()
+    {
+        InMemoryAlertRoutingSubscriptionRepository repo = new();
+        Guid id = Guid.NewGuid();
+        AlertRoutingSubscription subscription = BuildSubscription(id, true, BaseUtc, "saved@example.com");
+        CancellationToken canceled = new(canceled: true);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.CreateAsync(subscription, canceled));
+        Assert.Null(await repo.GetByIdAsync(Scope, id, CancellationToken.None));
+
+        await repo.CreateAsync(subscription, CancellationToken.None);
+        AlertRoutingSubscription disabled = BuildSubscription(id, false, BaseUtc, "changed@example.com");
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.UpdateAsync(disabled, canceled));
+        AlertRoutingSubscription saved = Assert.Single(
+            await repo.ListEnabledByScopeAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None));
+        Assert.Equal(subscription.Destination, saved.Destination);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.GetByIdAsync(Scope, id, canceled));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, canceled));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            repo.ListEnabledByScopeAsync(TenantId, WorkspaceId, ProjectId, canceled));
+    }
+
     [SkippableFact]
     public async Task CreateAsync_then_GetByIdAsync_returns_subscription()
     {
