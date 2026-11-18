@@ -94,13 +94,14 @@ public sealed class TenantBlobPrefixDeletionService(
                                    cancellationToken: cancellationToken)
                                .ConfigureAwait(false))
                 {
-                    await container.DeleteBlobIfExistsAsync(
+                    Response<bool> removal = await container.DeleteBlobIfExistsAsync(
                             item.Name,
                             DeleteSnapshotsOption.IncludeSnapshots,
                             cancellationToken: cancellationToken)
                         .ConfigureAwait(false);
 
-                    deleted++;
+                    if (removal.Value)
+                        deleted++;
                 }
             }
             catch (RequestFailedException error) when (
