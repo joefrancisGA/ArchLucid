@@ -2729,14 +2729,25 @@
 ---
 
 ## Zone: archlucid-core
-**Hunts:** 3 · **Bugs found:** 1 · **Consecutive dry hunts:** 0
+
+**Hunts:** 4 · **Bugs found:** 1 · **Consecutive dry hunts:** 1
+
+2026-11-18 thorough hunt (dry, hunt 4): no rotation (`shouldRotate: false`; tail `archlucid-core` **1×** seed-only before pick). Picker returned **`archlucid-core`** with five post–seed `(candidate)` rows. Cheap-disproof — **invalid** case-insensitive duplicate keys in one bag (`Dictionary<string,string>` / ingest bags cannot store two keys differing only by case; `TryGetDirect` sees at most one), **valid-no-repro** `NetworkAclDefaultAction` vs `IngressBlob` sharing `tf.network_rules` aliases (independent `TryGet` calls; intentional multi-logical reuse, hits **#892–#896** family), **invalid** empty blob account label (`https://.blob.core.windows.net/...` fails `Uri.TryCreate` absolute parse — rejects before host policy), **valid-no-repro** TAB left in `EmailHeaderFragmentSanitizer` (VT/FF/`LS`/`PS` family only; monitor parity notifications **#1100**), **valid-no-repro** `:443` vs implicit port in `FormatTargetAuthorityForAudit` (audit normalization monitor; userinfo strip hit **2026-11-17**). Reseeded five follow-on `(candidate)` rows below per inventory-host ladder saturation policy. Scoped **54/54** Core security/resolver + **2/2** sanitizer parity (`RunAnalyzers=false`). Zone low-yield tail **2/3** (seed-only + dry). Private beta: n/a.
+
+- [x] (invalid) `DeclarationSecurityPropertyKeyResolver.TryGetDirect` — duplicate case-only keys in enumeration order — **cheap-disproof 2026-11-18 thorough hunt (hunt 4):** ingest property bags are single-key dictionaries; no duplicate-case storage.
+- [x] (valid-no-repro) `DeclarationSecurityPropertyKeyResolver.TryGet` — `NetworkAclDefaultAction` and `IngressBlob` share `tf.network_rules` — **cheap-disproof 2026-11-18 thorough hunt (hunt 4):** overlapping aliases by design; regressions `TryGet_resolves_tf_network_rules_for_ingress_blob` family.
+- [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy` — empty account label on `.blob.core.windows.net` — **cheap-disproof 2026-11-18 thorough hunt (hunt 4):** malformed authority fails absolute URI validation (`TryGetRejectionReason` contains `absolute HTTPS`).
+- [x] (valid-no-repro) `EmailHeaderFragmentSanitizer.Sanitize` — horizontal tab not collapsed — **cheap-disproof 2026-11-18 thorough hunt (hunt 4):** intentional subset; monitor `Sanitize_collapses_vertical_tab_and_form_feed_to_spaces`.
+- [x] (valid-no-repro) `AllowedOutboundWebhookProbeUrlPolicy.FormatTargetAuthorityForAudit` — explicit `:443` vs default port audit peers — **cheap-disproof 2026-11-18 thorough hunt (hunt 4):** observability-only; `FormatTargetAuthorityForAudit_strips_embedded_userinfo` hit family.
+
+- [ ] (candidate) `DeclarationSecurityPropertyKeyResolver.TryGetDirect` — whitespace-only property values skipped via `continue` may hide conflicting non-empty duplicate ingest paths — locus: `string.IsNullOrWhiteSpace(entry.Value)`; input: first casing variant whitespace, second variant substantive; wrong outcome: later value ignored when earlier blank key wins enumeration; reachability: declaration bags after partial TF sanitization (monitor).
+- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — percent-encoded dot host `acct.blob%2ecore%2ewindows%2enet` — locus: `Uri.TryCreate` host normalization; input: export SAS URL with encoded dots in host; wrong outcome: reject as non-absolute vs allow decoded public blob host; reachability: operator paste encoding variants (regression family exists).
+- [ ] (candidate) `AllowedOutboundWebhookProbeUrlPolicy.TryGetRejectionReason` — trailing dot FQDN `subscriber.example./webhook` — locus: `uri.IdnHost` literal guard; input: public DNS name with trailing dot; wrong outcome: inconsistent private-network vs public allow; reachability: webhook dry-run URL (monitor).
+- [ ] (candidate) `LogSanitizer.Sanitize` — NEL `U+0085` next-line character normalized to space but other C1 controls may remain — locus: selective control replacement before `char.IsControl`; input: branding string with embedded NEL beside other C0 controls; wrong outcome: partial control stripping; reachability: audit log labels post–U+2028 hit (monitor).
+- [ ] (candidate) `ArtifactCursorCodec.TryDecode` — padding-free Base64Url payload that decodes to invalid UTF-8 — locus: `Encoding.UTF8.GetString` without replacement fallback; input: crafted cursor bytes; wrong outcome: decode exception bubbles to API vs empty cursor; reachability: artifact list pagination cursors (monitor).
+
 2026-11-18 seed hunt (seed-only): no rotation at pick time (shouldRotate: false; reason: *No low-yield streak; keep default picker choice.* — run-log low-yield streak **0** on set 4 tail). Picker **seed hunt** after 2026-11-17 hit/dry pair; re-read `ArchLucid.Core/` outside inventory-host ladder saturation per `docs/library/AL_BUG_INVENTORY_HOST_LADDER_SATURATION.md` (DeclarationSecurityPropertyKeyResolver, AllowedRunExportBlobDestinationUrlPolicy, AllowedOutboundWebhookProbeUrlPolicy, EmailHeaderFragmentSanitizer). Seeded five fresh `(candidate)` monitor rows below; no row promoted to hunt-ready (no failing repro). Spot-check **69/69** Core + **2/2** `EmailHeaderFragmentSanitizer` Application parity tests (RunAnalyzers=false). Private beta: n/a.
 
-- [ ] (candidate) `DeclarationSecurityPropertyKeyResolver.TryGetDirect` — `foreach` over property bags returns the first case-insensitive key match in enumeration order when duplicate keys differ only by casing — locus: `StringComparison.OrdinalIgnoreCase` without canonical key pick; input: `publicNetworkAccess=Disabled` and `publicnetworkaccess=Enabled` in same bag; wrong outcome: wrong declaration security posture; reachability: merged ARM/Terraform declaration property inventory.
-- [ ] (candidate) `DeclarationSecurityPropertyKeyResolver.TryGet` — `NetworkAclDefaultAction` and `IngressBlob` both alias `tf.networkrules` / `tf.network_rules` keys — locus: overlapping candidate lists; input: single `tf.network_rules` JSON blob consumed by both logical readers; wrong outcome: conflated ingress vs default-action semantics; reachability: declaration inventory contradiction passes (monitor).
-- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.IsAzureBlobStorageHost` — empty account label before `.blob.core.windows.net` still passes suffix check — locus: `TryGetAzureBlobStorageAccountLabel` slice without length guard; input: `https://.blob.core.windows.net/c?sas=token`; wrong outcome: export push accepts malformed blob authority; reachability: operator paste SAS destination URL.
-- [ ] (candidate) `EmailHeaderFragmentSanitizer.Sanitize` — horizontal tab (`U+0009`) remains after VT/FF/`LS`/`PS` collapse — locus: selective replacement list; input: product display name with embedded TAB smuggling; wrong outcome: SMTP subject layout surprise; reachability: configured branding strings (monitor; notifications #1100 VT/FF family).
-- [ ] (candidate) `AllowedOutboundWebhookProbeUrlPolicy.FormatTargetAuthorityForAudit` — implicit default HTTPS port in `GetLeftPart(UriPartial.Authority)` may not match explicit `:443` audit peers — locus: authority formatting; input: probe URL with and without explicit port; wrong outcome: duplicate audit rows for same target; reachability: webhook dry-run audit JSON (monitor).
 2026-11-17 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Post-catalog-reset re-read outside saturated inventory-host ladder classes per `docs/library/AL_BUG_INVENTORY_HOST_LADDER_SATURATION.md` (`LogSanitizer`, `AllowedOutboundWebhookProbeUrlPolicy`, `ArtifactCursorCodec`, `ApiKeyMaterialMasker`). Fixed concatenated JSONL in `AL_BUG_HUNT_RUN_LOG_4.jsonl`. Spot-check **42/42** Core tests on those areas (`RunAnalyzers=false`). No row met hunt-ready bar; seeded five `(candidate)` rows below. Private beta: n/a.
 
 - [x] (proven) `LogSanitizer.Sanitize` — only normalizes CR/LF before the `char.IsControl` scan (`L21-22`); locus: log forging hardening; input: operator-controlled label containing Unicode line/paragraph separators (U+2028/U+2029); wrong outcome: multiline log injection in plaintext sinks; reachability: structured logging of unsanitized external text. — **hit 2026-11-17 thorough hunt:** regression `Sanitize_strips_unicode_line_and_paragraph_separators`.
@@ -2751,10 +2762,9 @@
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 3
-- **last-hunt:** 2026-11-18
+- **hunts:** 4- **last-hunt:** 2026-11-18
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** 1
