@@ -77,4 +77,14 @@ describe("governanceFindingsClearReviewScopeHref", () => {
     expect(href).not.toContain(`${GOVERNANCE_RECORD_CORRECTION_SUBJECT_ID_PARAM}=`);
     expect(href).not.toContain(`${GOVERNANCE_RECORD_CORRECTION_RUN_ID_PARAM}=`);
   });
+
+  it("clears armed preset-remove confirm when clearing review scope", () => {
+    const href = governanceFindingsClearReviewScopeHref(
+      "runId=run-1&filter=open&removePresetId=preset-1",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?filter=open");
+    expect(href).not.toContain("removePresetId=");
+  });
 });

@@ -5,6 +5,11 @@ import {
 } from "@/lib/governance/governance-route-paths";
 
 export const GOVERNANCE_FINDINGS_REMOVE_PRESET_ID_PARAM = "removePresetId";
+/** Strips armed preset-remove confirm navigation from queue URL mutations. */
+export function stripGovernanceFindingsPresetRemoveConfirmParams(params: URLSearchParams): void {
+  params.delete(GOVERNANCE_FINDINGS_REMOVE_PRESET_ID_PARAM);
+}
+
 
 export function parseGovernanceFindingsRemovePresetIdFromSearch(raw: string | null | undefined): string {
   if (raw === null || raw === undefined) {

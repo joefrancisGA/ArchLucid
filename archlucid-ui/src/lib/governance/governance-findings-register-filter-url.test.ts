@@ -25,4 +25,15 @@ describe("governanceFindingsRegisterFilterHrefFromSearch", () => {
     expect(href).toBe("/governance/findings?groupBy=resource");
     expect(href).not.toContain(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
   });
+
+  it("clears armed preset-remove confirm when register filter changes", () => {
+    const href = governanceFindingsRegisterFilterHrefFromSearch(
+      "filter=open&removePresetId=preset-1",
+      "expiring-soon",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?filter=expiring-soon");
+    expect(href).not.toContain("removePresetId=");
+  });
 });

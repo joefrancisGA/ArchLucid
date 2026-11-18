@@ -760,7 +760,7 @@
 - **test-filter:** SignupForm
 - **hunts:** 106
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 20
+- **consecutive-dry-hunts:** 00
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
@@ -3207,7 +3207,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 63
+- **hunts:** 64
 - **bugs-found:** 36
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-29
@@ -3292,7 +3292,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** WebhooksSettings
 - **hunts:** 54
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
 - **related-pd-tb:** none
@@ -7740,7 +7740,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** oidc-authority|oidc
 - **hunts:** 105
 - **bugs-found:** 74
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-17
 - **last-bug:** 2026-11-03 — token POST left non-trim C0 on authorization code and PKCE verifier
 - **related-pd-tb:** none
@@ -12530,6 +12530,21 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-11-18 thorough hunt #511 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**35** `(candidate)` rows — **proven** `removePresetId` survived clear-all, clear-review-scope, pick-review, and register-filter chip navigation (hunt **#506**–**#508** confirm-param hygiene class); **valid-no-repro** `governanceFindingsWorkspaceSavedViewHref` retaining `hideGeneric` (saved-view href rebuilt from filter payload only). Shared `stripGovernanceFindingsPresetRemoveConfirmParams` on queue navigation helpers; register-filter + clear-all via selection switch. Regressions on clear-all, clear-review-scope, pick-review, register-filter URL helpers; scoped vitest **32/32** on governance findings URL/client/hook tests. Reseeded five pass-**36** `(candidate)` rows below. Private beta: Invited operators clearing filters, changing register chips, clearing review scope, or picking another review on the governance findings queue no longer keep a stale saved-filter preset removal dialog armed in the URL.
+
+- [x] (proven) `governanceFindingsClearAllFiltersHref` — may retain `removePresetId` when clearing register/facet filters — **hit 2026-11-18 thorough hunt #511:** strip on queue-navigation switch; regression `clears armed preset-remove confirm when clearing filters`.
+- [x] (proven) `governanceFindingsClearReviewScopeHref` — may retain `removePresetId` when clearing review scope — **hit 2026-11-18 thorough hunt #511:** shared strip helper; regression `clears armed preset-remove confirm when clearing review scope`.
+- [x] (proven) `governanceFindingsPickReviewForTriageHref` — may retain `removePresetId` when switching `runId` — **hit 2026-11-18 thorough hunt #511:** shared strip helper; regression `clears armed preset-remove confirm when picking a review`.
+- [x] (valid-no-repro) `governanceFindingsWorkspaceSavedViewHref` — may retain `hideGeneric` when loading workspace saved view — **valid-no-repro 2026-11-18 thorough hunt #511:** workspace saved-view href does not merge prior query; regression documents intent.
+- [x] (proven) `GovernanceFindingsFilterBar` — `removePresetId` confirm may survive register filter chip navigation — **hit 2026-11-18 thorough hunt #511:** register-filter selection switch strips confirm param; regression `clears armed preset-remove confirm when register filter changes`.
+
+- [ ] (candidate) `governanceFindingsRunScopedSavedViewHref` — may retain `removePresetId` when loading run-scoped saved view — locus: run-scoped saved-view href; input: armed preset remove + load run-scoped saved view; monitor; pass 36 reseed.
+- [ ] (candidate) `governanceFindingsShowAllFilteredFindingsHref` — may retain `removePresetId` when expanding filtered rows — locus: show-all helper; input: `removePresetId` armed + show all filtered; monitor; pass 36 reseed.
+- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — may retain `focusedFinding` when clearing register/facet filters — locus: clear-all helper; input: triage deep link + clear all; monitor; pass 36 reseed.
+- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when switching `runId` with register filters preserved — locus: pick-review href; input: `focusedFinding` + pick another review; monitor; pass 36 reseed.
+- [ ] (candidate) `governanceAssignedToMePresetRemoveConfirmHrefFromSearch` — may fail to arm remove confirm on assigned-to-me path parity — locus: assigned-to-me preset remove href; input: queue-navigation switch + arm preset; monitor; pass 36 reseed.
+
+- [x] (superseded) pass-**35** `(candidate)` queue — **superseded 2026-11-18 thorough hunt #511:** see hunt **#511** header and pass **#36** reseed.
 2026-11-18 thorough hunt #510 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**34** monitor rows — **valid-no-repro** `governanceFindingsClearAllFiltersHref` / `governanceFindingsClearReviewScopeHref` retaining `hideGeneric` (view-density param; atomic clear is `governanceFindingsShowAllFilteredFindingsHref` hunt **#1375** / **#507**); **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `focusedFinding` when register filters preserved (triage cursor independent of pick-review scope swap; hunt **#509**); **invalid** `GovernanceFindingsFilterBar` `removePresetId` surviving saved-view load (`onLoadFindingsSavedView` / saved-view href helpers full-replace URL); **invalid** `useGovernanceFindingsQueueSavedViews.dismissActiveFilterChip` register chip URL gap (export unused — hook not wired in queue client). Scoped vitest **22/22** on clear-all, clear-review-scope, pick-review URL helpers, and `use-governance-findings-queue-saved-views`. Reseeded five pass-**35** `(candidate)` rows below.
 
 - [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — may retain `hideGeneric` when clearing register/facet filters — **valid-no-repro 2026-11-18 thorough hunt #510:** density toggle not a register/facet param; show-all helper clears it.
@@ -12626,11 +12641,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 63
-- **bugs-found:** 42
-- **consecutive-dry-hunts:** 2
+- **hunts:** 64
+- **bugs-found:** 43
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-18
-- **last-bug:** 2026-11-17 — pick-review / clear-scope left correction confirm URLs
+- **last-bug:** 2026-11-18 — queue navigation left armed preset-remove confirm URLs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18672,7 +18687,7 @@ ABQ-09 churn hotspot.
 - **test-filter:** InfraEvidence
 - **hunts:** 21
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-17
 - **last-bug:** 2026-11-01 — completeness warnings lingered after snapshot URL change
 - **related-pd-tb:** none

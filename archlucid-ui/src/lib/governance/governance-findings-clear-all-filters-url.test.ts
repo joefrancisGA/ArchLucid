@@ -79,6 +79,15 @@ describe("governanceFindingsClearAllFiltersHref", () => {
     expect(href).not.toContain(`${GOVERNANCE_RECORD_CORRECTION_RUN_ID_PARAM}=`);
   });
 
+  it("clears armed preset-remove confirm when clearing filters", () => {
+    const href = governanceFindingsClearAllFiltersHref(
+      "runId=run-1&filter=open&removePresetId=preset-1",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?runId=run-1");
+    expect(href).not.toContain("removePresetId=");
+  });
   it("clears hideGeneric when showing all filtered findings", () => {
     const href = governanceFindingsShowAllFilteredFindingsHref(
       "hideGeneric=1&filter=open&q=phi",
