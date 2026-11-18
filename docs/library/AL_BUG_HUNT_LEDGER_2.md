@@ -22708,6 +22708,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-11-18 seed hunt (seed→hit #233): no rotation (`shouldRotate: false`). Picker `seedHunt` with ledger header `(candidate)` rows not in picker JSON. Promoted `Tenant slug unknown`, `Tenant slug invalid`, and `Tenant slug orphaned` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#232**); `IsTenantSlugPhraseExcludedWord` now rejects leading `unknown`, `invalid`, and `orphaned`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_unknown_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_invalid_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_orphaned_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** catalog attach acknowledge without projection refresh (`AcknowledgeCatalogAttachDetachAsync` gates on `ScopeFreeze`, not `ProjectionRefresh`; monitor misnamed `AcknowledgeAsync`), **valid-no-repro** repeat suspend audit (`TrySuspendAsync` returns `AlreadyInDesiredState` when `SuspendedUtc` set ~37–38; regression `TrySuspendAsync_is_idempotent_when_already_suspended`). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **446/446** (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention unknown, invalid, or orphaned slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug unknown` substring — **hit 2026-11-18 seed hunt #233:** excluded slug phrase word `unknown`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug invalid` substring — **hit 2026-11-18 seed hunt #233:** excluded slug phrase word `invalid`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug orphaned` substring — **hit 2026-11-18 seed hunt #233:** excluded slug phrase word `orphaned`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` — acknowledges migration when projection refresh incomplete — **cheap-disproof 2026-11-18 seed hunt #233:** stage gate is `ScopeFreeze` → `CatalogAttachDetach`; projection refresh is a separate stage.
+- [x] (valid-no-repro) `TenantSuspendCommandService.TrySuspendAsync` — suspend audit when tenant already suspended — **cheap-disproof 2026-11-18 seed hunt #233:** idempotent early return before audit append.
+
+- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug rejected` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug rejected elsewhere already exists` (monitor **#233**).
+- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug denied` substring — locus: phrase scan; input: `Tenant slug denied incorrectly already exists` (monitor **#233**).
+- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug missing` substring — locus: phrase scan; input: `Tenant slug missing automatically already exists` (monitor **#233**).
+- (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` — starts migration when tenant suspended before atomic suspend completes — locus: suspend ordering vs migration row creation; input: concurrent start + admin suspend (monitor reseed **#233**).
+- (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — approval audit when erasure already approved — locus: idempotent approve path; input: double approve API call (monitor reseed **#233**).
+
 2026-11-18 seed hunt (seed→hit #232): picker `seedHunt` with ledger header candidates not yet scored; promoted `Tenant slug paused`, `Tenant slug blocked`, and `Tenant slug frozen` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#231**); `IsTenantSlugPhraseExcludedWord` now rejects leading `paused`, `blocked`, and `frozen`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_paused_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_blocked_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_frozen_substring_in_already_exists_message` failed first. Cheap-disproof closed two reseed monitors — **valid-no-repro** `Tenant slug stale` (regression `IsDuplicateOrganization_does_not_match_tenant_slug_stale_substring_in_already_exists_message`), **valid-no-repro** verification audit during offboard quarantine (`RunVerificationAsync` offboard re-reads before audit append; hunt **#230** class). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **443/443** (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention paused, blocked, or frozen slug lifecycle wording as duplicate organization collisions.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug paused` substring — **hit 2026-11-18 seed hunt #232:** excluded slug phrase word `paused`; regression above.
@@ -22716,11 +22730,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug stale` substring — **cheap-disproof 2026-11-18 seed hunt #232:** excluded with same fix batch; regression above.
 - [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — verification audit when offboard during probe — **cheap-disproof 2026-11-18 seed hunt #232:** multiple `OffboardedUtc` guards return `InErasureQuarantine` before audit append.
 
-- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug unknown` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug unknown elsewhere already exists` (monitor **#232**).
-- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug invalid` substring — locus: phrase scan; input: `Tenant slug invalid automatically already exists` (monitor **#232**).
-- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug orphaned` substring — locus: phrase scan; input: `Tenant slug orphaned incorrectly already exists` (monitor **#232**).
-- (candidate) `TenantCatalogMigrationOrchestrator.AcknowledgeAsync` — acknowledges migration when projection refresh incomplete — locus: stage gate; input: skip refresh stage with stale projection (monitor reseed **#231**).
-- (candidate) `TenantSuspendCommandService.TrySuspendAsync` — suspend audit when tenant already suspended — locus: idempotent suspend path; input: repeat suspend on suspended tenant (monitor reseed **#231**).
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug unknown` substring — **hit 2026-11-18 seed hunt #233:** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug invalid` substring — **hit 2026-11-18 seed hunt #233:** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug orphaned` substring — **hit 2026-11-18 seed hunt #233:** see zone diary above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` — acknowledges migration when projection refresh incomplete — **cheap-disproof 2026-11-18 seed hunt #233:** see zone diary above.
+- [x] (valid-no-repro) `TenantSuspendCommandService.TrySuspendAsync` — suspend audit when tenant already suspended — **cheap-disproof 2026-11-18 seed hunt #233:** see zone diary above.
 
 2026-11-18 thorough hunt (hit #231): no rotation (`shouldRotate: false`; run-log low-yield streak on `scim-users` is **1/3**). Promoted `Tenant slug suspended`, `Tenant slug quarantined`, and `Tenant slug retired` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors reseeded after hit **#230**); `IsTenantSlugPhraseExcludedWord` now rejects leading `suspended`, `quarantined`, and `retired`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_suspended_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_quarantined_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_retired_substring_in_already_exists_message` failed first. Cheap-disproof closed four open `(candidate)` rows — **valid-no-repro** `Tenant slug deactivated` / `converted` / `archived` (regressions ~1122–1145), **valid-no-repro** `CompleteAsync` verification pass stamp rollback (hunt **#229** parity). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **439/439** (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention suspended, quarantined, or retired slug lifecycle wording as duplicate organization collisions.
 
@@ -23400,11 +23414,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 222
-- **bugs-found:** 204
+- **hunts:** 223
+- **bugs-found:** 207
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-18
-- **last-bug:** 2026-11-18 — Tenant slug paused/blocked/frozen prose duplicate-detector false positive
+- **last-bug:** 2026-11-18 — Tenant slug unknown/invalid/orphaned prose duplicate-detector false positive
 
 ### Hypotheses
 
