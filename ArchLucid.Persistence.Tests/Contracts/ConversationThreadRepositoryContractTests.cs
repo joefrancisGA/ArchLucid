@@ -144,7 +144,7 @@ public abstract class ConversationThreadRepositoryContractTests
     }
 
     [SkippableFact]
-    public async Task UpdateLastUpdatedAsync_changes_GetById()
+    public async Task UpdateLastUpdatedAsync_preserves_the_latest_timestamp()
     {
         SkipIfSqlServerUnavailable();
         IConversationThreadRepository repo = CreateRepository();
@@ -153,6 +153,7 @@ public abstract class ConversationThreadRepositoryContractTests
 
         DateTime updated = TimeProvider.System.UtcNowDateTime().AddHours(1);
         await repo.UpdateLastUpdatedAsync(thread.ThreadId, updated, CancellationToken.None);
+        await repo.UpdateLastUpdatedAsync(thread.ThreadId, updated.AddMinutes(-10), CancellationToken.None);
 
         ConversationThread? loaded = await repo.GetByIdAsync(thread.ThreadId, CancellationToken.None);
 

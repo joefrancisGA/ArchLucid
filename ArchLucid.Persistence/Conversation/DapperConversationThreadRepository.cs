@@ -172,6 +172,8 @@ public sealed class DapperConversationThreadRepository(
                            UPDATE dbo.ConversationThreads
                            SET LastUpdatedUtc = @UpdatedUtc
                            WHERE ThreadId = @ThreadId
+                             AND ArchivedUtc IS NULL
+                             AND LastUpdatedUtc < @UpdatedUtc
                            {PersistenceTenantScope.AndTripleWhere(scope)};
                            """;
 
