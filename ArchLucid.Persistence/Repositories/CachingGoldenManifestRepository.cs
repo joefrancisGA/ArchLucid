@@ -117,7 +117,8 @@ public sealed class CachingGoldenManifestRepository(
         CancellationToken cancellationToken)
     {
         await _inner.UpdateSealedHasherBoundSliceAsync(scope, manifest, cancellationToken);
-        await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, scope, manifest.ManifestId, cancellationToken);
+        // The SQL update has committed, so finish invalidation even if the caller cancels.
+        await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, scope, manifest.ManifestId, CancellationToken.None);
     }
 
     private static ScopeContext AmbientScope(ManifestDocument manifest)
