@@ -25,6 +25,8 @@ import { GOVERNANCE_FINDINGS_JOB_VIEW_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from 
 import { GovernanceFindingsRegisterFilterNoMatchPartialHonesty } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsRegisterFilterNoMatchPartialHonesty";
 import { GOVERNANCE_FINDINGS_REGISTER_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/governance-findings-register-filter-empty-not-load-failure-copy";
 import { hasGovernanceFindingsNlFacetFilterActive } from "@/lib/governance/governance-findings-nl-facet-filter-active";
+import { GovernanceFindingsJobViewAndNlFacetFilterNoMatchPartialHonesty } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsJobViewAndNlFacetFilterNoMatchPartialHonesty";
+import { GOVERNANCE_FINDINGS_JOB_VIEW_AND_NL_FACET_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/governance-findings-job-view-and-nl-facet-combined-filter-empty-not-load-failure-copy";
 import { GovernanceFindingsRegisterAndNlFacetFilterNoMatchPartialHonesty } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsRegisterAndNlFacetFilterNoMatchPartialHonesty";
 import { GOVERNANCE_FINDINGS_REGISTER_AND_NL_FACET_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/governance-findings-register-and-nl-facet-combined-filter-empty-not-load-failure-copy";
 import { GovernanceFindingsQueueResultsPartialCaptureFootnote } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueResultsPartialCaptureFootnote";
@@ -38,6 +40,7 @@ export function GovernanceFindingsQueueResultsSection(
   const nlFacetFilterActive = hasGovernanceFindingsNlFacetFilterActive(props.nlFacets);
   const registerFilterActive = props.registerFilter !== "all";
   const combinedRegisterAndNlFacet = registerFilterActive && nlFacetFilterActive;
+  const combinedJobViewAndNlFacet = props.jobViewFilterActive && nlFacetFilterActive;
   const inhabitedFindingsDocument =
     resolveInhabitedFindingsDocumentPresentation({
       workingMode: props.isWorkingMode,
@@ -90,7 +93,18 @@ export function GovernanceFindingsQueueResultsSection(
               {!combinedRegisterAndNlFacet && registerFilterActive ? (
                 <GovernanceFindingsRegisterFilterNoMatchPartialHonesty />
               ) : null}
-              {props.jobViewFilterActive ? (
+              {combinedJobViewAndNlFacet ? (
+                <div className="space-y-2" data-testid="governance-findings-job-view-and-nl-facet-combined-filter-empty">
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="governance-findings-job-view-and-nl-facet-combined-filter-empty-not-load-failure"
+                  >
+                    {GOVERNANCE_FINDINGS_JOB_VIEW_AND_NL_FACET_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                  <GovernanceFindingsJobViewAndNlFacetFilterNoMatchPartialHonesty />
+                </div>
+              ) : null}
+              {!combinedJobViewAndNlFacet && props.jobViewFilterActive ? (
                 <p
                   className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                   data-testid="governance-findings-job-view-filter-empty-not-load-failure"
@@ -98,13 +112,13 @@ export function GovernanceFindingsQueueResultsSection(
                   {GOVERNANCE_FINDINGS_JOB_VIEW_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
                 </p>
               ) : null}
-              {props.jobViewFilterActive ? (
+              {!combinedJobViewAndNlFacet && props.jobViewFilterActive ? (
                 <GovernanceFindingsJobViewFilterNoMatchPartialHonesty />
               ) : null}
-              {!combinedRegisterAndNlFacet && nlFacetFilterActive ? (
+              {!combinedRegisterAndNlFacet && !combinedJobViewAndNlFacet && nlFacetFilterActive ? (
                 <GovernanceFindingsNlFacetFilterNoMatchPartialHonesty />
               ) : null}
-              {!combinedRegisterAndNlFacet && !nlFacetFilterActive ? (
+              {!combinedRegisterAndNlFacet && !combinedJobViewAndNlFacet && !nlFacetFilterActive ? (
                 <GovernanceFindingsFilterNoMatchPartialHonesty />
               ) : null}
             </div>

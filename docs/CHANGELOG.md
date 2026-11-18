@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-18 - Score lift round 80 (batch 45): Operator home collection blocker, job view plus NL facets, reviews list context, workspace health refresh, policy assignments empty
+
+**Outcome.** SecureNow operator home names collection before open-gate navigation. Findings queue combined job view plus NL facet filter empties, reviews hub list-context filter empty, workspace health page refresh discipline, and policy pack featured assignments empty repeat not-failure and partial-capture discipline. Mounted contract depth extends through round 79.
+
+**Surfaces.** Operator home in-flight, governance findings queue, architecture reviews list, workspace health hero, policy packs featured section, honesty and mounted contract tests.
+
 ## 2026-11-18 - Score lift round 79 (batch 44): CI score-lift chain, reviews package scope, golden disabled export, findings register plus NL facets, mounted depth
 
 **Outcome.** CI runs the score-lift assert chain through round 79. Reviews hub package scope and combined search plus scope filter empties, golden manifest disabled-export affordance, and findings queue combined register plus NL facet filter footers repeat not-failure and partial-capture discipline. Mounted contract depth test locks rounds 73–78.
