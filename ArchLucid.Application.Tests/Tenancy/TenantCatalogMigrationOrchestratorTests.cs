@@ -2844,6 +2844,30 @@ public sealed class TenantCatalogMigrationOrchestratorTests
         return verificationMock.Object;
     }
 
+
+    [Fact]
+    public async Task CompleteAsync_returns_verification_required_when_verification_stage_never_passed()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 11, 18, 12, 0, 0, TimeSpan.Zero));
+        TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(migrations);
+
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = Guid.NewGuid(),
+                TenantId = TenantId,
+                CorrelationId = "corr-failed-projection-only",
+                Stage = TenantCatalogMigrationStage.Verification,
+                StartedUtc = clock.GetUtcNow().AddHours(-1),
+            },
+            CancellationToken.None);
+
+        TenantCatalogMigrationCommandOutcome outcome =
+            await sut.CompleteAsync(TenantId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.VerificationRequired, outcome);
+    }
     private static TenantRecord ActiveTenant(FakeTimeProvider clock) =>
         new()
         {
