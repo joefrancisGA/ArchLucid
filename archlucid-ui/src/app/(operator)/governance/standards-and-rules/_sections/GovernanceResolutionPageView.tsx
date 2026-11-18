@@ -78,6 +78,7 @@ import { StandardsRulesTable } from "./StandardsRulesTable";
 import { StandardsRulesTableSkeleton } from "./StandardsRulesTableSkeleton";
 import { StandardsRulesBuyerChrome } from "./StandardsRulesBuyerChrome";
 import { StandardsRulesContextStrip } from "./StandardsRulesContextStrip";
+import { StandardsRulesWorkingRulesSection } from "./StandardsRulesWorkingRulesSection";
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
 import { useGovernanceResolutionRows } from "./use-governance-resolution-rows";
 
@@ -477,8 +478,18 @@ export function GovernanceResolutionPageView(props: Props) {
               {STANDARDS_RULES_LOAD_RETRY_LABEL}
             </Button>
             <OperatorErrorRecoveryContract presentation={loadRecovery} />
+            {productLine === "security" ? (
+              <FatalPageReportProblemSupportRow
+                surfaceId="compliance-standards-rules-hard-failure"
+                errorTitle={standardsPageTitle}
+                errorCode="standards-rules-load-failed"
+                correlationId={null}
+                httpStatus={null}
+              />
+            ) : null}
           </div>
         ) : null}
+        {m.failure === null ? <StandardsRulesWorkingRulesSection model={m} rows={rows} /> : null}
         {m.failure === null ? <GovernanceResolutionOperatorDiagnostics model={m} /> : null}
         {rows.scopedRunFilterActive ? (
           <GovernanceStandardsRulesNextReviewFooterClient runId={rows.scopedRunId} />

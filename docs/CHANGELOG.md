@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-18 - Score lift round 72 (batch 37): Working standards catalog, factory queue load failure, patterns filter, and sealed date range
+
+**Outcome.** Working-mode standards rules catalog with filter empties, remediation factory priority queue load failure, remediation patterns registry filter empty, and signed records date-range filter empty repeat partial-capture discipline.
+
+**Surfaces.** Working standards catalog, factory priority queue load failure, remediation patterns filter empty, sealed records date-range filter, honesty and mounted contract tests.
+
 ## 2026-11-17 - Score lift round 71 (batch 36): Policy catalog, standards catalog, graph type filter, and compare zero counts
 
 **Outcome.** Policy pack catalog empty, standards rules catalog empty, evidence graph type-filter empty, compare correlation all-zero counts, and resource explorer filter empty repeat partial-capture discipline.
