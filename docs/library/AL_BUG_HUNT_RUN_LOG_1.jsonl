@@ -25,3 +25,4 @@
 {"productLine":"archlucid-application","zoneId":"alert-simulation","outcome":"dry","at":"2026-11-18T02:35:00.0000000Z","paths":["docs/library/AL_BUG_HUNT_LEDGER_1.md","docs/library/AL_BUG_HUNT_RUN_LOG_1.jsonl"]}
 {"productLine":"archlucid-application","zoneId":"commit-output-integrity","outcome":"seed-only","at":"2026-11-18T02:38:30.0000000Z","paths":["docs/library/AL_BUG_HUNT_LEDGER_1.md","docs/library/AL_BUG_HUNT_RUN_LOG_1.jsonl"]}
 {"productLine":"archlucid-application","zoneId":"commit-output-integrity","outcome":"dry","at":"2026-11-18T02:45:30.0000000Z","paths":["docs/library/AL_BUG_HUNT_LEDGER_1.md","docs/library/AL_BUG_HUNT_RUN_LOG_1.jsonl"]}
+{"productLine":"archlucid-application","zoneId":"application-agents","outcome":"dry","at":"2026-11-18T02:49:30.0000000Z","paths":["docs/library/AL_BUG_HUNT_LEDGER_1.md","docs/library/AL_BUG_HUNT_RUN_LOG_1.jsonl"]}
