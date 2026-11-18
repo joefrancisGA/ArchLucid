@@ -724,7 +724,8 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         CancellationToken cancellationToken)
     {
         if (semanticModel is not null &&
-            !IsLogAsyncSyntaxInsideReachableIfBranches(logAsyncSyntaxNode, semanticModel, cancellationToken))
+            (!IsLogAsyncSyntaxInsideReachableIfBranches(logAsyncSyntaxNode, semanticModel, cancellationToken) ||
+             !IsLogAsyncSyntaxInsideReachableConstantGuardLoops(logAsyncSyntaxNode, semanticModel, cancellationToken)))
         {
             return false;
         }
@@ -785,6 +786,40 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         return true;
     }
 
+    // Zero-trip while/for loops never run their bodies; LogAsync parked there is not audit proof (parity with constant-false if).
+    private static bool IsLogAsyncSyntaxInsideReachableConstantGuardLoops(
+        SyntaxNode logAsyncSyntaxNode,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        foreach (WhileStatementSyntax whileStatementSyntax in logAsyncSyntaxNode.Ancestors().OfType<WhileStatementSyntax>())
+        {
+            if (IsLogAsyncSyntaxUnderLoopBody(whileStatementSyntax.Statement, logAsyncSyntaxNode) &&
+                IsBooleanConditionKnown(whileStatementSyntax.Condition, semanticModel, cancellationToken, expected: false))
+            {
+                return false;
+            }
+        }
+
+        foreach (ForStatementSyntax forStatementSyntax in logAsyncSyntaxNode.Ancestors().OfType<ForStatementSyntax>())
+        {
+            if (forStatementSyntax.Condition is not ExpressionSyntax forConditionSyntax)
+            {
+                continue;
+            }
+
+            if (IsLogAsyncSyntaxUnderLoopBody(forStatementSyntax.Statement, logAsyncSyntaxNode) &&
+                IsBooleanConditionKnown(forConditionSyntax, semanticModel, cancellationToken, expected: false))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsLogAsyncSyntaxUnderLoopBody(SyntaxNode loopBodyStatementSyntax, SyntaxNode logAsyncSyntaxNode) =>
+        loopBodyStatementSyntax.FullSpan.Contains(logAsyncSyntaxNode.Span);
     private static bool IsLogAsyncSyntaxUnderIfBranch(SyntaxNode branchStatementSyntax, SyntaxNode logAsyncSyntaxNode) =>
         branchStatementSyntax.FullSpan.Contains(logAsyncSyntaxNode.Span);
 
