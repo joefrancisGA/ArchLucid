@@ -17,6 +17,7 @@ public sealed class InMemoryArtifactBlobStore : IArtifactBlobStore
 
     public Task<string?> TryGetExistingUriAsync(string containerName, string logicalBlobName, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
         string key = $"memory://{containerName}/{logicalBlobName}";
 
         return Task.FromResult(_blobs.ContainsKey(key) ? key : null);
@@ -24,6 +25,7 @@ public sealed class InMemoryArtifactBlobStore : IArtifactBlobStore
 
     public Task<string?> ReadAsync(string blobUri, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
         return string.IsNullOrWhiteSpace(blobUri)
             ? Task.FromResult<string?>(null)
             : Task.FromResult(_blobs.GetValueOrDefault(blobUri));
