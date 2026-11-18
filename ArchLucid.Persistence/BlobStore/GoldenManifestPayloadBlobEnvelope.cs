@@ -11,6 +11,12 @@ public sealed class GoldenManifestPayloadBlobEnvelope
 {
     public const int CurrentSchemaVersion = 1;
 
+    private static readonly JsonSerializerOptions ReadOptions = new(ContractJson.CamelCaseIncludeNullCompact)
+    {
+        RespectNullableAnnotations = true,
+    };
+
+    [JsonRequired]
     [JsonPropertyName("schemaVersion")]
     public int SchemaVersion
     {
@@ -18,6 +24,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         init;
     } = CurrentSchemaVersion;
 
+    [JsonRequired]
     [JsonPropertyName("metadataJson")]
     public string MetadataJson
     {
@@ -25,6 +32,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         init;
     } = "";
 
+    [JsonRequired]
     [JsonPropertyName("requirementsJson")]
     public string RequirementsJson
     {
@@ -32,6 +40,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         init;
     } = "";
 
+    [JsonRequired]
     [JsonPropertyName("topologyJson")]
     public string TopologyJson
     {
@@ -39,6 +48,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         init;
     } = "";
 
+    [JsonRequired]
     [JsonPropertyName("securityJson")]
     public string SecurityJson
     {
@@ -53,6 +63,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         init;
     }
 
+    [JsonRequired]
     [JsonPropertyName("costJson")]
     public string CostJson
     {
@@ -60,6 +71,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         init;
     } = "";
 
+    [JsonRequired]
     [JsonPropertyName("constraintsJson")]
     public string ConstraintsJson
     {
@@ -67,6 +79,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         init;
     } = "";
 
+    [JsonRequired]
     [JsonPropertyName("unresolvedIssuesJson")]
     public string UnresolvedIssuesJson
     {
@@ -74,6 +87,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         init;
     } = "";
 
+    [JsonRequired]
     [JsonPropertyName("decisionsJson")]
     public string DecisionsJson
     {
@@ -81,6 +95,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         init;
     } = "";
 
+    [JsonRequired]
     [JsonPropertyName("assumptionsJson")]
     public string AssumptionsJson
     {
@@ -88,6 +103,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         init;
     } = "";
 
+    [JsonRequired]
     [JsonPropertyName("warningsJson")]
     public string WarningsJson
     {
@@ -95,6 +111,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         init;
     } = "";
 
+    [JsonRequired]
     [JsonPropertyName("provenanceJson")]
     public string ProvenanceJson
     {
@@ -188,7 +205,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
 
         try
         {
-            return JsonSerializer.Deserialize<GoldenManifestPayloadBlobEnvelope>(json, ContractJson.CamelCaseIncludeNullCompact);
+            return JsonSerializer.Deserialize<GoldenManifestPayloadBlobEnvelope>(json, ReadOptions);
         }
         catch (JsonException)
         {
