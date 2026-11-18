@@ -1015,6 +1015,146 @@ public sealed class FormatProviderRunsRepository
     }
 
     [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_null_coalescing_at_query_argument()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class NullCoalescingQueryArgumentRunsRepository
+{
+    public void Load(IDbConnection connection, string? configured)
+    {
+        _ = SqlMapper.Query<int>(
+            connection,
+            configured ?? "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL");
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(85, 13, 87, 82)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
+    public async Task ARCH006_reports_unscoped_sql_when_interpolation_hole_uses_string_format_with_runtime_argument()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System;
+using System.Data;
+using Dapper;
+
+public sealed class InterpolatedStringFormatHoleRunsRepository
+{
+    public void Load(IDbConnection connection, Guid tenantId)
+    {
+        _ = SqlMapper.Query<int>(
+            connection,
+            $"SELECT RunId FROM dbo.Runs WHERE {string.Format("{0} = @TenantId", tenantId)}");
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(86, 13, 88, 94)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_ternary_method_return_at_query_argument()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class TernaryFactoryReturnRunsRepository
+{
+    private static string BuildSql(bool full, string filterColumn) =>
+        full
+            ? "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL"
+            : "SELECT RunId FROM dbo.Runs WHERE " + filterColumn + " IS NULL";
+
+    public void Load(IDbConnection connection, bool full)
+    {
+        _ = SqlMapper.Query<int>(connection, BuildSql(full, "ArchivedUtc"));
+    }
+}
+}
+""";
+
+        DiagnosticResult expectedOne = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(90, 13, 90, 76)
+            .WithArguments("dbo.Runs");
+
+        DiagnosticResult expectedTwo = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(90, 13, 90, 76)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expectedOne, expectedTwo);
+    }
+
+    [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_property_assigned_before_command_definition()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
+using Dapper;
+
+public sealed class PropertyAssignedCommandDefinitionRunsRepository
+{
+    private sealed class SqlHolder
+    {
+        public string Sql { get; set; } = string.Empty;
+    }
+
+    public async Task LoadAsync(IDbConnection connection, CancellationToken cancellationToken)
+    {
+        SqlHolder holder = new();
+        holder.Sql = "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL";
+        await connection.ExecuteAsync(new CommandDefinition(holder.Sql, cancellationToken: cancellationToken));
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(94, 39, 94, 110)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
     public async Task ARCH006_reports_unscoped_sql_for_null_coalescing_local_initializer()
     {
         const string testCode = SharedStubs +

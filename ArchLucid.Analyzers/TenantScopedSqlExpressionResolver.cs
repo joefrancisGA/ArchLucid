@@ -364,6 +364,9 @@ internal static class TenantScopedSqlExpressionResolver
 
         ResolutionResult? fromInitializer = TryResolveFromDeclaratorInitializer(symbol, semanticModel);
         ResolutionResult? fromAssignment = TryResolveFromSimpleAssignments(symbol, semanticModel);
+        ResolutionResult? fromEnclosingAssignment =
+            TryResolveFromEnclosingBlockAssignments(symbol, expression, semanticModel);
+        fromAssignment = MergeBranchResolutions(fromAssignment, fromEnclosingAssignment);
 
         if (fromAssignment is not null &&
             fromInitializer is { IsStaticallyResolved: true, SqlText: "" or null, BranchSqlTexts.Count: 0 })
@@ -678,6 +681,35 @@ internal static class TenantScopedSqlExpressionResolver
         return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
     }
 
+    private static ResolutionResult? TryResolveFromEnclosingBlockAssignments(
+        ISymbol? symbol,
+        ExpressionSyntax useSite,
+        SemanticModel semanticModel)
+    {
+        if (symbol is not ILocalSymbol and not IFieldSymbol and not IPropertySymbol)
+            return null;
+
+        BlockSyntax? block = useSite.FirstAncestorOrSelf<BlockSyntax>();
+
+        if (block is null)
+            return null;
+
+        bool hasScopeHelper = false;
+        List<string> branchSqlTexts = [];
+
+        foreach (TargetAssignment targetAssignment in GetTargetAssignmentsInBlock(block, symbol, semanticModel))
+            ApplyTargetAssignment(targetAssignment, branchSqlTexts, ref hasScopeHelper);
+
+        if (branchSqlTexts.Count == 0)
+        {
+            return hasScopeHelper
+                ? new ResolutionResult(null, false, true)
+                : null;
+        }
+
+        return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
+    }
+
     private readonly struct TargetAssignment
     {
         internal TargetAssignment(bool isAddAssignment, ExpressionSyntax right, SemanticModel semanticModel)
@@ -844,11 +876,11 @@ internal static class TenantScopedSqlExpressionResolver
             return targetSymbol is not null;
         }
 
-        if (left is MemberAccessExpressionSyntax { Expression: ThisExpressionSyntax } memberAccess)
+        if (left is MemberAccessExpressionSyntax memberAccess)
         {
             targetSymbol = semanticModel.GetSymbolInfo(memberAccess).Symbol;
 
-            return targetSymbol is not null;
+            return targetSymbol is IFieldSymbol or IPropertySymbol;
         }
 
         return false;
