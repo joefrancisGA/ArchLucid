@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-18 - Score lift round 75 (batch 40): Ranked path chips, approval status filter empty, wave filter empty, and investigation effort field labels
+
+**Outcome.** Factory ranked-path rows truncate long path ids like cut-point chips. Approval queue status filter empty, remediation wave filter empty, and investigation-effort blocking banner field labels repeat partial-capture and filter-not-failure discipline.
+
+**Surfaces.** Ranked paths table path id chip, governance approval status filter, remediation workbench wave filter, investigation effort ROI banner, honesty and mounted contract tests.
+
 ## 2026-11-18 - Score lift round 74 (batch 39): Instance status filter, attack path report, simulator explain, and cut-point chips
 
 **Outcome.** Remediation instance status filter empty, attack path report read failure, attack path diagram-filter empty, and score simulator explain failure repeat partial-capture discipline and Report Problem. Collapsed cut-point path ids render as truncated chips.
