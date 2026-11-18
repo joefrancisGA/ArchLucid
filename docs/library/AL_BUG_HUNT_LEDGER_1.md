@@ -7355,6 +7355,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: technology-ledger-merge
 
+**Hunts:** 1 · **Bugs found:** 1 · **Consecutive dry hunts:** 0
+
+2026-11-18 seed hunt (seed→hit): no rotation (`shouldRotate: false`; prior tail `orchestrator-transient-retry` **1×** seed-only). Picker **`technology-ledger-merge`** (`unseeded`). Promoted null `TechnologyLedgerEntry.TechnologyName` on existing rows — `NormalizeTechnologyName` called `Trim` on null during `HasMatchingProposal`, aborting topology proposal seeding; null/whitespace names normalize to empty before compare. Regressions `Resolve_treats_null_technology_name_as_empty_when_comparing_existing_rows`, `Resolve_skips_duplicate_when_both_technology_names_are_null_and_ungrounded`. Scoped **86/86** `TechnologyLedgerAgentProposalMergePolicyTests` + full `FullyQualifiedName~TechnologyLedger` spot-check (`RunAnalyzers=false`). Private beta: Run commit and technology-ledger merge no longer crash when a legacy row has a null technology name; operators can still add distinct agent topology candidates.
+
+- [x] (proven) `TechnologyLedgerAgentProposalMergePolicy.NormalizeTechnologyName` — null `TechnologyName` on existing ledger row — **hit 2026-11-18 seed hunt:** fail closed to empty label; regressions above.
+
+- [ ] (candidate) `EvidenceRefsMatch` — zero-width space inside `agentTopologyProposal` sub-key segment may bypass ordinal compare — locus: parsed sub-key segments; input: `agentTopologyProposal:p1:\u200Bsvc`; wrong outcome: duplicate rows.
+- [ ] (candidate) `TryParseAgentTopologyProposalRef` — `AGENTTOPOLOGYPROPOSAL:` prefix with Unicode format characters may miss canonical `agentTopologyProposal:` refs — locus: prefix guard; input: ref with embedded format char; wrong outcome: double insert.
+- [ ] (candidate) `HasMatchingProposal` — `TechnologyLedgerSource.AgentProposed` assumed row with substantive inventory-style ref before chosen gate — locus: ref-first dedupe; input: agent assumed `inventory:arm` ref; wrong outcome: skip topology candidate incorrectly.
+- [ ] (candidate) `Resolve` — locked `Evidence` chosen with `CloudProvider.None` and concrete-family candidate sharing normalized empty display name — locus: `SharesProviderFamilyGate` + `TechnologyNamesMatch`; input: neutral chosen + whitespace-only name candidate; wrong outcome: suppress exploration.
+- [ ] (candidate) `ShouldTreatAsDuplicateByName` — substantive existing ref + null candidate name on cross-family ref dedupe path — locus: provider-family branch in `HasMatchingProposal`; input: AWS assumed substantive + Azure candidate null name same ref; wrong outcome: insert instead of skip.
+
 2026-11-02 thorough hunt (dry, rotation, hunt 146): **Zone rotation** fired (`shouldRotate: true`; `avoidZoneApplied: true`; reason: *3 consecutive low-yield hunt(s) on 'commit-output-integrity' (outcomes: dry, dry, dry).*). Picker applied **`-AvoidZoneId commit-output-integrity`** and returned `technology-ledger-merge` after commit-output-integrity dries **119**–**121**. Cheap-disproof closed five header `(candidate)` monitor rows from hunt 145 reseed (regression family hunt **94**) — **valid-no-repro** ref-key skip on matching topology refs applies to `User`-sourced assumed rows before name-only path (`Resolve_skips_when_evidence_ref_already_present`; hunt 94/85 parity), **valid-no-repro** first matching `Chosen` gates exploration not the second (`Resolve_uses_first_chosen_row_when_multiple_chosen_entries_share_role`, `Resolve_uses_first_chosen_only_when_later_chosen_would_block_same_name_candidate`; hunt 94/86 parity), **invalid** malformed topology prefix case drift dedupes on whole-string fallback compare (`EvidenceRefsMatch`; hunt 94 parity), **valid-no-repro** figure space U+2007 normalizes with unicode separator path (`TechnologyNamesMatch`; hunt 94/98 parity), **valid-no-repro** locked user chosen on neutral family does not suppress cross-family candidate with distinct substantive ref (`Resolve`; hunt 94/76 parity). Reseeded five follow-on `(candidate)` monitor rows below (regression family hunt **93**); scoped **133/133** `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`). Run-log low-yield streak on **`technology-ledger-merge`** is **0/3** before this record (prior TL dry **145**; commit-output **119**–**121** since). **This dry starts 1/3** on `technology-ledger-merge`. Private beta: n/a.
 
 - [x] (valid-no-repro) `HasMatchingProposal` — `User`-sourced assumed row may skip candidate on ref match before name-only ungrounded path — locus: ref-first loop; input: user assumed ref match + distinct name; wrong outcome: skip before name dedupe (monitor; hunt 145 reseed; hunt 94 family) — **cheap-disproof 2026-11-02 thorough hunt (hunt 146):** hunt 145 reseed queue; hunt 136/132/128/120/114/112/94/85 regression family.
@@ -7947,16 +7959,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `NormalizeTechnologyName` — full-width digit labels — **superseded 2026-10-06 thorough hunt:** regression `Resolve_keeps_distinct_technology_names_when_labels_differ_only_by_full_width_digits`.
 
 - **id:** technology-ledger-merge
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-18
+- **last-bug:** 2026-11-18
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

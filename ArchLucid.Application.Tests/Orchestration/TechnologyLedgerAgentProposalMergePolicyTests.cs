@@ -1640,6 +1640,38 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
             .BeSameAs(candidate);
     }
 
+    [Fact]
+    public void Resolve_treats_null_technology_name_as_empty_when_comparing_existing_rows()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Azure);
+        existing.TechnologyName = null!;
+        existing.EvidenceRef = null;
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "candidate";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:svc";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_skips_duplicate_when_both_technology_names_are_null_and_ungrounded()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Azure);
+        existing.TechnologyName = null!;
+        existing.EvidenceRef = null;
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = null!;
+        candidate.EvidenceRef = null;
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeNull();
+    }
+
     private static TechnologyLedgerEntry CreateChosen(CloudProvider provider) =>
         new()
         {
