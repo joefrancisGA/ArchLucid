@@ -16,7 +16,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
     public Task CreateAsync(DigestDeliveryAttempt attempt, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(attempt);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
             _items.Add(Copy(attempt));
         return Task.CompletedTask;
@@ -25,7 +25,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
     public Task UpdateAsync(DigestDeliveryAttempt attempt, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(attempt);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             int i = _items.FindIndex(x => x.AttemptId == attempt.AttemptId && SameScope(x, attempt));
