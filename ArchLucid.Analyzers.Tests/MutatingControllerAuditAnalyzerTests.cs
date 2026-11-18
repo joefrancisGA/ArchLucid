@@ -3376,6 +3376,50 @@ public sealed class SwitchExpressionDefaultArmAuditController(IAuditService audi
     }
 
     [Fact]
+    public async Task AL0003_reports_when_LogAsync_only_in_switch_expression_discard_arm_with_compile_time_false_when_clause()
+    {
+        string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class SwitchExpressionWhenFalseArmAuditController(IAuditService auditService) : ControllerBase
+{
+    [HttpPost("x")]
+    public async System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+    {
+        await (1 switch
+        {
+            0 => System.Threading.Tasks.Task.CompletedTask,
+            _ when 1 == 2 => auditService.LogAsync(new AuditEvent { EventType = "Probe" }, cancellationToken),
+        });
+
+        return Ok();
+    }
+}
+""";
+
+        CSharpCompilation compilation = CSharpCompilation.Create(
+            "ArchLucid.Api",
+            [CSharpSyntaxTree.ParseText(testCode, new CSharpParseOptions(LanguageVersion.CSharp12))],
+            TrustedPlatformReferences(),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        ImmutableArray<Diagnostic> diagnostics =
+            await compilation
+                .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new MutatingControllerAuditAnalyzer()))
+                .GetAnalyzerDiagnosticsAsync();
+
+        Assert.Contains(
+            diagnostics,
+            diagnostic => diagnostic.Id == Al0003MutatingControllerAuditDescriptor.Rule.Id &&
+                            diagnostic.GetMessage().Contains("SwitchExpressionWhenFalseArmAuditController.Post", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task AL0003_is_absent_when_LogAsync_in_finally_after_try_return()
     {
         const string testCode = AuditAndMvcStubs +

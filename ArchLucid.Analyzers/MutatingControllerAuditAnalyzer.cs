@@ -784,6 +784,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (!TryGetSwitchLiteralValue(discriminantLiteralSyntax, out string? discriminantText))
             return true;
 
+        if (IsSwitchExpressionArmWhenClauseCompileTimeFalse(armSyntax, semanticModel: null, cancellationToken: default))
+            return false;
+
         if (armSyntax.Pattern is ConstantPatternSyntax constantPatternSyntax &&
             constantPatternSyntax.Expression is LiteralExpressionSyntax armLiteralSyntax &&
             TryGetSwitchLiteralValue(armLiteralSyntax, out string? armText) &&
@@ -825,6 +828,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
         object? discriminant = discriminantOptional.Value;
 
+        if (IsSwitchExpressionArmWhenClauseCompileTimeFalse(armSyntax, semanticModel, cancellationToken))
+            return false;
+
         if (armSyntax.Pattern is ConstantPatternSyntax constantPatternSyntax)
         {
             Optional<object?> patternConstantOptional =
@@ -858,41 +864,34 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         return true;
     }
 
-    private static bool IsSyntaxNodeWithinExpression(SyntaxNode descendant, ExpressionSyntax rootExpression)
-    {
-        foreach (SyntaxNode? ancestor in descendant.Ancestors())
-        {
-            if (ancestor is ExpressionSyntax expressionSyntax && ReferenceEquals(expressionSyntax, rootExpression))
-                return true;
-        }
-
-        return false;
-    }
-
-    private static bool IsCoalesceLeftOperandNeverNull(
-        ExpressionSyntax leftExpressionSyntax,
+    private static bool IsSwitchExpressionArmWhenClauseCompileTimeFalse(
+        SwitchExpressionArmSyntax armSyntax,
         SemanticModel? semanticModel,
         CancellationToken cancellationToken)
     {
-        if (semanticModel is null)
+        if (armSyntax.WhenClause is null)
             return false;
 
-        Optional<object?> constantOptional = semanticModel.GetConstantValue(leftExpressionSyntax, cancellationToken);
+        ExpressionSyntax whenCondition = armSyntax.WhenClause.Condition;
 
-        if (constantOptional.HasValue && constantOptional.Value is not null)
+        if (semanticModel is not null)
+        {
+            Optional<object?> whenConstantOptional =
+                semanticModel.GetConstantValue(whenCondition, cancellationToken);
+
+            if (whenConstantOptional.HasValue && whenConstantOptional.Value is bool whenBool)
+                return !whenBool;
+
+            return false;
+        }
+
+        if (whenCondition is LiteralExpressionSyntax literalExpressionSyntax &&
+            literalExpressionSyntax.IsKind(SyntaxKind.FalseLiteralExpression))
+        {
             return true;
+        }
 
-        if (leftExpressionSyntax is not InvocationExpressionSyntax invocationExpressionSyntax)
-            return false;
-
-        IMethodSymbol? methodSymbol =
-            semanticModel.GetSymbolInfo(invocationExpressionSyntax, cancellationToken).Symbol as IMethodSymbol;
-
-        if (methodSymbol is null)
-            return false;
-
-        return string.Equals(methodSymbol.Name, "FromResult", StringComparison.Ordinal) &&
-               string.Equals(methodSymbol.ContainingType?.Name, "Task", StringComparison.Ordinal);
+        return false;
     }
 
     private static bool IsSyntaxNodeWithinExpression(SyntaxNode descendant, ExpressionSyntax rootExpression)
