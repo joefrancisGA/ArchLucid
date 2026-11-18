@@ -70,7 +70,7 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
                     ProjectId = projectId,
-                    Take = Math.Clamp(take, 1, 200)
+                    Take = Math.Clamp(take <= 0 ? 20 : take, 1, 200)
                 },
                 cancellationToken: ct));
 
