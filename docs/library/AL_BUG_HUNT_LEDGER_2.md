@@ -4,7 +4,7 @@
 
 2026-10-21 seed hunt (seed-only, lane C): cheap-disproof five open cache/SQL candidates; one new regression; seeded five follow-on rows; 44 scoped tests passed.
 
-**Hunts:** 54 · **Bugs found:** 7 · **Consecutive dry hunts:** 13
+**Hunts:** 0 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; 17 focused `SqlTenantSettingsRepository` tests passed; no production code changed and no regression was added.
 
@@ -26,12 +26,6 @@
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
-- [ ] (candidate) `CachingTenantSettingsRepository.CacheGenerations` — process-local generation keys may not invalidate a shared cache after another application instance writes the same setting — locus: static generation dictionary ~13 and generation-stamped cache key ~103; input: read on node A, upsert on node B, then read on node A.
-- [ ] (candidate) `CachingTenantSettingsRepository.CacheGenerations` — generation entries grow without eviction for every tenant/key ever written — locus: static `ConcurrentDictionary` ~13 and unconditional `BumpCacheGeneration`; input: many ephemeral tenant setting keys over the process lifetime.
-- [ ] (candidate) `CachingTenantSettingsRepository.UpsertAsync` — cancellation during cache invalidation after a successful inner write leaves a generation gap and repeated cold reads — locus: `InvalidateCurrentGenerationCacheAsync` ~64; input: SQL upsert succeeds, cache removal observes cancellation, then a read starts.
-- [ ] (candidate) `CachingTenantSettingsRepository.DeleteAsync` — cancellation during invalidation after a successful delete leaves the new generation without a negative cache entry — locus: delete path ~83–88; input: delete succeeds, cache removal is canceled, then repeated reads request the deleted key.
-- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — concurrent `MERGE` operations for one tenant/key may race without an explicit serializing hint — locus: `MERGE dbo.TenantSettings` ~88–97; input: parallel upserts for the same normalized tenant/key under a unique constraint.
-
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed `UpsertAsync_round_trips_trimmed_key_and_value`, `TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`, `TryGetAsync_throws_when_tenant_id_empty`, `EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim`, and `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump`; 17 scoped `SqlTenantSettingsRepository` tests passed.
 
 - [x] (valid-no-repro) `SqlTenantSettingsRepository.TryGetCoreAsync` — whitespace-only `SettingValue` row in SQL maps to `null` — **cheap-disproof 2026-10-08 seed hunt #45:** `string.IsNullOrWhiteSpace` coalesces legacy blanks; regression `TryGetCoreAsync_maps_whitespace_only_setting_value_scalar_to_null`.
@@ -40,23 +34,12 @@
 - [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` — rejects `settingValue` failing `ThrowIfNullOrWhiteSpace` before MERGE — **cheap-disproof 2026-10-08 seed hunt #45:** fail-fast before SQL; regressions `UpsertAsync_rejects_whitespace_only_setting_value` and `EnsureSettingValueLength_rejects_whitespace_only_value`.
 - [x] (valid-no-repro) `CachingTenantSettingsRepository.DeleteAsync` — bumps cache generation twice around inner delete — **cheap-disproof 2026-10-08 seed hunt #45:** double bump invalidates generation-stamped keys by design; regression `TenantSettings_TryGetAsync_returns_null_after_delete`.
 
-- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — persists `settingValue.Trim()` on MERGE while read path also trims scalars — locus: `SettingValue = settingValue.Trim()` ~107; input: `UpsertAsync_round_trips_trimmed_key_and_value`.
-- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — normalizes setting key before cache slot and inner delegate — locus: `TenantSettingKeyNormalizer.Normalize` ~26 (`CachingTenantSettingsRepository.cs`); input: `TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`.
-- [ ] (candidate) `SqlTenantSettingsRepository.TryGetAsync` — rejects `Guid.Empty` tenant id before opening SQL connection — locus: ~45–46; input: `TryGetAsync_throws_when_tenant_id_empty` on in-memory parity contract.
-- [ ] (candidate) `TenantSettingsWriteGuard.EnsureSettingValueLength` — measures length after `Trim()` so padded values at exact NVARCHAR budget pass — locus: guard implementation; input: `EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim`.
-- [ ] (candidate) `CachingTenantSettingsRepository` — `TenantSettingCacheEntry.IsPresent` distinguishes cached miss from HybridCache absent entry — locus: `TryGetAsync` ~43–44; input: `TenantSettings_TryGetAsync_returns_null_after_cached_miss_before_generation_bump`.
-
 - [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` — persists `settingValue.Trim()` on MERGE while read path also trims scalars — **cheap-disproof 2026-10-08 seed hunt #46:** write/read trimming is symmetric; regression `UpsertAsync_round_trips_trimmed_key_and_value`.
 - [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — normalizes setting key before cache slot and inner delegate — **cheap-disproof 2026-10-08 seed hunt #46:** casing variants share one normalized cache slot; regression `TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`.
 - [x] (valid-no-repro) `SqlTenantSettingsRepository.TryGetAsync` — rejects `Guid.Empty` tenant id before opening SQL connection — **cheap-disproof 2026-10-08 seed hunt #46:** tenant guard fails closed before connection access; regression `TryGetAsync_throws_when_tenant_id_empty`.
 - [x] (valid-no-repro) `TenantSettingsWriteGuard.EnsureSettingValueLength` — measures length after `Trim()` so padded values at exact NVARCHAR budget pass — **cheap-disproof 2026-10-08 seed hunt #46:** trimmed persisted value fits the migration limit; regression `EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim`.
 - [x] (valid-no-repro) `CachingTenantSettingsRepository` — `TenantSettingCacheEntry.IsPresent` distinguishes cached miss from HybridCache absent entry — **cheap-disproof 2026-10-08 seed hunt #46:** cached miss is refreshed after generation bump; regression `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump`.
-
-- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — normalizes the key before `TenantSettingsWriteGuard` but trims the value only in SQL parameters — locus: `normalizedKey` and `SettingValue = settingValue.Trim()` ~83–107; input: setting value containing leading/trailing Unicode whitespace.
 - [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — whitespace-only setting key throws at normalizer — **cheap-disproof 2026-10-21 seed hunt (lane C):** regression `TenantSettings_TryGetAsync_throws_when_setting_key_whitespace_only_without_poisoning_cache`. — locus: `TenantSettingKeyNormalizer.Normalize` ~26; input: null or whitespace key through the caching decorator.
-- [ ] (candidate) `CachingTenantSettingsRepository.UpsertAsync` — `WriteInFlightKeys.TryAdd` does not record whether a prior writer owns the slot — locus: `WriteInFlightKeys` ~59–67; input: concurrent upserts for the same tenant/key with one cancellation.
-- [ ] (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — `QuerySingleOrDefaultAsync` assumes one row per tenant/key and surfaces duplicate-row data errors — locus: scalar Dapper query ~62–68; input: legacy duplicate `TenantSettings` rows before unique-key repair.
-- [ ] (candidate) `TenantSettingsWriteGuard.EnsureSettingValueLength` — .NET `Trim()` and SQL `SettingValue` storage may disagree for non-breaking-space edge padding — locus: `settingValue.Trim()` ~11; input: value padded with `U+00A0` at the NVARCHAR boundary.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 16 scoped `SqlTenantSettingsRepository` tests plus 42 `TenantSettings_` caching tests passed.
 
@@ -77,16 +60,16 @@
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions `EnsureSettingValueLength_counts_interior_whitespace_toward_trimmed_length_budget`, `EnsureSettingValueLength_accepts_compact_json_without_interior_whitespace_at_budget`, `TenantSettings_TryGetAsync_reflects_upsert_after_cancel_when_upsert_ran_during_delayed_cold_load`, and `UpsertAsync_normalizes_workspace_suffix_guid_hex_casing_to_single_slot`; seeded five follow-on `(candidate)` rows; 54 scoped tenant-settings tests passed.
 
 - **id:** tenant-settings-sql
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 57
-- **bugs-found:** 7
-- **consecutive-dry-hunts:** 14
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
 
@@ -264,12 +247,6 @@
 
 2026-11-03 thorough hunt (dry #66): cheap-disproof closed five open `(candidate)` monitor rows from dry **#65** reseed — **valid-no-repro** bot challenge missing returns neutral anti-enumeration envelope (`RequestCodeAsync_returns_neutral_result_when_bot_challenge_required_but_missing`, dry **#58** / **#940**); **valid-no-repro** verify rate limit runs before enterprise SSO re-check by design (`VerifyCodeAsync_audits_sso_required_failure_for_stale_challenge_when_domain_now_requires_sso`, dry **#56**); **valid-no-repro** controller omits challenge id when `EmailDeliverySucceeded` is null on neutral paths (`RequestChallengeAsync_omits_challenge_id_when_email_delivery_succeeded_is_null_without_challenge`, dry **#940**); **valid-no-repro** concurrent delivery-failure cleanup deletes by challenge id only (`RequestCodeAsync_delivery_failure_does_not_delete_a_newer_concurrent_challenge`, hit **2026-10-10**); **valid-no-repro** `SelectWorkspace` verify next step uses intentional trial JWT defaults (controller verify workspace tests, dry **#940**). Reseeded five follow-on `(candidate)` monitor rows from dry **#65** closed themes; zone **cooling** (`consecutive-dry-hunts` 12); **68/68** scoped Application + Api email OTP tests (`RunAnalyzers=false`: 50 service/concurrency + 18 controller). Private beta: n/a.
 
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — null request body returns HTTP 400 before service call — locus: `body is null` guard ~97–99; input: verify POST with null JSON body (monitor dry **#66** / dry **#65** / dry **#63**).
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — failed service verify returns HTTP 401 without leaking token fields — locus: `Unauthorized()` without `IssueAccessToken`; input: service failure or empty platform user id (monitor dry **#66** / dry **#65**).
-- [ ] (candidate) `EmailOtpVerifyFlow.ExecuteAsync` — repeated incorrect codes invalidate challenge after max attempts — locus: attempt counter + invalidate; input: wrong codes until max (monitor dry **#66** / dry **#65**).
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — access-token lifetime upper clamp via `Math.Clamp(..., 5, 24 * 60)` — locus: issuer lifetime vs trial TTL; input: mismatched config (monitor dry **#66** / dry **#65** / hit **2026-10-09**).
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — empty string `Email` delegates to service neutral path (not API 400) — locus: anti-enumeration; input: `Email: ""` (monitor dry **#66** / dry **#65** / dry **#940**).
-
 2026-11-03 thorough hunt (dry #65): cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#64** — **valid-no-repro** null verify body rejected before `VerifyCodeAsync` (`body is null` guard ~97–99; `VerifyAsync_returns_bad_request_when_body_is_null`, parity `RequestChallengeAsync_returns_bad_request_when_body_is_null`); **valid-no-repro** failed verify returns HTTP **401** without issuing JWT (`VerifyAsync_rejects_success_result_with_empty_platform_user_id`, whitespace display-email/role variants); **valid-no-repro** incorrect codes invalidate after max attempts (`VerifyCodeAsync_rejects_incorrect_code_and_invalidates_after_max_attempts`); **valid-no-repro** access-token lifetime clamped via `Math.Clamp(..., 5, 24 * 60)` (`VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`, hit **2026-10-09** / dry **#61**); **valid-no-repro** empty-string `Email` reaches service neutral invalid-email path (only null-email API **400**; `RequestCodeAsync_returns_neutral_message_for_invalid_email_and_audits_once`, dry **#940**). Reseeded five follow-on `(candidate)` monitor rows from dry **#64** closed themes; **68/68** scoped Application + Api email OTP tests (`RunAnalyzers=false`: 50 service/concurrency + 18 controller). Private beta: n/a.
 
 - [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — null request body returns HTTP 400 before service call — **cheap-disproof 2026-11-03 thorough hunt #65:** `body is null` guard; regressions in diary above.
@@ -419,7 +396,7 @@
 
 2026-10-09 seed hunt (seed-only): repeated the selected controller/service review and focused test inventory; no fresh reachable mechanism-backed candidate emerged and no hypothesis was promoted. The exact scoped test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-**Hunts:** 52 · **Bugs found:** 15 · **Consecutive dry hunts:** 0
+**Hunts:** 0 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
 
 2026-10-08 thorough hunt (hit): proved that a successful OTP result with `PlatformUserId = Guid.Empty` passed the controller's null-only guard and issued a token for the empty identity; added a fail-closed guard and regression; 1 API regression, 41 service tests, and 3 concurrency tests passed.
 
@@ -438,18 +415,8 @@
 2026-10-09 seed hunt (seed-only): re-read the selected controller and service paths with the focused test inventory; no new reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The exact scoped test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 - [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` — failed email delivery exposed `ChallengeId` — **hit 2026-10-21 / closed 2026-10-27 seed hunt #353:** `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`.
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `SsoRequired` and `SsoMessage` can be returned in an inconsistent combination without controller validation — locus: direct result mapping ~72–75; input: service result says SSO required but has an empty SSO message.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a service result with missing tenant/workspace independently falls back to local trial scope while preserving the other returned scope — locus: separate `Guid.Empty` fallback blocks ~115–124; input: successful verify returns only one of `TenantId` or `WorkspaceId`.
-- [ ] (candidate) `EmailOtpAuthService` — request and verify flows capture separate reads of `IOptions<EmailOtpAuthOptions>.Value` during construction — locus: options value is read once per flow ~24–42; input: mutable options monitor changes enabled/cooldown settings between flow construction reads.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `InvitationId` is copied into a successful response without verifying it belongs to the issued challenge — locus: direct `result.InvitationId` mapping ~145–149; input: service returns a mismatched invitation id alongside a valid code result.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and service paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
-
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — upper access-token lifetime clamp may differ from the configured contract — locus: `Math.Clamp(..., 5, 24 * 60)` ~128; input: successful verify with `AccessTokenLifetimeMinutes` above 1440.
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — cancellation from an aborted challenge request may not prevent a completed response or downstream audit — locus: request cancellation token is passed directly to `RequestCodeAsync`; input: disconnect while notifier/repository work is pending.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — cancellation from an aborted verify request may arrive after challenge completion — locus: request cancellation token is passed directly to `VerifyCodeAsync`; input: disconnect during challenge completion and identity lookup.
-- [ ] (candidate) `EmailOtpRequestFlow` reached through `RequestChallengeAsync` — invitation-token whitespace or surrounding text may be interpreted inconsistently between challenge creation and verify — locus: controller forwards `InvitationToken` without normalization; input: challenge and verify requests using the same padded invitation token.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a successful service result with whitespace `DisplayEmail` still satisfies the null-only token guard — locus: `result.DisplayEmail is null` check ~109; input: mocked or corrupted identity result with `DisplayEmail = "   "`.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `VerifyAsync_returns_bad_request_when_challenge_id_is_empty`, `VerifyAsync_returns_not_found_when_otp_auth_is_disabled`, `RequestChallengeAsync_returns_bad_request_when_body_is_null`, and `RequestChallengeAsync_returns_not_found_when_otp_auth_is_disabled`; reaffirmed resend cooldown and expired-verify service paths; 44 scoped Application tests + 9 Api controller tests passed.
 
@@ -458,12 +425,6 @@
 - [x] (valid-no-repro) `EmailOtpAuthController` — `Enabled=false` returns HTTP 404 on challenge and verify before service delegation — **cheap-disproof 2026-10-08 seed hunt #36:** `IsEmailOtpEnabled` ~48–50 / ~90–92; regressions `RequestChallengeAsync_returns_not_found_when_otp_auth_is_disabled` and `VerifyAsync_returns_not_found_when_otp_auth_is_disabled`.
 - [x] (valid-no-repro) `EmailOtpRequestFlow.ExecuteAsync` — second request inside `ResendCooldownSeconds` returns neutral result without new `ChallengeId` — **cheap-disproof 2026-10-08 seed hunt #36:** cooldown gate preserves active challenge; regression `RequestCodeAsync_resend_cooldown_preserves_active_challenge_for_verify`.
 - [x] (valid-no-repro) `EmailOtpVerifyFlow.ExecuteAsync` — expired challenge rejects verify without success path — **cheap-disproof 2026-10-08 seed hunt #36:** `TryCompleteAsync` expired outcome; regression `VerifyCodeAsync_rejects_expired_code`.
-
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — null request body returns HTTP 400 before calling service — locus: `body is null` ~95 (`EmailOtpAuthController.cs`); input: verify POST with null body.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — failed service verify returns HTTP 401 without response body leak — locus: `!result.Succeeded` ~109–111; input: mock service failure in `EmailOtpAuthControllerVerifyTests`.
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — empty string `Email` delegates to service (not API 400) — locus: only null-email guard ~53–56; input: challenge POST `{ "email": "" }`.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `ExpiresInSeconds` clamps sub-5-minute `AccessTokenLifetimeMinutes` via `Math.Clamp` — locus: ~128; input: options `AccessTokenLifetimeMinutes` below 5 on successful verify.
-- [ ] (candidate) `EmailOtpVerifyFlow.ExecuteAsync` — repeated incorrect codes invalidate challenge after max attempts — locus: verify attempt counter in `EmailOtpVerifyFlow`; input: `VerifyCodeAsync_rejects_incorrect_code_and_invalidates_after_max_attempts`.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `EmailOtpAuthControllerVerifyTests` and `EmailOtpAuthControllerChallengeTests`; 44 scoped service/repository tests passed.
 
@@ -482,16 +443,16 @@
 - [x] (valid-no-repro) `EmailOtpRequestFlow.ExecuteAsync` — disabled OTP returns neutral result without notifier side effects — **cheap-disproof 2026-10-07 seed hunt #34:** `Enabled=false` path; regression `RequestCodeAsync_returns_neutral_result_when_otp_auth_disabled`.
 
 - **id:** email-otp-auth
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 66
-- **bugs-found:** 15
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-10 — failed OTP delivery deleted a newer concurrent challenge
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -638,12 +599,6 @@
 - [x] (invalid) `ContainsAtSignInPath` — percent-encoded fullwidth at `%EF%BC%A0` only in query — **cheap-disproof 2026-11-05 thorough hunt #61:** dry **#60** queue; path-only `@` homoglyph gate by design.
 - [x] (valid-no-repro) `TryNormalizeAfterPercentDecoding` — mid-path `%2F%2F` before decode completes — **cheap-disproof 2026-11-05 thorough hunt #61:** dry **#60** queue; regression `TryNormalize_rejects_interior_double_slash_segments_conservative_protocol_relative_scan`.
 
-- [ ] (candidate) `TryNormalize` — percent-encoded paragraph separator `%E2%80%A9` in path segment — locus: percent-decode loop; input: `/reviews%E2%80%A9/1` (monitor dry **#61** / dry **#59**).
-- [ ] (candidate) `TryNormalize` — percent-encoded soft hyphen `%C2%AD` in path — locus: decode without open-redirect shape; input: safe relative segment (monitor dry **#61** / dry **#59**).
-- [ ] (candidate) `ContainsProtocolRelativeTraversal` — query-only decoded `//` without scheme — locus: conservative full-string scan; input: `/reviews?next=//evil.example` (monitor dry **#61** / seed **#54**).
-- [ ] (candidate) `ContainsControlCharacter` — vertical tab `%0B` in path segment after decode — locus: post-decode `char.IsControl`; input: `/reviews/%0Bsegment` (monitor dry **#61** / seed **#54**).
-- [ ] (candidate) `TryNormalizeRelativePath` — fragment containing `://` without path `@` — locus: whole-string scheme delimiter rejection; input: `/reviews#foo://bar` (monitor dry **#61** / seed **#54**).
-
 - [x] (superseded) dry **#60** open `(candidate)` queue — **superseded 2026-11-05 thorough hunt #61:** closed at zone header; see hunt **#61** reseed.
 
 2026-11-03 thorough hunt (dry #60): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`billing-webhooks`** is **1/3** before this record). Attempted failing repro on five open `(candidate)` monitor rows from dry **#59** reseed; cheap-disproof closed all five **valid-no-repro** — percent-encoded paragraph separator `%E2%80%A9` (`TryNormalize_accepts_percent_encoded_paragraph_separator_in_path_segment`; dry **#58** / seed **#54**); percent-encoded soft hyphen literal path (`TryNormalize_accepts_soft_hyphen_inside_path_segment_without_open_redirect_shape`; seed **#55**); query-only `//` (`TryNormalize_rejects_when_query_value_contains_scheme_delimiter_substring` with `/reviews?next=//evil.example`; seed **#54**); vertical tab `%0B` post-decode control rejection (same `ContainsControlCharacter` / `char.IsControl` class as `%0C` / `%0D` regressions; seed **#54**); fragment `://` (`TryNormalize_rejects_when_fragment_contains_open_redirect_substrings` with `/reviews#foo://bar`; seed **#54**). Reseeded five follow-on `(candidate)` rows below (distinct monitor class from dry **#59** queue); scoped **201/201** `AuthSignInReturnPathGuardTests` (`RunAnalyzers=false`). Private beta: n/a.
@@ -661,12 +616,6 @@
 - [x] (valid-no-repro) `TryNormalizeRelativePath` — fragment containing `://` without path `@` — **cheap-disproof 2026-11-03 thorough hunt #60:** dry **#59** queue; regression `TryNormalize_rejects_when_fragment_contains_open_redirect_substrings`.
 
 2026-11-03 thorough hunt (dry #59): cheap-disproof closed five open `(candidate)` monitor rows from dry **#58** reseed — **valid-no-repro** percent-encoded POP directional isolate `%E2%81%A9` decodes safely in path (`TryNormalize_decodes_percent_encoded_pop_directional_isolate_in_path_segment`; lane B **2026-10-21**); **valid-no-repro** form feed `%0C` rejected post-decode (`TryNormalize_rejects_percent_encoded_form_feed_in_path_segment_after_decode`; lane B); **valid-no-repro** encoded backslash-slash `%5C%2F` in query rejected (`TryNormalize_rejects_encoded_backslash_slash_pair_in_query`; lane B); **valid-no-repro** `%2E%2E` only in fragment accepted by fragment/path split (`TryNormalize_accepts_percent_encoded_dot_dot_literals_only_in_fragment`; lane B); **valid-no-repro** small commercial at `%EF%B9%AB` rejected in path portion (`TryNormalize_rejects_percent_encoded_small_commercial_at_in_path_portion`; lane B). Reseeded five follow-on `(candidate)` rows from dry **#58** closed themes; zone **cooling** (`consecutive-dry-hunts` 11); scoped **201/201** `AuthSignInReturnPathGuardTests` (`RunAnalyzers=false`). Private beta: n/a.
-
-- [ ] (candidate) `TryNormalize` — percent-encoded paragraph separator `%E2%80%A9` in path segment — locus: percent-decode loop; input: `/reviews%E2%80%A9/1` (monitor dry **#59** / dry **#58**).
-- [ ] (candidate) `TryNormalize` — percent-encoded soft hyphen `%C2%AD` in path — locus: decode without open-redirect shape; input: safe relative segment (monitor dry **#59** / seed **#55**).
-- [ ] (candidate) `ContainsProtocolRelativeTraversal` — query-only decoded `//` without scheme — locus: conservative full-string scan; input: `/reviews?next=//evil.example` (monitor dry **#59** / seed **#54**).
-- [ ] (candidate) `ContainsControlCharacter` — vertical tab `%0B` in path segment after decode — locus: post-decode `char.IsControl`; input: `/reviews/%0Bsegment` (monitor dry **#59** / seed **#54**).
-- [ ] (candidate) `TryNormalizeRelativePath` — fragment containing `://` without path `@` — locus: whole-string scheme delimiter rejection; input: `/reviews#foo://bar` (monitor dry **#59** / seed **#54**).
 
 2026-11-03 thorough hunt (dry #58): cheap-disproof closed five open `(candidate)` monitor rows from dry **#57** / seed **#54** reseed — **valid-no-repro** percent-encoded paragraph separator `%E2%80%A9` accepted in path segment (`TryNormalize_accepts_percent_encoded_paragraph_separator_in_path_segment`; seed **#54**); **valid-no-repro** percent-encoded soft hyphen `%C2%AD` without open-redirect shape (`TryNormalize_accepts_soft_hyphen_inside_path_segment_without_open_redirect_shape`; seed **#55**); **valid-no-repro** query-only decoded `//` rejected by conservative full-string scan (`TryNormalize_rejects_when_query_value_contains_scheme_delimiter_substring` with `/reviews?next=//evil.example`; seed **#54**); **valid-no-repro** vertical tab `%0B` post-decode control rejection (`ContainsControlCharacter` / `char.IsControl`; seed **#54**); **valid-no-repro** fragment `://` without path `@` rejected (`TryNormalize_rejects_when_fragment_contains_open_redirect_substrings` with `/reviews#foo://bar`; seed **#54**). Reseeded five follow-on `(candidate)` monitor rows from lane B regression class; scoped **201/201** `AuthSignInReturnPathGuardTests` (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -721,19 +670,19 @@
 - [x] (valid-no-repro) `ContainsProtocolRelativeTraversal` — interior `//` — **cheap-disproof 2026-10-08 seed hunt #56:** conservative `path.Contains("//")` rejects pasted empty segments; regression `TryNormalize_rejects_interior_double_slash_segments_conservative_protocol_relative_scan`.
 
 - **id:** auth-return-path
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 61
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-11-05
-- **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
-**Hunts:** 61 · **Bugs found:** 22 · **Consecutive dry hunts:** 13
+**Hunts:** 0 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed paragraph-separator and soft-hyphen handling, query-only protocol-relative scans, control-character rejection, and fragment `://` rejection; 196 scoped `AuthSignInReturnPathGuardTests` passed.
 
@@ -743,23 +692,11 @@
 - [x] (valid-no-repro) `ContainsControlCharacter` — vertical tab `%0B` in path segment — **cheap-disproof 2026-10-08 seed hunt #54:** post-decode `char.IsControl` rejection covers vertical tab.
 - [x] (valid-no-repro) `TryNormalizeRelativePath` — fragment containing `://` without path `@` — **cheap-disproof 2026-10-08 seed hunt #54:** whole-string scheme delimiter rejection is conservative and prevents fragment-based redirect ambiguity.
 
-- [ ] (candidate) `TryNormalize` — percent-encoded paragraph separator `%E2%80%A9` in path segment — locus: percent-decode loop before `TryNormalizeRelativePath`; input: `/reviews%E2%80%A9/1`.
-- [ ] (candidate) `ContainsControlCharacter` — form feed `%0C` after percent decoding — locus: decoded control scan ~75; input: `/reviews/%0Csegment`.
-- [ ] (candidate) `ContainsProtocolRelativeTraversal` — encoded backslash plus slash `%5C%2F` in query — locus: residual traversal scan ~116–123; input: `/reviews?next=%5C%2Fevil.example`.
-- [ ] (candidate) `ContainsDotDotSegment` — percent-encoded dot pair `%2E%2E` in fragment — locus: full decode and path-only traversal split; input: `/reviews#next=%2E%2E/admin`.
-- [ ] (candidate) `ContainsAtSignInPath` — percent-encoded small commercial at `%EF%B9%AB` in path — locus: decoded path userinfo scan; input: `/reviews/%EF%B9%ABevil.example`.
-
 - [x] (valid-no-repro) `TryNormalize` — percent-encoded POP `%E2%81%A9` — **cheap-disproof 2026-10-08 seed hunt #56:** decodes to in-path directional isolate; regression `TryNormalize_decodes_percent_encoded_pop_directional_isolate_in_path_segment`.
 - [x] (valid-no-repro) `ContainsControlCharacter` — `%0D` in path — **cheap-disproof 2026-10-08 seed hunt #56:** post-decode CR rejected; regression `TryNormalize_rejects_percent_encoded_carriage_return_in_path_segment_after_decode`.
 - [x] (valid-no-repro) `TryNormalizeRelativePath` — query `://` after decode — **cheap-disproof 2026-10-08 seed hunt #56:** whole-string `://` check intentional; regression `TryNormalize_rejects_when_query_decodes_to_scheme_delimiter_substring`.
 - [x] (valid-no-repro) `TryNormalize` — LINE SEPARATOR U+2028 — **cheap-disproof 2026-10-08 seed hunt #56:** not control/homoglyph open-redirect class; regression `TryNormalize_accepts_line_separator_inside_path_segment_without_open_redirect_shape`.
 - [x] (valid-no-repro) `ContainsProtocolRelativeTraversal` — interior `//` — **cheap-disproof 2026-10-08 seed hunt #56:** conservative `path.Contains("//")` rejects pasted empty segments; regression `TryNormalize_rejects_interior_double_slash_segments_conservative_protocol_relative_scan`.
-
-- [ ] (candidate) `TryNormalize` — PARAGRAPH SEPARATOR U+2029 inside path segments — locus: separator vs control; input: `/reviews\u2029/1`.
-- [ ] (candidate) `TryNormalize` — percent-encoded soft hyphen `%C2%AD` in path — locus: `TryNormalizeAfterPercentDecoding`; input: `/reviews%C2%AD/1`.
-- [ ] (candidate) `ContainsProtocolRelativeTraversal` — query-only `//` after decode (`/reviews?x=%2F%2F`) without scheme — locus: post-decode `//` substring; input: `/reviews?next=%2F%2Fevil.example`.
-- [ ] (candidate) `ContainsControlCharacter` — vertical tab `%0B` in path segment — locus: post-decode control scan; input: `/reviews/%0Bsegment`.
-- [ ] (candidate) `TryNormalizeRelativePath` — fragment containing `://` without path `@` — locus: whole-string `://` check; input: `/reviews#note=http%3A%2F%2Fevil.example`.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `TryNormalize_decodes_percent_encoded_left_to_right_isolate_in_path_segment`, `TryNormalize_rejects_matrix_style_path_when_percent_encoded_protocol_relative_slashes_decode_in_segment`, `TryNormalize_rejects_horizontal_tab_control_character_in_path_segment`, `TryNormalize_decodes_uppercase_percent_encoded_slash_in_query_value`, and `TryNormalize_accepts_soft_hyphen_inside_path_segment_without_open_redirect_shape`; 191 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
@@ -1204,12 +1141,6 @@
 - [x] (invalid) `TenantErasureQuarantineMiddleware.Skip` — percent-encoded slash on erasure lifecycle offboard path — **cheap-disproof 2026-11-04 thorough hunt #292:** no encoded-path prerequisite; dry **#279**; seed **#291**.
 - [x] (valid-no-repro) `TenantErasureCommandService.TryRevertTenantErasureApprovalAsync` — revert no-op when approval cleared but offboard also cleared — **cheap-disproof 2026-11-04 thorough hunt #292:** restore-before-audit ordering; seed **#291**.
 
-- [ ] (candidate) `TenantErasureCommandService.TrySetLegalHoldAsync` — hold-set audit append failure leaves hold set while identical retry returns success without audit — locus: `IsIdenticalLegalHoldRetry` ~261–262; input: operator set-hold after transient audit outage (monitor seed **#292**).
-- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit append failure after atomic start without `CompleteOffboardSideEffectsAsync` retry path on early offboard read — locus: first-time offboard path; input: audit outage before side-effect retry (monitor seed **#292** / dry **#279**).
-- [ ] (candidate) `TenantErasureCommandService.RollbackClearLegalHoldAfterFailedAuditAsync` — rollback uses current clock for `TrySetTenantErasureLegalHoldAsync` when prior hold expired during outage — locus: `utcNow` argument; input: hold until in past after long outage (monitor seed **#292**).
-- [ ] (candidate) `TenantErasureQuarantineMiddleware.Skip` — uppercase percent-encoded lifecycle segment — locus: raw `PathString`; input: `%2F` offboard path variant (monitor seed **#292** / dry **#279**).
-- [ ] (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — approve audit payload uses command `now` not stored `TenantErasureApprovedUtc` when they diverge — locus: `approvedUtc` selection ~445; input: clock skew between repository write and audit append (monitor seed **#292**).
-
 2026-11-04 thorough hunt (hit #291): failing repro on seed **#290** monitor — `TryApproveErasureAsync` persisted approval then failed `TenantErasureApproved` audit append left approval set while operator retry hit early `TenantErasureApprovedUtc is not null` success without audit (parity restore hit **#290**); fixed with deterministic `CreateApproveAuditEventId`, `TryRevertTenantErasureApprovalAsync`, and approval rollback on audit failure; regression `TryApproveErasureAsync_retries_failed_approve_audit_with_same_event_id_when_approval_rollback_reapplies`. Cheap-disproof closed four remaining seed **#290** `(candidate)` rows — **valid-no-repro** concurrent restore atomic loser skips audit by design (`TryRestoreQuarantineAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`; dry **#277**); **valid-no-repro** restore audit rollback intentionally does not rehydrate approval columns cleared by restore SQL (break-glass restore contract; monitor **#290**); **valid-no-repro** trailing dot-segment lifecycle allowlist (`Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_dot_segments_in_path` covers `/v1/tenant/erasure/./approve`; dry **#281**); **valid-no-repro** clear-hold non-deterministic `EventId` mitigated by idempotent cleared retry (`TryClearLegalHoldAsync_returns_success_without_duplicate_audit_when_already_cleared_retry`; dry **#278** — audit-outage retry remains monitor). Seeded five follow-on `(candidate)` monitor rows; scoped **90/90** Application + Api `TenantErasure` tests (`RunAnalyzers=false`). Private beta: Platform admins approving tenant erasure after a transient platform-audit outage can retry approval and get the approved audit entry instead of a silent success with approval recorded but no forensic event.
 
 - [x] (proven) `TenantErasureCommandService.TryApproveErasureAsync` — approve audit append still uses non-deterministic `EventId` on first success — **hit 2026-11-04 thorough hunt #291:** deterministic `CreateApproveAuditEventId` plus `TryRevertTenantErasureApprovalAsync` rollback on audit failure; regression above (monitor seed **#290** / dry **#939**).
@@ -1321,12 +1252,6 @@
 - [x] (valid-no-repro) `TenantErasureQuarantineMiddleware.InvokeAsync` — future `TenantErasureRequestedUtc` does not block tenant APIs — **cheap-disproof 2026-11-03 seed hunt #288:** Core eligibility test above.
 - [x] (valid-no-repro) `TenantErasureCommandService.TrySetLegalHoldAsync` — `requireErasureQuarantine: true` rejects hold on tenant without offboard — **cheap-disproof 2026-11-03 seed hunt #288:** intentional guard ~242.
 - [x] (valid-no-repro) `TenantErasureCommandService.CompleteOffboardSideEffectsAsync` — deterministic offboard audit `EventId` on idempotent side-effect retry — **cheap-disproof 2026-11-03 seed hunt #288:** `CreateOffboardAuditEventId`; offboard safe-retry regression above.
-
-- [ ] (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — approve audit append uses non-deterministic `EventId` unlike offboard hash — locus: `AppendPlatformAuditAsync`; input: operator approve safe-retry (monitor seed **#288** / dry **#939**).
-- [ ] (candidate) `TenantErasureCommandService.AppendPlatformAuditAsync` — all-whitespace `correlationId` stored as null — locus: correlation trim; input: whitespace-only correlation (monitor dry **#281**).
-- [ ] (candidate) `TenantErasureQuarantineMiddleware.InvokeAsync` — past-due `TenantErasureRequestedUtc` without offboard blocks tenant APIs — locus: eligibility gate; input: scheduled request in past (monitor seed **#282**).
-- [ ] (candidate) `TenantErasureCommandService.TryClearLegalHoldAsync` — clear-hold audit skipped when offboard observed on pre-append re-read — locus: pre-append tenant re-read; input: offboard during clear (monitor dry **#274**).
-- [ ] (candidate) `TenantErasureQuarantineMiddleware.Skip` — case-insensitive `/v1/tenant/erasure` lifecycle prefix — locus: `OrdinalIgnoreCase` ~59; input: uppercase lifecycle path (monitor seed **#282**).
 
 - [x] (valid-no-repro) `TenantErasureCommandService.TryClearLegalHoldAsync` — idempotent clear retry must not duplicate platform audit — **cheap-disproof 2026-11-01 thorough hunt #278:** see dry #278 diary.
 - [x] (invalid) `TenantErasureQuarantineMiddleware.InvokeAsync` — unauthenticated tenant-scoped routes pass through before quarantine lookup — **cheap-disproof 2026-11-01 thorough hunt #278:** see dry #278 diary.
@@ -1481,16 +1406,16 @@
 2026-10-12 thorough hunt (dry): `tenant-erasure` — cheap-disproved the two invalid path-normalization hypotheses and rechecked the three valid-no-repro command/side-effect hypotheses; no reachable bypass or lifecycle defect was found. The Application and API TenantErasure suites were blocked before execution by unrelated compile errors in `AzureInventorySecurityEdgeMaterializer.cs` (`unmappedRoles` and `warnings`). No production or regression code changed.
 
 - **id:** tenant-erasure
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 292
-- **bugs-found:** 496
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-04
-- **last-bug:** 2026-11-04 — clear legal hold audit retry after transient audit failure
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1506,7 +1431,7 @@
 2026-10-06 seed hunt (seed→hit): promoted quarantine-restore operator safe-retry parity with `TryClearLegalHoldAsync`; proved `TryRestoreQuarantineAsync` returned `false` on sequential retry after a successful restore (`OffboardedUtc` already null), surfacing admin `409 Conflict` instead of idempotent `204`; return success when quarantine is already cleared; regression `TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`; 45 scoped `TenantErasure` tests passed (18 Application + 23 Api + 4 Core).
 
 2026-10-05 seed hunt (seed→hit): proved `TenantErasureCommandService.NormalizeLegalHoldReason` trimmed surrounding whitespace only, so operator safe-retry with the same semantic reason but extra internal spaces duplicated `TenantErasureLegalHoldSet` audits; collapse internal whitespace runs when normalizing reasons; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_internal_whitespace`; 43 scoped `TenantErasure` tests passed (16 Application + 23 Api + 4 Core).
-- **last-bug:** 2026-10-05 — offboard safe-retry returned null (409) when tenant was already in erasure quarantine
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1569,66 +1494,7 @@
 
 ## Zone: tenant-scoped-analyzer
 
-2026-11-16 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted both **#364** monitor rows: `ResolveBinaryAdd` and `ResolveStringConcat` dropped static SQL literals when another operand was non-static, so a `const` head plus runtime filter forwarded to Dapper with no ARCH006 because diagnostic text only showed `RunsSelectHead + filter`. Static fragments are now kept (parity with `string.Format` non-static arguments). Regressions `ARCH006_reports_unscoped_sql_when_const_head_concatenated_with_runtime_filter` and `ARCH006_reports_unscoped_sql_when_string_concat_merges_runtime_argument`; three partial-literal call sites now expect ARCH006 instead of ARCH006a. Scoped analyzer tests **71/71** on CI line bases (`FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzer`; `RunAnalyzers=false`). Private beta: Persistence repositories that assemble tenant SQL from a const fragment plus runtime predicates now get ARCH006 in CI when that fragment names `dbo.Runs`, closing a silent bypass before code review.
-
-- [x] (proven) `TenantScopedSqlExpressionResolver.ResolveBinaryAdd` — left literal contains `dbo.Runs` and the right operand is not static — **hit 2026-11-16 thorough hunt:** keep the static SQL literal; regression `ARCH006_reports_unscoped_sql_when_const_head_concatenated_with_runtime_filter`.
-- [x] (proven) `TenantScopedSqlExpressionResolver.ResolveStringConcat` — `string.Concat` drops literal SQL when one argument is not static — **hit 2026-11-16 thorough hunt:** append resolved static literal fragments; regression `ARCH006_reports_unscoped_sql_when_string_concat_merges_runtime_argument`.
-
-- [ ] (candidate) `TenantScopedSqlExpressionResolver.ResolveCore` — compound assignment `+=` on a field when the right-hand literal names `dbo.Runs` — locus: assignment folding after `+=`; input: `unscopedRunsSql += "SELECT … dbo.Runs …"`; wrong outcome: ARCH006 missed; reachability: incremental SQL builders in repositories.
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.ReportUnanalyzableIfScopedTableReferenced` — `HasScopeHelperInvocation` returns early before a static partial literal still names a scoped table — locus: scope-helper guard; input: `"SELECT … dbo.Runs …" + ScopeHelper.AndTripleWhere(...)`; wrong outcome: ARCH006 missed; reachability: scope-helper suffix patterns.
-- [ ] (candidate) `TenantScopedSqlExpressionResolver.ResolveInterpolatedString` — non-static hole drops literal segments that name scoped tables — locus: `allStatic` false branch; input: `$"SELECT … dbo.Runs … {tenantId}"`; wrong outcome: ARCH006 missed; reachability: interpolated SQL at Dapper call sites not folded through methods.
-- [ ] (candidate) `TenantScopedSqlExpressionResolver.TryResolveFromSimpleAssignments` — chained `+=` on locals never merges prior static SQL text — locus: compound assignment walk; input: `sql += " AND TenantId = @TenantId"` after prior unscoped fragment; wrong outcome: ARCH006a instead of ARCH006 on final folded text; reachability: multi-step SQL assembly.
-- [ ] (candidate) `TenantScopedSqlExpressionResolver.ResolveBinaryAdd` — nested adds where the inner add is static but the outer operand is not — locus: nested `+` fold; input: `("SELECT … dbo.Runs …" + col) + suffix`; wrong outcome: only outer operand analyzed; reachability: repository SQL suffix chains.
-
-2026-11-08 thorough hunt (hit #364): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the direct Dapper call from hit **#363**: `Query(FormatRunSql(tenantId))` still missed ARCH006 when `FormatRunSql` returned an interpolated string, because `ResolveCore` called `TryResolveFromMethodInvocation` with parameterized callees rejected. The call site now folds those callees the same way record `: this(...)` chains do. Regression `ARCH006_reports_unscoped_sql_for_direct_interpolated_method_invocation` failed with 0 diagnostics before the fold and passes after. The same fold covers a local function in the calling method (`TryGetSingleReturnExpression` already accepts `LocalFunctionStatementSyntax`) and `new CommandDefinition(FormatRunSql(tenantId))` (`AnalyzeObjectCreation` resolves the SQL argument through `Resolve`). Left binary `+` and `string.Concat` open: a non-static operand still drops the literal side. Scoped analyzer tests **69/69** (`FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzer`; `RunAnalyzers=false`). Private beta: Persistence repositories that pass a parameterized SQL formatter straight to Dapper now get ARCH006 in CI when that formatter returns an interpolated query naming a tenant table such as `dbo.Runs`, so the unscoped query is caught before it ships. No operator-visible change today.
-
-- [x] (proven) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — direct `Query(FormatRunSql(tenantId))` where the method returns an interpolated string — **hit 2026-11-08 thorough hunt #364:** `allowParameterizedCallee: true` on the `ResolveCore` invocation fold; regression `ARCH006_reports_unscoped_sql_for_direct_interpolated_method_invocation`.
-- [x] (proven) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — local function in the calling method returns interpolated SQL — **hit 2026-11-08 thorough hunt #364:** same parameterized-callee fold; local-function bodies were already extracted by `TryGetSingleReturnExpression`.
-- [x] (proven) `TenantScopedQueryScopeBindingAnalyzer` — `new CommandDefinition(FormatRunSql(tenantId))` where the method returns interpolated SQL — **hit 2026-11-08 thorough hunt #364:** object creation passes the SQL argument to `Resolve`, which now folds the invocation.
-
-- [x] (superseded) `TenantScopedSqlExpressionResolver.ResolveBinaryAdd` — left literal contains `dbo.Runs` and the right operand is not static — **hit 2026-11-16 thorough hunt** (see zone header).
-- [x] (superseded) `TenantScopedSqlExpressionResolver.ResolveStringConcat` — `string.Concat` drops literal SQL when one argument is not static — **hit 2026-11-16 thorough hunt** (see zone header).
-
-- **id:** tenant-scoped-analyzer
-- **status:** open
-- **impact:** high
-- **aliases:** ARCH006; tenant scoped query analyzer
-- **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs; ArchLucid.Analyzers/TenantScopedSqlExpressionResolver.cs
-- **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests|FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerParityProbeTests
-- **hunts:** 58
-- **bugs-found:** 37
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-16
-- **last-bug:** 2026-11-16 — `+` / `string.Concat` with non-static operand dropped static `dbo.Runs` literals
-- **related-pd-tb:** none
-- **code-changed-since:** no
-
-2026-11-08 thorough hunt (hit #363): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the `string.Format` factory monitor from hit **#362**: `: this(FormatRunSql(tenantId))` still missed ARCH006 when the factory returned `string.Format("SELECT … dbo.Runs … {0}", tenantId)`, because a non-static format argument made `TryResolveStringFormatInvocation` drop the format literal. The format literal is now kept. Regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_string_format_method_return`. Cheap-disproof closed three sibling monitors — **invalid** local function declared in the constructor body and called from `: this(...)` (the initializer cannot see that local function), **valid-no-repro** const string fields across partials (`IFieldSymbol.ConstantValue` is on the merged symbol), **valid-no-repro** `[TenantScopeExempt]` on a partial method declaration (attributes merge onto the symbol `TryGetExemption` reads). Left the direct `Query(FormatRunSql(tenantId))` interpolated call open. Reseeded five `(candidate)` rows; scoped analyzer tests **68/68** (`FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzer`; `RunAnalyzers=false`). Private beta: Persistence repositories that build tenant SQL through `: this(FormatRunSql(tenantId))` when the factory returns `string.Format` with a runtime argument now get ARCH006 in CI, so an unscoped `dbo.Runs` query is caught before it ships. No operator-visible change today.
-
-- [x] (proven) `TenantScopedSqlExpressionResolver.TryResolveStringFormatInvocation` — non-static format argument dropped the format literal — **hit 2026-11-08 thorough hunt #363:** keep the format literal; regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_string_format_method_return`.
-- [x] (invalid) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — local function inside the constructor body called from `: this(...)` — **cheap-disproof 2026-11-08 thorough hunt #363:** a constructor initializer cannot call a local function declared in the constructor body.
-- [x] (valid-no-repro) `TenantScopedSqlExpressionResolver.ResolveFromSymbol` — const string on another partial record part — **cheap-disproof 2026-11-08 thorough hunt #363:** `ConstantValue` is available on the merged field symbol.
-- [x] (valid-no-repro) `TenantScopeExemptSymbolHelper.TryGetExemption` — attribute only on the partial method declaration — **cheap-disproof 2026-11-08 thorough hunt #363:** Roslyn merges partial-method attributes onto the symbol the exemption walk reads.
-
-- [x] (proven) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — direct `Query(FormatRunSql(tenantId))` where the method returns an interpolated string — **hit 2026-11-08 thorough hunt #364:** closed at the zone header.
-- [x] (proven) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — local function in the calling method returns interpolated SQL — **hit 2026-11-08 thorough hunt #364:** closed at the zone header.
-- [x] (superseded) `TenantScopedSqlExpressionResolver.ResolveBinaryAdd` — left literal contains `dbo.Runs` and the right operand is not static — **superseded 2026-11-08 thorough hunt #364:** still open on the zone header.
-- [x] (superseded) `TenantScopedSqlExpressionResolver.ResolveStringConcat` — `string.Concat` drops literal SQL when one argument is not static — **superseded 2026-11-08 thorough hunt #364:** still open on the zone header.
-- [x] (proven) `TenantScopedQueryScopeBindingAnalyzer` — `new CommandDefinition(FormatRunSql(tenantId))` where the method returns interpolated SQL — **hit 2026-11-08 thorough hunt #364:** closed at the zone header.
-
-2026-11-08 thorough hunt (hit #362): **rotation fired** at pick time (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on `tenant-data-export`* (outcomes: dry, dry, dry); hunted **`tenant-scoped-analyzer`** with `-AvoidZoneId tenant-data-export`). Promoted the interpolated-factory monitor from hit **#361**: `: this(FormatRunSql(tenantId))` still missed ARCH006 when the factory returned an interpolated string, because a non-static hole dropped the whole return and the call site only showed the method name. `ResolveInterpolatedLiteralSql` keeps the literal SQL for that fold. Regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_interpolated_method_return`. Cheap-disproof closed the other four **#361** monitor rows — **valid-no-repro** catch-body `CommandDefinition` call sites (method-body `DescendantNodes` includes catch blocks), **valid-no-repro** `const` string fields via `ResolveFromSymbol` (`nameof` is the identifier, not the SQL), **valid-no-repro** non-constant `commandType` fields stay on the ad hoc path only when `GetConstantValue` fails (proc-name text has no scoped table), **valid-no-repro** `[TenantScopeExempt]` is read from the merged symbol in `TryGetExemption`. Reseeded five follow-on `(candidate)` rows; scoped analyzer tests **67/67** (`FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzer`; `RunAnalyzers=false`). Private beta: Persistence repositories that build tenant SQL through `: this(FormatRunSql(tenantId))` when the factory returns an interpolated string now get ARCH006 in CI, so an unscoped `dbo.Runs` query is caught before it ships. No operator-visible change today.
-
-- [x] (proven) `TenantScopedSqlExpressionResolver` — `: this(...)` argument is an interpolated-string method return — **hit 2026-11-08 thorough hunt #362:** `ResolveInterpolatedLiteralSql` on the ctor-chain fold; regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_interpolated_method_return`.
-- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `ExecuteAsync` with `CommandDefinition` local called only from a catch block — **cheap-disproof 2026-11-08 thorough hunt #362:** `TryResolveFromLocalFunctionParameterCallSites` scans the enclosing method block, which includes catch bodies.
-- [x] (valid-no-repro) `TenantScopedSqlExpressionResolver` — primary-constructor default uses `nameof` or a `const` string field — **cheap-disproof 2026-11-08 thorough hunt #362:** `ResolveFromSymbol` reads `IFieldSymbol.ConstantValue` for const strings; `nameof` is not the SQL text.
-- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `CommandType` from a readonly instance field — **cheap-disproof 2026-11-08 thorough hunt #362:** `TryGetConstantCommandType` ignores non-constants; a procedure name without a scoped table does not emit ARCH006.
-- [x] (valid-no-repro) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on one partial method part — **cheap-disproof 2026-11-08 thorough hunt #362:** `TryGetExemption` reads attributes on the merged symbol.
-
-- [x] (proven) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — factory returns `string.Format` with a non-constant argument and a tenant table in the format string — **cheap-disproof 2026-11-08 thorough hunt #363:** closed at the zone header.
-- [x] (invalid) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — local function, not a private method, returns interpolated SQL into `: this(...)` — **cheap-disproof 2026-11-08 thorough hunt #363:** closed at the zone header.
-- [x] (superseded) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeSqlExpression` — `CommandDefinition` SQL argument is an interpolated method invocation, not a record property — **superseded 2026-11-08 thorough hunt #363:** same call shape as the open direct `Query(FormatRunSql(tenantId))` candidate.
-- [x] (valid-no-repro) `TenantScopedSqlExpressionResolver.ResolveFromSymbol` — primary-constructor default names a const declared on a different partial record part — **cheap-disproof 2026-11-08 thorough hunt #363:** closed at the zone header.
-- [x] (valid-no-repro) `TenantScopeExemptSymbolHelper.TryGetExemption` — attribute sits only on the partial method declaration part and the implementation part contains the Dapper call — **cheap-disproof 2026-11-08 thorough hunt #363:** closed at the zone header.
+2026-11-01 thorough hunt (hit #361): promoted hunt **#360** monitor `(candidate)` — record `: this(FormatRunSql(tenantId))` with **parameterized** factory method missed ARCH006 because `TryResolveFromMethodInvocation` rejected non-zero arity before folding the ctor chain; **`TryResolveFromRecordThisConstructorArgument`** now resolves parameterized `: this(...)` factory invocations when the callee body still yields static SQL (`allowParameterizedCallee` on `TryResolveFromMethodInvocation`). Cheap-disproof closed four sibling monitor rows — **valid-no-repro** `ExecuteScalarAsync` / `ExecuteReaderAsync` stored-proc string overloads (`ARCH006_does_not_analyze_execute_scalar_async_string_when_command_type_is_stored_procedure`, `ARCH006_does_not_analyze_execute_reader_async_string_when_command_type_is_stored_procedure`), **valid-no-repro** nested local-function `CommandDefinition` builder (`ARCH006_reports_unscoped_sql_for_command_definition_local_function_called_from_nested_local_function`), **valid-no-repro** file-scoped partial-record primary-constructor default (parity with cross-file / sibling-partial regressions), **valid-no-repro** justified `[TenantScopeExempt]` on explicit interface implementation suppresses ARCH006 by design (`ARCH006_is_suppressed_when_explicit_interface_has_valid_tenant_scope_exemption`). Reseeded five follow-on `(candidate)` rows; parity probes **26/26** passed (Release). Private beta: Persistence repositories that build SQL through parameterized `: this(factory(tenantId))` record ctor chains now get ARCH006 during CI analyzer runs, reducing the chance unscoped tenant-table queries ship in tenant-scoped SQL paths.
 
 - [x] (proven) `TenantScopedSqlExpressionResolver` — `: this(...)` argument is **parameterized** method invocation (non-zero arity) — **hit 2026-11-01 thorough hunt #361:** `allowParameterizedCallee` on ctor-chain method fold; regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_parameterized_method_invocation_argument`.
 - [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `ExecuteScalarAsync` / `ExecuteReaderAsync` string overload + `commandType: StoredProcedure` — **cheap-disproof 2026-11-01 thorough hunt #361:** parity probes above.
@@ -1776,6 +1642,19 @@
 - [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.TryGetCommandDefinitionSqlExpression` — named SQL argument only when parameter is `command` or `commandText` — **cheap-disproof 2026-10-30 thorough hunt #347:** see hunt #347 diary row.
 - [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.Initialize` — `GeneratedCodeAnalysisFlags.None` skips generated Persistence sources — **cheap-disproof 2026-10-30 thorough hunt #347:** see hunt #347 diary row.
 
+- **id:** tenant-scoped-analyzer
+- **status:** unseeded
+- **impact:** high
+- **aliases:** ARCH006; tenant scoped query analyzer
+- **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
+- **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** yes
 2026-10-21 seed hunt (seed→hit, lane C): lock `tenant-scoped-analyzer` verified on origin (`79112d6c26`); promoted `TryGetPropertySqlExpression` — property-level `=>` SQL was folded but `get =>` accessor bodies were ignored, so `private static string Sql { get => "SELECT … dbo.Runs …"; }` reached Dapper without ARCH006; fold accessor expression bodies; regression `ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor`; 29 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
 2026-10-09 seed hunt (seed→hit): promoted nested local functions and expression-bodied properties. A private method `GetRunsSql()` was already folded, but the same arrow body nested inside `Load` was not, and `static string Sql => "SELECT … dbo.Runs …"` was ignored because only property initializers were read. Regressions `ARCH006_reports_unscoped_sql_for_nested_local_function` and `ARCH006_reports_unscoped_sql_for_expression_bodied_property`. 28 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed, and the Persistence build stayed clean.
@@ -1864,12 +1743,6 @@
 
 2026-11-05 thorough hunt (dry #75): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`auth-return-path`** is **1/3** before this record). Cheap-disproof closed five open `(candidate)` monitor rows from dry **#74** reseed — **valid-no-repro** `take=0` on recent-in-scope keyset uses `RunPagination.ClampTake` (25) inside `Fetch(take)` while unpaged recent uses the 200 ceiling by design (`ForProjectList_and_ForRecentInScope_use_different_unset_take_defaults_by_design`; dry **#74** / seed **#64**); **valid-no-repro** `ListRecentInScopeOffsetAsync` bypasses cache when `safeOffset > 0` while offset zero shares `RunListRecentInScopeFirstPage` with other first-page shapes intentionally (`CachingRunRepository.Lists.cs` ~120–121; seed **#65**); **valid-no-repro** `RunListPageAssembler.FromProbedRows` uses `ClampTake` vs `ClampLimit` on probe rows to match keyset vs offset list contracts (seed **#67**; dry **#73**); **valid-no-repro** `ListByProjectAsync` calls `RequireScopedTenant` before opening SQL — empty tenant fails closed; keyset cursor validation before tenant on keyset paths is a separate intentional ordering, not a project-list guard gap (`RequireScopedTenant_rejects_empty_tenant`; dry **#69**); **invalid** `CachingRunRepository.ListByProjectAsync` local `take <= 0 ? 20` mirrors `RunListQueryParameters.DefaultProjectListTake` at the cache boundary by design (not parameter-builder drift). Reseeded five follow-on `(candidate)` rows below (recycled dry **#74** closed themes); zone **cooling** (`consecutive-dry-hunts` 13); scoped **174/175** Persistence zone filter tests (**1** SQL integration skipped without `ARCHLUCID_SQL_TEST`). Private beta: n/a.
 
-- [ ] (candidate) `SqlRunRepository.ListRecentInScopeKeysetAsync` — `ValidateRunKeysetCursor` runs before `PersistenceTenantScope.RequireScopedTenant` — locus: keyset fail-fast ordering; input: malformed paired cursor (monitor dry **#75** / dry **#74** / dry **#72**).
-- [ ] (candidate) `SqlRunRepository.ListByProjectKeysetAsync` — `RecordNamedQueryLatencyMilliseconds` in `finally` when query canceled — locus: observability-only metrics; input: cancel during `QueryAsync` (monitor dry **#75** / dry **#74** / dry **#68**).
-- [ ] (candidate) `RunListQueryParameters.ForRecentInScope` — unset take defaults to unpaged 200 ceiling vs project list 20 — locus: list-shape defaults; input: API omits take on recent list (monitor dry **#75** / dry **#74** / seed **#64**).
-- [ ] (candidate) `SqlRunRepository.ListRecentInScopeOffsetAsync` — probe-row `HasMore` after negative offset normalization — locus: `RunPagination.NormalizeOffset`; input: negative offset probe trim (monitor dry **#75** / dry **#74** / dry **#68**).
-- [ ] (candidate) `CachingRunRepository.ListByProjectKeysetAsync` — continuation with cursor bypasses first-page cache — locus: `Lists.cs` ~46–47; input: keyset page two after cached page one (monitor dry **#75** / dry **#74** / dry **#70**).
-
 - [x] (valid-no-repro) `RunListQueryParameters.ForRecentInScopeKeysetPage` — `take=0` uses keyset `ClampTake` default (25) in `Fetch` while unpaged recent uses 200 ceiling — **cheap-disproof 2026-11-05 thorough hunt #75:** dry **#74** monitor queue; regression `ForProjectList_and_ForRecentInScope_use_different_unset_take_defaults_by_design`; seed **#64** diary.
 - [x] (valid-no-repro) `CachingRunRepository.ListRecentInScopeOffsetAsync` — `safeOffset > 0` bypasses cache while offset zero shares first-page key — **cheap-disproof 2026-11-05 thorough hunt #75:** dry **#74** monitor queue; intentional offset continuation bypass; seed **#65** diary.
 - [x] (valid-no-repro) `RunListPageAssembler.FromProbedRows` — project keyset uses `ClampTake(take)` trim while offset list uses `ClampLimit(limit)` — **cheap-disproof 2026-11-05 thorough hunt #75:** dry **#74** monitor queue; dual trim by list shape; seed **#67** / dry **#73** diary.
@@ -1902,11 +1775,11 @@
 - [x] (valid-no-repro) `SqlRunRepository.ListRecentInScopeOffsetAsync` — probe-row `HasMore` after `RunPagination.NormalizeOffset` binds zero — **cheap-disproof 2026-11-03 thorough hunt #72:** seed **#71** queue; regression `ForRecentInScopeOffsetPage_negative_offset_normalization_does_not_change_probe_trim_semantics`; dry **#68** diary.
 - [x] (valid-no-repro) `CachingRunRepository.ListByProjectKeysetAsync` — continuation requests with cursor bypass first-page cache — **cheap-disproof 2026-11-03 thorough hunt #72:** seed **#71** queue; intentional first-page-only cache; dry **#70** diary.
 
-**Hunts:** 70 · **Bugs found:** 27 · **Consecutive dry hunts:** 8
+**Hunts:** 0 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
 
 2026-11-03 thorough hunt (dry #70): cheap-disproof closed five open `(candidate)` monitor rows from dry **#69** reseed — **valid-no-repro** keyset continuation with cursor bypasses first-page hot-path cache by design (`Lists.cs` ~46–47; same class as seed **#65** offset continuation); **valid-no-repro** recent-in-scope keyset first-page cache keys include clamped take separate from unpaged 200 ceiling (`RunListRecentInScopeFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`; dry **#69** / seed **#62**); **valid-no-repro** malformed paired cursor on recent-in-scope keyset fails before `RequireScopedTenant` (keyset validation parity — regression `ListByProjectKeysetAsync_throws_keyset_validation_before_scoped_tenant`; dry **#68**); **invalid** `govWarn` open-alert aggregate without tenant predicate — run PK + FK keying (`LeftJoinAggregates_governance_open_alert_presence_keys_by_run_id_like_detail_exists`; dry **#68**); **valid-no-repro** in-memory keyset continuation echoes stored warning flags without SQL join hydration (`InMemory_list_by_project_keyset_retains_stored_warning_flags_on_continuation_page`; seed **#64**). Reseeded five follow-on `(candidate)` monitor rows from dry **#69** closed themes; scoped picker filter **208/209** (`RunAnalyzers=false`; 1 SQL integration test skipped without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: n/a.
 
-**Hunts:** 69 · **Bugs found:** 27 · **Consecutive dry hunts:** 7
+**Hunts:** 0 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
 
 2026-11-01 thorough hunt (dry #69): cheap-disproof closed five open `(candidate)` rows from thorough dry **#68** — **valid-no-repro** keyset vs unpaged first-page cache keys include clamped take so shapes do not collide (`RunListByProjectFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`; seed **#64**); **valid-no-repro** recent-in-scope keyset `RecordNamedQueryLatencyMilliseconds` in `finally` on canceled connection open is observability-only (same class as `ListByProjectAsync` closed **#68**); **invalid** findings snapshot `fsWarn` aggregate without tenant predicate — outer `ScopeWhereTail` + `FK_FindingsSnapshots_Runs_RunId` block cross-tenant `HasWarnings` (`LeftJoinAggregates_groups_findings_and_open_alerts_by_run_id`); **valid-no-repro** in-memory list paths use harness scope matching instead of SQL `RequireScopedTenant` by design (`RequireScopedTenant_rejects_empty_tenant` on SQL); **valid-no-repro** `ForProjectKeysetPage` binds raw `ProjectSlug` and normalized slug like `ForProjectList` (`ForProjectList_preserves_raw_project_slug_for_try_convert_while_normalizing_slug_branch`); seeded five follow-on `(candidate)` rows; scoped zone filter **174/174** passed, **1** SQL integration skipped (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -1928,7 +1801,7 @@
 - [x] (valid-no-repro) `InMemoryRunRepository.ListByProjectAsync` — does not call `PersistenceTenantScope.RequireScopedTenant` while SQL list paths do — **cheap-disproof 2026-11-03 seed hunt #71:** dry **#70** monitor queue; in-memory harness; dry **#69** diary.
 - [x] (valid-no-repro) `RunListQueryParameters.ForProjectKeysetPage` — binds both `ProjectSlug` and `NormalizedProjectSlug` like unpaged project list — **cheap-disproof 2026-11-03 seed hunt #71:** dry **#70** monitor queue; regression `ForProjectList_preserves_raw_project_slug_for_try_convert_while_normalizing_slug_branch`; dry **#69** diary.
 
-**Hunts:** 68 · **Bugs found:** 27 · **Consecutive dry hunts:** 7
+**Hunts:** 0 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
 
 2026-10-21 thorough hunt (dry, lane B): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped zone filter 208 passed, 1 SQL integration skipped.
 
@@ -1947,35 +1820,17 @@
 - [x] (valid-no-repro) `SqlRunRepository.ListRecentInScopeAsync` — recent scope filter excludes archived runs while project list path may include them — **cheap-disproof 2026-10-08 seed hunt #67:** archived exclusion is intentional for recent-in-scope dashboard lists; archived support remains an explicit detail-read contract.
 - [x] (valid-no-repro) `SqlRunRepository.ListByProjectAsync` — project list ordering remains `CreatedUtc DESC, RunId DESC` under timestamp ties — **cheap-disproof 2026-10-08 seed hunt #67:** shared list ordering includes the RunId tie-break; focused stable-page tests pass.
 
-- [ ] (candidate) `SqlRunRepository.ListByProjectAsync` — `projectId` is passed both as raw `ProjectSlug` and normalized `NormalizedProjectSlug`, so GUID and display-slug branches may diverge on surrounding whitespace — locus: `ForProjectList` parameter object; input: padded scope-project GUID.
-- [ ] (candidate) `SqlRunRepository.ListRecentInScopeKeysetAsync` — nullable cursor pair is validated before `PersistenceTenantScope.RequireScopedTenant`, changing which exception wins for an unscoped malformed request — locus: method ordering ~126–130; input: missing tenant scope plus partial cursor.
-- [ ] (candidate) `SqlRunRepository.ListByProjectAsync` — telemetry is recorded in `finally` even when connection creation is canceled, potentially recording misleading successful latency — locus: `finally` ~49; input: cancellation before authority connection opens.
-- [ ] (candidate) `SqlRunRepository.ListRecentInScopeOffsetAsync` — `RunListPageAssembler.FromProbedRows` may report `HasMore` from the probe row after negative offset normalization — locus: offset query/assembly ~170–175; input: negative offset with one extra row.
-- [ ] (candidate) `RunListWarningFlagSql.LeftJoinAggregates` — open alert aggregate is not filtered by tenant/workspace/project before joining on `RunId` — locus: `govWarn` subquery ~99–104; input: globally unique vs mis-scoped duplicated alert RunId.
-
 - [x] (valid-no-repro) `SqlRunRepository.ListByProjectAsync` — project list uses the authority-list connection factory while keyset list uses the same hot-path SQL route — **cheap-disproof 2026-10-08 seed hunt #66:** both project list shapes use `authorityRunListConnectionFactory`; regression `SqlRunRepository_list_paths_use_authority_run_list_factory_while_get_by_id_uses_primary`.
 - [x] (valid-no-repro) `SqlRunRepository.ListRecentInScopeAsync` — recent list records `GetRunsByTenantId` telemetry while keyset and offset paths use distinct names — **cheap-disproof 2026-10-08 seed hunt #66:** telemetry names identify each list shape and do not alter result semantics; focused repository shape tests passed.
 - [x] (valid-no-repro) `RunListQueryParameters.ForRecentInScopeOffsetPage` — negative offset normalizes to zero before SQL bind — **cheap-disproof 2026-10-08 seed hunt #66:** `RunPagination.NormalizeOffset` fail-safely binds zero; regression `ForRecentInScopeOffsetPage_normalizes_a_negative_offset`.
 - [x] (valid-no-repro) `RunListQueryParameters.ForProjectKeysetPage` — cursor values pass through unchanged after paired-cursor validation — **cheap-disproof 2026-10-08 seed hunt #66:** nullable cursor values are bound directly after `ValidateRunKeysetCursor`; focused keyset parameter tests passed.
 - [x] (valid-no-repro) `RunListWarningFlagSql.LeftJoinAggregates` — archived finding snapshots are excluded from `HasWarnings` aggregate while active run rows remain listable — **cheap-disproof 2026-10-08 seed hunt #66:** aggregate explicitly filters `fs.ArchivedUtc IS NULL`; focused SQL shape tests passed.
 
-- [ ] (candidate) `SqlRunRepository.ListByProjectKeysetAsync` — `RunListPageAssembler.FromProbedRows` receives `RunPagination.ClampTake(take)` while SQL fetch uses `Fetch(take)` — locus: keyset return ~79; input: take below, at, and above the max page size.
-- [ ] (candidate) `SqlRunRepository.ListRecentInScopeOffsetAsync` — offset path uses `RunPagination.ClampLimit(limit)` for assembly while SQL fetch adds one probe row — locus: ~173–175; input: limit zero, negative, and max values.
-- [ ] (candidate) `RunListWarningFlagSql.ProjectWherePrefix` — project list matches normalized display slug or parses scope project GUID with `TRY_CONVERT` — locus: ~58–63; input: project id supplied as a scope-project GUID string.
-- [ ] (candidate) `SqlRunRepository.ListRecentInScopeAsync` — recent scope filter excludes archived runs while project list path may include them — locus: `ScopeWhereTail` and project list SQL shape; input: archived run queried through both list APIs.
-- [ ] (candidate) `SqlRunRepository.ListByProjectAsync` — project list ordering remains `CreatedUtc DESC, RunId DESC` under timestamp ties — locus: `CreatedUtcDescOrderBy`; input: two same-timestamp runs in one project.
-
 - [x] (valid-no-repro) `RunListQueryParameters.ForProjectKeysetPage` — unset `take` uses `RunPagination.ClampTake` default (25) for `@Fetch` probe, not project-list default 20 — **cheap-disproof 2026-10-08 seed hunt #65:** keyset pagination intentionally uses the shared 25-row cursor default; regression `ForProjectKeysetPage_clamps_oversized_take_before_probe_fetch_so_has_more_boundary_stays_aligned`.
 - [x] (valid-no-repro) `CachingRunRepository.ListRecentInScopeOffsetAsync` — offset continuation with `offset > 0` bypasses first-page cache while unpaged recent list remains cached — **cheap-disproof 2026-10-08 seed hunt #65:** only the first offset page is cacheable; continuation reaches the inner repository; focused cache invalidation tests passed.
 - [x] (valid-no-repro) `RunListWarningFlagSql.KeysetCursorPredicate` — `CreatedUtc` equality branch uses `RunId` strict inequality for stable seek — **cheap-disproof 2026-10-08 seed hunt #65:** SQL shape includes the descending `RunId` tie-break; regression `KeysetCursorPredicate_includes_run_id_tie_break_for_stable_keyset_pages`.
 - [x] (valid-no-repro) `InMemoryRunRepository.CountByArchitectureIdAsync` — excludes archived rows same as architecture-attached list — **cheap-disproof 2026-10-08 seed hunt #65:** `IsActiveInScope` excludes archived rows; regression `InMemory_count_by_architecture_id_excludes_archived_runs`.
 - [x] (valid-no-repro) `RunRepositoryCore.NormalizeArchitectureRequestId` — collapses internal double spaces before uppercase seek — **cheap-disproof 2026-10-08 seed hunt #65:** normalization collapses space runs while preserving tab semantics matching SQL; regression `NormalizeArchitectureRequestId_collapses_internal_whitespace`.
-
-- [ ] (candidate) `SqlRunRepository.ListByProjectAsync` — project list uses the authority-list connection factory while keyset list uses the same hot-path SQL route — locus: connection factory calls ~37 and ~72; input: project list under a replica-routing configuration.
-- [ ] (candidate) `SqlRunRepository.ListRecentInScopeAsync` — recent list records `GetRunsByTenantId` telemetry while keyset and offset paths use distinct names — locus: `RecordNamedQueryLatencyMilliseconds` ~114; input: mixed list shapes in telemetry aggregation.
-- [ ] (candidate) `RunListQueryParameters.ForRecentInScopeOffsetPage` — negative offset normalizes to zero before SQL bind — locus: `RunPagination.NormalizeOffset(offset)` ~102; input: offset API request with `offset=-1`.
-- [ ] (candidate) `RunListQueryParameters.ForProjectKeysetPage` — cursor values pass through unchanged after paired-cursor validation — locus: `CursorCreatedUtc` / `CursorRunId` ~53; input: UTC cursor at a `CreatedUtc` tie.
-- [ ] (candidate) `RunListWarningFlagSql.LeftJoinAggregates` — archived finding snapshots are excluded from `HasWarnings` aggregate while active run rows remain listable — locus: `fs.ArchivedUtc IS NULL` ~95; input: run with only archived warning snapshot rows.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows on recent-in-scope offset shapes; seeded five follow-on `(candidate)` rows; 241 scoped zone tests passed (`RunAnalyzers=false`).
 
@@ -1984,12 +1839,6 @@
 - [x] (valid-no-repro) `SqlRunRepository.GetByIdIncludingArchivedAsync` — archived run visible to admin read while `ListRecentInScopeAsync` filters `ArchivedUtc IS NULL` — **cheap-disproof 2026-10-08 seed hunt #64:** intentional operator support vs dashboard list contract; regression `InMemory_get_by_id_including_archived_returns_soft_archived_run`.
 - [x] (valid-no-repro) `RunRepositoryCore.ValidateRunKeysetCursor` — partial cursor with only `cursorCreatedUtc` or only `cursorRunId` throws — **cheap-disproof 2026-10-08 seed hunt #64:** paired cursor required before SQL seek; regressions `ValidateRunKeysetCursor_rejects_partial_cursor` and `ValidateRunKeysetCursor_rejects_run_id_without_created_utc`.
 - [x] (valid-no-repro) `InMemoryRunRepository.ListByProjectKeysetAsync` — continuation page retains stored warning flags without SQL aggregate hydration — **cheap-disproof 2026-10-08 seed hunt #64:** in-memory lists echo persisted `HasWarnings` / `HasGovernanceWarnings`; regression `InMemory_list_by_project_keyset_retains_stored_warning_flags_on_continuation_page`.
-
-- [ ] (candidate) `RunListQueryParameters.ForProjectKeysetPage` — unset `take` uses `RunPagination.ClampTake` default (25) for `@Fetch` probe, not project-list default 20 — locus: `Fetch(take)` ~307–310; input: `ForProjectKeysetPage` with `take=0`.
-- [ ] (candidate) `CachingRunRepository.ListRecentInScopeOffsetAsync` — offset continuation with `offset > 0` bypasses first-page cache while unpaged recent list remains cached — locus: `CachingRunRepository.Lists.cs`; input: two offset pages within TTL.
-- [ ] (candidate) `RunListWarningFlagSql.KeysetCursorPredicate` — `CreatedUtc` equality branch uses `RunId` strict inequality for stable seek — locus: `KeysetCursorPredicate`; input: `RunListWarningFlagSqlTests` keyset shape assertions.
-- [ ] (candidate) `InMemoryRunRepository.CountByArchitectureIdAsync` — excludes archived rows same as architecture-attached list — locus: `InMemoryRunRepository.Architecture.cs`; input: `InMemory_count_by_architecture_id_excludes_archived_runs`.
-- [ ] (candidate) `RunRepositoryCore.NormalizeArchitectureRequestId` — collapses internal double spaces before uppercase seek — locus: `NormalizeArchitectureRequestId` ~40–47; input: padded multi-space request id in `RunRepositoryArchitectureRequestSqlTests` parity family.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows on recent-in-scope offset shapes; seeded five follow-on `(candidate)` rows; 241 scoped zone tests passed (`RunAnalyzers=false`).
 
@@ -2014,12 +1863,6 @@
 - [x] (valid-no-repro) `SqlRunRepository.ListByArchitectureIdAsync` — inline `SELECT` omits `NOLOCK` while recent-in-scope lists use NOLOCK shapes — **cheap-disproof 2026-10-08 seed hunt #63:** identity-attached reads favor correctness; regression `ListByArchitectureId_inline_select_omits_nolock_by_design_for_identity_attached_reads`.
 - [x] (valid-no-repro) `GetPriorCommittedRunIdForArchitectureBeforeCurrentAsync` — returns null for `Guid.Empty` architecture id — **cheap-disproof 2026-10-08 seed hunt #63:** SQL and InMemory short-circuit empty architecture id by contract; regression `InMemory_get_prior_committed_run_for_architecture_before_current_returns_null_for_empty_architecture_id`.
 - [x] (invalid) `InMemoryRunRepository.ListRecentInScopeOffsetAsync` — offset paging without `RunId` tie-break when `CreatedUtc` ties — **cheap-disproof 2026-10-08 seed hunt #63:** InMemory uses `ThenByDescending(r => r.RunId)`; regression `InMemory_offset_list_pages_all_runs_when_created_utc_ties`.
-
-- [ ] (candidate) `CachingRunRepository.ListByProjectAsync` — first-page cache uses `safeTake` up to 200 while keyset caches `RunPagination.ClampTake` — locus: `CachingRunRepository.Lists.cs`; input: operator toggles project unpaged vs keyset within TTL; wrong outcome: cross-shape stale rows when take differs.
-- [ ] (candidate) `RunListQueryParameters.ForProjectList` vs `ForRecentInScope` — zero take defaults to 20 on project lists but 200 on recent-in-scope unpaged — locus: `RunListQueryParameters.cs`; input: picker calls both APIs with `take=0`; wrong outcome: unequal default page sizes for equivalent "recent runs" UX.
-- [ ] (candidate) `SqlRunRepository.GetByIdIncludingArchivedAsync` — archived run visible to admin read while `ListRecentInScopeAsync` filters `ArchivedUtc IS NULL` — locus: `SqlRunRepository.Query.ById.cs` vs list shapes; input: support opens archived run then returns to dashboard list; wrong outcome: operator assumes run vanished from recent list incorrectly.
-- [ ] (candidate) `RunRepositoryCore.ValidateRunKeysetCursor` — accepts `cursorCreatedUtc` without `cursorRunId` when only run id is provided — locus: `RunRepositoryCore` keyset validation; input: malformed client cursor JSON; wrong outcome: SQL keyset seek scans from epoch.
-- [ ] (candidate) `InMemoryRunRepository.ListByProjectKeysetAsync` — continuation page retains stored warning flags without SQL aggregate hydration — locus: `InMemoryRunRepository.List.cs`; input: contract test comparing SQL list warnings to in-memory keyset page; wrong outcome: false-positive warning badges on continuation rows.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five seeded `(candidate)` rows (project list warning hydration, keyset HasMore clamps, replica list routing, keyset in-memory warnings, detail NOLOCK shape); seeded five follow-on `(candidate)` rows; 235 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
 
@@ -2085,16 +1928,16 @@
 - [x] (valid-no-repro) `RunListQueryParameters.ForLatestGraphAtOrBefore` — tab-prefixed `authorityProjectSlug` might strip tabs unlike committed/list SQL binds — **cheap-disproof 2026-10-06 seed hunt:** normalize-only bind preserves `\t` like `ForLatestCommittedByManifestCreatedUtc`; regression `ForLatestGraphAtOrBefore_preserves_tab_prefix_in_normalized_slug_like_committed_and_list_seeks`.
 
 - **id:** sql-run-repository
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 75
-- **bugs-found:** 27
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-11-05
-- **last-bug:** 2026-10-07 — InMemory null-architecture backfill list exposed warning flags omitted by SQL backfill select
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2335,12 +2178,6 @@
 
 2026-11-03 thorough hunt (dry #105): cheap-disproof closed five open `(candidate)` monitor rows from dry **#104** reseed — **valid-no-repro** interior format character inside JSON property name (`ResolveInspectClassification_ignores_typed_payload_when_property_name_contains_interior_format_character`; dry **#101**); **valid-no-repro** JSON boolean primitive root leaves object-only enum resolvers null (`ResolveInspectClassification_returns_null_when_typed_payload_root_is_json_boolean_true`; dry **#101**); **valid-no-repro** whitespace-only overlay band falls through to typed payload (`ResolveInspectSemanticSupportBand_falls_back_to_typed_payload_when_overlay_is_whitespace_only`; dry **#101**); **valid-no-repro** evaluation confidence `"true"`/`"false"` tokens fail closed (`TryParseEvaluationConfidenceLevel_returns_null_for_undefined_or_unrecognized_values`; dry **#101**); **invalid** relational classification storage wins over conflicting typed payload by design (`ResolveInspectClassification_prefers_relational_storage_over_typed_payload`; dry **#101**). Reseeded five follow-on `(candidate)` monitor rows from dry **#104** closed themes; removed stale open rows from dry **#103** header queue; zone **cooling** (`consecutive-dry-hunts` 12); **469/469** scoped inspect mapper/sql/repository-core tests passed (`RunAnalyzers=false`; `FindingInspectEndpointTests` skipped — no SQL Server on Linux VM). Private beta: n/a.
 
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect` — JSON number primitive root leaves density enum resolvers null — locus: object-only resolvers; input: `42` root (monitor dry **#105** / dry **#104** / dry **#102**).
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveInspectTreatment` — relational storage wins over conflicting typed payload treatment — locus: storage-first; input: storage `AcceptRisk` + payload `Remediate` (monitor dry **#105** / dry **#104** / dry **#102**).
-- [ ] (candidate) `FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel` — interior Unicode format character inside confidence name — locus: `NormalizeInspectEnumToken`; input: `Hig\u200Bh` (monitor dry **#105** / dry **#104** / dry **#102**).
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand` — bogus overlay token falls through to typed payload band — locus: failed overlay parse; input: overlay `"bogus"` (monitor dry **#105** / dry **#104** / dry **#102**).
-- [ ] (candidate) `FindingInspectReadRepositoryCore.TryGetTypedPayloadProperty` — snake_case density keys not aliased to camelCase — locus: exact name match; input: `semantic_support_band` (monitor dry **#105** / dry **#104** / **#347**).
-
 2026-11-03 thorough hunt (dry #104): cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#103** — **valid-no-repro** JSON number primitive `PayloadJson` root deserializes but object-only enum resolvers stay null by design (`ResolveTypedPayloadForInspect_returns_deserialized_number_when_payload_is_json_number`; parity `ResolveInspectClassification_returns_null_when_typed_payload_root_is_json_boolean_true`, dry **#101**); **invalid** defined treatment storage byte wins over conflicting typed payload by design (parity `ResolveInspectClassification_prefers_relational_storage_over_typed_payload`; `ResolveInspectTreatment_falls_back_to_typed_payload_when_storage_null`, dry **#102**); **valid-no-repro** interior format character inside evaluation confidence token fail-closed via `Enum.TryParse` on normalized token (parity `ParseDisposition_returns_null_for_interior_format_character_in_disposition_name`; leading-format class `TryParseEvaluationConfidenceLevel_parses_after_leading_invisible_format_characters`, dry **#102**); **valid-no-repro** unrecognized overlay band token falls through to typed payload after failed parse (`ResolveInspectSemanticSupportBand_falls_back_to_typed_payload`; overlay `"bogus"` + typed band, dry **#102** / code ~292–305); **invalid** snake_case `semantic_support_band` not aliased to camelCase (`ResolveInspectSemanticSupportBand_ignores_snake_case_typed_payload_property_name`; dry **#347** / **#102**). Reseeded five follow-on `(candidate)` monitor rows from seed **#100** closed themes; **469/469** scoped inspect mapper/sql/repository-core tests passed (`RunAnalyzers=false`; `FindingInspectEndpointTests` skipped — no SQL Server on Linux VM). Private beta: n/a.
 
 2026-11-03 thorough hunt (dry #103): cheap-disproof closed five open `(candidate)` monitor rows from seed **#100** still listed under `### Hypotheses` — **valid-no-repro** interior format character inside JSON property name (`ResolveInspectClassification_ignores_typed_payload_when_property_name_contains_interior_format_character`; dry **#101**); **valid-no-repro** JSON boolean primitive root leaves object-only enum resolvers null (`ResolveInspectClassification_returns_null_when_typed_payload_root_is_json_boolean_true`; dry **#101**); **valid-no-repro** whitespace-only overlay band falls through to typed payload (`ResolveInspectSemanticSupportBand_falls_back_to_typed_payload_when_overlay_is_whitespace_only`; dry **#101**); **valid-no-repro** evaluation confidence `"true"`/`"false"` tokens fail closed (`TryParseEvaluationConfidenceLevel_returns_null_for_undefined_or_unrecognized_values`; dry **#101**); **invalid** relational classification storage wins over conflicting typed payload by design (`ResolveInspectClassification_prefers_relational_storage_over_typed_payload`; dry **#101**). Reseeded five follow-on `(candidate)` monitor rows from dry **#102** in header queue; **469/469** scoped inspect mapper/sql/repository-core tests passed (`RunAnalyzers=false`; `FindingInspectEndpointTests` skipped — no SQL Server on Linux VM). Private beta: n/a.
@@ -2456,16 +2293,16 @@
 2026-10-12 seed hunt (seed-only): re-read the selected inspect repository, mapper, SQL batch, recent trace-rule parity change, and focused tests. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused inspect-read filter passed 425/425. No production or regression change.
 
 - **id:** finding-inspect-sql
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 105
-- **bugs-found:** 29
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-31 — typed-payload JSON property names with surrounding whitespace ignored on inspect read
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -3042,27 +2879,21 @@
 ## Zone: llm-wallet
 
 - **id:** llm-wallet
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 59
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-11-01 — cap-only zero PUT persisted while auto-replenish stayed enabled
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 ### Hypotheses
 
 2026-11-03 thorough hunt (dry #59): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`review-recurrence`** is **1/3** before this record). Attempted failing repro on five open `(candidate)` monitor rows from dry **#58** reseed (recycled dry **#57** queue); cheap-disproof closed all five **valid-no-repro** — pre-audit cancel propagates (`PutAsync_propagates_operation_canceled_from_update_wallet`; dry **#57** / **#55**); null PUT body **400** (`PutAsync_returns_bad_request_when_body_is_null`; dry **#57**); invalid cap step at consume (`UpdateWalletAsync_rejects_invalid_monthly_cap_step`; dry **#57**); reader PUT **403** / GET **200** by design (`PutAsync_returns_403_for_reader_role`, `GetAsync_returns_wallet_for_reader_role`; hit **2026-10-09**); stale `ExpectedRowVersion` **409** without server retry (intentional OCC; dry **#57** / **#55**). Reseeded five follow-on `(candidate)` rows below; scoped **52/52** `LlmTenantWalletServiceTests`, **8/8** `WalletControllerUnitTests` + `WalletControllerTests` filter (`RunAnalyzers=false`). Private beta: n/a.
-
-- [ ] (candidate) `WalletController.PutAsync` — audit actor uses `ActorContextId` when display name differs — locus: post-update audit payload; input: mismatched display name (`PutAsync_audit_uses_actor_context_id_when_display_name_differs`; monitor dry **#59**).
-- [ ] (candidate) `LlmTenantWalletService.UpdateWalletAsync` — cap-only zero PUT while auto-replenish stays enabled rejected — locus: cap + replenish guard; input: zero cap partial PUT (`UpdateWalletAsync_rejects_cap_only_zero_while_auto_replenish_remains_enabled`; monitor dry **#59** / last-bug **2026-11-01**).
-- [ ] (candidate) `LlmTenantWalletService.UpdateWalletAsync` — materializes wallet row without prior GET — locus: lazy create on first PUT; input: cold tenant update (`UpdateWalletAsync_materializes_wallet_row_without_prior_get`; monitor dry **#59**).
-- [ ] (candidate) `LlmTenantWalletService.TryAuthorizeOverageSpendAsync` — overage markup rejects estimate near balance — locus: markup multiplier; input: estimate just under balance (`TryAuthorizeOverageSpendAsync_applies_overage_markup_so_estimate_near_balance_is_rejected`; monitor dry **#59**).
-- [ ] (candidate) `WalletController.PutAsync` — returns **409** conflict when `UpdateWalletAsync` yields null (stale OCC path) — locus: controller mapping; input: stale row version after service null (`WalletController` conflict problem; monitor dry **#59** / dry **#55** diary).
 
 - [x] (valid-no-repro) `WalletController.PutAsync` — cooperative cancel during pre-audit `UpdateWalletAsync` propagates without controller catch — **cheap-disproof 2026-11-03 thorough hunt #59:** dry **#58** queue; regression `PutAsync_propagates_operation_canceled_from_update_wallet`.
 - [x] (valid-no-repro) `WalletController.PutAsync` — null request body returns validation problem before `UpdateWalletAsync` — **cheap-disproof 2026-11-03 thorough hunt #59:** dry **#58** queue; regression `PutAsync_returns_bad_request_when_body_is_null`.
@@ -3305,21 +3136,9 @@
 
 2026-11-03 thorough hunt (dry #58): cheap-disproof closed five open `(candidate)` monitor rows from dry **#57** reseed — **valid-no-repro** `NeedsEvidence` single-character substantive `EvidenceRequestText` (`Validate_needs_evidence_accepts_single_character_evidence_request_text`; dry **#52**); **valid-no-repro** malformed `ExpectedCurrentDispositionRowVersionBase64` rejected before repository (`RecordAsync_rejects_invalid_base64_expected_row_version_before_repository`; dry **#49**); **valid-no-repro** bulk batch rejects case-variant duplicate finding ids (`RecordBulkAsync_rejects_case_variant_duplicate_finding_ids_in_single_batch`; hit **#2054**); **valid-no-repro** disposition history omits review-trail rows with null disposition (`ListHistoryAsync_excludes_review_trail_events_without_disposition`; dry **#49**); **valid-no-repro** guided-desk `Remediated` ignores client `ImpactPreviewCompleted` (`RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`; hit **#1719**). Reseeded five follow-on `(candidate)` monitor rows from dry **#57** closed themes; zone **cooling** (`consecutive-dry-hunts` 16); **70/70** scoped `FullyQualifiedName~FindingDisposition` in Application.Tests (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — empty request list rejected before repository — locus: entry guard; input: zero-length batch (`RecordBulkAsync` `requests.Count == 0`; monitor dry **#58** / dry **#57** / dry **#55**).
-- [ ] (candidate) `FindingDispositionService.RecordAsync` — whitespace-only `reviewerUserId` rejected — locus: reviewer guard; input: blank reviewer id (monitor dry **#58** / dry **#57** / dry **#55**).
-- [ ] (candidate) `FindingDispositionService.ListHistoryAsync` — `scope.TenantId == Guid.Empty` rejected — locus: tenant scope guard; input: empty tenant (monitor dry **#58** / dry **#57** / dry **#55**).
-- [ ] (candidate) `FindingDispositionValidation.Validate` — optional rationale on `Deferred` above `MaximumRationaleLength` rejected — locus: optional max length; input: overlong deferred note (`Validate_deferred_rejects_overlong_optional_rationale`; monitor dry **#58** / dry **#57**).
-- [ ] (candidate) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — working-desk remediated preview override below `MinimumRationaleLength` rejected — locus: LP-14 override path; input: short preview reason (`Validate_working_remediated_rejects_short_preview_override_reason`; monitor dry **#58** / dry **#57**).
-
 2026-11-03 thorough hunt (dry #57): cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#56** — **valid-no-repro** empty bulk batch rejected at service entry (`RecordBulkAsync` `requests.Count == 0` guard before repository; dry **#55**); **valid-no-repro** whitespace-only `reviewerUserId` rejected on `RecordAsync`/`RecordBulkAsync` (same guard as empty reviewer; dry **#55**); **valid-no-repro** `ListHistoryAsync` rejects `scope.TenantId == Guid.Empty` before trail query (dry **#55**); **valid-no-repro** optional `Deferred` rationale above `MaximumRationaleLength` rejected (`Validate_deferred_rejects_overlong_optional_rationale`; seed **#54**); **valid-no-repro** working-desk remediated preview override below `MinimumRationaleLength` rejected (`Validate_working_remediated_rejects_short_preview_override_reason`; seed **#54**). Reseeded five follow-on `(candidate)` monitor rows from dry **#56** closed themes; zone **cooling** (`consecutive-dry-hunts` 15); **70/70** scoped `FullyQualifiedName~FindingDisposition` in Application.Tests (`RunAnalyzers=false`). Private beta: n/a.
 
 2026-11-03 thorough hunt (dry #56): cheap-disproof closed five open `(candidate)` rows from thorough **#55** reseed — **valid-no-repro** `NeedsEvidence` single-character substantive `EvidenceRequestText` (`Validate_needs_evidence_accepts_single_character_evidence_request_text`; dry **#52**); **valid-no-repro** malformed `ExpectedCurrentDispositionRowVersionBase64` rejected before repository (`RecordAsync_rejects_invalid_base64_expected_row_version_before_repository`; dry **#49**); **valid-no-repro** bulk batch rejects case-variant duplicate finding ids (`RecordBulkAsync_rejects_case_variant_duplicate_finding_ids_in_single_batch`; hit **#2054**); **valid-no-repro** disposition history omits review-trail rows with null disposition (`ListHistoryAsync_excludes_review_trail_events_without_disposition`; dry **#49**); **valid-no-repro** guided-desk `Remediated` ignores client `ImpactPreviewCompleted` (`RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`; hit **#1719**). Reseeded five follow-on `(candidate)` rows from dry **#55** closed themes; zone **cooling** (`consecutive-dry-hunts` 14); scoped **70/70** `FullyQualifiedName~FindingDisposition` in Application.Tests (`RunAnalyzers=false`). Private beta: n/a.
-
-- [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — empty request list rejected before repository — locus: entry guard; input: zero-length batch (`RecordBulkAsync` `requests.Count == 0`; monitor dry **#56** / dry **#55**).
-- [ ] (candidate) `FindingDispositionService.RecordAsync` — whitespace-only `reviewerUserId` rejected — locus: reviewer guard; input: blank reviewer id (monitor dry **#56** / dry **#55**).
-- [ ] (candidate) `FindingDispositionService.ListHistoryAsync` — `scope.TenantId == Guid.Empty` rejected — locus: tenant scope guard; input: empty tenant (monitor dry **#56** / dry **#55**).
-- [ ] (candidate) `FindingDispositionValidation.Validate` — optional rationale on `Deferred` above `MaximumRationaleLength` rejected — locus: optional max length; input: overlong deferred note (`Validate_deferred_rejects_overlong_optional_rationale`; monitor dry **#56** / dry **#55**).
-- [ ] (candidate) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — working-desk remediated preview override below `MinimumRationaleLength` rejected — locus: LP-14 override path; input: short preview reason (`Validate_working_remediated_rejects_short_preview_override_reason`; monitor dry **#56** / dry **#55**).
 
 2026-11-03 thorough hunt (dry #55): cheap-disproof closed five open `(candidate)` rows from seed **#54** — **valid-no-repro** empty bulk batch rejected at service entry (`RecordBulkAsync` `requests.Count == 0` guard before repository); **valid-no-repro** whitespace-only `reviewerUserId` rejected on `RecordAsync`/`RecordBulkAsync` (same guard as empty reviewer); **valid-no-repro** `ListHistoryAsync` rejects `scope.TenantId == Guid.Empty` before trail query; **valid-no-repro** optional `Deferred` rationale above `MaximumRationaleLength` rejected (`Validate_deferred_rejects_overlong_optional_rationale`; seed **#54**); **valid-no-repro** working-desk remediated preview override below `MinimumRationaleLength` rejected (`Validate_working_remediated_rejects_short_preview_override_reason`; seed **#54**). Reseeded five follow-on `(candidate)` monitor rows from dry **#53** closed themes; **70/70** scoped `FullyQualifiedName~FindingDisposition` in Application.Tests (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -3358,14 +3177,6 @@
 - [x] (valid-no-repro) `FindingDispositionService.RecordBulkAsync` — mixed Remediated rows in one batch share working-desk attestation outcome — **cheap-disproof 2026-11-03 thorough hunt #53:** single lookup by design; regression above.
 - [x] (valid-no-repro) `FindingDispositionService.ListHistoryAsync` — disposition events from other workspace in same tenant omitted — **cheap-disproof 2026-11-03 thorough hunt #53:** workspace filter; regression above.
 - [x] (valid-no-repro) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — working desk Remediated accepts `ImpactPreviewCompleted=true` without server preview artifact — **cheap-disproof 2026-11-03 thorough hunt #53:** LP-14 attestation; regression above.
-
-- [ ] (candidate) `FindingDispositionValidation.Validate` — `NeedsEvidence` accepts single-character substantive `EvidenceRequestText` — locus: substantive-text gate; input: one-character request (`Validate_needs_evidence_accepts_single_character_evidence_request_text`; monitor dry **#53** / dry **#52**).
-- [ ] (candidate) `FindingDispositionService.RecordAsync` — malformed `ExpectedCurrentDispositionRowVersionBase64` rejected before repository — locus: `TryDecodeRowVersion`; input: invalid base64 (`RecordAsync_rejects_invalid_base64_expected_row_version_before_repository`; monitor dry **#53** / dry **#52**).
-- [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — case-variant duplicate finding ids rejected in one batch — locus: batch dedupe; input: `Finding-1` vs `finding-1` (`RecordBulkAsync_rejects_case_variant_duplicate_finding_ids_in_single_batch`; monitor dry **#53** / hit **#2054**).
-- [ ] (candidate) `FindingDispositionService.ListHistoryAsync` — review-trail rows without disposition omitted — locus: disposition-only API; input: null disposition trail row (`ListHistoryAsync_excludes_review_trail_events_without_disposition`; monitor dry **#53** / dry **#49**).
-- [ ] (candidate) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — guided-desk `Remediated` ignores client `ImpactPreviewCompleted` — locus: `!isWorkingDesk`; input: guided remediated notes (`RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`; monitor dry **#53** / hit **#1719**).
-
-- [ ] (candidate) `FindingDispositionValidation.Validate` — `Remediated` disposition accepts optional rationale below 10 characters when provided — locus: TB-2305 optional branch; input: two-character optional rationale (`Validate_remediated_accepts_two_character_optional_rationale`; monitor dry **#52** / dry **#50**).
 
 2026-11-01 thorough hunt (dry #51): cheap-disproof closed five open `(candidate)` monitor rows from dry **#50** reseed — **valid-no-repro** `Remediated` optional rationale below 10 characters when provided (TB-2305 optional branch — regressions `Validate_remediated_accepts_two_character_optional_rationale`, dry **#50**); **valid-no-repro** whitespace-only `ExpectedCurrentDispositionRowVersionBase64` decodes as absent token via `TryDecodeRowVersion` and conflicts when pointer exists (`RecordAsync_whitespace_only_expected_row_version_after_pointer_exists_throws_conflict`; dry **#50**); **valid-no-repro** bulk `Remediated` rows share one `IsWorkingDeskAsync` attestation outcome by design (`RecordBulkAsync_queries_working_desk_mode_once_per_batch`; dry **#49**); **valid-no-repro** foreign workspace disposition events omitted from history (`ListHistoryAsync_excludes_disposition_events_from_other_workspace`; dry **#50**); **valid-no-repro** working desk accepts client `ImpactPreviewCompleted=true` without server artifact by LP-14 attestation contract (`Validate_working_remediated_accepts_impact_preview_completed`; dry **#50**). Reseeded five follow-on `(candidate)` monitor rows from dry **#51** closed themes; scoped **70/70** `FullyQualifiedName~FindingDisposition` in Application.Tests (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -3425,16 +3236,16 @@
 - [x] (proven) `FindingDispositionValidation.Validate` — zero-width/format finding ids (e.g. U+200B-only or embedded format chars) pass `IsNullOrWhiteSpace` and persist via non-HTTP callers — **hit 2026-09-09 (#1400):** added `HasSubstantiveFindingId` parity to `AuthorityPipelineWorkPayload.HasSubstantiveText`; regressions in `Validate_rejects_zero_width_space_only_finding_id` / `Validate_rejects_finding_id_with_embedded_format_character`.
 
 - **id:** finding-disposition
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 58
-- **bugs-found:** 16
-- **consecutive-dry-hunts:** 16
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -3658,12 +3469,6 @@
 
 2026-11-03 thorough hunt (dry #56): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`api-tenancy-workspaces`** is **1/3** before this record — dry **`api-tenancy-workspaces`** at run-log tail). Attempted failing repro on five open `(candidate)` monitor rows from dry **#55** reseed; cheap-disproof closed **valid-no-repro** batch preview vs persisted `isScheduleEnabled` asymmetry (`ComputeNextRunsUtc_has_no_disabled_flag_while_single_run_honors_schedule_enabled`; intentional preview API — dry **#936**), **invalid** `@montly` typo rejection (`IsSupportedCronExpression_rejects_montly_typo_alias`; dry **#936**), **invalid** `@weekley` typo rejection (`IsSupportedCronExpression_rejects_weekley_typo_alias`), **valid-no-repro** thin-space interior whitespace rejection (`IsSupportedCronExpression_rejects_interior_thin_space_between_cron_fields`), **valid-no-repro** `DateTime.MinValue` with `@hourly` advances to future UTC instant (`ComputeNextRunUtc_from_min_value_with_hourly_alias_returns_future_instant`). Reseeded five follow-on `(candidate)` rows below (recycled dry **#55** closed queue); zone **cooling** (`consecutive-dry-hunts` 23); scoped **67/67** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `IsSupportedCronExpression` — typo alias `@annually` vs `@yearly` Cronos acceptance — locus: Cronos calendar synonyms; input: `@annually` (`IsSupportedCronExpression_accepts_annually_as_cronos_calendar_synonym`; monitor dry **#56** / dry **#53**).
-- [ ] (candidate) `IsSupportedCronExpression` — mixed-case `@Monthly` calendar alias — locus: alias normalization; input: `@Monthly` (`IsSupportedCronExpression_accepts_mixed_case_Monthly_alias`; monitor dry **#56** / dry **#53**).
-- [ ] (candidate) `ComputeNextRunUtc` — five-field cron at `DateTime.MaxValue` reference — locus: Cronos overflow; input: MaxValue + five-field cron (`ComputeNextRunUtc_five_field_cron_at_max_value_throws`; monitor dry **#56** / dry **#53**).
-- [ ] (candidate) `IsSupportedCronExpression` — trailing ASCII space on interval alias (`@hourly `) — locus: `Trim()` boundary; input: `@hourly ` (`IsSupportedCronExpression_accepts_hourly_alias_with_trailing_ascii_space`; monitor dry **#56** / dry **#53** / dry **#47**).
-- [ ] (candidate) `ComputeNextRunsUtc` — `@yearly` batch preview at `DateTime.MaxValue` throws on first iteration — locus: batch loop overflow; input: MaxValue reference (`ComputeNextRunsUtc_yearly_alias_at_max_value_throws_on_first_iteration`; monitor dry **#56** / dry **#53**).
-
 - [x] (valid-no-repro) `ComputeNextRunsUtc` — batch preview ignores `isScheduleEnabled` while single-run honors disabled schedule — **cheap-disproof 2026-11-03 thorough hunt #56:** dry **#55** queue; regression `ComputeNextRunsUtc_has_no_disabled_flag_while_single_run_honors_schedule_enabled`; preview API by design (dry **#936**).
 - [x] (invalid) `IsSupportedCronExpression` — `@montly` typo alias rejected — **cheap-disproof 2026-11-03 thorough hunt #56:** dry **#55** queue; regression `IsSupportedCronExpression_rejects_montly_typo_alias`; dry **#936** invalid class.
 - [x] (invalid) `IsSupportedCronExpression` — `@weekley` typo alias rejected — **cheap-disproof 2026-11-03 thorough hunt #56:** dry **#55** queue; regression `IsSupportedCronExpression_rejects_weekley_typo_alias`.
@@ -3687,12 +3492,6 @@
 - [x] (valid-no-repro) `ComputeNextRunUtc` — `@weekly` at `DateTime.MaxValue` throws on interval overflow — **cheap-disproof 2026-11-03 thorough hunt #54:** interval alias theory; regression above.
 
 2026-11-03 thorough hunt (dry #53): cheap-disproof closed five open `(candidate)` monitor rows from dry **#52** reseed queue — **valid-no-repro** `@annually` Cronos calendar synonym (`IsSupportedCronExpression_accepts_annually_as_cronos_calendar_synonym`; dry **#47** / **#51**); **valid-no-repro** mixed-case `@Monthly` alias (`IsSupportedCronExpression_accepts_mixed_case_Monthly_alias`; dry **#51**); **valid-no-repro** five-field cron at `DateTime.MaxValue` (`ComputeNextRunUtc_five_field_cron_at_max_value_throws`; dry **#51**); **valid-no-repro** `@hourly ` trailing ASCII space after `Trim()` (`IsSupportedCronExpression_accepts_hourly_alias_with_trailing_ascii_space`; dry **#47** / **#51**); **valid-no-repro** `@yearly` batch preview at MaxValue (`ComputeNextRunsUtc_yearly_alias_at_max_value_throws_on_first_iteration`; dry **#51**). Reseeded five follow-on `(candidate)` rows from dry **#52** closed themes; zone **cooling** (`consecutive-dry-hunts` 20); **67/67** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
-
-- [ ] (candidate) `IsSupportedCronExpression` — trailing ASCII space on `@daily ` interval alias — locus: `Trim()` boundary; input: `@daily ` (monitor dry **#53** / dry **#52**).
-- [ ] (candidate) `IsSupportedCronExpression` — macOS `@reboot` alias rejected — locus: Cronos standard aliases; input: `@reboot` (monitor dry **#53** / dry **#48**).
-- [ ] (candidate) `ComputeNextRunsUtc` — zero preview count returns empty without parsing cron — locus: `count <= 0` guard; input: `count=0` (monitor dry **#53** / dry **#52**).
-- [ ] (candidate) `IsSupportedCronExpression` — horizontal tab between five-field cron tokens — locus: interior whitespace; input: tab-separated fields (monitor dry **#53** / dry **#935**).
-- [ ] (candidate) `ComputeNextRunUtc` — `@weekly` at `DateTime.MaxValue` throws on interval overflow — locus: interval alias overflow; input: MaxValue reference (monitor dry **#53** / dry **#52**).
 
 2026-11-03 thorough hunt (dry #52): cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#51** — **valid-no-repro** `@daily ` trailing ASCII space after `Trim()` (parity `IsSupportedCronExpression_accepts_hourly_alias_with_trailing_ascii_space`; dry **#48**); **valid-no-repro** `@reboot` rejected (Cronos standard aliases only; dry **#48**); **valid-no-repro** zero preview count returns empty without parse (`ComputeNextRunsUtc_returns_empty_when_count_is_zero`); **invalid** horizontal tab between five-field tokens (interior whitespace class; dry **#935**); **valid-no-repro** `@weekly` at `DateTime.MaxValue` throws (`ComputeNextRunUtc_interval_alias_at_max_value_throws`). Reseeded five follow-on `(candidate)` monitor rows from dry **#51** closed themes in header queue; **67/67** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -3853,19 +3652,18 @@
 2026-10-21 thorough hunt (dry, lane C): `review-recurrence` — lock verified on origin; facade preview count 1–20; calculator paths unchanged; 47/47 scoped tests; no production change.
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
-
-- **hunts:** 56
-- **last-hunt:** 2026-11-03
+- **hunts:** 0
+- **last-hunt:** never
 
 - **id:** review-recurrence
-- **status:** open
+- **status:** unseeded
 - **impact:** low
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 23
-- **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 ### Hypotheses
@@ -4032,6 +3830,14 @@
 
 ## Zone: scim-users
 
+
+2026-11-18 seed hunt (seed-only #67): picker `unseeded` after ledger YAML reset; re-read `ScimUsersController` after dry **#66** / cooperative-cancel JSON guards; promoted `CreateAsync` `ScimConflictException` → HTTP 409 Api envelope — **valid-no-repro** (catch ~102–105; Application duplicate-create conflict regressions); no other row met hunt-ready bar for a failing repro in zone paths; seeded five controller-locus `(candidate)` rows; scoped **75/75** (29 Api + 46 Application `FullyQualifiedName~ScimUsers`, `RunAnalyzers=false`). Private beta: n/a.
+
+- (candidate) `ScimUsersController.CreateAsync` — service `ScimConflictException` maps to HTTP 409 `uniqueness` SCIM envelope — locus: catch ~102–105; input: Entra POST with duplicate live `externalId`; reachability: SCIM provisioning connector retry after partial success.
+- (candidate) `ScimUsersController.CreateAsync` — service `ScimSeatLimitExceededException` maps to HTTP 403 `mutability` not generic 500 — locus: catch ~106–108; input: POST when tenant enterprise seat cap exhausted; reachability: Entra provision with full seat pool.
+- (candidate) `ScimUsersController.ReplaceAsync` — service `ScimConflictException` on `userName` clash maps to HTTP 409 after body deserialize — locus: catch ~158–160; input: PUT body with another live user''s `userName`; reachability: Entra full replace on re-homed `userName`.
+- (candidate) `ScimUsersController.GetAsync` — unhandled non-SCIM exception from service `GetAsync` becomes HTTP 500 without SCIM error envelope — locus: no catch block ~63–70; input: repository fault; reachability: intentional host fail-fast (monitor for accidental SCIM wrapping).
+- (candidate) `ScimUsersController.ListAsync` — `ListResponse` `startIndex` echoes controller-clamped query when client sends sub-1 bound — locus: clamp ~39–40 + serializer ~49; input: `startIndex=-3`; reachability: non-compliant SCIM paging probes.
 2026-11-04 thorough hunt (dry #66): cheap-disproof closed five open `(candidate)` monitor rows from seed **#65** — **valid-no-repro** PUT JSON array `[]` maps to SCIM `invalidSyntax` via `ParseUser` object guard (regression `ReplaceAsync_json_array_put_body_returns_invalid_syntax_via_service_parse_guard`); **valid-no-repro** PATCH JSON array `[]` maps to SCIM `invalidSyntax` before patch apply (regression `PatchAsync_json_array_patch_body_returns_invalid_syntax_via_service_parse_guard`); **valid-no-repro** POST JSON string primitive maps to SCIM `invalidSyntax` before insert (regression `CreateAsync_json_primitive_post_body_returns_invalid_syntax_via_service_parse_guard`); **valid-no-repro** `count=0` list query returns empty SCIM page without HTTP 500 (regression `ListAsync_count_zero_returns_empty_scim_list_page_without_error`; dry **#64**); **valid-no-repro** `startIndex=0` query clamped to RFC 1-based first page without HTTP 500 (regression `ListAsync_start_index_zero_clamped_to_first_page_without_error`); reseeded five follow-on `(candidate)` monitor rows; scoped filter **70/70** (46 Application + 24 Api cancellation unit; SQL integration skipped). Private beta: n/a.
 
 - [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — JSON array PUT body maps to SCIM `invalidSyntax` before persist — **cheap-disproof 2026-11-04 thorough hunt #66:** regression `ReplaceAsync_json_array_put_body_returns_invalid_syntax_via_service_parse_guard`; seed **#65**.
@@ -4039,12 +3845,6 @@
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — JSON primitive POST body maps to SCIM `invalidSyntax` before insert — **cheap-disproof 2026-11-04 thorough hunt #66:** regression `CreateAsync_json_primitive_post_body_returns_invalid_syntax_via_service_parse_guard`; seed **#65**.
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` query returns empty SCIM list page without HTTP 500 — **cheap-disproof 2026-11-04 thorough hunt #66:** regression `ListAsync_count_zero_returns_empty_scim_list_page_without_error`; seed **#65**.
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex=0` query clamped to first page without HTTP 500 — **cheap-disproof 2026-11-04 thorough hunt #66:** regression `ListAsync_start_index_zero_clamped_to_first_page_without_error`; seed **#65**.
-
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — JSON primitive PUT body maps to SCIM `invalidSyntax` before persist — locus: deserialize + `ParseUser` object guard; input: quoted string literal (monitor seed **#66**).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — JSON number PATCH body maps to SCIM `invalidSyntax` before patch apply — locus: patch evaluator object guard; input: body `42` (monitor seed **#66**).
-- [ ] (candidate) `ScimUsersController.CreateAsync` — JSON number POST body maps to SCIM `invalidSyntax` before insert — locus: `ParseUser` object guard; input: body `1` (monitor seed **#66**).
-- [ ] (candidate) `ScimUsersController.ListAsync` — negative `startIndex` query clamped to first page without HTTP 500 — locus: controller ~39–40; input: `startIndex=-1` (monitor seed **#66**).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — JSON number PUT body maps to SCIM `invalidSyntax` before persist — locus: `ParseUser` object guard; input: body `0` (monitor seed **#66**).
 
 2026-11-04 thorough hunt (dry #65): cheap-disproof closed five open `(candidate)` monitor rows from seed **#64** — **valid-no-repro** zero-length PATCH body maps to SCIM `invalidSyntax` before service patch (regression `PatchAsync_empty_http_body_returns_invalid_syntax_without_calling_service`); **valid-no-repro** PUT/PATCH JSON `null` literal maps to SCIM `invalidSyntax` via service parse guard (regressions `ReplaceAsync_null_json_literal_returns_invalid_syntax_without_calling_service`, `PatchAsync_null_json_literal_returns_invalid_syntax_without_calling_service`); **valid-no-repro** negative `count` list query returns empty SCIM page without HTTP 500 (regression `ListAsync_negative_count_returns_empty_scim_list_page_without_error`; Application `ListAsync_negative_count_clamped_to_empty_page`); **valid-no-repro** POST JSON array `[]` maps to SCIM `invalidSyntax` via `ParseUser` object guard (regression `CreateAsync_json_array_body_returns_invalid_syntax_via_service_parse_guard`; thorough hunt **#47** class); reseeded five follow-on `(candidate)` monitor rows; scoped filter **66/66** (46 Application + 20 Api cancellation unit; SQL integration skipped). Private beta: n/a.
 
@@ -4167,12 +3967,6 @@
 - [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — cooperative cancel during PUT JSON deserialize rethrows before `invalidSyntax` — **cheap-disproof 2026-11-03 seed hunt #61:** seed **#60** diary.
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — cooperative cancel during PATCH JSON deserialize rethrows before `invalidSyntax` — **cheap-disproof 2026-11-03 seed hunt #61:** seed **#60** diary.
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` below 1 normalized to 1 in controller and service — **cheap-disproof 2026-11-03 seed hunt #61:** `ListAsync_normalizes_start_index_below_one`; seed **#60**.
-
-- [ ] (candidate) `ScimUsersController.PatchAsync` — post-patch `GetAsync` cancel propagates without SCIM envelope — locus: ~187–192; input: cancel after persist (monitor gap: no Patch post-get Api test; seed **#61**).
-- [ ] (candidate) `ScimUsersController.ListAsync` — cooperative cancel during service `ListAsync` propagates without controller catch — locus: ~44–49; input: cancel during paged query (monitor gap: no list cancel Api test; seed **#61**).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — cooperative cancel during PUT JSON deserialize rethrows before `invalidSyntax` — locus: ~125–130; input: cancel during body read (monitor gap: no Replace deserialize cancel test; seed **#61**).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — cooperative cancel during PATCH JSON deserialize rethrows before `invalidSyntax` — locus: ~171–178; input: cancel during body read (monitor gap: no Patch deserialize cancel test; seed **#61**).
-- [ ] (candidate) `ScimUsersController.ListAsync` — oversized `count` query clamped without 500 — locus: service `Math.Clamp`; input: `count=10000` (monitor seed **#61**; `ListAsync_count_above_max_clamped_to_200_items`).
 
 2026-11-01 thorough hunt (dry #51): cheap-disproof closed five open `(candidate)` rows recycled from dry **#50** — **valid-no-repro** PUT/PATCH/POST cooperative cancel during service or post-mutation `GetAsync` propagates without SCIM envelope (intentional host cancel contract; regressions `ReplaceAsync_propagates_operation_canceled_from_service_replace`, `ReplaceAsync_propagates_operation_canceled_from_post_replace_get`, `PatchAsync_propagates_operation_canceled_from_service_patch`, `CreateAsync_propagates_operation_canceled_from_service_create`, parity `GetAsync_propagates_operation_canceled_from_service` / `DeleteAsync_propagates_operation_canceled_during_deactivate`); **valid-no-repro** omitted `filter` vs empty `filter=` yield identical totals (`ListAsync_null_filter_matches_empty_string_filter_totals`, `ScimFilterParser.Parse` whitespace class hunt **#49**/**#50**); seeded five follow-on `(candidate)` rows; scoped filter **57/57** (45 Application + 12 Api unit; SQL integration skipped on cloud VM). Private beta: n/a.
 
@@ -4412,16 +4206,16 @@
 2026-10-21 seed hunt (seed->hit) #78: TestLogin accepted canonical issuer URIs longer than migration 183 NVARCHAR(2048) while ActivateAsync rejected them; TestLogin now calls IdentityProviderPersistedFieldLimits.EnsureIssuerUriFits after canonicalization; regression TestLogin_rejects_canonical_issuer_uri_longer_than_persisted_column; cheap-disproof closed five #77 candidates; 98 scoped activation/controller/matrix tests passed.
 
 - **id:** scim-users
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 66
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-11-04
-- **last-bug:** 2026-10-09 — second live user with the same userName was accepted
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-18
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
@@ -4527,12 +4321,6 @@
 ## Zone: identity-provider-config
 
 2026-11-03 thorough hunt (dry #92): cheap-disproof closed five open `(candidate)` monitor rows from dry **#91** reseed — **valid-no-repro** discover `:443` issuer canonicalization before `EnsureIssuerUriFits` (`DiscoverAsync_returns_canonical_issuer_and_jwks_uris`, `DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column`, hit **#79**); **valid-no-repro** same-protocol SAML reactivate omitted `MetadataXml` on inactive row (`ActivateAsync_reactivate_preserves_metadata_xml_when_omitted`, dry **#936**); **valid-no-repro** GET skips read-time issuer length guard when stored issuer is not canonical HTTP(S) (dry **#346**); **valid-no-repro** test-login post-canonical `EnsureIssuerUriFits` at column boundary (`TestLogin_rejects_canonical_issuer_uri_longer_than_persisted_column`, `TestLogin_passes_canonical_issuer_uri_to_sandbox_service`); **invalid** whitespace-only `MetadataXml` on OIDC reactivate — SAML clear guard only (dry **#87**). Reseeded five follow-on `(candidate)` monitor rows from dry **#91** closed themes; zone **cooling** (`consecutive-dry-hunts` 13); **92/92** scoped `IdentityProviderActivationServiceTests` + `IdentityProviderConfigurationControllerTests` (`RunAnalyzers=false`). Private beta: n/a.
-
-- [ ] (candidate) `IdentityProviderConfigurationController.WithCanonicalWizardUris` — discover JWKS URI `:443` canonicalization independent of issuer length guard — locus: wizard URI projection; input: discover with explicit port 443 (monitor dry **#92** / dry **#91** / dry **#74**).
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — same-protocol OIDC reactivate with omitted `KeyVaultSecretName` when stored row `IsActive=false` — locus: `ResolveOptionalPersistedField`; input: omitted secret on inactive OIDC row (monitor dry **#92** / dry **#91** / dry **#936**).
-- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — inactive stored row still canonicalizes issuer on GET reload — locus: `PrepareConfigurationResponse`; input: inactive row with `:443` issuer (monitor dry **#92** / dry **#91** / dry **#86**).
-- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — successful discover with issuer that fails post-canonical HTTP(S) parse skips length guard — locus: parse-before-guard; input: non-canonical discover issuer (monitor dry **#92** / dry **#91** / dry **#346**).
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — whitespace-only `KeyVaultSecretName` on OIDC same-protocol reactivate — locus: clear-via-whitespace guard; input: `"   "` secret name (monitor dry **#92** / dry **#91** / dry **#85**).
 
 2026-11-03 thorough hunt (dry #91): cheap-disproof closed five open `(candidate)` monitor rows from dry **#90** reseed — **valid-no-repro** discover JWKS `:443` canonicalization without separate persisted-column check (`DiscoverAsync_returns_canonical_issuer_and_jwks_uris`; dry **#74**); **valid-no-repro** same-protocol OIDC reactivate preserves omitted `KeyVaultSecretName` on inactive row (`ActivateAsync_reactivate_preserves_key_vault_secret_when_omitted_and_stored_row_is_inactive`; dry **#936**); **valid-no-repro** inactive stored row GET still canonicalizes issuer on reload (`GetConfigurationAsync_returns_canonical_issuer_uri_for_inactive_stored_row_with_explicit_port_443`; dry **#86**); **valid-no-repro** discover issuer that fails post-canonical HTTP(S) parse skips length guard (dry **#346** read class); **valid-no-repro** whitespace-only `KeyVaultSecretName` on OIDC reactivate rejected at validation (`ActivateAsync_rejects_oidc_reactivate_that_would_clear_key_vault_secret_via_whitespace`; dry **#85**). Reseeded five follow-on `(candidate)` rows from dry **#90** closed themes; zone **cooling** (`consecutive-dry-hunts` 12); **92/92** scoped `IdentityProviderActivationServiceTests` + `IdentityProviderConfigurationControllerTests` (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -4704,16 +4492,16 @@
 - [x] (proven) `IdentityProviderConfigurationController.TestLogin` — sandbox test-login accepted issuer URIs longer than the persisted column while activate rejected them — regression `TestLogin_rejects_canonical_issuer_uri_longer_than_persisted_column.
 
 - **id:** identity-provider-config
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 92
-- **bugs-found:** 55
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-21 — discover returned shared discovery service response instance
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 2026-10-20 seed hunt (seed-only): re-read activation/controller paths; cheap-disproof closed five `(candidate)` rows (discover/test-login HTTP 200 envelopes are intentional wizard contracts; GET partial canonicalization and audit summary shape match prior valid-no-repro notes; empty-string `keyVaultSecretName` is OpenAPI-only because SSO/SAML UIs send null); no new hunt-ready promotion; 66 scoped activation/controller tests passed.
@@ -4948,12 +4736,6 @@
 
 2026-11-03 thorough hunt (dry #20): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`scope-binding-middleware`** is **1/3** before this record — dry **`scope-binding-middleware`** **#88** at run-log tail). Cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#19** (regression family dry **#18** / dry **#12**) — **valid-no-repro** padded persisted Stripe ids trim before guard/charge (`TryAutoRefillAsync_passes_trimmed_stripe_identifiers_to_charge_when_persisted_values_have_padding`, dry **#12**); **valid-no-repro** UTC month cap bucket rollover documented (`GetWalletAsync_returns_zero_auto_refill_count_after_utc_month_rollover_when_prior_month_at_cap`, `TryAutoRefillAsync_allows_refill_after_utc_month_rollover_when_prior_month_at_cap`); **valid-no-repro** concurrent enable/disable without `ExpectedRowVersion` is optional OCC (dry **#7**); **invalid** empty-string Stripe id repository bind is internal-only — wallet PUT normalizes in consume stage (dry **#12**); **invalid** retried charge reuses Stripe idempotency key — fresh PaymentIntent per attempt (dry **#12**). Reseeded five follow-on `(candidate)` monitor rows from dry **#19** closed themes; scoped **7/7** Persistence guard + **36/36** Application wallet update/auto-refill tests (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — explicit enable PUT with `MonthlyCapUsd=0` rejected before persist — locus: enable pre-check; input: enable + zero cap in same PUT (`UpdateWalletAsync_rejects_enabling_auto_replenish_when_explicit_monthly_cap_is_zero_in_same_put`; monitor dry **#20** / dry **#17** / dry **#13**).
-- [ ] (candidate) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — whitespace payment method id treated as omitted partial PUT — locus: `NormalizeOptionalStripeId`; input: whitespace PM id (`UpdateWalletAsync_treats_whitespace_payment_method_id_like_omitted_for_partial_put`; monitor dry **#20** / dry **#17** / dry **#11**).
-- [ ] (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — webhook-settled credits omit monthly auto-refill counter increment — locus: webhook credit path; input: small webhook top-up (`TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap`; monitor dry **#20** / hit **2026-10-06**).
-- [ ] (candidate) `WalletController.PutAsync` — disable auto-replenish with omitted cap preserves persisted `MonthlyCapUsd` — locus: partial PUT / COALESCE; input: disable-only PUT (`UpdateWalletAsync_preserves_stripe_identifiers_when_disabling_auto_replenish_without_stripe_fields`; monitor dry **#20** / dry **#17**).
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable with payment method uses linked customer not stale persisted customer — locus: resolver merge before guard; input: enable + PM only (`UpdateWalletAsync_enabling_with_payment_method_uses_linked_customer_instead_of_stale_persisted_customer`; monitor dry **#20** / dry **#10**).
-
 - [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — padded persisted Stripe customer/payment method ids trimmed before guard and persist — **cheap-disproof 2026-11-03 thorough hunt #20:** dry **#19** queue; regressions in diary above.
 - [x] (valid-no-repro) `LlmTenantWalletRefillStage.CanAutoRefill` — UTC month cap bucket rollover resets auto-refill count while cap dollars unchanged — **cheap-disproof 2026-11-03 thorough hunt #20:** dry **#19** queue; documented contract; regressions above.
 - [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — concurrent enable/disable without `ExpectedRowVersion` — **cheap-disproof 2026-11-03 thorough hunt #20:** dry **#19** queue; optional OCC; dry **#7** diary.
@@ -4969,12 +4751,6 @@
 - [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — concurrent enable/disable without `ExpectedRowVersion` — **cheap-disproof 2026-11-03 thorough hunt #18:** optional OCC; dry **#7** diary.
 - [x] (invalid) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — empty-string Stripe id bind bypasses Application normalize — **cheap-disproof 2026-11-03 thorough hunt #18:** public path normalizes; dry **#12** diary.
 - [x] (invalid) `StripeWalletGateway.ChargeRefillAsync` — retried failed charge reuses Stripe idempotency key — **cheap-disproof 2026-11-03 thorough hunt #18:** no idempotency key reuse; dry **#12** diary.
-
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — explicit enable PUT with `MonthlyCapUsd=0` rejected before persist — locus: enable pre-check; input: enable + zero cap in same PUT (`UpdateWalletAsync_rejects_enabling_auto_replenish_when_explicit_monthly_cap_is_zero_in_same_put`; monitor dry **#17** / dry **#13**).
-- [ ] (candidate) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — whitespace payment method id treated as omitted partial PUT — locus: `NormalizeOptionalStripeId`; input: whitespace PM id (`UpdateWalletAsync_treats_whitespace_payment_method_id_like_omitted_for_partial_put`; monitor dry **#17** / dry **#11**).
-- [ ] (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — webhook-settled credits omit monthly auto-refill counter increment — locus: webhook credit path; input: small webhook top-up (`TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap`; monitor dry **#17** / hit **2026-10-06**).
-- [ ] (candidate) `WalletController.PutAsync` — disable auto-replenish with omitted cap preserves persisted `MonthlyCapUsd` — locus: partial PUT / COALESCE; input: disable-only PUT (`UpdateWalletAsync_preserves_stripe_identifiers_when_disabling_auto_replenish_without_stripe_fields`; monitor dry **#17**).
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable with payment method uses linked customer not stale persisted customer — locus: resolver merge before guard; input: enable + PM only (`UpdateWalletAsync_enabling_with_payment_method_uses_linked_customer_instead_of_stale_persisted_customer`; monitor dry **#17** / dry **#10**).
 
 2026-11-03 thorough hunt (dry #17): cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#16** (duplicate dry **#15** / dry **#13** queue) — **valid-no-repro** explicit enable with `MonthlyCapUsd=0` fails consume-stage enable pre-check (`UpdateWalletAsync_rejects_enabling_auto_replenish_when_explicit_monthly_cap_is_zero_in_same_put`, dry **#13**); **valid-no-repro** whitespace payment method id normalizes to omitted partial PUT (`UpdateWalletAsync_treats_whitespace_payment_method_id_like_omitted_for_partial_put`, dry **#11**); **valid-no-repro** webhook-settled credits omit monthly auto-refill counter by design (`TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap`, hit **2026-10-06** / dry **#13**); **valid-no-repro** disable-only PUT preserves persisted cap (`UpdateWalletAsync_preserves_stripe_identifiers_when_disabling_auto_replenish_without_stripe_fields`); **valid-no-repro** enable with payment method merges linked customer before guard (`UpdateWalletAsync_enabling_with_payment_method_uses_linked_customer_instead_of_stale_persisted_customer`, dry **#10**). Reseeded five follow-on `(candidate)` monitor rows from dry **#16** closed themes; scoped **7/7** Persistence guard + **36/36** Application wallet update/auto-refill tests (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -5107,16 +4883,16 @@
 2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from 2026-10-23 reseed; seeded five follow-on `(candidate)` rows; scoped guard + wallet regression filter passed (`RunAnalyzers=false`). Private beta: n/a.
 
 - **id:** persistence-billing-stripe
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 20
-- **bugs-found:** 3
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-31 — wallet PUT could enable auto-replenish with Stripe customer id only (no payment method)
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -5153,12 +4929,6 @@
 - [x] (valid-no-repro) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — missing bearer token rejects before dedupe key or ledger insert — **cheap-disproof 2026-11-05 thorough hunt #90:** dry **#89** queue; regression `HandleWebhookAsync_rejects_before_ledger_insert_when_marketplace_bearer_missing`; seed **#78** diary.
 - [x] (valid-no-repro) `StripeBillingProvider.DispatchStripeWebhookEventAsync` — `ping` connectivity events return handled without subscription or wallet dispatch — **cheap-disproof 2026-11-05 thorough hunt #90:** dry **#89** queue; regression `HandleWebhookAsync_wallet_ping_succeeds_without_wallet_processor_dispatch`; dry **#77** diary.
 - [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — concurrent duplicate registration returns false without refreshing cache TTL (~70–71) — **cheap-disproof 2026-11-05 thorough hunt #90:** dry **#89** queue; regression `TryRegisterEventAsync_only_first_concurrent_caller_wins`; dry **#85** diary.
-
-- [ ] (candidate) `StripeBillingProvider.HandleWebhookAsync` — in-memory `HasSeenAsync` short-circuit before SQL ledger insert (~49–55) — locus: hot-replay belt; input: replay-guard remembers event before ledger policy (monitor dry **#90** / dry **#89**).
-- [ ] (candidate) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — whitespace-only `correlation_id` metadata generates fresh correlation like malformed key (~208–211) — locus: `IsNullOrWhiteSpace`; input: blank correlation metadata (monitor dry **#90** / dry **#89**).
-- [ ] (candidate) `StripeBillingProvider.DispatchSubscriptionWebhookEventAsync` — `customer.subscription.deleted` returns handled when typed subscription is null (~155–163) — locus: subscription null-object ack; input: malformed subscription payload (monitor dry **#90** / dry **#89**).
-- [ ] (candidate) `StripeBillingProvider.HandleWebhookAsync` — dispatch exception marks ledger `Failed` without replay-guard `RememberAsync` (~88–92) — locus: Stripe retry after transient failure; input: handler throws mid-dispatch (monitor dry **#90** / dry **#89**).
-- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — negative `amountCents` with `applied=false` does not throw (~41–43) — locus: non-positive amount guard; input: negative succeeded amount (monitor dry **#90** / dry **#89**).
 
 - [x] (superseded) dry **#89** open `(candidate)` queue — **superseded 2026-11-05 thorough hunt #90:** closed at zone header; see hunt **#90** reseed.
 
@@ -5200,12 +4970,6 @@
 - [x] (valid-no-repro) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — passes `intent.LastPaymentError?.DeclineCode` into processor on succeeded events — **cheap-disproof 2026-11-04 thorough hunt #88:** dry **#87** monitor queue; dry **#86** diary.
 
 2026-11-03 thorough hunt (dry #86): cheap-disproof closed five open `(candidate)` rows from thorough **#85** reseed — **valid-no-repro** `MidpointRounding.AwayFromZero` on integer Stripe cent amounts (~35; no fractional-cent input path); **invalid** marketplace controller evaluates `DuplicateIgnored` before `Returns202Accepted` (~97–101; monitor inverted actual order); **invalid** `_claimedKeys` consult before cache TTL by design (~31–33; dry **#73** / **#74** diary); **invalid** wallet and subscription Stripe routes share intentional empty `Ok()` ack (~65–71; dry **#79** / seed **#68**); **valid-no-repro** `LastPaymentError?.DeclineCode` forwarded on wallet dispatch but processor records decline telemetry only on `payment_intent.payment_failed` (~233–234 vs ~48–50); reseeded five follow-on `(candidate)` rows from dry **#85** closed themes; zone **cooling** (`consecutive-dry-hunts` 10); scoped filter **39/39** (24 Persistence + 15 Application, `RunAnalyzers=false`); Api SQL integration HTTP suites not run (no SQL Server on cloud VM). Private beta: n/a.
-
-- [ ] (candidate) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — forwards untrimmed `tenantIdRaw` metadata to processor after validating with `Guid.TryParse(tenantIdRaw.Trim())` (~227–231) — locus: raw metadata passthrough; input: padded tenant id string.
-- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — null-coalesced empty `eventType` exits without wallet call or failure telemetry (~25–51) — locus: unknown event no-op; input: blank Stripe type.
-- [ ] (candidate) `StripeBillingProvider.DispatchSubscriptionWebhookEventAsync` — `customer.subscription.updated` returns handled when typed subscription is null (~136–148) — locus: subscription null-object ack; input: malformed subscription payload.
-- [ ] (candidate) `BillingMarketplaceWebhookController.MarketplaceAsync` — integration outbox publish errors do not change HTTP status when provider already succeeded (~89–105) — locus: webhook ack vs outbox; input: non-fatal publish failure.
-- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — duplicate loser returns false without extending winner cache TTL (~70–71) — locus: concurrent claim belt; input: racing duplicate event ids.
 
 2026-11-03 thorough hunt (dry #85): cheap-disproof closed five open `(candidate)` rows from seed **#84** — **valid-no-repro** raw padded `tenantIdRaw` forwarded to processor by design (~227–231; regression `HandleWebhookAsync_wallet_passes_raw_padded_tenant_id_metadata_to_processor`; processor trims ~32); **valid-no-repro** null-coalesced empty `eventType` exits without wallet call (~25–51; regression `ProcessPaymentIntentEventAsync_ignores_unknown_event_type_without_wallet_call`); **valid-no-repro** `customer.subscription.updated` with null typed subscription returns handled (~136–148; seed **#76** subscription null-object ack class); **valid-no-repro** marketplace controller returns HTTP 200 when integration publish fails non-fatally (~89–105; `TryPublishAsync_swallows_non_fatal_publish_failure`; webhook ack decoupled from outbox); **valid-no-repro** concurrent duplicate `TryRegisterEventAsync` loser returns false without refreshing winner TTL (~70–71; regression `TryRegisterEventAsync_only_first_concurrent_caller_wins`; seed **#78**). Reseeded five follow-on `(candidate)` monitor rows; scoped picker filter **39/39** (24 Persistence + 15 Application, `RunAnalyzers=false`; Api SQL HTTP suites not run). Private beta: n/a.
 
@@ -5346,16 +5110,16 @@
 - [x] (valid-no-repro) `StripeBillingProvider.HandleWebhookAsync` — missing signing secret returns `Rejected` detail that echoes configuration shape — **cheap-disproof 2026-11-01 thorough hunt #73:** see dry #73 diary.
 
 - **id:** billing-webhooks
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 88
-- **bugs-found:** 11
-- **consecutive-dry-hunts:** 14
-- **last-hunt:** 2026-11-05
-- **last-bug:** 2026-11-01 — marketplace JWT-valid non-JSON webhook returned HTTP 500 instead of 400
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 2026-11-01 thorough hunt (dry #71): cheap-disproof closed five open `(candidate)` rows from 2026-10-31 thorough hunt (marketplace malformed JSON after JWT fails at `JsonDocument.Parse` ~28 before replay guard/ledger ~41–47 — same fail-closed class as missing-bearer regression; marketplace oversize payload returns `413` via `InboundWebhookBoundedBodyReader` before provider dispatch — TB-967 hostile-input contract parity with Stripe; invalid Stripe signature rejected in `ConstructEvent` `StripeException` catch ~44–46 before `TryInsertWebhookEventAsync` ~55 — complements `HandleWebhookAsync_without_signature_rejected`; marketplace in-memory `HasSeenAsync` before ledger insert is intentional per `BILLING_WEBHOOK_REPLAY_GUARD.md` — same class as Stripe regression `HandleWebhookAsync_when_replay_guard_has_seen_event_returns_replay_rejected`; non-positive wallet `payment_intent.succeeded` amounts skip provider throw when `amountCents <= 0` — regressions `ProcessPaymentIntentEventAsync_forwards_zero_amount_to_wallet_service_without_crediting` and `ProcessPaymentIntentEventAsync_forwards_negative_amount_cents_to_wallet_service_on_success`); seeded five follow-on `(candidate)` rows; scoped filter **39/39** billing webhook unit tests (24 Persistence + 15 Application, `RunAnalyzers=false`); Api SQL integration HTTP suites not run (no SQL Server on cloud VM). Private beta: n/a.
@@ -5415,12 +5179,6 @@
 - [x] (valid-no-repro) `LlmTenantWalletStripeWebhookProcessor` — blank `payment_intent_id` returns without wallet service call — **cheap-disproof 2026-10-07 seed hunt #63:** early return guard; regression reaffirmed `ProcessPaymentIntentEventAsync_skips_wallet_credit_when_payment_intent_id_blank`.
 - [x] (valid-no-repro) `BillingWebhookLedgerReplayPolicy` — `Received` ledger status blocks duplicate insert — **cheap-disproof 2026-10-07 seed hunt #63:** in-flight ledger replay rejection; regression reaffirmed `HandleWebhookAsync_in_flight_received_event_returns_replay_without_replaying_mutation` (`StripeBillingProviderCheckoutWebhookIdempotencyTests`).
 - [x] (invalid) `StripeBillingProvider` wallet route — `invoice.payment_failed` is rejected as unhandled on wallet route — **cheap-disproof 2026-10-07 seed hunt #63:** subscription invoice events belong on subscription route; regression `HandleWebhookAsync_wallet_route_rejects_invoice_payment_failed_without_ledger_processed`.
-
-- [ ] (candidate) `StripeBillingProvider.HandleWebhookAsync` — `RememberAsync` runs only after successful `MarkWebhookProcessedAsync` — locus: success path (`StripeBillingProvider.Webhook.cs` ~83–84).
-- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.HasSeenAsync` — rejects whitespace-only `eventId` via `ThrowIfNullOrWhiteSpace` — locus: argument guard (`MemoryCacheBillingWebhookReplayGuard.cs` ~26–27).
-- [ ] (candidate) `BillingMarketplaceWebhookController.MarketplaceAsync` — `Returns202Accepted` maps to HTTP `202 Accepted` — locus: deferred branch (`BillingMarketplaceWebhookController.cs` ~100–101).
-- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor` — trims outer whitespace on `payment_intent_id` before wallet credit — locus: `paymentIntentId.Trim()` (`LlmTenantWalletStripeWebhookProcessor.cs` ~24).
-- [ ] (candidate) `StripeBillingProvider.ResolveWebhookSigningSecret` — subscription route prefers `SubscriptionWebhookSigningSecret` over shared secret — locus: `ResolveWebhookSigningSecret` (`StripeBillingProvider.Webhook.cs` ~285–290).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests` and `MemoryCacheBillingWebhookReplayGuardTests`; 57 scoped billing webhook unit tests passed (43 Persistence + 14 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
 
@@ -5638,20 +5396,6 @@
 
 ## Zone: api-key-auth
 
-2026-11-08 seed hunt (seed-only): **rotation at pick time** (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on 'api-request-null-collection-elements' (outcomes: seed-only, dry, seed-only).*; **`AvoidZoneId`** **`api-request-null-collection-elements`**; hunted **`pickResult.zoneId`** **`api-key-auth`**). Hypothesis list was empty after dry **#144**. Reread `ApiKeyAuthenticationHandler`, `AdminApiKeySettingsService`, and `AdminApiKeySettingsController`. Did not reseed the #144 monitors (test-actor normalization, inclusive expiry, FormC, snapshot `IsConfigured`, admin-before-reader). **valid-no-repro** `BuildSyntheticAdminClaims` omits `tenant_id` on the development-bypass ticket: `ScopeIdentityBindingValidator` forbids `x-tenant-id` for an ApiKey principal that has no tenant claim, and Production rejects `DevelopmentBypassAll`. **valid-no-repro** `Guid.Empty` `TenantId` is not emitted (`tenantId != Guid.Empty`) and `CollectProductionApiKeyScopeBinding` rejects null or empty `Authentication:ApiKey:TenantId` when mode is ApiKey. No row was promoted. Private beta: n/a.
-
-- [ ] (candidate) `ApiKeyAuthenticationHandler.IsKeyExpired` — comma-separated rotation segments share one slot expiry — locus: `IsKeyExpired(keys.AdminKeyExpiresAt)` after `MatchesAnyCommaSeparatedKey`; input: `AdminKeyExpiresAt` in the past and `InvalidatePrevious` false so `AppendConfigSuffix` adds a new key; reachability: `POST /v1/admin/settings/api-keys/rotate`.
-- [ ] (candidate) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — first non-empty `X-Api-Key` wins when a later value is a stronger slot — locus: first normalized header value; input: duplicate headers, reader key then admin key; reachability: client or proxy sending two `X-Api-Key` values.
-- [ ] (candidate) `ApiKeyAuthenticationHandler.ApplyTestActorHeaderOverrides` — governance actor display name is passed through key-material normalize — locus: `ExtractProvidedApiKey` on `X-ArchLucid-Test-Actor-Name`; input: `AllowTestActorHeaders` and a 32-character mixed-case hex actor name; reachability: non-production CI header (production throws if the flag is on).
-
-2026-11-08 thorough hunt (dry #144): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed the five open monitor rows — **valid-no-repro** test-actor names go through `ExtractProvidedApiKey` on purpose (`When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value`; production throws if `AllowTestActorHeaders` is on), **valid-no-repro** expiry at the exact instant is rejected (`When_admin_key_expiry_is_exactly_now_returns_failure`, `When_read_only_key_expiry_is_exactly_now_returns_failure`), **valid-no-repro** FormC runs before invisible stripping on both config and header (`Normalize_compose_nfd_key_material_to_nfc_before_invisible_char_stripping`), **valid-no-repro** snapshot `IsConfigured` uses the same normalizer as auth (`HasConfiguredKeyMaterial` → `ApiKeyMaterialMasker` → `Normalize`; `GetSnapshot_treats_*_as_unconfigured`), **valid-no-repro** admin slot is checked before reader when both contain the same unexpired material (admin branch ~88–104; expired-admin fallback `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`). No new row met the hunt-ready bar. Scoped Api filter **94/96** (`FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings`, `--no-build` after `ArchLucid.Api` pid 7672 locked a rebuild; 2 `AdminApiKeySettingsEndpointTests` failed opening SQL Server). Private beta: n/a.
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ApplyTestActorHeaderOverrides` — governance test-actor header uses the same invisible-char normalization as `X-Api-Key` — **cheap-disproof 2026-11-08 thorough hunt #144:** `ExtractProvidedApiKey`; regression `When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value`.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.IsKeyExpired` — authentication fails when `timeProvider.GetUtcNow()` equals `ExpiresAtUtc` — **cheap-disproof 2026-11-08 thorough hunt #144:** inclusive expiry is intentional; regressions `When_admin_key_expiry_is_exactly_now_returns_failure` and `When_read_only_key_expiry_is_exactly_now_returns_failure`.
-- [x] (valid-no-repro) `ApiKeyMaterialNormalizer.Normalize` — FormC before invisible strip diverges for decomposed paste vs composed config — **cheap-disproof 2026-11-08 thorough hunt #144:** both sides call `Normalize`; regression `Normalize_compose_nfd_key_material_to_nfc_before_invisible_char_stripping`.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — masked `IsConfigured` does not re-run auth normalization — **cheap-disproof 2026-11-08 thorough hunt #144:** `HasConfiguredKeyMaterial` counts masker segments after `Normalize`.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — shared material in admin and reader slots authenticates as admin when both are unexpired — **cheap-disproof 2026-11-08 thorough hunt #144:** admin branch precedes reader; expired-admin reader fallback is `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`.
-
 2026-11-01 seed hunt (seed-only #143): re-read `ApiKeyAuthenticationHandler`, `AdminApiKeySettingsService`, and `AdminApiKeySettingsController` after `bugsmash-2` fast-forward; no row met hunt-ready bar for a failing repro in zone paths; cheap-disproof closed five recycled `(candidate)` monitors from hunt #142 (SHA-256 `ConstantTimeKeyEquals` design ~225–233; whitespace-only `HasConfiguredKeyMaterial` ~87–88; Production `DevelopmentBypassAll` guard ~64–67; legacy `RotateKeyIdAsync` invalidate ~85; comma-segment `\uFFFD`-only — all saturated hunts #141–#142); seeded five follow-on `(candidate)` rows; scoped filter **135/137** passed (94 `ArchLucid.Api.Tests` + 41 `ArchLucid.Core.Tests` `ApiKeyMaterial*`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM; `RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — SHA-256 fixed-time compare for key material — **cheap-disproof 2026-11-01 seed hunt #143:** intentional digest compare; see hunt #142 diary.
@@ -5659,12 +5403,6 @@
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — Production rejects `DevelopmentBypassAll` when `Enabled=false` — **cheap-disproof 2026-11-01 seed hunt #143:** Production fail path; regression `When_enabled_false_and_bypass_true_in_production_returns_failure`.
 - [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy rotate always invalidates previous slot material — **cheap-disproof 2026-11-01 seed hunt #143:** `InvalidatePrevious = true` by design (#90).
 - [x] (valid-no-repro) `ApiKeyMaterialNormalizer` — comma-separated second segment replacement-char-only ignored — **cheap-disproof 2026-11-01 seed hunt #143:** per-segment normalize + masker; hunt #142 `\uFFFD` strip suite.
-
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ApplyTestActorHeaderOverrides` — governance test-actor header uses same invisible-char normalization as `X-Api-Key` — **cheap-disproof 2026-11-08 thorough hunt #144:** closed at the zone header.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.IsKeyExpired` — authentication fails when `timeProvider.GetUtcNow()` equals `ExpiresAtUtc` (`>=` boundary) — **cheap-disproof 2026-11-08 thorough hunt #144:** closed at the zone header.
-- [x] (valid-no-repro) `ApiKeyMaterialNormalizer.Normalize` — `NormalizationForm.FormC` before invisible strip may diverge on decomposed paste vs composed config — **cheap-disproof 2026-11-08 thorough hunt #144:** closed at the zone header.
-- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — masked `IsConfigured` does not re-run auth normalization on read — **cheap-disproof 2026-11-08 thorough hunt #144:** closed at the zone header.
-- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — shared material in admin and reader slots authenticates as admin when both non-expired — **cheap-disproof 2026-11-08 thorough hunt #144:** closed at the zone header.
 
 2026-10-30 thorough hunt (hit #137): promoted `(candidate)` `ApiKeyMaterialNormalizer` invisible paste monitor — embedded combining grapheme joiner (`U+034F`) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; extended invisible stripping in `ApiKeyMaterialNormalizer` (`\u034F`); regressions `When_admin_key_config_has_embedded_combining_grapheme_joiner_still_authenticates`, `Normalize_strips_embedded_combining_grapheme_joiner_from_key_material`, `GetSnapshot_treats_combining_grapheme_joiner_only_admin_slot_as_unconfigured`; cheap-disproof closed five open `(candidate)` rows from hunt #136 (`ConstantTimeKeyEquals` SHA-256 design ~225–233, `HasConfiguredKeyMaterial` whitespace-only masker ~87–88, Production bypass guard ~64–67, legacy rotate invalidate ~85, duplicate normalization hit-suite recycle); reseeded five follow-on `(candidate)` rows; scoped filter 81/83 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys from Word or browser copy paths that inject a combining grapheme joiner between visible bytes can authenticate with the same secret the admin settings screen already shows as configured.
 
@@ -5764,12 +5502,6 @@
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — either configured comma segment may authenticate during rotation — **cheap-disproof 2026-10-30 thorough hunt #136:** zero-downtime rotation design; comma-separated admin/reader regressions.
 - [x] (valid-no-repro) `AdminApiKeySettingsController.CreateRotationAuditEvent` — serializes deployment metadata only, never plaintext key — **cheap-disproof 2026-10-30 thorough hunt #136:** hunt #88 audit contract; controller audit tests.
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate headers use first substantive value — **cheap-disproof 2026-10-30 thorough hunt #136:** `When_enabled_true_and_duplicate_api_key_headers_use_first_value` and skip variants.
-
-- [ ] (candidate) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — SHA-256 fixed-time compare for key material — locus: ~225–233; input: timing-safe auth compare (reachability: constant-time monitor).
-- [ ] (candidate) `AdminApiKeySettingsService.HasConfiguredKeyMaterial` — whitespace-only slots treated as unconfigured — locus: ~87–88; input: paste-only whitespace rotate (reachability: masker segment count).
-- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — Production rejects `DevelopmentBypassAll` when `Enabled=false` — locus: ~64–67; input: production host + disabled auth (reachability: bypass guard regressions).
-- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy rotate always invalidates previous slot material — locus: ~85; input: legacy invalidate route (#90 contract).
-- [ ] (candidate) `ApiKeyMaterialNormalizer` — shared normalization on config segments and inbound headers — locus: ~151/210; input: invisible-character paste (reachability: normalization hit suite).
 
 2026-10-30 thorough hunt (hit #135): promoted `(candidate)` `ApiKeyMaterialNormalizer` invisible paste monitor — embedded Hangul filler (`U+3164`) and related filler letters (`U+115F`/`U+1160`/`U+FFA0`) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; extended invisible stripping in `ApiKeyMaterialNormalizer`; regressions `When_admin_key_config_has_embedded_hangul_filler_still_authenticates`, `Normalize_strips_embedded_hangul_filler_from_key_material`, `GetSnapshot_treats_hangul_filler_only_admin_slot_as_unconfigured`; cheap-disproof closed four sibling `(candidate)` rows from hunt #134 (`ConstantTimeKeyEquals` SHA-256 design ~225–233, `HasConfiguredKeyMaterial` whitespace-only masker ~87–88, Production bypass guard ~64–67, legacy rotate invalidate ~85); reseeded five follow-on `(candidate)` rows; scoped filter 75/77 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys from IME or document sources with invisible Hangul filler bytes can authenticate again with the visible key material the admin settings screen already shows as configured.
 
@@ -6312,16 +6044,16 @@
 - [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit `keyId` noncanonical — **cheap-disproof 2026-10-20 thorough hunt lane B:** `response.Slot` already written to audit JSON; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value` (2026-10-11).
 
 - **id:** api-key-auth
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 145
-- **bugs-found:** 31
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-10-30 — replacement character from ill-formed UTF-16 broke API key auth while admin snapshot showed configured
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -6332,6 +6064,20 @@
 - [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit `keyId` noncanonical — **cheap-disproof 2026-10-20 thorough hunt lane B:** audit uses `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`.
 - [x] (proven) `AdminApiKeySettingsController` rotation audits — API key principal name was copied onto the event, then `AuditService` stored `ActorUserId` as `unknown` because `NameIdentifier` is absent unless `ExplicitActor` is set — **hit 2026-10-09 seed hunt (seed→hit):** both settings rotate and legacy key-id rotate share `LogRotationAuditAsync`; regressions `RotateAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` and `RotateKeyIdAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` (failed first as `unknown`).
 - [x] (proven) `AdminApiKeySettingsService.GetSnapshot` / `Rotate` treat UTF-8 BOM-only `AdminKey` as configured — **hit 2026-09-27 seed hunt #53:** `HasConfiguredKeyMaterial` counted BOM-only mask segments while auth normalization left no matchable material; fixed via shared `ApiKeyMaterialNormalizer` and masker segment skip; regressions `GetSnapshot_treats_utf8_bom_only_admin_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_utf8_bom_only`, `When_admin_key_config_is_only_utf8_bom_returns_invalid_key`.
+
+- **id:** api-key-auth
+- **status:** unseeded
+- **impact:** high
+- **aliases:** API key auth; admin API key settings
+- **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
+- **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** yes
 
 2026-10-10 seed hunt (seed-only): re-read authentication matching, key normalization, expiry, rotation, and audit boundaries; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The exact picker filter passed 71 unit tests; 2 SQL-backed endpoint tests were blocked by the missing SQL Server test connection. The five existing candidates remain bounded and unproven.
 
@@ -6384,6 +6130,20 @@
 
 2026-09-26 seed hunt (seed→hit): reseeded api-key-auth; proved `Authentication:ApiKey:*` values pasted with a UTF-8 BOM prefix failed `MatchesAnyCommaSeparatedKey` while operators still saw configured slots; fixed by stripping BOM during key-material normalization in `ApiKeyAuthenticationHandler`; regression `When_admin_key_config_has_utf8_bom_prefix_still_authenticates`; 45 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
 
+- **id:** api-key-auth
+- **status:** unseeded
+- **impact:** high
+- **aliases:** API key auth; admin API key settings
+- **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
+- **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-09 seed hunt (seed→hit): API key rotation wrote the principal name into the audit event, then `AuditService` replaced `ActorUserId` with `unknown` because the principal has no `NameIdentifier`. Both rotate routes now set `ExplicitActor`.
 
 2026-10-04 seed hunt (hit): reseeded api-key-auth; proved embedded no-break space (U+00A0) in configured key material still showed configured while authentication rejected the visible key; extended `ApiKeyMaterialNormalizer` to strip non-ASCII `SpaceSeparator` characters; regressions `When_admin_key_config_has_embedded_no_break_space_still_authenticates`, `Normalize_strips_embedded_no_break_space_from_key_material`, `GetSnapshot_treats_no_break_space_only_admin_slot_as_unconfigured`; 63 scoped handler/service unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
@@ -6434,8 +6194,6 @@
 2026-09-12 seed hunt #2007 (seed-only): reseeded api-key-auth after `-Refresh`; 44 scoped ApiKey auth/settings unit tests passed; no new hunt-ready rows.
 
 ### Hypotheses
-
-- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — the legacy route accepts a valid case/whitespace-variant slot but writes the raw `keyId` into its audit payload while the service returns the canonical slot, so audit readers can see a noncanonical slot for a successful rotation — input: `POST /v1/admin/apikeys/%20readonly%20/rotate` or another route-encoded casing variant.
 - [x] (proven) `AdminApiKeySettingsController` rotation audits — API key principal name was copied onto the event, then `AuditService` stored `ActorUserId` as `unknown` because `NameIdentifier` is absent unless `ExplicitActor` is set — **hit 2026-10-09 seed hunt (seed→hit):** both settings rotate and legacy key-id rotate share `LogRotationAuditAsync`; regressions `RotateAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` and `RotateKeyIdAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` (failed first as `unknown`).
 - [x] (proven) `AdminApiKeySettingsService.GetSnapshot` / `Rotate` treat UTF-8 BOM-only `AdminKey` as configured — **hit 2026-09-27 seed hunt #53:** `HasConfiguredKeyMaterial` counted BOM-only mask segments while auth normalization left no matchable material; fixed via shared `ApiKeyMaterialNormalizer` and masker segment skip; regressions `GetSnapshot_treats_utf8_bom_only_admin_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_utf8_bom_only`, `When_admin_key_config_is_only_utf8_bom_returns_invalid_key`.
 
@@ -6683,24 +6441,12 @@
 2026-09-12 seed hunt #1868 (seed-only): reseeded api-key-auth; no proven defect this pass.
 
 ---
-
-- [ ] (candidate) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate `Authorization`-style API key headers with invisible-only first value — locus: first-wins skip; input: two `X-Api-Key` lines; reachability: proxy duplicate-header monitor.
-- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append rotation when current slot is invisible-only material — locus: `HasConfiguredKeyMaterial`; input: CGJ-only slot; reachability: rotate replace monitor.
-- [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — comma segment with only format-category paste — locus: per-segment normalize; input: `valid,sec\u200Bret`; reachability: rotation comma monitor.
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — reader slot expiry evaluated after admin match — locus: `IsKeyExpired`; input: expired admin + valid reader; reachability: dual-slot expiry monitor.
-- [ ] (candidate) `AdminApiKeySettingsController` — rotation audit never stores plaintext key — locus: `CreateRotationAuditEvent`; input: rotate response; reachability: hunt #88 audit contract monitor.
-- **hunts:** 137
-- **bugs-found:** 26
-- **last-bug:** 2026-10-30 — combining grapheme joiner paste broke API key auth while admin snapshot showed configured
+- **hunts:** 0
+- **bugs-found:** 0
+- **last-bug:** never
 ## Zone: scope-binding-middleware
 
 2026-11-03 thorough hunt (dry #88): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`review-recurrence`** is **1/3** before this record — dry **`review-recurrence`** **#56** at run-log tail). Cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#87** (regression family dry **#86** / dry **#84**) — **invalid** mixed-case `/HEALTH/` trailing slash root aggregate miss (`IsRootHealthAggregateProbe` `TrimEnd('/')` plus `OrdinalIgnoreCase` — regressions `InvokeAsync_staging_host_skips_mixed_case_root_health_aggregate_path`, `InvokeAsync_staging_host_skips_trailing_slash_root_health_path`; dry **#84**); **valid-no-repro** SCIM path casing still enters reauthentication (`ApiPathSkipSafety.SafeStartsWithSegments` `/scim` ignore-case — regression `InvokeAsync_unauthenticated_scim_path_with_uppercase_prefix_authenticates_scim_bearer`; hit **2026-10-12**); **valid-no-repro** `AllowUnscopedRouteAttribute` skips route binding by contract while guard middleware honors the same metadata (`OnActionExecutionAsync_allow_unscoped_route_metadata_skips_binding`, `InvokeAsync_staging_host_skips_allow_unscoped_route_metadata`; dry **#84**); **invalid** mixed-case `/HEALTH/LIVE/` trailing slash misses live probe skip (regressions `InvokeAsync_staging_host_skips_trailing_slash_on_health_live_path`; seed **#220**); **invalid** duplicate parseable `x-workspace-id` with tenant-bound ApiKey (`ValidateHeaderOnlyScopeEscalation_rejects_duplicate_workspace_headers_without_claim_for_api_key`; dry **#80**). Reseeded five follow-on `(candidate)` monitor rows from dry **#87** closed themes; scoped filter **169/175** (`RunAnalyzers=false`; 6 SQL integration tests skipped without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: n/a.
-
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.IsRootHealthAggregateProbe` — mixed-case `/HEALTH` aggregate may miss anonymous root health skip — locus: `OrdinalIgnoreCase`; input: `/HEALTH` (monitor dry **#88** / dry **#85** / dry **#83**).
-- [ ] (candidate) `ScopeIdentityBindingMiddleware.InvokeAsync` — authenticated JwtBearer on `/scim/v2` may skip SCIM rebind when auth type is not ScimBearer — locus: rebind before validate; input: non-ScimBearer principal (monitor dry **#88** / hit **2026-10-12**).
-- [ ] (candidate) `RouteTenantScopeBindingFilter.ShouldSkip` — `AllowCrossTenantRouteAttribute` metadata may skip binding on `{tenantId}` routes — locus: cross-tenant contract; input: cross-tenant metadata (monitor dry **#88** / seed **#216**).
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.ShouldSkip` — `/health/live/` trailing slash may fail probe skip — locus: trailing slash normalization; input: `/health/live/` (monitor dry **#88** / seed **#220**).
-- [ ] (candidate) `ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation` — duplicate parseable `x-project-id` with tenant-bound ApiKey may bypass duplicate guard — locus: duplicate guard; input: duplicate project headers (monitor dry **#88** / dry **#81**).
 
 - [x] (invalid) `ScopeResolutionGuardMiddleware.IsRootHealthAggregateProbe` — mixed-case `/HEALTH/` trailing slash may miss root aggregate skip — **cheap-disproof 2026-11-03 thorough hunt #88:** dry **#87** queue; regressions in diary above.
 - [x] (valid-no-repro) `ScopeIdentityBindingMiddleware.InvokeAsync` — lowercase `/scim/v2/users` path may skip SCIM rebind when casing differs — **cheap-disproof 2026-11-03 thorough hunt #88:** dry **#87** queue; regression `InvokeAsync_unauthenticated_scim_path_with_uppercase_prefix_authenticates_scim_bearer`.
@@ -6717,12 +6463,6 @@
 - [x] (valid-no-repro) `RouteTenantScopeBindingFilter.ShouldSkip` — `AllowUnscopedRouteAttribute` may skip `{tenantId}` binding while middleware runs TB-304 — **cheap-disproof 2026-11-03 thorough hunt #86:** unscoped metadata honored by filter and guard; regressions above.
 - [x] (invalid) `ScopeResolutionGuardMiddleware.IsPublicHealthProbePath` — mixed-case `/HEALTH/LIVE/` trailing slash may miss live probe skip — **cheap-disproof 2026-11-03 thorough hunt #86:** regressions above; seed **#220**.
 - [x] (invalid) `ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation` — duplicate parseable `x-workspace-id` with tenant-bound ApiKey may bypass duplicate guard — **cheap-disproof 2026-11-03 thorough hunt #86:** regression above; dry **#80**.
-
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.IsRootHealthAggregateProbe` — mixed-case `/HEALTH` aggregate may miss anonymous root health skip — locus: `OrdinalIgnoreCase`; input: `/HEALTH` (monitor dry **#85** / dry **#83**).
-- [ ] (candidate) `ScopeIdentityBindingMiddleware.InvokeAsync` — authenticated JwtBearer on `/scim/v2` may skip SCIM rebind when auth type is not ScimBearer — locus: rebind before validate; input: non-ScimBearer principal (monitor dry **#85** / hit **2026-10-12**).
-- [ ] (candidate) `RouteTenantScopeBindingFilter.ShouldSkip` — `AllowCrossTenantRouteAttribute` metadata may skip binding on `{tenantId}` routes — locus: cross-tenant contract; input: cross-tenant metadata (monitor dry **#85** / seed **#216**).
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.ShouldSkip` — `/health/live/` trailing slash may fail probe skip — locus: trailing slash normalization; input: `/health/live/` (monitor dry **#85** / seed **#220**).
-- [ ] (candidate) `ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation` — duplicate parseable `x-project-id` with tenant-bound ApiKey may bypass duplicate guard — locus: duplicate guard; input: duplicate project headers (monitor dry **#85** / dry **#81**).
 
 2026-11-03 thorough hunt (dry #85): cheap-disproof closed ten open `(candidate)` monitor rows (five unique themes plus duplicate reseed block from dry **#84**) — **invalid** mixed-case `/HEALTH` root aggregate miss (`IsRootHealthAggregateProbe` `OrdinalIgnoreCase` — regressions `InvokeAsync_staging_host_skips_mixed_case_root_health_aggregate_path`, `InvokeAsync_staging_host_skips_trailing_slash_root_health_path`; dry **#83** / dry **#81**); **valid-no-repro** authenticated JwtBearer on `/scim/v2` rebinds when auth type is not ScimBearer (hit **2026-10-12** — `InvokeAsync_authenticated_non_scim_principal_on_scim_path_rebinds_before_scope_validation`; dry **#83**); **valid-no-repro** `AllowCrossTenantRouteAttribute` skips route binding by contract (`OnActionExecutionAsync_allow_cross_tenant_route_metadata_skips_binding`; seed **#216**); **invalid** `/health/live/` trailing slash misses live probe skip (`InvokeAsync_staging_host_skips_trailing_slash_on_health_live_path`; seed **#220**); **invalid** duplicate parseable `x-project-id` with tenant-bound ApiKey (`ValidateHeaderOnlyScopeEscalation_rejects_duplicate_project_headers_without_claim_for_api_key`; dry **#81**). Reseeded five follow-on `(candidate)` monitor rows (deduped queue); scoped filter **169/175** (`RunAnalyzers=false`; 6 SQL integration tests fail without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: n/a.
 
@@ -6785,16 +6525,16 @@
 2026-10-11 seed hunt (seed-only): repeated the selected source and focused-test reread with no production-path churn. No fresh mechanism-backed reachable candidate met the hunt-ready bar; existing candidate lenses remain bounded and no duplicate rows were added. The scoped API assembly again reported 96 passed, 2 known stale ADR 0037 API-key expectations, and 6 SQL-backed integration tests blocked by unavailable SQL Server; no production or regression change.
 
 - **id:** scope-binding-middleware
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 88
-- **bugs-found:** 16
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-12 — authenticated non-SCIM principals bypassed SCIM rebinding on `/scim/v2/Users`
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -7117,12 +6857,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-03 seed hunt #137:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white four pointed crown (`U+25F4`) glued after `Bearer` — **cheap-disproof 2026-11-03 seed hunt #137:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white four pointed crown (`U+25F4`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#137**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black four pointed crown (`U+25F5`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#137**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: step-up freshness; reachability: session monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: trial token monitor (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-03 seed hunt (seed→hit #136): promoted comma-folded `Authorization` with white four pointed star (`U+25F1`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25F1`; regression `HandleAuthenticateAsync_succeeds_when_u25f1_white_four_pointed_star_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#135** (black four pointed star `U+25F2` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **211/211** `ScimBearerAuthenticationHandlerTests`. Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25F1 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white four pointed star (`U+25F1`) placeholder after `Bearer` trips mix guard — **hit 2026-11-03 seed hunt #136:** regression `HandleAuthenticateAsync_succeeds_when_u25f1_white_four_pointed_star_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7130,10 +6864,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-03 seed hunt #136:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-03 seed hunt #136:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black four pointed star (`U+25F2`) glued after `Bearer` — **cheap-disproof 2026-11-03 seed hunt #136:** promoted hunt **#137**.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white four pointed crown (`U+25F4`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#136**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-03 seed hunt (seed→hit #135): promoted comma-folded `Authorization` with white star (`U+25F0`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25F0`; regression `HandleAuthenticateAsync_succeeds_when_u25f0_white_star_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#134** (white four pointed star `U+25F1` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **210/210** `ScimBearerAuthenticationHandlerTests`. Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25F0 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7183,12 +6913,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-03 seed hunt #131:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white down-pointing triangle (`U+25ED`) glued after `Bearer` — **cheap-disproof 2026-11-03 seed hunt #131:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white down-pointing triangle (`U+25ED`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#131**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white left-pointing triangle (`U+25EE`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#131**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: step-up freshness; reachability: session monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: trial token monitor (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-03 seed hunt (seed→hit #130): promoted comma-folded `Authorization` with black left-pointing small triangle (`U+25EB`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25EB`; regression `HandleAuthenticateAsync_succeeds_when_u25eb_black_left_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#129** (white up-pointing triangle `U+25EC` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **205/205** `ScimBearerAuthenticationHandlerTests`. Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25EB placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — black left-pointing small triangle (`U+25EB`) placeholder after `Bearer` trips mix guard — **hit 2026-11-03 seed hunt #130:** regression `HandleAuthenticateAsync_succeeds_when_u25eb_black_left_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7196,12 +6920,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-03 seed hunt #130:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-03 seed hunt #130:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white up-pointing triangle (`U+25EC`) glued after `Bearer` — **cheap-disproof 2026-11-03 seed hunt #130:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white up-pointing triangle (`U+25EC`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#130**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white down-pointing triangle (`U+25ED`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#130**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-03 seed hunt (seed→hit #129): promoted comma-folded `Authorization` with black down-pointing small triangle (`U+25EA`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25EA`; regression `HandleAuthenticateAsync_succeeds_when_u25ea_black_down_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#128** (black left-pointing small triangle `U+25EB` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **204/204** `ScimBearerAuthenticationHandlerTests`. Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25EA placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7211,12 +6929,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-03 seed hunt #129:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black left-pointing small triangle (`U+25EB`) glued after `Bearer` — **cheap-disproof 2026-11-03 seed hunt #129:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black left-pointing small triangle (`U+25EB`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#129**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white up-pointing triangle (`U+25EC`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#129**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: step-up freshness; reachability: session monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: trial token monitor (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #128): promoted comma-folded `Authorization` with black right-pointing small triangle (`U+25E9`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25E9`; regression `HandleAuthenticateAsync_succeeds_when_u25e9_black_right_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#127** (black down-pointing small triangle `U+25EA` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **203/203** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25E9 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — black right-pointing small triangle (`U+25E9`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #128:** regression `HandleAuthenticateAsync_succeeds_when_u25e9_black_right_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7224,12 +6936,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #128:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #128:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black down-pointing small triangle (`U+25EA`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #128:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black down-pointing small triangle (`U+25EA`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#128**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black left-pointing small triangle (`U+25EB`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#128**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #127): promoted comma-folded `Authorization` with black up-pointing small triangle (`U+25E8`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25E8`; regression `HandleAuthenticateAsync_succeeds_when_u25e8_black_up_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#126** (black right-pointing small triangle `U+25E9` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **202/202** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25E8 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7239,12 +6945,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #127:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black right-pointing small triangle (`U+25E9`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #127:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black right-pointing small triangle (`U+25E9`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#127**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black down-pointing small triangle (`U+25EA`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#127**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #126): promoted comma-folded `Authorization` with white down-pointing small triangle (`U+25E7`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25E7`; regression `HandleAuthenticateAsync_succeeds_when_u25e7_white_down_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#125** (black up-pointing small triangle `U+25E8` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **201/201** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25E7 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white down-pointing small triangle (`U+25E7`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #126:** regression `HandleAuthenticateAsync_succeeds_when_u25e7_white_down_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7252,12 +6952,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #126:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #126:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black up-pointing small triangle (`U+25E8`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #126:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black up-pointing small triangle (`U+25E8`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#126**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black right-pointing small triangle (`U+25E9`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#126**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #125): promoted comma-folded `Authorization` with white left-pointing small triangle (`U+25E6`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25E6`; regression `HandleAuthenticateAsync_succeeds_when_u25e6_white_left_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#124** (white down-pointing small triangle `U+25E7` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **200/200** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25E6 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7267,12 +6961,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #125:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white down-pointing small triangle (`U+25E7`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #125:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white down-pointing small triangle (`U+25E7`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#125**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black up-pointing small triangle (`U+25E8`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#125**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #124): promoted comma-folded `Authorization` with white right-pointing small triangle (`U+25E5`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25E5`; regression `HandleAuthenticateAsync_succeeds_when_u25e5_white_right_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#123** (white left-pointing small triangle `U+25E6` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **199/199** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25E5 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white right-pointing small triangle (`U+25E5`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #124:** regression `HandleAuthenticateAsync_succeeds_when_u25e5_white_right_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7280,12 +6968,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #124:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #124:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white left-pointing small triangle (`U+25E6`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #124:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white left-pointing small triangle (`U+25E6`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#124**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white down-pointing small triangle (`U+25E7`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#124**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #123): promoted comma-folded `Authorization` with white up-pointing small triangle (`U+25E4`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25E4`; regression `HandleAuthenticateAsync_succeeds_when_u25e4_white_up_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#122** (white right-pointing small triangle `U+25E5` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **198/198** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25E4 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7295,12 +6977,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #123:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white right-pointing small triangle (`U+25E5`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #123:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white right-pointing small triangle (`U+25E5`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#123**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white left-pointing small triangle (`U+25E6`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#123**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #122): promoted comma-folded `Authorization` with black square with rounded corners (`U+25A2`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25A2`; regression `HandleAuthenticateAsync_succeeds_when_u25a2_black_square_with_rounded_corners_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#121** (white up-pointing small triangle `U+25E4` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **197/197** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25A2 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — black square with rounded corners (`U+25A2`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #122:** regression `HandleAuthenticateAsync_succeeds_when_u25a2_black_square_with_rounded_corners_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7308,12 +6984,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #122:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #122:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white up-pointing small triangle (`U+25E4`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #122:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white up-pointing small triangle (`U+25E4`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#122**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white right-pointing small triangle (`U+25E5`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#122**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #121): promoted comma-folded `Authorization` with white square containing black small square (`U+25A3`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25A3`; regression `HandleAuthenticateAsync_succeeds_when_u25a3_white_square_containing_black_small_square_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#120** (black square with rounded corners `U+25A2` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **196/196** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25A3 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7323,12 +6993,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #121:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black square with rounded corners (`U+25A2`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #121:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black square with rounded corners (`U+25A2`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#121**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white up-pointing small triangle (`U+25E4`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#121**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #120): promoted comma-folded `Authorization` with white square with horizontal bisecting line (`U+25A4`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25A4`; regression `HandleAuthenticateAsync_succeeds_when_u25a4_white_square_with_horizontal_bisecting_line_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#119** (white square containing black small square `U+25A3` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **195/195** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25A4 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white square with horizontal bisecting line (`U+25A4`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #120:** regression `HandleAuthenticateAsync_succeeds_when_u25a4_white_square_with_horizontal_bisecting_line_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7336,12 +7000,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #120:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #120:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white square containing black small square (`U+25A3`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #120:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square containing black small square (`U+25A3`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#120**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black square with rounded corners (`U+25A2`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#120**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #119): promoted comma-folded `Authorization` with white square with vertical bisecting line (`U+25A5`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25A5`; regression `HandleAuthenticateAsync_succeeds_when_u25a5_white_square_with_vertical_bisecting_line_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#118** (white square with horizontal bisecting line `U+25A4` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **194/194** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25A5 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7351,12 +7009,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #119:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white square with horizontal bisecting line (`U+25A4`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #119:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square with horizontal bisecting line (`U+25A4`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#119**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square containing black small square (`U+25A3`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#119**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #118): promoted comma-folded `Authorization` with square with orthogonal crosshatch fill (`U+25A6`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25A6`; regression `HandleAuthenticateAsync_succeeds_when_u25a6_square_with_orthogonal_crosshatch_fill_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#117** (white square with vertical bisecting line `U+25A5` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **193/193** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25A6 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — square with orthogonal crosshatch fill (`U+25A6`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #118:** regression `HandleAuthenticateAsync_succeeds_when_u25a6_square_with_orthogonal_crosshatch_fill_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7364,12 +7016,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #118:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #118:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white square with vertical bisecting line (`U+25A5`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #118:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square with vertical bisecting line (`U+25A5`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#118**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square with horizontal bisecting line (`U+25A4`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#118**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #117): promoted comma-folded `Authorization` with white square with upper left quadrant (`U+25A7`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25A7`; regression `HandleAuthenticateAsync_succeeds_when_u25a7_white_square_with_upper_left_quadrant_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#116** (square with orthogonal crosshatch fill `U+25A6` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **192/192** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25A7 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7379,12 +7025,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #117:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — square with orthogonal crosshatch fill (`U+25A6`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #117:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — square with orthogonal crosshatch fill (`U+25A6`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#117**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square with vertical bisecting line (`U+25A5`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#117**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #116): promoted comma-folded `Authorization` with white square with lower left quadrant (`U+25A8`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25A8`; regression `HandleAuthenticateAsync_succeeds_when_u25a8_white_square_with_lower_left_quadrant_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#115** (white square with upper left quadrant `U+25A7` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **191/191** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25A8 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white square with lower left quadrant (`U+25A8`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #116:** regression `HandleAuthenticateAsync_succeeds_when_u25a8_white_square_with_lower_left_quadrant_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7392,12 +7032,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #116:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #116:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white square with upper left quadrant (`U+25A7`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #116:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square with upper left quadrant (`U+25A7`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#116**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — square with orthogonal crosshatch fill (`U+25A6`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#116**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #115): promoted comma-folded `Authorization` with white square with upper right quadrant (`U+25A9`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25A9`; regression `HandleAuthenticateAsync_succeeds_when_u25a9_white_square_with_upper_right_quadrant_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#114** (white square with lower left quadrant `U+25A8` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **190/190** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25A9 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7407,12 +7041,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #115:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white square with lower left quadrant (`U+25A8`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #115:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square with lower left quadrant (`U+25A8`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#115**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square with upper left quadrant (`U+25A7`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#115**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #114): promoted comma-folded `Authorization` with north west arrow (`U+25BB`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25BB`; regression `HandleAuthenticateAsync_succeeds_when_u25bb_north_west_arrow_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#113** (white square with upper right quadrant `U+25A9` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **189/189** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25BB placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — north west arrow (`U+25BB`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #114:** regression `HandleAuthenticateAsync_succeeds_when_u25bb_north_west_arrow_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7420,12 +7048,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #114:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #114:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white square with upper right quadrant (`U+25A9`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #114:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square with upper right quadrant (`U+25A9`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#114**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square with lower left quadrant (`U+25A8`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#114**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #113): promoted comma-folded `Authorization` with white square with lower right quadrant (`U+25BA`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25BA`; regression `HandleAuthenticateAsync_succeeds_when_u25ba_white_square_with_lower_right_quadrant_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#112** (north west arrow `U+25BB` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **188/188** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25BA placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7435,12 +7057,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #113:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — north west arrow (`U+25BB`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #113:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — north west arrow (`U+25BB`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#113**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square with upper right quadrant (`U+25A9`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#113**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #112): promoted comma-folded `Authorization` with north east arrow (`U+25B8`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25B8`; regression `HandleAuthenticateAsync_succeeds_when_u25b8_north_east_arrow_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#111** (white square with lower right quadrant `U+25BA` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **187/187** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25B8 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — north east arrow (`U+25B8`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #112:** regression `HandleAuthenticateAsync_succeeds_when_u25b8_north_east_arrow_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7448,12 +7064,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #112:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #112:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white square with lower right quadrant (`U+25BA`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #112:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square with lower right quadrant (`U+25BA`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#112**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — north west arrow (`U+25BB`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#112**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #111): promoted comma-folded `Authorization` with white parallelogram (`U+25B9`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25B9`; regression `HandleAuthenticateAsync_succeeds_when_u25b9_white_parallelogram_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#110** (north east arrow `U+25B8` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **186/186** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25B9 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7463,12 +7073,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #111:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — north east arrow (`U+25B8`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #111:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — north east arrow (`U+25B8`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#111**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square with lower right quadrant (`U+25BA`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#111**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #110): promoted comma-folded `Authorization` with black parallelogram (`U+25B1`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25B1`; regression `HandleAuthenticateAsync_succeeds_when_u25b1_black_parallelogram_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#109** (white parallelogram `U+25B9` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **185/185** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25B1 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — black parallelogram (`U+25B1`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #110:** regression `HandleAuthenticateAsync_succeeds_when_u25b1_black_parallelogram_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7476,12 +7080,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #110:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #110:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white parallelogram (`U+25B9`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #110:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white parallelogram (`U+25B9`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#110**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — north east arrow (`U+25B8`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#110**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #109): promoted comma-folded `Authorization` with white square with upper left quadrant (`U+25B0`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25B0`; regression `HandleAuthenticateAsync_succeeds_when_u25b0_white_square_with_upper_left_quadrant_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#108** (black parallelogram `U+25B1` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **184/184** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25B0 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7491,12 +7089,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #109:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black parallelogram (`U+25B1`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #109:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black parallelogram (`U+25B1`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#109**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white parallelogram (`U+25B9`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#109**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #108): promoted comma-folded `Authorization` with white vertical rectangle (`U+25AF`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25AF`; regression `HandleAuthenticateAsync_succeeds_when_u25af_white_vertical_rectangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#107** (white square with upper left quadrant `U+25B0` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **183/183** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25AF placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white vertical rectangle (`U+25AF`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #108:** regression `HandleAuthenticateAsync_succeeds_when_u25af_white_vertical_rectangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7504,12 +7096,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #108:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #108:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white square with upper left quadrant (`U+25B0`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #108:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square with upper left quadrant (`U+25B0`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#108**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black parallelogram (`U+25B1`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#108**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #107): promoted comma-folded `Authorization` with black vertical rectangle (`U+25AE`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25AE`; regression `HandleAuthenticateAsync_succeeds_when_u25ae_black_vertical_rectangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#106** (white vertical rectangle `U+25AF` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **182/182** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25AE placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7519,12 +7105,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #107:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white vertical rectangle (`U+25AF`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #107:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white vertical rectangle (`U+25AF`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#107**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white square with upper left quadrant (`U+25B0`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#107**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #106): promoted comma-folded `Authorization` with white rectangle (`U+25AD`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25AD`; regression `HandleAuthenticateAsync_succeeds_when_u25ad_white_rectangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#105** (black vertical rectangle `U+25AE` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **181/181** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25AD placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white rectangle (`U+25AD`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #106:** regression `HandleAuthenticateAsync_succeeds_when_u25ad_white_rectangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7532,12 +7112,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #106:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #106:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black vertical rectangle (`U+25AE`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #106:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black vertical rectangle (`U+25AE`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#106**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white vertical rectangle (`U+25AF`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#106**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #105): promoted comma-folded `Authorization` with black rectangle (`U+25AC`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25AC`; regression `HandleAuthenticateAsync_succeeds_when_u25ac_black_rectangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#104** (white rectangle `U+25AD` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **180/180** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25AC placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7547,12 +7121,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #105:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white rectangle (`U+25AD`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #105:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white rectangle (`U+25AD`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#105**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black vertical rectangle (`U+25AE`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#105**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #104): promoted comma-folded `Authorization` with white down-pointing triangle (`U+25BD`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25BD`; regression `HandleAuthenticateAsync_succeeds_when_u25bd_white_down_pointing_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#103** (black rectangle `U+25AC` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **179/179** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25BD placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white down-pointing triangle (`U+25BD`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #104:** regression `HandleAuthenticateAsync_succeeds_when_u25bd_white_down_pointing_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7560,12 +7128,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #104:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #104:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black rectangle (`U+25AC`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #104:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black rectangle (`U+25AC`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#104**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white rectangle (`U+25AD`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#104**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #103): promoted comma-folded `Authorization` with circle with vertical fill (`U+25CD`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25CD`; regression `HandleAuthenticateAsync_succeeds_when_u25cd_circle_with_vertical_fill_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#102** (white down-pointing triangle `U+25BD` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **178/178** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25CD placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7575,12 +7137,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #103:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white down-pointing triangle (`U+25BD`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #103:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white down-pointing triangle (`U+25BD`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#103**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black rectangle (`U+25AC`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#103**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #102): promoted comma-folded `Authorization` with white up-pointing triangle (`U+25B3`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25B3`; regression `HandleAuthenticateAsync_succeeds_when_u25b3_white_up_pointing_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#101** (circle with vertical fill `U+25CD` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **177/177** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25B3 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white up-pointing triangle (`U+25B3`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #102:** regression `HandleAuthenticateAsync_succeeds_when_u25b3_white_up_pointing_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7588,12 +7144,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #102:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #102:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — circle with vertical fill (`U+25CD`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #102:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — circle with vertical fill (`U+25CD`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#102**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white down-pointing triangle (`U+25BD`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#102**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #101): promoted comma-folded `Authorization` with black lower right triangle (`U+25CA`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25CA`; regression `HandleAuthenticateAsync_succeeds_when_u25ca_black_lower_right_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#100** (`U+25CB` white circle already allowlisted — regression `HandleAuthenticateAsync_succeeds_when_u25cb_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **176/176** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25CA placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7603,12 +7153,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — **cheap-disproof 2026-11-02 seed hunt #101:** regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #101:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white up-pointing triangle (`U+25B3`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#101**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — circle with vertical fill (`U+25CD`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#101**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #100): promoted comma-folded `Authorization` with white lower right triangle (`U+25C9`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25C9`; regression `HandleAuthenticateAsync_succeeds_when_u25c9_white_lower_right_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#99** (black lower right triangle `U+25CA` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **175/175** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25C9 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white lower right triangle (`U+25C9`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #100:** regression `HandleAuthenticateAsync_succeeds_when_u25c9_white_lower_right_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7616,12 +7160,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #100:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #100:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black lower right triangle (`U+25CA`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #100:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black lower right triangle (`U+25CA`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#100**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white lower left triangle (`U+25CB`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#100**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #99): promoted comma-folded `Authorization` with black lower left triangle (`U+25C8`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25C8`; regression `HandleAuthenticateAsync_succeeds_when_u25c8_black_lower_left_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#98** (white lower right triangle `U+25C9` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **174/174** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25C8 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7631,12 +7169,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #99:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white lower right triangle (`U+25C9`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #99:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white lower right triangle (`U+25C9`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#99**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black lower right triangle (`U+25CA`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#99**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #98): promoted comma-folded `Authorization` with white upper right triangle (`U+25C5`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25C5`; regression `HandleAuthenticateAsync_succeeds_when_u25c5_white_upper_right_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#97** (black lower left triangle `U+25C8` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **173/173** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25C5 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white upper right triangle (`U+25C5`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #98:** regression `HandleAuthenticateAsync_succeeds_when_u25c5_white_upper_right_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7644,12 +7176,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #98:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #98:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black lower left triangle (`U+25C8`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #98:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black lower left triangle (`U+25C8`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#98**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white lower right triangle (`U+25C9`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#98**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #97): promoted comma-folded `Authorization` with black upper right triangle (`U+25C4`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25C4`; regression `HandleAuthenticateAsync_succeeds_when_u25c4_black_upper_right_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#96** (white upper right triangle `U+25C5` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **172/172** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25C4 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7659,12 +7185,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #97:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white upper right triangle (`U+25C5`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #97:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white upper right triangle (`U+25C5`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#97**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black lower left triangle (`U+25C8`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#97**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #96): promoted comma-folded `Authorization` with white upper left triangle (`U+25C3`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25C3`; regression `HandleAuthenticateAsync_succeeds_when_u25c3_white_upper_left_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#95** (black upper right triangle `U+25C4` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **171/171** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25C3 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white upper left triangle (`U+25C3`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #96:** regression `HandleAuthenticateAsync_succeeds_when_u25c3_white_upper_left_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7672,12 +7192,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #96:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #96:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black upper right triangle (`U+25C4`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #96:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black upper right triangle (`U+25C4`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#96**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white upper right triangle (`U+25C5`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#96**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #95): promoted comma-folded `Authorization` with black upper left triangle (`U+25C2`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25C2`; regression `HandleAuthenticateAsync_succeeds_when_u25c2_black_upper_left_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#94** (white upper left triangle `U+25C3` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **170/170** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25C2 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7687,12 +7201,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #95:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white upper left triangle (`U+25C3`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #95:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white upper left triangle (`U+25C3`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#95**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black upper right triangle (`U+25C4`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#95**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #94): promoted comma-folded `Authorization` with white left-pointing small triangle (`U+25C1`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25C1`; regression `HandleAuthenticateAsync_succeeds_when_u25c1_white_left_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#93** (black upper left triangle `U+25C2` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **169/169** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25C1 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white left-pointing small triangle (`U+25C1`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #94:** regression `HandleAuthenticateAsync_succeeds_when_u25c1_white_left_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7700,12 +7208,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #94:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #94:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black upper left triangle (`U+25C2`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #94:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black upper left triangle (`U+25C2`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#94**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white upper left triangle (`U+25C3`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#94**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #93): promoted comma-folded `Authorization` with black left-pointing small triangle (`U+25C0`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25C0`; regression `HandleAuthenticateAsync_succeeds_when_u25c0_black_left_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#92** (white left-pointing small triangle `U+25C1` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **168/168** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25C0 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7715,12 +7217,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #93:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white left-pointing small triangle (`U+25C1`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #93:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white left-pointing small triangle (`U+25C1`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#93**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black upper left triangle (`U+25C2`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#93**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #92): promoted comma-folded `Authorization` with white down-pointing small triangle (`U+25BF`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25BF`; regression `HandleAuthenticateAsync_succeeds_when_u25bf_white_down_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#91** (black left-pointing small triangle `U+25C0` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **167/167** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25BF placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white down-pointing small triangle (`U+25BF`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #92:** regression `HandleAuthenticateAsync_succeeds_when_u25bf_white_down_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7728,12 +7224,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #92:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #92:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black left-pointing small triangle (`U+25C0`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #92:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black left-pointing small triangle (`U+25C0`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#92**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white left-pointing small triangle (`U+25C1`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#92**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #91): promoted comma-folded `Authorization` with black down-pointing small triangle (`U+25BE`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25BE`; regression `HandleAuthenticateAsync_succeeds_when_u25be_black_down_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#90** (white down-pointing small triangle `U+25BF` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **166/166** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25BE placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7743,12 +7233,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #91:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white down-pointing small triangle (`U+25BF`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #91:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white down-pointing small triangle (`U+25BF`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#91**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black left-pointing small triangle (`U+25C0`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#91**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #90): promoted comma-folded `Authorization` with white right-pointing small triangle (`U+25B7`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25B7`; regression `HandleAuthenticateAsync_succeeds_when_u25b7_white_right_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#89** (black down-pointing small triangle `U+25BE` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **165/165** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25B7 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white right-pointing small triangle (`U+25B7`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #90:** regression `HandleAuthenticateAsync_succeeds_when_u25b7_white_right_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7756,12 +7240,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #90:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #90:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black down-pointing small triangle (`U+25BE`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #90:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black down-pointing small triangle (`U+25BE`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#90**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white down-pointing small triangle (`U+25BF`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#90**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #89): promoted comma-folded `Authorization` with black right-pointing small triangle (`U+25B6`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25B6`; regression `HandleAuthenticateAsync_succeeds_when_u25b6_black_right_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#88** (white right-pointing small triangle `U+25B7` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **164/164** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25B6 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7771,12 +7249,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #89:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white right-pointing small triangle (`U+25B7`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #89:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white right-pointing small triangle (`U+25B7`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#89**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black down-pointing small triangle (`U+25BE`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#89**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #88): promoted comma-folded `Authorization` with white up-pointing small triangle (`U+25B5`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25B5`; regression `HandleAuthenticateAsync_succeeds_when_u25b5_white_up_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#87** (black right-pointing small triangle `U+25B6` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **163/163** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25B5 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white up-pointing small triangle (`U+25B5`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #88:** regression `HandleAuthenticateAsync_succeeds_when_u25b5_white_up_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7784,12 +7256,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #88:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #88:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black right-pointing small triangle (`U+25B6`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #88:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black right-pointing small triangle (`U+25B6`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#88**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white right-pointing small triangle (`U+25B7`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#88**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #87): promoted comma-folded `Authorization` with black up-pointing small triangle (`U+25B4`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25B4`; regression `HandleAuthenticateAsync_succeeds_when_u25b4_black_up_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#86** (white up-pointing small triangle `U+25B5` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **162/162** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25B4 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7799,12 +7265,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #87:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white up-pointing small triangle (`U+25B5`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #87:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white up-pointing small triangle (`U+25B5`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#87**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black right-pointing small triangle (`U+25B6`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#87**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #86): promoted comma-folded `Authorization` with dotted circle (`U+25CC`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25CC`; regression `HandleAuthenticateAsync_succeeds_when_u25cc_dotted_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#85** (black up-pointing small triangle `U+25B4` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **161/161** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25CC placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — dotted circle (`U+25CC`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #86:** regression `HandleAuthenticateAsync_succeeds_when_u25cc_dotted_circle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7812,12 +7272,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #86:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #86:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — black up-pointing small triangle (`U+25B4`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #86:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black up-pointing small triangle (`U+25B4`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#86**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — white up-pointing small triangle (`U+25B5`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#86**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #85): promoted comma-folded `Authorization` with dotted lower half circle (`U+25E3`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25E3`; regression `HandleAuthenticateAsync_succeeds_when_u25e3_dotted_lower_half_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#84** (dotted circle `U+25CC` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **160/160** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25E3 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7827,12 +7281,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #85:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — dotted circle (`U+25CC`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #85:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — dotted circle (`U+25CC`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#85**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — black up-pointing small triangle (`U+25B4`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#85**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #84): promoted comma-folded `Authorization` with dotted upper half circle (`U+25E2`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25E2`; regression `HandleAuthenticateAsync_succeeds_when_u25e2_dotted_upper_half_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#83** (dotted lower half circle `U+25E3` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **159/159** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25E2 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — dotted upper half circle (`U+25E2`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #84:** regression `HandleAuthenticateAsync_succeeds_when_u25e2_dotted_upper_half_circle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7840,12 +7288,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #84:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #84:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — dotted lower half circle (`U+25E3`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #84:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — dotted lower half circle (`U+25E3`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#84**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — dotted circle (`U+25CC`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#84**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #83): promoted comma-folded `Authorization` with dotted left half circle (`U+25E1`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25E1`; regression `HandleAuthenticateAsync_succeeds_when_u25e1_dotted_left_half_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#82** (dotted upper half circle `U+25E2` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **158/158** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25E1 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7855,12 +7297,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #83:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — dotted upper half circle (`U+25E2`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #83:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — dotted upper half circle (`U+25E2`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#83**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — dotted lower half circle (`U+25E3`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#83**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #82): promoted comma-folded `Authorization` with dotted right half circle (`U+25E0`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25E0`; regression `HandleAuthenticateAsync_succeeds_when_u25e0_dotted_right_half_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#81** (dotted left half circle `U+25E1` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **157/157** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25E0 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — dotted right half circle (`U+25E0`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #82:** regression `HandleAuthenticateAsync_succeeds_when_u25e0_dotted_right_half_circle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7868,12 +7304,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #82:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #82:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — dotted left half circle (`U+25E1`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #82:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — dotted left half circle (`U+25E1`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#82**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — dotted upper half circle (`U+25E2`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#82**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #81): promoted comma-folded `Authorization` with lower right quadrant inverse white circle (`U+25DF`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25DF`; regression `HandleAuthenticateAsync_succeeds_when_u25df_lower_right_quadrant_inverse_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#80** (dotted right half circle `U+25E0` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **156/156** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25DF placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7883,12 +7313,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #81:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — dotted right half circle (`U+25E0`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #81:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — dotted right half circle (`U+25E0`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#81**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — dotted left half circle (`U+25E1`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#81**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #80): promoted comma-folded `Authorization` with lower left quadrant inverse white circle (`U+25DE`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25DE`; regression `HandleAuthenticateAsync_succeeds_when_u25de_lower_left_quadrant_inverse_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#79** (lower right quadrant inverse white circle `U+25DF` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **155/155** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25DE placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — lower left quadrant inverse white circle (`U+25DE`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #80:** regression `HandleAuthenticateAsync_succeeds_when_u25de_lower_left_quadrant_inverse_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7896,12 +7320,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #80:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #80:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — lower right quadrant inverse white circle (`U+25DF`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #80:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower right quadrant inverse white circle (`U+25DF`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#80**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — dotted right half circle (`U+25E0`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#80**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #79): promoted comma-folded `Authorization` with upper right quadrant inverse white circle (`U+25DD`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25DD`; regression `HandleAuthenticateAsync_succeeds_when_u25dd_upper_right_quadrant_inverse_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#78** (lower left quadrant inverse white circle `U+25DE` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **154/154** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25DD placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7911,12 +7329,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #79:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — lower left quadrant inverse white circle (`U+25DE`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #79:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower left quadrant inverse white circle (`U+25DE`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#79**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower right quadrant inverse white circle (`U+25DF`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#79**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #78): promoted comma-folded `Authorization` with upper left quadrant inverse white circle (`U+25DC`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25DC`; regression `HandleAuthenticateAsync_succeeds_when_u25dc_upper_left_quadrant_inverse_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#77** (upper right quadrant inverse white circle `U+25DD` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **153/153** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25DC placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — upper left quadrant inverse white circle (`U+25DC`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #78:** regression `HandleAuthenticateAsync_succeeds_when_u25dc_upper_left_quadrant_inverse_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7924,12 +7336,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #78:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #78:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — upper right quadrant inverse white circle (`U+25DD`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #78:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — upper right quadrant inverse white circle (`U+25DD`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#78**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower left quadrant inverse white circle (`U+25DE`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#78**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #77): promoted comma-folded `Authorization` with lower half inverse white circle (`U+25DB`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25DB`; regression `HandleAuthenticateAsync_succeeds_when_u25db_lower_half_inverse_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#76** (upper left quadrant inverse white circle `U+25DC` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **152/152** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25DB placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7939,12 +7345,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #77:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — upper left quadrant inverse white circle (`U+25DC`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #77:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — upper left quadrant inverse white circle (`U+25DC`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#77**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — upper right quadrant inverse white circle (`U+25DD`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#77**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-02 seed hunt (seed→hit #76): promoted comma-folded `Authorization` with upper half inverse white circle (`U+25DA`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25DA`; regression `HandleAuthenticateAsync_succeeds_when_u25da_upper_half_inverse_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#75** (lower half inverse white circle `U+25DB` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **151/151** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25DA placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — upper half inverse white circle (`U+25DA`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #76:** regression `HandleAuthenticateAsync_succeeds_when_u25da_upper_half_inverse_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7952,12 +7352,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #76:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #76:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — lower half inverse white circle (`U+25DB`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #76:** deferred; monitor reseed below.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower half inverse white circle (`U+25DB`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#76**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — upper left quadrant inverse white circle (`U+25DC`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#76**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
 
 2026-11-02 seed hunt (seed→hit #75): promoted comma-folded `Authorization` with inverse white square (`U+25D9`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25D9`; regression `HandleAuthenticateAsync_succeeds_when_u25d9_inverse_white_square_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#74** (upper half inverse white circle `U+25DA` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **150/150** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25D9 placeholder before a valid token on the JwtBearer pilot path.
 
@@ -7967,12 +7361,6 @@
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #75:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 - [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — upper half inverse white circle (`U+25DA`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #75:** deferred; monitor reseed below.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — upper half inverse white circle (`U+25DA`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#75**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower half inverse white circle (`U+25DB`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#75**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
-
 2026-11-01 seed hunt (seed→hit #74): promoted comma-folded `Authorization` with inverse bullet (`U+25D7`) and inverse white circle (`U+25D8`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+25D7` and `U+25D8`; regressions `HandleAuthenticateAsync_succeeds_when_u25d7_inverse_bullet_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_u25d8_inverse_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed **#73** (latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **149/149** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25D7/U+25D8 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — inverse bullet (`U+25D7`) placeholder after `Bearer` trips mix guard — **hit 2026-11-01 seed hunt #74:** regression `HandleAuthenticateAsync_succeeds_when_u25d7_inverse_bullet_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7981,12 +7369,6 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-01 seed hunt #74:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-01 seed hunt #74:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — inverse white square (`U+25D9`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#74**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — upper half inverse white circle (`U+25DA`) glued after `Bearer` — locus: dash normalization; reachability: proxy comma-fold monitor (seed **#74**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
-
 2026-11-01 seed hunt (seed→hit #73): promoted comma-folded `Authorization` with circle with lower left quadrant black (`U+25D5`) and circle with lower right quadrant black (`U+25D6`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+25D5` and `U+25D6`; regressions `HandleAuthenticateAsync_succeeds_when_u25d5_circle_with_lower_left_quadrant_black_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_u25d6_circle_with_lower_right_quadrant_black_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed **#72** (plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; missing auth-version on local Guid `sub` — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **147/147** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25D5/U+25D6 circle placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — circle with lower left quadrant black (`U+25D5`) placeholder after `Bearer` trips mix guard — **hit 2026-11-01 seed hunt #73:** regression `HandleAuthenticateAsync_succeeds_when_u25d5_circle_with_lower_left_quadrant_black_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7994,12 +7376,6 @@
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — **cheap-disproof 2026-11-01 seed hunt #73:** regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`.
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — **cheap-disproof 2026-11-01 seed hunt #73:** regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-01 seed hunt #73:** regression `Apply_when_not_saml_authentication_type_is_noop`.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — inverse bullet (`U+25D7`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#73**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — inverse white circle (`U+25D8`) glued after `Bearer` — locus: dash normalization; reachability: proxy comma-fold monitor (seed **#73**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
 
 2026-11-01 seed hunt (seed→hit #72): promoted comma-folded `Authorization` with circle with upper half black (`U+25D3`) and circle with upper right quadrant black (`U+25D4`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+25D3` and `U+25D4`; regressions `HandleAuthenticateAsync_succeeds_when_u25d3_circle_with_upper_half_black_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_u25d4_circle_with_upper_right_quadrant_black_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed **#71** (latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; twenty-four-hour trial lifetime clamp — regression `IssueAccessToken_clamps_requested_access_token_lifetime_above_twenty_four_hours`); reseeded five follow-on `(candidate)` rows; scoped **145/145** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25D3/U+25D4 circle placeholder before a valid token on the JwtBearer pilot path.
 
@@ -8333,12 +7709,6 @@
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — empty-string role rejected before lifetime clamp — **cheap-disproof 2026-10-31 seed hunt #42:** regression `IssueAccessToken_throws_when_role_is_empty_string`.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — promotes `oid` from configured source when direct claim absent — **cheap-disproof 2026-10-31 seed hunt #42:** regression `Apply_promotes_opaque_directory_object_identifier_onto_oid`.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings up light horizontal (`U+2575`) glued after `Bearer` — locus: placeholder set; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings heavy down horizontal (`U+2576`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — fractional-string `iat` when `auth_time` absent — locus: iat fallback fail-closed; reachability: step-up monitor.
-- [ ] (candidate) `LocalTrialJwtIssuer` — null auth-version omits claim — locus: optional claim; reachability: hunt #12 monitor (existing regression).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — promotes scope claims when source type differs by case — locus: inbound promotion; reachability: SAML monitor (existing regression).
-
 2026-10-31 seed hunt (seed→hit #41): promoted comma-folded `Authorization` with box drawings heavy triple dash vertical (`U+2507`) and light quadruple dash vertical (`U+2508`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2507` and `U+2508`; regressions `HandleAuthenticateAsync_succeeds_when_box_drawings_heavy_triple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_box_drawings_light_quadruple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #40 (whitespace-only `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_whitespace_iat_is_present_without_auth_time`; empty-string email via `IssueAccessToken_throws_when_email_is_empty_string`; conflicting direct `oid` via existing `Apply_strips_conflicting_direct_oid_claims_when_idp_emits_two_distinct_values`); reseeded five follow-on `(candidate)` rows; regression filter 3/3 new tests plus existing oid-strip test (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a heavy triple-dash or light quadruple-dash vertical placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — box drawings heavy triple dash vertical (`U+2507`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #41:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_heavy_triple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -8347,24 +7717,12 @@
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — empty-string email rejected before lifetime clamp — **cheap-disproof 2026-10-31 seed hunt #41:** regression `IssueAccessToken_throws_when_email_is_empty_string`.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — conflicting direct `oid` claims stripped when values differ — **cheap-disproof 2026-10-31 seed hunt #41:** regression `Apply_strips_conflicting_direct_oid_claims_when_idp_emits_two_distinct_values`.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings heavy quadruple dash vertical (`U+2509`) glued after `Bearer` — locus: placeholder set; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings down light horizontal (`U+2574`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — negative `iat` when `auth_time` absent — locus: iat fallback fail-closed; reachability: step-up monitor.
-- [ ] (candidate) `LocalTrialJwtIssuer` — empty-string role rejected before lifetime clamp — locus: validation; reachability: hunt #12 monitor.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — promotes `oid` from configured source when direct claim absent — locus: inbound promotion; reachability: SAML monitor.
-
 2026-10-31 seed hunt (seed→hit #40): promoted comma-folded `Authorization` with box drawings light triple dash vertical (`U+2506`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard on `Bearer┆, Bearer <valid>`; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2506`; regression `HandleAuthenticateAsync_succeeds_when_box_drawings_light_triple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed hunt #39 (empty `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_empty_iat_is_present_without_auth_time`; whitespace-only role via existing `IssueAccessToken_throws_when_role_is_whitespace_only`; duplicate `oid` casing via `Apply_collapses_duplicate_direct_oid_claims_with_same_value_different_casing`; proxy-only row deferred); reseeded five follow-on `(candidate)` rows; regression filter 2/2 new tests plus two existing cheap-disproof tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a light triple-dash vertical placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — box drawings light triple dash vertical (`U+2506`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #40:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_light_triple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`.
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — empty `iat` value when `auth_time` absent — **cheap-disproof 2026-10-31 seed hunt #40:** regression `HasRecentAuthentication_returns_false_when_only_empty_iat_is_present_without_auth_time`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — whitespace-only role rejected before lifetime clamp — **cheap-disproof 2026-10-31 seed hunt #40:** regression `IssueAccessToken_throws_when_role_is_whitespace_only`.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — duplicate `oid` strings with different casing collapsed — **cheap-disproof 2026-10-31 seed hunt #40:** regression `Apply_collapses_duplicate_direct_oid_claims_with_same_value_different_casing`.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings heavy triple dash vertical (`U+2507`) glued after `Bearer` — locus: placeholder set; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings light quadruple dash vertical (`U+2508`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — whitespace-only `iat` when `auth_time` absent — locus: iat fallback fail-closed; reachability: step-up monitor.
-- [ ] (candidate) `LocalTrialJwtIssuer` — empty-string email rejected before lifetime clamp — locus: validation; reachability: hunt #12 monitor.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — conflicting direct `oid` claims stripped when values differ — locus: scope dedup; reachability: SAML monitor (existing regression).
 
 2026-10-31 seed hunt (seed→hit #39): promoted comma-folded `Authorization` with modifier letter right arrowhead (`U+02C3`) and box drawings double vertical (`U+2551`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+02C3` and `U+2551`; regressions `HandleAuthenticateAsync_succeeds_when_modifier_letter_right_arrowhead_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_box_drawings_double_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #38 (garbage then parseable `iat` without `auth_time` via `HasRecentAuthentication_returns_true_when_a_later_parseable_iat_claim_is_used_even_if_first_is_garbage_without_auth_time`; whitespace-only email via existing `IssueAccessToken_throws_when_email_is_whitespace_only`; duplicate `project_id` GUID casing via `Apply_collapses_duplicate_direct_project_id_claims_with_same_guid_different_casing`); reseeded five follow-on `(candidate)` rows; regression filter 3/3 new tests plus two existing cheap-disproof tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a modifier arrowhead or double box-drawing vertical placeholder before a valid token on the JwtBearer pilot path.
 
@@ -8374,11 +7732,6 @@
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — whitespace-only email rejected before lifetime clamp — **cheap-disproof 2026-10-31 seed hunt #39:** regression `IssueAccessToken_throws_when_email_is_whitespace_only`.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — duplicate `project_id` GUID strings with different casing collapsed — **cheap-disproof 2026-10-31 seed hunt #39:** regression `Apply_collapses_duplicate_direct_project_id_claims_with_same_guid_different_casing`.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings light triple dash vertical (`U+2506`) glued after `Bearer` — locus: placeholder set; reachability: proxy monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — empty `iat` value when `auth_time` absent — locus: iat fallback fail-closed; reachability: step-up monitor.
-- [ ] (candidate) `LocalTrialJwtIssuer` — whitespace-only role rejected before lifetime clamp — locus: validation; reachability: hunt #12 monitor.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — duplicate `oid` strings with different casing collapsed — locus: scope dedup; reachability: SAML monitor.
-
 2026-10-31 seed hunt (seed→hit #38): promoted comma-folded `Authorization` with modifier letter cent (`U+02C2`) and box drawings heavy vertical (`U+2503`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+02C2` and `U+2503`; regressions `HandleAuthenticateAsync_succeeds_when_modifier_letter_cent_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_box_drawings_heavy_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #37 (unparseable `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_unparseable_iat_is_present_without_auth_time`; omitted trial lifetime via existing `IssueAccessToken_uses_local_identity_lifetime_when_caller_omits_minutes`; duplicate `workspace_id` GUID casing via `Apply_collapses_duplicate_direct_workspace_id_claims_with_same_guid_different_casing`); reseeded five follow-on `(candidate)` rows; regression filter 4/4 new tests plus existing omitted-lifetime test (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a modifier cent or heavy box-drawing vertical placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — modifier letter cent (`U+02C2`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #38:** regression `HandleAuthenticateAsync_succeeds_when_modifier_letter_cent_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -8386,12 +7739,6 @@
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — unparseable `iat` when `auth_time` absent — **cheap-disproof 2026-10-31 seed hunt #38:** regression `HasRecentAuthentication_returns_false_when_only_unparseable_iat_is_present_without_auth_time`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — omitted lifetime still honors configured default after clamp path — **cheap-disproof 2026-10-31 seed hunt #38:** regression `IssueAccessToken_uses_local_identity_lifetime_when_caller_omits_minutes`.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — duplicate `workspace_id` GUID strings with different casing collapsed — **cheap-disproof 2026-10-31 seed hunt #38:** regression `Apply_collapses_duplicate_direct_workspace_id_claims_with_same_guid_different_casing`.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — modifier letter right arrowhead (`U+02C3`) glued after `Bearer` — locus: placeholder set; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings double vertical (`U+2551`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — garbage `iat` with later parseable `iat` sibling when `auth_time` absent — locus: iat fallback; reachability: step-up monitor.
-- [ ] (candidate) `LocalTrialJwtIssuer` — whitespace-only email rejected before lifetime clamp — locus: validation; reachability: hunt #12 monitor.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — duplicate `project_id` GUID strings with different casing collapsed — locus: scope dedup; reachability: SAML monitor.
 
 2026-10-31 seed hunt (seed→hit #37): promoted comma-folded `Authorization` with modifier letter low macron (`U+02CD`) and box drawings light vertical (`U+2502`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+02CD` and `U+2502`; regressions `HandleAuthenticateAsync_succeeds_when_modifier_letter_low_macron_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_box_drawings_light_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #36 (doubled fullwidth vertical line segment via `HandleAuthenticateAsync_succeeds_when_doubled_fullwidth_vertical_line_only_bearer_segment_precedes_valid_comma_folded_credential`; future `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_future_iat_is_present_without_auth_time`; duplicate `tenant_id` GUID casing via `Apply_collapses_duplicate_direct_tenant_id_claims_with_same_guid_different_casing`); reseeded five follow-on `(candidate)` rows; regression filter 5/5 new tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a low-macron or box-drawing vertical placeholder before a valid token on the JwtBearer pilot path.
 
@@ -8401,12 +7748,6 @@
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — future `iat` when `auth_time` absent — **cheap-disproof 2026-10-31 seed hunt #37:** regression `HasRecentAuthentication_returns_false_when_only_future_iat_is_present_without_auth_time`.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — duplicate `tenant_id` GUID strings with different casing collapsed — **cheap-disproof 2026-10-31 seed hunt #37:** regression `Apply_collapses_duplicate_direct_tenant_id_claims_with_same_guid_different_casing`.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — modifier letter cent (`U+02C2`) glued after `Bearer` — locus: placeholder set; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings heavy vertical (`U+2503`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — unparseable `iat` when `auth_time` absent — locus: iat fallback fail-closed; reachability: step-up monitor.
-- [ ] (candidate) `LocalTrialJwtIssuer` — omitted lifetime still honors configured default after clamp path — locus: default minutes; reachability: hunt #12 monitor.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — duplicate `workspace_id` GUID strings with different casing collapsed — locus: scope dedup; reachability: SAML monitor.
-
 2026-10-31 seed hunt (seed→hit #36): promoted comma-folded `Authorization` with double low line (`U+2017`), overline (`U+203E`), and small hyphen-minus (`U+FE63`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2017`, `U+203E`, and `U+FE63`; regressions `HandleAuthenticateAsync_succeeds_when_double_low_line_only_bearer_segment_precedes_valid_comma_folded_credential`, `HandleAuthenticateAsync_succeeds_when_overline_only_bearer_segment_precedes_valid_comma_folded_credential`, and `HandleAuthenticateAsync_succeeds_when_small_hyphen_minus_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed two open `(candidate)` rows from seed hunt #35 (`iat` one second past max-age without `auth_time` via `HasRecentAuthentication_returns_false_when_only_iat_is_one_second_past_max_age_boundary_without_auth_time`; twenty-four-hour ceiling at `1440` minutes via `IssueAccessToken_honors_twenty_four_hour_ceiling_when_exactly_1440_minutes_requested`); reseeded five follow-on `(candidate)` rows; regression filter 5/5 new tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a double low line, overline, or CJK small hyphen-minus placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — double low line (`U+2017`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #36:** regression `HandleAuthenticateAsync_succeeds_when_double_low_line_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -8414,12 +7755,6 @@
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — small hyphen-minus (`U+FE63`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #36:** regression `HandleAuthenticateAsync_succeeds_when_small_hyphen_minus_only_bearer_segment_precedes_valid_comma_folded_credential`.
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — `iat` one second past max-age when `auth_time` absent — **cheap-disproof 2026-10-31 seed hunt #36:** regression `HasRecentAuthentication_returns_false_when_only_iat_is_one_second_past_max_age_boundary_without_auth_time`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — twenty-four-hour lifetime inclusive ceiling — **cheap-disproof 2026-10-31 seed hunt #36:** regression `IssueAccessToken_honors_twenty_four_hour_ceiling_when_exactly_1440_minutes_requested`.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — modifier letter low macron (`U+02CD`) glued after `Bearer` — locus: placeholder set; input: `Bearerˍ, Bearer <valid>`; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings light vertical (`U+2502`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — fullwidth vertical line (`U+FF5C`) duplicated in comma-fold segment only — locus: already in set but mix guard on doubled glyph; reachability: proxy monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — future `iat` when `auth_time` absent — locus: iat fallback; reachability: step-up monitor.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — duplicate `tenant_id` GUID strings with different casing collapsed — locus: scope dedup; reachability: SAML monitor.
 
 2026-10-31 seed hunt (seed→hit #35): promoted comma-folded `Authorization` with non-breaking hyphen (`U+2011`), double vertical line (`U+2016`), and small vertical bar (`U+FE57`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2011`, `U+2016`, and `U+FE57`; regressions `HandleAuthenticateAsync_succeeds_when_non_breaking_hyphen_only_bearer_segment_precedes_valid_comma_folded_credential`, `HandleAuthenticateAsync_succeeds_when_double_vertical_line_only_bearer_segment_precedes_valid_comma_folded_credential`, and `HandleAuthenticateAsync_succeeds_when_small_vertical_bar_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed two open `(candidate)` rows from seed hunt #34 (`iat` at max-age boundary without `auth_time` via `HasRecentAuthentication_returns_true_when_only_iat_is_exactly_at_max_age_boundary_without_auth_time`; whitespace-padded inbound role deduped via `Apply_does_not_duplicate_role_surface_claims_when_inbound_role_has_surrounding_whitespace`); reseeded five follow-on `(candidate)` rows; regression filter 5/5 new tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a non-breaking hyphen, double vertical line, or CJK small vertical-bar placeholder before a valid token on the JwtBearer pilot path.
 
@@ -8429,12 +7764,6 @@
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — `iat` exactly at max-age boundary when `auth_time` absent — **cheap-disproof 2026-10-31 seed hunt #35:** regression `HasRecentAuthentication_returns_true_when_only_iat_is_exactly_at_max_age_boundary_without_auth_time`.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — inbound role claim with surrounding whitespace deduped against trimmed surface claim — **cheap-disproof 2026-10-31 seed hunt #35:** regression `Apply_does_not_duplicate_role_surface_claims_when_inbound_role_has_surrounding_whitespace`.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — double low line (`U+2017`) glued after `Bearer` — locus: placeholder set; input: `Bearer‗, Bearer <valid>`; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — overline (`U+203E`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — small hyphen-minus (`U+FE63`) glued after `Bearer` — locus: CJK presentation forms; reachability: proxy monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — `iat` one second past max-age when `auth_time` absent — locus: iat fallback boundary; reachability: step-up monitor.
-- [ ] (candidate) `LocalTrialJwtIssuer` — twenty-four-hour lifetime inclusive ceiling — locus: `Math.Clamp(..., 5, 24*60)`; input: `1440`; reachability: hunt #12 monitor.
-
 2026-10-31 seed hunt (seed→hit #34): promoted comma-folded `Authorization` with Unicode hyphen (`U+2010`), figure dash (`U+2012`), and small em dash (`U+FE58`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2010`, `U+2012`, and `U+FE58`; regressions `HandleAuthenticateAsync_succeeds_when_unicode_hyphen_only_bearer_segment_precedes_valid_comma_folded_credential`, `HandleAuthenticateAsync_succeeds_when_figure_dash_only_bearer_segment_precedes_valid_comma_folded_credential`, and `HandleAuthenticateAsync_succeeds_when_small_em_dash_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed two open `(candidate)` rows from seed hunt #33 (fresh `iat` without `auth_time` via `HasRecentAuthentication_returns_true_when_only_fresh_iat_is_present_without_auth_time`; zero-minute lifetime via `IssueAccessToken_clamps_zero_minute_lifetime_request_to_five_minutes`); reseeded five follow-on `(candidate)` rows; regression filter 5/5 new tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a Unicode hyphen, figure dash, or CJK small em-dash placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — hyphen (`U+2010`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #34:** regression `HandleAuthenticateAsync_succeeds_when_unicode_hyphen_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -8442,12 +7771,6 @@
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — small em dash (`U+FE58`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #34:** regression `HandleAuthenticateAsync_succeeds_when_small_em_dash_only_bearer_segment_precedes_valid_comma_folded_credential`.
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — fresh `iat` only when `auth_time` absent — **cheap-disproof 2026-10-31 seed hunt #34:** regression `HasRecentAuthentication_returns_true_when_only_fresh_iat_is_present_without_auth_time`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — zero-minute lifetime request clamps to five minutes — **cheap-disproof 2026-10-31 seed hunt #34:** regression `IssueAccessToken_clamps_zero_minute_lifetime_request_to_five_minutes`.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — non-breaking hyphen (`U+2011`) glued after `Bearer` — locus: placeholder set; input: `Bearer‑, Bearer <valid>`; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — double vertical line (`U+2016`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — small vertical bar (`U+FE57`) glued after `Bearer` — locus: CJK presentation forms; reachability: proxy monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — `iat` exactly at max-age boundary when `auth_time` absent — locus: iat fallback boundary; reachability: step-up monitor.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — inbound role claim with surrounding whitespace deduped against trimmed surface claim — locus: role promotion; reachability: SAML monitor.
 
 2026-10-31 seed hunt (seed→hit #33): promoted comma-folded `Authorization` with em dash (`U+2014`) and presentation-form vertical em dash (`U+FE31`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard on `Bearer—, Bearer <valid>` and `Bearer︱, Bearer <valid>`; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2014` and `U+FE31`; regressions `HandleAuthenticateAsync_succeeds_when_em_dash_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_presentation_form_vertical_em_dash_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed five open `(candidate)` rows from seed hunt #32 (stale `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_stale_iat_is_present_without_auth_time`; five-minute inclusive floor via `IssueAccessToken_honors_five_minute_floor_when_exactly_five_minutes_requested`; matching auth-version on Guid `sub` via existing `ValidateAsync_accepts_current_auth_version`); reseeded five follow-on `(candidate)` rows; regression filter 4/4 new tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is an em-dash or CJK presentation em-dash placeholder before a valid token on the JwtBearer pilot path.
 
@@ -8457,12 +7780,6 @@
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — five-minute lifetime inclusive floor — **cheap-disproof 2026-10-31 seed hunt #33:** regression `IssueAccessToken_honors_five_minute_floor_when_exactly_five_minutes_requested`.
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — matching auth-version on Guid `sub` accepted — **cheap-disproof 2026-10-31 seed hunt #33:** regression `ValidateAsync_accepts_current_auth_version`.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — hyphen (`U+2010`) glued after `Bearer` — locus: placeholder set; input: `Bearer‐, Bearer <valid>`; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — figure dash (`U+2012`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — small em dash (`U+FE58`) glued after `Bearer` — locus: CJK presentation forms; reachability: proxy monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — fresh `iat` only when `auth_time` absent — locus: iat fallback; input: recent `iat` within max age; reachability: step-up monitor.
-- [ ] (candidate) `LocalTrialJwtIssuer` — zero-minute lifetime request clamps to five minutes — locus: `Math.Clamp(..., 5, 24*60)`; input: `0`; reachability: hunt #12 monitor.
-
 2026-10-31 seed hunt (seed→hit #32): promoted comma-folded `Authorization` with en dash (`U+2013`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard on `Bearer–, Bearer <valid>`; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2013`; regression `HandleAuthenticateAsync_succeeds_when_en_dash_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed five open `(candidate)` rows from seed hunt #31 (`U+02FF` — **invalid** per hunt #25; later parseable `auth_time` among garbage siblings via `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; omitted trial lifetime via `IssueAccessToken_uses_local_identity_lifetime_when_caller_omits_minutes`; duplicate inbound role strings via `Apply_does_not_duplicate_role_surface_claims_when_inbound_source_emits_identical_role_twice`); reseeded five follow-on `(candidate)` rows; regression filter 2/2 new tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is an en-dash placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — en dash (`U+2013`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #32:** regression `HandleAuthenticateAsync_succeeds_when_en_dash_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -8470,12 +7787,6 @@
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — garbage `auth_time` with later parseable `auth_time` sibling — **cheap-disproof 2026-10-31 seed hunt #32:** regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — omitted lifetime uses configured default — **cheap-disproof 2026-10-31 seed hunt #32:** regression `IssueAccessToken_uses_local_identity_lifetime_when_caller_omits_minutes`.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — duplicate inbound role strings collapsed — **cheap-disproof 2026-10-31 seed hunt #32:** regression `Apply_does_not_duplicate_role_surface_claims_when_inbound_source_emits_identical_role_twice`.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — em dash (`U+2014`) glued after `Bearer` — locus: placeholder set; input: `Bearer—, Bearer <valid>`; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — presentation form for vertical em dash (`U+FE31`) glued after `Bearer` — locus: CJK presentation forms; reachability: proxy monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — stale `iat` when `auth_time` absent — locus: iat fallback; reachability: hunt #19 monitor.
-- [ ] (candidate) `LocalTrialJwtIssuer` — five-minute lifetime inclusive floor — locus: `Math.Clamp(..., 5, 24*60)`; input: `5`; reachability: hunt #12 monitor.
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — matching auth-version on Guid `sub` accepted — locus: version compare; reachability: hunt #19 monitor.
 
 2026-10-31 seed hunt (seed→hit #31): promoted comma-folded `Authorization` with horizontal bar (`U+2015`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard on `Bearer―, Bearer <valid>`; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2015`; regression `HandleAuthenticateAsync_succeeds_when_horizontal_bar_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed five open `(candidate)` rows from seed hunt #30 (`U+FE69` is halfwidth small dollar (`﹩`), not a pilot slash delimiter — **invalid**; unparseable `auth_time` with present claims skips `iat` fallback fail-closed via `HasRecentAuthentication_returns_false_when_auth_time_is_present_but_unparseable`; negative trial lifetime clamp via `IssueAccessToken_clamps_requested_access_token_lifetime_when_negative_minutes_requested`; non-local issuer skips auth-version via `ValidateAsync_skips_non_local_issuer_tokens`); reseeded five follow-on `(candidate)` rows; regression filter 2/2 new handler+trial tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a horizontal-bar placeholder before a valid token on the JwtBearer pilot path.
 
@@ -8598,8 +7909,6 @@
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — `auth_time` Unix string with leading plus sign — **cheap-disproof 2026-10-30 seed hunt #20:** `long.TryParse` rejects `+` prefix on `auth_time`; claim skipped (fail-closed unless fresh `iat` fallback applies).
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — `accessTokenLifetimeMinutes` below five-minute floor — **cheap-disproof 2026-10-30 seed hunt #20:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes` on full tree.
 - [x] (invalid) `ArchLucidSamlInboundClaimsNormalizer` — inbound role claim with only zero-width joiners promoted — **cheap-disproof 2026-10-30 seed hunt #20:** `\u200B`-only values are not meaningful roles; extractor/policy collapse does not grant permissions from blank visual paste (decorative IdP noise).
-
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — stale auth-version on cookie principal skipped — locus: local issuer guard; input: SAML cookie + stale stamp; reachability: step-up monitor.
 
 - [x] (proven) `ScimBearerAuthenticationHandler` — fullwidth reverse solidus placeholder after `Bearer` — **hit 2026-10-30 seed hunt #21:** see seed hunt #21 diary.
 - [x] (invalid) `ScimBearerAuthenticationHandler` — division slash (`U+2215`) before comma-folded valid token — **cheap-disproof 2026-10-30 seed hunt #21:** see seed hunt #21 diary (reseeded as open monitor).
@@ -8791,16 +8100,16 @@
 - (candidate) `SamlMetadataValidUntilParser` — `validUntil` on `KeyDescriptor` ignored when entity-level attribute is later but signing cert `NotAfter` is earlier.
 
 - **id:** saml-jwt-bearer
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 165
-- **bugs-found:** 175
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-11-03 — SCIM Bearer mix guard rejected U+25F2 placeholder before valid comma-folded token
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
@@ -8915,14 +8224,6 @@
 ---
 
 ## Zone: tenant-data-export
-2026-11-08 thorough hunt (dry #991): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed the five monitor rows reseeded at dry **#990** — **valid-no-repro** cooperative cancel after `BuildAsync` and before `BuildPdfExportAsync` (further awaits pass `cancellationToken`, and `ArchitectureReviewPdfBuilder.BuildAsync` throws at entry; host-cancel class), **valid-no-repro** cooperative cancel on `ReplayExportRecord` during `EnsureSealedManifestReadAllowedForExportRecordAsync` (guard is awaited with the request token before `ReplayExportAsync`; host-cancel class), **valid-no-repro** JSON string `"01"` on `is_sample_run` (non-zero numeric string blocks the sample workspace; regression `ResolveFromDeltasJson_blocks_when_is_sample_run_string_coerces_to_non_zero`), **valid-no-repro** the same export record id on both sides of compare (each side is loaded and field-diffed; identical records produce an empty diff), **valid-no-repro** IPv6 zone-id account label `https://[fe80::1%25eth0].blob.core.windows.net/c?sas=1` (policy returns the private-network rejection, same gate as `[::1].blob.core.windows.net`). No new row met the hunt-ready bar. Private beta: n/a.
-
-- [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel after `architectureAnalysisService.BuildAsync` returns but before `BuildPdfExportAsync` starts — **cheap-disproof 2026-11-08 thorough hunt #991:** host-cancel class; PDF builder observes the token at entry.
-- [x] (valid-no-repro) `ExportsController.ReplayExportRecord` — cooperative cancel during sealed-manifest guard before `ReplayExportAsync` — **cheap-disproof 2026-11-08 thorough hunt #991:** guard is awaited with `cancellationToken`.
-- [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"01"` on `is_sample_run` — **cheap-disproof 2026-11-08 thorough hunt #991:** `ResolveFromDeltasJson_blocks_when_is_sample_run_string_coerces_to_non_zero`.
-- [x] (valid-no-repro) `ExportsController.CompareExportRecords` — same `leftExportRecordId` and `rightExportRecordId` — **cheap-disproof 2026-11-08 thorough hunt #991:** `LoadPairAsync` loads both ids and `ExportRecordDiffService.Compare` reports field changes only.
-- [x] (valid-no-repro) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — IPv6 zone-id percent-encoded in blob account label — **cheap-disproof 2026-11-08 thorough hunt #991:** `https://[fe80::1%25eth0].blob.core.windows.net/c?sas=1` is rejected as a private-network destination.
-
 2026-11-06 thorough hunt (dry #990): **rotation at next pick** after this record is appended to the run log (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on 'tenant-data-export' (outcomes: dry, dry, dry).*; consecutive outcomes **#988**, **#989**, **#990**). Cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#989** — **valid-no-repro** cooperative cancel during PDF `BuildPdfExportAsync` after tenant logo resolves (`ArchitectureReviewExportService.Pdf.cs` forwards `cancellationToken` to `pdfBuilder.BuildAsync`; host-cancel class; dry **#971** / PDF diary parity), **valid-no-repro** cooperative cancel during sealed-manifest guard on `ArchitectureExportController.ExportRunSummary` before `GenerateMarkdownAsync` (host-cancel class; dry **#974**), **valid-no-repro** JSON string `"1e-1"` on `is_sample_run` does not coerce to boolean true (`double.TryParse` yields `0.1` but `stringNumeric == Math.Truncate(stringNumeric)` fails ~188–192; falls through; `TryParseJsonBoolean` returns `false`; career posture does not treat as sample — non-integer numeric-string gap), **valid-no-repro** cooperative cancel during second sealed-manifest guard on `ExportsController.CompareExportRecordsSummary` before `CompareExportRecordsSummaryAsync` (host-cancel class; dry **#974**), **invalid** `HTTPS` scheme casing on blob URL — `string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)` (~17–18) accepts any casing canonical URI delivers; no SSRF loosening. Reseeded five follow-on `(candidate)` monitor rows below; scoped zone filter **43/43** (12/12 `FullyQualifiedName~ArchitectureReviewExport`; 11/11 `FullyQualifiedName~ExportsController`; 20/20 `FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy`); `RunAnalyzers=false`. Private beta: n/a.
 
 - [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel during PDF `BuildPdfExportAsync` after tenant logo bytes resolve — **cheap-disproof 2026-11-06 thorough hunt #990:** dry **#989** reseed queue; `pdfBuilder.BuildAsync` observes token.
@@ -8930,12 +8231,6 @@
 - [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"1e-1"` on `is_sample_run` — **cheap-disproof 2026-11-06 thorough hunt #990:** dry **#989** reseed queue; non-integer numeric branch skipped; returns false.
 - [x] (valid-no-repro) `ExportsController.CompareExportRecordsSummary` — cooperative cancel during second sealed-manifest guard before summary persist — **cheap-disproof 2026-11-06 thorough hunt #990:** dry **#989** reseed queue; host-cancel class.
 - [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — uppercase `HTTPS` scheme with Azure blob host — **cheap-disproof 2026-11-06 thorough hunt #990:** dry **#989** reseed queue; `OrdinalIgnoreCase` scheme gate.
-
-- [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel after `architectureAnalysisService.BuildAsync` returns but before `BuildPdfExportAsync` starts — **cheap-disproof 2026-11-08 thorough hunt #991:** closed at the zone header.
-- [x] (valid-no-repro) `ExportsController.ReplayExportRecord` — cooperative cancel during sealed-manifest guard before `ReplayExportAsync` — **cheap-disproof 2026-11-08 thorough hunt #991:** closed at the zone header.
-- [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"01"` on `is_sample_run` — **cheap-disproof 2026-11-08 thorough hunt #991:** closed at the zone header.
-- [x] (valid-no-repro) `ExportsController.CompareExportRecords` — same `leftExportRecordId` and `rightExportRecordId` — **cheap-disproof 2026-11-08 thorough hunt #991:** closed at the zone header.
-- [x] (valid-no-repro) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — IPv6 zone-id percent-encoded in blob account label — **cheap-disproof 2026-11-08 thorough hunt #991:** closed at the zone header.
 
 - [x] (superseded) dry **#989** open `(candidate)` queue — **superseded 2026-11-06 thorough hunt #990:** closed at zone header; see hunt **#990** reseed.
 
@@ -9301,7 +8596,6 @@
 - [x] (valid-no-repro) `ExportsController.CompareExportRecords` — cooperative cancel during sealed-manifest guard on right-hand export record id — **cheap-disproof 2026-11-05 thorough hunt #972:** see zone header.
 - [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"-0.0"` on `is_sample_run` — **cheap-disproof 2026-11-05 thorough hunt #975:** see zone header.
 - [x] (valid-no-repro) `ArtifactExportController.PushRunExportToBlob` — cooperative cancel during sealed-manifest hash guard before blob policy — **cheap-disproof 2026-11-05 thorough hunt #972:** see zone header.
-- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with tab character in storage account label — locus: account-label extraction; input: `https://127.0.0.1%09.blob.core.windows.net/c?sas=1` (monitor).
 
 2026-11-03 seed hunt (seed-only #966): re-read export controllers, `RunExportQueryFacade`, career posture resolver, and blob destination policy after seed **#965** monitor reseed; cheap-disproof closed five open `(candidate)` rows from seed **#965** — **valid-no-repro** artifact push DNS validation cancel propagates mid-`TryGetRejectionReasonAfterDnsResolveAsync` (parity `PushRunExport` / seed **#960**); **valid-no-repro** compare-summary sealed-manifest guard cancel on right-hand export id (host cancel; seed **#960** paired-gate class); **valid-no-repro** JSON string `"+1"` on `is_sample_run` coerces to whole-number `1` and blocks sample workspace (`NumberStyles.Float` ~188–195; not a bypass); **valid-no-repro** export history facade cancel during run-scoped career gate propagates (`GetRunExportHistoryAsync` throws path; regression family dry **#958**); **valid-no-repro** double-leading-slash blob path — `Uri.TryCreate` + host-only Azure suffix allowlist unchanged (not non-blob SSRF); seeded five follow-on `(candidate)` monitor rows; scoped zone test-filter **41/43** (11/12 Application ArchitectureReviewExport — 1 pre-existing HTML sponsor copy assertion; 11/11 Api ExportsController; 19/20 Core blob policy — 1 pre-existing IPv4 literal account-label expectation); `RunAnalyzers=false`. Private beta: n/a.
 
@@ -9506,18 +8800,18 @@
 - [x] (valid-no-repro) `RunsExportController` — career parity vs `ArtifactExportController` — **cheap-disproof 2026-10-30 thorough hunt (dry):** review export route maps career block; run ZIP/artifact parity shipped 2026-10-06 thorough hunt.
 
 2026-09-13 seed hunt #2388 (seed-only): reseeded tenant-data-export; no new hunt-ready rows.
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 971
-- **bugs-found:** 64
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-11-04 — board export used analysis evidence system name when stored manifest system name was whitespace-only
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-12 thorough hunt (dry): `tenant-data-export` — all five picker candidates were inspected; the `RunsExportController` career-block mapping candidate was plausible, but its focused repro could not execute because the API test build stopped on unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production change was made and all candidates remain unpromoted.
 
@@ -11483,23 +10777,9 @@
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 61 · **Bugs found:** 32 · **Consecutive dry hunts:** 13
-
-2026-11-08 thorough hunt (dry #65): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed the five monitor rows reseeded at dry **#64** — **invalid** `TenantId == Guid.Empty` is not treated as an unscoped route (`ProcessAsync` returns validation failed "Tenant id is required." before secret resolution; unscoped routes pass `null`, and `null == Guid.Empty` is false), **invalid** HMAC over a BOM-prefixed body does not use a different byte string (`ReadUtf8Async` keeps U+FEFF and `Encoding.UTF8.GetBytes` writes those bytes back), **invalid** `NormalizeStatusToken` does not fold distinct vendor labels (`NormalizeStatusText` trims and canonicalizes whole numbers only; "Resolved" and "Closed" stay distinct), **valid-no-repro** ServiceNow `short_description` without `state` or `incident_state` is rejected (`TryRead` requires a non-empty status), **valid-no-repro** replay-guard eviction removes the claim only after the cache entry is gone, and a claim that is still in `_claimedKeys` stays rejected until that callback (fail-closed). No new row met the hunt-ready bar. Private beta: n/a.
-
-- [x] (invalid) `ItsmInboundWebhookFacade.ProcessAsync` — `TenantId == Guid.Empty` treated as missing tenant for unscoped routes — **cheap-disproof 2026-11-08 thorough hunt #65:** empty guid is validation-failed, not an unscoped lookup.
-- [x] (invalid) `WebhookSecrets.IsValidHmacSha256Signature` — signature compares against a trimmed string while the vendor signed raw BOM bytes — **cheap-disproof 2026-11-08 thorough hunt #65:** UTF-8 string round-trip preserves U+FEFF.
-- [x] (invalid) `ItsmInboundWebhookReplayEventId.BuildSynthetic` — `NormalizeStatusToken` collapses distinct vendor status labels — **cheap-disproof 2026-11-08 thorough hunt #65:** only whitespace and whole-number forms are canonicalized.
-- [x] (valid-no-repro) `ItsmInboundServiceNowPayloadReader.TryRead` — `short_description` without `state` or `incident_state` — **cheap-disproof 2026-11-08 thorough hunt #65:** missing status returns false.
-- [x] (valid-no-repro) `MemoryCacheItsmInboundWebhookReplayGuard` — post-eviction callback races with `TryClaimAsync` — **cheap-disproof 2026-11-08 thorough hunt #65:** overlap rejects the second claim until the evicted token is removed.
+**Hunts:** 0 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
 
 2026-11-06 thorough hunt (dry #64): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`itsm-inbound-webhooks`** is **2/3** before this record — outcomes **dry** **#62** and **dry** **#63**). Cheap-disproof closed five open `(candidate)` monitor rows from dry **#63** reseed — **invalid** declared `Content-Length` smaller than on-wire body (`InboundWebhookBoundedBodyReader` streams to EOF with a max ceiling and never relies on a short `Content-Length` to cap read size; Kestrel/host request framing validates `Content-Length` vs stream — mis-framed requests fail at transport before this code; dry **#63** / TB-967), **valid-no-repro** whitespace-only delivery headers → synthetic replay id (`ResolveDeliveryId` treats whitespace like absent; distinct synthetic keys per payload/status — optional delivery headers; dry **#63** / TB-968), **invalid** unbounded deep JSON without `MaxDepth` blows stack (`JsonDocument.Parse` uses default `JsonDocumentOptions` max depth (64); excessive depth throws `JsonException` → `TryParseWebhookJson` validation failed; dry **#63** / seed **#211**), **invalid** Jira status only under `statusCategory` without `fields.status.name` (`TryReadJiraStatusName` walks `issue.fields.status.name` only; missing → `TryRead` false; dry **#63** / dry **#59**), **valid-no-repro** ambiguous external key across tenants on unscoped webhook (`TryResolveCorrelationAsync` uses `TryGetByExternalKeyAsync` when no tenant id — repository returns null when multiple rows share key; `SqlItsmFindingCorrelationRepositoryTenantScopedUniqueSqlIntegrationTests` / dry **#63**). Reseeded five follow-on `(candidate)` rows below (recycled dry **#64** closed themes); scoped **90/90** `FullyQualifiedName~ItsmInboundWebhook` tests (79 Application + 11 Persistence, `RunAnalyzers=false`). Private beta: n/a.
-
-- [x] (invalid) `ItsmInboundWebhookFacade.ProcessAsync` — `TenantId == Guid.Empty` treated as missing tenant for unscoped routes — **cheap-disproof 2026-11-08 thorough hunt #65:** closed at the zone header.
-- [x] (invalid) `WebhookSecrets.IsValidHmacSha256Signature` — signature compares against wrong body when controller passes trimmed string but HMAC was computed on raw bytes with BOM — **cheap-disproof 2026-11-08 thorough hunt #65:** closed at the zone header.
-- [x] (invalid) `ItsmInboundWebhookReplayEventId.BuildSynthetic` — `NormalizeStatusToken` collapses distinct vendor status labels to same canonical string — **cheap-disproof 2026-11-08 thorough hunt #65:** closed at the zone header.
-- [x] (valid-no-repro) `ItsmInboundServiceNowPayloadReader.TryRead` — `short_description` present without `state`/`incident_state` — **cheap-disproof 2026-11-08 thorough hunt #65:** closed at the zone header.
-- [x] (valid-no-repro) `MemoryCacheItsmInboundWebhookReplayGuard` — post-eviction callback removes claim from `_claimedKeys` while concurrent `TryClaimAsync` observes false duplicate — **cheap-disproof 2026-11-08 thorough hunt #65:** closed at the zone header.
 
 - [x] (invalid) `InboundWebhookBoundedBodyReader.ReadUtf8Async` — declared `Content-Length` smaller than actual body bytes read — **cheap-disproof 2026-11-06 thorough hunt #64:** closed dry **#63** monitor queue; stream read + host framing; TB-967.
 - [x] (valid-no-repro) `ItsmInboundWebhooksController.ResolveDeliveryId` — both delivery headers whitespace-only falls through to synthetic id while vendor retried same logical delivery — **cheap-disproof 2026-11-06 thorough hunt #64:** closed dry **#63** monitor queue; whitespace → null; TB-968.
@@ -11890,21 +11170,21 @@
 - [x] (valid-no-repro) `ItsmInboundJiraPayloadReader.TryReadJiraStatusName` — status names with only whitespace after trim fail `TryRead` before mapper sees empty human review guard — **cheap-disproof 2026-10-08 seed hunt #30:** `string.IsNullOrWhiteSpace(statusNameRaw)` rejects at reader; regression `TryRead_returns_false_when_status_name_is_whitespace_only`.
 
 - **id:** itsm-inbound-webhooks
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 51
-- **bugs-found:** 32
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-10-29 — legacy non-tenant webhook route bypass under tenant-scope policy (#198)
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 ### Hypotheses
 
-**Hunts:** 30 · **Bugs found:** 19 · **Consecutive dry hunts:** 8
+**Hunts:** 0 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ItsmInboundWebhookReplayEventIdTests`, `ItsmInboundServiceNowPayloadReaderTests`, `ItsmInboundWebhookFacadeTests`, `ItsmInboundWebhookSyncSupportTests`, and `ItsmInboundJiraPayloadReaderTests`; 81 scoped `ItsmInboundWebhook` tests passed (70 Application + 11 Persistence).
 
@@ -12059,12 +11339,6 @@
 - [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #662:** duplicate of dry #660/#658/#656; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
 - [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #662:** duplicate of dry #660/#658/#656/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
 - [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #662:** duplicate of dry #660/#658/#656/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
-
-- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — locus: URL guard; input: whitespace `ReturnUrl`/`CancelUrl` (reachability: checkout session creation).
-- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — locus: quantity guard; input: GA ChangeQuantity with quantity 0 (reachability: Azure marketplace GA payloads).
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — locus: window clamp; input: `days` outside 1–90 (reachability: tenant LLM cost dashboard).
-- [ ] (candidate) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — locus: dry-run probe audit; input: transport failure during marketplace webhook probe (reachability: admin billing diagnostics).
-- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — locus: metrics scope; input: portal `ProviderError` path (reachability: billing portal handoff).
 
 2026-10-30 thorough hunt (dry #661): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and eighty-second consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -13013,16 +12287,16 @@
 2026-10-27 thorough hunt (dry #379): cheap-disproof closed five recycled candidates (integration messageId without tenant prefix, ranker cost/token/run-id tie-break, checkout cancel propagation, negative unit rates guard, ChangeQuantity GA vs WebhookPlanMutationsEnabled); seventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 - **id:** application-billing-logic
-- **status:** cooling
+- **status:** unseeded
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 327
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 283
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 
 2026-10-03 seed hunt (seed-only): re-read `ArchLucid.Application/Billing/` and the scoped Marketplace/BillingCheckout/TenantLlmCostReporting tests; no new reachable candidate emerged; 17 scoped tests passed.
@@ -14496,12 +13770,6 @@
 ## Zone: persistence-identity
 
 2026-11-03 thorough hunt (dry #942): cheap-disproof closed five open `(candidate)` monitor rows from dry **#941** reseed — **invalid** `GetLatestRequestUtcByEmailAsync` `CreatedUtc` tie-break (hunt **#930** regression `GetLatestRequestUtcByEmailAsync_returns_max_created_utc_among_active_unexpired_challenges`; identical cooldown anchor); **valid-no-repro** `TryCompleteAsync` after `AlreadyCompleted` (`InMemoryEmailOtpChallengeRepositoryCoverageTests`); **valid-no-repro** `FindByNormalizedDomainAsync` cache eviction on soft-remove (regression `TenantSignInEmailDomain_FindByNormalizedDomainAsync_returns_null_after_soft_remove_update`); **valid-no-repro** disabled external-key active lookup vs `FindAnyByExternalKeyAsync` contract (`DisableAsync_and_ReEnableAsync_toggle_active_lookup`); **valid-no-repro** failed-verification SQL active-replacement probe requires unexpired challenge (regression `Active_replacement_probe_ignores_expired_unused_challenges`). Reseeded five follow-on `(candidate)` monitor rows from dry **#941** closed themes; zone **cooling** (`consecutive-dry-hunts` 11); scoped filter **46/48** (`FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository|FullyQualifiedName~EmailOtp|FullyQualifiedName~TenantSignInEmailDomain`; 2 SQL integration skipped; `RunAnalyzers=false`). Private beta: n/a.
-
-- [ ] (candidate) `InMemoryAuthenticationIdentityLinkProposalRepository.TryUpdateStatusAsync` — terminal `Confirmed` proposal rejects later `Cancelled` — locus: status transition guard; input: cancel after confirm (monitor dry **#942** / dry **#941** / hit **#323**).
-- [ ] (candidate) `InMemoryEmailOtpChallengeRepository.DeleteActiveChallengesForEmailAsync` — hard delete vs concurrent `TryCompleteAsync` on same id — locus: `_completionLock` / resend path; input: parallel delete and verify (monitor dry **#942** / dry **#941** / dry **#934**).
-- [ ] (candidate) `InMemorySelfServiceTrialAbuseRepository.RecordAttemptAsync` — rolling window boundary uses caller `sinceUtc` not wall clock — locus: `CountDomainClaimsSinceAsync`; input: boundary timestamp (monitor dry **#942** / dry **#941**).
-- [ ] (candidate) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` — SQL lockout `CASE` vs in-memory parallel increments — locus: preserve longer `LockoutEnd`; input: parallel failures (monitor dry **#942** / dry **#941** / dry **#938**).
-- [ ] (candidate) `InMemoryPlatformTenantAuthRecoveryGrantRepository.GetActiveByTenantAndDomainAsync` — newest `GrantedUtc` when multiple non-revoked grants overlap — locus: grant selection; input: overlapping grants (monitor dry **#942** / dry **#941** / hunt **#930**).
 
 2026-11-03 thorough hunt (dry #941): cheap-disproof closed five open `(candidate)` monitor rows from dry **#940** reseed — **valid-no-repro** terminal `Confirmed` link proposal rejects later `Cancelled` (`Insert_get_confirm_cancel_and_missing_update_noop`; hit **#323**); **valid-no-repro** bulk email delete vs verify serialized via `_completionLock` / `ReplaceActiveChallengeForEmailAsync` (dry **#934** invalidate/resend class); **valid-no-repro** trial-abuse domain window uses caller `sinceUtc` boundary by design (`Domain_count_excludes_claims_before_since_boundary`, `Email_claim_is_idempotent_and_domain_counts_respect_window`); **valid-no-repro** SQL lockout `CASE` preserves longer `LockoutEnd` while incrementing failures (dry **#938**; SQL integration skipped on VM); **invalid** recovery-grant `GrantedUtc` tie-break when grants overlap (hunt **#930** OTP class; dry **#938**). Reseeded five follow-on `(candidate)` monitor rows from dry **#940** closed themes; zone **cooling** (`consecutive-dry-hunts` 10); scoped filter **46/48** (`FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository|FullyQualifiedName~EmailOtp|FullyQualifiedName~TenantSignInEmailDomain`; 2 SQL integration skipped; `RunAnalyzers=false`). Private beta: n/a.
 
@@ -16437,17 +15705,16 @@
 - [x] (invalid) `DapperIdentityMigrationReviewRepository.ListUnresolvedAsync` — `Enum.Parse` on stored `ReasonCode` fails entire list when one corrupt row exists — **cheap-disproof 2026-11-03 thorough hunt #938:** see dry #938 diary.
 - [x] (invalid) `DapperPlatformTenantAuthRecoveryGrantRepository.GetActiveByTenantAndDomainAsync` — `TOP 1` by `GrantedUtc DESC` without `GrantId` tie-break when timestamps equal — **cheap-disproof 2026-11-03 thorough hunt #938:** see dry #938 diary.
 - [x] (valid-no-repro) `CachingTenantIdentityProviderConfigurationRepository.TryGetAsync` — hot-path cache has no TTL so reads stay stale until `UpsertAsync` eviction — **cheap-disproof 2026-11-03 thorough hunt #938:** see dry #938 diary.
-
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 942
-- **bugs-found:** 25
-- **consecutive-dry-hunts:** 11
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-21 — hourly OTP request rate limits ignored invalidated challenges
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -19347,12 +18614,6 @@
 
 - [x] (proven) `ClientErrorTelemetryController.PostClientError` — null value in `Context` dictionary — **hit 2026-10-29 thorough hunt:** `pair.Value.Length` threw when value null; regression `PostClientError_context_null_value_returns_400`.
 
-- [ ] (candidate) `RunsController.PutAssumptionAcknowledgement` — null element in `AcknowledgedAssumptionIds` list passes surrogate guard — locus: `IsValidUnicodeText(null)` returns true (~86–89); input: `{ "acknowledgedAssumptionIds": [null] }`; reachability: review finalize assumption acknowledgement PUT.
-- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — null row in `Entries` after validation loop — locus: `.Select` maps `row.PolicyPackId` without per-row null guard (~110–117); input: filter bypass with null entry; reachability: run coverage acknowledgement PUT.
-- [ ] (candidate) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — null dictionary value in `Answers` — locus: `answer.Value` validation treats null as empty (~122–133); input: `{ "answers": { "q1": null } }`; reachability: clarification apply POST.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `EventType` filter with invalid surrogate — locus: optional filter forwarded to repository; input: event type containing lone surrogate; reachability: admin integration outbox bulk retry.
-- [ ] (candidate) `UsersAdminController.InviteAsync` — `Message` field at max length boundary with surrogate pair split across limit — locus: `NormalizeOptionalMessage` / surrogate validation; input: invitation message ending with high surrogate at max length; reachability: admin user invitation.
-
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
 - [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — partial JSON without `SourceText`/`SuggestionText` — **cheap-disproof 2026-10-23 seed hunt #2:** `ValidateDraftFreeText` rejects null `SourceText` as missing body; `SuggestionText` required guard ~102; regressions `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null` and max-length cases.
@@ -19366,16 +18627,16 @@
 - [x] (proven) `RunsController.RephraseClarificationAnswers` — JSON `"items": null` dereferenced `input.Items.Count` and threw `NullReferenceException` instead of `400 ValidationFailed` — **hit 2026-10-23 seed hunt:** null guard before count check (parity with `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers`); regression `RephraseClarificationAnswers_returns_bad_request_when_items_collection_is_null`
 
 - **id:** api-authority-admin-controllers
-- **status:** cooling
+- **status:** unseeded
 - **impact:** high
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 415
-- **bugs-found:** 59
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — client-error telemetry null context value caused 500 instead of validation
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-16 seed hunt (seed→hit): promoted `AdminController.ArchiveRunsByIds` null `RunIds` collection gap; proved and fixed; reseeded five follow-on `(candidate)` rows.
@@ -19551,12 +18812,6 @@
 ## Zone: api-governance-tenancy-controllers
 
 2026-11-03 thorough hunt (dry #353): cheap-disproof closed five open `(candidate)` monitor rows from dry **#352** reseed — **valid-no-repro** `Reject` zero-width-prefix route parity (`NormalizeApprovalRequestId` ~144; `Approve_returns_ok_when_approval_request_id_has_zero_width_prefix`; dry **#349**); **valid-no-repro** `Promote` optional body invisible prefix (`ValidateOptionalApprovalRequestId`; hit **#340**); **valid-no-repro** `GetPromotions` out-of-scope **404** (`GetPromotions_returns_not_found_when_run_is_out_of_scope`; dry **#335**); **valid-no-repro** mutation correction padded run **404** vs sealed **409** when run missing (dry **#937** drift vs missing-run classes); **valid-no-repro** `ListAsync` null active catalog coalesce vs delete fail-closed (`ListAsync_returns_ok_with_empty_projects_when_active_project_list_is_null`; dry **#333**). Reseeded five follow-on `(candidate)` rows from dry **#352** closed themes; zone **cooling** (`consecutive-dry-hunts` 11); scoped picker filter **159/174** (`RunAnalyzers=false`; 15 SQL integration tests skipped without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: n/a.
-
-- [ ] (candidate) `GovernanceController.GetActivations` — null golden-manifest skip before **404** — locus: run-scoped sealed guard; input: foreign run id (monitor dry **#353** / dry **#352**).
-- [ ] (candidate) `GovernanceController.GetApprovalRequestLineage` — missing approval **404** after guard skip — locus: approval row lookup; input: unknown approval id (monitor dry **#353** / dry **#937**).
-- [ ] (candidate) `GovernancePreCommitSimulationController.GetReadinessAsync` — padded out-of-scope **404** before sealed guard — locus: scope trim; input: padded valid guid (monitor dry **#353** / dry **#335**).
-- [ ] (candidate) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — rationale min length before tenant lookup — locus: service validation; input: short rationale (monitor dry **#353** / proven **#678**).
-- [ ] (candidate) `GovernanceController.Activate` — POST run id null golden-manifest skip before **404** — locus: `EnsureSealedManifestReadAllowedAsync`; input: out-of-scope run (monitor dry **#353** / dry **#343**).
 
 2026-11-03 thorough hunt (dry #352): cheap-disproof closed five open `(candidate)` monitor rows from dry **#351** reseed — **valid-no-repro** `GetActivations` null golden-manifest skip before **404** (`GetActivations_returns_not_found_when_run_is_out_of_scope`; dry **#335**); **valid-no-repro** `GetApprovalRequestLineage` missing approval **404** after guard skip (`GetApprovalRequestLineage_returns_not_found_when_run_is_out_of_scope`; dry **#937**); **valid-no-repro** `GetReadinessAsync` padded out-of-scope **404** before sealed guard (`GetReadiness_returns_not_found_with_trimmed_run_id_when_padded_valid_guid_out_of_scope`; dry **#335**); **valid-no-repro** mutation correction rationale min length before tenant lookup (proven **#678**; `RecordAsync_rejects_correction_when_rationale_is_shorter_than_minimum_length`); **valid-no-repro** `Activate` POST run id null golden-manifest skip before **404** (`Activate_returns_not_found_when_run_is_out_of_scope`; dry **#343**). Reseeded five follow-on `(candidate)` rows from dry **#351** closed themes; zone **cooling** (`consecutive-dry-hunts` 10); scoped picker filter **159/174** (`RunAnalyzers=false`; 15 SQL integration tests skipped without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: n/a.
 
@@ -19743,16 +18998,16 @@
 - [x] (valid-no-repro) `TenantWorkspacesController` — null coalesce on list/recycle vs delete guard branches — **cheap-disproof 2026-10-31 thorough hunt #333:** list coalesce + delete fail-closed documented; regressions above.
 
 - **id:** api-governance-tenancy-controllers
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 353
-- **last-hunt:** 2026-11-03
-- **bugs-found:** 531
-- **consecutive-dry-hunts:** 11
-- **last-bug:** 2026-11-01 — batch/optional approval id max-length validation ignored invisible-prefix normalize
+- **hunts:** 0
+- **last-hunt:** never
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 ### Hypotheses
@@ -21456,17 +20711,17 @@
 
 - **id:** api-policy-packs
 - **split-from:** api-governance-tenancy-controllers
-- **status:** cooling
+- **status:** unseeded
 - **impact:** high
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 59
-- **bugs-found:** 24
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-27 — GetVersion scope failure mislabeled as pack not found
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
@@ -21653,12 +20908,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `PolicyPacksController.GetVersion` — forwards trimmed normalized semver to facade after `TryParsePackVersion` — **cheap-disproof 2026-10-27 thorough hunt #397:** duplicate of proven #13756/#385; regression `GetVersion_forwards_trimmed_pack_version_to_facade`.
 - [x] (valid-no-repro) `PolicyPacksController.ExplainPack` — `MapScopeOrNull` before markdown facade read — **cheap-disproof 2026-10-27 thorough hunt #397:** duplicate of hunt #389/#366; `MapScopeOrNull` after facade maps invalid scope to tenant/workspace problem detail; regression `ExplainPack_returns_not_found_when_tenant_missing`.
 
-- [ ] (candidate) `PolicyPacksController.SimulateBulk` — rejects all-whitespace `runIds` slots before workflow — locus: `Simulate.cs` ~122-125; input: `["   "]` only list.
-- [ ] (candidate) `PolicyPacksController.Assign` — ghost tenant returns HTTP 404 before assign workflow — locus: assignment POST; input: missing tenant row (#12552).
-- [ ] (candidate) `PolicyPacksController.ArchiveAssignment` — sealed-manifest guard before archive — locus: `Assignment.cs` ~92-101; input: unsealed manifest (#381).
-- [ ] (candidate) `PolicyPacksController.ListVersions` — returns HTTP 400 when route pack id is `Guid.Empty` — locus: `BadRequestWhenRouteIdEmpty`; input: zero guid (#677).
-- [ ] (candidate) `PolicyPacksController.Publish` — forwards trimmed version to facade — locus: publish POST; input: padded semver (proven seed hit).
-
 2026-09-09 thorough hunt #1433 (hit): closed stale enable-inactive duplicate candidate; proved org-required inactive-pack bypass + 404/409 parity gap; 27 scoped workflow/workspace selection tests passed.
 
 2026-10-02 thorough hunt (seed→hit): proved catalog promote/demote bypassed the sealed-manifest mutation guard; both catalog mutation endpoints now fail with HTTP 409 before invoking the facade; 2 focused controller tests passed.
@@ -21708,16 +20957,16 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - **id:** api-governance-stickiness
 - **split-from:** api-governance-tenancy-controllers
-- **status:** cooling
+- **status:** unseeded
 - **impact:** high
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 40
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-10-28
-- **last-bug:** 2026-10-27 — decisions-needed summary fail-open on pending approval runs
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21829,24 +21078,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `GovernanceStickinessController.GetRiskRegister` — list endpoint returns up to client `maxRows` without attesting full assigned count — **cheap-disproof 2026-10-28 thorough hunt #367:** duplicate of #360; list pagination vs count attestation (#356 hit); not a manifest leak.
 - [x] (invalid) `GovernancePreCommitSimulationController.GetChecklistAsync` — read-only GET does not run decisions-needed pending seal preflight — **cheap-disproof 2026-10-28 thorough hunt #367:** duplicate of #364/#356/#362; simulation is checklist projection, not stickiness summary attestation.
 
-- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — pending approvals list `.Take(10)` while FYI reports full active waiver count — locus: composer ~97-99 vs ~177-180; input: exec email mistaken for nav summary.
-- [ ] (candidate) `GovernanceStickinessController.GetDecisionsNeededSummary` — duplicate `GetPendingAsync(50)` across seal and summary — locus: pending seal + `BuildSummaryAsync`; input: queue churn mid-request (TOCTOU; #364 class).
-- [ ] (candidate) `GovernanceDigestDecisionNeededComposer` — register fan-in capped at `DecisionsNeededRiskRegisterPageSize` 100 — locus: summary + markdown; input: stale row on page two (#358 class).
-- [ ] (candidate) `GovernanceStickinessFacade.EnsureDecisionsNeededPendingApprovalsSealedAsync` — early return when project scope unresolved — locus: `TryResolve`; input: tenant-wide pending visible without seal (valid-no-repro #364 class).
-- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.EnsurePendingApprovalRunsSealedForSummaryAsync` — fail-closed on blank pending `RunId` — locus: SealedManifestGuard ~36-39; input: legacy row (intentional post-#363).
-
 - **id:** api-governance-stickiness
 - **split-from:** api-governance-tenancy-controllers
-- **status:** cooling
+- **status:** unseeded
 - **impact:** high
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 40
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-10-28
-- **last-bug:** 2026-10-27 — decisions-needed summary fail-open on pending approval runs
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21914,12 +21157,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ## Zone: api-tenancy-workspaces
 
 2026-11-03 thorough hunt (dry #47): cheap-disproof closed five open `(candidate)` monitor rows from dry **#46** reseed — **valid-no-repro** restore without clearing sibling-workspace default metadata pin (`RestoreProjectAsync_returns_no_content_when_sibling_workspace_pins_project_as_default_metadata`; dry **#43** / **#938**); **valid-no-repro** foreign retention on recycle GET vs idempotent delete when caller row inactive (`DeleteProjectAsync_returns_no_content_when_foreign_workspace_stale_row_pins_caller_project_but_foreign_default_moved`; dry **#43**); **valid-no-repro** recycle-bin display name from inactive scoped inventory row vs purge schedule from resolved default (`ListRecycleBinAsync_uses_scope_metadata_row_name_when_scoped_project_is_soft_deleted_with_active_sibling_default`; dry **#43**); **invalid** tenant catalog migration status GET without workspace inventory preflight (`GetCatalogMigrationStatusAsync_does_not_preflight_workspace_inventory`; dry **#41**); **valid-no-repro** duplicate workspace inventory row pins caller default on non-first row (`DeleteProjectAsync_returns_bad_request_when_duplicate_workspace_row_pins_caller_default_and_active_list_is_null`; proven **2026-10-20**). Reseeded five follow-on `(candidate)` monitor rows from dry **#46** closed themes; removed stale open rows from dry **#45** header queue; zone **cooling** (`consecutive-dry-hunts` 12); **75/75** scoped `FullyQualifiedName~TenantWorkspaces|FullyQualifiedName~TenantCatalogMigrationStatus` in Api.Tests (`RunAnalyzers=false`). Private beta: n/a.
-
-- [ ] (candidate) `TenantWorkspacesController.ListAsync` — stale scope default project id omitted when pinned default is not an active catalog project — locus: list GET default resolution; input: stale scope pin (`ListAsync_omits_stale_default_project_id_when_default_is_not_an_active_project`; monitor dry **#47** / dry **#46** / dry **#42**).
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — fail-closed when another workspace still pins deleted project as default metadata — locus: foreign default metadata guard; input: cross-workspace pin (`DeleteProjectAsync_returns_bad_request_when_another_workspace_pins_project_as_default_metadata`; monitor dry **#47** / dry **#46** / hit **2026-10-06**).
-- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — omits purge schedule when deleted row is still workspace default metadata — locus: recycle retention guard; input: workspace default metadata pin (`ListRecycleBinAsync_omits_purge_schedule_when_deleted_project_is_workspace_default_metadata`; monitor dry **#47** / dry **#46**).
-- [ ] (candidate) `TenantWorkspacesController.RestoreProjectAsync` — no content when workspace default metadata still references soft-deleted project — locus: restore path; input: default metadata still points at soft-deleted project (`RestoreProjectAsync_returns_no_content_when_workspace_default_metadata_still_points_at_soft_deleted_project`; monitor dry **#47** / dry **#46** / dry **#36**).
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — idempotent no-content when active catalog null and foreign workspace pins project metadata only — locus: idempotent delete vs fail-closed; input: foreign metadata pin (`DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`; monitor dry **#47** / dry **#46** / dry **#36**).
 
 2026-11-03 thorough hunt (dry #46): cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#45** (regression family dry **#44** / dry **#36**) — **valid-no-repro** stale scope default omitted when pinned default is not an active catalog project (`ListAsync_omits_stale_default_project_id_when_default_is_not_an_active_project`, dry **#36** / dry **#42**); **valid-no-repro** cross-workspace default metadata pin blocks delete (`DeleteProjectAsync_returns_bad_request_when_another_workspace_pins_project_as_default_metadata`, hit **2026-10-06**); **valid-no-repro** recycle-bin omits purge when deleted project is workspace default metadata (`ListRecycleBinAsync_omits_purge_schedule_when_deleted_project_is_workspace_default_metadata`); **valid-no-repro** restore returns no-content when default metadata still references soft-deleted project by design (`RestoreProjectAsync_returns_no_content_when_workspace_default_metadata_still_points_at_soft_deleted_project`, dry **#36**); **valid-no-repro** idempotent delete when active catalog null and foreign workspace pins metadata only (`DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`, dry **#36** / proven **2026-10-20**). Reseeded five follow-on `(candidate)` monitor rows from dry **#45** closed themes; **72/72** scoped `FullyQualifiedName~TenantWorkspaces` tests (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -22038,16 +21275,16 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - **id:** api-tenancy-workspaces
 - **split-from:** api-governance-tenancy-controllers
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 47
-- **bugs-found:** 12
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 ### Hypotheses
@@ -22238,15 +21475,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-governance-policy
 
-**Hunts:** 64 · **Bugs found:** 43 · **Consecutive dry hunts:** 5
+**Hunts:** 0 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
 
 2026-11-05 thorough hunt (dry #64): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`application-governance-policy`** is **2/3** before this record). Cheap-disproof closed five open `(candidate)` monitor rows from dry **#63** reseed (recycled dry **#62** / hit **#55**–**#59** themes) — **invalid** outer whitespace on `policyPackId` finding property (`PackIdsEquivalent` trims; hit **#55** / dry **#62**), **valid-no-repro** interior tab in `PolicyRuleId` vs exact compliance key (outer trim only; hit **#59** / dry **#62**), **valid-no-repro** padded `ComplianceRuleKeys` on assignment snapshot (catalog-normalized keys; hit **#54** / dry **#62**), **valid-no-repro** minimum Critical with Warning-only finding (threshold label contract; dry **#57** / hit **#59** / dry **#62**), **valid-no-repro** interior double-space compliance key token (catalog shape; hit **#54** / dry **#62**). Reseeded five follow-on `(candidate)` rows below (recycled dry **#63** / hit **#58** closed themes); scoped filter **899/908** Application PolicyPack/Governance (`RunAnalyzers=false`, 9 pre-existing unrelated VM failures). Private beta: n/a.
-
-- [ ] (candidate) `PolicyPackFindingMatcher.EngineTypeReferencesPack` — ASCII space after `policy-pack:` prefix before pack token — locus: `PackIdsEquivalent` suffix trim; input: `policy-pack: {N}`; reachability: monitor dry **#64** / dry **#63** / hit **#58**.
-- [ ] (candidate) `PreCommitGateThresholdParser.TryParseMinimumSeverity` — numeric string `"2"` maps via enum ordinal not label — locus: `Enum.TryParse` + `IsDefined`; input: `"2"` threshold metadata; reachability: monitor dry **#64** / dry **#63** / hit **#58**.
-- [ ] (candidate) `GovernancePreviewService.PreviewActivationAsync` — CR/LF padding on run `CurrentManifestVersion` — locus: version-reader path; input: embedded newline in version label; reachability: monitor dry **#64** / dry **#63** / dry **#219**.
-- [ ] (candidate) `PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes` — complete findings snapshot marks `Evaluated` without pack evaluation signal — locus: complete-snapshot branch; input: complete snapshot + unrelated findings; reachability: monitor dry **#64** / dry **#63** / dry **#933**.
-- [ ] (candidate) `EffectiveGovernanceSnapshotBuilder.ResolveCoverageType` — trailing whitespace on overlay pack display name — locus: ordinal catalog `Contains`; input: padded overlay name; reachability: monitor dry **#64** / dry **#63** / dry **#217**.
 
 - [x] (invalid) `PolicyPackFindingMatcher.MatchesAssignment` — outer whitespace on `policyPackId` finding property bypasses assignment match — **cheap-disproof 2026-11-05 thorough hunt #64:** dry **#63** monitor queue; hit **#55** / dry **#62**.
 - [x] (valid-no-repro) `PolicyPackFindingMatcher.MatchesAssignment` — interior tab embedded in `PolicyRuleId` vs exact compliance key — **cheap-disproof 2026-11-05 thorough hunt #64:** dry **#63** monitor queue; hit **#59** / dry **#62**.
@@ -22495,16 +21726,16 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `GovernanceDecisionsNeededSummaryCalculator.IsHighSeverity` — exotic severity vocabulary — **cheap-disproof 2026-10-30 seed hunt:** register reader projects persisted severity contract; prior 2026-10-03 dry closed substring class.
 
 - **id:** application-governance-policy
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 64
-- **bugs-found:** 43
-- **consecutive-dry-hunts:** 5
-- **last-hunt:** 2026-11-05
-- **last-bug:** 2026-11-01 — un-normalized PolicyRuleId let a padded rule id containing an assigned compliance key match via substring
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -22515,12 +21746,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `CommittedGovernancePackAssignmentSnapshot.ComplianceRuleKeys` — padded rule-key entries — **cheap-disproof 2026-11-05 thorough hunt #60:** see dry **#60** diary.
 - [x] (valid-no-repro) `PreCommitGateEvaluator.Evaluate` — minimum Critical with Warning-only finding — **cheap-disproof 2026-11-05 thorough hunt #60:** see dry **#60** diary.
 - [x] (valid-no-repro) `PolicyPackFindingMatcher.RuleKeyAppearsAsToken` — interior double-space in compliance key token — **cheap-disproof 2026-11-05 thorough hunt #60:** see dry **#60** diary.
-
-- [ ] (candidate) `PolicyPackFindingMatcher.EngineTypeReferencesPack` — ASCII space after `policy-pack:` prefix — monitor dry **#64** / dry **#63** / hit **#58**; see dry **#64** reseed.
-- [ ] (candidate) `PreCommitGateThresholdParser.TryParseMinimumSeverity` — numeric `"2"` ordinal threshold — monitor dry **#64** / dry **#63** / hit **#58**; see dry **#64** reseed.
-- [ ] (candidate) `GovernancePreviewService.PreviewActivationAsync` — CR/LF manifest version padding — monitor dry **#64** / dry **#63** / dry **#219**; see dry **#64** reseed.
-- [ ] (candidate) `PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes` — complete snapshot without pack signal — monitor dry **#64** / dry **#63** / dry **#933**; see dry **#64** reseed.
-- [ ] (candidate) `EffectiveGovernanceSnapshotBuilder.ResolveCoverageType` — trailing whitespace overlay name — monitor dry **#64** / dry **#63** / dry **#217**; see dry **#64** reseed.
 
 - [x] (invalid) `PolicyPackFindingMatcher.MatchesAssignment` — outer whitespace on `policyPackId` finding property — **cheap-disproof 2026-11-05 thorough hunt #64:** see dry **#64** diary.
 - [x] (valid-no-repro) `PolicyPackFindingMatcher.MatchesAssignment` — interior tab in `PolicyRuleId` vs exact compliance key — **cheap-disproof 2026-11-05 thorough hunt #64:** see dry **#64** diary.
@@ -22546,7 +21771,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow` — case-sensitive `LegacyRunStatus` ordinal match — **cheap-disproof 2026-10-31 thorough hunt #211:** see hunt #211 diary.
 - [x] (invalid) `GovernanceWorkflowIntegrationEventSupport.TryResolveRunGuid` — requires `Guid.TryParse(trim)` for integration event run correlation — **cheap-disproof 2026-10-31 thorough hunt #211:** see hunt #211 diary.
 
-**Hunts:** 45 · **Bugs found:** 37 · **Consecutive dry hunts:** 1
+**Hunts:** 0 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
 
 - [x] (valid-no-repro) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — invisible Unicode opaque bulk dedupe — **cheap-disproof 2026-10-31 thorough hunt #212:** see hunt #212 diary.
 - [x] (valid-no-repro) `PolicyPackGovernanceDryRunService.EvaluateAsync` — manifest vs run-target GUID format drift — **cheap-disproof 2026-10-31 thorough hunt #212:** see hunt #212 diary.
@@ -22700,65 +21925,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
-2026-11-16 thorough hunt (hit #230): no rotation (`shouldRotate: false`). Promoted `Tenant slug cancelled`, `Tenant slug released`, and `Tenant slug reactivated` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#229**); `IsTenantSlugPhraseExcludedWord` now rejects leading `cancelled`, `released`, and `reactivated`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_cancelled_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_released_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_reactivated_substring_in_already_exists_message`. Cheap-disproof closed five picker `(candidate)` rows — **valid-no-repro** `Tenant slug named` / `called` (regressions ~915–929), **valid-no-repro** migration probe error trim (`ToPublicProbeResult` / **#148**), **valid-no-repro** deletion legal-hold ordering and trial `ACTIVE` casing (`TrialLifecycleStatus.EqualsStatus` trim+case-insensitive), **valid-no-repro** two **#229** migration/erasure monitors (hunt **#228**/**#229** parity). Reseeded four follow-on `(candidate)` monitor rows below. Scoped filter **446/446** (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention cancelled, released, or reactivated slug lifecycle wording as duplicate organization collisions.
-
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug cancelled` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #230:** excluded slug phrase word `cancelled`; regression above.
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug released` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #230:** excluded slug phrase word `released`; regression above.
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug reactivated` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #230:** excluded slug phrase word `reactivated`; regression above.
-- [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug named` substring — **cheap-disproof 2026-11-16 thorough hunt #230:** regression ~915.
-- [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug called` substring — **cheap-disproof 2026-11-16 thorough hunt #230:** regression ~924.
-- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — failed probe persists untrimmed error — **cheap-disproof 2026-11-16 thorough hunt #230:** `ToPublicProbeResult` normalizes before persist.
-- [x] (valid-no-repro) `TenantDeletionService.DeleteTenantAsync` — legal hold check ordering vs erasure approval re-read — **cheap-disproof 2026-11-16 thorough hunt #230:** legal hold re-read before hard purge.
-- [x] (valid-no-repro) `TrialSeatAccountant.TryReserveSeatAsync` — seat cap ignored when trial status casing differs — **cheap-disproof 2026-11-16 thorough hunt #230:** `TrialLifecycleStatus.EqualsStatus`.
-- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — verification pass stamp rollback — **cheap-disproof 2026-11-16 thorough hunt #230:** hunt **#228**/**#229** parity.
-- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard without suspend — **cheap-disproof 2026-11-16 thorough hunt #230:** hunt **#228** parity.
-
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug deactivated` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug deactivated incorrectly already exists` (monitor **#230**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug converted` substring — locus: phrase scan; input: `Tenant slug converted automatically already exists` (monitor **#230**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug archived` substring — locus: phrase scan; input: `Tenant slug archived elsewhere already exists` (monitor **#230**).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when verification passed timestamp rolled back between reads — locus: verification pass gate; input: concurrent verification failure after pass stamp (monitor reseed **#229**).
-
-
-2026-11-16 thorough hunt (hit #229): no rotation (`shouldRotate: false`). Promoted `Tenant slug revoked`, `Tenant slug disabled`, and `Tenant slug terminated` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#228**); `IsTenantSlugPhraseExcludedWord` now rejects leading `revoked`, `disabled`, and `terminated`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_revoked_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_disabled_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_terminated_substring_in_already_exists_message` failed first; cheap-disproof closed two remaining open `(candidate)` rows — **valid-no-repro** migration complete with stale in-memory `VerificationPassedUtc` (same single `GetActiveByTenantIdAsync` entry gate as hunt **#228**), **valid-no-repro** verification stage advance before probe mark when probe throws (fault surfaces to caller; `MarkVerificationResultAsync` never runs; retry uses Verification stage). Reseeded five follow-on `(candidate)` monitor rows below; scoped filter **443/443** (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention revoked, disabled, or terminated slug lifecycle wording as duplicate organization collisions.
-
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug revoked` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #229:** excluded slug phrase word `revoked`; regression above.
-
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug disabled` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #229:** excluded slug phrase word `disabled`; regression above.
-
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug terminated` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #229:** excluded slug phrase word `terminated`; regression above.
-
-- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes when `VerificationPassedUtc` cleared in DB but in-memory active still set — **cheap-disproof 2026-11-16 thorough hunt #229:** hunt **#228** parity; single active read at entry.
-
-- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — advances to Verification stage when probe throws before mark — **cheap-disproof 2026-11-16 thorough hunt #229:** stage update is intentional; probe fault aborts before `MarkVerificationResultAsync`; operator retries verification.
-
-
-
-2026-11-16 thorough hunt (hit #228): no rotation (`shouldRotate: false`). Promoted `Tenant slug expired`, `Tenant slug locked`, and `Tenant slug pending` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#227**); `IsTenantSlugPhraseExcludedWord` now rejects leading `expired`, `locked`, and `pending`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_expired_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_locked_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_pending_substring_in_already_exists_message`; cheap-disproof closed two remaining open `(candidate)` rows — **valid-no-repro** migration complete after verification stamp rolled back (`CompleteAsync` reads active migration once at entry; a concurrent verification failure clears `VerificationPassedUtc` before a second complete attempt, not mid-flight without a stale client), **valid-no-repro** offboard without suspend (`TryOffboardTenantAsync` calls `SuspendTenantAsync` immediately after atomic offboard start ~80). Scoped filter **440/440** (`RunAnalyzers=false`). Private beta: when an invited operator retries tenant provisioning after a generic “already exists” error that mentions expired, locked, or pending slug lifecycle wording, the app does not misclassify that message as an organization-name collision.
-
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expired` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #228:** excluded slug phrase word `expired`; regression above.
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug locked` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #228:** excluded slug phrase word `locked`; regression above.
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pending` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #228:** excluded slug phrase word `pending`; regression above.
-- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when verification passed timestamp rolled back between reads — **cheap-disproof 2026-11-16 thorough hunt #228:** orchestrator gates on `active.VerificationPassedUtc` from the single `GetActiveByTenantIdAsync` at call entry; stamp rollback requires a second complete after failed verification, not an in-process stale row without re-fetch.
-- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard without suspend when migration suspend expected — **cheap-disproof 2026-11-16 thorough hunt #228:** `SuspendTenantAsync` after successful `TryStartTenantErasureOffboardAsync` ~80.
-
-- [x] (superseded) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug revoked` substring satisfies slug context without index tokens — **superseded 2026-11-16 thorough hunt #229:** proved at zone header.
-- [x] (superseded) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug disabled` substring satisfies slug context without index tokens — **superseded 2026-11-16 thorough hunt #229:** proved at zone header.
-- [x] (superseded) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug terminated` substring satisfies slug context without index tokens — **superseded 2026-11-16 thorough hunt #229:** proved at zone header.
-- [x] (superseded) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes when `VerificationPassedUtc` cleared in DB but in-memory active still set — **superseded 2026-11-16 thorough hunt #229:** valid-no-repro at zone header.
-- [x] (superseded) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — advances to Verification stage when probe throws before mark — **superseded 2026-11-16 thorough hunt #229:** valid-no-repro at zone header.
-
-2026-11-16 thorough hunt (hit #227): promoted `Tenant slug suspended`, `Tenant slug unsuspended`, and `Tenant slug provisioned` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#226**); `IsTenantSlugPhraseExcludedWord` now rejects leading `suspended`, `unsuspended`, and `provisioned`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_suspended_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_unsuspended_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_provisioned_substring_in_already_exists_message`; cheap-disproof closed two remaining open `(candidate)` rows from hit **#226** — **valid-no-repro** migration complete unsuspend for admin suspend before start (`CompleteAsync_preserves_admin_suspend_when_tenant_was_suspended_before_migration_start`; unsuspend only when `SuspendedUtc >= active.StartedUtc` ~173–186), **valid-no-repro** quarantine restore clearing suspend (`TryRestoreQuarantineAsync_clears_suspend_set_during_offboard`); reseeded five follow-on `(candidate)` monitor rows; scoped filter **439/439** Application tenancy tests passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug suspended/unsuspended/provisioned phrasing as duplicate slug SQL conflicts when the message also contains already exists.
-
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug suspended` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #227:** excluded slug phrase word `suspended`; regression above.
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug unsuspended` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #227:** excluded slug phrase word `unsuspended`; regression above.
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug provisioned` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #227:** excluded slug phrase word `provisioned`; regression above.
-- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — unsuspends tenant suspended before migration start — **cheap-disproof 2026-11-16 thorough hunt #227:** `CompleteAsync_preserves_admin_suspend_when_tenant_was_suspended_before_migration_start`.
-- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore leaves tenant suspended after offboard — **cheap-disproof 2026-11-16 thorough hunt #227:** `TryRestoreQuarantineAsync_clears_suspend_set_during_offboard`.
-
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expired` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug expired elsewhere already exists` (monitor hit **#227**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug locked` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug locked incorrectly already exists` (monitor hit **#227**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pending` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug pending automatically already exists` (monitor hit **#227**).
-
 2026-11-05 thorough hunt (hit #226): promoted `Tenant slug deactivated`, `Tenant slug validated`, and `Tenant slug converted` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#225**); `IsTenantSlugPhraseExcludedWord` now rejects leading `deactivated`, `validated`, and `converted`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_deactivated_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_validated_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_converted_substring_in_already_exists_message`; cheap-disproof closed two remaining open `(candidate)` rows from hit **#225** — **invalid** projection refresh stage advance before refresh completes (stage updates after successful `RefreshAsync` ~40–58; proven ledger **2026-08-23**; regression `RunProjectionRefreshAsync_keeps_catalog_attach_stage_when_refresh_throws`), **valid-no-repro** erasure approve when tenant offboarded (`TryApproveErasureAsync` requires `OffboardedUtc` ~388–389; intentional command contract; seed **2026-10-12** diary); reseeded five follow-on `(candidate)` monitor rows; scoped filter **432/432** Application + **9/9** Core `TenantTrialSeatPolicy` (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug deactivated/validated/converted phrasing as duplicate slug SQL conflicts when the message also contains already exists.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug deactivated` substring satisfies slug context without index tokens — **hit 2026-11-05 thorough hunt #226:** excluded slug phrase word `deactivated`; regression above.
@@ -22766,12 +21932,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug converted` substring satisfies slug context without index tokens — **hit 2026-11-05 thorough hunt #226:** excluded slug phrase word `converted`; regression above.
 - [x] (invalid) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — advances stage before `RefreshAsync` completes — **cheap-disproof 2026-11-05 thorough hunt #226:** stage advance follows refresh success ~56–58; proven **2026-08-23**.
 - [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — approval succeeds when tenant already offboarded — **cheap-disproof 2026-11-05 thorough hunt #226:** offboard prerequisite by design ~388–389; seed **2026-10-12** diary.
-
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug suspended` substring satisfies slug context without index tokens — **closed 2026-11-16 thorough hunt #227** (see zone header).
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug unsuspended` substring satisfies slug context without index tokens — **closed 2026-11-16 thorough hunt #227** (see zone header).
-- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug provisioned` substring satisfies slug context without index tokens — **closed 2026-11-16 thorough hunt #227** (see zone header).
-- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — unsuspends tenant suspended before migration start — **closed 2026-11-16 thorough hunt #227** (see zone header).
-- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore leaves tenant suspended after offboard — **closed 2026-11-16 thorough hunt #227** (see zone header).
 
 
 2026-11-05 thorough hunt (hit #225): promoted `Tenant slug reverted`, `Tenant slug published`, and `Tenant slug activated` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#224**); `IsTenantSlugPhraseExcludedWord` now rejects leading `reverted`, `published`, and `activated`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_reverted_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_published_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_activated_substring_in_already_exists_message`; cheap-disproof closed two remaining open `(candidate)` rows from hit **#224** — **invalid** verification probe while stage still `ProjectionRefresh` (`RunVerificationAsync_returns_wrong_stage_before_projection_refresh_succeeds`; gate ~23–28), **valid-no-repro** offboard with active migration row (`TryOffboardTenantAsync` has no migration block by design; migration status suppresses banner when offboarded — hit **#224** / seed **2026-09-25**); reseeded five follow-on `(candidate)` monitor rows; scoped filter **429/429** Application + **9/9** Core `TenantTrialSeatPolicy` (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug reverted/published/activated phrasing as duplicate slug SQL conflicts when the message also contains already exists.
@@ -22782,12 +21942,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification probe when stage still `ProjectionRefresh` — **cheap-disproof 2026-11-05 thorough hunt #225:** returns `WrongStage`; regression above.
 - [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard proceeds while catalog migration active — **cheap-disproof 2026-11-05 thorough hunt #225:** operator erasure path; migration banner suppressed when offboarded; seed **2026-09-25** diary.
 
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug deactivated` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug deactivated elsewhere already exists` (monitor hit **#225**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug validated` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug validated incorrectly already exists` (monitor hit **#225**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug converted` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug converted automatically already exists` (monitor hit **#225**).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — advances stage before `RefreshAsync` completes — locus: stage update ordering; input: refresh throws mid-call (monitor hit **#225** / proven ledger **2026-08-23**).
-- [ ] (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — approval succeeds when tenant already offboarded — locus: quarantine guards; input: offboard then approve API (monitor hit **#225**).
-
 
 2026-11-05 thorough hunt (hit #224): promoted `Tenant slug restored`, `Tenant slug archived`, and `Tenant slug migrated` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#223**); `IsTenantSlugPhraseExcludedWord` now rejects leading `restored`, `archived`, and `migrated`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_restored_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_archived_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_migrated_substring_in_already_exists_message`; cheap-disproof closed two remaining open `(candidate)` rows from hit **#223** — **valid-no-repro** verification retry after failed probe (`RunVerificationAsync_allows_retry_after_failed_verification`; stage `Verification` with null pass timestamp), **valid-no-repro** convert when tenant offboarded (`ConvertTrialAsync` returns success without mutation when `OffboardedUtc` set on re-read ~65–66 / ~82–83; regression `ConvertTrialAsync_returns_success_without_billing_when_offboard_completes_after_entry_before_billing_gate`); reseeded five follow-on `(candidate)` monitor rows; scoped filter **426/426** Application + **9/9** Core `TenantTrialSeatPolicy` (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug restored/archived/migrated phrasing as duplicate slug SQL conflicts when the message also contains already exists.
 
@@ -22796,12 +21950,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug migrated` substring satisfies slug context without index tokens — **hit 2026-11-05 thorough hunt #224:** excluded slug phrase word `migrated`; regression above.
 - [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — verification retry after failed probe without refresh completion — **cheap-disproof 2026-11-05 thorough hunt #224:** intentional retry contract; regression `RunVerificationAsync_allows_retry_after_failed_verification`.
 - [x] (valid-no-repro) `TenantTrialConversionStage.ConvertTrialAsync` — converts trial when tenant already offboarded — **cheap-disproof 2026-11-05 thorough hunt #224:** quarantine short-circuit returns success without mark/billing; offboard race regressions above.
-
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug reverted` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug reverted elsewhere already exists` (monitor hit **#224**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug published` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug published incorrectly already exists` (monitor hit **#224**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug activated` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug activated automatically already exists` (monitor hit **#224**).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification probe when stage still `ProjectionRefresh` — locus: stage gate ~23–28; input: skipped refresh admin call (monitor hit **#224**).
-- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard proceeds while catalog migration active — locus: migration conflict guard; input: active migration row present (monitor hit **#224**).
 
 
 2026-11-05 thorough hunt (hit #223): promoted `Tenant slug replaced`, `Tenant slug synchronized`, and `Tenant slug transferred` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#222**); `IsTenantSlugPhraseExcludedWord` now rejects leading `replaced`, `synchronized`, and `transferred`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_replaced_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_synchronized_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_transferred_substring_in_already_exists_message`; cheap-disproof closed two remaining open `(candidate)` rows from hit **#222** — **invalid** migration start for offboarded tenant (`StartAsync` returns `InErasureQuarantine` at ~30–31; regression `StartAsync_rejects_erasure_quarantined_tenant_without_creating_migration`), **valid-no-repro** slug internal whitespace (`TenantSlugNormalizer.FromName` collapses whitespace runs to hyphen delimiters; regression `FromName_produces_expected_slug`); reseeded five follow-on `(candidate)` monitor rows; scoped filter **423/423** Application + **9/9** Core `TenantTrialSeatPolicy` (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug replaced/synchronized/transferred phrasing as duplicate slug SQL conflicts when the message also contains already exists.
@@ -22812,12 +21960,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantCatalogMigrationOrchestrator.StartAsync` — starts migration for erasure-quarantined tenant without scope freeze — **cheap-disproof 2026-11-05 thorough hunt #223:** early `InErasureQuarantine`; regression `StartAsync_rejects_erasure_quarantined_tenant_without_creating_migration`.
 - [x] (valid-no-repro) `TenantSlugNormalizer.FromName` — trims internal whitespace in organization display name slug — **cheap-disproof 2026-11-05 thorough hunt #223:** whitespace-to-hyphen slug contract; `FromName_produces_expected_slug`.
 
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug restored` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug restored elsewhere already exists` (monitor hit **#223**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug archived` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug archived incorrectly already exists` (monitor hit **#223**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug migrated` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug migrated automatically already exists` (monitor hit **#223**).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — verification retry after failed probe without refresh completion — locus: stage gate; input: failed probe then immediate verify (monitor hit **#223** / open ledger candidate).
-- [ ] (candidate) `TenantTrialConversionStage.ConvertTrialAsync` — converts trial when tenant already offboarded — locus: erasure quarantine guard; input: offboard then convert API (monitor hit **#223**).
-
 
 2026-11-05 thorough hunt (hit #222): promoted `Tenant slug added`, `Tenant slug deleted`, and `Tenant slug duplicated` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#221**); `IsTenantSlugPhraseExcludedWord` now rejects leading `added`, `deleted`, and `duplicated`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_added_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_deleted_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_duplicated_substring_in_already_exists_message`; cheap-disproof closed two remaining open `(candidate)` rows from hit **#221** — **valid-no-repro** double suspend throws (`TrySuspendAsync_is_idempotent_when_already_suspended`; returns `AlreadyInDesiredState`), **valid-no-repro** projection refresh when offboarded mid-run (`RunProjectionRefreshAsync_returns_in_erasure_quarantine_without_calling_refresh_when_offboarded_after_entry_before_refresh_run` and related erasure suite); reseeded five follow-on `(candidate)` monitor rows; scoped filter **420/420** Application + **9/9** Core `TenantTrialSeatPolicy` (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug added/deleted/duplicated phrasing as duplicate slug SQL conflicts when the message also contains already exists.
 
@@ -22826,12 +21968,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug duplicated` substring satisfies slug context without index tokens — **hit 2026-11-05 thorough hunt #222:** excluded slug phrase word `duplicated`; regression above.
 - [x] (valid-no-repro) `TenantSuspendCommandService.TrySuspendAsync` — suspend on already-suspended tenant throws instead of idempotent outcome — **cheap-disproof 2026-11-05 thorough hunt #222:** `AlreadyInDesiredState`; regression `TrySuspendAsync_is_idempotent_when_already_suspended`.
 - [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh proceeds when tenant offboarded mid-run — **cheap-disproof 2026-11-05 thorough hunt #222:** `InErasureQuarantine` without refresh; regression suite above.
-
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug replaced` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug replaced elsewhere already exists` (monitor hit **#222**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug synchronized` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug synchronized incorrectly already exists` (monitor hit **#222**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug transferred` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug transferred automatically already exists` (monitor hit **#222**).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` — starts migration for erasure-quarantined tenant without scope freeze — locus: suspend + offboard guards; input: offboarded tenant id (monitor hit **#222** / proven ledger **2026-09-02**).
-- [ ] (candidate) `TenantSlugNormalizer.FromName` — trims internal whitespace in organization display name slug — locus: slug derivation; input: double-space organization name (monitor hit **#222**).
 
 
 2026-11-05 thorough hunt (hit #221): promoted `Tenant slug exported`, `Tenant slug copied`, and `Tenant slug removed` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#220**); `IsTenantSlugPhraseExcludedWord` now rejects leading `exported`, `copied`, and `removed`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_exported_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_copied_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_removed_substring_in_already_exists_message`; cheap-disproof closed two remaining open `(candidate)` rows from hit **#220** — **invalid** complete after failed verification without pass (`CompleteAsync` requires `VerificationPassedUtc` ~148–149; returns `VerificationRequired`), **invalid** platform audit after erasure approval revoked post-purge (`DeleteTenantAsync_returns_without_platform_audit_when_erasure_approval_cleared_after_sql_purge`; hit **#220** / hunt **#218** class); reseeded five follow-on `(candidate)` monitor rows; scoped filter **417/417** Application + **9/9** Core `TenantTrialSeatPolicy` (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug exported/copied/removed phrasing as duplicate slug SQL conflicts when the message also contains already exists.
@@ -22842,12 +21978,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when verification failed timestamp set without pass — **cheap-disproof 2026-11-05 thorough hunt #221:** `VerificationRequired` when `VerificationPassedUtc` null; hit **#217** diary.
 - [x] (invalid) `TenantDeletionService.DeleteTenantAsync` — erasure approval cleared after SQL purge still emits platform audit — **cheap-disproof 2026-11-05 thorough hunt #221:** returns without audit when approval cleared after purge; regression above.
 
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug added` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug added elsewhere already exists` (monitor hit **#221**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug deleted` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug deleted incorrectly already exists` (monitor hit **#221**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug duplicated` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug duplicated automatically already exists` (monitor hit **#221**).
-- [ ] (candidate) `TenantSuspendCommandService.TrySuspendAsync` — suspend on already-suspended tenant throws instead of idempotent outcome — locus: suspend guards; input: double suspend API call (monitor hit **#221**).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh proceeds when tenant offboarded mid-run — locus: offboard quarantine; input: erasure between stage update and refresh (monitor hit **#221** / hit **#215**).
-
 
 2026-11-05 thorough hunt (hit #220): promoted `Tenant slug registered`, `Tenant slug updated`, and `Tenant slug imported` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#219**); `IsTenantSlugPhraseExcludedWord` now rejects leading `registered`, `updated`, and `imported`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_registered_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_updated_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_imported_substring_in_already_exists_message`; cheap-disproof closed two remaining open `(candidate)` rows from hit **#219** — **invalid** verification audit untrimmed failure text (`AppendPlatformAuditAsync` uses trimmed `normalizedError` from `publicProbe` ~63–66 / ~101), **invalid** provision preflight skips normalized organization match (`ResolveExistingTenantForProvisionAsync` queries `GetByNormalizedOrganizationNameAsync` with normalized key ~65–70 / ~266–277); reseeded five follow-on `(candidate)` monitor rows; scoped filter **414/414** Application + **9/9** Core `TenantTrialSeatPolicy` (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug registered/updated/imported phrasing as duplicate slug SQL conflicts when the message also contains already exists.
 
@@ -22856,12 +21986,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug imported` substring satisfies slug context without index tokens — **hit 2026-11-05 thorough hunt #220:** excluded slug phrase word `imported`; regression above.
 - [x] (invalid) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — audit envelope uses untrimmed probe failure text — **cheap-disproof 2026-11-05 thorough hunt #220:** audit `ErrorMessage` is trimmed `publicProbe.ErrorMessage`; hit **#219** diary.
 - [x] (invalid) `TenantProvisioningService.ProvisionAsync` — pre-check `ResolveExistingTenantForProvisionAsync` skips normalized organization match — **cheap-disproof 2026-11-05 thorough hunt #220:** preflight uses normalized organization name key; hit **#219** diary.
-
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug exported` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug exported elsewhere already exists` (monitor hit **#220**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug copied` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug copied incorrectly already exists` (monitor hit **#220**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug removed` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug removed automatically already exists` (monitor hit **#220**).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when verification failed timestamp set without pass — locus: `VerificationPassedUtc`; input: failed probe retry (monitor hit **#220** / hit **#217**).
-- [ ] (candidate) `TenantDeletionService.DeleteTenantAsync` — erasure approval cleared after SQL purge still emits platform audit — locus: post-purge approval re-read; input: approval revoked mid-purge (monitor hit **#220** / hunt **#66** class).
 
 
 2026-11-05 thorough hunt (hit #219): promoted `Tenant slug reserved`, `Tenant slug selected`, and `Tenant slug created` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#218**); gateway copy with those verbs after `Tenant slug ` matched org slug context because hunt **#218** excluded `named`/`called` but not `reserved`, `selected`, or `created`; `IsTenantSlugPhraseExcludedWord` now rejects those leading words; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_reserved_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_selected_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_created_substring_in_already_exists_message`; cheap-disproof closed two remaining open `(candidate)` rows from hit **#218** — **invalid** raw probe error persist (`MarkVerificationResultAsync` receives `publicProbe.ErrorMessage` already trimmed via `ToPublicProbeResult` ~53–66 / ~124–125), **invalid** duplicate provision race before normalization (`ProvisionAsync` normalizes organization name ~65 before insert and re-resolves with the same normalized key in the duplicate catch ~90–97); reseeded five follow-on `(candidate)` monitor rows; scoped filter **411/411** Application + **9/9** Core `TenantTrialSeatPolicy` (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug reserved/selected/created phrasing as duplicate slug SQL conflicts when the message also contains already exists.
@@ -22872,12 +21996,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — raw probe `ErrorMessage` persisted when `ToPublicProbeResult` would trim — **cheap-disproof 2026-11-05 thorough hunt #219:** mark path uses trimmed `publicProbe.ErrorMessage`; hit **#218** diary.
 - [x] (invalid) `TenantProvisioningService.ProvisionAsync` — duplicate insert catch resolves tenant id before normalization — **cheap-disproof 2026-11-05 thorough hunt #219:** `NormalizeOrganizationName` before insert and race re-resolve ~65–97.
 
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug registered` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug registered elsewhere already exists` (monitor hit **#219**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug updated` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug updated incorrectly already exists` (monitor hit **#219**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug imported` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug imported automatically already exists` (monitor hit **#219**).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — audit envelope uses untrimmed probe failure text — locus: `AppendPlatformAuditAsync` `ErrorMessage`; input: padded probe error (monitor hit **#219** / hit **#218**).
-- [ ] (candidate) `TenantProvisioningService.ProvisionAsync` — pre-check `ResolveExistingTenantForProvisionAsync` skips normalized organization match — locus: duplicate preflight; input: padded organization display name (monitor hit **#219**).
-
 
 2026-11-04 thorough hunt (hit #218): promoted `Tenant slug named` and `Tenant slug called` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from seed hunt #217); gateway copy such as `Tenant slug named incorrectly already exists` matched org slug context because hunt #217 excluded `assigned`/`marked` but not `named` or `called` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `named` and `called`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_named_substring_in_already_exists_message` and `IsDuplicateOrganization_does_not_match_tenant_slug_called_substring_in_already_exists_message`; cheap-disproof closed three remaining open `(candidate)` rows from hunt #217 — **invalid** failed probe persists untrimmed error (`ToPublicProbeResult` / `NormalizeVerificationErrorMessage` trims before `MarkVerificationResultAsync` ~63–66 / ~124–125), **invalid** legal hold vs erasure re-read ordering (`RevalidateTenantForHardPurgeAsync` throws on active hold before destructive steps; post-purge hold gates audit only by design; regressions `DeleteTenantAsync_throws_when_active_legal_hold_set_before_purge` / `DeleteTenantAsync_returns_without_platform_audit_when_active_legal_hold_set_after_purge_before_audit`), **invalid** trial seat cap with casing-only `TrialStatus` drift (`TenantTrialSeatPolicy` / repository use `TrialLifecycleStatus.EqualsStatus`; regression `RequiresSeatClaim_true_when_lowercase_active_trial_status` / `TryReserveSeatAsync_lowercase_active_trial_enforces_seat_cap`); reseeded five follow-on `(candidate)` monitor rows; scoped filter **408/408** Application + **9/9** Core `TenantTrialSeatPolicy` (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug named or Tenant slug called phrasing as a duplicate slug SQL conflict when the message also contains already exists.
 
@@ -22887,12 +22005,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantDeletionService.DeleteTenantAsync` — legal hold check ordering vs erasure approval re-read — **cheap-disproof 2026-11-04 thorough hunt #218:** pre-purge `RevalidateTenantForHardPurgeAsync` fail-closed; post-purge hold skips audit only.
 - [x] (invalid) `TrialSeatAccountant.TryReserveSeatAsync` — seat cap ignored when trial status casing differs only by case — **cheap-disproof 2026-11-04 thorough hunt #218:** `TrialLifecycleStatus.EqualsStatus` parity; hunt **#1248** class.
 
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug reserved` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug reserved elsewhere already exists` (monitor hit **#218** / hit **#217**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug selected` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug selected incorrectly already exists` (monitor hit **#218**).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug created` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug created automatically already exists` (monitor hit **#218**).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — raw probe `ErrorMessage` persisted when `ToPublicProbeResult` would trim — locus: mark path uses `publicProbe.ErrorMessage`; input: whitespace-padded failure text (monitor hit **#218**).
-- [ ] (candidate) `TenantProvisioningService.ProvisionAsync` — duplicate insert catch resolves tenant id before normalization — locus: organization name normalize; input: padded display name race (monitor hit **#218** / seed **#1661** class).
-
 
 2026-10-30 seed hunt (seed→hit #217): promoted `Tenant slug assigned` and `Tenant slug marked` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from seed hunt #216); gateway copy such as `Tenant slug assigned elsewhere already exists` matched org slug context because hunt #216 excluded `linked` but not `assigned` or `marked` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `assigned` and `marked`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_assigned_substring_in_already_exists_message` and `IsDuplicateOrganization_does_not_match_tenant_slug_marked_substring_in_already_exists_message`; cheap-disproof closed three remaining open `(candidate)` rows from hunt #216 — **invalid** complete without verification pass (`CompleteAsync` requires `VerificationPassedUtc` and returns `VerificationRequired` when null ~148–149), **valid-no-repro** unsuspend on active tenant (`TryUnsuspendAsync` returns `AlreadyInDesiredState` when `SuspendedUtc` is null ~98–99), **invalid** punctuation-only slug empty (`TenantSlugNormalizer.FromName` throws when slug would be empty ~34–36); reseeded five follow-on `(candidate)` rows; scoped filter **398/398** passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug assigned or Tenant slug marked phrasing as a duplicate slug SQL conflict when the message also contains already exists.
 
@@ -22901,12 +22013,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantCatalogMigrationOrchestrator.CompleteAsync` — complete without verification — **cheap-disproof 2026-10-30 seed hunt #217:** `VerificationRequired` when probe pass timestamp absent.
 - [x] (valid-no-repro) `TenantSuspendCommandService.TryUnsuspendAsync` — unsuspend on never-suspended tenant — **cheap-disproof 2026-10-30 seed hunt #217:** `AlreadyInDesiredState` outcome by design.
 - [x] (invalid) `TenantSlugNormalizer.FromName` — punctuation-only empty slug — **cheap-disproof 2026-10-30 seed hunt #217:** throws `InvalidOperationException` before persist.
-
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug named` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug named incorrectly already exists` (reachability: gateway prose).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug called` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug called invalid already exists` (reachability: gateway duplicate-key prose).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — failed probe persists untrimmed error before public snapshot — locus: probe persist path; input: verify fixed literals still normalize on read (#148 regression guard).
-- [ ] (candidate) `TenantDeletionService.DeleteTenantAsync` — legal hold check ordering vs erasure approval re-read — locus: deletion guards; input: hold expires between approval reads (reachability: hard delete API).
-- [ ] (candidate) `TrialSeatAccountant.TryReserveSeatAsync` — seat cap ignored when trial status casing differs only by case — locus: status equality; input: persisted `ACTIVE` vs `Active` (reachability: seat claim during trial).
 
 2026-10-30 seed hunt (seed→hit #216): promoted `Tenant slug moved` and `Tenant slug linked` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from seed hunt #215); gateway copy such as `Tenant slug moved to another org already exists` matched org slug context because hunt #215 excluded `held` but not `moved` or `linked` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `moved` and `linked`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_moved_substring_in_already_exists_message` and `IsDuplicateOrganization_does_not_match_tenant_slug_linked_substring_in_already_exists_message`; cheap-disproof closed three remaining open `(candidate)` rows from hunt #215 — **invalid** erasure offboard correlation trim (`TenantErasureCommandService` audit envelope trims correlation ~643), **invalid** disabled engine alias in stored JSON (`WorkspaceAllowedEngineSetService` persists alias id list only; no `IsEnabled` field in stored shape), **invalid** convert tier after tenant load (`TenantTrialConversionStage.ConvertTrialAsync` maps target tier before `GetByIdAsync` ~35–45); reseeded five follow-on `(candidate)` rows; scoped filter **396/396** passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug moved or Tenant slug linked phrasing as a duplicate slug SQL conflict when the message also contains already exists.
 
@@ -23357,16 +22463,16 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `TrialSignupFailed` audit after failure metric when erasure offboard completed between metric and audit — **hit 2026-10-21 seed hunt:** post-metric `IsTenantInErasureQuarantineAsync` before audit; regressions above.
 
 - **id:** application-tenancy-lifecycle
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 220
-- **bugs-found:** 202
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-16
-- **last-bug:** 2026-11-16 — Tenant slug revoked/disabled/terminated prose duplicate-detector false positive
+- **last-hunt:** never
+- **last-bug:** never
 
 ### Hypotheses
 
@@ -23385,7 +22491,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-21 seed hunt (seed-only): re-read tenancy zone after provision guard series; cheap-disproof closed `TenantWorkspaceScopeGuard` offboard success (`TenantErasureQuarantineMiddleware` blocks authenticated tenant APIs); no new hunt-ready row promoted (`state-machine-gap` saturated); added five `(candidate)` rows for next passes.
 
 2026-10-21 seed hunt (seed→hit): promoted marketing first-touch after nav settings without erasure re-read; pre-marketing `GetByIdAsync` guard; regression `ProvisionAsync_skips_first_touch_persist_when_offboard_completes_after_nav_settings_before_marketing`; cheap-disproof closed migration complete audit and bootstrap catch metric/audit ordering candidates; 238 scoped tenancy tests passed.
-- **last-bug:** 2026-10-21 — trial signup failure audit after failure metric without post-metric erasure re-read
+- **last-bug:** never
 
 2026-10-21 seed hunt (seed→hit): promoted nav settings upsert race after policy pack seed; pre-settings erasure re-read; regression `ProvisionAsync_skips_nav_settings_when_offboard_completes_after_policy_pack_seed_before_settings`; 237 scoped tenancy tests passed.
 
@@ -23960,41 +23066,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
-**Hunts:** 22 · **Bugs found:** 12 · **Consecutive dry hunts:** 1
-
-2026-11-08 seed hunt (seed-only): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hypothesis list was empty after dry **#67**. Reread the filter, guard, and catalog. Did not reseed the three rows closed in **#67** (opaque `JsonElement` saved-view filters, coalesced `constraints` null, `[ApiController]` null body). No `[FromBody]` dictionary-of-collections, `JsonObject`, or positional request record turned up. One reachable shape is not in the architecture catalog because `EnumerateCollectionPropertyPaths` stops at a collection and does not enter the element type: `OperationalSecurityFindingIngestRequest.Items` (`POST` findings ingest) contains `OperationalSecurityFindingIngestRequestItem.Metadata` (`Dictionary<string, string?>`, init-only, no coalesce). No row was promoted. Private beta: n/a.
-
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitObject` — null `Metadata` dictionary on a list element — locus: `VisitCollection` then `IsNullNonNullableCollectionProperty` on the element; input: `{ "items": [ { "metadata": null } ] }`; reachability: `OperationalSecurityFindingsController.Ingest` `[FromBody]`.
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.DictionaryValueAllowsNull` — null value in `Metadata` (`Dictionary<string, string?>`) rejected — locus: init-only property nullability on the list element; input: `{ "items": [ { "metadata": { "k": null } } ] }`; reachability: same ingest action. `MapIngestItem` copies `Metadata` through.
-
-2026-11-08 thorough hunt (dry #67): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed the three candidates from the seed-only pass — **valid-no-repro** `CreateOperatorSavedViewRequest.Payload.Filters` is an opaque `JsonElement` document (`OperatorSavedViewsController.CreateSavedView` requires the element to be present, then stores `JsonSerializer.Serialize` of the payload; array slots are not domain collection elements; same JsonElement boundary as policy-pack validate), **valid-no-repro** explicit JSON `null` on `ArchitectureRequest.Constraints` is rewritten to an empty list by `ContractCollectionDefaults.Coalesce` before the filter (documented so a null token does not bypass the initializer; agents see an empty list, not a null collection), **valid-no-repro** JSON `null` on non-nullable `[FromBody] RegisterItsmCorrelationRequest` (`ItsmCorrelationController` is `[ApiController]`; implicit required binding plus model-state invalid filter returns 400 before the action; `ValidateCorrelationBody` is not entered with a null body). No new hunt-ready row. Private beta: n/a.
-
-- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.VisitObject` — `JsonElement` property `CreateOperatorSavedViewRequest.Payload.Filters` holding a JSON array with a null slot — **cheap-disproof 2026-11-08 thorough hunt #67:** opaque saved-view document; controller serializes the element and does not walk array slots.
-- [x] (valid-no-repro) `ContractCollectionDefaults.Coalesce` then `ApiRequestNullCollectionElementsGuard.IsNullNonNullableCollectionProperty` — explicit JSON `null` on `ArchitectureRequest.Constraints` — **cheap-disproof 2026-11-08 thorough hunt #67:** setter stores an empty list before the filter.
-- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — null body for a non-nullable `[FromBody]` parameter — **cheap-disproof 2026-11-08 thorough hunt #67:** `[ApiController]` model-state filter returns 400 before the action.
-
-2026-11-08 seed hunt (seed-only): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hypothesis list was empty after hit **#66**, so this pass reread the filter, guard, and catalog. No row met the hunt-ready bar. A create-run probe (`ArchitectureRequest.IntakeQuestionAnswers` null value) was already rejected by the dictionary-value path (same mechanism as `ContainsNullCollectionElement_returns_true_for_null_dictionary_value_on_non_nullable_value_type`); the probe was removed and not kept as a new regression. Explicit JSON `null` on coalesced list setters becomes an empty list before the filter (`ContractCollectionDefaults.Coalesce`), so the stored collection is empty rather than a null slot. `CreateOperatorSavedViewRequest.Payload.Filters` is a `JsonElement` document; the guard reflects CLR properties and does not walk JSON array slots (same JsonElement boundary as policy-pack validate). No `[FromBody]` property is a dictionary of collections, so `TryVisitDictionaryEntryValue` → `VisitObject` does not hide a current null element. Private beta: n/a.
-
-- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.VisitObject` — `JsonElement` property `CreateOperatorSavedViewRequest.Payload.Filters` holding a JSON array with a null slot — **cheap-disproof 2026-11-08 thorough hunt #67:** closed at the zone header.
-- [x] (valid-no-repro) `ContractCollectionDefaults.Coalesce` then `ApiRequestNullCollectionElementsGuard.IsNullNonNullableCollectionProperty` — explicit JSON `null` on `ArchitectureRequest.Constraints` is stored as empty and the filter accepts the body — **cheap-disproof 2026-11-08 thorough hunt #67:** closed at the zone header.
-- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — null body for a non-nullable `[FromBody]` parameter is skipped (`body is null`) and the action can throw — **cheap-disproof 2026-11-08 thorough hunt #67:** closed at the zone header.
-
-2026-11-08 thorough hunt (hit #66): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the shared `NullabilityInfoContext` on `ApiRequestNullCollectionElementsGuard`: overlapping `[FromBody]` checks called `Create` on one static context, and `GetNullableContext` threw `ArgumentException` ("An item with the same key has already been added") out of the action filter. Each thread now keeps its own context. Regression `ContainsNullCollectionElement_rejects_null_elements_when_calls_overlap`. Cheap-disproof closed the five collection-type monitors — **invalid** `Collection<T>` root batch (no cataloged batch root; same extend-the-root-list class as hit **#353**), **invalid** `BlockingCollection<T>` property (enumerable walk already covers it; no cataloged property), **valid-no-repro** `[FromForm]` mis-tagged as `[FromBody]` (filter requires `BindingSource.Body`), **valid-no-repro** private collection properties (`BindingFlags.Public`; JSON binding does not populate them), **invalid** `IProducerConsumerCollection<T>` without `IEnumerable<>` (the interface extends `IEnumerable<>`). Scoped **39/39** `FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests` (`RunAnalyzers=false`). Private beta: overlapping JSON body requests no longer fail the action with HTTP 500 from the collection-null filter; the body is validated instead.
-
-- [x] (proven) `ApiRequestNullCollectionElementsGuard` — shared `NullabilityInfoContext` throws when overlapping requests read collection nullability — **hit 2026-11-08 thorough hunt #66:** thread-local context; regression `ContainsNullCollectionElement_rejects_null_elements_when_calls_overlap`.
-- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `Collection<T>` (`System.Collections.ObjectModel`) root batch without `ParameterInfo` — **cheap-disproof 2026-11-08 thorough hunt #66:** no cataloged batch root; hit **#353** class.
-- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `BlockingCollection<T>` property on request DTOs — **cheap-disproof 2026-11-08 thorough hunt #66:** enumerable walk already covers it; no cataloged property.
-- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromForm]` body mis-tagged as `[FromBody]` on the same parameter — **cheap-disproof 2026-11-08 thorough hunt #66:** filter requires `BindingSource.Body`.
-- [x] (valid-no-repro) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `private` collection property on a nested DTO — **cheap-disproof 2026-11-08 thorough hunt #66:** public instance properties only; model binding does not populate private properties.
-- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryGetEnumerableElementType` — `IProducerConsumerCollection<T>` implemented but not `IEnumerable<>` — **cheap-disproof 2026-11-08 thorough hunt #66:** `IProducerConsumerCollection<T>` extends `IEnumerable<T>`.
+**Hunts:** 0 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
 
 2026-11-06 thorough hunt (dry #65): **rotation at pick time** (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on 'itsm-inbound-webhooks' (outcomes: dry, dry, dry).*; **`AvoidZoneId`** **`itsm-inbound-webhooks`**; hunted **`pickResult.zoneId`** **`api-request-null-collection-elements`**). Cheap-disproof closed five open `(candidate)` monitor rows from dry **#61** reseed — **invalid** `ObservableCollection<T>` root batch without `ParameterInfo` (`IsRootLevelCollectionType` has no `ObservableCollection<>`; same “extend root list when catalog adds batch root” class as hit **#353** / dry **#61**), **invalid** `SortedSet<T>` / `SortedDictionary<,>` property on request DTOs (`VisitCollection` walks any `IEnumerable` collection property — ordering type does not bypass walk; no cataloged sorted-collection DTO row yet — #350 parity), **valid-no-repro** `[FromBody]` with `BindingSource` not `Body` skips filter (`parameter.BindingInfo?.BindingSource != BindingSource.Body` — intentional; true `[FromBody]` uses `BindingSource.Body`; dry #14 / monitor dry **#61**), **invalid** `init`-only collection property skipped by catalog (`GetProperties` includes init-only properties with `CanRead`; C# 9+ — monitor dry **#61** / architecture-test parity), **valid-no-repro** `TryVisitRootBodyCollection` skips when runtime body type is not assignable to parameter type (`parameterType.IsInstanceOfType(root)` guard ~165 — fail-closed omission if binder ever mis-delivers; not observed on cataloged MVC actions; hit **#353** / dry **#61**). Reseeded five follow-on `(candidate)` rows below (recycled dry **#65** closed themes); scoped **38/38** `FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests` (`RunAnalyzers=false`). Private beta: n/a.
-
-- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `Collection<T>` (`System.Collections.ObjectModel`) root batch without `ParameterInfo` — **cheap-disproof 2026-11-08 thorough hunt #66:** closed at the zone header.
-- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `BlockingCollection<T>` property on request DTOs — **cheap-disproof 2026-11-08 thorough hunt #66:** closed at the zone header.
-- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromForm]` body mis-tagged as `[FromBody]` on same parameter — **cheap-disproof 2026-11-08 thorough hunt #66:** closed at the zone header.
-- [x] (valid-no-repro) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `private` collection property on nested DTO — **cheap-disproof 2026-11-08 thorough hunt #66:** closed at the zone header.
-- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryGetEnumerableElementType` — `IProducerConsumerCollection<T>` implemented but not `IEnumerable<>` — **cheap-disproof 2026-11-08 thorough hunt #66:** closed at the zone header.
 
 - [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `ObservableCollection<T>` root batch without `ParameterInfo` — **cheap-disproof 2026-11-06 thorough hunt #65:** closed dry **#61** monitor queue; `IsRootLevelCollectionType`; hit **#353**.
 - [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `SortedSet<T>` / `SortedDictionary<,>` property on request DTOs — **cheap-disproof 2026-11-06 thorough hunt #65:** closed dry **#61** monitor queue; `IsEnumerableCollection` + no catalog row (#350).
@@ -24162,18 +23236,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-27 seed hunt (seed→hit #343): promoted nested `List<List<string>>` null-element `(candidate)` to hunt-ready; `ApiRequestNullCollectionElementsGuard.VisitCollection` skipped nested enumerables when `ElementType` was null on the outer collection nullability (added `GenericTypeArguments[0]` fallback); regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`; architecture test `FindRepositoryRoot` accepts git worktree `.git` file; seeded five follow-on `(candidate)` rows; 23 scoped filter/guard/architecture + `RunCoverageControllerTests` passed (`RunAnalyzers=false`). Private beta: nested collection payloads in JSON bodies (for example grouped tag buckets) return HTTP 400 validation instead of reaching controller code with a null slot.
 
 - **id:** api-request-null-collection-elements
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 22
-- **bugs-found:** 12
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-11-08 — shared nullability context threw when overlapping body checks ran
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 - [x] (proven) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null string inside nested `List<List<string>>` property — **hit 2026-10-27 seed hunt #343:** nested enumerable walk used `GenericTypeArguments[0]` when `ElementType` was null; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`.
 
