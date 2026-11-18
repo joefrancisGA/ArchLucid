@@ -203,6 +203,51 @@ public sealed class AgentProposalBriefGroundingTests
     }
 
     [Fact]
+    public void ApplyBriefGrounding_applies_encryption_from_capabilities_when_constraints_empty()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "Capability-only brief",
+            SystemName = "brief-grounding-empty-constraints",
+            Constraints = [],
+            RequiredCapabilities = ["Encryption at rest for all persisted data"],
+        };
+
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "plaintext-ledger",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "http-legacy-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        List<string> dropLog = [];
+        AgentProposalStructuralPostProcessor.ApplyBriefGrounding(request, [result], dropLog);
+
+        result.ProposedChanges!.AddedDatastores.Should().BeEmpty();
+        result.ProposedChanges.AddedServices.Should().ContainSingle();
+        dropLog.Should().ContainSingle(entry => entry.Contains("plaintext-ledger", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void ApplyBriefGrounding_filters_services_only_not_datastores_for_https()
     {
         ArchitectureRequest request = new()
