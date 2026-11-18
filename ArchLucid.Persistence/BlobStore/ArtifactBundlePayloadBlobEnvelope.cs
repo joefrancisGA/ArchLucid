@@ -12,6 +12,7 @@ public sealed class ArtifactBundlePayloadBlobEnvelope
 
     private static readonly JsonSerializerOptions SerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
+    [JsonRequired]
     [JsonPropertyName("schemaVersion")]
     public int SchemaVersion
     {
@@ -19,6 +20,7 @@ public sealed class ArtifactBundlePayloadBlobEnvelope
         init;
     } = CurrentSchemaVersion;
 
+    [JsonRequired]
     [JsonPropertyName("artifactsJson")]
     public string ArtifactsJson
     {
@@ -26,6 +28,7 @@ public sealed class ArtifactBundlePayloadBlobEnvelope
         init;
     } = "";
 
+    [JsonRequired]
     [JsonPropertyName("traceJson")]
     public string TraceJson
     {
@@ -55,7 +58,9 @@ public sealed class ArtifactBundlePayloadBlobEnvelope
 
         try
         {
-            return JsonSerializer.Deserialize<ArtifactBundlePayloadBlobEnvelope>(json, SerializerOptions);
+            ArtifactBundlePayloadBlobEnvelope? envelope =
+                JsonSerializer.Deserialize<ArtifactBundlePayloadBlobEnvelope>(json, SerializerOptions);
+            return envelope is { ArtifactsJson: not null, TraceJson: not null } ? envelope : null;
         }
         catch (JsonException)
         {
