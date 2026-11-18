@@ -2762,7 +2762,8 @@
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 4- **last-hunt:** 2026-11-18
+- **hunts:** 4
+- **last-hunt:** 2026-11-18
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 1
 - **last-bug:** never
