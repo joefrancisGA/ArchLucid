@@ -40,6 +40,16 @@ public sealed class InMemoryAdvisoryRepositoryCoverageTests
     }
 
     [Fact]
+    public async Task Advisory_scan_execution_repository_honors_canceled_history_read()
+    {
+        InMemoryAdvisoryScanExecutionRepository sut = new();
+        CancellationToken token = new(canceled: true);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            sut.ListByScheduleAsync(new ScopeContext(), Guid.NewGuid(), take: 1, token));
+    }
+
+    [Fact]
     public async Task Advisory_scan_execution_repository_publishes_changes_only_after_update()
     {
         InMemoryAdvisoryScanExecutionRepository sut = new();
@@ -146,5 +156,36 @@ public sealed class InMemoryAdvisoryRepositoryCoverageTests
             await sut.ListByDigestAsync(scope, attempt.DigestId, CancellationToken.None);
 
         history.Should().ContainSingle().Which.Status.Should().Be(DigestDeliveryStatus.Started);
+    }
+
+    [Theory]
+    [InlineData(0, 1)]
+    [InlineData(201, 200)]
+    public async Task Digest_delivery_attempt_repository_bounds_subscription_history(int take, int expectedCount)
+    {
+        InMemoryDigestDeliveryAttemptRepository sut = new();
+        Guid subscriptionId = Guid.NewGuid();
+        DateTime firstAttemptUtc = DateTime.UtcNow;
+        DigestDeliveryAttempt latest = new()
+        {
+            SubscriptionId = subscriptionId,
+            AttemptedUtc = firstAttemptUtc.AddMinutes(201),
+        };
+
+        for (int i = 0; i < 200; i++)
+        {
+            await sut.CreateAsync(new DigestDeliveryAttempt
+            {
+                SubscriptionId = subscriptionId,
+                AttemptedUtc = firstAttemptUtc.AddMinutes(i),
+            }, CancellationToken.None);
+        }
+
+        await sut.CreateAsync(latest, CancellationToken.None);
+        IReadOnlyList<DigestDeliveryAttempt> history =
+            await sut.ListBySubscriptionAsync(new ScopeContext(), subscriptionId, take, CancellationToken.None);
+
+        history.Should().HaveCount(expectedCount);
+        history[0].AttemptId.Should().Be(latest.AttemptId);
     }
 }

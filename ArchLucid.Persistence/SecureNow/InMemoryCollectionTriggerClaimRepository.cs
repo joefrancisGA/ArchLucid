@@ -56,6 +56,8 @@ public sealed class InMemoryCollectionTriggerClaimRepository : ICollectionTrigge
             throw new ArgumentException("Run ID is required.", nameof(runId));
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!_claims.TryGetValue(ClaimKey(scope, idempotencyKey.Trim()), out ClaimRecord? claim))
         {
             return Task.FromResult(false);
