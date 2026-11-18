@@ -30,7 +30,11 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
                 x.WorkspaceId == rule.WorkspaceId &&
                 x.ProjectId == rule.ProjectId);
             if (i >= 0)
-                _items[i] = CompositeAlertRuleRepositoryCore.CloneRule(rule);
+            {
+                CompositeAlertRule updated = CompositeAlertRuleRepositoryCore.CloneRule(rule);
+                updated.CreatedUtc = _items[i].CreatedUtc;
+                _items[i] = updated;
+            }
         }
 
         return Task.CompletedTask;
