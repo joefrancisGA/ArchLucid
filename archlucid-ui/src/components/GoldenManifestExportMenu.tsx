@@ -315,10 +315,10 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
   const exportBlockedReasonChrome =
     sponsorExportBlocked ? (
       <div className="space-y-1" role="alert" data-testid="golden-manifest-export-blocked-reason">
-        <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportBlockedReason}</p>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-commit-before-seal">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-blocked-commit-before-seal">
           {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
         </p>
+        <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportBlockedReason}</p>
         <ExportPartialCaptureRecoveryHonesty
           show
           testId="golden-manifest-export-partial-capture-recovery"

@@ -5,6 +5,11 @@
 
 # ArchLucid changelog
 
+## 2026-11-18 - Score lift round 78 (batch 43): Golden export pre-block, reviews search filter, findings register filter, graph load RP, policy pack detail RP, and score-lift umbrella
+
+**Outcome.** Golden manifest sponsor-blocked export shows commit-before-seal before the blocked reason. Reviews hub search filter-empty, findings register filter-no-match, evidence graph hard-failure Report Problem, and policy pack detail load Report Problem repeat not-failure and partial-capture discipline. CI gains an umbrella assert for score-lift rounds 65–77.
+
+**Surfaces.** Golden manifest export, architecture reviews list, findings queue, evidence graph error, policy pack detail, honesty and mounted contract tests.
 ## 2026-11-18 - Score lift round 77 (batch 42): Remediation dual-filter summary, golden manifest commit-first export errors, policy catalog Report Problem, connection category filter empty, attack path unevaluated honesty, and findings job-view filter empty
 
 **Outcome.** Remediation workbench names concurrent status and wave filters. Golden manifest export errors lead with commit-before-seal discipline. Policy pack catalog hard failures gain Report Problem and partial-capture teaching. Connection status category chip empties are distinct from load failure. Attack path report separates unevaluated-only from diagram filter empty. Findings queue job-view filter-no-match repeats not-load-failure and partial capture.
