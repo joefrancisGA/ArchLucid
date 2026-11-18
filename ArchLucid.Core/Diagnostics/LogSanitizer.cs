@@ -18,8 +18,12 @@ public static class LogSanitizer
         if (string.IsNullOrEmpty(input))
             return string.Empty;
 
-        // CodeQL cs/log-forging requires explicit Replace for \n and \r
-        string replaced = input.Replace("\n", "_").Replace("\r", "_");
+        // CodeQL cs/log-forging requires explicit Replace for \n and \r; line/paragraph separators are not char.IsControl.
+        string replaced = input
+            .Replace("\n", "_")
+            .Replace("\r", "_")
+            .Replace("\u2028", "_")
+            .Replace("\u2029", "_");
 
         // Fast path: no control chars at all (common case)
         bool clean = replaced.All(t => !char.IsControl(t));

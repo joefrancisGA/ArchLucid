@@ -88,7 +88,7 @@ public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutbo
             {
                 TransportSucceeded = true,
                 StatusCode = (int)response.StatusCode,
-                ReasonPhrase = response.ReasonPhrase,
+                ReasonPhrase = response.ReasonPhrase ?? string.Empty,
                 ResponseBodyPreview = preview,
                 ResponseBodyTruncated = truncated
             };

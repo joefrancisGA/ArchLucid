@@ -736,22 +736,163 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
         SwitchSectionSyntax? switchSectionSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<SwitchSectionSyntax>();
 
-        if (switchSectionSyntax is null)
-            return true;
-
-        if (switchSectionSyntax.Parent is not SwitchStatementSyntax switchStatementSyntax)
-            return true;
-
-        if (semanticModel is not null)
+        if (switchSectionSyntax is not null &&
+            switchSectionSyntax.Parent is SwitchStatementSyntax switchStatementSyntax)
         {
-            return IsSwitchSectionReachableForConstantDiscriminant(
-                switchStatementSyntax,
-                switchSectionSyntax,
-                semanticModel,
-                cancellationToken);
+            if (semanticModel is not null)
+            {
+                return IsSwitchSectionReachableForConstantDiscriminant(
+                    switchStatementSyntax,
+                    switchSectionSyntax,
+                    semanticModel,
+                    cancellationToken);
+            }
+
+            return IsSwitchSectionReachableForSyntaxLiteralDiscriminant(switchStatementSyntax, switchSectionSyntax);
         }
 
-        return IsSwitchSectionReachableForSyntaxLiteralDiscriminant(switchStatementSyntax, switchSectionSyntax);
+        SwitchExpressionArmSyntax? switchExpressionArmSyntax =
+            logAsyncSyntaxNode.FirstAncestorOrSelf<SwitchExpressionArmSyntax>();
+
+        if (switchExpressionArmSyntax is not null &&
+            switchExpressionArmSyntax.Parent is SwitchExpressionSyntax switchExpressionSyntax)
+        {
+            if (semanticModel is not null)
+            {
+                return IsSwitchExpressionArmReachableForConstantDiscriminant(
+                    switchExpressionSyntax,
+                    switchExpressionArmSyntax,
+                    semanticModel,
+                    cancellationToken);
+            }
+
+            return IsSwitchExpressionArmReachableForSyntaxLiteralDiscriminant(
+                switchExpressionSyntax,
+                switchExpressionArmSyntax);
+        }
+
+        return true;
+    }
+
+    private static bool IsSwitchExpressionArmReachableForSyntaxLiteralDiscriminant(
+        SwitchExpressionSyntax switchExpressionSyntax,
+        SwitchExpressionArmSyntax armSyntax)
+    {
+        if (switchExpressionSyntax.GoverningExpression is not LiteralExpressionSyntax discriminantLiteralSyntax)
+            return true;
+
+        if (!TryGetSwitchLiteralValue(discriminantLiteralSyntax, out string? discriminantText))
+            return true;
+
+        if (armSyntax.Pattern is ConstantPatternSyntax constantPatternSyntax &&
+            constantPatternSyntax.Expression is LiteralExpressionSyntax armLiteralSyntax &&
+            TryGetSwitchLiteralValue(armLiteralSyntax, out string? armText) &&
+            string.Equals(discriminantText, armText, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        if (armSyntax.Pattern is not DiscardPatternSyntax)
+            return false;
+
+        foreach (SwitchExpressionArmSyntax otherArmSyntax in switchExpressionSyntax.Arms)
+        {
+            if (otherArmSyntax.Pattern is not ConstantPatternSyntax otherConstantPatternSyntax)
+                continue;
+
+            if (otherConstantPatternSyntax.Expression is LiteralExpressionSyntax otherArmLiteralSyntax &&
+                TryGetSwitchLiteralValue(otherArmLiteralSyntax, out string? otherArmText) &&
+                string.Equals(discriminantText, otherArmText, StringComparison.Ordinal))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsSwitchExpressionArmReachableForConstantDiscriminant(
+        SwitchExpressionSyntax switchExpressionSyntax,
+        SwitchExpressionArmSyntax armSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        Optional<object?> discriminantOptional =
+            semanticModel.GetConstantValue(switchExpressionSyntax.GoverningExpression, cancellationToken);
+
+        if (!discriminantOptional.HasValue)
+            return true;
+
+        object? discriminant = discriminantOptional.Value;
+
+        if (armSyntax.Pattern is ConstantPatternSyntax constantPatternSyntax)
+        {
+            Optional<object?> patternConstantOptional =
+                semanticModel.GetConstantValue(constantPatternSyntax.Expression, cancellationToken);
+
+            if (patternConstantOptional.HasValue &&
+                AuditProofConstantValuesEqual(discriminant, patternConstantOptional.Value))
+            {
+                return true;
+            }
+        }
+
+        if (armSyntax.Pattern is not DiscardPatternSyntax)
+            return false;
+
+        foreach (SwitchExpressionArmSyntax otherArmSyntax in switchExpressionSyntax.Arms)
+        {
+            if (otherArmSyntax.Pattern is not ConstantPatternSyntax otherConstantPatternSyntax)
+                continue;
+
+            Optional<object?> otherPatternConstantOptional =
+                semanticModel.GetConstantValue(otherConstantPatternSyntax.Expression, cancellationToken);
+
+            if (otherPatternConstantOptional.HasValue &&
+                AuditProofConstantValuesEqual(discriminant, otherPatternConstantOptional.Value))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsSyntaxNodeWithinExpression(SyntaxNode descendant, ExpressionSyntax rootExpression)
+    {
+        foreach (SyntaxNode? ancestor in descendant.Ancestors())
+        {
+            if (ancestor is ExpressionSyntax expressionSyntax && ReferenceEquals(expressionSyntax, rootExpression))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsCoalesceLeftOperandNeverNull(
+        ExpressionSyntax leftExpressionSyntax,
+        SemanticModel? semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (semanticModel is null)
+            return false;
+
+        Optional<object?> constantOptional = semanticModel.GetConstantValue(leftExpressionSyntax, cancellationToken);
+
+        if (constantOptional.HasValue && constantOptional.Value is not null)
+            return true;
+
+        if (leftExpressionSyntax is not InvocationExpressionSyntax invocationExpressionSyntax)
+            return false;
+
+        IMethodSymbol? methodSymbol =
+            semanticModel.GetSymbolInfo(invocationExpressionSyntax, cancellationToken).Symbol as IMethodSymbol;
+
+        if (methodSymbol is null)
+            return false;
+
+        return string.Equals(methodSymbol.Name, "FromResult", StringComparison.Ordinal) &&
+               string.Equals(methodSymbol.ContainingType?.Name, "Task", StringComparison.Ordinal);
     }
 
     private static bool IsSyntaxNodeWithinExpression(SyntaxNode descendant, ExpressionSyntax rootExpression)
