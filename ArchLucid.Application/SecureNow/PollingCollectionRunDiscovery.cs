@@ -16,6 +16,8 @@ public sealed class PollingCollectionRunDiscovery(
 
     public async Task<int> DiscoverAsync(CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IReadOnlyList<CollectionRunManifest> manifests;
 
         try
