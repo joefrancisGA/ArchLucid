@@ -60,6 +60,34 @@ public sealed class ArchitectureRunAsyncOperationCreateCompletionWorkerTests
     }
 
     [Fact]
+    public async Task Execute_waits_for_the_current_create_registration()
+    {
+        ArchitectureRunAsyncOperationCreateCompletionWorker worker = new();
+        ArchitectureRunAsyncOperationRegistrar registrar = new();
+        ArchitectureRunAsyncOperationWorkItem execute = ExecuteItem(Guid.NewGuid());
+        ArchitectureRunAsyncOperationWorkItem create = execute with { Kind = ArchitectureRunAsyncOperationKind.Create };
+        registrar.TryRegister(create.Scope, create.RunId, create.Kind).Should().BeTrue();
+
+        await worker.ProcessCreateBoundedAsync(
+            create,
+            (item, _) =>
+            {
+                registrar.Release(item.Scope, item.RunId, item.Kind);
+                return Task.CompletedTask;
+            },
+            (_, _) => Task.CompletedTask,
+            registrar,
+            CancellationToken.None);
+
+        registrar.TryRegister(create.Scope, create.RunId, create.Kind).Should().BeTrue();
+        Task secondWait = worker.WaitForCreateIfNeededAsync(execute, registrar, CancellationToken.None);
+
+        secondWait.IsCompleted.Should().BeFalse();
+        registrar.Release(create.Scope, create.RunId, create.Kind);
+        await secondWait.WaitAsync(TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
     public async Task WaitForCreateIfNeededAsync_times_out_when_create_stays_registered()
     {
         ArchitectureRunAsyncOperationCreateCompletionWorker sut = new(TimeSpan.FromMilliseconds(40));
