@@ -101,9 +101,9 @@ public sealed class DapperConversationMessageRepository(
                                    MessageId, ThreadId, Role, Content, CreatedUtc, MetadataJson
                                FROM dbo.ConversationMessages
                                WHERE ThreadId = @ThreadId
-                               ORDER BY CreatedUtc DESC
+                               ORDER BY CreatedUtc DESC, MessageId DESC
                            ) AS recent
-                           ORDER BY CreatedUtc ASC;
+                           ORDER BY CreatedUtc ASC, MessageId ASC;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
