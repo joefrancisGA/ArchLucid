@@ -22772,6 +22772,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 
 ## Zone: application-tenancy-lifecycle
+2026-11-18 thorough hunt (hit #236): no rotation (`shouldRotate: false`). Cheap-disproof on five open `(candidate)` rows reseeded at hunt **#235**. Promoted `Tenant slug expired`, `Tenant slug locked`, and `Tenant slug pending` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `expired`, `locked`, and `pending`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_expired_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_locked_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_pending_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **invalid** second `StartAsync` when prior migration row still active (`GetActiveByTenantIdAsync` ~24–28 returns `AlreadyActive`), **valid-no-repro** suspend audit during active catalog migration (`TrySuspendAsync` returns `AlreadyInDesiredState` when `SuspendedUtc` set ~37–38; regression `TrySuspendAsync_is_idempotent_when_already_suspended`). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **457/457** Application tenancy (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention expired, locked, or pending slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expired` substring — **hit 2026-11-18 thorough hunt #236:** excluded slug phrase word `expired`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug locked` substring — **hit 2026-11-18 thorough hunt #236:** excluded slug phrase word `locked`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pending` substring — **hit 2026-11-18 thorough hunt #236:** excluded slug phrase word `pending`; regression above.
+- [x] (invalid) `TenantCatalogMigrationOrchestrator.StartAsync` — starts second migration when prior migration row still active — **cheap-disproof 2026-11-18 thorough hunt #236:** active-row guard returns `AlreadyActive` before suspend/insert.
+- [x] (valid-no-repro) `TenantSuspendCommandService.TrySuspendAsync` — suspend audit during active catalog migration — **cheap-disproof 2026-11-18 thorough hunt #236:** migration scope-freeze suspend is idempotent; no duplicate audit.
+
+- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug cancelled` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug cancelled elsewhere already exists` (monitor **#236**).
+- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug released` substring — locus: phrase scan; input: `Tenant slug released incorrectly already exists` (monitor **#236**).
+- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug reactivated` substring — locus: phrase scan; input: `Tenant slug reactivated automatically already exists` (monitor **#236**).
+- (candidate) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when verification stage never entered — locus: `VerificationPassedUtc` gate; input: admin complete after failed projection only (monitor reseed **#236**).
+- (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — approval when tenant suspended but not offboarded — locus: offboard prerequisite ~388–389; input: suspend then approve API (monitor reseed **#236**).
+
 2026-11-18 thorough hunt (hit #235): no rotation (`shouldRotate: false`). Cheap-disproof on five open `(candidate)` rows from monitor **#234**. Promoted `Tenant slug abandoned`, `Tenant slug unassigned`, and `Tenant slug failed` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `abandoned`, `unassigned`, and `failed`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_abandoned_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_unassigned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_failed_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** migration complete clears post-start suspend including admin re-suspend after verification (`CompleteAsync` unsuspend gate ~173–186; regression `CompleteAsync_unsuspends_when_migration_applied_scope_freeze_suspend`; `docs/operations/TENANT_MIGRATION_FANOUT.md`), **valid-no-repro** double unsuspend skips duplicate audit (`TryUnsuspendAsync` returns `AlreadyInDesiredState` when `SuspendedUtc` null ~98–99; parity **#233** suspend idempotency). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **454/454** (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention abandoned, unassigned, or failed slug lifecycle wording as duplicate organization collisions.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug abandoned` substring — **hit 2026-11-18 thorough hunt #235:** see zone diary above.
@@ -23507,11 +23521,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 224
-- **bugs-found:** 210
+- **hunts:** 225
+- **bugs-found:** 213
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-18
-- **last-bug:** 2026-11-18 — Tenant slug rejected/denied/missing prose duplicate-detector false positive
+- **last-bug:** 2026-11-18 — Tenant slug expired/locked/pending prose duplicate-detector false positive
 
 ### Hypotheses
 
