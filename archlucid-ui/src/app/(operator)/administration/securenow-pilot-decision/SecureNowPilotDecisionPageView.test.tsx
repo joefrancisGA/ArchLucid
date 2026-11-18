@@ -6,6 +6,7 @@ import { SECURENOW_DECISION_CYCLE_LOG_PATH } from "@/lib/product-line/securenow-
 import { SecureNowPilotDecisionPageView } from "./SecureNowPilotDecisionPageView";
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/administration/securenow-pilot-decision",
   useSearchParams: () => new URLSearchParams(),
 }));
 
