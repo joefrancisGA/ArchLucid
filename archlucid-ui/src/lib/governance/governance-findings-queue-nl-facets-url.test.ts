@@ -46,4 +46,18 @@ describe("governanceFindingsNlFacetsHrefFromSearch", () => {
     expect(href).toBe("/governance/findings?hideGeneric=1&status=open");
     expect(href).not.toContain("severity=");
   });
+
+  it("retains triage focusedFinding when a single NL facet chip is removed", () => {
+    const href = governanceFindingsNlFacetsHrefFromSearch(
+      "focusedFinding=finding-1&severity=high&status=open",
+      {
+        severity: null,
+        status: "open",
+        titleKeywords: [],
+      },
+    );
+
+    expect(href).toBe("/governance/findings?focusedFinding=finding-1&status=open");
+    expect(href).not.toContain("severity=");
+  });
 });

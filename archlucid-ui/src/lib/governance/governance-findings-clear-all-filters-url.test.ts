@@ -103,7 +103,16 @@ describe("governanceFindingsClearAllFiltersHref", () => {
     expect(href).not.toContain("q=");
     expect(href).not.toContain("severity=");
   });
-  it("clears armed preset-remove confirm when clearing filters", () => {
+
+  it("retains hideGeneric when clearing register filters only", () => {
+    const href = governanceFindingsClearAllFiltersHref(
+      "hideGeneric=1&filter=expiring-soon",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?hideGeneric=1");
+    expect(href).not.toContain("filter=");
+  });  it("clears armed preset-remove confirm when clearing filters", () => {
     const href = governanceFindingsClearAllFiltersHref(
       "runId=run-1&filter=open&removePresetId=preset-1",
       "/governance/findings",

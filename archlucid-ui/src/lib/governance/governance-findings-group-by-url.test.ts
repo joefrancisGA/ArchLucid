@@ -17,7 +17,7 @@ describe("governanceFindingsGroupByHrefFromSearch", () => {
     expect(href).toBe("/governance/findings?hideGeneric=1&filter=open&groupBy=resource");
   });
 
-  it("retains triage focusedFinding when group-by changes", () => {
+  it("retains triage focusedFinding when group-by changes to a non-default key", () => {
     const href = governanceFindingsGroupByHrefFromSearch(
       "focusedFinding=finding-1&filter=open",
       true,

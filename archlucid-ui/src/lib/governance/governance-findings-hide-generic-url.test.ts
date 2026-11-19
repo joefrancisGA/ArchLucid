@@ -12,6 +12,16 @@ describe("governanceFindingsHideGenericHrefFromSearch", () => {
 
     expect(href).toBe("/governance/findings?focusedFinding=finding-1&filter=open&hideGeneric=1");
   });
+  it("clears hideGeneric when toggling hide-generic off", () => {
+    const href = governanceFindingsHideGenericHrefFromSearch(
+      "focusedFinding=finding-1&filter=open&hideGeneric=1",
+      false,
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?focusedFinding=finding-1&filter=open");
+    expect(href).not.toContain("hideGeneric=");
+  });
   it("clears armed preset-remove confirm when hide-generic toggles off", () => {
     const href = governanceFindingsHideGenericHrefFromSearch(
       "removePresetId=preset-1&filter=open&hideGeneric=1",

@@ -67,4 +67,15 @@ describe("review-findings-job-view-url", () => {
     expect(href).toBe("/governance/findings?focusedFinding=finding-1&filter=open");
     expect(href).not.toContain("findingJobView=");
   });
+
+  it("retains hideGeneric when job view clears to default", () => {
+    const href = reviewFindingsJobViewHrefFromSearch(
+      "hideGeneric=1&findingJobView=needs-governance&filter=open",
+      "/governance/findings",
+      "needs-my-decision",
+    );
+
+    expect(href).toBe("/governance/findings?hideGeneric=1&filter=open");
+    expect(href).not.toContain("findingJobView=");
+  });
 });
