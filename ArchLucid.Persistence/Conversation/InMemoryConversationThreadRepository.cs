@@ -21,6 +21,9 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_threads.Any(existing => existing.ThreadId == thread.ThreadId))
+                throw new InvalidOperationException($"Conversation thread '{thread.ThreadId}' already exists.");
+
             _threads.Add(thread);
             if (_threads.Count > MaxEntries)
                 _threads.RemoveRange(0, _threads.Count - MaxEntries);
