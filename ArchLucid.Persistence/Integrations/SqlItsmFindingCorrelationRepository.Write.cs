@@ -23,26 +23,16 @@ public sealed partial class SqlItsmFindingCorrelationRepository
         if (string.IsNullOrWhiteSpace(externalKey)) throw new ArgumentException("externalKey is required.", nameof(externalKey));
 
         const string sql = """
-                           IF NOT EXISTS (
-                               SELECT 1 FROM dbo.ItsmFindingCorrelations
-                               WHERE TenantId = @TenantId
-                                 AND Provider = @Provider
-                                 AND ExternalKey = @ExternalKey)
-                           BEGIN
-                               INSERT INTO dbo.ItsmFindingCorrelations
-                                   (TenantId, WorkspaceId, ProjectId, FindingId, Provider, ExternalKey, ExternalSysId, FindingRecordId)
-                               VALUES
-                                   (@TenantId, @WorkspaceId, @ProjectId, @FindingId, @Provider, @ExternalKey, @ExternalSysId, @FindingRecordId);
-                           END
-                           ELSE IF @FindingRecordId IS NOT NULL
-                           BEGIN
-                               UPDATE dbo.ItsmFindingCorrelations
-                               SET FindingRecordId = @FindingRecordId
-                               WHERE TenantId = @TenantId
-                                 AND Provider = @Provider
-                                 AND ExternalKey = @ExternalKey
-                                 AND FindingRecordId IS NULL;
-                           END
+                           MERGE dbo.ItsmFindingCorrelations WITH (HOLDLOCK) AS target
+                           USING (SELECT @TenantId AS TenantId, @Provider AS Provider, @ExternalKey AS ExternalKey) AS source
+                              ON target.TenantId = source.TenantId
+                             AND target.Provider = source.Provider
+                             AND target.ExternalKey = source.ExternalKey
+                           WHEN MATCHED AND @FindingRecordId IS NOT NULL AND target.FindingRecordId IS NULL THEN
+                               UPDATE SET FindingRecordId = @FindingRecordId
+                           WHEN NOT MATCHED BY TARGET THEN
+                               INSERT (TenantId, WorkspaceId, ProjectId, FindingId, Provider, ExternalKey, ExternalSysId, FindingRecordId)
+                               VALUES (@TenantId, @WorkspaceId, @ProjectId, @FindingId, @Provider, @ExternalKey, @ExternalSysId, @FindingRecordId);
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);

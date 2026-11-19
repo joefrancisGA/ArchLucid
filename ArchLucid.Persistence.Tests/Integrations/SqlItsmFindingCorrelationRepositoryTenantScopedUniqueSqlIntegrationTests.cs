@@ -165,6 +165,30 @@ public sealed class SqlItsmFindingCorrelationRepositoryTenantScopedUniqueSqlInte
         ambiguous.Should().BeNull();
     }
 
+    [SkippableFact]
+    public async Task Concurrent_registration_of_one_external_key_completes_idempotently()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory connectionFactory = new(fixture.ConnectionString);
+        DapperTenantRepository tenants = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(connectionFactory);
+        SqlItsmFindingCorrelationRepository sut = CreateRepository(connectionFactory);
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        await SeedTenantAsync(connectionFactory, tenants, tenantId, workspaceId, projectId);
+
+        const string findingId = "finding-concurrent";
+        const string externalKey = "PROJ-concurrent";
+        await Task.WhenAll(Enumerable.Range(0, 8).Select(_ =>
+            sut.RegisterAsync(tenantId, workspaceId, projectId, findingId, "Jira", externalKey,
+                null, null, CancellationToken.None)));
+
+        IReadOnlyList<ItsmFindingCorrelationRecord> rows =
+            await sut.ListByFindingAsync(tenantId, findingId, CancellationToken.None);
+        rows.Should().ContainSingle().Which.ExternalKey.Should().Be(externalKey);
+    }
+
     private static SqlItsmFindingCorrelationRepository CreateRepository(TestSqlConnectionFactory connectionFactory)
     {
         ResiliencePipeline pipeline = SqlOpenResilienceDefaults.BuildSqlOperationRetryPipeline(
