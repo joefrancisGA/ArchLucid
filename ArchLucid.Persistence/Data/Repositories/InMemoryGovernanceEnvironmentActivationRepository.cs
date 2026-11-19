@@ -33,8 +33,12 @@ public sealed class InMemoryGovernanceEnvironmentActivationRepository : IGoverna
         GovernanceEnvironmentActivation stored = Clone(item);
 
         lock (_gate)
+        {
+            if (_byActivationId.ContainsKey(stored.ActivationId))
+                throw new InvalidOperationException($"The environment activation '{stored.ActivationId}' already exists.");
 
-            _byActivationId[stored.ActivationId] = stored;
+            _byActivationId.Add(stored.ActivationId, stored);
+        }
 
         return Task.CompletedTask;
     }
