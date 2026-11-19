@@ -29,14 +29,18 @@ export function useCompareGateOutcomeDelta(input: {
   }
 
   if (query.isError || query.data === undefined) {
-    return { loading: false, view: null };
+    return { loading: false, view: null, gateOutcomeBothMissing: false, gateOutcomeLoadFailed: true };
   }
+
+  const kinds = {
+    baselineKind: query.data.baseline.feasibilityVerdictKind,
+    targetKind: query.data.target.feasibilityVerdictKind,
+  };
 
   return {
     loading: false,
-    view: buildCompareGateOutcomeDeltaView({
-      baselineKind: query.data.baseline.feasibilityVerdictKind,
-      targetKind: query.data.target.feasibilityVerdictKind,
-    }),
+    view: buildCompareGateOutcomeDeltaView(kinds),
+    gateOutcomeBothMissing: compareGateOutcomeBothKindsMissing(kinds),
+    gateOutcomeLoadFailed: false,
   };
 }
