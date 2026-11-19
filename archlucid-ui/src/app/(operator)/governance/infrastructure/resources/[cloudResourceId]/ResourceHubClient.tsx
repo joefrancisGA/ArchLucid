@@ -40,6 +40,8 @@ import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evide
 import { RESOURCE_HUB_AUDIT_TAB_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-hub-audit-tab-partial-capture-copy";
 import { RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-config-partial-capture-copy";
 import { RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-partial-capture-copy";
+import { ResourceHubFindingsArchitectureScopeAndSeverityEmptyPartialHonesty } from "@/components/infra-evidence/ResourceHubFindingsArchitectureScopeAndSeverityEmptyPartialHonesty";
+import { RESOURCE_HUB_FINDINGS_ARCHITECTURE_SCOPE_AND_SEVERITY_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-architecture-scope-and-severity-empty-copy";
 import {
   RESOURCE_HUB_DIAGRAM_TAB_PARTIAL_CAPTURE_LINE,
   RESOURCE_HUB_DRIFT_TAB_PARTIAL_CAPTURE_LINE,
@@ -2349,6 +2351,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid={`infra-resource-hub-findings-empty-not-failure-${stream.streamKind}`}>
                           {RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE}
                         </p>
+                        {stream.streamKind === "ArchitectureReview" ? (
+                          <>
+                            <p
+                              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                              data-testid="infra-resource-hub-findings-architecture-scope-and-severity-empty"
+                            >
+                              {RESOURCE_HUB_FINDINGS_ARCHITECTURE_SCOPE_AND_SEVERITY_EMPTY_LINE}
+                            </p>
+                            <ResourceHubFindingsArchitectureScopeAndSeverityEmptyPartialHonesty />
+                          </>
+                        ) : null}
                         <SecureNowInfraPartialCaptureStrip
                           testId={`infra-resource-hub-findings-empty-partial-capture-${stream.streamKind}`}
                           middleLine={RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE}

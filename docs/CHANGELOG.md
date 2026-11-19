@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-19 - Score lift round 84 (batch 49): Compare second seal, deliverables finalize, architecture stream empty
+
+**Outcome.** Compare correlation empty names that state apart from a second sealed review and a failed correlation read. Blocked deliverable export names finalize together with partial capture. Resource hub architecture-review stream empty is not a severity filter and not a failed findings read.
+
+**Surfaces.** Compare finding correlation, review deliverables export, resource hub findings, honesty and mounted contract tests.
+
 ## 2026-11-19 - Score lift round 83 (batch 48): Digest scope versus subscriptions, golden disabled and finalize, compare partial inventory
 
 **Outcome.** Digest browse scoped empty names that state apart from an empty subscription list and a failed catalog read. Golden export adds a helper when the control is disabled and evidence is not finalized. Compare quality delta footnotes partial inventory.
