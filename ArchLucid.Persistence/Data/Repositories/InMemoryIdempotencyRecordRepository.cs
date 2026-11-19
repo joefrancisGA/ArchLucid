@@ -9,6 +9,7 @@ public sealed class InMemoryIdempotencyRecordRepository : IIdempotencyRecordRepo
 
     public Task<IdempotencyRecordRow?> TryGetAsync(Guid tenantId, string idempotencyKey, CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
         string key = $"{tenantId:N}_{idempotencyKey}";
         _store.TryGetValue(key, out IdempotencyRecordRow? row);
         return Task.FromResult(row);
@@ -16,6 +17,7 @@ public sealed class InMemoryIdempotencyRecordRepository : IIdempotencyRecordRepo
 
     public Task<bool> TryInsertAsync(Guid tenantId, string idempotencyKey, int statusCode, string responseBody, CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
         string key = $"{tenantId:N}_{idempotencyKey}";
         IdempotencyRecordRow row = new()
         {
