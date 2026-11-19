@@ -471,7 +471,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
     private static bool IsLocalFunctionReachableFromMethodEntry(
         LocalFunctionStatementSyntax targetLocalFunctionStatementSyntax,
-        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+        MethodDeclarationSyntax containingMethodDeclarationSyntax,
+        SemanticModel? semanticModel,
+        CancellationToken cancellationToken)
     {
         ImmutableArray<LocalFunctionStatementSyntax> localFunctionsInMethod =
             containingMethodDeclarationSyntax.DescendantNodes().OfType<LocalFunctionStatementSyntax>().ToImmutableArray();
@@ -494,7 +496,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                 if (!IsLocalFunctionInvokedFromReachableScope(
                         localFunctionStatementSyntax,
                         containingMethodDeclarationSyntax,
-                        reachableLocalFunctions))
+                        reachableLocalFunctions,
+                        semanticModel,
+                        cancellationToken))
                 {
                     continue;
                 }
@@ -511,7 +515,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
     private static bool IsLocalFunctionInvokedFromReachableScope(
         LocalFunctionStatementSyntax targetLocalFunctionStatementSyntax,
         MethodDeclarationSyntax containingMethodDeclarationSyntax,
-        HashSet<LocalFunctionStatementSyntax> reachableLocalFunctions)
+        HashSet<LocalFunctionStatementSyntax> reachableLocalFunctions,
+        SemanticModel? semanticModel,
+        CancellationToken cancellationToken)
     {
         string localFunctionName = targetLocalFunctionStatementSyntax.Identifier.Text;
 
@@ -536,6 +542,12 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             {
                 if (invocationSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
                     continue;
+
+                if (semanticModel is not null &&
+                    !IsAuditProofSyntaxReachable(semanticModel, invocationSyntax, cancellationToken))
+                {
+                    continue;
+                }
 
                 return true;
             }
@@ -695,7 +707,11 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             logAsyncSyntaxNode.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
 
         if (enclosingLocalFunction is not null &&
-            !IsLocalFunctionReachableFromMethodEntry(enclosingLocalFunction, containingMethodDeclarationSyntax))
+            !IsLocalFunctionReachableFromMethodEntry(
+                enclosingLocalFunction,
+                containingMethodDeclarationSyntax,
+                semanticModel,
+                cancellationToken))
         {
             return false;
         }
@@ -737,6 +753,21 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (coalesceExpressionSyntax is not null &&
             IsSyntaxNodeWithinExpression(logAsyncSyntaxNode, coalesceExpressionSyntax.Right) &&
             IsCoalesceLeftOperandNeverNull(coalesceExpressionSyntax.Left, semanticModel, cancellationToken))
+        {
+            return false;
+        }
+
+        SwitchExpressionArmSyntax? switchExpressionArmSyntax =
+            logAsyncSyntaxNode.FirstAncestorOrSelf<SwitchExpressionArmSyntax>();
+
+        if (switchExpressionArmSyntax is not null &&
+            switchExpressionArmSyntax.Parent is SwitchExpressionSyntax switchExpressionSyntax &&
+            semanticModel is not null &&
+            !IsSwitchExpressionArmReachableForConstantDiscriminant(
+                switchExpressionSyntax,
+                switchExpressionArmSyntax,
+                semanticModel,
+                cancellationToken))
         {
             return false;
         }
@@ -1016,6 +1047,91 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                string.Equals(methodSymbol.ContainingType?.Name, "Task", StringComparison.Ordinal);
     }
 
+    private static bool IsAuditProofSyntaxReachable(
+        SemanticModel semanticModel,
+        SyntaxNode syntaxNode,
+        CancellationToken cancellationToken) =>
+        IsLogAsyncSyntaxProofReachable(semanticModel, syntaxNode, cancellationToken);
+
+    private static bool IsSwitchExpressionArmReachableForConstantDiscriminant(
+        SwitchExpressionSyntax switchExpressionSyntax,
+        SwitchExpressionArmSyntax targetArmSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        Optional<object?> discriminantOptional =
+            semanticModel.GetConstantValue(switchExpressionSyntax.GoverningExpression, cancellationToken);
+
+        if (!discriminantOptional.HasValue)
+        {
+            return true;
+        }
+
+        object? discriminant = discriminantOptional.Value;
+
+        foreach (SwitchExpressionArmSyntax armSyntax in switchExpressionSyntax.Arms)
+        {
+            if (ReferenceEquals(armSyntax, targetArmSyntax))
+            {
+                return DoesSwitchExpressionArmMatchConstantDiscriminant(
+                    armSyntax,
+                    discriminant,
+                    semanticModel,
+                    cancellationToken);
+            }
+
+            if (DoesSwitchExpressionArmMatchConstantDiscriminant(
+                    armSyntax,
+                    discriminant,
+                    semanticModel,
+                    cancellationToken))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool DoesSwitchExpressionArmMatchConstantDiscriminant(
+        SwitchExpressionArmSyntax armSyntax,
+        object? discriminant,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (armSyntax.Pattern is DiscardPatternSyntax)
+        {
+            if (armSyntax.WhenClause?.Condition is ExpressionSyntax discardWhenConditionSyntax &&
+                IsBooleanConditionKnown(discardWhenConditionSyntax, semanticModel, cancellationToken, expected: false))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        if (armSyntax.Pattern is ConstantPatternSyntax constantPatternSyntax)
+        {
+            Optional<object?> patternConstantOptional =
+                semanticModel.GetConstantValue(constantPatternSyntax.Expression, cancellationToken);
+
+            if (!patternConstantOptional.HasValue ||
+                !AuditProofConstantValuesEqual(discriminant, patternConstantOptional.Value))
+            {
+                return false;
+            }
+
+            if (armSyntax.WhenClause?.Condition is ExpressionSyntax constantWhenConditionSyntax &&
+                IsBooleanConditionKnown(constantWhenConditionSyntax, semanticModel, cancellationToken, expected: false))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        return true;
+    }
     private static bool IsSwitchSectionReachableForSyntaxLiteralDiscriminant(
         SwitchStatementSyntax switchStatementSyntax,
         SwitchSectionSyntax switchSectionSyntax)
