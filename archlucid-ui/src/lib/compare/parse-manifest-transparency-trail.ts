@@ -9,9 +9,10 @@ function parseTransparencyTrail(value: unknown): TransparencyTrail | null {
     return null;
   }
 
-  const asserted = Array.isArray(value.asserted) ? value.asserted : [];
-  const inferred = Array.isArray(value.inferred) ? value.inferred : [];
-  const skipped = Array.isArray(value.skipped) ? value.skipped : [];
+  const { asserted, inferred, skipped } = value;
+  if (!Array.isArray(asserted) || !Array.isArray(inferred) || !Array.isArray(skipped)) {
+    return null;
+  }
 
   return {
     asserted: asserted as TransparencyTrail["asserted"],
