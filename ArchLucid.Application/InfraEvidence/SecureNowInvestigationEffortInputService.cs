@@ -193,6 +193,12 @@ public sealed class SecureNowInvestigationEffortInputService(
         {
             using JsonDocument document = JsonDocument.Parse(auditEvent.DataJson);
             JsonElement root = document.RootElement;
+
+            if (root.ValueKind != JsonValueKind.Object)
+            {
+                return null;
+            }
+
             SecureNowInvestigationEffortInputsWriteRequest request = new()
             {
                 BaselineHours = ReadString(root, "baselineHours"),
@@ -210,6 +216,7 @@ public sealed class SecureNowInvestigationEffortInputService(
             DateTime recordedUtc = auditEvent.OccurredUtc;
 
             if (root.TryGetProperty("recordedUtc", out JsonElement recordedElement)
+                && recordedElement.ValueKind == JsonValueKind.String
                 && DateTime.TryParse(recordedElement.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTime parsedRecordedUtc))
             {
                 recordedUtc = parsedRecordedUtc;
