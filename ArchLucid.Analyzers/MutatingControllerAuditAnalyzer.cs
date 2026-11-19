@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -742,7 +743,8 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (semanticModel is not null &&
             (!IsLogAsyncSyntaxInsideReachableIfBranches(logAsyncSyntaxNode, semanticModel, cancellationToken) ||
              !IsLogAsyncSyntaxInsideReachableConstantGuardLoops(logAsyncSyntaxNode, semanticModel, cancellationToken) ||
-             !IsLogAsyncSyntaxInsideReachableForeachIterations(logAsyncSyntaxNode, semanticModel, cancellationToken)))
+             !IsLogAsyncSyntaxInsideReachableForeachIterations(logAsyncSyntaxNode, semanticModel, cancellationToken) ||
+             !IsLogAsyncSyntaxInsideReachableCatchClauses(logAsyncSyntaxNode, semanticModel, cancellationToken)))
         {
             return false;
         }
@@ -846,6 +848,15 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             return collectionExpressionSyntax.Elements.Count == 0;
         }
 
+        if (expressionSyntax is StackAllocArrayCreationExpressionSyntax stackAllocArrayCreationExpressionSyntax &&
+            stackAllocArrayCreationExpressionSyntax.Type is ArrayTypeSyntax stackAllocArrayTypeSyntax &&
+            stackAllocArrayTypeSyntax.RankSpecifiers.Count == 1 &&
+            stackAllocArrayTypeSyntax.RankSpecifiers[0].Sizes.Count == 1 &&
+            stackAllocArrayTypeSyntax.RankSpecifiers[0].Sizes[0] is LiteralExpressionSyntax stackAllocLiteralSizeSyntax &&
+            semanticModel.GetConstantValue(stackAllocLiteralSizeSyntax, cancellationToken) is { HasValue: true, Value: 0 })
+        {
+            return true;
+        }
         if (expressionSyntax is ImplicitArrayCreationExpressionSyntax implicitArrayCreationExpressionSyntax)
         {
             return implicitArrayCreationExpressionSyntax.Initializer.Expressions.Count == 0;
@@ -957,6 +968,103 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                string.Equals(typeName, "Memory", StringComparison.Ordinal) ||
                string.Equals(typeName, "ReadOnlyMemory", StringComparison.Ordinal) ||
                string.Equals(typeName, "ImmutableArray", StringComparison.Ordinal);
+    }
+    // Catch bodies do not run when the try block provably cannot throw; LogAsync there is not audit proof.
+    private static bool IsLogAsyncSyntaxInsideReachableCatchClauses(
+        SyntaxNode logAsyncSyntaxNode,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        CatchClauseSyntax? catchClauseSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<CatchClauseSyntax>();
+
+        if (catchClauseSyntax is null)
+        {
+            return true;
+        }
+
+        if (catchClauseSyntax.Parent is not TryStatementSyntax tryStatementSyntax)
+        {
+            return true;
+        }
+
+        if (catchClauseSyntax.Block.FullSpan.Contains(logAsyncSyntaxNode.Span) &&
+            IsTryBlockProvablyNonThrowing(tryStatementSyntax.Block, semanticModel, cancellationToken))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool IsTryBlockProvablyNonThrowing(
+        BlockSyntax blockSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        foreach (StatementSyntax statementSyntax in blockSyntax.Statements)
+        {
+            if (!IsProvablyNonThrowingStatement(statementSyntax, semanticModel, cancellationToken))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsProvablyNonThrowingStatement(
+        StatementSyntax statementSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (statementSyntax is EmptyStatementSyntax)
+        {
+            return true;
+        }
+
+        if (statementSyntax.DescendantNodesAndSelf().Any(static syntaxNode => syntaxNode is ThrowStatementSyntax))
+        {
+            return false;
+        }
+
+        if (statementSyntax is not ExpressionStatementSyntax expressionStatementSyntax)
+        {
+            return false;
+        }
+
+        if (expressionStatementSyntax.Expression is not AwaitExpressionSyntax awaitExpressionSyntax)
+        {
+            return false;
+        }
+
+        return IsCompletedTaskExpression(awaitExpressionSyntax.Expression, semanticModel, cancellationToken);
+    }
+
+    private static bool IsCompletedTaskExpression(
+        ExpressionSyntax expressionSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (expressionSyntax is not MemberAccessExpressionSyntax memberAccessExpressionSyntax)
+        {
+            return false;
+        }
+
+        if (!string.Equals(memberAccessExpressionSyntax.Name.Identifier.Text, "CompletedTask", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        ISymbol? completedTaskSymbol =
+            semanticModel.GetSymbolInfo(memberAccessExpressionSyntax, cancellationToken).Symbol;
+
+        if (completedTaskSymbol is not IFieldSymbol and not IPropertySymbol)
+        {
+            return false;
+        }
+
+        return string.Equals(completedTaskSymbol.Name, "CompletedTask", StringComparison.Ordinal) &&
+               string.Equals(completedTaskSymbol.ContainingType?.Name, "Task", StringComparison.Ordinal);
     }
     // Zero-trip while/for loops never run their bodies; LogAsync parked there is not audit proof (parity with constant-false if).
     private static bool IsLogAsyncSyntaxInsideReachableConstantGuardLoops(
