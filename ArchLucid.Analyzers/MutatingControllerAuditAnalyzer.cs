@@ -839,7 +839,13 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             }
         }
 
+        if (IsCompileTimeEmptySpanOrMemoryAccess(expressionSyntax, semanticModel, cancellationToken))
+        {
+            return true;
+        }
+
         if (expressionSyntax is not InvocationExpressionSyntax invocationExpressionSyntax)
+
         {
             return false;
         }
@@ -860,6 +866,62 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                string.Equals(containingTypeName, "Enumerable", StringComparison.Ordinal);
     }
 
+
+    private static bool IsCompileTimeEmptySpanOrMemoryAccess(
+        ExpressionSyntax expressionSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (expressionSyntax is not MemberAccessExpressionSyntax memberAccessExpressionSyntax)
+        {
+            return false;
+        }
+
+        if (!string.Equals(memberAccessExpressionSyntax.Name.Identifier.Text, "Empty", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (semanticModel.GetSymbolInfo(memberAccessExpressionSyntax, cancellationToken).Symbol?.ContainingType is INamedTypeSymbol containingType &&
+            IsKnownCompileTimeEmptySpanOrMemoryType(containingType))
+        {
+            return true;
+        }
+
+        return TryGetSpanOrMemoryTypeName(memberAccessExpressionSyntax.Expression, out string? typeName) &&
+               IsKnownCompileTimeEmptySpanOrMemoryName(typeName);
+    }
+
+    private static bool TryGetSpanOrMemoryTypeName(ExpressionSyntax expressionSyntax, out string? typeName)
+    {
+        typeName = null;
+
+        switch (expressionSyntax)
+        {
+            case GenericNameSyntax genericNameSyntax:
+                typeName = genericNameSyntax.Identifier.Text;
+                return true;
+            case QualifiedNameSyntax qualifiedNameSyntax when qualifiedNameSyntax.Right is GenericNameSyntax qualifiedGenericNameSyntax:
+                typeName = qualifiedGenericNameSyntax.Identifier.Text;
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static bool IsKnownCompileTimeEmptySpanOrMemoryName(string? typeName) =>
+        string.Equals(typeName, "ReadOnlySpan", StringComparison.Ordinal) ||
+        string.Equals(typeName, "Span", StringComparison.Ordinal) ||
+        string.Equals(typeName, "Memory", StringComparison.Ordinal) ||
+        string.Equals(typeName, "ReadOnlyMemory", StringComparison.Ordinal);    private static bool IsKnownCompileTimeEmptySpanOrMemoryType(INamedTypeSymbol namedTypeSymbol)
+    {
+        string typeName = namedTypeSymbol.Name;
+
+        return string.Equals(typeName, "ReadOnlySpan", StringComparison.Ordinal) ||
+               string.Equals(typeName, "Span", StringComparison.Ordinal) ||
+               string.Equals(typeName, "Memory", StringComparison.Ordinal) ||
+               string.Equals(typeName, "ReadOnlyMemory", StringComparison.Ordinal);
+    }
     // Zero-trip while/for loops never run their bodies; LogAsync parked there is not audit proof (parity with constant-false if).
     private static bool IsLogAsyncSyntaxInsideReachableConstantGuardLoops(
         SyntaxNode logAsyncSyntaxNode,
@@ -1493,3 +1555,4 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         return false;
     }
 }
+

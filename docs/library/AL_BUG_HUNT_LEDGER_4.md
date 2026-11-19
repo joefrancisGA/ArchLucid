@@ -430,7 +430,7 @@
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 01
 - **last-hunt:** 2026-11-02
@@ -1985,6 +1985,18 @@
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
 - **consecutive-dry-hunts:** 0
 
+2026-11-19 thorough hunt #909 (hit): user-directed set-4 round-robin on post-#908 `(candidate)` queue. Proved `MutatingControllerAuditAnalyzer` counted `LogAsync` inside zero-trip `foreach` over compile-time empty `ReadOnlySpan<T>.Empty` (and sibling `Span`/`Memory` `.Empty`) as audit proof, suppressing AL0003 — **proven** `IsCompileTimeEmptySpanOrMemoryAccess` / `IsForeachCollectionExpressionProvablyEmpty`; regression `AL0003_reports_when_LogAsync_runs_only_inside_readonlyspan_empty_foreach_body`. Cheap-disproof closed four sibling `(candidate)` rows from hunt #908 reseed — **invalid** nested struct `[Authorize]` shell (`TypeKind.Class`-only nested scan), **valid-no-repro** `scoped` parameter modifier (`Reports_scoped_HttpContext_parameter` / semantic `IParameterSymbol.Type`), **invalid** nested mixed `[AllowAnonymous]` shell (per-action authorization still required), **valid-no-repro** unreachable `catch` when try cannot throw (no failing repro this pass). Reseeded five `(candidate)` rows below. Scoped filter **202/202** passed (Release). Private beta: no direct pilot-path change today; RC35 analyzer corset again flags mutating API actions that hide `LogAsync` behind zero-trip span/memory `foreach` iterators instead of treating unreachable loop bodies as satisfied audit proof.
+- [x] (proven) `MutatingControllerAuditAnalyzer` — `LogAsync` only in `foreach` over compile-time empty `ReadOnlySpan<T>` suppresses AL0003 — **hit 2026-11-19 thorough hunt #909:** regression above. [class:fail-open-validation]
+- [x] (invalid) `RequireAuthorizationAnalyzer` — type-level `[Authorize]` on nested struct satisfies AL0001 for enclosing empty controller — **cheap-disproof 2026-11-19 thorough hunt #909:** class-only nested authorize scan.
+- [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — banned type in `scoped` parameter modifier is missed — **cheap-disproof 2026-11-19 thorough hunt #909:** semantic parameter type scan; regression `Reports_scoped_HttpContext_parameter`.
+- [x] (invalid) `RequireAuthorizationAnalyzer` — `[AllowAnonymous]` on nested inner action still clears outer shell when sibling inner action is unauthorized — **cheap-disproof 2026-11-19 thorough hunt #909:** nested shell scan requires per-action authorization.
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `LogAsync` in `catch` when guarded `try` cannot throw suppresses AL0003 — **cheap-disproof 2026-11-19 thorough hunt #909:** no failing repro this pass.
+
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` only in `catch` block when `try` cannot throw suppresses AL0003 — locus: unreachable catch bodies; input: try with non-throwing const assignments only (monitor).
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` inside `foreach` over compile-time empty `ImmutableArray<T>.Empty` suppresses AL0003 — locus: immutable-array empty iterator; input: `foreach` over `ImmutableArray<int>.Empty` with LogAsync (monitor).
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — type-level `[Authorize]` on nested primary-constructor partial class satisfies AL0001 for sibling partial without authorize — locus: partial type aggregation; input: unauthorized partial sibling (monitor).
+- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — banned type in `params` array element type is missed — locus: params parameter scan; input: inner-layer `params HttpContext[]` (monitor).
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` in `switch` arm only reachable via `goto default` from unreachable label suppresses AL0003 — locus: goto reachability; input: const-discriminant switch with dead goto (monitor).
 2026-11-18 thorough hunt #908 (hit): user-directed set-4 round-robin on post-#907 `(candidate)` queue. Proved `MutatingControllerAuditAnalyzer` counted `LogAsync` inside zero-trip `foreach` over compile-time empty collections (`Array.Empty`, `[]`, `new T[0]`) as audit proof, suppressing AL0003 — **proven** `IsLogAsyncSyntaxInsideReachableForeachIterations` / `IsForeachCollectionExpressionProvablyEmpty`; regression `AL0003_reports_when_LogAsync_runs_only_inside_compile_time_empty_collection_foreach_body`. Cheap-disproof closed four sibling `(candidate)` rows from hunt #907 reseed — **valid-no-repro** `do { } while (false)` executes body once (regression `AL0003_is_absent_when_LogAsync_runs_in_compile_time_false_do_while_body`), **invalid** nested delegate `[Authorize]` shell (`TypeKind.Class`-only nested scan), **valid-no-repro** `ref readonly HttpContext` parameter (`Reports_ref_readonly_HttpContext_parameter`), **invalid** empty outer clears when nested inner exposes only action-level `[Authorize]` (`NestedDerivedControllerTypesSatisfyEmptyOuterShell` requires per-action authorization). Reseeded five `(candidate)` rows below. Scoped filter **201/201** passed (Release). Private beta: no direct pilot-path change today; RC35 analyzer corset again flags mutating API actions that hide `LogAsync` behind zero-trip `foreach` iterators instead of treating unreachable loop bodies as satisfied audit proof.
 - [x] (proven) `MutatingControllerAuditAnalyzer` — `LogAsync` in `foreach` over empty collection expression at compile time suppresses AL0003 — **hit 2026-11-18 thorough hunt #908:** regression above. [class:fail-open-validation]
 - [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `LogAsync` only in `do { } while (false)` loop body suppresses AL0003 — **cheap-disproof 2026-11-18 thorough hunt #908:** do-while runs body once; regression above.
@@ -1992,11 +2004,11 @@
 - [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — banned type in `ref readonly` parameter modifier is missed — **cheap-disproof 2026-11-18 thorough hunt #908:** `Reports_ref_readonly_HttpContext_parameter`.
 - [x] (invalid) `RequireAuthorizationAnalyzer` — partially authorized outer with nested inner missing type-level authorize still clears AL0001 when inner has only `[Authorize]` actions — **cheap-disproof 2026-11-18 thorough hunt #908:** per-action authorization satisfies nested shell rule.
 
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` only in `foreach` over compile-time empty `ReadOnlySpan<T>` suppresses AL0003 — locus: span zero-length iterator; input: `foreach` over `ReadOnlySpan<int>.Empty` with LogAsync (monitor).
-- [ ] (candidate) `RequireAuthorizationAnalyzer` — type-level `[Authorize]` on nested struct satisfies AL0001 for enclosing empty controller — locus: nested struct scan; input: struct shell nesting authorized inner class (monitor).
-- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — banned type in `scoped` parameter modifier is missed — locus: scoped parameter scan; input: inner-layer method with `scoped HttpContext` (monitor).
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` in `catch` when guarded `try` cannot throw suppresses AL0003 — locus: unreachable catch bodies; input: try over constant-false expression (monitor).
-- [ ] (candidate) `RequireAuthorizationAnalyzer` — `[AllowAnonymous]` on nested inner action still clears outer shell when sibling inner action is unauthorized — locus: nested shell allow-anonymous aggregation; input: mixed authorized/anonymous nested controllers (monitor).
+- [x] (proven) `MutatingControllerAuditAnalyzer` — `LogAsync` only in `foreach` over compile-time empty `ReadOnlySpan<T>` suppresses AL0003 — **superseded by hunt #909 hit.**
+- [x] (invalid) `RequireAuthorizationAnalyzer` — type-level `[Authorize]` on nested struct satisfies AL0001 for enclosing empty controller — **cheap-disproof 2026-11-19 thorough hunt #909.**
+- [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — banned type in `scoped` parameter modifier is missed — **cheap-disproof 2026-11-19 thorough hunt #909.**
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `LogAsync` in `catch` when guarded `try` cannot throw suppresses AL0003 — **cheap-disproof 2026-11-19 thorough hunt #909.**
+- [x] (invalid) `RequireAuthorizationAnalyzer` — `[AllowAnonymous]` on nested inner action still clears outer shell when sibling inner action is unauthorized — **cheap-disproof 2026-11-19 thorough hunt #909.**
 2026-11-18 thorough hunt #907 (hit): user-directed set-4 round-robin on post-#906 `(candidate)` queue. Proved `MutatingControllerAuditAnalyzer` counted `LogAsync` inside `while (false)` / `for (; false;)` bodies as audit proof, suppressing AL0003 — **proven** `IsLogAsyncSyntaxInsideReachableConstantGuardLoops`; regression `AL0003_reports_when_LogAsync_runs_only_inside_compile_time_false_while_loop`. Cheap-disproof closed four sibling `(candidate)` rows from hunt #906 reseed — **valid-no-repro** unreachable `else` of `if (true)` (constant-true-if else reachability parity with #906), **invalid** nested interface `[Authorize]` shell (nested authorize scans require `TypeKind.Class`), **valid-no-repro** banned return via file-scoped alias (`Reports_banned_type_in_method_return_type_in_inner_layer_assembly`), **invalid** `[AllowAnonymous]` action inside nested authorized inner controller (`NestedDerivedControllerTypesSatisfyEmptyOuterShell` still requires each nested public action to pass `ActionHasAuthorization`). Reseeded five `(candidate)` rows below. Scoped filter **199/199** passed (Release). Private beta: no direct pilot-path change today; RC35 analyzer corset again flags mutating API actions that park `LogAsync` behind zero-trip `while`/`for` loops instead of treating the call as satisfied audit proof.
 - [x] (proven) `MutatingControllerAuditAnalyzer` — `LogAsync` in `while (false)` loop header or body suppresses AL0003 — **hit 2026-11-18 thorough hunt #907:** regression `AL0003_reports_when_LogAsync_runs_only_inside_compile_time_false_while_loop`. [class:fail-open-validation]
 - [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `LogAsync` only in `else` branch of `if (true)` suppresses AL0003 — **cheap-disproof 2026-11-18 thorough hunt #907:** `IsLogAsyncSyntaxInsideReachableIfBranches` constant-true else path.
@@ -2203,11 +2215,11 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 50
-- **bugs-found:** 43
+- **hunts:** 
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-17
-- **last-bug:** 2026-11-17 — null-coalescing right operand LogAsync satisfied AL0003
+- **last-hunt:** 2026-11-19
+- **last-bug:** 2026-11-19 — ReadOnlySpan.Empty foreach LogAsync satisfied AL0003
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-16 seed hunt (seed-only): re-read the three analyzer implementations; cheap-disproved interface `[AllowAnonymous]` inherited-action AL0001 symmetry gap; regression lock `Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface`; seeded five `(candidate)` rows; 90 scoped analyzer tests passed (`RunAnalyzers=false`).
@@ -17767,7 +17779,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
@@ -18204,8 +18216,8 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 50
-- **bugs-found:** 43
+- **hunts:** 51
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-31 — fullwidth comma U+FF0C between phrase words broke managed identity detection
@@ -23890,7 +23902,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
 - **hunts:** 1066
-- **bugs-found:** 432
+- **bugs-found:** 442
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-30 — multiline block-comment false-positive whole-block redaction
