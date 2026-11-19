@@ -176,7 +176,7 @@ export function CompareResultsPanelVerdictChrome({
         />
       ) : null}
 
-      {golden !== null ? (
+      {golden !== null && !showStaleInputsWarning ? (
         <CompareSemanticSupportBandDeltaPanel
           loading={semanticSupportBandDeltaState.loading}
           view={semanticSupportBandDeltaState.view}
