@@ -85,7 +85,7 @@ public abstract class AgentResultRepositoryContractTests
     }
 
     [SkippableFact]
-    public async Task CreateMany_throws_when_task_already_exists_for_run()
+    public async Task CreateMany_leaves_run_unchanged_when_a_task_already_exists()
     {
         SkipIfSqlServerUnavailable();
         IAgentResultRepository repo = CreateRepository();
@@ -93,16 +93,27 @@ public abstract class AgentResultRepositoryContractTests
         string runId = Guid.NewGuid().ToString("N");
         AgentTask task = NewTaskRow(runId, "res-task-2");
 
+        AgentTask freshTask = NewTaskRow(runId, "res-task-fresh");
+
         await PrepareRunTaskChainAsync(requestId, runId, task, CancellationToken.None);
+        await PrepareRunTaskChainAsync(requestId, runId, freshTask, CancellationToken.None);
 
         await repo.CreateAsync(NewResult(runId, task.TaskId, "old", TimeProvider.System.UtcNowDateTime().AddMinutes(-1)),
             CancellationToken.None);
 
         Func<Task> act = () => repo.CreateManyAsync(
-            [NewResult(runId, task.TaskId, "new", TimeProvider.System.UtcNowDateTime())],
+            [
+                NewResult(runId, freshTask.TaskId, "fresh", TimeProvider.System.UtcNowDateTime()),
+                NewResult(runId, task.TaskId, "new", TimeProvider.System.UtcNowDateTime())
+            ],
             CancellationToken.None);
 
         await act.Should().ThrowAsync<AgentResultDuplicateConflictException>();
+
+        IReadOnlyList<AgentResult> loaded =
+            await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
+
+        loaded.Select(static result => result.ResultId).Should().Equal("old");
     }
 
     [SkippableFact]
