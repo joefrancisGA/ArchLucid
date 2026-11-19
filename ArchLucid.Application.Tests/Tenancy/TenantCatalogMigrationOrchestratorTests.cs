@@ -893,8 +893,29 @@ public sealed class TenantCatalogMigrationOrchestratorTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
+    [Fact]
+    public async Task RunVerificationAsync_returns_wrong_stage_when_stage_still_catalog_attach_detach()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = Guid.NewGuid(),
+                TenantId = TenantId,
+                CorrelationId = "corr-catalog-attach",
+                Stage = TenantCatalogMigrationStage.CatalogAttachDetach,
+                StartedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
 
+        TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(migrations);
 
+        (TenantCatalogMigrationCommandOutcome outcome, TenantMigrationVerificationProbeResult? probe) =
+            await sut.RunVerificationAsync(TenantId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.WrongStage, outcome);
+        Assert.Null(probe);
+    }
     [Fact]
     public async Task RunVerificationAsync_returns_wrong_stage_when_stage_still_scope_freeze()
     {
