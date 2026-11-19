@@ -28,10 +28,13 @@ public sealed partial class InMemoryItsmFindingCorrelationRepository
 
         string k = Key(tenantId, provider, externalKey);
 
-        if (_byKey.TryGetValue(k, out ItsmFindingCorrelationRecord? existing) &&
-            existing.FindingRecordId is null &&
-            findingRecordId is not null)
+        // Upgrade an existing correlation without resurrecting a concurrently removed
+        // entry or overwriting a concurrent tracking update.
+        while (_byKey.TryGetValue(k, out ItsmFindingCorrelationRecord? existing))
         {
+            if (existing.FindingRecordId is not null || findingRecordId is null)
+                return Task.CompletedTask;
+
             ItsmFindingCorrelationRecord updated = new()
             {
                 TenantId = existing.TenantId,
@@ -45,9 +48,8 @@ public sealed partial class InMemoryItsmFindingCorrelationRepository
                 FindingRecordId = findingRecordId
             };
 
-            _byKey[k] = updated;
-
-            return Task.CompletedTask;
+            if (_byKey.TryUpdate(k, updated, existing))
+                return Task.CompletedTask;
         }
 
         _ = _byKey.TryAdd(
