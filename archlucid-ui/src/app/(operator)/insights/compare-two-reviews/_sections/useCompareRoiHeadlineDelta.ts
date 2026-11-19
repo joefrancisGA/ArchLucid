@@ -53,11 +53,14 @@ export function useCompareRoiHeadlineDelta(input: {
     return { loading, view: null, roiHeadlineAllZero: false };
   }
 
+  const savings = {
+    baselineSavings: queries[0]?.data ?? null,
+    targetSavings: queries[1]?.data ?? null,
+  };
+
   return {
     loading: false,
-    view: buildCompareRoiHeadlineDeltaView({
-      baselineSavings: queries[0]?.data ?? null,
-      targetSavings: queries[1]?.data ?? null,
-    }),
+    view: buildCompareRoiHeadlineDeltaView(savings),
+    roiHeadlineAllZero: compareRoiHeadlineBothLackPositiveSavings(savings),
   };
 }
