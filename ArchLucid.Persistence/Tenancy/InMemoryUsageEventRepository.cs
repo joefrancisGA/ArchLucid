@@ -8,6 +8,7 @@ namespace ArchLucid.Persistence.Tenancy;
 /// <summary>In-memory usage events for tests and <c>InMemory</c> storage mode.</summary>
 public sealed class InMemoryUsageEventRepository : IUsageEventRepository
 {
+    private readonly Lock _writeGate = new();
     private readonly ConcurrentBag<UsageEvent> _events = [];
 
     public Task InsertAsync(UsageEvent usageEvent, CancellationToken ct)
@@ -15,10 +16,13 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
         ArgumentNullException.ThrowIfNull(usageEvent);
         _ = ct;
 
-        if (UsageEventRepositoryCore.IsDuplicateIdempotencyKey(_events, usageEvent))
-            return Task.CompletedTask;
+        lock (_writeGate)
+        {
+            if (UsageEventRepositoryCore.IsDuplicateIdempotencyKey(_events, usageEvent))
+                return Task.CompletedTask;
 
-        _events.Add(usageEvent);
+            _events.Add(usageEvent);
+        }
 
         return Task.CompletedTask;
     }
@@ -28,12 +32,15 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
         ArgumentNullException.ThrowIfNull(events);
         _ = ct;
 
-        foreach (UsageEvent usageEvent in events)
+        lock (_writeGate)
         {
-            if (UsageEventRepositoryCore.IsDuplicateIdempotencyKey(_events, usageEvent))
-                continue;
+            foreach (UsageEvent usageEvent in events)
+            {
+                if (UsageEventRepositoryCore.IsDuplicateIdempotencyKey(_events, usageEvent))
+                    continue;
 
-            _events.Add(usageEvent);
+                _events.Add(usageEvent);
+            }
         }
 
         return Task.CompletedTask;
