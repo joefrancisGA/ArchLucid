@@ -101,7 +101,14 @@ export function GovernanceFindingsQueueResultsSection(
           footer={
             <div className="space-y-2">
               {architectureScopeOnlyFilter ? (
-                <div className="space-y-2" data-testid="governance-findings-architecture-scope-only-filter-empty">
+                <div
+                  className="space-y-2"
+                  data-testid={
+                    props.isAssignedToMe
+                      ? "governance-findings-assigned-to-me-architecture-scope-only-filter-empty"
+                      : "governance-findings-architecture-scope-only-filter-empty"
+                  }
+                >
                   <p
                     className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                     data-testid="governance-findings-architecture-scope-only-filter-empty-not-load-failure"

@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-19 - Score lift round 88 (batch 53): Compare insufficient, classification band, digest delivery, assigned scope
+
+**Outcome.** Compare insufficient-finalized names one-review-vs-second-empty apart from a failed compare load. Compare classification band names all-zero counts with an unsealed review. Digest browse detail names zero delivery attempts on a selected digest. Findings assigned-to-me uses architecture scope-only filter-empty test id.
+
+**Surfaces.** Compare insufficient finalized, compare classification band, digest delivery attempts, governance assigned scope, honesty and mounted contract tests.
+
 ## 2026-11-19 - Score lift round 87 (batch 52): Compare pickers delta, digest subscriptions, findings scope
 
 **Outcome.** Compare run pickers name a selected baseline with an empty updated review apart from a failed picker read and partial capture. Compare quality delta names all-zero counts when one review is unsealed. Digest browse names subscription-list-only empty without a scoped review filter. Findings queue names architecture scope chip filter-empty without a severity facet.

@@ -185,6 +185,11 @@ export function CompareResultsPanelVerdictChrome({
         <CompareClassificationBandDeltaPanel
           loading={semanticSupportBandDeltaState.loading}
           view={semanticSupportBandDeltaState.classificationView}
+          showZeroCountsUnsealedHonesty={
+            semanticSupportBandDeltaState.classificationBandAllZero
+            && ((viewModel.leftSummaryBlockedReason ?? null) !== null
+              || (viewModel.rightSummaryBlockedReason ?? null) !== null)
+          }
         />
       ) : null}
 

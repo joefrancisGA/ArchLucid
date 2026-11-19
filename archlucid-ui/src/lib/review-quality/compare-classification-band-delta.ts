@@ -55,3 +55,13 @@ export function buildCompareClassificationBandDeltaView(input: {
     },
   };
 }
+
+export function compareClassificationBandFindingsAllZero(input: {
+  readonly baselineFindings: readonly import("@/lib/quick-decision-summary-derive").QuickDecisionFinding[];
+  readonly targetFindings: readonly import("@/lib/quick-decision-summary-derive").QuickDecisionFinding[];
+}): boolean {
+  const baseline = countFindingsByClassificationBand(input.baselineFindings);
+  const target = countFindingsByClassificationBand(input.targetFindings);
+  return (baseline.decisionGrade + baseline.checklist + baseline.uncited) === 0
+    && (target.decisionGrade + target.checklist + target.uncited) === 0;
+}

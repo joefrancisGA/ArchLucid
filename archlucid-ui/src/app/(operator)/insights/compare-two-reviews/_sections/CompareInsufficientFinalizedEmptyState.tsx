@@ -10,6 +10,9 @@ import {
 import { ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE } from "@/lib/architecture/compare-delta-counts-two-sealed-footnote-copy";
 import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
 import { CompareInsufficientFinalizedPartialCaptureHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareInsufficientFinalizedPartialCaptureHonesty";
+import { COMPARE_INSUFFICIENT_FINALIZED_ONE_FINALIZED_SECOND_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-insufficient-finalized-one-finalized-second-empty-not-load-failure-copy";
+import { COMPARE_RUN_PICKERS_CORRELATION_EMPTY_AND_SEAL_LINE } from "@/lib/architecture/compare-run-pickers-correlation-empty-and-seal-copy";
+import { CompareInsufficientFinalizedOneFinalizedSecondEmptyPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareInsufficientFinalizedOneFinalizedSecondEmptyPartialHonesty";
 import { CompareRunPickersPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersPartialInventoryFootnote";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -49,6 +52,17 @@ export function CompareInsufficientFinalizedEmptyState(props: CompareInsufficien
           >
             {ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE}
           </p>
+          {finalizedCount === 1 ? (
+            <div className="space-y-2" data-testid="compare-insufficient-finalized-one-finalized-second-empty">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                {COMPARE_INSUFFICIENT_FINALIZED_ONE_FINALIZED_SECOND_EMPTY_NOT_LOAD_FAILURE_LINE}
+              </p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                {COMPARE_RUN_PICKERS_CORRELATION_EMPTY_AND_SEAL_LINE}
+              </p>
+              <CompareInsufficientFinalizedOneFinalizedSecondEmptyPartialHonesty />
+            </div>
+          ) : null}
           <CompareRunPickersPartialInventoryFootnote />
           <CompareInsufficientFinalizedPartialCaptureHonesty />
           <CompareSampleComparisonAction onLoadSampleComparison={onLoadSampleComparison} />
