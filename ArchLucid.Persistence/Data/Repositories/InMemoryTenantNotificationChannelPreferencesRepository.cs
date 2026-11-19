@@ -17,6 +17,8 @@ public sealed class
         Guid tenantId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (_store.TryGetValue(tenantId, out TenantNotificationChannelPreferencesResponse? row) && row is not null)
             return Task.FromResult<TenantNotificationChannelPreferencesResponse?>(row);
 
@@ -31,6 +33,8 @@ public sealed class
         bool outboundWebhookCustomerNotificationsEnabled,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         TenantNotificationChannelPreferencesResponse row = new()
         {
             SchemaVersion = 1,
