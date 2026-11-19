@@ -112,7 +112,6 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
               >
                 {COMPARE_CORRELATION_EMPTY_AND_SECOND_SEAL_LINE}
               </p>
-              <CompareCorrelationEmptyAndSecondSealPartialHonesty />
               {compareIncludesUnsealedReview ? (
                 <>
                   <p
@@ -123,7 +122,9 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
                   </p>
                   <CompareCorrelationEmptyOneUnsealedPartialHonesty />
                 </>
-              ) : null}
+              ) : (
+                <CompareCorrelationEmptyAndSecondSealPartialHonesty />
+              )}
               <CompareFindingCorrelationPartialEmptyHonesty />
             </div>
           }
