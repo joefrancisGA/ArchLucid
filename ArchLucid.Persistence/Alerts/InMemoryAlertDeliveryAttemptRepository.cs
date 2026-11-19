@@ -13,7 +13,12 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
     {
         ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
+            if (_items.Exists(item => item.AlertDeliveryAttemptId == attempt.AlertDeliveryAttemptId))
+                throw new InvalidOperationException("An alert delivery attempt with this ID already exists.");
+
             _items.Add(Copy(attempt));
+        }
         return Task.CompletedTask;
     }
 
