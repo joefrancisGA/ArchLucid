@@ -20,7 +20,12 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
             static () => TimeProvider.System.UtcNowDateTime());
 
         lock (_sync)
+        {
+            if (_rows.Any(existing => existing.SignalId == stored.SignalId))
+                throw new InvalidOperationException($"Pilot signal '{stored.SignalId}' already exists.");
+
             _rows.Add(stored);
+        }
 
         return Task.CompletedTask;
     }
