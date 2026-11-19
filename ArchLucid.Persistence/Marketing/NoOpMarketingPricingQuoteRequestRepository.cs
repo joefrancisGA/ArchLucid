@@ -14,6 +14,8 @@ public sealed class NoOpMarketingPricingQuoteRequestRepository : IMarketingPrici
         byte[]? clientIpSha256,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         return Task.FromResult<MarketingPricingQuoteRequestInsertResult?>(null);
     }
 }
