@@ -101,7 +101,7 @@ public sealed class CachingGoldenManifestRepository(
         if (transaction is null)
         {
             foreach (Guid manifestId in superseded)
-                await EvictCachedManifestAsync(scope, manifestId, cancellationToken);
+                await EvictCachedManifestAsync(scope, manifestId, CancellationToken.None);
         }
 
         return superseded;
