@@ -25,16 +25,14 @@ export function deriveSecureNowCollectionSetupInput(input: {
 export function deriveAzureSubscriptionScopeFromConnections(
   azureConnections: readonly { readonly subscriptionIds: string }[],
 ): { readonly azureSubscriptionIdsPresent: boolean; readonly azureSubscriptionScopeLabel: string | null } {
-  const subscriptionIdsPresent = azureConnections.some(
-    (connection) => connection.subscriptionIds.trim().length > 0,
-  );
-  const firstSubscriptionIds =
-    azureConnections.find((connection) => connection.subscriptionIds.trim().length > 0)?.subscriptionIds ?? "";
+  const firstSubscriptionIds = azureConnections.find((connection) =>
+    connection.subscriptionIds.split(",").some((id) => id.trim().length > 0),
+  )?.subscriptionIds;
 
   return {
-    azureSubscriptionIdsPresent: subscriptionIdsPresent,
-    azureSubscriptionScopeLabel: subscriptionIdsPresent
-      ? formatAzureSubscriptionSummary(firstSubscriptionIds)
-      : null,
+    azureSubscriptionIdsPresent: firstSubscriptionIds !== undefined,
+    azureSubscriptionScopeLabel: firstSubscriptionIds === undefined
+      ? null
+      : formatAzureSubscriptionSummary(firstSubscriptionIds),
   };
 }
