@@ -56,6 +56,16 @@ public sealed class AuditFilterCacheFingerprintTests
     }
 
     [Fact]
+    public void Build_does_not_collapse_local_and_utc_bounds_to_the_same_instant()
+    {
+        DateTime local = new(2026, 1, 1, 12, 0, 0, DateTimeKind.Local);
+        AuditEventFilter first = new() { FromUtc = local };
+        AuditEventFilter second = new() { FromUtc = local.ToUniversalTime() };
+
+        AuditFilterCacheFingerprint.Build(first).Should().NotBe(AuditFilterCacheFingerprint.Build(second));
+    }
+
+    [Fact]
     public void Build_is_stable_for_equivalent_filters()
     {
         AuditEventFilter first = new() { EventType = "x", ActorUserId = "u" };

@@ -31,6 +31,6 @@ internal static class AuditFilterCacheFingerprint
         if (!instant.HasValue)
             return string.Empty;
 
-        return instant.Value.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture);
+        return instant.Value.ToString("O", CultureInfo.InvariantCulture);
     }
 }
