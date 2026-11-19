@@ -1036,11 +1036,11 @@ export function DriftWorkbenchClient() {
   }, [pushDriftUrl]);
 
   const applyDiffSelect = useCallback(
-    (nextDiffId: string) => {
+    (nextDiffId: string, changeId = "") => {
       userClearedDiffRef.current = false;
       setSelectedDiffId(nextDiffId);
       setSelectedChangeId(null);
-      pushDriftUrl({ diffId: nextDiffId, changeId: "", tableFilters: { changesPage: 1 } });
+      pushDriftUrl({ diffId: nextDiffId, changeId, tableFilters: { changesPage: 1 } });
     },
     [pushDriftUrl],
   );
@@ -1177,18 +1177,12 @@ export function DriftWorkbenchClient() {
         return;
       }
 
-      applyDiffSelect(pending.diffId);
-    }
-
-    if (pending.changeId.length > 0 && !loadingChanges) {
-      activateChange(pending.changeId, "replace");
+      applyDiffSelect(pending.diffId, pending.changeId);
     }
 
     pendingResumeComparisonRef.current = null;
   }, [
-    activateChange,
     applyDiffSelect,
-    loadingChanges,
     loadingDiffs,
     selectedSnapshotId,
     visibleDiffs,
