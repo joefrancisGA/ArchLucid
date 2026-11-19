@@ -122,5 +122,6 @@ Optional follow-up: turn the weekly package grade or the shadow-architect bake-o
 | Live vs nightly finding-quality tripwire | `docs/library/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md` |
 | Light 47-quality desk + score-lift backlog | `.cursor/commands/al-light.md` (default **35** suggestions; optional count/focus) |
 | UI rate / lowest-route / screenshot audit | `.cursor/commands/al-ui-rate-lowest.md`, `.cursor/skills/lucid-ui-audit/SKILL.md` |
-| Zone bug hunt | `.cursor/commands/al-bug.md` |
+| Zone bug hunt | .cursor/commands/al-bug.md |
+| Bugsmash 24h yield desk | .cursor/commands/al-bugstate.md |
 | Backlog ship loop | `.cursor/skills/ship-loop/SKILL.md` |

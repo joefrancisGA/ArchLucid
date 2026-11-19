@@ -2569,6 +2569,10 @@ jobs:
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugRollingStats.Tests.ps1'
 
+      - name: AlBugState.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugState.Tests.ps1'
+
       - name: AlBugEscalation.Tests.ps1
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugEscalation.Tests.ps1'
