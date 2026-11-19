@@ -13,7 +13,12 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         ArgumentNullException.ThrowIfNull(rule);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
+            if (_items.Exists(item => item.CompositeRuleId == rule.CompositeRuleId))
+                throw new InvalidOperationException("A composite alert rule with this ID already exists.");
+
             _items.Add(CompositeAlertRuleRepositoryCore.CloneRule(rule));
+        }
         return Task.CompletedTask;
     }
 
