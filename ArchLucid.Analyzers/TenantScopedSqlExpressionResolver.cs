@@ -16,6 +16,13 @@ internal static class TenantScopedSqlExpressionResolver
         "AndScopeProjectIdTripleWhere",
     };
 
+    // Per-Resolve active path: Roslyn may return fresh syntax-node wrappers for the
+    // same tree/span, and compilation analyzers may run concurrently.
+    private static readonly System.Threading.AsyncLocal<HashSet<(SyntaxTree Tree, int Start, int Length)>?>
+        ActiveResolutionPath = new();
+
+    private const int MaxResolutionDepth = 128;
+
     internal sealed class ResolutionResult
     {
         internal ResolutionResult(
@@ -58,7 +65,17 @@ internal static class TenantScopedSqlExpressionResolver
         if (expression is null)
             return new ResolutionResult(null, false, false);
 
-        return ResolveCore(expression, semanticModel, visitingInterpolatedHole: false);
+        HashSet<(SyntaxTree Tree, int Start, int Length)>? previousPath = ActiveResolutionPath.Value;
+        ActiveResolutionPath.Value = new HashSet<(SyntaxTree Tree, int Start, int Length)>();
+
+        try
+        {
+            return ResolveCore(expression, semanticModel, visitingInterpolatedHole: false);
+        }
+        finally
+        {
+            ActiveResolutionPath.Value = previousPath;
+        }
     }
 
     internal static IEnumerable<string> GetExpressionTextsForDiagnostics(
@@ -98,8 +115,22 @@ internal static class TenantScopedSqlExpressionResolver
         SemanticModel semanticModel,
         bool visitingInterpolatedHole)
     {
-        switch (expression)
+        HashSet<(SyntaxTree Tree, int Start, int Length)>? path = ActiveResolutionPath.Value;
+
+        if (path is null)
+            return new ResolutionResult(null, false, false);
+
+        var key = (expression.SyntaxTree, expression.SpanStart, expression.Span.Length);
+
+        // A cycle or pathological chain is unresolved, not proof of tenant scope.
+        // Static SQL fragments on sibling arms continue to reach ARCH006.
+        if (path.Count >= MaxResolutionDepth || !path.Add(key))
+            return new ResolutionResult(null, false, false);
+
+        try
         {
+            switch (expression)
+            {
             case LiteralExpressionSyntax literal when literal.IsKind(SyntaxKind.StringLiteralExpression):
                 return new ResolutionResult(literal.Token.ValueText, true, false);
 
@@ -162,6 +193,11 @@ internal static class TenantScopedSqlExpressionResolver
                     return new ResolutionResult(null, false, IsScopeHelperExpression(expression, semanticModel));
 
                 return new ResolutionResult(null, false, IsScopeHelperExpression(expression, semanticModel));
+            }
+        }
+        finally
+        {
+            path.Remove(key);
         }
     }
 

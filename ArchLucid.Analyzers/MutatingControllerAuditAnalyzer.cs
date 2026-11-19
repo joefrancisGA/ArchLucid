@@ -895,43 +895,6 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                string.Equals(methodSymbol.ContainingType?.Name, "Task", StringComparison.Ordinal);
     }
 
-    private static bool IsSyntaxNodeWithinExpression(SyntaxNode descendant, ExpressionSyntax rootExpression)
-    {
-        foreach (SyntaxNode? ancestor in descendant.Ancestors())
-        {
-            if (ancestor is ExpressionSyntax expressionSyntax && ReferenceEquals(expressionSyntax, rootExpression))
-                return true;
-        }
-
-        return false;
-    }
-
-    private static bool IsCoalesceLeftOperandNeverNull(
-        ExpressionSyntax leftExpressionSyntax,
-        SemanticModel? semanticModel,
-        CancellationToken cancellationToken)
-    {
-        if (semanticModel is null)
-            return false;
-
-        Optional<object?> constantOptional = semanticModel.GetConstantValue(leftExpressionSyntax, cancellationToken);
-
-        if (constantOptional.HasValue && constantOptional.Value is not null)
-            return true;
-
-        if (leftExpressionSyntax is not InvocationExpressionSyntax invocationExpressionSyntax)
-            return false;
-
-        IMethodSymbol? methodSymbol =
-            semanticModel.GetSymbolInfo(invocationExpressionSyntax, cancellationToken).Symbol as IMethodSymbol;
-
-        if (methodSymbol is null)
-            return false;
-
-        return string.Equals(methodSymbol.Name, "FromResult", StringComparison.Ordinal) &&
-               string.Equals(methodSymbol.ContainingType?.Name, "Task", StringComparison.Ordinal);
-    }
-
     private static bool IsSwitchSectionReachableForSyntaxLiteralDiscriminant(
         SwitchStatementSyntax switchStatementSyntax,
         SwitchSectionSyntax switchSectionSyntax)
