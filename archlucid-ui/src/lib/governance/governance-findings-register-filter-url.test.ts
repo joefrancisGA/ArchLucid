@@ -4,6 +4,16 @@ import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "./governance-findi
 import { governanceFindingsRegisterFilterHrefFromSearch } from "./governance-findings-register-filter-url";
 
 describe("governanceFindingsRegisterFilterHrefFromSearch", () => {
+
+  it("retains hideGeneric when register filter narrows", () => {
+    const href = governanceFindingsRegisterFilterHrefFromSearch(
+      "hideGeneric=1&filter=open",
+      "expiring-soon",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?hideGeneric=1&filter=expiring-soon");
+  });
   it("clears stale resource-group disclosure when register filter changes", () => {
     const href = governanceFindingsRegisterFilterHrefFromSearch(
       `filter=open&groupBy=resource&${GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM}=resource%3Aabc`,

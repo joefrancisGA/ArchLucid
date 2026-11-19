@@ -24,6 +24,18 @@ describe("review-findings-job-view-url", () => {
     expect(resolveFindingJobViewFromSearchParam("verify-hypotheses")).toBe("verify-hypotheses");
   });
 
+
+  it("retains triage focusedFinding when job view changes on the findings queue", () => {
+    const href = reviewFindingsJobViewHrefFromSearch(
+      "focusedFinding=finding-1&filter=open",
+      "/governance/findings",
+      "needs-governance",
+    );
+
+    expect(href).toBe(
+      "/governance/findings?focusedFinding=finding-1&filter=open&findingJobView=needs-governance",
+    );
+  });
   it("clears armed preset-remove confirm when job view changes on the findings queue", () => {
     const href = reviewFindingsJobViewHrefFromSearch(
       "removePresetId=preset-1&filter=open",

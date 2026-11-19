@@ -79,6 +79,18 @@ describe("governanceFindingsClearAllFiltersHref", () => {
     expect(href).not.toContain(`${GOVERNANCE_RECORD_CORRECTION_RUN_ID_PARAM}=`);
   });
 
+
+  it("retains hideGeneric when clearing register and facet filters", () => {
+    const href = governanceFindingsClearAllFiltersHref(
+      "hideGeneric=1&filter=open&q=phi&severity=high",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?hideGeneric=1");
+    expect(href).not.toContain("filter=");
+    expect(href).not.toContain("q=");
+    expect(href).not.toContain("severity=");
+  });
   it("clears armed preset-remove confirm when clearing filters", () => {
     const href = governanceFindingsClearAllFiltersHref(
       "runId=run-1&filter=open&removePresetId=preset-1",
