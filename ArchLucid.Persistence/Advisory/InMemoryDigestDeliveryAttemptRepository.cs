@@ -18,7 +18,12 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
         ArgumentNullException.ThrowIfNull(attempt);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
+            if (_items.Exists(item => item.AttemptId == attempt.AttemptId))
+                throw new InvalidOperationException($"The digest delivery attempt '{attempt.AttemptId}' already exists.");
+
             _items.Add(Copy(attempt));
+        }
         return Task.CompletedTask;
     }
 
