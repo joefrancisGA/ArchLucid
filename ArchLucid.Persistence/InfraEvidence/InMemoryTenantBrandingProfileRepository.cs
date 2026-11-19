@@ -32,13 +32,25 @@ public sealed class InMemoryTenantBrandingProfileRepository : ITenantBrandingPro
     }
 
     public Task<TenantBrandingProfileRecord?> TryGetActiveAsync(Guid tenantId, CancellationToken cancellationToken = default)
-        => TryGetByStatusAsync(tenantId, BrandingProfileStatus.Active, cancellationToken);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return TryGetByStatusAsync(tenantId, BrandingProfileStatus.Active, cancellationToken);
+    }
 
     public Task<TenantBrandingProfileRecord?> TryGetDefaultAsync(Guid tenantId, CancellationToken cancellationToken = default)
-        => TryGetByStatusAsync(tenantId, BrandingProfileStatus.Default, cancellationToken);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return TryGetByStatusAsync(tenantId, BrandingProfileStatus.Default, cancellationToken);
+    }
 
     public Task<TenantBrandingProfileRecord?> TryGetDraftAsync(Guid tenantId, CancellationToken cancellationToken = default)
-        => TryGetByStatusAsync(tenantId, BrandingProfileStatus.Draft, cancellationToken);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return TryGetByStatusAsync(tenantId, BrandingProfileStatus.Draft, cancellationToken);
+    }
 
     public Task ReplaceDraftAsync(TenantBrandingProfileRecord record, CancellationToken cancellationToken = default)
     {
@@ -64,6 +76,8 @@ public sealed class InMemoryTenantBrandingProfileRepository : ITenantBrandingPro
         TenantBrandingProfileRecord activated,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (draft.TenantId != activated.TenantId || activated.BrandingStatus != BrandingProfileStatus.Active)
             throw new InvalidOperationException("Branding activation requires an active profile for the draft tenant.");
 
