@@ -15,7 +15,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
 
     public Task<ExecDigestPreferencesResponse?> GetByTenantAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return _store.TryGetValue(tenantId, out ExecDigestPreferencesResponse? row)
             ? Task.FromResult<ExecDigestPreferencesResponse?>(row)
@@ -31,7 +31,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
         int hourOfDay,
         CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         ExecDigestPreferencesResponse row = new()
         {
@@ -55,7 +55,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
 
     public Task<IReadOnlyList<Guid>> ListEmailEnabledTenantIdsAsync(CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         List<Guid> ids = _store
             .Where(static p => p.Value.EmailEnabled)
@@ -67,10 +67,10 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
 
     public Task<bool> TryDisableEmailAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
-
         while (true)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (!_store.TryGetValue(tenantId, out ExecDigestPreferencesResponse? existing) || !existing.EmailEnabled)
                 return Task.FromResult(false);
 
