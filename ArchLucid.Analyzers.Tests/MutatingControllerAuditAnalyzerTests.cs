@@ -4755,6 +4755,91 @@ public sealed class ConstantFalseIfElseAuditController(IAuditService auditServic
             SolutionTransforms = { MarkAssemblyAsArchLucidApi }
         }.RunAsync();
     }
+    [Fact]
+    public async Task AL0003_reports_when_LogAsync_runs_only_in_using_statement_initializer_without_action_body_work()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+internal sealed class UsingStatementInitializerOnlyScope : System.IDisposable
+{
+    public UsingStatementInitializerOnlyScope(IAuditService auditService, System.Threading.CancellationToken cancellationToken)
+    {
+        _ = auditService.LogAsync(new AuditEvent { EventType = "Probe" }, cancellationToken);
+    }
+
+    public void Dispose()
+    {
+    }
+}
+
+public sealed class UsingStatementInitializerOnlyAuditController(IAuditService auditService) : ControllerBase
+{
+    [HttpPost("x")]
+    public System.Threading.Tasks.Task<IActionResult> {|#0:Post|}(System.Threading.CancellationToken cancellationToken)
+    {
+        using (var _ = new UsingStatementInitializerOnlyScope(auditService, cancellationToken))
+        {
+            return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
+        }
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                Al0003MutatingControllerAuditDescriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("ArchLucid.Api.Probe.UsingStatementInitializerOnlyAuditController.Post");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_is_absent_when_LogAsync_runs_only_in_then_branch_of_compile_time_true_if()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class ConstantTrueIfThenAuditController(IAuditService auditService) : ControllerBase
+{
+    [HttpPost("x")]
+    public System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+    {
+        if (true)
+        {
+            _ = auditService.LogAsync(new AuditEvent { EventType = "Probe" }, cancellationToken);
+        }
+
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
+    }
+}
+}
+""";
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
     private static IEnumerable<MetadataReference> TrustedPlatformReferences() =>
         ((string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") ?? string.Empty)
             .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)

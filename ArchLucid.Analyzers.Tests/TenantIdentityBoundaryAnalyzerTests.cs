@@ -1051,7 +1051,45 @@ namespace N
         .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
 
     await RunInnerLayerTestAsync(testCode, expectedAliasTarget, expectedParameter);
-  }  [Fact]
+  }
+  [Fact]
+  public async Task Reports_HttpContext_parameter_when_type_is_parent_namespace_using_alias()
+  {
+    const string testCode = """
+
+namespace Microsoft.AspNetCore.Http
+{
+    public sealed class HttpContext
+    {
+    }
+}
+
+namespace N
+{
+    using Ctx = Microsoft.AspNetCore.Http.HttpContext;
+
+    namespace N.Inner
+    {
+        public sealed class Handler
+        {
+            void M({|#0:Ctx|} context) { }
+        }
+    }
+}
+""";
+
+    DiagnosticResult expectedParameter = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(17, 20, 17, 23)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    DiagnosticResult expectedAliasTarget = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(11, 43, 11, 54)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    await RunInnerLayerTestAsync(testCode, expectedParameter, expectedAliasTarget);
+  }
+
+  [Fact]
   public async Task Reports_banned_type_in_generic_constraint_on_local_function()
   {
     const string testCode = """
