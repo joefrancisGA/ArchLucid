@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-19 - Score lift round 90 (batch 55): Compare ROI, gate, pack assignment, correlation unsealed
+
+**Outcome.** Compare ROI headline names zero estimates with an unsealed review. Compare gate outcome names missing stored gates apart from a failed gate read. Compare pack assignment names empty rows when governance diff loaded. Finding correlation names empty metadata with an unsealed review apart from correlation load failure.
+
+**Surfaces.** Compare ROI headline, gate outcome, pack assignment, finding correlation, honesty and mounted contract tests.
+
 ## 2026-11-19 - Score lift round 89 (batch 54): Compare semantic and treatment bands, governance diff empty, stale inputs
 
 **Outcome.** Compare semantic support band names all-zero counts with an unsealed review. Compare treatment band names all-zero counts with an unsealed review. Compare governance diff names empty policy pack rows apart from a failed governance diff request. Compare results stale-inputs warning names picker drift apart from a failed compare read.

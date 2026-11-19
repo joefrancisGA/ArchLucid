@@ -214,6 +214,10 @@ export function CompareResultsPanelVerdictChrome({
         <CompareRoiHeadlineDeltaPanel
           loading={roiHeadlineDeltaState.loading}
           view={roiHeadlineDeltaState.view}
+          showZeroEstimatesUnsealedHonesty={
+            roiHeadlineDeltaState.roiHeadlineAllZero && ((viewModel.leftSummaryBlockedReason ?? null) !== null
+              || (viewModel.rightSummaryBlockedReason ?? null) !== null)
+          }
         />
       ) : null}
 
@@ -221,6 +225,11 @@ export function CompareResultsPanelVerdictChrome({
         <CompareGateOutcomeDeltaPanel
           loading={gateOutcomeDeltaState.loading}
           view={gateOutcomeDeltaState.view}
+          showEmptyNotLoadFailureHonesty={
+            !gateOutcomeDeltaState.loading
+            && !gateOutcomeDeltaState.gateOutcomeLoadFailed
+            && gateOutcomeDeltaState.gateOutcomeBothMissing
+          }
         />
       ) : null}
 
@@ -228,6 +237,11 @@ export function CompareResultsPanelVerdictChrome({
         <ComparePackAssignmentDeltaPanel
           loading={viewModel.governanceDiffState.loading}
           view={packAssignmentDeltaView}
+          showEmptyNotLoadFailureHonesty={
+            !viewModel.governanceDiffState.loading
+            && packAssignmentDeltaView === null
+            && viewModel.governanceDiffState.view !== null
+          }
         />
       ) : null}
 

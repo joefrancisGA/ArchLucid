@@ -46,3 +46,10 @@ export function buildCompareGateOutcomeDeltaView(input: {
     changed: input.baselineKind !== input.targetKind,
   };
 }
+
+export function compareGateOutcomeBothKindsMissing(input: {
+  readonly baselineKind: import("@/types/feasibility-verdict").FeasibilityVerdictKind | null;
+  readonly targetKind: import("@/types/feasibility-verdict").FeasibilityVerdictKind | null;
+}): boolean {
+  return buildCompareGateOutcomeDeltaView(input) === null;
+}

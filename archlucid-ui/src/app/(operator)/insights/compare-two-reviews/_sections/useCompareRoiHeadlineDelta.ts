@@ -5,6 +5,7 @@ import { useQueries } from "@tanstack/react-query";
 import { fetchRunDetailCriticalPageBundle } from "@/lib/fetch-run-detail-page-bundle-client";
 import {
   buildCompareRoiHeadlineDeltaView,
+  compareRoiHeadlineBothLackPositiveSavings,
   type CompareRoiHeadlineDeltaView,
 } from "@/lib/review-quality/compare-roi-headline-delta";
 import { resolveRunSavingsSummaryFromRunDetail } from "@/lib/runs/run-savings-summary-from-detail";
@@ -21,6 +22,7 @@ export function useCompareRoiHeadlineDelta(input: {
 }): {
   readonly loading: boolean;
   readonly view: CompareRoiHeadlineDeltaView | null;
+  readonly roiHeadlineAllZero: boolean;
 } {
   const baselineRunId = input.baselineRunId?.trim() ?? "";
   const targetRunId = input.targetRunId?.trim() ?? "";
@@ -42,13 +44,13 @@ export function useCompareRoiHeadlineDelta(input: {
   });
 
   if (!enabled) {
-    return { loading: false, view: null };
+    return { loading: false, view: null, roiHeadlineAllZero: false };
   }
 
   const loading = queries.some((query) => query.isPending);
 
   if (loading || queries.some((query) => query.isError)) {
-    return { loading, view: null };
+    return { loading, view: null, roiHeadlineAllZero: false };
   }
 
   return {
