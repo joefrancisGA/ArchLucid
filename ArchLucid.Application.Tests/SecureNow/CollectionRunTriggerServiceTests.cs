@@ -180,8 +180,9 @@ public sealed class CollectionRunTriggerServiceTests
                 persisted = run;
                 return Task.CompletedTask;
             });
-        repository.Setup(source => source.GetAsync(scope, It.IsAny<Guid>(), CancellationToken.None))
-            .ReturnsAsync(() => persisted);
+        repository.Setup(source => source.GetAsync(It.Is<ScopeContext>(value => value.TenantId == scope.TenantId
+            && value.WorkspaceId == scope.WorkspaceId && value.ProjectId == scope.ProjectId),
+            It.IsAny<Guid>(), CancellationToken.None)).ReturnsAsync(() => persisted);
         trigger.Setup(source => source.TriggerAsync(scope, It.IsAny<CollectionRunTriggerRequest>(), request.Token))
             .Callback(request.Cancel)
             .ReturnsAsync(new CollectionRunTriggerResult { Schedule = "Daily" });
@@ -190,7 +191,7 @@ public sealed class CollectionRunTriggerServiceTests
                 ? Task.FromCanceled(ct)
                 : Task.CompletedTask);
         ICollectionTriggerClaimRepository? claims = useDurableClaim
-            ? new ArchLucid.Persistence.SecureNow.InMemoryCollectionTriggerClaimRepository()
+            ? new ArchLucid.Persistence.SecureNow.InMemoryCollectionTriggerClaimRepository(repository.Object)
             : null;
         CollectionRunTriggerService service = new(repository.Object, trigger.Object,
             new InMemoryCollectionRunTriggerIdempotencyStore(), audit.Object,
