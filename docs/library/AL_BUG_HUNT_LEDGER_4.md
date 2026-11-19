@@ -432,7 +432,7 @@
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
 - **hunts:** 51
 - **bugs-found:** 15
-- **consecutive-dry-hunts:** 01
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-11-02
 - **last-bug:** 2026-10-14 — embedded CR/LF in weekLabel reached weekly Sponsor report template model
 - **related-pd-tb:** none
@@ -548,7 +548,7 @@
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-09-26 — dry-run controller NullReferenceException when TargetUrl omitted from body
 - **related-pd-tb:** none
 - **code-changed-since:** 7
@@ -566,7 +566,7 @@
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
 - **hunts:** 18
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — dry-run controller NullReferenceException when TargetUrl omitted from body
 - **related-pd-tb:** none
@@ -1211,7 +1211,7 @@
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
 - **hunts:** 42
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 01
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-11-02
 - **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
@@ -1975,6 +1975,21 @@
 2026-09-12 seed hunt #1924 (seed-only): reseeded host-core-jobs; scoped hosted/job tests passed; no new hunt-ready defect proven this pass.
 ---
 
+2026-11-19 thorough hunt #919 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**918** `(candidate)` rows — **invalid** `TenantIdentityBoundaryAnalyzer` banned type via file-scoped `global using` alias (regression `Reports_HttpContext_parameter_when_type_is_global_using_alias`; hunt **#916** class), **valid-no-repro** `MutatingControllerAuditAnalyzer` `LogAsync` in `using` declaration initializer only suppressing AL0003 (ctor-only initializer is not action-body proof; regressions `AL0003_reports_when_LogAsync_runs_only_in_using_declaration_initializer_without_action_body_work` and `AL0003_reports_when_LogAsync_runs_only_in_using_declaration_dispose_without_action_body_work`), **invalid** `MutatingControllerAuditAnalyzer` `LogAsync` in `finally` when `try` is only `throw` suppressing AL0003 (`finally` runs on throw unwind; regression `AL0003_is_absent_when_LogAsync_runs_only_in_finally_after_try_unconditionally_throws`), **invalid** `RequireAuthorizationAnalyzer` nested class `[Authorize]` shell (regression `Reports_outer_get_when_nested_class_has_authorize_and_outer_action_does_not`; parity struct/record shells), **invalid** `RequireAuthorizationAnalyzer` inherited GET unreported when derived primary constructor has `[Authorize]` (regression `Reports_inherited_get_when_derived_primary_constructor_parameter_has_authorize`). Scoped filter **235/235** passed (Release). Reseeded five pass-**919** `(candidate)` rows below. Private beta: n/a.
+
+- [x] (invalid) `TenantIdentityBoundaryAnalyzer` — banned type referenced through file-scoped `global using` alias is missed — **invalid 2026-11-19 thorough hunt #919:** regression above.
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `LogAsync` in `using` declaration initializer only suppresses AL0003 — **valid-no-repro 2026-11-19 thorough hunt #919:** regressions above.
+- [x] (invalid) `MutatingControllerAuditAnalyzer` — `LogAsync` in `finally` when `try` is only `throw` suppresses AL0003 — **invalid 2026-11-19 thorough hunt #919:** regression above.
+- [x] (invalid) `RequireAuthorizationAnalyzer` — type-level `[Authorize]` on nested class satisfies AL0001 for enclosing controller without authorize — **invalid 2026-11-19 thorough hunt #919:** regression above.
+- [x] (invalid) `RequireAuthorizationAnalyzer` — inherited unauthenticated GET stays unreported when derived primary constructor has `[Authorize]` — **invalid 2026-11-19 thorough hunt #919:** regression above.
+
+- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — banned type referenced through file-scoped non-global `using` alias is missed — locus: using alias binding; input: `using Ctx = HttpContext` parameter in inner layer (monitor; pass 919 reseed).
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` in `await using` declaration initializer only suppresses AL0003 — locus: async using declaration scope; input: `await using var` with audited initializer only (monitor; pass 919 reseed).
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` only in `else` branch of compile-time `if (false)` suppresses AL0003 — locus: constant-false if reachability; input: audited else-only branch (monitor; pass 919 reseed).
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — `[Authorize]` on nested static class satisfies AL0001 for enclosing controller — locus: nested static class shell; input: authorized nested static class with unauthorized outer GET (monitor; pass 919 reseed).
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — inherited unauthenticated DELETE stays unreported when derived declares type-level `[AllowAnonymous]` — locus: inherited action scan; input: derived AllowAnonymous + inherited DELETE from unauthenticated base (monitor; pass 919 reseed).
+
+- [x] (superseded) pass-**918** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #919:** see hunt **#919** header and pass **#919** reseed.
 2026-11-19 thorough hunt #918 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**917** `(candidate)` rows — **invalid** `MutatingControllerAuditAnalyzer` `LogAsync` only inside `lock (new object())` suppressing AL0003 (reachable lock body is intentional audit proof; regression `AL0003_is_absent_when_LogAsync_runs_in_lock_on_new_object_expression`), **invalid** `RequireAuthorizationAnalyzer` nested struct `[Authorize]` shell (class-only nested authorize scan; regression `Reports_outer_get_when_nested_struct_has_authorize_and_outer_action_does_not`), **invalid** `TenantIdentityBoundaryAnalyzer` banned type in `ref readonly` parameter modifier is missed (regression `Reports_ref_readonly_HttpContext_parameter`; hunt **#916** class), **invalid** `MutatingControllerAuditAnalyzer` `LogAsync` in `catch` when `try` is only `throw` suppressing AL0003 (throwing try leaves catch reachable; regression `AL0003_is_absent_when_LogAsync_runs_only_in_catch_after_try_unconditionally_throws`), **invalid** `RequireAuthorizationAnalyzer` primary-constructor `[Authorize]` on record controller satisfies AL0001 for declared GET (record cannot inherit `ControllerBase`; class primary-constructor parity regression `Reports_outer_get_when_record_primary_constructor_parameter_has_authorize_and_get_does_not`). Scoped filter **231/231** passed (Release). Reseeded five pass-**918** `(candidate)` rows below. Private beta: n/a.
 
 - [x] (invalid) `MutatingControllerAuditAnalyzer` — `LogAsync` inside `lock` when lock object is `new object()` suppresses AL0003 — **invalid 2026-11-19 thorough hunt #918:** reachable lock body; regression above.
@@ -1998,7 +2013,7 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 
 2026-11-19 thorough hunt #917 (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**916** `(candidate)` rows — **valid-no-repro** `MutatingControllerAuditAnalyzer` `LogAsync` only inside `lock(default(object))` suppressing AL0003 (compile-time null lock object parity; regression `AL0003_reports_when_LogAsync_runs_only_in_lock_on_default_object_expression`), **invalid** `RequireAuthorizationAnalyzer` nested delegate `[Authorize]` shell (regression `Reports_outer_get_when_nested_delegate_has_authorize_and_outer_action_does_not`), **invalid** `TenantIdentityBoundaryAnalyzer` banned type in `scoped` parameter modifier (regression `Reports_scoped_HttpContext_parameter`; hunt **#916** class), **proven** `MutatingControllerAuditAnalyzer` `LogAsync` in `catch` body behind `when (true)` with return-only try suppressing AL0003 — **proven** return-only try non-throw reachability in `IsProvablyNonThrowingStatement`; regression `AL0003_reports_when_LogAsync_runs_only_in_constant_true_catch_filter_with_non_throwing_try`, **invalid** `RequireAuthorizationAnalyzer` file-scoped partial primary-constructor `[Authorize]` satisfies AL0001 for sibling partial routes (regression `Reports_outer_get_when_file_scoped_partial_primary_constructor_parameter_has_authorize`). Scoped filter **227/227** passed (Release). Reseeded five pass-**917** `(candidate)` rows below. Private beta: RC35 analyzer corset again treats return-only try bodies as non-throwing so parked `LogAsync` in unreachable `catch` clauses is not audit proof.
 
@@ -2332,7 +2347,7 @@
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
 - **hunts:** 
 - **bugs-found:** 44
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-19
 - **last-bug:** 2026-11-19 — ReadOnlySpan.Empty foreach LogAsync satisfied AL0003
 - **related-pd-tb:** none
@@ -2975,7 +2990,7 @@
 - **hunts:** 709
 - **last-hunt:** 2026-10-31
 - **bugs-found:** 3559
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-31 — nonuple Key Vault VaultName encoding depth cap
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -6061,7 +6076,7 @@
 - **hunts:** 489
 - **last-hunt:** 2026-10-31
 - **bugs-found:** 3521
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-20 — ADO.NET Data Source SQL host alias omitted from app-setting host extraction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11583,7 +11598,7 @@
 
 - **hunts:** 72
 - **bugs-found:** 48
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-03
 - **last-bug:** 2026-11-03 — Service Bus forward targets dropped on package round-trip
 
@@ -17896,7 +17911,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **test-filter:** FullyQualifiedName~Configuration
 - **hunts:** 51
 - **bugs-found:** 33
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — fullwidth circumflex accent (`U+FFEC`) pair delimiter for embedded credentials
 - **related-pd-tb:** none
@@ -18136,7 +18151,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
 - **hunts:** 39
 - **bugs-found:** 66
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-11-01 — soft-hyphen/word-joiner Jaccard splits, won't/never comply conflict wording, prohibited-access-from negation
 - **related-pd-tb:** none
@@ -18333,7 +18348,7 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **test-filter:** FullyQualifiedName~RequestConstraint
 - **hunts:** 51
 - **bugs-found:** 44
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-31 — fullwidth comma U+FF0C between phrase words broke managed identity detection
 
@@ -30825,7 +30840,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
 - **hunts:** 77
 - **bugs-found:** 47
-- **consecutive-dry-hunts:** 00
+- **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-11-02
 - **last-bug:** 2026-11-01 — revision hasher threw on null collection elements in graph/findings JSON
 - **related-pd-tb:** none
@@ -31253,7 +31268,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
 - **hunts:** 132
 - **bugs-found:** 94
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-31 — commit sponsor product display name sanitizer before HtmlEncode
 - **related-pd-tb:** none
@@ -31819,7 +31834,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 68
 - **last-hunt:** 2026-10-20
 - **bugs-found:** 55
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -31852,7 +31867,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 82
 - **last-hunt:** 2026-10-20
 - **bugs-found:** 57
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -31934,7 +31949,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 68
 - **last-hunt:** 2026-10-20
 - **bugs-found:** 54
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -35423,7 +35438,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
 - **hunts:** 41
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 04
+- **consecutive-dry-hunts:** 14
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-05 — isolated diff-consumer failure still ran incremental SecureNow post-materialize
 - **related-pd-tb:** none

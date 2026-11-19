@@ -3061,6 +3061,41 @@ namespace N
         }.RunAsync();
     }
 
+
+    [Fact]
+    public async Task Reports_outer_get_when_nested_class_has_authorize_and_outer_action_does_not()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class OuterNestedClassController : ControllerBase
+    {
+        [Authorize]
+        public sealed class NestedAuthorizedClass;
+
+        [HttpGet]
+        public IActionResult {|#0:Get|}() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("OuterNestedClassController.Get()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
     private static IEnumerable<MetadataReference> TrustedPlatformReferences() =>
         ((string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") ?? string.Empty)
             .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
