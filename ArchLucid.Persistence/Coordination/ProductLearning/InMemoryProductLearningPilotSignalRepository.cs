@@ -13,6 +13,8 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
 
     public Task InsertAsync(ProductLearningPilotSignalRecord record, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPilotSignalRecord stored = ProductLearningPilotSignalRepositoryCore.NormalizeInsert(
             record,
             static () => TimeProvider.System.UtcNowDateTime());
@@ -30,6 +32,8 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
         int take,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         int capped = ProductLearningPilotSignalRepositoryCore.ClampListTake(take);
 
         List<ProductLearningPilotSignalRecord> list;
@@ -57,6 +61,8 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
         int maxAggregates,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IEnumerable<ProductLearningPilotSignalRecord> scoped = ProductLearningSignalAggregations.FilterScope(
             SnapshotRows(),
             tenantId,
@@ -79,6 +85,8 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
         int maxTrends,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IEnumerable<ProductLearningPilotSignalRecord> scoped = ProductLearningSignalAggregations.FilterScope(
             SnapshotRows(),
             tenantId,
@@ -100,6 +108,8 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
         int take,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IEnumerable<ProductLearningPilotSignalRecord> scoped = ProductLearningSignalAggregations.FilterScope(
             SnapshotRows(),
             tenantId,
@@ -122,6 +132,8 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
         int take,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IEnumerable<ProductLearningPilotSignalRecord> scoped = ProductLearningSignalAggregations.FilterScope(
             SnapshotRows(),
             tenantId,
@@ -145,6 +157,8 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
         int take,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IEnumerable<ProductLearningPilotSignalRecord> scoped = ProductLearningSignalAggregations.FilterScope(
             SnapshotRows(),
             tenantId,
@@ -169,6 +183,8 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
         DateTime? sinceUtc,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IEnumerable<ProductLearningPilotSignalRecord> scoped = ProductLearningSignalAggregations.FilterScope(
             SnapshotRows(),
             tenantId,
@@ -186,6 +202,8 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
         DateTime? sinceUtc,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IEnumerable<ProductLearningPilotSignalRecord> scoped = ProductLearningSignalAggregations.FilterScope(
             SnapshotRows(),
             tenantId,
