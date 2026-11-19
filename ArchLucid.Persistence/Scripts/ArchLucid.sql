@@ -4746,7 +4746,7 @@ BEGIN
         SentUtc            DATETIMEOFFSET   NOT NULL CONSTRAINT DF_SentEmails_SentUtc2 DEFAULT SYSUTCDATETIME(),
         Provider           NVARCHAR(64)     NOT NULL,
         ProviderMessageId  NVARCHAR(256)    NULL,
-        CONSTRAINT PK_SentEmails2 PRIMARY KEY (TenantId, IdempotencyKey)
+        CONSTRAINT PK_SentEmails2 PRIMARY KEY NONCLUSTERED (TenantId, IdempotencyKey)
     );
 
     CREATE NONCLUSTERED INDEX IX_SentEmails_TenantTemplate2
@@ -13513,6 +13513,6 @@ BEGIN
 
     ALTER TABLE dbo.SentEmails
         ADD CONSTRAINT PK_SentEmails_TenantId_IdempotencyKey
-            PRIMARY KEY (TenantId, IdempotencyKey);
+            PRIMARY KEY NONCLUSTERED (TenantId, IdempotencyKey);
 END;
 GO

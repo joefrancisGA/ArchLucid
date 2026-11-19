@@ -15,6 +15,6 @@ BEGIN
 
     ALTER TABLE dbo.SentEmails
         ADD CONSTRAINT PK_SentEmails_TenantId_IdempotencyKey
-            PRIMARY KEY (TenantId, IdempotencyKey);
+            PRIMARY KEY NONCLUSTERED (TenantId, IdempotencyKey);
 END;
 GO
