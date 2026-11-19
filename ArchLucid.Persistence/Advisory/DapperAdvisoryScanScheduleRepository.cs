@@ -90,7 +90,7 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
             new CommandDefinition(sql, new
             {
                 UtcNow = utcNow,
-                Take = take
+                Take = Math.Clamp(take <= 0 ? 20 : take, 1, 200)
             }, cancellationToken: ct));
 
         return result.ToList();

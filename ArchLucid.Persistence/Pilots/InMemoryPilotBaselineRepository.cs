@@ -8,7 +8,7 @@ public sealed class InMemoryPilotBaselineRepository : IPilotBaselineRepository
 
     public Task<PilotBaselineRecord?> GetAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult(_byTenant.GetValueOrDefault(tenantId));
     }
@@ -16,7 +16,7 @@ public sealed class InMemoryPilotBaselineRepository : IPilotBaselineRepository
     public Task UpsertAsync(PilotBaselineRecord record, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(record);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         PilotBaselineRecord copy = new()
         {

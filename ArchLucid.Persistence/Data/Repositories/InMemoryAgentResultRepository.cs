@@ -46,21 +46,46 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
         return Task.CompletedTask;
     }
 
-    public async Task CreateManyAsync(
+    public Task CreateManyAsync(
         IReadOnlyList<AgentResult> results,
         CancellationToken cancellationToken = default,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(results);
-        cancellationToken.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
 
-        AgentResultRepositoryCore.RequireSingleRun(results);
+        if (results.Count == 0)
+            return Task.CompletedTask;
 
-        foreach (AgentResult result in results)
-            await CreateAsync(result, cancellationToken).ConfigureAwait(false);
+        AgentResultRepositoryCore.RequireSingleRun(results);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            string runId = results[0].RunId;
+            HashSet<string> taskIds = _results
+                .Where(result => string.Equals(result.RunId, runId, StringComparison.Ordinal))
+                .Select(result => result.TaskId)
+                .ToHashSet(StringComparer.Ordinal);
+            List<AgentResult> staged = new(results.Count);
+
+            foreach (AgentResult result in results)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (!taskIds.Add(result.TaskId))
+                    throw new AgentResultDuplicateConflictException(result.RunId, result.TaskId);
+
+                staged.Add(AgentResultRepositoryCore.Clone(result));
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            _results.AddRange(staged);
+        }
+
+        return Task.CompletedTask;
     }
 
     public Task ReplaceForRunTaskAsync(

@@ -20,7 +20,7 @@ public sealed class InMemoryGovernanceEnvironmentCatalogRepository : IGovernance
         lock (_gate)
         {
             return Task.FromResult(_catalogs.TryGetValue(key, out GovernanceEnvironmentCatalog? catalog)
-                ? catalog
+                ? Copy(catalog)
                 : null);
         }
     }
@@ -38,30 +38,32 @@ public sealed class InMemoryGovernanceEnvironmentCatalogRepository : IGovernance
 
         lock (_gate)
         {
-            _catalogs[key] = new GovernanceEnvironmentCatalog
-            {
-                IsAdministratorConfigured = catalog.IsAdministratorConfigured,
-                Environments = catalog.Environments
-                    .Select(environment => new GovernanceEnvironmentDefinition
-                    {
-                        Slug = environment.Slug,
-                        DisplayName = environment.DisplayName,
-                        SortOrder = environment.SortOrder,
-                        IsActive = environment.IsActive,
-                    })
-                    .ToList(),
-                Transitions = catalog.Transitions
-                    .Select(transition => new GovernanceEnvironmentTransition
-                    {
-                        SourceSlug = transition.SourceSlug,
-                        TargetSlug = transition.TargetSlug,
-                    })
-                    .ToList(),
-            };
+            _catalogs[key] = Copy(catalog);
         }
 
         return Task.CompletedTask;
     }
+
+    private static GovernanceEnvironmentCatalog Copy(GovernanceEnvironmentCatalog catalog) => new GovernanceEnvironmentCatalog
+    {
+        IsAdministratorConfigured = catalog.IsAdministratorConfigured,
+        Environments = catalog.Environments
+            .Select(environment => new GovernanceEnvironmentDefinition
+            {
+                Slug = environment.Slug,
+                DisplayName = environment.DisplayName,
+                SortOrder = environment.SortOrder,
+                IsActive = environment.IsActive,
+            })
+            .ToList(),
+        Transitions = catalog.Transitions
+            .Select(transition => new GovernanceEnvironmentTransition
+            {
+                SourceSlug = transition.SourceSlug,
+                TargetSlug = transition.TargetSlug,
+            })
+            .ToList(),
+    };
 
     private static string BuildKey(Guid tenantId, Guid workspaceId, Guid projectId) =>
         $"{tenantId:N}:{workspaceId:N}:{projectId:N}";

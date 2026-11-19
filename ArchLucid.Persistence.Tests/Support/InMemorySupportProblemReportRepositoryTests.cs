@@ -9,6 +9,25 @@ namespace ArchLucid.Persistence.Tests.Support;
 public sealed class InMemorySupportProblemReportRepositoryTests
 {
     [Fact]
+    public async Task InsertAsync_with_canceled_token_leaves_no_report()
+    {
+        InMemorySupportProblemReportRepository sut = new();
+        SupportProblemReportInsert insert = new()
+        {
+            Id = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            SubmittedByActorId = "actor",
+            ContextJson = "{}"
+        };
+
+        Func<Task> action = async () => await sut.InsertAsync(insert, new CancellationToken(canceled: true));
+
+        await action.Should().ThrowAsync<OperationCanceledException>();
+        (await sut.GetByIdAsync(insert.TenantId, insert.Id, CancellationToken.None)).Should().BeNull();
+    }
+
+    [Fact]
     public async Task GetByIdAsync_returns_null_for_other_tenant()
     {
         InMemorySupportProblemReportRepository sut = new();

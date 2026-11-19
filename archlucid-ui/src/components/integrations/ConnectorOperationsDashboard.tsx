@@ -8,6 +8,8 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ConnectionStatusEmptyPartialHonesty } from "@/components/integrations/ConnectionStatusEmptyPartialHonesty";
+import { ConnectionStatusCategoryFilterEmptyPartialHonesty } from "@/components/integrations/ConnectionStatusCategoryFilterEmptyPartialHonesty";
+import { CONNECTION_STATUS_CATEGORY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/integrations/connection-status-category-filter-empty-not-load-failure-copy";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
@@ -219,6 +221,17 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
         ? "Needs attention"
         : "Optional";
   const inventoryPanelId = "connection-status-inventory-panels";
+  const nonTechnicalGroups = CONNECTOR_PURPOSE_GROUPS.filter((group) => group.id !== "technical");
+  const groupsInCategoryView =
+    activeCategory === null
+      ? nonTechnicalGroups
+      : nonTechnicalGroups.filter((group) => group.id === activeCategory);
+  const hasNonTechnicalInventory = groupsInCategoryView.some(
+    (group) => (groupedConnectors.get(group.id) ?? []).length > 0,
+  );
+  const showsTechnicalInventory = activeCategory === null || activeCategory === "technical";
+  const categoryFilterHidesAllRows =
+    activeCategory !== null && !hasNonTechnicalInventory && !showsTechnicalInventory;
 
   const buildInventoryRow = (
     connectorKey: string,
@@ -273,6 +286,21 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
           </FilterChip>
         ))}
       </FilterChipGroup>
+      {categoryFilterHidesAllRows ? (
+        <EnterpriseCompactEmptyState
+          testId="connection-status-category-filter-empty"
+          title="No integrations in this category"
+          description={CONNECTION_STATUS_CATEGORY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+          actions={[
+            {
+              label: "Clear category filter",
+              href: connectorOperationsCategoryHrefFromSearch(currentSearch, null, pathname),
+              variant: "primary",
+            },
+          ]}
+          footer={<ConnectionStatusCategoryFilterEmptyPartialHonesty />}
+        />
+      ) : null}
       <IntegrationReadinessSummaryStrip
         headline={headline}
         tiles={summaryTiles}
@@ -292,6 +320,7 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
         <IntegrationRecommendedFirstSetupCard setup={recommendedFirstSetup} />
       ) : null}
 
+      {!categoryFilterHidesAllRows ? (
       <div id={inventoryPanelId} className="space-y-4">
       {CONNECTOR_PURPOSE_GROUPS.filter((group) => group.id !== "technical").map((group) => {
         if (activeCategory !== null && activeCategory !== group.id) {
@@ -376,6 +405,7 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
       </section>
       ) : null}
       </div>
+      ) : null}
     </div>
   );
 }

@@ -15,7 +15,7 @@ describe("resolveSecureNowInvestigationEffortResultState", () => {
     ).toEqual({
       kind: "incomplete",
       headline: "ROI not calculated.",
-      reason: "Enter all five inputs with positive numbers. Empty or invalid fields stay out of ROI.",
+      reason: "Still needed: Baseline hours (B).",
     });
   });
 

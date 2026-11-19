@@ -321,8 +321,10 @@ public sealed class PollingCollectionRunDiscoveryTests
         azureIngest.Invocations.Count.Should().Be(2);
     }
 
-    [Fact]
-    public async Task DiscoverAsync_continues_when_read_artifact_throws_for_one_manifest()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task DiscoverAsync_continues_when_read_artifact_throws_for_one_manifest(bool timedOut)
     {
         Guid tenantId = Guid.NewGuid();
         CollectionRunManifest failingRead = new()
@@ -359,7 +361,9 @@ public sealed class PollingCollectionRunDiscoveryTests
             .ReturnsAsync([failingRead, importable]);
         reader
             .Setup(r => r.ReadArtifactAsync(failingRead, It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new InvalidOperationException("Simulated artifact read failure."));
+            .ThrowsAsync(timedOut
+                ? new TaskCanceledException("Artifact download timed out.", new TimeoutException())
+                : new InvalidOperationException("Simulated artifact read failure."));
         reader
             .Setup(r => r.ReadArtifactAsync(importable, It.IsAny<CancellationToken>()))
             .ReturnsAsync(importableArtifact);
@@ -1034,7 +1038,6 @@ public sealed class PollingCollectionRunDiscoveryTests
     public async Task DiscoverAsync_propagates_operation_canceled_when_read_artifact_is_canceled()
     {
         using CancellationTokenSource cts = new();
-        cts.Cancel();
 
         Guid tenantId = Guid.NewGuid();
         CollectionRunManifest manifest = new()
@@ -1054,7 +1057,11 @@ public sealed class PollingCollectionRunDiscoveryTests
             .ReturnsAsync([manifest]);
         reader
             .Setup(r => r.ReadArtifactAsync(manifest, It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new OperationCanceledException(cts.Token));
+            .Returns(() =>
+            {
+                cts.Cancel();
+                return Task.FromCanceled<CollectionRunArtifact?>(cts.Token);
+            });
 
         Mock<ICollectionRunRepository> repository = new(MockBehavior.Strict);
         Mock<IAzureExtractorIngestService> azureIngest = new(MockBehavior.Strict);

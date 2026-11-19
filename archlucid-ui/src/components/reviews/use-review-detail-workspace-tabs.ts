@@ -361,19 +361,6 @@ export function useReviewDetailWorkspaceTabs(
         setWorkbenchFocusColumnState(normalizedFocus);
       }
 
-      const nextTab = readReviewDetailTabFromWindowLocation();
-      setActiveTab((current) => (current === nextTab ? current : nextTab));
-
-      const nextWorkbenchFocus = resolveReviewWorkbenchFocusColumn(
-        new URLSearchParams(window.location.search).get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
-      );
-      const normalizedFocus = nextWorkbenchFocus ?? (isWorkbenchTab(nextTab) ? nextTab : null);
-
-      if (workbenchFocusColumnRef.current !== normalizedFocus) {
-        workbenchFocusColumnRef.current = normalizedFocus;
-        setWorkbenchFocusColumnState(normalizedFocus);
-      }
-
       if (hash.length === 0) {
         return;
       }

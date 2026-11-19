@@ -158,6 +158,59 @@ public sealed class ProductLearningPlanningRepositoryTests
     }
 
     [SkippableFact]
+    public async Task Insert_plan_honors_cancellation_without_persisting()
+    {
+        InMemoryProductLearningPlanningRepository repo = new();
+        ProductLearningScope scope = Scope();
+
+        await repo.InsertThemeAsync(
+            new ProductLearningImprovementThemeRecord
+            {
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                ThemeKey = "cancel-plan",
+                Title = "Theme",
+                Summary = "Summary",
+                AffectedArtifactTypeOrWorkflowArea = "Planning",
+                SeverityBand = "Low",
+                EvidenceSignalCount = 1,
+                DistinctRunCount = 1,
+                DerivationRuleVersion = "59R-v1"
+            },
+            CancellationToken.None);
+
+        Guid themeId = (await repo.ListThemesAsync(scope, 1, CancellationToken.None))[0].ThemeId;
+        using CancellationTokenSource cancellation = new();
+        cancellation.Cancel();
+
+        ProductLearningImprovementPlanRecord plan = new()
+        {
+            ThemeId = themeId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            Title = "Canceled plan",
+            Summary = "Must not be persisted",
+            ActionSteps =
+            [
+                new ProductLearningImprovementPlanActionStep
+                {
+                    Ordinal = 1,
+                    ActionType = "Review",
+                    Description = "Review the cancellation boundary"
+                }
+            ],
+            PriorityScore = 1
+        };
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            repo.InsertPlanAsync(plan, cancellation.Token));
+
+        Assert.Empty(await repo.ListPlansAsync(scope, 10, CancellationToken.None));
+    }
+
+    [SkippableFact]
     public async Task Links_list_in_deterministic_order()
     {
         InMemoryProductLearningPlanningRepository repo = new();

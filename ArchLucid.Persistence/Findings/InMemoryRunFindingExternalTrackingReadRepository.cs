@@ -23,12 +23,15 @@ public sealed class InMemoryRunFindingExternalTrackingReadRepository(
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
 
         ArgumentNullException.ThrowIfNull(findingIds);
+        cancellationToken.ThrowIfCancellationRequested();
 
         Dictionary<string, RunFindingExternalTrackingReadRow> result =
             new(StringComparer.Ordinal);
 
         foreach (string rawFindingId in findingIds)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (string.IsNullOrWhiteSpace(rawFindingId))
                 continue;
 

@@ -42,6 +42,16 @@ public sealed class LogSanitizerTests
     }
 
     [Fact]
+    public void Sanitize_strips_unicode_line_and_paragraph_separators()
+    {
+        string input = string.Concat("line1", '\u2028', "line2", '\u2029', "line3");
+
+        string result = LogSanitizer.Sanitize(input);
+
+        result.Should().Be("line1_line2_line3");
+    }
+
+    [Fact]
     public void Sanitize_strips_tab()
     {
         string result = LogSanitizer.Sanitize("a\tb");

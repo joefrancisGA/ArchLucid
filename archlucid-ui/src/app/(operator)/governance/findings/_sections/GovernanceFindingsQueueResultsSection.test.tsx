@@ -9,6 +9,7 @@ const productLine = vi.hoisted(() => ({ value: "archlucid" as "archlucid" | "sec
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/governance/findings",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/product-line/ProductLineProvider", () => ({

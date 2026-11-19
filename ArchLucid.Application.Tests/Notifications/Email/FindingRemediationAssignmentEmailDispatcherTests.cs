@@ -18,6 +18,43 @@ namespace ArchLucid.Application.Tests.Notifications.Email;
 public sealed class FindingRemediationAssignmentEmailDispatcherTests
 {
     [Fact]
+    public async Task TryDispatchAsync_records_a_completed_send_even_after_caller_cancellation()
+    {
+        using CancellationTokenSource cancellation = new();
+        Mock<ISentEmailLedger> ledger = new(MockBehavior.Strict);
+        ledger.Setup(l => l.IsRecordedAsync(It.IsAny<Guid>(), It.IsAny<string>(), cancellation.Token))
+            .ReturnsAsync(false);
+        ledger.Setup(l => l.TryRecordSentAsync(It.IsAny<SentEmailLedgerEntry>(), CancellationToken.None))
+            .ReturnsAsync(true);
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), cancellation.Token))
+            .Callback(() => cancellation.Cancel())
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), cancellation.Token))
+            .ReturnsAsync("<p>assigned</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), cancellation.Token))
+            .ReturnsAsync("assigned");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        FindingRemediationAssignmentEmailDispatcher sut = new(
+            renderer.Object, provider.Object, ledger.Object, options.Object,
+            NullLogger<FindingRemediationAssignmentEmailDispatcher>.Instance);
+
+        bool sent = await sut.TryDispatchAsync(
+            Guid.NewGuid(), Guid.NewGuid(), "finding-1", "Open ingress", "assignee@example.test",
+            remediationDueUtc: null, cancellationToken: cancellation.Token);
+
+        sent.Should().BeTrue();
+        ledger.Verify(l => l.TryRecordSentAsync(It.IsAny<SentEmailLedgerEntry>(), CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
     public async Task TryDispatchAsync_send_failure_after_ledger_reservation_throws_so_retry_can_deliver()
     {
         InMemorySentEmailLedger ledger = new();

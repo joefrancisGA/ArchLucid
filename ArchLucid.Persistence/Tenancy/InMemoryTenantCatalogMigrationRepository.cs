@@ -43,7 +43,11 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
 
         lock (_gate)
         {
-            _byId[record.MigrationId] = record;
+            if (record.IsActive && _byId.Values.Any(existing => existing.TenantId == record.TenantId && existing.IsActive))
+                throw new InvalidOperationException("The tenant already has an active catalog migration.");
+
+            if (!_byId.TryAdd(record.MigrationId, record))
+                throw new InvalidOperationException("A catalog migration with this identifier already exists.");
         }
 
         return Task.CompletedTask;
@@ -80,6 +84,7 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
                 _byId[migrationId] = Clone(
                     existing,
                     verificationPassedUtc: passed ? utcNow : null,
+                    overwriteVerificationPassedUtc: true,
                     lastVerificationError: passed ? null : errorMessage,
                     overwriteLastVerificationError: true,
                     stage: TenantCatalogMigrationStage.Verification);
@@ -112,6 +117,7 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
         TenantCatalogMigrationStage? stage = null,
         DateTimeOffset? completedUtc = null,
         DateTimeOffset? verificationPassedUtc = null,
+        bool overwriteVerificationPassedUtc = false,
         string? lastVerificationError = null,
         bool overwriteLastVerificationError = false) =>
         new()
@@ -123,7 +129,9 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
             StartedUtc = record.StartedUtc,
             CompletedUtc = completedUtc ?? record.CompletedUtc,
             MaintenanceMessage = record.MaintenanceMessage,
-            VerificationPassedUtc = verificationPassedUtc ?? record.VerificationPassedUtc,
+            VerificationPassedUtc = overwriteVerificationPassedUtc
+                ? verificationPassedUtc
+                : record.VerificationPassedUtc,
             LastVerificationError = overwriteLastVerificationError
                 ? lastVerificationError
                 : lastVerificationError ?? record.LastVerificationError,

@@ -10,6 +10,47 @@ namespace ArchLucid.Persistence.Tests.GcpExtractor;
 public sealed class InMemoryTenantGcpConnectionRepositoryTests
 {
     [Fact]
+    public async Task Repeated_project_registration_preserves_connection_identity_and_creation_time()
+    {
+        InMemoryTenantGcpConnectionRepository sut = new();
+        Guid tenantId = Guid.NewGuid();
+        Guid originalId = Guid.NewGuid();
+        DateTimeOffset createdUtc = new(2026, 11, 1, 0, 0, 0, TimeSpan.Zero);
+
+        await sut.UpsertAsync(new TenantGcpConnectionRecord
+        {
+            ConnectionId = originalId,
+            TenantId = tenantId,
+            ProjectId = "my-project",
+            WorkloadIdentityPoolProvider = "old-provider",
+            ServiceAccountEmail = "old@example.test",
+            Status = GcpConnectionStatus.Connected,
+            CreatedUtc = createdUtc,
+            UpdatedByActorId = "first"
+        }, CancellationToken.None);
+
+        // A second caller may have looked up the project before the first registration.
+        await sut.UpsertAsync(new TenantGcpConnectionRecord
+        {
+            TenantId = tenantId,
+            ProjectId = " my-project ",
+            WorkloadIdentityPoolProvider = "new-provider",
+            ServiceAccountEmail = "new@example.test",
+            Status = GcpConnectionStatus.Connected,
+            CreatedUtc = createdUtc.AddDays(1),
+            UpdatedByActorId = "second"
+        }, CancellationToken.None);
+
+        TenantGcpConnectionRecord stored =
+            (await sut.ListByTenantAsync(tenantId, CancellationToken.None)).Should().ContainSingle().Subject;
+        stored.ConnectionId.Should().Be(originalId);
+        stored.CreatedUtc.Should().Be(createdUtc);
+        stored.WorkloadIdentityPoolProvider.Should().Be("new-provider");
+        (await sut.TryGetByProjectAsync(tenantId, "my-project", CancellationToken.None))!.ConnectionId
+            .Should().Be(originalId);
+    }
+
+    [Fact]
     public async Task Upsert_get_list_update_and_delete_round_trip()
     {
         InMemoryTenantGcpConnectionRepository sut = new();

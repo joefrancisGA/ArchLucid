@@ -1,3 +1,5 @@
+using System.Data.SqlTypes;
+
 using ArchLucid.Core.Conversation;
 
 namespace ArchLucid.Persistence.Conversation;
@@ -18,6 +20,9 @@ public sealed class InMemoryConversationMessageRepository : IConversationMessage
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_messages.Any(existing => existing.MessageId == message.MessageId))
+                throw new InvalidOperationException($"Conversation message '{message.MessageId}' already exists.");
+
             _messages.Add(message);
             if (_messages.Count > MaxEntries)
                 _messages.RemoveRange(0, _messages.Count - MaxEntries);
@@ -39,8 +44,10 @@ public sealed class InMemoryConversationMessageRepository : IConversationMessage
             List<ConversationMessage> result = _messages
                 .Where(x => x.ThreadId == threadId)
                 .OrderByDescending(x => x.CreatedUtc)
+                .ThenByDescending(x => new SqlGuid(x.MessageId))
                 .Take(take)
                 .OrderBy(x => x.CreatedUtc)
+                .ThenBy(x => new SqlGuid(x.MessageId))
                 .ToList();
             return Task.FromResult<IReadOnlyList<ConversationMessage>>(result);
         }

@@ -42,6 +42,27 @@ public sealed class SecureNowGraphResourceDemandForecastTests
         }
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Resource_estimate_overflow_returns_unavailable(bool overflowCpu)
+    {
+        var topology = new SecureNowTopologyCardinalityForecast.Result(200, 200, 1, false, "STRUCTURAL");
+        var calibration = Reference with
+        {
+            MeasuredCpuSeconds = overflowCpu ? decimal.MaxValue : Reference.MeasuredCpuSeconds,
+            MeasuredWorkerSeconds = overflowCpu ? Reference.MeasuredWorkerSeconds : decimal.MaxValue,
+        };
+
+        var result = SecureNowGraphResourceDemandForecast.Estimate(topology, calibration);
+
+        result.ForecastAvailable.Should().BeFalse();
+        result.CpuSeconds.Should().BeNull();
+        result.PeakGiB.Should().BeNull();
+        result.WorkerSeconds.Should().BeNull();
+        result.EvidenceStatus.Should().Be("RESOURCE_FORECAST_OVERFLOW");
+    }
+
     [Fact]
     public void Invalid_calibration_is_rejected()
     {

@@ -571,9 +571,8 @@ function mapListedQuestionText(value: unknown): string | null {
     return null;
   }
 
-  const trimmed = value.trim();
-
-  return trimmed.length > 0 ? trimmed : null;
+  // A stored empty question is distinct from an omitted question.
+  return value.trim();
 }
 
 function mapListedAnswerCodes(value: unknown): readonly string[] | null {

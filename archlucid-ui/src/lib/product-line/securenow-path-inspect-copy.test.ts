@@ -17,6 +17,10 @@ import {
   SECURENOW_ARCHITECT_HONESTY_COPY_DENY_PATTERNS,
   assertSecureNowArchitectHonestyCopy,
 } from "@/lib/product-line/securenow-architect-honesty-copy";
+import {
+  SECURENOW_DOES_NOT_CHANGE_AZURE_LINE,
+  SECURENOW_RETRY_NO_AZURE_CHANGE,
+} from "@/lib/product-line/securenow-change-impact-copy";
 
 describe("securenow-path-inspect-copy", () => {
   const copyStrings = [
@@ -39,9 +43,8 @@ describe("securenow-path-inspect-copy", () => {
   });
 
   it("keeps retry recovery advisory and non-mutating", () => {
-    expect(SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE).toBe(
-      "Retry the load. This does not change Azure.",
-    );
+    expect(SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE).toBe(SECURENOW_RETRY_NO_AZURE_CHANGE);
+    expect(SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE).toContain(SECURENOW_DOES_NOT_CHANGE_AZURE_LINE);
   });
 
   it("keeps rank discipline and citation rejection tags explicit", () => {

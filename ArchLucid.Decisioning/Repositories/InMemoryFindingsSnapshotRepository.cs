@@ -28,7 +28,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
 
     private readonly Dictionary<Guid, ScopeContext> _scopeBySnapshotId = [];
 
-    private readonly Dictionary<(Guid SnapshotId, string FindingId), int> _priorityRanks = new();
+    private readonly Dictionary<Guid, Dictionary<string, int>> _priorityRanksBySnapshotId = [];
 
     public InMemoryFindingsSnapshotRepository()
     {
@@ -59,6 +59,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
             {
                 _store.Remove(evict);
                 _scopeBySnapshotId.Remove(evict);
+                _priorityRanksBySnapshotId.Remove(evict);
             }
 
             _store[snapshot.FindingsSnapshotId] = json;
@@ -165,17 +166,23 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         if (ranks.Count == 0)
             return Task.CompletedTask;
 
-        if (!TryGetScopedSnapshotJson(scope, findingsSnapshotId, out _))
-            return Task.CompletedTask;
-
         lock (_lock)
         {
+            if (!TryGetScopedSnapshotJson(scope, findingsSnapshotId, out _))
+                return Task.CompletedTask;
+
+            if (!_priorityRanksBySnapshotId.TryGetValue(findingsSnapshotId, out Dictionary<string, int>? snapshotRanks))
+            {
+                snapshotRanks = new(StringComparer.Ordinal);
+                _priorityRanksBySnapshotId.Add(findingsSnapshotId, snapshotRanks);
+            }
+
             foreach ((string findingId, int priorityRank) in ranks)
             {
                 if (string.IsNullOrWhiteSpace(findingId))
                     continue;
 
-                _priorityRanks[(findingsSnapshotId, findingId.Trim())] = priorityRank;
+                snapshotRanks[findingId.Trim()] = priorityRank;
             }
         }
 
@@ -207,6 +214,9 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
     private int? ResolvePriorityRank(Guid findingsSnapshotId, string findingId)
     {
         lock (_lock)
-            return _priorityRanks.TryGetValue((findingsSnapshotId, findingId), out int rank) ? rank : null;
+            return _priorityRanksBySnapshotId.TryGetValue(findingsSnapshotId, out Dictionary<string, int>? snapshotRanks)
+                && snapshotRanks.TryGetValue(findingId, out int rank)
+                ? rank
+                : null;
     }
 }

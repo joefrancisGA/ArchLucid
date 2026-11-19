@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -33,9 +32,8 @@ type InitialProps = {
 };
 
 export function useRecommendationLearningOpsState(props: InitialProps) {
-  const router = useRouter();
   const canMutate = useOperateCapability();
-  const [isRefreshing, startRefreshing] = useTransition();
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [status, setStatus] = useState(props.initialStatus);
   const [profile, setProfile] = useState(props.initialProfile);
   const [history, setHistory] = useState(props.initialHistory);
@@ -58,9 +56,7 @@ export function useRecommendationLearningOpsState(props: InitialProps) {
   }, [props.initialFailure, props.initialHistory, props.initialProfile, props.initialStatus]);
 
   const refresh = useCallback(async () => {
-    startRefreshing(() => {
-      router.refresh();
-    });
+    setIsRefreshing(true);
 
     try {
       const bundle = await reloadRecommendationLearningOpsBundle();
@@ -70,8 +66,10 @@ export function useRecommendationLearningOpsState(props: InitialProps) {
       setFailure(null);
     } catch (e: unknown) {
       setFailure(toApiLoadFailure(e));
+    } finally {
+      setIsRefreshing(false);
     }
-  }, [router]);
+  }, []);
 
   const loadPersistedProfile = useCallback(async () => {
     setIsLoadingPersisted(true);

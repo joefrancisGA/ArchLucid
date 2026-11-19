@@ -10,6 +10,7 @@ import {
 } from "@/lib/review-quality/compare-quality-delta";
 import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
 import { ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE } from "@/lib/architecture/compare-delta-counts-two-sealed-footnote-copy";
+import { CompareQualityDeltaPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPartialInventoryFootnote";
 
 export type CompareQualityDeltaPanelProps = {
   readonly counts: CompareQualityDeltaCounts;
@@ -48,6 +49,7 @@ export function CompareQualityDeltaPanel(props: CompareQualityDeltaPanelProps): 
       >
         {ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE}
       </p>
+      
       <dl className="m-0 mt-3 grid gap-3 sm:grid-cols-2">
         {rows.map((row) => (
           <div key={row.label} className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">

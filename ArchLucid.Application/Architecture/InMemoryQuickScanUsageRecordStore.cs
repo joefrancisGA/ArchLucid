@@ -13,6 +13,7 @@ public sealed class InMemoryQuickScanUsageRecordStore : IQuickScanUsageRecordSto
     public Task InsertAsync(QuickScanUsageRecord record, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(record);
+        cancellationToken.ThrowIfCancellationRequested();
 
         _records.Enqueue(record);
 
@@ -28,6 +29,7 @@ public sealed class InMemoryQuickScanUsageRecordStore : IQuickScanUsageRecordSto
         int limit,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         int take = Math.Clamp(limit, 1, 100);
 
         IReadOnlyList<QuickScanUsageRecord> recent = _records

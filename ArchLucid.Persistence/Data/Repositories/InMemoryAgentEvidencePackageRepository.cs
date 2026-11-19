@@ -28,9 +28,9 @@ public sealed class InMemoryAgentEvidencePackageRepository : IAgentEvidencePacka
 
         lock (_gate)
         {
-            if (_byRunId.TryGetValue(evidencePackage.RunId, out AgentEvidencePackage? prior))
-
-                _byId.Remove(prior.EvidencePackageId);
+            if (_byRunId.ContainsKey(evidencePackage.RunId) || _byId.ContainsKey(evidencePackage.EvidencePackageId))
+                throw new InvalidOperationException(
+                    $"An evidence package already exists for run '{evidencePackage.RunId}' or has the same package ID.");
 
             AgentEvidencePackage copy = Clone(evidencePackage);
             _byId[copy.EvidencePackageId] = copy;

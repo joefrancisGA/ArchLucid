@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 using ArchLucid.Persistence.GoldenManifests;
 
 namespace ArchLucid.Persistence.Tests;
@@ -6,6 +8,31 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "Unit")]
 public sealed class GoldenManifestPayloadBlobEnvelopeTests
 {
+    [Theory]
+    [InlineData("schemaVersion")]
+    [InlineData("requirementsJson")]
+    public void TryDeserialize_rejects_missing_required_fields(string field)
+    {
+        JsonObject payload = JsonNode.Parse(new GoldenManifestPayloadBlobEnvelope().ToJson())!.AsObject();
+        payload.Remove(field);
+
+        GoldenManifestPayloadBlobEnvelope.TryDeserialize(payload.ToJsonString()).Should().BeNull();
+    }
+
+    [SkippableFact]
+    public void TryDeserialize_rejects_null_required_slices_and_accepts_older_optional_fields()
+    {
+        JsonObject payload = JsonNode.Parse(new GoldenManifestPayloadBlobEnvelope().ToJson())!.AsObject();
+        payload.Remove("hasherBoundJson");
+        payload.Remove("complianceJson");
+
+        GoldenManifestPayloadBlobEnvelope.TryDeserialize(payload.ToJsonString()).Should().NotBeNull();
+
+        payload["requirementsJson"] = null;
+
+        GoldenManifestPayloadBlobEnvelope.TryDeserialize(payload.ToJsonString()).Should().BeNull();
+    }
+
     [SkippableFact]
     public void RoundTrip_serializes_and_merges_into_row()
     {

@@ -32,6 +32,7 @@ import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-
 import { RESOURCES_EXPLORER_SNAPSHOT_SCOPE_HONESTY_LINE } from "@/lib/infra-evidence/resources-explorer-snapshot-scope-honesty-copy";
 import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
 import { RESOURCE_EXPLORER_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-partial-capture-copy";
+import { ResourcesExplorerFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/resources/ResourcesExplorerFilterEmptyPartialHonesty";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -664,6 +665,7 @@ export function ResourcesExplorerClient() {
                           {RESOURCE_EXPLORER_EMPTY_PARTIAL_CAPTURE_LINE}
                         </p>
                       ) : null}
+                      {hasAppliedFilters ? <ResourcesExplorerFilterEmptyPartialHonesty /> : null}
                     </>
                   }
                 />

@@ -49,6 +49,30 @@ public abstract class AlertRuleRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task Rule_changes_are_visible_only_after_update()
+    {
+        SkipIfSqlServerUnavailable();
+        IAlertRuleRepository repo = CreateRepository();
+        AlertRule rule = CreateRule();
+        await repo.CreateAsync(rule, CancellationToken.None);
+
+        rule.IsEnabled = false;
+        AlertRule saved = (await repo.GetByIdAsync(Scope, rule.RuleId, CancellationToken.None))!;
+        Assert.True(saved.IsEnabled);
+
+        saved.IsEnabled = false;
+        AlertRule listed = Assert.Single(
+            await repo.ListEnabledByScopeAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None));
+        listed.IsEnabled = false;
+        Assert.True(Assert.Single(
+            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None)).IsEnabled);
+
+        await repo.UpdateAsync(rule, CancellationToken.None);
+        rule.IsEnabled = true;
+        Assert.Empty(await repo.ListEnabledByScopeAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None));
+    }
+
+    [SkippableFact]
     public async Task Create_then_GetById_returns_same_rule()
     {
         SkipIfSqlServerUnavailable();

@@ -110,7 +110,7 @@ public sealed class PolicyPackRequestValidationTests(ArchLucidApiFactory factory
 
                 HttpResponseMessage assignResponse = await Client.PostAsync(
                     $"/v1/policy-packs/{packId}/assign",
-                    JsonContent(new { version = "1.0.0", scopeLevel = "Planet" }),
+                    JsonContent(new { version = "1.0.0", scopeLevel = "Planet", isPinned = false }),
                     requestTimeout.Token);
 
                 assignResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);

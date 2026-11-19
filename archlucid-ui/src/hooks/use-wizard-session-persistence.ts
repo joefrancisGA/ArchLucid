@@ -21,7 +21,7 @@ import {
   fetchWizardIntakeDraft,
   upsertWizardIntakeDraft,
 } from "@/lib/api/wizard-intake-draft-api";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isApiTransientLoadFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { wizardIntakeDraftMutationBlockedReason } from "@/lib/architecture/wizard-intake-draft-mutation-blocked-reason";
 import { getOrCreateWizardIdempotencyKey } from "@/lib/wizard-idempotency-key";
 import {
@@ -106,7 +106,17 @@ export function useWizardSessionPersistence<TState>(
 
     void (async () => {
       const localSnapshot = readWizardSessionSnapshot<TState>(args.wizardId);
-      const remoteDraft = await fetchWizardIntakeDraft(args.wizardId);
+      let remoteDraft: Awaited<ReturnType<typeof fetchWizardIntakeDraft>> = null;
+
+      try {
+        remoteDraft = await fetchWizardIntakeDraft(args.wizardId);
+      } catch (error: unknown) {
+        // A transient outage must not discard the operator's local draft.
+        // Denied access and other non-transient failures remain fail-closed.
+        if (!isApiTransientLoadFailure(toApiLoadFailure(error))) {
+          return;
+        }
+      }
 
       let remoteSnapshot: WizardSessionSnapshot<TState> | null = null;
 

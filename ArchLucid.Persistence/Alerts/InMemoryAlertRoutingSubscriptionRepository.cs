@@ -10,22 +10,38 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
 
     public Task CreateAsync(AlertRoutingSubscription subscription, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
-            _items.Add(subscription);
+        {
+            if (_items.Exists(item => item.RoutingSubscriptionId == subscription.RoutingSubscriptionId))
+                throw new InvalidOperationException("An alert routing subscription with this ID already exists.");
+
+            _items.Add(Copy(subscription));
+        }
         return Task.CompletedTask;
     }
 
     public Task UpdateAsync(AlertRoutingSubscription subscription, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
-            int i = _items.FindIndex(x =>
+            AlertRoutingSubscription? stored = _items.Find(x =>
                 x.RoutingSubscriptionId == subscription.RoutingSubscriptionId && SameScope(x, subscription));
-            if (i >= 0)
-                _items[i] = subscription;
+            if (stored is not null)
+            {
+                stored.Name = subscription.Name;
+                stored.ChannelType = subscription.ChannelType;
+                stored.Destination = subscription.Destination;
+                stored.MinimumSeverity = subscription.MinimumSeverity;
+                stored.IsEnabled = subscription.IsEnabled;
+                stored.LastModifiedByActor = subscription.LastModifiedByActor;
+                stored.LastModifiedUtc = subscription.LastModifiedUtc;
+                stored.MetadataJson = subscription.MetadataJson;
+
+                if (stored.LastDeliveredUtc is null || subscription.LastDeliveredUtc > stored.LastDeliveredUtc)
+                    stored.LastDeliveredUtc = subscription.LastDeliveredUtc;
+            }
         }
 
         return Task.CompletedTask;
@@ -52,11 +68,33 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x =>
-                x.RoutingSubscriptionId == routingSubscriptionId && MatchesScope(x, scope)));
+        {
+            AlertRoutingSubscription? stored = _items.FirstOrDefault(x =>
+                x.RoutingSubscriptionId == routingSubscriptionId && MatchesScope(x, scope));
+            return Task.FromResult(stored is null ? null : Copy(stored));
+        }
     }
+
+    private static AlertRoutingSubscription Copy(AlertRoutingSubscription subscription) => new()
+    {
+        RoutingSubscriptionId = subscription.RoutingSubscriptionId,
+        TenantId = subscription.TenantId,
+        WorkspaceId = subscription.WorkspaceId,
+        ProjectId = subscription.ProjectId,
+        Name = subscription.Name,
+        ChannelType = subscription.ChannelType,
+        Destination = subscription.Destination,
+        MinimumSeverity = subscription.MinimumSeverity,
+        IsEnabled = subscription.IsEnabled,
+        CreatedUtc = subscription.CreatedUtc,
+        CreatedByActor = subscription.CreatedByActor,
+        LastModifiedByActor = subscription.LastModifiedByActor,
+        LastModifiedUtc = subscription.LastModifiedUtc,
+        LastDeliveredUtc = subscription.LastDeliveredUtc,
+        MetadataJson = subscription.MetadataJson,
+    };
 
     private static bool MatchesScope(AlertRoutingSubscription subscription, ScopeContext scope) =>
         subscription.TenantId == scope.TenantId &&
@@ -74,12 +112,13 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<AlertRoutingSubscription> result = _items
                 .Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId)
                 .OrderByDescending(x => x.CreatedUtc)
+                .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<AlertRoutingSubscription>>(result);
         }
@@ -91,7 +130,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<AlertRoutingSubscription> result = _items
@@ -101,6 +140,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
                     x.ProjectId == projectId &&
                     x.IsEnabled)
                 .OrderByDescending(x => x.CreatedUtc)
+                .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<AlertRoutingSubscription>>(result);
         }

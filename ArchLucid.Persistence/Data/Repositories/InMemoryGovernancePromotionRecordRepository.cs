@@ -31,8 +31,12 @@ public sealed class InMemoryGovernancePromotionRecordRepository : IGovernancePro
         GovernancePromotionRecord stored = Clone(item);
 
         lock (_gate)
+        {
+            if (_byId.ContainsKey(stored.PromotionRecordId))
+                throw new InvalidOperationException($"The promotion record '{stored.PromotionRecordId}' already exists.");
 
-            _byId[stored.PromotionRecordId] = stored;
+            _byId.Add(stored.PromotionRecordId, stored);
+        }
 
         return Task.CompletedTask;
     }

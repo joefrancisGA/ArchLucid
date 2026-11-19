@@ -49,13 +49,12 @@ public sealed class SqlTenantAiBudgetPolicyRepository(IDbConnectionFactory conne
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         const string sql = """
-            IF NOT EXISTS (SELECT 1 FROM dbo.TenantAiBudgetPolicy WITH (UPDLOCK, HOLDLOCK) WHERE TenantId = @TenantId)
-            BEGIN
-                INSERT INTO dbo.TenantAiBudgetPolicy
-                    (TenantId, BudgetAmountUsd, HardStopEnabled, AllowCustomerAiProvider, TrialExpirationUtc, LastUpdatedUtc)
-                VALUES
-                    (@TenantId, @BudgetAmountUsd, 1, 0, @TrialExpirationUtc, SYSUTCDATETIME());
-            END
+            INSERT INTO dbo.TenantAiBudgetPolicy
+                (TenantId, BudgetAmountUsd, HardStopEnabled, AllowCustomerAiProvider, TrialExpirationUtc, LastUpdatedUtc)
+            SELECT @TenantId, @BudgetAmountUsd, 1, 0, @TrialExpirationUtc, SYSUTCDATETIME()
+            WHERE NOT EXISTS (
+                SELECT 1 FROM dbo.TenantAiBudgetPolicy WITH (UPDLOCK, HOLDLOCK) WHERE TenantId = @TenantId
+            );
             """;
 
         int rows = await connection

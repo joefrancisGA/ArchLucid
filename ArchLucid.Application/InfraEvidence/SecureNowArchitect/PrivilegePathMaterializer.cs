@@ -10,13 +10,26 @@ internal static class PrivilegePathMaterializer
         Guid tenantId,
         Guid pathId,
         Guid snapshotId,
-        IReadOnlyList<PrivilegePathEdge> hops)
+        IReadOnlyList<PrivilegePathEdge> hops,
+        IReadOnlyDictionary<string, AzureInventoryResourceRecord>? resourcesByArmId = null)
     {
         List<SecurityEvidencePathHopRecord> records = [];
 
         for (int index = 0; index < hops.Count; index++)
         {
             PrivilegePathEdge hop = hops[index];
+
+            // Only anchor this hop to an exact resource in the same captured snapshot.
+            // Missing/non-resource endpoints must remain unassigned, not inferred.
+            Guid? cloudResourceId = null;
+
+            if (resourcesByArmId is not null
+                && resourcesByArmId.TryGetValue(hop.ToNodeId, out AzureInventoryResourceRecord? resource)
+                && resource.CloudResourceId is Guid resourceId
+                && resourceId != Guid.Empty)
+            {
+                cloudResourceId = resourceId;
+            }
 
             records.Add(new SecurityEvidencePathHopRecord
             {
@@ -29,6 +42,7 @@ internal static class PrivilegePathMaterializer
                 EdgeType = hop.EdgeType,
                 ProvenanceKind = hop.ProvenanceKind,
                 HopConfidenceBand = MapConfidenceBand(hop),
+                CloudResourceId = cloudResourceId,
                 InferenceSource = string.IsNullOrWhiteSpace(hop.InferenceSource)
                     ? MapInferenceSource(hop.EdgeType)
                     : hop.InferenceSource,

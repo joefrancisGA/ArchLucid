@@ -27,8 +27,12 @@ public sealed class InMemoryArchitectureRequestRepository : IArchitectureRequest
             throw new ArgumentException("RequestId is required.", nameof(request));
 
         lock (_gate)
+        {
+            if (_byId.ContainsKey(request.RequestId))
+                throw new InvalidOperationException($"The architecture request '{request.RequestId}' already exists.");
 
-            _byId[request.RequestId] = Clone(request);
+            _byId.Add(request.RequestId, Clone(request));
+        }
 
         return Task.CompletedTask;
     }

@@ -26,8 +26,13 @@ public sealed class InMemoryEvidenceBundleRepository : IEvidenceBundleRepository
         cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
+        {
+            if (_byId.ContainsKey(evidenceBundle.EvidenceBundleId))
+                throw new InvalidOperationException(
+                    $"Evidence bundle '{evidenceBundle.EvidenceBundleId}' already exists.");
 
-            _byId[evidenceBundle.EvidenceBundleId] = Clone(evidenceBundle);
+            _byId.Add(evidenceBundle.EvidenceBundleId, Clone(evidenceBundle));
+        }
 
         return Task.CompletedTask;
     }

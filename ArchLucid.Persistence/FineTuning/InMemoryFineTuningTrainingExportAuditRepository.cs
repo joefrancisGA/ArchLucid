@@ -15,6 +15,7 @@ public sealed class InMemoryFineTuningTrainingExportAuditRepository : IFineTunin
     public Task InsertAsync(FineTuningTrainingExportAuditRecord record, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(record);
+        cancellationToken.ThrowIfCancellationRequested();
         _records.Add(record);
 
         return Task.CompletedTask;

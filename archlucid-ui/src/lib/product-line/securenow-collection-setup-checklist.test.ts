@@ -1,11 +1,30 @@
 import { describe, expect, it } from "vitest";
 
+import { resolveCollectionSnapshotCaptureSucceeded } from "./resolve-collection-snapshot-capture-succeeded";
 import {
   resolveSecureNowCollectionPrimaryBlocker,
+  resolveSecureNowCollectionSetupSteps,
   resolveSecureNowCollectionYouAreHere,
 } from "./securenow-collection-setup-checklist";
 
 describe("resolveSecureNowCollectionPrimaryBlocker", () => {
+  it("reports an available successful capture when a newer capture failed", () => {
+    const captureSucceeded = resolveCollectionSnapshotCaptureSucceeded({
+      callerSnapshotCaptureSucceeded: null,
+      snapshotCaptureStatuses: ["Failed", "Succeeded"],
+    });
+    const steps = resolveSecureNowCollectionSetupSteps({
+      hasConfiguredProvider: true,
+      azureSubscriptionIdsPresent: true,
+      hasSuccessfulPull: captureSucceeded === true,
+    });
+
+    expect(steps.find((step) => step.id === "capture")).toMatchObject({
+      label: "Successful capture available",
+      complete: true,
+    });
+  });
+
   it("returns null when collection setup is complete", () => {
     expect(
       resolveSecureNowCollectionPrimaryBlocker({

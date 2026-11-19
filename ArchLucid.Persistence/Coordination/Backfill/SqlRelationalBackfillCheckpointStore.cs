@@ -50,7 +50,19 @@ public sealed class SqlRelationalBackfillCheckpointStore(ISqlConnectionFactory c
                 MERGE dbo.BackfillCheckpoints AS target
                 USING (SELECT @Stage AS Stage) AS source
                 ON target.Stage = source.Stage
-                WHEN MATCHED THEN
+                WHEN MATCHED AND
+                (
+                    target.LastProcessedCreatedUtc < @LastProcessedCreatedUtc
+                    OR
+                    (
+                        target.LastProcessedCreatedUtc = @LastProcessedCreatedUtc
+                        AND
+                        (
+                            TRY_CONVERT(uniqueidentifier, target.LastProcessedKey) IS NULL
+                            OR TRY_CONVERT(uniqueidentifier, target.LastProcessedKey) < @LastProcessedEntityId
+                        )
+                    )
+                ) THEN
                     UPDATE SET
                         LastProcessedCreatedUtc = @LastProcessedCreatedUtc,
                         LastProcessedKey = @LastProcessedKey,
@@ -64,6 +76,7 @@ public sealed class SqlRelationalBackfillCheckpointStore(ISqlConnectionFactory c
                     Stage = stage,
                     LastProcessedCreatedUtc = cursor.LastProcessedCreatedUtc,
                     LastProcessedKey = cursor.LastProcessedEntityId.ToString("D"),
+                    LastProcessedEntityId = cursor.LastProcessedEntityId,
                 },
                 cancellationToken: ct));
     }

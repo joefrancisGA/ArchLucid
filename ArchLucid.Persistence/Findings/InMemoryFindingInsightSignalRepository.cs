@@ -24,6 +24,7 @@ public sealed class InMemoryFindingInsightSignalRepository(IAuthorityQueryServic
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(submission);
+        cancellationToken.ThrowIfCancellationRequested();
 
         string scopeUserKey = BuildScopeUserKey(
             submission.TenantId,
@@ -72,6 +73,7 @@ public sealed class InMemoryFindingInsightSignalRepository(IAuthorityQueryServic
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(findingId);
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
+        cancellationToken.ThrowIfCancellationRequested();
 
         string scopeUserKey = BuildScopeUserKey(tenantId, runId, findingId, userId);
 
@@ -96,6 +98,7 @@ public sealed class InMemoryFindingInsightSignalRepository(IAuthorityQueryServic
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (toUtcExclusive <= fromUtc)
         {

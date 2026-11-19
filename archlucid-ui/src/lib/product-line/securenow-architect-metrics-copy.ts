@@ -32,7 +32,7 @@ export function formatSecureNowArchitectMetricsRuleVersionExplanation(ruleVersio
 
   const known = SECURENOW_ARCHITECT_METRICS_RULE_VERSION_EXPLANATIONS[trimmed];
 
-  if (known !== undefined) {
+  if (typeof known === "string") {
     return known;
   }
 

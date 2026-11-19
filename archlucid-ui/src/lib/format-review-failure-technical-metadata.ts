@@ -41,9 +41,9 @@ function formatPipelineStageFlag(
   return `${label}=${value === true ? "yes" : "no"}`;
 }
 
-function formatAssessmentProgressValue(summary: RunSummary | null | undefined): string {
+function countCompletedStages(summary: RunSummary | null | undefined): number | null {
   if (summary === null || summary === undefined) {
-    return "Assessment progress was not stored.";
+    return null;
   }
 
   const flags = [
@@ -53,13 +53,22 @@ function formatAssessmentProgressValue(summary: RunSummary | null | undefined): 
     summary.hasGoldenManifest,
   ];
 
-  if (flags.some((flag) => flag === null || flag === undefined)) {
-    return "Assessment step completion was not stored.";
+  return flags.some((flag) => flag === null || flag === undefined)
+    ? null
+    : flags.filter((flag) => flag === true).length;
+}
+
+function formatAssessmentProgressValue(
+  summary: RunSummary | null | undefined,
+  completedStages: number | null,
+): string {
+  if (summary === null || summary === undefined) {
+    return "Assessment progress was not stored.";
   }
 
-  const completed = flags.filter((flag) => flag === true).length;
-
-  return `${completed} / 4 assessment steps`;
+  return completedStages === null
+    ? "Assessment step completion was not stored."
+    : `${completedStages} / 4 assessment steps`;
 }
 
 function formatPipelineStageFlags(summary: RunSummary | null | undefined): string {
@@ -177,15 +186,7 @@ export function formatReviewFailureTechnicalMetadataRows(
   const failureClass = normalize(summary?.failureClass);
   const reasonCode = normalize(summary?.reasonCode);
   const legacyRunStatus = normalize(diagnosticContext?.legacyRunStatus);
-  const completedStages =
-    pipelineSummary === null || pipelineSummary === undefined
-      ? null
-      : [
-          pipelineSummary.hasContextSnapshot === true,
-          pipelineSummary.hasGraphSnapshot === true,
-          pipelineSummary.hasFindingsSnapshot === true,
-          pipelineSummary.hasGoldenManifest === true,
-        ].filter(Boolean).length;
+  const completedStages = countCompletedStages(pipelineSummary);
   const axis = resolveExecutionVsQualityAxis({
     failureClass: summary?.failureClass,
     legacyRunStatus: diagnosticContext?.legacyRunStatus,
@@ -200,7 +201,7 @@ export function formatReviewFailureTechnicalMetadataRows(
   );
   pushRow(rows, "Review outcome", legacyRunStatus, true);
   pushRow(rows, "Failure axis", axis, true);
-  pushRow(rows, "Assessment progress", formatAssessmentProgressValue(pipelineSummary));
+  pushRow(rows, "Assessment progress", formatAssessmentProgressValue(pipelineSummary, completedStages));
   pushRow(rows, "Assessment step flags", formatPipelineStageFlags(pipelineSummary), true);
   pushRow(rows, "Failure class", failureClass, true);
   pushRow(rows, "Failure class (label)", plainLanguageFailureClassLabel(summary?.failureClass));
