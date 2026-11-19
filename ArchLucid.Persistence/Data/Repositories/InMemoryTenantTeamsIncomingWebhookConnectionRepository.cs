@@ -12,6 +12,8 @@ public sealed class
 
     public Task<TeamsIncomingWebhookConnectionResponse?> GetAsync(Guid tenantId, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         return _store.TryGetValue(tenantId, out TeamsIncomingWebhookConnectionResponse? row)
             ? Task.FromResult<TeamsIncomingWebhookConnectionResponse?>(row)
             : Task.FromResult<TeamsIncomingWebhookConnectionResponse?>(null);
@@ -24,6 +26,8 @@ public sealed class
         IReadOnlyList<string>? enabledTriggers,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IReadOnlyList<string>? normalizedTriggers = enabledTriggers is null
             ? null
             : TeamsNotificationTriggerCatalog.ParseOrDefault(TeamsNotificationTriggerCatalog.Serialize(enabledTriggers));
@@ -48,6 +52,8 @@ public sealed class
 
     public Task<bool> DeleteAsync(Guid tenantId, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         return Task.FromResult(_store.TryRemove(tenantId, out _));
     }
 }
