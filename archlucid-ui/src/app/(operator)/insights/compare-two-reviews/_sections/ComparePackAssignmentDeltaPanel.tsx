@@ -5,10 +5,13 @@ import { cn } from "@/lib/utils";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ComparePackAssignmentDeltaView } from "@/lib/review-quality/compare-pack-assignment-delta";
+import { COMPARE_PACK_ASSIGNMENT_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-pack-assignment-empty-not-load-failure-copy";
+import { ComparePackAssignmentEmptyPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePackAssignmentEmptyPartialHonesty";
 
 export type ComparePackAssignmentDeltaPanelProps = {
   readonly view: ComparePackAssignmentDeltaView | null;
   readonly loading?: boolean;
+  readonly showEmptyNotLoadFailureHonesty?: boolean;
 };
 
 /** Compare-two-reviews pack assignment mix for buyer verdict chrome. */
@@ -29,7 +32,22 @@ export function ComparePackAssignmentDeltaPanel(
   }
 
   if (props.view === null) {
-    return null;
+    if (!props.showEmptyNotLoadFailureHonesty) {
+      return null;
+    }
+    return (
+      <section
+        className="rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-950"
+        data-testid="compare-pack-assignment-empty-not-load-failure"
+      >
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {COMPARE_PACK_ASSIGNMENT_EMPTY_NOT_LOAD_FAILURE_LINE}
+        </p>
+        <div className="mt-2">
+          <ComparePackAssignmentEmptyPartialHonesty />
+        </div>
+      </section>
+    );
   }
 
   const { baseline, target, changed } = props.view;

@@ -323,7 +323,14 @@ export function CompareResultsPanelDiffStack({
         )}
 
         {golden !== null ? (
-          <CompareFindingCorrelationSection baselineRunId={golden.baseRunId} targetRunId={golden.targetRunId} />
+          <CompareFindingCorrelationSection
+            baselineRunId={golden.baseRunId}
+            targetRunId={golden.targetRunId}
+            compareIncludesUnsealedReview={
+              (viewModel.leftSummaryBlockedReason ?? null) !== null
+              || (viewModel.rightSummaryBlockedReason ?? null) !== null
+            }
+          />
         ) : null}
 
         {golden !== null ? (
