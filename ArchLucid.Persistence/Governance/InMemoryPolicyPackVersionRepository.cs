@@ -44,7 +44,11 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
             int idx = _items.FindIndex(x => x.PolicyPackVersionId == version.PolicyPackVersionId);
 
             if (idx >= 0)
-                _items[idx] = Copy(version);
+            {
+                PolicyPackVersion stored = _items[idx];
+                stored.ContentJson = version.ContentJson;
+                stored.IsPublished = version.IsPublished;
+            }
         }
 
         return Task.CompletedTask;
