@@ -87,3 +87,14 @@ export function buildCompareTreatmentBandDeltaView(input: {
     },
   };
 }
+
+export function compareTreatmentBandFindingsAllZero(input: {
+  readonly baselineFindings: readonly import("@/lib/quick-decision-summary-derive").QuickDecisionFinding[];
+  readonly targetFindings: readonly import("@/lib/quick-decision-summary-derive").QuickDecisionFinding[];
+}): boolean {
+  const baseline = countFindingsByTreatmentBand(input.baselineFindings);
+  const target = countFindingsByTreatmentBand(input.targetFindings);
+  const baselineTotal = baseline.decisionGrade + baseline.checklist + baseline.demotedToChecklist;
+  const targetTotal = target.decisionGrade + target.checklist + target.demotedToChecklist;
+  return baselineTotal === 0 && targetTotal === 0;
+}
