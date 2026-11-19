@@ -33,6 +33,12 @@ import { GovernanceFindingsRegisterAndJobViewFilterNoMatchPartialHonesty } from 
 import { GOVERNANCE_FINDINGS_REGISTER_AND_JOB_VIEW_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/governance-findings-register-and-job-view-combined-filter-empty-not-load-failure-copy";
 import { GovernanceFindingsRegisterAndJobViewAndNlFacetFilterNoMatchPartialHonesty } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsRegisterAndJobViewAndNlFacetFilterNoMatchPartialHonesty";
 import { GOVERNANCE_FINDINGS_REGISTER_AND_JOB_VIEW_AND_NL_FACET_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/governance-findings-register-and-job-view-and-nl-facet-combined-filter-empty-not-load-failure-copy";
+import {
+  GOVERNANCE_FINDINGS_COMBINED_FILTER_MODE_JOB_NL_LINE,
+  GOVERNANCE_FINDINGS_COMBINED_FILTER_MODE_REGISTER_JOB_LINE,
+  GOVERNANCE_FINDINGS_COMBINED_FILTER_MODE_REGISTER_NL_LINE,
+  GOVERNANCE_FINDINGS_COMBINED_FILTER_MODE_TRIPLE_LINE,
+} from "@/lib/governance/governance-findings-combined-filter-mode-legend-copy";
 import { GovernanceFindingsQueueResultsPartialCaptureFootnote } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueResultsPartialCaptureFootnote";
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
 
@@ -77,6 +83,20 @@ export function GovernanceFindingsQueueResultsSection(
           }
           footer={
             <div className="space-y-2">
+              {combinedRegisterAndJobViewAndNlFacet || combinedRegisterAndJobView || combinedRegisterAndNlFacet || combinedJobViewAndNlFacet ? (
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="governance-findings-combined-filter-mode-legend"
+                >
+                  {combinedRegisterAndJobViewAndNlFacet
+                    ? GOVERNANCE_FINDINGS_COMBINED_FILTER_MODE_TRIPLE_LINE
+                    : combinedRegisterAndJobView
+                      ? GOVERNANCE_FINDINGS_COMBINED_FILTER_MODE_REGISTER_JOB_LINE
+                      : combinedRegisterAndNlFacet
+                        ? GOVERNANCE_FINDINGS_COMBINED_FILTER_MODE_REGISTER_NL_LINE
+                        : GOVERNANCE_FINDINGS_COMBINED_FILTER_MODE_JOB_NL_LINE}
+                </p>
+              ) : null}
               {combinedRegisterAndJobViewAndNlFacet ? (
                 <div className="space-y-2" data-testid="governance-findings-register-and-job-view-and-nl-facet-combined-filter-empty">
                   <p
