@@ -96,4 +96,13 @@ describe("governanceFindingsClearReviewScopeHref", () => {
     expect(href).not.toContain("runId=");
   });
 
+  it("retains triage focusedFinding when clearing review scope", () => {
+    const href = governanceFindingsClearReviewScopeHref(
+      "focusedFinding=finding-1&runId=run-1&filter=open",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?focusedFinding=finding-1&filter=open");
+    expect(href).not.toContain("runId=");
+  });
 });

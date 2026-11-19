@@ -104,4 +104,13 @@ describe("governanceFindingsPickReviewForTriageHref", () => {
 
     expect(href).toBe("/governance/findings?hideGeneric=1&filter=open&runId=run-9");
   });
+  it("retains triage focusedFinding when picking a review for triage", () => {
+    const href = governanceFindingsPickReviewForTriageHref(
+      "focusedFinding=finding-1&filter=open",
+      "/governance/findings",
+      "run-9",
+    );
+
+    expect(href).toBe("/governance/findings?focusedFinding=finding-1&filter=open&runId=run-9");
+  });
 });

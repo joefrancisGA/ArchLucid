@@ -57,4 +57,14 @@ describe("governanceFindingsRegisterFilterHrefFromSearch", () => {
     expect(href).not.toContain("filter=");
   });
 
+  it("retains triage focusedFinding when register filter widens to all", () => {
+    const href = governanceFindingsRegisterFilterHrefFromSearch(
+      "focusedFinding=finding-1&filter=expiring-soon",
+      "all",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?focusedFinding=finding-1");
+    expect(href).not.toContain("filter=");
+  });
 });
