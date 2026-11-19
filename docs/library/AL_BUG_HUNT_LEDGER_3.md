@@ -12529,6 +12529,21 @@ ABQ-09 churn hotspot; intake wizard route tree.
 ---
 
 ## Zone: ui-governance-findings-queue
+2026-11-19 thorough hunt #514 (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**38** `(candidate)` rows from hunt **#513** reseed — **invalid** `governanceFindingsNlFacetsHrefFromSearch` retaining `removePresetId` (`governance-findings-queue-navigation` selection switch; hunt **#511** confirm-param class), **proven** `reviewFindingsJobViewHrefFromSearch` retaining `removePresetId` (`disclosure-only` switch skipped strip on job-view toggle; hunt **#506**–**#508** hygiene class), **invalid** `governanceFindingsGroupByHrefFromSearch` retaining `removePresetId` (queue-navigation switch), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `focusedFinding` (triage cursor independent of register chip; hunt **#510**), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `hideGeneric` (view-density param not in review-scope clears; hunt **#510**). `reviewFindingsJobViewHrefFromSearch` uses `governance-findings-queue-navigation` selection switch; regression `clears armed preset-remove confirm when job view changes on the findings queue`. Scoped vitest **163/163** on governance-findings-named and job-view URL helper tests. Reseeded five pass-**39** `(candidate)` rows below. Private beta: Invited operators changing findings job-view lanes on the governance queue no longer keep a stale saved-filter preset removal dialog armed in the URL.
+
+- [x] (invalid) `governanceFindingsNlFacetsHrefFromSearch` — may retain `removePresetId` when NL facet chip changes — **invalid 2026-11-19 thorough hunt #514:** queue-navigation switch strips confirm param; hunt **#511**.
+- [x] (proven) `reviewFindingsJobViewHrefFromSearch` — may retain `removePresetId` when job view toggle changes — **hit 2026-11-19 thorough hunt #514:** governance-findings-queue-navigation switch; regression `clears armed preset-remove confirm when job view changes on the findings queue`.
+- [x] (invalid) `governanceFindingsGroupByHrefFromSearch` — may retain `removePresetId` when group-by toggle changes — **invalid 2026-11-19 thorough hunt #514:** queue-navigation switch strips confirm param; hunt **#511**.
+- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — **valid-no-repro 2026-11-19 thorough hunt #514:** triage cursor retention; hunt **#510**.
+- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #514:** intentional density retention; hunt **#510**.
+
+- [ ] (candidate) `governanceFindingsNlFacetsHrefFromSearch` — may retain `hideGeneric` when NL facet chip changes — locus: NL facet href; input: `hideGeneric=1` + severity/status chip; monitor; pass 39 reseed.
+- [ ] (candidate) `governanceFindingsGroupByHrefFromSearch` — may retain `focusedFinding` when group-by toggle changes — locus: group-by href; input: triage deep link + group-by chip; monitor; pass 39 reseed.
+- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter narrows — locus: register filter href; input: `hideGeneric=1` + register chip; monitor; pass 39 reseed.
+- [ ] (candidate) `reviewFindingsJobViewHrefFromSearch` — may retain `focusedFinding` when job view toggle changes — locus: job view href; input: triage deep link + job view chip; monitor; pass 39 reseed.
+- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — may retain `hideGeneric` when clearing register/facet filters — locus: clear-all helper; input: `hideGeneric=1` + clear all; monitor; pass 39 reseed.
+
+- [x] (superseded) pass-**38** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #514:** see hunt **#514** header and pass **#39** reseed.
 2026-11-19 thorough hunt #513 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**37** `(candidate)` rows from hunt **#512** reseed — **invalid** `governanceFindingsWorkspaceSavedViewHref` retaining `removePresetId` (saved-view href rebuilds from filter payload only; `onLoadFindingsSavedView` full-replaces URL; hunt **#509** / **#512** run-scoped class), **valid-no-repro** `GovernanceFindingsFilterBar` preset remove on assigned-to-me pathname (`isAssignedToMeFindingsPath` routes to `governanceAssignedToMePresetRemoveConfirmHrefFromSearch`; wave11 parity expectation), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `focusedFinding` (triage cursor independent of review-scope clears; hunt **#510** / **#512** clear-all parity), **valid-no-repro** `governanceFindingsShowAllFilteredFindingsHref` retaining `focusedFinding` (show-all delegates clear-all; triage cursor not a register/facet param; hunt **#507**), **valid-no-repro** `useGovernanceFindingTriageWithCursor` register filter leaving `focusedFinding` on filtered-out row (strip effect when focused id absent from `displayedRows`; regression `strips unknown focusedFinding after finding rows load`). Scoped vitest **121/121** on governance findings URL/hook helper tests. Reseeded five pass-**38** `(candidate)` rows below. Private beta: n/a.
 
 - [x] (invalid) `governanceFindingsWorkspaceSavedViewHref` — may retain `removePresetId` when loading workspace saved view — **invalid 2026-11-19 thorough hunt #513:** full-replace saved-view href contract; hunt **#512** class.
@@ -12537,11 +12552,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (valid-no-repro) `governanceFindingsShowAllFilteredFindingsHref` — may retain `focusedFinding` when expanding filtered rows — **valid-no-repro 2026-11-19 thorough hunt #513:** triage cursor not cleared on show-all; hunt **#507**.
 - [x] (valid-no-repro) `useGovernanceFindingTriageWithCursor` — register filter chip may leave URL `focusedFinding` on filtered-out row — **valid-no-repro 2026-11-19 thorough hunt #513:** displayed-rows strip effect; hunt **#507**.
 
-- [ ] (candidate) `governanceFindingsNlFacetsHrefFromSearch` — may retain `removePresetId` when NL facet chip changes — locus: NL facet href; input: armed preset remove + severity/status chip; monitor; pass 38 reseed.
-- [ ] (candidate) `reviewFindingsJobViewHrefFromSearch` — may retain `removePresetId` when job view toggle changes — locus: job view href; input: armed preset remove + job view chip; monitor; pass 38 reseed.
-- [ ] (candidate) `governanceFindingsGroupByHrefFromSearch` — may retain `removePresetId` when group-by toggle changes — locus: group-by href; input: armed preset remove + group-by chip; monitor; pass 38 reseed.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — locus: register filter href; input: triage deep link + register chip; monitor; pass 38 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — locus: clear-review-scope helper; input: `hideGeneric=1` + clear review scope; monitor; pass 38 reseed.
+- [x] (invalid) `governanceFindingsNlFacetsHrefFromSearch` — may retain `removePresetId` when NL facet chip changes — locus: NL facet href; input: armed preset remove + severity/status chip; monitor; pass 38 reseed.
+- [x] (proven) `reviewFindingsJobViewHrefFromSearch` — may retain `removePresetId` when job view toggle changes — locus: job view href; input: armed preset remove + job view chip; monitor; pass 38 reseed.
+- [x] (invalid) `governanceFindingsGroupByHrefFromSearch` — may retain `removePresetId` when group-by toggle changes — locus: group-by href; input: armed preset remove + group-by chip; monitor; pass 38 reseed.
+- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — locus: register filter href; input: triage deep link + register chip; monitor; pass 38 reseed.
+- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — locus: clear-review-scope helper; input: `hideGeneric=1` + clear review scope; monitor; pass 38 reseed.
 
 - [x] (superseded) pass-**37** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #513:** see hunt **#513** header and pass **#38** reseed.
 
@@ -12672,11 +12687,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 66
-- **bugs-found:** 43
-- **consecutive-dry-hunts:** 2
+- **hunts:** 67
+- **bugs-found:** 44
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-19
-- **last-bug:** 2026-11-18 — queue navigation left armed preset-remove confirm URLs
+- **last-bug:** 2026-11-19 — job view toggle left armed preset-remove confirm URLs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -75,7 +75,7 @@ export function reviewFindingsJobViewHrefFromSearch(
   jobView: FindingJobView,
 ): string {
   return buildOperatorHrefFromSearch(currentSearch, pathname, {
-    selectionSwitch: { kind: "disclosure-only" },
+    selectionSwitch: { kind: "governance-findings-queue-navigation" },
     mutate: (params) => {
 
     if (jobView === DEFAULT_FINDING_JOB_VIEW) {

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildReviewFindingsTabHref,
   resolveFindingJobViewFromSearchParam,
+  reviewFindingsJobViewHrefFromSearch,
 } from "@/lib/findings/review-findings-job-view-url";
 
 describe("review-findings-job-view-url", () => {
@@ -21,5 +22,16 @@ describe("review-findings-job-view-url", () => {
   it("falls back to default for unknown search param values", () => {
     expect(resolveFindingJobViewFromSearchParam("not-a-lane")).toBe("needs-my-decision");
     expect(resolveFindingJobViewFromSearchParam("verify-hypotheses")).toBe("verify-hypotheses");
+  });
+
+  it("clears armed preset-remove confirm when job view changes on the findings queue", () => {
+    const href = reviewFindingsJobViewHrefFromSearch(
+      "removePresetId=preset-1&filter=open",
+      "/governance/findings",
+      "needs-governance",
+    );
+
+    expect(href).toBe("/governance/findings?filter=open&findingJobView=needs-governance");
+    expect(href).not.toContain("removePresetId=");
   });
 });
