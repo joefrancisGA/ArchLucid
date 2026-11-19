@@ -42,6 +42,8 @@ import {
 import { GovernanceFindingsQueueResultsPartialCaptureFootnote } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueResultsPartialCaptureFootnote";
 import { GovernanceFindingsArchitectureScopeAndSeverityFilterNoMatchPartialHonesty } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsArchitectureScopeAndSeverityFilterNoMatchPartialHonesty";
 import { GOVERNANCE_FINDINGS_ARCHITECTURE_SCOPE_AND_SEVERITY_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/governance-findings-architecture-scope-and-severity-combined-filter-empty-not-load-failure-copy";
+import { GovernanceFindingsArchitectureScopeOnlyFilterNoMatchPartialHonesty } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsArchitectureScopeOnlyFilterNoMatchPartialHonesty";
+import { GOVERNANCE_FINDINGS_ARCHITECTURE_SCOPE_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/governance-findings-architecture-scope-only-filter-empty-not-load-failure-copy";
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
 
 export function GovernanceFindingsQueueResultsSection(
@@ -62,6 +64,12 @@ export function GovernanceFindingsQueueResultsSection(
     && severityFacetActive
     && !registerFilterActive
     && !props.jobViewFilterActive;
+  const architectureScopeOnlyFilter =
+    architectureScopeChipActive
+    && !severityFacetActive
+    && !registerFilterActive
+    && !props.jobViewFilterActive
+    && !nlFacetFilterActive;
   const inhabitedFindingsDocument =
     resolveInhabitedFindingsDocumentPresentation({
       workingMode: props.isWorkingMode,
@@ -92,6 +100,17 @@ export function GovernanceFindingsQueueResultsSection(
           }
           footer={
             <div className="space-y-2">
+              {architectureScopeOnlyFilter ? (
+                <div className="space-y-2" data-testid="governance-findings-architecture-scope-only-filter-empty">
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="governance-findings-architecture-scope-only-filter-empty-not-load-failure"
+                  >
+                    {GOVERNANCE_FINDINGS_ARCHITECTURE_SCOPE_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                  <GovernanceFindingsArchitectureScopeOnlyFilterNoMatchPartialHonesty />
+                </div>
+              ) : null}
               {combinedArchitectureScopeAndSeverity ? (
                 <div className="space-y-2" data-testid="governance-findings-architecture-scope-and-severity-combined-filter-empty">
                   <p
@@ -186,7 +205,12 @@ export function GovernanceFindingsQueueResultsSection(
               {!combinedRegisterAndJobViewAndNlFacet && !combinedRegisterAndNlFacet && !combinedJobViewAndNlFacet && !combinedArchitectureScopeAndSeverity && nlFacetFilterActive ? (
                 <GovernanceFindingsNlFacetFilterNoMatchPartialHonesty />
               ) : null}
-              {!combinedRegisterAndJobViewAndNlFacet && !combinedRegisterAndJobView && !combinedRegisterAndNlFacet && !combinedJobViewAndNlFacet && !nlFacetFilterActive ? (
+              {!combinedRegisterAndJobViewAndNlFacet
+              && !combinedRegisterAndJobView
+              && !combinedRegisterAndNlFacet
+              && !combinedJobViewAndNlFacet
+              && !nlFacetFilterActive
+              && !architectureScopeOnlyFilter ? (
                 <GovernanceFindingsFilterNoMatchPartialHonesty />
               ) : null}
             </div>

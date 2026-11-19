@@ -24,6 +24,8 @@ import { CompareRunPickersPartialInventoryFootnote } from "@/app/(operator)/insi
 import { CompareRunPickersCorrelationEmptyAndSealPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersCorrelationEmptyAndSealPartialHonesty";
 import { COMPARE_RUN_PICKERS_CORRELATION_EMPTY_AND_SEAL_LINE } from "@/lib/architecture/compare-run-pickers-correlation-empty-and-seal-copy";
 import { COMPARE_RUN_PICKERS_SECOND_REVIEW_NOT_SEALED_LINE } from "@/lib/architecture/compare-run-pickers-second-review-not-sealed-copy";
+import { CompareRunPickersFirstSelectedSecondEmptyPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersFirstSelectedSecondEmptyPartialHonesty";
+import { COMPARE_RUN_PICKERS_FIRST_SELECTED_SECOND_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-run-pickers-first-selected-second-empty-not-load-failure-copy";
 
 export type CompareRunPickersSectionProps = {
   leftPickerLabel: string;
@@ -199,9 +201,15 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
             {leftSummaryBlockedReason}
           </p>
         ) : null}
+        {leftTrim.length > 0 && rightTrim.length === 0 ? (
+          <div className="grid gap-1" data-testid="compare-run-pickers-first-selected-second-empty">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              {COMPARE_RUN_PICKERS_FIRST_SELECTED_SECOND_EMPTY_NOT_LOAD_FAILURE_LINE}
+            </p>
+            <CompareRunPickersFirstSelectedSecondEmptyPartialHonesty />
+          </div>
+        ) : null}
         <RunIdPicker
-          preferAutoPick={false}
-          label={rightPickerLabel}
           placeholder="Choose an updated review"
           value={rightRunId}
           onChange={onRightRunIdChange}

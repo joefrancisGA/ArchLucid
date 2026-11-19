@@ -41,6 +41,8 @@ export type CompareResultsPanelProps = {
   resultsFirst?: boolean;
   /** Show SecureNow partial-inventory footnote when comparison output is present. */
   showPartialInventoryFootnote?: boolean;
+  leftSummaryBlockedReason?: string | null;
+  rightSummaryBlockedReason?: string | null;
 };
 
 export function CompareResultsPanel(props: CompareResultsPanelProps) {

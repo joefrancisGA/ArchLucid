@@ -26,6 +26,8 @@ import { DigestsBrowseIncludesPreview } from "@/components/digests/DigestsBrowse
 import { DigestsBrowseScopedFilterPartialHonesty } from "@/components/digests/DigestsBrowseScopedFilterPartialHonesty";
 import { DigestsBrowseScopedAndSubscriptionFilterEmptyPartialHonesty } from "@/components/digests/DigestsBrowseScopedAndSubscriptionFilterEmptyPartialHonesty";
 import { DIGESTS_BROWSE_SCOPED_AND_SUBSCRIPTION_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/digests/digests-browse-scoped-and-subscription-filter-empty-not-load-failure-copy";
+import { DigestsBrowseSubscriptionListOnlyEmptyPartialHonesty } from "@/components/digests/DigestsBrowseSubscriptionListOnlyEmptyPartialHonesty";
+import { DIGESTS_BROWSE_SUBSCRIPTION_LIST_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/digests/digests-browse-subscription-list-only-empty-not-load-failure-copy";
 import { DigestsBrowseSetupEmptyPartialHonesty } from "@/components/digests/DigestsBrowseSetupEmptyPartialHonesty";
 import { DigestsBrowseSetupChecklist } from "@/components/digests/DigestsBrowseSetupChecklist";
 import {
@@ -128,6 +130,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
 
   const scopedRunId = (props.scopedRunId ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
+  const subscriptionListOnlyEmpty = healthSnap !== null && healthSnap.digestSubscriptionCount === 0;
   const browseClearScopeHref = digestsHubScopedHref(DIGESTS_HUB_GET_STARTED_TAB_ID, null);
 
   return (
@@ -203,10 +206,32 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
                 </div>
               }
             />
+          ) : subscriptionListOnlyEmpty ? (
+            <EnterpriseCompactEmptyState
+              testId="digests-empty-state"
+              title={DIGESTS_BROWSE_SETUP_UNKNOWN_TITLE}
+              description={DIGESTS_BROWSE_SETUP_UNKNOWN_DESCRIPTION}
+              footer={
+                <div className="space-y-2" data-testid="digests-browse-subscription-list-only-empty">
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    {DIGESTS_BROWSE_SUBSCRIPTION_LIST_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                  <DigestsBrowseSubscriptionListOnlyEmptyPartialHonesty />
+                </div>
+              }
+            />
           ) : setupChecklist !== null ? (
             <>
               <DigestsBrowseSetupChecklist items={setupChecklist} />
               <DigestsBrowseSetupEmptyPartialHonesty />
+              {subscriptionListOnlyEmpty ? (
+                <div className="space-y-2" data-testid="digests-browse-subscription-list-only-empty">
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    {DIGESTS_BROWSE_SUBSCRIPTION_LIST_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                  <DigestsBrowseSubscriptionListOnlyEmptyPartialHonesty />
+                </div>
+              ) : null}
             </>
           ) : (
             <EnterpriseCompactEmptyState
