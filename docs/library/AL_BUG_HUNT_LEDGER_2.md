@@ -24387,9 +24387,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (superseded) pass-**242** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #255:** see hunt **#255** header and pass **#255** reseed.
 ## Zone: api-request-null-collection-elements
 
-**Hunts:** 22 · **Bugs found:** 12 · **Consecutive dry hunts:** 1
+**Hunts:** 24 · **Bugs found:** 12 · **Consecutive dry hunts:** 2
 
+2026-11-19 seed hunt (seed-only #256): no rotation (`shouldRotate: false`). The picker `seedHunt` flag was true because the pass-**255** candidate rows sat in a `## Zone:` block that does not contain `- **id:**`, so they were not loaded. Reread the filter, guard, and catalog. No row met the hunt-ready bar. `OperationalSecurityFindingIngestRequestItem` still has only `Metadata` as a collection. No `[FromBody]` action takes two body parameters. No cataloged dictionary-of-collection, `ImmutableArray<T>`, non-generic `IEnumerable`, or `List<KeyValuePair<string, string?>>` property. `JsonElement` saved-view filters are reflected (not a leaf) and only expose `ValueKind`. Seeded five `(candidate)` rows in this id-bearing section. Scoped filter **41/41** on this tree in hunt **#255** (`RunAnalyzers=false`, Release); no production change. Private beta: n/a.
 
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.IsLeafType` — `JsonElement` saved-view `Filters` is reflected instead of treated as a leaf — locus: `IsLeafType`; input: create saved view whose `filters` document is a JSON object (monitor **#256**).
+- [ ] (candidate) `ApiRequestNullCollectionProbeFactory.TryCreateWithNullCollectionElement` — `[FromBody]` types with no public parameterless constructor are omitted from the architecture probe — locus: `GetConstructor(Type.EmptyTypes)`; input: primary-constructor request record (monitor **#256**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — nested enumerable element skipped when nullability has no element type and no generic arguments — locus: nested-collection branch ~258–271; input: non-generic `IEnumerable` property whose elements are lists (monitor **#256**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — dictionary value whose runtime type is a collection is passed to `VisitObject` — locus: `VisitObject(entryValue)`; input: cataloged dictionary whose value type implements `IEnumerable` and is not `string` or `byte[]` (monitor **#256**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.AllowsNullElements` — any nullable generic argument allows null elements — locus: `GenericTypeArguments` loop; input: `List<KeyValuePair<string, string?>>` body property if one is cataloged (monitor **#256**).
 2026-11-18 thorough hunt (hit #242): no rotation (`shouldRotate: false`). Failing repro on seed **#137** monitor plus rediscovered hit **#66** regression — shared static `NullabilityInfoContext` threw `ArgumentException` when overlapping `[FromBody]` guard walks hit different members concurrently (`ContainsNullCollectionElement_rejects_null_elements_when_calls_overlap`); restored thread-local context on `ApiRequestNullCollectionElementsGuard` and `ApiRequestBodyTypeCatalog`. Cheap-disproof closed two open `(candidate)` rows seeded at **#137** — **valid-no-repro** null `OperationalSecurityFindingIngestRequestItem.Metadata` dictionary rejected (`ContainsNullCollectionElement_returns_true_for_null_metadata_dictionary_on_operational_security_ingest_item`); **valid-no-repro** nullable dictionary values in ingest `Metadata` allowed (`ContainsNullCollectionElement_allows_null_dictionary_values_on_operational_security_ingest_item_metadata`; parity existing nullable-value test). Seeded five follow-on `(candidate)` monitor rows; scoped **41/41** picker filter tests (`RunAnalyzers=false`). Private beta: Concurrent JSON body requests no longer fail with HTTP 500 from the collection-null filter; bodies are validated and `metadata: null` on findings ingest is rejected as intended.
 
 - [x] (proven) `ApiRequestNullCollectionElementsGuard` — shared `NullabilityInfoContext` throws when overlapping requests read collection nullability — **hit 2026-11-18 thorough hunt #242:** thread-local context restored (re-hit **#66**); regression `ContainsNullCollectionElement_rejects_null_elements_when_calls_overlap`.
@@ -24604,10 +24610,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 22
+- **hunts:** 24
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-08
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-11-19
 - **last-bug:** 2026-11-08 — shared nullability context threw when overlapping body checks ran
 - **related-pd-tb:** none
 - **code-changed-since:** no
