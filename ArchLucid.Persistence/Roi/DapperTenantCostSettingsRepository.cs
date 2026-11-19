@@ -38,7 +38,7 @@ public sealed class DapperTenantCostSettingsRepository(ISqlConnectionFactory con
         ArgumentNullException.ThrowIfNull(record);
 
         const string sql = """
-                           MERGE dbo.TenantCostSettings AS target
+                           MERGE dbo.TenantCostSettings WITH (HOLDLOCK) AS target
                            USING (SELECT @TenantId AS TenantId) AS source
                            ON target.TenantId = source.TenantId
                            WHEN MATCHED THEN
