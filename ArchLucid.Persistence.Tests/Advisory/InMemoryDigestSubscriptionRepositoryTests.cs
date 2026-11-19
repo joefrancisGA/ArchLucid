@@ -39,6 +39,21 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
     }
 
     [SkippableFact]
+    public async Task Duplicate_create_keeps_one_enabled_subscription()
+    {
+        InMemoryDigestSubscriptionRepository repo = new();
+        Guid id = Guid.NewGuid();
+        await repo.CreateAsync(Build(id, "original", true, BaseUtc), CancellationToken.None);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            repo.CreateAsync(Build(id, "duplicate", true, BaseUtc.AddMinutes(1)), CancellationToken.None));
+
+        IReadOnlyList<DigestSubscription> enabled =
+            await repo.ListEnabledByScopeAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None);
+        enabled.Should().ContainSingle().Which.Destination.Should().Be("original");
+    }
+
+    [SkippableFact]
     public async Task UpdateAsync_replaces_existing_by_SubscriptionId()
     {
         InMemoryDigestSubscriptionRepository repo = new();
