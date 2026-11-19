@@ -24368,6 +24368,25 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
+**Hunts:** 23 · **Bugs found:** 12 · **Consecutive dry hunts:** 2
+
+2026-11-19 thorough hunt (dry #255): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five open `(candidate)` rows from hunt **#242**. **invalid** null nested collection on `OperationalSecurityFindingIngestRequestItem` beyond `Metadata` (the item type has no other collection property). **valid-no-repro** concurrent catalog nullability walks (`ApiRequestBodyTypeCatalog` and the guard each keep a thread-local `NullabilityInfoContext`; regression `ContainsNullCollectionElement_rejects_null_elements_when_calls_overlap`). **valid-no-repro** empty findings `items` array (the filter still walks the list; an empty enumerator has no null element). **invalid** dictionary-of-lists on a cataloged `[FromBody]` DTO (no such property under `ArchLucid.Api`). **invalid** `ImmutableArray<T>` list property (no cataloged immutable-array body property; `VisitCollection` already walks `IEnumerable`). Reseeded five pass-**255** `(candidate)` rows on different mechanisms. Scoped filter **41/41** (`RunAnalyzers=false`, Release). No production change this pass. Private beta: n/a.
+
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitObject` — null nested collection inside ingest item beyond `Metadata` — **cheap-disproof 2026-11-19 thorough hunt #255:** only `Metadata` is a collection on the ingest item.
+- [x] (valid-no-repro) `ApiRequestBodyTypeCatalog.CollectionPropertyAllowsNull` — concurrent catalog walks during startup plus live guard — **cheap-disproof 2026-11-19 thorough hunt #255:** thread-local nullability context; regression above.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — ingest item with empty `items` array skips element walk — **cheap-disproof 2026-11-19 thorough hunt #255:** empty list is walked and accepted.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — dictionary-of-lists property on cataloged DTO — **cheap-disproof 2026-11-19 thorough hunt #255:** no cataloged dictionary-of-collection body property.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ImmutableArray<T>` element null in list property — **cheap-disproof 2026-11-19 thorough hunt #255:** no cataloged immutable-array body property.
+
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.IsLeafType` — `JsonElement` saved-view `Filters` is reflected instead of treated as a leaf — locus: `IsLeafType`; input: create saved view whose `filters` document is a JSON object (monitor **#255**).
+- [ ] (candidate) `ApiRequestNullCollectionProbeFactory.TryCreateWithNullCollectionElement` — `[FromBody]` types with no public parameterless constructor are omitted from the architecture probe — locus: `GetConstructor(Type.EmptyTypes)`; input: primary-constructor request record (monitor **#255**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — nested enumerable element skipped when nullability has no element type and no generic arguments — locus: nested-collection branch ~258–271; input: non-generic `IEnumerable` property whose elements are lists (monitor **#255**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — first invalid `[FromBody]` returns before a second body parameter is checked — locus: return after `context.Result`; input: action with two body parameters (monitor **#255**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.AllowsNullElements` — any nullable generic argument allows null elements — locus: `GenericTypeArguments` loop; input: `List<KeyValuePair<string, string?>>` body property if one is cataloged (monitor **#255**).
+
+- [x] (superseded) pass-**242** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #255:** see hunt **#255** header and pass **#255** reseed.
+## Zone: api-request-null-collection-elements
+
 **Hunts:** 22 · **Bugs found:** 12 · **Consecutive dry hunts:** 1
 
 
@@ -24377,11 +24396,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.VisitObject` — null `Metadata` dictionary on a list element — **cheap-disproof 2026-11-18 thorough hunt #242:** regression above; seed **#137**.
 - [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.DictionaryValueAllowsNull` — null value in `Metadata` (`Dictionary<string, string?>`) rejected — **cheap-disproof 2026-11-18 thorough hunt #242:** nullable value type allows null; regression above; seed **#137**.
 
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitObject` — null nested collection inside ingest item beyond `Metadata` — locus: element walk; input: future optional list property on `OperationalSecurityFindingIngestRequestItem` (monitor seed **#242**).
-- [ ] (candidate) `ApiRequestBodyTypeCatalog.CollectionPropertyAllowsNull` — concurrent catalog walks during startup plus live guard — locus: shared nullability context; input: parallel architecture test plus request (monitor seed **#242** / re-hit **#66**).
-- [ ] (candidate) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — ingest item with empty `items` array skips element walk — locus: empty collection; input: `{ "items": [] }` (monitor seed **#242**).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — dictionary-of-lists property on cataloged DTO — locus: KVP value walk; input: when catalog gains dictionary-of-collection body property (monitor seed **#242** / seed-only **#137**).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ImmutableArray<T>` element null in list property — locus: enumerable detection; input: catalog adds immutable collection DTO property (monitor seed **#242**).
+- [x] (superseded) `ApiRequestNullCollectionElementsGuard.VisitObject` — null nested collection inside ingest item beyond `Metadata` — locus: element walk; input: future optional list property on `OperationalSecurityFindingIngestRequestItem` (monitor seed **#242**). **Closed 2026-11-19 thorough hunt #255.**
+- [x] (superseded) `ApiRequestBodyTypeCatalog.CollectionPropertyAllowsNull` — concurrent catalog walks during startup plus live guard — locus: shared nullability context; input: parallel architecture test plus request (monitor seed **#242** / re-hit **#66**). **Closed 2026-11-19 thorough hunt #255.**
+- [x] (superseded) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — ingest item with empty `items` array skips element walk — locus: empty collection; input: `{ "items": [] }` (monitor seed **#242**). **Closed 2026-11-19 thorough hunt #255.**
+- [x] (superseded) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — dictionary-of-lists property on cataloged DTO — locus: KVP value walk; input: when catalog gains dictionary-of-collection body property (monitor seed **#242** / seed-only **#137**). **Closed 2026-11-19 thorough hunt #255.**
+- [x] (superseded) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ImmutableArray<T>` element null in list property — locus: enumerable detection; input: catalog adds immutable collection DTO property (monitor seed **#242**). **Closed 2026-11-19 thorough hunt #255.**
 2026-11-08 seed hunt (seed-only): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hypothesis list was empty after dry **#67**. Reread the filter, guard, and catalog. Did not reseed the three rows closed in **#67** (opaque `JsonElement` saved-view filters, coalesced `constraints` null, `[ApiController]` null body). No `[FromBody]` dictionary-of-collections, `JsonObject`, or positional request record turned up. One reachable shape is not in the architecture catalog because `EnumerateCollectionPropertyPaths` stops at a collection and does not enter the element type: `OperationalSecurityFindingIngestRequest.Items` (`POST` findings ingest) contains `OperationalSecurityFindingIngestRequestItem.Metadata` (`Dictionary<string, string?>`, init-only, no coalesce). No row was promoted. Private beta: n/a.
 
 
