@@ -2842,7 +2842,30 @@ public sealed class TenantCatalogMigrationOrchestratorTests
                     AuthorizationBoundaryVerified = true,
                 });
         return verificationMock.Object;
+    }    [Fact]
+    public async Task CompleteAsync_returns_wrong_stage_when_stage_still_catalog_attach_detach()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 11, 19, 12, 0, 0, TimeSpan.Zero));
+        TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(migrations);
+
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = Guid.NewGuid(),
+                TenantId = TenantId,
+                CorrelationId = "corr-catalog-attach-only",
+                Stage = TenantCatalogMigrationStage.CatalogAttachDetach,
+                StartedUtc = clock.GetUtcNow().AddHours(-1),
+            },
+            CancellationToken.None);
+
+        TenantCatalogMigrationCommandOutcome outcome =
+            await sut.CompleteAsync(TenantId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.WrongStage, outcome);
     }
+
 
 
     [Fact]
