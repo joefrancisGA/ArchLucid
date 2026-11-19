@@ -760,7 +760,7 @@
 - **test-filter:** SignupForm
 - **hunts:** 106
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 00
+- **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
@@ -3207,7 +3207,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 64
+- **hunts:** 65
 - **bugs-found:** 36
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-29
@@ -3292,7 +3292,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** WebhooksSettings
 - **hunts:** 54
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
 - **related-pd-tb:** none
@@ -7740,7 +7740,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** oidc-authority|oidc
 - **hunts:** 105
 - **bugs-found:** 74
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-17
 - **last-bug:** 2026-11-03 — token POST left non-trim C0 on authorization code and PKCE verifier
 - **related-pd-tb:** none
@@ -11066,7 +11066,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** lib/operator
 - **hunts:** 40
 - **bugs-found:** 40
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-17
 - **last-bug:** 2026-11-17 — optional artifact/manifest scalar trim gaps in response guards
 - **related-pd-tb:** none
@@ -12217,7 +12217,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - **impact:** high
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-11-17 — stale guided prior-package filenames and job-chooser disclosure URL keys after path return
 - **code-changed-since:** no
 
@@ -12530,6 +12530,22 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-11-19 thorough hunt #512 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**36** `(candidate)` rows from hunt **#511** reseed — **invalid** `governanceFindingsRunScopedSavedViewHref` retaining `removePresetId` (saved-view href rebuilds from filter payload; `onLoadFindingsSavedView` full-replaces URL), **valid-no-repro** `governanceFindingsShowAllFilteredFindingsHref` retaining `removePresetId` (delegates to clear-all helper fixed hunt **#511**), **valid-no-repro** `governanceFindingsClearAllFiltersHref` retaining `focusedFinding` (triage cursor independent of register/facet clears; hunt **#510** / **#507**), **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `focusedFinding` with register filters preserved (intentional triage cursor; hunt **#510**), **valid-no-repro** `governanceAssignedToMePresetRemoveConfirmHrefFromSearch` assigned-to-me preset remove parity (`buildOperatorHrefFromSearch` arms `removePresetId` after queue-navigation hygiene; wave33 regressions). Scoped vitest **156/156** on governance findings URL/client/hook tests. Reseeded five pass-**37** `(candidate)` rows below. Private beta: n/a.
+
+- [x] (invalid) `governanceFindingsRunScopedSavedViewHref` — may retain `removePresetId` when loading run-scoped saved view — **invalid 2026-11-19 thorough hunt #512:** full-replace saved-view href contract; hunt **#509** class.
+- [x] (valid-no-repro) `governanceFindingsShowAllFilteredFindingsHref` — may retain `removePresetId` when expanding filtered rows — **valid-no-repro 2026-11-19 thorough hunt #512:** show-all calls clear-all helper; hunt **#511**.
+- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — may retain `focusedFinding` when clearing register/facet filters — **valid-no-repro 2026-11-19 thorough hunt #512:** triage cursor not a filter param; hunt **#510**.
+- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when switching `runId` with register filters preserved — **valid-no-repro 2026-11-19 thorough hunt #512:** intentional cursor retention; hunt **#510**.
+- [x] (valid-no-repro) `governanceAssignedToMePresetRemoveConfirmHrefFromSearch` — may fail to arm remove confirm on assigned-to-me path parity — **valid-no-repro 2026-11-19 thorough hunt #512:** shared `buildOperatorHrefFromSearch` arm path; wave33 expectation.
+
+- [ ] (candidate) `governanceFindingsWorkspaceSavedViewHref` — may retain `removePresetId` when loading workspace saved view — locus: workspace saved-view href; input: armed preset remove + load workspace saved view; monitor; pass 37 reseed.
+- [ ] (candidate) `GovernanceFindingsFilterBar` — preset remove confirm may fail to sync on assigned-to-me route pathname — locus: FilterBar `syncRemovePresetToUrl`; input: assigned-to-me pathname + arm remove; monitor; pass 37 reseed.
+- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — locus: clear-review-scope helper; input: triage deep link + clear review scope; monitor; pass 37 reseed.
+- [ ] (candidate) `governanceFindingsShowAllFilteredFindingsHref` — may retain `focusedFinding` when expanding filtered rows — locus: show-all helper; input: `focusedFinding` + show all filtered; monitor; pass 37 reseed.
+- [ ] (candidate) `useGovernanceFindingTriageWithCursor` — register filter chip may leave URL `focusedFinding` on filtered-out row — locus: cursor strip vs register chip; input: open triage + narrow register filter; monitor; pass 37 reseed.
+
+- [x] (superseded) pass-**36** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #512:** see hunt **#512** header and pass **#37** reseed.
+
 2026-11-18 thorough hunt #511 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**35** `(candidate)` rows — **proven** `removePresetId` survived clear-all, clear-review-scope, pick-review, and register-filter chip navigation (hunt **#506**–**#508** confirm-param hygiene class); **valid-no-repro** `governanceFindingsWorkspaceSavedViewHref` retaining `hideGeneric` (saved-view href rebuilt from filter payload only). Shared `stripGovernanceFindingsPresetRemoveConfirmParams` on queue navigation helpers; register-filter + clear-all via selection switch. Regressions on clear-all, clear-review-scope, pick-review, register-filter URL helpers; scoped vitest **32/32** on governance findings URL/client/hook tests. Reseeded five pass-**36** `(candidate)` rows below. Private beta: Invited operators clearing filters, changing register chips, clearing review scope, or picking another review on the governance findings queue no longer keep a stale saved-filter preset removal dialog armed in the URL.
 
 - [x] (proven) `governanceFindingsClearAllFiltersHref` — may retain `removePresetId` when clearing register/facet filters — **hit 2026-11-18 thorough hunt #511:** strip on queue-navigation switch; regression `clears armed preset-remove confirm when clearing filters`.
@@ -12641,10 +12657,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 64
+- **hunts:** 65
 - **bugs-found:** 43
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-18
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-19
 - **last-bug:** 2026-11-18 — queue navigation left armed preset-remove confirm URLs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -18687,7 +18703,7 @@ ABQ-09 churn hotspot.
 - **test-filter:** InfraEvidence
 - **hunts:** 21
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-17
 - **last-bug:** 2026-11-01 — completeness warnings lingered after snapshot URL change
 - **related-pd-tb:** none
