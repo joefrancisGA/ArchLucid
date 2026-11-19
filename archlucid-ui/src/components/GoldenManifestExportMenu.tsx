@@ -359,6 +359,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         </Button>
         <ExportFormatWhenToUseHint format="markdown" />
         {sponsorExportBlocked ? (
+          <>
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="golden-manifest-export-disabled-while-blocked"
@@ -371,6 +372,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           >
             {GOLDEN_MANIFEST_EXPORT_DISABLED_AND_FINALIZE_LINE}
           </p>
+          </>
         ) : null}
         <SponsorExportSendHonestyStrip testIdPrefix="golden-manifest-export" />
         {exportDemoBanner}
@@ -446,6 +448,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       </SelectContent>
     </Select>
       {sponsorExportBlocked ? (
+          <>
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="golden-manifest-export-disabled-while-blocked-select"
@@ -458,6 +461,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           >
             {GOLDEN_MANIFEST_EXPORT_DISABLED_AND_FINALIZE_LINE}
         </p>
+          </>
       ) : null}
       <SponsorExportSendHonestyStrip testIdPrefix="golden-manifest-export" />
       {exportDemoBanner}

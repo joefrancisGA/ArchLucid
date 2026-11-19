@@ -100,7 +100,7 @@ class DetectCiPathLanesTests(unittest.TestCase):
         match = re.search(r"(?m)^  push:\n    branches: \[([^\]]+)\]$", workflow)
         self.assertIsNotNone(match)
         branches = {branch.strip() for branch in match.group(1).split(",")}
-        self.assertEqual({"RC43", "RC44", "RC46", "RC47"}, branches)
+        self.assertEqual({"RC43", "RC44", "RC46", "RC47", "RC48"}, branches)
         self.assertTrue({"RC45"}.isdisjoint(branches))  # RC45 retains separate repair workflow.
 
         # Full-CI release pushes use separate groups; RC45 uses repair checks.
@@ -109,6 +109,7 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertIn("github.ref == 'refs/heads/RC44'", concurrency)
         self.assertIn("github.ref == 'refs/heads/RC46'", concurrency)
         self.assertIn("github.ref == 'refs/heads/RC47'", concurrency)
+        self.assertIn("github.ref == 'refs/heads/RC48'", concurrency)
         self.assertIn("format('rc-push-{0}', github.ref)", concurrency)
         self.assertIn("(github.event.pull_request.number || github.ref)", concurrency)
         self.assertNotIn("github.sha", concurrency)
@@ -117,7 +118,7 @@ class DetectCiPathLanesTests(unittest.TestCase):
             "cancel-in-progress: ${{ github.event_name != 'merge_group' "
             "&& !(github.event_name == 'push' && "
             "(github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || github.ref == 'refs/heads/RC46' "
-            "|| github.ref == 'refs/heads/RC47')) }}",
+            "|| github.ref == 'refs/heads/RC47' || github.ref == 'refs/heads/RC48')) }}",
             concurrency,
         )
 
