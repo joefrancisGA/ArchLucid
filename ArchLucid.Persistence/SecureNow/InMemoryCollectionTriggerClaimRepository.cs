@@ -76,6 +76,7 @@ public sealed class InMemoryCollectionTriggerClaimRepository(ICollectionRunRepos
             return false;
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
         return _claims.TryUpdate(key, claim with { State = 1 }, claim);
     }
 
