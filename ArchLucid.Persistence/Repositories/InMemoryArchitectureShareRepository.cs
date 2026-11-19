@@ -14,7 +14,7 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         List<ArchitectureShareRecord> shares = _byKey.Values
             .Where(record => record.ArchitectureId == architectureId)
@@ -33,7 +33,7 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(actorOid);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!_byKey.TryGetValue((architectureId, actorOid.Trim()), out ArchitectureShareRecord? record))
             return Task.FromResult<ArchitectureShareRecord?>(null);
@@ -48,7 +48,7 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(record);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         _byKey[(record.ArchitectureId, record.ActorOid.Trim())] = Clone(record);
 
@@ -63,7 +63,7 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(actorOid);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult(_byKey.Remove((architectureId, actorOid.Trim())));
     }
@@ -74,7 +74,7 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         int count = _byKey.Values.Count(record => record.ArchitectureId == architectureId);
 
