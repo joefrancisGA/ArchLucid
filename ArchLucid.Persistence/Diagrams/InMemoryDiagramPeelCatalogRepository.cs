@@ -12,6 +12,8 @@ public sealed class InMemoryDiagramPeelCatalogRepository : IDiagramPeelCatalogRe
 
     public Task<int> CountAsync(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         lock (gate)
         {
             return Task.FromResult(rows.Count);
@@ -20,6 +22,8 @@ public sealed class InMemoryDiagramPeelCatalogRepository : IDiagramPeelCatalogRe
 
     public Task<int> GetCatalogVersionAsync(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         lock (gate)
         {
             return Task.FromResult(catalogVersion);
@@ -28,6 +32,8 @@ public sealed class InMemoryDiagramPeelCatalogRepository : IDiagramPeelCatalogRe
 
     public Task<IReadOnlyList<DiagramPeelCatalogEntry>> ListEntriesAsync(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         lock (gate)
         {
             return Task.FromResult<IReadOnlyList<DiagramPeelCatalogEntry>>(
@@ -40,6 +46,8 @@ public sealed class InMemoryDiagramPeelCatalogRepository : IDiagramPeelCatalogRe
 
     public Task UpsertEntryAsync(DiagramPeelCatalogEntry entry, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(entry);
 
         lock (gate)
