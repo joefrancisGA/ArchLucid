@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-19 - Score lift round 85 (batch 50): Compare pickers, deliverables buttons, operational stream, scope plus severity
+
+**Outcome.** Compare run pickers name an unsealed updated review and empty correlation apart from seal and filter miss. Blocked deliverable export buttons repeat finalize and partial capture. Resource hub operational-security stream empty is distinct from architecture severity teaching. Findings queue names architecture scope chip plus severity facet combined filter-empty.
+
+**Surfaces.** Compare pickers, review deliverables exports, resource hub findings, governance findings filter footer, honesty and mounted contract tests.
+
 ## 2026-11-19 - Score lift round 84 (batch 49): Compare second seal, deliverables finalize, architecture stream empty
 
 **Outcome.** Compare correlation empty names that state apart from a second sealed review and a failed correlation read. Blocked deliverable export names finalize together with partial capture. Resource hub architecture-review stream empty is not a severity filter and not a failed findings read.
