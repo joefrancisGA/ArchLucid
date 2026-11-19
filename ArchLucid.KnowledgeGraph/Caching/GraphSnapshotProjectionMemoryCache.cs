@@ -29,6 +29,7 @@ public sealed class GraphSnapshotProjectionMemoryCache(
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(loadFromStore);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!_optionsMonitor.CurrentValue.Enabled)
             return await loadFromStore(cancellationToken);

@@ -14,10 +14,12 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
     public Task InsertAsync(UsageEvent usageEvent, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(usageEvent);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_writeGate)
         {
+            ct.ThrowIfCancellationRequested();
+
             if (UsageEventRepositoryCore.IsDuplicateIdempotencyKey(_events, usageEvent))
                 return Task.CompletedTask;
 
@@ -30,10 +32,12 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
     public Task InsertBatchAsync(IReadOnlyList<UsageEvent> events, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(events);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_writeGate)
         {
+            ct.ThrowIfCancellationRequested();
+
             foreach (UsageEvent usageEvent in events)
             {
                 if (UsageEventRepositoryCore.IsDuplicateIdempotencyKey(_events, usageEvent))
@@ -52,7 +56,7 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
         DateTimeOffset periodEnd,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         IReadOnlyList<TenantUsageSummary> summaries =
             UsageEventRepositoryCore.AggregateByKind(_events, tenantId, periodStart, periodEnd);
@@ -68,7 +72,7 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
         int take,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         IReadOnlyList<UsageEvent> list = UsageEventRepositoryCore.ListInPeriod(
             _events,

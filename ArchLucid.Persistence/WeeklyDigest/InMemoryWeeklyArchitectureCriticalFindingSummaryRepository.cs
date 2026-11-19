@@ -10,6 +10,7 @@ public sealed class InMemoryWeeklyArchitectureCriticalFindingSummaryRepository :
         int maxSampleRows,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         _ = cutoffUtc;
         _ = criticalSeverityLiteral;
         _ = maxSampleRows;

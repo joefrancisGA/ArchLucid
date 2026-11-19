@@ -20,6 +20,9 @@ public sealed class InMemoryConversationMessageRepository : IConversationMessage
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_messages.Any(existing => existing.MessageId == message.MessageId))
+                throw new InvalidOperationException($"Conversation message '{message.MessageId}' already exists.");
+
             _messages.Add(message);
             if (_messages.Count > MaxEntries)
                 _messages.RemoveRange(0, _messages.Count - MaxEntries);

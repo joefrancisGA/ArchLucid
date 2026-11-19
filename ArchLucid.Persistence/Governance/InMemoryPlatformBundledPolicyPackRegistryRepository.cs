@@ -14,11 +14,21 @@ public sealed class InMemoryPlatformBundledPolicyPackRegistryRepository : IPlatf
 
     public Task<IReadOnlyList<PlatformBundledPolicyPackRegistryEntry>> ListAllAsync(CancellationToken ct)
     {
-        IReadOnlyList<PlatformBundledPolicyPackRegistryEntry> rows = _rows.Values
-            .OrderBy(static row => row.DisplayName, StringComparer.Ordinal)
-            .ToList();
+        lock (_writeGate)
+        {
+            IReadOnlyList<PlatformBundledPolicyPackRegistryEntry> rows = _rows.Values
+                .OrderBy(static row => row.DisplayName, StringComparer.Ordinal)
+                .Select(static row => new PlatformBundledPolicyPackRegistryEntry
+                {
+                    BundleContentFile = row.BundleContentFile,
+                    DisplayName = row.DisplayName,
+                    IsGloballyActive = row.IsGloballyActive,
+                    UpdatedUtc = row.UpdatedUtc,
+                })
+                .ToList();
 
-        return Task.FromResult(rows);
+            return Task.FromResult(rows);
+        }
     }
 
     public Task UpsertAsync(PlatformBundledPolicyPackRegistryEntry entry, CancellationToken ct)

@@ -17,6 +17,9 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_items.Exists(item => item.AlertId == alert.AlertId))
+                throw new InvalidOperationException("An alert record with this ID already exists.");
+
             _items.Add(Copy(alert));
             AlertRecordRepositoryCore.TrimInMemoryEntries(_items);
         }

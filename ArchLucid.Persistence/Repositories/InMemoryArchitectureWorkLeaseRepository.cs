@@ -14,7 +14,7 @@ public sealed class InMemoryArchitectureWorkLeaseRepository : IArchitectureWorkL
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
         {
@@ -41,7 +41,7 @@ public sealed class InMemoryArchitectureWorkLeaseRepository : IArchitectureWorkL
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(record);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
         {
@@ -58,7 +58,7 @@ public sealed class InMemoryArchitectureWorkLeaseRepository : IArchitectureWorkL
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
         {

@@ -40,17 +40,17 @@ public sealed class InMemoryRunStageOutcomesRepository : IRunStageOutcomesReposi
         _ = connection;
         _ = transaction;
 
-        if (_rows.TryGetValue((runId, stageName), out StoredRow? existing))
+        var key = (runId, stageName);
+        while (_rows.TryGetValue(key, out StoredRow? existing))
         {
-            _rows[(runId, stageName)] = existing with
+            StoredRow updated = existing with
             {
                 CompletedUtc = completedUtc,
                 OutcomeStatus = outcomeStatus,
             };
-        }
-        else
-        {
-            _rows[(runId, stageName)] = new StoredRow(stageName, completedUtc, completedUtc, outcomeStatus);
+
+            if (_rows.TryUpdate(key, updated, existing))
+                break;
         }
 
         return Task.CompletedTask;

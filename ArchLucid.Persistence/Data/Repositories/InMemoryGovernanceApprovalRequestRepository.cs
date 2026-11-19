@@ -31,8 +31,12 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         GovernanceApprovalRequest stored = Clone(item);
 
         lock (_gate)
+        {
+            if (_byId.ContainsKey(stored.ApprovalRequestId))
+                throw new InvalidOperationException($"The approval request '{stored.ApprovalRequestId}' already exists.");
 
-            _byId[stored.ApprovalRequestId] = stored;
+            _byId.Add(stored.ApprovalRequestId, stored);
+        }
 
         return Task.CompletedTask;
     }

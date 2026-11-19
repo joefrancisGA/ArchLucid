@@ -8,7 +8,7 @@ namespace ArchLucid.Persistence.Authorization;
 public sealed class InMemoryCustomRoleRepository : ICustomRoleRepository
 {
     private readonly ConcurrentDictionary<(Guid TenantId, Guid RoleId), CustomRoleRecord> _roles = new();
-    private readonly ConcurrentDictionary<(Guid UserId, Guid RoleId), UserCustomRoleAssignmentRecord> _assignments = new();
+    private readonly ConcurrentDictionary<(Guid TenantId, Guid UserId, Guid RoleId), UserCustomRoleAssignmentRecord> _assignments = new();
 
     public Task<IReadOnlyList<CustomRoleRecord>> ListByTenantAsync(Guid tenantId, CancellationToken cancellationToken)
     {
@@ -88,7 +88,9 @@ public sealed class InMemoryCustomRoleRepository : ICustomRoleRepository
 
         _roles.TryRemove((tenantId, roleId), out _);
 
-        foreach ((Guid UserId, Guid RoleId) key in _assignments.Keys.Where(k => k.RoleId == roleId).ToList())
+        foreach ((Guid TenantId, Guid UserId, Guid RoleId) key in _assignments.Keys
+                     .Where(k => k.TenantId == tenantId && k.RoleId == roleId)
+                     .ToList())
             _assignments.TryRemove(key, out _);
 
         return Task.CompletedTask;
@@ -100,7 +102,7 @@ public sealed class InMemoryCustomRoleRepository : ICustomRoleRepository
         CancellationToken cancellationToken)
     {
         IReadOnlyList<CustomRoleAssignmentWithRole> rows = _assignments.Values
-            .Where(a => a.UserId == userId)
+            .Where(a => a.TenantId == tenantId && a.UserId == userId)
             .Select(a =>
             {
                 _roles.TryGetValue((tenantId, a.CustomRoleId), out CustomRoleRecord? role);
@@ -120,14 +122,14 @@ public sealed class InMemoryCustomRoleRepository : ICustomRoleRepository
     {
         ArgumentNullException.ThrowIfNull(assignment);
 
-        _assignments[(assignment.UserId, assignment.CustomRoleId)] = assignment;
+        _assignments[(assignment.TenantId, assignment.UserId, assignment.CustomRoleId)] = assignment;
 
         return Task.CompletedTask;
     }
 
     public Task RemoveAssignmentAsync(Guid tenantId, Guid userId, Guid customRoleId, CancellationToken cancellationToken)
     {
-        _assignments.TryRemove((userId, customRoleId), out _);
+        _assignments.TryRemove((tenantId, userId, customRoleId), out _);
 
         return Task.CompletedTask;
     }

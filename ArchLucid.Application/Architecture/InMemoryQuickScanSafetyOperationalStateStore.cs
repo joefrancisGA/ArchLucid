@@ -13,6 +13,8 @@ public sealed class InMemoryQuickScanSafetyOperationalStateStore : IQuickScanSaf
     /// <inheritdoc />
     public Task<QuickScanSafetyOperationalOverrideRow?> GetOverrideAsync(CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         lock (_sync)
         {
             return Task.FromResult(_override);
@@ -25,6 +27,8 @@ public sealed class InMemoryQuickScanSafetyOperationalStateStore : IQuickScanSaf
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         lock (_sync)
         {

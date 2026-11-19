@@ -52,6 +52,7 @@ import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-l
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { GOVERNANCE_FINDINGS_EMPTY_COLLECTION_BLOCKER_PREFACE_LINE } from "@/lib/governance/governance-findings-empty-collection-blocker-preface-copy";
 import { GOVERNANCE_ASSIGNED_TO_ME_EMPTY_COLLECTION_BLOCKER_PREFACE_LINE } from "@/lib/governance/governance-assigned-to-me-empty-collection-blocker-preface-copy";
 import { cn } from "@/lib/utils";
 import { SECURENOW_FINDINGS_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/product-line/securenow-findings-empty-partial-capture-copy";
@@ -283,6 +284,14 @@ export function GovernanceFindingsQueueOutcomeSection(
               ) : secureNowEmptyState !== null ? (
                 <div className="space-y-3">
                   {findingsEmptyPartialCaptureStrip}
+                  {secureNowCollectionMissing ? (
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="governance-findings-empty-collection-blocker-preface"
+                    >
+                      {GOVERNANCE_FINDINGS_EMPTY_COLLECTION_BLOCKER_PREFACE_LINE}
+                    </p>
+                  ) : null}
                   {secureNowCollectionMissing && collectionInput !== null ? (
                     <SecureNowCollectionPrimaryBlockerLine
                       input={collectionInput}

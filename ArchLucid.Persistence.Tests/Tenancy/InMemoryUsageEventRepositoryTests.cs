@@ -101,6 +101,24 @@ public sealed class InMemoryUsageEventRepositoryTests
         filtered[0].Kind.Should().Be(UsageMeterKind.AgentExecution);
     }
 
+    [Fact]
+    public async Task Canceled_writes_leave_usage_totals_unchanged()
+    {
+        InMemoryUsageEventRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        UsageEvent usage = NewEvent(tenantId, UsageMeterKind.ApiRequest, 1, recordedUtc: now);
+        CancellationToken canceled = new(canceled: true);
+
+        Func<Task> insert = async () => await repository.InsertAsync(usage, canceled);
+        Func<Task> batch = async () => await repository.InsertBatchAsync([usage], canceled);
+
+        await insert.Should().ThrowAsync<OperationCanceledException>();
+        await batch.Should().ThrowAsync<OperationCanceledException>();
+        (await repository.AggregateByKindAsync(tenantId, now.AddMinutes(-1), now.AddMinutes(1), CancellationToken.None))
+            .Should().BeEmpty();
+    }
+
     private static UsageEvent NewEvent(
         Guid tenantId,
         UsageMeterKind kind,

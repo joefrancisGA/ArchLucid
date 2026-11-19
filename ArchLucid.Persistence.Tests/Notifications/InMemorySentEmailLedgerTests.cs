@@ -34,14 +34,29 @@ public sealed class InMemorySentEmailLedgerTests
     public async Task TryRecordSentAsync_trims_key()
     {
         InMemorySentEmailLedger sut = new();
-        SentEmailLedgerEntry a = new("  abc  ", Guid.NewGuid(), "t", "p", null);
-        SentEmailLedgerEntry b = new("abc", Guid.NewGuid(), "t", "p", null);
+        Guid tenantId = Guid.NewGuid();
+        SentEmailLedgerEntry a = new("  abc  ", tenantId, "t", "p", null);
+        SentEmailLedgerEntry b = new("abc", tenantId, "t", "p", null);
 
         await sut.TryRecordSentAsync(a, CancellationToken.None);
         bool dup = await sut.TryRecordSentAsync(b, CancellationToken.None);
 
         dup.Should().BeFalse();
     }
+    [SkippableFact]
+    public async Task TryRecordSentAsync_allows_same_key_for_different_tenants()
+    {
+        InMemorySentEmailLedger sut = new();
+        SentEmailLedgerEntry firstTenantEntry = new("shared-key", Guid.NewGuid(), "t", "p", null);
+        SentEmailLedgerEntry secondTenantEntry = new("shared-key", Guid.NewGuid(), "t", "p", null);
+
+        bool first = await sut.TryRecordSentAsync(firstTenantEntry, CancellationToken.None);
+        bool second = await sut.TryRecordSentAsync(secondTenantEntry, CancellationToken.None);
+
+        first.Should().BeTrue();
+        second.Should().BeTrue();
+    }
+
     [SkippableFact]
     public async Task IsRecordedAsync_only_returns_true_for_the_recorded_tenant()
     {

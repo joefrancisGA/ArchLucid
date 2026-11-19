@@ -16,6 +16,9 @@ public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_items.Exists(item => item.RuleId == rule.RuleId))
+                throw new InvalidOperationException("An alert rule with this ID already exists.");
+
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 

@@ -20,6 +20,7 @@ public sealed class InMemoryQuickScanIdentityAbuseStore : IQuickScanIdentityAbus
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+        cancellationToken.ThrowIfCancellationRequested();
 
         lock (_sync)
         {

@@ -7,6 +7,8 @@ public sealed partial class InMemoryProductLearningPlanningRepository
 {
     public Task InsertPlanAsync(ProductLearningImprovementPlanRecord plan, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPlanningRepositoryValidation.EnsurePlan(plan);
 
         string status = ProductLearningPlanningRepositoryValidation.NormalizePlanStatus(plan.Status);
@@ -61,6 +63,8 @@ public sealed partial class InMemoryProductLearningPlanningRepository
         ProductLearningScope scope,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
 
         ProductLearningImprovementPlanRecord? found = _plans.FirstOrDefault(p =>
@@ -77,6 +81,8 @@ public sealed partial class InMemoryProductLearningPlanningRepository
         int take,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
         ProductLearningPlanningRepositoryValidation.EnsureTake(take);
 
@@ -98,6 +104,8 @@ public sealed partial class InMemoryProductLearningPlanningRepository
         int take,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
         ProductLearningPlanningRepositoryValidation.EnsureTake(take);
 
@@ -137,6 +145,8 @@ public sealed partial class InMemoryProductLearningPlanningRepository
         int take,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
         ProductLearningPlanningRepositoryValidation.EnsureTake(take);
 

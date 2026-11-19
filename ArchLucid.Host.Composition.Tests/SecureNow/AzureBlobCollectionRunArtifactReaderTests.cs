@@ -106,11 +106,12 @@ public sealed class AzureBlobCollectionRunArtifactReaderTests
         CollectionRunManifest? manifest = AzureBlobCollectionRunArtifactReader.ParseManifestContent(
             BinaryData.FromString(
                 $$"""
-                  {"runId":"{{runId}}","startedUtc":"2026-01-01T12:00:00Z","schemaVersion":1,"status":"Succeeded"}
+                  {"runId":"{{runId}}","startedUtc":"2026-01-01T12:00:00Z","schemaVersion":1,"status":"Succeeded","schedule":"nightly"}
                   """));
 
         manifest.Should().NotBeNull();
         manifest!.SchemaVersion.Should().Be(1);
+        manifest.Schedule.Should().Be("nightly");
     }
 
     [Theory]

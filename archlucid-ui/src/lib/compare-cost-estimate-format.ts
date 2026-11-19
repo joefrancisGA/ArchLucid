@@ -28,7 +28,7 @@ export function formatCompareCostEstimateCell(value: unknown): CompareCostEstima
     };
   }
 
-  if (/^\d+([\.,]\d+)?$/.test(s.replace(/,/g, ""))) {
+  if (/^[+\-\u2212]?\d+([\.,]\d+)?$/.test(s.replace(/,/g, ""))) {
     return {
       display: "Unit not recorded",
       unitUnknown: true,
