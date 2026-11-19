@@ -100,6 +100,7 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     props.hasResultsToNavigate && citeBaselineRunId.trim().length > 0 && citeUpdatedRunId.trim().length > 0;
   const executionModeHonesty = resolveCompareExecutionModeHonesty(leftPickedSummary, rightPickedSummary);
   const showExecutionModeHonesty =
+    !showStaleInputsWarning &&
     props.hasResultsToNavigate &&
     citeBaselineRunId.trim().length > 0 &&
     citeUpdatedRunId.trim().length > 0 &&
@@ -128,13 +129,13 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     targetRunId: golden?.targetRunId ?? null,
   });
   const packAssignmentDeltaView = buildComparePackAssignmentDeltaView(governanceDiffState.view);
-  const executionModeDeltaView = buildCompareExecutionModeDeltaView(executionModeHonesty);
+  const trustExecutionModeHonesty = showStaleInputsWarning ? null : executionModeHonesty;
+  const executionModeDeltaView = buildCompareExecutionModeDeltaView(trustExecutionModeHonesty);
   const newFindingTrustLanes =
     golden !== null ? buildCompareNewFindingTrustLaneRows(findingCorrelationState.lifecycleRecords) : [];
   const usesCurrentEffectiveOnly = governanceDiffState.view?.usesCurrentEffectiveOnly === true;
   const hasAiNarrative = comparisonNarrative !== null || props.aiExplanation !== null;
   const showLoadedComparisonChrome = golden !== null;
-  const trustExecutionModeHonesty = showStaleInputsWarning ? null : executionModeHonesty;
   const showTrustBanner = showLoadedComparisonChrome;
   const showVerdictSummary = showLoadedComparisonChrome;
   const verdictSummary = golden !== null ? buildCompareVerdictSummary(golden) : null;
