@@ -9912,13 +9912,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-11-19 thorough hunt #532 (hit, round-robin): no rotation (`shouldRotate: false`). Promoted FAQ TOC category-only hash sync from hunt #531 — a deep link to an FAQ answer id left `aria-current` on the first category. `MarketingFaqPageToc` resolves answer ids to parent `categoryId` via `MARKETING_FAQ_ITEMS` and keeps the IO guard while the hash names a category or answer. Regression `highlights the parent category when the hash targets an FAQ answer id`. Cheap-disproof closed four monitors — privacy TOC `replaceState` matches scroll-sync contract; quick-scan disclosure URL sync is synchronous in tests; tier quote focus targets the section shell by design; showcase sign-in `returnUrl` already targets the review href (`ShowcaseQuickNav.test.tsx`). FAQ vitest 12/12. Private beta: Invited buyers who open a shared FAQ answer link hear the correct parent category in the sticky TOC instead of the default first category.
+
+- [x] (proven) `MarketingFaqPageToc` — FAQ answer deep link leaves wrong TOC `aria-current` — **hit 2026-11-19 thorough hunt #532:** map answer ids to parent categories on hashchange.
+- [x] (valid-no-repro) `PrivacyPolicyTableOfContents` — `replaceState` hash vs Back — **cheap-disproof 2026-11-19 thorough hunt #532:** scroll-driven hash replace is intentional; no failing Back repro.
+- [x] (valid-no-repro) `QuickScanWorkspaceSection` — privacy disclosure URL lags toggle — **cheap-disproof 2026-11-19 thorough hunt #532:** state and param sync in component; no reachable desync in scoped tests.
+- [x] (invalid) `MarketingTierPricingSection` — quote focus lands on section shell — **cheap-disproof 2026-11-19 thorough hunt #532:** `focusQuotePanel` scroll/focus contract is section-first; not a required-field focus defect.
+- [x] (valid-no-repro) `ShowcaseQuickNav` — sign-in return path — **cheap-disproof 2026-11-19 thorough hunt #532:** `ShowcaseQuickNav.test.tsx` asserts review `returnUrl`.
+
+
 2026-11-19 seed hunt #531 (seed-only): no rotation (`shouldRotate: false`). Re-read FAQ TOC hash contracts after hunt #530, privacy-policy TOC history behavior, quick-scan privacy disclosure URL sync, pricing quote focus from tier CTAs, and showcase quick-nav sign-in return paths. No mechanism met the hunt-ready bar without a failing repro in this pass. Seeded five bounded `(candidate)` rows below. Scoped vitest (FAQ TOC, privacy TOC, quick-scan privacy URL helper) 8/8. No production code changed. Private beta: n/a.
 
-- [ ] (candidate) `MarketingFaqPageToc` — a deep link to an FAQ answer id leaves TOC `aria-current` on the default category until scroll — locus: category-only hash sync; input: land on `/faq#<answer-id>` without the category section in view (monitor).
-- [ ] (candidate) `PrivacyPolicyTableOfContents` — IntersectionObserver `replaceState` hash updates may collapse history entries buyers expect from manual section picks — locus: `syncUrlHash` replace vs FAQ pushState; input: scroll-driven hash rewrite then Back (monitor).
-- [ ] (candidate) `QuickScanWorkspaceSection` — privacy disclosure open state may diverge from `quickScanPrivacyDisclosureOpen` when `router.replace` lags a rapid toggle — locus: controlled `<details>` plus async URL sync; input: double-toggle disclosure before navigation settles (monitor).
-- [ ] (candidate) `MarketingTierPricingSection` — `focusQuotePanel` moves focus to the quote section shell, not the first required quote field — locus: `tabindex=-1` on section container; input: keyboard-activate Request quote on a tier card (monitor).
-- [ ] (candidate) `ShowcaseQuickNav` — sign-in CTA return paths may not restore the buyer's showcase run context after authentication — locus: `buildAuthSignInHref` returnPath vs static-demo fallback; input: unsigned buyer opens quick nav then signs in (monitor).
 
 
 2026-11-19 thorough hunt #530 (hit): no rotation (`shouldRotate: false`). Promoted FAQ TOC `activeId` tracked IntersectionObserver only, so a category fragment in the URL could leave `aria-current` on the wrong TOC row after **Back** or deep link until scroll. `MarketingFaqPageToc` syncs `activeId` from category hashes on `hashchange` and holds that highlight while the hash still names a category. Regression `marks the TOC category matching the location hash when the hash changes` in `MarketingFaqPageToc.test.tsx`. Cheap-disproof closed four monitors — get-started path state without URL persistence is intentional refresh behavior; hash-forced FAQ panels suppress toggle by deep-link contract; trust-center `?focus=` scroll is visual-only by design; pricing quote hash opens the panel without required field focus (no regression yet). FAQ vitest 11/11. Private beta: Invited buyers who land on `/faq` with a category hash or use **Back** hear the matching TOC category as the current in-page location instead of the first category staying highlighted.
@@ -10213,14 +10217,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 59
-- **bugs-found:** 50
+- **hunts:** 60
+- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-19
 - **last-bug:** 2026-11-19 — FAQ TOC aria-current lags category hash
-- **related-pd-tb:** none
+- **last-bug:** 2026-11-19 — FAQ TOC ignores answer-level deep links
 - **code-changed-since:** no
-
+- **code-changed-since:** yes
 2026-09-12 seed hunt #1947 (seed-only): re-read marketing surfaces after master merge churn; sign-in returnUrl, see-it disclosure, and quick-scan parity paths remain covered by existing regressions; no new mechanism-backed hunt-ready rows.
 
 2026-09-30 seed hunt (seed-only): repeated the marketing route review; the marketing filter retained the same 442 passing and 26 failing baseline; no new reachable product candidate emerged.

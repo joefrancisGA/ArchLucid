@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { MarketingFaqCategory } from "@/lib/marketing-faq";
+import { MARKETING_FAQ_ITEMS } from "@/lib/marketing-faq";
 import { cn } from "@/lib/utils";
-
 
 function readLocationCategoryHash(): string | null {
   const hashId = window.location.hash.replace(/^#/, "").trim();
@@ -15,6 +15,31 @@ function readLocationCategoryHash(): string | null {
   }
 
   return hashId;
+}
+
+function resolveActiveCategoryFromHash(
+  hashId: string,
+  categories: ReadonlyArray<MarketingFaqCategory>,
+): string | null {
+  const categoryMatch = categories.find((category) => category.id === hashId);
+
+  if (categoryMatch !== undefined) {
+    return categoryMatch.id;
+  }
+
+  const faqItem = MARKETING_FAQ_ITEMS.find((item) => item.id === hashId);
+
+  if (faqItem === undefined) {
+    return null;
+  }
+
+  const parentCategory = categories.find((category) => category.id === faqItem.categoryId);
+
+  if (parentCategory === undefined) {
+    return null;
+  }
+
+  return parentCategory.id;
 }
 
 export type MarketingFaqPageTocProps = {
@@ -34,10 +59,10 @@ export function MarketingFaqPageToc(props: MarketingFaqPageTocProps): React.JSX.
         return;
       }
 
-      const matchesCategory = categories.some((category) => category.id === hashId);
+      const categoryId = resolveActiveCategoryFromHash(hashId, categories);
 
-      if (matchesCategory) {
-        setActiveId(hashId);
+      if (categoryId !== null) {
+        setActiveId(categoryId);
       }
     };
 
@@ -48,6 +73,7 @@ export function MarketingFaqPageToc(props: MarketingFaqPageTocProps): React.JSX.
       window.removeEventListener("hashchange", syncActiveFromHash);
     };
   }, [categories]);
+
   useEffect(() => {
     if (categories.length === 0) {
       return;
@@ -75,7 +101,7 @@ export function MarketingFaqPageToc(props: MarketingFaqPageTocProps): React.JSX.
         if (id && id.length > 0) {
           const hashId = readLocationCategoryHash();
           const hashLocksCategory =
-            hashId !== null && categories.some((category) => category.id === hashId);
+            hashId !== null && resolveActiveCategoryFromHash(hashId, categories) !== null;
 
           if (hashLocksCategory) {
             return;
