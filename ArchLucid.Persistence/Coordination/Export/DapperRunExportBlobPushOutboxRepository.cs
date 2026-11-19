@@ -95,7 +95,9 @@ public sealed class DapperRunExportBlobPushOutboxRepository(ISqlConnectionFactor
         IEnumerable<RunExportBlobPushOutboxEntry> rows = await connection.QueryAsync<RunExportBlobPushOutboxEntry>(
             new CommandDefinition(sql, new { Take = take, LeaseSeconds = lease }, cancellationToken: ct));
 
-        return rows.ToList();
+        return rows.OrderBy(row => row.CreatedUtc)
+            .ThenBy(row => new System.Data.SqlTypes.SqlGuid(row.OutboxId))
+            .ToList();
     }
 
     /// <inheritdoc />
