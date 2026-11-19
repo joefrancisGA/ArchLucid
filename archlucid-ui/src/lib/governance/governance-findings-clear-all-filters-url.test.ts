@@ -80,6 +80,18 @@ describe("governanceFindingsClearAllFiltersHref", () => {
   });
 
 
+  it("retains triage focusedFinding when clearing register and facet filters", () => {
+    const href = governanceFindingsClearAllFiltersHref(
+      "focusedFinding=finding-1&filter=open&q=phi&severity=high",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?focusedFinding=finding-1");
+    expect(href).not.toContain("filter=");
+    expect(href).not.toContain("q=");
+    expect(href).not.toContain("severity=");
+  });
+
   it("retains hideGeneric when clearing register and facet filters", () => {
     const href = governanceFindingsClearAllFiltersHref(
       "hideGeneric=1&filter=open&q=phi&severity=high",

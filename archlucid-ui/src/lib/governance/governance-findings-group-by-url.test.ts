@@ -26,6 +26,16 @@ describe("governanceFindingsGroupByHrefFromSearch", () => {
 
     expect(href).toBe("/governance/findings?focusedFinding=finding-1&filter=open&groupBy=resource");
   });
+  it("retains triage focusedFinding when group-by is turned off", () => {
+    const href = governanceFindingsGroupByHrefFromSearch(
+      "focusedFinding=finding-1&groupBy=resource&filter=open",
+      false,
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?focusedFinding=finding-1&filter=open");
+    expect(href).not.toContain("groupBy=");
+  });
   it("clears stale resource-group disclosure when group-by is turned off", () => {
     const href = governanceFindingsGroupByHrefFromSearch(
       `${GOVERNANCE_FINDINGS_GROUP_BY_PARAM}=resource&${GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM}=resource%3Aabc`,

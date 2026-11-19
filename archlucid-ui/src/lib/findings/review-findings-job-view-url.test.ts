@@ -24,7 +24,6 @@ describe("review-findings-job-view-url", () => {
     expect(resolveFindingJobViewFromSearchParam("verify-hypotheses")).toBe("verify-hypotheses");
   });
 
-
   it("retains triage focusedFinding when job view changes on the findings queue", () => {
     const href = reviewFindingsJobViewHrefFromSearch(
       "focusedFinding=finding-1&filter=open",
@@ -36,6 +35,7 @@ describe("review-findings-job-view-url", () => {
       "/governance/findings?focusedFinding=finding-1&filter=open&findingJobView=needs-governance",
     );
   });
+
   it("retains hideGeneric when job view changes on the findings queue", () => {
     const href = reviewFindingsJobViewHrefFromSearch(
       "hideGeneric=1&filter=open",
@@ -45,6 +45,7 @@ describe("review-findings-job-view-url", () => {
 
     expect(href).toBe("/governance/findings?hideGeneric=1&filter=open&findingJobView=needs-governance");
   });
+
   it("clears armed preset-remove confirm when job view changes on the findings queue", () => {
     const href = reviewFindingsJobViewHrefFromSearch(
       "removePresetId=preset-1&filter=open",
@@ -54,5 +55,16 @@ describe("review-findings-job-view-url", () => {
 
     expect(href).toBe("/governance/findings?filter=open&findingJobView=needs-governance");
     expect(href).not.toContain("removePresetId=");
+  });
+
+  it("retains triage focusedFinding when job view clears to default", () => {
+    const href = reviewFindingsJobViewHrefFromSearch(
+      "focusedFinding=finding-1&findingJobView=needs-governance&filter=open",
+      "/governance/findings",
+      "needs-my-decision",
+    );
+
+    expect(href).toBe("/governance/findings?focusedFinding=finding-1&filter=open");
+    expect(href).not.toContain("findingJobView=");
   });
 });

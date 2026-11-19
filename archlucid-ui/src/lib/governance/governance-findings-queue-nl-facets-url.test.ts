@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS } from "@/lib/findings/findings-natural-language-filter";
 import { governanceFindingsNlFacetsHrefFromSearch } from "./governance-findings-queue-nl-facets-url";
 
 describe("governanceFindingsNlFacetsHrefFromSearch", () => {
@@ -23,5 +24,16 @@ describe("governanceFindingsNlFacetsHrefFromSearch", () => {
     expect(href).toBe(
       "/governance/findings?focusedFinding=finding-1&filter=open&severity=high&status=open",
     );
+  });
+
+  it("retains hideGeneric when NL facet chips reset", () => {
+    const href = governanceFindingsNlFacetsHrefFromSearch(
+      "hideGeneric=1&severity=high&status=open",
+      EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
+    );
+
+    expect(href).toBe("/governance/findings?hideGeneric=1");
+    expect(href).not.toContain("severity=");
+    expect(href).not.toContain("status=");
   });
 });
