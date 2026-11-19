@@ -103,6 +103,7 @@ export function CompareResultsPanelDiffStack({
 
   const {
     hasResultsToNavigate,
+    showStaleInputsWarning,
     lastComparedPair,
     golden,
     result,
@@ -138,7 +139,7 @@ export function CompareResultsPanelDiffStack({
   const [endToEndExportBusy, setEndToEndExportBusy] = useState(false);
 
   const handleDownloadManifestCompareExport = useCallback(async () => {
-    if (golden === null) {
+    if (golden === null || showStaleInputsWarning) {
       return;
     }
 
@@ -159,7 +160,7 @@ export function CompareResultsPanelDiffStack({
     } finally {
       setManifestExportBusy(false);
     }
-  }, [golden, leftPickedSummary, rightPickedSummary]);
+  }, [golden, showStaleInputsWarning, leftPickedSummary, rightPickedSummary]);
 
   const handleDownloadEndToEndCompareExport = useCallback(async () => {
     if (exportLeftRunId.trim().length === 0 || exportRightRunId.trim().length === 0) {
@@ -219,7 +220,7 @@ export function CompareResultsPanelDiffStack({
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={manifestExportBusy || endToEndExportBusy || docxDownloading || pdfDownloading}
+                disabled={showStaleInputsWarning || manifestExportBusy || endToEndExportBusy || docxDownloading || pdfDownloading}
                 onClick={() => void handleDownloadManifestCompareExport()}
                 className={cn(OPERATOR_LINK.inline, "inline-flex items-center gap-1.5 text-sm")}
                 data-testid="compare-download-manifest-compare-export-button"
