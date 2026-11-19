@@ -20,6 +20,9 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_items.Exists(item => item.SubscriptionId == subscription.SubscriptionId))
+                throw new InvalidOperationException("A digest subscription with this ID already exists.");
+
             _items.Add(Copy(subscription));
             if (_items.Count > MaxEntries)
                 _items.RemoveRange(0, _items.Count - MaxEntries);
