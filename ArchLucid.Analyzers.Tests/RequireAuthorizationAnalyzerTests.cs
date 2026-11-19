@@ -2511,6 +2511,58 @@ namespace N
     }
 
     [Fact]
+    public async Task Reports_outer_get_when_sibling_partial_primary_constructor_parameter_has_authorize()
+    {
+        const string declarationPartial = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public partial class PartialAuthorizedCtorController
+    {
+        [Authorize]
+        public PartialAuthorizedCtorController(string probeToken) { }
+    }
+}
+""";
+
+        const string actionsPartial = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public partial class PartialAuthorizedCtorController : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult {|#0:Get|}() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("PartialAuthorizedCtorController.Get()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestState =
+            {
+                Sources =
+                {
+                    ("Decl.cs", declarationPartial),
+                    ("Actions.cs", actionsPartial),
+                },
+            },
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+    [Fact]
     public async Task Reports_inherited_unauthorized_action_when_derived_uses_primary_constructor_only()
     {
         const string testCode = AspNetCoreStubs +

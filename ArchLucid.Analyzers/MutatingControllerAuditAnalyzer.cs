@@ -807,7 +807,8 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             (!IsLogAsyncSyntaxInsideReachableIfBranches(logAsyncSyntaxNode, semanticModel, cancellationToken) ||
              !IsLogAsyncSyntaxInsideReachableConstantGuardLoops(logAsyncSyntaxNode, semanticModel, cancellationToken) ||
              !IsLogAsyncSyntaxInsideReachableForeachIterations(logAsyncSyntaxNode, semanticModel, cancellationToken) ||
-             !IsLogAsyncSyntaxInsideReachableCatchClauses(logAsyncSyntaxNode, semanticModel, cancellationToken)))
+             !IsLogAsyncSyntaxInsideReachableCatchClauses(logAsyncSyntaxNode, semanticModel, cancellationToken) ||
+             !IsLogAsyncSyntaxInsideReachableLockStatements(logAsyncSyntaxNode, semanticModel, cancellationToken)))
         {
             return false;
         }
@@ -1050,10 +1051,18 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             return true;
         }
 
-        if (catchClauseSyntax.Block.FullSpan.Contains(logAsyncSyntaxNode.Span) &&
-            IsTryBlockProvablyNonThrowing(tryStatementSyntax.Block, semanticModel, cancellationToken))
+        if (catchClauseSyntax.Block.FullSpan.Contains(logAsyncSyntaxNode.Span))
         {
-            return false;
+            if (IsTryBlockProvablyNonThrowing(tryStatementSyntax.Block, semanticModel, cancellationToken))
+            {
+                return false;
+            }
+
+            if (catchClauseSyntax.Filter is CatchFilterClauseSyntax catchFilterClauseSyntax &&
+                IsBooleanConditionKnown(catchFilterClauseSyntax.FilterExpression, semanticModel, cancellationToken, expected: false))
+            {
+                return false;
+            }
         }
 
         return true;
@@ -1163,6 +1172,29 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
     private static bool IsLogAsyncSyntaxUnderLoopBody(SyntaxNode loopBodyStatementSyntax, SyntaxNode logAsyncSyntaxNode) =>
         loopBodyStatementSyntax.FullSpan.Contains(logAsyncSyntaxNode.Span);
+    // lock(null) never enters the body; LogAsync there is not audit proof.
+    private static bool IsLogAsyncSyntaxInsideReachableLockStatements(
+        SyntaxNode logAsyncSyntaxNode,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        foreach (LockStatementSyntax lockStatementSyntax in logAsyncSyntaxNode.Ancestors().OfType<LockStatementSyntax>())
+        {
+            if (!lockStatementSyntax.Statement.FullSpan.Contains(logAsyncSyntaxNode.Span))
+            {
+                continue;
+            }
+
+            Optional<object?> constantOptional = semanticModel.GetConstantValue(lockStatementSyntax.Expression, cancellationToken);
+
+            if (constantOptional.HasValue && constantOptional.Value is null)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
     private static bool IsLogAsyncSyntaxUnderIfBranch(SyntaxNode branchStatementSyntax, SyntaxNode logAsyncSyntaxNode) =>
         branchStatementSyntax.FullSpan.Contains(logAsyncSyntaxNode.Span);
 
