@@ -7,25 +7,41 @@ public sealed class NoOpFindingReviewTrailRepository : IFindingReviewTrailReposi
 
 {
     public Task AppendAsync(FindingReviewEventRecord reviewEvent, CancellationToken cancellationToken = default)
-        => Task.CompletedTask;
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
 
     public Task<IReadOnlyList<FindingReviewEventRecord>> ListByFindingAsync(
         Guid tenantId,
         string findingId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<FindingReviewEventRecord>>([]);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<FindingReviewEventRecord>>([]);
+    }
 
     public Task<IReadOnlyList<FindingReviewEventRecord>> ListSinceUtcAsync(
         Guid tenantId,
         DateTimeOffset sinceUtc,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<FindingReviewEventRecord>>([]);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<FindingReviewEventRecord>>([]);
+    }
 
     public Task<IReadOnlyList<FindingReviewEventRecord>> ListForFindingIdsSinceUtcAsync(
         Guid tenantId,
         IReadOnlyCollection<string> findingIds,
         DateTimeOffset sinceUtc,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<FindingReviewEventRecord>>([]);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<FindingReviewEventRecord>>([]);
+    }
 }
