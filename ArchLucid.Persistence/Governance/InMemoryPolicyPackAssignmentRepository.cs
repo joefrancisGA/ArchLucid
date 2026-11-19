@@ -67,9 +67,16 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.AssignmentId == assignment.AssignmentId);
-            if (i >= 0)
-                _items[i] = Copy(assignment);
+            PolicyPackAssignment? stored = _items.Find(x =>
+                x.AssignmentId == assignment.AssignmentId &&
+                x.TenantId == assignment.TenantId &&
+                x.WorkspaceId == assignment.WorkspaceId &&
+                x.ProjectId == assignment.ProjectId);
+            if (stored is not null)
+            {
+                stored.IsEnabled = assignment.IsEnabled;
+                stored.IsOrganizationRequired = assignment.IsOrganizationRequired;
+            }
         }
 
         return Task.CompletedTask;
