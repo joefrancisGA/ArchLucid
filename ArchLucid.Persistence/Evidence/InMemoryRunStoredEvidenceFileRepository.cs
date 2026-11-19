@@ -15,7 +15,8 @@ public sealed class InMemoryRunStoredEvidenceFileRepository : IRunStoredEvidence
 
         ArgumentNullException.ThrowIfNull(record);
 
-        _records[record.EvidenceItemId] = record;
+        if (!_records.TryAdd(record.EvidenceItemId, record))
+            throw new InvalidOperationException($"Stored evidence item '{record.EvidenceItemId}' already exists.");
 
         return Task.CompletedTask;
     }
