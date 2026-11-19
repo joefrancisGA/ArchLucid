@@ -11,6 +11,10 @@ public sealed class NoOpArchitectureDecisionRegisterQuery : IArchitectureDecisio
         Guid? projectId,
         int maxRows,
         ArchitectureDecisionRegisterQueryOptions? filters,
-        CancellationToken cancellationToken) =>
-        Task.FromResult<IReadOnlyList<ArchitectureDecisionRegisterEntry>>([]);
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<ArchitectureDecisionRegisterEntry>>([]);
+    }
 }
