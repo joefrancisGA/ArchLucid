@@ -96,7 +96,7 @@ describe("SecureNowInvestigationEffortPageView", () => {
 
   it("restores persisted non-fixture inputs on mount", async () => {
     window.localStorage.setItem(
-      secureNowInvestigationEffortInputStorageKeyForScope("tenant-a", "workspace-b"),
+      secureNowInvestigationEffortInputStorageKeyForScope("tenant-a", "workspace-b", "project-c"),
       JSON.stringify({
         baselineHours: "5",
         afterHours: "3",
@@ -182,7 +182,7 @@ describe("SecureNowInvestigationEffortPageView", () => {
     expect(baseline).toHaveValue(6);
     expect(afterHours).toHaveValue(null);
     expect(screen.getByLabelText("Annual investigations (N)")).toHaveValue(10);
-    const cacheKey = secureNowInvestigationEffortInputStorageKeyForScope("tenant-a", "workspace-b");
+    const cacheKey = secureNowInvestigationEffortInputStorageKeyForScope("tenant-a", "workspace-b", "project-c");
     expect(JSON.parse(window.localStorage.getItem(cacheKey) ?? "null")).toEqual({
       ...savedInputs,
       baselineHours: "6",
