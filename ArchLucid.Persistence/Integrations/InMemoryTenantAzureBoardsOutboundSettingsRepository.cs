@@ -30,21 +30,26 @@ public sealed class InMemoryTenantAzureBoardsOutboundSettingsRepository : ITenan
 
         ArgumentNullException.ThrowIfNull(settings);
 
-        TenantAzureBoardsOutboundSettings merged = new()
-        {
-            ProjectName = settings.ProjectName,
-            DefaultWorkItemType = settings.DefaultWorkItemType,
-            AreaPath = settings.AreaPath,
-            IterationPath = settings.IterationPath,
-            DefaultTags = settings.DefaultTags,
-            LastConnectionTestUtc = settings.LastConnectionTestUtc,
-            LastConnectionTestSummary = settings.LastConnectionTestSummary,
-        };
+        TenantAzureBoardsOutboundSettings saved = _byTenant.AddOrUpdate(
+            tenantId,
+            _ => ApplyDefaults(settings, existing: null),
+            (_, existing) => ApplyDefaults(settings, existing));
 
-        _ = _byTenant.AddOrUpdate(tenantId, merged, (_, _) => merged);
-
-        return Task.FromResult(merged);
+        return Task.FromResult(saved);
     }
+
+    private static TenantAzureBoardsOutboundSettings ApplyDefaults(
+        TenantAzureBoardsOutboundSettings settings,
+        TenantAzureBoardsOutboundSettings? existing) => new()
+    {
+        ProjectName = settings.ProjectName,
+        DefaultWorkItemType = settings.DefaultWorkItemType,
+        AreaPath = settings.AreaPath,
+        IterationPath = settings.IterationPath,
+        DefaultTags = settings.DefaultTags,
+        LastConnectionTestUtc = existing?.LastConnectionTestUtc,
+        LastConnectionTestSummary = existing?.LastConnectionTestSummary,
+    };
 
     public Task UpdateConnectionTestAsync(
         Guid tenantId,
