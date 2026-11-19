@@ -24,6 +24,8 @@ import { operatorPageContainerClass } from "@/components/operator/OperatorPageCo
 import { DigestsBrowseHistorySkeleton } from "@/components/digests/DigestsBrowseHistorySkeleton";
 import { DigestsBrowseIncludesPreview } from "@/components/digests/DigestsBrowseIncludesPreview";
 import { DigestsBrowseScopedFilterPartialHonesty } from "@/components/digests/DigestsBrowseScopedFilterPartialHonesty";
+import { DigestsBrowseScopedAndSubscriptionFilterEmptyPartialHonesty } from "@/components/digests/DigestsBrowseScopedAndSubscriptionFilterEmptyPartialHonesty";
+import { DIGESTS_BROWSE_SCOPED_AND_SUBSCRIPTION_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/digests/digests-browse-scoped-and-subscription-filter-empty-not-load-failure-copy";
 import { DigestsBrowseSetupEmptyPartialHonesty } from "@/components/digests/DigestsBrowseSetupEmptyPartialHonesty";
 import { DigestsBrowseSetupChecklist } from "@/components/digests/DigestsBrowseSetupChecklist";
 import {
@@ -193,6 +195,10 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
                   <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digests-browse-scoped-filter-empty-not-load-failure">
                     {DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
                   </p>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digests-browse-scoped-and-subscription-filter-empty">
+                    {DIGESTS_BROWSE_SCOPED_AND_SUBSCRIPTION_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                  
                   <DigestsBrowseScopedFilterPartialHonesty />
                 </div>
               }

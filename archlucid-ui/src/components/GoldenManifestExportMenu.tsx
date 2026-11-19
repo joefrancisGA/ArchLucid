@@ -43,6 +43,7 @@ import { manifestMarkdownExportBlockedReason } from "@/lib/manifest/manifest-mar
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE } from "@/lib/exports/golden-manifest-export-disabled-while-blocked-copy";
+import { GOLDEN_MANIFEST_EXPORT_DISABLED_AND_FINALIZE_LINE } from "@/lib/exports/golden-manifest-export-disabled-and-finalize-copy";
 import { REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE } from "@/lib/reviews/review-commit-evidence-before-seal-copy";
 import { ExportPartialCaptureRecoveryHonesty } from "@/components/exports/ExportPartialCaptureRecoveryHonesty";
 import { EXPORT_FORMAT_MARKDOWN } from "@/lib/export-format-when-to-use";
@@ -364,6 +365,12 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           >
             {GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE}
           </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="golden-manifest-export-disabled-and-finalize"
+          >
+            {GOLDEN_MANIFEST_EXPORT_DISABLED_AND_FINALIZE_LINE}
+          </p>
         ) : null}
         <SponsorExportSendHonestyStrip testIdPrefix="golden-manifest-export" />
         {exportDemoBanner}
@@ -444,6 +451,12 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           data-testid="golden-manifest-export-disabled-while-blocked-select"
         >
           {GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="golden-manifest-export-disabled-and-finalize"
+          >
+            {GOLDEN_MANIFEST_EXPORT_DISABLED_AND_FINALIZE_LINE}
         </p>
       ) : null}
       <SponsorExportSendHonestyStrip testIdPrefix="golden-manifest-export" />
