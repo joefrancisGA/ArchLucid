@@ -36,7 +36,7 @@ public sealed class InMemoryFindingVerificationReportRepository : IAppendOnlyFin
                 Status = result.Status,
                 TraceText = result.TraceText,
             })
-            .ToList();
+            .ToList().AsReadOnly();
 
         FindingVerificationReportRecord record = new()
         {
