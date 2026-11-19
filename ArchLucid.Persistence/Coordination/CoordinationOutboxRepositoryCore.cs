@@ -25,7 +25,8 @@ internal static class CoordinationOutboxRepositoryCore
         && (nextAttemptUtc is null || nextAttemptUtc <= nowUtc)
         && (lockedUntilUtc is null || lockedUntilUtc <= nowUtc);
 
-    public static bool CanMarkProcessed(DateTime? processedUtc) => processedUtc is null;
+    public static bool CanMarkProcessed(DateTime? processedUtc, DateTime? deadLetteredUtc) =>
+        processedUtc is null && deadLetteredUtc is null;
 
     public static bool CanRecordBackoff(DateTime? processedUtc, DateTime? deadLetteredUtc) =>
         processedUtc is null && deadLetteredUtc is null;

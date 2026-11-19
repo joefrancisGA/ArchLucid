@@ -183,7 +183,8 @@ public sealed class InMemoryPostCommitProjectionOutboxRepository : IPostCommitPr
         {
             Stored? row = _rows.Find(x => x.OutboxId == outboxId);
 
-            if (row is null || !CoordinationOutboxRepositoryCore.CanMarkProcessed(row.ProcessedUtc))
+            if (row is null
+                || !CoordinationOutboxRepositoryCore.CanMarkProcessed(row.ProcessedUtc, row.DeadLetteredUtc))
                 return Task.CompletedTask;
 
             row.ProcessedUtc = _utcNow();
