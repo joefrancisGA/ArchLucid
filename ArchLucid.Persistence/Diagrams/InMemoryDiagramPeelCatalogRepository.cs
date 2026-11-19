@@ -31,7 +31,10 @@ public sealed class InMemoryDiagramPeelCatalogRepository : IDiagramPeelCatalogRe
         lock (gate)
         {
             return Task.FromResult<IReadOnlyList<DiagramPeelCatalogEntry>>(
-                rows.Select(DiagramPeelCatalogRepositoryCore.Clone).ToList());
+                rows.OrderBy(entry => entry.PeelRank)
+                    .ThenBy(entry => entry.ArmResourceType, StringComparer.OrdinalIgnoreCase)
+                    .Select(DiagramPeelCatalogRepositoryCore.Clone)
+                    .ToList());
         }
     }
 
