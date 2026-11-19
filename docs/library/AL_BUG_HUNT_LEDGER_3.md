@@ -12559,6 +12559,22 @@ ABQ-09 churn hotspot; intake wizard route tree.
 ---
 
 ## Zone: ui-governance-findings-queue
+2026-11-19 thorough hunt #533 (dry, round-robin): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**51** `(candidate)` rows from hunt **#526** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `hideGeneric` when picking a review for triage (view-density param; regression `retains hideGeneric when picking a review for triage`), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `focusedFinding` when register filter narrows (triage cursor not a register chip; regression `retains triage focusedFinding when register filter narrows`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `hideGeneric` when clearing review scope (intentional density retention; regression `retains hideGeneric when clearing review scope`), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `hideGeneric` when assigned-to-me sort resets to default (regression `governanceAssignedToMeSortHrefFromSearch retains hideGeneric when assigned-to-me sort resets to default`), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `hideGeneric` when bulk selection clears (regression `governanceFindingsBulkSelectionHrefFromSearch retains hideGeneric when bulk selection clears`). Scoped vitest **100/100** on `src/lib/governance/governance-findings*`. Reseeded five pass-**52** `(candidate)` rows below. Private beta: n/a.
+
+- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #533:** regression above.
+- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — **valid-no-repro 2026-11-19 thorough hunt #533:** regression above.
+- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #533:** regression above.
+- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — **valid-no-repro 2026-11-19 thorough hunt #533:** regression above.
+- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — **valid-no-repro 2026-11-19 thorough hunt #533:** regression above.
+
+- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — locus: pick-review href; input: triage deep link + pick review; monitor; pass 52 reseed.
+- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — locus: register-filter href; input: density on + widen register; monitor; pass 52 reseed.
+- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — locus: clear-review-scope href; input: triage cursor + clear scope; monitor; pass 52 reseed.
+- [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — locus: assigned-to-me sort href; input: triage deep link + sort chip; monitor; pass 52 reseed.
+- [ ] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — locus: bulk-selection href; input: triage cursor + bulk chip; monitor; pass 52 reseed.
+
+- [x] (superseded) pass-**51** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #533:** see hunt **#533** header and pass **#52** reseed.
+## Zone: ui-governance-findings-queue
 2026-11-19 thorough hunt #526 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**50** `(candidate)` rows from hunt **#525** reseed — **valid-no-repro** `governanceFindingsGroupByHrefFromSearch` retaining `focusedFinding` when group-by changes to a non-default key (triage cursor independent of group-by chip; regression `retains triage focusedFinding when group-by changes to a non-default key`), **valid-no-repro** `governanceFindingsNlFacetsHrefFromSearch` retaining `focusedFinding` when a single NL facet chip is removed (regression `retains triage focusedFinding when a single NL facet chip is removed`), **valid-no-repro** `governanceFindingsClearAllFiltersHref` retaining `hideGeneric` when clearing register filters only (density param survives narrow clear-all; regression `retains hideGeneric when clearing register filters only`), **valid-no-repro** `reviewFindingsJobViewHrefFromSearch` retaining `hideGeneric` when job view clears to default (regression `retains hideGeneric when job view clears to default`), **invalid** `governanceFindingsHideGenericHrefFromSearch` retaining `hideGeneric` when toggling hide-generic off (toggle-off strips density by design; regression `clears hideGeneric when toggling hide-generic off`). Scoped vitest **67/67** on governance-findings URL helper bundle. Reseeded five pass-**51** `(candidate)` rows below. Private beta: n/a.
 
 - [x] (valid-no-repro) `governanceFindingsGroupByHrefFromSearch` — may retain `focusedFinding` when group-by changes to a non-default key — **valid-no-repro 2026-11-19 thorough hunt #526:** regression above.
@@ -12567,7 +12583,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (valid-no-repro) `reviewFindingsJobViewHrefFromSearch` — may retain `hideGeneric` when job view clears to default — **valid-no-repro 2026-11-19 thorough hunt #526:** regression above.
 - [x] (invalid) `governanceFindingsHideGenericHrefFromSearch` — may retain `hideGeneric` when toggling hide-generic off — **invalid 2026-11-19 thorough hunt #526:** regression above.
 
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — locus: pick-review href; input: density on + pick review; monitor; pass 51 reseed.
+- [x] (superseded) `governanceFindingsPickReviewForTriageHref` — pass 51 — **superseded 2026-11-19 thorough hunt #533:** closed at hunt **#533** header.
 - [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — locus: register-filter href; input: triage deep link + narrow register; monitor; pass 51 reseed.
 - [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — locus: clear-review-scope href; input: density on + clear scope; monitor; pass 51 reseed.
 - [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — locus: assigned-to-me sort href; input: hideGeneric + default sort; monitor; pass 51 reseed.
@@ -12891,7 +12907,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 67
+- **hunts:** 68
 - **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-19
