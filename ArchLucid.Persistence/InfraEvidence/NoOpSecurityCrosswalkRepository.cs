@@ -8,12 +8,20 @@ public sealed class NoOpSecurityCrosswalkRepository : ISecurityCrosswalkReposito
     public Task<IReadOnlyList<SecurityCrosswalkMappingRecord>> InsertManyAsync(
         IReadOnlyList<SecurityCrosswalkMappingRecord> mappings,
         CancellationToken cancellationToken = default)
-        => Task.FromResult(mappings);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(mappings);
+    }
 
     public Task<IReadOnlyList<SecurityCrosswalkMappingRecord>> ListBySourceAsync(
         Guid tenantId,
         SecurityCrosswalkEndpointKind sourceEndpointKind,
         string sourceEndpointId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<SecurityCrosswalkMappingRecord>>([]);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<SecurityCrosswalkMappingRecord>>([]);
+    }
 }
