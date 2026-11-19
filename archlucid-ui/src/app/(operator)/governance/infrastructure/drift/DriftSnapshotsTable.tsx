@@ -130,6 +130,11 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
               }}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
+                  event.stopPropagation();
+                  if (event.target !== event.currentTarget) {
+                    return;
+                  }
+
                   event.preventDefault();
                   onFocusSnapshot(snapshot.snapshotId);
                   onSelectSnapshot(snapshot.snapshotId);
