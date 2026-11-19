@@ -216,7 +216,7 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
             return Task.FromResult(false);
         }
 
-        if (row.Status != UserInvitationStatus.Pending)
+        if (row.Status != UserInvitationStatus.Pending || row.ExpiresUtc <= acceptedUtc)
         {
             return Task.FromResult(false);
         }
