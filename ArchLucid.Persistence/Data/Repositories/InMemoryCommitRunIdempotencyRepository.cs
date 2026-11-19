@@ -17,6 +17,7 @@ public sealed class InMemoryCommitRunIdempotencyRepository : ICommitRunIdempoten
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(idempotencyKeyHash);
+        cancellationToken.ThrowIfCancellationRequested();
         string key = BuildKey(tenantId, workspaceId, projectId, runId, idempotencyKeyHash);
 
         return Task.FromResult(_rows.GetValueOrDefault(key));
@@ -34,6 +35,7 @@ public sealed class InMemoryCommitRunIdempotencyRepository : ICommitRunIdempoten
     {
         ArgumentNullException.ThrowIfNull(idempotencyKeyHash);
         ArgumentNullException.ThrowIfNull(requestFingerprint);
+        cancellationToken.ThrowIfCancellationRequested();
         string key = BuildKey(tenantId, workspaceId, projectId, runId, idempotencyKeyHash);
 
         CommitRunIdempotencyLookup row =
