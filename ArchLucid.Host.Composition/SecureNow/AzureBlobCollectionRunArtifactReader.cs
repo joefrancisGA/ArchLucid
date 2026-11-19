@@ -162,6 +162,7 @@ public sealed class AzureBlobCollectionRunArtifactReader(
                 RunId = runId,
                 TenantId = Guid.TryParse(GetString(root, "tenantId"), out Guid tenantId) ? tenantId : null,
                 AgentVersion = GetString(root, "agentVersion") ?? "unknown",
+                Schedule = GetString(root, "schedule"),
                 StartedUtc = startedUtc,
                 FinishedUtc = DateTime.TryParse(
                     GetString(root, "finishedUtc"), CultureInfo.InvariantCulture, timestampStyles, out DateTime finishedUtc)
