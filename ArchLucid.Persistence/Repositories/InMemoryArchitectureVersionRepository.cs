@@ -19,7 +19,7 @@ public sealed class InMemoryArchitectureVersionRepository : IArchitectureVersion
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(contentHashSha256);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         ArchitectureVersionRecord? match = _byId.Values.FirstOrDefault(record =>
             record.ArchitectureId == architectureId
@@ -37,7 +37,7 @@ public sealed class InMemoryArchitectureVersionRepository : IArchitectureVersion
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         int latest = _byId.Values
             .Where(record =>
@@ -59,7 +59,7 @@ public sealed class InMemoryArchitectureVersionRepository : IArchitectureVersion
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(record);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         ArchitectureVersionRecord stored = new()
         {
@@ -93,7 +93,7 @@ public sealed class InMemoryArchitectureVersionRepository : IArchitectureVersion
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!_byId.TryGetValue(architectureVersionId, out ArchitectureVersionRecord? record))
             return Task.FromResult<ArchitectureVersionRecord?>(null);
@@ -115,7 +115,7 @@ public sealed class InMemoryArchitectureVersionRepository : IArchitectureVersion
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (architectureId == Guid.Empty || versionNumber < 1)
             return Task.FromResult<ArchitectureVersionRecord?>(null);
@@ -136,7 +136,7 @@ public sealed class InMemoryArchitectureVersionRepository : IArchitectureVersion
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (architectureId == Guid.Empty)
             return Task.FromResult<IReadOnlyList<ArchitectureVersionRecord>>([]);
