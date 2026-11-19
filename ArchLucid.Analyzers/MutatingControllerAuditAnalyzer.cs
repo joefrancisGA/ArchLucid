@@ -732,7 +732,8 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (logAsyncSyntaxNode.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
             return false;
 
-        if (IsLogAsyncSyntaxUnreachableAfterYieldBreakInBlock(logAsyncSyntaxNode))
+        if (IsLogAsyncSyntaxUnreachableAfterYieldBreakInBlock(logAsyncSyntaxNode) ||
+            IsLogAsyncSyntaxUnreachableAfterReturnInBlock(logAsyncSyntaxNode))
             return false;
 
         return IsLogAsyncSyntaxProofReachable(semanticModel, logAsyncSyntaxNode, cancellationToken);
@@ -761,6 +762,36 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             if (statementSyntax.IsKind(SyntaxKind.YieldBreakStatement))
             {
                 sawYieldBreakStatement = true;
+            }
+        }
+
+        return false;
+    }
+
+
+    // Statements after return in the same block are unreachable; LogAsync there is not audit proof.
+    private static bool IsLogAsyncSyntaxUnreachableAfterReturnInBlock(SyntaxNode logAsyncSyntaxNode)
+    {
+        StatementSyntax? logAsyncStatementSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<StatementSyntax>();
+
+        if (logAsyncStatementSyntax is null || logAsyncStatementSyntax.Parent is not BlockSyntax blockSyntax)
+        {
+            return false;
+        }
+
+        bool sawReturnStatement = false;
+
+        foreach (StatementSyntax statementSyntax in blockSyntax.Statements)
+        {
+            if (statementSyntax == logAsyncStatementSyntax ||
+                statementSyntax.DescendantNodesAndSelf().Contains(logAsyncSyntaxNode))
+            {
+                return sawReturnStatement;
+            }
+
+            if (statementSyntax.IsKind(SyntaxKind.ReturnStatement))
+            {
+                sawReturnStatement = true;
             }
         }
 
