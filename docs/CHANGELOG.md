@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-19 - Score lift round 83 (batch 48): Digest scope versus subscriptions, golden disabled and finalize, compare partial inventory
+
+**Outcome.** Digest browse scoped empty names that state apart from an empty subscription list and a failed catalog read. Golden export adds a helper when the control is disabled and evidence is not finalized. Compare quality delta footnotes partial inventory.
+
+**Surfaces.** Digest browse, golden manifest export, compare quality delta, honesty and mounted contract tests.
+
 ## 2026-11-19 - Score lift round 82 (batch 47): List context plus package scope, orphan plus search, findings empty preface, combined filter legend
 
 **Outcome.** Reviews hub names list context plus package scope and orphan-candidate plus search as combined filter empties. The main findings empty state prefaces collection before the blocker line. Findings filter-no-match names which combined filter mode is active.
