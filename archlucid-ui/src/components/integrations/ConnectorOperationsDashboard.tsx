@@ -10,6 +10,8 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { ConnectionStatusEmptyPartialHonesty } from "@/components/integrations/ConnectionStatusEmptyPartialHonesty";
 import { ConnectionStatusCategoryFilterEmptyPartialHonesty } from "@/components/integrations/ConnectionStatusCategoryFilterEmptyPartialHonesty";
 import { CONNECTION_STATUS_CATEGORY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/integrations/connection-status-category-filter-empty-not-load-failure-copy";
+import { ConnectionStatusCategoryAndSubscriptionScopeFilterEmptyPartialHonesty } from "@/components/integrations/ConnectionStatusCategoryAndSubscriptionScopeFilterEmptyPartialHonesty";
+import { CONNECTION_STATUS_CATEGORY_AND_SUBSCRIPTION_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/integrations/connection-status-category-and-subscription-scope-filter-empty-not-load-failure-copy";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
@@ -23,6 +25,8 @@ import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessag
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { readActiveWorkspaceScopeLabel } from "@/lib/active-workspace-scope-label";
+import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
+import { isEffectiveDevDefaultScope } from "@/lib/scope-switcher-display";
 import { fetchTenantIntegrationsOperations } from "@/lib/api";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import {
@@ -83,6 +87,15 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
   const [loading, setLoading] = useState(true);
   const [retrying, setRetrying] = useState(false);
   const [workspaceScopeLabel] = useState(() => readActiveWorkspaceScopeLabel());
+  const [workspaceSubscriptionScopePinned] = useState(() => {
+    const record = readOperatorScopeFromStorage();
+
+    if (record === null) {
+      return false;
+    }
+
+    return !isEffectiveDevDefaultScope(record.workspaceId, record.projectId);
+  });
 
   const latestRequestRef = useRef<number>(0);
   const mountedRef = useRef<boolean>(false);
@@ -298,7 +311,22 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
               variant: "primary",
             },
           ]}
-          footer={<ConnectionStatusCategoryFilterEmptyPartialHonesty />}
+          footer={
+            <div className="space-y-2">
+              {workspaceSubscriptionScopePinned ? (
+                <>
+                  <p
+                    className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="connection-status-category-and-subscription-scope-filter-empty"
+                  >
+                    {CONNECTION_STATUS_CATEGORY_AND_SUBSCRIPTION_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                  <ConnectionStatusCategoryAndSubscriptionScopeFilterEmptyPartialHonesty />
+                </>
+              ) : null}
+              <ConnectionStatusCategoryFilterEmptyPartialHonesty />
+            </div>
+          }
         />
       ) : null}
       <IntegrationReadinessSummaryStrip
