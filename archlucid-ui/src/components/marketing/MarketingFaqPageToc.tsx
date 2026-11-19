@@ -84,6 +84,8 @@ export function MarketingFaqPageToc(props: MarketingFaqPageTocProps): React.JSX.
                 onClick={(event) => {
                   event.preventDefault();
                   window.history.pushState(null, "", `#${category.id}`);
+                  // pushState does not emit hashchange; FAQ disclosure state listens for that event.
+                  window.dispatchEvent(new Event("hashchange"));
                   document.getElementById(category.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
               >

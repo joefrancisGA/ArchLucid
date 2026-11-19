@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
@@ -15,10 +15,19 @@ export type MarketingFaqItemPanelProps = {
 export function MarketingFaqItemPanel(props: MarketingFaqItemPanelProps): React.JSX.Element {
   const { item, forceOpen = false, defaultOpen = false } = props;
   const [open, setOpen] = useState(defaultOpen);
+  const wasHashForced = useRef(false);
 
   useEffect(() => {
     if (forceOpen) {
       setOpen(true);
+      wasHashForced.current = true;
+      return;
+    }
+
+    // Hash navigation away should collapse a panel that was only open because of the previous hash.
+    if (wasHashForced.current) {
+      setOpen(false);
+      wasHashForced.current = false;
     }
   }, [forceOpen]);
 
