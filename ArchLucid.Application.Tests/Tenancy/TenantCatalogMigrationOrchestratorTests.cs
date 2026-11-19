@@ -2844,6 +2844,31 @@ public sealed class TenantCatalogMigrationOrchestratorTests
         return verificationMock.Object;
     }
     [Fact]
+    public async Task AcknowledgeCatalogAttachDetachAsync_returns_wrong_stage_when_stage_still_catalog_attach_detach()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 11, 19, 14, 0, 0, TimeSpan.Zero));
+        TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(migrations);
+
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = Guid.NewGuid(),
+                TenantId = TenantId,
+                CorrelationId = "corr-catalog-attach-ack-only",
+                Stage = TenantCatalogMigrationStage.CatalogAttachDetach,
+                StartedUtc = clock.GetUtcNow().AddHours(-1),
+            },
+            CancellationToken.None);
+
+        TenantCatalogMigrationCommandOutcome outcome =
+            await sut.AcknowledgeCatalogAttachDetachAsync(TenantId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.WrongStage, outcome);
+    }
+
+
+    [Fact]
     public async Task AcknowledgeCatalogAttachDetachAsync_returns_wrong_stage_when_stage_still_projection_refresh()
     {
         InMemoryTenantCatalogMigrationRepository migrations = new();
