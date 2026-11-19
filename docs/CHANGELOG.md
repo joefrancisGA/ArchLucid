@@ -5,6 +5,11 @@
 
 # ArchLucid changelog
 
+## 2026-11-19 - Score lift round 86 (batch 51): Explorer filters, graph focus, connection scope, findings header
+
+**Outcome.** Resource explorer names resource type plus name prefix combined filter-empty. Evidence graph names node type filter plus focused node combined zero-node empty. Connection status names category chip empty while workspace subscription scope is pinned. Findings queue header partial-capture CTA names snapshot recovery before treating an empty queue as final.
+
+**Surfaces.** Resource explorer, evidence graph, connection status, governance findings header, honesty and mounted contract tests.
 ## 2026-11-19 - Score lift round 85 (batch 50): Compare pickers, deliverables buttons, operational stream, scope plus severity
 
 **Outcome.** Compare run pickers name an unsealed updated review and empty correlation apart from seal and filter miss. Blocked deliverable export buttons repeat finalize and partial capture. Resource hub operational-security stream empty is distinct from architecture severity teaching. Findings queue names architecture scope chip plus severity facet combined filter-empty.
