@@ -166,6 +166,7 @@ public sealed class AuthorityPipelineDecisioningStage(
             {
                 // Log stable engine identity only. Failure messages can contain private evidence;
                 // never surface them in CI diagnostics or public problem responses.
+
                 if (_logger.IsEnabled(LogLevel.Error))
                 {
                     foreach (FindingEngineFailure failedEngine in snapshot.EngineFailures)
