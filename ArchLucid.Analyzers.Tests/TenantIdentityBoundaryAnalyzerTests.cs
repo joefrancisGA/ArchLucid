@@ -1051,6 +1051,30 @@ namespace N
         .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
 
     await RunInnerLayerTestAsync(testCode, expectedAliasTarget, expectedParameter);
+  }  [Fact]
+  public async Task Reports_banned_type_in_generic_constraint_on_local_function()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using System.Security.Claims;
+
+    public sealed class Handler
+    {
+        void M()
+        {
+            void Local<T>() where T : {|#0:ClaimsPrincipal|} { }
+        }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    await RunInnerLayerTestAsync(testCode, expected);
   }
 
   private static Task RunInnerLayerTestAsync(string testCode, params DiagnosticResult[] expectedDiagnostics) =>

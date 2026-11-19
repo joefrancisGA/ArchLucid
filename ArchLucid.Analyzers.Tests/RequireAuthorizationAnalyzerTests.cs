@@ -2548,6 +2548,40 @@ namespace N
             SolutionTransforms = { ProductAssemblyNameTransform }
         }.RunAsync();
     }
+    [Fact]
+    public async Task Reports_outer_get_when_nested_partial_struct_has_authorize_and_outer_action_does_not()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class OuterPartialStructController : ControllerBase
+    {
+        [Authorize]
+        public partial struct NestedAuthorizedPartialStruct;
+
+        [HttpGet]
+        public IActionResult {|#0:Get|}() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("OuterPartialStructController.Get()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
 
     private static Solution ProductAssemblyNameTransform(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
