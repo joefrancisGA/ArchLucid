@@ -5,6 +5,7 @@ namespace ArchLucid.Persistence.Repositories;
 
 public sealed class InMemoryArchitectureWorkLeaseRepository : IArchitectureWorkLeaseRepository
 {
+    private readonly Lock _gate = new();
     private readonly Dictionary<Guid, ArchitectureWorkLeaseRecord> _byDraftId = new();
 
     public Task<ArchitectureWorkLeaseRecord?> TryGetByDraftIdAsync(
@@ -15,19 +16,22 @@ public sealed class InMemoryArchitectureWorkLeaseRepository : IArchitectureWorkL
         ArgumentNullException.ThrowIfNull(scope);
         _ = cancellationToken;
 
-        if (!_byDraftId.TryGetValue(draftId, out ArchitectureWorkLeaseRecord? record))
+        lock (_gate)
         {
-            return Task.FromResult<ArchitectureWorkLeaseRecord?>(null);
-        }
+            if (!_byDraftId.TryGetValue(draftId, out ArchitectureWorkLeaseRecord? record))
+            {
+                return Task.FromResult<ArchitectureWorkLeaseRecord?>(null);
+            }
 
-        if (record.TenantId != scope.TenantId
-            || record.WorkspaceId != scope.WorkspaceId
-            || record.ScopeProjectId != scope.ProjectId)
-        {
-            return Task.FromResult<ArchitectureWorkLeaseRecord?>(null);
-        }
+            if (record.TenantId != scope.TenantId
+                || record.WorkspaceId != scope.WorkspaceId
+                || record.ScopeProjectId != scope.ProjectId)
+            {
+                return Task.FromResult<ArchitectureWorkLeaseRecord?>(null);
+            }
 
-        return Task.FromResult<ArchitectureWorkLeaseRecord?>(Clone(record));
+            return Task.FromResult<ArchitectureWorkLeaseRecord?>(Clone(record));
+        }
     }
 
     public Task UpsertAsync(
@@ -39,9 +43,12 @@ public sealed class InMemoryArchitectureWorkLeaseRepository : IArchitectureWorkL
         ArgumentNullException.ThrowIfNull(record);
         _ = cancellationToken;
 
-        _byDraftId[record.DraftId] = Clone(record);
+        lock (_gate)
+        {
+            _byDraftId[record.DraftId] = Clone(record);
 
-        return Task.CompletedTask;
+            return Task.CompletedTask;
+        }
     }
 
     public Task<bool> TryDeleteByDraftIdForHolderAsync(
@@ -53,20 +60,23 @@ public sealed class InMemoryArchitectureWorkLeaseRepository : IArchitectureWorkL
         ArgumentNullException.ThrowIfNull(scope);
         _ = cancellationToken;
 
-        if (!_byDraftId.TryGetValue(draftId, out ArchitectureWorkLeaseRecord? record))
+        lock (_gate)
         {
-            return Task.FromResult(false);
-        }
+            if (!_byDraftId.TryGetValue(draftId, out ArchitectureWorkLeaseRecord? record))
+            {
+                return Task.FromResult(false);
+            }
 
-        if (record.TenantId != scope.TenantId
-            || record.WorkspaceId != scope.WorkspaceId
-            || record.ScopeProjectId != scope.ProjectId
-            || record.HolderUserId != holderUserId)
-        {
-            return Task.FromResult(false);
-        }
+            if (record.TenantId != scope.TenantId
+                || record.WorkspaceId != scope.WorkspaceId
+                || record.ScopeProjectId != scope.ProjectId
+                || record.HolderUserId != holderUserId)
+            {
+                return Task.FromResult(false);
+            }
 
-        return Task.FromResult(_byDraftId.Remove(draftId));
+            return Task.FromResult(_byDraftId.Remove(draftId));
+        }
     }
 
     private static ArchitectureWorkLeaseRecord Clone(ArchitectureWorkLeaseRecord record) =>
