@@ -46,6 +46,55 @@ public sealed class SecurityEvidencePathRoutingMaterializerTests
     }
 
     [Fact]
+    public void Privilege_path_hops_anchor_only_exact_snapshot_resources_for_owner_routing()
+    {
+        Guid resourceRowId = Guid.NewGuid();
+        Guid snapshotId = Guid.NewGuid();
+        const string resourceArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa";
+
+        AzureInventorySnapshotDetailReadModel snapshot = CreateSnapshot(
+            resourceRowId,
+            tags: [CreateTag(resourceRowId, SecurityEvidencePathRoutingConstants.TagKeyOwner, "owner@example.test")]);
+        IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesByArmId =
+            snapshot.Resources.ToDictionary(resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
+
+        IReadOnlyList<PrivilegePathEdge> edges =
+        [
+            new()
+            {
+                FromNodeId = "principal://synthetic",
+                ToNodeId = resourceArmId.ToUpperInvariant(),
+                EdgeType = GraphEdgeTypes.HasRole,
+                ProvenanceKind = ProvenanceKind.ObservedFact,
+            },
+            new()
+            {
+                FromNodeId = resourceArmId,
+                ToNodeId = "principal://not-in-snapshot",
+                EdgeType = GraphEdgeTypes.UsesIdentity,
+                ProvenanceKind = ProvenanceKind.DerivedFact,
+            },
+        ];
+
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops =
+            PrivilegePathMaterializer.BuildHopRecords(TenantId, PathId, snapshotId, edges, resourcesByArmId);
+        hops[0].CloudResourceId.Should().Be(CloudResourceId);
+        hops[1].CloudResourceId.Should().BeNull();
+
+        // Without a verified snapshot resource, the materializer must not invent an identity.
+        PrivilegePathMaterializer.BuildHopRecords(TenantId, PathId, snapshotId, edges)[0]
+            .CloudResourceId.Should().BeNull();
+
+        IReadOnlyList<SecurityEvidencePathRoutingRecord> rows =
+            SecurityEvidencePathRoutingMaterializer.MaterializeFromSnapshotTags(
+                TenantId, PathId, hops, snapshot, DateTime.UtcNow);
+        rows.Should().ContainSingle()
+            .Which.PrincipalId.Should().Be("owner@example.test");
+        rows[0].Role.Should().Be(SecurityEvidencePathRoutingRole.BusinessOwner);
+    }
+
+    [Fact]
     public void MaterializeFromSnapshotTags_without_owner_tags_returns_empty_not_unknown_admin()
     {
         Guid resourceRowId = Guid.NewGuid();

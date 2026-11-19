@@ -657,8 +657,11 @@ export function RemediationFactoryClient() {
   const onSelectPathAndFocusInspect = useCallback(
     (pathId: string) => {
       selectPath(pathId);
+      // Keep keyboard navigation deterministic: the inspect panel already exists,
+      // so focus it synchronously instead of waiting for an animation frame.
+      // The frame is only needed for the smooth scroll after React updates.
+      pathInspectPanelRef.current?.focus();
       window.requestAnimationFrame(() => {
-        focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
         pathInspectPanelRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
       });
     },

@@ -2,7 +2,11 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { PATTERN_LIBRARY_POLICY_PACKS_HUB_PATH } from "@/lib/pattern-library-policy-guidance-copy";
+import {
+  PATTERN_LIBRARY_POLICY_PACKS_HUB_PATH,
+  resolvePatternLibraryPolicyPacksHubPath,
+} from "@/lib/pattern-library-policy-guidance-copy";
+import { SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 
 const DETAIL_CLIENT = join(
   process.cwd(),
@@ -43,7 +47,9 @@ describe("pattern-library-policy-guidance (TB-1813)", () => {
     const cardSource = readFileSync(PATTERN_CARD, "utf8");
     const guidanceSource = readFileSync(POLICY_GUIDANCE, "utf8");
 
-    expect(guidanceSource).toContain("PATTERN_LIBRARY_POLICY_PACKS_HUB_PATH");
+    expect(guidanceSource).toContain("resolvePatternLibraryPolicyPacksHubPath");
+    expect(resolvePatternLibraryPolicyPacksHubPath("architecture")).toBe(PATTERN_LIBRARY_POLICY_PACKS_HUB_PATH);
+    expect(resolvePatternLibraryPolicyPacksHubPath("security")).toBe(SECURENOW_POLICY_PACKS_PATH);
     expect(detailSource).toContain("PatternLibraryRelatedPolicyPacks");
     expect(cardSource).toContain("PatternLibraryRelatedPolicyPacks");
     expect(detailSource).not.toMatch(/href=.*relatedPolicyRules/i);

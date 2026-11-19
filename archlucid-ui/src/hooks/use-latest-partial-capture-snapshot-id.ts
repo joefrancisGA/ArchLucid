@@ -16,7 +16,8 @@ export function useLatestPartialCaptureSnapshotId(enabled: boolean): string | nu
     staleTime: 60_000,
   });
 
-  const id = query.data?.trim() ?? "";
+  // An unknown cache value is not a valid evidence snapshot ID.
+  const id = typeof query.data === "string" ? query.data.trim() : "";
 
   return id.length > 0 ? id : null;
 }

@@ -34,12 +34,12 @@ name: CI
 
 # PR (main/master): Tier 0–0.9 + trimmed `dotnet-fast-core` (no Tier 1.0 artifacts, no coverlet, no finding-engine template).
 # merge_group (main/master): same trimmed corset as PR, but path lanes never skip .NET (semantic conflict guard).
-# Full CI: `dotnet-fast-core-artifacts` after corset. Jobs after corset: **workflow_dispatch** only (except PR corset path).
+# Full CI: RC43/RC44/RC46/RC47 pushes and explicit workflow_dispatch include full post-corset regression gates.
 # Full CI: Actions â†’ CI â†’ Run workflow (pick branch/ref).
-# RC43/RC44 full regression and coverage on every branch push; no production deployment.
+# RC43/RC44/RC46/RC47 full regression on push; RC45 uses separate repair checks. No production deployment.
 on:
   push:
-    branches: [RC43, RC44]
+    branches: [RC43, RC44, RC46, RC47]
   pull_request:
     branches: [main, master]
   merge_group:
@@ -52,16 +52,16 @@ on:
         default: false
         type: boolean
 
-# RC43 push CI uses one branch-scoped group so runners are not multiplied unboundedly.
+# RC43/RC44/RC46/RC47 push CI uses one branch-scoped group so runners are not multiplied unboundedly.
 # A distinct prefix keeps workflow_dispatch, PR and merge_group grouping unchanged.
 # merge_group runs are never cancelled in-progress — they validate the combined merge-result SHA.
-# RC43 push: cancel-in-progress false — let the running workflow finish so conclusions are
+# RC push: cancel-in-progress false — let the running workflow finish so conclusions are
 # success/failure (not cancelled). Rapid pushes still replace only the pending slot behind the runner.
 # Reverted 2026-11-08: shared group + cancel-in-progress on every push yielded 0 green RC43 runs.
 # PR/workflow_dispatch keep cancel-in-progress. Batch fix commits when possible (~20–30m).
 concurrency:
-  group: ci-${{ github.workflow }}-${{ (github.event_name == 'push' && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44') && format('rc-push-{0}', github.ref)) || (github.event.pull_request.number || github.ref) }}
-  cancel-in-progress: ${{ github.event_name != 'merge_group' && !(github.event_name == 'push' && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44')) }}
+  group: ci-${{ github.workflow }}-${{ (github.event_name == 'push' && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || github.ref == 'refs/heads/RC46' || github.ref == 'refs/heads/RC47') && format('rc-push-{0}', github.ref)) || (github.event.pull_request.number || github.ref) }}
+  cancel-in-progress: ${{ github.event_name != 'merge_group' && !(github.event_name == 'push' && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || github.ref == 'refs/heads/RC46' || github.ref == 'refs/heads/RC47')) }}
 
 # PR path lanes (ci-path-lanes): soft-skip OpenAPI / .NET corset / Terraform validate steps when the
 # diff does not touch those surfaces (docs/UI-only PRs). Jobs still report success so required checks
@@ -2704,11 +2704,11 @@ jobs:
 
   guards-pre-corset:
     name: "CI: guards pre-corset (text)"
-    # RC43/RC44 diagnostic branches: blocking — guard failure fails the workflow; jobs that
+    # RC43/RC44/RC45/RC46/RC47 diagnostic branches: blocking — guard failure fails the workflow; jobs that
     # need guards-pre-corset are skipped. Other refs: warn-only (deploy gate exclusion).
     # Critical path: start after gitleaks only so this runs in parallel with OpenAPI + Terraform validate
     # (warn-only docs/IaC/demo jobs must not delay text guards or the corset build).
-    continue-on-error: ${{ github.ref != 'refs/heads/RC43' && github.ref != 'refs/heads/RC44' }}
+    continue-on-error: ${{ github.ref != 'refs/heads/RC43' && github.ref != 'refs/heads/RC44' && github.ref != 'refs/heads/RC45' && github.ref != 'refs/heads/RC46' && github.ref != 'refs/heads/RC47' }}
     needs:
       - gitleaks
     runs-on: ubuntu-latest
@@ -2776,7 +2776,7 @@ jobs:
       - terraform-validate-private
       - terraform-validate-public-stacks
       - guards-pre-corset
-    # RC43 diagnostic exception: OpenAPI snapshot and public Terraform stack validate remain
+    # RC diagnostics: OpenAPI snapshot and public Terraform stack validate remain
     # separate hard gates, but must not suppress independent .NET/SQL test evidence when
     # registry/GitHub 504 flakes provider install on one public stack.
     # All other refs retain the existing OpenAPI + public-stacks success prerequisites.
@@ -2787,8 +2787,8 @@ jobs:
         && needs.ci-path-lanes.result == 'success'
         && needs.terraform-validate-private.result == 'success'
         && needs.guards-pre-corset.result == 'success'
-        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || needs.terraform-validate-public-stacks.result == 'success')
-        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || needs.openapi-contract-snapshot.result == 'success')
+        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || github.ref == 'refs/heads/RC46' || github.ref == 'refs/heads/RC47' || needs.terraform-validate-public-stacks.result == 'success')
+        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || github.ref == 'refs/heads/RC46' || github.ref == 'refs/heads/RC47' || needs.openapi-contract-snapshot.result == 'success')
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 50
@@ -2843,14 +2843,14 @@ jobs:
       - ci-path-lanes
       - openapi-contract-snapshot
       - dotnet-fast-core-build
-    # RC43 diagnostic scheduling mirrors dotnet-fast-core-build: shard matrix runs when the
+    # RC diagnostic scheduling mirrors dotnet-fast-core-build: shard matrix runs when the
     # build artifact exists even if OpenAPI drift failed the snapshot job (snapshot stays blocking).
     if: >-
       ${{
         !cancelled()
         && needs.ci-path-lanes.result == 'success'
         && needs.dotnet-fast-core-build.result == 'success'
-        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || needs.openapi-contract-snapshot.result == 'success')
+        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || github.ref == 'refs/heads/RC46' || github.ref == 'refs/heads/RC47' || needs.openapi-contract-snapshot.result == 'success')
       }}
     runs-on: ubuntu-latest
     # Three nested ceilings, innermost first: blame-hang (5m/test) → per-project cap in
@@ -3680,6 +3680,8 @@ jobs:
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
           ARCHLUCID_INTEGRATION_TEST_DIAG: "1"
+          # Polling avoids per-process inotify exhaustion under the 200+ SQL integration cases.
+          DOTNET_USE_POLLING_FILE_WATCHER: "1"
         # Blame must exceed ParallelCreateRunHangGuard (~100m) + GreenfieldSqlHostBootstrapBudget (~30m) slack on cold CI SQL.
         # --diag: VSTest/platform trace when the host stalls after tests (Coverlet teardown vs SQL dispose); blame "current test" is often the last finished test.
         run: |
@@ -4106,7 +4108,7 @@ jobs:
       - chaos-tests
       - real-mode-ci-flags
     # Fork PR workflows do not receive repository secrets â€” full CI only (`workflow_dispatch`).
-    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC43' && github.ref != 'refs/heads/RC44' }}
+    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC43' && github.ref != 'refs/heads/RC44' && github.ref != 'refs/heads/RC45' && github.ref != 'refs/heads/RC46' && github.ref != 'refs/heads/RC47' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     environment: dev
