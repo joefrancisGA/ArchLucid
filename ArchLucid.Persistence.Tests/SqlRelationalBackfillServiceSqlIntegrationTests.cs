@@ -27,6 +27,26 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
     private static readonly Guid ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
     [SkippableFact]
+    public async Task Concurrent_first_checkpoints_preserve_the_furthest_cursor()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlRelationalBackfillCheckpointStore checkpoints = new(factory);
+        string stage = $"concurrent-{Guid.NewGuid():N}";
+        DateTime start = new(2026, 11, 19, 0, 0, 0, DateTimeKind.Utc);
+        SqlRelationalBackfillCursor[] candidates = Enumerable.Range(0, 8)
+            .Select(i => new SqlRelationalBackfillCursor(start.AddSeconds(i), Guid.NewGuid()))
+            .ToArray();
+
+        await Task.WhenAll(candidates.Select(candidate =>
+            checkpoints.SaveCursorAsync(stage, candidate, CancellationToken.None)));
+
+        SqlRelationalBackfillCursor saved = await checkpoints.GetCursorAsync(stage, CancellationToken.None);
+        saved.LastProcessedEntityId.Should().Be(candidates[^1].LastProcessedEntityId);
+        saved.LastProcessedCreatedUtc.Should().Be(candidates[^1].LastProcessedCreatedUtc);
+    }
+
+    [SkippableFact]
     public async Task RunAsync_populates_context_relational_from_json_and_second_run_is_noop()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);

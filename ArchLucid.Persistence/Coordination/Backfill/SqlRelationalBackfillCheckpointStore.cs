@@ -47,7 +47,7 @@ public sealed class SqlRelationalBackfillCheckpointStore(ISqlConnectionFactory c
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                MERGE dbo.BackfillCheckpoints AS target
+                MERGE dbo.BackfillCheckpoints WITH (HOLDLOCK) AS target
                 USING (SELECT @Stage AS Stage) AS source
                 ON target.Stage = source.Stage
                 WHEN MATCHED AND
