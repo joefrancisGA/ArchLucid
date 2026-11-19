@@ -93,6 +93,7 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
                     x.WorkspaceId == workspaceId &&
                     x.ProjectId == projectId)
                 .OrderByDescending(x => x.CreatedUtc)
+                .Take(200)
                 .Select(Copy)
                 .ToList();
 
