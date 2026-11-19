@@ -18,6 +18,8 @@ class CapacityLeaseContracts(unittest.TestCase):
             self.assertIn(token,s)
         self.assertNotIn("DELETE FROM dbo.SecureNowCapacityLeases",s)
         self.assertNotIn("TriggerAsync(",s)
+        self.assertLess(s.index("WITH (UPDLOCK, HOLDLOCK)"),
+                        s.index("DECLARE @Now DATETIME2 = SYSUTCDATETIME()"))
     def test_unique_slots_and_persistent_fence(self):
         s=MIG.read_text(encoding="utf-8")
         self.assertIn("PRIMARY KEY CLUSTERED (TenantId, WorkloadKey, SlotNumber)",s)
