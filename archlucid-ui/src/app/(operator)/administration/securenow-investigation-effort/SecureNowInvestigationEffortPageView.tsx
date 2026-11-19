@@ -49,6 +49,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
   const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const [inputs, setInputs] = useState<EffortInputs>(EMPTY_INPUTS);
   const [restoreComplete, setRestoreComplete] = useState(false);
+  const [auditSaveError, setAuditSaveError] = useState<string | null>(null);
   const inputEditsRef = useRef<Partial<EffortInputs>>({});
 
   useEffect(() => {
@@ -79,11 +80,17 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
       return;
     }
 
+    let cancelled = false;
     const handle = window.setTimeout(() => {
-      void persistSecureNowInvestigationEffortInputsToAudit(inputs);
+      void persistSecureNowInvestigationEffortInputsToAudit(inputs).then((error) => {
+        if (!cancelled) {
+          setAuditSaveError(error);
+        }
+      });
     }, 400);
 
     return () => {
+      cancelled = true;
       window.clearTimeout(handle);
     };
   }, [inputs, restoreComplete]);
@@ -91,6 +98,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
   const resultState = useMemo(() => resolveSecureNowInvestigationEffortResultState(inputs), [inputs]);
 
   const updateInput = (field: keyof EffortInputs, value: string) => {
+    setAuditSaveError(null);
     inputEditsRef.current = { ...inputEditsRef.current, [field]: value };
     setInputs((current) => ({ ...current, [field]: value }));
   };
@@ -161,6 +169,11 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
           >
             {SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE}
           </p>
+          {auditSaveError !== null ? (
+            <p role="status" className={OPERATOR_TYPOGRAPHY.helper}>
+              {auditSaveError}
+            </p>
+          ) : null}
           <div className="grid gap-3 sm:grid-cols-2">
             {([
               ["baselineHours", "Baseline hours (B)"],

@@ -145,9 +145,15 @@ describe("SecureNowInvestigationEffortPageView", () => {
       act(() => vi.advanceTimersByTime(400));
       expect(save).not.toHaveBeenCalled();
 
+      save.mockResolvedValueOnce("Investigation effort input save failed.");
       fireEvent.change(baseline, { target: { value: "6" } });
-      act(() => vi.advanceTimersByTime(400));
+      await act(async () => vi.advanceTimersByTime(400));
       expect(save).toHaveBeenCalledExactlyOnceWith({ ...savedInputs, baselineHours: "6" });
+      expect(screen.getByText("Investigation effort input save failed.")).toBeInTheDocument();
+
+      fireEvent.change(baseline, { target: { value: "7" } });
+      await act(async () => vi.advanceTimersByTime(400));
+      expect(screen.queryByText("Investigation effort input save failed.")).not.toBeInTheDocument();
     } finally {
       vi.useRealTimers();
     }
