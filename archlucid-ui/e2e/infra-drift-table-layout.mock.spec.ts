@@ -63,7 +63,7 @@ test.describe(`infra-drift-table-layout (${releaseGateTag})`, { tag: [releaseGat
             snapshotAId: snapshotId,
             snapshotBId: "33333333-3333-3333-3333-333333333333",
             totalChanges: changeRowCount,
-            createdUtc: "2026-01-01T00:00:00Z",
+            createdUtc: "2026-01-02T00:00:00Z",
           },
         ]),
       });
@@ -122,5 +122,56 @@ test.describe(`infra-drift-table-layout (${releaseGateTag})`, { tag: [releaseGat
 
     expect(fontSize).toBeGreaterThanOrEqual(13);
     expect(clientWidth).toBeGreaterThanOrEqual(80);
+  });
+
+  test("resumes the saved diff and change while snapshot inventory is loading", async ({ page }) => {
+    const diffId = "diff-1";
+    const changeId = "change-2";
+    await page.addInitScript((selection) => {
+      localStorage.setItem("archlucid_drift_last_comparison_selection_v1", JSON.stringify(selection));
+    }, { snapshotId, diffId, changeId });
+
+    // Let the inventory request start before the diff becomes available.
+    // This keeps the restore path in the loading state that used to lose the saved change.
+    let inventoryRequested!: () => void;
+    const inventoryStarted = new Promise<void>((resolve) => { inventoryRequested = resolve; });
+    let releaseInventory!: () => void;
+    const inventoryRelease = new Promise<void>((resolve) => { releaseInventory = resolve; });
+    let releaseChanges!: () => void;
+    const changesRelease = new Promise<void>((resolve) => { releaseChanges = resolve; });
+
+    await page.route(`**/api/proxy/v1/infra-evidence/snapshots/${snapshotId}/inventory-rows**`, async (route) => {
+      inventoryRequested();
+      await inventoryRelease;
+      await route.fulfill({ json: { items: [], totalCount: 0, page: 1, pageSize: 50, hasMore: false } });
+    });
+    await page.route(`**/api/proxy/v1/infra-evidence/snapshots/${snapshotId}/diffs**`, async (route) => {
+      await inventoryStarted;
+      await route.fallback();
+    });
+    await page.route(`**/api/proxy/v1/infra-evidence/diffs/${diffId}/changes**`, async (route) => {
+      await changesRelease;
+      await route.fallback();
+    });
+
+    try {
+      await page.goto("/governance/infrastructure/drift");
+      await page.getByTestId("infra-drift-resume-last-comparison-open").click({ timeout: 60_000 });
+      await expect(page.getByTestId("infra-drift-diff-picker")).toHaveValue(diffId, { timeout: 30_000 });
+      await expect(page).toHaveURL((url) =>
+        url.searchParams.get("snapshotId") === snapshotId
+        && url.searchParams.get("diffId") === diffId
+        && url.searchParams.get("changeId") === changeId,
+      );
+      await expect(page.getByTestId("infra-drift-changes-body")).toContainText("Loading changes…");
+
+      releaseChanges();
+      await expect(page.getByTestId(`infra-drift-change-row-${changeId}`)).toHaveAttribute("aria-selected", "true");
+      await expect(page.getByTestId(`infra-drift-change-detail-row-${changeId}`)).toBeVisible();
+    } finally {
+      inventoryRequested();
+      releaseInventory();
+      releaseChanges();
+    }
   });
 });
