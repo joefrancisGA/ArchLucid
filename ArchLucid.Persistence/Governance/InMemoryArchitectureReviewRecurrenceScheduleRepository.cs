@@ -31,10 +31,24 @@ public sealed class InMemoryArchitectureReviewRecurrenceScheduleRepository : IAr
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            int index = _items.FindIndex(x => x.ScheduleId == schedule.ScheduleId);
+            ArchitectureReviewRecurrenceSchedule? stored = _items.Find(row =>
+                row.ScheduleId == schedule.ScheduleId &&
+                row.TenantId == schedule.TenantId &&
+                row.WorkspaceId == schedule.WorkspaceId &&
+                row.ProjectId == schedule.ProjectId);
 
-            if (index >= 0)
-                _items[index] = Copy(schedule);
+            if (stored is null)
+                return Task.CompletedTask;
+
+            stored.Name = schedule.Name;
+            stored.CronExpression = schedule.CronExpression;
+            stored.IsEnabled = schedule.IsEnabled;
+            stored.LastTriggeredUtc = schedule.LastTriggeredUtc;
+            stored.LastTriggeredRunId = schedule.LastTriggeredRunId;
+            stored.NextRunUtc = schedule.NextRunUtc;
+            stored.LastRunStatus = schedule.LastRunStatus;
+            stored.LastErrorMessage = schedule.LastErrorMessage;
+            stored.ConsecutiveFailureCount = schedule.ConsecutiveFailureCount;
         }
 
         return Task.CompletedTask;
