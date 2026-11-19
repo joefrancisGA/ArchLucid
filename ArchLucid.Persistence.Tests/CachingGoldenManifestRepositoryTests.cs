@@ -64,8 +64,9 @@ public sealed class CachingGoldenManifestRepositoryTests
     }
 
     [Fact]
-    public async Task SupersedeUnreferencedActiveGoldenManifestsAsync_evicts_each_superseded_manifest()
+    public async Task SupersedeUnreferencedActiveGoldenManifestsAsync_evicts_after_the_caller_cancels()
     {
+        using CancellationTokenSource caller = new();
         Mock<IGoldenManifestRepository> inner = new();
         Mock<IHotPathReadCache> cache = new();
         ScopeContext scope = NewScope();
@@ -77,10 +78,15 @@ public sealed class CachingGoldenManifestRepositoryTests
                 newManifestId,
                 null,
                 null,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([supersededId]);
+                caller.Token))
+            .Returns(() =>
+            {
+                caller.Cancel();
+                return Task.FromResult<IReadOnlyList<Guid>>([supersededId]);
+            });
         cache.Setup(c => c.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .Returns((string _, CancellationToken token) =>
+                token.IsCancellationRequested ? Task.FromCanceled(token) : Task.CompletedTask);
 
         CachingGoldenManifestRepository sut = new(inner.Object, cache.Object);
 
@@ -89,11 +95,11 @@ public sealed class CachingGoldenManifestRepositoryTests
             newManifestId,
             connection: null,
             transaction: null,
-            CancellationToken.None);
+            caller.Token);
 
         result.Should().Equal(supersededId);
         cache.Verify(
-            c => c.RemoveAsync(HotPathCacheKeys.Manifest(scope, supersededId), It.IsAny<CancellationToken>()),
+            c => c.RemoveAsync(HotPathCacheKeys.Manifest(scope, supersededId), CancellationToken.None),
             Times.Once);
     }
 
