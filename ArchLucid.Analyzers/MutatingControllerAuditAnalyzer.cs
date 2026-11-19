@@ -732,7 +732,39 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (logAsyncSyntaxNode.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
             return false;
 
+        if (IsLogAsyncSyntaxUnreachableAfterYieldBreakInBlock(logAsyncSyntaxNode))
+            return false;
+
         return IsLogAsyncSyntaxProofReachable(semanticModel, logAsyncSyntaxNode, cancellationToken);
+    }
+
+    // Statements after yield break in the same block are unreachable; LogAsync there is not audit proof.
+    private static bool IsLogAsyncSyntaxUnreachableAfterYieldBreakInBlock(SyntaxNode logAsyncSyntaxNode)
+    {
+        StatementSyntax? logAsyncStatementSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<StatementSyntax>();
+
+        if (logAsyncStatementSyntax is null || logAsyncStatementSyntax.Parent is not BlockSyntax blockSyntax)
+        {
+            return false;
+        }
+
+        bool sawYieldBreakStatement = false;
+
+        foreach (StatementSyntax statementSyntax in blockSyntax.Statements)
+        {
+            if (statementSyntax == logAsyncStatementSyntax ||
+                statementSyntax.DescendantNodesAndSelf().Contains(logAsyncSyntaxNode))
+            {
+                return sawYieldBreakStatement;
+            }
+
+            if (statementSyntax.IsKind(SyntaxKind.YieldBreakStatement))
+            {
+                sawYieldBreakStatement = true;
+            }
+        }
+
+        return false;
     }
 
     private static bool IsLogAsyncSyntaxProofReachable(
