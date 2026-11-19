@@ -22,6 +22,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         Guid draftId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!_drafts.TryGetValue(draftId, out InMemoryDraftRequestStoredDraft? stored))
             return Task.FromResult<DraftRequestResponse?>(null);
 
@@ -46,6 +48,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         DraftRequestDocument document,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(document);
         ArgumentException.ThrowIfNullOrWhiteSpace(createdByUserId);
 
@@ -82,6 +86,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         Guid? spawnedArchitectureVersionId = null,
         byte[]? spawnedDocumentContentHashSha256 = null)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(document);
 
         while (_drafts.TryGetValue(draftId, out InMemoryDraftRequestStoredDraft? stored))
@@ -121,6 +127,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         int batchSize,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         int effectiveBatchSize = DraftRequestRepositoryCore.ClampReaperBatchSize(batchSize);
         DateTime cutoff = updatedBeforeUtc.UtcDateTime;
         List<DraftIntakeReapedDraft> deleted = [];
@@ -154,6 +162,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         Guid parentDraftId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         int count = _drafts.Values.Count(stored =>
             DraftRequestRepositoryCore.MatchesProjectScope(
                 tenantId,
@@ -175,6 +185,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         Guid? excludeDraftId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (string.IsNullOrWhiteSpace(systemName))
             throw new ArgumentException("System name is required.", nameof(systemName));
 
@@ -202,6 +214,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         int maxCount,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IReadOnlyList<DraftRequestResponse> matches = DraftRequestRepositoryCore.ListRunSpawnedInScope(
             _drafts.Values,
             tenantId,
@@ -224,6 +238,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         int pageSize,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         (IReadOnlyList<DraftRequestResponse> pageItems, int totalCount) =
             DraftRequestRepositoryCore.ListForCreatorInWorkspace(
                 _drafts.Values,
@@ -248,6 +264,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         string spawnedRunId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         InMemoryDraftRequestStoredDraft? match = DraftRequestRepositoryCore.FindBySpawnedRunId(
             _drafts.Values,
             tenantId,
@@ -266,6 +284,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         Guid architectureId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         List<DraftRequestResponse> matches = _drafts.Values
             .Where(stored =>
                 stored.ArchitectureId == architectureId
@@ -292,6 +312,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         Guid architectureId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         int count = _drafts.Values.Count(stored =>
             stored.ArchitectureId == architectureId
             && DraftRequestRepositoryCore.MatchesProjectScope(
@@ -314,6 +336,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         Guid architectureId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         while (_drafts.TryGetValue(draftId, out InMemoryDraftRequestStoredDraft? stored))
         {
             if (!DraftRequestRepositoryCore.MatchesProjectScope(
@@ -346,6 +370,8 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         int take,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (take <= 0)
             return Task.FromResult<IReadOnlyList<DraftRequestResponse>>([]);
 
