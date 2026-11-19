@@ -24,19 +24,24 @@ public sealed class
         IReadOnlyList<string>? enabledTriggers,
         CancellationToken cancellationToken)
     {
-        IReadOnlyList<string> nextTriggers = ResolveNextTriggers(tenantId, enabledTriggers);
+        IReadOnlyList<string>? normalizedTriggers = enabledTriggers is null
+            ? null
+            : TeamsNotificationTriggerCatalog.ParseOrDefault(TeamsNotificationTriggerCatalog.Serialize(enabledTriggers));
 
-        TeamsIncomingWebhookConnectionResponse row = new()
+        TeamsIncomingWebhookConnectionResponse BuildRow(IReadOnlyList<string> triggers) => new()
         {
             TenantId = tenantId,
             IsConfigured = true,
             Label = label,
             KeyVaultSecretName = keyVaultSecretName,
-            EnabledTriggers = nextTriggers,
+            EnabledTriggers = triggers,
             UpdatedUtc = TimeProvider.System.GetUtcNow()
         };
 
-        _store[tenantId] = row;
+        TeamsIncomingWebhookConnectionResponse row = _store.AddOrUpdate(
+            tenantId,
+            _ => BuildRow(normalizedTriggers ?? TeamsNotificationTriggerCatalog.All),
+            (_, existing) => BuildRow(normalizedTriggers ?? existing.EnabledTriggers));
 
         return Task.FromResult<TeamsIncomingWebhookConnectionResponse?>(row);
     }
@@ -44,18 +49,5 @@ public sealed class
     public Task<bool> DeleteAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         return Task.FromResult(_store.TryRemove(tenantId, out _));
-    }
-
-    // null = "no change" semantic, matching the Dapper repository's MERGE COALESCE behavior:
-    // brand-new rows fall back to the catalog default; existing rows keep what was already stored.
-    private IReadOnlyList<string> ResolveNextTriggers(Guid tenantId, IReadOnlyList<string>? enabledTriggers)
-    {
-        if (enabledTriggers is not null)
-            return TeamsNotificationTriggerCatalog
-                .ParseOrDefault(TeamsNotificationTriggerCatalog.Serialize(enabledTriggers));
-
-        return _store.TryGetValue(tenantId, out TeamsIncomingWebhookConnectionResponse? existing)
-            ? existing.EnabledTriggers
-            : TeamsNotificationTriggerCatalog.All;
     }
 }
