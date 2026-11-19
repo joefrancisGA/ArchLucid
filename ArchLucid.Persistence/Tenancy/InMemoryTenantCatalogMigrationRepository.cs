@@ -80,6 +80,7 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
                 _byId[migrationId] = Clone(
                     existing,
                     verificationPassedUtc: passed ? utcNow : null,
+                    overwriteVerificationPassedUtc: true,
                     lastVerificationError: passed ? null : errorMessage,
                     overwriteLastVerificationError: true,
                     stage: TenantCatalogMigrationStage.Verification);
@@ -112,6 +113,7 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
         TenantCatalogMigrationStage? stage = null,
         DateTimeOffset? completedUtc = null,
         DateTimeOffset? verificationPassedUtc = null,
+        bool overwriteVerificationPassedUtc = false,
         string? lastVerificationError = null,
         bool overwriteLastVerificationError = false) =>
         new()
@@ -123,7 +125,9 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
             StartedUtc = record.StartedUtc,
             CompletedUtc = completedUtc ?? record.CompletedUtc,
             MaintenanceMessage = record.MaintenanceMessage,
-            VerificationPassedUtc = verificationPassedUtc ?? record.VerificationPassedUtc,
+            VerificationPassedUtc = overwriteVerificationPassedUtc
+                ? verificationPassedUtc
+                : record.VerificationPassedUtc,
             LastVerificationError = overwriteLastVerificationError
                 ? lastVerificationError
                 : lastVerificationError ?? record.LastVerificationError,
