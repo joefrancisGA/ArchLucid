@@ -11,6 +11,8 @@ public sealed class InMemoryRunStoredEvidenceFileRepository : IRunStoredEvidence
 
     public Task InsertAsync(RunStoredEvidenceFileRecord record, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(record);
 
         _records[record.EvidenceItemId] = record;
@@ -23,6 +25,8 @@ public sealed class InMemoryRunStoredEvidenceFileRepository : IRunStoredEvidence
         Guid runId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IReadOnlyList<RunStoredEvidenceFileRecord> rows = _records.Values
             .Where(record =>
                 record.TenantId == scope.TenantId
@@ -42,6 +46,8 @@ public sealed class InMemoryRunStoredEvidenceFileRepository : IRunStoredEvidence
         string evidenceItemId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (string.IsNullOrWhiteSpace(evidenceItemId))
         {
             return Task.FromResult<RunStoredEvidenceFileRecord?>(null);
