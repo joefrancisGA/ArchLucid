@@ -16,6 +16,9 @@ public sealed class InMemoryArchitectureReviewRecurrenceScheduleRepository : IAr
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_items.Exists(item => item.ScheduleId == schedule.ScheduleId))
+                throw new InvalidOperationException($"The architecture review recurrence schedule '{schedule.ScheduleId}' already exists.");
+
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 
