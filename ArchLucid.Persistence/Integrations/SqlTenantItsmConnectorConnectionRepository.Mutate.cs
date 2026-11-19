@@ -39,7 +39,7 @@ public sealed partial class SqlTenantItsmConnectorConnectionRepository
             TenantItsmConnectorConnectionRepositoryCore.NormalizeAuthModeForProvider(provider, command.AuthMode);
 
         const string mergeSql = """
-                                MERGE dbo.TenantItsmConnectorConnections AS t
+                                MERGE dbo.TenantItsmConnectorConnections WITH (HOLDLOCK) AS t
                                 USING (
                                     SELECT
                                         @TenantId AS TenantId,
