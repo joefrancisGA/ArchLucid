@@ -10,6 +10,8 @@ public sealed class InMemoryTenantAzureOpenAiConnectionRepository : ITenantAzure
 
     public Task<TenantAzureOpenAiConnectionRecord?> GetAsync(Guid tenantId, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         return _store.TryGetValue(tenantId, out TenantAzureOpenAiConnectionRecord? row)
             ? Task.FromResult<TenantAzureOpenAiConnectionRecord?>(row)
             : Task.FromResult<TenantAzureOpenAiConnectionRecord?>(null);
@@ -20,6 +22,8 @@ public sealed class InMemoryTenantAzureOpenAiConnectionRepository : ITenantAzure
         TenantAzureOpenAiConnectionUpsertCommand command,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         _store.TryGetValue(tenantId, out TenantAzureOpenAiConnectionRecord? existing);
 
         TenantAzureOpenAiConnectionRecord row = new()
@@ -44,6 +48,8 @@ public sealed class InMemoryTenantAzureOpenAiConnectionRepository : ITenantAzure
 
     public Task<bool> DeleteAsync(Guid tenantId, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         return Task.FromResult(_store.TryRemove(tenantId, out _));
     }
 
@@ -53,6 +59,8 @@ public sealed class InMemoryTenantAzureOpenAiConnectionRepository : ITenantAzure
         string? message,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         while (true)
         {
             if (!_store.TryGetValue(tenantId, out TenantAzureOpenAiConnectionRecord? existing))
