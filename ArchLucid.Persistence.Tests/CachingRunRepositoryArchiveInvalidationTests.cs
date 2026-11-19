@@ -1,4 +1,5 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
@@ -51,6 +52,44 @@ public sealed class CachingRunRepositoryArchiveInvalidationTests
         RunRecord? afterArchive = await repo.GetByIdAsync(scope, run.RunId, CancellationToken.None);
 
         afterArchive.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task ArchiveRunsCreatedBeforeAsync_evicts_after_the_caller_cancels()
+    {
+        using CancellationTokenSource caller = new();
+        DateTimeOffset cutoff = TimeProvider.System.GetUtcNow();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Guid runId = Guid.NewGuid();
+        RunArchiveBatchResult committed = new()
+        {
+            UpdatedCount = 1,
+            ArchivedRuns = [new ArchivedRunScopeRow
+            {
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+            }],
+        };
+        Mock<IRunRepository> inner = new();
+        inner.Setup(r => r.ArchiveRunsCreatedBeforeAsync(cutoff, caller.Token))
+            .Returns(() =>
+            {
+                caller.Cancel();
+                return Task.FromResult(committed);
+            });
+        Mock<IHotPathReadCache> cache = new();
+        cache.Setup(c => c.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken token) =>
+                token.IsCancellationRequested ? Task.FromCanceled(token) : Task.CompletedTask);
+        CachingRunRepository repo = new(inner.Object, cache.Object);
+
+        RunArchiveBatchResult result = await repo.ArchiveRunsCreatedBeforeAsync(cutoff, caller.Token);
+
+        result.Should().BeSameAs(committed);
+        cache.Verify(c => c.RemoveAsync(HotPathCacheKeys.Run(scope, runId), CancellationToken.None), Times.Once);
+        cache.Verify(c => c.RemoveAsync(HotPathCacheKeys.RunListScopeRevision(scope), CancellationToken.None), Times.Once);
     }
 
     [SkippableFact]

@@ -53,8 +53,7 @@ public sealed partial class CachingRunRepository
     public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc,
         CancellationToken ct) =>
         await ArchiveRunsCreatedBeforeCoreAsync(
-            () => _inner.ArchiveRunsCreatedBeforeAsync(cutoffUtc, ct),
-            ct).ConfigureAwait(false);
+            () => _inner.ArchiveRunsCreatedBeforeAsync(cutoffUtc, ct)).ConfigureAwait(false);
 
     /// <inheritdoc />
     public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeForScopeAsync(
@@ -62,22 +61,20 @@ public sealed partial class CachingRunRepository
         DateTimeOffset cutoffUtc,
         CancellationToken ct) =>
         await ArchiveRunsCreatedBeforeCoreAsync(
-            () => _inner.ArchiveRunsCreatedBeforeForScopeAsync(scope, cutoffUtc, ct),
-            ct).ConfigureAwait(false);
+            () => _inner.ArchiveRunsCreatedBeforeForScopeAsync(scope, cutoffUtc, ct)).ConfigureAwait(false);
 
     private async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeCoreAsync(
-        Func<Task<RunArchiveBatchResult>> archive,
-        CancellationToken ct)
+        Func<Task<RunArchiveBatchResult>> archive)
     {
         RunArchiveBatchResult batch = await archive().ConfigureAwait(false);
 
-        await InvalidateRunListCachesForArchivedRowsAsync(batch.ArchivedRuns, ct);
+        await InvalidateRunListCachesForArchivedRowsAsync(batch.ArchivedRuns, CancellationToken.None);
 
         foreach (ArchivedRunScopeRow row in batch.ArchivedRuns)
         {
             ScopeContext scope = new() { TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId };
 
-            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, ct);
+            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, CancellationToken.None);
         }
 
         return batch;
