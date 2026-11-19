@@ -40,4 +40,11 @@ public sealed class PolicyPackSemVerVersionTests
     {
         PolicyPackSemVerVersion.NormalizeLookupKey(" 1.0.0 ").Should().Be("1.0.0");
     }
+    [Fact]
+    public void Default_value_can_be_used_in_a_hash_set()
+    {
+        HashSet<PolicyPackSemVerVersion> versions = [];
+        versions.Add(default).Should().BeTrue();
+        versions.Add(default).Should().BeFalse();
+    }
 }

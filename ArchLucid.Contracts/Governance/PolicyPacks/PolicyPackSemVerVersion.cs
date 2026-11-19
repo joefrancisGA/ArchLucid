@@ -64,7 +64,7 @@ public readonly record struct PolicyPackSemVerVersion : IEquatable<PolicyPackSem
         string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
 
     public override int GetHashCode() =>
-        StringComparer.OrdinalIgnoreCase.GetHashCode(Value);
+        Value is null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(Value);
 
     public override string ToString() => Value;
 }
