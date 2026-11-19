@@ -69,24 +69,26 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
     {
         _ = cancellationToken;
 
-        if (!_store.TryGetValue(tenantId, out ExecDigestPreferencesResponse? existing) || !existing.EmailEnabled)
-            return Task.FromResult(false);
-
-        ExecDigestPreferencesResponse updated = new()
+        while (true)
         {
-            SchemaVersion = existing.SchemaVersion,
-            TenantId = existing.TenantId,
-            IsConfigured = existing.IsConfigured,
-            EmailEnabled = false,
-            RecipientEmails = existing.RecipientEmails,
-            IanaTimeZoneId = existing.IanaTimeZoneId,
-            DayOfWeek = existing.DayOfWeek,
-            HourOfDay = existing.HourOfDay,
-            UpdatedUtc = TimeProvider.System.GetUtcNow()
-        };
+            if (!_store.TryGetValue(tenantId, out ExecDigestPreferencesResponse? existing) || !existing.EmailEnabled)
+                return Task.FromResult(false);
 
-        _store[tenantId] = updated;
+            ExecDigestPreferencesResponse updated = new()
+            {
+                SchemaVersion = existing.SchemaVersion,
+                TenantId = existing.TenantId,
+                IsConfigured = existing.IsConfigured,
+                EmailEnabled = false,
+                RecipientEmails = existing.RecipientEmails,
+                IanaTimeZoneId = existing.IanaTimeZoneId,
+                DayOfWeek = existing.DayOfWeek,
+                HourOfDay = existing.HourOfDay,
+                UpdatedUtc = TimeProvider.System.GetUtcNow()
+            };
 
-        return Task.FromResult(true);
+            if (_store.TryUpdate(tenantId, updated, existing))
+                return Task.FromResult(true);
+        }
     }
 }
