@@ -36,6 +36,15 @@ describe("review-findings-job-view-url", () => {
       "/governance/findings?focusedFinding=finding-1&filter=open&findingJobView=needs-governance",
     );
   });
+  it("retains hideGeneric when job view changes on the findings queue", () => {
+    const href = reviewFindingsJobViewHrefFromSearch(
+      "hideGeneric=1&filter=open",
+      "/governance/findings",
+      "needs-governance",
+    );
+
+    expect(href).toBe("/governance/findings?hideGeneric=1&filter=open&findingJobView=needs-governance");
+  });
   it("clears armed preset-remove confirm when job view changes on the findings queue", () => {
     const href = reviewFindingsJobViewHrefFromSearch(
       "removePresetId=preset-1&filter=open",

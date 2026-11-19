@@ -7,6 +7,15 @@ import {
 import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "./governance-findings-resource-group-disclosure-url";
 
 describe("governanceFindingsGroupByHrefFromSearch", () => {
+  it("retains hideGeneric when group-by changes", () => {
+    const href = governanceFindingsGroupByHrefFromSearch(
+      "hideGeneric=1&filter=open",
+      true,
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?hideGeneric=1&filter=open&groupBy=resource");
+  });
 
   it("retains triage focusedFinding when group-by changes", () => {
     const href = governanceFindingsGroupByHrefFromSearch(
