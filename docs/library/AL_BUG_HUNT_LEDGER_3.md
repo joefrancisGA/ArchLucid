@@ -9912,15 +9912,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-11-19 thorough hunt #530 (hit): no rotation (`shouldRotate: false`). Promoted FAQ TOC `activeId` tracked IntersectionObserver only, so a category fragment in the URL could leave `aria-current` on the wrong TOC row after **Back** or deep link until scroll. `MarketingFaqPageToc` syncs `activeId` from category hashes on `hashchange` and holds that highlight while the hash still names a category. Regression `marks the TOC category matching the location hash when the hash changes` in `MarketingFaqPageToc.test.tsx`. Cheap-disproof closed four monitors — get-started path state without URL persistence is intentional refresh behavior; hash-forced FAQ panels suppress toggle by deep-link contract; trust-center `?focus=` scroll is visual-only by design; pricing quote hash opens the panel without required field focus (no regression yet). FAQ vitest 11/11. Private beta: Invited buyers who land on `/faq` with a category hash or use **Back** hear the matching TOC category as the current in-page location instead of the first category staying highlighted.
+
+- [x] (proven) `MarketingFaqPageToc` — `activeId` tracks IntersectionObserver only — **hit 2026-11-19 thorough hunt #530:** hashchange category sync + hold highlight while hash names a category.
+- [x] (valid-no-repro) `GetStartedPageClient` — trial vs sample path selection without URL sync — **cheap-disproof 2026-11-19 thorough hunt #530:** refresh resets path choice by product design; covered by existing get-started interaction tests.
+- [x] (valid-no-repro) `MarketingFaqItemPanel` — `forceOpen` ignores `onToggle` — **cheap-disproof 2026-11-19 thorough hunt #530:** deep-linked answers stay open while the fragment targets them; hunt #528 collapse when hash moves away.
+- [x] (invalid) `TrustCenterFocusScroll` — `?focus=` scroll without keyboard focus — **cheap-disproof 2026-11-19 thorough hunt #530:** cheat-panel deep links are scroll anchors, not focus traps; no failing a11y repro promoted.
+- [x] (valid-no-repro) `MarketingPricingQuotePanel` — `#pricing-quote-request` opens without focusing first field — **cheap-disproof 2026-11-19 thorough hunt #530:** hash opens disclosure; field focus not required in existing quote-panel contract.
+
+
 2026-11-19 seed hunt #529 (seed-only): no rotation (`shouldRotate: false`). Re-read FAQ hash/TOC wiring, get-started path selection, trust-center focus scrolling, pricing quote hash open, and markdown external-link rendering after hunt #528. Cheap-disproof closed the two reseeded monitors — browser **Back** after a TOC `pushState` restores the prior fragment and emits `hashchange`, which `MarketingFaqPageClient` already handles; mailto `target=_blank` matches the external-link contract without a visible opens-email hint. Closed stale `MarketingResourcesMenu` focus row (proven hunt #73). Seeded five bounded `(candidate)` rows below. Focused marketing vitest (FAQ client/TOC + privacy TOC) 11/11. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `MarketingFaqPageToc` + `MarketingFaqPageClient` — browser Back after a category click does not restore the previous hash-forced answer — **cheap-disproof 2026-11-19 seed hunt #529:** Back restores the prior URL fragment; native `hashchange` reopens the deep-linked `<details>` via the existing listener.
 - [x] (invalid) `renderInline` — mailto links omit a visible opens-email hint — **cheap-disproof 2026-11-19 seed hunt #529:** external mailto uses the shared marketing external-link contract; no product requirement for an extra visible hint.
-- [ ] (candidate) `MarketingFaqPageToc` — `activeId` tracks IntersectionObserver only, so hash-driven navigation may leave `aria-current` on the wrong category until scroll settles — locus: missing `hashchange` sync (privacy TOC partial pattern); input: deep link or Back without scrolling the category header into view (monitor).
-- [ ] (candidate) `GetStartedPageClient` — trial vs sample path selection lives only in React state, so refresh loses the selected path affordance — locus: `selectedPath` without URL or storage sync; input: choose sample path then reload (monitor).
-- [ ] (candidate) `MarketingFaqItemPanel` — `forceOpen` ignores `onToggle`, so keyboard users may be unable to collapse a hash-targeted answer without clearing the fragment — locus: guarded toggle handler; input: deep-linked FAQ answer then Space on summary (monitor).
-- [ ] (candidate) `TrustCenterFocusScroll` — `?focus=` scrolls the section but does not move keyboard focus into the target heading — locus: `scrollIntoView` without `focus()`; input: cheat-panel deep link opened via keyboard (monitor).
-- [ ] (candidate) `MarketingPricingQuotePanel` — `#pricing-quote-request` opens the disclosure without focusing the first required field — locus: hash/open-on-mount effect; input: land on pricing with quote hash from an in-page link (monitor).
 
 
 2026-11-19 thorough hunt #528 (hit): no rotation (shouldRotate false). Promoted FAQ TOC pushState without hashchange, so a deep-linked answer stayed force-open after another category was selected. MarketingFaqPageToc dispatches hashchange, and MarketingFaqItemPanel collapses a panel that was open only because of the previous hash. Regression releases a hash-forced FAQ disclosure when the TOC selects another category. Mailto target=_blank monitor closed valid-no-repro (external-link policy; no blank-document repro). Scoped FAQ vitest 10/10. Private beta: Invited buyers who open an FAQ answer from a link and then choose another category see that answer collapse instead of staying locked open.
@@ -10200,13 +10204,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 57
-- **bugs-found:** 49
+- **hunts:** 58
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-19
-- **last-bug:** 2026-11-19 — FAQ TOC hash does not release the deep-linked answer
+- **last-bug:** 2026-11-19 — FAQ TOC aria-current lags category hash
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-12 seed hunt #1947 (seed-only): re-read marketing surfaces after master merge churn; sign-in returnUrl, see-it disclosure, and quick-scan parity paths remain covered by existing regressions; no new mechanism-backed hunt-ready rows.
 

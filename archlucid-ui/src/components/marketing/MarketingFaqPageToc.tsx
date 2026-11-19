@@ -6,6 +6,17 @@ import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { MarketingFaqCategory } from "@/lib/marketing-faq";
 import { cn } from "@/lib/utils";
 
+
+function readLocationCategoryHash(): string | null {
+  const hashId = window.location.hash.replace(/^#/, "").trim();
+
+  if (hashId.length === 0) {
+    return null;
+  }
+
+  return hashId;
+}
+
 export type MarketingFaqPageTocProps = {
   readonly categories: ReadonlyArray<MarketingFaqCategory>;
 };
@@ -15,6 +26,28 @@ export function MarketingFaqPageToc(props: MarketingFaqPageTocProps): React.JSX.
   const { categories } = props;
   const [activeId, setActiveId] = useState<string | null>(categories[0]?.id ?? null);
 
+  useEffect(() => {
+    const syncActiveFromHash = (): void => {
+      const hashId = readLocationCategoryHash();
+
+      if (hashId === null) {
+        return;
+      }
+
+      const matchesCategory = categories.some((category) => category.id === hashId);
+
+      if (matchesCategory) {
+        setActiveId(hashId);
+      }
+    };
+
+    syncActiveFromHash();
+    window.addEventListener("hashchange", syncActiveFromHash);
+
+    return () => {
+      window.removeEventListener("hashchange", syncActiveFromHash);
+    };
+  }, [categories]);
   useEffect(() => {
     if (categories.length === 0) {
       return;
@@ -40,6 +73,14 @@ export function MarketingFaqPageToc(props: MarketingFaqPageTocProps): React.JSX.
         const id = visibleEntries[0]?.target.id;
 
         if (id && id.length > 0) {
+          const hashId = readLocationCategoryHash();
+          const hashLocksCategory =
+            hashId !== null && categories.some((category) => category.id === hashId);
+
+          if (hashLocksCategory) {
+            return;
+          }
+
           setActiveId(id);
         }
       },
