@@ -163,8 +163,26 @@ public sealed class AuthorityPipelineDecisioningStage(
             bool blocking = FindingEngineFailureCommitClassifier.HasCommitBlockingFailures(snapshot.EngineFailures);
 
             if (blocking || opts.HaltOnPartialFindings)
+            {
+                // Log stable engine identity only. Failure messages can contain private evidence;
+                // never surface them in CI diagnostics or public problem responses.
+                if (_logger.IsEnabled(LogLevel.Error))
+                {
+                    foreach (FindingEngineFailure failedEngine in snapshot.EngineFailures)
+                    {
+                        _logger.LogError(
+                            "Authority findings incomplete: RunId={RunId} EngineType={EngineType} Category={Category} ExceptionType={ExceptionType} CommitBlocking={CommitBlocking}",
+                            runId,
+                            failedEngine.EngineType,
+                            failedEngine.Category,
+                            failedEngine.ExceptionType,
+                            FindingEngineFailureCommitClassifier.IsCommitBlocking(failedEngine));
+                    }
+                }
+
                 throw new InvalidOperationException(
                     $"Findings snapshot is only partially complete (RunId={runId:D}); authority pipeline halts before decisioning when a safety-critical engine failed or AuthorityPipeline:HaltOnPartialFindings is true.");
+            }
 
             if (_logger.IsEnabled(LogLevel.Warning))
             {
