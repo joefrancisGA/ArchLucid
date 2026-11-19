@@ -9,19 +9,31 @@ public sealed class NoOpSecurityEvidencePathRankRepository : ISecurityEvidencePa
         Guid tenantId,
         Guid pathId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<SecurityEvidencePathRankRecord?>(null);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<SecurityEvidencePathRankRecord?>(null);
+    }
 
     public Task<IReadOnlyList<SecurityEvidencePathRankRecord>> ListBySnapshotAsync(
         ProjectSnapshotScopeKey scope,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<SecurityEvidencePathRankRecord>>([]);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<SecurityEvidencePathRankRecord>>([]);
+    }
 
     public Task ReplaceRanksForSnapshotAsync(
         Guid tenantId,
         Guid snapshotId,
         IReadOnlyList<SecurityEvidencePathRankRecord> ranks,
         CancellationToken cancellationToken = default)
-        => Task.CompletedTask;
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task<(IReadOnlyList<SecurityEvidencePathRankRecord> Items, int TotalCount)> ListRankedPagedAsync(
         Guid tenantId,
@@ -31,15 +43,27 @@ public sealed class NoOpSecurityEvidencePathRankRepository : ISecurityEvidencePa
         int page,
         int pageSize,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<(IReadOnlyList<SecurityEvidencePathRankRecord> Items, int TotalCount)>(([], 0));
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<(IReadOnlyList<SecurityEvidencePathRankRecord> Items, int TotalCount)>(([], 0));
+    }
 
     public Task<SecurityEvidencePathRankWeightsRecord?> TryGetWeightsAsync(
         Guid tenantId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<SecurityEvidencePathRankWeightsRecord?>(null);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<SecurityEvidencePathRankWeightsRecord?>(null);
+    }
 
     public Task UpsertWeightsAsync(
         SecurityEvidencePathRankWeightsRecord weights,
         CancellationToken cancellationToken = default)
-        => Task.CompletedTask;
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 }
