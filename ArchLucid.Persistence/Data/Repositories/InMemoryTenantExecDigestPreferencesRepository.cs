@@ -41,7 +41,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
             EmailEnabled = emailEnabled,
             RecipientEmails =
                 recipientEmails.Where(static e => !string.IsNullOrWhiteSpace(e)).Select(static e => e.Trim())
-                    .ToList(),
+                    .ToList().AsReadOnly(),
             IanaTimeZoneId = string.IsNullOrWhiteSpace(ianaTimeZoneId) ? IanaTimeZonePreferenceValues.Default : ianaTimeZoneId.Trim(),
             DayOfWeek = dayOfWeek,
             HourOfDay = hourOfDay,
