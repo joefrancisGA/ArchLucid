@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-19 - Score lift round 89 (batch 54): Compare semantic and treatment bands, governance diff empty, stale inputs
+
+**Outcome.** Compare semantic support band names all-zero counts with an unsealed review. Compare treatment band names all-zero counts with an unsealed review. Compare governance diff names empty policy pack rows apart from a failed governance diff request. Compare results stale-inputs warning names picker drift apart from a failed compare read.
+
+**Surfaces.** Compare semantic support band, compare treatment band, compare governance diff, compare results stale inputs, honesty and mounted contract tests.
+
 ## 2026-11-19 - Score lift round 88 (batch 53): Compare insufficient, classification band, digest delivery, assigned scope
 
 **Outcome.** Compare insufficient-finalized names one-review-vs-second-empty apart from a failed compare load. Compare classification band names all-zero counts with an unsealed review. Digest browse detail names zero delivery attempts on a selected digest. Findings assigned-to-me uses architecture scope-only filter-empty test id.

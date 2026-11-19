@@ -18,6 +18,8 @@ import {
   buildPolicyPacksImpactPreviewHref,
   resolveCompareGovernancePackImpactHandoff,
 } from "@/lib/policy-packs-review-handoff";
+import { COMPARE_GOVERNANCE_DIFF_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-governance-diff-empty-not-load-failure-copy";
+import { CompareGovernanceDiffEmptyPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareGovernanceDiffEmptyPartialHonesty";
 
 export type CompareGovernanceDiffPanelProps = {
   readonly view: CompareGovernanceDiffView | null;
@@ -131,7 +133,30 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
   }
 
   if (view === null) {
-    return null;
+    if (softFailureMessage !== null) {
+      return null;
+    }
+    return (
+      <section
+        id="compare-governance-diff"
+        aria-labelledby="compare-governance-diff-empty-heading"
+        className="mt-6 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+        data-testid="compare-governance-diff-empty-not-load-failure"
+      >
+        <h2
+          id="compare-governance-diff-empty-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
+          Policy pack diff
+        </h2>
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {COMPARE_GOVERNANCE_DIFF_EMPTY_NOT_LOAD_FAILURE_LINE}
+        </p>
+        <div className="mt-2">
+          <CompareGovernanceDiffEmptyPartialHonesty />
+        </div>
+      </section>
+    );
   }
 
   return (
