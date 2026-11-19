@@ -112,4 +112,52 @@ public sealed class CachingRunRepositoryArchiveInvalidationTests
         archiveError.Should().BeNull();
         result.Should().BeSameAs(committed);
     }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Committed_run_purge_invalidates_cache_after_caller_cancels(bool sample)
+    {
+        using CancellationTokenSource caller = new();
+        DateTimeOffset cutoff = TimeProvider.System.GetUtcNow();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        List<ArchivedRunScopeRow> deleted =
+        [
+            new()
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+            },
+        ];
+        Mock<IRunRepository> inner = new();
+        inner.Setup(r => r.HardDeleteSampleRunsBatchAsync(scope.TenantId, cutoff, 1, caller.Token))
+            .Returns(() =>
+            {
+                caller.Cancel();
+                return Task.FromResult(new RunSamplePurgeBatchResult { Deleted = deleted });
+            });
+        inner.Setup(r => r.HardDeleteStaleUncommittedRunsBatchAsync(cutoff, 1, caller.Token))
+            .Returns(() =>
+            {
+                caller.Cancel();
+                return Task.FromResult(new RunStaleUncommittedPurgeBatchResult { Deleted = deleted });
+            });
+        Mock<ArchLucid.Persistence.Caching.IHotPathReadCache> cache = new();
+        cache.Setup(c => c.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken token) =>
+                token.IsCancellationRequested ? Task.FromCanceled(token) : Task.CompletedTask);
+        CachingRunRepository repo = new(inner.Object, cache.Object);
+
+        if (sample)
+            await repo.HardDeleteSampleRunsBatchAsync(scope.TenantId, cutoff, 1, caller.Token);
+        else
+            await repo.HardDeleteStaleUncommittedRunsBatchAsync(cutoff, 1, caller.Token);
+
+        cache.Verify(c => c.RemoveAsync(
+            ArchLucid.Persistence.Caching.HotPathCacheKeys.Run(scope, deleted[0].RunId), CancellationToken.None), Times.Once);
+        cache.Verify(c => c.RemoveAsync(
+            ArchLucid.Persistence.Caching.HotPathCacheKeys.RunListScopeRevision(scope), CancellationToken.None), Times.Once);
+    }
 }

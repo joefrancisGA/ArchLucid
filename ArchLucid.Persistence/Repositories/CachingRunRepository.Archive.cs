@@ -15,13 +15,13 @@ public sealed partial class CachingRunRepository
         RunStaleUncommittedPurgeBatchResult result =
             await _inner.HardDeleteStaleUncommittedRunsBatchAsync(createdBeforeUtc, batchSize, ct);
 
-        await InvalidateRunListCachesForArchivedRowsAsync(result.Deleted, ct);
+        await InvalidateRunListCachesForArchivedRowsAsync(result.Deleted, CancellationToken.None);
 
         foreach (ArchivedRunScopeRow row in result.Deleted)
         {
             ScopeContext scope = new() { TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId };
 
-            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, ct);
+            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, CancellationToken.None);
         }
 
         return result;
@@ -37,13 +37,13 @@ public sealed partial class CachingRunRepository
         RunSamplePurgeBatchResult result =
             await _inner.HardDeleteSampleRunsBatchAsync(tenantId, createdBeforeUtc, batchSize, ct);
 
-        await InvalidateRunListCachesForArchivedRowsAsync(result.Deleted, ct);
+        await InvalidateRunListCachesForArchivedRowsAsync(result.Deleted, CancellationToken.None);
 
         foreach (ArchivedRunScopeRow row in result.Deleted)
         {
             ScopeContext scope = new() { TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId };
 
-            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, ct);
+            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, CancellationToken.None);
         }
 
         return result;
