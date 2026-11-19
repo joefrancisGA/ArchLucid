@@ -863,7 +863,8 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         string? containingTypeName = methodSymbol.ContainingType?.Name;
 
         return string.Equals(containingTypeName, "Array", StringComparison.Ordinal) ||
-               string.Equals(containingTypeName, "Enumerable", StringComparison.Ordinal);
+               string.Equals(containingTypeName, "Enumerable", StringComparison.Ordinal) ||
+               string.Equals(containingTypeName, "ImmutableArray", StringComparison.Ordinal);
     }
 
 
@@ -913,14 +914,18 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         string.Equals(typeName, "ReadOnlySpan", StringComparison.Ordinal) ||
         string.Equals(typeName, "Span", StringComparison.Ordinal) ||
         string.Equals(typeName, "Memory", StringComparison.Ordinal) ||
-        string.Equals(typeName, "ReadOnlyMemory", StringComparison.Ordinal);    private static bool IsKnownCompileTimeEmptySpanOrMemoryType(INamedTypeSymbol namedTypeSymbol)
+        string.Equals(typeName, "ReadOnlyMemory", StringComparison.Ordinal) ||
+        string.Equals(typeName, "ImmutableArray", StringComparison.Ordinal);
+
+    private static bool IsKnownCompileTimeEmptySpanOrMemoryType(INamedTypeSymbol namedTypeSymbol)
     {
         string typeName = namedTypeSymbol.Name;
 
         return string.Equals(typeName, "ReadOnlySpan", StringComparison.Ordinal) ||
                string.Equals(typeName, "Span", StringComparison.Ordinal) ||
                string.Equals(typeName, "Memory", StringComparison.Ordinal) ||
-               string.Equals(typeName, "ReadOnlyMemory", StringComparison.Ordinal);
+               string.Equals(typeName, "ReadOnlyMemory", StringComparison.Ordinal) ||
+               string.Equals(typeName, "ImmutableArray", StringComparison.Ordinal);
     }
     // Zero-trip while/for loops never run their bodies; LogAsync parked there is not audit proof (parity with constant-false if).
     private static bool IsLogAsyncSyntaxInsideReachableConstantGuardLoops(
