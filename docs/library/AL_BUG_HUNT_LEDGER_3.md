@@ -9912,14 +9912,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-11-19 seed hunt #529 (seed-only): no rotation (`shouldRotate: false`). Re-read FAQ hash/TOC wiring, get-started path selection, trust-center focus scrolling, pricing quote hash open, and markdown external-link rendering after hunt #528. Cheap-disproof closed the two reseeded monitors — browser **Back** after a TOC `pushState` restores the prior fragment and emits `hashchange`, which `MarketingFaqPageClient` already handles; mailto `target=_blank` matches the external-link contract without a visible opens-email hint. Closed stale `MarketingResourcesMenu` focus row (proven hunt #73). Seeded five bounded `(candidate)` rows below. Focused marketing vitest (FAQ client/TOC + privacy TOC) 11/11. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `MarketingFaqPageToc` + `MarketingFaqPageClient` — browser Back after a category click does not restore the previous hash-forced answer — **cheap-disproof 2026-11-19 seed hunt #529:** Back restores the prior URL fragment; native `hashchange` reopens the deep-linked `<details>` via the existing listener.
+- [x] (invalid) `renderInline` — mailto links omit a visible opens-email hint — **cheap-disproof 2026-11-19 seed hunt #529:** external mailto uses the shared marketing external-link contract; no product requirement for an extra visible hint.
+- [ ] (candidate) `MarketingFaqPageToc` — `activeId` tracks IntersectionObserver only, so hash-driven navigation may leave `aria-current` on the wrong category until scroll settles — locus: missing `hashchange` sync (privacy TOC partial pattern); input: deep link or Back without scrolling the category header into view (monitor).
+- [ ] (candidate) `GetStartedPageClient` — trial vs sample path selection lives only in React state, so refresh loses the selected path affordance — locus: `selectedPath` without URL or storage sync; input: choose sample path then reload (monitor).
+- [ ] (candidate) `MarketingFaqItemPanel` — `forceOpen` ignores `onToggle`, so keyboard users may be unable to collapse a hash-targeted answer without clearing the fragment — locus: guarded toggle handler; input: deep-linked FAQ answer then Space on summary (monitor).
+- [ ] (candidate) `TrustCenterFocusScroll` — `?focus=` scrolls the section but does not move keyboard focus into the target heading — locus: `scrollIntoView` without `focus()`; input: cheat-panel deep link opened via keyboard (monitor).
+- [ ] (candidate) `MarketingPricingQuotePanel` — `#pricing-quote-request` opens the disclosure without focusing the first required field — locus: hash/open-on-mount effect; input: land on pricing with quote hash from an in-page link (monitor).
+
+
 2026-11-19 thorough hunt #528 (hit): no rotation (shouldRotate false). Promoted FAQ TOC pushState without hashchange, so a deep-linked answer stayed force-open after another category was selected. MarketingFaqPageToc dispatches hashchange, and MarketingFaqItemPanel collapses a panel that was open only because of the previous hash. Regression releases a hash-forced FAQ disclosure when the TOC selects another category. Mailto target=_blank monitor closed valid-no-repro (external-link policy; no blank-document repro). Scoped FAQ vitest 10/10. Private beta: Invited buyers who open an FAQ answer from a link and then choose another category see that answer collapse instead of staying locked open.
 
 2026-10-30 seed hunt #81 (seed-only): re-read marketing markdown link rendering, FAQ hash synchronization, privacy-policy navigation, and pricing quote interactions; no additional hypothesis met the hunt-ready reachability bar without a failing repro. Seeded two bounded candidates for a future thorough hunt.
 
 - [x] (valid-no-repro) `renderInline` — mailto links use target=_blank — **cheap-disproof 2026-11-19 thorough hunt #528:** external-link policy; no blank-document repro.
 - [x] (proven) `MarketingFaqPageToc` + `MarketingFaqPageClient` — pushState omits hashchange — **hit 2026-11-19 thorough hunt #528:** dispatch hashchange and release hash-forced panels.
-- [ ] (candidate) `MarketingFaqPageToc` — browser Back after a category click does not restore the previous hash-forced answer — locus: popstate vs hashchange; input: deep link, TOC category, then Back; monitor.
-- [ ] (candidate) `renderInline` — mailto links omit a visible opens-email hint — locus: external link affordance; input: privacy markdown mailto; monitor.
 
 2026-10-30 seed hunt #80 (hit): proved `MarketingPricingQuotePanel` marked its email input `type="email"` but disabled native validation with `noValidate`, and the submit handler only checked presence, so malformed addresses could reach the quote API; added a format guard and `does not submit when the work email is malformed` in `MarketingPricingQuotePanel.test.tsx`. Focused quote-panel suite passed 3/3. Private beta: invited buyers who enter an invalid work email now receive immediate correction guidance instead of sending an unusable pricing request to the quote service.
 
@@ -10191,13 +10200,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 56
+- **hunts:** 57
 - **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-19
 - **last-bug:** 2026-11-19 — FAQ TOC hash does not release the deep-linked answer
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-12 seed hunt #1947 (seed-only): re-read marketing surfaces after master merge churn; sign-in returnUrl, see-it disclosure, and quick-scan parity paths remain covered by existing regressions; no new mechanism-backed hunt-ready rows.
 
