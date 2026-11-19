@@ -1975,6 +1975,21 @@
 2026-09-12 seed hunt #1924 (seed-only): reseeded host-core-jobs; scoped hosted/job tests passed; no new hunt-ready defect proven this pass.
 ---
 
+2026-11-19 thorough hunt #918 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**917** `(candidate)` rows — **invalid** `MutatingControllerAuditAnalyzer` `LogAsync` only inside `lock (new object())` suppressing AL0003 (reachable lock body is intentional audit proof; regression `AL0003_is_absent_when_LogAsync_runs_in_lock_on_new_object_expression`), **invalid** `RequireAuthorizationAnalyzer` nested struct `[Authorize]` shell (class-only nested authorize scan; regression `Reports_outer_get_when_nested_struct_has_authorize_and_outer_action_does_not`), **invalid** `TenantIdentityBoundaryAnalyzer` banned type in `ref readonly` parameter modifier is missed (regression `Reports_ref_readonly_HttpContext_parameter`; hunt **#916** class), **invalid** `MutatingControllerAuditAnalyzer` `LogAsync` in `catch` when `try` is only `throw` suppressing AL0003 (throwing try leaves catch reachable; regression `AL0003_is_absent_when_LogAsync_runs_only_in_catch_after_try_unconditionally_throws`), **invalid** `RequireAuthorizationAnalyzer` primary-constructor `[Authorize]` on record controller satisfies AL0001 for declared GET (record cannot inherit `ControllerBase`; class primary-constructor parity regression `Reports_outer_get_when_record_primary_constructor_parameter_has_authorize_and_get_does_not`). Scoped filter **231/231** passed (Release). Reseeded five pass-**918** `(candidate)` rows below. Private beta: n/a.
+
+- [x] (invalid) `MutatingControllerAuditAnalyzer` — `LogAsync` inside `lock` when lock object is `new object()` suppresses AL0003 — **invalid 2026-11-19 thorough hunt #918:** reachable lock body; regression above.
+- [x] (invalid) `RequireAuthorizationAnalyzer` — `[Authorize]` on nested struct type satisfies AL0001 for enclosing controller — **invalid 2026-11-19 thorough hunt #918:** regression above.
+- [x] (invalid) `TenantIdentityBoundaryAnalyzer` — banned type in `ref readonly` parameter modifier is missed — **invalid 2026-11-19 thorough hunt #918:** regression `Reports_ref_readonly_HttpContext_parameter`.
+- [x] (invalid) `MutatingControllerAuditAnalyzer` — `LogAsync` in `catch` body when try is only `throw` suppresses AL0003 — **invalid 2026-11-19 thorough hunt #918:** regression above.
+- [x] (invalid) `RequireAuthorizationAnalyzer` — primary-constructor `[Authorize]` on record controller satisfies AL0001 for declared GET — **invalid 2026-11-19 thorough hunt #918:** class primary-constructor parity; regression above.
+
+- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — banned type referenced through file-scoped `global using` alias is missed — locus: global alias binding; input: `global using Ctx = HttpContext` parameter in inner layer (monitor; pass 918 reseed).
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` in `using` declaration initializer only suppresses AL0003 — locus: using declaration scope; input: `using var` scope with audited initializer only (monitor; pass 918 reseed).
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` in `finally` when `try` is only `throw` suppresses AL0003 — locus: finally after throwing try; input: audited `finally` after unconditional throw try (monitor; pass 918 reseed).
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — type-level `[Authorize]` on nested class satisfies AL0001 for enclosing controller without authorize — locus: nested class shell; input: authorized nested class with unauthorized outer GET (monitor; pass 918 reseed).
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — inherited unauthenticated GET stays unreported when derived primary constructor has `[Authorize]` — locus: inherited action scan; input: derived ctor authorize + inherited GET from unauthenticated base (monitor; pass 918 reseed).
+
+- [x] (superseded) pass-**917** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #918:** see hunt **#918** header and pass **#918** reseed.
 ## Zone: security-analyzers
 
 - **id:** security-analyzers
@@ -1993,11 +2008,11 @@
 - [x] (proven) `MutatingControllerAuditAnalyzer` — `LogAsync` in `catch` body behind compile-time `when (true)` filter with empty try suppresses AL0003 — **hit 2026-11-19 thorough hunt #917:** return-only try reachability; regression above. [class:fail-open-validation]
 - [x] (invalid) `RequireAuthorizationAnalyzer` — file-scoped partial controller with `[Authorize]` on primary constructor satisfies AL0001 for sibling partial routes — **invalid 2026-11-19 thorough hunt #917:** regression above.
 
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` inside `lock` when lock object is `new object()` suppresses AL0003 — locus: lock object reachability; input: freshly allocated lock with audited body only (monitor; pass 917 reseed).
-- [ ] (candidate) `RequireAuthorizationAnalyzer` — `[Authorize]` on nested struct type satisfies AL0001 for enclosing controller — locus: nested struct scan; input: authorized nested struct shell (monitor; pass 917 reseed).
-- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — banned type in `ref readonly` parameter modifier is missed — locus: ref readonly parameter scan; input: ref readonly HttpContext (monitor; pass 917 reseed).
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` in `catch` body when try is only `throw` suppresses AL0003 — locus: unreachable catch after unconditional throw try; input: try throw with audited catch (monitor; pass 917 reseed).
-- [ ] (candidate) `RequireAuthorizationAnalyzer` — primary-constructor `[Authorize]` on record controller satisfies AL0001 for declared GET — locus: record controller scan; input: authorized record GET (monitor; pass 917 reseed).
+- [x] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` inside `lock` when lock object is `new object()` suppresses AL0003 — locus: lock object reachability; input: freshly allocated lock with audited body only (monitor; pass 917 reseed).
+- [x] (candidate) `RequireAuthorizationAnalyzer` — `[Authorize]` on nested struct type satisfies AL0001 for enclosing controller — locus: nested struct scan; input: authorized nested struct shell (monitor; pass 917 reseed).
+- [x] (candidate) `TenantIdentityBoundaryAnalyzer` — banned type in `ref readonly` parameter modifier is missed — locus: ref readonly parameter scan; input: ref readonly HttpContext (monitor; pass 917 reseed).
+- [x] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` in `catch` body when try is only `throw` suppresses AL0003 — locus: unreachable catch after unconditional throw try; input: try throw with audited catch (monitor; pass 917 reseed).
+- [x] (candidate) `RequireAuthorizationAnalyzer` — primary-constructor `[Authorize]` on record controller satisfies AL0001 for declared GET — locus: record controller scan; input: authorized record GET (monitor; pass 917 reseed).
 
 - [x] (superseded) pass-**916** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #917:** see hunt **#917** header and pass **#917** reseed.
 
