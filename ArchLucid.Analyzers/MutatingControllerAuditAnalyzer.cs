@@ -1099,6 +1099,16 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             return false;
         }
 
+        if (statementSyntax is ReturnStatementSyntax returnStatementSyntax)
+        {
+            if (returnStatementSyntax.Expression is null)
+            {
+                return true;
+            }
+
+            return !returnStatementSyntax.Expression.DescendantNodesAndSelf().Any(static syntaxNode => syntaxNode is ThrowStatementSyntax);
+        }
+
         if (statementSyntax is not ExpressionStatementSyntax expressionStatementSyntax)
         {
             return false;

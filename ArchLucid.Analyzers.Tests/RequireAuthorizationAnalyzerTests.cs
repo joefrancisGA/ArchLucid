@@ -2563,6 +2563,91 @@ namespace N
         }.RunAsync();
     }
     [Fact]
+    public async Task Reports_outer_get_when_nested_delegate_has_authorize_and_outer_action_does_not()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class OuterController : ControllerBase
+    {
+        [Authorize]
+        public delegate void NestedAuthorizedDelegate(int probeId);
+
+        [HttpGet]
+        public IActionResult {|#0:Get|}() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("OuterController.Get()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Reports_outer_get_when_file_scoped_partial_primary_constructor_parameter_has_authorize()
+    {
+        const string declarationPartial = """
+
+namespace N;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+public partial class FileScopedPartialAuthorizedController
+{
+    [Authorize]
+    public FileScopedPartialAuthorizedController(string probeToken) { }
+}
+""";
+
+        const string actionsPartial = """
+
+namespace N;
+
+using Microsoft.AspNetCore.Mvc;
+
+public partial class FileScopedPartialAuthorizedController : ControllerBase
+{
+    [HttpGet]
+    public IActionResult {|#0:Get|}() => Ok();
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("FileScopedPartialAuthorizedController.Get()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestState =
+            {
+                Sources =
+                {
+                    ("Stubs.cs", AspNetCoreStubs),
+                    ("Decl.cs", declarationPartial),
+                    ("Actions.cs", actionsPartial),
+                },
+            },
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+    [Fact]
     public async Task Reports_inherited_unauthorized_action_when_derived_uses_primary_constructor_only()
     {
         const string testCode = AspNetCoreStubs +
