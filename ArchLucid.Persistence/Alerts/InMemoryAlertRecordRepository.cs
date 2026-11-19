@@ -17,7 +17,7 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            _items.Add(alert);
+            _items.Add(Copy(alert));
             AlertRecordRepositoryCore.TrimInMemoryEntries(_items);
         }
         return Task.CompletedTask;
@@ -30,11 +30,17 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         lock (_gate)
         {
             // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
-            int i = _items.FindIndex(x =>
+            AlertRecord? stored = _items.Find(x =>
                 x.AlertId == alert.AlertId &&
                 AlertRecordRepositoryCore.MatchesScope(x, alert.TenantId, alert.WorkspaceId, alert.ProjectId));
-            if (i >= 0)
-                _items[i] = alert;
+            if (stored is not null)
+            {
+                stored.Status = alert.Status;
+                stored.LastUpdatedUtc = alert.LastUpdatedUtc;
+                stored.AcknowledgedByUserId = alert.AcknowledgedByUserId;
+                stored.AcknowledgedByUserName = alert.AcknowledgedByUserName;
+                stored.ResolutionComment = alert.ResolutionComment;
+            }
         }
 
         return Task.CompletedTask;
@@ -62,7 +68,10 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(FindInScope(scope, alertId));
+        {
+            AlertRecord? match = FindInScope(scope, alertId);
+            return Task.FromResult(match is null ? null : Copy(match));
+        }
     }
 
     /// <summary>Caller must hold <see cref="_gate" />.</summary>
@@ -87,7 +96,7 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
                 workspaceId,
                 projectId,
                 deduplicationKey);
-            return Task.FromResult(match);
+            return Task.FromResult(match is null ? null : Copy(match));
         }
     }
 
@@ -107,6 +116,7 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
             List<AlertRecord> result = AlertRecordRepositoryCore
                 .OrderForInbox(AlertRecordRepositoryCore.FilterInbox(_items, tenantId, workspaceId, projectId, status, includeArchived))
                 .Take(n)
+                .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<AlertRecord>>(result);
         }
@@ -133,7 +143,7 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
                 .OrderForInbox(AlertRecordRepositoryCore.FilterInbox(_items, tenantId, workspaceId, projectId, status, includeArchived))
                 .ToList();
             int total = ordered.Count;
-            List<AlertRecord> page = ordered.Skip(skip).Take(take).ToList();
+            List<AlertRecord> page = ordered.Skip(skip).Take(take).Select(Copy).ToList();
             return Task.FromResult<(IReadOnlyList<AlertRecord>, int)>((page, total));
         }
     }
@@ -181,10 +191,35 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
             if (hasMore)
                 rows.RemoveAt(rows.Count - 1);
 
-            return Task.FromResult<(IReadOnlyList<AlertRecord>, bool)>((rows, hasMore));
+            return Task.FromResult<(IReadOnlyList<AlertRecord>, bool)>((rows.Select(Copy).ToList(), hasMore));
         }
     }
 
+
+    private static AlertRecord Copy(AlertRecord alert) => new()
+    {
+        AlertId = alert.AlertId,
+        RuleId = alert.RuleId,
+        TenantId = alert.TenantId,
+        WorkspaceId = alert.WorkspaceId,
+        ProjectId = alert.ProjectId,
+        RunId = alert.RunId,
+        ComparedToRunId = alert.ComparedToRunId,
+        RecommendationId = alert.RecommendationId,
+        Title = alert.Title,
+        Category = alert.Category,
+        Severity = alert.Severity,
+        Status = alert.Status,
+        TriggerValue = alert.TriggerValue,
+        Description = alert.Description,
+        CreatedUtc = alert.CreatedUtc,
+        LastUpdatedUtc = alert.LastUpdatedUtc,
+        AcknowledgedByUserId = alert.AcknowledgedByUserId,
+        AcknowledgedByUserName = alert.AcknowledgedByUserName,
+        ResolutionComment = alert.ResolutionComment,
+        DeduplicationKey = alert.DeduplicationKey,
+        IsArchived = alert.IsArchived,
+    };
 
     /// <inheritdoc />
     public Task<AlertsInboxSummaryDto> GetInboxSummaryByScopeAsync(

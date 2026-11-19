@@ -2433,6 +2433,84 @@ namespace N
     }
 
     [Fact]
+    public async Task Reports_outer_get_when_nested_enum_has_authorize_and_outer_action_does_not()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class OuterController : ControllerBase
+    {
+        [Authorize]
+        public enum NestedAuthorizedShell
+        {
+            Value = 0,
+        }
+
+        [HttpGet]
+        public IActionResult {|#0:Get|}() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("OuterController.Get()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Reports_inherited_get_when_derived_primary_constructor_parameter_has_authorize()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public abstract class SharedUnauthenticatedGetController : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult InheritedGet() => Ok();
+    }
+
+    public sealed class {|#1:DerivedWithAuthorizedCtorParamController|}([Authorize] string probeToken) : SharedUnauthenticatedGetController
+    {
+    }
+}
+""";
+
+        DiagnosticResult expectedOnAbstract = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithSpan(40, 27, 40, 61)
+            .WithArguments("SharedUnauthenticatedGetController");
+
+        DiagnosticResult expectedOnDerived = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithLocation(1)
+            .WithArguments("SharedUnauthenticatedGetController.InheritedGet()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedOnAbstract, expectedOnDerived },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Reports_inherited_unauthorized_action_when_derived_uses_primary_constructor_only()
     {
         const string testCode = AspNetCoreStubs +

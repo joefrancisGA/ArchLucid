@@ -15,7 +15,7 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
         string normalizedEmail,
         CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         UserInvitationRecord? found = _byId.Values.FirstOrDefault(row =>
             row.TenantId == tenantId
@@ -28,7 +28,7 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
 
     public Task<UserInvitationRecord?> GetByIdAsync(Guid tenantId, Guid invitationId, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult(
             _byId.TryGetValue(invitationId, out UserInvitationRecord? row) && row.TenantId == tenantId ? row : null);
@@ -36,7 +36,7 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
 
     public Task<UserInvitationRecord?> GetPendingByIdAsync(Guid invitationId, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
 
         if (!_byId.TryGetValue(invitationId, out UserInvitationRecord? row))
@@ -54,7 +54,7 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
 
     public Task<IReadOnlyList<UserInvitationRecord>> ListByTenantAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         List<UserInvitationRecord> rows = _byId.Values
             .Where(row => row.TenantId == tenantId)
@@ -75,10 +75,10 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
         DateTimeOffset expiresUtc,
         CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         Guid id = Guid.NewGuid();
-        DateTimeOffset createdUtc = expiresUtc.AddDays(-14);
+        DateTimeOffset createdUtc = TimeProvider.System.GetUtcNow();
         UserInvitationRecord row = new()
         {
             Id = id,
@@ -105,7 +105,7 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
         DateTimeOffset revokedUtc,
         CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!_byId.TryGetValue(invitationId, out UserInvitationRecord? row) || row.TenantId != tenantId)
         {
@@ -139,7 +139,7 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
 
     public Task<UserInvitationRecord?> GetPendingByTokenHashAsync(byte[] tokenHash, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(tokenHash);
 
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
@@ -169,7 +169,7 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
 
     public Task<UserInvitationRecord?> GetByTokenHashAsync(byte[] tokenHash, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(tokenHash);
 
         foreach (KeyValuePair<Guid, byte[]> entry in _tokenHashesByInvitationId)
@@ -192,7 +192,7 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
         string normalizedEmail,
         CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
 
@@ -209,7 +209,7 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
 
     public Task<bool> MarkAcceptedAsync(Guid invitationId, DateTimeOffset acceptedUtc, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!_byId.TryGetValue(invitationId, out UserInvitationRecord? row))
         {
@@ -263,7 +263,7 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
         DateTimeOffset expiresUtc,
         CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!_byId.TryGetValue(invitationId, out UserInvitationRecord? row))
         {

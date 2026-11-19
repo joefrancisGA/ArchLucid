@@ -18,7 +18,7 @@ public sealed class InMemoryRunStageOutcomesRepository : IRunStageOutcomesReposi
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
 
@@ -36,7 +36,7 @@ public sealed class InMemoryRunStageOutcomesRepository : IRunStageOutcomesReposi
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
 
@@ -60,7 +60,7 @@ public sealed class InMemoryRunStageOutcomesRepository : IRunStageOutcomesReposi
         Guid runId,
         CancellationToken cancellationToken = default)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         IReadOnlyList<StageTimelineSummary> items = _rows
             .Where(kvp => kvp.Key.RunId == runId)

@@ -37,7 +37,11 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
         {
             int i = _items.FindIndex(x => x.ScheduleId == schedule.ScheduleId && SameScope(x, schedule));
             if (i >= 0)
-                _items[i] = Copy(schedule);
+            {
+                AdvisoryScanSchedule updated = Copy(schedule);
+                updated.CreatedUtc = _items[i].CreatedUtc;
+                _items[i] = updated;
+            }
         }
 
         return Task.CompletedTask;
@@ -82,6 +86,7 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
                     s.WorkspaceId == workspaceId &&
                     s.ProjectId == projectId)
                 .OrderByDescending(s => s.CreatedUtc)
+                .Take(200)
                 .Select(Copy)
                 .ToList();
 

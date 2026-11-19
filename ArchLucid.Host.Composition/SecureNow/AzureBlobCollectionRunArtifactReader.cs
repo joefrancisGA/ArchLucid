@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.SecureNow;
 
 using Azure;
@@ -61,11 +62,24 @@ public sealed class AzureBlobCollectionRunArtifactReader(
             return null;
 
         BlobClient package = Container().GetBlobClient(manifest.ZipPath);
-        MemoryStream bytes = new();
-
         try
         {
-            await package.DownloadToAsync(bytes, cancellationToken);
+            Response<BlobDownloadStreamingResult> response =
+                await package.DownloadStreamingAsync(cancellationToken: cancellationToken);
+            await using Stream content = response.Value.Content;
+            long length = response.Value.Details.ContentLength;
+
+            if (length <= 0 || length > AzureExtractorUploadLimits.MaxZipBytes)
+                return null;
+
+            byte[] zipBytes = new byte[(int)length];
+            await content.ReadExactlyAsync(zipBytes, cancellationToken);
+
+            return new CollectionRunArtifact
+            {
+                Manifest = manifest,
+                ZipBytes = zipBytes,
+            };
         }
         catch (OperationCanceledException)
         {
@@ -75,17 +89,6 @@ public sealed class AzureBlobCollectionRunArtifactReader(
         {
             return null;
         }
-
-        byte[] zipBytes = bytes.ToArray();
-
-        if (zipBytes.Length == 0)
-            return null;
-
-        return new CollectionRunArtifact
-        {
-            Manifest = manifest,
-            ZipBytes = zipBytes,
-        };
     }
 
     private BlobContainerClient Container()

@@ -96,8 +96,10 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         capturedAudit.ProjectId.Should().Be(entryProjectId);
     }
 
-    [Fact]
-    public async Task ProcessPendingBatchAsync_pushes_ambient_scope_before_exhaustion_dead_letter_audit()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ProcessPendingBatchAsync_pushes_ambient_scope_before_exhaustion_dead_letter_audit(bool providerTimedOut)
     {
         Guid outboxId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
@@ -150,7 +152,9 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         Mock<IRunExportBlobPushService> pushService = new();
         pushService
             .Setup(p => p.PushAsync(runId, It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new HttpRequestException("transient blob upload failure"));
+            .ThrowsAsync(providerTimedOut
+                ? new TaskCanceledException("Blob upload timed out", new TimeoutException())
+                : new HttpRequestException("transient blob upload failure"));
 
         HttpContextAccessor httpContextAccessor = new();
         HttpScopeContextProvider scopeProvider = new(httpContextAccessor);
@@ -173,6 +177,9 @@ public sealed class RunExportBlobPushOutboxProcessorTests
 
         await sut.ProcessPendingBatchAsync(CancellationToken.None);
 
+        pushService.Verify(
+            p => p.PushAsync(runId, It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Once);
         capturedAudit.Should().NotBeNull();
         capturedAudit!.TenantId.Should().Be(entryTenantId, "retry-exhaustion dead-letter audit must follow outbox entry ambient scope, not dev-default {0}", ScopeIds.DefaultTenant);
         capturedAudit.WorkspaceId.Should().Be(entryWorkspaceId);

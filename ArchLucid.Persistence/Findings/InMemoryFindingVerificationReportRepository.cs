@@ -14,6 +14,8 @@ public sealed class InMemoryFindingVerificationReportRepository : IAppendOnlyFin
         FindingVerificationReportAppend append,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(append);
 
         Guid reportId = Guid.NewGuid();
@@ -62,6 +64,8 @@ public sealed class InMemoryFindingVerificationReportRepository : IAppendOnlyFin
         Guid reportId,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(scope);
 
         if (!_reportsById.TryGetValue(reportId, out FindingVerificationReportRecord? record))
@@ -86,6 +90,8 @@ public sealed class InMemoryFindingVerificationReportRepository : IAppendOnlyFin
         Guid? verificationFindingsSnapshotId,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(scope);
 
         FindingVerificationReportRecord? latest = _reportsById.Values
@@ -107,6 +113,8 @@ public sealed class InMemoryFindingVerificationReportRepository : IAppendOnlyFin
         Guid runId,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(scope);
 
         List<FindingVerificationReportRecord> reports = _reportsById.Values
@@ -128,12 +136,13 @@ public sealed class InMemoryFindingVerificationReportRepository : IAppendOnlyFin
         int minSample,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         // In-memory host lacks FindingRecords join — tenant SQL aggregation is authoritative (DX-56).
         _ = scope;
         _ = fromUtc;
         _ = toUtcExclusive;
         _ = minSample;
-        _ = cancellationToken;
 
         return Task.FromResult<IReadOnlyList<EngineVerificationConfirmedRateRow>>([]);
     }

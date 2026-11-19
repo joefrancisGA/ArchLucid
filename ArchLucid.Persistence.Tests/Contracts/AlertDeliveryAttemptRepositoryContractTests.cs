@@ -100,7 +100,7 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
     }
 
     [SkippableFact]
-    public async Task Update_is_reflected_in_ListByAlert()
+    public async Task Changes_are_visible_in_history_only_after_update()
     {
         SkipIfSqlServerUnavailable();
         Guid alertId = Guid.NewGuid();
@@ -124,13 +124,24 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         await repo.CreateAsync(attempt, CancellationToken.None);
 
         attempt.Status = AlertDeliveryAttemptStatus.Succeeded;
+        ScopeContext scope = ScopeOf(tenantId, workspaceId, projectId);
+        IReadOnlyList<AlertDeliveryAttempt> before =
+            await repo.ListByAlertAsync(scope, alertId, CancellationToken.None);
+        before.Should().ContainSingle().Subject.Status.Should().Be(AlertDeliveryAttemptStatus.Started);
+
         await repo.UpdateAsync(attempt, CancellationToken.None);
+        attempt.Status = AlertDeliveryAttemptStatus.Failed;
 
         IReadOnlyList<AlertDeliveryAttempt> list =
-            await repo.ListByAlertAsync(ScopeOf(tenantId, workspaceId, projectId), alertId, CancellationToken.None);
+            await repo.ListByAlertAsync(scope, alertId, CancellationToken.None);
 
         list.Should().ContainSingle();
         list[0].Status.Should().Be(AlertDeliveryAttemptStatus.Succeeded);
+        list[0].Status = AlertDeliveryAttemptStatus.Failed;
+
+        IReadOnlyList<AlertDeliveryAttempt> reloaded =
+            await repo.ListBySubscriptionAsync(scope, subscriptionId, 1, CancellationToken.None);
+        reloaded.Should().ContainSingle().Subject.Status.Should().Be(AlertDeliveryAttemptStatus.Succeeded);
     }
 
     [SkippableFact]

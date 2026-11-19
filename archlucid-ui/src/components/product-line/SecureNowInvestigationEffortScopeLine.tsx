@@ -33,8 +33,7 @@ export function SecureNowInvestigationEffortScopeLine(): React.JSX.Element | nul
       className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="securenow-investigation-effort-scope-from-capture"
     >
-      Latest capture succeeded for this workspace. Enter your own baseline and after minutes below — not the synthetic
-      worksheet.
+      This workspace has a successful capture. Enter your own investigation times before and after using SecureNow.
     </p>
   );
 }

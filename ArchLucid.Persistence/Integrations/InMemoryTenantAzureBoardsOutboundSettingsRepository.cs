@@ -59,7 +59,7 @@ public sealed class InMemoryTenantAzureBoardsOutboundSettingsRepository : ITenan
 
         ArgumentException.ThrowIfNullOrWhiteSpace(summary);
 
-        if (_byTenant.TryGetValue(tenantId, out TenantAzureBoardsOutboundSettings? existing))
+        while (_byTenant.TryGetValue(tenantId, out TenantAzureBoardsOutboundSettings? existing))
         {
             TenantAzureBoardsOutboundSettings updated = new()
             {
@@ -72,7 +72,8 @@ public sealed class InMemoryTenantAzureBoardsOutboundSettingsRepository : ITenan
                 LastConnectionTestSummary = summary.Trim(),
             };
 
-            _byTenant[tenantId] = updated;
+            if (_byTenant.TryUpdate(tenantId, updated, existing))
+                break;
         }
 
         return Task.CompletedTask;

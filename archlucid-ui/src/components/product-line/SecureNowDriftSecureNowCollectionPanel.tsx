@@ -15,7 +15,10 @@ export function SecureNowDriftSecureNowCollectionPanel(
   props: SecureNowDriftSecureNowCollectionPanelProps,
 ): React.JSX.Element | null {
   const { productLine } = useProductLine();
-  const setupQuery = useSecureNowCollectionSetupInput({ snapshotCaptureSucceeded: null });
+  const setupQuery = useSecureNowCollectionSetupInput({
+    snapshotCaptureSucceeded: null,
+    enabled: productLine === "security",
+  });
 
   if (productLine !== "security") {
     return null;

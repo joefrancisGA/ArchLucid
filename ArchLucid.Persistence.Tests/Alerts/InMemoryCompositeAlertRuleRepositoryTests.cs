@@ -23,6 +23,29 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         ProjectId = ProjectId,
     };
 
+    [Fact]
+    public async Task Repository_honors_pre_canceled_operations()
+    {
+        InMemoryCompositeAlertRuleRepository repo = new();
+        Guid ruleId = Guid.NewGuid();
+        CompositeAlertRule rule = BuildRule(ruleId, "saved", BaseUtc, true);
+        CancellationToken canceled = new(canceled: true);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.CreateAsync(rule, canceled));
+        Assert.Null(await repo.GetByIdAsync(Scope, ruleId, CancellationToken.None));
+
+        await repo.CreateAsync(rule, CancellationToken.None);
+        rule.Name = "canceled update";
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.UpdateAsync(rule, canceled));
+        Assert.Equal("saved", (await repo.GetByIdAsync(Scope, ruleId, CancellationToken.None))?.Name);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.GetByIdAsync(Scope, ruleId, canceled));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, canceled));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            repo.ListEnabledByScopeAsync(TenantId, WorkspaceId, ProjectId, canceled));
+    }
+
     [SkippableFact]
     public async Task GetByIdAsync_returns_null_for_another_tenant()
     {

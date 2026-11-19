@@ -61,6 +61,25 @@ public sealed class InMemoryRecommendationRepositoryTests
     }
 
     [SkippableFact]
+    public async Task Review_status_remains_private_when_the_save_is_canceled()
+    {
+        InMemoryRecommendationRepository repo = new();
+        Guid id = Guid.NewGuid();
+        await repo.UpsertAsync(Minimal(id, RunId, 1, BaseUtc), CancellationToken.None);
+
+        RecommendationRecord? draft = await repo.GetByIdAsync(TestScope, id, CancellationToken.None);
+        Assert.NotNull(draft);
+        draft.Status = RecommendationStatus.Accepted;
+
+        Func<Task> save = () => repo.UpsertAsync(draft, new CancellationToken(canceled: true));
+        await save.Should().ThrowAsync<OperationCanceledException>();
+
+        IReadOnlyList<RecommendationRecord> rows =
+            await repo.ListByRunAsync(TenantId, WorkspaceId, ProjectId, RunId, CancellationToken.None);
+        rows.Should().ContainSingle().Subject.Status.Should().Be(RecommendationStatus.Proposed);
+    }
+
+    [SkippableFact]
     public async Task GetByIdAsync_returns_null_for_unknown_id()
     {
         InMemoryRecommendationRepository repo = new();

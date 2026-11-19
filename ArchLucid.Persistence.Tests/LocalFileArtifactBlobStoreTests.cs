@@ -41,6 +41,40 @@ public sealed class LocalFileArtifactBlobStoreTests
     }
 
     [SkippableFact]
+    public async Task ReadAsync_returns_null_when_file_disappears_before_open()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "archlucid-blob-test-" + Guid.NewGuid().ToString("N"));
+        ScopeContext context = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject
+        };
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(m => m.GetCurrentScope()).Returns(context);
+        LocalFileArtifactBlobStore store = new(root, scope.Object);
+
+        try
+        {
+            string uri = await store.WriteAsync("c1", "a.json", "x", CancellationToken.None);
+            scope.Setup(m => m.GetCurrentScope()).Returns(() =>
+            {
+                File.Delete(new Uri(uri).LocalPath);
+                return context;
+            });
+
+            string? read = await store.ReadAsync(uri, CancellationToken.None);
+
+            read.Should().BeNull();
+        }
+        finally
+        {
+            if (Directory.Exists(root))
+                Directory.Delete(root, true);
+        }
+    }
+
+    [SkippableFact]
     public async Task ReadAsync_when_scope_tenant_mismatch_throws()
     {
         string root = Path.Combine(Path.GetTempPath(),

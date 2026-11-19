@@ -129,7 +129,7 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
         }
 
         SentEmailLedgerEntry ledgerEntry = new(idempotencyKey, tenantId, TemplateId, _emailProvider.ProviderName, null);
-        bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken).ConfigureAwait(false);
+        bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, CancellationToken.None).ConfigureAwait(false);
 
         return reserved;
     }

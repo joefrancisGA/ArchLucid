@@ -53,28 +53,30 @@ public sealed class InMemoryTenantAzureOpenAiConnectionRepository : ITenantAzure
         string? message,
         CancellationToken cancellationToken)
     {
-        if (!_store.TryGetValue(tenantId, out TenantAzureOpenAiConnectionRecord? existing))
+        while (true)
         {
-            return Task.FromResult(false);
+            if (!_store.TryGetValue(tenantId, out TenantAzureOpenAiConnectionRecord? existing))
+            {
+                return Task.FromResult(false);
+            }
+
+            TenantAzureOpenAiConnectionRecord updated = new()
+            {
+                TenantId = existing.TenantId,
+                Endpoint = existing.Endpoint,
+                AuthMode = existing.AuthMode,
+                ApiKeyKeyVaultSecretName = existing.ApiKeyKeyVaultSecretName,
+                DeploymentsJson = existing.DeploymentsJson,
+                IsEnabled = existing.IsEnabled,
+                Label = existing.Label,
+                LastProbeSucceeded = succeeded,
+                LastProbeMessage = message,
+                LastProbeUtc = TimeProvider.System.GetUtcNow(),
+                UpdatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+            if (_store.TryUpdate(tenantId, updated, existing))
+                return Task.FromResult(true);
         }
-
-        TenantAzureOpenAiConnectionRecord updated = new()
-        {
-            TenantId = existing.TenantId,
-            Endpoint = existing.Endpoint,
-            AuthMode = existing.AuthMode,
-            ApiKeyKeyVaultSecretName = existing.ApiKeyKeyVaultSecretName,
-            DeploymentsJson = existing.DeploymentsJson,
-            IsEnabled = existing.IsEnabled,
-            Label = existing.Label,
-            LastProbeSucceeded = succeeded,
-            LastProbeMessage = message,
-            LastProbeUtc = TimeProvider.System.GetUtcNow(),
-            UpdatedUtc = TimeProvider.System.GetUtcNow(),
-        };
-
-        _store[tenantId] = updated;
-
-        return Task.FromResult(true);
     }
 }

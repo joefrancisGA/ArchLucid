@@ -17,5 +17,8 @@ public interface IArchitectureRunAsyncOperationRegistrar
         string runId,
         ArchitectureRunAsyncOperationKind kind);
 
+    /// <summary>Returns the active registration's release signal, or null when there is no registration.</summary>
+    Task? GetReleaseTask(ScopeContext scope, string runId, ArchitectureRunAsyncOperationKind kind);
+
     void Release(ScopeContext scope, string runId, ArchitectureRunAsyncOperationKind kind);
 }

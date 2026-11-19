@@ -34,11 +34,14 @@ internal static class AgentTraceOrphanBlobDeleter
 
         foreach (string blobName in blobNames)
         {
-            await container.DeleteBlobIfExistsAsync(
+            bool removed = (await container.DeleteBlobIfExistsAsync(
                     blobName,
                     DeleteSnapshotsOption.IncludeSnapshots,
                     cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+                .ConfigureAwait(false)).Value;
+
+            if (!removed)
+                continue;
 
             deleted++;
             ArchLucidInstrumentation.DataArchivalBlobsDeletedTotal.Add(1);

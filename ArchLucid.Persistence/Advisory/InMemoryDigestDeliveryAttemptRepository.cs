@@ -16,7 +16,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
     public Task CreateAsync(DigestDeliveryAttempt attempt, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(attempt);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
             _items.Add(Copy(attempt));
         return Task.CompletedTask;
@@ -25,12 +25,16 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
     public Task UpdateAsync(DigestDeliveryAttempt attempt, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(attempt);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.AttemptId == attempt.AttemptId && SameScope(x, attempt));
-            if (i >= 0)
-                _items[i] = Copy(attempt);
+            DigestDeliveryAttempt? stored = _items.Find(x =>
+                x.AttemptId == attempt.AttemptId && SameScope(x, attempt));
+            if (stored is not null)
+            {
+                stored.Status = attempt.Status;
+                stored.ErrorMessage = attempt.ErrorMessage;
+            }
         }
 
         return Task.CompletedTask;
@@ -96,13 +100,13 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<DigestDeliveryAttempt> result = _items
                 .Where(x => x.SubscriptionId == subscriptionId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
-                .Take(take)
+                .Take(Math.Clamp(take, 1, 200))
                 .Select(Copy)
                 .ToList();
 

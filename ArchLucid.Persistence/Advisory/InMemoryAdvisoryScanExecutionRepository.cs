@@ -14,7 +14,7 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
     /// <inheritdoc />
     public Task CreateAsync(AdvisoryScanExecution execution, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
             _items.Add(Copy(execution));
         return Task.CompletedTask;
@@ -23,12 +23,18 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
     /// <inheritdoc />
     public Task UpdateAsync(AdvisoryScanExecution execution, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.ExecutionId == execution.ExecutionId && SameScope(x, execution));
-            if (i >= 0)
-                _items[i] = Copy(execution);
+            AdvisoryScanExecution? stored = _items.Find(x =>
+                x.ExecutionId == execution.ExecutionId && SameScope(x, execution));
+            if (stored is not null)
+            {
+                stored.CompletedUtc = execution.CompletedUtc;
+                stored.Status = execution.Status;
+                stored.ResultJson = execution.ResultJson;
+                stored.ErrorMessage = execution.ErrorMessage;
+            }
         }
 
         return Task.CompletedTask;
@@ -68,14 +74,19 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<AdvisoryScanExecution> result = _items
                 .Where(x => x.ScheduleId == scheduleId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.StartedUtc)
-                .Take(take)
-                .Select(Copy)
+                .Take(Math.Clamp(take, 1, 200))
+                .Select(static execution =>
+                {
+                    AdvisoryScanExecution summary = Copy(execution);
+                    summary.ResultJson = string.Empty;
+                    return summary;
+                })
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<AdvisoryScanExecution>>(result);

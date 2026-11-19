@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Architecture;
 public sealed class InMemoryInfrastructureDiagramDocumentationDecisionRepository
     : IInfrastructureDiagramDocumentationDecisionRepository
 {
-    private readonly ConcurrentDictionary<string, InfrastructureDiagramDocumentationDecisionPersistRecord> records = new();
+    private readonly ConcurrentDictionary<(Guid TenantId, Guid ScopeId, string SubjectKind, string SubjectKey), InfrastructureDiagramDocumentationDecisionPersistRecord> records = new();
 
     public Task UpsertAsync(
         InfrastructureDiagramDocumentationDecisionPersistRecord record,
@@ -16,7 +16,7 @@ public sealed class InMemoryInfrastructureDiagramDocumentationDecisionRepository
         ArgumentNullException.ThrowIfNull(record);
         cancellationToken.ThrowIfCancellationRequested();
 
-        this.records[BuildKey(record.TenantId, record.ScopeId, record.SubjectKind, record.SubjectKey)] = record;
+        this.records[(record.TenantId, record.ScopeId, record.SubjectKind, record.SubjectKey)] = record;
         return Task.CompletedTask;
     }
 
@@ -29,7 +29,7 @@ public sealed class InMemoryInfrastructureDiagramDocumentationDecisionRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        this.records.TryGetValue(BuildKey(tenantId, scopeId, subjectKind, subjectKey), out InfrastructureDiagramDocumentationDecisionPersistRecord? record);
+        this.records.TryGetValue((tenantId, scopeId, subjectKind, subjectKey), out InfrastructureDiagramDocumentationDecisionPersistRecord? record);
         return Task.FromResult(record);
     }
 
@@ -93,7 +93,4 @@ public sealed class InMemoryInfrastructureDiagramDocumentationDecisionRepository
 
         return Task.FromResult(records);
     }
-
-    private static string BuildKey(Guid tenantId, Guid scopeId, string subjectKind, string subjectKey) =>
-        $"{tenantId:D}:{scopeId:D}:{subjectKind}:{subjectKey}";
 }

@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
@@ -100,5 +101,58 @@ public sealed class InMemoryFindingsSnapshotScopedReadTests
             CancellationToken.None);
 
         page.Items.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Evicted_snapshot_does_not_keep_priority_ranks_when_saved_again()
+    {
+        InMemoryFindingsSnapshotRepository repository =
+            new(new FixedPersistenceScopeContextProvider(TenantAScope));
+        FindingsSnapshot snapshot = new()
+        {
+            FindingsSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "f-1",
+                    FindingType = "Security",
+                    Category = "Security",
+                    EngineType = "Test",
+                    Severity = FindingSeverity.Warning,
+                    Title = "probe",
+                    Rationale = "probe",
+                },
+            ],
+        };
+
+        await repository.SaveAsync(snapshot, CancellationToken.None);
+        await repository.UpdatePriorityRanksAsync(TenantAScope, snapshot.FindingsSnapshotId,
+            [("f-1", 1)], CancellationToken.None);
+        FindingRecordMetadataPage before = await ReadPageAsync();
+        before.Items.Single().PriorityRank.Should().Be(1);
+
+        for (int index = 0; index < FindingsSnapshotRepositoryCore.MaxInMemoryEntries; index++)
+        {
+            await repository.SaveAsync(new FindingsSnapshot
+            {
+                FindingsSnapshotId = Guid.NewGuid(),
+                RunId = Guid.NewGuid(),
+                Findings = [],
+            }, CancellationToken.None);
+        }
+
+        (await repository.GetByIdAsync(TenantAScope, snapshot.FindingsSnapshotId, CancellationToken.None))
+            .Should().BeNull();
+
+        await repository.SaveAsync(snapshot, CancellationToken.None);
+        FindingRecordMetadataPage after = await ReadPageAsync();
+        after.Items.Single().PriorityRank.Should().BeNull();
+
+        Task<FindingRecordMetadataPage> ReadPageAsync() => repository.ListFindingRecordsKeysetAsync(
+            TenantAScope, snapshot.FindingsSnapshotId, cursorSortOrder: null, cursorFindingRecordId: null,
+            cursorPriorityRank: null, severity: null, category: null, findingType: null,
+            take: 1, orderByPriority: true, CancellationToken.None);
     }
 }

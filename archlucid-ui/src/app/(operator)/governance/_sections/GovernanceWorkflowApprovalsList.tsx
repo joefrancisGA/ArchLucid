@@ -1,7 +1,20 @@
 import { useMemo, type MutableRefObject } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 import { Card } from "@/components/ui/card";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { governanceApprovalQueueFilterHrefFromSearch } from "@/lib/governance/governance-approval-queue-filter-url";
+import {
+  GOVERNANCE_APPROVAL_STATUS_FILTER_PARAM,
+  filterGovernanceApprovalsByStatusFilter,
+  governanceApprovalStatusFilterLabel,
+  parseGovernanceApprovalStatusFilter,
+} from "@/lib/governance/governance-approval-status-filter";
+import { GOVERNANCE_APPROVAL_STATUS_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/governance-approval-status-filter-empty-not-load-failure-copy";
+import { cn } from "@/lib/utils";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 import type { GovernanceApprovalWorkflowState } from "@/app/(operator)/governance/_sections/governance-approval-workflow-state";
@@ -19,6 +32,9 @@ import {
   GovernanceWorkflowApprovalsQueueChrome,
   GovernanceWorkflowApprovalsQueueRow,
 } from "./GovernanceWorkflowApprovalsQueue";
+import { GovernanceWorkflowApprovalsStatusFilterBar } from "./GovernanceWorkflowApprovalsStatusFilterBar";
+import { GovernanceWorkflowApprovalsStatusFilterEmptyPartialHonesty } from "./GovernanceWorkflowApprovalsStatusFilterEmptyPartialHonesty";
+import { GovernanceWorkflowApprovalsListLoadFailureHonesty } from "./GovernanceWorkflowApprovalsListLoadFailureHonesty";
 import type { GovernanceWorkflowPendingReview } from "./governance-workflow-helpers";
 
 export type GovernanceWorkflowApprovalsListProps = {
@@ -46,10 +62,14 @@ export type GovernanceWorkflowApprovalsListProps = {
 };
 
 export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprovalsListProps) {
+  const searchParams = useSearchParams();
+  const statusFilter = parseGovernanceApprovalStatusFilter(searchParams.get(GOVERNANCE_APPROVAL_STATUS_FILTER_PARAM));
   const {
     buyerPolishedShell,
     canMutateWorkflow,
+    activeRunId,
     approvals,
+    listsLoading,
     workflowState,
     listFailure,
     emphasizeDecisionRecord,
@@ -79,6 +99,16 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
     () => resolveContinueLastApprovalRequest(approvals),
     [approvals],
   );
+  const filteredApprovals = useMemo(
+    () => filterGovernanceApprovalsByStatusFilter(approvals, statusFilter),
+    [approvals, statusFilter],
+  );
+  const showStatusFilterEmpty =
+    !listsLoading
+    && listFailure === null
+    && statusFilter !== null
+    && approvals.length > 0
+    && filteredApprovals.length === 0;
 
   function openApprovalRequest(approvalRequestId: string): void {
     writeApprovalQueueLastViewedRequestId(approvalRequestId);
@@ -110,14 +140,44 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
 
   return (
     <div className="mt-6 grid gap-4">
+      {activeRunId !== null && approvals.length > 0 ? <GovernanceWorkflowApprovalsStatusFilterBar /> : null}
+
+      <GovernanceWorkflowApprovalsListLoadFailureHonesty listFailure={listFailure} />
+
       <GovernanceWorkflowApprovalsEmpty
         workflowState={workflowState}
         listFailure={listFailure}
         canMutateWorkflow={canMutateWorkflow}
       />
 
+      {showStatusFilterEmpty ? (
+        <EnterpriseCompactEmptyState
+          testId="governance-approval-status-filter-empty"
+          title={`No ${governanceApprovalStatusFilterLabel(statusFilter).toLowerCase()} approval requests`}
+          description="This review has approval requests in other statuses. Clear the filter to see the full queue."
+          footer={
+            <div className="space-y-2">
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="governance-approval-status-filter-empty-not-load-failure"
+              >
+                {GOVERNANCE_APPROVAL_STATUS_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+              </p>
+              <Link
+                className="text-al-link hover:underline"
+                href={governanceApprovalQueueFilterHrefFromSearch(searchParams, { approvalStatus: null })}
+                data-testid="governance-approval-status-filter-clear"
+              >
+                Clear status filter
+              </Link>
+              <GovernanceWorkflowApprovalsStatusFilterEmptyPartialHonesty />
+            </div>
+          }
+        />
+      ) : null}
+
       <GovernanceWorkflowApprovalsQueueChrome
-        approvalsCount={approvals.length}
+        approvalsCount={filteredApprovals.length}
         mutationDisabledHintId={mutationDisabledHintId}
         mutationDisabledReason={mutationDisabledReason}
       />
@@ -154,7 +214,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
         />
       ) : null}
 
-      {approvals.map((row) => (
+      {filteredApprovals.map((row) => (
         <Card
           key={row.approvalRequestId}
           data-testid="governance-approval-request-row"

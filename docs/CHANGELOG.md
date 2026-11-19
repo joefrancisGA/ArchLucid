@@ -5,6 +5,64 @@
 
 # ArchLucid changelog
 
+
+## 2026-11-18 - Score lift round 81 (batch 46): Findings register plus job view, triple filter, assigned collection preface, orphan context, list context plus search
+
+**Outcome.** Findings queue combined register plus job view and triple register-job-NL filter empties, assigned-to-me empty collection preface, reviews hub orphan-candidate context empty, and list context plus search combined empty repeat not-failure and partial-capture discipline. Mounted contract depth extends through round 80.
+
+**Surfaces.** Governance findings queue and assigned empty, architecture reviews list, honesty and mounted contract tests.
+## 2026-11-18 - Score lift round 80 (batch 45): Operator home collection blocker, job view plus NL facets, reviews list context, workspace health refresh, policy assignments empty
+
+**Outcome.** SecureNow operator home names collection before open-gate navigation. Findings queue combined job view plus NL facet filter empties, reviews hub list-context filter empty, workspace health page refresh discipline, and policy pack featured assignments empty repeat not-failure and partial-capture discipline. Mounted contract depth extends through round 79.
+
+**Surfaces.** Operator home in-flight, governance findings queue, architecture reviews list, workspace health hero, policy packs featured section, honesty and mounted contract tests.
+
+## 2026-11-18 - Score lift round 79 (batch 44): CI score-lift chain, reviews package scope, golden disabled export, findings register plus NL facets, mounted depth
+
+**Outcome.** CI runs the score-lift assert chain through round 79. Reviews hub package scope and combined search plus scope filter empties, golden manifest disabled-export affordance, and findings queue combined register plus NL facet filter footers repeat not-failure and partial-capture discipline. Mounted contract depth test locks rounds 73–78.
+
+**Surfaces.** CI doc-markdown-links job, architecture reviews list, golden manifest export menu, governance findings queue, honesty and mounted contract tests.
+## 2026-11-18 - Score lift round 78 (batch 43): Golden export pre-block, reviews search filter, findings register filter, graph load RP, policy pack detail RP, and score-lift umbrella
+
+**Outcome.** Golden manifest sponsor-blocked export shows commit-before-seal before the blocked reason. Reviews hub search filter-empty, findings register filter-no-match, evidence graph hard-failure Report Problem, and policy pack detail load Report Problem repeat not-failure and partial-capture discipline. CI gains an umbrella assert for score-lift rounds 65–77.
+
+**Surfaces.** Golden manifest export, architecture reviews list, findings queue, evidence graph error, policy pack detail, honesty and mounted contract tests.
+## 2026-11-18 - Score lift round 77 (batch 42): Remediation dual-filter summary, golden manifest commit-first export errors, policy catalog Report Problem, connection category filter empty, attack path unevaluated honesty, and findings job-view filter empty
+
+**Outcome.** Remediation workbench names concurrent status and wave filters. Golden manifest export errors lead with commit-before-seal discipline. Policy pack catalog hard failures gain Report Problem and partial-capture teaching. Connection status category chip empties are distinct from load failure. Attack path report separates unevaluated-only from diagram filter empty. Findings queue job-view filter-no-match repeats not-load-failure and partial capture.
+
+**Surfaces.** Remediation workbench, golden manifest export menu, policy packs catalog, connection status dashboard, remediation factory attack path report, governance findings queue, honesty and mounted contract tests.
+
+## 2026-11-18 - Score lift round 76 (batch 41): Findings NL facet filter empty, combined remediation filters, approval list Report Problem, terraform advisory line, and ROI validation hierarchy
+
+**Outcome.** Findings severity and status chip filter empties, combined remediation status and wave filter empty, approval list hard-failure Report Problem, terraform workbench advisory-not-apply line, and investigation-effort blocking banner validation vs missing-field hierarchy repeat partial-capture discipline.
+
+**Surfaces.** Findings queue NL facets, remediation combined filters, governance approval list load failure, terraform workbench header, investigation effort ROI banner, honesty and mounted contract tests.
+
+## 2026-11-18 - Score lift round 75 (batch 40): Ranked path chips, approval status filter empty, wave filter empty, and investigation effort field labels
+
+**Outcome.** Factory ranked-path rows truncate long path ids like cut-point chips. Approval queue status filter empty, remediation wave filter empty, and investigation-effort blocking banner field labels repeat partial-capture and filter-not-failure discipline.
+
+**Surfaces.** Ranked paths table path id chip, governance approval status filter, remediation workbench wave filter, investigation effort ROI banner, honesty and mounted contract tests.
+
+## 2026-11-18 - Score lift round 74 (batch 39): Instance status filter, attack path report, simulator explain, and cut-point chips
+
+**Outcome.** Remediation instance status filter empty, attack path report read failure, attack path diagram-filter empty, and score simulator explain failure repeat partial-capture discipline and Report Problem. Collapsed cut-point path ids render as truncated chips.
+
+**Surfaces.** Remediation workbench status filter, attack path report load and empty, simulator explain failure, cut-point collapsed chips, honesty and mounted contract tests.
+
+## 2026-11-18 - Score lift round 73 (batch 38): Factory metrics and ranked paths reads, path view empty, and patterns catalog
+
+**Outcome.** Remediation factory executive metrics and ranked paths isolated read failures, ranked paths catalog and path-view filter empties, and remediation patterns catalog empty repeat partial-capture discipline and Report Problem on section read failures.
+
+**Surfaces.** Factory executive metrics load failure, ranked paths load failure, ranked paths empty and view filter, remediation patterns catalog empty, honesty and mounted contract tests.
+
+## 2026-11-18 - Score lift round 72 (batch 37): Working standards catalog, factory queue load failure, patterns filter, and sealed date range
+
+**Outcome.** Working-mode standards rules catalog with filter empties, remediation factory priority queue load failure, remediation patterns registry filter empty, and signed records date-range filter empty repeat partial-capture discipline.
+
+**Surfaces.** Working standards catalog, factory priority queue load failure, remediation patterns filter empty, sealed records date-range filter, honesty and mounted contract tests.
+
 ## 2026-11-17 - Score lift round 71 (batch 36): Policy catalog, standards catalog, graph type filter, and compare zero counts
 
 **Outcome.** Policy pack catalog empty, standards rules catalog empty, evidence graph type-filter empty, compare correlation all-zero counts, and resource explorer filter empty repeat partial-capture discipline.
@@ -2556,3 +2614,5 @@ Added aggregate run explanation endpoint (`/v1/explain/runs/{runId}/aggregate`) 
 1. Add a new `## <version> ï¿½ <title>` section **above** the previous one.
 2. Use the subsections: **Area**, **Key deliverables**, and (optionally) **Intentionally deferred**.
 3. Keep entries to a navigable summary; put fine-grained prompt records in a new `docs/archive/CHANGE_SET_<id>.md` file and link from here.
+
+

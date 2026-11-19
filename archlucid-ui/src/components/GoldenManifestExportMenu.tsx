@@ -42,6 +42,7 @@ import { downloadManifestMarkdownExport } from "@/lib/api/manifest-markdown-expo
 import { manifestMarkdownExportBlockedReason } from "@/lib/manifest/manifest-markdown-export-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE } from "@/lib/exports/golden-manifest-export-disabled-while-blocked-copy";
 import { REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE } from "@/lib/reviews/review-commit-evidence-before-seal-copy";
 import { ExportPartialCaptureRecoveryHonesty } from "@/components/exports/ExportPartialCaptureRecoveryHonesty";
 import { EXPORT_FORMAT_MARKDOWN } from "@/lib/export-format-when-to-use";
@@ -315,10 +316,10 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
   const exportBlockedReasonChrome =
     sponsorExportBlocked ? (
       <div className="space-y-1" role="alert" data-testid="golden-manifest-export-blocked-reason">
-        <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportBlockedReason}</p>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-commit-before-seal">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-blocked-commit-before-seal">
           {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
         </p>
+        <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportBlockedReason}</p>
         <ExportPartialCaptureRecoveryHonesty
           show
           testId="golden-manifest-export-partial-capture-recovery"
@@ -356,6 +357,14 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           {markdownOptionLabel}
         </Button>
         <ExportFormatWhenToUseHint format="markdown" />
+        {sponsorExportBlocked ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="golden-manifest-export-disabled-while-blocked"
+          >
+            {GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE}
+          </p>
+        ) : null}
         <SponsorExportSendHonestyStrip testIdPrefix="golden-manifest-export" />
         {exportDemoBanner}
         {exportLegacyWarning}
@@ -364,10 +373,10 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         {exportPartialCaptureOnError}
         {exportError !== null ? (
           <div className="space-y-1" role="alert" data-testid="golden-manifest-export-error">
-            <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportError}</p>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-error-commit-before-seal">
               {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
             </p>
+            <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportError}</p>
           </div>
         ) : null}
       </div>
@@ -429,6 +438,14 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         </SelectItem>
       </SelectContent>
     </Select>
+      {sponsorExportBlocked ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="golden-manifest-export-disabled-while-blocked-select"
+        >
+          {GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE}
+        </p>
+      ) : null}
       <SponsorExportSendHonestyStrip testIdPrefix="golden-manifest-export" />
       {exportDemoBanner}
       {exportLegacyWarning}
@@ -437,10 +454,10 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       {exportPartialCaptureOnError}
       {exportError !== null ? (
         <div className="space-y-1" role="alert" data-testid="golden-manifest-export-error">
-          <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportError}</p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-error-commit-before-seal">
             {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
           </p>
+          <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportError}</p>
         </div>
       ) : null}
     </div>

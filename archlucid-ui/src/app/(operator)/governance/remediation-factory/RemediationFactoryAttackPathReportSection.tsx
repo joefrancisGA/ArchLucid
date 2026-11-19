@@ -4,6 +4,7 @@ import { useMemo, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import {
@@ -33,6 +34,9 @@ import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-l
 import { REMEDIATION_FACTORY_ATTACK_PATH_PARTIAL_RERANK_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-partial-rerank-copy";
 import { REMEDIATION_FACTORY_ATTACK_PATH_TABLE_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-table-partial-capture-copy";
 import { REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_ONLY_PARTIAL_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-unevaluated-only-partial-copy";
+import { REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_ONLY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-unevaluated-only-not-load-failure-copy";
+import { REMEDIATION_FACTORY_ATTACK_PATH_REPORT_LOAD_FAILURE_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-report-load-failure-partial-capture-copy";
+import { REMEDIATION_FACTORY_ATTACK_PATH_DIAGRAM_FILTER_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-diagram-filter-empty-partial-capture-copy";
 import {
   attackPathReportPathChipOverflowLine,
   formatAttackPathReportPathChipLabel,
@@ -123,14 +127,31 @@ export function RemediationFactoryAttackPathReportSection(props: {
             presentation={remediationFactoryAttackPathReportErrorRecovery()}
             testId="attack-path-report-error-recovery"
           />
-          <RefreshButton
-            busy={props.reportQuery.isFetching}
-            label="Retry attack path report"
-            data-testid="attack-path-report-retry"
-            onClick={() => void props.reportQuery.refetch()}
-          />
-        </>
-      ) : props.reportQuery.isSuccess && props.reportQuery.data ? (
+            <RefreshButton
+              busy={props.reportQuery.isFetching}
+              label="Retry attack path report"
+              data-testid="attack-path-report-retry"
+              onClick={() => void props.reportQuery.refetch()}
+            />
+            <FatalPageReportProblemSupportRow
+              surfaceId="compliance-remediation-factory-attack-path-report-read-failed"
+              errorTitle="Remediation factory attack path report"
+              errorCode="remediation-factory-attack-path-report-load-failed"
+              correlationId={null}
+              httpStatus={null}
+            />
+            {props.partialCapture === true ? (
+              <SecureNowPartialCaptureRecoveryParagraph
+                testId="attack-path-report-load-failure-partial-capture"
+                partialCaptureSnapshotId={props.partialCaptureSnapshotId ?? null}
+                returnPath={partialCaptureReturnPath}
+                middleLine={REMEDIATION_FACTORY_ATTACK_PATH_REPORT_LOAD_FAILURE_PARTIAL_CAPTURE_LINE}
+                cloudConnectionsTestId="attack-path-report-load-failure-partial-cloud"
+                extractUploadTestId="attack-path-report-load-failure-partial-extract"
+              />
+            ) : null}
+          </>
+        ) : props.reportQuery.isSuccess && props.reportQuery.data ? (
         <>
           {props.partialCapture === true ? (
             <p
@@ -140,24 +161,40 @@ export function RemediationFactoryAttackPathReportSection(props: {
               {REMEDIATION_FACTORY_ATTACK_PATH_TABLE_PARTIAL_CAPTURE_LINE}
             </p>
           ) : null}
-          {props.partialCapture === true
-          && props.reportQuery.data.vulnerableAttackPaths.length === 0
+          {props.reportQuery.data.vulnerableAttackPaths.length === 0
           && props.reportQuery.data.unevaluatedGroups.length > 0 ? (
-            <p
-              className={OPERATOR_TYPOGRAPHY.helper}
-              data-testid="attack-path-report-unevaluated-only-partial"
-            >
-              {REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_ONLY_PARTIAL_LINE}
-            </p>
+            <div className="space-y-1">
+              <p
+                className={OPERATOR_TYPOGRAPHY.helper}
+                data-testid="attack-path-report-unevaluated-only-not-load-failure"
+              >
+                {REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_ONLY_NOT_LOAD_FAILURE_LINE}
+              </p>
+              {props.partialCapture === true ? (
+                <p
+                  className={OPERATOR_TYPOGRAPHY.helper}
+                  data-testid="attack-path-report-unevaluated-only-partial"
+                >
+                  {REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_ONLY_PARTIAL_LINE}
+                </p>
+              ) : null}
+            </div>
           ) : null}
           {props.reportQuery.data.vulnerableAttackPaths.length === 0
           && props.reportQuery.data.unevaluatedGroups.length === 0 ? (
-            <p
-              className={OPERATOR_TYPOGRAPHY.helper}
-              data-testid="attack-path-report-diagram-filter-empty"
-            >
-              {ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY}
-            </p>
+            <div className="space-y-1" data-testid="attack-path-report-diagram-filter-empty">
+              <p className={OPERATOR_TYPOGRAPHY.helper}>{ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY}</p>
+              {props.partialCapture === true ? (
+                <SecureNowPartialCaptureRecoveryParagraph
+                  testId="attack-path-report-diagram-filter-empty-partial-capture"
+                  partialCaptureSnapshotId={props.partialCaptureSnapshotId ?? null}
+                  returnPath={partialCaptureReturnPath}
+                  middleLine={REMEDIATION_FACTORY_ATTACK_PATH_DIAGRAM_FILTER_EMPTY_PARTIAL_CAPTURE_LINE}
+                  cloudConnectionsTestId="attack-path-report-diagram-filter-empty-partial-cloud"
+                  extractUploadTestId="attack-path-report-diagram-filter-empty-partial-extract"
+                />
+              ) : null}
+            </div>
           ) : null}
           <RemediationFactoryAttackPathReportSubsection
             title={REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_TITLE}

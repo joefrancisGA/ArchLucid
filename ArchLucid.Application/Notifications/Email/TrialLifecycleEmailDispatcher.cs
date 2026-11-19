@@ -101,7 +101,7 @@ public sealed class TrialLifecycleEmailDispatcher(
         }
 
         SentEmailLedgerEntry ledgerEntry = new(plan.IdempotencyKey, envelope.TenantId, plan.TemplateId, _emailProvider.ProviderName, null);
-        await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
+        await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, CancellationToken.None);
     }
 
     private static bool PassesTriggerGate(TrialLifecycleEmailTrigger trigger, TenantRecord tenant, DateTimeOffset utcNow)

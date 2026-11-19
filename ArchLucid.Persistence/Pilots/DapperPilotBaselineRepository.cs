@@ -76,18 +76,17 @@ public sealed class DapperPilotBaselineRepository(ISqlConnectionFactory connecti
         ArgumentNullException.ThrowIfNull(record);
 
         const string sql = """
-                           IF EXISTS (SELECT 1 FROM dbo.PilotBaselines WHERE TenantId = @TenantId)
-                               UPDATE dbo.PilotBaselines
-                               SET BaselineHoursPerReview = @BaselineHoursPerReview,
-                                   BaselineReviewsPerQuarter = @BaselineReviewsPerQuarter,
-                                   BaselineArchitectHourlyCost = @BaselineArchitectHourlyCost,
-                                   UpdatedUtc = SYSUTCDATETIME()
-                               WHERE TenantId = @TenantId;
-                           ELSE
-                               INSERT INTO dbo.PilotBaselines
-                                   (TenantId, BaselineHoursPerReview, BaselineReviewsPerQuarter, BaselineArchitectHourlyCost, UpdatedUtc)
-                               VALUES
-                                   (@TenantId, @BaselineHoursPerReview, @BaselineReviewsPerQuarter, @BaselineArchitectHourlyCost, SYSUTCDATETIME());
+                           MERGE dbo.PilotBaselines WITH (HOLDLOCK) AS target
+                           USING (VALUES (@TenantId)) AS source (TenantId)
+                           ON target.TenantId = source.TenantId
+                           WHEN MATCHED THEN
+                               UPDATE SET BaselineHoursPerReview = @BaselineHoursPerReview,
+                                          BaselineReviewsPerQuarter = @BaselineReviewsPerQuarter,
+                                          BaselineArchitectHourlyCost = @BaselineArchitectHourlyCost,
+                                          UpdatedUtc = SYSUTCDATETIME()
+                           WHEN NOT MATCHED THEN
+                               INSERT (TenantId, BaselineHoursPerReview, BaselineReviewsPerQuarter, BaselineArchitectHourlyCost, UpdatedUtc)
+                               VALUES (source.TenantId, @BaselineHoursPerReview, @BaselineReviewsPerQuarter, @BaselineArchitectHourlyCost, SYSUTCDATETIME());
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
