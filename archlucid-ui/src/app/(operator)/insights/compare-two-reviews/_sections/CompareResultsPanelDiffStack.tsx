@@ -103,6 +103,7 @@ export function CompareResultsPanelDiffStack({
 
   const {
     hasResultsToNavigate,
+    lastComparedPair,
     golden,
     result,
     aiExplanation,
@@ -128,6 +129,8 @@ export function CompareResultsPanelDiffStack({
 
   const leftRunId = viewModel.leftTrim;
   const rightRunId = viewModel.rightTrim;
+  const exportLeftRunId = golden?.baseRunId ?? lastComparedPair?.left ?? "";
+  const exportRightRunId = golden?.targetRunId ?? lastComparedPair?.right ?? "";
   const compareArchitectureId =
     searchParams.get("architectureId")?.trim() ?? readCachedLastOpenArchitectureId() ?? null;
 
@@ -159,7 +162,7 @@ export function CompareResultsPanelDiffStack({
   }, [golden, leftPickedSummary, rightPickedSummary]);
 
   const handleDownloadEndToEndCompareExport = useCallback(async () => {
-    if (leftRunId.trim().length === 0 || rightRunId.trim().length === 0) {
+    if (exportLeftRunId.trim().length === 0 || exportRightRunId.trim().length === 0) {
       return;
     }
 
@@ -167,8 +170,8 @@ export function CompareResultsPanelDiffStack({
 
     try {
       await downloadEndToEndCompareExport({
-        leftRunId,
-        rightRunId,
+        leftRunId: exportLeftRunId,
+        rightRunId: exportRightRunId,
         format: "markdown",
       });
     } catch (error: unknown) {
@@ -179,7 +182,7 @@ export function CompareResultsPanelDiffStack({
     } finally {
       setEndToEndExportBusy(false);
     }
-  }, [leftRunId, rightRunId]);
+  }, [exportLeftRunId, exportRightRunId]);
 
   return (
     <>
@@ -225,7 +228,7 @@ export function CompareResultsPanelDiffStack({
                 {manifestExportBusy ? "Downloading compare export…" : "Download compare export (Markdown)"}
               </Button>
             ) : null}
-            {leftRunId.trim().length > 0 && rightRunId.trim().length > 0 ? (
+            {exportLeftRunId.trim().length > 0 && exportRightRunId.trim().length > 0 ? (
               <Button
                 type="button"
                 variant="outline"
