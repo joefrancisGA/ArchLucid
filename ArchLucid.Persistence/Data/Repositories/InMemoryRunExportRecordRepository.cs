@@ -29,7 +29,8 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
 
         lock (_gate)
         {
-            _byExportId[stored.ExportRecordId] = stored;
+            if (!_byExportId.TryAdd(stored.ExportRecordId, stored))
+                throw new InvalidOperationException($"Run export record '{stored.ExportRecordId}' already exists.");
 
             if (!TryGetRunExportList(stored.RunId, out List<RunExportRecord>? existingList))
             {
