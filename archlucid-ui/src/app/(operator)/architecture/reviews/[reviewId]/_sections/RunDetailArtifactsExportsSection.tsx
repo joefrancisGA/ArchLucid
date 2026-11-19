@@ -598,6 +598,12 @@ export function RunDetailArtifactsExportsSection(
                       >
                         {collateralExportBlockedReason}
                       </p>
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="run-detail-evidence-bundle-export-blocked-finalize-partial"
+                      >
+                        {RUN_DETAIL_DELIVERABLES_BLOCKED_EXPORT_FINALIZE_AND_PARTIAL_CAPTURE_LINE}
+                      </p>
                     </>
                   ) : (
                     <Button
@@ -656,6 +662,12 @@ export function RunDetailArtifactsExportsSection(
                       >
                         {collateralExportBlockedReason}
                       </p>
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="run-detail-bundle-export-blocked-finalize-partial"
+                      >
+                        {RUN_DETAIL_DELIVERABLES_BLOCKED_EXPORT_FINALIZE_AND_PARTIAL_CAPTURE_LINE}
+                      </p>
                     </>
                   ) : (
                     <Button
@@ -689,6 +701,12 @@ export function RunDetailArtifactsExportsSection(
                         data-testid="run-detail-review-export-blocked-reason"
                       >
                         {collateralExportBlockedReason}
+                      </p>
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="run-detail-review-export-blocked-finalize-partial"
+                      >
+                        {RUN_DETAIL_DELIVERABLES_BLOCKED_EXPORT_FINALIZE_AND_PARTIAL_CAPTURE_LINE}
                       </p>
                     </>
                   ) : (

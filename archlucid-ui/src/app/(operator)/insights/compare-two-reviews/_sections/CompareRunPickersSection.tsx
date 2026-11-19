@@ -21,6 +21,9 @@ import { useCallback, useEffect, useState } from "react";
 import type { RunSummary } from "@/types/authority";
 import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
 import { CompareRunPickersPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersPartialInventoryFootnote";
+import { CompareRunPickersCorrelationEmptyAndSealPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersCorrelationEmptyAndSealPartialHonesty";
+import { COMPARE_RUN_PICKERS_CORRELATION_EMPTY_AND_SEAL_LINE } from "@/lib/architecture/compare-run-pickers-correlation-empty-and-seal-copy";
+import { COMPARE_RUN_PICKERS_SECOND_REVIEW_NOT_SEALED_LINE } from "@/lib/architecture/compare-run-pickers-second-review-not-sealed-copy";
 
 export type CompareRunPickersSectionProps = {
   leftPickerLabel: string;
@@ -51,6 +54,7 @@ export type CompareRunPickersSectionProps = {
   compareButtonLabel?: string;
   /** Buyer shell: collapse pickers below results when comparison is on screen. */
   collapseBelowResults?: boolean;
+  correlationMetadataEmpty?: boolean;
 };
 
 export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
@@ -136,6 +140,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
     summarizeButtonLabel = "Summarize for sponsor",
     compareButtonLabel = "Compare two reviews",
     collapseBelowResults = false,
+    correlationMetadataEmpty = false,
   } = props;
 
   const compareActionsDisabled =
@@ -221,6 +226,14 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
             {rightSummaryBlockedReason}
           </p>
         ) : null}
+        {rightSummaryBlockedReason !== null ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-run-pickers-second-review-not-sealed"
+          >
+            <span className="font-medium text-al-text-primary">Not sealed:</span> {COMPARE_RUN_PICKERS_SECOND_REVIEW_NOT_SEALED_LINE}
+          </p>
+        ) : null}
         <details
           className={cn(
             "rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40",
@@ -272,6 +285,17 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           ) : null}
         </div>
         <WhyDisabledCtaHint reason={compareActionsDisabled ? compareDisabledReason : null} />
+        {correlationMetadataEmpty ? (
+          <div className="grid gap-1">
+            <p
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="compare-run-pickers-correlation-empty-and-seal"
+            >
+              {COMPARE_RUN_PICKERS_CORRELATION_EMPTY_AND_SEAL_LINE}
+            </p>
+            <CompareRunPickersCorrelationEmptyAndSealPartialHonesty />
+          </div>
+        ) : null}
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-run-pickers-second-seal-footnote">
           {ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE}
         </p>
