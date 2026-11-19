@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { listTier2Connections } from "@/lib/api/cloud-connections-api";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import { isInfraEvidenceSnapshotCaptureSucceeded } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import {
   deriveAzureSubscriptionScopeFromConnections,
   deriveSecureNowCollectionSetupInput,
@@ -15,13 +16,24 @@ const DEFAULT_PROVIDER_SUMMARY = {
   status: "Not configured",
 } as const;
 
-async function readSnapshotCaptureStatuses(): Promise<readonly (number | string | null | undefined)[] | null> {
+async function readSnapshotCaptureStatuses(
+  signal: AbortSignal,
+): Promise<readonly (number | string | null | undefined)[] | null> {
   try {
-    const page = await fetchInfraEvidenceSnapshots(1, 20);
-    const items = page.items ?? [];
+    let pageNumber = 1;
 
-    return items.map((item) => item.captureStatus);
+    while (true) {
+      signal.throwIfAborted();
+      const page = await fetchInfraEvidenceSnapshots(pageNumber, 20);
+      const statuses = (page.items ?? []).map((item) => item.captureStatus);
+      if (!page.hasMore || statuses.some(isInfraEvidenceSnapshotCaptureSucceeded)) {
+        return statuses;
+      }
+
+      pageNumber += 1;
+    }
   } catch {
+    signal.throwIfAborted();
     return null;
   }
 }
@@ -36,7 +48,7 @@ export function useSecureNowCollectionSetupInput(input: {
 } {
   const query = useQuery({
     queryKey: ["securenow", "collection-setup-input", input.snapshotCaptureSucceeded],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const azureConnections = await listTier2Connections();
       const azureScope = deriveAzureSubscriptionScopeFromConnections(azureConnections);
       const providerSummaries = {
@@ -44,7 +56,9 @@ export function useSecureNowCollectionSetupInput(input: {
         aws: DEFAULT_PROVIDER_SUMMARY,
         gcp: DEFAULT_PROVIDER_SUMMARY,
       };
-      const snapshotCaptureStatuses = await readSnapshotCaptureStatuses();
+      const snapshotCaptureStatuses = input.snapshotCaptureSucceeded === true
+        ? null
+        : await readSnapshotCaptureStatuses(signal);
       const snapshotCaptureSucceeded = resolveCollectionSnapshotCaptureSucceeded({
         callerSnapshotCaptureSucceeded: input.snapshotCaptureSucceeded,
         snapshotCaptureStatuses,
