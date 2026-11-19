@@ -1,3 +1,5 @@
+using System.Data.SqlTypes;
+
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 
@@ -53,6 +55,7 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
             List<AlertDeliveryAttempt> result = _items
                 .Where(x => x.AlertId == alertId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
+                .ThenByDescending(x => new SqlGuid(x.AlertDeliveryAttemptId))
                 .Take(PaginationDefaults.MaxPageSize)
                 .Select(Copy)
                 .ToList();
@@ -73,6 +76,7 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
             List<AlertDeliveryAttempt> result = _items
                 .Where(x => x.RoutingSubscriptionId == routingSubscriptionId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
+                .ThenByDescending(x => new SqlGuid(x.AlertDeliveryAttemptId))
                 .Take(take)
                 .Select(Copy)
                 .ToList();
