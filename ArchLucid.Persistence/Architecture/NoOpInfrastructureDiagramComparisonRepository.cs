@@ -6,6 +6,8 @@ public sealed class NoOpInfrastructureDiagramComparisonRepository : IInfrastruct
 {
     public Task UpsertAsync(InfrastructureDiagramComparisonPersistRecord record, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         _ = record;
         return Task.CompletedTask;
     }
@@ -15,6 +17,8 @@ public sealed class NoOpInfrastructureDiagramComparisonRepository : IInfrastruct
         Guid comparisonId,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         _ = tenantId;
         _ = comparisonId;
         return Task.FromResult<InfrastructureDiagramComparisonPersistRecord?>(null);
