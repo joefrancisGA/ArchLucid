@@ -4,7 +4,9 @@ import type { SecureNowArchitectOutcomeMetrics } from "@/lib/securenow-architect
 const ARCHITECT_METRICS_PATH = "/api/proxy/v1/operational-security/architect-metrics";
 
 function finiteNumberOrNull(value: unknown): number | null {
-  if (value == null) return null;
+  if (typeof value !== "number" && (typeof value !== "string" || value.trim().length === 0)) {
+    return null;
+  }
   const parsed = typeof value === "number" ? value : Number(value);
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
 }
