@@ -12,6 +12,8 @@ public sealed class InMemoryAgentToolInvocationRecordRepository : IAgentToolInvo
 
     public Task ReplaceForTraceAsync(AgentToolInvocationRecord record, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(record);
 
         string key = $"{record.TenantId:N}:{record.TraceId}";
@@ -26,6 +28,8 @@ public sealed class InMemoryAgentToolInvocationRecordRepository : IAgentToolInvo
         Guid runId,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         List<AgentToolInvocationRecord> rows = _byTraceKey.Values
             .Where(r => r.TenantId == tenantId && r.RunId == runId)
             .OrderBy(r => r.InvokedAtUtc)
