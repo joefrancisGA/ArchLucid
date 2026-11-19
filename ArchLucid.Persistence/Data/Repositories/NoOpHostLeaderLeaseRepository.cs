@@ -13,18 +13,24 @@ public sealed class NoOpHostLeaderLeaseRepository : IHostLeaderLeaseRepository
         int leaseDurationSeconds,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         return Task.FromResult(true);
     }
 
     /// <inheritdoc />
     public Task TryReleaseAsync(string leaseName, string instanceId, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         return Task.CompletedTask;
     }
 
     /// <inheritdoc />
     public Task<IReadOnlyList<HostLeaderLeaseSnapshot>> ListAllAsync(CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         return Task.FromResult<IReadOnlyList<HostLeaderLeaseSnapshot>>([]);
     }
 }
