@@ -12,7 +12,7 @@ public sealed class InMemorySentEmailLedger : ISentEmailLedger
     /// <inheritdoc />
     public Task<bool> IsRecordedAsync(Guid tenantId, string idempotencyKey, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (string.IsNullOrWhiteSpace(idempotencyKey))
             return Task.FromResult(false);
@@ -23,7 +23,7 @@ public sealed class InMemorySentEmailLedger : ISentEmailLedger
     /// <inheritdoc />
     public Task<bool> TryRecordSentAsync(SentEmailLedgerEntry entry, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (string.IsNullOrWhiteSpace(entry.IdempotencyKey))
             return Task.FromResult(false);
