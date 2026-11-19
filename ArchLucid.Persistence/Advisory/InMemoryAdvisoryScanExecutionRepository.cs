@@ -16,7 +16,13 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
     {
         ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
+            if (_items.Exists(item => item.ExecutionId == execution.ExecutionId))
+                throw new InvalidOperationException($"The advisory scan execution '{execution.ExecutionId}' already exists.");
+
             _items.Add(Copy(execution));
+        }
+
         return Task.CompletedTask;
     }
 
