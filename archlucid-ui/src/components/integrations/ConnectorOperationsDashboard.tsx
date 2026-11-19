@@ -323,8 +323,11 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
                   </p>
                   <ConnectionStatusCategoryAndSubscriptionScopeFilterEmptyPartialHonesty />
                 </>
-              ) : null}
-              <ConnectionStatusCategoryFilterEmptyPartialHonesty />
+              ) : (
+                <div className="space-y-2" data-testid="connection-status-category-only-filter-empty">
+                  <ConnectionStatusCategoryFilterEmptyPartialHonesty />
+                </div>
+              )}
             </div>
           }
         />
