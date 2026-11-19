@@ -12,4 +12,9 @@ describe("formatStoredTextPreview", () => {
       "abcd… (Full text was stored.)",
     );
   });
+
+  it("does not split a supplementary character at the preview boundary", () => {
+    expect(formatStoredTextPreview("abc😀def", 5, "note")).toBe("abc… (note)");
+    expect(formatStoredTextPreview("abc😀def", 6, "note")).toBe("abc😀… (note)");
+  });
 });
