@@ -32,7 +32,7 @@ def main() -> int:
             print(f"  - {path}", file=sys.stderr)
         return 1
 
-    prior = REPO_ROOT / ROUND79
+    prior = REPO_ROOT / ROUND82
     if prior.is_file():
         completed = subprocess.run([sys.executable, str(prior)], cwd=REPO_ROOT)
         if completed.returncode != 0:
