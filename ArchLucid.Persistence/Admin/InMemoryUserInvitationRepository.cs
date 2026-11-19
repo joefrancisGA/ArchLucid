@@ -78,7 +78,7 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
         _ = cancellationToken;
 
         Guid id = Guid.NewGuid();
-        DateTimeOffset createdUtc = expiresUtc.AddDays(-14);
+        DateTimeOffset createdUtc = TimeProvider.System.GetUtcNow();
         UserInvitationRecord row = new()
         {
             Id = id,
