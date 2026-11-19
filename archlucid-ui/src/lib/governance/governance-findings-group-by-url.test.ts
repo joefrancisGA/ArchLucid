@@ -7,7 +7,7 @@ import {
 import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "./governance-findings-resource-group-disclosure-url";
 
 describe("governanceFindingsGroupByHrefFromSearch", () => {
-  it("retains hideGeneric when group-by changes", () => {
+  it("retains hideGeneric when group-by changes to a non-default key", () => {
     const href = governanceFindingsGroupByHrefFromSearch(
       "hideGeneric=1&filter=open",
       true,

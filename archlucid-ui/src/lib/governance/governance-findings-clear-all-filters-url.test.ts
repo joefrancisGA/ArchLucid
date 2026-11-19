@@ -122,7 +122,9 @@ describe("governanceFindingsClearAllFiltersHref", () => {
     expect(href).not.toContain("hideGeneric=");
     expect(href).not.toContain("filter=");
     expect(href).not.toContain("q=");
-  });  it("retains triage focusedFinding when showing all filtered findings", () => {
+  });
+
+  it("retains triage focusedFinding when showing all filtered findings", () => {
     const href = governanceFindingsShowAllFilteredFindingsHref(
       "focusedFinding=finding-1&hideGeneric=1&filter=open&q=phi",
       "/governance/findings",

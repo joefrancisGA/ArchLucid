@@ -36,4 +36,14 @@ describe("governanceFindingsNlFacetsHrefFromSearch", () => {
     expect(href).not.toContain("severity=");
     expect(href).not.toContain("status=");
   });
+  it("retains hideGeneric when a single NL facet chip is removed", () => {
+    const href = governanceFindingsNlFacetsHrefFromSearch("hideGeneric=1&severity=high&status=open", {
+      severity: null,
+      status: "open",
+      titleKeywords: [],
+    });
+
+    expect(href).toBe("/governance/findings?hideGeneric=1&status=open");
+    expect(href).not.toContain("severity=");
+  });
 });
