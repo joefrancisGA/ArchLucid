@@ -144,6 +144,40 @@ public sealed class TenantErasureCommandServiceRestoreTests
         restored!.OffboardedUtc.Should().BeNull();
         restored.SuspendedUtc.Should().BeNull();
     }
+    [Fact]
+    public async Task TryRestoreQuarantineAsync_returns_success_without_audit_when_tenant_never_offboarded()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 11, 19, 12, 0, 0, TimeSpan.Zero);
+        FakeTimeProvider clock = new(now);
+        List<PlatformAuditEvent> auditEvents = [];
+
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "Active Tenant",
+            "active-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        Mock<IPlatformAuditRepository> audit = new();
+        audit.Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((e, _) => auditEvents.Add(e))
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions { QuarantineDays = 30 });
+
+        TenantErasureCommandService sut = new(tenants, audit.Object, clock, options.Object);
+
+        (await sut.TryRestoreQuarantineAsync(tenantId, "admin", "Admin", "corr", CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        auditEvents.Should().BeEmpty();
+    }
 
     [Fact]
     public async Task TryOffboardTenantAsync_trims_correlation_id_on_offboard_audit_event()
