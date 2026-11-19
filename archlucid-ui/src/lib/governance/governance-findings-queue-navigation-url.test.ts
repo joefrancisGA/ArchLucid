@@ -39,7 +39,9 @@ describe("governance findings queue navigation strips stale resource-group discl
 
     expect(href).not.toContain("bulkFindings=");
     expect(href).not.toContain(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
-  });  it("governanceFindingsBulkSelectionHrefFromSearch retains hideGeneric when bulk selection changes", () => {
+  });
+
+  it("governanceFindingsBulkSelectionHrefFromSearch retains hideGeneric when bulk selection changes", () => {
     const href = governanceFindingsBulkSelectionHrefFromSearch(
       "hideGeneric=1&filter=open&bulkFindings=f1",
       ["f1", "f2"],

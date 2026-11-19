@@ -56,7 +56,9 @@ describe("governanceFindingsRegisterFilterHrefFromSearch", () => {
 
     expect(href).toBe("/governance/findings?filter=expiring-soon");
     expect(href).not.toContain("removePresetId=");
-  });  it("clears armed preset-remove confirm when register filter widens to all", () => {
+  });
+
+  it("clears armed preset-remove confirm when register filter widens to all", () => {
     const href = governanceFindingsRegisterFilterHrefFromSearch(
       "filter=expiring-soon&removePresetId=preset-1",
       "all",
@@ -76,6 +78,16 @@ describe("governanceFindingsRegisterFilterHrefFromSearch", () => {
     );
 
     expect(href).toBe("/governance/findings?focusedFinding=finding-1");
+    expect(href).not.toContain("filter=");
+  });
+  it("retains hideGeneric when register filter widens to all", () => {
+    const href = governanceFindingsRegisterFilterHrefFromSearch(
+      "hideGeneric=1&filter=expiring-soon",
+      "all",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?hideGeneric=1");
     expect(href).not.toContain("filter=");
   });
 });

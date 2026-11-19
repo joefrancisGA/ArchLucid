@@ -86,7 +86,9 @@ describe("governanceFindingsClearReviewScopeHref", () => {
 
     expect(href).toBe("/governance/findings?filter=open");
     expect(href).not.toContain("removePresetId=");
-  });  it("retains hideGeneric when clearing review scope", () => {
+  });
+
+  it("retains hideGeneric when clearing review scope", () => {
     const href = governanceFindingsClearReviewScopeHref(
       "hideGeneric=1&runId=run-1&filter=open&severity=high",
       "/governance/findings",
