@@ -86,5 +86,14 @@ describe("governanceFindingsClearReviewScopeHref", () => {
 
     expect(href).toBe("/governance/findings?filter=open");
     expect(href).not.toContain("removePresetId=");
+  });  it("retains hideGeneric when clearing review scope", () => {
+    const href = governanceFindingsClearReviewScopeHref(
+      "hideGeneric=1&runId=run-1&filter=open&severity=high",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?hideGeneric=1&filter=open&severity=high");
+    expect(href).not.toContain("runId=");
   });
+
 });

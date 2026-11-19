@@ -38,5 +38,23 @@ describe("governance findings queue navigation strips stale resource-group discl
 
     expect(href).not.toContain("bulkFindings=");
     expect(href).not.toContain(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
+  });  it("governanceFindingsBulkSelectionHrefFromSearch retains hideGeneric when bulk selection changes", () => {
+    const href = governanceFindingsBulkSelectionHrefFromSearch(
+      "hideGeneric=1&filter=open&bulkFindings=f1",
+      ["f1", "f2"],
+    );
+
+    expect(href).toBe("/governance/findings?hideGeneric=1&filter=open&bulkFindings=f1%2Cf2");
   });
+
+  it("governanceAssignedToMeSortHrefFromSearch retains triage focusedFinding when sort changes", () => {
+    const href = governanceAssignedToMeSortHrefFromSearch(
+      "focusedFinding=finding-1&filter=open",
+      "due",
+      false,
+    );
+
+    expect(href).toBe("/governance/findings/assigned-to-me?focusedFinding=finding-1&filter=open&sort=due&dir=desc");
+  });
+
 });
