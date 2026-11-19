@@ -12,7 +12,7 @@ public sealed class InMemorySupportProblemReportRepository : ISupportProblemRepo
         SupportProblemReportInsert insert,
         CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(insert);
 
         DateTimeOffset createdUtc = TimeProvider.System.GetUtcNow();
@@ -43,7 +43,7 @@ public sealed class InMemorySupportProblemReportRepository : ISupportProblemRepo
         Guid reportId,
         CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!_byId.TryGetValue(reportId, out SupportProblemReportRecord? row))
         {
@@ -64,7 +64,7 @@ public sealed class InMemorySupportProblemReportRepository : ISupportProblemRepo
         string supportBundleBlobPath,
         CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
         ArgumentException.ThrowIfNullOrWhiteSpace(supportBundleBlobPath);
 
         if (!_byId.TryGetValue(reportId, out SupportProblemReportRecord? row) || row.TenantId != tenantId)
