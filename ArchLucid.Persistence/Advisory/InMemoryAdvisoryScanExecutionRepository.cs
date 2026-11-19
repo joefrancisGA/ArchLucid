@@ -81,7 +81,12 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
                 .Where(x => x.ScheduleId == scheduleId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.StartedUtc)
                 .Take(Math.Clamp(take, 1, 200))
-                .Select(Copy)
+                .Select(static execution =>
+                {
+                    AdvisoryScanExecution summary = Copy(execution);
+                    summary.ResultJson = string.Empty;
+                    return summary;
+                })
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<AdvisoryScanExecution>>(result);
