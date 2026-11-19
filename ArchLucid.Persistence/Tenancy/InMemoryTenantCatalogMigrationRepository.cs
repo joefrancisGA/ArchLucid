@@ -43,7 +43,11 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
 
         lock (_gate)
         {
-            _byId[record.MigrationId] = record;
+            if (record.IsActive && _byId.Values.Any(existing => existing.TenantId == record.TenantId && existing.IsActive))
+                throw new InvalidOperationException("The tenant already has an active catalog migration.");
+
+            if (!_byId.TryAdd(record.MigrationId, record))
+                throw new InvalidOperationException("A catalog migration with this identifier already exists.");
         }
 
         return Task.CompletedTask;
