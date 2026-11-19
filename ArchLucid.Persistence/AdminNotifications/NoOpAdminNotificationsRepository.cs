@@ -10,7 +10,7 @@ public sealed class NoOpAdminNotificationsRepository : IAdminNotificationsReposi
         _ = kind;
         _ = summary;
         _ = dataJson;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.CompletedTask;
     }
