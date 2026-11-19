@@ -1,5 +1,5 @@
 /*
-  308: Scope sent-email idempotency to each tenant.
+  424: Scope sent-email idempotency to each tenant.
 */
 IF OBJECT_ID(N'dbo.SentEmails', N'U') IS NOT NULL
 BEGIN

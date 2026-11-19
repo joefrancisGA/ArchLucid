@@ -1,5 +1,5 @@
 /*
-  Rollback 308: Restore globally unique sent-email idempotency keys.
+  Rollback 424: Restore globally unique sent-email idempotency keys.
 */
 IF OBJECT_ID(N'dbo.SentEmails', N'U') IS NOT NULL
 BEGIN
