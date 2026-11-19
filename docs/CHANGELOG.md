@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-19 - Score lift round 87 (batch 52): Compare pickers delta, digest subscriptions, findings scope
+
+**Outcome.** Compare run pickers name a selected baseline with an empty updated review apart from a failed picker read and partial capture. Compare quality delta names all-zero counts when one review is unsealed. Digest browse names subscription-list-only empty without a scoped review filter. Findings queue names architecture scope chip filter-empty without a severity facet.
+
+**Surfaces.** Compare pickers, compare quality delta, digest browse, governance findings filter footer, honesty and mounted contract tests.
+
 ## 2026-11-19 - Score lift round 86 (batch 51): Explorer filters, graph focus, connection scope, findings header
 
 **Outcome.** Resource explorer names resource type plus name prefix combined filter-empty. Evidence graph names node type filter plus focused node combined zero-node empty. Connection status names category chip empty while workspace subscription scope is pinned. Findings queue header partial-capture CTA names snapshot recovery before treating an empty queue as final.

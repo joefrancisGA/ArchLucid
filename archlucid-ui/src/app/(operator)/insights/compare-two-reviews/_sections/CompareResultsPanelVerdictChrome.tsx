@@ -167,6 +167,10 @@ export function CompareResultsPanelVerdictChrome({
             findingCorrelationState.compareQualityDelta ?? deriveCompareQualityDeltaFromGolden(golden)
           }
           newFindingTrustLanes={newFindingTrustLanes}
+          compareIncludesUnsealedReview={
+            (viewModel.leftSummaryBlockedReason ?? null) !== null
+            || (viewModel.rightSummaryBlockedReason ?? null) !== null
+          }
         />
       ) : null}
 
