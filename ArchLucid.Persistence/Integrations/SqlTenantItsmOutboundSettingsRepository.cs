@@ -41,7 +41,7 @@ public sealed class SqlTenantItsmOutboundSettingsRepository(
         ArgumentNullException.ThrowIfNull(settings);
 
         const string sql = """
-                           MERGE dbo.TenantItsmOutboundSettings AS target
+                           MERGE dbo.TenantItsmOutboundSettings WITH (HOLDLOCK) AS target
                            USING (SELECT @TenantId AS TenantId) AS source
                            ON target.TenantId = source.TenantId
                            WHEN MATCHED THEN
