@@ -725,7 +725,8 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
     {
         if (semanticModel is not null &&
             (!IsLogAsyncSyntaxInsideReachableIfBranches(logAsyncSyntaxNode, semanticModel, cancellationToken) ||
-             !IsLogAsyncSyntaxInsideReachableConstantGuardLoops(logAsyncSyntaxNode, semanticModel, cancellationToken)))
+             !IsLogAsyncSyntaxInsideReachableConstantGuardLoops(logAsyncSyntaxNode, semanticModel, cancellationToken) ||
+             !IsLogAsyncSyntaxInsideReachableForeachIterations(logAsyncSyntaxNode, semanticModel, cancellationToken)))
         {
             return false;
         }
@@ -784,6 +785,79 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         }
 
         return true;
+    }
+
+    // Zero-trip foreach over compile-time empty collections never runs the loop body; LogAsync there is not audit proof.
+    private static bool IsLogAsyncSyntaxInsideReachableForeachIterations(
+        SyntaxNode logAsyncSyntaxNode,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        foreach (ForEachStatementSyntax forEachStatementSyntax in logAsyncSyntaxNode.Ancestors().OfType<ForEachStatementSyntax>())
+        {
+            if (IsLogAsyncSyntaxUnderLoopBody(forEachStatementSyntax.Statement, logAsyncSyntaxNode) &&
+                IsForeachCollectionExpressionProvablyEmpty(forEachStatementSyntax.Expression, semanticModel, cancellationToken))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsForeachCollectionExpressionProvablyEmpty(
+        ExpressionSyntax expressionSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (expressionSyntax is CollectionExpressionSyntax collectionExpressionSyntax)
+        {
+            return collectionExpressionSyntax.Elements.Count == 0;
+        }
+
+        if (expressionSyntax is ImplicitArrayCreationExpressionSyntax implicitArrayCreationExpressionSyntax)
+        {
+            return implicitArrayCreationExpressionSyntax.Initializer.Expressions.Count == 0;
+        }
+
+        if (expressionSyntax is ArrayCreationExpressionSyntax arrayCreationExpressionSyntax)
+        {
+            if (arrayCreationExpressionSyntax.Initializer is InitializerExpressionSyntax initializerExpressionSyntax &&
+                initializerExpressionSyntax.Expressions.Count == 0)
+            {
+                return true;
+            }
+
+            if (arrayCreationExpressionSyntax.Initializer is null &&
+                arrayCreationExpressionSyntax.Type is ArrayTypeSyntax arrayTypeSyntax &&
+                arrayTypeSyntax.RankSpecifiers.Count == 1 &&
+                arrayTypeSyntax.RankSpecifiers[0].Sizes.Count == 1 &&
+                arrayTypeSyntax.RankSpecifiers[0].Sizes[0] is LiteralExpressionSyntax literalSizeSyntax &&
+                semanticModel.GetConstantValue(literalSizeSyntax, cancellationToken) is { HasValue: true, Value: 0 })
+            {
+                return true;
+            }
+        }
+
+        if (expressionSyntax is not InvocationExpressionSyntax invocationExpressionSyntax)
+        {
+            return false;
+        }
+
+        if (semanticModel.GetSymbolInfo(invocationExpressionSyntax, cancellationToken).Symbol is not IMethodSymbol methodSymbol)
+        {
+            return false;
+        }
+
+        if (!string.Equals(methodSymbol.Name, "Empty", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        string? containingTypeName = methodSymbol.ContainingType?.Name;
+
+        return string.Equals(containingTypeName, "Array", StringComparison.Ordinal) ||
+               string.Equals(containingTypeName, "Enumerable", StringComparison.Ordinal);
     }
 
     // Zero-trip while/for loops never run their bodies; LogAsync parked there is not audit proof (parity with constant-false if).
