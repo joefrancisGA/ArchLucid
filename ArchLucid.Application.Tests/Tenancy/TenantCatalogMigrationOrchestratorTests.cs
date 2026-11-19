@@ -2937,6 +2937,32 @@ public sealed class TenantCatalogMigrationOrchestratorTests
 
         Assert.Equal(TenantCatalogMigrationCommandOutcome.WrongStage, outcome);
     }
+    [Fact]
+    public async Task RunProjectionRefreshAsync_returns_wrong_stage_when_stage_still_verification()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 11, 19, 14, 0, 0, TimeSpan.Zero));
+        TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(migrations);
+
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = Guid.NewGuid(),
+                TenantId = TenantId,
+                CorrelationId = "corr-verification-only",
+                Stage = TenantCatalogMigrationStage.Verification,
+                StartedUtc = clock.GetUtcNow().AddHours(-1),
+            },
+            CancellationToken.None);
+
+        (TenantCatalogMigrationCommandOutcome outcome, TenantMigrationProjectionRefreshResult? refresh) =
+            await sut.RunProjectionRefreshAsync(TenantId, WorkspaceId, ProjectId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.WrongStage, outcome);
+        Assert.Null(refresh);
+    }
+
+
 
     [Fact]
     public async Task CompleteAsync_returns_wrong_stage_when_stage_still_scope_freeze()
