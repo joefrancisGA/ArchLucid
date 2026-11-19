@@ -32,7 +32,8 @@ public sealed class InMemorySupportProblemReportRepository : ISupportProblemRepo
             CreatedUtc = createdUtc
         };
 
-        _byId[row.Id] = row;
+        if (!_byId.TryAdd(row.Id, row))
+            throw new InvalidOperationException($"Support problem report '{row.Id}' already exists.");
 
         return Task.FromResult(row);
     }
