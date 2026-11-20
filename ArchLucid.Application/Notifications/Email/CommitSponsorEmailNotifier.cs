@@ -70,6 +70,20 @@ public sealed class CommitSponsorEmailNotifier(
 
         try
         {
+            await SendSponsorEmailAsync(tenantId, trimmedRunId, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning(ex, "Commit sponsor email failed for tenant {TenantId}, run {RunId}.", tenantId,
+                    LogSanitizer.Sanitize(trimmedRunId)); // codeql[cs/log-forging]: run id sanitized; TenantId is Guid.
+        }
+    }
+
+    private async Task SendSponsorEmailAsync(Guid tenantId, string trimmedRunId, CancellationToken cancellationToken)
+    {
+        try
+        {
             await CommitSponsorEmailDispatchSealedManifestHashGuard.EnsureRunSealedOrThrowAsync(
                 tenantId,
                 trimmedRunId,
@@ -133,16 +147,7 @@ public sealed class CommitSponsorEmailNotifier(
             IdempotencyKey = idempotencyKey,
             Tags = new EmailMessageTags { TenantId = tenantId, EventType = TemplateId }
         };
-        try
-        {
-            await _emailProvider.SendAsync(message, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex)when (!cancellationToken.IsCancellationRequested)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarning(ex, "Commit sponsor email send failed for tenant {TenantId}, run {RunId}.", tenantId,
-                    LogSanitizer.Sanitize(trimmedRunId)); // codeql[cs/log-forging]: run id sanitized; TenantId is Guid.
-        }
+        await _emailProvider.SendAsync(message, cancellationToken).ConfigureAwait(false);
     }
 
 }
