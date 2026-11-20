@@ -39,6 +39,7 @@ import { manifestCompareExportMutationBlockedReason } from "@/lib/compare/manife
 import { showError } from "@/lib/toast";
 import { CompareAgentResultsBlockedCallout } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareAgentResultsBlockedCallout";
 import type { CompareResultsPanelViewModel } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-results-panel";
+import { COMPARE_EXPORT_PDF_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-export-pdf-blocked-not-load-failure-copy";
 
 export function CompareResultsPanelDiffStack({
   viewModel,
@@ -125,6 +126,7 @@ export function CompareResultsPanelDiffStack({
     handleDownloadDocx,
     pdfDownloading,
     pdfError,
+    pdfExportBlockedReason,
     handleDownloadPdf,
   } = viewModel;
 
@@ -254,9 +256,16 @@ export function CompareResultsPanelDiffStack({
               {pdfDownloading ? "Generating PDF…" : "Download PDF report"}
             </Button>
             {pdfError ? (
-              <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {pdfError}
-              </p>
+              <div className="space-y-1">
+                <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {pdfError}
+                </p>
+                {pdfExportBlockedReason !== null ? (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-export-pdf-blocked-not-load-failure">
+                    {COMPARE_EXPORT_PDF_BLOCKED_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                ) : null}
+              </div>
             ) : null}
             {docxError ? (
               <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>

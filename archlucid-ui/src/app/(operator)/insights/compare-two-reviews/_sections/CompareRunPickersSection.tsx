@@ -26,6 +26,7 @@ import { COMPARE_RUN_PICKERS_CORRELATION_EMPTY_AND_SEAL_LINE } from "@/lib/archi
 import { COMPARE_RUN_PICKERS_SECOND_REVIEW_NOT_SEALED_LINE } from "@/lib/architecture/compare-run-pickers-second-review-not-sealed-copy";
 import { CompareRunPickersFirstSelectedSecondEmptyPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersFirstSelectedSecondEmptyPartialHonesty";
 import { COMPARE_RUN_PICKERS_FIRST_SELECTED_SECOND_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-run-pickers-first-selected-second-empty-not-load-failure-copy";
+import { COMPARE_RUN_PICKERS_SAME_REVIEW_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-run-pickers-same-review-not-load-failure-copy";
 
 export type CompareRunPickersSectionProps = {
   leftPickerLabel: string;
@@ -156,7 +157,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
     loading ? whyDisabledBusy("Comparison") : null,
     !leftTrim || !rightTrim ? whyDisabledIncompleteInput("Choose a baseline and updated review to continue.") : null,
     sameCanonicalRunIdsBlocked
-      ? { kind: "prerequisite", message: "These two selections resolve to the same review." }
+      ? { kind: "prerequisite", message: COMPARE_RUN_PICKERS_SAME_REVIEW_NOT_LOAD_FAILURE_LINE }
       : null,
     leftSummaryBlockedReason !== null
       ? { kind: "prerequisite", message: leftSummaryBlockedReason }
@@ -267,8 +268,9 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
               "m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50",
               OPERATOR_TYPOGRAPHY.body,
             )}
+            data-testid="compare-run-pickers-same-review-not-load-failure"
           >
-            These two selections resolve to the same review. Choose a different prior or later review to compare.
+            {COMPARE_RUN_PICKERS_SAME_REVIEW_NOT_LOAD_FAILURE_LINE} Choose a different prior or later review to compare.
           </p>
         ) : null}
         <div className="flex flex-wrap items-center gap-3">

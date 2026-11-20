@@ -13,6 +13,8 @@ import { useCompareResultsPanel } from "@/app/(operator)/insights/compare-two-re
 import { comparisonDriftReportBlockedReason } from "@/lib/compare/comparison-drift-blocked-reason";
 import { comparisonSearchBlockedReason } from "@/lib/compare/comparison-search-blocked-reason";
 import { CompareResultsPanelPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanelPartialInventoryFootnote";
+import { COMPARE_SEARCH_BLOCKED_NOT_EMPTY_COMPARE_LINE } from "@/lib/architecture/compare-search-blocked-not-empty-compare-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareResultsPanelProps = {
   showStaleInputsWarning: boolean;
@@ -64,9 +66,14 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
       data-testid="compare-results-region"
     >
       {searchBlockedReason ? (
-        <p className="m-0 text-sm text-al-text-secondary" data-testid="compare-search-blocked-reason">
-          {searchBlockedReason}
-        </p>
+        <div className="space-y-1">
+          <p className="m-0 text-sm text-al-text-secondary" data-testid="compare-search-blocked-reason">
+            {searchBlockedReason}
+          </p>
+          <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-search-blocked-not-empty-compare">
+            {COMPARE_SEARCH_BLOCKED_NOT_EMPTY_COMPARE_LINE}
+          </p>
+        </div>
       ) : null}
       {driftBlockedReason ? (
         <p className="m-0 text-sm text-al-text-secondary" data-testid="compare-drift-blocked-reason">

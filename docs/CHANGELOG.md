@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-20 - Score lift round 93 (batch 58): Same review, search blocked, pair blocked, PDF export
+
+**Outcome.** Compare pickers name same-review selection apart from picker load failure. Comparison search blocked names seal gates apart from empty history. Compare pair aggregate blocked banner names gate failure apart from empty deltas. Comparison PDF export names finalize gates apart from empty report.
+
+**Surfaces.** Compare run pickers, comparison search blocked, compare pair blocked aggregate, comparison PDF export, honesty and mounted contract tests.
+
 ## 2026-11-20 - Score lift round 92 (batch 57): Trust banner, live region, structured empty, manifest diff
 
 **Outcome.** Compare trust banner names current-effective scope with an unsealed review. Live region announces stale picker drift. Structured comparison names empty payload apart from golden load failure. Raw manifest diff names identical JSON apart from blocked manifest fetch.
