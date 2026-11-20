@@ -5,7 +5,10 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public sealed class NoOpRemediationPatternRepository : IRemediationPatternRepository
 {
-    public Task InsertPatternAsync(RemediationPatternRecord pattern, CancellationToken cancellationToken = default)
+    public Task InsertDraftWithVersionAsync(
+        RemediationPatternRecord pattern,
+        RemediationPatternVersionRecord firstVersion,
+        CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
