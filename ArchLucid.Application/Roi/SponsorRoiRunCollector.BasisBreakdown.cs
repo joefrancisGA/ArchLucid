@@ -70,13 +70,15 @@ public sealed partial class SponsorRoiRunCollector
         IReadOnlyList<ArchitectureFinding> deduped = CollectDedupedActiveFindings(latestDetails, logger);
 
         return deduped
-            .GroupBy(static finding => (Category: NormalizeCategory(finding.Category), Severity: finding.Severity.ToString()))
-            .Select(static group => new SystemicIssueSummary
-            {
-                Category = group.Key.Category,
-                Severity = group.Key.Severity,
-                Count = group.Count(),
-            })
+            .GroupBy(static finding => NormalizeCategory(finding.Category), StringComparer.OrdinalIgnoreCase)
+            .SelectMany(static category => category
+                .GroupBy(static finding => finding.Severity)
+                .Select(severity => new SystemicIssueSummary
+                {
+                    Category = category.Key,
+                    Severity = severity.Key.ToString(),
+                    Count = severity.Count(),
+                }))
             .OrderByDescending(static issue => issue.Count)
             .ThenBy(static issue => issue.Category, StringComparer.OrdinalIgnoreCase)
             .ThenBy(static issue => issue.Severity, StringComparer.OrdinalIgnoreCase)
