@@ -234,6 +234,27 @@ export function GovernanceFindingsQueueResultsSection(
         </div>
       ) : null}
 
+      {!props.loading
+      && props.showInsightDensityScore
+      && (props.displayedRows.length > 0 || (props.hideGenericLowDensity && props.rows.length > 0)) ? (
+        <label
+          className={cn(
+            "mb-3 flex items-center gap-2 text-al-text-secondary",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
+          data-testid="governance-findings-hide-generic-control"
+        >
+          <input
+            type="checkbox"
+            checked={props.hideGenericLowDensity}
+            onChange={(event) => {
+              props.onHideGenericLowDensityChange(event.target.checked);
+            }}
+          />
+          Hide generic findings (density score below {INSIGHT_DENSITY_GENERIC_THRESHOLD}) — advisory only
+        </label>
+      ) : null}
+
       {!props.loading && props.displayedRows.length > 0 ? (
         <>
           <SponsorStorySynopsisFromCounts
@@ -263,24 +284,6 @@ export function GovernanceFindingsQueueResultsSection(
               findingTitle={props.firstFindingTriageTarget.findingTitle}
               href={props.firstFindingTriageTarget.href}
             />
-          ) : null}
-          {props.showInsightDensityScore ? (
-            <label
-              className={cn(
-                "mb-3 flex items-center gap-2 text-al-text-secondary",
-                OPERATOR_TYPOGRAPHY.helper,
-              )}
-              data-testid="governance-findings-hide-generic-control"
-            >
-              <input
-                type="checkbox"
-                checked={props.hideGenericLowDensity}
-                onChange={(event) => {
-                  props.onHideGenericLowDensityChange(event.target.checked);
-                }}
-              />
-              Hide generic findings (density score below {INSIGHT_DENSITY_GENERIC_THRESHOLD}) — advisory only
-            </label>
           ) : null}
           {props.architectureScopeHonesty.line !== null ? (
             <p
