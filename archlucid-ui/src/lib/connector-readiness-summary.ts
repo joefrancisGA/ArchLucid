@@ -202,14 +202,15 @@ export function buildIntegrationRecommendedFirstSetup(
   data: TenantIntegrationsOperationsDto,
 ): IntegrationRecommendedFirstSetup | null {
   const connectors = data.connectors.map((connector) => normalizeConnectorSurfaceStatus(connector));
-  const teamsReady = isConnectorReady(connectors.find((row) => row.connectorKey === "teams") ?? null);
-  const slackReady = isConnectorReady(connectors.find((row) => row.connectorKey === "slack") ?? null);
+  const teams = connectors.find((row) => row.connectorKey === "teams");
+  const slack = connectors.find((row) => row.connectorKey === "slack");
 
-  if (!teamsReady && !slackReady) {
+  if ((teams || slack) && !isConnectorReady(teams) && !isConnectorReady(slack)) {
+    const channels = teams && slack ? "Teams or Slack" : teams ? "Teams" : "Slack";
     const href = firstConfigurationHref(connectors, ["teams", "slack"]);
 
     return {
-      title: "Configure Teams or Slack to send review notifications.",
+      title: `Configure ${channels} to send review notifications.`,
       detail: "Recommended when stakeholders should receive review outcomes in a collaboration channel.",
       href,
       actionLabel: recommendedSetupActionLabel(connectors, href),
