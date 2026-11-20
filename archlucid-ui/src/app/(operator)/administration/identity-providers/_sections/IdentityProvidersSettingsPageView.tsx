@@ -224,10 +224,7 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
           className="rounded-lg border border-neutral-200 dark:border-neutral-800"
           data-testid="identity-providers-related-surfaces-disclosure"
           open={relatedSurfacesOpen}
-          onToggle={(event) => {
-            event.preventDefault();
-            setRelatedSurfacesOpen(!relatedSurfacesOpenRef.current);
-          }}
+          onToggle={(event) => setRelatedSurfacesOpen(event.currentTarget.open)}
         >
           <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {IDENTITY_PROVIDERS_OVERVIEW_RELATED_SURFACES_TITLE}
