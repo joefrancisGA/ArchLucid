@@ -206,10 +206,30 @@ public sealed class QuickScanDistributedConcurrencyService(
 
                 if (promoteResult.Promoted)
                 {
-                    emergencyReject = await TryCreateEmergencyDisabledRejectAfterPromoteAsync(
-                        promoteResult,
-                        waitingQueueEntryId,
-                        cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        emergencyReject = await TryCreateEmergencyDisabledRejectAfterPromoteAsync(
+                            promoteResult,
+                            waitingQueueEntryId,
+                            cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        await CleanupAdmitResultAfterPostAdmitFailureAsync(
+                            QuickScanConcurrencyAdmitResult.DirectLease(promoteResult.LeaseId!.Value))
+                            .ConfigureAwait(false);
+
+                        if (ex is OperationCanceledException)
+                        {
+                            throw;
+                        }
+
+                        _logger.LogError(ex, "Quick Scan distributed concurrency post-promotion validation failed.");
+                        await AbandonQueueEntryForCleanupAsync(waitingQueueEntryId).ConfigureAwait(false);
+
+                        return QuickScanDistributedConcurrencyAdmissionResult.Reject(
+                            QuickScanConcurrencyRejectionReason.StoreUnavailable);
+                    }
 
                     if (emergencyReject is not null)
                     {
