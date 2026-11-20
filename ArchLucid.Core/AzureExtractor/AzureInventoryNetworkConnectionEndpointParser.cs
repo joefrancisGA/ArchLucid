@@ -34,29 +34,25 @@ public static class AzureInventoryNetworkConnectionEndpointParser
     {
         ArgumentNullException.ThrowIfNull(properties);
 
-        string? connectionType = TryReadProperty(properties, "connectionType");
-        string? endpoint1 = ReadFirstEndpoint(properties, Endpoint1PropertyKeys);
-        string? endpoint2 = ReadFirstEndpoint(properties, Endpoint2PropertyKeys);
-
         return new AzureInventoryNetworkConnectionEndpointParseResult
         {
-            ConnectionType = connectionType,
-            Endpoint1ArmId = NormalizeArmId(endpoint1),
-            Endpoint2ArmId = NormalizeArmId(endpoint2),
+            ConnectionType = TryReadProperty(properties, "connectionType"),
+            Endpoint1ArmId = ReadFirstEndpointArmId(properties, Endpoint1PropertyKeys),
+            Endpoint2ArmId = ReadFirstEndpointArmId(properties, Endpoint2PropertyKeys),
         };
     }
 
-    private static string? ReadFirstEndpoint(
+    private static string? ReadFirstEndpointArmId(
         IReadOnlyDictionary<string, string> properties,
         string[] propertyKeys)
     {
         foreach (string propertyKey in propertyKeys)
         {
-            string? value = TryReadProperty(properties, propertyKey);
+            string? armId = NormalizeArmId(TryReadProperty(properties, propertyKey));
 
-            if (!string.IsNullOrWhiteSpace(value))
+            if (!string.IsNullOrWhiteSpace(armId))
             {
-                return value;
+                return armId;
             }
         }
 
