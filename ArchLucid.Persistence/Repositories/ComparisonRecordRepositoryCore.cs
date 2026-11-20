@@ -179,9 +179,13 @@ internal static class ComparisonRecordRepositoryCore
                     .ThenBy(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId)),
             _ => desc
                 ? source.OrderByDescending(static r => r.CreatedUtc)
-                    .ThenByDescending(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId))
+                    .ThenByDescending(
+                        static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId),
+                        StringComparer.OrdinalIgnoreCase)
                 : source.OrderBy(static r => r.CreatedUtc)
-                    .ThenBy(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId)),
+                    .ThenBy(
+                        static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId),
+                        StringComparer.OrdinalIgnoreCase),
         };
 
         return ordered;
