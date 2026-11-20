@@ -110,8 +110,10 @@ public sealed class AzureInventorySnapshotMaterializerTests
         reversed.ContentHashSha256.Should().Equal(first.ContentHashSha256!);
     }
 
-    [Fact]
-    public async Task TryMaterializePackageAsync_reports_committed_snapshot_when_analysis_fails()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TryMaterializePackageAsync_reports_committed_snapshot_when_analysis_fails(bool cancelLocally)
     {
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };
         Guid snapshotId = Guid.NewGuid();
@@ -125,7 +127,9 @@ public sealed class AzureInventorySnapshotMaterializerTests
         coordinator
             .Setup(c => c.OnSnapshotMaterializedAsync(scope, snapshotId, "sub", CancellationToken.None))
             .Callback(() => analysisStartedAfterWrite = snapshotWritten)
-            .ThrowsAsync(new InvalidOperationException("Analysis unavailable"));
+            .Returns(() => cancelLocally
+                ? Task.FromCanceled(new CancellationToken(canceled: true))
+                : Task.FromException(new InvalidOperationException("Analysis unavailable")));
         AzureInventorySnapshotMaterializer sut = new(
             snapshotRepository.Object,
             CreateIdentityDirectory(scope, snapshotId).Object,

@@ -350,7 +350,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                         cancellationToken);
                 }
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
             {
                 logger.LogWarning(
                     ex,
