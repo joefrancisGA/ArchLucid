@@ -348,7 +348,7 @@ describe("RemediationFactoryClient", () => {
       screen.getByTestId("security-evidence-ranked-path-row-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
     );
 
-    expect(selectPath).toHaveBeenCalledWith("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    expect(selectPath).toHaveBeenCalledWith("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "privilege");
   });
 
   it("opens the rule line, the sort key, and how the counts are measured", () => {
@@ -475,6 +475,7 @@ describe("RemediationFactoryClient", () => {
 
   it("focuses path inspect when a top cut point highlights a path", () => {
     const collapsedPathId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    searchParams = new URLSearchParams("rankedPage=2&pathView=public-exposure");
     mockRankedPathsQuery({
       data: {
         items: [
@@ -522,7 +523,8 @@ describe("RemediationFactoryClient", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Highlight path" }));
 
-    expect(selectPath).toHaveBeenCalledWith(collapsedPathId);
+    expect(selectPath).toHaveBeenCalledWith(collapsedPathId, "privilege");
+    expect(routerReplaceMock).not.toHaveBeenCalled();
     expect(screen.getByTestId("security-evidence-path-inspect-panel")).toHaveFocus();
   });
 

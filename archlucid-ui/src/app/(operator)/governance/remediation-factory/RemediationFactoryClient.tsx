@@ -500,13 +500,14 @@ export function RemediationFactoryClient() {
     (nextPathId: string) => {
       const row = rankedPathsRef.current.find((entry) => entry.pathId === nextPathId);
 
-      if (row !== undefined) {
-        setPathView(resolveRemediationFactoryPathViewForRankedPath(row));
+      if (row === undefined) {
+        selectPathFromUrlState(nextPathId);
+        return;
       }
 
-      selectPathFromUrlState(nextPathId);
+      selectPathFromUrlState(nextPathId, resolveRemediationFactoryPathViewForRankedPath(row));
     },
-    [selectPathFromUrlState, setPathView],
+    [selectPathFromUrlState],
   );
 
   const refreshing =
