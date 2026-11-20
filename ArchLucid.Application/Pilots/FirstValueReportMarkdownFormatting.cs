@@ -27,7 +27,9 @@ internal static class FirstValueReportMarkdownFormatting
         }
 
         string fence = new string('`', maxRun + 1);
-        return fence + escaped + fence;
+        return escaped.StartsWith('`') || escaped.EndsWith('`')
+            ? fence + " " + escaped + " " + fence
+            : fence + escaped + fence;
     }
 
     internal static string FormatGeneratedFromRunAttributionLine(string runId)
