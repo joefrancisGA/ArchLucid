@@ -79,10 +79,11 @@ export function useNewRunWizardTemplateRestore(
 
   const saveWizardDraft = useCallback(() => {
     try {
-      writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewTemplates, {
-        stepIndex,
-        state: getValues(),
-      });
+      writeWizardSessionSnapshot(
+        WIZARD_SESSION_IDS.reviewsNewTemplates,
+        { stepIndex, state: getValues() },
+        { requireSessionStorage: true },
+      );
       setDraftSaveFeedback({ kind: "ok", message: "Architecture draft saved in this browser." });
     } catch {
       setDraftSaveFeedback({ kind: "err", message: "Could not save architecture draft." });
