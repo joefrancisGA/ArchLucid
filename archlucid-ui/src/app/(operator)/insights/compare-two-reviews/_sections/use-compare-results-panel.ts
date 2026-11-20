@@ -46,6 +46,7 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
 
   const [pdfDownloading, setPdfDownloading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [pdfExportBlockedReason, setPdfExportBlockedReason] = useState<string | null>(null);
   const [docxDownloading, setDocxDownloading] = useState(false);
   const [docxError, setDocxError] = useState<string | null>(null);
 
@@ -67,11 +68,14 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     if (!lastComparedPair) return;
     setPdfDownloading(true);
     setPdfError(null);
+    setPdfExportBlockedReason(null);
     try {
       await createAndDownloadComparisonPdf(lastComparedPair.left, lastComparedPair.right);
     } catch (e: unknown) {
       const failure = toApiLoadFailure(e);
-      setPdfError(comparisonReplayMutationBlockedReason(failure) ?? failure.message);
+      const blocked = comparisonReplayMutationBlockedReason(failure);
+      setPdfExportBlockedReason(blocked);
+      setPdfError(blocked ?? failure.message);
     } finally {
       setPdfDownloading(false);
     }
@@ -174,6 +178,7 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     liveAnnouncement,
     pdfDownloading,
     pdfError,
+    pdfExportBlockedReason,
     docxDownloading,
     docxError,
     handleDownloadPdf,

@@ -35,6 +35,7 @@ import { ComparePackAssignmentDeltaPanel } from "@/app/(operator)/insights/compa
 import { CompareExecutionModeDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareExecutionModeDeltaPanel";
 import { CompareSemanticSupportBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSemanticSupportBandDeltaPanel";
 import { COMPARE_RESULTS_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-results-stale-inputs-not-load-failure-copy";
+import { COMPARE_PAIR_BLOCKED_AGGREGATE_NOT_EMPTY_COMPARE_LINE } from "@/lib/architecture/compare-pair-blocked-aggregate-not-empty-compare-copy";
 import { CompareResultsStaleInputsPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsStaleInputsPartialHonesty";
 import { CompareProvenanceDeltaBand } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareProvenanceDeltaBand";
 import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
@@ -321,6 +322,15 @@ export function CompareResultsPanelVerdictChrome({
           <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>This depends on server LLM configuration.</p>
         </OperatorLoadingNotice>
       )}
+
+      {(legacyCompareBlockedReason !== null || goldenCompareBlockedReason !== null) ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="compare-pair-blocked-aggregate-not-empty-compare"
+        >
+          {COMPARE_PAIR_BLOCKED_AGGREGATE_NOT_EMPTY_COMPARE_LINE}
+        </p>
+      ) : null}
 
       {legacyFailure && (
         <>
