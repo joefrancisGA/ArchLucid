@@ -128,6 +128,8 @@ export function RunsListClient(props: RunsListClientProps) {
     filterStatusLine,
   } = useRunsList(props);
   const activeSort = runsListSortFromSortOrder(sortOrder);
+  const showBuyerFilters =
+    totalCount > 1 || filterText.trim().length > 0 || buyerPackageScope !== "all";
 
   const syncRunsListFilterOpenToUrl = useCallback(
     (open: boolean) => {
@@ -302,7 +304,7 @@ export function RunsListClient(props: RunsListClientProps) {
           </p>
         </div>
       ) : null}
-      {buyerPolished && totalCount <= 1 ? null : buyerPolished ? (
+      {buyerPolished && !showBuyerFilters ? null : buyerPolished ? (
         buyerCollapseFilters ? (
           <details
             className="rounded-lg border border-neutral-200 bg-neutral-50/40 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30"

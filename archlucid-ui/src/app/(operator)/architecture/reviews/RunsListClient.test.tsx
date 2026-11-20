@@ -477,6 +477,27 @@ describe("RunsListClient inspector", () => {
     expect(screen.queryByLabelText(/Search reviews by title or description/i)).toBeNull();
   });
 
+  it.each([
+    ["a search", "q=unmatched"],
+    ["a package scope", "scope=finalized"],
+  ])("buyer-polished: keeps the filters accessible when %s hides the only review", (_label, search) => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      search,
+    );
+
+    expect(screen.queryByTestId(`runs-row-${sampleRun.runId}`)).toBeNull();
+    const filterDisclosure = screen.getByText("Filter reviews", { selector: "summary" });
+    expect(filterDisclosure).toBeVisible();
+    expect(filterDisclosure.closest("details")).toContainElement(
+      screen.getByLabelText(/Search reviews by title or description/i),
+    );
+    expect(screen.getByLabelText("Show: All")).toHaveAttribute("href", expect.not.stringContaining("scope="));
+  });
+
   it("narrows text filter closes inspector when selected run is filtered out", () => {
     const secondRun: RunSummary = {
       ...sampleRun,
