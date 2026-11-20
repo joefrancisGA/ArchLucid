@@ -52,6 +52,16 @@ describe("governance-findings-architecture-scope (AO-28)", () => {
     expect(href).not.toContain(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
   });
 
+
+  it("treats whitespace-only architecture id as all-architectures scope without dropping filters", () => {
+    const href = governanceFindingsArchitectureScopeHrefFromSearch(
+      "filter=open",
+      "   ",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?filter=open&architectureId=all");
+  });
   it("treats architectureId=all as explicit all-architectures scope", () => {
     expect(scopedArchitectureIdFromQuery("all")).toBeNull();
     expect(
