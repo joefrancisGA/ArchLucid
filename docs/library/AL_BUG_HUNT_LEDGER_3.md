@@ -2,6 +2,14 @@
 
 ## Zone: ui-lib-governance
 
+2026-11-20 thorough hunt #2 (hit): cheap-disproof closed four header `(hunt-ready)` URL helpers — **valid-no-repro** `governanceFindingsClearAllFiltersHref` drops bulk confirm without selection (`governance-findings-clear-all-filters-url.test.ts`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` clears keyboard triage with `runId` removal (suite), **valid-no-repro** `governanceFindingQueueRowReviewHref` trims padded ids via `resolveGovernanceScopedReviewOpenHref`, **valid-no-repro** NL title/`URLSearchParams` encoding for embedded `=` (title facet join path). Promoted architecture scope chip: `governanceFindingsArchitectureScopeHrefFromSearch` wrote whitespace-only `architectureId` into the URL instead of canonical `all`; normalize trim and map empty to `architectureId=all`; regression `treats whitespace-only architecture id as all-architectures scope without dropping filters`; architecture-scope suite **6/6**. Scoped governance URL cluster **26/26** (pick-review, clear filters, clear scope, architecture-scope). Private beta: bad architecture scope input no longer leaves padded `architectureId` query junk on the findings queue.
+
+- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — bulk confirm without selection may linger — **cheap-disproof 2026-11-20 thorough hunt #2:** existing regression clears confirm param.
+- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — keyboard triage params may linger after scope clear — **cheap-disproof 2026-11-20 thorough hunt #2:** existing regression.
+- [x] (valid-no-repro) `governanceFindingQueueRowReviewHref` — padded `runId` encoding mismatch — **cheap-disproof 2026-11-20 thorough hunt #2:** scoped review open href trims.
+- [x] (valid-no-repro) `governanceFindingsNlFacetsHrefFromSearch` — embedded `=` in title facet — **cheap-disproof 2026-11-20 thorough hunt #2:** `URLSearchParams.set` encoding.
+- [x] (proven) `governanceFindingsArchitectureScopeHrefFromSearch` — whitespace-only architecture id wrote literal spaces to `architectureId` — **hit 2026-11-20 thorough hunt #2:** trim + empty→`all`; regression above.
+
 2026-11-20 thorough hunt (seed→hit): promoted `governanceFindingsPickReviewForTriageHref` whitespace-only `reviewId` early return dropping active register/facet query string when `architectureId` was absent; preserve `currentSearch` when trim empties review id; regression `preserves register and facet params when review id is whitespace-only`; scoped pick-review-url suite **7/7**. Reseeded four remaining `(hunt-ready)` rows as `(candidate)` monitors below. Private beta: keyboard triage no longer strips filters on blank pick-review input.
 
 - [x] (proven) `governanceFindingsPickReviewForTriageHref` — whitespace-only `reviewId` returns bare pathname and drops unrelated params when `architectureId` was absent — **hit 2026-11-20 thorough hunt (ui-lib-governance #1):** regression above.
@@ -15,10 +23,7 @@
 
 ### Hypotheses
 
-- [ ] (hunt-ready) `governanceFindingsClearAllFiltersUrl` — clearing filters may retain bulk-disposition confirm params when bulk selection param already cleared — locus: param deletion order; input: bulk confirm without selection; wrong outcome: stale confirm modal URL; reachability: clear-all-filters control.
-- [ ] (hunt-ready) `governanceFindingsClearReviewScopeUrl` — may leave keyboard triage params when only `runId` removed — locus: scope vs triage params; input: scoped run with triage confirm params; wrong outcome: triage overlay stuck; reachability: clear review scope chip.
-- [ ] (hunt-ready) `governanceFindingQueueRowReviewHref` — padded `runId` on row may encode unpadded id inconsistently vs inspect link — locus: trim at encode boundary; input: padded run id row; wrong outcome: review vs inspect mismatch; reachability: queue row review column.
-- [ ] (hunt-ready) `governanceFindingsNlFacetFilterUrl` — NL facet token with embedded `=` may split incorrectly when re-appended to search — locus: facet encoding; input: value containing `=`; wrong outcome: broken facet filter URL; reachability: NL facet chips.
+- [ ] (hunt-ready) reseed after hunt #2; prior queue closed in zone header diary.
 
 - **id:** ui-lib-governance
 - **status:** open
@@ -26,11 +31,11 @@
 - **aliases:** governance lib; findings URL helpers
 - **paths:** archlucid-ui/src/lib/governance/
 - **test-filter:** lib/governance
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-20
-- **last-bug:** 2026-11-20 — whitespace-only pick-review dropped facet filters
+- **last-bug:** 2026-11-20 — whitespace-only architecture scope encoded padded architectureId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
