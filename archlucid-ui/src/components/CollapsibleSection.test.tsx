@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { CollapsibleSection } from "./CollapsibleSection";
 
@@ -20,6 +20,23 @@ describe("CollapsibleSection", () => {
 
     expect(details?.open).toBe(true);
     expect(screen.getByText("Inner")).toBeInTheDocument();
+  });
+
+  it("ignores the toggle event for an open state already supplied by the parent", () => {
+    const onToggle = vi.fn();
+    render(
+      <CollapsibleSection title="More" open onToggle={onToggle} sectionTestId="controlled-section">
+        <p>Inner</p>
+      </CollapsibleSection>,
+    );
+
+    const details = screen.getByTestId("controlled-section") as HTMLDetailsElement;
+    fireEvent(details, new Event("toggle"));
+    expect(onToggle).not.toHaveBeenCalled();
+
+    details.open = false;
+    fireEvent(details, new Event("toggle"));
+    expect(onToggle).toHaveBeenCalledExactlyOnceWith(false);
   });
 
   it("respects defaultOpen", () => {
