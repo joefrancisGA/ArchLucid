@@ -401,8 +401,11 @@ describe("malformed responses fail closed", () => {
     await expect(getFindingInsightSignalStatus("run-1", "finding-1")).resolves.toEqual({ kinds: [] });
   });
 
-  it("maps a hosted-run response to safe values", () => {
-    expect(toTier2HostedRunResult({ packageId: 5, resourceCount: -3 })).toEqual({ packageId: "", resourceCount: 0 });
+  it("distinguishes unavailable resource counts from measured zero in hosted runs", () => {
+    expect(toTier2HostedRunResult({ packageId: 5, resourceCount: -3 })).toEqual({ packageId: "", resourceCount: null });
+    expect(toTier2HostedRunResult({ packageId: " pkg " })).toEqual({ packageId: "pkg", resourceCount: null });
+    expect(toTier2HostedRunResult({ packageId: "pkg", resourceCount: null }).resourceCount).toBeNull();
+    expect(toTier2HostedRunResult({ packageId: "pkg", resourceCount: 0 }).resourceCount).toBe(0);
     expect(() => toTier2HostedRunResult(null)).toThrow("Hosted extractor run response was not recognized.");
   });
 
