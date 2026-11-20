@@ -425,13 +425,19 @@ export function RunDetailArtifactsExportsSection(
 
                   void downloadArchitectureRequestJson(requestId)
                     .catch((error: unknown) => {
+                      if (activeRunIdRef.current !== runId) {
+                        return;
+                      }
+
                       const failure = toApiLoadFailure(error);
                       const blocked = architectureRequestJsonMutationBlockedReason(failure);
 
                       showError("Architecture request JSON", blocked ?? failure.message);
                     })
                     .finally(() => {
-                      setRequestJsonBusy(false);
+                      if (activeRunIdRef.current === runId) {
+                        setRequestJsonBusy(false);
+                      }
                     });
                 }}
               >
