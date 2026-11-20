@@ -1793,7 +1793,7 @@ export function DriftWorkbenchClient() {
           />
         ) : null}
 
-        {!loadingDiffs && selectedSnapshotId.length > 0 && diffs.length === 0 ? (
+        {!loadingDiffs && loadError == null && selectedSnapshotId.length > 0 && diffs.length === 0 ? (
           <EnterpriseCompactEmptyState
             title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_TITLE}
             description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY}
