@@ -17,15 +17,13 @@
 - [ ] (candidate) `AzureInventoryDiffService` — existing diff cache may skip consumer when changes empty — locus: WasExisting branch; input: zero-change diff persisted; wrong outcome: consumer not notified; reachability: drift fan-out (monitor; existing consumer regression suite).
 
 
-2026-11-20 seed hunt (seed-only): coverage zone for `ArchLucid.Application/InfraEvidence` (nominate gap). Seeded five `(hunt-ready)` rows; no production change.
-
 ### Hypotheses
 
-- [ ] (hunt-ready) `IInfrastructureDiagramComparisonService` — compare when one diagram id is whitespace-padded may treat padded and trimmed ids as different successes — locus: id normalization; input: padded diagram key; wrong outcome: false not-found; reachability: operator diagram diff UI.
-- [ ] (hunt-ready) `IInfraEvidenceAskGroundingService` — sparse snapshot may return succeeded with empty citations when inventory header exists but node list is empty — locus: grounding threshold; input: header-only snapshot; wrong outcome: confident empty answer; reachability: infra evidence ask panel.
-- [ ] (hunt-ready) `IFourRealityDriftEngine` — drift run with partially collected subscription scope may omit NR-40 partial enumeration flag — locus: scope aggregation; input: one failed subscription page; wrong outcome: full-green drift; reachability: continuous readiness dashboard.
-- [ ] (hunt-ready) `IAuditHybridEvidenceQueryService` — hybrid query when assessment id trims differently than stored key may return null vs empty record inconsistently — locus: key trim; input: padded assessment id; wrong outcome: intermittent not-found; reachability: audit evidence hybrid panel.
-- [ ] (hunt-ready) `IVisionDiagramIngestService` — ingest with sealed run hash mismatch may persist sources before guard throws — locus: guard ordering; input: wrong sealed hash with non-empty sources; wrong outcome: partial ingest; reachability: vision diagram upload.
+- [ ] (candidate) `AzureInventorySnapshotMaterializer` — post-materialization failure may report success without operator-visible flag — monitor; thorough hunt dry reseed.
+- [ ] (candidate) `InfrastructureDiagramComparisonService` — duplicate edge merge may drop label variants — monitor; thorough hunt dry reseed.
+- [ ] (candidate) `InfraEvidenceAskGroundingService` — simulator diagram view may return citations when insufficient — monitor; thorough hunt dry reseed.
+- [ ] (candidate) `FourRealityDriftEngine` — swallowed path persist errors may under-report paths discovered — monitor; thorough hunt dry reseed.
+- [ ] (candidate) `AzureInventoryDiffService` — existing diff cache may skip consumer when changes empty — monitor; thorough hunt dry reseed.
 
 - **id:** application-infra-evidence
 - **status:** open
