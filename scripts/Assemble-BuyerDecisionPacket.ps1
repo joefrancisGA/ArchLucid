@@ -167,7 +167,8 @@ if (-not [string]::IsNullOrWhiteSpace($ReleaseBundleDirectory) -and (Test-Path -
 }
 
 $generatedUtc = [DateTime]::UtcNow.ToString('o', [System.Globalization.CultureInfo]::InvariantCulture)
-$overall = if ($missingRequired.Count -gt 0 -or $unsafeMarkerHits.Count -gt 0) { 'HOLD' } else { 'PASS' }
+$blockingDispositions = @($entries | Where-Object { $_.required -and $_.present -and $_.disposition -in @('HOLD', 'FAIL', 'FAILED', 'NO-GO', 'WARN') })
+$overall = if ($missingRequired.Count -gt 0 -or $unsafeMarkerHits.Count -gt 0 -or $blockingDispositions.Count -gt 0) { 'HOLD' } else { 'PASS' }
 
 $manifest = [ordered]@{
     schema       = 'archlucid.buyer-decision-packet.v1'
