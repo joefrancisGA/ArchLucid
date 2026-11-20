@@ -168,9 +168,17 @@ describe("connector-readiness-summary", () => {
 
     const setup = buildIntegrationRecommendedFirstSetup(data);
 
-    expect(setup?.title).toMatch(/Configure Teams or Slack/i);
+    expect(setup?.title).toBe("Configure Teams to send review notifications.");
     expect(setup?.href).toBe("/integrations/teams");
     expect(setup?.actionLabel).toBe("Configure Teams notifications");
+  });
+
+  it("omits the setup card when neither notification connector is in the inventory", () => {
+    const data = operationsData([
+      connector({ connectorKey: "jira", smokeReadiness: "NotConfigured" }),
+    ]);
+
+    expect(buildIntegrationRecommendedFirstSetup(data)).toBeNull();
   });
 
   it("omits recommended first setup when Teams or Slack is ready", () => {
