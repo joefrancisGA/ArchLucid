@@ -99,6 +99,7 @@ export function AzureConnectedConnectionSummary(props: Props): React.ReactElemen
 export function AzureConnectionDetailsPanel(): React.ReactElement {
   const { connections, isLoading, loadError, refreshConnections } = useAzureConnectionData();
   const [isEditing, setIsEditing] = useState(false);
+  const [retrying, setRetrying] = useState(false);
 
   if (isLoading) {
     return (
@@ -115,10 +116,23 @@ export function AzureConnectionDetailsPanel(): React.ReactElement {
   }
 
   if (loadError !== null) {
+    async function retryLoad() {
+      setRetrying(true);
+
+      try {
+        await refreshConnections();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setRetrying(false);
+      }
+    }
+
     return (
       <OperatorSectionLoadFailure
         message={loadError}
-        onRetry={() => void refreshConnections()}
+        onRetry={() => void retryLoad()}
+        retrying={retrying}
         testId="azure-connection-details-load-error"
       />
     );
