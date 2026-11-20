@@ -91,7 +91,7 @@ public sealed class SqlGlobalSearchRepository(ISqlConnectionFactory connectionFa
         };
     }
 
-    private static string EscapeLike(string input) => input.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
+    private static string EscapeLike(string input) => input.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_").Replace("[", "[[]");
 
     private sealed class RunRow
     {
