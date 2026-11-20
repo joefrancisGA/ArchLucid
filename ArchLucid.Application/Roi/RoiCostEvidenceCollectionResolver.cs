@@ -143,9 +143,7 @@ public sealed class RoiCostEvidenceCollectionResolver(
             if (timestamp is null)
                 continue;
 
-            DateTime normalizedUtc = timestamp.Value.Kind == DateTimeKind.Utc
-                ? timestamp.Value
-                : timestamp.Value.ToUniversalTime();
+            DateTime normalizedUtc = RoiCostEvidenceUtcNormalizer.Normalize(timestamp.Value);
 
             if (latest is null || normalizedUtc > latest.Value)
                 latest = normalizedUtc;
@@ -153,4 +151,14 @@ public sealed class RoiCostEvidenceCollectionResolver(
 
         return latest;
     }
+}
+
+internal static class RoiCostEvidenceUtcNormalizer
+{
+    public static DateTime Normalize(DateTime value) => value.Kind switch
+    {
+        DateTimeKind.Utc => value,
+        DateTimeKind.Local => value.ToUniversalTime(),
+        _ => DateTime.SpecifyKind(value, DateTimeKind.Utc),
+    };
 }
