@@ -46,6 +46,22 @@ import { useRunsList } from "./use-runs-list";
 import { RunsListContinueLastViewedRow } from "./RunsListContinueLastViewedRow";
 import { BuyerPackageScopeFilterChips } from "./BuyerPackageScopeFilterChips";
 import { RunsListWorkQueueTable } from "./RunsListWorkQueueTable";
+import { REVIEWS_HUB_SEARCH_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-search-filter-empty-not-load-failure-copy";
+import { RunsListSearchFilterEmptyPartialHonesty } from "./RunsListSearchFilterEmptyPartialHonesty";
+import { REVIEWS_HUB_PACKAGE_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-package-scope-filter-empty-not-load-failure-copy";
+import { REVIEWS_HUB_SEARCH_AND_PACKAGE_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-search-and-package-scope-filter-empty-not-load-failure-copy";
+import { RunsListPackageScopeFilterEmptyPartialHonesty } from "./RunsListPackageScopeFilterEmptyPartialHonesty";
+import { REVIEWS_HUB_LIST_CONTEXT_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-list-context-filter-empty-not-load-failure-copy";
+import { RunsListListContextFilterEmptyPartialHonesty } from "./RunsListListContextFilterEmptyPartialHonesty";
+import { REVIEWS_HUB_ORPHAN_CANDIDATES_CONTEXT_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-orphan-candidates-context-filter-empty-not-load-failure-copy";
+import { RunsListOrphanCandidatesContextFilterEmptyPartialHonesty } from "./RunsListOrphanCandidatesContextFilterEmptyPartialHonesty";
+import { REVIEWS_HUB_LIST_CONTEXT_AND_SEARCH_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-list-context-and-search-filter-empty-not-load-failure-copy";
+import { RunsListListContextAndSearchFilterEmptyPartialHonesty } from "./RunsListListContextAndSearchFilterEmptyPartialHonesty";
+import { REVIEWS_HUB_LIST_CONTEXT_AND_PACKAGE_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-list-context-and-package-scope-filter-empty-not-load-failure-copy";
+import { RunsListListContextAndPackageScopeFilterEmptyPartialHonesty } from "./RunsListListContextAndPackageScopeFilterEmptyPartialHonesty";
+import { REVIEWS_HUB_ORPHAN_CANDIDATES_AND_SEARCH_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/reviews-hub-orphan-candidates-and-search-filter-empty-not-load-failure-copy";
+import { RunsListOrphanCandidatesAndSearchFilterEmptyPartialHonesty } from "./RunsListOrphanCandidatesAndSearchFilterEmptyPartialHonesty";
+
 import { inspectorTitle } from "./runs-list-row-presentation";
 import { shouldIgnoreRunsListRowActivation } from "./runs-list-row-activation";
 
@@ -68,6 +84,7 @@ function activateBuyerFeaturedCard(
  * Large viewports show an inline inspector; smaller viewports use a slide-over sheet.
  */
 export function RunsListClient(props: RunsListClientProps) {
+  const sourceRunCount = props.runs.length;
   const pathname = usePathname() ?? "/architecture/reviews";
   const { isWorkingMode } = useWorkspaceMode();
   const draftRegistryEntries = useArchitectureDraftRegistryEntries();
@@ -111,6 +128,8 @@ export function RunsListClient(props: RunsListClientProps) {
     filterStatusLine,
   } = useRunsList(props);
   const activeSort = runsListSortFromSortOrder(sortOrder);
+  const showBuyerFilters =
+    totalCount > 1 || filterText.trim().length > 0 || buyerPackageScope !== "all";
 
   const syncRunsListFilterOpenToUrl = useCallback(
     (open: boolean) => {
@@ -285,7 +304,7 @@ export function RunsListClient(props: RunsListClientProps) {
           </p>
         </div>
       ) : null}
-      {buyerPolished && totalCount <= 1 ? null : buyerPolished ? (
+      {buyerPolished && !showBuyerFilters ? null : buyerPolished ? (
         buyerCollapseFilters ? (
           <details
             className="rounded-lg border border-neutral-200 bg-neutral-50/40 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30"
@@ -404,6 +423,114 @@ export function RunsListClient(props: RunsListClientProps) {
               </div>
             ) : null}
 
+            
+            {showBuyerPackageCards ? null : filteredSorted.length === 0
+            && filterText.trim().length > 0
+            && (listContextFilter?.trim() ?? "").length === 0
+            && !(buyerPolished === true && buyerPackageScope !== "all")
+            && sourceRunCount > 0 ? (
+              <div className="space-y-2" data-testid="reviews-hub-search-filter-empty">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-search-filter-empty-not-load-failure">
+                  {REVIEWS_HUB_SEARCH_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <RunsListSearchFilterEmptyPartialHonesty />
+              </div>
+            ) : null}
+            {showBuyerPackageCards ? null : filteredSorted.length === 0
+            && buyerPolished === true
+            && buyerPackageScope !== "all"
+            && listContextFilter !== "orphan-candidates"
+            && filterText.trim().length > 0
+            && sourceRunCount > 0 ? (
+              <div className="space-y-2" data-testid="reviews-hub-search-and-package-scope-filter-empty">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-search-and-package-scope-filter-empty-not-load-failure">
+                  {REVIEWS_HUB_SEARCH_AND_PACKAGE_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <RunsListSearchFilterEmptyPartialHonesty />
+                <RunsListPackageScopeFilterEmptyPartialHonesty />
+              </div>
+            ) : null}
+            {showBuyerPackageCards ? null : filteredSorted.length === 0
+            && buyerPolished === true
+            && buyerPackageScope !== "all"
+            && filterText.trim().length === 0
+            && (listContextFilter === null || listContextFilter.trim().length === 0)
+            && sourceRunCount > 0 ? (
+              <div className="space-y-2" data-testid="reviews-hub-package-scope-filter-empty">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-package-scope-filter-empty-not-load-failure">
+                  {REVIEWS_HUB_PACKAGE_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <RunsListPackageScopeFilterEmptyPartialHonesty />
+              </div>
+            ) : null}
+            {showBuyerPackageCards ? null : filteredSorted.length === 0
+            && listContextFilter === "orphan-candidates"
+            && filterText.trim().length > 0
+            && sourceRunCount > 0 ? (
+              <div className="space-y-2" data-testid="reviews-hub-orphan-candidates-and-search-filter-empty">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-orphan-candidates-and-search-filter-empty-not-load-failure">
+                  {REVIEWS_HUB_ORPHAN_CANDIDATES_AND_SEARCH_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <RunsListOrphanCandidatesAndSearchFilterEmptyPartialHonesty />
+                <RunsListSearchFilterEmptyPartialHonesty />
+              </div>
+            ) : null}
+            {showBuyerPackageCards ? null : filteredSorted.length === 0
+            && listContextFilter === "orphan-candidates"
+            && filterText.trim().length === 0
+            && sourceRunCount > 0 ? (
+              <div className="space-y-2" data-testid="reviews-hub-orphan-candidates-context-filter-empty">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-orphan-candidates-context-filter-empty-not-load-failure">
+                  {REVIEWS_HUB_ORPHAN_CANDIDATES_CONTEXT_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <RunsListOrphanCandidatesContextFilterEmptyPartialHonesty />
+              </div>
+            ) : null}
+            {showBuyerPackageCards ? null : filteredSorted.length === 0
+            && listContextFilter !== null
+            && listContextFilter.trim().length > 0
+            && listContextFilter !== "orphan-candidates"
+            && filterText.trim().length > 0
+            && !(buyerPolished === true && buyerPackageScope !== "all")
+            && sourceRunCount > 0 ? (
+              <div className="space-y-2" data-testid="reviews-hub-list-context-and-search-filter-empty">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-list-context-and-search-filter-empty-not-load-failure">
+                  {REVIEWS_HUB_LIST_CONTEXT_AND_SEARCH_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <RunsListListContextAndSearchFilterEmptyPartialHonesty />
+                <RunsListSearchFilterEmptyPartialHonesty />
+              </div>
+            ) : null}
+            {showBuyerPackageCards ? null : filteredSorted.length === 0
+            && listContextFilter !== null
+            && listContextFilter.trim().length > 0
+            && listContextFilter !== "orphan-candidates"
+            && buyerPolished === true
+            && buyerPackageScope !== "all"
+            && filterText.trim().length === 0
+            && sourceRunCount > 0 ? (
+              <div className="space-y-2" data-testid="reviews-hub-list-context-and-package-scope-filter-empty">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-list-context-and-package-scope-filter-empty-not-load-failure">
+                  {REVIEWS_HUB_LIST_CONTEXT_AND_PACKAGE_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <RunsListListContextAndPackageScopeFilterEmptyPartialHonesty />
+                <RunsListPackageScopeFilterEmptyPartialHonesty />
+              </div>
+            ) : null}
+            {showBuyerPackageCards ? null : filteredSorted.length === 0
+            && listContextFilter !== null
+            && listContextFilter.trim().length > 0
+            && listContextFilter !== "orphan-candidates"
+            && filterText.trim().length === 0
+            && !(buyerPolished === true && buyerPackageScope !== "all")
+            && sourceRunCount > 0 ? (
+              <div className="space-y-2" data-testid="reviews-hub-list-context-filter-empty">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-list-context-filter-empty-not-load-failure">
+                  {REVIEWS_HUB_LIST_CONTEXT_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <RunsListListContextFilterEmptyPartialHonesty />
+              </div>
+            ) : null}
             {showBuyerPackageCards ? null : filteredSorted.length === 0 ? (
               <EnterpriseTable ariaLabel="Architecture reviews (empty)">
                 <EnterpriseTableHead>

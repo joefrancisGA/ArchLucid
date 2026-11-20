@@ -23,7 +23,7 @@ internal static partial class ArtifactBundleRelationalRead
         // Load slices directly instead of probing COUNT(1) first: an empty result carries the same
         // "no relational rows" signal a count would, without four extra round trips per hydrate.
         List<SynthesizedArtifact> relationalArtifacts =
-            await LoadArtifactsRelationalAsync(connection, bundleId, loadArtifactBodies, ct);
+            await LoadArtifactsRelationalAsync(connection, bundleId, blobStore, loadArtifactBodies, ct);
 
         List<SynthesizedArtifact> artifacts = relationalArtifacts.Count > 0
             ? relationalArtifacts

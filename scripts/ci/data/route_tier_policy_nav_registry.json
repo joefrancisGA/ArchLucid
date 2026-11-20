@@ -2482,6 +2482,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Tenancy/WorkOwnershipDeletePolicyController.cs",
+      "class_name": "WorkOwnershipDeletePolicyController",
+      "route_template": "v{version:apiVersion}/admin/settings",
+      "normalized_prefix": "/v1/admin/settings",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "User/UserAttentionSummaryController.cs",
       "class_name": "UserAttentionSummaryController",
       "route_template": "v{version:apiVersion}/user/attention-summary",

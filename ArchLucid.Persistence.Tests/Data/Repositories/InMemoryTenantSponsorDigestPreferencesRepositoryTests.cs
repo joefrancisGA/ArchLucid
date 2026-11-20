@@ -37,6 +37,20 @@ public sealed class InMemoryTenantSponsorDigestPreferencesRepositoryTests
     }
 
     [SkippableFact]
+    public async Task Returned_recipients_cannot_mutate_saved_preferences()
+    {
+        InMemoryTenantSponsorDigestPreferencesRepository sut = new();
+        Guid tenantId = Guid.NewGuid();
+        var saved = await sut.UpsertAsync(tenantId, true, ["original@example.test"], "UTC", 1, 8, CancellationToken.None);
+
+        IList<string> recipients = Assert.IsAssignableFrom<IList<string>>(saved!.RecipientEmails);
+        Assert.Throws<NotSupportedException>(() => recipients[0] = "changed@example.test");
+
+        var loaded = await sut.GetByTenantAsync(tenantId, CancellationToken.None);
+        loaded!.RecipientEmails.Should().ContainSingle().Which.Should().Be("original@example.test");
+    }
+
+    [SkippableFact]
     public async Task ListEmailEnabledTenantIdsAsync_returns_only_enabled()
     {
         InMemoryTenantSponsorDigestPreferencesRepository sut = new();

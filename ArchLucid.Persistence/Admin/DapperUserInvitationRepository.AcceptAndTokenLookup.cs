@@ -117,7 +117,8 @@ public sealed partial class DapperUserInvitationRepository
                            UPDATE dbo.UserInvitations
                            SET Status = N'Accepted', AcceptedUtc = @AcceptedUtc
                            WHERE Id = @Id
-                             AND Status = N'Pending';
+                             AND Status = N'Pending'
+                             AND ExpiresUtc > @AcceptedUtc;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

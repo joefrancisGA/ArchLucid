@@ -17,6 +17,9 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_items.Exists(item => item.AlertId == alert.AlertId))
+                throw new InvalidOperationException("An alert record with this ID already exists.");
+
             _items.Add(Copy(alert));
             AlertRecordRepositoryCore.TrimInMemoryEntries(_items);
         }
@@ -30,14 +33,16 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         lock (_gate)
         {
             // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
-            int i = _items.FindIndex(x =>
+            AlertRecord? stored = _items.Find(x =>
                 x.AlertId == alert.AlertId &&
                 AlertRecordRepositoryCore.MatchesScope(x, alert.TenantId, alert.WorkspaceId, alert.ProjectId));
-            if (i >= 0)
+            if (stored is not null)
             {
-                AlertRecord saved = Copy(alert);
-                saved.IsArchived = _items[i].IsArchived;
-                _items[i] = saved;
+                stored.Status = alert.Status;
+                stored.LastUpdatedUtc = alert.LastUpdatedUtc;
+                stored.AcknowledgedByUserId = alert.AcknowledgedByUserId;
+                stored.AcknowledgedByUserName = alert.AcknowledgedByUserName;
+                stored.ResolutionComment = alert.ResolutionComment;
             }
         }
 

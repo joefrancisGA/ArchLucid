@@ -1,3 +1,5 @@
+using System.Data;
+
 using Dapper;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -58,13 +60,13 @@ internal static class ComparisonRecordSearchPredicateBuilder
         if (createdFromUtc is not null)
         {
             conditions.Add("CreatedUtc >= @CreatedFromUtc");
-            parameters.Add("@CreatedFromUtc", createdFromUtc);
+            parameters.Add("@CreatedFromUtc", createdFromUtc, DbType.DateTime2);
         }
 
         if (createdToUtc is not null)
         {
             conditions.Add("CreatedUtc <= @CreatedToUtc");
-            parameters.Add("@CreatedToUtc", createdToUtc);
+            parameters.Add("@CreatedToUtc", createdToUtc, DbType.DateTime2);
         }
 
         if (!string.IsNullOrWhiteSpace(leftExportRecordId))

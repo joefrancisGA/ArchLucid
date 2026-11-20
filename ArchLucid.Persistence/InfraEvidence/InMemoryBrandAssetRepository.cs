@@ -10,6 +10,8 @@ public sealed class InMemoryBrandAssetRepository : IBrandAssetRepository
 
     public Task InsertAsync(BrandAssetRecord record, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(record);
         _records[record.AssetId] = record;
         return Task.CompletedTask;
@@ -17,6 +19,8 @@ public sealed class InMemoryBrandAssetRepository : IBrandAssetRepository
 
     public Task<BrandAssetRecord?> TryGetByIdAsync(Guid tenantId, Guid assetId, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!_records.TryGetValue(assetId, out BrandAssetRecord? record))
             return Task.FromResult<BrandAssetRecord?>(null);
 
@@ -33,6 +37,8 @@ public sealed class InMemoryBrandAssetRepository : IBrandAssetRepository
         DateTime updatedUtc,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!_records.TryGetValue(assetId, out BrandAssetRecord? record) || record.TenantId != tenantId)
             return Task.CompletedTask;
 

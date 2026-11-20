@@ -3,6 +3,8 @@
 import Link from "next/link";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { POLICY_PACK_HUB_WORKSPACE_ASSIGNMENTS_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/policy/policy-pack-hub-workspace-assignments-empty-not-load-failure-copy";
+import { cn } from "@/lib/utils";
 import { isOrganizationCreatedPolicyPack } from "@/lib/editions/securenow-featured-frameworks";
 import { policyPacksOrganizationStarterHref } from "@/lib/policy/policy-packs-deep-link";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -50,7 +52,12 @@ export function PolicyPacksFeaturedSection(props: Props): React.JSX.Element | nu
           ))}
         </ul>
       ) : (
-        <p className={OPERATOR_TYPOGRAPHY.helper}>No featured packs are assigned yet. Start with an organization policy pack.</p>
+        <div className="space-y-2" data-testid="policy-pack-hub-workspace-assignments-empty">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-pack-hub-workspace-assignments-empty-not-load-failure">
+            {POLICY_PACK_HUB_WORKSPACE_ASSIGNMENTS_EMPTY_NOT_LOAD_FAILURE_LINE}
+          </p>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Start with an organization policy pack.</p>
+        </div>
       )}
     </section>
   );

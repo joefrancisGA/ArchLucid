@@ -71,6 +71,7 @@ internal static class IntegrationEventOutboxSql
                                                       LastErrorMessage = NULL
                                                   WHERE OutboxId = @OutboxId
                                                     AND DeadLetteredUtc IS NOT NULL
+                                                    AND ProcessedUtc IS NULL
                                                     AND (@TenantId IS NULL OR TenantId = @TenantId);
                                                   """;
 
@@ -101,7 +102,8 @@ internal static class IntegrationEventOutboxSql
                                                    LastErrorMessage = NULL
                                                OUTPUT INSERTED.OutboxId
                                                WHERE OutboxId IN @OutboxIds
-                                                 AND DeadLetteredUtc IS NOT NULL;
+                                                 AND DeadLetteredUtc IS NOT NULL
+                                                 AND ProcessedUtc IS NULL;
                                                """;
 
     public const string TryGetDeadLetterEntry = """

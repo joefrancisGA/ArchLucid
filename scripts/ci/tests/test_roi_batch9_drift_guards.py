@@ -32,7 +32,8 @@ class TestRoiBatch9DriftGuards(unittest.TestCase):
         self.assertIn("SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE", panel)
         self.assertIn("PolicyPackInfluenceHonestyChip", panel)
         self.assertIn("first-review-guide-evidence-only-fast-path", panel)
-        self.assertIn("GOVERNANCE_POLICY_PACKS_PATH", setup)
+        self.assertIn("policyPacksPathForProductLine", setup)
+        self.assertIn("href: policyPacksPathForProductLine(productLine)", setup)
 
     def test_inventory_zip_prompt_includes_evidence_only_fast_path(self) -> None:
         prompt = (_UI / "src/lib/first-review/azure-inventory-zip-first-review-prompt.ts").read_text(

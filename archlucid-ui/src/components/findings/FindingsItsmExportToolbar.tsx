@@ -252,10 +252,7 @@ export function FindingsItsmExportToolbar({
         data-testid="findings-itsm-export-toolbar"
         data-workspace-disclosure
         open={preFinalizeExportOpen}
-        onToggle={(event) => {
-          event.preventDefault();
-          setPreFinalizeExportOpen(!preFinalizeExportOpenRef.current);
-        }}
+        onToggle={(event) => setPreFinalizeExportOpen(event.currentTarget.open)}
       >
         <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           Export findings before finalize

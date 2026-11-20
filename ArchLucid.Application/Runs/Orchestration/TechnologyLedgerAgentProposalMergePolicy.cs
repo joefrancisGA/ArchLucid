@@ -103,12 +103,12 @@ public static class TechnologyLedgerAgentProposalMergePolicy
     private static bool TechnologyNamesMatch(string left, string right) =>
         string.Equals(NormalizeTechnologyName(left), NormalizeTechnologyName(right), StringComparison.OrdinalIgnoreCase);
 
-    private static string NormalizeTechnologyName(string value)
+    private static string NormalizeTechnologyName(string? value)
     {
-        string trimmed = value.Trim();
-
-        if (trimmed.Length == 0)
+        if (string.IsNullOrWhiteSpace(value))
             return string.Empty;
+
+        string trimmed = value.Trim();
 
         return string.Join(' ', trimmed.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
     }

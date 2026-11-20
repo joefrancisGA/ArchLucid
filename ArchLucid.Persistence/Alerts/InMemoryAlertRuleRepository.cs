@@ -16,6 +16,9 @@ public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_items.Exists(item => item.RuleId == rule.RuleId))
+                throw new InvalidOperationException("An alert rule with this ID already exists.");
+
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 
@@ -34,7 +37,11 @@ public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
             // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
             int i = _items.FindIndex(x => x.RuleId == rule.RuleId && SameScope(x, rule));
             if (i >= 0)
-                _items[i] = Copy(rule);
+            {
+                AlertRule updated = Copy(rule);
+                updated.CreatedUtc = _items[i].CreatedUtc;
+                _items[i] = updated;
+            }
         }
 
         return Task.CompletedTask;

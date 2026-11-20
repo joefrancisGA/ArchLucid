@@ -42,6 +42,7 @@ import {
   parseItsmOnboardingWizardStepFromSearch,
 } from "@/lib/itsm/itsm-onboarding-wizard-step-url";
 import {
+  formatSecureNowPilotStopItsmDraftBody,
   parseSecureNowStopItsmOutboundDraftFromSearch,
   SECURENOW_PILOT_STOP_ITSM_DRAFT_DISCIPLINE,
 } from "@/lib/product-line/securenow-stop-itsm-handoff";
@@ -67,7 +68,10 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
   const searchParams = useSearchParams();
   const urlStep = parseItsmOnboardingWizardStepFromSearch(searchParams.get("itsmStep"));
   const pilotStopDraft = parseSecureNowStopItsmOutboundDraftFromSearch(searchParams);
-  const [pilotStopDraftBody, setPilotStopDraftBody] = useState("");
+  const pilotStopDraftSeed = pilotStopDraft === null
+    ? ""
+    : formatSecureNowPilotStopItsmDraftBody(pilotStopDraft.pathId, pilotStopDraft.rationale);
+  const [pilotStopDraftBody, setPilotStopDraftBody] = useState(pilotStopDraftSeed);
   const [step, setStepState] = useState<ItsmOnboardingWizardStep>(() =>
     urlStep ?? resolveItsmOnboardingWizardInitialStep(props.initialHealth, props.initialSettings),
   );
@@ -98,15 +102,8 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
   }, [searchParams]);
 
   useEffect(() => {
-    if (pilotStopDraft === null) {
-      setPilotStopDraftBody("");
-      return;
-    }
-
-    setPilotStopDraftBody(
-      `SecureNow pilot Stop disposition\nPath: ${pilotStopDraft.pathId}\nRationale: ${pilotStopDraft.rationale}`,
-    );
-  }, [pilotStopDraft?.pathId, pilotStopDraft?.rationale, pilotStopDraft]);
+    setPilotStopDraftBody(pilotStopDraftSeed);
+  }, [pilotStopDraftSeed]);
   const [settings, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(props.initialSettings);
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(props.initialHealth);
   const [jiraProjectKey, setJiraProjectKey] = useState(props.initialSettings?.jiraProjectKeyOverride ?? "");

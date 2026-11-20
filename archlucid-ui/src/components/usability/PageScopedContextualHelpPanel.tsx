@@ -23,6 +23,8 @@ import {
 } from "@/lib/help/page-help-drawer-supplement";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
+  PAGE_CONTEXTUAL_HELP_OPEN_PARAM,
+  PAGE_CONTEXTUAL_HELP_SECTION_PARAM,
   pageContextualHelpPanelHrefFromSearch,
   parsePageContextualHelpOpenFromSearch,
   parsePageContextualHelpSectionFromSearch,
@@ -154,10 +156,8 @@ export function PageScopedContextualHelpPanel({
   openRef.current = open;
   const visibleTriggerText = triggerText ?? triggerLabel;
   const dialogLabel = `Help: ${triggerLabel}`;
-  const resolvedSectionId =
-    (sectionId?.trim()
-      ?? parsePageContextualHelpSectionFromSearch(null))
-    || null;
+  const [urlSectionId, setUrlSectionId] = useState("");
+  const resolvedSectionId = (sectionId?.trim() ?? urlSectionId) || null;
 
   const syncPageHelpToUrl = useCallback(
     (nextOpen: boolean) => {
@@ -183,6 +183,9 @@ export function PageScopedContextualHelpPanel({
 
       openRef.current = next;
       setOpenState(next);
+      if (!next) {
+        setUrlSectionId("");
+      }
       syncPageHelpToUrl(next);
     },
     [syncPageHelpToUrl],
@@ -203,9 +206,9 @@ export function PageScopedContextualHelpPanel({
 
   useEffect(() => {
     const syncPageHelpOpenFromUrl = (): void => {
-      const nextOpen = parsePageContextualHelpOpenFromSearch(
-        new URLSearchParams(window.location.search).get("pageHelpOpen"),
-      );
+      const params = new URLSearchParams(window.location.search);
+      const nextOpen = parsePageContextualHelpOpenFromSearch(params.get(PAGE_CONTEXTUAL_HELP_OPEN_PARAM));
+      setUrlSectionId(nextOpen ? parsePageContextualHelpSectionFromSearch(params.get(PAGE_CONTEXTUAL_HELP_SECTION_PARAM)) : "");
 
       if (openRef.current === nextOpen) {
         return;

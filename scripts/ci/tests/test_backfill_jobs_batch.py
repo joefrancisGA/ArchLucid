@@ -22,6 +22,20 @@ class TestBackfillJobsBatch(unittest.TestCase):
         self.assertIn("BackfillCheckpoints", text)
         self.assertIn("BackfillFailures", text)
 
+    def test_backfill_checkpoint_never_moves_backward(self) -> None:
+        path = (
+            REPO_ROOT
+            / "ArchLucid.Persistence"
+            / "Coordination"
+            / "Backfill"
+            / "SqlRelationalBackfillCheckpointStore.cs"
+        )
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("target.LastProcessedCreatedUtc < @LastProcessedCreatedUtc", text)
+        self.assertIn("target.LastProcessedCreatedUtc = @LastProcessedCreatedUtc", text)
+        self.assertIn("TRY_CONVERT(uniqueidentifier, target.LastProcessedKey)", text)
+        self.assertIn("< @LastProcessedEntityId", text)
+
     def test_backfill_cli_parses_batch_and_retry_flags(self) -> None:
         path = REPO_ROOT / "ArchLucid.Backfill.Cli" / "Program.cs"
         text = path.read_text(encoding="utf-8")

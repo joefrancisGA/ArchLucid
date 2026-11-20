@@ -7,6 +7,7 @@ vi.mock("@/lib/relative-time", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/security",
   useSearchParams: () => new URLSearchParams(),
 }));
 

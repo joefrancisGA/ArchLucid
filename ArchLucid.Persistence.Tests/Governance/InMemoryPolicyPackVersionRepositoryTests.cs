@@ -216,4 +216,35 @@ public sealed class InMemoryPolicyPackVersionRepositoryTests
         detail.Should().NotBeNull();
         detail!.ContentJson.Should().Be(body);
     }
+    [SkippableFact]
+    public async Task UpdateAsync_preserves_version_identity_and_creation_time()
+    {
+        InMemoryPolicyPackVersionRepository sut = new();
+        Guid packId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        PolicyPackVersion stored = new()
+        {
+            PolicyPackId = packId,
+            Version = "1.0.0",
+            ContentJson = "{}",
+            CreatedUtc = createdUtc,
+        };
+        await sut.CreateAsync(stored, CancellationToken.None);
+
+        await sut.UpdateAsync(new PolicyPackVersion
+        {
+            PolicyPackVersionId = stored.PolicyPackVersionId,
+            PolicyPackId = Guid.NewGuid(),
+            Version = "2.0.0",
+            ContentJson = "{\"updated\":true}",
+            CreatedUtc = createdUtc.AddDays(1),
+            IsPublished = true,
+        }, CancellationToken.None);
+
+        PolicyPackVersion? found = await sut.GetByPackAndVersionAsync(packId, "1.0.0", CancellationToken.None);
+        found.Should().NotBeNull();
+        found!.CreatedUtc.Should().Be(createdUtc);
+        found.ContentJson.Should().Be("{\"updated\":true}");
+        found.IsPublished.Should().BeTrue();
+    }
 }

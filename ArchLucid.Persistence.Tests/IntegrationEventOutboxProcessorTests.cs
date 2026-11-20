@@ -116,14 +116,18 @@ public sealed class IntegrationEventOutboxProcessorTests
             Times.Never);
     }
 
-    [SkippableFact]
-    public async Task ProcessPendingBatchAsync_on_failure_schedules_retry_when_under_cap()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ProcessPendingBatchAsync_on_failure_schedules_retry_when_under_cap(bool operationCanceled)
     {
         Mock<IIntegrationEventPublisher> publisher = new();
         publisher
             .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(),
                 It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new InvalidOperationException("sb down"));
+            .ThrowsAsync(operationCanceled
+                ? new OperationCanceledException("sb down")
+                : new InvalidOperationException("sb down"));
 
         Mock<IIntegrationEventOutboxRepository> outbox = new();
         Guid id = Guid.NewGuid();

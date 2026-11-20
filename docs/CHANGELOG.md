@@ -5,6 +5,166 @@
 
 # ArchLucid changelog
 
+
+## 2026-11-20 - Score lift round 98 (batch 63): Risk register empty, CSV export, ITSM create, OAuth callback
+
+**Outcome.** Findings register empty names a successful read with no rows. CSV export names a browser failure apart from a header-only empty export. ITSM create names connector-off, hard create failure, and empty linkage. Atlassian OAuth callback names cancelled consent apart from token-exchange failure.
+
+**Surfaces.** Governance findings register, findings CSV export, ITSM outbound create, Atlassian OAuth callback, honesty and mounted contract tests.
+
+## 2026-11-20 - Score lift round 97 (batch 62): DOCX stale, manifest stale, drift hard failure, AI malformed
+
+**Outcome.** DOCX and manifest compare exports pause on stale picker drift apart from failed requests. Drift download hard failure is distinct from seal-gate block and empty artifact. AI malformed explain response is distinct from blocked explain mutation and empty narrative.
+
+**Surfaces.** Compare DOCX stale inputs, manifest export stale inputs, drift download hard failure, AI malformed explain, honesty and mounted contract tests.
+
+## 2026-11-20 - Score lift round 96 (batch 61): Workspace unsealed, AI explain blocked, PDF stale, correlation soft failure
+
+**Outcome.** Main compare workspace names unsealed results with partial-capture recovery. AI explain blocked names seal gates apart from empty narrative. PDF export pauses on stale picker drift. Finding correlation soft failure is distinct from empty metadata.
+
+**Surfaces.** Compare workspace unsealed, AI explain blocked, PDF stale inputs, correlation soft failure, honesty and mounted contract tests.
+
+## 2026-11-20 - Score lift round 95 (batch 60): End-to-end export, stale exports, cite strip, AI narrative
+
+**Outcome.** End-to-end compare export names seal gates apart from empty Markdown. Stale picker drift pauses exports apart from failed requests. Pair cite strip warns when current-effective mode meets stale inputs. Missing AI narrative is named apart from explain mutation failure.
+
+**Surfaces.** End-to-end compare export, export stale inputs, pair evidence cite strip, AI narrative missing, honesty and mounted contract tests.
+
+## 2026-11-20 - Score lift round 94 (batch 59): DOCX, drift download, zero finalized, manifest export
+
+**Outcome.** Comparison DOCX export names seal gates apart from empty package. Drift download blocked names lifecycle gates apart from empty drift artifact. Insufficient finalized empty (zero reviews) names prerequisite apart from failed compare with partial-capture recovery. Manifest compare export blocked honesty apart from empty Markdown.
+
+**Surfaces.** Compare DOCX export, drift download blocked, insufficient finalized zero, manifest compare export, honesty and mounted contract tests.
+
+## 2026-11-20 - Score lift round 93 (batch 58): Same review, search blocked, pair blocked, PDF export
+
+**Outcome.** Compare pickers name same-review selection apart from picker load failure. Comparison search blocked names seal gates apart from empty history. Compare pair aggregate blocked banner names gate failure apart from empty deltas. Comparison PDF export names finalize gates apart from empty report.
+
+**Surfaces.** Compare run pickers, comparison search blocked, compare pair blocked aggregate, comparison PDF export, honesty and mounted contract tests.
+
+## 2026-11-20 - Score lift round 92 (batch 57): Trust banner, live region, structured empty, manifest diff
+
+**Outcome.** Compare trust banner names current-effective scope with an unsealed review. Live region announces stale picker drift. Structured comparison names empty payload apart from golden load failure. Raw manifest diff names identical JSON apart from blocked manifest fetch.
+
+**Surfaces.** Compare trust banner, compare live region, structured diff, raw manifest diff, honesty and mounted contract tests.
+
+## 2026-11-20 - Score lift round 91 (batch 56): Verdict add/remove, execution mode, provenance, agent empty
+
+**Outcome.** Compare verdict summary names add/remove counts as requiring two sealed reviews. Compare execution mode delta names unsealed review gap. Provenance delta footnotes partial inventory when manifest diffs show. Agent results callout names empty success response apart from blocked compare.
+
+**Surfaces.** Compare verdict summary, execution mode delta, provenance delta band, agent results callout, honesty and mounted contract tests.
+
+## 2026-11-19 - Score lift round 90 (batch 55): Compare ROI, gate, pack assignment, correlation unsealed
+
+**Outcome.** Compare ROI headline names zero estimates with an unsealed review. Compare gate outcome names missing stored gates apart from a failed gate read. Compare pack assignment names empty rows when governance diff loaded. Finding correlation names empty metadata with an unsealed review apart from correlation load failure.
+
+**Surfaces.** Compare ROI headline, gate outcome, pack assignment, finding correlation, honesty and mounted contract tests.
+
+## 2026-11-19 - Score lift round 89 (batch 54): Compare semantic and treatment bands, governance diff empty, stale inputs
+
+**Outcome.** Compare semantic support band names all-zero counts with an unsealed review. Compare treatment band names all-zero counts with an unsealed review. Compare governance diff names empty policy pack rows apart from a failed governance diff request. Compare results stale-inputs warning names picker drift apart from a failed compare read.
+
+**Surfaces.** Compare semantic support band, compare treatment band, compare governance diff, compare results stale inputs, honesty and mounted contract tests.
+
+## 2026-11-19 - Score lift round 88 (batch 53): Compare insufficient, classification band, digest delivery, assigned scope
+
+**Outcome.** Compare insufficient-finalized names one-review-vs-second-empty apart from a failed compare load. Compare classification band names all-zero counts with an unsealed review. Digest browse detail names zero delivery attempts on a selected digest. Findings assigned-to-me uses architecture scope-only filter-empty test id.
+
+**Surfaces.** Compare insufficient finalized, compare classification band, digest delivery attempts, governance assigned scope, honesty and mounted contract tests.
+
+## 2026-11-19 - Score lift round 87 (batch 52): Compare pickers delta, digest subscriptions, findings scope
+
+**Outcome.** Compare run pickers name a selected baseline with an empty updated review apart from a failed picker read and partial capture. Compare quality delta names all-zero counts when one review is unsealed. Digest browse names subscription-list-only empty without a scoped review filter. Findings queue names architecture scope chip filter-empty without a severity facet.
+
+**Surfaces.** Compare pickers, compare quality delta, digest browse, governance findings filter footer, honesty and mounted contract tests.
+
+## 2026-11-19 - Score lift round 86 (batch 51): Explorer filters, graph focus, connection scope, findings header
+
+**Outcome.** Resource explorer names resource type plus name prefix combined filter-empty. Evidence graph names node type filter plus focused node combined zero-node empty. Connection status names category chip empty while workspace subscription scope is pinned. Findings queue header partial-capture CTA names snapshot recovery before treating an empty queue as final.
+
+**Surfaces.** Resource explorer, evidence graph, connection status, governance findings header, honesty and mounted contract tests.
+## 2026-11-19 - Score lift round 85 (batch 50): Compare pickers, deliverables buttons, operational stream, scope plus severity
+
+**Outcome.** Compare run pickers name an unsealed updated review and empty correlation apart from seal and filter miss. Blocked deliverable export buttons repeat finalize and partial capture. Resource hub operational-security stream empty is distinct from architecture severity teaching. Findings queue names architecture scope chip plus severity facet combined filter-empty.
+
+**Surfaces.** Compare pickers, review deliverables exports, resource hub findings, governance findings filter footer, honesty and mounted contract tests.
+
+## 2026-11-19 - Score lift round 84 (batch 49): Compare second seal, deliverables finalize, architecture stream empty
+
+**Outcome.** Compare correlation empty names that state apart from a second sealed review and a failed correlation read. Blocked deliverable export names finalize together with partial capture. Resource hub architecture-review stream empty is not a severity filter and not a failed findings read.
+
+**Surfaces.** Compare finding correlation, review deliverables export, resource hub findings, honesty and mounted contract tests.
+
+## 2026-11-19 - Score lift round 83 (batch 48): Digest scope versus subscriptions, golden disabled and finalize, compare partial inventory
+
+**Outcome.** Digest browse scoped empty names that state apart from an empty subscription list and a failed catalog read. Golden export adds a helper when the control is disabled and evidence is not finalized. Compare quality delta footnotes partial inventory.
+
+**Surfaces.** Digest browse, golden manifest export, compare quality delta, honesty and mounted contract tests.
+
+## 2026-11-19 - Score lift round 82 (batch 47): List context plus package scope, orphan plus search, findings empty preface, combined filter legend
+
+**Outcome.** Reviews hub names list context plus package scope and orphan-candidate plus search as combined filter empties. The main findings empty state prefaces collection before the blocker line. Findings filter-no-match names which combined filter mode is active.
+
+**Surfaces.** Architecture reviews list, governance findings empty and filter footer, honesty and mounted contract tests.
+
+
+## 2026-11-18 - Score lift round 81 (batch 46): Findings register plus job view, triple filter, assigned collection preface, orphan context, list context plus search
+
+**Outcome.** Findings queue combined register plus job view and triple register-job-NL filter empties, assigned-to-me empty collection preface, reviews hub orphan-candidate context empty, and list context plus search combined empty repeat not-failure and partial-capture discipline. Mounted contract depth extends through round 80.
+
+**Surfaces.** Governance findings queue and assigned empty, architecture reviews list, honesty and mounted contract tests.
+## 2026-11-18 - Score lift round 80 (batch 45): Operator home collection blocker, job view plus NL facets, reviews list context, workspace health refresh, policy assignments empty
+
+**Outcome.** SecureNow operator home names collection before open-gate navigation. Findings queue combined job view plus NL facet filter empties, reviews hub list-context filter empty, workspace health page refresh discipline, and policy pack featured assignments empty repeat not-failure and partial-capture discipline. Mounted contract depth extends through round 79.
+
+**Surfaces.** Operator home in-flight, governance findings queue, architecture reviews list, workspace health hero, policy packs featured section, honesty and mounted contract tests.
+
+## 2026-11-18 - Score lift round 79 (batch 44): CI score-lift chain, reviews package scope, golden disabled export, findings register plus NL facets, mounted depth
+
+**Outcome.** CI runs the score-lift assert chain through round 79. Reviews hub package scope and combined search plus scope filter empties, golden manifest disabled-export affordance, and findings queue combined register plus NL facet filter footers repeat not-failure and partial-capture discipline. Mounted contract depth test locks rounds 73–78.
+
+**Surfaces.** CI doc-markdown-links job, architecture reviews list, golden manifest export menu, governance findings queue, honesty and mounted contract tests.
+## 2026-11-18 - Score lift round 78 (batch 43): Golden export pre-block, reviews search filter, findings register filter, graph load RP, policy pack detail RP, and score-lift umbrella
+
+**Outcome.** Golden manifest sponsor-blocked export shows commit-before-seal before the blocked reason. Reviews hub search filter-empty, findings register filter-no-match, evidence graph hard-failure Report Problem, and policy pack detail load Report Problem repeat not-failure and partial-capture discipline. CI gains an umbrella assert for score-lift rounds 65–77.
+
+**Surfaces.** Golden manifest export, architecture reviews list, findings queue, evidence graph error, policy pack detail, honesty and mounted contract tests.
+## 2026-11-18 - Score lift round 77 (batch 42): Remediation dual-filter summary, golden manifest commit-first export errors, policy catalog Report Problem, connection category filter empty, attack path unevaluated honesty, and findings job-view filter empty
+
+**Outcome.** Remediation workbench names concurrent status and wave filters. Golden manifest export errors lead with commit-before-seal discipline. Policy pack catalog hard failures gain Report Problem and partial-capture teaching. Connection status category chip empties are distinct from load failure. Attack path report separates unevaluated-only from diagram filter empty. Findings queue job-view filter-no-match repeats not-load-failure and partial capture.
+
+**Surfaces.** Remediation workbench, golden manifest export menu, policy packs catalog, connection status dashboard, remediation factory attack path report, governance findings queue, honesty and mounted contract tests.
+
+## 2026-11-18 - Score lift round 76 (batch 41): Findings NL facet filter empty, combined remediation filters, approval list Report Problem, terraform advisory line, and ROI validation hierarchy
+
+**Outcome.** Findings severity and status chip filter empties, combined remediation status and wave filter empty, approval list hard-failure Report Problem, terraform workbench advisory-not-apply line, and investigation-effort blocking banner validation vs missing-field hierarchy repeat partial-capture discipline.
+
+**Surfaces.** Findings queue NL facets, remediation combined filters, governance approval list load failure, terraform workbench header, investigation effort ROI banner, honesty and mounted contract tests.
+
+## 2026-11-18 - Score lift round 75 (batch 40): Ranked path chips, approval status filter empty, wave filter empty, and investigation effort field labels
+
+**Outcome.** Factory ranked-path rows truncate long path ids like cut-point chips. Approval queue status filter empty, remediation wave filter empty, and investigation-effort blocking banner field labels repeat partial-capture and filter-not-failure discipline.
+
+**Surfaces.** Ranked paths table path id chip, governance approval status filter, remediation workbench wave filter, investigation effort ROI banner, honesty and mounted contract tests.
+
+## 2026-11-18 - Score lift round 74 (batch 39): Instance status filter, attack path report, simulator explain, and cut-point chips
+
+**Outcome.** Remediation instance status filter empty, attack path report read failure, attack path diagram-filter empty, and score simulator explain failure repeat partial-capture discipline and Report Problem. Collapsed cut-point path ids render as truncated chips.
+
+**Surfaces.** Remediation workbench status filter, attack path report load and empty, simulator explain failure, cut-point collapsed chips, honesty and mounted contract tests.
+
+## 2026-11-18 - Score lift round 73 (batch 38): Factory metrics and ranked paths reads, path view empty, and patterns catalog
+
+**Outcome.** Remediation factory executive metrics and ranked paths isolated read failures, ranked paths catalog and path-view filter empties, and remediation patterns catalog empty repeat partial-capture discipline and Report Problem on section read failures.
+
+**Surfaces.** Factory executive metrics load failure, ranked paths load failure, ranked paths empty and view filter, remediation patterns catalog empty, honesty and mounted contract tests.
+
+## 2026-11-18 - Score lift round 72 (batch 37): Working standards catalog, factory queue load failure, patterns filter, and sealed date range
+
+**Outcome.** Working-mode standards rules catalog with filter empties, remediation factory priority queue load failure, remediation patterns registry filter empty, and signed records date-range filter empty repeat partial-capture discipline.
+
+**Surfaces.** Working standards catalog, factory priority queue load failure, remediation patterns filter empty, sealed records date-range filter, honesty and mounted contract tests.
+
 ## 2026-11-17 - Score lift round 71 (batch 36): Policy catalog, standards catalog, graph type filter, and compare zero counts
 
 **Outcome.** Policy pack catalog empty, standards rules catalog empty, evidence graph type-filter empty, compare correlation all-zero counts, and resource explorer filter empty repeat partial-capture discipline.
@@ -2556,3 +2716,5 @@ Added aggregate run explanation endpoint (`/v1/explain/runs/{runId}/aggregate`) 
 1. Add a new `## <version> ï¿½ <title>` section **above** the previous one.
 2. Use the subsections: **Area**, **Key deliverables**, and (optionally) **Intentionally deferred**.
 3. Keep entries to a navigable summary; put fine-grained prompt records in a new `docs/archive/CHANGE_SET_<id>.md` file and link from here.
+
+

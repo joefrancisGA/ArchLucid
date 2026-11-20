@@ -100,6 +100,7 @@ pwsh -NoProfile -File scripts/agent/check-working-tree-path.ps1 -Path 'path/to/f
 pwsh -NoProfile -Command "Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugPickZone.Tests.ps1'"
 python3 scripts/agent/al-bug-audit-proven-rows.py
 python3 scripts/tests/test_al_bug_audit_proven_rows.py
+pwsh -NoProfile -File scripts/agent/al-merge-open-prs.ps1 -DryRun  # /al-merge
 ```
 
 **Scoped .NET:**

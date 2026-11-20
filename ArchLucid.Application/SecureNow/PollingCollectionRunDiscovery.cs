@@ -24,7 +24,7 @@ public sealed class PollingCollectionRunDiscovery(
         {
             manifests = await _artifactReader.ListManifestsAsync(cancellationToken);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             throw;
         }
@@ -38,6 +38,8 @@ public sealed class PollingCollectionRunDiscovery(
 
         foreach (CollectionRunManifest manifest in manifests)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (importedRunIdsThisBatch.Contains(manifest.RunId))
                 continue;
 
@@ -47,7 +49,7 @@ public sealed class PollingCollectionRunDiscovery(
             {
                 artifact = await _artifactReader.ReadArtifactAsync(manifest, cancellationToken);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 throw;
             }
@@ -69,7 +71,7 @@ public sealed class PollingCollectionRunDiscovery(
                     importedRunIdsThisBatch.Add(manifest.RunId);
                 }
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 throw;
             }

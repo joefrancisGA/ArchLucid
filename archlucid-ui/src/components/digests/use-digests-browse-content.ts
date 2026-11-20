@@ -38,6 +38,7 @@ export type UseDigestsBrowseContentOptions = {
   readonly refreshToken?: number;
   readonly onLoaded?: () => void;
   readonly healthSnap?: WeeklyDigestHealthDto | null;
+  readonly scopedRunId?: string | null;
 };
 
 export type UseDigestsBrowseContentResult = {
@@ -68,7 +69,15 @@ export function useDigestsBrowseContent(
   const searchParams = useSearchParams();
   const urlPreviewOpen = parseDigestsBrowsePreviewOpenFromSearch(searchParams.get("preview"));
   const digestsQuery = useArchitectureDigestsBrowseQuery(40);
-  const digests = digestsQuery.data ?? EMPTY_DIGESTS;
+  const scopedRunId = (options.scopedRunId ?? "").trim().toLowerCase();
+  const recentDigests = digestsQuery.data ?? EMPTY_DIGESTS;
+  const digests = useMemo(
+    () =>
+      scopedRunId.length === 0
+        ? recentDigests
+        : recentDigests.filter((digest) => digest.runId?.trim().toLowerCase() === scopedRunId),
+    [recentDigests, scopedRunId],
+  );
   const digestIds = useMemo(() => digests.map((digest) => digest.digestId), [digests]);
   const rowAttemptsQuery = useDigestDeliveryAttemptsBatchQuery(digestIds, {
     enabled: digests.length > 0,
@@ -80,6 +89,8 @@ export function useDigestsBrowseContent(
   const [previewOpen, setPreviewOpenState] = useState(urlPreviewOpen);
   const detailPanelRef = useRef<HTMLElement | null>(null);
   const detailRequestVersion = useRef(0);
+  const selectedInScope =
+    scopedRunId.length === 0 || selected?.runId?.trim().toLowerCase() === scopedRunId ? selected : null;
   const loading = digestsQuery.isLoading;
   const failure =
     detailFailure ??
@@ -156,7 +167,8 @@ export function useDigestsBrowseContent(
     detailRequestVersion.current += 1;
     setSelected(null);
     setDeliveryAttempts([]);
-  }, [refreshToken]);
+    setDetailFailure(null);
+  }, [refreshToken, scopedRunId]);
 
   /**
    * Honors `/digests?tab=get-started#digest-{id}` from the hub Preview action and
@@ -234,8 +246,8 @@ export function useDigestsBrowseContent(
   return {
     digests,
     rowAttempts,
-    selected,
-    deliveryAttempts,
+    selected: selectedInScope,
+    deliveryAttempts: selectedInScope === null ? [] : deliveryAttempts,
     detailFailure,
     previewOpen,
     setPreviewOpen,

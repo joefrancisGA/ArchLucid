@@ -12,7 +12,12 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
     {
         ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
+            if (_items.Exists(item => item.RoutingSubscriptionId == subscription.RoutingSubscriptionId))
+                throw new InvalidOperationException("An alert routing subscription with this ID already exists.");
+
             _items.Add(Copy(subscription));
+        }
         return Task.CompletedTask;
     }
 
@@ -30,8 +35,6 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
                 stored.Destination = subscription.Destination;
                 stored.MinimumSeverity = subscription.MinimumSeverity;
                 stored.IsEnabled = subscription.IsEnabled;
-                stored.CreatedUtc = subscription.CreatedUtc;
-                stored.CreatedByActor = subscription.CreatedByActor;
                 stored.LastModifiedByActor = subscription.LastModifiedByActor;
                 stored.LastModifiedUtc = subscription.LastModifiedUtc;
                 stored.MetadataJson = subscription.MetadataJson;

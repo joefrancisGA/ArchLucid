@@ -68,3 +68,13 @@ export function buildCompareRoiHeadlineDeltaView(input: {
     nonSummingLine: SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE,
   };
 }
+
+export function compareRoiHeadlineBothLackPositiveSavings(input: {
+  readonly baselineSavings: RunSavingsSummaryModel | null;
+  readonly targetSavings: RunSavingsSummaryModel | null;
+}): boolean {
+  if (input.baselineSavings === null || input.targetSavings === null) {
+    return false;
+  }
+  return buildCompareRoiHeadlineDeltaView(input) === null;
+}

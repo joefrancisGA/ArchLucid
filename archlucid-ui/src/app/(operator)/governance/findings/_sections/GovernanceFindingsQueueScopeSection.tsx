@@ -26,6 +26,7 @@ import { InhabitedFindingsDocumentChrome } from "@/components/governance/Inhabit
 import { usePathname } from "next/navigation";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { resolveInhabitedFindingsDocumentPresentation } from "@/lib/inhabit/inhabit-findings-document-presentation";
+import { GovernanceFindingsQueueHeaderPartialCaptureHonesty } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueHeaderPartialCaptureHonesty";
 export function GovernanceFindingsQueueScopeSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
 ): React.JSX.Element {
@@ -44,6 +45,7 @@ export function GovernanceFindingsQueueScopeSection(
 
   return (
     <>
+      {!props.isAssignedToMe ? <GovernanceFindingsQueueHeaderPartialCaptureHonesty /> : null}
       {inhabitedPresentation !== null ? (
         <InhabitedFindingsDocumentChrome
           workingMode={props.isWorkingMode}

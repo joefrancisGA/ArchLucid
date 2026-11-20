@@ -85,6 +85,13 @@ export function AzureBoardsIntegrationAside(props: Props): React.ReactElement {
     connectionVerified: props.connectionVerified,
   });
 
+  const latestTestStatus =
+    props.lastTestSuccess === true
+      ? { kind: "ready", label: AZURE_BOARDS_LATEST_TEST_PASSED_LABEL } as const
+      : props.lastTestSuccess === false
+        ? { kind: "needs-attention", label: AZURE_BOARDS_LATEST_TEST_FAILED_LABEL } as const
+        : { kind: "neutral", label: "Connection test result unavailable" } as const;
+
   return (
     <aside
       className="space-y-4"
@@ -116,14 +123,7 @@ export function AzureBoardsIntegrationAside(props: Props): React.ReactElement {
           </p>
           {props.lastTestSummary ? (
             <div className="mt-2 space-y-2">
-              <StatusTag
-                kind={props.lastTestSuccess === false ? "needs-attention" : "ready"}
-                label={
-                  props.lastTestSuccess === false
-                    ? AZURE_BOARDS_LATEST_TEST_FAILED_LABEL
-                    : AZURE_BOARDS_LATEST_TEST_PASSED_LABEL
-                }
-              />
+              <StatusTag kind={latestTestStatus.kind} label={latestTestStatus.label} />
               <p
                 role={props.lastTestSuccess === false ? "alert" : "status"}
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

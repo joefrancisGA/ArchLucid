@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { HelpSearchPanel } from "@/components/HelpSearchPanel";
@@ -183,6 +183,33 @@ describe("HelpSearchPanel", () => {
     );
 
     expect(push).toHaveBeenCalledWith("/architecture/reviews/new");
+  });
+
+  it("keeps search open when a dismissed article request finishes", async () => {
+    let resolveRequest!: (response: Response) => void;
+    const request = new Promise<Response>((resolve) => {
+      resolveRequest = resolve;
+    });
+    const fetchArticle = vi.fn(() => request);
+    vi.stubGlobal("fetch", fetchArticle);
+
+    try {
+      render(<HelpSearchPanel open onOpenChange={() => {}} />);
+      const recommended = screen.getByTestId("help-search-recommended-group");
+      fireEvent.click(within(recommended).getByRole("button", { name: /How ArchLucid works/i }));
+      expect(fetchArticle).toHaveBeenCalledWith("/api/help/getting-started");
+
+      fireEvent.click(screen.getByRole("button", { name: "Back", exact: true }));
+      expect(screen.getByLabelText("Search help")).toBeInTheDocument();
+
+      await act(async () => {
+        resolveRequest(new Response(null, { status: 404 }));
+      });
+
+      expect(screen.getByLabelText("Search help")).toBeInTheDocument();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it("renders topic rows as actionable buttons with chevrons", () => {

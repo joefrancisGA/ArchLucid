@@ -154,11 +154,13 @@ export function UsabilityFeedbackWidget(props: UsabilityFeedbackWidgetProps) {
             min={1}
             max={5}
             value={score}
+            disabled={busy}
             onChange={(event) => setScore(Number(event.target.value))}
             className="w-full"
           />
           <Textarea
             value={comment}
+            disabled={busy}
             onChange={(event) => setComment(event.target.value)}
             placeholder="What worked or felt confusing?"
             rows={4}

@@ -197,7 +197,8 @@ public sealed partial class BackgroundJobRepository
                                Error = @Error,
                                RetryCount = @RetryCount
                            WHERE JobId = @JobId
-                             AND State IN (N'Pending', N'Running')
+                             AND State = N'Pending'
+                             AND RetryCount = @RetryCount
                            """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);

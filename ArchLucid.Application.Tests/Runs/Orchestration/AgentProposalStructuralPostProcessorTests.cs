@@ -602,4 +602,27 @@ public sealed class AgentProposalStructuralPostProcessorTests
             .Which.DatastoreId.Should().Be("ds-1");
         proposal.AddedRelationships.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ApplyToProposal_relationship_only_proposals_defer_rejected_key_filtering_to_cross_agent_gate()
+    {
+        AgentTopologyProposal proposal = new()
+        {
+            SourceAgent = AgentType.Cost,
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "api",
+                    TargetId = "ds-rejected",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Cost, proposal);
+
+        proposal.AddedRelationships.Should().ContainSingle();
+        proposal.AddedRelationships![0].TargetId.Should().Be("ds-rejected");
+    }
 }

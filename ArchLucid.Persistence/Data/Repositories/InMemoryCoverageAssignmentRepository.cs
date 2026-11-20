@@ -16,6 +16,9 @@ public sealed class InMemoryCoverageAssignmentRepository : ICoverageAssignmentRe
 
         lock (_gate)
         {
+            if (_items.Exists(item => item.CoverageAssignmentId == assignment.CoverageAssignmentId))
+                throw new InvalidOperationException($"The coverage assignment '{assignment.CoverageAssignmentId}' already exists.");
+
             _items.Add(CoverageAssignmentRepositoryCore.Clone(assignment));
         }
 

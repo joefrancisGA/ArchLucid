@@ -57,6 +57,7 @@ public sealed partial class SqlLlmTenantBudgetRepository
         if (affected != 1)
         {
             LlmTenantBudgetReserveResult failure = await ClassifyMonthlyReserveFailureAsync(
+                connection,
                 request.TenantId,
                 sqlYear,
                 sqlMonth,
@@ -94,7 +95,8 @@ public sealed partial class SqlLlmTenantBudgetRepository
 
     }
 
-    private async Task<LlmTenantBudgetReserveResult> ClassifyMonthlyReserveFailureAsync(
+    private static async Task<LlmTenantBudgetReserveResult> ClassifyMonthlyReserveFailureAsync(
+        IDbConnection connection,
         Guid tenantId,
         int utcYear,
         int utcMonth,
@@ -103,8 +105,6 @@ public sealed partial class SqlLlmTenantBudgetRepository
         decimal hardCap,
         CancellationToken cancellationToken)
     {
-        using IDbConnection connection =
-            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         LlmTenantBudgetStateReadModel? current =
             await SelectMonthlyAsync(connection, tenantId, utcYear, utcMonth, cancellationToken).ConfigureAwait(false);
 

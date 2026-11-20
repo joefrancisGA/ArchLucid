@@ -6,9 +6,11 @@ namespace ArchLucid.Host.Core.Hosted;
 public sealed class WeeklySponsorReportHostedService(
     IServiceProvider serviceProvider,
     HostLeaderElectionCoordinator electionCoordinator,
-    ILogger<WeeklySponsorReportHostedService> logger) : BackgroundService
+    ILogger<WeeklySponsorReportHostedService> logger,
+    TimeProvider? timeProvider = null) : BackgroundService
 {
     private static readonly TimeSpan PollInterval = TimeSpan.FromHours(1);
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
     /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -25,6 +27,8 @@ public sealed class WeeklySponsorReportHostedService(
             "Weekly Sponsor report delivery started (poll every {Hours} hours).",
             PollInterval.TotalHours);
 
+        using PeriodicTimer timer = new(PollInterval, _timeProvider);
+
         while (!leaderToken.IsCancellationRequested)
         {
             try
@@ -33,7 +37,7 @@ public sealed class WeeklySponsorReportHostedService(
                 WeeklySponsorReportDeliveryScanner scanner =
                     scope.ServiceProvider.GetRequiredService<WeeklySponsorReportDeliveryScanner>();
 
-                await scanner.PublishDueAsync(TimeProvider.System.GetUtcNow(), leaderToken).ConfigureAwait(false);
+                await scanner.PublishDueAsync(_timeProvider.GetUtcNow(), leaderToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
@@ -46,7 +50,7 @@ public sealed class WeeklySponsorReportHostedService(
 
             try
             {
-                await Task.Delay(PollInterval, leaderToken).ConfigureAwait(false);
+                await timer.WaitForNextTickAsync(leaderToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {

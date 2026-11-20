@@ -74,7 +74,7 @@ public sealed class RequiredAuditTrailOrphanProbeHostedService(
             {
                 await _executor.RunOnceAsync(leaderToken).ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 return;
             }

@@ -1,3 +1,5 @@
+using System.Data.SqlTypes;
+
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Pagination;
 
@@ -67,6 +69,7 @@ internal static partial class DraftRequestRepositoryCore
                     createdByUserId,
                     statusFilter))
             .OrderByDescending(stored => stored.UpdatedUtc)
+            .ThenByDescending(stored => new SqlGuid(stored.DraftId))
             .Select(map)
             .ToList();
 

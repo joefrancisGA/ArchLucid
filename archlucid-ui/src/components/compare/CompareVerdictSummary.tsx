@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { buildCompareVerdictSummary } from "@/lib/build-compare-verdict-summary";
 import { COMPARE_VERDICT_ZERO_CHANGES_TEACHING } from "@/lib/compare-empty-diff-teaching";
+import { COMPARE_VERDICT_ADD_REMOVE_TWO_SEALED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-verdict-add-remove-two-sealed-not-load-failure-copy";
+import { CompareVerdictAddRemoveTwoSealedPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareVerdictAddRemoveTwoSealedPartialHonesty";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { RunSummary } from "@/types/authority";
@@ -15,6 +17,7 @@ export type CompareVerdictSummaryProps = {
   readonly golden: GoldenManifestComparison;
   readonly baselinePickedSummary?: RunSummary | null;
   readonly updatedPickedSummary?: RunSummary | null;
+  readonly compareIncludesUnsealedReview?: boolean;
 };
 
 export function CompareVerdictSummary(props: CompareVerdictSummaryProps): ReactElement {
@@ -64,6 +67,20 @@ export function CompareVerdictSummary(props: CompareVerdictSummaryProps): ReactE
           </ul>
         ) : null}
       </div>
+
+      {verdict.totalChanges > 0 ? (
+        <>
+          <p
+            className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-verdict-add-remove-two-sealed-not-load-failure"
+          >
+            {COMPARE_VERDICT_ADD_REMOVE_TWO_SEALED_NOT_LOAD_FAILURE_LINE}
+          </p>
+          <div className="mt-2">
+            <CompareVerdictAddRemoveTwoSealedPartialHonesty />
+          </div>
+        </>
+      ) : null}
 
       {verdict.totalChanges === 0 ? (
         <p

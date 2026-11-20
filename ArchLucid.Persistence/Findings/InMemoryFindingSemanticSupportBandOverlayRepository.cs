@@ -16,6 +16,7 @@ public sealed class InMemoryFindingSemanticSupportBandOverlayRepository : IFindi
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(overlay);
         ArgumentException.ThrowIfNullOrWhiteSpace(overlay.FindingId);
 
@@ -53,6 +54,7 @@ public sealed class InMemoryFindingSemanticSupportBandOverlayRepository : IFindi
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
         {
@@ -79,6 +81,7 @@ public sealed class InMemoryFindingSemanticSupportBandOverlayRepository : IFindi
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        cancellationToken.ThrowIfCancellationRequested();
 
         DateTime utcNow = TimeProvider.System.GetUtcNow().UtcDateTime;
 

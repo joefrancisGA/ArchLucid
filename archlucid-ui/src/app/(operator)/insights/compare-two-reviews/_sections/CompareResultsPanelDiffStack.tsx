@@ -39,6 +39,15 @@ import { manifestCompareExportMutationBlockedReason } from "@/lib/compare/manife
 import { showError } from "@/lib/toast";
 import { CompareAgentResultsBlockedCallout } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareAgentResultsBlockedCallout";
 import type { CompareResultsPanelViewModel } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-results-panel";
+import { COMPARE_EXPORT_PDF_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-export-pdf-blocked-not-load-failure-copy";
+import { COMPARE_EXPORT_DOCX_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-export-docx-blocked-not-load-failure-copy";
+import { COMPARE_MANIFEST_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-manifest-export-blocked-not-load-failure-copy";
+import { COMPARE_END_TO_END_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-end-to-end-export-blocked-not-load-failure-copy";
+import { COMPARE_END_TO_END_EXPORT_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-end-to-end-export-stale-inputs-not-load-failure-copy";
+import { COMPARE_AI_NARRATIVE_MISSING_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-ai-narrative-missing-not-load-failure-copy";
+import { COMPARE_EXPORT_PDF_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-export-pdf-stale-inputs-not-load-failure-copy";
+import { COMPARE_EXPORT_DOCX_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-export-docx-stale-inputs-not-load-failure-copy";
+import { COMPARE_MANIFEST_EXPORT_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-manifest-export-stale-inputs-not-load-failure-copy";
 
 export function CompareResultsPanelDiffStack({
   viewModel,
@@ -103,6 +112,8 @@ export function CompareResultsPanelDiffStack({
 
   const {
     hasResultsToNavigate,
+    showStaleInputsWarning,
+    lastComparedPair,
     golden,
     result,
     aiExplanation,
@@ -120,26 +131,33 @@ export function CompareResultsPanelDiffStack({
     showDocxDownload,
     docxDownloading,
     docxError,
+    docxExportBlockedReason,
     handleDownloadDocx,
     pdfDownloading,
     pdfError,
+    pdfExportBlockedReason,
     handleDownloadPdf,
   } = viewModel;
 
   const leftRunId = viewModel.leftTrim;
   const rightRunId = viewModel.rightTrim;
+  const exportLeftRunId = golden?.baseRunId ?? lastComparedPair?.left ?? "";
+  const exportRightRunId = golden?.targetRunId ?? lastComparedPair?.right ?? "";
   const compareArchitectureId =
     searchParams.get("architectureId")?.trim() ?? readCachedLastOpenArchitectureId() ?? null;
 
   const [manifestExportBusy, setManifestExportBusy] = useState(false);
   const [endToEndExportBusy, setEndToEndExportBusy] = useState(false);
+  const [manifestExportBlockedReason, setManifestExportBlockedReason] = useState<string | null>(null);
+  const [endToEndExportBlockedReason, setEndToEndExportBlockedReason] = useState<string | null>(null);
 
   const handleDownloadManifestCompareExport = useCallback(async () => {
-    if (golden === null) {
+    if (golden === null || showStaleInputsWarning) {
       return;
     }
 
     setManifestExportBusy(true);
+    setManifestExportBlockedReason(null);
 
     try {
       await downloadManifestCompareExport({
@@ -151,35 +169,36 @@ export function CompareResultsPanelDiffStack({
     } catch (error: unknown) {
       const failure = toApiLoadFailure(error);
       const blocked = manifestCompareExportMutationBlockedReason(failure);
-
+      setManifestExportBlockedReason(blocked);
       showError("Manifest compare export failed", blocked ?? failure.message);
     } finally {
       setManifestExportBusy(false);
     }
-  }, [golden, leftPickedSummary, rightPickedSummary]);
+  }, [golden, showStaleInputsWarning, leftPickedSummary, rightPickedSummary]);
 
   const handleDownloadEndToEndCompareExport = useCallback(async () => {
-    if (leftRunId.trim().length === 0 || rightRunId.trim().length === 0) {
+    if (exportLeftRunId.trim().length === 0 || exportRightRunId.trim().length === 0) {
       return;
     }
 
     setEndToEndExportBusy(true);
+    setEndToEndExportBlockedReason(null);
 
     try {
       await downloadEndToEndCompareExport({
-        leftRunId,
-        rightRunId,
+        leftRunId: exportLeftRunId,
+        rightRunId: exportRightRunId,
         format: "markdown",
       });
     } catch (error: unknown) {
       const failure = toApiLoadFailure(error);
       const blocked = manifestCompareExportMutationBlockedReason(failure);
-
+      setEndToEndExportBlockedReason(blocked);
       showError("End-to-end compare export failed", blocked ?? failure.message);
     } finally {
       setEndToEndExportBusy(false);
     }
-  }, [leftRunId, rightRunId]);
+  }, [exportLeftRunId, exportRightRunId]);
 
   return (
     <>
@@ -202,7 +221,7 @@ export function CompareResultsPanelDiffStack({
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={docxDownloading || pdfDownloading}
+                disabled={showStaleInputsWarning || docxDownloading || pdfDownloading}
                 onClick={() => void handleDownloadDocx()}
                 className={cn(OPERATOR_LINK.inline, "inline-flex items-center gap-1.5 text-sm")}
                 data-testid="compare-download-docx-button"
@@ -216,7 +235,7 @@ export function CompareResultsPanelDiffStack({
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={manifestExportBusy || endToEndExportBusy || docxDownloading || pdfDownloading}
+                disabled={showStaleInputsWarning || manifestExportBusy || endToEndExportBusy || docxDownloading || pdfDownloading}
                 onClick={() => void handleDownloadManifestCompareExport()}
                 className={cn(OPERATOR_LINK.inline, "inline-flex items-center gap-1.5 text-sm")}
                 data-testid="compare-download-manifest-compare-export-button"
@@ -225,12 +244,12 @@ export function CompareResultsPanelDiffStack({
                 {manifestExportBusy ? "Downloading compare export…" : "Download compare export (Markdown)"}
               </Button>
             ) : null}
-            {leftRunId.trim().length > 0 && rightRunId.trim().length > 0 ? (
+            {exportLeftRunId.trim().length > 0 && exportRightRunId.trim().length > 0 ? (
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={endToEndExportBusy || manifestExportBusy || docxDownloading || pdfDownloading}
+                disabled={showStaleInputsWarning || endToEndExportBusy || manifestExportBusy || docxDownloading || pdfDownloading}
                 onClick={() => void handleDownloadEndToEndCompareExport()}
                 className={cn(OPERATOR_LINK.inline, "inline-flex items-center gap-1.5 text-sm")}
                 data-testid="compare-download-end-to-end-compare-export-button"
@@ -243,20 +262,64 @@ export function CompareResultsPanelDiffStack({
               variant="outline"
               size="sm"
               onClick={() => void handleDownloadPdf()}
-              disabled={pdfDownloading}
+              disabled={showStaleInputsWarning || pdfDownloading}
               data-testid="compare-download-pdf-button"
             >
               <Download className="h-4 w-4" aria-hidden focusable={false} />
               {pdfDownloading ? "Generating PDF…" : "Download PDF report"}
             </Button>
-            {pdfError ? (
-              <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {pdfError}
+            {showStaleInputsWarning && lastComparedPair !== null ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-export-pdf-stale-inputs-not-load-failure">
+                {COMPARE_EXPORT_PDF_STALE_INPUTS_NOT_LOAD_FAILURE_LINE}
               </p>
             ) : null}
+            {showStaleInputsWarning && lastComparedPair !== null ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-export-docx-stale-inputs-not-load-failure">
+                {COMPARE_EXPORT_DOCX_STALE_INPUTS_NOT_LOAD_FAILURE_LINE}
+              </p>
+            ) : null}
+            {showStaleInputsWarning && golden !== null ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-manifest-export-stale-inputs-not-load-failure">
+                {COMPARE_MANIFEST_EXPORT_STALE_INPUTS_NOT_LOAD_FAILURE_LINE}
+              </p>
+            ) : null}
+            {pdfError ? (
+              <div className="space-y-1">
+                <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {pdfError}
+                </p>
+                {pdfExportBlockedReason !== null ? (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-export-pdf-blocked-not-load-failure">
+                    {COMPARE_EXPORT_PDF_BLOCKED_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
             {docxError ? (
-              <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {docxError}
+              <div className="space-y-1">
+                <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {docxError}
+                </p>
+                {docxExportBlockedReason !== null ? (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-export-docx-blocked-not-load-failure">
+                    {COMPARE_EXPORT_DOCX_BLOCKED_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+            {manifestExportBlockedReason !== null ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-manifest-export-blocked-not-load-failure">
+                {COMPARE_MANIFEST_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE}
+              </p>
+            ) : null}
+            {showStaleInputsWarning && exportLeftRunId.trim().length > 0 && exportRightRunId.trim().length > 0 ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-end-to-end-export-stale-inputs-not-load-failure">
+                {COMPARE_END_TO_END_EXPORT_STALE_INPUTS_NOT_LOAD_FAILURE_LINE}
+              </p>
+            ) : null}
+            {endToEndExportBlockedReason !== null ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-end-to-end-export-blocked-not-load-failure">
+                {COMPARE_END_TO_END_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE}
               </p>
             ) : null}
             </div>
@@ -271,6 +334,7 @@ export function CompareResultsPanelDiffStack({
         <ComparePairEvidenceCiteStrip
           baselineRunId={citeBaselineRunId}
           updatedRunId={citeUpdatedRunId}
+          showStaleCurrentEffectiveHonesty={viewModel.usesCurrentEffectiveOnly === true && showStaleInputsWarning}
           groundingOptions={{
             ...resolveComparePairPrimaryFindingIds(
               viewModel.findingCorrelationState.lifecycleRecords,
@@ -294,6 +358,19 @@ export function CompareResultsPanelDiffStack({
           <OperatorLoadingNotice>
             <strong>Generating comparison narrative.</strong>
           </OperatorLoadingNotice>
+        ) : null}
+
+        {golden !== null
+          && !comparisonNarrativeLoading
+          && comparisonNarrative === null
+          && viewModel.aiFailure === null
+          && !viewModel.aiLoading ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-ai-narrative-missing-not-load-failure"
+          >
+            {COMPARE_AI_NARRATIVE_MISSING_NOT_LOAD_FAILURE_LINE}
+          </p>
         ) : null}
 
         {comparisonNarrative !== null ? (
@@ -323,7 +400,14 @@ export function CompareResultsPanelDiffStack({
         )}
 
         {golden !== null ? (
-          <CompareFindingCorrelationSection baselineRunId={golden.baseRunId} targetRunId={golden.targetRunId} />
+          <CompareFindingCorrelationSection
+            baselineRunId={golden.baseRunId}
+            targetRunId={golden.targetRunId}
+            compareIncludesUnsealedReview={
+              (viewModel.leftSummaryBlockedReason ?? null) !== null
+              || (viewModel.rightSummaryBlockedReason ?? null) !== null
+            }
+          />
         ) : null}
 
         {golden !== null ? (

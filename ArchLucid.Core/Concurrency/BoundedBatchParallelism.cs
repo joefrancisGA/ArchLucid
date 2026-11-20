@@ -35,8 +35,10 @@ public static class BoundedBatchParallelism
         if (maxDegree <= 1)
         {
             foreach (T item in items)
-
+            {
+                cancellationToken.ThrowIfCancellationRequested();
                 await body(item, cancellationToken).ConfigureAwait(false);
+            }
 
             return;
         }

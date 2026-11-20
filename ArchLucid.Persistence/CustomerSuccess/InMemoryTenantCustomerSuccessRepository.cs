@@ -15,7 +15,7 @@ public sealed class InMemoryTenantCustomerSuccessRepository : ITenantCustomerSuc
         _ = tenantId;
         _ = workspaceId;
         _ = projectId;
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         return Task.FromResult<TenantHealthScoreRecord?>(null);
     }
@@ -24,7 +24,7 @@ public sealed class InMemoryTenantCustomerSuccessRepository : ITenantCustomerSuc
     public Task InsertProductFeedbackAsync(ProductFeedbackSubmission submission, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(submission);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         return Task.CompletedTask;
     }
@@ -32,7 +32,7 @@ public sealed class InMemoryTenantCustomerSuccessRepository : ITenantCustomerSuc
     /// <inheritdoc />
     public Task RefreshAllTenantHealthScoresAsync(CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         return Task.CompletedTask;
     }

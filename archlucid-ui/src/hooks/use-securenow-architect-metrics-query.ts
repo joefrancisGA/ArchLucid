@@ -21,18 +21,18 @@ export function useSecureNowArchitectOutcomeMetricsQuery(
   enabled: boolean,
 ) {
   const scopeKey = useOperatorScopeQueryKey();
+  const fromId = fromSnapshotId?.trim() ?? "";
+  const toId = toSnapshotId?.trim() ?? "";
 
   return useQuery({
-    queryKey: secureNowArchitectMetricsQueryKeys.outcome(scopeKey, fromSnapshotId, toSnapshotId),
+    queryKey: secureNowArchitectMetricsQueryKeys.outcome(scopeKey, fromId, toId),
     queryFn: () =>
-      fetchSecureNowArchitectOutcomeMetrics(fromSnapshotId as string, toSnapshotId as string),
+      fetchSecureNowArchitectOutcomeMetrics(fromId, toId),
     enabled:
       enabled
-      && fromSnapshotId != null
-      && fromSnapshotId.trim().length > 0
-      && toSnapshotId != null
-      && toSnapshotId.trim().length > 0
-      && fromSnapshotId !== toSnapshotId,
+      && fromId.length > 0
+      && toId.length > 0
+      && fromId !== toId,
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
     retry: false,

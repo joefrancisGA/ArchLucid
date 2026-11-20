@@ -1,5 +1,6 @@
 using ArchLucid.Core.Tenancy;
 
+using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
@@ -33,6 +34,7 @@ public sealed class TenantBlobPrefixDeletionService(
     public async Task<TenantBlobPrefixDeletionResult> DeleteAllTenantPrefixesAsync(Guid tenantId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         ArtifactLargePayloadOptions opts = _payloadOptions.CurrentValue;
         Dictionary<string, int> byContainer = new(StringComparer.OrdinalIgnoreCase);
 
@@ -51,6 +53,7 @@ public sealed class TenantBlobPrefixDeletionService(
 
                 foreach (string container in PrefixContainers)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     string cdir = Path.Combine(root, SanitizeFileToken(container), safeSegment);
 
                     if (!Directory.Exists(cdir))
@@ -61,6 +64,7 @@ public sealed class TenantBlobPrefixDeletionService(
                     }
 
                     int files = Directory.GetFiles(cdir, "*", SearchOption.AllDirectories).Length;
+                    cancellationToken.ThrowIfCancellationRequested();
                     Directory.Delete(cdir, recursive: true);
                     byContainer[container] = files;
                 }
@@ -81,20 +85,29 @@ public sealed class TenantBlobPrefixDeletionService(
             BlobContainerClient container = azureClient.GetBlobContainerClient(containerName.ToLowerInvariant());
             int deleted = 0;
 
-            await foreach (BlobItem item in container.GetBlobsAsync(
-                               BlobTraits.None,
-                               BlobStates.All,
-                               prefix: prefix,
-                               cancellationToken: cancellationToken)
-                           .ConfigureAwait(false))
+            try
             {
-                await container.DeleteBlobIfExistsAsync(
-                        item.Name,
-                        DeleteSnapshotsOption.IncludeSnapshots,
-                        cancellationToken: cancellationToken)
-                    .ConfigureAwait(false);
+                await foreach (BlobItem item in container.GetBlobsAsync(
+                                   BlobTraits.None,
+                                   BlobStates.All,
+                                   prefix: prefix,
+                                   cancellationToken: cancellationToken)
+                               .ConfigureAwait(false))
+                {
+                    Response<bool> removal = await container.DeleteBlobIfExistsAsync(
+                            item.Name,
+                            DeleteSnapshotsOption.IncludeSnapshots,
+                            cancellationToken: cancellationToken)
+                        .ConfigureAwait(false);
 
-                deleted++;
+                    if (removal.Value)
+                        deleted++;
+                }
+            }
+            catch (RequestFailedException error) when (
+                string.Equals(error.ErrorCode, BlobErrorCode.ContainerNotFound.ToString(), StringComparison.Ordinal))
+            {
+                // The absent container has no tenant artifacts to delete.
             }
 
             byContainer[containerName] = deleted;

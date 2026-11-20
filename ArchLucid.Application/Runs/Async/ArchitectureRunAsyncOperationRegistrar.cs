@@ -6,14 +6,16 @@ namespace ArchLucid.Application.Runs.Async;
 
 public sealed class ArchitectureRunAsyncOperationRegistrar : IArchitectureRunAsyncOperationRegistrar
 {
-    private readonly ConcurrentDictionary<string, byte> _inFlight = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, TaskCompletionSource> _inFlight = new(StringComparer.Ordinal);
 
     public bool TryRegister(ScopeContext scope, string runId, ArchitectureRunAsyncOperationKind kind)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        return _inFlight.TryAdd(BuildKey(scope, runId, kind), 0);
+        return _inFlight.TryAdd(
+            BuildKey(scope, runId, kind),
+            new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously));
     }
 
     public bool IsRegistered(ScopeContext scope, string runId, ArchitectureRunAsyncOperationKind kind)
@@ -29,7 +31,18 @@ public sealed class ArchitectureRunAsyncOperationRegistrar : IArchitectureRunAsy
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        _inFlight.TryRemove(BuildKey(scope, runId, kind), out _);
+        if (_inFlight.TryRemove(BuildKey(scope, runId, kind), out TaskCompletionSource? completion))
+            completion.TrySetResult();
+    }
+
+    public Task? GetReleaseTask(ScopeContext scope, string runId, ArchitectureRunAsyncOperationKind kind)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        return _inFlight.TryGetValue(BuildKey(scope, runId, kind), out TaskCompletionSource? completion)
+            ? completion.Task
+            : null;
     }
 
     private static string BuildKey(ScopeContext scope, string runId, ArchitectureRunAsyncOperationKind kind) =>

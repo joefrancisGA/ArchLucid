@@ -252,6 +252,83 @@ public sealed class ArchitectureRecommendationEngineTests
         act.Should().Throw<ArgumentNullException>().WithParameterName("finding");
     }
 
+    [Fact]
+    public void BuildRecommendations_stamps_entire_declared_priority_list_on_dependencies_for_each_recommendation()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = CreateFailingFinding(
+            "f-sec",
+            QualityDimension.Security,
+            "Public endpoint lacks documented trust boundary");
+        string[] priorities = ["Security", "Cost optimization", "Reliability"];
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            CreateModel(),
+            [securityFinding],
+            priorities);
+
+        recommendations.Should().ContainSingle();
+        recommendations[0].Dependencies.Should().Equal(priorities);
+    }
+
+    [Fact]
+    public void BuildRecommendations_attaches_security_cost_and_security_reliability_trade_offs_when_three_dimensions_fail()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = CreateFailingFinding(
+            "f-sec",
+            QualityDimension.Security,
+            "Public endpoint lacks documented trust boundary");
+        SpecialistReviewFinding costFinding = CreateFailingFinding(
+            "f-cost",
+            QualityDimension.Cost,
+            "Spend exceeds stated ceiling");
+        SpecialistReviewFinding reliabilityFinding = CreateFailingFinding(
+            "f-rel",
+            QualityDimension.Reliability,
+            "Stated recovery objective may not be achievable");
+
+        ArchitectureRecommendation securityRecommendation = sut.BuildRecommendations(
+                CreateModel(),
+                [securityFinding, costFinding, reliabilityFinding],
+                [])
+            .Single(recommendation =>
+                recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().HaveCount(2);
+        securityRecommendation.TradeOffs.Select(tradeOff => tradeOff.ProposedDecision).Should().Equal(
+            "Resolve security exposure while managing cost impact.",
+            "Resolve security controls without weakening recovery objectives.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_omits_security_cost_trade_off_when_only_security_indeterminate_is_unverified()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding unverifiedSecurityIndeterminate = new()
+        {
+            FindingId = "f-sec-ind",
+            Dimension = QualityDimension.Security,
+            Title = "Trust boundary may be missing",
+            Rationale = "Provisional conclusion",
+            Conclusion = ReviewConclusion.Indeterminate,
+            Severity = "High",
+            EvidenceCondition = EvidenceCondition.Unverified,
+        };
+        SpecialistReviewFinding verifiedCostFail = CreateFailingFinding(
+            "f-cost",
+            QualityDimension.Cost,
+            "Spend exceeds stated ceiling");
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            CreateModel(),
+            [unverifiedSecurityIndeterminate, verifiedCostFail],
+            ["Security", "Cost"]);
+
+        recommendations.Should().HaveCount(2);
+        recommendations.Should().OnlyContain(recommendation => recommendation.TradeOffs.Count == 0);
+    }
+
     private static string SingleRecommendationId(
         ArchitectureRecommendationEngine sut,
         SpecialistReviewFinding finding)

@@ -141,7 +141,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
             return;
         }
 
-        BackgroundJobWorkUnit? workUnit = BackgroundJobWorkUnitJson.Deserialize(row.WorkUnitJson);
+        BackgroundJobWorkUnit? workUnit = BackgroundJobWorkUnitJson.TryDeserialize(row.WorkUnitJson);
 
         if (workUnit is null)
         {

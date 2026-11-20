@@ -1,0 +1,3 @@
+/** Risk register, job view, and NL facets together hide every loaded finding — not a failed findings queue read. */
+export const GOVERNANCE_FINDINGS_REGISTER_AND_JOB_VIEW_AND_NL_FACET_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE =
+  "Findings loaded, but the risk register, job view, and severity or status filters together match none. Clear those filters or reset NL facets to see the full queue." as const;

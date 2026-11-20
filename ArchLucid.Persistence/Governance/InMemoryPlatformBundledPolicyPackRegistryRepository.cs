@@ -14,15 +14,29 @@ public sealed class InMemoryPlatformBundledPolicyPackRegistryRepository : IPlatf
 
     public Task<IReadOnlyList<PlatformBundledPolicyPackRegistryEntry>> ListAllAsync(CancellationToken ct)
     {
-        IReadOnlyList<PlatformBundledPolicyPackRegistryEntry> rows = _rows.Values
-            .OrderBy(static row => row.DisplayName, StringComparer.Ordinal)
-            .ToList();
+        ct.ThrowIfCancellationRequested();
 
-        return Task.FromResult(rows);
+        lock (_writeGate)
+        {
+            IReadOnlyList<PlatformBundledPolicyPackRegistryEntry> rows = _rows.Values
+                .OrderBy(static row => row.DisplayName, StringComparer.Ordinal)
+                .Select(static row => new PlatformBundledPolicyPackRegistryEntry
+                {
+                    BundleContentFile = row.BundleContentFile,
+                    DisplayName = row.DisplayName,
+                    IsGloballyActive = row.IsGloballyActive,
+                    UpdatedUtc = row.UpdatedUtc,
+                })
+                .ToList();
+
+            return Task.FromResult(rows);
+        }
     }
 
     public Task UpsertAsync(PlatformBundledPolicyPackRegistryEntry entry, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(entry);
 
         lock (_writeGate)
@@ -46,6 +60,8 @@ public sealed class InMemoryPlatformBundledPolicyPackRegistryRepository : IPlatf
 
     public Task<bool> TrySetGloballyActiveAsync(string bundleContentFile, bool isGloballyActive, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         if (string.IsNullOrWhiteSpace(bundleContentFile))
             return Task.FromResult(false);
 

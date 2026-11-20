@@ -8,5 +8,9 @@ public sealed class NoOpImportedArchitectureRequestRepository : IImportedArchite
 
 {
     public Task InsertAsync(ImportedArchitectureRequestRecord record, CancellationToken cancellationToken = default)
-        => Task.CompletedTask;
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 }

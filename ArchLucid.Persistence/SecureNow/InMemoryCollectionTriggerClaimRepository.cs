@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 
+using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Persistence.ApplicationPorts.SecureNow;
 using ArchLucid.Core.Scoping;
 
@@ -9,7 +10,7 @@ namespace ArchLucid.Persistence.SecureNow;
 /// Process-local claim store so InMemory storage registers the same
 /// <see cref="ICollectionTriggerClaimRepository"/> as Sql.
 /// </summary>
-public sealed class InMemoryCollectionTriggerClaimRepository : ICollectionTriggerClaimRepository
+public sealed class InMemoryCollectionTriggerClaimRepository(ICollectionRunRepository collectionRuns) : ICollectionTriggerClaimRepository
 {
     private readonly ConcurrentDictionary<string, ClaimRecord> _claims = new(StringComparer.Ordinal);
 
@@ -42,7 +43,7 @@ public sealed class InMemoryCollectionTriggerClaimRepository : ICollectionTrigge
         return Task.FromResult((acquired, stored.RunId, stored.State));
     }
 
-    public Task<bool> ReconcilePersistedRunAsync(
+    public async Task<bool> ReconcilePersistedRunAsync(
         ProjectScopeKey scope,
         string idempotencyKey,
         Guid runId,
@@ -58,27 +59,34 @@ public sealed class InMemoryCollectionTriggerClaimRepository : ICollectionTrigge
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_claims.TryGetValue(ClaimKey(scope, idempotencyKey.Trim()), out ClaimRecord? claim))
+        string key = ClaimKey(scope, idempotencyKey.Trim());
+        if (!_claims.TryGetValue(key, out ClaimRecord? claim))
         {
-            return Task.FromResult(false);
+            return false;
         }
 
         if (claim.RunId != runId || claim.State != 0)
         {
-            return Task.FromResult(false);
+            return false;
         }
 
-        claim.State = 1;
-        return Task.FromResult(true);
+        ScopeContext runScope = new() { TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId };
+        if (await collectionRuns.GetAsync(runScope, runId, cancellationToken) is null)
+        {
+            return false;
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        return _claims.TryUpdate(key, claim with { State = 1 }, claim);
     }
 
     private static string ClaimKey(ProjectScopeKey scope, string idempotencyKey) =>
         $"{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{idempotencyKey}";
 
-    private sealed class ClaimRecord
+    private sealed record ClaimRecord
     {
         public required Guid RunId { get; init; }
 
-        public byte State { get; set; }
+        public byte State { get; init; }
     }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState, type MutableRefObject } from "react";
-import type { UseFormGetValues, UseFormReset } from "react-hook-form";
+import type { UseFormGetValues } from "react-hook-form";
 
 import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
@@ -23,7 +23,7 @@ export type UseNewRunWizardTemplateRestoreParams = {
   readonly wizardStepCount: number;
   readonly templateWizardSessionState: WizardFormValues;
   readonly showFullWizardShell: boolean;
-  readonly reset: UseFormReset<WizardFormValues>;
+  readonly reset: (values: WizardFormValues) => void;
   readonly setStepIndex: (index: number) => void;
   readonly getValues: UseFormGetValues<WizardFormValues>;
 };

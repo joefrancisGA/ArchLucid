@@ -59,7 +59,7 @@ public sealed partial class DapperDraftRequestRepository
                                  AND WorkspaceId = @WorkspaceId
                                  AND CreatedByUserId = @CreatedByUserId
                                  AND Status IN @Statuses
-                               ORDER BY UpdatedUtc DESC
+                               ORDER BY UpdatedUtc DESC, DraftId DESC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """;
 

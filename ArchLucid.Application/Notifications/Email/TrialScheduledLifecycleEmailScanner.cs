@@ -95,6 +95,8 @@ public sealed class TrialScheduledLifecycleEmailScanner(
     private async Task TryPublishApproachingLimitAsync(TenantRecord tenant, TenantWorkspaceLink workspaceLink, DateTimeOffset utcNow,
         IntegrationEventsOptions options, CancellationToken cancellationToken)
     {
+        if (tenant.TrialExpiresUtc is { } exp && exp <= utcNow)
+            return;
         if (tenant.TrialRunsLimit is not ({ } limit and > 0))
             return;
         int threshold = (int)Math.Ceiling(limit * 0.8d);

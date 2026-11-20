@@ -8,11 +8,13 @@ import {
   secureNowInvestigationEffortInputStorageKeyForScope,
 } from "./securenow-investigation-effort-input-storage";
 
+const scope = vi.hoisted(() => ({ projectId: "project-c" }));
+
 vi.mock("@/lib/operator/operator-scope-storage", () => ({
   readOperatorScopeFromStorage: () => ({
     tenantId: "tenant-a",
     workspaceId: "workspace-b",
-    projectId: "project-c",
+    projectId: scope.projectId,
     workspaceLabel: "Working",
     projectLabel: "Default",
   }),
@@ -21,9 +23,10 @@ vi.mock("@/lib/operator/operator-scope-storage", () => ({
 describe("securenow-investigation-effort-input-storage", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    scope.projectId = "project-c";
   });
 
-  it("persists and restores inputs per tenant workspace scope", () => {
+  it("persists and restores inputs per project", () => {
     persistSecureNowInvestigationEffortInputs({
       baselineHours: "4",
       afterHours: "2",
@@ -32,7 +35,7 @@ describe("securenow-investigation-effort-input-storage", () => {
       annualCost: "8000",
     });
 
-    const key = secureNowInvestigationEffortInputStorageKeyForScope("tenant-a", "workspace-b");
+    const key = secureNowInvestigationEffortInputStorageKeyForScope("tenant-a", "workspace-b", "project-c");
     expect(window.localStorage.getItem(key)).toContain('"baselineHours":"4"');
 
     expect(readSecureNowInvestigationEffortInputs()).toEqual({
@@ -42,6 +45,9 @@ describe("securenow-investigation-effort-input-storage", () => {
       hourlyRate: "90",
       annualCost: "8000",
     });
+
+    scope.projectId = "project-d";
+    expect(readSecureNowInvestigationEffortInputs()).toBeNull();
   });
 
   it("treats the fixture worksheet as ineligible for audit storage", () => {

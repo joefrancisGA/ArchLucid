@@ -70,6 +70,8 @@ import { RunDetailAssuranceGuardCallouts } from "./RunDetailAssuranceGuardCallou
 import { RunDetailExportBlobPushPanel } from "@/components/runs/RunDetailExportBlobPushPanel";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { ExportPartialCaptureRecoveryHonesty } from "@/components/exports/ExportPartialCaptureRecoveryHonesty";
+import { RunDetailDeliverablesBlockedExportFinalizeAndPartialHonesty } from "@/components/runs/RunDetailDeliverablesBlockedExportFinalizeAndPartialHonesty";
+import { RUN_DETAIL_DELIVERABLES_BLOCKED_EXPORT_FINALIZE_AND_PARTIAL_CAPTURE_LINE } from "@/lib/runs/run-detail-deliverables-blocked-export-finalize-and-partial-capture-copy";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -423,13 +425,19 @@ export function RunDetailArtifactsExportsSection(
 
                   void downloadArchitectureRequestJson(requestId)
                     .catch((error: unknown) => {
+                      if (activeRunIdRef.current !== runId) {
+                        return;
+                      }
+
                       const failure = toApiLoadFailure(error);
                       const blocked = architectureRequestJsonMutationBlockedReason(failure);
 
                       showError("Architecture request JSON", blocked ?? failure.message);
                     })
                     .finally(() => {
-                      setRequestJsonBusy(false);
+                      if (activeRunIdRef.current === runId) {
+                        setRequestJsonBusy(false);
+                      }
                     });
                 }}
               >
@@ -570,6 +578,17 @@ export function RunDetailArtifactsExportsSection(
               cloudConnectionsTestId="run-detail-deliverables-partial-capture-cloud-connections"
               extractUploadTestId="run-detail-deliverables-partial-capture-extract-upload"
             />
+            {collateralExportBlockedReason !== null ? (
+              <>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="run-detail-deliverables-blocked-export-finalize-and-partial-capture"
+                >
+                  {RUN_DETAIL_DELIVERABLES_BLOCKED_EXPORT_FINALIZE_AND_PARTIAL_CAPTURE_LINE}
+                </p>
+                <RunDetailDeliverablesBlockedExportFinalizeAndPartialHonesty />
+              </>
+            ) : null}
             {buyerPolishedArtifactTable ? (
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex max-w-[14rem] flex-col gap-1">
@@ -584,6 +603,12 @@ export function RunDetailArtifactsExportsSection(
                         data-testid="run-detail-evidence-bundle-export-blocked-reason"
                       >
                         {collateralExportBlockedReason}
+                      </p>
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="run-detail-evidence-bundle-export-blocked-finalize-partial"
+                      >
+                        {RUN_DETAIL_DELIVERABLES_BLOCKED_EXPORT_FINALIZE_AND_PARTIAL_CAPTURE_LINE}
                       </p>
                     </>
                   ) : (
@@ -643,6 +668,12 @@ export function RunDetailArtifactsExportsSection(
                       >
                         {collateralExportBlockedReason}
                       </p>
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="run-detail-bundle-export-blocked-finalize-partial"
+                      >
+                        {RUN_DETAIL_DELIVERABLES_BLOCKED_EXPORT_FINALIZE_AND_PARTIAL_CAPTURE_LINE}
+                      </p>
                     </>
                   ) : (
                     <Button
@@ -676,6 +707,12 @@ export function RunDetailArtifactsExportsSection(
                         data-testid="run-detail-review-export-blocked-reason"
                       >
                         {collateralExportBlockedReason}
+                      </p>
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="run-detail-review-export-blocked-finalize-partial"
+                      >
+                        {RUN_DETAIL_DELIVERABLES_BLOCKED_EXPORT_FINALIZE_AND_PARTIAL_CAPTURE_LINE}
                       </p>
                     </>
                   ) : (

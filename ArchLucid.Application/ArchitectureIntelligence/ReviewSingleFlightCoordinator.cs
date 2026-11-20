@@ -41,6 +41,8 @@ internal sealed class ReviewSingleFlightCoordinator
                 }
                 catch (OperationCanceledException)
                 {
+                    // Retire the canceled flight before followers retry.
+                    _inFlight.TryRemove(new KeyValuePair<string, InFlightEntry>(key, entry));
                     entry.Completion.TrySetException(new ReviewCacheSingleFlightLeaderAbortedException());
 
                     throw;

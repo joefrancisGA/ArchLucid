@@ -41,6 +41,8 @@ namespace ArchLucid.Host.Composition.Startup.Modules;
 /// </summary>
 internal static class ContextIngestionCompositionRegistrar
 {
+    private const string GraphProjectionMemoryCacheKey = "GraphProjection";
+
     public static void Register(IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<KnowledgeGraphLimitsOptions>(
@@ -49,6 +51,19 @@ internal static class ContextIngestionCompositionRegistrar
             configuration.GetSection(KnowledgeGraphProjectionCacheOptions.SectionName));
         services.AddSingleton<IValidateOptions<KnowledgeGraphProjectionCacheOptions>, KnowledgeGraphProjectionCacheOptionsValidator>();
         services.TryAddSingleton<IMemoryCache>(_ => new MemoryCache(new MemoryCacheOptions { SizeLimit = 1000 }));
+        // Projection entries are sized in bytes, independently of other uses of the shared cache.
+        services.TryAddKeyedSingleton<IMemoryCache>(
+            GraphProjectionMemoryCacheKey,
+            static (sp, _) =>
+            {
+                KnowledgeGraphProjectionCacheOptions options =
+                    sp.GetRequiredService<IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>>().CurrentValue;
+                long sizeLimit = Math.Max(
+                    2 * KnowledgeGraphProjectionCacheOptions.DefaultMaxSingleEntryBytes,
+                    options.MaxSingleEntryBytes);
+
+                return new MemoryCache(new MemoryCacheOptions { SizeLimit = sizeLimit });
+            });
         services.TryAddSingleton<IGraphProjectionCacheInvalidationBroadcaster>(
             NullGraphProjectionCacheInvalidationBroadcaster.Instance);
         services.TryAddSingleton<IGraphSnapshotProjectionCache>(static sp =>
@@ -86,7 +101,7 @@ internal static class ContextIngestionCompositionRegistrar
                 return new GraphSnapshotProjectionDistributedCache(distributedCache, monitor, broadcaster);
             }
 
-            IMemoryCache memoryCache = sp.GetRequiredService<IMemoryCache>();
+            IMemoryCache memoryCache = sp.GetRequiredKeyedService<IMemoryCache>(GraphProjectionMemoryCacheKey);
 
             return new GraphSnapshotProjectionMemoryCache(memoryCache, monitor);
         });

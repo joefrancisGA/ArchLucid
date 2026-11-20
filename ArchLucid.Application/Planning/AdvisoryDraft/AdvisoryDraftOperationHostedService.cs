@@ -36,7 +36,15 @@ public sealed class AdvisoryDraftOperationHostedService(
         {
             await foreach (AdvisoryDraftOperationWorkItem item in _queue.Reader.ReadAllAsync(stoppingToken))
             {
-                await ProcessAsync(item, stoppingToken);
+                try
+                {
+                    await ProcessAsync(item, stoppingToken);
+                }
+                catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
+                {
+                    _logger.LogWarning(ex, "Could not persist advisory draft operation {OperationId} outcome.",
+                        item.OperationId);
+                }
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -46,7 +54,15 @@ public sealed class AdvisoryDraftOperationHostedService(
 
     private async Task ProcessAsync(AdvisoryDraftOperationWorkItem item, CancellationToken stoppingToken)
     {
-        await _store.MarkRunningAsync(item.Scope, item.OperationId, stoppingToken);
+        try
+        {
+            await _store.MarkRunningAsync(item.Scope, item.OperationId, stoppingToken);
+        }
+        catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
+        {
+            await ReportFailureAsync(item, ex, stoppingToken);
+            return;
+        }
 
         if (_cancellationRegistry.IsCancelRequested(item.Scope, item.OperationId))
         {
@@ -81,12 +97,14 @@ public sealed class AdvisoryDraftOperationHostedService(
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(
-                ex,
-                "Advisory draft operation failed for {OperationId}",
-                item.OperationId);
-
-            await _store.MarkFailedAsync(item.Scope, item.OperationId, ex.Message, stoppingToken);
+            await ReportFailureAsync(item, ex, stoppingToken);
         }
+    }
+
+    private Task ReportFailureAsync(AdvisoryDraftOperationWorkItem item, Exception error, CancellationToken cancellationToken)
+    {
+        _logger.LogWarning(error, "Advisory draft operation failed for {OperationId}", item.OperationId);
+
+        return _store.MarkFailedAsync(item.Scope, item.OperationId, error.Message, cancellationToken);
     }
 }

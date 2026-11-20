@@ -28,6 +28,10 @@ import {
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-error-copy";
 import { ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
 import {
+  ITSM_OAUTH_OPERATOR_CANCEL_NOT_TOKEN_EXCHANGE_LINE,
+  ITSM_OAUTH_TOKEN_EXCHANGE_FAILURE_NOT_CANCEL_LINE,
+} from "@/lib/itsm/itsm-oauth-cancel-not-token-exchange-copy";
+import {
   ITSM_ATLASSIAN_OAUTH_CALLBACK_CONNECTOR_STATE_CONSENT_WITHOUT_CREDENTIAL,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_CONNECTOR_STATE_UNCHANGED,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_FAILURE_TITLE,
@@ -334,6 +338,22 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
                             data-testid="itsm-oauth-callback-connector-state"
                           >
                             {connectorStateLine}
+                          </p>
+                        ) : null}
+                        {failureKind === "idp-denial" ? (
+                          <p
+                            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                            data-testid="itsm-oauth-operator-cancel-not-token-exchange"
+                          >
+                            {ITSM_OAUTH_OPERATOR_CANCEL_NOT_TOKEN_EXCHANGE_LINE}
+                          </p>
+                        ) : null}
+                        {failureKind === "api-failure" ? (
+                          <p
+                            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                            data-testid="itsm-oauth-token-exchange-failure-not-cancel"
+                          >
+                            {ITSM_OAUTH_TOKEN_EXCHANGE_FAILURE_NOT_CANCEL_LINE}
                           </p>
                         ) : null}
                       </div>

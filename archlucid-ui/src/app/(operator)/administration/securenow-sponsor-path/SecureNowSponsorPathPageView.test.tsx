@@ -9,6 +9,7 @@ import {
 } from "@/lib/product-line/securenow-investigation-effort-copy";
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/administration/securenow-sponsor-path",
   useSearchParams: () => new URLSearchParams("pathId=path-tenant-1"),
 }));
 

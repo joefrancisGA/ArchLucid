@@ -123,10 +123,7 @@ export function SettingsMasterDestinationCard(props: SettingsMasterDestinationCa
             className="group"
             data-testid="settings-destination-meta-disclosure"
             open={metaOpen}
-            onToggle={(event) => {
-              event.preventDefault();
-              setMetaOpen(!metaOpenRef.current);
-            }}
+            onToggle={(event) => setMetaOpen(event.currentTarget.open)}
           >
             <summary
               className={cn(

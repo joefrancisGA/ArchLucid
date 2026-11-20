@@ -8,11 +8,13 @@ import {
 } from "@/lib/compare-pair-grounding-links";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { COMPARE_PAIR_CITE_STRIP_STALE_CURRENT_EFFECTIVE_LINE } from "@/lib/architecture/compare-pair-cite-strip-stale-current-effective-copy";
 
 export type ComparePairEvidenceCiteStripProps = {
   readonly baselineRunId: string;
   readonly updatedRunId: string;
   readonly groundingOptions?: ComparePairGroundingForRunsOptions;
+  readonly showStaleCurrentEffectiveHonesty?: boolean;
 };
 
 function SideCiteBlock(props: { readonly side: ComparePairSideGrounding }) {
@@ -67,6 +69,14 @@ export function ComparePairEvidenceCiteStrip(props: ComparePairEvidenceCiteStrip
         Open the finalized review context, evidence trail, or audit trail for each side before treating AI narrative as
         authoritative.
       </p>
+      {props.showStaleCurrentEffectiveHonesty === true ? (
+        <p
+          className={cn("m-0 mt-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="compare-pair-cite-strip-stale-current-effective"
+        >
+          {COMPARE_PAIR_CITE_STRIP_STALE_CURRENT_EFFECTIVE_LINE}
+        </p>
+      ) : null}
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         {grounding.baseline !== null ? <SideCiteBlock side={grounding.baseline} /> : null}
         {grounding.updated !== null ? <SideCiteBlock side={grounding.updated} /> : null}

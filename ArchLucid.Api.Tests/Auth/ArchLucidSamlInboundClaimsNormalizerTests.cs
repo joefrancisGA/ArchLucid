@@ -168,6 +168,27 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_promotes_both_distinct_roles_when_single_source_emits_two_values()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("http://idp.example/role", ArchLucidRoles.Operator),
+            new Claim("http://idp.example/role", ArchLucidRoles.Admin));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                RoleClaimSources = ["http://idp.example/role"],
+            });
+
+        identity.HasClaim("roles", ArchLucidRoles.Operator).Should().BeTrue();
+        identity.HasClaim("roles", ArchLucidRoles.Admin).Should().BeTrue();
+        identity.HasClaim(ClaimTypes.Role, ArchLucidRoles.Operator).Should().BeTrue();
+        identity.HasClaim(ClaimTypes.Role, ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [Fact]
     public void Apply_does_not_duplicate_role_surface_claims_when_inbound_source_emits_identical_role_twice()
     {
         ClaimsIdentity identity = CreateSamlIdentity(

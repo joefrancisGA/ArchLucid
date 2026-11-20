@@ -1,4 +1,6 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { act, fireEvent, render as renderWithProviders, screen, waitFor } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RecurrenceSchedulePostCommitCard } from "@/components/governance/RecurrenceSchedulePostCommitCard";
@@ -20,10 +22,16 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
   previewRecurrenceScheduleRuns: vi.fn(),
 }));
 
+function render(card: ReactElement) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return renderWithProviders(<QueryClientProvider client={client}>{card}</QueryClientProvider>);
+}
+
 describe("RecurrenceSchedulePostCommitCard", () => {
   const runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 
   beforeEach(() => {
+    vi.clearAllMocks();
     window.localStorage.clear();
     vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([]);
     vi.mocked(governanceApi.previewRecurrenceScheduleRuns).mockResolvedValue({
@@ -38,6 +46,33 @@ describe("RecurrenceSchedulePostCommitCard", () => {
       isEnabled: true,
       nextRunUtc: "2026-06-09T08:00:00Z",
     });
+  });
+
+  it("keeps the saved schedule when the initial list request finishes late", async () => {
+    type Schedules = Awaited<ReturnType<typeof governanceApi.listArchitectureReviewRecurrenceSchedules>>;
+    let finishInitial!: (rows: Schedules) => void;
+    const initial = new Promise<Schedules>((resolve) => {
+      finishInitial = resolve;
+    });
+    vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules)
+      .mockReturnValueOnce(initial)
+      .mockResolvedValueOnce([{
+        scheduleId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        sourceRunId: runId,
+        name: "Weekly architecture review",
+        cronExpression: "0 8 * * 1",
+        isEnabled: true,
+        nextRunUtc: "2026-06-09T08:00:00Z",
+      }]);
+
+    render(<RecurrenceSchedulePostCommitCard runId={runId} hasStickinessPrompt />);
+    fireEvent.click(screen.getByTestId("recurrence-enable-recurring"));
+    expect(await screen.findByTestId("recurrence-schedule-manage-link")).toBeInTheDocument();
+
+    await act(async () => {
+      finishInitial([]);
+    });
+    expect(screen.getByTestId("recurrence-schedule-manage-link")).toBeInTheDocument();
   });
 
   it("creates an inactive schedule when saving paused", async () => {

@@ -17,6 +17,23 @@ namespace ArchLucid.Application.Tests.SecureNow;
 public sealed class CollectionRunTriggerServiceTests
 {
     [Fact]
+    public async Task Pre_canceled_request_does_not_consume_admission_capacity()
+    {
+        Mock<ICollectionRunAdmissionCounter> counter = new(MockBehavior.Strict);
+        CollectionRunTriggerService service = new(
+            Mock.Of<ICollectionRunRepository>(),
+            Mock.Of<ICollectionRunTrigger>(),
+            new InMemoryCollectionRunTriggerIdempotencyStore(),
+            Mock.Of<IAuditService>(),
+            counter.Object);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            service.TriggerAsync(new ScopeContext(), "key", ["sub"], new CancellationToken(canceled: true)));
+
+        counter.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Durable_duplicate_without_persisted_run_never_replays_external_start()
     {
         ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
@@ -163,8 +180,9 @@ public sealed class CollectionRunTriggerServiceTests
                 persisted = run;
                 return Task.CompletedTask;
             });
-        repository.Setup(source => source.GetAsync(scope, It.IsAny<Guid>(), CancellationToken.None))
-            .ReturnsAsync(() => persisted);
+        repository.Setup(source => source.GetAsync(It.Is<ScopeContext>(value => value.TenantId == scope.TenantId
+            && value.WorkspaceId == scope.WorkspaceId && value.ProjectId == scope.ProjectId),
+            It.IsAny<Guid>(), CancellationToken.None)).ReturnsAsync(() => persisted);
         trigger.Setup(source => source.TriggerAsync(scope, It.IsAny<CollectionRunTriggerRequest>(), request.Token))
             .Callback(request.Cancel)
             .ReturnsAsync(new CollectionRunTriggerResult { Schedule = "Daily" });
@@ -173,7 +191,7 @@ public sealed class CollectionRunTriggerServiceTests
                 ? Task.FromCanceled(ct)
                 : Task.CompletedTask);
         ICollectionTriggerClaimRepository? claims = useDurableClaim
-            ? new ArchLucid.Persistence.SecureNow.InMemoryCollectionTriggerClaimRepository()
+            ? new ArchLucid.Persistence.SecureNow.InMemoryCollectionTriggerClaimRepository(repository.Object)
             : null;
         CollectionRunTriggerService service = new(repository.Object, trigger.Object,
             new InMemoryCollectionRunTriggerIdempotencyStore(), audit.Object,

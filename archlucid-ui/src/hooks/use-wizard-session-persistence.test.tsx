@@ -15,6 +15,7 @@ vi.mock("next/navigation", async (importOriginal) => {
 });
 
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
+import { fetchWizardIntakeDraft } from "@/lib/api/wizard-intake-draft-api";
 import {
   dispatchReviewsNewWizardContinueRequested,
   requestReviewsNewWizardAutoRestore,
@@ -54,6 +55,45 @@ function TestHarness(props: {
 describe("useWizardSessionPersistence (TB-2157)", () => {
   afterEach(() => {
     sessionStorage.clear();
+    vi.mocked(fetchWizardIntakeDraft).mockReset().mockResolvedValue(null);
+  });
+
+  it("restores a local draft when the remote draft fetch is temporarily unavailable", async () => {
+    writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart, {
+      stepIndex: 0,
+      state: { title: "Offline draft" },
+    });
+    vi.mocked(fetchWizardIntakeDraft).mockRejectedValueOnce(new TypeError("fetch failed"));
+
+    render(<TestHarness state={{ title: "" }} onRestore={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Resume saved wizard" })).toBeInTheDocument();
+    });
+  });
+
+  it("does not expose a local draft when the remote API denies access", async () => {
+    writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart, {
+      stepIndex: 0,
+      state: { title: "Protected draft" },
+    });
+    vi.mocked(fetchWizardIntakeDraft).mockRejectedValueOnce({
+      message: "Forbidden",
+      problem: null,
+      correlationId: null,
+      httpStatus: 403,
+      retryAfterSeconds: null,
+    });
+
+    render(<TestHarness state={{ title: "" }} onRestore={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(fetchWizardIntakeDraft).toHaveBeenCalledWith(WIZARD_SESSION_IDS.reviewsNewQuickStart);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(screen.queryByRole("button", { name: "Resume saved wizard" })).not.toBeInTheDocument();
   });
 
   it("offers resume when a saved wizard snapshot exists", async () => {

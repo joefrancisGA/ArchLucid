@@ -82,8 +82,7 @@ export function FindingCorrelationVocabularyDisambiguation(
       data-testid={props.testId ?? "finding-correlation-vocabulary-disambiguation"}
       open={vocabularyOpen}
       onToggle={(event) => {
-        event.preventDefault();
-        setVocabularyOpen(!vocabularyOpenRef.current);
+        setVocabularyOpen(event.currentTarget.open);
       }}
     >
       <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>

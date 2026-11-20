@@ -4,4 +4,5 @@ export const BACKGROUND_JOB_STATE = {
   Running: "Running",
   Succeeded: "Succeeded",
   Failed: "Failed",
+  Canceled: "Canceled",
 } as const;

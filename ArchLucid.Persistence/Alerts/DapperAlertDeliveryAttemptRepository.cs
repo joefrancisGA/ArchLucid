@@ -76,7 +76,7 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
               AND TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
-            ORDER BY AttemptedUtc DESC;
+            ORDER BY AttemptedUtc DESC, AlertDeliveryAttemptId DESC;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -109,7 +109,7 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
               AND TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
-            ORDER BY AttemptedUtc DESC;
+            ORDER BY AttemptedUtc DESC, AlertDeliveryAttemptId DESC;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);

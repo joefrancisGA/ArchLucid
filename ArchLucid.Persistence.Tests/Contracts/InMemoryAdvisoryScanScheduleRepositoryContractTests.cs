@@ -13,6 +13,28 @@ public sealed class InMemoryAdvisoryScanScheduleRepositoryContractTests : Adviso
     }
 
     [Fact]
+    public async Task Duplicate_schedule_id_does_not_create_a_second_due_scan()
+    {
+        IAdvisoryScanScheduleRepository repo = CreateRepository();
+        DateTime dueUtc = new(2026, 3, 15, 12, 0, 0, DateTimeKind.Utc);
+        AdvisoryScanSchedule schedule = new()
+        {
+            ScheduleId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            IsEnabled = true,
+            NextRunUtc = dueUtc
+        };
+
+        await repo.CreateAsync(schedule, CancellationToken.None);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => repo.CreateAsync(schedule, CancellationToken.None));
+
+        IReadOnlyList<AdvisoryScanSchedule> due = await repo.ListDueAsync(dueUtc, 10, CancellationToken.None);
+        due.Should().ContainSingle().Which.ScheduleId.Should().Be(schedule.ScheduleId);
+    }
+
+    [Fact]
     public async Task Schedule_changes_are_visible_only_after_update()
     {
         IAdvisoryScanScheduleRepository repo = CreateRepository();

@@ -32,6 +32,7 @@ public sealed class InMemoryQuickScanGlobalBudgetReservationStore : IQuickScanGl
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (request.ReserveUsd <= 0m)
         {

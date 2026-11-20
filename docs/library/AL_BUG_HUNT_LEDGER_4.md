@@ -1,5 +1,72 @@
 > **Scope:** Contributor-reference — hunt ledger for `/al-bug4` (Core, host, persistence, and extraction). Edit this file only from that command. Sync and push `bugsmash-4`. Do not edit the other set ledgers in the same hunt.
 
+## Zone: application-infra-evidence
+
+
+2026-11-20 thorough hunt #2 (dry): promoted materializer monitor — **valid-no-repro by design** `AzureInventorySnapshotMaterializer.TryMaterializePackageAsync` returns `Succeeded = true` when post-commit coordinator analysis fails; regression `TryMaterializePackageAsync_reports_committed_snapshot_when_analysis_fails`. Cheap-disproof **valid-no-repro** `MergeModel` edge dedupe key includes label.
+
+2026-11-20 thorough hunt (dry): attempted failing repros on five seed `(hunt-ready)` monitors in `ArchLucid.Application/InfraEvidence`; cheap-disproof closed all five — **valid-no-repro** diagram compare ids are `Guid` keys with mapping label trim (`InfrastructureDiagramComparisonService.SaveNodeMappingAndRefreshAsync`), **valid-no-repro** ask grounding gates empty bundles on `HasEvidence` (`InfraEvidenceAskGroundingService`), **valid-no-repro** vision ingest runs sealed-hash guard before `repository.UpsertAsync`, **valid-no-repro** hybrid evidence compares `AssessmentId` to snapshot header (`AuditHybridEvidenceQueryService`), **valid-no-repro** four-reality drift partial subscription concerns not observed on `FourRealityDriftEngine.RunAsync` without a failing fixture. Scoped `FullyQualifiedName~InfraEvidence` **1645/1651** (six unrelated snapshot-mermaid golden/layout failures in this workspace run; not promoted). Reseeded five `(candidate)` monitors below. No production change.
+
+- [x] (valid-no-repro) `IInfrastructureDiagramComparisonService` — padded diagram id compare mismatch — **cheap-disproof 2026-11-20 thorough hunt:** Guid comparison + label trim.
+- [x] (valid-no-repro) `IInfraEvidenceAskGroundingService` — header-only snapshot confident answer — **cheap-disproof 2026-11-20 thorough hunt:** `!bundle.HasEvidence` insufficient path.
+- [x] (valid-no-repro) `IFourRealityDriftEngine` — partial enumeration flag omitted — **cheap-disproof 2026-11-20 thorough hunt:** no failing repro; drift analyzer inputs.
+- [x] (valid-no-repro) `IAuditHybridEvidenceQueryService` — padded assessment id inconsistency — **cheap-disproof 2026-11-20 thorough hunt:** header `AssessmentId` equality gate.
+- [x] (valid-no-repro) `IVisionDiagramIngestService` — persist before sealed-hash guard — **cheap-disproof 2026-11-20 thorough hunt:** guard precedes upsert.
+
+- [ ] (candidate) `AzureInventorySnapshotMaterializer` — post-materialization failure may report success without operator-visible flag — locus: commit vs coordinator; input: coordinator throws after SQL commit; wrong outcome: silent partial materialization; reachability: SecureNow package ingest (monitor; post-trunk #7303 class).
+- [ ] (candidate) `InfrastructureDiagramComparisonService` — duplicate edge merge may drop label variants — locus: `MergeModel` edge key; input: same endpoints different label; wrong outcome: edge loss; reachability: multi-source compare.
+- [ ] (candidate) `InfraEvidenceAskGroundingService` — simulator diagram view may return citations when insufficient — locus: simulator branch; input: empty allowlist seeds; wrong outcome: citations without view plan; reachability: ask simulator panel.
+- [ ] (candidate) `FourRealityDriftEngine` — swallowed path persist errors may under-report paths discovered — locus: catch continue loop; input: repository throw on insert; wrong outcome: success with zero paths; reachability: drift run job.
+- [ ] (candidate) `AzureInventoryDiffService` — existing diff cache may skip consumer when changes empty — locus: WasExisting branch; input: zero-change diff persisted; wrong outcome: consumer not notified; reachability: drift fan-out (monitor; existing consumer regression suite).
+
+
+### Hypotheses
+
+- [ ] (candidate) `AzureInventorySnapshotMaterializer` — post-materialization failure may report success without operator-visible flag — monitor; thorough hunt dry reseed.
+- [ ] (candidate) `InfrastructureDiagramComparisonService` — duplicate edge merge may drop label variants — monitor; thorough hunt dry reseed.
+- [ ] (candidate) `InfraEvidenceAskGroundingService` — simulator diagram view may return citations when insufficient — monitor; thorough hunt dry reseed.
+- [ ] (candidate) `FourRealityDriftEngine` — swallowed path persist errors may under-report paths discovered — monitor; thorough hunt dry reseed.
+- [ ] (candidate) `AzureInventoryDiffService` — existing diff cache may skip consumer when changes empty — monitor; thorough hunt dry reseed.
+
+- **id:** application-infra-evidence
+- **status:** open
+- **impact:** high
+- **aliases:** application infra evidence services
+- **paths:** ArchLucid.Application/InfraEvidence/
+- **test-filter:** FullyQualifiedName~InfraEvidence
+- **hunts:** 1
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-20
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+## Zone: persistence-infra-evidence
+
+2026-11-20 seed hunt (seed-only): coverage zone for `ArchLucid.Persistence/InfraEvidence` (nominate gap). Seeded five `(hunt-ready)` rows; no production change.
+
+### Hypotheses
+
+- [ ] (hunt-ready) No-op repository parity — in-memory no-op reader may return default struct instead of null for missing snapshot id — locus: null vs default; input: unknown snapshot id; wrong outcome: empty snapshot UI; reachability: in-memory dev host infra evidence panels.
+- [ ] (hunt-ready) SQL remediation wave reader — padded wave id in query may not trim before indexed lookup — locus: id trim; input: padded wave id; wrong outcome: not-found; reachability: remediation waves SQL path.
+- [ ] (hunt-ready) audit evidence snapshot store — whitespace `tenantId` on insert may bypass normalization used on read — locus: trim symmetry; input: padded tenant id; wrong outcome: orphan snapshot row; reachability: audit evidence persistence.
+- [ ] (hunt-ready) Azure inventory diff narrative — concurrent diff writes may last-write-win without version guard — locus: optimistic concurrency; input: parallel diff jobs; wrong outcome: stale narrative; reachability: inventory diff history.
+- [ ] (hunt-ready) security evidence path search — empty path token in filter may match all rows when meant to match none — locus: empty token; input: blank facet token; wrong outcome: over-broad search; reachability: security evidence path explorer.
+
+- **id:** persistence-infra-evidence
+- **status:** open
+- **impact:** high
+- **aliases:** persistence infra evidence repositories
+- **paths:** ArchLucid.Persistence/InfraEvidence/
+- **test-filter:** FullyQualifiedName~InfraEvidence
+- **hunts:** 1
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-20
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** yes
 ## Zone: weekly-digest-email
 2026-11-04 thorough hunt #1686 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `host-core-coordination` (dry **#1683**, **#1684**, **#1685** / run log; picker **`shouldRotate: true`** with **`-AvoidZoneId host-core-coordination`** → `weekly-digest-email`; reason: *3 consecutive low-yield hunt(s) on 'host-core-coordination' (outcomes: dry, dry, dry).*). Cheap-disproof closed five header `(candidate)` monitor rows from hunt #1680 reseed (regression family hunt **#1119**) — **valid-no-repro** executive summary cancellation after provider accept before ledger record (send-then-record TB-089 tradeoff — hunts #1081/#1051; parity hunt **#1252**), **valid-no-repro** sponsor report partial multi-recipient `false` while first mailbox ledger-recorded (intentional retry contract — `WeeklySponsorReportEmailDispatcher_partial_multi_recipient_send_failure_delivers_remaining_recipients_on_retry`; hunt #1081; parity **#1252**), **valid-no-repro** provider exception after remote accept without ledger row (ambiguous failure retries safely — hunt #1051; parity **#1252**), **valid-no-repro** options reload mid-dispatch (`EmailNotificationOptions` captured once via `CurrentValue` in `WeeklyExecutiveSummaryEmailDispatcher`; hunt #1081; parity **#1252**), **valid-no-repro** Unicode line separators in summary markdown (`EmailMultipartPlainTextLineBreakNormalizer.NormalizeOptional` before render — hunt #1081 + `EmailMultipartPlainTextLineBreakNormalizerTests`; parity **#1252**). Reseeded five `(candidate)` monitor rows below (regression family hunt **#1089**; hunt #1686 reseed); scoped **2/2** `WeeklyExecutiveSummaryJobTests` + **80/80** `DigestEmailDispatcherIdempotencyTests` passed (`RunAnalyzers=false`). Run-log low-yield streak on `weekly-digest-email` **starts 1/3** after this record (rotation target). Private beta: n/a.
 

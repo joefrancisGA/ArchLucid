@@ -68,6 +68,8 @@ public sealed class AzureBlobArtifactBlobStore(
 
     public async Task<string?> ReadAsync(string blobUri, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         if (string.IsNullOrWhiteSpace(blobUri))
             return null;
 
@@ -75,8 +77,16 @@ public sealed class AzureBlobArtifactBlobStore(
 
         ArtifactBlobTenantPaths.EnsureReadBlobNameMatchesTenant(_scopeProvider, blob.Name);
 
-        Response<BlobDownloadResult> response = await blob.DownloadContentAsync(ct).ConfigureAwait(false);
-        return response.Value.Content.ToString();
+        try
+        {
+            Response<BlobDownloadResult> response = await blob.DownloadContentAsync(ct).ConfigureAwait(false);
+            return response.Value.Content.ToString();
+        }
+        catch (RequestFailedException ex) when (ex.Status == 404
+            && ex.ErrorCode is ("BlobNotFound" or "ContainerNotFound"))
+        {
+            return null;
+        }
     }
 
     private Task<BlobServiceClient> ScopedClientAsync(CancellationToken ct)

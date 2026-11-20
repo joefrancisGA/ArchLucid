@@ -29,12 +29,12 @@ public static class DataArchivalHostIteration
         if (!options.Enabled)
             return true;
 
-        using IServiceScope scope = scopeFactory.CreateScope();
-        IDataArchivalCoordinator coordinator =
-            scope.ServiceProvider.GetRequiredService<IDataArchivalCoordinator>();
-
         try
         {
+            using IServiceScope scope = scopeFactory.CreateScope();
+            IDataArchivalCoordinator coordinator =
+                scope.ServiceProvider.GetRequiredService<IDataArchivalCoordinator>();
+
             await coordinator.RunOnceAsync(options, cancellationToken);
             healthState?.MarkLastIterationSucceeded();
 

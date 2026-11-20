@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Metering;
 
-/// <summary>Persists <see cref="UsageEvent" /> rows when <see cref="MeteringOptions.Enabled" /> is true.</summary>
+/// <summary>Persists <see cref="UsageEvent" /> rows and drains batches accepted by the request buffer.</summary>
 public sealed class UsageMeteringService(
     IUsageEventRepository repository,
     IOptionsMonitor<MeteringOptions> options) : IUsageMeteringService
@@ -30,7 +30,8 @@ public sealed class UsageMeteringService(
     {
         ArgumentNullException.ThrowIfNull(events);
 
-        if (!_options.CurrentValue.Enabled || events.Count == 0)
+        // The request buffer checks Enabled at admission. Persist any events it already accepted.
+        if (events.Count == 0)
             return;
 
         await _repository.InsertBatchAsync(events, ct);

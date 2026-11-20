@@ -83,7 +83,7 @@ public abstract class RunExportRecordRepositoryContractTests
     }
 
     [SkippableFact]
-    public async Task Create_trims_compare_manifest_version_on_persist()
+    public async Task Create_trims_compare_manifest_version_only_in_stored_record()
     {
         SkipIfSqlServerUnavailable();
         IRunExportRecordRepository repo = CreateRepository();
@@ -100,6 +100,7 @@ public abstract class RunExportRecordRepositoryContractTests
 
         loaded.Should().NotBeNull();
         loaded!.CompareManifestVersion.Should().Be("v5");
+        record.CompareManifestVersion.Should().Be("  v5  ");
     }
 
     [SkippableFact]

@@ -37,6 +37,10 @@ import { BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS } from "@/app/(operator)/insigh
 import { GraphInteractiveCanvas } from "@/app/(operator)/insights/evidence-graph/_sections/GraphInteractiveCanvas";
 import { GraphLoadedZeroNodesPartialCaptureHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphLoadedZeroNodesPartialCaptureHonesty";
 import { GraphTypeFilterEmptyPartialCaptureHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphTypeFilterEmptyPartialCaptureHonesty";
+import { GraphTypeFilterAndNodeFocusCombinedEmptyPartialHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphTypeFilterAndNodeFocusCombinedEmptyPartialHonesty";
+import { EVIDENCE_GRAPH_TYPE_FILTER_AND_NODE_FOCUS_COMBINED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/evidence-graph-type-filter-and-node-focus-combined-empty-not-load-failure-copy";
+import { parseGraphNodeFocusFromSearch } from "@/lib/insights/graph-node-focus-url";
+import { parseGraphNodeIdFromSearch } from "@/lib/insights/graph-node-decision-id-url";
 import type { GraphViewModel } from "@/types/graph";
 import { resolveEvidenceGraphReviewPackageHref } from "@/lib/evidence-graph-review-package-href";
 
@@ -111,12 +115,17 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
     () => graphViewModelFilteredByNodeType(graph, typeFilter),
     [graph, typeFilter],
   );
+  const graphNodeFocusTrim = parseGraphNodeFocusFromSearch(searchParams.get("graphNodeFocus")).trim();
+  const graphNodeIdTrim = parseGraphNodeIdFromSearch(searchParams.get("graphNodeId")).trim();
+  const graphNodeSearchActive = graphNodeFocusTrim.length > 0 || graphNodeIdTrim.length > 0;
   const showTypeFilterEmptyHonesty =
     !loading
     && runTrim.length > 0
     && graph.nodes.length > 0
     && typeFilterTrim.length > 0
     && filteredGraphByType.nodes.length === 0;
+  const showTypeFilterAndNodeFocusCombinedHonesty =
+    showTypeFilterEmptyHonesty && graphNodeSearchActive;
 
   function ensureGraphExportAllowed(): boolean {
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
@@ -138,7 +147,20 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
       {!loading && runTrim.length > 0 && graph.nodes.length === 0 ? (
         <GraphLoadedZeroNodesPartialCaptureHonesty />
       ) : null}
-      {showTypeFilterEmptyHonesty ? <GraphTypeFilterEmptyPartialCaptureHonesty /> : null}
+      {showTypeFilterAndNodeFocusCombinedHonesty ? (
+        <div className="mb-3 space-y-2">
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="evidence-graph-type-filter-and-node-focus-combined-empty"
+          >
+            {EVIDENCE_GRAPH_TYPE_FILTER_AND_NODE_FOCUS_COMBINED_EMPTY_NOT_LOAD_FAILURE_LINE}
+          </p>
+          <GraphTypeFilterAndNodeFocusCombinedEmptyPartialHonesty />
+        </div>
+      ) : null}
+      {showTypeFilterEmptyHonesty && !showTypeFilterAndNodeFocusCombinedHonesty ? (
+        <GraphTypeFilterEmptyPartialCaptureHonesty />
+      ) : null}
       <div className="mb-3 flex flex-wrap items-center gap-3">
         <FilterChipGroup aria-label="Filter graph nodes by type" className="flex flex-wrap gap-2">
           <FilterChip

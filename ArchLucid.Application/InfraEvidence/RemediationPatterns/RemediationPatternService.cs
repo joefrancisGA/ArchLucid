@@ -83,8 +83,7 @@ public sealed class RemediationPatternService(
                 actorKey,
                 utcNow);
 
-            await repository.InsertPatternAsync(pattern, cancellationToken);
-            await repository.InsertVersionAsync(firstVersion, cancellationToken);
+            await repository.InsertDraftWithVersionAsync(pattern, firstVersion, cancellationToken);
 
             return Success(patternId, firstVersion.Version, firstVersion.Status);
         }

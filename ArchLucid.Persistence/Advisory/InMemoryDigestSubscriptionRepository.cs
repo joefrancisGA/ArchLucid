@@ -20,6 +20,9 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_items.Exists(item => item.SubscriptionId == subscription.SubscriptionId))
+                throw new InvalidOperationException("A digest subscription with this ID already exists.");
+
             _items.Add(Copy(subscription));
             if (_items.Count > MaxEntries)
                 _items.RemoveRange(0, _items.Count - MaxEntries);
@@ -41,7 +44,6 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
                 stored.ChannelType = subscription.ChannelType;
                 stored.Destination = subscription.Destination;
                 stored.IsEnabled = subscription.IsEnabled;
-                stored.CreatedUtc = subscription.CreatedUtc;
                 stored.MetadataJson = subscription.MetadataJson;
 
                 if (stored.LastDeliveredUtc is null || subscription.LastDeliveredUtc > stored.LastDeliveredUtc)
@@ -94,6 +96,7 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
                     x.WorkspaceId == workspaceId &&
                     x.ProjectId == projectId)
                 .OrderByDescending(x => x.CreatedUtc)
+                .Take(200)
                 .Select(Copy)
                 .ToList();
 

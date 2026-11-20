@@ -7,14 +7,17 @@ import { fetchRunDetailCriticalPageBundle } from "@/lib/fetch-run-detail-page-bu
 import { resolveQuickDecisionFindingsForRunDetail } from "@/lib/quick-decision-summary-derive";
 import {
   buildCompareSemanticSupportBandDeltaView,
+  compareSemanticSupportBandFindingsAllZero,
   type CompareSemanticSupportBandDeltaView,
 } from "@/lib/review-quality/compare-semantic-support-band-delta";
 import {
   buildCompareClassificationBandDeltaView,
+  compareClassificationBandFindingsAllZero,
   type CompareClassificationBandDeltaView,
 } from "@/lib/review-quality/compare-classification-band-delta";
 import {
   buildCompareTreatmentBandDeltaView,
+  compareTreatmentBandFindingsAllZero,
   type CompareTreatmentBandDeltaView,
 } from "@/lib/review-quality/compare-treatment-band-delta";
 import type { RunSummary } from "@/types/authority";
@@ -37,7 +40,10 @@ export function useCompareSemanticSupportBandDelta(input: {
   readonly loading: boolean;
   readonly view: CompareSemanticSupportBandDeltaView | null;
   readonly classificationView: CompareClassificationBandDeltaView | null;
+  readonly classificationBandAllZero: boolean;
+  readonly semanticBandAllZero: boolean;
   readonly treatmentView: CompareTreatmentBandDeltaView | null;
+  readonly treatmentBandAllZero: boolean;
 } {
   const baselineRunId = input.baselineRunId?.trim() ?? "";
   const targetRunId = input.targetRunId?.trim() ?? "";
@@ -59,13 +65,13 @@ export function useCompareSemanticSupportBandDelta(input: {
   });
 
   if (!enabled) {
-    return { loading: false, view: null, classificationView: null, treatmentView: null };
+    return { loading: false, view: null, classificationView: null, classificationBandAllZero: false, semanticBandAllZero: false, treatmentView: null, treatmentBandAllZero: false };
   }
 
   const loading = queries.some((query) => query.isPending);
 
   if (loading || queries.some((query) => query.isError)) {
-    return { loading, view: null, classificationView: null, treatmentView: null };
+    return { loading, view: null, classificationView: null, classificationBandAllZero: false, semanticBandAllZero: false, treatmentView: null, treatmentBandAllZero: false };
   }
 
   const baselineFindings = queries[0]?.data ?? [];
@@ -83,7 +89,21 @@ export function useCompareSemanticSupportBandDelta(input: {
       baselineFindings,
       targetFindings,
     }),
+    classificationBandAllZero: compareClassificationBandFindingsAllZero({
+      baselineFindings,
+      targetFindings,
+    }),
+    semanticBandAllZero: compareSemanticSupportBandFindingsAllZero({
+      baselineFindings,
+      targetFindings,
+      baselineExecutionMode: input.baselineSummary?.structuralExecutionMode ?? null,
+      targetExecutionMode: input.targetSummary?.structuralExecutionMode ?? null,
+    }),
     treatmentView: buildCompareTreatmentBandDeltaView({
+      baselineFindings,
+      targetFindings,
+    }),
+    treatmentBandAllZero: compareTreatmentBandFindingsAllZero({
       baselineFindings,
       targetFindings,
     }),

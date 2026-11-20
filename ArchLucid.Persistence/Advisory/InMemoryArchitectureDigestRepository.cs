@@ -18,6 +18,9 @@ public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRe
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_items.Exists(item => item.DigestId == digest.DigestId))
+                throw new InvalidOperationException($"The architecture digest '{digest.DigestId}' already exists.");
+
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 

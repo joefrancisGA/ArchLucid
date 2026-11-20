@@ -1,3 +1,5 @@
+using System.Data.SqlTypes;
+
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 
@@ -33,7 +35,7 @@ internal static partial class RunRepositoryCore
 
             if (best is null
                 || candidate.CreatedUtc > best.CreatedUtc
-                || (candidate.CreatedUtc == best.CreatedUtc && candidate.RunId.CompareTo(best.RunId) > 0))
+                || (candidate.CreatedUtc == best.CreatedUtc && new SqlGuid(candidate.RunId).CompareTo(new SqlGuid(best.RunId)) > 0))
                 best = candidate;
         }
 

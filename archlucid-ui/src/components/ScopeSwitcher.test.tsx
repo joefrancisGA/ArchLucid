@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render as renderWithProviders, screen, waitFor } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /** Same values as `@/lib/scope` dev defaults (avoid vi.mock hoisting issues). */
@@ -64,6 +65,12 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { ScopeSwitcher, SCOPE_SWITCHER_UNSAVED_MESSAGE } from "@/components/ScopeSwitcher";
 import { registerLivelihoodDocumentGuardDirty } from "@/lib/operator/livelihood-document-guard-dirty-registry";
+
+import { TooltipProvider } from "@/components/ui/tooltip";
+
+function render(switcher: ReactElement) {
+  return renderWithProviders(<TooltipProvider>{switcher}</TooltipProvider>);
+}
 
 describe("ScopeSwitcher — operator shell", () => {
   beforeEach(() => {
@@ -217,6 +224,42 @@ describe("ScopeSwitcher — operator shell", () => {
     expect(screen.getByRole("button", { name: "Primary project" })).toHaveAttribute("aria-current", "true");
     expect(screen.queryByText(BUYER_SCOPE_SWITCHER_CONNECTED_INTRO)).not.toBeInTheDocument();
     expect(screen.queryByTestId("operator-scope-sample-info-body")).not.toBeInTheDocument();
+  });
+
+  it("keeps the latest workspace list when an earlier request fails", async () => {
+    let failEarlier!: (response: Response) => void;
+    const earlier = new Promise<Response>((resolve) => {
+      failEarlier = resolve;
+    });
+    const newest = new Response(
+      JSON.stringify({
+        workspaces: [{
+          workspaceId: DEV_WORKSPACE,
+          name: "Claims Intake Workspace",
+          projects: [
+            { projectId: DEV_PROJECT, name: "Primary project" },
+            { projectId: "44444444-4444-4444-4444-444444444444", name: "Secondary project" },
+          ],
+        }],
+      }),
+      { status: 200 },
+    );
+    const fetchWorkspaces = vi.fn()
+      .mockReturnValueOnce(earlier)
+      .mockResolvedValueOnce(newest);
+    vi.stubGlobal("fetch", fetchWorkspaces);
+
+    render(<ScopeSwitcher />);
+    fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
+    fireEvent.keyDown(document, { key: "Escape" });
+    fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
+
+    expect(await screen.findByRole("button", { name: "Secondary project" })).toBeInTheDocument();
+    await act(async () => {
+      failEarlier(new Response(null, { status: 500 }));
+    });
+
+    expect(screen.getByRole("button", { name: "Secondary project" })).toBeInTheDocument();
   });
 
   it("prompts before switching scope when a livelihood form is dirty (LW-078)", async () => {
