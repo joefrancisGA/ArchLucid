@@ -4,7 +4,11 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public interface IRemediationPatternRepository
 {
-    Task InsertPatternAsync(RemediationPatternRecord pattern, CancellationToken cancellationToken = default);
+    // Creating a draft must persist its parent and first version together.
+    Task InsertDraftWithVersionAsync(
+        RemediationPatternRecord pattern,
+        RemediationPatternVersionRecord firstVersion,
+        CancellationToken cancellationToken = default);
 
     Task InsertVersionAsync(RemediationPatternVersionRecord version, CancellationToken cancellationToken = default);
 
