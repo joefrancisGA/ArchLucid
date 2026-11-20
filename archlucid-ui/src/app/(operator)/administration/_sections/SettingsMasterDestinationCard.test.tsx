@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { extendNextNavigationVitestMock } from "@/testing/next-navigation-vitest-mock";
@@ -53,6 +53,25 @@ describe("SettingsMasterDestinationCard (TB-1198 / TB-1203)", () => {
     expect(disclosure).not.toHaveAttribute("open");
     expect(screen.getByText("Scope and editability details")).toBeInTheDocument();
     expect(screen.getByTestId("settings-scope-meta")).toBeInTheDocument();
+  });
+
+  it("keeps a URL-open disclosure open when the browser sends its toggle event", () => {
+    const originalHref = window.location.href;
+    window.history.replaceState(null, "", "?settingsDestinationMetaDestinationId=cloud-connections");
+
+    try {
+      render(<SettingsMasterDestinationCard destination={buildDestination()} />);
+      const disclosure = screen.getByTestId("settings-destination-meta-disclosure");
+      expect(disclosure).toHaveAttribute("open");
+
+      fireEvent(disclosure, new Event("toggle"));
+
+      expect(disclosure).toHaveAttribute("open");
+      expect(new URLSearchParams(window.location.search).get("settingsDestinationMetaDestinationId"))
+        .toBe("cloud-connections");
+    } finally {
+      window.history.replaceState(null, "", originalHref);
+    }
   });
 
   it("does not show audit-trail copy on read-only destinations", () => {
