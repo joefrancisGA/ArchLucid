@@ -78,6 +78,16 @@ function normalizeFavorite(row: FavoriteReview): FavoriteReview {
   return { runId, title, pinnedAt, architectureId };
 }
 
+/** Preserve newest-first order while rejecting duplicate normalized run IDs. */
+function deduplicateFavorites(favorites: readonly FavoriteReview[]): FavoriteReview[] {
+  const seen = new Set<string>();
+  return favorites.filter((favorite) => {
+    if (seen.has(favorite.runId)) return false;
+    seen.add(favorite.runId);
+    return true;
+  });
+}
+
 /** Reads favorites from localStorage (newest pin first). */
 export function listFavoriteReviews(): FavoriteReview[] {
   if (typeof window === "undefined") {
@@ -97,10 +107,9 @@ export function listFavoriteReviews(): FavoriteReview[] {
       return [];
     }
 
-    return parsed
+    return deduplicateFavorites(parsed
       .filter(isFavoriteReviewRow)
-      .map(normalizeFavorite)
-      .slice(0, FAVORITE_REVIEWS_MAX);
+      .map(normalizeFavorite)).slice(0, FAVORITE_REVIEWS_MAX);
   } catch {
     return [];
   }
@@ -117,7 +126,7 @@ export function writeFavoriteReviews(favorites: readonly FavoriteReview[]): void
       .map(normalizeFavorite)
       .slice(0, FAVORITE_REVIEWS_MAX);
 
-    window.localStorage.setItem(FAVORITE_REVIEWS_STORAGE_KEY, JSON.stringify(normalized));
+    window.localStorage.setItem(FAVORITE_REVIEWS_STORAGE_KEY, JSON.stringify(deduplicateFavorites(normalized)));
   } catch {
     /* ignore quota / private mode */
   }
