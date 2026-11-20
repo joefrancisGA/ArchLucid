@@ -52,6 +52,20 @@ describe("Tabs primitive (TB-665)", () => {
     expect(screen.getByRole("tabpanel")).toHaveTextContent("Panel A");
   });
 
+  it.each([
+    ["retired", "Panel A"],
+    ["b", "Panel B"],
+  ])("selects an available tab for the bookmarked value %s", (value, expectedPanel) => {
+    window.history.replaceState(null, "", `/example?tab=${value}`);
+
+    try {
+      renderThreeTabFixture({ syncUrlParam: "tab" });
+      expect(screen.getByRole("tabpanel")).toHaveTextContent(expectedPanel);
+    } finally {
+      window.history.replaceState(null, "", "/");
+    }
+  });
+
   it("activates a tab on click and shows the matching tabpanel", () => {
     renderThreeTabFixture();
 
