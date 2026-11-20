@@ -39,6 +39,7 @@ public sealed class RecurringArchitectureReviewTriggerService(
     {
         ArgumentNullException.ThrowIfNull(schedule);
         DateTimeOffset triggeredAt = TimeProvider.System.UtcNowDateTime();
+        Guid? priorTriggeredRunId = schedule.LastTriggeredRunId;
         bool checkpointPersisted = false;
 
         ScopeContext scope = new()
@@ -75,7 +76,7 @@ public sealed class RecurringArchitectureReviewTriggerService(
                 ArchitectureRequest clone =
                     RecurringArchitectureReviewRequestCloner.CloneForRecurrence(
                         sourceRequest,
-                        schedule.LastTriggeredRunId ?? schedule.SourceRunId,
+                        priorTriggeredRunId ?? schedule.SourceRunId,
                         triggeredAt);
 
                 CreateRunResult created = await createOrchestrator.CreateRunAsync(clone, null, cancellationToken);
@@ -138,7 +139,7 @@ public sealed class RecurringArchitectureReviewTriggerService(
             if (!checkpointPersisted)
             {
                 schedule.LastTriggeredUtc = triggeredAt.UtcDateTime;
-                schedule.LastTriggeredRunId = null;
+                schedule.LastTriggeredRunId = priorTriggeredRunId;
                 schedule.NextRunUtc = scheduleCalculator.ComputeNextRunUtc(schedule.CronExpression, triggeredAt.UtcDateTime);
             }
 
