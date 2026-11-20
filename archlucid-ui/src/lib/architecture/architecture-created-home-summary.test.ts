@@ -69,6 +69,16 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
     expect(fields).toContainEqual({ label: "Major systems", value: "Ledger API" });
   });
 
+  it("keeps the business purpose preview from ending with half of an emoji", () => {
+    const prefix = "a".repeat(219);
+    const fields = buildSummaryFields(baseInput({ businessOutcome: `${prefix}😀 and the full outcome` }));
+
+    expect(fields).toContainEqual({
+      label: "Business purpose",
+      value: `${prefix}… (Full business purpose was stored.)`,
+    });
+  });
+
   it("labels stored-empty key integrations separately from omitted (P-09)", () => {
     const fields = buildSummaryFields(
       baseInput({

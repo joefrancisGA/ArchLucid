@@ -1,6 +1,7 @@
 import { ARCHITECTURE_SUMMARY_LABELS } from "@/lib/architecture/architecture-created-home-copy";
 import { UNTITLED_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-draft-status";
 import { formatParsedSubmittedArchitectureName } from "@/lib/derive-architecture-gap-baseline";
+import { formatStoredTextPreview } from "@/lib/format-stored-text-preview";
 import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
@@ -103,19 +104,11 @@ function formatSummaryList(
 }
 
 function formatBusinessPurposeSummary(value: string): string {
-  const trimmed = value.trim();
-
-  if (trimmed.length === 0) {
-    return ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED;
-  }
-
-  if (trimmed.length <= SUMMARY_BUSINESS_PURPOSE_CHAR_LIMIT) {
-    return trimmed;
-  }
-
-  const visible = trimmed.slice(0, SUMMARY_BUSINESS_PURPOSE_CHAR_LIMIT).trimEnd();
-
-  return `${visible}… (Full business purpose was stored.)`;
+  return formatStoredTextPreview(
+    value,
+    SUMMARY_BUSINESS_PURPOSE_CHAR_LIMIT,
+    "Full business purpose was stored.",
+  ) || ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED;
 }
 
 export const ARCHITECTURE_CREATED_PRIMARY_USERS_STORED_EMPTY =
