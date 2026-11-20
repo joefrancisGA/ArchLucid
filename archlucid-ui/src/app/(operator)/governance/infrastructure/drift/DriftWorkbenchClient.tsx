@@ -703,6 +703,7 @@ export function DriftWorkbenchClient() {
 
   useEffect(() => {
     if (selectedSnapshotId.length === 0) {
+      setLoadingDiffs(false);
       setDiffs([]);
       setSelectedDiffId("");
       return;
@@ -777,6 +778,7 @@ export function DriftWorkbenchClient() {
   useEffect(() => {
     if (selectedSnapshotId.length === 0) {
       setChanges([]);
+      setLoadingChanges(false);
       setChangesTotalCount(0);
       setSelectedChangeId(null);
       return;
