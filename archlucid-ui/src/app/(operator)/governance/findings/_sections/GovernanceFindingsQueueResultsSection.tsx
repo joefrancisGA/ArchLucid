@@ -16,6 +16,7 @@ import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { INSIGHT_DENSITY_GENERIC_THRESHOLD } from "@/lib/governance/governance-findings-density-sort";
 import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_FINDINGS_HIDE_GENERIC_FILTER_EMPTY_LINE } from "@/lib/governance/governance-findings-hide-generic-filter-empty-copy";
 import { cn } from "@/lib/utils";
 
 import { GovernanceFindingsFilterNoMatchPartialHonesty } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsFilterNoMatchPartialHonesty";
@@ -253,6 +254,18 @@ export function GovernanceFindingsQueueResultsSection(
           />
           Hide generic findings (density score below {INSIGHT_DENSITY_GENERIC_THRESHOLD}) — advisory only
         </label>
+      ) : null}
+
+      {!props.loading
+      && props.hideGenericLowDensity
+      && props.rows.length > 0
+      && props.displayedRows.length === 0 ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="governance-findings-hide-generic-filter-empty"
+        >
+          {GOVERNANCE_FINDINGS_HIDE_GENERIC_FILTER_EMPTY_LINE}
+        </p>
       ) : null}
 
       {!props.loading && props.displayedRows.length > 0 ? (
