@@ -1626,7 +1626,7 @@ export function DriftWorkbenchClient() {
                 diffId={selectedDiffId}
               />
 
-              {exportReceipt != null ? (
+              {exportReceipt?.snapshotId === selectedSnapshotId ? (
                 <div
                   className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40"
                   data-testid="infra-drift-export-receipt"
