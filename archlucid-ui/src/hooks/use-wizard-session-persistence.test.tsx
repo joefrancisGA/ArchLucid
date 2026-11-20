@@ -96,6 +96,27 @@ describe("useWizardSessionPersistence (TB-2157)", () => {
     expect(screen.queryByRole("button", { name: "Resume saved wizard" })).not.toBeInTheDocument();
   });
 
+  it("still offers a saved draft when a re-render cancels the first restore check", async () => {
+    writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart, {
+      stepIndex: 0,
+      state: { title: "Saved title" },
+    });
+    let finishFirstRead: (value: null) => void = () => {};
+    vi.mocked(fetchWizardIntakeDraft).mockReturnValueOnce(
+      new Promise((resolve) => {
+        finishFirstRead = resolve;
+      }),
+    );
+
+    const onRestore = vi.fn();
+    const view = render(<TestHarness state={{ title: "" }} onRestore={onRestore} />);
+    view.rerender(<TestHarness state={{ title: "" }} onRestore={onRestore} />);
+
+    expect(await screen.findByRole("button", { name: "Resume saved wizard" })).toBeInTheDocument();
+    expect(fetchWizardIntakeDraft).toHaveBeenCalledTimes(2);
+    await act(async () => finishFirstRead(null));
+  });
+
   it("offers resume when a saved wizard snapshot exists", async () => {
     writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart, {
       stepIndex: 0,

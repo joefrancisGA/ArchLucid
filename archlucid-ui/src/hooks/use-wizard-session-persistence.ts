@@ -102,22 +102,28 @@ export function useWizardSessionPersistence<TState>(
       return;
     }
 
-    restorePromptCheckedRef.current = true;
-
     let canceled = false;
 
     void (async () => {
       const localSnapshot = readWizardSessionSnapshot<TState>(args.wizardId);
       let remoteDraft: Awaited<ReturnType<typeof fetchWizardIntakeDraft>> = null;
+      let mayRestore = true;
 
       try {
         remoteDraft = await fetchWizardIntakeDraft(args.wizardId);
       } catch (error: unknown) {
         // A transient outage must not discard the operator's local draft.
         // Denied access and other non-transient failures remain fail-closed.
-        if (!isApiTransientLoadFailure(toApiLoadFailure(error))) {
-          return;
-        }
+        mayRestore = isApiTransientLoadFailure(toApiLoadFailure(error));
+      }
+
+      if (canceled) {
+        return;
+      }
+
+      restorePromptCheckedRef.current = true;
+      if (!mayRestore) {
+        return;
       }
 
       let remoteSnapshot: WizardSessionSnapshot<TState> | null = null;
@@ -133,10 +139,6 @@ export function useWizardSessionPersistence<TState>(
         } catch {
           remoteSnapshot = null;
         }
-      }
-
-      if (canceled) {
-        return;
       }
 
       const snapshot =
