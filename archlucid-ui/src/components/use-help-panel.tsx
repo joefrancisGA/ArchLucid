@@ -108,9 +108,11 @@ export function useHelpPanel({ open, onOpenChange, initialTab = "guides" }: Help
         setQueryState(nextQuery);
       }
 
-      const fromUrl = parseHelpPanelTabFromSearch(params.get("helpTab"));
+      // An absent helpTab represents Guides. Restore it when browser history
+      // returns from a non-default tab rather than retaining stale local state.
+      const fromUrl = parseHelpPanelTabFromSearch(params.get("helpTab")) ?? "guides";
 
-      if (fromUrl !== null && tabRef.current !== fromUrl) {
+      if (tabRef.current !== fromUrl) {
         tabRef.current = fromUrl;
         setTabState(fromUrl);
       }
