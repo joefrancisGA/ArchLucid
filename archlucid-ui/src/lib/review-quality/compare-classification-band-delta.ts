@@ -35,8 +35,8 @@ export function buildCompareClassificationBandDeltaView(input: {
 }): CompareClassificationBandDeltaView | null {
   const baselineCounts = countFindingsByClassificationBand(input.baselineFindings);
   const targetCounts = countFindingsByClassificationBand(input.targetFindings);
-  const baselineTotal = baselineCounts.decisionGrade + baselineCounts.checklist;
-  const targetTotal = targetCounts.decisionGrade + targetCounts.checklist;
+  const baselineTotal = baselineCounts.decisionGrade + baselineCounts.checklist + baselineCounts.uncited;
+  const targetTotal = targetCounts.decisionGrade + targetCounts.checklist + targetCounts.uncited;
 
   if (baselineTotal === 0 && targetTotal === 0) {
     return null;
