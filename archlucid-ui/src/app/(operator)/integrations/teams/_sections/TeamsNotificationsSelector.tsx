@@ -34,23 +34,23 @@ function defaultCollapsedTeamsNotificationCategories(): ReadonlySet<string> {
   );
 }
 
+function collapsedTeamsNotificationCategoriesFromUrl(raw: string | null): ReadonlySet<string> {
+  const collapsed = parseTeamsNotificationsCollapsedCategoriesFromSearch(raw);
+
+  return raw === "" || collapsed.length > 0
+    ? new Set(collapsed)
+    : defaultCollapsedTeamsNotificationCategories();
+}
+
 /** Grouped notification opt-in controls for Microsoft Teams. */
 export function TeamsNotificationsSelector(props: TeamsNotificationsSelectorProps): React.ReactElement {
   const router = useRouter();
   const pathname = usePathname() ?? "/integrations/teams";
   const searchParams = useSearchParams();
   const teamsNotificationsCollapsedCategoriesParam = searchParams.get("teamsNotificationsCollapsedCategories");
-  const [collapsedGroups, setCollapsedGroupsState] = useState<ReadonlySet<string>>(() => {
-    const collapsedFromUrl = parseTeamsNotificationsCollapsedCategoriesFromSearch(
-      teamsNotificationsCollapsedCategoriesParam,
-    );
-
-    if (collapsedFromUrl.length > 0) {
-      return new Set(collapsedFromUrl);
-    }
-
-    return defaultCollapsedTeamsNotificationCategories();
-  });
+  const [collapsedGroups, setCollapsedGroupsState] = useState<ReadonlySet<string>>(() =>
+    collapsedTeamsNotificationCategoriesFromUrl(teamsNotificationsCollapsedCategoriesParam),
+  );
 
   const syncCollapsedCategoriesToUrl = useCallback(
     (collapsedCategoryIds: readonly string[]) => {
@@ -75,15 +75,7 @@ export function TeamsNotificationsSelector(props: TeamsNotificationsSelectorProp
   );
 
   useEffect(() => {
-    const collapsedFromUrl = parseTeamsNotificationsCollapsedCategoriesFromSearch(
-      teamsNotificationsCollapsedCategoriesParam,
-    );
-
-    if (collapsedFromUrl.length === 0) {
-      return;
-    }
-
-    setCollapsedGroupsState(new Set(collapsedFromUrl));
+    setCollapsedGroupsState(collapsedTeamsNotificationCategoriesFromUrl(teamsNotificationsCollapsedCategoriesParam));
   }, [teamsNotificationsCollapsedCategoriesParam]);
 
   const mutationDisabledHintId = "teams-notifications-selector-mutate-disabled-hint";
