@@ -52,8 +52,8 @@ public sealed partial class SqlRunRepository
 
             byte[] ownedStamp =
                 await owned.QuerySingleAsync<byte[]>(new CommandDefinition(sql, insertParams, tran, cancellationToken: ct)).ConfigureAwait(false);
-            run.RowVersion = ownedStamp;
             await tran.CommitAsync(ct).ConfigureAwait(false);
+            run.RowVersion = ownedStamp;
         }
         catch
         {

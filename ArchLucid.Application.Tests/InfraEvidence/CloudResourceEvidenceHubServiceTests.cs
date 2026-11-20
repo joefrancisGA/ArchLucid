@@ -274,9 +274,22 @@ public sealed class CloudResourceEvidenceHubServiceTests
                 new AzureInventoryResourcePropertyReadModel
                 {
                     ResourceRowId = targetResourceRowId,
+                    PropertyKey = "VMSIZE",
+                    PropertyValue = "redacted",
+                    IsRedacted = true,
+                },
+                new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = targetResourceRowId,
                     PropertyKey = "vmSize",
                     PropertyValue = "Standard_D2s_v3",
                     IsRedacted = false,
+                },
+                new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = targetResourceRowId,
+                    PropertyKey = "VmSize",
+                    PropertyValue = "Standard_D8s_v3",
                 },
             ]);
         snapshotRepository
@@ -292,6 +305,12 @@ public sealed class CloudResourceEvidenceHubServiceTests
                     ResourceRowId = targetResourceRowId,
                     TagKey = "env",
                     TagValue = "dev",
+                },
+                new AzureInventoryTagReadModel
+                {
+                    ResourceRowId = targetResourceRowId,
+                    TagKey = "ENV",
+                    TagValue = "prod",
                 },
             ]);
         snapshotRepository
@@ -370,7 +389,11 @@ public sealed class CloudResourceEvidenceHubServiceTests
 
         result.Succeeded.Should().BeTrue();
         result.Hub!.CurrentConfiguration.Should().NotBeNull();
-        result.Hub.CurrentConfiguration!.Properties.Should().ContainKey("vmSize");
+        result.Hub.CurrentConfiguration!.Properties.Should().HaveCount(1);
+        result.Hub.CurrentConfiguration.Properties["vmSize"].Should().Be("Standard_D2s_v3");
+        result.Hub.CurrentConfiguration.Properties.Should().ContainKey("vmSize");
+        result.Hub.CurrentConfiguration.Tags.Should().HaveCount(1);
+        result.Hub.CurrentConfiguration.Tags["env"].Should().Be("dev");
         result.Hub.CurrentConfiguration.Tags.Should().ContainKey("env");
         result.Hub.NetworkRelationships.Should().ContainSingle();
         result.Hub.RbacAssignments.Should().ContainSingle();

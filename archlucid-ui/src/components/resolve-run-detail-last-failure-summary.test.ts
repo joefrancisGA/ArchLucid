@@ -36,6 +36,25 @@ describe("resolve-run-detail-last-failure-summary helpers", () => {
     ).toBe("2026-09-02T08:30:00.000Z");
   });
 
+  it("uses the pipeline timestamp when review completion metadata is invalid", () => {
+    const recordedAtUtc = resolveReviewFailureRecordedAtUtc({
+      runCompletedUtc: "unavailable",
+      pipelineSummary: { completedUtc: "2026-09-01T12:00:00.000" } as never,
+    });
+
+    expect(recordedAtUtc).toBe("2026-09-01T12:00:00.000");
+    expect(formatReviewFailureRecordedAtLabel(recordedAtUtc)).toContain("UTC");
+  });
+
+  it("returns no completion time when neither stored value is usable", () => {
+    expect(
+      resolveReviewFailureRecordedAtUtc({
+        runCompletedUtc: " not recorded ",
+        pipelineSummary: { completedUtc: "unknown" } as never,
+      }),
+    ).toBeNull();
+  });
+
   it("does not treat intake creation or last-modified times as failure time", () => {
     expect(
       resolveReviewFailureRecordedAtUtc({

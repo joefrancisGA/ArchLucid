@@ -44,15 +44,29 @@
 
 ## Zone: persistence-infra-evidence
 
+2026-11-20 thorough hunt #1 (dry): cheap-disproof on five seed `(hunt-ready)` monitors in `ArchLucid.Persistence/InfraEvidence` — **valid-no-repro** `NoOpAzureInventorySnapshotRepository` detail/header reads return `null` for unknown ids (regression `NoOpAzureInventorySnapshotRepositoryTests`), **valid-no-repro** `SqlRemediationWaveRepository` keys `WaveId` as `Guid` (no string padding boundary), **valid-no-repro** `SqlAuditEvidenceSnapshotRepository` binds `header.TenantId` as `Guid` on insert/read (no whitespace tenant string path), **valid-no-repro** `SqlAzureInventoryDiffNarrativeRepository.InsertAsync` is append-only insert without OCC (product accepts duplicate narratives unless upstream dedupes), **valid-no-repro** `SqlSecurityEvidencePathRepository.ListPagedAsync` optional filters use `IS NULL` so unset facets match all while `Guid.Empty` applies EXISTS (not blank-token match-all). Scoped `FullyQualifiedName~NoOpAzureInventorySnapshotRepositoryTests` **2/2** passed. Reseeded five `(candidate)` monitors below. No production change.
+
+- [x] (valid-no-repro) `NoOpAzureInventorySnapshotRepository` — missing snapshot returns default struct — **cheap-disproof 2026-11-20 thorough hunt #1:** `TryGet*` return `null`; regression tests.
+- [x] (valid-no-repro) `SqlRemediationWaveRepository` — padded wave id not found — **cheap-disproof 2026-11-20 thorough hunt #1:** `WaveId` is `Guid`.
+- [x] (valid-no-repro) `SqlAuditEvidenceSnapshotRepository` — padded tenant id orphan row — **cheap-disproof 2026-11-20 thorough hunt #1:** `TenantId` is `Guid` in SQL parameters.
+- [x] (valid-no-repro) `SqlAzureInventoryDiffNarrativeRepository` — concurrent narrative LWW — **cheap-disproof 2026-11-20 thorough hunt #1:** insert-only; no update path.
+- [x] (valid-no-repro) `SqlSecurityEvidencePathRepository.ListPagedAsync` — empty facet matches all paths — **cheap-disproof 2026-11-20 thorough hunt #1:** `NULL` optional filters; `Guid.Empty` narrows via EXISTS.
+
+- [ ] (candidate) `SqlSecurityEvidencePathRepository.ListPagedAsync` — `CloudResourceId` of `Guid.Empty` may over-filter vs caller intent to mean unset — locus: null vs empty guid; input: empty guid from API binding; wrong outcome: zero rows vs full list; reachability: security path inspector filter.
+- [ ] (candidate) `SqlAzureInventorySnapshotRepository` — materialized resource page may omit scope guard on rare list overload — locus: scope pushdown; input: cross-project id guess; wrong outcome: row leak; reachability: inventory resource browser (monitor; pushdown boundary suite).
+- [ ] (candidate) `SqlOperationalSecurityFindingRepository` — bulk upsert partial batch may leave mixed old/new path ids — locus: transaction boundary; input: failure mid-batch; wrong outcome: inconsistent findings; reachability: SecureNow ingest.
+- [ ] (candidate) `SqlAuditEvidenceSnapshotRepository.InsertSnapshotInScopeAsync` — inventory snapshot link table may duplicate on retry — locus: idempotent insert; input: retry same request id; wrong outcome: duplicate link rows; reachability: hybrid evidence collection.
+- [ ] (candidate) `SqlAzureInventoryDiffRepository` — zero-change diff header may still fan out consumers when cached — locus: WasExisting branch at application layer; input: persisted empty change set; wrong outcome: skipped downstream work; reachability: drift fan-out (monitor; application-infra-evidence candidate).
+
 2026-11-20 seed hunt (seed-only): coverage zone for `ArchLucid.Persistence/InfraEvidence` (nominate gap). Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
 
-- [ ] (hunt-ready) No-op repository parity — in-memory no-op reader may return default struct instead of null for missing snapshot id — locus: null vs default; input: unknown snapshot id; wrong outcome: empty snapshot UI; reachability: in-memory dev host infra evidence panels.
-- [ ] (hunt-ready) SQL remediation wave reader — padded wave id in query may not trim before indexed lookup — locus: id trim; input: padded wave id; wrong outcome: not-found; reachability: remediation waves SQL path.
-- [ ] (hunt-ready) audit evidence snapshot store — whitespace `tenantId` on insert may bypass normalization used on read — locus: trim symmetry; input: padded tenant id; wrong outcome: orphan snapshot row; reachability: audit evidence persistence.
-- [ ] (hunt-ready) Azure inventory diff narrative — concurrent diff writes may last-write-win without version guard — locus: optimistic concurrency; input: parallel diff jobs; wrong outcome: stale narrative; reachability: inventory diff history.
-- [ ] (hunt-ready) security evidence path search — empty path token in filter may match all rows when meant to match none — locus: empty token; input: blank facet token; wrong outcome: over-broad search; reachability: security evidence path explorer.
+- [ ] (candidate) `SqlSecurityEvidencePathRepository.ListPagedAsync` — `CloudResourceId` of `Guid.Empty` vs null asymmetry — monitor; thorough hunt #1 dry reseed.
+- [ ] (candidate) `SqlAzureInventorySnapshotRepository` — scope pushdown on list overload — monitor; thorough hunt #1 dry reseed.
+- [ ] (candidate) `SqlOperationalSecurityFindingRepository` — bulk upsert partial batch — monitor; thorough hunt #1 dry reseed.
+- [ ] (candidate) `SqlAuditEvidenceSnapshotRepository` — inventory snapshot link idempotency — monitor; thorough hunt #1 dry reseed.
+- [ ] (candidate) `SqlAzureInventoryDiffRepository` — zero-change diff consumer skip — monitor; thorough hunt #1 dry reseed.
 
 - **id:** persistence-infra-evidence
 - **status:** open
@@ -60,9 +74,9 @@
 - **aliases:** persistence infra evidence repositories
 - **paths:** ArchLucid.Persistence/InfraEvidence/
 - **test-filter:** FullyQualifiedName~InfraEvidence
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-20
 - **last-bug:** never
 - **related-pd-tb:** none

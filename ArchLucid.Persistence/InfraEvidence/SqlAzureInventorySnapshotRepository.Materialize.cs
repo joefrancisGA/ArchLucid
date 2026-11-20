@@ -36,6 +36,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
             const string updateHeader = """
+                                        DECLARE @UpdatedSnapshots TABLE (SnapshotId UNIQUEIDENTIFIER NOT NULL);
+
                                         UPDATE dbo.AzureInventorySnapshots
                                         SET CaptureStatus = @CaptureStatus,
                                             ResourceCount = @ResourceCount,
@@ -50,16 +52,23 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                             SubscriptionId = COALESCE(SubscriptionId, @SubscriptionId),
                                             SubscriptionName = COALESCE(SubscriptionName, @SubscriptionName),
                                             UpdatedUtc = @UpdatedUtc
+                                        OUTPUT inserted.SnapshotId INTO @UpdatedSnapshots
                                         WHERE TenantId = @TenantId
+                                            AND WorkspaceId = @WorkspaceId
+                                            AND ProjectId = @ProjectId
                                             AND SnapshotId = @SnapshotId;
+
+                                        SELECT SnapshotId FROM @UpdatedSnapshots;
                                         """;
 
-            await sqlConn.ExecuteAsync(
+            Guid? updatedSnapshot = await sqlConn.QuerySingleOrDefaultAsync<Guid?>(
                 new CommandDefinition(
                     updateHeader,
                     new
                     {
                         scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId,
                         SnapshotId = snapshotId,
                         CaptureStatus = (int)writeRequest.CaptureStatus,
                         writeRequest.ResourceCount,
@@ -78,6 +87,9 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                     transaction: tx,
                     commandTimeout: DapperCommandTimeoutSeconds.Report,
                     cancellationToken: cancellationToken));
+
+            if (updatedSnapshot is null)
+                throw new InvalidOperationException("Snapshot header was not found in the current scope.");
 
             await SqlBufferedBulkCopy.WriteAsync(
                 sqlConn, tx, "dbo.AzureInventoryResources",

@@ -86,6 +86,7 @@ public sealed class SqlArchitectureWorkLeaseRepository(ISqlConnectionFactory con
             WHEN MATCHED THEN
                 UPDATE SET
                     HolderUserId = source.HolderUserId,
+                    AcquiredUtc = source.AcquiredUtc,
                     LastHeartbeatUtc = source.LastHeartbeatUtc,
                     ExpiresUtc = source.ExpiresUtc
             WHEN NOT MATCHED THEN

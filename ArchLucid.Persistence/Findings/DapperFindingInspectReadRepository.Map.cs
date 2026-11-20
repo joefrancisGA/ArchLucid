@@ -29,8 +29,8 @@ public sealed partial class DapperFindingInspectReadRepository
             row.Title,
             row.Rationale);
         FindingSeverity recordSeverity = FindingInspectReadModelMapper.ParseFindingSeverity(row.Severity);
-        bool severityStored = !string.IsNullOrWhiteSpace(row.Severity);
-        bool humanReviewStatusStored = !string.IsNullOrWhiteSpace(row.HumanReviewStatus);
+        bool severityStored = FindingInspectReadRepositoryCore.NormalizeInspectEnumToken(row.Severity) is not null;
+        bool humanReviewStatusStored = FindingInspectReadRepositoryCore.NormalizeInspectEnumToken(row.HumanReviewStatus) is not null;
         FindingClassification? classification = FindingInspectReadRepositoryCore.ResolveInspectClassification(
             row.Classification,
             typed);

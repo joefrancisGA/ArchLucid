@@ -281,10 +281,12 @@ public sealed class CloudResourceEvidenceHubService(
     {
         Dictionary<string, string> propertyMap = properties
             .Where(row => !row.IsRedacted)
-            .ToDictionary(row => row.PropertyKey, row => row.PropertyValue ?? string.Empty, StringComparer.OrdinalIgnoreCase);
+            .GroupBy(row => row.PropertyKey, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.First().PropertyValue ?? string.Empty, StringComparer.OrdinalIgnoreCase);
 
         Dictionary<string, string> tagMap = tags
-            .ToDictionary(row => row.TagKey, row => row.TagValue ?? string.Empty, StringComparer.OrdinalIgnoreCase);
+            .GroupBy(row => row.TagKey, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.First().TagValue ?? string.Empty, StringComparer.OrdinalIgnoreCase);
 
         return new CloudResourceCurrentConfigurationSection
         {

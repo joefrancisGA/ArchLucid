@@ -3796,3 +3796,4 @@
 {"at":"2026-11-19T20:42:32.4937229Z","zoneId":"security-analyzers","outcome":"dry","productLine":"archlucid-core"}
 {"productLine":"archlucid-core","outcome":"dry","zoneId":"security-analyzers","at":"2026-11-19T20:50:45.9559645Z"}
 {"at":"2026-11-20T16:02:50.9370646Z","zoneId":"application-infra-evidence","outcome":"dry","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER_4.md"]}
+{"at":"2026-11-20T16:25:50.8169494Z","zoneId":"persistence-infra-evidence","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Persistence.Tests/InfraEvidence/NoOpAzureInventorySnapshotRepositoryTests.cs","docs/library/AL_BUG_HUNT_LEDGER_4.md","docs/library/AL_BUG_HUNT_RUN_LOG_4.jsonl"]}

@@ -41,15 +41,24 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-20 thorough hunt #1 (hit): cheap-disproved four (hunt-ready) monitors — valid-no-repro filterNavGroupsForProductLine (typed ProductLineId), valid-no-repro resolveProductLineIdForServer (cookie trim), valid-no-repro marketing route trailing-slash normalize, valid-no-repro collection snapshot helper. Promoted useFindingsQueuePath: governance pathname under SecureNow shell broke triage URL sync — findingsQueuePathFromPathname remaps namespace and preserves query; securenow-compliance-routes vitest 8/8.
+
+- [x] (valid-no-repro) filterNavGroupsForProductLine — unknown product line leak — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (valid-no-repro) resolve-product-line-id-server — mixed-case header — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (valid-no-repro) securenow-marketing-route-policy — trailing-slash allowlist — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (valid-no-repro) resolve-collection-snapshot-capture-succeeded — empty error success — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (proven) use-findings-queue-path — governance pathname under security shell — hit 2026-11-20 thorough hunt #1: findingsQueuePathFromPathname.
+
+- [ ] (candidate) remapGovernanceOperatorHref — nested findings subpaths — monitor; hunt #1 reseed.
+- [ ] (candidate) readProductLineCookie — padded cookie — monitor; hunt #1 reseed.
+- [ ] (candidate) resolveProductLineAssignmentForPath — trailing slash href — monitor; hunt #1 reseed.
+- [ ] (candidate) mergeInternalNavUnderAdministration — admin href merge order — monitor; hunt #1 reseed.
+- [ ] (candidate) findingsQueuePathFromPathname — assigned-to-me family — monitor; hunt #1 reseed.
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/product-line`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
 
-- [ ] (hunt-ready) `filterNavGroupsForProductLine` — unknown product line id may leave restricted nav entries visible — locus: default branch; input: invalid product line header; wrong outcome: cross-product nav leak; reachability: operator shell nav groups.
-- [ ] (hunt-ready) `resolve-product-line-id-server` — case-variant header value may not normalize to canonical id before path access check — locus: header normalization; input: mixed-case `X-ArchLucid-Product-Line`; wrong outcome: deny or allow wrong routes; reachability: server component product context.
-- [ ] (hunt-ready) `securenow-marketing-route-policy` — marketing path allowlist may admit trailing-slash variant not matched by policy table — locus: path normalize; input: trailing slash marketing URL; wrong outcome: false block or allow; reachability: SecureNow marketing router.
-- [ ] (hunt-ready) `use-findings-queue-path` — product-line-specific queue path may ignore stored product line when query param overrides header — locus: precedence; input: conflicting param vs header; wrong outcome: wrong queue deep link; reachability: SecureNow findings entry CTAs.
-- [ ] (hunt-ready) `resolve-collection-snapshot-capture-succeeded` — partial capture flag may treat empty error string as success — locus: empty vs null error; input: `error: ''`; wrong outcome: green capture badge on failure; reachability: collection setup checklist.
+- [ ] (hunt-ready) reseed after hunt #1; prior queue closed in zone header diary.
 
 - **id:** ui-lib-product-line
 - **status:** open
@@ -57,13 +66,13 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 1
-- **bugs-found:** 0
+- **hunts:** 2
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-20
-- **last-bug:** never
+- **last-bug:** 2026-11-20 — findings queue pathname ignored active product line
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ## Zone: ui-lib-api
 
@@ -103,15 +112,25 @@
 
 ## Zone: ui-lib-infra-evidence
 
+2026-11-20 thorough hunt #1 (dry): cheap-disproved five (hunt-ready) monitors — **valid-no-repro** diagram/ask deep links use URLSearchParams encoding (ARM seedNodeId regression in hub-filter suite); **valid-no-repro** peel budget coach uses 
+odeCount >= maxNodes with null guard; **valid-no-repro** snapshot freshness uses ormatInstantInPreferredTimeZone plus UTC title suffix in ormatInfraEvidenceSnapshotCapturedTimeTitle; **valid-no-repro** Ask UI branches null vs empty citations (InfrastructureAskClient); **valid-no-repro** hub facet cleanup via stripInfraResourceHubRunScopedParams on run-scope switch (new regression strips run-scoped hub params when runId is cleared). Scoped vitest **43/43** across hub-filter, density coach, ask-api, snapshot label.
+
+- [x] (valid-no-repro) diagram compare URL builder ARM encoding — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (valid-no-repro) peel budget copy null vs zero — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (valid-no-repro) snapshot freshness timezone label — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (valid-no-repro) ask panel grounding undefined citations — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (valid-no-repro) resource hub facet dependent keys — cheap-disproof 2026-11-20 thorough hunt #1; runId clear regression above.
+
+- [ ] (candidate) uildInfrastructureAskHref — audit scope without unId may omit run-scoped handoff — monitor; hunt #1 reseed.
+- [ ] (candidate) diagramReconcileFilterHrefFromSearch — compare mode param may linger when filter reset — monitor; hunt #1 reseed.
+- [ ] (candidate) ormatInfraEvidenceSnapshotCapturedUtcLabel — double UTC suffix when TZ already UTC — monitor; hunt #1 reseed.
+- [ ] (candidate) submitInfraEvidenceAsk — non-array citations becomes empty array not null — monitor; hunt #1 reseed.
+- [ ] (candidate) esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePrefix — monitor; hunt #1 reseed.
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/infra-evidence`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
 
-- [ ] (hunt-ready) diagram compare URL builder — may serialize diagram ids without encoding `:` in ARM resource ids — locus: query encode; input: full ARM id; wrong outcome: truncated compare target; reachability: infra evidence compare deep links.
-- [ ] (hunt-ready) peel budget copy helper — zero peel budget may render as unlimited when `null` and `0` conflated — locus: null vs zero; input: `peelBudget: 0`; wrong outcome: misleading operator copy; reachability: diagram peel panel.
-- [ ] (hunt-ready) snapshot freshness label — timezone-less ISO timestamp may format in local TZ without labeling UTC — locus: date parse; input: UTC Zulu string; wrong outcome: stale/fresh mislabel; reachability: snapshot freshness chip.
-- [ ] (hunt-ready) ask panel grounding empty state — insufficient evidence copy may show when citations array is undefined vs empty — locus: undefined guard; input: missing citations field; wrong outcome: false insufficient banner; reachability: ask grounding panel.
-- [ ] (hunt-ready) resource hub facet URL — clearing one facet may leave dependent facet keys when parent facet removed first — locus: dependent param cleanup; input: nested facet query; wrong outcome: stale child facet filter; reachability: infra resource hub filters.
+- [ ] (hunt-ready) reseed after hunt #1; prior queue closed in zone header diary.
 
 - **id:** ui-lib-infra-evidence
 - **status:** open
@@ -119,13 +138,13 @@
 - **aliases:** infra evidence UI lib
 - **paths:** archlucid-ui/src/lib/infra-evidence/
 - **test-filter:** lib/infra-evidence
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-20
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ## Zone: ui-lib-remediation-factory
 

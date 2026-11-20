@@ -39,6 +39,11 @@ import { GraphLoadedZeroNodesPartialCaptureHonesty } from "@/app/(operator)/insi
 import { GraphTypeFilterEmptyPartialCaptureHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphTypeFilterEmptyPartialCaptureHonesty";
 import { GraphTypeFilterAndNodeFocusCombinedEmptyPartialHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphTypeFilterAndNodeFocusCombinedEmptyPartialHonesty";
 import { EVIDENCE_GRAPH_TYPE_FILTER_AND_NODE_FOCUS_COMBINED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/evidence-graph-type-filter-and-node-focus-combined-empty-not-load-failure-copy";
+import {
+  EVIDENCE_GRAPH_PNG_RASTER_FAILURE_NOT_EMPTY_GRAPH_LINE,
+  EVIDENCE_GRAPH_PNG_TAINTED_NOT_EMPTY_GRAPH_LINE,
+} from "@/lib/insights/evidence-graph-png-raster-honesty-copy";
+import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import { parseGraphNodeFocusFromSearch } from "@/lib/insights/graph-node-focus-url";
 import { parseGraphNodeIdFromSearch } from "@/lib/insights/graph-node-decision-id-url";
 import type { GraphViewModel } from "@/types/graph";
@@ -99,6 +104,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const [exportError, setExportError] = useState<string | null>(null);
+  const [pngRasterHonesty, setPngRasterHonesty] = useState<"tainted" | "raster" | null>(null);
   const currentSearch = searchParams.toString();
   const runTrim = runId.trim();
   const showcaseRun = canonicalizeDemoRunId(runTrim) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
@@ -250,9 +256,14 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
                 return;
               }
 
+              setPngRasterHonesty(null);
               const element = document.getElementById("knowledge-graph-canvas");
 
-              if (element) {
+              if (!element) {
+                return;
+              }
+
+              try {
                 const html2canvas = (await import("html2canvas")).default;
                 const canvas = await html2canvas(element, { useCORS: true });
                 const dataUrl = canvas.toDataURL("image/png");
@@ -264,6 +275,8 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+              } catch (error: unknown) {
+                setPngRasterHonesty(formatInfraEvidenceMermaidPngExportError(error) !== null ? "tainted" : "raster");
               }
             }}
           >
@@ -283,6 +296,16 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
             data-testid="graph-export-error"
           >
             {exportError}
+          </p>
+        ) : null}
+        {pngRasterHonesty === "tainted" ? (
+          <p className={cn("m-0 w-full text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="graph-png-tainted-not-empty-graph">
+            {EVIDENCE_GRAPH_PNG_TAINTED_NOT_EMPTY_GRAPH_LINE}
+          </p>
+        ) : null}
+        {pngRasterHonesty === "raster" ? (
+          <p className={cn("m-0 w-full text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="graph-png-raster-failure-not-empty-graph">
+            {EVIDENCE_GRAPH_PNG_RASTER_FAILURE_NOT_EMPTY_GRAPH_LINE}
           </p>
         ) : null}
         <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="evidence-graph-export" />

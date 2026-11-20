@@ -394,6 +394,15 @@ public static class TopologyProposalRelationshipEdgeMapper
             return true;
         }
 
+        string normalizedCandidate =
+            TopologyProposalRequiredControlKeys.NormalizeManifestEndpointIdentity(trimmedCandidate);
+
+        if (!string.Equals(normalizedCandidate, trimmedCandidate, StringComparison.Ordinal)
+            && TryResolveMappedNodeId(normalizedCandidate, endpointKeyToNodeId, out nodeId))
+        {
+            return true;
+        }
+
         nodeId = string.Empty;
         return false;
     }

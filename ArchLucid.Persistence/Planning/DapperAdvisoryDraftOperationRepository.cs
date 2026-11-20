@@ -33,9 +33,9 @@ public sealed class DapperAdvisoryDraftOperationRepository(IDbConnectionFactory 
                                   State,
                                   StepLabel,
                                   CurrentStep,
-                                  CreatedUtc,
-                                  HeartbeatUtc,
-                                  CompletedUtc,
+                                  TODATETIMEOFFSET(CreatedUtc, '+00:00') AS CreatedUtc,
+                                  TODATETIMEOFFSET(HeartbeatUtc, '+00:00') AS HeartbeatUtc,
+                                  TODATETIMEOFFSET(CompletedUtc, '+00:00') AS CompletedUtc,
                                   ResultJson,
                                   ErrorMessage
                            FROM dbo.AdvisoryDraftOperations

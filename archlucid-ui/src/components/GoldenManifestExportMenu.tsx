@@ -359,18 +359,20 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         </Button>
         <ExportFormatWhenToUseHint format="markdown" />
         {sponsorExportBlocked ? (
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="golden-manifest-export-disabled-while-blocked"
-          >
-            {GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE}
-          </p>
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="golden-manifest-export-disabled-and-finalize"
-          >
-            {GOLDEN_MANIFEST_EXPORT_DISABLED_AND_FINALIZE_LINE}
-          </p>
+          <>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="golden-manifest-export-disabled-while-blocked"
+            >
+              {GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE}
+            </p>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="golden-manifest-export-disabled-and-finalize"
+            >
+              {GOLDEN_MANIFEST_EXPORT_DISABLED_AND_FINALIZE_LINE}
+            </p>
+          </>
         ) : null}
         <SponsorExportSendHonestyStrip testIdPrefix="golden-manifest-export" />
         {exportDemoBanner}
@@ -446,18 +448,20 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       </SelectContent>
     </Select>
       {sponsorExportBlocked ? (
-        <p
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="golden-manifest-export-disabled-while-blocked-select"
-        >
-          {GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE}
+        <>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="golden-manifest-export-disabled-while-blocked-select"
+          >
+            {GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE}
           </p>
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="golden-manifest-export-disabled-and-finalize"
           >
             {GOLDEN_MANIFEST_EXPORT_DISABLED_AND_FINALIZE_LINE}
-        </p>
+          </p>
+        </>
       ) : null}
       <SponsorExportSendHonestyStrip testIdPrefix="golden-manifest-export" />
       {exportDemoBanner}

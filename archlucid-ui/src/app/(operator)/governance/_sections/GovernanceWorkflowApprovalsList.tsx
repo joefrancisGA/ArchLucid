@@ -91,17 +91,17 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
   const compactSupportingRows = emphasizeDecisionRecord && workflowState.canShowCompletionMessaging;
   const mutationDisabledHintId = "governance-workflow-approvals-mutate-disabled-hint";
   const mutationDisabledReason = canMutateWorkflow ? null : whyDisabledEnterpriseMutationControl();
+  const filteredApprovals = useMemo(
+    () => filterGovernanceApprovalsByStatusFilter(approvals, statusFilter),
+    [approvals, statusFilter],
+  );
   const triageFirstPending = useMemo(
-    () => resolveApprovalQueueTriageFirstPending(approvals),
-    [approvals],
+    () => resolveApprovalQueueTriageFirstPending(filteredApprovals),
+    [filteredApprovals],
   );
   const continueLastRequest = useMemo(
     () => resolveContinueLastApprovalRequest(approvals),
     [approvals],
-  );
-  const filteredApprovals = useMemo(
-    () => filterGovernanceApprovalsByStatusFilter(approvals, statusFilter),
-    [approvals, statusFilter],
   );
   const showStatusFilterEmpty =
     !listsLoading
@@ -182,7 +182,8 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
         mutationDisabledReason={mutationDisabledReason}
       />
 
-      {continueLastRequest !== null ? (
+      {continueLastRequest !== null
+      && filteredApprovals.some((row) => row.approvalRequestId === continueLastRequest.approvalRequestId) ? (
         <ApprovalQueueContinueLastViewedRow
           target={continueLastRequest}
           onOpen={(approvalRequestId) => {
