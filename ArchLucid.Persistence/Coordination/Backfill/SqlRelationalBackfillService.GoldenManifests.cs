@@ -69,10 +69,10 @@ public sealed partial class SqlRelationalBackfillService
 
                     await SqlGoldenManifestRepository.BackfillPhase1RelationalSlicesAsync(manifest, conn, tx, ct);
                     tx.Commit();
-                    report.SuccessCount++;
                     await _quarantine.ClearAsync(stage, entityKey, ct);
-                    checkpointCandidate = rowCursor;
                     logger.LogInformation("Backfill GoldenManifests: completed {ManifestId}", row.ManifestId);
+                    report.SuccessCount++;
+                    checkpointCandidate = rowCursor;
                 }
                 catch (Exception ex) when (!ct.IsCancellationRequested)
                 {
