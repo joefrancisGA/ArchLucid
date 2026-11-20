@@ -124,7 +124,10 @@ public sealed class InMemoryBackgroundJobQueue(
             };
 
             if (_info.TryUpdate(jobId, canceled, current))
+            {
+                EvictOldTerminalJobs();
                 break;
+            }
         }
 
         return Task.CompletedTask;
