@@ -90,6 +90,34 @@ public sealed class SegmentationSemanticsPathAnalyzerTests
         hopCount.Should().Be(SegmentationSemanticsPathAnalyzer.MaxHopCount);
     }
 
+    [Theory]
+    [InlineData(" control ", "control", "store")]
+    [InlineData("control", " control ", " store ")]
+    [InlineData(" control ", " CONTROL ", " STORE ")]
+    public void HasPathToSensitiveTarget_normalizes_start_and_edge_ids(
+        string startId,
+        string fromId,
+        string toId)
+    {
+        GraphNode control = CreateSegmentationNode(" control ");
+        GraphNode datastore = CreateTopologyNode("sql-pay-prod", " store ");
+        GraphSnapshot graph = new()
+        {
+            Nodes = [control, datastore],
+            Edges = [CreateEdge(fromId, toId)],
+        };
+
+        bool found = SegmentationSemanticsPathAnalyzer.HasPathToSensitiveTarget(
+            graph,
+            startId,
+            out GraphNode? target,
+            out int hopCount);
+
+        found.Should().BeTrue();
+        target.Should().Be(datastore);
+        hopCount.Should().Be(1);
+    }
+
     private static GraphEdge CreateEdge(string fromNodeId, string toNodeId) =>
         new()
         {
