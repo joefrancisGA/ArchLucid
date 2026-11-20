@@ -11,14 +11,22 @@ public sealed class NoOpArchitectureRiskRegisterQuery : IArchitectureRiskRegiste
         Guid? projectId,
         int maxRows,
         ArchitectureRiskRegisterListOptions? options = null,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<ArchitectureRiskRegisterEntry>>([]);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<ArchitectureRiskRegisterEntry>>([]);
+    }
 
     public Task<int> CountAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid? projectId,
         ArchitectureRiskRegisterListOptions? options = null,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult(0);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(0);
+    }
 }

@@ -264,10 +264,13 @@ public sealed class InMemoryBackgroundJobQueueTests
         await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
         await queue.MarkCanceledAsync(jobId);
+        string nextJobId = await queue.EnqueueAsync(Work("after-canceled-job"));
         release.TrySetResult(true);
 
-        await Task.Delay(300, CancellationToken.None);
+        await WaitForTerminalStateAsync(queue, nextJobId, TimeSpan.FromSeconds(5));
 
+        (await queue.GetFileAsync(jobId)).Should().BeNull();
+        (await queue.GetFileAsync(nextJobId)).Should().NotBeNull();
         BackgroundJobInfo? info = await queue.GetInfoAsync(jobId);
         info.Should().NotBeNull();
         info!.State.Should().Be(BackgroundJobState.Canceled, "cancel must win over a late success");

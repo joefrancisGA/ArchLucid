@@ -5,6 +5,71 @@
 
 # ArchLucid changelog
 
+## 2026-11-20 - Score lift round 94 (batch 59): DOCX, drift download, zero finalized, manifest export
+
+**Outcome.** Comparison DOCX export names seal gates apart from empty package. Drift download blocked names lifecycle gates apart from empty drift artifact. Insufficient finalized empty (zero reviews) names prerequisite apart from failed compare with partial-capture recovery. Manifest compare export blocked honesty apart from empty Markdown.
+
+**Surfaces.** Compare DOCX export, drift download blocked, insufficient finalized zero, manifest compare export, honesty and mounted contract tests.
+
+## 2026-11-20 - Score lift round 93 (batch 58): Same review, search blocked, pair blocked, PDF export
+
+**Outcome.** Compare pickers name same-review selection apart from picker load failure. Comparison search blocked names seal gates apart from empty history. Compare pair aggregate blocked banner names gate failure apart from empty deltas. Comparison PDF export names finalize gates apart from empty report.
+
+**Surfaces.** Compare run pickers, comparison search blocked, compare pair blocked aggregate, comparison PDF export, honesty and mounted contract tests.
+
+## 2026-11-20 - Score lift round 92 (batch 57): Trust banner, live region, structured empty, manifest diff
+
+**Outcome.** Compare trust banner names current-effective scope with an unsealed review. Live region announces stale picker drift. Structured comparison names empty payload apart from golden load failure. Raw manifest diff names identical JSON apart from blocked manifest fetch.
+
+**Surfaces.** Compare trust banner, compare live region, structured diff, raw manifest diff, honesty and mounted contract tests.
+
+## 2026-11-20 - Score lift round 91 (batch 56): Verdict add/remove, execution mode, provenance, agent empty
+
+**Outcome.** Compare verdict summary names add/remove counts as requiring two sealed reviews. Compare execution mode delta names unsealed review gap. Provenance delta footnotes partial inventory when manifest diffs show. Agent results callout names empty success response apart from blocked compare.
+
+**Surfaces.** Compare verdict summary, execution mode delta, provenance delta band, agent results callout, honesty and mounted contract tests.
+
+## 2026-11-19 - Score lift round 90 (batch 55): Compare ROI, gate, pack assignment, correlation unsealed
+
+**Outcome.** Compare ROI headline names zero estimates with an unsealed review. Compare gate outcome names missing stored gates apart from a failed gate read. Compare pack assignment names empty rows when governance diff loaded. Finding correlation names empty metadata with an unsealed review apart from correlation load failure.
+
+**Surfaces.** Compare ROI headline, gate outcome, pack assignment, finding correlation, honesty and mounted contract tests.
+
+## 2026-11-19 - Score lift round 89 (batch 54): Compare semantic and treatment bands, governance diff empty, stale inputs
+
+**Outcome.** Compare semantic support band names all-zero counts with an unsealed review. Compare treatment band names all-zero counts with an unsealed review. Compare governance diff names empty policy pack rows apart from a failed governance diff request. Compare results stale-inputs warning names picker drift apart from a failed compare read.
+
+**Surfaces.** Compare semantic support band, compare treatment band, compare governance diff, compare results stale inputs, honesty and mounted contract tests.
+
+## 2026-11-19 - Score lift round 88 (batch 53): Compare insufficient, classification band, digest delivery, assigned scope
+
+**Outcome.** Compare insufficient-finalized names one-review-vs-second-empty apart from a failed compare load. Compare classification band names all-zero counts with an unsealed review. Digest browse detail names zero delivery attempts on a selected digest. Findings assigned-to-me uses architecture scope-only filter-empty test id.
+
+**Surfaces.** Compare insufficient finalized, compare classification band, digest delivery attempts, governance assigned scope, honesty and mounted contract tests.
+
+## 2026-11-19 - Score lift round 87 (batch 52): Compare pickers delta, digest subscriptions, findings scope
+
+**Outcome.** Compare run pickers name a selected baseline with an empty updated review apart from a failed picker read and partial capture. Compare quality delta names all-zero counts when one review is unsealed. Digest browse names subscription-list-only empty without a scoped review filter. Findings queue names architecture scope chip filter-empty without a severity facet.
+
+**Surfaces.** Compare pickers, compare quality delta, digest browse, governance findings filter footer, honesty and mounted contract tests.
+
+## 2026-11-19 - Score lift round 86 (batch 51): Explorer filters, graph focus, connection scope, findings header
+
+**Outcome.** Resource explorer names resource type plus name prefix combined filter-empty. Evidence graph names node type filter plus focused node combined zero-node empty. Connection status names category chip empty while workspace subscription scope is pinned. Findings queue header partial-capture CTA names snapshot recovery before treating an empty queue as final.
+
+**Surfaces.** Resource explorer, evidence graph, connection status, governance findings header, honesty and mounted contract tests.
+## 2026-11-19 - Score lift round 85 (batch 50): Compare pickers, deliverables buttons, operational stream, scope plus severity
+
+**Outcome.** Compare run pickers name an unsealed updated review and empty correlation apart from seal and filter miss. Blocked deliverable export buttons repeat finalize and partial capture. Resource hub operational-security stream empty is distinct from architecture severity teaching. Findings queue names architecture scope chip plus severity facet combined filter-empty.
+
+**Surfaces.** Compare pickers, review deliverables exports, resource hub findings, governance findings filter footer, honesty and mounted contract tests.
+
+## 2026-11-19 - Score lift round 84 (batch 49): Compare second seal, deliverables finalize, architecture stream empty
+
+**Outcome.** Compare correlation empty names that state apart from a second sealed review and a failed correlation read. Blocked deliverable export names finalize together with partial capture. Resource hub architecture-review stream empty is not a severity filter and not a failed findings read.
+
+**Surfaces.** Compare finding correlation, review deliverables export, resource hub findings, honesty and mounted contract tests.
+
 ## 2026-11-19 - Score lift round 83 (batch 48): Digest scope versus subscriptions, golden disabled and finalize, compare partial inventory
 
 **Outcome.** Digest browse scoped empty names that state apart from an empty subscription list and a failed catalog read. Golden export adds a helper when the control is disabled and evidence is not finalized. Compare quality delta footnotes partial inventory.

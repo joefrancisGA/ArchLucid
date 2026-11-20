@@ -329,10 +329,7 @@ export function IdentityProvidersDiagnosticsPageView(
             className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800"
             data-testid="identity-providers-diagnostics-protocol-details"
             open={protocolDetailsOpen}
-            onToggle={(event) => {
-              event.preventDefault();
-              setProtocolDetailsOpen(!protocolDetailsOpenRef.current);
-            }}
+            onToggle={(event) => setProtocolDetailsOpen(event.currentTarget.open)}
           >
             <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {IDENTITY_PROVIDERS_DIAGNOSTICS_PROTOCOL_DETAILS_TITLE}
@@ -371,10 +368,7 @@ export function IdentityProvidersDiagnosticsPageView(
           className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800"
           data-testid="identity-providers-technical-details"
           open={technicalDetailsOpen}
-          onToggle={(event) => {
-            event.preventDefault();
-            setTechnicalDetailsOpen(!technicalDetailsOpenRef.current);
-          }}
+          onToggle={(event) => setTechnicalDetailsOpen(event.currentTarget.open)}
         >
           <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {IDENTITY_PROVIDERS_DIAGNOSTICS_TECHNICAL_TITLE}
@@ -392,10 +386,7 @@ export function IdentityProvidersDiagnosticsPageView(
           className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800"
           data-testid="identity-providers-diagnostics-customer-tools"
           open={customerToolsOpen}
-          onToggle={(event) => {
-            event.preventDefault();
-            setCustomerToolsOpen(!customerToolsOpenRef.current);
-          }}
+          onToggle={(event) => setCustomerToolsOpen(event.currentTarget.open)}
         >
           <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {IDENTITY_PROVIDERS_DIAGNOSTICS_CUSTOMER_TOOLS_TITLE}

@@ -7,7 +7,7 @@ public sealed class NoOpArchitectureDiagramModelRepository : IArchitectureDiagra
     public Task UpsertAsync(ArchitectureDiagramModelPersistRecord record, CancellationToken cancellationToken = default)
     {
         _ = record;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.CompletedTask;
     }
@@ -19,7 +19,7 @@ public sealed class NoOpArchitectureDiagramModelRepository : IArchitectureDiagra
     {
         _ = tenantId;
         _ = runId;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult<ArchitectureDiagramModelPersistRecord?>(null);
     }

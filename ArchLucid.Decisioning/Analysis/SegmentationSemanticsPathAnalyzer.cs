@@ -35,7 +35,8 @@ public static class SegmentationSemanticsPathAnalyzer
             .GroupBy(static node => node.NodeId.Trim(), StringComparer.OrdinalIgnoreCase)
             .ToDictionary(static group => group.Key, static group => group.First(), StringComparer.OrdinalIgnoreCase);
 
-        if (!nodesById.ContainsKey(segmentationNodeId))
+        string normalizedStartId = segmentationNodeId.Trim();
+        if (!nodesById.ContainsKey(normalizedStartId))
         {
             return false;
         }
@@ -45,10 +46,10 @@ public static class SegmentationSemanticsPathAnalyzer
         Queue<(string NodeId, int HopCount)> queue = new();
         HashSet<string> visited = new(StringComparer.OrdinalIgnoreCase)
         {
-            segmentationNodeId,
+            normalizedStartId,
         };
 
-        queue.Enqueue((segmentationNodeId, 0));
+        queue.Enqueue((normalizedStartId, 0));
 
         while (queue.Count > 0)
         {
@@ -213,13 +214,15 @@ public static class SegmentationSemanticsPathAnalyzer
                 continue;
             }
 
-            if (!nodesById.ContainsKey(edge.FromNodeId) || !nodesById.ContainsKey(edge.ToNodeId))
+            string fromId = edge.FromNodeId.Trim();
+            string toId = edge.ToNodeId.Trim();
+            if (!nodesById.ContainsKey(fromId) || !nodesById.ContainsKey(toId))
             {
                 continue;
             }
 
-            AddNeighbor(adjacency, edge.FromNodeId, edge.ToNodeId);
-            AddNeighbor(adjacency, edge.ToNodeId, edge.FromNodeId);
+            AddNeighbor(adjacency, fromId, toId);
+            AddNeighbor(adjacency, toId, fromId);
         }
 
         return adjacency;

@@ -6,6 +6,10 @@ namespace ArchLucid.Persistence.Marketing;
 public sealed class NoOpMarketingPricingQuoteRequestAgingReader : IMarketingPricingQuoteRequestAgingReader
 {
     /// <inheritdoc />
-    public Task<IReadOnlyList<MarketingPricingQuoteRequestAgingRow>> ListAsync(CancellationToken cancellationToken) =>
-        Task.FromResult<IReadOnlyList<MarketingPricingQuoteRequestAgingRow>>([]);
+    public Task<IReadOnlyList<MarketingPricingQuoteRequestAgingRow>> ListAsync(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<MarketingPricingQuoteRequestAgingRow>>([]);
+    }
 }

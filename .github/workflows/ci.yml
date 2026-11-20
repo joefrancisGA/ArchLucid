@@ -414,9 +414,45 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/assert_terraform_root_ordering_sync.py
 
-      - name: Score lift round 83 batch drift guard
+      - name: Score lift round 85 batch drift guard
         continue-on-error: true
-        run: python scripts/ci/assert-score-lift-round83-batch.py
+        run: python scripts/ci/assert-score-lift-round85-batch.py
+
+      - name: Score lift round 86 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round86-batch.py
+
+      - name: Score lift round 87 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round87-batch.py
+
+      - name: Score lift round 88 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round88-batch.py
+
+      - name: Score lift round 89 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round89-batch.py
+
+      - name: Score lift round 90 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round90-batch.py
+
+      - name: Score lift round 91 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round91-batch.py
+
+      - name: Score lift round 92 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round92-batch.py
+
+      - name: Score lift round 93 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round93-batch.py
+
+      - name: Score lift round 94 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round94-batch.py
 
       - name: CD BUILD_ID / OCI label contract (unit tests)
         run: python -m unittest discover -s scripts/ci/tests -p "test_oci_build_identity.py"
@@ -2564,6 +2600,10 @@ jobs:
       - name: AlBugRollingStats.Tests.ps1
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugRollingStats.Tests.ps1'
+
+      - name: AlBugState.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugState.Tests.ps1'
 
       - name: AlBugEscalation.Tests.ps1
         shell: pwsh

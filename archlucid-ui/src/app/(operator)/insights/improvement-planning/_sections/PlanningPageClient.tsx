@@ -43,7 +43,13 @@ export function PlanningPageClient(props: PlanningPageClientProps) {
   );
 
   useEffect(() => {
-    if (loaded.kind !== "data") {
+    if (
+      loaded.kind !== "data" ||
+      loaded.failure !== null ||
+      loaded.usedPlanningDemoFallback ||
+      loaded.summary === null ||
+      loaded.summary.themeCount > loaded.themes.length
+    ) {
       return;
     }
 

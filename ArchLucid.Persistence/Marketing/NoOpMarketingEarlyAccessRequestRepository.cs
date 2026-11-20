@@ -14,6 +14,10 @@ public sealed class NoOpMarketingEarlyAccessRequestRepository : IMarketingEarlyA
         string? utmMedium,
         string? utmCampaign,
         byte[]? clientIpSha256,
-        CancellationToken cancellationToken) =>
-        Task.FromResult<MarketingEarlyAccessRequestInsertResult?>(null);
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<MarketingEarlyAccessRequestInsertResult?>(null);
+    }
 }

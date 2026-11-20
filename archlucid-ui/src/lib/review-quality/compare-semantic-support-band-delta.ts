@@ -73,3 +73,14 @@ export function buildCompareSemanticSupportBandDeltaView(input: {
     },
   };
 }
+
+export function compareSemanticSupportBandFindingsAllZero(input: {
+  readonly baselineFindings: readonly import("@/lib/quick-decision-summary-derive").QuickDecisionFinding[];
+  readonly targetFindings: readonly import("@/lib/quick-decision-summary-derive").QuickDecisionFinding[];
+  readonly baselineExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
+  readonly targetExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
+}): boolean {
+  const baseline = countDecisionGradeSemanticSupportBandsForPresentation(input.baselineFindings, input.baselineExecutionMode);
+  const target = countDecisionGradeSemanticSupportBandsForPresentation(input.targetFindings, input.targetExecutionMode);
+  return baseline.decisionGradeTotal === 0 && target.decisionGradeTotal === 0;
+}

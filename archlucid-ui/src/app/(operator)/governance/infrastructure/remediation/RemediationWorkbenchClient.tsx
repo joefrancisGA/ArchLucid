@@ -122,7 +122,6 @@ import {
   canAttestChangeImplemented,
   canCloseRemediationInstance,
   canExecuteRemediationInstance,
-  canRunRemediationPreflight,
   canVerifyRemediationInstance,
   isRemediationTransitionBlocked,
   mapRemediationInstanceStatusToColumn,
@@ -1547,7 +1546,7 @@ export function RemediationWorkbenchClient() {
                   size="sm"
                   variant="primary"
                   data-testid="infra-remediation-preflight"
-                  disabled={actionBusy || transitionsBlocked || selectedStatus == null || !canRunRemediationPreflight(selectedStatus)}
+                  disabled={preflightBlockedReason !== null}
                   aria-describedby={preflightBlockedReason ? "infra-remediation-preflight-blocked-reason" : undefined}
                   onClick={() =>
                     void runLifecycleAction("preflight", () =>

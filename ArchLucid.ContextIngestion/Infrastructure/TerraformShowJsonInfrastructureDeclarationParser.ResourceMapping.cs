@@ -89,16 +89,45 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
         if (!TryGetResourceAddress(res, out string canonicalAddress))
             return false;
 
-        int lastDot = canonicalAddress.LastIndexOf('.');
+        int lastDot = -1;
+        int labelEnd = canonicalAddress.Length;
+        bool inIndex = false;
+        bool inQuotedKey = false;
 
-        if (lastDot < 0 || lastDot >= canonicalAddress.Length - 1)
+        for (int i = 0; i < canonicalAddress.Length; i++)
+        {
+            char current = canonicalAddress[i];
+
+            if (inQuotedKey)
+            {
+                if (current == '\\')
+                    i++;
+                else if (current == '"')
+                    inQuotedKey = false;
+            }
+            else if (inIndex)
+            {
+                if (current == '"')
+                    inQuotedKey = true;
+                else if (current == ']')
+                    inIndex = false;
+            }
+            else if (current == '[')
+            {
+                inIndex = true;
+                labelEnd = i;
+            }
+            else if (current == '.')
+            {
+                lastDot = i;
+                labelEnd = canonicalAddress.Length;
+            }
+        }
+
+        if (inIndex || lastDot < 0 || lastDot + 1 >= labelEnd)
             return false;
 
-        string label = canonicalAddress[(lastDot + 1)..];
-        int bracket = label.IndexOf('[');
-
-        if (bracket > 0)
-            label = label[..bracket];
+        string label = canonicalAddress[(lastDot + 1)..labelEnd];
 
         if (string.IsNullOrWhiteSpace(label))
             return false;

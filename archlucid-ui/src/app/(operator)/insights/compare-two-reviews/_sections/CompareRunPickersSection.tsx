@@ -21,6 +21,12 @@ import { useCallback, useEffect, useState } from "react";
 import type { RunSummary } from "@/types/authority";
 import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
 import { CompareRunPickersPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersPartialInventoryFootnote";
+import { CompareRunPickersCorrelationEmptyAndSealPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersCorrelationEmptyAndSealPartialHonesty";
+import { COMPARE_RUN_PICKERS_CORRELATION_EMPTY_AND_SEAL_LINE } from "@/lib/architecture/compare-run-pickers-correlation-empty-and-seal-copy";
+import { COMPARE_RUN_PICKERS_SECOND_REVIEW_NOT_SEALED_LINE } from "@/lib/architecture/compare-run-pickers-second-review-not-sealed-copy";
+import { CompareRunPickersFirstSelectedSecondEmptyPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersFirstSelectedSecondEmptyPartialHonesty";
+import { COMPARE_RUN_PICKERS_FIRST_SELECTED_SECOND_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-run-pickers-first-selected-second-empty-not-load-failure-copy";
+import { COMPARE_RUN_PICKERS_SAME_REVIEW_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-run-pickers-same-review-not-load-failure-copy";
 
 export type CompareRunPickersSectionProps = {
   leftPickerLabel: string;
@@ -51,6 +57,7 @@ export type CompareRunPickersSectionProps = {
   compareButtonLabel?: string;
   /** Buyer shell: collapse pickers below results when comparison is on screen. */
   collapseBelowResults?: boolean;
+  correlationMetadataEmpty?: boolean;
 };
 
 export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
@@ -136,6 +143,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
     summarizeButtonLabel = "Summarize for sponsor",
     compareButtonLabel = "Compare two reviews",
     collapseBelowResults = false,
+    correlationMetadataEmpty = false,
   } = props;
 
   const compareActionsDisabled =
@@ -149,7 +157,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
     loading ? whyDisabledBusy("Comparison") : null,
     !leftTrim || !rightTrim ? whyDisabledIncompleteInput("Choose a baseline and updated review to continue.") : null,
     sameCanonicalRunIdsBlocked
-      ? { kind: "prerequisite", message: "These two selections resolve to the same review." }
+      ? { kind: "prerequisite", message: COMPARE_RUN_PICKERS_SAME_REVIEW_NOT_LOAD_FAILURE_LINE }
       : null,
     leftSummaryBlockedReason !== null
       ? { kind: "prerequisite", message: leftSummaryBlockedReason }
@@ -194,9 +202,15 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
             {leftSummaryBlockedReason}
           </p>
         ) : null}
+        {leftTrim.length > 0 && rightTrim.length === 0 ? (
+          <div className="grid gap-1" data-testid="compare-run-pickers-first-selected-second-empty">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              {COMPARE_RUN_PICKERS_FIRST_SELECTED_SECOND_EMPTY_NOT_LOAD_FAILURE_LINE}
+            </p>
+            <CompareRunPickersFirstSelectedSecondEmptyPartialHonesty />
+          </div>
+        ) : null}
         <RunIdPicker
-          preferAutoPick={false}
-          label={rightPickerLabel}
           placeholder="Choose an updated review"
           value={rightRunId}
           onChange={onRightRunIdChange}
@@ -219,6 +233,14 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
             data-testid="compare-right-summary-blocked-reason"
           >
             {rightSummaryBlockedReason}
+          </p>
+        ) : null}
+        {rightSummaryBlockedReason !== null ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-run-pickers-second-review-not-sealed"
+          >
+            <span className="font-medium text-al-text-primary">Not sealed:</span> {COMPARE_RUN_PICKERS_SECOND_REVIEW_NOT_SEALED_LINE}
           </p>
         ) : null}
         <details
@@ -246,8 +268,9 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
               "m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50",
               OPERATOR_TYPOGRAPHY.body,
             )}
+            data-testid="compare-run-pickers-same-review-not-load-failure"
           >
-            These two selections resolve to the same review. Choose a different prior or later review to compare.
+            {COMPARE_RUN_PICKERS_SAME_REVIEW_NOT_LOAD_FAILURE_LINE} Choose a different prior or later review to compare.
           </p>
         ) : null}
         <div className="flex flex-wrap items-center gap-3">
@@ -272,6 +295,17 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           ) : null}
         </div>
         <WhyDisabledCtaHint reason={compareActionsDisabled ? compareDisabledReason : null} />
+        {correlationMetadataEmpty ? (
+          <div className="grid gap-1">
+            <p
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="compare-run-pickers-correlation-empty-and-seal"
+            >
+              {COMPARE_RUN_PICKERS_CORRELATION_EMPTY_AND_SEAL_LINE}
+            </p>
+            <CompareRunPickersCorrelationEmptyAndSealPartialHonesty />
+          </div>
+        ) : null}
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-run-pickers-second-seal-footnote">
           {ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE}
         </p>

@@ -1,3 +1,4 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
   formatInfraEvidenceSnapshotCapturedLabel,
@@ -144,6 +145,11 @@ function compareNumbers(left: number, right: number): number {
   return left - right;
 }
 
+function snapshotCaptureTime(snapshot: InfraEvidenceSnapshotSummary): number {
+  const milliseconds = parseIsoUtcMs(snapshot.capturedUtc ?? "");
+  return Number.isFinite(milliseconds) ? milliseconds : Number.NEGATIVE_INFINITY;
+}
+
 export function sortDriftSnapshots(
   rows: readonly InfraEvidenceSnapshotSummary[],
   sortBy: DriftSnapshotsTableSortKey,
@@ -160,9 +166,12 @@ export function sortDriftSnapshots(
         result = compareStrings(snapshotSubscriptionLabel(left), snapshotSubscriptionLabel(right));
         break;
 
-      case "captured":
-        result = compareStrings(left.capturedUtc ?? "", right.capturedUtc ?? "");
+      case "captured": {
+        const leftTime = snapshotCaptureTime(left);
+        const rightTime = snapshotCaptureTime(right);
+        result = leftTime === rightTime ? 0 : compareNumbers(leftTime, rightTime);
         break;
+      }
 
       case "resources":
         result = compareNumbers(left.resourceCount, right.resourceCount);

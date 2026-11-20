@@ -11,7 +11,7 @@ public sealed class InMemoryTenantAzureBoardsOutboundSettingsRepository : ITenan
 
     public Task<TenantAzureBoardsOutboundSettings?> TryGetAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return tenantId == Guid.Empty
             ? throw new ArgumentException("tenantId is required.", nameof(tenantId))
@@ -23,7 +23,7 @@ public sealed class InMemoryTenantAzureBoardsOutboundSettingsRepository : ITenan
         TenantAzureBoardsOutboundSettings settings,
         CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (tenantId == Guid.Empty)
             throw new ArgumentException("tenantId is required.", nameof(tenantId));
@@ -57,7 +57,7 @@ public sealed class InMemoryTenantAzureBoardsOutboundSettingsRepository : ITenan
         string summary,
         CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (tenantId == Guid.Empty)
             throw new ArgumentException("tenantId is required.", nameof(tenantId));

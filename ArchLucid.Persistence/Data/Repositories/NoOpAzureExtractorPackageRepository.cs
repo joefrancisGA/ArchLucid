@@ -8,40 +8,72 @@ namespace ArchLucid.Persistence.Data.Repositories;
 public sealed class NoOpAzureExtractorPackageRepository : IAzureExtractorPackageRepository
 {
     public Task InsertAsync(AzureExtractorPackageRecord record, CancellationToken cancellationToken = default)
-        => Task.CompletedTask;
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task<AzureExtractorPackageProvenance?> TryGetLatestProvenanceByRunIdAsync(
         ScopeContext scope,
         Guid runId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<AzureExtractorPackageProvenance?>(null);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<AzureExtractorPackageProvenance?>(null);
+    }
 
     public Task<bool> HasAnyInWorkspaceAsync(ScopeContext scope, CancellationToken cancellationToken = default)
-        => Task.FromResult(false);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(false);
+    }
 
     public Task<WorkspaceBaselineExtractorArtifacts> GetWorkspaceBaselineArtifactsAsync(
         ScopeContext scope,
         CancellationToken cancellationToken = default)
-        => Task.FromResult(new WorkspaceBaselineExtractorArtifacts(false, null));
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(new WorkspaceBaselineExtractorArtifacts(false, null));
+    }
 
     public Task<DateTime?> TryGetLatestCollectionTimestampUtcInScopeAsync(
         ScopeContext scope,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<DateTime?>(null);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<DateTime?>(null);
+    }
 
     public Task<AzureExtractorPackageDownloadRecord?> TryGetDownloadByPackageIdAsync(
         ScopeContext scope,
         Guid packageId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<AzureExtractorPackageDownloadRecord?>(null);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<AzureExtractorPackageDownloadRecord?>(null);
+    }
 
     public Task<AzureExtractorPackageDownloadRecord?> TryGetLatestDownloadInScopeAsync(
         ScopeContext scope,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<AzureExtractorPackageDownloadRecord?>(null);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<AzureExtractorPackageDownloadRecord?>(null);
+    }
 
     public Task<string?> TryGetLatestScriptVersionInScopeAsync(
         ScopeContext scope,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<string?>(null);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<string?>(null);
+    }
 }

@@ -34,6 +34,9 @@ import { CompareGateOutcomeDeltaPanel } from "@/app/(operator)/insights/compare-
 import { ComparePackAssignmentDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePackAssignmentDeltaPanel";
 import { CompareExecutionModeDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareExecutionModeDeltaPanel";
 import { CompareSemanticSupportBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSemanticSupportBandDeltaPanel";
+import { COMPARE_RESULTS_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-results-stale-inputs-not-load-failure-copy";
+import { COMPARE_PAIR_BLOCKED_AGGREGATE_NOT_EMPTY_COMPARE_LINE } from "@/lib/architecture/compare-pair-blocked-aggregate-not-empty-compare-copy";
+import { CompareResultsStaleInputsPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsStaleInputsPartialHonesty";
 import { CompareProvenanceDeltaBand } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareProvenanceDeltaBand";
 import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
 import { deriveCompareQualityDeltaFromGolden } from "@/lib/review-quality/compare-quality-delta";
@@ -128,6 +131,10 @@ export function CompareResultsPanelVerdictChrome({
           executionModeHonesty={trustExecutionModeHonesty}
           usesCurrentEffectiveOnly={usesCurrentEffectiveOnly}
           hasAiNarrative={hasAiNarrative}
+          compareIncludesUnsealedReview={
+            (viewModel.leftSummaryBlockedReason ?? null) !== null
+            || (viewModel.rightSummaryBlockedReason ?? null) !== null
+          }
         />
       ) : null}
 
@@ -158,6 +165,7 @@ export function CompareResultsPanelVerdictChrome({
             ...resolveComparePairPrimaryFindingIds(findingCorrelationState.lifecycleRecords),
             architectureId: compareArchitectureId,
           }}
+          showPartialInventoryManifestHonesty={viewModel.showPartialInventoryFootnote === true}
         />
       ) : null}
 
@@ -167,13 +175,21 @@ export function CompareResultsPanelVerdictChrome({
             findingCorrelationState.compareQualityDelta ?? deriveCompareQualityDeltaFromGolden(golden)
           }
           newFindingTrustLanes={newFindingTrustLanes}
+          compareIncludesUnsealedReview={
+            (viewModel.leftSummaryBlockedReason ?? null) !== null
+            || (viewModel.rightSummaryBlockedReason ?? null) !== null
+          }
         />
       ) : null}
 
-      {golden !== null ? (
+      {golden !== null && !showStaleInputsWarning ? (
         <CompareSemanticSupportBandDeltaPanel
           loading={semanticSupportBandDeltaState.loading}
           view={semanticSupportBandDeltaState.view}
+          showZeroCountsUnsealedHonesty={
+            semanticSupportBandDeltaState.semanticBandAllZero && ((viewModel.leftSummaryBlockedReason ?? null) !== null
+              || (viewModel.rightSummaryBlockedReason ?? null) !== null)
+          }
         />
       ) : null}
 
@@ -181,6 +197,11 @@ export function CompareResultsPanelVerdictChrome({
         <CompareClassificationBandDeltaPanel
           loading={semanticSupportBandDeltaState.loading}
           view={semanticSupportBandDeltaState.classificationView}
+          showZeroCountsUnsealedHonesty={
+            semanticSupportBandDeltaState.classificationBandAllZero
+            && ((viewModel.leftSummaryBlockedReason ?? null) !== null
+              || (viewModel.rightSummaryBlockedReason ?? null) !== null)
+          }
         />
       ) : null}
 
@@ -188,6 +209,10 @@ export function CompareResultsPanelVerdictChrome({
         <CompareTreatmentBandDeltaPanel
           loading={semanticSupportBandDeltaState.loading}
           view={semanticSupportBandDeltaState.treatmentView}
+          showZeroCountsUnsealedHonesty={
+            semanticSupportBandDeltaState.treatmentBandAllZero && ((viewModel.leftSummaryBlockedReason ?? null) !== null
+              || (viewModel.rightSummaryBlockedReason ?? null) !== null)
+          }
         />
       ) : null}
 
@@ -195,6 +220,10 @@ export function CompareResultsPanelVerdictChrome({
         <CompareRoiHeadlineDeltaPanel
           loading={roiHeadlineDeltaState.loading}
           view={roiHeadlineDeltaState.view}
+          showZeroEstimatesUnsealedHonesty={
+            roiHeadlineDeltaState.roiHeadlineAllZero && ((viewModel.leftSummaryBlockedReason ?? null) !== null
+              || (viewModel.rightSummaryBlockedReason ?? null) !== null)
+          }
         />
       ) : null}
 
@@ -202,6 +231,11 @@ export function CompareResultsPanelVerdictChrome({
         <CompareGateOutcomeDeltaPanel
           loading={gateOutcomeDeltaState.loading}
           view={gateOutcomeDeltaState.view}
+          showEmptyNotLoadFailureHonesty={
+            !gateOutcomeDeltaState.loading
+            && !gateOutcomeDeltaState.gateOutcomeLoadFailed
+            && gateOutcomeDeltaState.gateOutcomeBothMissing
+          }
         />
       ) : null}
 
@@ -209,11 +243,22 @@ export function CompareResultsPanelVerdictChrome({
         <ComparePackAssignmentDeltaPanel
           loading={viewModel.governanceDiffState.loading}
           view={packAssignmentDeltaView}
+          showEmptyNotLoadFailureHonesty={
+            !viewModel.governanceDiffState.loading
+            && packAssignmentDeltaView === null
+            && viewModel.governanceDiffState.view !== null
+          }
         />
       ) : null}
 
       {golden !== null ? (
-        <CompareExecutionModeDeltaPanel view={executionModeDeltaView} />
+        <CompareExecutionModeDeltaPanel
+          view={executionModeDeltaView}
+          showOneUnsealedHonesty={
+            executionModeDeltaView === null && ((viewModel.leftSummaryBlockedReason ?? null) !== null
+              || (viewModel.rightSummaryBlockedReason ?? null) !== null)
+          }
+        />
       ) : null}
 
       {golden !== null ? (
@@ -235,6 +280,15 @@ export function CompareResultsPanelVerdictChrome({
             . Click <strong>Compare</strong> or <strong>{summarizeCue}</strong> again after fixing selections, or
             restore the previous values.
           </p>
+          <p
+            className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-results-stale-inputs-not-load-failure"
+          >
+            {COMPARE_RESULTS_STALE_INPUTS_NOT_LOAD_FAILURE_LINE}
+          </p>
+          <div className="mt-2">
+            <CompareResultsStaleInputsPartialHonesty />
+          </div>
           <details
             className={cn("group mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             open={staleInputsTechnicalIdsOpen}
@@ -268,6 +322,15 @@ export function CompareResultsPanelVerdictChrome({
           <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>This depends on server LLM configuration.</p>
         </OperatorLoadingNotice>
       )}
+
+      {(legacyCompareBlockedReason !== null || goldenCompareBlockedReason !== null) ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="compare-pair-blocked-aggregate-not-empty-compare"
+        >
+          {COMPARE_PAIR_BLOCKED_AGGREGATE_NOT_EMPTY_COMPARE_LINE}
+        </p>
+      ) : null}
 
       {legacyFailure && (
         <>

@@ -8,6 +8,7 @@ import { useCompareFindingCorrelation } from "@/app/(operator)/insights/compare-
 export type CompareFindingCorrelationSectionProps = {
   readonly baselineRunId: string | null;
   readonly targetRunId: string | null;
+  readonly compareIncludesUnsealedReview?: boolean;
 };
 
 /** Client section — soft-loads finding correlation metadata without blocking structured compare render. */
@@ -28,6 +29,7 @@ export function CompareFindingCorrelationSection(
       laterRunId={props.targetRunId}
       loading={loading}
       softFailureMessage={softFailureMessage}
+      compareIncludesUnsealedReview={props.compareIncludesUnsealedReview}
     />
   );
 }

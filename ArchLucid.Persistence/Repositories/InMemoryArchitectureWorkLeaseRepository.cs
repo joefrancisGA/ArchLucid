@@ -91,6 +91,6 @@ public sealed class InMemoryArchitectureWorkLeaseRepository : IArchitectureWorkL
             AcquiredUtc = record.AcquiredUtc,
             LastHeartbeatUtc = record.LastHeartbeatUtc,
             ExpiresUtc = record.ExpiresUtc,
-            RowVersion = record.RowVersion,
+            RowVersion = record.RowVersion is null ? null : (byte[])record.RowVersion.Clone(),
         };
 }

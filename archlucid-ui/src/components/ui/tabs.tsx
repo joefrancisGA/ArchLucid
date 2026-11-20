@@ -146,10 +146,10 @@ export function Tabs(props: TabsProps): ReactElement {
 
     const fromUrl = readUrlTabValue(props.syncUrlParam);
 
-    if (fromUrl && fromUrl !== activeValue) {
+    if (fromUrl && fromUrl !== activeValue && triggerElementsRef.current.get(fromUrl)?.disabled === false) {
       setValue(fromUrl);
     }
-  }, [activeValue, props.syncUrlParam, setValue]);
+  }, [activeValue, props.syncUrlParam, setValue, triggerOrder]);
 
   const contextValue = useMemo<TabsContextValue>(
     () => ({

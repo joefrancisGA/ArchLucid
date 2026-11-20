@@ -65,6 +65,28 @@ public sealed class ArchitectureWorkLeaseServiceTests
     }
 
     [Fact]
+    public async Task In_memory_lease_repository_detaches_row_version_on_write_and_read()
+    {
+        byte[] version = [1, 2];
+        await _leases.UpsertAsync(Scope, new ArchitectureWorkLeaseRecord
+        {
+            DraftId = DraftId,
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ScopeProjectId = Scope.ProjectId,
+            RowVersion = version,
+        });
+        version[0] = 9;
+
+        ArchitectureWorkLeaseRecord? first = await _leases.TryGetByDraftIdAsync(Scope, DraftId);
+        first!.RowVersion.Should().Equal(1, 2);
+        first.RowVersion![1] = 8;
+
+        ArchitectureWorkLeaseRecord? second = await _leases.TryGetByDraftIdAsync(Scope, DraftId);
+        second!.RowVersion.Should().Equal(1, 2);
+    }
+
+    [Fact]
     public async Task Acquire_second_holder_returns_held_by_other_until_expired()
     {
         string actorA = ArchitectureSharePlatformUserActorOid.FromUserId(HolderA);

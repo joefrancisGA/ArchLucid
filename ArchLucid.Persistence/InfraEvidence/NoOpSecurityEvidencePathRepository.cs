@@ -10,30 +10,46 @@ public sealed class NoOpSecurityEvidencePathRepository : ISecurityEvidencePathRe
         Guid tenantId,
         Guid pathId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<SecurityEvidencePathRecord?>(null);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<SecurityEvidencePathRecord?>(null);
+    }
 
     public Task<SecurityEvidencePathRecord?> TryGetByCanonicalHashAsync(
         Guid tenantId,
         Guid snapshotId,
         byte[] canonicalHopHashSha256,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<SecurityEvidencePathRecord?>(null);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<SecurityEvidencePathRecord?>(null);
+    }
 
     public Task<IReadOnlyList<SecurityEvidencePathHopRecord>> ListHopsByPathAsync(
         Guid tenantId,
         Guid pathId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<SecurityEvidencePathHopRecord>>([]);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<SecurityEvidencePathHopRecord>>([]);
+    }
 
     public Task<SecurityEvidencePathInsertResult> InsertIfNotExistsAsync(
         SecurityEvidencePathRecord pathHeader,
         IReadOnlyList<SecurityEvidencePathHopRecord> hops,
         CancellationToken cancellationToken = default)
-        => Task.FromResult(new SecurityEvidencePathInsertResult
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(new SecurityEvidencePathInsertResult
         {
             PathId = pathHeader.PathId,
             Created = false,
         });
+    }
 
     public Task<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)> ListPagedAsync(
         Guid tenantId,
@@ -43,10 +59,18 @@ public sealed class NoOpSecurityEvidencePathRepository : ISecurityEvidencePathRe
         int page,
         int pageSize,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)>(([], 0));
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)>(([], 0));
+    }
 
     public Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
         ProjectSnapshotScopeKey scope,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<SecurityEvidencePathRecord>>([]);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<SecurityEvidencePathRecord>>([]);
+    }
 }

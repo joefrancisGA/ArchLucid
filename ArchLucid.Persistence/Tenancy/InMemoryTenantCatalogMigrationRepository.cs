@@ -11,7 +11,7 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
 
     public Task<TenantCatalogMigrationRecord?> GetActiveByTenantIdAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_gate)
         {
@@ -26,7 +26,7 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
 
     public Task<TenantCatalogMigrationRecord?> GetByIdAsync(Guid migrationId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_gate)
         {
@@ -39,7 +39,7 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
     public Task InsertAsync(TenantCatalogMigrationRecord record, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(record);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_gate)
         {
@@ -55,7 +55,7 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
 
     public Task UpdateStageAsync(Guid migrationId, TenantCatalogMigrationStage stage, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_gate)
         {
@@ -75,7 +75,7 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
         DateTimeOffset utcNow,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_gate)
         {
@@ -96,7 +96,7 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
 
     public Task CompleteAsync(Guid migrationId, DateTimeOffset completedUtc, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_gate)
         {

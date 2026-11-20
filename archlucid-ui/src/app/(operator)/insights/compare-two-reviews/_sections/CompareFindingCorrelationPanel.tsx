@@ -15,6 +15,10 @@ import type { CompareFindingLifecycleRecord, CompareFindingLifecycleSummary } fr
 import { CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE } from "@/lib/vocabulary/finding-correlation-vocabulary";
 import { COMPARE_FINDING_CORRELATION_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { CompareFindingCorrelationPartialEmptyHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationPartialEmptyHonesty";
+import { CompareCorrelationEmptyAndSecondSealPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareCorrelationEmptyAndSecondSealPartialHonesty";
+import { COMPARE_CORRELATION_EMPTY_AND_SECOND_SEAL_LINE } from "@/lib/architecture/compare-correlation-empty-and-second-seal-copy";
+import { COMPARE_CORRELATION_EMPTY_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-correlation-empty-one-unsealed-not-load-failure-copy";
+import { CompareCorrelationEmptyOneUnsealedPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareCorrelationEmptyOneUnsealedPartialHonesty";
 import { CompareFindingCorrelationPartialResultsHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationPartialResultsHonesty";
 import { CompareFindingCorrelationZeroCountsHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationZeroCountsHonesty";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -27,6 +31,7 @@ export type CompareFindingCorrelationPanelProps = {
   readonly laterRunId?: string | null;
   readonly loading: boolean;
   readonly softFailureMessage: string | null;
+  readonly compareIncludesUnsealedReview?: boolean;
 };
 
 function CompareFindingCorrelationSectionShell(props: {
@@ -56,6 +61,7 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
     laterRunId = null,
     loading,
     softFailureMessage,
+    compareIncludesUnsealedReview = false,
   } = props;
 
   if (loading) {
@@ -98,7 +104,30 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
         </h2>
         <EnterpriseCompactEmptyState
           {...COMPARE_FINDING_CORRELATION_EMPTY_COMPACT}
-          footer={<CompareFindingCorrelationPartialEmptyHonesty />}
+          footer={
+            <div className="grid gap-1">
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="compare-correlation-empty-and-second-seal"
+              >
+                {COMPARE_CORRELATION_EMPTY_AND_SECOND_SEAL_LINE}
+              </p>
+              {compareIncludesUnsealedReview ? (
+                <>
+                  <p
+                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="compare-correlation-empty-one-unsealed-not-load-failure"
+                  >
+                    {COMPARE_CORRELATION_EMPTY_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                  <CompareCorrelationEmptyOneUnsealedPartialHonesty />
+                </>
+              ) : (
+                <CompareCorrelationEmptyAndSecondSealPartialHonesty />
+              )}
+              <CompareFindingCorrelationPartialEmptyHonesty />
+            </div>
+          }
         />
       </CompareFindingCorrelationSectionShell>
     );

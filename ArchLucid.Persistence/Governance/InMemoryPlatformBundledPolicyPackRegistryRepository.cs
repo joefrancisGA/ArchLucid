@@ -14,6 +14,8 @@ public sealed class InMemoryPlatformBundledPolicyPackRegistryRepository : IPlatf
 
     public Task<IReadOnlyList<PlatformBundledPolicyPackRegistryEntry>> ListAllAsync(CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         lock (_writeGate)
         {
             IReadOnlyList<PlatformBundledPolicyPackRegistryEntry> rows = _rows.Values
@@ -33,6 +35,8 @@ public sealed class InMemoryPlatformBundledPolicyPackRegistryRepository : IPlatf
 
     public Task UpsertAsync(PlatformBundledPolicyPackRegistryEntry entry, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(entry);
 
         lock (_writeGate)
@@ -56,6 +60,8 @@ public sealed class InMemoryPlatformBundledPolicyPackRegistryRepository : IPlatf
 
     public Task<bool> TrySetGloballyActiveAsync(string bundleContentFile, bool isGloballyActive, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         if (string.IsNullOrWhiteSpace(bundleContentFile))
             return Task.FromResult(false);
 

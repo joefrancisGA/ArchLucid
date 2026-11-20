@@ -39,6 +39,9 @@ import { manifestCompareExportMutationBlockedReason } from "@/lib/compare/manife
 import { showError } from "@/lib/toast";
 import { CompareAgentResultsBlockedCallout } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareAgentResultsBlockedCallout";
 import type { CompareResultsPanelViewModel } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-results-panel";
+import { COMPARE_EXPORT_PDF_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-export-pdf-blocked-not-load-failure-copy";
+import { COMPARE_EXPORT_DOCX_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-export-docx-blocked-not-load-failure-copy";
+import { COMPARE_MANIFEST_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-manifest-export-blocked-not-load-failure-copy";
 
 export function CompareResultsPanelDiffStack({
   viewModel,
@@ -103,6 +106,8 @@ export function CompareResultsPanelDiffStack({
 
   const {
     hasResultsToNavigate,
+    showStaleInputsWarning,
+    lastComparedPair,
     golden,
     result,
     aiExplanation,
@@ -120,26 +125,32 @@ export function CompareResultsPanelDiffStack({
     showDocxDownload,
     docxDownloading,
     docxError,
+    docxExportBlockedReason,
     handleDownloadDocx,
     pdfDownloading,
     pdfError,
+    pdfExportBlockedReason,
     handleDownloadPdf,
   } = viewModel;
 
   const leftRunId = viewModel.leftTrim;
   const rightRunId = viewModel.rightTrim;
+  const exportLeftRunId = golden?.baseRunId ?? lastComparedPair?.left ?? "";
+  const exportRightRunId = golden?.targetRunId ?? lastComparedPair?.right ?? "";
   const compareArchitectureId =
     searchParams.get("architectureId")?.trim() ?? readCachedLastOpenArchitectureId() ?? null;
 
   const [manifestExportBusy, setManifestExportBusy] = useState(false);
   const [endToEndExportBusy, setEndToEndExportBusy] = useState(false);
+  const [manifestExportBlockedReason, setManifestExportBlockedReason] = useState<string | null>(null);
 
   const handleDownloadManifestCompareExport = useCallback(async () => {
-    if (golden === null) {
+    if (golden === null || showStaleInputsWarning) {
       return;
     }
 
     setManifestExportBusy(true);
+    setManifestExportBlockedReason(null);
 
     try {
       await downloadManifestCompareExport({
@@ -151,15 +162,15 @@ export function CompareResultsPanelDiffStack({
     } catch (error: unknown) {
       const failure = toApiLoadFailure(error);
       const blocked = manifestCompareExportMutationBlockedReason(failure);
-
+      setManifestExportBlockedReason(blocked);
       showError("Manifest compare export failed", blocked ?? failure.message);
     } finally {
       setManifestExportBusy(false);
     }
-  }, [golden, leftPickedSummary, rightPickedSummary]);
+  }, [golden, showStaleInputsWarning, leftPickedSummary, rightPickedSummary]);
 
   const handleDownloadEndToEndCompareExport = useCallback(async () => {
-    if (leftRunId.trim().length === 0 || rightRunId.trim().length === 0) {
+    if (exportLeftRunId.trim().length === 0 || exportRightRunId.trim().length === 0) {
       return;
     }
 
@@ -167,8 +178,8 @@ export function CompareResultsPanelDiffStack({
 
     try {
       await downloadEndToEndCompareExport({
-        leftRunId,
-        rightRunId,
+        leftRunId: exportLeftRunId,
+        rightRunId: exportRightRunId,
         format: "markdown",
       });
     } catch (error: unknown) {
@@ -179,7 +190,7 @@ export function CompareResultsPanelDiffStack({
     } finally {
       setEndToEndExportBusy(false);
     }
-  }, [leftRunId, rightRunId]);
+  }, [exportLeftRunId, exportRightRunId]);
 
   return (
     <>
@@ -216,7 +227,7 @@ export function CompareResultsPanelDiffStack({
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={manifestExportBusy || endToEndExportBusy || docxDownloading || pdfDownloading}
+                disabled={showStaleInputsWarning || manifestExportBusy || endToEndExportBusy || docxDownloading || pdfDownloading}
                 onClick={() => void handleDownloadManifestCompareExport()}
                 className={cn(OPERATOR_LINK.inline, "inline-flex items-center gap-1.5 text-sm")}
                 data-testid="compare-download-manifest-compare-export-button"
@@ -225,7 +236,7 @@ export function CompareResultsPanelDiffStack({
                 {manifestExportBusy ? "Downloading compare export…" : "Download compare export (Markdown)"}
               </Button>
             ) : null}
-            {leftRunId.trim().length > 0 && rightRunId.trim().length > 0 ? (
+            {exportLeftRunId.trim().length > 0 && exportRightRunId.trim().length > 0 ? (
               <Button
                 type="button"
                 variant="outline"
@@ -250,13 +261,32 @@ export function CompareResultsPanelDiffStack({
               {pdfDownloading ? "Generating PDF…" : "Download PDF report"}
             </Button>
             {pdfError ? (
-              <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {pdfError}
-              </p>
+              <div className="space-y-1">
+                <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {pdfError}
+                </p>
+                {pdfExportBlockedReason !== null ? (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-export-pdf-blocked-not-load-failure">
+                    {COMPARE_EXPORT_PDF_BLOCKED_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                ) : null}
+              </div>
             ) : null}
             {docxError ? (
-              <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {docxError}
+              <div className="space-y-1">
+                <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {docxError}
+                </p>
+                {docxExportBlockedReason !== null ? (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-export-docx-blocked-not-load-failure">
+                    {COMPARE_EXPORT_DOCX_BLOCKED_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+            {manifestExportBlockedReason !== null ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-manifest-export-blocked-not-load-failure">
+                {COMPARE_MANIFEST_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE}
               </p>
             ) : null}
             </div>
@@ -323,7 +353,14 @@ export function CompareResultsPanelDiffStack({
         )}
 
         {golden !== null ? (
-          <CompareFindingCorrelationSection baselineRunId={golden.baseRunId} targetRunId={golden.targetRunId} />
+          <CompareFindingCorrelationSection
+            baselineRunId={golden.baseRunId}
+            targetRunId={golden.targetRunId}
+            compareIncludesUnsealedReview={
+              (viewModel.leftSummaryBlockedReason ?? null) !== null
+              || (viewModel.rightSummaryBlockedReason ?? null) !== null
+            }
+          />
         ) : null}
 
         {golden !== null ? (

@@ -68,4 +68,17 @@ public sealed class InMemorySentEmailLedgerTests
         (await ledger.IsRecordedAsync(recordedTenant, "key", CancellationToken.None)).Should().BeTrue();
         (await ledger.IsRecordedAsync(otherTenant, "key", CancellationToken.None)).Should().BeFalse();
     }
+    [SkippableFact]
+    public async Task Canceled_record_does_not_claim_idempotency_key()
+    {
+        InMemorySentEmailLedger ledger = new();
+        SentEmailLedgerEntry entry = new("retry-key", Guid.NewGuid(), "t", "p", null);
+        CancellationToken canceled = new(canceled: true);
+
+        Func<Task> record = async () => { await ledger.TryRecordSentAsync(entry, canceled); };
+        Func<Task> lookup = async () => { await ledger.IsRecordedAsync(entry.TenantId, entry.IdempotencyKey, canceled); };
+        await record.Should().ThrowAsync<OperationCanceledException>();
+        await lookup.Should().ThrowAsync<OperationCanceledException>();
+        (await ledger.TryRecordSentAsync(entry, CancellationToken.None)).Should().BeTrue();
+    }
 }

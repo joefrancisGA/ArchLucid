@@ -297,6 +297,12 @@ export function CompareForm(props: CompareFormProps = {}) {
           summarizeButtonLabel={buyerPolished ? "Summarize for leadership" : "Summarize for sponsor"}
           compareButtonLabel={buyerPolished ? buyerComparePrimaryActionLabel : "Compare two reviews"}
           collapseBelowResults={(compareInsightFirstLayout && buyerPolished) || urlPairComplete}
+          correlationMetadataEmpty={
+            urlPairComplete
+            && !compareScopeCorrelation.loading
+            && compareScopeCorrelation.metadata === null
+            && compareScopeCorrelation.softFailureMessage === null
+          }
         />
 
         {!compareInsightFirstLayout && showEmptyComparisonOutput && !urlPairComplete ? (
@@ -328,6 +334,8 @@ export function CompareForm(props: CompareFormProps = {}) {
             buyerPolished={buyerPolished}
             resultsFirst={compareInsightFirstLayout}
             showPartialInventoryFootnote={compareHasRenderableOutcome}
+            leftSummaryBlockedReason={leftSummaryBlockedReason}
+            rightSummaryBlockedReason={rightSummaryBlockedReason}
           />
         ) : null}
       </section>
