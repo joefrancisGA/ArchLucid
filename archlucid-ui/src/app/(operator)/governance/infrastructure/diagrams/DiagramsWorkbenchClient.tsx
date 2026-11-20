@@ -114,6 +114,8 @@ import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence
 import { formatInfraEvidenceDiagramsApiError } from "@/lib/infra-evidence/infra-evidence-diagrams-api";
 import { buildInfraMermaidExportLegendCommentLines } from "@/lib/infra-evidence/infra-evidence-png-reading-strip";
 import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
+import { isInfraEvidenceMermaidServerPngUnavailableError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-unavailable";
+import { DIAGRAM_PNG_SERVER_UNAVAILABLE_LINE } from "@/lib/infra-evidence/diagram-png-server-unavailable-copy";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
 import {
@@ -546,6 +548,7 @@ export function DiagramsWorkbenchClient() {
   const [loadingRender, setLoadingRender] = useState(false);
   const [exportBusy, setExportBusy] = useState(false);
   const [pngExportError, setPngExportError] = useState<string | null>(null);
+  const [pngServerUnavailable, setPngServerUnavailable] = useState(false);
   const [pngBrowserFallbackNote, setPngBrowserFallbackNote] = useState<string | null>(null);
   const [exportableSvgMarkup, setExportableSvgMarkup] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -2002,6 +2005,7 @@ export function DiagramsWorkbenchClient() {
 
     setExportBusy(true);
     setPngExportError(null);
+    setPngServerUnavailable(false);
     setPngBrowserFallbackNote(null);
 
     try {
@@ -2036,6 +2040,7 @@ export function DiagramsWorkbenchClient() {
         setPngBrowserFallbackNote(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE);
       }
     } catch (error: unknown) {
+      setPngServerUnavailable(isInfraEvidenceMermaidServerPngUnavailableError(error));
       const pngExportDetail =
         formatInfraEvidenceMermaidPngExportError(error) ?? formatInfraEvidenceMermaidApiError(error);
 
@@ -2884,6 +2889,11 @@ export function DiagramsWorkbenchClient() {
             testId="infra-diagrams-png-export-error"
             recoveryPresentation={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY}
           />
+        ) : null}
+        {pngServerUnavailable ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagrams-png-server-unavailable">
+            {DIAGRAM_PNG_SERVER_UNAVAILABLE_LINE}
+          </p>
         ) : null}
         {pngBrowserFallbackNote != null ? (
           <p
