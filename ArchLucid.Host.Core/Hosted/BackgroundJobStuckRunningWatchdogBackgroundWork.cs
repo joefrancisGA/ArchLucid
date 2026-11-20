@@ -4,6 +4,7 @@ using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -37,19 +38,31 @@ public static class BackgroundJobStuckRunningWatchdogBackgroundWork
         IReadOnlyList<string> requeuedJobIds =
             await repository.ResetStaleRunningJobsOlderThanAsync(staleAfter, cancellationToken);
 
-        if (requeuedJobIds.Count > 0)
-        {
-            logger.LogWarning(
-                "Reclaimed background jobs stuck Running > {Minutes} minutes: {Count}.",
-                staleAfter.TotalMinutes,
-                requeuedJobIds.Count);
-        }
+        if (requeuedJobIds.Count == 0)
+            return;
 
+        logger.LogWarning(
+            "Reclaimed background jobs stuck Running > {Minutes} minutes: {Count}.",
+            staleAfter.TotalMinutes,
+            requeuedJobIds.Count);
+
+        // Future passes only reclaim Running rows. Give this committed batch the host's
+        // graceful drain window to reach the queue after the watchdog is stopped.
+        TimeSpan drainBudget = scope.ServiceProvider.GetService<IOptions<HostOptions>>()?.Value.ShutdownTimeout
+            ?? new HostOptions().ShutdownTimeout;
+        using CancellationTokenSource handoffCancellation = new();
+        using CancellationTokenRegistration stoppingRegistration = cancellationToken.Register(
+            () => handoffCancellation.CancelAfter(drainBudget));
+        CancellationToken handoffToken = handoffCancellation.Token;
         foreach (string jobId in requeuedJobIds)
         {
             try
             {
-                await notifySender.SendJobIdAsync(jobId, cancellationToken);
+                await notifySender.SendJobIdAsync(jobId, handoffToken);
+            }
+            catch (OperationCanceledException) when (handoffToken.IsCancellationRequested)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -58,13 +71,13 @@ public static class BackgroundJobStuckRunningWatchdogBackgroundWork
                     "Failed to notify durable queue for reclaimed background job {JobId}.",
                     jobId);
 
-                BackgroundJobRow? current = await repository.GetAsync(jobId, cancellationToken);
+                BackgroundJobRow? current = await repository.GetAsync(jobId, handoffToken);
 
                 if (current is not null
                     && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                current = await repository.GetAsync(jobId, cancellationToken);
+                current = await repository.GetAsync(jobId, handoffToken);
 
                 if (current is not null
                     && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
@@ -76,7 +89,7 @@ public static class BackgroundJobStuckRunningWatchdogBackgroundWork
                     jobId,
                     $"Queue notification failed: {ex.Message}",
                     retryCount,
-                    cancellationToken);
+                    handoffToken);
             }
         }
     }
