@@ -10,6 +10,7 @@ import {
 } from "@/lib/infra-evidence/resolve-infra-evidence-completeness-warning-copy";
 import { formatInfraEvidenceCompletenessSummaryBannerLine } from "@/lib/infra-evidence/format-infra-evidence-completeness-summary-banner-line";
 import { resolveInfraEvidenceCompletenessBannerLead } from "@/lib/infra-evidence/infra-evidence-completeness-banner-lead";
+import { DIAGNOSTIC_DESTINATION_NULL_NOT_EMPTY_LIST_LINE } from "@/lib/infra-evidence/diagnostic-destination-null-not-empty-list-copy";
 import { resolveInfraEvidenceCompletenessWarningsStatusTagKind } from "@/lib/infra-evidence/resolve-infra-evidence-completeness-warnings-status-tag-kind";
 import type { InfraEvidenceMermaidCompletenessSummary } from "@/lib/infra-evidence/infra-evidence-mermaid-types";
 
@@ -81,6 +82,11 @@ export function InfraEvidenceCompletenessWarningsBanner(
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         {resolveInfraEvidenceCompletenessBannerLead(warnings)}
       </p>
+      {warnings.some((warning) => warning === "diagnostic-destination-unresolved" || warning.startsWith("diagnostic-destination-unresolved:")) ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-evidence-diagnostic-destination-null-not-empty-list">
+          {DIAGNOSTIC_DESTINATION_NULL_NOT_EMPTY_LIST_LINE}
+        </p>
+      ) : null}
       {props.summary !== undefined ? (
         props.summary ? (
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
