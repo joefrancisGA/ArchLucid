@@ -53,13 +53,12 @@ function DriftChangesTableHeaderFilterPanel(props: {
   readonly onClose: () => void;
 }): React.JSX.Element {
   const { filter, onClose } = props;
-  const [draftValue, setDraftValue] = useState(filter.kind === "text" ? filter.value : "");
+  const appliedTextValue = filter.kind === "text" ? filter.value : "";
+  const [draftValue, setDraftValue] = useState(appliedTextValue);
 
   useEffect(() => {
-    if (filter.kind === "text") {
-      setDraftValue(filter.value);
-    }
-  }, [filter]);
+    setDraftValue(appliedTextValue);
+  }, [appliedTextValue]);
 
   if (filter.kind === "select") {
     return (
