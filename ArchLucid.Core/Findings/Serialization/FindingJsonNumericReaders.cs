@@ -22,6 +22,7 @@ internal static class FindingJsonNumericReaders
         if (element.TryGetDouble(out double numeric)
             && double.IsFinite(numeric)
             && numeric >= 0
+            && numeric <= int.MaxValue
             && numeric == Math.Floor(numeric))
         {
             value = (int)numeric;
@@ -100,6 +101,7 @@ internal static class FindingJsonNumericReaders
         if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
             && double.IsFinite(numeric)
             && numeric >= 0
+            && numeric <= int.MaxValue
             && numeric == Math.Floor(numeric))
         {
             value = (int)numeric;
@@ -131,6 +133,7 @@ internal static class FindingJsonNumericReaders
         if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
             && double.IsFinite(numeric)
             && numeric >= 0
+            && numeric < 9223372036854775808d
             && numeric == Math.Floor(numeric))
         {
             value = (long)numeric;
