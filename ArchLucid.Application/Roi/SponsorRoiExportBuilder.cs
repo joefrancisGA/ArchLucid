@@ -80,7 +80,7 @@ public sealed class SponsorRoiExportBuilder(
                     Category = SponsorRoiRunCollector.NormalizeCategory(finding.Category),
                     Severity = finding.Severity.ToString(),
                     Title = finding.Message,
-                    AffectedResource = ResolveAffectedResourceForExport(finding.EvidenceRefs.FirstOrDefault()),
+                    AffectedResource = ResolveAffectedResourceForExport(finding.EvidenceRefs),
                     EstimatedUsdSavings = finding.EstimatedUsdSavings,
                 });
 
@@ -117,8 +117,7 @@ public sealed class SponsorRoiExportBuilder(
         };
     }
 
-    private static string ResolveAffectedResourceForExport(string? evidenceRef) =>
-        string.IsNullOrWhiteSpace(evidenceRef)
-            ? SponsorRoiOmissionLabels.AffectedResourceNotStored
-            : evidenceRef.Trim();
+    private static string ResolveAffectedResourceForExport(List<string> evidenceRefs) =>
+        evidenceRefs.Find(static evidenceRef => !string.IsNullOrWhiteSpace(evidenceRef))?.Trim()
+        ?? SponsorRoiOmissionLabels.AffectedResourceNotStored;
 }
