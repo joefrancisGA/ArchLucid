@@ -771,6 +771,28 @@ describe("RunsListClient inspector", () => {
     expect(screen.queryByTestId("runs-list-orphan-candidates-filter-banner")).toBeNull();
   });
 
+  it.each([
+    ["q=unmatched", "search"],
+    ["q=unmatched&scope=finalized", "search-and-package-scope"],
+    ["q=unmatched&filter=recent-failures", "list-context-and-search"],
+    ["q=unmatched&scope=finalized&filter=orphan-candidates", "orphan-candidates-and-search"],
+  ])("shows only the applicable search recovery notice for %s", (search, expectedNotice) => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      search,
+    );
+
+    const searchNotices = screen.queryAllByTestId(
+      /^reviews-hub-(search|search-and-package-scope|list-context-and-search|orphan-candidates-and-search)-filter-empty$/,
+    );
+
+    expect(searchNotices).toHaveLength(1);
+    expect(searchNotices[0]).toHaveAttribute("data-testid", `reviews-hub-${expectedNotice}-filter-empty`);
+  });
+
   it("shows an empty-table message when the text filter matches no reviews", () => {
     const secondRun: RunSummary = {
       ...sampleRun,

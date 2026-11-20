@@ -424,7 +424,11 @@ export function RunsListClient(props: RunsListClientProps) {
             ) : null}
 
             
-            {showBuyerPackageCards ? null : filteredSorted.length === 0 && filterText.trim().length > 0 && listContextFilter !== "orphan-candidates" && sourceRunCount > 0 ? (
+            {showBuyerPackageCards ? null : filteredSorted.length === 0
+            && filterText.trim().length > 0
+            && (listContextFilter?.trim() ?? "").length === 0
+            && !(buyerPolished === true && buyerPackageScope !== "all")
+            && sourceRunCount > 0 ? (
               <div className="space-y-2" data-testid="reviews-hub-search-filter-empty">
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-search-filter-empty-not-load-failure">
                   {REVIEWS_HUB_SEARCH_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
@@ -435,6 +439,7 @@ export function RunsListClient(props: RunsListClientProps) {
             {showBuyerPackageCards ? null : filteredSorted.length === 0
             && buyerPolished === true
             && buyerPackageScope !== "all"
+            && listContextFilter !== "orphan-candidates"
             && filterText.trim().length > 0
             && sourceRunCount > 0 ? (
               <div className="space-y-2" data-testid="reviews-hub-search-and-package-scope-filter-empty">
