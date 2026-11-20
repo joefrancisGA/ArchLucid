@@ -5,6 +5,13 @@
 
 # ArchLucid changelog
 
+
+## 2026-11-20 - Score lift round 97 (batch 62): DOCX stale, manifest stale, drift hard failure, AI malformed
+
+**Outcome.** DOCX and manifest compare exports pause on stale picker drift apart from failed requests. Drift download hard failure is distinct from seal-gate block and empty artifact. AI malformed explain response is distinct from blocked explain mutation and empty narrative.
+
+**Surfaces.** Compare DOCX stale inputs, manifest export stale inputs, drift download hard failure, AI malformed explain, honesty and mounted contract tests.
+
 ## 2026-11-20 - Score lift round 96 (batch 61): Workspace unsealed, AI explain blocked, PDF stale, correlation soft failure
 
 **Outcome.** Main compare workspace names unsealed results with partial-capture recovery. AI explain blocked names seal gates apart from empty narrative. PDF export pauses on stale picker drift. Finding correlation soft failure is distinct from empty metadata.

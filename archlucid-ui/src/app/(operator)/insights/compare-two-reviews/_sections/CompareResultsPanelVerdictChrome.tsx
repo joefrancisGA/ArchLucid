@@ -37,6 +37,7 @@ import { CompareSemanticSupportBandDeltaPanel } from "@/app/(operator)/insights/
 import { COMPARE_RESULTS_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-results-stale-inputs-not-load-failure-copy";
 import { COMPARE_PAIR_BLOCKED_AGGREGATE_NOT_EMPTY_COMPARE_LINE } from "@/lib/architecture/compare-pair-blocked-aggregate-not-empty-compare-copy";
 import { COMPARE_AI_EXPLAIN_BLOCKED_NOT_EMPTY_NARRATIVE_LINE } from "@/lib/architecture/compare-ai-explain-blocked-not-empty-narrative-copy";
+import { COMPARE_AI_MALFORMED_NOT_BLOCKED_EXPLAIN_LINE } from "@/lib/architecture/compare-ai-malformed-not-blocked-explain-copy";
 import { CompareResultsStaleInputsPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsStaleInputsPartialHonesty";
 import { CompareProvenanceDeltaBand } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareProvenanceDeltaBand";
 import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
@@ -462,6 +463,12 @@ export function CompareResultsPanelVerdictChrome({
             <strong>AI explanation response was not usable.</strong>
             <p className="mt-2">{aiMalformed}</p>
           </OperatorMalformedCallout>
+          <p
+            className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-ai-malformed-not-blocked-explain"
+          >
+            {COMPARE_AI_MALFORMED_NOT_BLOCKED_EXPLAIN_LINE}
+          </p>
           <OperatorTryNext>
             Fall back to structured and supplementary compare. Capture the correlation ID and API version if filing a
             defect.
