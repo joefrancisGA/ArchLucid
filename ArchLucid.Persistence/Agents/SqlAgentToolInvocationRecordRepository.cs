@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Persistence.Connections;
@@ -39,15 +41,20 @@ public sealed class SqlAgentToolInvocationRecordRepository(ISqlConnectionFactory
 
         await using SqlConnection conn =
             await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlTransaction transaction =
+            (SqlTransaction)await conn.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
 
         await conn.ExecuteAsync(
             new CommandDefinition(
                 deleteSql,
                 new { record.TenantId, record.TraceId },
+                transaction,
                 cancellationToken: cancellationToken));
 
         await conn.ExecuteAsync(
-            new CommandDefinition(insertSql, MapParameters(record), cancellationToken: cancellationToken));
+            new CommandDefinition(insertSql, MapParameters(record), transaction, cancellationToken: cancellationToken));
+
+        await transaction.CommitAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<AgentToolInvocationRecord>> ListByRunAsync(
