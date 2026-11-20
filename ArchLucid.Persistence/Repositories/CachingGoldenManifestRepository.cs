@@ -77,6 +77,14 @@ public sealed class CachingGoldenManifestRepository(
     }
 
     /// <inheritdoc />
+    public Task<ManifestDocument?> GetByRunAndContractManifestVersionAsync(
+        ScopeContext scope,
+        Guid runId,
+        string manifestVersion,
+        CancellationToken ct) =>
+        _inner.GetByRunAndContractManifestVersionAsync(scope, runId, manifestVersion, ct);
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<ManifestDocument>> ListPriorCommittedForRetrievalAsync(
         ScopeContext scope,
         Guid excludeRunId,

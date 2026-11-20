@@ -16,6 +16,23 @@ namespace ArchLucid.Persistence.Repositories;
 
 public sealed partial class SqlGoldenManifestRepository
 {
+    private const string SelectLatestForRunByContractManifestVersion = """
+        SELECT TOP (1)
+            TenantId, WorkspaceId, ProjectId,
+            ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+            CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+            MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+            ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+            WarningsJson, ProvenanceJson, HasherBoundJson, ManifestPayloadBlobUri, ContractManifestVersion
+        FROM dbo.GoldenManifests
+        WHERE TenantId = @TenantId
+          AND WorkspaceId = @WorkspaceId
+          AND ProjectId = @ProjectId
+          AND RunId = @RunId
+          AND ContractManifestVersion COLLATE Latin1_General_CI_AI = @ManifestVersion
+        ORDER BY CreatedUtc DESC;
+        """;
+
     public async Task<ManifestDocument?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -50,9 +67,24 @@ public sealed partial class SqlGoldenManifestRepository
     }
 
     /// <inheritdoc />
-    public async Task<ManifestDocument?> GetByContractManifestVersionAsync(
+    public Task<ManifestDocument?> GetByContractManifestVersionAsync(
         ScopeContext scope,
         string manifestVersion,
+        CancellationToken ct) =>
+        ReadByContractManifestVersionAsync(scope, manifestVersion, null, ct);
+
+    /// <inheritdoc />
+    public Task<ManifestDocument?> GetByRunAndContractManifestVersionAsync(
+        ScopeContext scope,
+        Guid runId,
+        string manifestVersion,
+        CancellationToken ct) =>
+        ReadByContractManifestVersionAsync(scope, manifestVersion, runId, ct);
+
+    private async Task<ManifestDocument?> ReadByContractManifestVersionAsync(
+        ScopeContext scope,
+        string manifestVersion,
+        Guid? runId,
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -61,11 +93,18 @@ public sealed partial class SqlGoldenManifestRepository
         if (string.IsNullOrWhiteSpace(manifestVersion))
             throw new ArgumentException("Manifest version is required.", nameof(manifestVersion));
 
+        string query = runId.HasValue
+            ? SelectLatestForRunByContractManifestVersion
+            : GoldenManifestReadSql.SelectLatestByContractManifestVersion;
+        object parameters = runId.HasValue
+            ? new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, RunId = runId.Value, ManifestVersion = manifestVersion }
+            : GoldenManifestInsertParameters.ForContractManifestVersion(scope, manifestVersion);
+
         await using SqlConnection connection = await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
             new CommandDefinition(
-                GoldenManifestReadSql.SelectLatestByContractManifestVersion,
-                GoldenManifestInsertParameters.ForContractManifestVersion(scope, manifestVersion),
+                query,
+                parameters,
                 cancellationToken: ct)).ConfigureAwait(false);
 
         if (row is null)
