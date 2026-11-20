@@ -1334,8 +1334,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         },
       }));
     } finally {
-      setFindingActionBusyId(null);
-      setPendingRemediationFinding(null);
+      if (isHubScopeStillCurrent()) {
+        setFindingActionBusyId(null);
+        setPendingRemediationFinding(null);
+      }
     }
   };
 
