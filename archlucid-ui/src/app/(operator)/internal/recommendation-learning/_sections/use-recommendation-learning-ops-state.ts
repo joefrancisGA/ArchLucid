@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -41,6 +41,7 @@ export function useRecommendationLearningOpsState(props: InitialProps) {
   const [preview, setPreview] = useState<RecommendationLearningPreview | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [isLoadingPersisted, setIsLoadingPersisted] = useState(false);
+  const profileReadGeneration = useRef(0);
   const [rollbackReason, setRollbackReason] = useState("");
   const [rollbackProfileId, setRollbackProfileId] = useState<string | null>(null);
   const [activateReason, setActivateReason] = useState("");
@@ -60,6 +61,8 @@ export function useRecommendationLearningOpsState(props: InitialProps) {
 
     try {
       const bundle = await reloadRecommendationLearningOpsBundle();
+      // A completed bundle refresh supersedes any earlier profile-only read.
+      profileReadGeneration.current += 1;
       setStatus(bundle.status);
       setProfile(bundle.profile);
       setHistory(bundle.history);
@@ -72,14 +75,19 @@ export function useRecommendationLearningOpsState(props: InitialProps) {
   }, []);
 
   const loadPersistedProfile = useCallback(async () => {
+    const generation = ++profileReadGeneration.current;
     setIsLoadingPersisted(true);
     setFailure(null);
 
     try {
       const persistedProfile = await reloadPersistedRecommendationLearningProfileOnly();
-      setProfile(persistedProfile);
+      if (generation === profileReadGeneration.current) {
+        setProfile(persistedProfile);
+      }
     } catch (e: unknown) {
-      setFailure(toApiLoadFailure(e));
+      if (generation === profileReadGeneration.current) {
+        setFailure(toApiLoadFailure(e));
+      }
     } finally {
       setIsLoadingPersisted(false);
     }
