@@ -1,4 +1,5 @@
 using ArchLucid.Host.Composition.Configuration;
+using ArchLucid.Host.Core.Health;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -34,9 +35,9 @@ public sealed class GraphProjectionCacheRedisHealthCheck(IConfiguration configur
             redisOptions.ConnectTimeout = 1500;
             redisOptions.SyncTimeout = 1500;
 
-            multiplexer = await ConnectionMultiplexer
-                .ConnectAsync(redisOptions)
-                .WaitAsync(cancellationToken);
+            multiplexer = await RedisProbeConnection.ConnectAsync(
+                () => ConnectionMultiplexer.ConnectAsync(redisOptions),
+                cancellationToken);
 
             TimeSpan latency = await multiplexer.GetDatabase().PingAsync().WaitAsync(cancellationToken);
 
