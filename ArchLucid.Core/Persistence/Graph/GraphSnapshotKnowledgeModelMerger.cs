@@ -26,7 +26,7 @@ public static class GraphSnapshotKnowledgeModelMerger
 
             if (mergedNodeByNormalizedId.TryGetValue(normalizedNodeId, out GraphNode? existingNode))
             {
-                CoalesceGraphNodeFromContext(existingNode, NormalizeNodeIdWhitespace(contextNode));
+                CoalesceGraphNodeFromContext(existingNode, contextNode);
                 continue;
             }
 
@@ -79,15 +79,15 @@ public static class GraphSnapshotKnowledgeModelMerger
         Dictionary<string, GraphNode> mergedNodeByNormalizedId,
         GraphNode candidate)
     {
-        GraphNode node = NormalizeNodeIdWhitespace(candidate);
-        string normalizedNodeId = NormalizeNodeId(node.NodeId);
+        string normalizedNodeId = NormalizeNodeId(candidate.NodeId);
 
         if (mergedNodeByNormalizedId.TryGetValue(normalizedNodeId, out GraphNode? existing))
         {
-            CoalesceGraphNode(existing, node);
+            CoalesceGraphNode(existing, candidate);
             return;
         }
 
+        GraphNode node = CopyNodeWithNormalizedId(candidate, normalizedNodeId);
         mergedNodeByNormalizedId[normalizedNodeId] = node;
         mergedNodes.Add(node);
     }
@@ -165,13 +165,8 @@ public static class GraphSnapshotKnowledgeModelMerger
         existing.Weight = Math.Max(existing.Weight, incoming.Weight);
     }
 
-    private static GraphNode NormalizeNodeIdWhitespace(GraphNode node)
+    private static GraphNode CopyNodeWithNormalizedId(GraphNode node, string normalizedNodeId)
     {
-        string normalizedNodeId = NormalizeNodeId(node.NodeId);
-
-        if (node.NodeId == normalizedNodeId)
-            return node;
-
         return new GraphNode
         {
             NodeId = normalizedNodeId,
