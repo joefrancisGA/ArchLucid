@@ -110,10 +110,12 @@ public sealed class TenantCostSettingsController(
         }
         else if (body.EaDiscountMultiplier is { } multiplier)
         {
-            if (multiplier is <= 0m or > 1m)
+            // The persisted multiplier has four decimal places and must stay positive after rounding.
+            const decimal minimumRoundingToPositiveMultiplier = 0.00005m;
+            if (multiplier is < minimumRoundingToPositiveMultiplier or > 1m)
             {
                 return this.BadRequestProblem(
-                    "EA discount multiplier must be between 0 (exclusive) and 1 (inclusive).",
+                    "EA discount multiplier must round to at least 0.0001 and be at most 1.",
                     ProblemTypes.ValidationFailed);
             }
         }
@@ -215,7 +217,7 @@ public sealed class TenantCostSettingsController(
             return TenantEaDiscountMath.MultiplierFromPercentage(percentage);
 
         if (body.EaDiscountMultiplier is { } multiplier)
-            return multiplier;
+            return decimal.Round(multiplier, 4, MidpointRounding.AwayFromZero);
 
         if (existing is not null && existing.EaDiscountMultiplier > 0m)
             return existing.EaDiscountMultiplier;
