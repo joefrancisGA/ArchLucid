@@ -47,21 +47,7 @@ public sealed partial class DapperPilotReportCardMetricsReader
                            mg.ManifestCommittedUtc,
                            r.CompletedUtc,
                            r.CreatedUtc)) AS PeriodEndUtc,
-                   AVG(CAST(commitLag.CommitSeconds AS FLOAT)) AS AverageRequestToCommitSeconds,
-                   (SELECT COUNT_BIG(*)
-                    FROM dbo.FindingRecords AS frAgg WITH (NOLOCK)
-                             INNER JOIN dbo.GoldenManifests AS gmAgg WITH (NOLOCK)
-                                        ON gmAgg.FindingsSnapshotId = frAgg.FindingsSnapshotId
-                             INNER JOIN dbo.Runs AS rAgg WITH (NOLOCK) ON rAgg.RunId = gmAgg.RunId
-                    WHERE rAgg.ArchivedUtc IS NULL
-                      AND gmAgg.ArchivedUtc IS NULL
-                      AND rAgg.TenantId = @TenantId
-                      AND rAgg.WorkspaceId = @WorkspaceId
-                      AND rAgg.ScopeProjectId = @ScopeProjectId
-                      AND (
-                           (NULLIF(LTRIM(RTRIM(rAgg.CurrentManifestVersion)), N'') IS NOT NULL)
-                        OR (rAgg.GoldenManifestId IS NOT NULL)
-                       )) AS TotalFindingRowsSnapshot
+                   AVG(CAST(commitLag.CommitSeconds AS FLOAT)) AS AverageRequestToCommitSeconds
             FROM dbo.Runs AS r WITH (NOLOCK)
                      OUTER APPLY (
                 SELECT TOP (1)
@@ -172,11 +158,7 @@ public sealed partial class DapperPilotReportCardMetricsReader
         long exportsGenerated = await multi.ReadSingleAsync<long>();
         int artifactKinds = SafeToInt(await multi.ReadSingleAsync<object?>());
 
-        int totalFindingRows = SafeToInt(summary.TotalFindingRowsSnapshot);
-
-        int derivedSum =
-            severityBuckets.Sum(static row =>
-                row.SeverityBucketCount > int.MaxValue ? int.MaxValue : (int)Math.Min(row.SeverityBucketCount, int.MaxValue));
+        int totalFindings = SafeToInt(severityBuckets.Sum(static row => row.SeverityBucketCount));
 
         return new PilotReportCardScopeMetrics
         {
@@ -184,7 +166,7 @@ public sealed partial class DapperPilotReportCardMetricsReader
             PeriodStartUtc = summary.PeriodStartUtc,
             PeriodEndUtc = summary.PeriodEndUtc,
             AverageRequestToCommitWallSeconds = NormalizeAverageSeconds(summary.AverageRequestToCommitSeconds),
-            TotalFindings = Math.Max(totalFindingRows, derivedSum),
+            TotalFindings = totalFindings,
             FindingsBySeverity = severityBuckets,
             GovernanceApprovalActions = governanceApproved,
             GovernanceRejections = governanceRejected,
