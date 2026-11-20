@@ -244,15 +244,13 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
     {
         sb.AppendLine(heading);
         sb.AppendLine();
-        string formatted = ArchitectureEvidenceRequestExport.FormatTraceField(value, notStoredCopy, storedEmptyCopy);
-
-        if (formatted == notStoredCopy || formatted == storedEmptyCopy)
+        if (string.IsNullOrWhiteSpace(value))
         {
-            sb.AppendLine(formatted);
+            sb.AppendLine(ArchitectureEvidenceRequestExport.FormatTraceField(value, notStoredCopy, storedEmptyCopy));
         }
         else
         {
-            AppendFencedMarkdownBlock(sb, fenceLanguage, formatted);
+            AppendFencedMarkdownBlock(sb, fenceLanguage, value);
         }
 
         sb.AppendLine();
