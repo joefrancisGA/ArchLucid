@@ -45,6 +45,7 @@ import { COMPARE_MANIFEST_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/arc
 import { COMPARE_END_TO_END_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-end-to-end-export-blocked-not-load-failure-copy";
 import { COMPARE_END_TO_END_EXPORT_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-end-to-end-export-stale-inputs-not-load-failure-copy";
 import { COMPARE_AI_NARRATIVE_MISSING_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-ai-narrative-missing-not-load-failure-copy";
+import { COMPARE_EXPORT_PDF_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-export-pdf-stale-inputs-not-load-failure-copy";
 
 export function CompareResultsPanelDiffStack({
   viewModel,
@@ -259,12 +260,17 @@ export function CompareResultsPanelDiffStack({
               variant="outline"
               size="sm"
               onClick={() => void handleDownloadPdf()}
-              disabled={pdfDownloading}
+              disabled={showStaleInputsWarning || pdfDownloading}
               data-testid="compare-download-pdf-button"
             >
               <Download className="h-4 w-4" aria-hidden focusable={false} />
               {pdfDownloading ? "Generating PDF…" : "Download PDF report"}
             </Button>
+            {showStaleInputsWarning && lastComparedPair !== null ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-export-pdf-stale-inputs-not-load-failure">
+                {COMPARE_EXPORT_PDF_STALE_INPUTS_NOT_LOAD_FAILURE_LINE}
+              </p>
+            ) : null}
             {pdfError ? (
               <div className="space-y-1">
                 <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
