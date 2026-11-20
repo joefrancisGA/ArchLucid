@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-20 - Score lift round 95 (batch 60): End-to-end export, stale exports, cite strip, AI narrative
+
+**Outcome.** End-to-end compare export names seal gates apart from empty Markdown. Stale picker drift pauses exports apart from failed requests. Pair cite strip warns when current-effective mode meets stale inputs. Missing AI narrative is named apart from explain mutation failure.
+
+**Surfaces.** End-to-end compare export, export stale inputs, pair evidence cite strip, AI narrative missing, honesty and mounted contract tests.
+
 ## 2026-11-20 - Score lift round 94 (batch 59): DOCX, drift download, zero finalized, manifest export
 
 **Outcome.** Comparison DOCX export names seal gates apart from empty package. Drift download blocked names lifecycle gates apart from empty drift artifact. Insufficient finalized empty (zero reviews) names prerequisite apart from failed compare with partial-capture recovery. Manifest compare export blocked honesty apart from empty Markdown.
