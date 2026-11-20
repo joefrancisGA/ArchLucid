@@ -52,6 +52,8 @@ import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_s
 import { useCompareFindingCorrelation } from "./useCompareFindingCorrelation";
 import { resolveCompareUpdatedReviewOpenHref } from "@/lib/compare-pair-grounding-links";
 import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
+import { COMPARE_WORKSPACE_UNSEALED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-workspace-unsealed-not-load-failure-copy";
+import { CompareWorkspaceUnsealedPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareWorkspaceUnsealedPartialHonesty";
 
 export type CompareFormProps = {
   readonly basePathname?: string;
@@ -307,6 +309,17 @@ export function CompareForm(props: CompareFormProps = {}) {
 
         {!compareInsightFirstLayout && showEmptyComparisonOutput && !urlPairComplete ? (
           <CompareEmptyResultsPlaceholder />
+        ) : null}
+
+        {urlPairComplete
+          && compareHasRenderableOutcome
+          && ((leftSummaryBlockedReason ?? null) !== null || (rightSummaryBlockedReason ?? null) !== null) ? (
+          <div className="space-y-2" data-testid="compare-workspace-unsealed-honesty">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-workspace-unsealed-not-load-failure">
+              {COMPARE_WORKSPACE_UNSEALED_NOT_LOAD_FAILURE_LINE}
+            </p>
+            <CompareWorkspaceUnsealedPartialHonesty />
+          </div>
         ) : null}
 
         {urlPairComplete ? (

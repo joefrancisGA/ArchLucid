@@ -5,8 +5,8 @@ import { describe, expect, it } from "vitest";
 
 const uiRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-describe("score-lift rounds 73-95 mounted contract depth", () => {
-  for (const round of [73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95] as const) {
+describe("score-lift rounds 73-96 mounted contract depth", () => {
+  for (const round of [73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96] as const) {
     it(`round ${round} mounted contract test file is present and non-empty`, () => {
       const relative = `lib/score-lift-round${round}-mounted-contract.test.ts`;
       const absolute = join(uiRoot, relative);

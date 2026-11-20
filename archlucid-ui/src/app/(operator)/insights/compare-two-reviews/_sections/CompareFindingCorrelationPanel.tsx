@@ -18,6 +18,7 @@ import { CompareFindingCorrelationPartialEmptyHonesty } from "@/app/(operator)/i
 import { CompareCorrelationEmptyAndSecondSealPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareCorrelationEmptyAndSecondSealPartialHonesty";
 import { COMPARE_CORRELATION_EMPTY_AND_SECOND_SEAL_LINE } from "@/lib/architecture/compare-correlation-empty-and-second-seal-copy";
 import { COMPARE_CORRELATION_EMPTY_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-correlation-empty-one-unsealed-not-load-failure-copy";
+import { COMPARE_CORRELATION_SOFT_FAILURE_NOT_EMPTY_METADATA_LINE } from "@/lib/architecture/compare-correlation-soft-failure-not-empty-metadata-copy";
 import { CompareCorrelationEmptyOneUnsealedPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareCorrelationEmptyOneUnsealedPartialHonesty";
 import { CompareFindingCorrelationPartialResultsHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationPartialResultsHonesty";
 import { CompareFindingCorrelationZeroCountsHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationZeroCountsHonesty";
@@ -91,6 +92,12 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Could not load {softFailureMessage}. Structured and supplementary compare sections above remain authoritative
           for review deltas.
+        </p>
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="compare-correlation-soft-failure-not-empty-metadata"
+        >
+          {COMPARE_CORRELATION_SOFT_FAILURE_NOT_EMPTY_METADATA_LINE}
         </p>
       </CompareFindingCorrelationSectionShell>
     );

@@ -36,6 +36,7 @@ import { CompareExecutionModeDeltaPanel } from "@/app/(operator)/insights/compar
 import { CompareSemanticSupportBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSemanticSupportBandDeltaPanel";
 import { COMPARE_RESULTS_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-results-stale-inputs-not-load-failure-copy";
 import { COMPARE_PAIR_BLOCKED_AGGREGATE_NOT_EMPTY_COMPARE_LINE } from "@/lib/architecture/compare-pair-blocked-aggregate-not-empty-compare-copy";
+import { COMPARE_AI_EXPLAIN_BLOCKED_NOT_EMPTY_NARRATIVE_LINE } from "@/lib/architecture/compare-ai-explain-blocked-not-empty-narrative-copy";
 import { CompareResultsStaleInputsPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsStaleInputsPartialHonesty";
 import { CompareProvenanceDeltaBand } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareProvenanceDeltaBand";
 import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
@@ -430,6 +431,14 @@ export function CompareResultsPanelVerdictChrome({
           ) : (
             <OperatorWarningCallout>{aiCompareBlockedReason}</OperatorWarningCallout>
           )}
+          {aiCompareBlockedReason !== null ? (
+            <p
+              className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="compare-ai-explain-blocked-not-empty-narrative"
+            >
+              {COMPARE_AI_EXPLAIN_BLOCKED_NOT_EMPTY_NARRATIVE_LINE}
+            </p>
+          ) : null}
           <OperatorTryNext>
             {aiCompareBlockedReason === null ? (
               <>

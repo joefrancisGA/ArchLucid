@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-20 - Score lift round 96 (batch 61): Workspace unsealed, AI explain blocked, PDF stale, correlation soft failure
+
+**Outcome.** Main compare workspace names unsealed results with partial-capture recovery. AI explain blocked names seal gates apart from empty narrative. PDF export pauses on stale picker drift. Finding correlation soft failure is distinct from empty metadata.
+
+**Surfaces.** Compare workspace unsealed, AI explain blocked, PDF stale inputs, correlation soft failure, honesty and mounted contract tests.
+
 ## 2026-11-20 - Score lift round 95 (batch 60): End-to-end export, stale exports, cite strip, AI narrative
 
 **Outcome.** End-to-end compare export names seal gates apart from empty Markdown. Stale picker drift pauses exports apart from failed requests. Pair cite strip warns when current-effective mode meets stale inputs. Missing AI narrative is named apart from explain mutation failure.
