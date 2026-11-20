@@ -121,12 +121,11 @@ export function writeFavoriteReviews(favorites: readonly FavoriteReview[]): void
   }
 
   try {
-    const normalized = favorites
+    const normalized = deduplicateFavorites(favorites
       .filter(isFavoriteReviewRow)
-      .map(normalizeFavorite)
-      .slice(0, FAVORITE_REVIEWS_MAX);
+      .map(normalizeFavorite)).slice(0, FAVORITE_REVIEWS_MAX);
 
-    window.localStorage.setItem(FAVORITE_REVIEWS_STORAGE_KEY, JSON.stringify(deduplicateFavorites(normalized)));
+    window.localStorage.setItem(FAVORITE_REVIEWS_STORAGE_KEY, JSON.stringify(normalized));
   } catch {
     /* ignore quota / private mode */
   }
