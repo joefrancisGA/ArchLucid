@@ -90,7 +90,11 @@ export function useCloudConnectionsPage() {
   const searchParams = useSearchParams();
   const { productLine } = useProductLine();
   const currentSearch = searchParams.toString();
-  const urlPlatform = parseCloudConnectionsPlatformFromSearch(searchParams.get("platform"));
+  const requestedPlatform = parseCloudConnectionsPlatformFromSearch(searchParams.get("platform"));
+  const urlPlatform =
+    requestedPlatform === "all" || isCloudProviderSupportedForProductLine(requestedPlatform, productLine)
+      ? requestedPlatform
+      : "all";
   const [platformScope, setPlatformScope] = useState(() => resolveLandingCloudPlatformScope());
   const [isLoading, setIsLoading] = useState(true);
   const [successfulPullByProvider, setSuccessfulPullByProvider] = useState<Record<CloudProviderId, boolean>>({
@@ -310,17 +314,10 @@ export function useCloudConnectionsPage() {
     [productLine],
   );
 
-  const visibleProviders = useMemo(() => {
-    if (urlPlatform === "all") {
-      return preferenceScopedProviders;
-    }
-
-    if (preferenceScopedProviders.includes(urlPlatform)) {
-      return [urlPlatform];
-    }
-
-    return [urlPlatform];
-  }, [preferenceScopedProviders, urlPlatform]);
+  const visibleProviders = useMemo(
+    () => (urlPlatform === "all" ? preferenceScopedProviders : [urlPlatform]),
+    [preferenceScopedProviders, urlPlatform],
+  );
 
   const hasSuccessfulPull = useMemo(
     () => CLOUD_PROVIDER_NEUTRAL_ORDER.some((provider) => successfulPullByProvider[provider]),
