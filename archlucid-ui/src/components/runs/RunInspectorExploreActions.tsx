@@ -192,8 +192,7 @@ export function RunInspectorExploreActions({
               className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20"
               open={runInspectorRelatedActionsOpen}
               onToggle={(event) => {
-                event.preventDefault();
-                setRunInspectorRelatedActionsOpen(!runInspectorRelatedActionsOpenRef.current);
+                setRunInspectorRelatedActionsOpen(event.currentTarget.open);
               }}
             >
               <summary className={cn("cursor-pointer select-none px-3 py-2", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
@@ -223,8 +222,7 @@ export function RunInspectorExploreActions({
               className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20"
               open={runInspectorOpenArtifactOpen}
               onToggle={(event) => {
-                event.preventDefault();
-                setRunInspectorOpenArtifactOpen(!runInspectorOpenArtifactOpenRef.current);
+                setRunInspectorOpenArtifactOpen(event.currentTarget.open);
               }}
             >
               <summary className={cn("cursor-pointer select-none px-3 py-2", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
