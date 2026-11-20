@@ -26,7 +26,7 @@ public static class SponsorRoiBoardPackMarkdownBuilder
         sb.AppendLine("# Sponsor ROI — Board Pack");
         sb.AppendLine();
         sb.AppendLine($"**Tenant:** {tenant}");
-        sb.AppendLine($"**Generated (UTC):** {generatedUtc:yyyy-MM-dd HH:mm:ss} Z");
+        sb.AppendLine($"**Generated (UTC):** {generatedUtc.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)} Z");
         sb.AppendLine($"**Systems in scope:** {summary.SystemCount.ToString(CultureInfo.InvariantCulture)}");
         sb.AppendLine(
             $"**Savings pricing basis:** {summary.SavingsPricingBasis} (EA discount multiplier {summary.EaDiscountMultiplier.ToString("0.####", CultureInfo.InvariantCulture)})");
