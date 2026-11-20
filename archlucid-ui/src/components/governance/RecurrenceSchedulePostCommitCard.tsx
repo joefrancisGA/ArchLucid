@@ -134,15 +134,26 @@ export function RecurrenceSchedulePostCommitCard({
     }
   }, [runId]);
 
+  const scheduleLoadVersion = useRef(0);
   const reload = useCallback(async (): Promise<void> => {
-    const rows = await listArchitectureReviewRecurrenceSchedules();
-    setSchedules(
-      filterRecurrenceSchedulesForReviewScope({
-        schedules: rows,
-        sourceRunId: runId,
-        architectureId,
-      }),
-    );
+    const version = ++scheduleLoadVersion.current;
+    try {
+      const rows = await listArchitectureReviewRecurrenceSchedules();
+
+      if (version === scheduleLoadVersion.current) {
+        setSchedules(
+          filterRecurrenceSchedulesForReviewScope({
+            schedules: rows,
+            sourceRunId: runId,
+            architectureId,
+          }),
+        );
+      }
+    } catch (error) {
+      if (version === scheduleLoadVersion.current) {
+        throw error;
+      }
+    }
   }, [architectureId, runId]);
 
   useEffect(() => {
@@ -160,6 +171,7 @@ export function RecurrenceSchedulePostCommitCard({
 
     return () => {
       canceled = true;
+      scheduleLoadVersion.current++;
     };
   }, [reload]);
 
