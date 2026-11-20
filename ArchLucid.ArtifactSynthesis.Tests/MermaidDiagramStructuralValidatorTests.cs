@@ -61,6 +61,35 @@ public sealed class MermaidDiagramStructuralValidatorTests
         errors.Should().ContainSingle(error => error.Contains("Unrecognized Mermaid line", StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData("\r\n")]
+    [InlineData("\n")]
+    [InlineData("\r")]
+    public void TryValidate_accepts_rendered_multiline_node_metadata(string lineBreak)
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Review annotations",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "a",
+                    Label = "A",
+                    NodeType = "Service",
+                    UnresolvedRelationshipDetails = [$"Owner unknown.{lineBreak}Review the inventory."],
+                },
+            ],
+        };
+
+        string mermaid = new MermaidDiagramRenderer().Render(ast);
+
+        mermaid.Should().Contain("al-unresolved=\"Owner unknown. Review the inventory.\"");
+        bool valid = validator.TryValidate(mermaid, out IReadOnlyList<string> errors);
+        valid.Should().BeTrue();
+        errors.Should().BeEmpty();
+    }
+
     [Fact]
     public void TryValidate_accepts_compiled_executive_owner_shape()
     {
