@@ -132,6 +132,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     lastCheckedAt,
     refresh,
     setHealth,
+    setSettings,
   } = useItsmConnectorPage({
     providerId: "servicenow",
     buildPageLoadResult: buildServiceNowPageLoadResult,
@@ -248,6 +249,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
         },
         { returnPath: livelihoodReturnPath },
       ) as TenantItsmOutboundSettingsResponse;
+      setSettings(saved);
       applySettings(saved);
       setSaveSuccess(SERVICENOW_SAVE_SUCCESS);
     } catch (error: unknown) {
@@ -259,7 +261,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     } finally {
       setIsSaving(false);
     }
-  }, [applySettings, canMutate, livelihoodReturnPath, settings, settingsLoadFailed, snowAutoCmdb]);
+  }, [applySettings, canMutate, livelihoodReturnPath, setSettings, settings, settingsLoadFailed, snowAutoCmdb]);
 
   const instanceUrl = connection?.instanceBaseUrl?.trim() || SERVICENOW_INSTANCE_URL_NOT_SET;
   const authMethod = formatServiceNowAuthMethod(connection?.authMode);
