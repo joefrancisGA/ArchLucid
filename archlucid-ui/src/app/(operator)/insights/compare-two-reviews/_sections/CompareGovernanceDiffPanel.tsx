@@ -159,6 +159,12 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
     );
   }
 
+  const hasStoredRuleSetBasis =
+    view.baselineManifest.ruleSetId !== null &&
+    view.baselineManifest.ruleSetVersion !== null &&
+    view.targetManifest.ruleSetId !== null &&
+    view.targetManifest.ruleSetVersion !== null;
+
   return (
     <section
       id="compare-governance-diff"
@@ -261,8 +267,15 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
           ))}
         </ul>
       ) : (
-        <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="compare-governance-no-rule-set-change">
-          Committed reviews share the same policy pack rule set basis.
+        <p
+          className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid={hasStoredRuleSetBasis
+            ? "compare-governance-no-rule-set-change"
+            : "compare-governance-incomplete-rule-set-basis"}
+        >
+          {hasStoredRuleSetBasis
+            ? "Committed reviews share the same policy pack rule set basis."
+            : "The stored policy pack rule set basis is incomplete."}
         </p>
       )}
 
