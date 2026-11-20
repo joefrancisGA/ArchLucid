@@ -172,15 +172,11 @@ public sealed partial class InMemoryTenantRepository
     {
         _ = ct;
 
-        TenantRecord? existing;
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out existing))
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
                 return Task.CompletedTask;
-        }
 
-        lock (_trialGate)
-        {
             _byId[tenantId] = new TenantRecord
             {
                 Id = existing.Id,
@@ -188,6 +184,7 @@ public sealed partial class InMemoryTenantRepository
                 Slug = existing.Slug,
                 Tier = existing.Tier,
                 EntraTenantId = existing.EntraTenantId,
+                DataRegion = existing.DataRegion,
                 CreatedUtc = existing.CreatedUtc,
                 SuspendedUtc = existing.SuspendedUtc,
                 TrialStartUtc = existing.TrialStartUtc,
@@ -199,6 +196,9 @@ public sealed partial class InMemoryTenantRepository
                 TrialStatus = existing.TrialStatus,
                 TrialSampleRunId = existing.TrialSampleRunId,
                 TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
+                TrialArchitecturePreseedAttemptCount = existing.TrialArchitecturePreseedAttemptCount,
+                TrialArchitecturePreseedFailedUtc = existing.TrialArchitecturePreseedFailedUtc,
+                TrialArchitecturePreseedLastError = existing.TrialArchitecturePreseedLastError,
                 TrialWelcomeRunId = existing.TrialWelcomeRunId,
                 TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
                 BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
