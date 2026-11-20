@@ -95,6 +95,8 @@ public sealed class InMemoryBackgroundJobQueue(
     public Task<BackgroundJobFile?> GetFileAsync(string jobId, CancellationToken cancellationToken = default)
     {
         return string.IsNullOrWhiteSpace(jobId)
+            || !_info.TryGetValue(jobId, out BackgroundJobInfo? info)
+            || info.State != BackgroundJobState.Succeeded
             ? Task.FromResult<BackgroundJobFile?>(null)
             : Task.FromResult(_files.TryGetValue(jobId, out BackgroundJobFile? file) ? file : null);
     }
@@ -111,18 +113,19 @@ public sealed class InMemoryBackgroundJobQueue(
         if (string.IsNullOrWhiteSpace(jobId))
             return Task.CompletedTask;
 
-        if (!_info.TryGetValue(jobId, out BackgroundJobInfo? current))
-            return Task.CompletedTask;
-
-        if (current.State is not BackgroundJobState.Pending and not BackgroundJobState.Running)
-            return Task.CompletedTask;
-
-        _info[jobId] = current with
+        while (_info.TryGetValue(jobId, out BackgroundJobInfo? current)
+            && current.State is BackgroundJobState.Pending or BackgroundJobState.Running)
         {
-            State = BackgroundJobState.Canceled,
-            CompletedUtc = TimeProvider.System.GetUtcNow(),
-            Error = "Canceled by user request."
-        };
+            BackgroundJobInfo canceled = current with
+            {
+                State = BackgroundJobState.Canceled,
+                CompletedUtc = TimeProvider.System.GetUtcNow(),
+                Error = "Canceled by user request."
+            };
+
+            if (_info.TryUpdate(jobId, canceled, current))
+                break;
+        }
 
         return Task.CompletedTask;
     }
@@ -159,24 +162,19 @@ public sealed class InMemoryBackgroundJobQueue(
                 BackgroundJobFile file = await executor.ExecuteAsync(item.WorkUnit, stoppingToken);
                 _files[item.JobId] = file;
 
-                if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? afterSuccess) ||
-                    afterSuccess.State == BackgroundJobState.Canceled)
-                    continue;
-
-                if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforeSuccessWrite) ||
-                    beforeSuccessWrite.State == BackgroundJobState.Canceled)
-                    continue;
-
-                TryAssignUnlessCanceled(
-                    item.JobId,
-                    existing => existing with
-                    {
-                        State = BackgroundJobState.Succeeded,
-                        CompletedUtc = TimeProvider.System.GetUtcNow(),
-                        Error = null,
-                        FileName = file.FileName,
-                        ContentType = file.ContentType
-                    });
+                if (!TryAssignUnlessCanceled(
+                        item.JobId,
+                        existing => existing with
+                        {
+                            State = BackgroundJobState.Succeeded,
+                            CompletedUtc = TimeProvider.System.GetUtcNow(),
+                            Error = null,
+                            FileName = file.FileName,
+                            ContentType = file.ContentType
+                        }))
+                {
+                    _files.TryRemove(item.JobId, out _);
+                }
             }
             catch (Exception ex)
             {
@@ -341,22 +339,14 @@ public sealed class InMemoryBackgroundJobQueue(
 
     private bool TryAssignUnlessCanceled(string jobId, Func<BackgroundJobInfo, BackgroundJobInfo> transform)
     {
-        bool assigned = false;
+        while (_info.TryGetValue(jobId, out BackgroundJobInfo? existing)
+            && existing.State != BackgroundJobState.Canceled)
+        {
+            if (_info.TryUpdate(jobId, transform(existing), existing))
+                return true;
+        }
 
-        _info.AddOrUpdate(
-            jobId,
-            _ => throw new InvalidOperationException($"Background job {jobId} is missing from the in-memory queue."),
-            (_, existing) =>
-            {
-                if (existing.State == BackgroundJobState.Canceled)
-                    return existing;
-
-                assigned = true;
-
-                return transform(existing);
-            });
-
-        return assigned;
+        return false;
     }
 
     private void EvictOldTerminalJobs()
