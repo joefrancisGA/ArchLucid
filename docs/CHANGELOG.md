@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+
+## 2026-11-20 - Score lift round 100 (batch 65): Manifest lineage, share package, seal delta, compare lifecycle
+
+**Outcome.** Golden manifest export names lineage verify failure apart from commit-before-seal and finalize-disabled copy. Share review package names post-seal API failure apart from an unsealed disabled control. Seal delta names zero changes, load failure, and single-seal compare block. Compare finding lifecycle names status-filter empty and zero-count empty read.
+
+**Surfaces.** Golden manifest export menu, share review package button, architecture seal delta panel, compare finding lifecycle block, honesty and mounted contract tests.
 ## 2026-11-20 - Score lift round 99 (batch 64): Graph PNG, diagram renderer, reuse stamp, diagnostic destination
 
 **Outcome.** Evidence-graph PNG names a tainted canvas apart from other raster failures. Diagram PNG export names a missing server renderer. A stored graph snapshot names reused observation time as the prior stamp. Diagnostic destination warnings name a null field apart from an empty destination list.
