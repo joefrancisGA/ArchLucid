@@ -1,30 +1,5 @@
 > **Scope:** Contributor-reference — Hunt ledger for `/al-bug2` (API, identity, tenancy, and governance). Edit this file only from that command. Sync and push `bugsmash-2`. Do not edit the other set ledgers in the same hunt.
 
-## Zone: persistence-migrations
-
-2026-11-20 seed hunt (seed-only): coverage zone for `ArchLucid.Persistence/Migrations` (nominate gap). Seeded five `(hunt-ready)` rows; no production change.
-
-### Hypotheses
-
-- [ ] (hunt-ready) migration bootstrap — re-apply script when schema history row exists but object missing may skip recreate — locus: history vs reality drift; input: manual drop table; wrong outcome: app starts against missing object; reachability: local SQL bootstrap.
-- [ ] (hunt-ready) rollback script pairing — rollback entry without matching up migration id may still execute destructive drop — locus: rollback pairing guard; input: orphan rollback file; wrong outcome: unintended drop; reachability: dev rollback workflows.
-- [ ] (hunt-ready) tenant scope seed migration — duplicate seed insert may violate unique index without idempotent upsert — locus: seed idempotency; input: second bootstrap on partial DB; wrong outcome: migration fail mid-chain; reachability: fresh tenant catalog seed.
-- [ ] (hunt-ready) index creation — filtered index predicate may use wrong collation for case-sensitive column — locus: predicate vs column collation; input: CI collation mismatch; wrong outcome: duplicate key acceptance; reachability: tenancy index migrations.
-- [ ] (hunt-ready) extended property migration — adding column with default may lock large table when not online — locus: DDL online hint; input: big table add column; wrong outcome: long production lock; reachability: release migration cadence.
-
-- **id:** persistence-migrations
-- **status:** open
-- **impact:** high
-- **aliases:** SQL migrations; schema bootstrap
-- **paths:** ArchLucid.Persistence/Migrations/
-- **test-filter:** FullyQualifiedName~Migration|FullyQualifiedName~SchemaBootstrap
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
-- **related-pd-tb:** none
-- **code-changed-since:** no
 ## Zone: tenant-settings-sql
 
 2026-10-21 seed hunt (seed-only, lane C): cheap-disproof five open cache/SQL candidates; one new regression; seeded five follow-on rows; 44 scoped tests passed.

@@ -1,56 +1,5 @@
 > **Scope:** Contributor-reference — hunt ledger for `/al-bug4` (Core, host, persistence, and extraction). Edit this file only from that command. Sync and push `bugsmash-4`. Do not edit the other set ledgers in the same hunt.
 
-## Zone: application-infra-evidence
-
-2026-11-20 seed hunt (seed-only): coverage zone for `ArchLucid.Application/InfraEvidence` (nominate gap). Seeded five `(hunt-ready)` rows; no production change.
-
-### Hypotheses
-
-- [ ] (hunt-ready) `IInfrastructureDiagramComparisonService` — compare when one diagram id is whitespace-padded may treat padded and trimmed ids as different successes — locus: id normalization; input: padded diagram key; wrong outcome: false not-found; reachability: operator diagram diff UI.
-- [ ] (hunt-ready) `IInfraEvidenceAskGroundingService` — sparse snapshot may return succeeded with empty citations when inventory header exists but node list is empty — locus: grounding threshold; input: header-only snapshot; wrong outcome: confident empty answer; reachability: infra evidence ask panel.
-- [ ] (hunt-ready) `IFourRealityDriftEngine` — drift run with partially collected subscription scope may omit NR-40 partial enumeration flag — locus: scope aggregation; input: one failed subscription page; wrong outcome: full-green drift; reachability: continuous readiness dashboard.
-- [ ] (hunt-ready) `IAuditHybridEvidenceQueryService` — hybrid query when assessment id trims differently than stored key may return null vs empty record inconsistently — locus: key trim; input: padded assessment id; wrong outcome: intermittent not-found; reachability: audit evidence hybrid panel.
-- [ ] (hunt-ready) `IVisionDiagramIngestService` — ingest with sealed run hash mismatch may persist sources before guard throws — locus: guard ordering; input: wrong sealed hash with non-empty sources; wrong outcome: partial ingest; reachability: vision diagram upload.
-
-- **id:** application-infra-evidence
-- **status:** open
-- **impact:** high
-- **aliases:** application infra evidence services
-- **paths:** ArchLucid.Application/InfraEvidence/
-- **test-filter:** FullyQualifiedName~InfraEvidence
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
-- **related-pd-tb:** none
-- **code-changed-since:** no
-
-## Zone: persistence-infra-evidence
-
-2026-11-20 seed hunt (seed-only): coverage zone for `ArchLucid.Persistence/InfraEvidence` (nominate gap). Seeded five `(hunt-ready)` rows; no production change.
-
-### Hypotheses
-
-- [ ] (hunt-ready) No-op repository parity — in-memory no-op reader may return default struct instead of null for missing snapshot id — locus: null vs default; input: unknown snapshot id; wrong outcome: empty snapshot UI; reachability: in-memory dev host infra evidence panels.
-- [ ] (hunt-ready) SQL remediation wave reader — padded wave id in query may not trim before indexed lookup — locus: id trim; input: padded wave id; wrong outcome: not-found; reachability: remediation waves SQL path.
-- [ ] (hunt-ready) audit evidence snapshot store — whitespace `tenantId` on insert may bypass normalization used on read — locus: trim symmetry; input: padded tenant id; wrong outcome: orphan snapshot row; reachability: audit evidence persistence.
-- [ ] (hunt-ready) Azure inventory diff narrative — concurrent diff writes may last-write-win without version guard — locus: optimistic concurrency; input: parallel diff jobs; wrong outcome: stale narrative; reachability: inventory diff history.
-- [ ] (hunt-ready) security evidence path search — empty path token in filter may match all rows when meant to match none — locus: empty token; input: blank facet token; wrong outcome: over-broad search; reachability: security evidence path explorer.
-
-- **id:** persistence-infra-evidence
-- **status:** open
-- **impact:** high
-- **aliases:** persistence infra evidence repositories
-- **paths:** ArchLucid.Persistence/InfraEvidence/
-- **test-filter:** FullyQualifiedName~InfraEvidence
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
-- **related-pd-tb:** none
-- **code-changed-since:** no
 ## Zone: weekly-digest-email
 2026-11-04 thorough hunt #1686 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `host-core-coordination` (dry **#1683**, **#1684**, **#1685** / run log; picker **`shouldRotate: true`** with **`-AvoidZoneId host-core-coordination`** → `weekly-digest-email`; reason: *3 consecutive low-yield hunt(s) on 'host-core-coordination' (outcomes: dry, dry, dry).*). Cheap-disproof closed five header `(candidate)` monitor rows from hunt #1680 reseed (regression family hunt **#1119**) — **valid-no-repro** executive summary cancellation after provider accept before ledger record (send-then-record TB-089 tradeoff — hunts #1081/#1051; parity hunt **#1252**), **valid-no-repro** sponsor report partial multi-recipient `false` while first mailbox ledger-recorded (intentional retry contract — `WeeklySponsorReportEmailDispatcher_partial_multi_recipient_send_failure_delivers_remaining_recipients_on_retry`; hunt #1081; parity **#1252**), **valid-no-repro** provider exception after remote accept without ledger row (ambiguous failure retries safely — hunt #1051; parity **#1252**), **valid-no-repro** options reload mid-dispatch (`EmailNotificationOptions` captured once via `CurrentValue` in `WeeklyExecutiveSummaryEmailDispatcher`; hunt #1081; parity **#1252**), **valid-no-repro** Unicode line separators in summary markdown (`EmailMultipartPlainTextLineBreakNormalizer.NormalizeOptional` before render — hunt #1081 + `EmailMultipartPlainTextLineBreakNormalizerTests`; parity **#1252**). Reseeded five `(candidate)` monitor rows below (regression family hunt **#1089**; hunt #1686 reseed); scoped **2/2** `WeeklyExecutiveSummaryJobTests` + **80/80** `DigestEmailDispatcherIdempotencyTests` passed (`RunAnalyzers=false`). Run-log low-yield streak on `weekly-digest-email` **starts 1/3** after this record (rotation target). Private beta: n/a.
 
