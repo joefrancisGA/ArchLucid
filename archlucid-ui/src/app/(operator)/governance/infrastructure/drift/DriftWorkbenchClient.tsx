@@ -652,6 +652,7 @@ export function DriftWorkbenchClient() {
 
     try {
       await deleteInfraEvidenceSnapshot(pendingDeleteSnapshotId);
+      setSnapshots((current) => current.filter((snapshot) => snapshot.snapshotId !== pendingDeleteSnapshotId));
 
       if (selectedSnapshotId === pendingDeleteSnapshotId) {
         setSelectedSnapshotId("");
