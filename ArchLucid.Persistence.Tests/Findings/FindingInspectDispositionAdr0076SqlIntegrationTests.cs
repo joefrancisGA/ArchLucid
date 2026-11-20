@@ -10,6 +10,8 @@ using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 using ArchLucid.Persistence.Tests.Support;
 
+using Dapper;
+
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Findings;
@@ -86,6 +88,49 @@ public sealed class FindingInspectDispositionAdr0076SqlIntegrationTests(SqlServe
         response.LatestDispositionReviewerUserId.Should().Be(reviewerUserId);
         response.LatestDispositionRowVersionBase64.Should().Be(expectedRowVersionBase64);
         response.RevisitDueUtc.Should().Be(revisitDueUtc);
+    }
+
+    [SkippableFact]
+    public async Task GetInspectAsync_distinguishes_missing_human_review_from_an_explicit_not_required_status()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        CancellationToken ct = CancellationToken.None;
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        await SeedFindingAsync(fixture.ConnectionString, scope);
+
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using Microsoft.Data.SqlClient.SqlConnection connection = await factory.CreateOpenConnectionAsync(ct);
+        const string update = """
+            UPDATE dbo.FindingRecords
+            SET HumanReviewStatus = @Review
+            WHERE FindingId = @FindingId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
+            """;
+
+        Task<int> SetReviewAsync(string review) =>
+            connection.ExecuteAsync(new CommandDefinition(update,
+                new { Review = review, FindingId, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                cancellationToken: ct));
+
+        DapperFindingInspectReadRepository reader = new(factory);
+        (await SetReviewAsync("\u200b")).Should().Be(1);
+        FindingInspectResponse? absent = await reader.GetInspectAsync(scope, FindingId, ct);
+        absent.Should().NotBeNull();
+        absent!.HumanReviewStatus.Should().Be(FindingHumanReviewStatus.NotRequired);
+        absent.HumanReviewStatusStored.Should().BeFalse();
+
+        (await SetReviewAsync("NotRequired")).Should().Be(1);
+        FindingInspectResponse? explicitStatus = await reader.GetInspectAsync(scope, FindingId, ct);
+        explicitStatus.Should().NotBeNull();
+        explicitStatus!.HumanReviewStatus.Should().Be(FindingHumanReviewStatus.NotRequired);
+        explicitStatus.HumanReviewStatusStored.Should().BeTrue();
     }
 
     private static async Task<Guid> SeedFindingAsync(string connectionString, ScopeContext scope)
