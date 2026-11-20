@@ -66,7 +66,9 @@ export function useWizardSessionPersistence<TState>(
   const [pendingRestore, setPendingRestore] = useState<WizardSessionSnapshot<TState> | null>(null);
   const restorePromptCheckedRef = useRef(false);
   const restoreDecisionPendingRef = useRef(false);
-  const persistedSnapshotRef = useRef<string | null>(null);
+  const persistedSnapshotRef = useRef<{ stepIndex: number; serializedState: string } | null>(
+    null,
+  );
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const syncWizardRestoreToUrl = useCallback(
@@ -167,7 +169,10 @@ export function useWizardSessionPersistence<TState>(
     restoreDecisionPendingRef.current = false;
     setPendingRestore(null);
     syncWizardRestoreToUrl(false);
-    persistedSnapshotRef.current = JSON.stringify(pendingRestore.state);
+    persistedSnapshotRef.current = {
+      stepIndex: pendingRestore.stepIndex,
+      serializedState: JSON.stringify(pendingRestore.state),
+    };
     setLastSavedUtc(pendingRestore.savedAtUtc);
     setSaveState("saved");
   }, [args, pendingRestore, syncWizardRestoreToUrl]);
@@ -248,7 +253,10 @@ export function useWizardSessionPersistence<TState>(
 
     const serialized = JSON.stringify(args.state);
 
-    if (serialized === persistedSnapshotRef.current) {
+    if (
+      persistedSnapshotRef.current?.stepIndex === args.stepIndex &&
+      persistedSnapshotRef.current.serializedState === serialized
+    ) {
       return;
     }
 
@@ -264,7 +272,10 @@ export function useWizardSessionPersistence<TState>(
         stepIndex: args.stepIndex,
         state: args.state,
       });
-      persistedSnapshotRef.current = serialized;
+      persistedSnapshotRef.current = {
+        stepIndex: args.stepIndex,
+        serializedState: serialized,
+      };
       setLastSavedUtc(savedAtUtc);
       setSaveState("saved");
 
