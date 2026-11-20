@@ -80,7 +80,7 @@ export function useCompareFormDiffSubmit(options: {
     ai.aiMalformed !== null;
 
   const compareInsightFirstLayout = pairAligned && !fetch.loading && compareHasRenderableOutcome;
-  const compareComplete = fetch.lastComparedPair !== null && (fetch.result !== null || fetch.golden !== null);
+  const compareComplete = pairAligned && (fetch.result !== null || fetch.golden !== null);
   const compareChecklistSteps = resolveCompareTwoReviewsSteps({
     priorPicked: leftTrim.length > 0,
     laterPicked: rightTrim.length > 0,
