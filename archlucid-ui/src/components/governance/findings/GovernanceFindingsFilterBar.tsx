@@ -16,6 +16,10 @@ import {
 } from "@/lib/governance/governance-findings-queue-nl-facets-url";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture/architecture-risk-register-csv";
 import {
+  RISK_REGISTER_CSV_EXPORT_EMPTY_NOT_FAILURE_LINE,
+  RISK_REGISTER_CSV_EXPORT_HARD_FAILURE_LINE,
+} from "@/lib/architecture/risk-register-csv-export-honesty-copy";
+import {
   matchesRiskRegisterFilter,
   RISK_REGISTER_FILTER_LABELS,
   RISK_REGISTER_QUICK_FILTERS,
@@ -84,6 +88,7 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
   const currentSearch = searchParams.toString();
   const removePresetIdParam = searchParams.get("removePresetId");
   const [pendingRemovePreset, setPendingRemovePresetState] = useState<GovernanceFindingsFilterPreset | null>(null);
+  const [csvExportFailed, setCsvExportFailed] = useState(false);
 
   const syncRemovePresetToUrl = useCallback(
     (presetId: string | null) => {
@@ -202,10 +207,29 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
           type="button"
           size="sm"
           variant="outline"
-          onClick={() => downloadArchitectureRiskRegisterCsv(displayedRows)}
+          data-testid="governance-findings-export-csv-button"
+          onClick={() => {
+            setCsvExportFailed(false);
+
+            try {
+              downloadArchitectureRiskRegisterCsv(displayedRows);
+            } catch {
+              setCsvExportFailed(true);
+            }
+          }}
         >
           Export CSV
         </Button>
+        {displayedRows.length === 0 ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="governance-findings-risk-register-csv-empty-not-failure">
+            {RISK_REGISTER_CSV_EXPORT_EMPTY_NOT_FAILURE_LINE}
+          </p>
+        ) : null}
+        {csvExportFailed ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="governance-findings-risk-register-csv-hard-failure">
+            {RISK_REGISTER_CSV_EXPORT_HARD_FAILURE_LINE}
+          </p>
+        ) : null}
         <Button
           type="button"
           size="sm"
