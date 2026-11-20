@@ -29,6 +29,12 @@ internal static partial class ArtifactBundleRelationalRead
             ? relationalArtifacts
             : ArtifactBundleArtifactsJsonReader.DeserializeArtifacts(row.ArtifactsJson);
 
+        if (!loadArtifactBodies && relationalArtifacts.Count == 0)
+        {
+            foreach (SynthesizedArtifact artifact in artifacts)
+                artifact.Content = string.Empty;
+        }
+
         SynthesisTrace trace = ArtifactBundleTraceJsonReader.DeserializeTraceBase(row.TraceJson);
 
         List<string> generators = await LoadOrderedStringsAsync(
