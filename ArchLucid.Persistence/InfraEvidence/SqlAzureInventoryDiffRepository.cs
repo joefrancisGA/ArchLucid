@@ -433,7 +433,7 @@ public sealed partial class SqlAzureInventoryDiffRepository(ISqlConnectionFactor
                                       ProvenanceKind, ChangedByDisplayName, ChangedByKind
                                FROM dbo.AzureInventoryChanges
                                WHERE TenantId = @TenantId AND DiffId = @DiffId{resourceFilter}
-                               ORDER BY AzureResourceId, ChangeType, Property
+                               ORDER BY AzureResourceId, ChangeType, Property, ChangeId
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """;
 
