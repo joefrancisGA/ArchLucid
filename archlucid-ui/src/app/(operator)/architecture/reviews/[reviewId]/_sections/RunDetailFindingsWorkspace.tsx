@@ -82,6 +82,9 @@ import {
 } from "@/lib/finding-stream-product-of-record-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { REVIEW_FINDINGS_LAST_VISIT_RESTORE_NOT_LOAD_FAILURE_LINE } from "@/lib/findings/review-findings-last-visit-restore-not-load-failure-copy";
+import { REVIEW_UNCITED_BAND_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/findings/review-uncited-band-empty-not-load-failure-copy";
+import { reviewFindingsLastVisitHasUrlParams } from "@/lib/findings/review-findings-last-visit-url";
 import { cn } from "@/lib/utils";
 
 export type RunDetailFindingsWorkspaceProps = {
@@ -535,6 +538,18 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       {hiddenFilterHonesty.hasHidden ? (
         <FindingsHiddenFilterHonestyBand honesty={hiddenFilterHonesty} onShowAll={showAllFilteredFindings} />
       ) : null}
+      {architectWorkspaceChrome
+      && listFindings.length === 0
+      && toolbarScopedFindings.length === 0
+      && props.findings.length > 0
+      && reviewFindingsLastVisitHasUrlParams(new URLSearchParams(searchParams.toString())) ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="review-findings-last-visit-restore-not-load-failure"
+        >
+          {REVIEW_FINDINGS_LAST_VISIT_RESTORE_NOT_LOAD_FAILURE_LINE}
+        </p>
+      ) : null}
       <ReviewAssumptionConfirmationStrip
         runId={props.runId}
         findings={props.findings}
@@ -576,6 +591,14 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
           {classificationBand === "decision-grade" && classificationCounts.checklist > 0 && listFindings.length === 0 ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="run-detail-findings-checklist-remains-hint">
               {classificationCounts.checklist} checklist {classificationCounts.checklist === 1 ? "row remains" : "rows remain"} on this package — open the Checklist band to triage them.
+            </p>
+          ) : null}
+          {classificationBand === "uncited" && listFindings.length === 0 && classificationCounts.uncited === 0 ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="review-uncited-band-empty-not-load-failure"
+            >
+              {REVIEW_UNCITED_BAND_EMPTY_NOT_LOAD_FAILURE_LINE}
             </p>
           ) : null}
           {classificationCounts.unclassified > 0 ? (
