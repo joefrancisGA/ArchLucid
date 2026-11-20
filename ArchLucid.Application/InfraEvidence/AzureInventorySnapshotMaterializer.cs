@@ -397,7 +397,9 @@ public sealed class AzureInventorySnapshotMaterializer(
 
         foreach (AzureInventoryResourceRelationshipWrite relationship in relationships
                      .OrderBy(r => r.FromAzureResourceId, StringComparer.Ordinal)
-                     .ThenBy(r => r.ToAzureResourceId, StringComparer.Ordinal))
+                     .ThenBy(r => r.ToAzureResourceId, StringComparer.Ordinal)
+                     .ThenBy(r => r.RelationshipType, StringComparer.Ordinal)
+                     .ThenBy(r => r.ProvenanceKind))
         {
             builder.Append(relationship.FromAzureResourceId)
                 .Append('>')
