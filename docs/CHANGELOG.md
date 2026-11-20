@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-20 - Score lift round 92 (batch 57): Trust banner, live region, structured empty, manifest diff
+
+**Outcome.** Compare trust banner names current-effective scope with an unsealed review. Live region announces stale picker drift. Structured comparison names empty payload apart from golden load failure. Raw manifest diff names identical JSON apart from blocked manifest fetch.
+
+**Surfaces.** Compare trust banner, compare live region, structured diff, raw manifest diff, honesty and mounted contract tests.
+
 ## 2026-11-20 - Score lift round 91 (batch 56): Verdict add/remove, execution mode, provenance, agent empty
 
 **Outcome.** Compare verdict summary names add/remove counts as requiring two sealed reviews. Compare execution mode delta names unsealed review gap. Provenance delta footnotes partial inventory when manifest diffs show. Agent results callout names empty success response apart from blocked compare.

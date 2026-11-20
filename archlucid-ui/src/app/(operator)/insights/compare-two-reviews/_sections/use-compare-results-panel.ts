@@ -22,6 +22,7 @@ import { buildCompareExecutionModeDeltaView } from "@/lib/review-quality/compare
 import { useComparisonSearchQuery } from "@/hooks/use-comparison-search-query";
 import { useComparisonDriftDownload } from "@/hooks/use-comparison-drift-download";
 import type { CompareResultsPanelProps } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanel";
+import { COMPARE_LIVE_REGION_STALE_INPUTS_ANNOUNCEMENT } from "@/lib/architecture/compare-live-region-stale-inputs-copy";
 
 export function useCompareResultsPanel(props: CompareResultsPanelProps) {
   const {
@@ -139,6 +140,13 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
   const showTrustBanner = showLoadedComparisonChrome;
   const showVerdictSummary = showLoadedComparisonChrome;
   const verdictSummary = golden !== null ? buildCompareVerdictSummary(golden) : null;
+
+  useEffect(() => {
+    if (showStaleInputsWarning) {
+      setLiveAnnouncement(COMPARE_LIVE_REGION_STALE_INPUTS_ANNOUNCEMENT);
+      return;
+    }
+  }, [showStaleInputsWarning]);
 
   useEffect(() => {
     if (loading || verdictSummary === null || lastComparedPair === null) {
