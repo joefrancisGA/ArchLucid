@@ -15,6 +15,11 @@ function runListTake(take: number): string {
   return String(positiveIntegerOrDefault(take, DEFAULT_RUN_LIST_TAKE));
 }
 
+/** Authority keyset cursors are opaque tokens; trim padding so first-page empty matches the reviews hub loader. */
+function runListCursor(cursor: string | null | undefined): string {
+  return cursor?.trim() ?? "";
+}
+
 /** Lists recent runs for a project (GET /v1/authority/projects/{id}/reviews). */
 export async function listRunsByProject(projectId: string, take = DEFAULT_RUN_LIST_TAKE): Promise<RunSummary[]> {
   const encodedProjectId = encodeRequiredPathSegment(projectId, "projectId");
@@ -58,7 +63,7 @@ export async function listRunsByProjectPaged(
   const encodedProjectId = encodeRequiredPathSegment(projectId, "projectId");
   const q = new URLSearchParams();
   q.set("take", runListTake(pageSize));
-  q.set("cursor", options?.cursor ?? "");
+  q.set("cursor", runListCursor(options?.cursor));
 
   try {
     return await apiGet<PagedResponse<RunSummary>>(
@@ -75,7 +80,7 @@ export async function listRunsByProjectPaged(
 
 /**
  * Paged runs across all authority project slugs in the current scope
- * (`GET /v1/authority/reviews` — always keyset `cursor`+`take`, same envelope as project-scoped list).
+ * (`GET /v1/authority/reviews` — always keyset `cursor`+`take`, same envelope as project-scoped list.
  */
 export async function listRunsInScopePaged(
   page: number,
@@ -88,7 +93,7 @@ export async function listRunsInScopePaged(
   void page;
   const q = new URLSearchParams();
   q.set("take", runListTake(pageSize));
-  q.set("cursor", options?.cursor ?? "");
+  q.set("cursor", runListCursor(options?.cursor));
 
   try {
     return await apiGet<PagedResponse<RunSummary>>(
