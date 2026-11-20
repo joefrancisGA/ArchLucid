@@ -126,6 +126,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
     refreshToken: props.refreshToken,
     onLoaded: props.onLoaded,
     healthSnap,
+    scopedRunId: props.scopedRunId,
   });
 
   const scopedRunId = (props.scopedRunId ?? "").trim();
