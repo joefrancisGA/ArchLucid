@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **254** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **255** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:254 -->
+<!-- route-tier-policy-nav-registry-count:255 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -303,6 +303,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `SearchController.cs` | `/v1/search` | none | ReadAuthority |  |  |
 | `Support/SupportProblemReportsController.cs` | `/v1/support` | none | ExecuteAuthority |  |  |
 | `Tenancy/CorePilotTeamChecklistController.cs` | `/v1/tenant/core-pilot-checklist` | standard | Authorize | /architecture/first-review-guide |  |
+| `Tenancy/WorkOwnershipDeletePolicyController.cs` | `/v1/admin/settings` | none | ReadAuthority |  |  |
 | `Tenancy/TenantBaselineController.cs` | `/v1/tenant/baseline` | none | Authorize |  |  |
 | `Tenancy/TenantCatalogMigrationStatusController.cs` | `/v1/tenant` | none | Authorize |  |  |
 | `Tenancy/TenantCostSettingsController.cs` | `/v1/tenant/cost-settings` | none | Authorize |  |  |

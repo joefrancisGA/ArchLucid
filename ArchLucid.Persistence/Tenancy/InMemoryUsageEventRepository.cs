@@ -8,17 +8,23 @@ namespace ArchLucid.Persistence.Tenancy;
 /// <summary>In-memory usage events for tests and <c>InMemory</c> storage mode.</summary>
 public sealed class InMemoryUsageEventRepository : IUsageEventRepository
 {
+    private readonly Lock _writeGate = new();
     private readonly ConcurrentBag<UsageEvent> _events = [];
 
     public Task InsertAsync(UsageEvent usageEvent, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(usageEvent);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
-        if (UsageEventRepositoryCore.IsDuplicateIdempotencyKey(_events, usageEvent))
-            return Task.CompletedTask;
+        lock (_writeGate)
+        {
+            ct.ThrowIfCancellationRequested();
 
-        _events.Add(usageEvent);
+            if (UsageEventRepositoryCore.IsDuplicateIdempotencyKey(_events, usageEvent))
+                return Task.CompletedTask;
+
+            _events.Add(usageEvent);
+        }
 
         return Task.CompletedTask;
     }
@@ -26,14 +32,19 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
     public Task InsertBatchAsync(IReadOnlyList<UsageEvent> events, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(events);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
-        foreach (UsageEvent usageEvent in events)
+        lock (_writeGate)
         {
-            if (UsageEventRepositoryCore.IsDuplicateIdempotencyKey(_events, usageEvent))
-                continue;
+            ct.ThrowIfCancellationRequested();
 
-            _events.Add(usageEvent);
+            foreach (UsageEvent usageEvent in events)
+            {
+                if (UsageEventRepositoryCore.IsDuplicateIdempotencyKey(_events, usageEvent))
+                    continue;
+
+                _events.Add(usageEvent);
+            }
         }
 
         return Task.CompletedTask;
@@ -45,7 +56,7 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
         DateTimeOffset periodEnd,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         IReadOnlyList<TenantUsageSummary> summaries =
             UsageEventRepositoryCore.AggregateByKind(_events, tenantId, periodStart, periodEnd);
@@ -61,7 +72,7 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
         int take,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         IReadOnlyList<UsageEvent> list = UsageEventRepositoryCore.ListInPeriod(
             _events,

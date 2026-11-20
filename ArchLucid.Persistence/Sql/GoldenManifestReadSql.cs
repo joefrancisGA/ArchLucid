@@ -50,7 +50,7 @@ internal static class GoldenManifestReadSql
                                                                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
                                                                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
                                                                MetadataJson, TopologyJson, DecisionsJson, ManifestPayloadBlobUri, ContractManifestVersion
-                                                           FROM dbo.GoldenManifests WITH (NOLOCK)
+                                                           FROM dbo.GoldenManifests
                                                            WHERE TenantId = @TenantId
                                                              AND WorkspaceId = @WorkspaceId
                                                              AND ProjectId = @ProjectId

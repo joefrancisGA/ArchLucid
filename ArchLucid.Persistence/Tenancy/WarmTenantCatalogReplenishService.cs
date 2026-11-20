@@ -48,21 +48,7 @@ public sealed class WarmTenantCatalogReplenishService(
         int deficit = target - current;
 
         if (deficit <= 0)
-        {
-            int lowDepthThreshold = Math.Clamp(opts.LowDepthWarningThreshold, 0, target);
-
-            if (current < lowDepthThreshold
-                && _logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning(
-                    "Warm tenant catalog pool depth {CurrentDepth} is below LowDepthWarningThreshold {LowDepthThreshold} (target {TargetDepth}).",
-                    current,
-                    lowDepthThreshold,
-                    target);
-            }
-
             return;
-        }
 
         string template = topology.TenantCatalogConnectionStringTemplate.Trim();
         DateTimeOffset now = _timeProvider.GetUtcNow();
@@ -92,6 +78,22 @@ public sealed class WarmTenantCatalogReplenishService(
 
             if (_logger.IsEnabled(LogLevel.Information))
                 _logger.LogInformation("Warm tenant catalog standby created: {DatabaseName}.", logicalName);
+        }
+
+        int lowDepthThreshold = Math.Clamp(opts.LowDepthWarningThreshold, 0, target);
+
+        if (lowDepthThreshold == 0 || !_logger.IsEnabled(LogLevel.Warning))
+            return;
+
+        int remaining = await _standbyRepository.CountUnclaimedAsync(cancellationToken);
+
+        if (remaining < lowDepthThreshold)
+        {
+            _logger.LogWarning(
+                "Warm tenant catalog pool depth {CurrentDepth} is below LowDepthWarningThreshold {LowDepthThreshold} (target {TargetDepth}).",
+                remaining,
+                lowDepthThreshold,
+                target);
         }
     }
 }

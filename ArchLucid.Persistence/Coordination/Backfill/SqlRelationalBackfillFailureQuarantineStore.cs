@@ -56,7 +56,7 @@ public sealed class SqlRelationalBackfillFailureQuarantineStore(ISqlConnectionFa
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                MERGE dbo.BackfillFailures AS target
+                MERGE dbo.BackfillFailures WITH (HOLDLOCK) AS target
                 USING (SELECT @Stage AS Stage, @EntityKey AS EntityKey) AS source
                 ON target.Stage = source.Stage AND target.EntityKey = source.EntityKey
                 WHEN MATCHED THEN

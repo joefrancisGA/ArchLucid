@@ -14,7 +14,18 @@ export function formatStoredTextPreview(
     return trimmed;
   }
 
-  const preview = trimmed.slice(0, Math.max(0, maxChars - 1)).trimEnd();
+  let previewEnd = Math.max(0, maxChars - 1);
+  const lastCodeUnit = trimmed.charCodeAt(previewEnd - 1);
+  const nextCodeUnit = trimmed.charCodeAt(previewEnd);
+
+  if (
+    lastCodeUnit >= 0xd800 && lastCodeUnit <= 0xdbff &&
+    nextCodeUnit >= 0xdc00 && nextCodeUnit <= 0xdfff
+  ) {
+    previewEnd -= 1;
+  }
+
+  const preview = trimmed.slice(0, previewEnd).trimEnd();
 
   return `${preview}… (${continuationNote})`;
 }

@@ -225,3 +225,18 @@ export function deriveCompareQualityDeltaFromGolden(golden: GoldenManifestCompar
     evidenceBackedDecisionsAfter: evidenceBackedBefore > 0 ? evidenceBackedBefore + 1 : 0,
   };
 }
+
+
+/** True when every auditable count row is zero on both sides. */
+export function compareQualityDeltaCountsAllZero(counts: CompareQualityDeltaCounts): boolean {
+  return (
+    counts.unsupportedAssumptionsBefore === 0
+    && counts.unsupportedAssumptionsAfter === 0
+    && counts.highSeverityBefore === 0
+    && counts.highSeverityAfter === 0
+    && counts.uncoveredMandatoryBefore === 0
+    && counts.uncoveredMandatoryAfter === 0
+    && counts.evidenceBackedDecisionsBefore === 0
+    && counts.evidenceBackedDecisionsAfter === 0
+  );
+}

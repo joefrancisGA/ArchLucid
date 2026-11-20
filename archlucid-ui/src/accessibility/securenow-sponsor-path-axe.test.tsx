@@ -7,6 +7,7 @@ import { SecureNowSponsorPathPageView } from "@/app/(operator)/administration/se
 expect.extend(toHaveNoViolations);
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/administration/securenow-sponsor-path",
   useSearchParams: () => new URLSearchParams("pathId=fixture-path-01"),
 }));
 

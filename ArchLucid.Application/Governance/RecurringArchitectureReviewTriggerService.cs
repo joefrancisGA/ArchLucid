@@ -39,6 +39,7 @@ public sealed class RecurringArchitectureReviewTriggerService(
     {
         ArgumentNullException.ThrowIfNull(schedule);
         DateTimeOffset triggeredAt = TimeProvider.System.UtcNowDateTime();
+        Guid? priorTriggeredRunId = schedule.LastTriggeredRunId;
         bool checkpointPersisted = false;
 
         ScopeContext scope = new()
@@ -48,7 +49,7 @@ public sealed class RecurringArchitectureReviewTriggerService(
             ProjectId = schedule.ProjectId,
         };
 
-        Guid? newRunId = null;
+        Guid newRunId;
 
         try
         {
@@ -75,7 +76,7 @@ public sealed class RecurringArchitectureReviewTriggerService(
                 ArchitectureRequest clone =
                     RecurringArchitectureReviewRequestCloner.CloneForRecurrence(
                         sourceRequest,
-                        schedule.LastTriggeredRunId ?? schedule.SourceRunId,
+                        priorTriggeredRunId ?? schedule.SourceRunId,
                         triggeredAt);
 
                 CreateRunResult created = await createOrchestrator.CreateRunAsync(clone, null, cancellationToken);
@@ -96,7 +97,7 @@ public sealed class RecurringArchitectureReviewTriggerService(
 
             using (AmbientScopeContext.Push(scope))
             {
-                await executeOrchestrator.ExecuteRunAsync(newRunId.Value.ToString("N"), cancellationToken);
+                await executeOrchestrator.ExecuteRunAsync(newRunId.ToString("N"), cancellationToken);
             }
 
             schedule.LastRunStatus = RecurrenceRunStatuses.Succeeded;
@@ -129,8 +130,6 @@ public sealed class RecurringArchitectureReviewTriggerService(
                 logger,
                 $"{AuditEventTypes.ArchitectureReviewRecurrenceTriggered}:{schedule.ScheduleId:N}",
                 cancellationToken);
-
-            await recurrenceCompletionNotificationService.NotifyCompletionAsync(schedule, newRunId.Value, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -140,7 +139,7 @@ public sealed class RecurringArchitectureReviewTriggerService(
             if (!checkpointPersisted)
             {
                 schedule.LastTriggeredUtc = triggeredAt.UtcDateTime;
-                schedule.LastTriggeredRunId = null;
+                schedule.LastTriggeredRunId = priorTriggeredRunId;
                 schedule.NextRunUtc = scheduleCalculator.ComputeNextRunUtc(schedule.CronExpression, triggeredAt.UtcDateTime);
             }
 
@@ -180,6 +179,16 @@ public sealed class RecurringArchitectureReviewTriggerService(
             await scheduleRepository.UpdateAsync(schedule, cancellationToken);
 
             throw;
+        }
+
+        try
+        {
+            await recurrenceCompletionNotificationService.NotifyCompletionAsync(schedule, newRunId, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarning(ex, "Completion notification failed for recurrence schedule {ScheduleId}.", schedule.ScheduleId);
         }
     }
 

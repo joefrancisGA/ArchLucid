@@ -107,7 +107,7 @@ public sealed class UnifiedGoldenManifestReader(
 
         ArchLucid.Core.Manifest.ManifestDocument? authorityByVersion =
             await _authorityGoldenManifests
-                .GetByContractManifestVersionAsync(scope, manifestVersionKey, cancellationToken)
+                .GetByRunAndContractManifestVersionAsync(scope, runId, manifestVersionKey, cancellationToken)
                 .ConfigureAwait(false);
 
         if (authorityByVersion is null)

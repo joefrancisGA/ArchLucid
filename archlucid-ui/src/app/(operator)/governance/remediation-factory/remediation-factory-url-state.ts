@@ -1,3 +1,4 @@
+import type { RemediationFactoryPathView } from "@/lib/governance/remediation-factory-path-view";
 import { navHrefPathPart } from "@/lib/nav-href-path-part";
 import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
@@ -67,6 +68,7 @@ export function remediationFactorySelectionHrefFromSearch(
     readonly fromSnapshot?: string | null;
     readonly toSnapshot?: string | null;
     readonly rankedPage?: number;
+    readonly pathView?: RemediationFactoryPathView;
   },
   pathname: string,
 ): string {
@@ -112,6 +114,12 @@ export function remediationFactorySelectionHrefFromSearch(
     } else {
       params.set(REMEDIATION_FACTORY_RANKED_PAGE_PARAM, String(patch.rankedPage));
     }
+  }
+
+  if (patch.pathView === "all") {
+    params.delete("pathView");
+  } else if (patch.pathView !== undefined) {
+    params.set("pathView", patch.pathView);
   }
 
   const nextQuery = params.toString();

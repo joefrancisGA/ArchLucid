@@ -19,7 +19,7 @@ public sealed class ItsmConnectorOAuthAccessTokenCache
 
         if (cached.ExpiresAtUtc <= TimeProvider.System.GetUtcNow().AddMinutes(1))
         {
-            _tokens.TryRemove(cacheKey, out _);
+            _tokens.TryRemove(new KeyValuePair<string, CachedToken>(cacheKey, cached));
 
             return false;
         }

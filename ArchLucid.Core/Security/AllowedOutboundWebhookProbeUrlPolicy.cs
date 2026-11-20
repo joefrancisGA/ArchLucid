@@ -50,4 +50,24 @@ public static class AllowedOutboundWebhookProbeUrlPolicy
             ? "TargetUrl" + dnsReason[3..]
             : dnsReason;
     }
+
+    /// <summary>
+    ///     Authority segment for dry-run audit JSON without embedded userinfo (defense in depth beside
+    ///     <see cref="EmbeddedCredentialUrlGuard" />).
+    /// </summary>
+    public static string FormatTargetAuthorityForAudit(Uri targetUrl)
+    {
+        ArgumentNullException.ThrowIfNull(targetUrl);
+
+        if (string.IsNullOrEmpty(targetUrl.UserInfo))
+            return targetUrl.GetLeftPart(UriPartial.Authority);
+
+        UriBuilder builder = new(targetUrl)
+        {
+            UserName = string.Empty,
+            Password = string.Empty,
+        };
+
+        return builder.Uri.GetLeftPart(UriPartial.Authority);
+    }
 }

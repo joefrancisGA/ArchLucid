@@ -48,7 +48,8 @@ public sealed class InMemoryAdvisoryDraftOperationRepository : IAdvisoryDraftOpe
         cancellationToken.ThrowIfCancellationRequested();
 
         string key = BuildKey(row.TenantId, row.WorkspaceId, row.ProjectId, row.OperationId);
-        _rows[key] = row;
+        if (_rows.ContainsKey(key))
+            _rows[key] = row;
         return Task.CompletedTask;
     }
 

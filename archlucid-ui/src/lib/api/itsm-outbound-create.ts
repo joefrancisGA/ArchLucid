@@ -100,6 +100,10 @@ export async function createItsmOutboundIssueWithJobPolling(
     onJobPending(terminal);
   }
 
+  if (terminal.state === BACKGROUND_JOB_STATE.Canceled) {
+    throw new Error(terminal.error ?? "ITSM create job was canceled.");
+  }
+
   if (terminal.state === BACKGROUND_JOB_STATE.Failed) {
     throw new Error(terminal.error ?? "ITSM create job failed.");
   }

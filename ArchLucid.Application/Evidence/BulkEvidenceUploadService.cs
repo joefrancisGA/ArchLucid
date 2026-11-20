@@ -189,7 +189,7 @@ public sealed partial class BulkEvidenceUploadService(
                     .TryScheduleAfterBulkUploadAsync(runId, uploadedIds.Count, cancellationToken)
                     .ConfigureAwait(false);
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
             {
                 logger.LogWarning(
                     ex,

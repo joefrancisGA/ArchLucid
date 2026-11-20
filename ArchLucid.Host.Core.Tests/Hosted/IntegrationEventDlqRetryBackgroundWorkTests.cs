@@ -83,6 +83,29 @@ public sealed class IntegrationEventDlqRetryBackgroundWorkTests
             .ContainSingle(x => x.OutboxId == outboxId);
     }
 
+    [Fact]
+    public async Task RunSinglePassAsync_requeues_later_pages_after_earlier_rows_are_removed()
+    {
+        DateTime utcNow = new(2026, 8, 26, 12, 0, 0, DateTimeKind.Utc);
+        InMemoryIntegrationEventOutboxRepository repository = new();
+
+        for (int i = 0; i < 104; i++)
+        {
+            int retryCount = i % 4 == 0 ? IntegrationEventDlqRetryPolicy.MaxAutoRetryCount : 0;
+            await DeadLetterAsync(repository, retryCount, utcNow.AddHours(-2).AddSeconds(-i));
+        }
+
+        using ServiceProvider provider = BuildProvider(repository, new FakeTimeProvider(utcNow));
+
+        await IntegrationEventDlqRetryBackgroundWork.RunSinglePassAsync(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            NullLogger.Instance,
+            CancellationToken.None);
+
+        (await repository.CountIntegrationOutboxDeadLetterAsync(CancellationToken.None)).Should().Be(26);
+        (await repository.DequeuePendingAsync(100, CancellationToken.None)).Should().HaveCount(78);
+    }
+
     private static ServiceProvider BuildProvider(
         IIntegrationEventOutboxRepository repository,
         TimeProvider? clock = null)

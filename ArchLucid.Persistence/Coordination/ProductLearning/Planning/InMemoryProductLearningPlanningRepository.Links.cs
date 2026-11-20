@@ -9,6 +9,8 @@ public sealed partial class InMemoryProductLearningPlanningRepository
         ProductLearningImprovementPlanRunLinkRecord link,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPlanningRepositoryValidation.EnsureRunLink(link);
 
         ProductLearningImprovementPlanRecord? plan = _plans.FirstOrDefault(p => p.PlanId == link.PlanId);
@@ -37,6 +39,8 @@ public sealed partial class InMemoryProductLearningPlanningRepository
         ProductLearningImprovementPlanSignalLinkRecord link,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPlanningRepositoryValidation.EnsureSignalLink(link);
 
         ProductLearningImprovementPlanRecord? plan = _plans.FirstOrDefault(p => p.PlanId == link.PlanId);
@@ -63,6 +67,8 @@ public sealed partial class InMemoryProductLearningPlanningRepository
         ProductLearningImprovementPlanArtifactLinkRecord link,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPlanningRepositoryValidation.EnsureArtifactLink(link);
 
         ProductLearningImprovementPlanRecord? plan = _plans.FirstOrDefault(p => p.PlanId == link.PlanId);
@@ -91,6 +97,8 @@ public sealed partial class InMemoryProductLearningPlanningRepository
         ProductLearningScope scope,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
 
         if (!_plans.Any(p =>
@@ -116,6 +124,8 @@ public sealed partial class InMemoryProductLearningPlanningRepository
         ProductLearningScope scope,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
 
         if (!_plans.Any(p =>
@@ -145,6 +155,8 @@ public sealed partial class InMemoryProductLearningPlanningRepository
         ProductLearningScope scope,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
 
         if (!_plans.Any(p =>

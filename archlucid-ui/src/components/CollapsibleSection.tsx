@@ -65,19 +65,14 @@ export function CollapsibleSection({
       data-workspace-disclosure
       open={open}
       onToggle={(event) => {
-        const nextOpen = (event.currentTarget as HTMLDetailsElement).open;
+        const nextOpen = event.currentTarget.open;
 
-        if (isControlled) {
-          event.preventDefault();
-          onToggle?.(!open);
-
-          return;
+        if (!isControlled) {
+          setInternalOpen(nextOpen);
         }
 
-        setInternalOpen(nextOpen);
-
-        if (onToggle !== undefined) {
-          onToggle(nextOpen);
+        if (!isControlled || nextOpen !== open) {
+          onToggle?.(nextOpen);
         }
       }}
     >

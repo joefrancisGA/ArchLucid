@@ -19,7 +19,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         string normalizedDisplayName = ArchitectureIdentityDisplayNameDefaults.Resolve(displayName);
         Guid architectureId = Guid.NewGuid();
@@ -49,7 +49,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? record))
             return Task.FromResult<ArchitectureIdentityRecord?>(null);
@@ -70,7 +70,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(currentModelId);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         ArchitectureIdentityRecord record = RequireScopedRecord(scope, architectureId);
 
@@ -87,7 +87,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         ArchitectureIdentityRecord record = RequireScopedRecord(scope, architectureId);
 
@@ -105,7 +105,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? record))
             return Task.FromResult(false);
@@ -142,7 +142,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!updateDisplayName && !updateDescription)
             return Task.FromResult(false);
@@ -176,7 +176,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? record))
             return Task.FromResult(false);
@@ -199,7 +199,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         int count = _byId.Values.Count(record =>
             record.TenantId == scope.TenantId

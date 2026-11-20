@@ -43,4 +43,23 @@ describe("remediation-factory-url-state", () => {
       remediationFactorySelectionHrefFromSearch("rankedPage=3", { rankedPage: 1 }, "/security/remediation-factory"),
     ).toBe("/security/remediation-factory");
   });
+
+  it("writes a compatible path view with the selected path and keeps the ranked page", () => {
+    const path = "/security/remediation-factory";
+    const currentSearch = "rankedPage=2&pathView=public-exposure&findingId=finding-1";
+    expect(
+      remediationFactorySelectionHrefFromSearch(
+        currentSearch,
+        { pathId: "path-1", findingId: null, pathView: "privilege" },
+        path,
+      ),
+    ).toBe(`${path}?rankedPage=2&pathView=privilege&pathId=path-1`);
+    expect(
+      remediationFactorySelectionHrefFromSearch(
+        currentSearch,
+        { pathId: "path-1", findingId: null, pathView: "all" },
+        path,
+      ),
+    ).toBe(`${path}?rankedPage=2&pathId=path-1`);
+  });
 });

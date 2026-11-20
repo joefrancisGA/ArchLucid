@@ -80,6 +80,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
     parseHelpDocSearchQueryFromSearch(null),
   );
   const [highlightedRowId, setHighlightedRowId] = useState("");
+  const articleRequestVersion = useRef(0);
   const [article, setArticle] = useState<HelpSearchPanelArticleState>({ status: "idle" });
   const [conceptsDialogOpen, setConceptsDialogOpenState] = useState(() =>
     parseHelpDocSearchConceptsOpenFromSearch(null),
@@ -129,6 +130,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
 
   useEffect(() => {
     if (!open) {
+      articleRequestVersion.current++;
       setQueryState("");
       setHighlightedRowId("");
       setArticle({ status: "idle" });
@@ -311,20 +313,27 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   }, [defaultHighlightedRowId]);
 
   const loadArticle = useCallback(async (slug: string) => {
+    const version = ++articleRequestVersion.current;
     setArticle({ status: "loading", slug });
+
+    const setResult = (result: HelpSearchPanelArticleState): void => {
+      if (version === articleRequestVersion.current) {
+        setArticle(result);
+      }
+    };
 
     try {
       const res = await fetch(`/api/help/${encodeURIComponent(slug)}`);
 
       if (!res.ok) {
-        setArticle({ status: "error", slug });
+        setResult({ status: "error", slug });
         return;
       }
 
       const data = (await res.json()) as HelpArticleResponse;
-      setArticle({ status: "loaded", article: data });
+      setResult({ status: "loaded", article: data });
     } catch {
-      setArticle({ status: "error", slug });
+      setResult({ status: "error", slug });
     }
   }, []);
 
@@ -391,6 +400,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   }
 
   function backToSearch(): void {
+    articleRequestVersion.current++;
     setArticle({ status: "idle" });
 
     window.requestAnimationFrame(() => {

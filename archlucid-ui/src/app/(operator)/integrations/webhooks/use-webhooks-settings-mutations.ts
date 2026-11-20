@@ -50,6 +50,10 @@ function resolveWebhookToggleIdForUrlSync(
   return routerId;
 }
 
+function toggleConfirmationKey(generation: number, id: string, enabled: boolean): string {
+  return `${generation}:${id}:${enabled}`;
+}
+
 export type WebhookEnableTarget = {
   readonly routingSubscriptionId: string;
   readonly subscriptionName: string;
@@ -127,6 +131,7 @@ export function useWebhooksSettingsMutations(
   const [pendingEnable, setPendingEnableState] = useState<WebhookEnableTarget | null>(null);
   const [enableBusy, setEnableBusy] = useState(false);
   const [enableErrorMessage, setEnableErrorMessage] = useState<string | null>(null);
+  const appliedToggleConfirmations = useRef(new Set<string>());
   const previousUrlDisableIdRef = useRef(urlDisableId);
   const previousUrlEnableIdRef = useRef(urlEnableId);
 
@@ -270,6 +275,7 @@ export function useWebhooksSettingsMutations(
   ]);
 
   const resetMutationState = useCallback(() => {
+    appliedToggleConfirmations.current.clear();
     setSaveSuccessMessage(null);
     setIsSaving(false);
     isSavingRef.current = false;
@@ -302,21 +308,32 @@ export function useWebhooksSettingsMutations(
     });
   }
 
-  async function executeToggle(routingSubscriptionId: string, generation: number): Promise<boolean> {
+  async function executeToggle(routingSubscriptionId: string, generation: number, enabled: boolean): Promise<boolean> {
     if (options.scopeGenerationRef.current !== generation) {
       return false;
     }
 
     options.setFailure(null);
+    const key = toggleConfirmationKey(generation, routingSubscriptionId, enabled);
 
     try {
-      await toggleAlertRoutingSubscription(routingSubscriptionId);
+      // The toggle is not idempotent. If this confirmation already applied it, retry only the list read.
+      if (!appliedToggleConfirmations.current.has(key)) {
+        await toggleAlertRoutingSubscription(routingSubscriptionId);
 
-      if (options.scopeGenerationRef.current !== generation) {
-        return false;
+        if (options.scopeGenerationRef.current !== generation) {
+          return false;
+        }
+
+        appliedToggleConfirmations.current.add(key);
       }
 
-      return await options.load();
+      const refreshed = await options.load();
+      if (refreshed) {
+        appliedToggleConfirmations.current.delete(key);
+        appliedToggleConfirmations.current.delete(toggleConfirmationKey(generation, routingSubscriptionId, !enabled));
+      }
+      return refreshed;
     } catch (error: unknown) {
       if (options.scopeGenerationRef.current !== generation) {
         return false;
@@ -374,7 +391,7 @@ export function useWebhooksSettingsMutations(
     writeWebhookSubscriptionLastViewedId(pendingEnable.routingSubscriptionId);
 
     try {
-      const refreshed = await executeToggle(pendingEnable.routingSubscriptionId, generation);
+      const refreshed = await executeToggle(pendingEnable.routingSubscriptionId, generation, true);
 
       if (options.scopeGenerationRef.current !== generation) {
         return;
@@ -410,7 +427,7 @@ export function useWebhooksSettingsMutations(
     setDisableErrorMessage(null);
 
     try {
-      const refreshed = await executeToggle(pendingDisable.routingSubscriptionId, generation);
+      const refreshed = await executeToggle(pendingDisable.routingSubscriptionId, generation, false);
 
       if (options.scopeGenerationRef.current !== generation) {
         return;

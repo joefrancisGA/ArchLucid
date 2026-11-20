@@ -189,6 +189,26 @@ public sealed class HybridHotPathReadCacheTests
         }
     }
 
+    [Fact]
+    public async Task GetOrCreateAsync_does_not_share_loads_between_cache_instances()
+    {
+        const string key = "independent-cache-instances";
+        FixedOptionsMonitor<HotPathCacheOptions> options = new(new HotPathCacheOptions());
+        HybridHotPathReadCache firstCache = new(
+            new RecordingHybridCache(), options, NullLogger<HybridHotPathReadCache>.Instance);
+        HybridHotPathReadCache secondCache = new(
+            new RecordingHybridCache(), options, NullLogger<HybridHotPathReadCache>.Instance);
+        TaskCompletionSource<string?> firstValue = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        Task<string?> first = firstCache.GetOrCreateAsync(key, _ => firstValue.Task, CancellationToken.None);
+        Task<string?> second = secondCache.GetOrCreateAsync(
+            key, _ => Task.FromResult<string?>("second"), CancellationToken.None);
+        firstValue.SetResult("first");
+
+        (await first).Should().Be("first");
+        (await second).Should().Be("second");
+    }
+
     [SkippableFact]
     public async Task GetOrCreateAsync_faulting_factory_coalesces_and_does_not_cache_failure()
     {

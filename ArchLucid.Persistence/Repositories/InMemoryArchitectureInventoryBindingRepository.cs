@@ -56,6 +56,6 @@ public sealed class InMemoryArchitectureInventoryBindingRepository : IArchitectu
             return Task.FromResult(false);
         }
 
-        return Task.FromResult(_byArchitectureId.TryRemove(architectureId, out _));
+        return Task.FromResult(_byArchitectureId.TryRemove(new KeyValuePair<Guid, ArchitectureInventoryBindingRecord>(architectureId, record)));
     }
 }

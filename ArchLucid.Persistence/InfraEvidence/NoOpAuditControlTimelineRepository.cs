@@ -5,12 +5,20 @@ namespace ArchLucid.Persistence.InfraEvidence;
 public sealed class NoOpAuditControlTimelineRepository : IAuditControlTimelineRepository
 {
     public Task UpsertAsync(AuditControlTechnicalTimelineRecord record, CancellationToken cancellationToken = default)
-        => Task.CompletedTask;
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task<AuditControlTechnicalTimelineRecord?> TryGetLatestAsync(
         Guid tenantId,
         Guid assessmentId,
         Guid controlId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<AuditControlTechnicalTimelineRecord?>(null);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<AuditControlTechnicalTimelineRecord?>(null);
+    }
 }

@@ -21,12 +21,13 @@ public sealed class SqlSecureNowCapacityLeaseRepository(ISqlConnectionFactory co
         const string sql = """
             SET XACT_ABORT ON;
             BEGIN TRANSACTION;
-            DECLARE @Now DATETIME2 = SYSUTCDATETIME();
             DECLARE @Result TABLE (SlotNumber INT, FencingToken BIGINT);
-            IF NOT EXISTS (
-                SELECT 1 FROM dbo.SecureNowCapacityLeases WITH (UPDLOCK, HOLDLOCK)
-                WHERE TenantId = @TenantId AND WorkloadKey = @WorkloadKey AND SlotNumber = @Slot
-            )
+            DECLARE @SlotExists BIT = 0;
+            SELECT @SlotExists = 1
+            FROM dbo.SecureNowCapacityLeases WITH (UPDLOCK, HOLDLOCK)
+            WHERE TenantId = @TenantId AND WorkloadKey = @WorkloadKey AND SlotNumber = @Slot;
+            DECLARE @Now DATETIME2 = SYSUTCDATETIME();
+            IF @SlotExists = 0
             BEGIN
                 INSERT dbo.SecureNowCapacityLeases
                     (TenantId, WorkloadKey, SlotNumber, OwnerId, FencingToken, ExpiresUtc)

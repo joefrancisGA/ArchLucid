@@ -139,7 +139,7 @@ public sealed partial class CachingRunRepository
 
         RunListScopeRevisionState? state = await _hotPathReadCache.GetOrCreateAsync(
             revisionKey,
-            _ => Task.FromResult<RunListScopeRevisionState?>(new RunListScopeRevisionState { Revision = 0 }),
+            _ => Task.FromResult<RunListScopeRevisionState?>(new RunListScopeRevisionState { Revision = TimeProvider.System.GetUtcNow().Ticks }),
             ct);
 
         return state?.Revision ?? 0;

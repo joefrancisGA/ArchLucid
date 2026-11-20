@@ -30,11 +30,14 @@ public sealed class LlmCostEstimationUsdRateOverrideCache : ILlmCostEstimationUs
         }
     }
 
-    /// <summary>Replaces the in-memory snapshot (e.g. after warm-up or admin POST).</summary>
+    /// <summary>Publishes a persisted snapshot from warm-up or an admin update.</summary>
     public void Set(LlmCostEstimationUsdRateOverrideRow? row)
     {
         lock (_gate)
         {
+            if (row is null || (_row is not null && row.UpdatedUtc < _row.UpdatedUtc))
+                return;
+
             _row = row;
         }
     }

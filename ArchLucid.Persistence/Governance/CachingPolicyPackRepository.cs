@@ -30,8 +30,9 @@ public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHo
     {
         await _inner.CreateAsync(pack, ct, connection, transaction);
 
-        await HotPathCacheEviction.RemovePolicyPackAsync(_hotPathReadCache, pack.PolicyPackId, ct);
-        await HotPathCacheEviction.InvalidatePolicyPackListScopeAsync(_hotPathReadCache, ScopeForPack(pack), ct);
+        CancellationToken invalidationToken = transaction is null ? CancellationToken.None : ct;
+        await HotPathCacheEviction.RemovePolicyPackAsync(_hotPathReadCache, pack.PolicyPackId, invalidationToken);
+        await HotPathCacheEviction.InvalidatePolicyPackListScopeAsync(_hotPathReadCache, ScopeForPack(pack), invalidationToken);
     }
 
     /// <inheritdoc />
@@ -39,8 +40,8 @@ public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHo
     {
         await _inner.UpdateAsync(pack, ct);
 
-        await HotPathCacheEviction.RemovePolicyPackAsync(_hotPathReadCache, pack.PolicyPackId, ct);
-        await HotPathCacheEviction.InvalidatePolicyPackListScopeAsync(_hotPathReadCache, ScopeForPack(pack), ct);
+        await HotPathCacheEviction.RemovePolicyPackAsync(_hotPathReadCache, pack.PolicyPackId, CancellationToken.None);
+        await HotPathCacheEviction.InvalidatePolicyPackListScopeAsync(_hotPathReadCache, ScopeForPack(pack), CancellationToken.None);
     }
 
     /// <inheritdoc />
@@ -95,7 +96,7 @@ public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHo
 
         RunListScopeRevisionState? state = await _hotPathReadCache.GetOrCreateAsync(
             revisionKey,
-            _ => Task.FromResult<RunListScopeRevisionState?>(new RunListScopeRevisionState { Revision = 0 }),
+            _ => Task.FromResult<RunListScopeRevisionState?>(new RunListScopeRevisionState { Revision = TimeProvider.System.GetUtcNow().Ticks }),
             ct);
 
         return state?.Revision ?? 0;

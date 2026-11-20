@@ -45,22 +45,17 @@ public sealed class SqlLlmCostEstimationUsdRateOverrideRepository(ISqlConnection
         ArgumentException.ThrowIfNullOrWhiteSpace(updatedBy);
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         const string sql = """
-                           IF EXISTS (SELECT 1 FROM dbo.HostLlmCostEstimationUsdRates WHERE SingletonKey = N'G')
-                           BEGIN
-                               UPDATE dbo.HostLlmCostEstimationUsdRates
-                               SET InputUsdPerMillionTokens = @InputUsd,
-                                   OutputUsdPerMillionTokens = @OutputUsd,
-                                   UpdatedUtc = SYSUTCDATETIME(),
-                                   UpdatedBy = @UpdatedBy
-                               WHERE SingletonKey = N'G';
-                           END
-                           ELSE
-                           BEGIN
-                               INSERT INTO dbo.HostLlmCostEstimationUsdRates
-                                   (SingletonKey, InputUsdPerMillionTokens, OutputUsdPerMillionTokens, UpdatedUtc, UpdatedBy)
-                               VALUES
-                                   (N'G', @InputUsd, @OutputUsd, SYSUTCDATETIME(), @UpdatedBy);
-                           END
+                           MERGE dbo.HostLlmCostEstimationUsdRates WITH (HOLDLOCK) AS target
+                           USING (VALUES (N'G')) AS source (SingletonKey)
+                           ON target.SingletonKey = source.SingletonKey
+                           WHEN MATCHED THEN
+                               UPDATE SET InputUsdPerMillionTokens = @InputUsd,
+                                          OutputUsdPerMillionTokens = @OutputUsd,
+                                          UpdatedUtc = SYSUTCDATETIME(),
+                                          UpdatedBy = @UpdatedBy
+                           WHEN NOT MATCHED THEN
+                               INSERT (SingletonKey, InputUsdPerMillionTokens, OutputUsdPerMillionTokens, UpdatedUtc, UpdatedBy)
+                               VALUES (source.SingletonKey, @InputUsd, @OutputUsd, SYSUTCDATETIME(), @UpdatedBy);
                            """;
 
         CommandDefinition cd = new(

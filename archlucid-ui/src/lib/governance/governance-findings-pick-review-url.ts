@@ -21,7 +21,10 @@ export function governanceFindingsPickReviewForTriageHref(
   const trimmedReviewId = reviewId.trim();
 
   if (trimmedReviewId.length === 0) {
-    return pathname;
+    const currentParams = new URLSearchParams(currentSearch);
+    const nextQuery = currentParams.toString();
+
+    return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
   }
 
   const currentParams = new URLSearchParams(currentSearch);

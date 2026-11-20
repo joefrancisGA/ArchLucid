@@ -1,5 +1,173 @@
 > **Scope:** Contributor-reference — hunt ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
+## Zone: ui-lib-governance
+
+2026-11-20 thorough hunt #2 (hit): cheap-disproof closed four header `(hunt-ready)` URL helpers — **valid-no-repro** `governanceFindingsClearAllFiltersHref` drops bulk confirm without selection (`governance-findings-clear-all-filters-url.test.ts`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` clears keyboard triage with `runId` removal (suite), **valid-no-repro** `governanceFindingQueueRowReviewHref` trims padded ids via `resolveGovernanceScopedReviewOpenHref`, **valid-no-repro** NL title/`URLSearchParams` encoding for embedded `=` (title facet join path). Promoted architecture scope chip: `governanceFindingsArchitectureScopeHrefFromSearch` wrote whitespace-only `architectureId` into the URL instead of canonical `all`; normalize trim and map empty to `architectureId=all`; regression `treats whitespace-only architecture id as all-architectures scope without dropping filters`; architecture-scope suite **6/6**. Scoped governance URL cluster **26/26** (pick-review, clear filters, clear scope, architecture-scope). Private beta: bad architecture scope input no longer leaves padded `architectureId` query junk on the findings queue.
+
+- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — bulk confirm without selection may linger — **cheap-disproof 2026-11-20 thorough hunt #2:** existing regression clears confirm param.
+- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — keyboard triage params may linger after scope clear — **cheap-disproof 2026-11-20 thorough hunt #2:** existing regression.
+- [x] (valid-no-repro) `governanceFindingQueueRowReviewHref` — padded `runId` encoding mismatch — **cheap-disproof 2026-11-20 thorough hunt #2:** scoped review open href trims.
+- [x] (valid-no-repro) `governanceFindingsNlFacetsHrefFromSearch` — embedded `=` in title facet — **cheap-disproof 2026-11-20 thorough hunt #2:** `URLSearchParams.set` encoding.
+- [x] (proven) `governanceFindingsArchitectureScopeHrefFromSearch` — whitespace-only architecture id wrote literal spaces to `architectureId` — **hit 2026-11-20 thorough hunt #2:** trim + empty→`all`; regression above.
+
+2026-11-20 thorough hunt (seed→hit): promoted `governanceFindingsPickReviewForTriageHref` whitespace-only `reviewId` early return dropping active register/facet query string when `architectureId` was absent; preserve `currentSearch` when trim empties review id; regression `preserves register and facet params when review id is whitespace-only`; scoped pick-review-url suite **7/7**. Reseeded four remaining `(hunt-ready)` rows as `(candidate)` monitors below. Private beta: keyboard triage no longer strips filters on blank pick-review input.
+
+- [x] (proven) `governanceFindingsPickReviewForTriageHref` — whitespace-only `reviewId` returns bare pathname and drops unrelated params when `architectureId` was absent — **hit 2026-11-20 thorough hunt (ui-lib-governance #1):** regression above.
+
+- [ ] (candidate) `governanceFindingsClearAllFiltersUrl` — clearing filters may retain bulk-disposition confirm params when bulk selection param already cleared — locus: param deletion order; input: bulk confirm without selection; wrong outcome: stale confirm modal URL; reachability: clear-all-filters control (monitor; pass 1 reseed).
+- [ ] (candidate) `governanceFindingsClearReviewScopeUrl` — may leave keyboard triage params when only `runId` removed — locus: scope vs triage params; input: scoped run with triage confirm params; wrong outcome: triage overlay stuck; reachability: clear review scope chip (monitor; pass 1 reseed).
+- [ ] (candidate) `governanceFindingQueueRowReviewHref` — padded `runId` on row may encode unpadded id inconsistently vs inspect link — locus: trim at encode boundary; input: padded run id row; wrong outcome: review vs inspect mismatch; reachability: queue row review column (monitor; pass 1 reseed).
+- [ ] (candidate) `governanceFindingsNlFacetFilterUrl` — NL facet token with embedded `=` may split incorrectly when re-appended to search — locus: facet encoding; input: value containing `=`; wrong outcome: broken facet filter URL; reachability: NL facet chips (monitor; pass 1 reseed).
+
+2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/governance` (nominate gap — app route zone did not cover lib URL helpers). Seeded five `(hunt-ready)` rows on findings queue URL builders; no production change.
+
+### Hypotheses
+
+- [ ] (hunt-ready) reseed after hunt #2; prior queue closed in zone header diary.
+
+- **id:** ui-lib-governance
+- **status:** open
+- **impact:** high
+- **aliases:** governance lib; findings URL helpers
+- **paths:** archlucid-ui/src/lib/governance/
+- **test-filter:** lib/governance
+- **hunts:** 2
+- **bugs-found:** 2
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-20 — whitespace-only architecture scope encoded padded architectureId
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+## Zone: ui-lib-product-line
+
+2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/product-line`. Seeded five `(hunt-ready)` rows; no production change.
+
+### Hypotheses
+
+- [ ] (hunt-ready) `filterNavGroupsForProductLine` — unknown product line id may leave restricted nav entries visible — locus: default branch; input: invalid product line header; wrong outcome: cross-product nav leak; reachability: operator shell nav groups.
+- [ ] (hunt-ready) `resolve-product-line-id-server` — case-variant header value may not normalize to canonical id before path access check — locus: header normalization; input: mixed-case `X-ArchLucid-Product-Line`; wrong outcome: deny or allow wrong routes; reachability: server component product context.
+- [ ] (hunt-ready) `securenow-marketing-route-policy` — marketing path allowlist may admit trailing-slash variant not matched by policy table — locus: path normalize; input: trailing slash marketing URL; wrong outcome: false block or allow; reachability: SecureNow marketing router.
+- [ ] (hunt-ready) `use-findings-queue-path` — product-line-specific queue path may ignore stored product line when query param overrides header — locus: precedence; input: conflicting param vs header; wrong outcome: wrong queue deep link; reachability: SecureNow findings entry CTAs.
+- [ ] (hunt-ready) `resolve-collection-snapshot-capture-succeeded` — partial capture flag may treat empty error string as success — locus: empty vs null error; input: `error: ''`; wrong outcome: green capture badge on failure; reachability: collection setup checklist.
+
+- **id:** ui-lib-product-line
+- **status:** open
+- **impact:** high
+- **aliases:** product line lib; SecureNow routing
+- **paths:** archlucid-ui/src/lib/product-line/
+- **test-filter:** lib/product-line
+- **hunts:** 1
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-20
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** no
+
+## Zone: ui-lib-api
+
+2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/api`. Seeded five `(hunt-ready)` rows; no production change.
+
+### Hypotheses
+
+- [ ] (hunt-ready) `throwApiRequestError` — 5xx responses may still toast when caller passes suppress flag false on server render — locus: window guard; input: SSR fetch 502; wrong outcome: toast enqueue without window; reachability: server actions calling API helpers.
+- [ ] (hunt-ready) `architecture-runs.list-cursor` — opaque cursor with whitespace padding may decode differently between list and export calls — locus: cursor trim; input: padded cursor query; wrong outcome: duplicate page or empty page; reachability: runs list pagination.
+- [ ] (hunt-ready) `governance-stickiness-boundary` — sticky header merge may drop product-line header when retry path uses warmup fetch — locus: header re-application; input: warmup then mutation; wrong outcome: missing product line on API; reachability: governance sticky mutations.
+- [ ] (hunt-ready) `http.warmup-retry` — retry after warmup may double-append correlation id header — locus: retry interceptor; input: flaky 503 then success; wrong outcome: duplicate correlation header; reachability: global API warmup path.
+- [ ] (hunt-ready) `downloads-api.run-package-export` — export trigger may omit sealed-manifest aware guard when run id only in path — locus: manifest guard; input: unsealed run export; wrong outcome: export succeeds empty package; reachability: run package download CTA.
+
+- **id:** ui-lib-api
+- **status:** open
+- **impact:** high
+- **aliases:** UI API client; fetch boundaries
+- **paths:** archlucid-ui/src/lib/api/
+- **test-filter:** lib/api
+- **hunts:** 1
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-20
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** no
+
+## Zone: ui-lib-infra-evidence
+
+2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/infra-evidence`. Seeded five `(hunt-ready)` rows; no production change.
+
+### Hypotheses
+
+- [ ] (hunt-ready) diagram compare URL builder — may serialize diagram ids without encoding `:` in ARM resource ids — locus: query encode; input: full ARM id; wrong outcome: truncated compare target; reachability: infra evidence compare deep links.
+- [ ] (hunt-ready) peel budget copy helper — zero peel budget may render as unlimited when `null` and `0` conflated — locus: null vs zero; input: `peelBudget: 0`; wrong outcome: misleading operator copy; reachability: diagram peel panel.
+- [ ] (hunt-ready) snapshot freshness label — timezone-less ISO timestamp may format in local TZ without labeling UTC — locus: date parse; input: UTC Zulu string; wrong outcome: stale/fresh mislabel; reachability: snapshot freshness chip.
+- [ ] (hunt-ready) ask panel grounding empty state — insufficient evidence copy may show when citations array is undefined vs empty — locus: undefined guard; input: missing citations field; wrong outcome: false insufficient banner; reachability: ask grounding panel.
+- [ ] (hunt-ready) resource hub facet URL — clearing one facet may leave dependent facet keys when parent facet removed first — locus: dependent param cleanup; input: nested facet query; wrong outcome: stale child facet filter; reachability: infra resource hub filters.
+
+- **id:** ui-lib-infra-evidence
+- **status:** open
+- **impact:** medium
+- **aliases:** infra evidence UI lib
+- **paths:** archlucid-ui/src/lib/infra-evidence/
+- **test-filter:** lib/infra-evidence
+- **hunts:** 1
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-20
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** no
+
+## Zone: ui-lib-remediation-factory
+
+2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/remediation-factory`. Seeded five `(hunt-ready)` rows; no production change.
+
+### Hypotheses
+
+- [ ] (hunt-ready) finding id trim at factory boundary — padded `findingId` may build remediation instance key without trim — locus: id normalization; input: padded finding id; wrong outcome: duplicate instance rows; reachability: remediation factory queue.
+- [ ] (hunt-ready) pattern match resolver — unknown pattern id may default to first catalog entry instead of explicit not-found — locus: default pattern; input: invalid pattern id; wrong outcome: wrong remediation template; reachability: factory pattern picker.
+- [ ] (hunt-ready) wave grouping key — case-variant resource type may split one wave into two — locus: case sensitivity; input: mixed-case resource type; wrong outcome: duplicate waves; reachability: remediation waves list.
+- [ ] (hunt-ready) factory metrics aggregation — empty catalog may return null aggregates vs zeroed object inconsistently — locus: empty scope; input: no patterns loaded; wrong outcome: UI null deref; reachability: factory metrics strip.
+- [ ] (hunt-ready) route safety guard — remediation deep link may allow cross-product line path when only query product line set — locus: route policy; input: conflicting product line; wrong outcome: cross-line navigation; reachability: SecureNow remediation factory route.
+
+- **id:** ui-lib-remediation-factory
+- **status:** open
+- **impact:** medium
+- **aliases:** remediation factory lib
+- **paths:** archlucid-ui/src/lib/remediation-factory/
+- **test-filter:** remediation-factory
+- **hunts:** 1
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-20
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** no
+
+## Zone: ui-hooks-shared
+
+2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/hooks`. Seeded five `(hunt-ready)` rows; no production change.
+
+### Hypotheses
+
+- [ ] (hunt-ready) URL-sync hook — `replaceState` vs `pushState` may desync when rapid param toggles interleave — locus: history mode; input: double-click facet chip; wrong outcome: back button skips state; reachability: filter hooks on operator pages.
+- [ ] (hunt-ready) debounced search hook — flush on unmount may write URL after navigation away — locus: cleanup timing; input: navigate before debounce fires; wrong outcome: wrong page gets query params; reachability: search hooks across lists.
+- [ ] (hunt-ready) media query hook — SSR first render may mismatch client breakpoint without hydration guard — locus: SSR default; input: narrow viewport; wrong outcome: layout flash; reachability: responsive operator components.
+- [ ] (hunt-ready) polling hook — visibility resume may issue duplicate fetch when interval and manual refresh overlap — locus: interval reset; input: tab refocus during poll; wrong outcome: duplicate API calls; reachability: status polling banners.
+- [ ] (hunt-ready) session storage hook — JSON parse failure may leave prior state mounted without error boundary — locus: parse catch; input: corrupted storage value; wrong outcome: stale UI state; reachability: persisted UI preferences.
+
+- **id:** ui-hooks-shared
+- **status:** open
+- **impact:** medium
+- **aliases:** shared React hooks
+- **paths:** archlucid-ui/src/hooks/
+- **test-filter:** src/hooks
+- **hunts:** 1
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-20
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** no
 ## Zone: ui-form-validation
 
 2026-11-01 thorough hunt #189 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `cli-draft-new` (dry **#186**, **#187**, **#188** / run log). Picker applied **`-AvoidZoneId cli-draft-new`** and returned `ui-form-validation` (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on 'cli-draft-new' (outcomes: dry, dry, dry).*). Attempted failing repro on five header `(candidate)` rows from pass **21** reseed (hunt **#185**); cheap-disproof closed all five — **valid-no-repro** **409** HTML conflict returns fixed duplicate-org copy before body parsing (`shows fixed duplicate organization toast when register returns 409 with HTML body`; status check precedes error detail), **valid-no-repro** `"Infinity"` team size fails `Number.isFinite` superRefine, **valid-no-repro** invalid email readiness precedes unsupported-character organization (bad email + NUL org → valid work email copy), **valid-no-repro** work email `maxLength` **254** plus schema `.max(254)` block overlong paste (`signupFormSchema rejects admin email longer than 254 characters`), **invalid** invalid `companySize` enum passes through builder on direct call by design while UI `canSubmit` blocks POST (`includes invalid company size enum in the register payload builder when called directly`). Reseeded five `(candidate)` monitor rows below (pass **22**). Focused `SignupForm` suite **144/144**. Run-log low-yield streak on `ui-form-validation` is **0/3** before this record (cli-draft-new dry **#186**–**#188** at tail). **This dry starts 1/3** on `ui-form-validation` in the run log. Private beta: n/a.

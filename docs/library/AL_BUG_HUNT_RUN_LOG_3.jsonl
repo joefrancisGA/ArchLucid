@@ -1222,7 +1222,6 @@
 {"at":"2026-10-21T05:27:12.784Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T05:28:33.042Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T05:42:10.129Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/technology-baseline/TechnologyBaselinePanel.tsx"]}
-{"at":"2026-10-21T04:59:54.513Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T05:47:32.507Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/WorkspaceAiAvailabilityPanel.tsx"]}
 {"at":"2026-10-21T05:53:55.623Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewArchiveControl.tsx"]}
 {"at":"2026-10-21T05:59:13.258091Z","zoneId":"ui-webhooks-settings","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx","archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts"]}
@@ -2771,3 +2770,5 @@
 {"at":"2026-11-19T20:31:43.2699329Z","zoneId":"ui-governance-findings-queue","outcome":"dry","productLine":"archlucid-ui"}
 {"at":"2026-11-19T20:39:46.4816046Z","zoneId":"ui-governance-findings-queue","outcome":"dry","productLine":"archlucid-ui"}
 {"at":"2026-11-19T20:47:59.9667200Z","zoneId":"ui-governance-findings-queue","outcome":"dry","productLine":"archlucid-ui"}
+{"at":"2026-11-20T03:26:38.4896868Z","zoneId":"ui-lib-governance","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/governance/governance-findings-pick-review-url.ts","archlucid-ui/src/lib/governance/governance-findings-pick-review-url.test.ts","docs/library/AL_BUG_HUNT_LEDGER_3.md","scripts/agent/al-bug-zone-sets.json"]}
+{"at":"2026-11-20T15:14:39.7639496Z","zoneId":"ui-lib-governance","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/governance/governance-findings-architecture-scope.ts","archlucid-ui/src/lib/governance/governance-findings-architecture-scope.test.ts","docs/library/AL_BUG_HUNT_LEDGER_3.md"]}

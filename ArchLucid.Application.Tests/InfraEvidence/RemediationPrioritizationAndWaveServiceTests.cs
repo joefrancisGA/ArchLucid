@@ -576,7 +576,10 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
 
     private sealed class InMemoryRemediationPatternRepository : IRemediationPatternRepository
     {
-        public Task InsertPatternAsync(RemediationPatternRecord pattern, CancellationToken cancellationToken = default) =>
+        public Task InsertDraftWithVersionAsync(
+            RemediationPatternRecord pattern,
+            RemediationPatternVersionRecord firstVersion,
+            CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
 
         public Task InsertVersionAsync(RemediationPatternVersionRecord version, CancellationToken cancellationToken = default) =>

@@ -507,6 +507,13 @@ export function TerraformWorkbenchClient() {
         actions={headerActions}
       />
 
+      <p
+        className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="infra-terraform-advisory-not-apply-line"
+      >
+        {TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE}
+      </p>
+
       <main
         id={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PRIMARY_CONTENT_ID}
         className="flex w-full flex-col gap-4 scroll-mt-24"

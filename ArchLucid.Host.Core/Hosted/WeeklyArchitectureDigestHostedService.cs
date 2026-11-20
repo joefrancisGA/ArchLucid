@@ -9,8 +9,13 @@ public sealed class WeeklyArchitectureDigestHostedService(
     IServiceProvider serviceProvider,
     HostLeaderElectionCoordinator electionCoordinator,
     IOptionsMonitor<WeeklyArchitectureDigestOptions> weeklyDigestOptions,
-    ILogger<WeeklyArchitectureDigestHostedService> logger) : BackgroundService
+    ILogger<WeeklyArchitectureDigestHostedService> logger,
+    TimeProvider? timeProvider = null) : BackgroundService
 {
+    private static readonly TimeSpan MaxTimerDelay = TimeSpan.FromMilliseconds(uint.MaxValue - 1);
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
+
     /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -70,7 +75,13 @@ public sealed class WeeklyArchitectureDigestHostedService(
 
             try
             {
-                await Task.Delay(sleep, leaderToken).ConfigureAwait(false);
+                while (sleep > MaxTimerDelay)
+                {
+                    await Task.Delay(MaxTimerDelay, _timeProvider, leaderToken).ConfigureAwait(false);
+                    sleep -= MaxTimerDelay;
+                }
+
+                await Task.Delay(sleep, _timeProvider, leaderToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {

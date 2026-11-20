@@ -44,7 +44,7 @@ public sealed class SqlInternalCrossTenantRollupRepositoryTests(SqlServerPersist
         {
             await connection.ExecuteAsync(
                 "DELETE FROM dbo.InternalCrossTenantRollupDaily WHERE RollupDate = @Date AND AnalyticsTenantKey IN (@ValidKey, @InvalidKey)",
-                new { Date = date, ValidKey = validKey, InvalidKey = invalidKey });
+                new { Date = date.ToDateTime(TimeOnly.MinValue), ValidKey = validKey, InvalidKey = invalidKey });
         }
 
         InternalCrossTenantRollupDailyRow Row(string key, long runs) => new()

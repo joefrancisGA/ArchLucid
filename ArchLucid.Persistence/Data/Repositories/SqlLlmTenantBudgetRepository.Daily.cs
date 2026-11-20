@@ -95,6 +95,7 @@ public sealed partial class SqlLlmTenantBudgetRepository
 
         if (reserved is null)
             return await ClassifyDailyReserveFailureAsync(
+                connection,
                 request.TenantId,
                 utcDay,
                 request.ExpectedRowVersion,
@@ -105,7 +106,8 @@ public sealed partial class SqlLlmTenantBudgetRepository
         return new LlmTenantBudgetReserveResult { NewState = reserved };
     }
 
-    private async Task<LlmTenantBudgetReserveResult> ClassifyDailyReserveFailureAsync(
+    private static async Task<LlmTenantBudgetReserveResult> ClassifyDailyReserveFailureAsync(
+        IDbConnection connection,
         Guid tenantId,
         DateOnly utcDay,
         byte[] expectedRowVersion,
@@ -113,8 +115,6 @@ public sealed partial class SqlLlmTenantBudgetRepository
         long hardCap,
         CancellationToken cancellationToken)
     {
-        using IDbConnection connection =
-            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         LlmTenantBudgetStateReadModel? current =
             await SelectDailyAsync(connection, tenantId, utcDay, cancellationToken).ConfigureAwait(false);
 

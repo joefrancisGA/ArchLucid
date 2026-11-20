@@ -84,7 +84,8 @@ public sealed class PrivilegePathEngine(
         {
             Guid pathId = Guid.NewGuid();
             IReadOnlyList<SecurityEvidencePathHopRecord> hopRecords =
-                PrivilegePathMaterializer.BuildHopRecords(scope.TenantId, pathId, snapshotId, candidate.Hops);
+                PrivilegePathMaterializer.BuildHopRecords(
+                    scope.TenantId, pathId, snapshotId, candidate.Hops, graph.ResourcesByArmId);
 
             SecurityEvidencePathRecord header = new()
             {

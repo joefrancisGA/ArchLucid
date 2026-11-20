@@ -33,7 +33,12 @@ public sealed partial class ArchitectureRiskRegisterReader
                        ld.EvidenceRequestText,
                        ld.OccurredAtUtc AS LastReviewedUtc,
                        ld.ReviewerUserId AS OwnerUserId,
-                       re.ExpiresAtUtc AS WaiverExpiresAtUtc,
+                       (SELECT MAX(re.ExpiresAtUtc)
+                        FROM dbo.RiskExceptions AS re
+                        WHERE re.TenantId = fr.TenantId
+                          AND re.WorkspaceId = fr.WorkspaceId
+                          AND re.FindingId = fr.FindingId
+                          AND re.Status = N'Active') AS WaiverExpiresAtUtc,
                        itsmAgg.LinkedTickets AS ItsmLinkedTicketsSummary,
                        NULLIF(LTRIM(RTRIM(ar.SystemName)), N'') AS SystemName,
                        COALESCE(
@@ -52,11 +57,6 @@ public sealed partial class ArchitectureRiskRegisterReader
                     ORDER BY fp.PropertySortOrder
                 ) AS resourceProp
                 LEFT JOIN latestDisposition AS ld ON ld.FindingId = fr.FindingId AND ld.ProjectId = fr.ProjectId AND ld.rn = 1
-                LEFT JOIN dbo.RiskExceptions AS re
-                    ON re.TenantId = fr.TenantId
-                   AND re.WorkspaceId = fr.WorkspaceId
-                   AND re.FindingId = fr.FindingId
-                   AND re.Status = N'Active'
                 OUTER APPLY (
                     SELECT STRING_AGG(CONCAT(itsm.Provider, N':', itsm.ExternalKey), N'; ')
                         WITHIN GROUP (ORDER BY itsm.CreatedUtc) AS LinkedTickets

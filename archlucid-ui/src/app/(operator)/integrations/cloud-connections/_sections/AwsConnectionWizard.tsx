@@ -9,6 +9,7 @@ import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { FormFieldLabelWithHelp } from "@/components/FormFieldLabelWithHelp";
 import { Input } from "@/components/ui/input";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { CLOUD_CONNECTION_POST_SAVE_REFRESH_FAILURE_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import { configureAwsTier2Connection } from "@/lib/api/aws-cloud-connections-api";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -144,10 +145,16 @@ export function AwsConnectionWizard(props: Props): React.ReactElement {
         region: region.trim(),
         roleArn: roleArn.trim(),
       });
-      await refreshConnections();
       setSaveSucceeded(true);
-      setActionMessage("AWS connection saved.", "connection");
-      await props.onSaved?.();
+
+      try {
+        await refreshConnections();
+        setActionMessage("AWS connection saved.", "connection");
+        await props.onSaved?.();
+      } catch (err) {
+        console.error(err);
+        setFormError(CLOUD_CONNECTION_POST_SAVE_REFRESH_FAILURE_MESSAGE, "connection");
+      }
     } catch (err) {
       console.error(err);
       setFormError(AWS_CONNECTION_SAVE_FAILED_ERROR, "connection");

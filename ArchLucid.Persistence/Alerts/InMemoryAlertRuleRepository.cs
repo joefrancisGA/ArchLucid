@@ -16,10 +16,13 @@ public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_items.Exists(item => item.RuleId == rule.RuleId))
+                throw new InvalidOperationException("An alert rule with this ID already exists.");
+
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 
-            _items.Add(rule);
+            _items.Add(Copy(rule));
         }
 
         return Task.CompletedTask;
@@ -34,7 +37,11 @@ public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
             // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
             int i = _items.FindIndex(x => x.RuleId == rule.RuleId && SameScope(x, rule));
             if (i >= 0)
-                _items[i] = rule;
+            {
+                AlertRule updated = Copy(rule);
+                updated.CreatedUtc = _items[i].CreatedUtc;
+                _items[i] = updated;
+            }
         }
 
         return Task.CompletedTask;
@@ -45,8 +52,27 @@ public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x => x.RuleId == ruleId && MatchesScope(x, scope)));
+        {
+            AlertRule? rule = _items.FirstOrDefault(x => x.RuleId == ruleId && MatchesScope(x, scope));
+            return Task.FromResult(rule is null ? null : Copy(rule));
+        }
     }
+
+    private static AlertRule Copy(AlertRule rule) => new()
+    {
+        RuleId = rule.RuleId,
+        TenantId = rule.TenantId,
+        WorkspaceId = rule.WorkspaceId,
+        ProjectId = rule.ProjectId,
+        Name = rule.Name,
+        RuleType = rule.RuleType,
+        Severity = rule.Severity,
+        ThresholdValue = rule.ThresholdValue,
+        IsEnabled = rule.IsEnabled,
+        TargetChannelType = rule.TargetChannelType,
+        MetadataJson = rule.MetadataJson,
+        CreatedUtc = rule.CreatedUtc,
+    };
 
     private static bool MatchesScope(AlertRule rule, ScopeContext scope) =>
         rule.TenantId == scope.TenantId && rule.WorkspaceId == scope.WorkspaceId && rule.ProjectId == scope.ProjectId;
@@ -68,6 +94,7 @@ public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
             List<AlertRule> result = _items
                 .Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId)
                 .OrderByDescending(x => x.CreatedUtc)
+                .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<AlertRule>>(result);
         }
@@ -85,6 +112,7 @@ public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
             List<AlertRule> result = _items
                 .Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId && x.IsEnabled)
                 .OrderByDescending(x => x.CreatedUtc)
+                .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<AlertRule>>(result);
         }

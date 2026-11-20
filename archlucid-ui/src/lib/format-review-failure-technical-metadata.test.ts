@@ -66,6 +66,7 @@ describe("format-review-failure-technical-metadata", () => {
     const byLabel = Object.fromEntries(rows.map((row) => [row.label, row.value]));
 
     expect(byLabel["Assessment progress"]).toBe("Assessment step completion was not stored.");
+    expect(byLabel["Likely cause"]).toBe("Completed stage count was not stored.");
   });
 
   it("does not invent assessment progress when pipeline summary is absent (P-20)", () => {

@@ -3,6 +3,9 @@ export const CLOUD_CONNECTION_SAVE_SUCCESS_MESSAGE =
 
 export const CLOUD_CONNECTION_SAVE_FAILURE_MESSAGE = "Failed to save connection.";
 
+export const CLOUD_CONNECTION_POST_SAVE_REFRESH_FAILURE_MESSAGE =
+  "Could not refresh connection details. Reload the page to see the saved connection.";
+
 export const CLOUD_CONNECTION_VALIDATION_ACCEPTED_MESSAGE = "Hosted extractor validation run accepted.";
 
 export const WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE = "Subscription saved.";

@@ -24,6 +24,8 @@ public sealed class HybridHotPathReadCache(
     private readonly IOptionsMonitor<HotPathCacheOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
+    private readonly HotPathReadCacheSingleFlight _singleFlight = new();
+
     /// <inheritdoc />
     public async Task<T?> GetOrCreateAsync<T>(
         string key,
@@ -60,7 +62,7 @@ public sealed class HybridHotPathReadCache(
         {
             return _hybridCache.GetOrCreateAsync(
                 key,
-                async innerCt => await HotPathReadCacheSingleFlight.CoalesceAsync(
+                async innerCt => await _singleFlight.CoalesceAsync(
                     key,
                     async leaderCt =>
                     {

@@ -1,7 +1,3 @@
-using System.Collections.Concurrent;
-
-using ArchLucid.Core.Scoping;
-
 namespace ArchLucid.Application.Runs.Async.Workers;
 
 public sealed class ArchitectureRunAsyncOperationCreateCompletionWorker : IArchitectureRunAsyncOperationCreateCompletionWorker
@@ -11,7 +7,6 @@ public sealed class ArchitectureRunAsyncOperationCreateCompletionWorker : IArchi
     internal static readonly TimeSpan DefaultCreateWaitTimeout = TimeSpan.FromSeconds(60);
 
     private readonly SemaphoreSlim _createGate = new(MaxConcurrentCreateCompletions);
-    private readonly ConcurrentDictionary<string, TaskCompletionSource> _createCompleted = new(StringComparer.Ordinal);
     private readonly TimeSpan _createWaitTimeout;
 
     public ArchitectureRunAsyncOperationCreateCompletionWorker()
@@ -33,8 +28,6 @@ public sealed class ArchitectureRunAsyncOperationCreateCompletionWorker : IArchi
         IArchitectureRunAsyncOperationRegistrar registrar,
         CancellationToken cancellationToken)
     {
-        TaskCompletionSource completion = GetCreateCompletion(item);
-
         try
         {
             await _createGate.WaitAsync(cancellationToken);
@@ -48,7 +41,6 @@ public sealed class ArchitectureRunAsyncOperationCreateCompletionWorker : IArchi
             finally
             {
                 registrar.Release(item.Scope, item.RunId, item.Kind);
-                completion.TrySetResult();
             }
 
             throw;
@@ -61,7 +53,6 @@ public sealed class ArchitectureRunAsyncOperationCreateCompletionWorker : IArchi
         finally
         {
             _createGate.Release();
-            completion.TrySetResult();
         }
     }
 
@@ -70,27 +61,17 @@ public sealed class ArchitectureRunAsyncOperationCreateCompletionWorker : IArchi
         IArchitectureRunAsyncOperationRegistrar registrar,
         CancellationToken cancellationToken)
     {
-        if (!registrar.IsRegistered(item.Scope, item.RunId, ArchitectureRunAsyncOperationKind.Create))
+        Task? completion = registrar.GetReleaseTask(item.Scope, item.RunId, ArchitectureRunAsyncOperationKind.Create);
+        if (completion is null)
             return;
 
         try
         {
-            await GetCreateCompletion(item).Task.WaitAsync(_createWaitTimeout, cancellationToken);
+            await completion.WaitAsync(_createWaitTimeout, cancellationToken);
         }
         catch (TimeoutException)
         {
             // Create worker may be stuck; execute can still resume a deferred pipeline.
         }
-    }
-
-    private TaskCompletionSource GetCreateCompletion(ArchitectureRunAsyncOperationWorkItem item) =>
-        _createCompleted.GetOrAdd(
-            BuildKey(item.Scope, item.RunId),
-            static _ => new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously));
-
-    private static string BuildKey(ScopeContext scope, string runId)
-    {
-        string normalized = Guid.TryParse(runId, out Guid parsed) ? parsed.ToString("N") : runId;
-        return $"{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{normalized}";
     }
 }

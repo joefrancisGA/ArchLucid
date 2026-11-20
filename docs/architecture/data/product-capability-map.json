@@ -1748,6 +1748,13 @@
       "ownerNote": null
     },
     {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.WorkOwnershipDeletePolicyController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
       "typeName": "ArchLucid.Api.Controllers.User.UserAttentionSummaryController",
       "capability": "platform",
       "productLine": "both",

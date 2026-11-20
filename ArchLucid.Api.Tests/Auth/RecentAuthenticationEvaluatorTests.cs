@@ -99,6 +99,21 @@ public sealed class RecentAuthenticationEvaluatorTests
     }
 
     [Fact]
+    public void HasRecentAuthentication_returns_true_when_fresh_auth_time_present_even_if_iat_is_stale()
+    {
+        long staleIat = DateTimeOffset.UtcNow.AddHours(-2).ToUnixTimeSeconds();
+        long freshAuthTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim(JwtRegisteredClaimNames.Iat, staleIat.ToString()));
+        identity.AddClaim(new Claim("auth_time", freshAuthTime.ToString()));
+
+        ClaimsPrincipal principal = new(identity);
+
+        Assert.True(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
+
+    [Fact]
     public void HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time()
     {
         long stale = DateTimeOffset.UtcNow.AddHours(-2).ToUnixTimeSeconds();

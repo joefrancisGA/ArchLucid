@@ -1,31 +1,15 @@
-using System.Collections.Concurrent;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ArchLucid.Application.SecureNow;
 
-public sealed class InMemoryCollectionRunTriggerIdempotencyStore : ICollectionRunTriggerIdempotencyStore
+public sealed class InMemoryCollectionRunTriggerIdempotencyStore : ICollectionRunTriggerIdempotencyStore, IDisposable
 {
-    private readonly ConcurrentDictionary<string, Entry> _entries = new(StringComparer.Ordinal);
+    private readonly MemoryCache _entries = new(new MemoryCacheOptions());
 
-    public bool TryGet(string key, out Guid runId)
-    {
-        DateTime nowUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+    public bool TryGet(string key, out Guid runId) => _entries.TryGetValue(key, out runId);
 
-        if (_entries.TryGetValue(key, out Entry? entry) && entry.ExpiresUtc > nowUtc)
-        {
-            runId = entry.RunId;
-            return true;
-        }
+    public void Set(string key, Guid runId, TimeSpan lifetime) =>
+        _entries.Set(key, runId, TimeProvider.System.GetUtcNow().Add(lifetime));
 
-        _entries.TryRemove(key, out _);
-        runId = Guid.Empty;
-        return false;
-    }
-
-    public void Set(string key, Guid runId, TimeSpan lifetime)
-    {
-        DateTime expiresUtc = TimeProvider.System.GetUtcNow().UtcDateTime.Add(lifetime);
-        _entries[key] = new Entry(runId, expiresUtc);
-    }
-
-    private sealed record Entry(Guid RunId, DateTime ExpiresUtc);
+    public void Dispose() => _entries.Dispose();
 }

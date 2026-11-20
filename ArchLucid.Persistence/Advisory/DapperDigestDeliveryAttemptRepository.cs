@@ -83,7 +83,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
               AND TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
-            ORDER BY AttemptedUtc DESC;
+            ORDER BY AttemptedUtc DESC, AttemptId DESC;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -127,7 +127,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
                     TenantId, WorkspaceId, ProjectId,
                     AttemptedUtc, Status, ErrorMessage,
                     ChannelType, Destination,
-                    ROW_NUMBER() OVER (PARTITION BY DigestId ORDER BY AttemptedUtc DESC) AS RowNum
+                    ROW_NUMBER() OVER (PARTITION BY DigestId ORDER BY AttemptedUtc DESC, AttemptId DESC) AS RowNum
                 FROM dbo.DigestDeliveryAttempts
                 WHERE DigestId IN @DigestIds
                   AND TenantId = @TenantId
@@ -135,7 +135,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
                   AND ProjectId = @ProjectId
             ) ranked
             WHERE RowNum <= @Cap
-            ORDER BY AttemptedUtc DESC;
+            ORDER BY AttemptedUtc DESC, AttemptId DESC;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -175,7 +175,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
               AND TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
-            ORDER BY AttemptedUtc DESC;
+            ORDER BY AttemptedUtc DESC, AttemptId DESC;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);

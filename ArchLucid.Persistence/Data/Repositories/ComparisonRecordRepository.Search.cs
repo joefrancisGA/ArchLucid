@@ -206,7 +206,7 @@ public sealed partial class ComparisonRecordRepository
 
         if (cursorCreatedUtc is not null && !string.IsNullOrWhiteSpace(cursorComparisonRecordId))
         {
-            parameters.Add("@CursorCreatedUtc", cursorCreatedUtc);
+            parameters.Add("@CursorCreatedUtc", cursorCreatedUtc, DbType.DateTime2);
             parameters.Add(
                 "@CursorId",
                 ComparisonRecordIdLookup.NormalizeLookupKey(cursorComparisonRecordId));

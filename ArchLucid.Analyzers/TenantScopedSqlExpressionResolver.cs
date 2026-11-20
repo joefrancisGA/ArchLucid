@@ -16,6 +16,13 @@ internal static class TenantScopedSqlExpressionResolver
         "AndScopeProjectIdTripleWhere",
     };
 
+    // Per-Resolve active path: Roslyn may return fresh syntax-node wrappers for the
+    // same tree/span, and compilation analyzers may run concurrently.
+    private static readonly System.Threading.AsyncLocal<HashSet<(SyntaxTree Tree, int Start, int Length)>?>
+        ActiveResolutionPath = new();
+
+    private const int MaxResolutionDepth = 128;
+
     internal sealed class ResolutionResult
     {
         internal ResolutionResult(
@@ -58,7 +65,17 @@ internal static class TenantScopedSqlExpressionResolver
         if (expression is null)
             return new ResolutionResult(null, false, false);
 
-        return ResolveCore(expression, semanticModel, visitingInterpolatedHole: false);
+        HashSet<(SyntaxTree Tree, int Start, int Length)>? previousPath = ActiveResolutionPath.Value;
+        ActiveResolutionPath.Value = new HashSet<(SyntaxTree Tree, int Start, int Length)>();
+
+        try
+        {
+            return ResolveCore(expression, semanticModel, visitingInterpolatedHole: false);
+        }
+        finally
+        {
+            ActiveResolutionPath.Value = previousPath;
+        }
     }
 
     internal static IEnumerable<string> GetExpressionTextsForDiagnostics(
@@ -98,8 +115,22 @@ internal static class TenantScopedSqlExpressionResolver
         SemanticModel semanticModel,
         bool visitingInterpolatedHole)
     {
-        switch (expression)
+        HashSet<(SyntaxTree Tree, int Start, int Length)>? path = ActiveResolutionPath.Value;
+
+        if (path is null)
+            return new ResolutionResult(null, false, false);
+
+        var key = (expression.SyntaxTree, expression.SpanStart, expression.Span.Length);
+
+        // A cycle or pathological chain is unresolved, not proof of tenant scope.
+        // Static SQL fragments on sibling arms continue to reach ARCH006.
+        if (path.Count >= MaxResolutionDepth || !path.Add(key))
+            return new ResolutionResult(null, false, false);
+
+        try
         {
+            switch (expression)
+            {
             case LiteralExpressionSyntax literal when literal.IsKind(SyntaxKind.StringLiteralExpression):
                 return new ResolutionResult(literal.Token.ValueText, true, false);
 
@@ -126,7 +157,14 @@ internal static class TenantScopedSqlExpressionResolver
                      string.Equals(concatAccess.Name.Identifier.Text, "Join", StringComparison.Ordinal)))
                     return ResolveStringConcat(invocation, semanticModel);
 
-                if (TryResolveFromMethodInvocation(invocation, semanticModel, out ResolutionResult methodResolution))
+                // Direct Dapper arguments such as Query(FormatRunSql(tenantId)) are
+                // parameterized. Fold them the same way record : this(...) chains do,
+                // or the tenant table inside the callee never reaches ARCH006.
+                if (TryResolveFromMethodInvocation(
+                        invocation,
+                        semanticModel,
+                        out ResolutionResult methodResolution,
+                        allowParameterizedCallee: true))
                     return methodResolution;
 
                 return ResolveFromSymbol(invocation, semanticModel);
@@ -155,6 +193,11 @@ internal static class TenantScopedSqlExpressionResolver
                     return new ResolutionResult(null, false, IsScopeHelperExpression(expression, semanticModel));
 
                 return new ResolutionResult(null, false, IsScopeHelperExpression(expression, semanticModel));
+            }
+        }
+        finally
+        {
+            path.Remove(key);
         }
     }
 
@@ -240,20 +283,57 @@ internal static class TenantScopedSqlExpressionResolver
         ResolutionResult left = ResolveCore(add.Left, semanticModel, visitingInterpolatedHole: false);
         ResolutionResult right = ResolveCore(add.Right, semanticModel, visitingInterpolatedHole: false);
 
-        if (!left.IsStaticallyResolved || !right.IsStaticallyResolved)
+        bool hasScopeHelper = left.HasScopeHelperInvocation || right.HasScopeHelperInvocation ||
+            IsScopeHelperExpression(add.Left, semanticModel) ||
+            IsScopeHelperExpression(add.Right, semanticModel);
+
+        if (left.IsStaticallyResolved && right.IsStaticallyResolved)
         {
+            string rightText = right.SqlText ?? string.Empty;
+
+            if (left.BranchSqlTexts.Count > 0)
+            {
+                List<string> mergedBranchSqlTexts = new();
+
+                foreach (string branchSqlText in left.BranchSqlTexts)
+                    mergedBranchSqlTexts.Add(branchSqlText + rightText);
+
+                return new ResolutionResult(mergedBranchSqlTexts[0], true, hasScopeHelper, mergedBranchSqlTexts);
+            }
+
+            if (right.BranchSqlTexts.Count > 0)
+            {
+                string leftText = left.SqlText ?? string.Empty;
+                List<string> mergedBranchSqlTexts = new();
+
+                foreach (string branchSqlText in right.BranchSqlTexts)
+                    mergedBranchSqlTexts.Add(leftText + branchSqlText);
+
+                return new ResolutionResult(mergedBranchSqlTexts[0], true, hasScopeHelper, mergedBranchSqlTexts);
+            }
+
             return new ResolutionResult(
-                null,
-                false,
-                left.HasScopeHelperInvocation || right.HasScopeHelperInvocation ||
-                IsScopeHelperExpression(add.Left, semanticModel) ||
-                IsScopeHelperExpression(add.Right, semanticModel));
+                (left.SqlText ?? string.Empty) + rightText,
+                true,
+                hasScopeHelper);
         }
 
-        return new ResolutionResult(
-            (left.SqlText ?? string.Empty) + (right.SqlText ?? string.Empty),
-            true,
-            left.HasScopeHelperInvocation || right.HasScopeHelperInvocation);
+        // A runtime operand must not drop a static SQL literal that names a scoped table.
+        if (left.IsStaticallyResolved && left.SqlText is not null)
+            return new ResolutionResult(left.SqlText, true, hasScopeHelper);
+
+        if (right.IsStaticallyResolved && right.SqlText is not null)
+            return new ResolutionResult(right.SqlText, true, hasScopeHelper);
+
+        List<string> branchSqlTexts = new();
+
+        AppendDistinctBranchSqlTexts(branchSqlTexts, left);
+        AppendDistinctBranchSqlTexts(branchSqlTexts, right);
+
+        if (branchSqlTexts.Count > 0)
+            return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
+
+        return new ResolutionResult(null, false, hasScopeHelper);
     }
 
     private static ResolutionResult ResolveInterpolatedString(
@@ -293,6 +373,10 @@ internal static class TenantScopedSqlExpressionResolver
         if (allStatic)
             return new ResolutionResult(builder.ToString(), true, hasScopeHelper);
 
+        // A runtime interpolation hole must not drop static literal SQL (see ResolveBinaryAdd).
+        if (builder.Length > 0)
+            return new ResolutionResult(builder.ToString(), true, hasScopeHelper);
+
         return new ResolutionResult(null, false, hasScopeHelper);
     }
 
@@ -320,6 +404,10 @@ internal static class TenantScopedSqlExpressionResolver
         if (allStatic)
             return new ResolutionResult(builder.ToString(), true, hasScopeHelper);
 
+        // A runtime Concat argument must not drop static literal fragments (see ResolveBinaryAdd).
+        if (builder.Length > 0)
+            return new ResolutionResult(builder.ToString(), true, hasScopeHelper);
+
         return new ResolutionResult(null, false, hasScopeHelper);
     }
 
@@ -335,6 +423,9 @@ internal static class TenantScopedSqlExpressionResolver
 
         ResolutionResult? fromInitializer = TryResolveFromDeclaratorInitializer(symbol, semanticModel);
         ResolutionResult? fromAssignment = TryResolveFromSimpleAssignments(symbol, semanticModel);
+        ResolutionResult? fromEnclosingAssignment =
+            TryResolveFromEnclosingBlockAssignments(symbol, expression, semanticModel);
+        fromAssignment = MergeBranchResolutions(fromAssignment, fromEnclosingAssignment);
 
         if (fromAssignment is not null &&
             fromInitializer is { IsStaticallyResolved: true, SqlText: "" or null, BranchSqlTexts.Count: 0 })
@@ -649,6 +740,35 @@ internal static class TenantScopedSqlExpressionResolver
         return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
     }
 
+    private static ResolutionResult? TryResolveFromEnclosingBlockAssignments(
+        ISymbol? symbol,
+        ExpressionSyntax useSite,
+        SemanticModel semanticModel)
+    {
+        if (symbol is not ILocalSymbol and not IFieldSymbol and not IPropertySymbol)
+            return null;
+
+        BlockSyntax? block = useSite.FirstAncestorOrSelf<BlockSyntax>();
+
+        if (block is null)
+            return null;
+
+        bool hasScopeHelper = false;
+        List<string> branchSqlTexts = [];
+
+        foreach (TargetAssignment targetAssignment in GetTargetAssignmentsInBlock(block, symbol, semanticModel))
+            ApplyTargetAssignment(targetAssignment, branchSqlTexts, ref hasScopeHelper);
+
+        if (branchSqlTexts.Count == 0)
+        {
+            return hasScopeHelper
+                ? new ResolutionResult(null, false, true)
+                : null;
+        }
+
+        return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
+    }
+
     private readonly struct TargetAssignment
     {
         internal TargetAssignment(bool isAddAssignment, ExpressionSyntax right, SemanticModel semanticModel)
@@ -815,11 +935,11 @@ internal static class TenantScopedSqlExpressionResolver
             return targetSymbol is not null;
         }
 
-        if (left is MemberAccessExpressionSyntax { Expression: ThisExpressionSyntax } memberAccess)
+        if (left is MemberAccessExpressionSyntax memberAccess)
         {
             targetSymbol = semanticModel.GetSymbolInfo(memberAccess).Symbol;
 
-            return targetSymbol is not null;
+            return targetSymbol is IFieldSymbol or IPropertySymbol;
         }
 
         return false;
@@ -906,7 +1026,61 @@ internal static class TenantScopedSqlExpressionResolver
         SemanticModel modelForSyntax = GetSemanticModelForSyntax(syntax, semanticModel);
         result = ResolveCore(returnExpression, modelForSyntax, visitingInterpolatedHole: false);
 
+        // A non-static hole drops the whole interpolated return. The ctor-chain
+        // caller then only sees the method name, so a tenant table in the literal
+        // parts never reaches ARCH006. Keep those literals when the hole is not
+        // itself a scope helper.
+        if (!result.IsStaticallyResolved &&
+            !result.HasScopeHelperInvocation &&
+            returnExpression is InterpolatedStringExpressionSyntax interpolatedReturn)
+        {
+            ResolutionResult literalSql = ResolveInterpolatedLiteralSql(interpolatedReturn, modelForSyntax);
+
+            if (literalSql.IsStaticallyResolved)
+                result = literalSql;
+        }
+
         return result.IsStaticallyResolved || result.BranchSqlTexts.Count > 0 || result.HasScopeHelperInvocation;
+    }
+
+    private static ResolutionResult ResolveInterpolatedLiteralSql(
+        InterpolatedStringExpressionSyntax interpolated,
+        SemanticModel semanticModel)
+    {
+        bool hasScopeHelper = false;
+        System.Text.StringBuilder builder = new();
+
+        foreach (InterpolatedStringContentSyntax content in interpolated.Contents)
+        {
+            switch (content)
+            {
+                case InterpolatedStringTextSyntax text:
+                    builder.Append(text.TextToken.ValueText);
+
+                    break;
+
+                case InterpolationSyntax interpolation:
+                    ResolutionResult hole = ResolveCore(interpolation.Expression, semanticModel, visitingInterpolatedHole: true);
+
+                    if (hole.HasScopeHelperInvocation || IsScopeHelperExpression(interpolation.Expression, semanticModel))
+                    {
+                        hasScopeHelper = true;
+                    }
+                    else if (hole.IsStaticallyResolved && hole.SqlText is not null)
+                    {
+                        builder.Append(hole.SqlText);
+                    }
+
+                    break;
+            }
+        }
+
+        string sql = builder.ToString();
+
+        if (string.IsNullOrWhiteSpace(sql))
+            return new ResolutionResult(null, false, hasScopeHelper);
+
+        return new ResolutionResult(sql, true, hasScopeHelper);
     }
 
     /// <summary>
@@ -972,16 +1146,31 @@ internal static class TenantScopedSqlExpressionResolver
 
         object?[] formatArgs = new object?[arguments.Count - formatArgumentIndex - 1];
         bool hasScopeHelper = formatString.HasScopeHelperInvocation;
+        bool formatArgumentIsNotStatic = false;
 
         for (int index = formatArgumentIndex + 1; index < arguments.Count; index++)
         {
             ResolutionResult argument = ResolveCore(arguments[index].Expression, semanticModel, visitingInterpolatedHole: false);
 
             if (!argument.IsStaticallyResolved)
-                return false;
+            {
+                // A runtime value must not drop the format literal. The table name
+                // lives in that literal; discarding it hides ARCH006 at the call site.
+                hasScopeHelper |= argument.HasScopeHelperInvocation;
+                formatArgumentIsNotStatic = true;
+
+                continue;
+            }
 
             hasScopeHelper |= argument.HasScopeHelperInvocation;
             formatArgs[index - formatArgumentIndex - 1] = argument.SqlText ?? string.Empty;
+        }
+
+        if (formatArgumentIsNotStatic)
+        {
+            result = new ResolutionResult(formatString.SqlText, true, hasScopeHelper);
+
+            return true;
         }
 
         string composed = string.Format(formatString.SqlText, formatArgs);

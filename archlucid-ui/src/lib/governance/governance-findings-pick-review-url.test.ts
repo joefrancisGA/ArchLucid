@@ -37,6 +37,18 @@ describe("governanceFindingsPickReviewForTriageHref", () => {
     expect(href).toBe("/governance/findings?runId=run-2");
   });
 
+
+  it("preserves register and facet params when review id is whitespace-only", () => {
+    const href = governanceFindingsPickReviewForTriageHref(
+      "filter=expiring-soon&findingJobView=ready-for-sponsor-packet&severity=high",
+      "/governance/findings",
+      "   ",
+    );
+
+    expect(href).toBe(
+      "/governance/findings?filter=expiring-soon&findingJobView=ready-for-sponsor-packet&severity=high",
+    );
+  });
   it("preserves register and facet params while setting runId", () => {
     const href = governanceFindingsPickReviewForTriageHref(
       "filter=expiring-soon&findingJobView=ready-for-sponsor-packet&severity=high",

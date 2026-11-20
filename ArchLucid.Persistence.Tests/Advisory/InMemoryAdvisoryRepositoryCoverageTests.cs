@@ -11,6 +11,25 @@ namespace ArchLucid.Persistence.Tests.Advisory;
 public sealed class InMemoryAdvisoryRepositoryCoverageTests
 {
     [Fact]
+    public async Task Advisory_scan_execution_repository_does_not_apply_canceled_writes()
+    {
+        InMemoryAdvisoryScanExecutionRepository sut = new();
+        AdvisoryScanExecution execution = new() { Status = "Started" };
+        CancellationToken canceled = new(canceled: true);
+        ScopeContext scope = new();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => sut.CreateAsync(execution, canceled));
+        Assert.Empty(await sut.ListByScheduleAsync(scope, execution.ScheduleId, 1, CancellationToken.None));
+
+        await sut.CreateAsync(execution, CancellationToken.None);
+        execution.Status = "Completed";
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => sut.UpdateAsync(execution, canceled));
+        AdvisoryScanExecution saved = Assert.Single(
+            await sut.ListByScheduleAsync(scope, execution.ScheduleId, 1, CancellationToken.None));
+        Assert.Equal("Started", saved.Status);
+    }
+
+    [Fact]
     public async Task Advisory_scan_execution_repository_lists_by_schedule()
     {
         InMemoryAdvisoryScanExecutionRepository sut = new();
@@ -40,7 +59,17 @@ public sealed class InMemoryAdvisoryRepositoryCoverageTests
     }
 
     [Fact]
-    public async Task Advisory_scan_execution_repository_updates_existing_row()
+    public async Task Advisory_scan_execution_repository_honors_canceled_history_read()
+    {
+        InMemoryAdvisoryScanExecutionRepository sut = new();
+        CancellationToken token = new(canceled: true);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            sut.ListByScheduleAsync(new ScopeContext(), Guid.NewGuid(), take: 1, token));
+    }
+
+    [Fact]
+    public async Task Advisory_scan_execution_repository_publishes_changes_only_after_update()
     {
         InMemoryAdvisoryScanExecutionRepository sut = new();
         AdvisoryScanExecution execution = new()
@@ -53,14 +82,25 @@ public sealed class InMemoryAdvisoryRepositoryCoverageTests
         execution.Status = "Completed";
         execution.ResultJson = """{"findings":1}""";
 
+        ScopeContext scope = new();
+        IReadOnlyList<AdvisoryScanExecution> before =
+            await sut.ListByScheduleAsync(scope, execution.ScheduleId, take: 1, CancellationToken.None);
+        before.Should().ContainSingle().Subject.Status.Should().Be("Started");
+
         await sut.UpdateAsync(execution, CancellationToken.None);
+        execution.Status = "Failed";
 
         IReadOnlyList<AdvisoryScanExecution> listed =
-            await sut.ListByScheduleAsync(new ScopeContext(), execution.ScheduleId, take: 1, CancellationToken.None);
+            await sut.ListByScheduleAsync(scope, execution.ScheduleId, take: 1, CancellationToken.None);
 
         listed.Should().ContainSingle();
         listed[0].Status.Should().Be("Completed");
         listed[0].ResultJson.Should().Contain("findings");
+        listed[0].Status = "Failed";
+
+        IReadOnlyList<AdvisoryScanExecution> reloaded =
+            await sut.ListByScheduleAsync(scope, execution.ScheduleId, take: 1, CancellationToken.None);
+        reloaded.Should().ContainSingle().Subject.Status.Should().Be("Completed");
     }
 
     [Fact]
@@ -115,5 +155,56 @@ public sealed class InMemoryAdvisoryRepositoryCoverageTests
             await sut.ListBySubscriptionAsync(new ScopeContext(), subscriptionId, take: 10, CancellationToken.None);
 
         bySubscription.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task Digest_delivery_attempt_repository_does_not_apply_canceled_writes()
+    {
+        InMemoryDigestDeliveryAttemptRepository sut = new();
+        DigestDeliveryAttempt attempt = new() { Status = DigestDeliveryStatus.Started };
+        CancellationToken canceled = new(canceled: true);
+        ScopeContext scope = new();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => sut.CreateAsync(attempt, canceled));
+        (await sut.ListByDigestAsync(scope, attempt.DigestId, CancellationToken.None)).Should().BeEmpty();
+
+        await sut.CreateAsync(attempt, CancellationToken.None);
+        attempt.Status = DigestDeliveryStatus.Succeeded;
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => sut.UpdateAsync(attempt, canceled));
+        IReadOnlyList<DigestDeliveryAttempt> history =
+            await sut.ListByDigestAsync(scope, attempt.DigestId, CancellationToken.None);
+
+        history.Should().ContainSingle().Which.Status.Should().Be(DigestDeliveryStatus.Started);
+    }
+
+    [Theory]
+    [InlineData(0, 1)]
+    [InlineData(201, 200)]
+    public async Task Digest_delivery_attempt_repository_bounds_subscription_history(int take, int expectedCount)
+    {
+        InMemoryDigestDeliveryAttemptRepository sut = new();
+        Guid subscriptionId = Guid.NewGuid();
+        DateTime firstAttemptUtc = DateTime.UtcNow;
+        DigestDeliveryAttempt latest = new()
+        {
+            SubscriptionId = subscriptionId,
+            AttemptedUtc = firstAttemptUtc.AddMinutes(201),
+        };
+
+        for (int i = 0; i < 200; i++)
+        {
+            await sut.CreateAsync(new DigestDeliveryAttempt
+            {
+                SubscriptionId = subscriptionId,
+                AttemptedUtc = firstAttemptUtc.AddMinutes(i),
+            }, CancellationToken.None);
+        }
+
+        await sut.CreateAsync(latest, CancellationToken.None);
+        IReadOnlyList<DigestDeliveryAttempt> history =
+            await sut.ListBySubscriptionAsync(new ScopeContext(), subscriptionId, take, CancellationToken.None);
+
+        history.Should().HaveCount(expectedCount);
+        history[0].AttemptId.Should().Be(latest.AttemptId);
     }
 }

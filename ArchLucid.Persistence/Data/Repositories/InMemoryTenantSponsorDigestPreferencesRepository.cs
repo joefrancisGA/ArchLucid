@@ -15,7 +15,7 @@ public sealed class InMemoryTenantSponsorDigestPreferencesRepository : ITenantSp
 
     public Task<SponsorDigestPreferencesResponse?> GetByTenantAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return _store.TryGetValue(tenantId, out SponsorDigestPreferencesResponse? row)
             ? Task.FromResult<SponsorDigestPreferencesResponse?>(row)
@@ -31,7 +31,7 @@ public sealed class InMemoryTenantSponsorDigestPreferencesRepository : ITenantSp
         int hourOfDay,
         CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         SponsorDigestPreferencesResponse row = new()
         {
@@ -41,7 +41,7 @@ public sealed class InMemoryTenantSponsorDigestPreferencesRepository : ITenantSp
             EmailEnabled = emailEnabled,
             RecipientEmails =
                 recipientEmails.Where(static e => !string.IsNullOrWhiteSpace(e)).Select(static e => e.Trim())
-                    .ToList(),
+                    .ToList().AsReadOnly(),
             IanaTimeZoneId = string.IsNullOrWhiteSpace(ianaTimeZoneId) ? IanaTimeZonePreferenceValues.Default : ianaTimeZoneId.Trim(),
             DayOfWeek = dayOfWeek,
             HourOfDay = hourOfDay,
@@ -55,7 +55,7 @@ public sealed class InMemoryTenantSponsorDigestPreferencesRepository : ITenantSp
 
     public Task<IReadOnlyList<Guid>> ListEmailEnabledTenantIdsAsync(CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         List<Guid> ids = _store
             .Where(static p => p.Value.EmailEnabled)
@@ -67,26 +67,28 @@ public sealed class InMemoryTenantSponsorDigestPreferencesRepository : ITenantSp
 
     public Task<bool> TryDisableEmailAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
-
-        if (!_store.TryGetValue(tenantId, out SponsorDigestPreferencesResponse? existing) || !existing.EmailEnabled)
-            return Task.FromResult(false);
-
-        SponsorDigestPreferencesResponse updated = new()
+        while (true)
         {
-            SchemaVersion = existing.SchemaVersion,
-            TenantId = existing.TenantId,
-            IsConfigured = existing.IsConfigured,
-            EmailEnabled = false,
-            RecipientEmails = existing.RecipientEmails,
-            IanaTimeZoneId = existing.IanaTimeZoneId,
-            DayOfWeek = existing.DayOfWeek,
-            HourOfDay = existing.HourOfDay,
-            UpdatedUtc = TimeProvider.System.GetUtcNow()
-        };
+            cancellationToken.ThrowIfCancellationRequested();
 
-        _store[tenantId] = updated;
+            if (!_store.TryGetValue(tenantId, out SponsorDigestPreferencesResponse? existing) || !existing.EmailEnabled)
+                return Task.FromResult(false);
 
-        return Task.FromResult(true);
+            SponsorDigestPreferencesResponse updated = new()
+            {
+                SchemaVersion = existing.SchemaVersion,
+                TenantId = existing.TenantId,
+                IsConfigured = existing.IsConfigured,
+                EmailEnabled = false,
+                RecipientEmails = existing.RecipientEmails,
+                IanaTimeZoneId = existing.IanaTimeZoneId,
+                DayOfWeek = existing.DayOfWeek,
+                HourOfDay = existing.HourOfDay,
+                UpdatedUtc = TimeProvider.System.GetUtcNow()
+            };
+
+            if (_store.TryUpdate(tenantId, updated, existing))
+                return Task.FromResult(true);
+        }
     }
 }

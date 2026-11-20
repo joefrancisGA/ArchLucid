@@ -88,6 +88,18 @@ public sealed class InMemoryBillingLedgerTests
     }
 
     [SkippableFact]
+    public async Task MarkWebhookProcessedAsync_does_not_create_a_missing_event()
+    {
+        InMemoryBillingLedger sut = new();
+        const string key = "missing-event";
+
+        await sut.MarkWebhookProcessedAsync(key, "ok", CancellationToken.None);
+
+        (await sut.GetWebhookEventResultStatusAsync(key, CancellationToken.None)).Should().BeNull();
+        (await sut.TryInsertWebhookEventAsync(key, "stripe", "x", "{}", CancellationToken.None)).Should().BeTrue();
+    }
+
+    [SkippableFact]
     public async Task GetWebhookEventResultStatusAsync_unknown_returns_null()
     {
         InMemoryBillingLedger sut = new();

@@ -1273,7 +1273,10 @@ public sealed class RemediationInstanceServiceTests
     {
         public List<RemediationPatternVersionRecord> Versions { get; } = [];
 
-        public Task InsertPatternAsync(RemediationPatternRecord pattern, CancellationToken cancellationToken = default) =>
+        public Task InsertDraftWithVersionAsync(
+            RemediationPatternRecord pattern,
+            RemediationPatternVersionRecord firstVersion,
+            CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
 
         public Task InsertVersionAsync(RemediationPatternVersionRecord version, CancellationToken cancellationToken = default) =>

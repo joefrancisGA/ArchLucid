@@ -46,6 +46,8 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
         string payloadJson,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ArgumentException.ThrowIfNullOrWhiteSpace(payloadJson);
 
         Stored entry = new()
@@ -86,6 +88,8 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
         int leaseDurationSeconds,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         int take = AuthorityPipelineWorkRepositoryCore.ClampDequeueBatch(maxBatch);
         int lease = AuthorityPipelineWorkRepositoryCore.ClampLeaseDurationSeconds(leaseDurationSeconds);
         DateTime now = _utcNow();
@@ -110,6 +114,8 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
     /// <inheritdoc />
     public Task MarkProcessedAsync(Guid outboxId, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         lock (_sync)
         {
             Stored? row = _rows.Find(x => x.OutboxId == outboxId);
@@ -127,6 +133,8 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
     public Task RecordBackoffAfterProcessingFailureAsync(Guid outboxId, DateTime nextAttemptUtc,
         string failedAttemptErrorSummaryTruncatedTo400, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         string err = AuthorityPipelineWorkErrorSummary.TruncateNullable(failedAttemptErrorSummaryTruncatedTo400);
 
         lock (_sync)
@@ -149,6 +157,8 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
     public Task RecordDeadLetterAsync(Guid outboxId, string failedAttemptErrorSummaryTruncatedTo400,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         string err = AuthorityPipelineWorkErrorSummary.TruncateNullable(failedAttemptErrorSummaryTruncatedTo400);
 
         lock (_sync)
@@ -171,6 +181,8 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
     /// <inheritdoc />
     public Task<long> CountPendingAsync(CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         lock (_sync)
 
             return Task.FromResult((long)_rows.Count(r => r.ProcessedUtc is null && r.DeadLetteredUtc is null));
@@ -179,6 +191,8 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
     /// <inheritdoc />
     public Task<long> CountActionablePendingAsync(CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         DateTime now = _utcNow();
 
         lock (_sync)
@@ -189,6 +203,8 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
     /// <inheritdoc />
     public Task<long> CountDeadLetteredAsync(CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         lock (_sync)
 
             return Task.FromResult((long)_rows.Count(r => r.DeadLetteredUtc is not null && r.ProcessedUtc is null));

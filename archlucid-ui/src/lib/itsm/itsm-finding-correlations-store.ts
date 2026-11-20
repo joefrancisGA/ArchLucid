@@ -57,19 +57,14 @@ function scheduleBatchFlush(): void {
 }
 
 async function flushPendingFindingCorrelations(): Promise<void> {
-  if (pendingFindingIds.size === 0) {
+  if (pendingFindingIds.size === 0 || inFlightBatch !== undefined) {
     return;
-  }
-
-  if (inFlightBatch !== undefined) {
-    await inFlightBatch;
   }
 
   const findingIds = Array.from(pendingFindingIds).slice(0, MAX_BATCH_SIZE);
-  pendingFindingIds.clear();
 
-  if (findingIds.length === 0) {
-    return;
+  for (const findingId of findingIds) {
+    pendingFindingIds.delete(findingId);
   }
 
   inFlightBatch = (async () => {

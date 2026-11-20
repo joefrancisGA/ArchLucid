@@ -2,36 +2,64 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public sealed class NoOpRemediationWaveRepository : IRemediationWaveRepository
 {
-    public Task InsertWaveAsync(RemediationWaveRecord wave, CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+    public Task InsertWaveAsync(RemediationWaveRecord wave, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task InsertWaveWithMembersInScopeAsync(
         ArchLucid.Core.Scoping.ProjectScopeKey scope,
         RemediationWaveCreateMutation wave,
         IReadOnlyList<RemediationWaveMemberMutation> members,
-        CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
 
-    public Task UpdateWaveAsync(RemediationWaveRecord wave, CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateWaveAsync(RemediationWaveRecord wave, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task<RemediationWaveRecord?> TryGetByIdAsync(
         Guid tenantId,
         Guid waveId,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<RemediationWaveRecord?>(null);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<RemediationWaveRecord?>(null);
+    }
 
     public Task<IReadOnlyList<RemediationWaveRecord>> ListByTenantAsync(
         Guid tenantId,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<RemediationWaveRecord>>([]);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
 
-    public Task InsertMemberAsync(RemediationWaveMemberRecord member, CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+        return Task.FromResult<IReadOnlyList<RemediationWaveRecord>>([]);
+    }
+
+    public Task InsertMemberAsync(RemediationWaveMemberRecord member, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task<IReadOnlyList<RemediationWaveMemberRecord>> ListMembersByWaveAsync(
         Guid tenantId,
         Guid waveId,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<RemediationWaveMemberRecord>>([]);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<RemediationWaveMemberRecord>>([]);
+    }
 }

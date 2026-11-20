@@ -63,12 +63,16 @@ public sealed class MissingArchitectureRequestRunRemediator(
         int capped = Math.Clamp(maxRows, 1, 500);
         int minAgeMinutes = Math.Clamp(_optionsMonitor.CurrentValue.MinAgeMinutes, 1, 24 * 60);
 
-        await using DbConnection connection =
-            (DbConnection)await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        long count;
+        List<Guid> candidateIds;
+        await using (DbConnection connection =
+            (DbConnection)await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false))
+        {
+            count = await ExecuteCountAsync(connection, minAgeMinutes, cancellationToken).ConfigureAwait(false);
+            candidateIds =
+                await ReadCandidateIdsAsync(connection, capped, minAgeMinutes, cancellationToken).ConfigureAwait(false);
+        }
 
-        long count = await ExecuteCountAsync(connection, minAgeMinutes, cancellationToken).ConfigureAwait(false);
-        List<Guid> candidateIds =
-            await ReadCandidateIdsAsync(connection, capped, minAgeMinutes, cancellationToken).ConfigureAwait(false);
         List<string> candidateStrings = candidateIds.ConvertAll(static id => id.ToString("D"));
 
         if (dryRun || candidateIds.Count == 0)

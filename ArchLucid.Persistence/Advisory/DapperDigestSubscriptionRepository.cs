@@ -49,7 +49,10 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
                 ChannelType = @ChannelType,
                 Destination = @Destination,
                 IsEnabled = @IsEnabled,
-                LastDeliveredUtc = @LastDeliveredUtc,
+                LastDeliveredUtc = CASE
+                    WHEN LastDeliveredUtc IS NULL OR @LastDeliveredUtc > LastDeliveredUtc THEN @LastDeliveredUtc
+                    ELSE LastDeliveredUtc
+                END,
                 MetadataJson = @MetadataJson
             WHERE SubscriptionId = @SubscriptionId
               AND TenantId = @TenantId
@@ -154,7 +157,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
         CancellationToken ct)
     {
         const string sql = """
-            SELECT TOP 200
+            SELECT
                 SubscriptionId, TenantId, WorkspaceId, ProjectId,
                 Name, ChannelType, Destination, IsEnabled,
                 CreatedUtc, LastDeliveredUtc, MetadataJson

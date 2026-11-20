@@ -131,8 +131,7 @@ export function SponsorPlainEnglishFindingPanel(
       data-testid={testId}
       open={panelOpen}
       onToggle={(event) => {
-        event.preventDefault();
-        setPanelOpen(!panelOpenRef.current);
+        setPanelOpen(event.currentTarget.open);
       }}
     >
       <summary className={cn("cursor-pointer select-none font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

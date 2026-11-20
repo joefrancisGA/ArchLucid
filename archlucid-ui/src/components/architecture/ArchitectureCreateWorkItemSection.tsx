@@ -88,8 +88,7 @@ export function ArchitectureCreateWorkItemSection(
       data-testid="architecture-create-work-item-section"
       open={architectureCreateWorkItemOpen}
       onToggle={(event) => {
-        event.preventDefault();
-        setArchitectureCreateWorkItemOpen(!architectureCreateWorkItemOpenRef.current);
+        setArchitectureCreateWorkItemOpen(event.currentTarget.open);
       }}
     >
       <summary className={cn("cursor-pointer list-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>

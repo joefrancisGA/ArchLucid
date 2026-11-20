@@ -35,7 +35,7 @@ export function parseItsmLinkedTicketSummary(summary: string): readonly { readon
     return [];
   }
 
-  return trimmed.split(",").flatMap((segment) => {
+  return trimmed.split(/[;,]/).flatMap((segment) => {
     const piece = segment.trim();
 
     if (piece.length === 0) {

@@ -652,6 +652,7 @@ export function DriftWorkbenchClient() {
 
     try {
       await deleteInfraEvidenceSnapshot(pendingDeleteSnapshotId);
+      setSnapshots((current) => current.filter((snapshot) => snapshot.snapshotId !== pendingDeleteSnapshotId));
 
       if (selectedSnapshotId === pendingDeleteSnapshotId) {
         setSelectedSnapshotId("");
@@ -703,6 +704,7 @@ export function DriftWorkbenchClient() {
 
   useEffect(() => {
     if (selectedSnapshotId.length === 0) {
+      setLoadingDiffs(false);
       setDiffs([]);
       setSelectedDiffId("");
       return;
@@ -777,6 +779,7 @@ export function DriftWorkbenchClient() {
   useEffect(() => {
     if (selectedSnapshotId.length === 0) {
       setChanges([]);
+      setLoadingChanges(false);
       setChangesTotalCount(0);
       setSelectedChangeId(null);
       return;
@@ -1036,11 +1039,11 @@ export function DriftWorkbenchClient() {
   }, [pushDriftUrl]);
 
   const applyDiffSelect = useCallback(
-    (nextDiffId: string) => {
+    (nextDiffId: string, changeId = "") => {
       userClearedDiffRef.current = false;
       setSelectedDiffId(nextDiffId);
       setSelectedChangeId(null);
-      pushDriftUrl({ diffId: nextDiffId, changeId: "", tableFilters: { changesPage: 1 } });
+      pushDriftUrl({ diffId: nextDiffId, changeId, tableFilters: { changesPage: 1 } });
     },
     [pushDriftUrl],
   );
@@ -1177,18 +1180,12 @@ export function DriftWorkbenchClient() {
         return;
       }
 
-      applyDiffSelect(pending.diffId);
-    }
-
-    if (pending.changeId.length > 0 && !loadingChanges) {
-      activateChange(pending.changeId, "replace");
+      applyDiffSelect(pending.diffId, pending.changeId);
     }
 
     pendingResumeComparisonRef.current = null;
   }, [
-    activateChange,
     applyDiffSelect,
-    loadingChanges,
     loadingDiffs,
     selectedSnapshotId,
     visibleDiffs,
@@ -1626,7 +1623,7 @@ export function DriftWorkbenchClient() {
                 diffId={selectedDiffId}
               />
 
-              {exportReceipt != null ? (
+              {exportReceipt?.snapshotId === selectedSnapshotId ? (
                 <div
                   className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40"
                   data-testid="infra-drift-export-receipt"
@@ -1793,7 +1790,7 @@ export function DriftWorkbenchClient() {
           />
         ) : null}
 
-        {!loadingDiffs && selectedSnapshotId.length > 0 && diffs.length === 0 ? (
+        {!loadingDiffs && loadError == null && selectedSnapshotId.length > 0 && diffs.length === 0 ? (
           <EnterpriseCompactEmptyState
             title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_TITLE}
             description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY}

@@ -63,6 +63,16 @@ public sealed class InMemoryRetrievalGroundingTraceWriterTests
         rows[0].QueryText.Should().Be("network segmentation");
         rows[0].CreatedUtc.Should().Be(createdUtc);
         sut.Rows.Should().HaveCount(2);
+
+        IReadOnlyList<RetrievalGroundingTraceRecord> reread = await sut.GetByRunIdAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            CancellationToken.None);
+
+        rows[0].TraceId.Should().NotBeEmpty();
+        reread.Should().ContainSingle().Which.TraceId.Should().Be(rows[0].TraceId);
     }
 
     [Fact]

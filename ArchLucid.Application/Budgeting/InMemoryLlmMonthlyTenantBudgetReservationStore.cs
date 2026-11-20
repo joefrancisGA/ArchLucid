@@ -151,7 +151,7 @@ public sealed class InMemoryLlmMonthlyTenantBudgetReservationStore(
             .GetOrCreateAsync(row.TenantId, LlmBudgetPeriod.Monthly, row.PeriodKey, cancellationToken)
             .ConfigureAwait(false);
 
-        await _budgetRepository
+        LlmTenantBudgetSettleResult settled = await _budgetRepository
             .SettleAsync(
                 new LlmTenantBudgetSettleRequest
                 {
@@ -165,6 +165,9 @@ public sealed class InMemoryLlmMonthlyTenantBudgetReservationStore(
                 },
                 cancellationToken)
             .ConfigureAwait(false);
+
+        if (settled.ConcurrencyConflict || settled.NewState is null)
+            return;
 
         lock (_sync)
         {

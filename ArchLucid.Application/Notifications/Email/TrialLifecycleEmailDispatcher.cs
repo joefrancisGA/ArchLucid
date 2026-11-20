@@ -101,7 +101,7 @@ public sealed class TrialLifecycleEmailDispatcher(
         }
 
         SentEmailLedgerEntry ledgerEntry = new(plan.IdempotencyKey, envelope.TenantId, plan.TemplateId, _emailProvider.ProviderName, null);
-        await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
+        await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, CancellationToken.None);
     }
 
     private static bool PassesTriggerGate(TrialLifecycleEmailTrigger trigger, TenantRecord tenant, DateTimeOffset utcNow)
@@ -140,6 +140,8 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         if (trigger is TrialLifecycleEmailTrigger.ApproachingRunLimit)
         {
+            if (tenant.TrialExpiresUtc is { } exp && exp <= utcNow)
+                return false;
             if (tenant.TrialRunsLimit is not ({ } limit and > 0))
                 return false;
             int threshold = (int)Math.Ceiling(limit * 0.8d);

@@ -8,6 +8,7 @@ using Moq;
 
 namespace ArchLucid.Host.Core.Tests.Audit;
 
+[Trait("Category", "Unit")]
 public sealed class OperationalErrorCaptureDrainHostedServiceTests
 {
     [Fact]

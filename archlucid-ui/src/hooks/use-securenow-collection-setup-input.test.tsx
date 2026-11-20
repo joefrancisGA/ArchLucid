@@ -51,3 +51,34 @@ it.each([
     hasSuccessfulPull: succeeded,
   }));
 });
+
+
+it("finds a successful capture beyond the first page", async () => {
+  vi.mocked(listTier2Connections).mockResolvedValue([]);
+  vi.mocked(fetchInfraEvidenceSnapshots).mockReset().mockImplementation(async (page = 1) => ({
+    items: [{
+      snapshotId: `snapshot-${page}`,
+      captureStatus: page === 1 ? "Failed" : "Succeeded",
+      subscriptionId: "subscription",
+      subscriptionName: "Production",
+      capturedUtc: "2026-11-14T12:30:00Z",
+      resourceCount: 1,
+      relationshipCount: 0,
+    }],
+    page,
+    pageSize: 20,
+    totalCount: 21,
+    hasMore: page === 1,
+  }));
+
+  const queryClient = new QueryClient();
+  const { result } = renderHook(() => useSecureNowCollectionSetupInput({ snapshotCaptureSucceeded: null }), {
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    ),
+  });
+
+  await waitFor(() => expect(result.current.collectionInput?.hasSuccessfulPull).toBe(true));
+  expect(fetchInfraEvidenceSnapshots).toHaveBeenCalledTimes(2);
+  expect(fetchInfraEvidenceSnapshots).toHaveBeenNthCalledWith(2, 2, 20);
+});

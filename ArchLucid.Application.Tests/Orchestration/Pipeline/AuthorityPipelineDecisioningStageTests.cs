@@ -7,6 +7,7 @@ using ArchLucid.Core.Persistence.Ports;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -141,7 +142,72 @@ public sealed class AuthorityPipelineDecisioningStageTests
         act.Should().Throw<InvalidOperationException>().WithMessage("*only partially complete*");
     }
 
-    private static AuthorityPipelineDecisioningStage CreateSut(AuthorityPipelineOptions options)
+    [SkippableFact]
+    public void EnforceFindingsReadyForDecisioning_logs_failure_identity_without_private_message()
+    {
+        Guid runId = Guid.NewGuid();
+        DateTime utc = TimeProvider.System.UtcNowDateTime();
+        CapturingDecisioningLogger logger = new();
+        FindingsSnapshot snapshot = new()
+        {
+            FindingsSnapshotId = Guid.NewGuid(),
+            RunId = runId,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            CreatedUtc = utc,
+            GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete,
+            EngineFailures =
+            [
+                new FindingEngineFailure
+                {
+                    EngineType = "security-baseline",
+                    Category = "Security",
+                    ErrorMessage = "PRIVATE_EVIDENCE_MUST_NOT_APPEAR_IN_LOGS",
+                    ExceptionType = nameof(InvalidOperationException),
+                    OccurredUtc = utc
+                }
+            ]
+        };
+
+        AuthorityPipelineDecisioningStage sut = CreateSut(
+            new AuthorityPipelineOptions { HaltOnPartialFindings = false },
+            logger);
+
+        Action act = () => sut.EnforceFindingsReadyForDecisioning(snapshot, runId);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*only partially complete*");
+        logger.ErrorMessages.Should().ContainSingle();
+        logger.ErrorMessages[0].Should().Contain("EngineType=security-baseline");
+        logger.ErrorMessages[0].Should().Contain("Category=Security");
+        logger.ErrorMessages[0].Should().Contain("CommitBlocking=True");
+        logger.ErrorMessages[0].Should().NotContain("PRIVATE_EVIDENCE_MUST_NOT_APPEAR_IN_LOGS");
+    }
+
+    private sealed class CapturingDecisioningLogger : ILogger<AuthorityPipelineDecisioningStage>
+    {
+        public List<string> ErrorMessages { get; } = [];
+
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+
+        public bool IsEnabled(LogLevel logLevel) => logLevel == LogLevel.Error;
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+            if (logLevel == LogLevel.Error)
+            {
+                ErrorMessages.Add(formatter(state, exception));
+            }
+        }
+    }
+
+    private static AuthorityPipelineDecisioningStage CreateSut(
+        AuthorityPipelineOptions options,
+        ILogger<AuthorityPipelineDecisioningStage>? logger = null)
     {
         Mock<IOptionsMonitor<AuthorityPipelineOptions>> apPipeline = new();
         apPipeline.Setup(m => m.CurrentValue).Returns(options);
@@ -154,6 +220,6 @@ public sealed class AuthorityPipelineDecisioningStageTests
             Mock.Of<ArchLucid.Application.ArchitectureIntelligence.IClosedLoopStrengtheningScoreSyncService>(),
             Mock.Of<IManifestHashService>(),
             apPipeline.Object,
-            NullLogger<AuthorityPipelineDecisioningStage>.Instance);
+            logger ?? NullLogger<AuthorityPipelineDecisioningStage>.Instance);
     }
 }

@@ -476,6 +476,24 @@ describe("IdentityProvidersSettingsPageView", () => {
 
 
 
+  it("keeps the related-surfaces disclosure open when a URL restoration emits toggle", () => {
+    const originalHref = window.location.href;
+    window.history.replaceState(null, "", "?identityProvidersRelatedSurfacesOpen=1");
+
+    try {
+      render(<IdentityProvidersSettingsPageView model={buildModel()} />);
+      const disclosure = screen.getByTestId("identity-providers-related-surfaces-disclosure");
+      expect(disclosure).toHaveAttribute("open");
+
+      fireEvent(disclosure, new Event("toggle"));
+
+      expect(disclosure).toHaveAttribute("open");
+      expect(new URLSearchParams(window.location.search).get("identityProvidersRelatedSurfacesOpen")).toBe("1");
+    } finally {
+      window.history.replaceState(null, "", originalHref);
+    }
+  });
+
   it("keeps vocabulary rails inside the related-surfaces disclosure below primary content", () => {
 
     render(<IdentityProvidersSettingsPageView model={buildModel()} />);

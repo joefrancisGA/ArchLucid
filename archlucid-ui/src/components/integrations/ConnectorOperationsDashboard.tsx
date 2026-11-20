@@ -8,6 +8,10 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ConnectionStatusEmptyPartialHonesty } from "@/components/integrations/ConnectionStatusEmptyPartialHonesty";
+import { ConnectionStatusCategoryFilterEmptyPartialHonesty } from "@/components/integrations/ConnectionStatusCategoryFilterEmptyPartialHonesty";
+import { CONNECTION_STATUS_CATEGORY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/integrations/connection-status-category-filter-empty-not-load-failure-copy";
+import { ConnectionStatusCategoryAndSubscriptionScopeFilterEmptyPartialHonesty } from "@/components/integrations/ConnectionStatusCategoryAndSubscriptionScopeFilterEmptyPartialHonesty";
+import { CONNECTION_STATUS_CATEGORY_AND_SUBSCRIPTION_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/integrations/connection-status-category-and-subscription-scope-filter-empty-not-load-failure-copy";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
@@ -21,6 +25,8 @@ import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessag
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { readActiveWorkspaceScopeLabel } from "@/lib/active-workspace-scope-label";
+import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
+import { isEffectiveDevDefaultScope } from "@/lib/scope-switcher-display";
 import { fetchTenantIntegrationsOperations } from "@/lib/api";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import {
@@ -81,6 +87,15 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
   const [loading, setLoading] = useState(true);
   const [retrying, setRetrying] = useState(false);
   const [workspaceScopeLabel] = useState(() => readActiveWorkspaceScopeLabel());
+  const [workspaceSubscriptionScopePinned] = useState(() => {
+    const record = readOperatorScopeFromStorage();
+
+    if (record === null) {
+      return false;
+    }
+
+    return !isEffectiveDevDefaultScope(record.workspaceId, record.projectId);
+  });
 
   const latestRequestRef = useRef<number>(0);
   const mountedRef = useRef<boolean>(false);
@@ -219,6 +234,17 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
         ? "Needs attention"
         : "Optional";
   const inventoryPanelId = "connection-status-inventory-panels";
+  const nonTechnicalGroups = CONNECTOR_PURPOSE_GROUPS.filter((group) => group.id !== "technical");
+  const groupsInCategoryView =
+    activeCategory === null
+      ? nonTechnicalGroups
+      : nonTechnicalGroups.filter((group) => group.id === activeCategory);
+  const hasNonTechnicalInventory = groupsInCategoryView.some(
+    (group) => (groupedConnectors.get(group.id) ?? []).length > 0,
+  );
+  const showsTechnicalInventory = activeCategory === null || activeCategory === "technical";
+  const categoryFilterHidesAllRows =
+    activeCategory !== null && !hasNonTechnicalInventory && !showsTechnicalInventory;
 
   const buildInventoryRow = (
     connectorKey: string,
@@ -273,6 +299,39 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
           </FilterChip>
         ))}
       </FilterChipGroup>
+      {categoryFilterHidesAllRows ? (
+        <EnterpriseCompactEmptyState
+          testId="connection-status-category-filter-empty"
+          title="No integrations in this category"
+          description={CONNECTION_STATUS_CATEGORY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+          actions={[
+            {
+              label: "Clear category filter",
+              href: connectorOperationsCategoryHrefFromSearch(currentSearch, null, pathname),
+              variant: "primary",
+            },
+          ]}
+          footer={
+            <div className="space-y-2">
+              {workspaceSubscriptionScopePinned ? (
+                <>
+                  <p
+                    className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="connection-status-category-and-subscription-scope-filter-empty"
+                  >
+                    {CONNECTION_STATUS_CATEGORY_AND_SUBSCRIPTION_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                  <ConnectionStatusCategoryAndSubscriptionScopeFilterEmptyPartialHonesty />
+                </>
+              ) : (
+                <div className="space-y-2" data-testid="connection-status-category-only-filter-empty">
+                  <ConnectionStatusCategoryFilterEmptyPartialHonesty />
+                </div>
+              )}
+            </div>
+          }
+        />
+      ) : null}
       <IntegrationReadinessSummaryStrip
         headline={headline}
         tiles={summaryTiles}
@@ -292,6 +351,7 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
         <IntegrationRecommendedFirstSetupCard setup={recommendedFirstSetup} />
       ) : null}
 
+      {!categoryFilterHidesAllRows ? (
       <div id={inventoryPanelId} className="space-y-4">
       {CONNECTOR_PURPOSE_GROUPS.filter((group) => group.id !== "technical").map((group) => {
         if (activeCategory !== null && activeCategory !== group.id) {
@@ -376,6 +436,7 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
       </section>
       ) : null}
       </div>
+      ) : null}
     </div>
   );
 }

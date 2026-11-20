@@ -59,6 +59,40 @@ public sealed class InMemoryCommitRunIdempotencyRepositoryTests
     }
 
     [Fact]
+    public async Task Precancelled_insert_does_not_store_a_record()
+    {
+        InMemoryCommitRunIdempotencyRepository sut = new();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        byte[] keyHash = [0x01];
+        CancellationToken cancelled = new(canceled: true);
+
+        Func<Task> insert = async () =>
+            await sut.TryInsertAsync(tenantId, workspaceId, projectId, "run", keyHash, [0x02], cancelled);
+
+        await insert.Should().ThrowAsync<OperationCanceledException>();
+        (await sut.TryInsertAsync(tenantId, workspaceId, projectId, "run", keyHash, [0x02]))
+            .Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Precancelled_lookup_does_not_return_a_record()
+    {
+        InMemoryCommitRunIdempotencyRepository sut = new();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        byte[] keyHash = [0x01];
+        await sut.TryInsertAsync(tenantId, workspaceId, projectId, "run", keyHash, [0x02]);
+
+        Func<Task> lookup = async () =>
+            await sut.TryGetAsync(tenantId, workspaceId, projectId, "run", keyHash, new CancellationToken(true));
+
+        await lookup.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [Fact]
     public async Task TryGet_returns_null_when_key_missing()
     {
         InMemoryCommitRunIdempotencyRepository sut = new();

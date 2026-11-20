@@ -43,7 +43,8 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
 
         bool includeTypedPayload = FindingInspectReadRepositoryCore.ResolveIncludeTypedPayload(options);
 
-        Match m = DemoFindingId.Match(FindingInspectReadRepositoryCore.NormalizeFindingId(findingId));
+        string normalizedFindingId = FindingInspectReadRepositoryCore.NormalizeFindingId(findingId);
+        Match m = DemoFindingId.Match(normalizedFindingId);
 
         if (!m.Success)
             return null;
@@ -57,7 +58,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             return null;
 
         Finding? match = findings.FirstOrDefault(f =>
-            string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
+            string.Equals(f.FindingId, normalizedFindingId, StringComparison.OrdinalIgnoreCase));
 
         if (match is null)
             return null;

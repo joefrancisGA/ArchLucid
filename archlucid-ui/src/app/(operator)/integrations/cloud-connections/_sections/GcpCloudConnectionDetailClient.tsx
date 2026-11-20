@@ -66,12 +66,13 @@ function GcpCloudConnectionHeaderStatus(): React.ReactElement {
     return <StatusTag kind="neutral" label="Not connected" data-testid="gcp-connection-header-status" />;
   }
 
-  const primaryConnection = connections[0];
+  const displayedConnection =
+    connections.find((connection) => gcpConnectionStatusTagKind(connection.status) === "blocked") ?? connections[0];
 
   return (
     <StatusTag
-      kind={gcpConnectionStatusTagKind(primaryConnection.status)}
-      label={primaryConnection.status}
+      kind={gcpConnectionStatusTagKind(displayedConnection.status)}
+      label={displayedConnection.status}
       data-testid="gcp-connection-header-status"
     />
   );

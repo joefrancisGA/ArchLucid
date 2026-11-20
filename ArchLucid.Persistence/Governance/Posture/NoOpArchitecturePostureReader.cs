@@ -10,6 +10,10 @@ public sealed class NoOpArchitecturePostureReader : IArchitecturePostureReader
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult(new ArchitecturePostureReadModel());
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(new ArchitecturePostureReadModel());
+    }
 }

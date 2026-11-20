@@ -65,7 +65,7 @@ export function ItsmOutboundQuickActions({
     }
   }
 
-  if (correlationsLoaded && !nativeCreateEnabled && correlations.length === 0) {
+  if (correlationsLoaded && !correlationsError && !nativeCreateEnabled && correlations.length === 0) {
     return null;
   }
 

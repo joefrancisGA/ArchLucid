@@ -185,8 +185,8 @@ public sealed partial class InMemoryRunRepository
             if (!RunRepositoryCore.IsEligibleForStaleUncommittedPurge(r, cutoff))
                 continue;
 
-            removed.Add(RunRepositoryCore.ToArchivedRunScopeRow(r));
-            _store.TryRemove(kv.Key, out _);
+            if (_store.TryRemove(kv))
+                removed.Add(RunRepositoryCore.ToArchivedRunScopeRow(r));
         }
 
         return Task.FromResult(new RunStaleUncommittedPurgeBatchResult { Deleted = removed });
@@ -215,8 +215,8 @@ public sealed partial class InMemoryRunRepository
             if (!RunRepositoryCore.IsEligibleForSamplePurge(r, tenantId, cutoff))
                 continue;
 
-            removed.Add(RunRepositoryCore.ToArchivedRunScopeRow(r));
-            _store.TryRemove(kv.Key, out _);
+            if (_store.TryRemove(kv))
+                removed.Add(RunRepositoryCore.ToArchivedRunScopeRow(r));
         }
 
         return Task.FromResult(new RunSamplePurgeBatchResult { Deleted = removed });

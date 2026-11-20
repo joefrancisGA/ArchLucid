@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Persistence.Audit;
 
 using Microsoft.Azure.Cosmos;
 
@@ -19,7 +20,10 @@ public sealed partial class CosmosAuditRepository
         int maxRows,
         CancellationToken ct)
     {
-        int take = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
+        int take = Math.Clamp(
+            maxRows <= 0 ? IAuditRepository.BulkExportRowLimit : maxRows,
+            1,
+            IAuditRepository.BulkExportRowLimit + 1);
         Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
         string tid = tenantId.ToString("D");
         string wid = workspaceId.ToString("D");

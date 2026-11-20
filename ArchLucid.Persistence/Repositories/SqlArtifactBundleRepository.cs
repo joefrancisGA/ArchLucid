@@ -172,6 +172,7 @@ public sealed partial class SqlArtifactBundleRepository(
             connection,
             bundleId.Value,
             artifactId,
+            blobStore,
             ct);
 
         if (relational is not null)

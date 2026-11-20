@@ -6,8 +6,12 @@ public sealed class NoOpTenantCuratedEvidenceRepository : ITenantCuratedEvidence
 {
     public Task<IReadOnlyList<TenantCuratedEvidenceEntryRow>> ListByTenantAsync(
         Guid tenantId,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<TenantCuratedEvidenceEntryRow>>([]);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<TenantCuratedEvidenceEntryRow>>([]);
+    }
 
     public Task<Guid> InsertPromotedEntryAsync(
         Guid tenantId,
@@ -19,6 +23,10 @@ public sealed class NoOpTenantCuratedEvidenceRepository : ITenantCuratedEvidence
         string sourceResultId,
         CancellationToken cancellationToken = default,
         IDbConnection? connection = null,
-        IDbTransaction? transaction = null) =>
-        Task.FromResult(Guid.NewGuid());
+        IDbTransaction? transaction = null)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(Guid.NewGuid());
+    }
 }
