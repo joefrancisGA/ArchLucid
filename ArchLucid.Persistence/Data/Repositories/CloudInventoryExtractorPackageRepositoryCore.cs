@@ -118,7 +118,7 @@ internal static class CloudInventoryExtractorPackageRepositoryCore
             CloudProvider = (CloudProvider)row.CloudProvider,
             SchemaVersion = row.SchemaVersion,
             ScopeId = row.ScopeId ?? string.Empty,
-            CollectionTimestampUtc = row.CollectionTimestampUtc,
+            CollectionTimestampUtc = NormalizeCollectionTimestampUtc(row.CollectionTimestampUtc),
             CreatedUtc = row.CreatedUtc,
             OriginalFileName = row.OriginalFileName ?? string.Empty,
         };
