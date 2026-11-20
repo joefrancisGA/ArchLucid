@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-20 - Score lift round 91 (batch 56): Verdict add/remove, execution mode, provenance, agent empty
+
+**Outcome.** Compare verdict summary names add/remove counts as requiring two sealed reviews. Compare execution mode delta names unsealed review gap. Provenance delta footnotes partial inventory when manifest diffs show. Agent results callout names empty success response apart from blocked compare.
+
+**Surfaces.** Compare verdict summary, execution mode delta, provenance delta band, agent results callout, honesty and mounted contract tests.
+
 ## 2026-11-19 - Score lift round 90 (batch 55): Compare ROI, gate, pack assignment, correlation unsealed
 
 **Outcome.** Compare ROI headline names zero estimates with an unsealed review. Compare gate outcome names missing stored gates apart from a failed gate read. Compare pack assignment names empty rows when governance diff loaded. Finding correlation names empty metadata with an unsealed review apart from correlation load failure.

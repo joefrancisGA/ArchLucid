@@ -160,6 +160,7 @@ export function CompareResultsPanelVerdictChrome({
             ...resolveComparePairPrimaryFindingIds(findingCorrelationState.lifecycleRecords),
             architectureId: compareArchitectureId,
           }}
+          showPartialInventoryManifestHonesty={viewModel.showPartialInventoryFootnote === true}
         />
       ) : null}
 
@@ -246,7 +247,13 @@ export function CompareResultsPanelVerdictChrome({
       ) : null}
 
       {golden !== null ? (
-        <CompareExecutionModeDeltaPanel view={executionModeDeltaView} />
+        <CompareExecutionModeDeltaPanel
+          view={executionModeDeltaView}
+          showOneUnsealedHonesty={
+            executionModeDeltaView === null && ((viewModel.leftSummaryBlockedReason ?? null) !== null
+              || (viewModel.rightSummaryBlockedReason ?? null) !== null)
+          }
+        />
       ) : null}
 
       {golden !== null ? (
