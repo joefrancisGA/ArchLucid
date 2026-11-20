@@ -13,6 +13,8 @@ import { CompareInsufficientFinalizedPartialCaptureHonesty } from "@/app/(operat
 import { COMPARE_INSUFFICIENT_FINALIZED_ONE_FINALIZED_SECOND_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-insufficient-finalized-one-finalized-second-empty-not-load-failure-copy";
 import { COMPARE_RUN_PICKERS_CORRELATION_EMPTY_AND_SEAL_LINE } from "@/lib/architecture/compare-run-pickers-correlation-empty-and-seal-copy";
 import { CompareInsufficientFinalizedOneFinalizedSecondEmptyPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareInsufficientFinalizedOneFinalizedSecondEmptyPartialHonesty";
+import { CompareInsufficientFinalizedZeroFinalizedPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareInsufficientFinalizedZeroFinalizedPartialHonesty";
+import { COMPARE_INSUFFICIENT_FINALIZED_ZERO_FINALIZED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-insufficient-finalized-zero-finalized-not-load-failure-copy";
 import { CompareRunPickersPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersPartialInventoryFootnote";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -52,6 +54,14 @@ export function CompareInsufficientFinalizedEmptyState(props: CompareInsufficien
           >
             {ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE}
           </p>
+          {finalizedCount === 0 ? (
+            <div className="space-y-2" data-testid="compare-insufficient-finalized-zero-finalized-empty">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-insufficient-finalized-zero-finalized-not-load-failure">
+                {COMPARE_INSUFFICIENT_FINALIZED_ZERO_FINALIZED_NOT_LOAD_FAILURE_LINE}
+              </p>
+              <CompareInsufficientFinalizedZeroFinalizedPartialHonesty />
+            </div>
+          ) : null}
           {finalizedCount === 1 ? (
             <div className="space-y-2" data-testid="compare-insufficient-finalized-one-finalized-second-empty">
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>

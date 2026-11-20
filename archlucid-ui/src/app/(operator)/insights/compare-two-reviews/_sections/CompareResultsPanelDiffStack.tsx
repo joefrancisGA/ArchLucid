@@ -40,6 +40,8 @@ import { showError } from "@/lib/toast";
 import { CompareAgentResultsBlockedCallout } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareAgentResultsBlockedCallout";
 import type { CompareResultsPanelViewModel } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-results-panel";
 import { COMPARE_EXPORT_PDF_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-export-pdf-blocked-not-load-failure-copy";
+import { COMPARE_EXPORT_DOCX_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-export-docx-blocked-not-load-failure-copy";
+import { COMPARE_MANIFEST_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-manifest-export-blocked-not-load-failure-copy";
 
 export function CompareResultsPanelDiffStack({
   viewModel,
@@ -123,6 +125,7 @@ export function CompareResultsPanelDiffStack({
     showDocxDownload,
     docxDownloading,
     docxError,
+    docxExportBlockedReason,
     handleDownloadDocx,
     pdfDownloading,
     pdfError,
@@ -139,6 +142,7 @@ export function CompareResultsPanelDiffStack({
 
   const [manifestExportBusy, setManifestExportBusy] = useState(false);
   const [endToEndExportBusy, setEndToEndExportBusy] = useState(false);
+  const [manifestExportBlockedReason, setManifestExportBlockedReason] = useState<string | null>(null);
 
   const handleDownloadManifestCompareExport = useCallback(async () => {
     if (golden === null || showStaleInputsWarning) {
@@ -146,6 +150,7 @@ export function CompareResultsPanelDiffStack({
     }
 
     setManifestExportBusy(true);
+    setManifestExportBlockedReason(null);
 
     try {
       await downloadManifestCompareExport({
@@ -157,7 +162,7 @@ export function CompareResultsPanelDiffStack({
     } catch (error: unknown) {
       const failure = toApiLoadFailure(error);
       const blocked = manifestCompareExportMutationBlockedReason(failure);
-
+      setManifestExportBlockedReason(blocked);
       showError("Manifest compare export failed", blocked ?? failure.message);
     } finally {
       setManifestExportBusy(false);
@@ -268,8 +273,20 @@ export function CompareResultsPanelDiffStack({
               </div>
             ) : null}
             {docxError ? (
-              <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {docxError}
+              <div className="space-y-1">
+                <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {docxError}
+                </p>
+                {docxExportBlockedReason !== null ? (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-export-docx-blocked-not-load-failure">
+                    {COMPARE_EXPORT_DOCX_BLOCKED_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+            {manifestExportBlockedReason !== null ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-manifest-export-blocked-not-load-failure">
+                {COMPARE_MANIFEST_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE}
               </p>
             ) : null}
             </div>
