@@ -1,3 +1,5 @@
+using ArchLucid.Persistence.BlobStore;
+
 using Dapper;
 
 using Microsoft.Data.SqlClient;
@@ -9,6 +11,7 @@ internal static partial class ArtifactBundleRelationalRead
     private static async Task<List<SynthesizedArtifact>> LoadArtifactsRelationalAsync(
         SqlConnection connection,
         Guid bundleId,
+        IArtifactBlobStore blobStore,
         bool loadArtifactBodies,
         CancellationToken ct)
     {
@@ -122,7 +125,9 @@ internal static partial class ArtifactBundleRelationalRead
                     ArtifactType = ar.ArtifactType,
                     Name = ar.Name,
                     Format = ar.Format,
-                    Content = ar.Content ?? string.Empty,
+                    Content = loadArtifactBodies
+                        ? await LoadArtifactContentAsync(ar, blobStore, ct)
+                        : string.Empty,
                     ContentHash = ar.ContentHash,
                     Status = SynthesizedArtifactSliceStatusParser.Parse(ar.GenerationStatus),
                     Metadata = meta,
@@ -131,6 +136,17 @@ internal static partial class ArtifactBundleRelationalRead
         }
 
         return result;
+    }
+
+    private static async Task<string> LoadArtifactContentAsync(
+        ArtifactSliceRow row,
+        IArtifactBlobStore blobStore,
+        CancellationToken ct)
+    {
+        if (string.IsNullOrEmpty(row.Content) && !string.IsNullOrWhiteSpace(row.ContentBlobUri))
+            return await blobStore.ReadAsync(row.ContentBlobUri, ct) ?? string.Empty;
+
+        return row.Content ?? string.Empty;
     }
 
     private sealed class ArtifactSliceRow
