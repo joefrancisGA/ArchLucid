@@ -21,6 +21,7 @@ import {
   AWS_CONNECTION_LOAD_FAILED_ERROR,
   formatAwsConnectionCollectionSuccessMessage,
 } from "@/lib/aws-cloud-connection-copy";
+import { CLOUD_CONNECTIONS_REFRESH_FAILED_ERROR } from "@/lib/cloud-connections-copy";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 
 /**
@@ -108,11 +109,14 @@ export function AwsConnectionDataProvider(props: { readonly children: ReactNode 
 
       try {
         const result = await triggerAwsTier2HostedRun({ connectionId: connection.connectionId });
-        await refreshConnections();
         setActionMessage(
           formatAwsConnectionCollectionSuccessMessage(result.resourceCount, result.packageId),
           scope,
         );
+        await refreshConnections().catch((err: unknown) => {
+          console.error(err);
+          setFormError(CLOUD_CONNECTIONS_REFRESH_FAILED_ERROR, scope);
+        });
       } catch (err) {
         console.error(err);
         setFormError(AWS_CONNECTION_COLLECTION_FAILED_ERROR, scope);

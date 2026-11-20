@@ -14,6 +14,9 @@ export const CLOUD_CONNECTIONS_OPTIONAL_NOTE =
 export const CLOUD_CONNECTIONS_HUB_VOCABULARY_DISCLOSURE_TITLE =
   "How this differs from Connection status and Extract & Upload";
 
+export const CLOUD_CONNECTIONS_REFRESH_FAILED_ERROR =
+  "Could not refresh connection details. Reload the page for the latest status.";
+
 export const CLOUD_CONNECTIONS_PROVIDER_EVIDENCE_NONE = "None collected yet";
 
 /** Compact empty-state line for unconfigured provider landing cards (TB-1143). */
