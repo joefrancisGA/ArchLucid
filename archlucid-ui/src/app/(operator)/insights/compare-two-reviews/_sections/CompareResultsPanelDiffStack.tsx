@@ -42,6 +42,9 @@ import type { CompareResultsPanelViewModel } from "@/app/(operator)/insights/com
 import { COMPARE_EXPORT_PDF_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-export-pdf-blocked-not-load-failure-copy";
 import { COMPARE_EXPORT_DOCX_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-export-docx-blocked-not-load-failure-copy";
 import { COMPARE_MANIFEST_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-manifest-export-blocked-not-load-failure-copy";
+import { COMPARE_END_TO_END_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-end-to-end-export-blocked-not-load-failure-copy";
+import { COMPARE_END_TO_END_EXPORT_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-end-to-end-export-stale-inputs-not-load-failure-copy";
+import { COMPARE_AI_NARRATIVE_MISSING_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-ai-narrative-missing-not-load-failure-copy";
 
 export function CompareResultsPanelDiffStack({
   viewModel,
@@ -143,6 +146,7 @@ export function CompareResultsPanelDiffStack({
   const [manifestExportBusy, setManifestExportBusy] = useState(false);
   const [endToEndExportBusy, setEndToEndExportBusy] = useState(false);
   const [manifestExportBlockedReason, setManifestExportBlockedReason] = useState<string | null>(null);
+  const [endToEndExportBlockedReason, setEndToEndExportBlockedReason] = useState<string | null>(null);
 
   const handleDownloadManifestCompareExport = useCallback(async () => {
     if (golden === null || showStaleInputsWarning) {
@@ -175,6 +179,7 @@ export function CompareResultsPanelDiffStack({
     }
 
     setEndToEndExportBusy(true);
+    setEndToEndExportBlockedReason(null);
 
     try {
       await downloadEndToEndCompareExport({
@@ -185,7 +190,7 @@ export function CompareResultsPanelDiffStack({
     } catch (error: unknown) {
       const failure = toApiLoadFailure(error);
       const blocked = manifestCompareExportMutationBlockedReason(failure);
-
+      setEndToEndExportBlockedReason(blocked);
       showError("End-to-end compare export failed", blocked ?? failure.message);
     } finally {
       setEndToEndExportBusy(false);
@@ -241,7 +246,7 @@ export function CompareResultsPanelDiffStack({
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={endToEndExportBusy || manifestExportBusy || docxDownloading || pdfDownloading}
+                disabled={showStaleInputsWarning || endToEndExportBusy || manifestExportBusy || docxDownloading || pdfDownloading}
                 onClick={() => void handleDownloadEndToEndCompareExport()}
                 className={cn(OPERATOR_LINK.inline, "inline-flex items-center gap-1.5 text-sm")}
                 data-testid="compare-download-end-to-end-compare-export-button"
@@ -289,6 +294,16 @@ export function CompareResultsPanelDiffStack({
                 {COMPARE_MANIFEST_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE}
               </p>
             ) : null}
+            {showStaleInputsWarning && exportLeftRunId.trim().length > 0 && exportRightRunId.trim().length > 0 ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-end-to-end-export-stale-inputs-not-load-failure">
+                {COMPARE_END_TO_END_EXPORT_STALE_INPUTS_NOT_LOAD_FAILURE_LINE}
+              </p>
+            ) : null}
+            {endToEndExportBlockedReason !== null ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-end-to-end-export-blocked-not-load-failure">
+                {COMPARE_END_TO_END_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE}
+              </p>
+            ) : null}
             </div>
           </div>
           <SponsorExportSendHonestyStrip className="lg:max-w-xl" testIdPrefix="compare-export" />
@@ -301,6 +316,7 @@ export function CompareResultsPanelDiffStack({
         <ComparePairEvidenceCiteStrip
           baselineRunId={citeBaselineRunId}
           updatedRunId={citeUpdatedRunId}
+          showStaleCurrentEffectiveHonesty={viewModel.usesCurrentEffectiveOnly === true && showStaleInputsWarning}
           groundingOptions={{
             ...resolveComparePairPrimaryFindingIds(
               viewModel.findingCorrelationState.lifecycleRecords,
@@ -324,6 +340,19 @@ export function CompareResultsPanelDiffStack({
           <OperatorLoadingNotice>
             <strong>Generating comparison narrative.</strong>
           </OperatorLoadingNotice>
+        ) : null}
+
+        {golden !== null
+          && !comparisonNarrativeLoading
+          && comparisonNarrative === null
+          && viewModel.aiFailure === null
+          && !viewModel.aiLoading ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-ai-narrative-missing-not-load-failure"
+          >
+            {COMPARE_AI_NARRATIVE_MISSING_NOT_LOAD_FAILURE_LINE}
+          </p>
         ) : null}
 
         {comparisonNarrative !== null ? (
