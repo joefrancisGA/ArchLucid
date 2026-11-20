@@ -18,6 +18,7 @@ import {
   parseStandardsRulesFrameworkFromSearch,
   parseStandardsRulesPackFromSearch,
   standardsRulesClearSearchHrefFromSearch,
+  standardsRulesResetFiltersHrefFromSearch,
   standardsRulesSearchHrefFromSearch,
 } from "@/lib/governance/standards-rules-filters-url";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
@@ -111,6 +112,12 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
     router.replace(standardsRulesClearSearchHrefFromSearch(currentSearch, pathname), { scroll: false });
   }, [currentSearch, pathname, router]);
 
+  const resetFilters = useCallback(() => {
+    setFiltersState(EMPTY_STANDARDS_RULES_FILTER_STATE);
+    setSearchQuery("");
+    router.replace(standardsRulesResetFiltersHrefFromSearch(currentSearch, pathname), { scroll: false });
+  }, [currentSearch, pathname, router]);
+
   const onPickRun = useCallback(
     (runId: string) => {
       const trimmed = runId.trim();
@@ -193,6 +200,7 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
     searchQuery,
     setSearchQuery,
     clearSearch,
+    resetFilters,
     onPickRun,
     allRuleRows,
     filteredRuleRows,
