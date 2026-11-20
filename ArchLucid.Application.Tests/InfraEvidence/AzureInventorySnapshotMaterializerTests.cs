@@ -346,8 +346,10 @@ public sealed class AzureInventorySnapshotMaterializerTests
             .Should().ContainSingle(resource => resource.ResourceType == "Microsoft.Storage/storageAccounts");
     }
 
-    [Fact]
-    public async Task TryMaterializePackageAsync_writes_logsTo_relationship_from_diagnostic_settings()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TryMaterializePackageAsync_writes_logsTo_relationship_from_diagnostic_settings(bool useFallbackNames)
     {
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };
         Guid snapshotId = Guid.NewGuid();
@@ -361,6 +363,8 @@ public sealed class AzureInventorySnapshotMaterializerTests
 
         Mock<ICloudResourceIdentityDirectory> identityDirectory = CreateIdentityDirectory(scope, snapshotId);
 
+        const string targetResourceId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string workspaceResourceId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/log1";
         byte[] zipBytes = BuildZipWithDiagnostics(
             """
             [
@@ -372,15 +376,18 @@ public sealed class AzureInventorySnapshotMaterializerTests
               }
             ]
             """,
-            """
-            [
-              {
-                "targetResourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
-                "name": "diag1",
-                "workspaceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/log1"
-              }
-            ]
-            """);
+            JsonSerializer.Serialize(new[]
+            {
+                new
+                {
+                    targetResourceId = useFallbackNames ? null : targetResourceId,
+                    resourceId = useFallbackNames ? targetResourceId : null,
+                    name = "diag1",
+                    workspaceId = useFallbackNames ? null : workspaceResourceId,
+                    workspaceResourceId = useFallbackNames ? workspaceResourceId : null,
+                    storageAccountId = (string?)null,
+                },
+            }));
 
         AzureInventorySnapshotMaterializer sut = new(
             snapshotRepository.Object,
@@ -404,6 +411,10 @@ public sealed class AzureInventorySnapshotMaterializerTests
         captured.Relationships.Should().ContainSingle(relationship =>
             relationship.RelationshipType == GraphEdgeTypes.ConnectsTo
             && relationship.ToAzureResourceId.EndsWith("/workspaces/log1", StringComparison.OrdinalIgnoreCase));
+        captured.Relationships.Should().ContainSingle();
+        captured.Diagnostics.Should().ContainSingle(diagnostic =>
+            diagnostic.TargetAzureResourceId == ArmResourceIdNormalizer.Normalize(targetResourceId)
+            && diagnostic.WorkspaceResourceId == ArmResourceIdNormalizer.Normalize(workspaceResourceId));
         captured.RelationshipCount.Should().Be(captured.Relationships.Count);
         result.RelationshipCount.Should().Be(captured.Relationships.Count);
         HashSet<string> visibleArmIds = AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(captured.Resources);
