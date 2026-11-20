@@ -122,32 +122,15 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
 
     private static RunExportRecord NormalizeExportRecordForPersist(RunExportRecord record)
     {
-        string normalizedExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(record.ExportRecordId);
-        string normalizedRunId = record.RunId.Trim();
+        string json = JsonSerializer.Serialize(record, ContractJson.Default);
+        RunExportRecord? copy = JsonSerializer.Deserialize<RunExportRecord>(json, ContractJson.Default);
 
-        RunExportRecord persistRecord;
+        if (copy is null)
+            throw new InvalidOperationException("RunExportRecord clone for persist produced null.");
 
-        if (string.Equals(record.ExportRecordId, normalizedExportRecordId, StringComparison.Ordinal)
-            && string.Equals(record.RunId, normalizedRunId, StringComparison.Ordinal))
-        {
-            persistRecord = record;
-        }
-        else
-        {
-            string json = JsonSerializer.Serialize(record, ContractJson.Default);
-            RunExportRecord? copy = JsonSerializer.Deserialize<RunExportRecord>(json, ContractJson.Default);
+        RunExportRecordPersistNormalizer.NormalizeLoadedRecord(copy);
 
-            if (copy is null)
-                throw new InvalidOperationException("RunExportRecord clone for persist produced null.");
-
-            copy.ExportRecordId = normalizedExportRecordId;
-            copy.RunId = normalizedRunId;
-            persistRecord = copy;
-        }
-
-        RunExportRecordPersistNormalizer.NormalizeLoadedRecord(persistRecord);
-
-        return persistRecord;
+        return copy;
     }
 
     public async Task<IReadOnlyList<RunExportRecord>> GetByRunIdAsync(
