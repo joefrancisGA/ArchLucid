@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+## 2026-11-20 - Score lift round 98 (batch 63): Risk register empty, CSV export, ITSM create, OAuth callback
+
+**Outcome.** Findings register empty names a successful read with no rows. CSV export names a browser failure apart from a header-only empty export. ITSM create names connector-off, hard create failure, and empty linkage. Atlassian OAuth callback names cancelled consent apart from token-exchange failure.
+
+**Surfaces.** Governance findings register, findings CSV export, ITSM outbound create, Atlassian OAuth callback, honesty and mounted contract tests.
+
 ## 2026-11-20 - Score lift round 97 (batch 62): DOCX stale, manifest stale, drift hard failure, AI malformed
 
 **Outcome.** DOCX and manifest compare exports pause on stale picker drift apart from failed requests. Drift download hard failure is distinct from seal-gate block and empty artifact. AI malformed explain response is distinct from blocked explain mutation and empty narrative.

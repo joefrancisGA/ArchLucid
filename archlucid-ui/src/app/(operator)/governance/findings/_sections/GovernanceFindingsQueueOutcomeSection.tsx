@@ -56,6 +56,7 @@ import { GOVERNANCE_FINDINGS_EMPTY_COLLECTION_BLOCKER_PREFACE_LINE } from "@/lib
 import { GOVERNANCE_ASSIGNED_TO_ME_EMPTY_COLLECTION_BLOCKER_PREFACE_LINE } from "@/lib/governance/governance-assigned-to-me-empty-collection-blocker-preface-copy";
 import { cn } from "@/lib/utils";
 import { SECURENOW_FINDINGS_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/product-line/securenow-findings-empty-partial-capture-copy";
+import { RISK_REGISTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/risk-register-empty-not-load-failure-copy";
 
 export function GovernanceFindingsQueueOutcomeSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
@@ -197,6 +198,7 @@ export function GovernanceFindingsQueueOutcomeSection(
             ctaLabel={props.workspaceScopeTeaching.ctaLabel}
           />
         ) : (
+          <div className="space-y-2">
           <EnterpriseCompactEmptyState
             testId="governance-findings-empty-state"
             title={
@@ -309,6 +311,13 @@ export function GovernanceFindingsQueueOutcomeSection(
               ) : undefined
             }
           />
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="governance-findings-risk-register-empty-not-load-failure"
+          >
+            {RISK_REGISTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+          </p>
+          </div>
         )
       ) : null}
 

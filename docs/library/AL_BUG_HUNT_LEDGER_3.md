@@ -67,15 +67,25 @@
 
 ## Zone: ui-lib-api
 
+2026-11-20 thorough hunt #1 (hit): cheap-disproved four (hunt-ready) monitors — **valid-no-repro** `throwApiRequestError` 5xx toast requires `isBrowser()` and explicit `showErrorToast`; **valid-no-repro** `http.warmup-retry` reuses one `fetchOnce` closure so correlation headers apply once per request; **valid-no-repro** governance stickiness boundary suites already trim POST bodies and null drops (no product-line header merge path in zone); **valid-no-repro** run package export sealed-manifest handling lives on `downloadRunPackageExport` response via `runPackageExportMutationBlockedReason`, not the URL builder. Promoted list cursor boundary: `listRunsByProjectPaged` / `listRunsInScopePaged` forwarded padded or whitespace-only cursor query values while the reviews hub loader trims URL cursors — normalize with `runListCursor` (parity with `alerts-inbox-api`); regressions trim padding and whitespace-only first page; list-cursor vitest **5/5**.
+
+- [x] (valid-no-repro) `throwApiRequestError` — 5xx toast on server render — **cheap-disproof 2026-11-20 thorough hunt #1:** browser + opt-in gate.
+- [x] (valid-no-repro) `governance-stickiness-boundary` — sticky header merge on warmup retry — **cheap-disproof 2026-11-20 thorough hunt #1:** no product-line header path; existing trim regressions.
+- [x] (valid-no-repro) `http.warmup-retry` — duplicate correlation header on retry — **cheap-disproof 2026-11-20 thorough hunt #1:** single header apply before `fetchWithWarmupRetry`.
+- [x] (valid-no-repro) `downloads-api.run-package-export` — missing sealed-manifest guard on URL-only export — **cheap-disproof 2026-11-20 thorough hunt #1:** blocked reason on scoped proxy GET.
+- [x] (proven) `architecture-runs.list-cursor` — padded or whitespace-only cursor forwarded literally — **hit 2026-11-20 thorough hunt #1:** `runListCursor` trim at API boundary; regressions above.
+
+- [ ] (candidate) `throwApiRequestError` — 402 trial-limit bridge may fire on non-browser runtimes when cookie present — locus: `isBrowser` guard; input: SSR with trial problem; wrong outcome: trial modal side effect; reachability: server actions (monitor; hunt #1 reseed).
+- [ ] (candidate) `apiGet` malformed JSON body — may throw using error path without `showErrorToast` on 200 — locus: parse fallback; input: HTML 200 body; wrong outcome: generic error without toast policy; reachability: misconfigured proxy (monitor; hunt #1 reseed).
+- [ ] (candidate) `reviews-paged-inventory` — scope-wide 404 fallback may send untrimmed cursor when hub passes padded token — locus: pass-through cursor; input: padded cursor via inventory helper; wrong outcome: stale page after fallback — **partially addressed** by list cursor trim; monitor fallback ordering (hunt #1 reseed).
+- [ ] (candidate) `downloadScopedProxyFileGet` — binary content-type guard may accept `text/html` error page as success — locus: content-type assert; input: HTML error masquerading as export; wrong outcome: corrupt download; reachability: run package export CTA (monitor; hunt #1 reseed).
+- [ ] (candidate) `applyCorrelationHeaders` — session traceparent replay may skip refresh when stored value invalid — locus: traceparent validation; input: malformed session value; wrong outcome: missing distributed trace; reachability: outbound API GET (monitor; hunt #1 reseed).
+
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/api`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
 
-- [ ] (hunt-ready) `throwApiRequestError` — 5xx responses may still toast when caller passes suppress flag false on server render — locus: window guard; input: SSR fetch 502; wrong outcome: toast enqueue without window; reachability: server actions calling API helpers.
-- [ ] (hunt-ready) `architecture-runs.list-cursor` — opaque cursor with whitespace padding may decode differently between list and export calls — locus: cursor trim; input: padded cursor query; wrong outcome: duplicate page or empty page; reachability: runs list pagination.
-- [ ] (hunt-ready) `governance-stickiness-boundary` — sticky header merge may drop product-line header when retry path uses warmup fetch — locus: header re-application; input: warmup then mutation; wrong outcome: missing product line on API; reachability: governance sticky mutations.
-- [ ] (hunt-ready) `http.warmup-retry` — retry after warmup may double-append correlation id header — locus: retry interceptor; input: flaky 503 then success; wrong outcome: duplicate correlation header; reachability: global API warmup path.
-- [ ] (hunt-ready) `downloads-api.run-package-export` — export trigger may omit sealed-manifest aware guard when run id only in path — locus: manifest guard; input: unsealed run export; wrong outcome: export succeeds empty package; reachability: run package download CTA.
+- [ ] (hunt-ready) reseed after hunt #1; prior queue closed in zone header diary.
 
 - **id:** ui-lib-api
 - **status:** open
@@ -83,13 +93,13 @@
 - **aliases:** UI API client; fetch boundaries
 - **paths:** archlucid-ui/src/lib/api/
 - **test-filter:** lib/api
-- **hunts:** 1
-- **bugs-found:** 0
+- **hunts:** 2
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-20
-- **last-bug:** never
+- **last-bug:** 2026-11-20 — padded keyset cursor forwarded without trim
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ## Zone: ui-lib-infra-evidence
 

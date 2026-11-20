@@ -145,9 +145,9 @@ public sealed class AuthorityPipelineGraphStage(
                 graphSnapshot.GraphSnapshotId);
         }
 
-        await _stagePersistence.SaveGraphAsync(graphSnapshot, context.Scope, context.UnitOfWork, cancellationToken);
-
         StampGraphObservationFingerprints(context.ContextSnapshot!, knowledgeModel, graphSnapshot, run);
+
+        await _stagePersistence.SaveGraphAsync(graphSnapshot, context.Scope, context.UnitOfWork, cancellationToken);
 
         run.GraphSnapshotId = graphSnapshot.GraphSnapshotId;
         await _stagePersistence.UpdateRunAsync(run, context.UnitOfWork, cancellationToken);
