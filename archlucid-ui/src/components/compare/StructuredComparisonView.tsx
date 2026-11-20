@@ -40,6 +40,8 @@ import {
 import { sortGoldenManifestComparison } from "@/lib/compare-display-sort";
 import type { DecisionDelta, GoldenManifestComparison } from "@/types/comparison";
 import type { RunSummary } from "@/types/authority";
+import { COMPARE_STRUCTURED_DIFF_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-structured-diff-empty-not-load-failure-copy";
+import { CompareStructuredDiffEmptyPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareStructuredDiffEmptyPartialHonesty";
 
 const cellCls = "border border-neutral-200 px-2.5 py-2 text-left align-top dark:border-neutral-700";
 const sectionBoxCls = "mt-5 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950";
@@ -285,6 +287,12 @@ export function StructuredComparisonView(props: {
             {" "}
             — no decision, requirement, security posture, architecture structure, or modeled cost changes in this comparison payload.
           </span>
+          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-structured-diff-empty-not-load-failure">
+            {COMPARE_STRUCTURED_DIFF_EMPTY_NOT_LOAD_FAILURE_LINE}
+          </p>
+          <div className="mt-2">
+            <CompareStructuredDiffEmptyPartialHonesty />
+          </div>
         </div>
       ) : (
         <div className="grid gap-4 xl:grid-cols-2">

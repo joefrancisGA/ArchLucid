@@ -130,6 +130,10 @@ export function CompareResultsPanelVerdictChrome({
           executionModeHonesty={trustExecutionModeHonesty}
           usesCurrentEffectiveOnly={usesCurrentEffectiveOnly}
           hasAiNarrative={hasAiNarrative}
+          compareIncludesUnsealedReview={
+            (viewModel.leftSummaryBlockedReason ?? null) !== null
+            || (viewModel.rightSummaryBlockedReason ?? null) !== null
+          }
         />
       ) : null}
 
