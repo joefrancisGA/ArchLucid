@@ -126,9 +126,10 @@ export function CompareForm(props: CompareFormProps = {}) {
     architectureId,
   } = useCompareForm({ basePathname: props.basePathname });
 
+  const scopeGolden = pairAligned ? golden : null;
   const compareScopeCorrelation = useCompareFindingCorrelation(
-    golden?.baseRunId ?? (leftTrim.length > 0 ? leftTrim : null),
-    golden?.targetRunId ?? (rightTrim.length > 0 ? rightTrim : null),
+    scopeGolden?.baseRunId ?? (leftTrim.length > 0 ? leftTrim : null),
+    scopeGolden?.targetRunId ?? (rightTrim.length > 0 ? rightTrim : null),
   );
 
   const compareUpdatedReviewOpenHref = useMemo(
