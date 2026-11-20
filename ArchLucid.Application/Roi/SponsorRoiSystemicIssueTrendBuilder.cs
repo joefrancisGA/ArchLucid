@@ -24,16 +24,16 @@ public static class SponsorRoiSystemicIssueTrendBuilder
         ArgumentNullException.ThrowIfNull(committedRuns);
         ArgumentNullException.ThrowIfNull(timeProvider);
 
-        DateTime cutoffUtc = timeProvider.GetUtcNow().UtcDateTime.AddMonths(-TrendMonths);
+        List<string> monthKeys = BuildTrailingMonthKeys(TrendMonths, timeProvider);
         Dictionary<string, Dictionary<string, int>> countsByFindingAndMonth = new(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, (string Category, string Severity)> labelsByFinding = new(StringComparer.OrdinalIgnoreCase);
 
         foreach ((RunSummary summary, ArchitectureRunDetail detail) in committedRuns)
         {
-            if (summary.CreatedUtc < cutoffUtc)
-                continue;
-
             string monthKey = summary.CreatedUtc.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture);
+
+            if (!monthKeys.Contains(monthKey))
+                continue;
 
             IEnumerable<ArchitectureFinding> activeFindings = detail.Results
                 .SelectMany(static result => result.Findings)
@@ -68,7 +68,6 @@ public static class SponsorRoiSystemicIssueTrendBuilder
             .Select(static pair => pair.Key)
             .ToList();
 
-        List<string> monthKeys = BuildTrailingMonthKeys(TrendMonths, timeProvider);
         List<SponsorRoiSystemicIssueTrendSeries> series = [];
 
         foreach (string findingId in topFindingIds)
