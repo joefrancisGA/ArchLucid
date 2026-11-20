@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-20 - Score lift round 94 (batch 59): DOCX, drift download, zero finalized, manifest export
+
+**Outcome.** Comparison DOCX export names seal gates apart from empty package. Drift download blocked names lifecycle gates apart from empty drift artifact. Insufficient finalized empty (zero reviews) names prerequisite apart from failed compare with partial-capture recovery. Manifest compare export blocked honesty apart from empty Markdown.
+
+**Surfaces.** Compare DOCX export, drift download blocked, insufficient finalized zero, manifest compare export, honesty and mounted contract tests.
+
 ## 2026-11-20 - Score lift round 93 (batch 58): Same review, search blocked, pair blocked, PDF export
 
 **Outcome.** Compare pickers name same-review selection apart from picker load failure. Comparison search blocked names seal gates apart from empty history. Compare pair aggregate blocked banner names gate failure apart from empty deltas. Comparison PDF export names finalize gates apart from empty report.

@@ -14,6 +14,7 @@ import { comparisonDriftReportBlockedReason } from "@/lib/compare/comparison-dri
 import { comparisonSearchBlockedReason } from "@/lib/compare/comparison-search-blocked-reason";
 import { CompareResultsPanelPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanelPartialInventoryFootnote";
 import { COMPARE_SEARCH_BLOCKED_NOT_EMPTY_COMPARE_LINE } from "@/lib/architecture/compare-search-blocked-not-empty-compare-copy";
+import { COMPARE_DRIFT_DOWNLOAD_BLOCKED_NOT_EMPTY_COMPARE_LINE } from "@/lib/architecture/compare-drift-download-blocked-not-empty-compare-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareResultsPanelProps = {
@@ -76,9 +77,14 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
         </div>
       ) : null}
       {driftBlockedReason ? (
-        <p className="m-0 text-sm text-al-text-secondary" data-testid="compare-drift-blocked-reason">
-          {driftBlockedReason}
-        </p>
+        <div className="space-y-1">
+          <p className="m-0 text-sm text-al-text-secondary" data-testid="compare-drift-blocked-reason">
+            {driftBlockedReason}
+          </p>
+          <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-drift-download-blocked-not-empty-compare">
+            {COMPARE_DRIFT_DOWNLOAD_BLOCKED_NOT_EMPTY_COMPARE_LINE}
+          </p>
+        </div>
       ) : null}
       <CompareResultsPanelPartialInventoryFootnote visible={showPartialInventoryFootnote} />
       <CompareResultsPanelVerdictChrome viewModel={viewModel} />

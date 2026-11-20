@@ -49,6 +49,7 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
   const [pdfExportBlockedReason, setPdfExportBlockedReason] = useState<string | null>(null);
   const [docxDownloading, setDocxDownloading] = useState(false);
   const [docxError, setDocxError] = useState<string | null>(null);
+  const [docxExportBlockedReason, setDocxExportBlockedReason] = useState<string | null>(null);
 
   const comparisonSearchQuery = useComparisonSearchQuery({
     query: {
@@ -85,13 +86,16 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     if (golden === null) return;
     setDocxDownloading(true);
     setDocxError(null);
+    setDocxExportBlockedReason(null);
     try {
       await downloadArchitecturePackageDocx(golden.baseRunId, golden.targetRunId, {
         includeComparisonExplanation: true,
       });
     } catch (e: unknown) {
       const failure = toApiLoadFailure(e);
-      setDocxError(comparisonDocxMutationBlockedReason(failure) ?? failure.message);
+      const blocked = comparisonDocxMutationBlockedReason(failure);
+      setDocxExportBlockedReason(blocked);
+      setDocxError(blocked ?? failure.message);
     } finally {
       setDocxDownloading(false);
     }
@@ -181,6 +185,7 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     pdfExportBlockedReason,
     docxDownloading,
     docxError,
+    docxExportBlockedReason,
     handleDownloadPdf,
     handleDownloadDocx,
     showDocxDownload,
