@@ -25,11 +25,13 @@ export type DriftChangesPaginationProps = {
 
 export function DriftChangesPagination(props: DriftChangesPaginationProps): React.JSX.Element | null {
   const pageCount = inventoryTotalPageCount(props.totalCount, props.pageSize);
-  const safePage = Math.min(pageCount, Math.max(1, props.page));
-  const showingLine = formatInventoryPageRangeLine(safePage, props.pageSize, props.totalCount);
+  const currentPage = Math.max(1, props.page);
+  const pageIsOutOfRange = currentPage > pageCount;
+  const pageRange = formatInventoryPageRangeLine(currentPage, props.pageSize, props.totalCount);
+  const showingLine = pageRange != null && pageIsOutOfRange ? "This page is no longer available." : pageRange;
   const controlsDisabled = props.disabled === true;
-  const canGoPrevious = safePage > 1;
-  const canGoNext = safePage < pageCount;
+  const canGoPrevious = currentPage > 1;
+  const canGoNext = currentPage < pageCount;
 
   if (showingLine == null) {
     return null;
@@ -59,7 +61,7 @@ export function DriftChangesPagination(props: DriftChangesPaginationProps): Reac
             )}
             data-testid="infra-drift-changes-page-select"
             disabled={controlsDisabled}
-            value={safePage}
+            value={pageIsOutOfRange ? "" : currentPage}
             onChange={(event) => {
               const nextPage = Number.parseInt(event.target.value, 10);
 
@@ -70,6 +72,7 @@ export function DriftChangesPagination(props: DriftChangesPaginationProps): Reac
               props.onPageChange(nextPage);
             }}
           >
+            {pageIsOutOfRange ? <option value="" disabled>Select a page</option> : null}
             {pageNumbers.map((pageNumber) => (
               <option key={pageNumber} value={pageNumber}>
                 {pageNumber} of {pageCount}
@@ -85,7 +88,7 @@ export function DriftChangesPagination(props: DriftChangesPaginationProps): Reac
             data-testid="infra-drift-changes-previous"
             disabled={controlsDisabled || !canGoPrevious}
             onClick={() => {
-              props.onPageChange(safePage - 1);
+              props.onPageChange(Math.min(currentPage - 1, pageCount));
             }}
           >
             Previous
@@ -97,7 +100,7 @@ export function DriftChangesPagination(props: DriftChangesPaginationProps): Reac
             data-testid="infra-drift-changes-next"
             disabled={controlsDisabled || !canGoNext}
             onClick={() => {
-              props.onPageChange(safePage + 1);
+              props.onPageChange(currentPage + 1);
             }}
           >
             Next
