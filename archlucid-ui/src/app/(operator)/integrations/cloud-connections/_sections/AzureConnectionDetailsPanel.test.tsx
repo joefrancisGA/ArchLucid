@@ -90,4 +90,35 @@ describe("AzureConnectionDetailsPanel", () => {
     expect(screen.getByTestId("tier2-connection-wizard-stub")).toBeInTheDocument();
     expect(screen.queryByTestId("azure-connected-connection-summary")).not.toBeInTheDocument();
   });
+
+  it("keeps a failed retry recoverable and prevents repeated clicks while it runs", async () => {
+    let rejectRetry: (reason: Error) => void = () => {};
+    const retryRequest = new Promise<never>((_, reject) => {
+      rejectRetry = reject;
+    });
+    listTier2Connections
+      .mockRejectedValueOnce(new Error("initial request failed"))
+      .mockReturnValueOnce(retryRequest);
+
+    render(
+      <AzureConnectionDataProvider>
+        <AzureConnectionDetailsPanel />
+      </AzureConnectionDataProvider>,
+    );
+
+    const retry = await screen.findByTestId("azure-connection-details-load-error-retry");
+    fireEvent.click(retry);
+    expect(retry).toBeDisabled();
+    expect(retry).toHaveTextContent("Retrying");
+    fireEvent.click(retry);
+    expect(listTier2Connections).toHaveBeenCalledTimes(2);
+
+    rejectRetry(new Error("retry request failed"));
+    await waitFor(() => expect(retry).toBeEnabled());
+    expect(screen.getByTestId("azure-connection-details-load-error")).toBeInTheDocument();
+
+    fireEvent.click(retry);
+    expect(await screen.findByTestId("tier2-connection-wizard-stub")).toBeInTheDocument();
+    expect(listTier2Connections).toHaveBeenCalledTimes(3);
+  });
 });
