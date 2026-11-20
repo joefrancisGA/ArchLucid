@@ -15,6 +15,7 @@ import { comparisonSearchBlockedReason } from "@/lib/compare/comparison-search-b
 import { CompareResultsPanelPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanelPartialInventoryFootnote";
 import { COMPARE_SEARCH_BLOCKED_NOT_EMPTY_COMPARE_LINE } from "@/lib/architecture/compare-search-blocked-not-empty-compare-copy";
 import { COMPARE_DRIFT_DOWNLOAD_BLOCKED_NOT_EMPTY_COMPARE_LINE } from "@/lib/architecture/compare-drift-download-blocked-not-empty-compare-copy";
+import { COMPARE_DRIFT_DOWNLOAD_HARD_FAILURE_NOT_EMPTY_ARTIFACT_LINE } from "@/lib/architecture/compare-drift-download-hard-failure-not-empty-artifact-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareResultsPanelProps = {
@@ -54,7 +55,10 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
     resultsRegionRef,
     comparisonSearchBlockedReason: searchBlockedReason,
     comparisonDriftBlockedReason: driftBlockedReason,
+    comparisonDriftDownload,
   } = viewModel;
+  const driftHardFailure =
+    comparisonDriftDownload.failure !== null && driftBlockedReason === null;
   const resultsFirst = props.resultsFirst ?? false;
   const showPartialInventoryFootnote = props.showPartialInventoryFootnote ?? false;
 
@@ -85,6 +89,11 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             {COMPARE_DRIFT_DOWNLOAD_BLOCKED_NOT_EMPTY_COMPARE_LINE}
           </p>
         </div>
+      ) : null}
+      {driftHardFailure ? (
+        <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-drift-download-hard-failure-not-empty-artifact">
+          {COMPARE_DRIFT_DOWNLOAD_HARD_FAILURE_NOT_EMPTY_ARTIFACT_LINE}
+        </p>
       ) : null}
       <CompareResultsPanelPartialInventoryFootnote visible={showPartialInventoryFootnote} />
       <CompareResultsPanelVerdictChrome viewModel={viewModel} />

@@ -46,6 +46,8 @@ import { COMPARE_END_TO_END_EXPORT_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/a
 import { COMPARE_END_TO_END_EXPORT_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-end-to-end-export-stale-inputs-not-load-failure-copy";
 import { COMPARE_AI_NARRATIVE_MISSING_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-ai-narrative-missing-not-load-failure-copy";
 import { COMPARE_EXPORT_PDF_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-export-pdf-stale-inputs-not-load-failure-copy";
+import { COMPARE_EXPORT_DOCX_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-export-docx-stale-inputs-not-load-failure-copy";
+import { COMPARE_MANIFEST_EXPORT_STALE_INPUTS_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-manifest-export-stale-inputs-not-load-failure-copy";
 
 export function CompareResultsPanelDiffStack({
   viewModel,
@@ -219,7 +221,7 @@ export function CompareResultsPanelDiffStack({
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={docxDownloading || pdfDownloading}
+                disabled={showStaleInputsWarning || docxDownloading || pdfDownloading}
                 onClick={() => void handleDownloadDocx()}
                 className={cn(OPERATOR_LINK.inline, "inline-flex items-center gap-1.5 text-sm")}
                 data-testid="compare-download-docx-button"
@@ -269,6 +271,16 @@ export function CompareResultsPanelDiffStack({
             {showStaleInputsWarning && lastComparedPair !== null ? (
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-export-pdf-stale-inputs-not-load-failure">
                 {COMPARE_EXPORT_PDF_STALE_INPUTS_NOT_LOAD_FAILURE_LINE}
+              </p>
+            ) : null}
+            {showStaleInputsWarning && lastComparedPair !== null ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-export-docx-stale-inputs-not-load-failure">
+                {COMPARE_EXPORT_DOCX_STALE_INPUTS_NOT_LOAD_FAILURE_LINE}
+              </p>
+            ) : null}
+            {showStaleInputsWarning && golden !== null ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-manifest-export-stale-inputs-not-load-failure">
+                {COMPARE_MANIFEST_EXPORT_STALE_INPUTS_NOT_LOAD_FAILURE_LINE}
               </p>
             ) : null}
             {pdfError ? (
