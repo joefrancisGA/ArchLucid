@@ -148,15 +148,27 @@ odeCount >= maxNodes with null guard; **valid-no-repro** snapshot freshness uses
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-20 thorough hunt #1 (hit): cheap-disproof closed four seed monitors outside lib URL/metrics scope — **valid-no-repro** pattern catalog defaulting lives in app/API layers not `src/lib/remediation-factory`, **valid-no-repro** wave grouping keys are server persistence not lib, **valid-no-repro** `buildRemediationFactoryExecutiveMetricTiles` always returns a tile array with `null` cell values when metrics are unloaded (no null aggregate object), **valid-no-repro** route/product-line policy is enforced via `remediationFactoryPathForProductLine` in app hooks not `remediationFactoryHrefFromSearch` (disclosure-only operator writer). Promoted `remediationFactoryUrlStateToSearchParams`: padded or whitespace-only `selectedFindingId` wrote raw query values while parse trimmed on read — symmetric `normalizeUuidQueryValue` + `setUuidParam` on write for all selection UUID params; regressions trim padding and drop whitespace-only ids; `remediation-factory-url-state` vitest **4/4**. Reseeded four `(candidate)` monitors below. Private beta: selection URL no longer retains blank `selectedFinding` tokens.
+
+- [x] (fixed) finding id trim at factory boundary — padded/whitespace `selectedFindingId` on write — **promoted 2026-11-20 thorough hunt #1:** `normalizeUuidQueryValue` on write.
+- [x] (valid-no-repro) pattern match resolver — unknown pattern id default — **cheap-disproof 2026-11-20 thorough hunt #1:** not in lib zone paths.
+- [x] (valid-no-repro) wave grouping key case sensitivity — **cheap-disproof 2026-11-20 thorough hunt #1:** not in lib zone paths.
+- [x] (valid-no-repro) factory metrics aggregation empty catalog null — **cheap-disproof 2026-11-20 thorough hunt #1:** tiles array always defined.
+- [x] (valid-no-repro) route safety cross product line — **cheap-disproof 2026-11-20 thorough hunt #1:** pathname resolution in app `useRemediationFactoryUrlState`.
+
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — padded metrics disclosure flag variants beyond `1`/`true` — locus: boolean parse; input: `TRUE` with spaces; wrong outcome: panel closed; reachability: metrics summary drawer URL.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — mutates selection params when used with non-disclosure switch — locus: operator writer contract; input: misuse from new caller; wrong outcome: dropped facets; reachability: future deep links (monitor).
+- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — negative API percent may round oddly — locus: non-finite guard; input: negative fraction; wrong outcome: misleading `-%` tile; reachability: executive metrics strip.
+- [ ] (candidate) `attack-path-report-path-chip-label` — extremely short path ids after trim — locus: ellipsis threshold; input: 3-char id; wrong outcome: odd chip label; reachability: attack path report chips.
+
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/remediation-factory`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
 
-- [ ] (hunt-ready) finding id trim at factory boundary — padded `findingId` may build remediation instance key without trim — locus: id normalization; input: padded finding id; wrong outcome: duplicate instance rows; reachability: remediation factory queue.
-- [ ] (hunt-ready) pattern match resolver — unknown pattern id may default to first catalog entry instead of explicit not-found — locus: default pattern; input: invalid pattern id; wrong outcome: wrong remediation template; reachability: factory pattern picker.
-- [ ] (hunt-ready) wave grouping key — case-variant resource type may split one wave into two — locus: case sensitivity; input: mixed-case resource type; wrong outcome: duplicate waves; reachability: remediation waves list.
-- [ ] (hunt-ready) factory metrics aggregation — empty catalog may return null aggregates vs zeroed object inconsistently — locus: empty scope; input: no patterns loaded; wrong outcome: UI null deref; reachability: factory metrics strip.
-- [ ] (hunt-ready) route safety guard — remediation deep link may allow cross-product line path when only query product line set — locus: route policy; input: conflicting product line; wrong outcome: cross-line navigation; reachability: SecureNow remediation factory route.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — metrics disclosure boolean parse edge — monitor; thorough hunt #1 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — operator writer misuse guard — monitor; thorough hunt #1 reseed.
+- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — negative percent display — monitor; thorough hunt #1 reseed.
+- [ ] (candidate) `attack-path-report-path-chip-label` — short path id chip label — monitor; thorough hunt #1 reseed.
 
 - **id:** ui-lib-remediation-factory
 - **status:** open
@@ -164,14 +176,13 @@ odeCount >= maxNodes with null guard; **valid-no-repro** snapshot freshness uses
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 1
-- **bugs-found:** 0
+- **hunts:** 2
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-20
-- **last-bug:** never
+- **last-bug:** 2026-11-20
 - **related-pd-tb:** none
-- **code-changed-since:** no
-
+- **code-changed-since:** yes
 ## Zone: ui-hooks-shared
 
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/hooks`. Seeded five `(hunt-ready)` rows; no production change.
