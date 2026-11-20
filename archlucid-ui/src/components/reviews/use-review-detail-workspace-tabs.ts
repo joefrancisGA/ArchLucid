@@ -345,14 +345,22 @@ export function useReviewDetailWorkspaceTabs(
   useEffect(() => {
     const onHashChange = () => {
       const hash = window.location.hash.slice(1);
-      // An empty hash is browser-back from a section link. Read the query tab before returning
-      // so the workspace does not stay on the section's package tab.
-      const nextTab = readReviewDetailTabFromWindowLocation();
+      const params = new URLSearchParams(window.location.search);
+      const nextTab = resolveReviewDetailTabFromHash(hash) ?? (
+        props.tabLifecycle === undefined
+          ? readReviewDetailTabFromWindowLocation()
+          : resolveReviewWorkspaceTabFromSearchParams(
+              params,
+              resolved,
+              lifecycle,
+              props.visitDefaultReviewTabWhenUrlSilent,
+            )
+      );
 
       setActiveTab((current) => (current === nextTab ? current : nextTab));
 
       const nextWorkbenchFocus = resolveReviewWorkbenchFocusColumn(
-        new URLSearchParams(window.location.search).get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
+        params.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
       );
       const normalizedFocus = nextWorkbenchFocus ?? (isWorkbenchTab(nextTab) ? nextTab : null);
 
@@ -371,7 +379,7 @@ export function useReviewDetailWorkspaceTabs(
     window.addEventListener("hashchange", onHashChange);
 
     return () => window.removeEventListener("hashchange", onHashChange);
-  }, []);
+  }, [lifecycle, props.tabLifecycle, props.visitDefaultReviewTabWhenUrlSilent, resolved]);
 
   const counts = props.tabCounts ?? {};
   const inPipelineBanner = props.inPipelineBanner ?? null;
