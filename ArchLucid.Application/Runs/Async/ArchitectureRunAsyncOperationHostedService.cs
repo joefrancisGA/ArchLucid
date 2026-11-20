@@ -45,7 +45,17 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         await base.StopAsync(cancellationToken);
-        await drainWorker.DrainInFlightAsync();
+
+        if (cancellationToken.IsCancellationRequested)
+            return;
+
+        try
+        {
+            await drainWorker.DrainInFlightAsync().WaitAsync(cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+        }
     }
 
     private async Task DispatchAsync(ArchitectureRunAsyncOperationWorkItem item, CancellationToken cancellationToken)
