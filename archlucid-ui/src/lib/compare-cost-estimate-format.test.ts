@@ -11,6 +11,16 @@ describe("formatCompareCostEstimateCell", () => {
     expect(formatCompareCostEstimateCell("−1,200.50")).toEqual({ display: "Unit not recorded", unitUnknown: true });
   });
 
+  it.each([4.2e-7, -1e21, "1.2E+8"])(
+    "does not expose the unitless scientific-notation cost %s as an estimate",
+    (value) => {
+      expect(formatCompareCostEstimateCell(value)).toEqual({
+        display: "Unit not recorded",
+        unitUnknown: true,
+      });
+    },
+  );
+
   it("preserves values that already include currency markers", () => {
     expect(formatCompareCostEstimateCell("$4,200/mo")).toEqual({
       display: "$4,200/mo",
