@@ -115,8 +115,7 @@ export function FindingOptionalArtifactUnavailable(
           )}
           open={findingOptionalArtifactTechnicalDetailsOpen}
           onToggle={(event) => {
-            event.preventDefault();
-            setFindingOptionalArtifactTechnicalDetailsOpen(!findingOptionalArtifactTechnicalDetailsOpenRef.current);
+            setFindingOptionalArtifactTechnicalDetailsOpen(event.currentTarget.open);
           }}
         >
           <summary className={cn("cursor-pointer select-none text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
