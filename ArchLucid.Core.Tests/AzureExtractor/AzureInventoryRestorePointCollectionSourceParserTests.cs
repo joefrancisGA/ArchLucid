@@ -26,6 +26,36 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
     }
 
     [Fact]
+    public void Parse_uses_captured_source_id_when_hydrated_source_is_invalid()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [InventoryDiagramParentAttachmentPropertyKeys.RestorePointSourceArmId] = "%ZZ",
+            ["source.id"] = VirtualMachineArmId,
+        };
+
+        AzureInventoryRestorePointCollectionSourceParser.Parse(properties)
+            .Should().Be(ArmResourceIdNormalizer.Normalize(VirtualMachineArmId));
+        AzureInventoryRestorePointCollectionSourceParser.ParseGraphStorageArmId(properties)
+            .Should().Be(VirtualMachineArmId);
+    }
+
+    [Fact]
+    public void Parse_uses_source_object_when_higher_priority_sources_are_invalid()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [InventoryDiagramParentAttachmentPropertyKeys.RestorePointSourceArmId] = "null",
+            ["source.id"] = "50%",
+            ["source"] = $$"""{"id":"{{VirtualMachineArmId}}"}""",
+        };
+
+        string normalized = ArmResourceIdNormalizer.Normalize(VirtualMachineArmId);
+        AzureInventoryRestorePointCollectionSourceParser.Parse(properties).Should().Be(normalized);
+        AzureInventoryRestorePointCollectionSourceParser.ParseGraphStorageArmId(properties).Should().Be(normalized);
+    }
+
+    [Fact]
     public void Parse_reads_arm_id_from_json_reference_on_source_id_property()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
