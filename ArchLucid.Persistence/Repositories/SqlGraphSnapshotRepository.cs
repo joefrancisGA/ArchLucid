@@ -49,7 +49,8 @@ public sealed partial class SqlGraphSnapshotRepository(
                          GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc
                      FROM dbo.GraphSnapshots
                      WHERE ContextSnapshotId = @ContextSnapshotId
-                     """ + PersistenceTenantScope.AndScopeProjectIdTripleWhere(scope) + " ORDER BY CreatedUtc DESC;";
+                     """ + PersistenceTenantScope.AndScopeProjectIdTripleWhere(scope)
+                         + " ORDER BY CreatedUtc DESC, GraphSnapshotId DESC;";
 
         DynamicParameters parameters = new();
         parameters.Add("ContextSnapshotId", contextSnapshotId);
