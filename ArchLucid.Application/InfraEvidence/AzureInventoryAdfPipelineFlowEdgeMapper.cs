@@ -36,15 +36,18 @@ internal static class AzureInventoryAdfPipelineFlowEdgeMapper
 
         Dictionary<string, AzureInventoryAdfDatasetRow> datasetByKey = datasets
             .Where(row => row.CollectionStatus.Equals(AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded, StringComparison.OrdinalIgnoreCase))
-            .ToDictionary(
-                row => BuildDatasetKey(row.FactoryResourceId, row.DatasetName),
-                StringComparer.OrdinalIgnoreCase);
+            .GroupBy(row => BuildDatasetKey(row.FactoryResourceId, row.DatasetName), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
 
         Dictionary<string, AzureInventoryAdfLinkedServiceRow> linkedServiceByKey = linkedServices
             .Where(row => row.CollectionStatus.Equals(AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded, StringComparison.OrdinalIgnoreCase)
                           || row.CollectionStatus.Equals(AzureInventoryAdfLinkedServiceCollectionStatus.TargetUnresolved, StringComparison.OrdinalIgnoreCase))
+            .GroupBy(row => BuildLinkedServiceKey(row.FactoryResourceId, row.LinkedServiceName), StringComparer.OrdinalIgnoreCase)
             .ToDictionary(
-                row => BuildLinkedServiceKey(row.FactoryResourceId, row.LinkedServiceName),
+                group => group.Key,
+                group => group.FirstOrDefault(row => row.CollectionStatus.Equals(
+                    AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+                    StringComparison.OrdinalIgnoreCase)) ?? group.First(),
                 StringComparer.OrdinalIgnoreCase);
 
         foreach (AzureInventoryAdfPipelineFlowRow flow in pipelineFlows)

@@ -12,8 +12,11 @@ namespace ArchLucid.Application.Tests.InfraEvidence;
 [Trait("Suite", "Application")]
 public sealed class AzureInventoryAdfPipelineFlowEdgeMapperTests
 {
-    [Fact]
-    public void MapPipelineFlows_emits_read_and_write_edges()
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public void MapPipelineFlows_emits_read_and_write_edges(bool repeatedDataset, bool repeatedLinkedService)
     {
         const string factoryId =
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
@@ -66,6 +69,23 @@ public sealed class AzureInventoryAdfPipelineFlowEdgeMapperTests
             },
         ];
 
+        if (repeatedDataset)
+        {
+            datasets.Add(datasets[0]);
+        }
+
+        if (repeatedLinkedService)
+        {
+            linkedServices.Insert(0, new AzureInventoryAdfLinkedServiceRow
+            {
+                FactoryResourceId = factoryId,
+                LinkedServiceResourceId = $"{factoryId}/linkedservices/BlobLS",
+                LinkedServiceName = "BlobLS",
+                LinkedServiceType = "AzureBlobStorage",
+                CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.TargetUnresolved,
+            });
+        }
+
         List<AzureInventoryAdfPipelineFlowRow> pipelineFlows =
         [
             new()
@@ -113,5 +133,6 @@ public sealed class AzureInventoryAdfPipelineFlowEdgeMapperTests
             relationship.RelationshipType == AzureInventoryRelationshipAssociationTypes.AdfWritesTo
             && relationship.InferenceSource == GraphEdgeInferenceSources.InventoryAdfWritesTo);
         directionalPairs.Should().ContainSingle();
+        warnings.Should().BeEmpty();
     }
 }
