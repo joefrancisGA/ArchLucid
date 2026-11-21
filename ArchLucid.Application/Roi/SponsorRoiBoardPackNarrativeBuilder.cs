@@ -22,7 +22,8 @@ public sealed class SponsorRoiBoardPackNarrativeBuilder(
 
     private const string SystemPrompt =
         "You are an enterprise architecture advisor writing a 4-sentence sponsor report for a board pack. "
-        + "Be concrete. Do not round up claims. Use the exact numbers provided.";
+        + "Be concrete. Do not round up claims. Use the exact numbers provided. "
+        + "Return a JSON object with a single string field named narrative.";
 
     private readonly IAgentCompletionClient _completionClient =
         completionClient ?? throw new ArgumentNullException(nameof(completionClient));
@@ -55,7 +56,23 @@ public sealed class SponsorRoiBoardPackNarrativeBuilder(
                 .CompleteJsonAsync(SystemPrompt, userPrompt, 400, null, cancellationToken)
                 .ConfigureAwait(false);
 
-            return string.IsNullOrWhiteSpace(narrative) ? null : narrative.Trim();
+            if (string.IsNullOrWhiteSpace(narrative))
+                return null;
+
+            narrative = narrative.Trim();
+            if (narrative.StartsWith('{'))
+            {
+                using JsonDocument response = JsonDocument.Parse(narrative);
+                if (!response.RootElement.TryGetProperty("narrative", out JsonElement value)
+                    || value.ValueKind != JsonValueKind.String)
+                {
+                    return null;
+                }
+
+                narrative = value.GetString()?.Trim() ?? string.Empty;
+            }
+
+            return narrative.Length == 0 ? null : narrative;
         }
         catch (OperationCanceledException)
         {

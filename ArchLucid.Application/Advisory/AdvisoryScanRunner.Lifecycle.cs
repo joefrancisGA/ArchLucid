@@ -78,10 +78,12 @@ public sealed partial class AdvisoryScanRunner
         }
         catch (Exception ex)
         {
-            execution.Status = StatusFailed;
-            execution.CompletedUtc = TimeProvider.System.UtcNowDateTime();
-            execution.ErrorMessage = ex.Message;
-            await executionRepository.UpdateAsync(execution, ct);
+            await executionRepository.MarkFailedIfStartedAsync(
+                scope,
+                execution.ExecutionId,
+                TimeProvider.System.UtcNowDateTime(),
+                ex.Message,
+                ct);
             await auditService.LogAsync(
                 new AuditEvent
                 {

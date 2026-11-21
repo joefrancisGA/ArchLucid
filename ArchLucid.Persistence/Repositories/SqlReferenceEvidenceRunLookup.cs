@@ -45,7 +45,7 @@ public sealed class SqlReferenceEvidenceRunLookup(IAuthorityRunListConnectionFac
                AND r.ArchivedUtc IS NULL
                AND r.GoldenManifestId IS NOT NULL
              """;
-        const string sqlTail = """
+        const string sqlTail = "\n" + """
              ORDER BY r.CreatedUtc DESC, r.RunId ASC;
              """;
         string sql = includeDemo

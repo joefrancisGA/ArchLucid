@@ -22,17 +22,19 @@ public static class AzureInventoryPublicIpReferenceParser
 
             if (IsPublicIpCarrierPropertyKey(key))
             {
-                if (value.TrimStart().StartsWith("[", StringComparison.Ordinal))
+                string trimmed = value.TrimStart();
+
+                if (trimmed.StartsWith("[", StringComparison.Ordinal))
                 {
-                    AddFromJsonArray(value, publicIpArmIds);
+                    AddFromJsonArray(trimmed, publicIpArmIds);
                 }
-                else if (value.TrimStart().StartsWith("{", StringComparison.Ordinal))
+                else if (trimmed.StartsWith("{", StringComparison.Ordinal))
                 {
-                    AddFromJsonObject(value, publicIpArmIds);
+                    AddFromJsonObject(trimmed, publicIpArmIds);
                 }
-                else if (value.StartsWith("/", StringComparison.Ordinal))
+                else if (trimmed.StartsWith("/", StringComparison.Ordinal) && IsPublicIpArmId(trimmed))
                 {
-                    publicIpArmIds.Add(ArmResourceIdNormalizer.Normalize(value));
+                    publicIpArmIds.Add(ArmResourceIdNormalizer.Normalize(trimmed));
                 }
             }
         }

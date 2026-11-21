@@ -71,6 +71,44 @@ describe("useGuidedIntakePriorRunPrefill", () => {
     expect(setScopeGateOpen).not.toHaveBeenCalled();
   });
 
+  it("clears previous attachment names when a new prior package has none", async () => {
+    tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValueOnce({
+      ...priorPackagePrefill,
+      priorAttachedFileNames: ["first-package.pdf"],
+    });
+    tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValueOnce(priorPackagePrefill);
+
+    const setPriorAttachedFileNames = vi.fn();
+    const initialProps = {
+      priorRunId: "run-first",
+      freeTextIntent: "",
+      businessOutcome: "",
+      systemName: "",
+      actorSet: { actors: [] },
+      scopeBullets: [] as readonly ScopeUnderstandingBullet[],
+      setFreeTextIntent: vi.fn(),
+      setBusinessOutcome: vi.fn(),
+      setSystemName: vi.fn(),
+      setActorSet: vi.fn(),
+      setScopeBullets: vi.fn(),
+      setScopeGateOpen: vi.fn(),
+      setPriorAttachedFileNames,
+    };
+    const { rerender } = renderHook((props) => useGuidedIntakePriorRunPrefill(props), {
+      initialProps,
+    });
+
+    await waitFor(() => {
+      expect(setPriorAttachedFileNames).toHaveBeenLastCalledWith(["first-package.pdf"]);
+    });
+    rerender({ ...initialProps, priorRunId: "run-second" });
+
+    await waitFor(() => {
+      expect(setPriorAttachedFileNames).toHaveBeenLastCalledWith([]);
+    });
+    expect(tryLoadPriorPackageGuidedIntakePrefill).toHaveBeenLastCalledWith("run-second");
+  });
+
   it("surfaces load-failure copy when prior-package fetch rejects", async () => {
     tryLoadPriorPackageGuidedIntakePrefill.mockRejectedValueOnce(new Error("network"));
 

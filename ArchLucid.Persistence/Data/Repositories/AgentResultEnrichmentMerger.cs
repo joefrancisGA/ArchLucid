@@ -51,9 +51,6 @@ internal static class AgentResultEnrichmentMerger
     {
         AgentResult merged = Clone(baseResult);
 
-        if (enrichment.CalibratedConfidence.HasValue)
-            merged.CalibratedConfidence = enrichment.CalibratedConfidence;
-
         if (!string.IsNullOrWhiteSpace(enrichment.EnrichedResultJson))
         {
             AgentResult? enriched = DeserializeEnriched(enrichment.EnrichedResultJson, baseResult.ResultId);
@@ -65,6 +62,9 @@ internal static class AgentResultEnrichmentMerger
                 merged.PromptVariantKey = baseResult.PromptVariantKey;
             }
         }
+
+        if (enrichment.CalibratedConfidence.HasValue)
+            merged.CalibratedConfidence = enrichment.CalibratedConfidence;
 
         return merged;
     }
@@ -78,7 +78,7 @@ internal static class AgentResultEnrichmentMerger
                 baseResult.ResultId);
 
             if (enriched is not null)
-                return AgentResultRollupProjection.StripHeavyFields(enriched);
+                baseResult = AgentResultRollupProjection.StripHeavyFields(enriched);
         }
 
         if (enrichment.CalibratedConfidence.HasValue)

@@ -24,6 +24,7 @@ import {
 } from "@/lib/runs/run-audit-identifiers-disclosure-url";
 
 import { formatDecisionTraceExportLine } from "@/lib/decision-trace-export-line";
+import { GRAPH_SNAPSHOT_REUSE_OBSERVATION_STAMP_LINE } from "@/lib/reviews/graph-snapshot-reuse-observation-stamp-copy";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
@@ -247,6 +248,13 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                   ) : null}
                 </span>
               </li>
+              {run.graphSnapshotId ? (
+                <li className="py-2">
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-graph-snapshot-reuse-observation-stamp">
+                    {GRAPH_SNAPSHOT_REUSE_OBSERVATION_STAMP_LINE}
+                  </p>
+                </li>
+              ) : null}
               <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <span className={rowLabelClass}>Findings snapshot</span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2">

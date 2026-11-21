@@ -92,6 +92,7 @@ export function GovernanceFindingsQueueOutcomeSection(
           captureEvaluatedEmpty: secureNowCaptureEvaluatedEmpty,
         })
       : null;
+  const assignedCollectionMissingCopy = secureNowCollectionMissing ? secureNowEmptyState : null;
   const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
   const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
@@ -203,7 +204,7 @@ export function GovernanceFindingsQueueOutcomeSection(
             testId="governance-findings-empty-state"
             title={
               props.isAssignedToMe
-                ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT.title
+                ? assignedCollectionMissingCopy?.title ?? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT.title
                 : inhabitedEmptyState !== null
                   ? inhabitedEmptyState.title
                   : secureNowEmptyState !== null
@@ -214,19 +215,17 @@ export function GovernanceFindingsQueueOutcomeSection(
             }
             description={
               props.isAssignedToMe
-                ? secureNowEmptyState !== null && secureNowCollectionMissing
-                  ? secureNowEmptyState.description
-                  : buildGovernanceAssignedToMeEmptyDescription(
-                      {
-                        assigneeDisplayName: props.currentPrincipalName,
-                        assigneeRoleLabel: props.currentPrincipalRole,
-                        checkedAt: props.assignedToMeCheckedAt,
-                        fetchBasis: props.assignedToMeFetchBasis,
-                        productLine,
-                        suppressCheckedAtLine: true,
-                      },
-                      { nowMs: relativeFreshnessNowMs, headerOwnsFreshness: true },
-                    )
+                ? assignedCollectionMissingCopy?.description ?? buildGovernanceAssignedToMeEmptyDescription(
+                    {
+                      assigneeDisplayName: props.currentPrincipalName,
+                      assigneeRoleLabel: props.currentPrincipalRole,
+                      checkedAt: props.assignedToMeCheckedAt,
+                      fetchBasis: props.assignedToMeFetchBasis,
+                      productLine,
+                      suppressCheckedAtLine: true,
+                    },
+                    { nowMs: relativeFreshnessNowMs, headerOwnsFreshness: true },
+                  )
                 : inhabitedEmptyState !== null
                   ? inhabitedEmptyState.description
                   : secureNowEmptyState !== null

@@ -1,3 +1,3 @@
-/** Workspace scope loaded packs but none are assigned here — not a failed policy catalog read. */
+/** Featured is a filtered list and does not establish workspace assignment status. */
 export const POLICY_PACK_HUB_WORKSPACE_ASSIGNMENTS_EMPTY_NOT_LOAD_FAILURE_LINE =
-  "Policy packs loaded for this workspace, but no assignments are enabled in scope. Enable or assign a pack — an empty assignment list is not a catalog load failure." as const;
+  "No policy packs are listed here. Check workspace assignments for the complete list." as const;

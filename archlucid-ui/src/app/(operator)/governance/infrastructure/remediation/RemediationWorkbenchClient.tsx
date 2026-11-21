@@ -362,6 +362,7 @@ export function RemediationWorkbenchClient() {
   } | null>(null);
   const detail = loadedDetail?.instanceId === selectedInstanceId ? loadedDetail.data : null;
   const detailRequestVersion = useRef(0);
+  const workbenchRequestVersion = useRef(0);
   const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState("");
   const [waves, setWaves] = useState<Array<{ waveId: string; name: string }>>([]);
@@ -479,6 +480,7 @@ export function RemediationWorkbenchClient() {
   }, [auditScope, urlCloudResourceId, urlCorrespondenceId, urlReconcileRunId, urlReconcileSnapshotId]);
 
   const loadWorkbench = useCallback(async () => {
+    const requestVersion = ++workbenchRequestVersion.current;
     setLoading(true);
     setLoadError(null);
 
@@ -493,6 +495,10 @@ export function RemediationWorkbenchClient() {
         fetchRemediationWaves(),
         fetchInfraEvidenceSnapshots(1, 20),
       ]);
+
+      if (requestVersion !== workbenchRequestVersion.current) {
+        return;
+      }
 
       setInstances(instanceRows);
       setSummaryOpenFindings(summary.factoryMetrics.openFindings);
@@ -525,9 +531,13 @@ export function RemediationWorkbenchClient() {
 
       setLastRefreshedAt(new Date());
     } catch (error: unknown) {
-      setLoadError(formatRemediationWorkbenchApiError(error));
+      if (requestVersion === workbenchRequestVersion.current) {
+        setLoadError(formatRemediationWorkbenchApiError(error));
+      }
     } finally {
-      setLoading(false);
+      if (requestVersion === workbenchRequestVersion.current) {
+        setLoading(false);
+      }
     }
   }, [selectedSnapshotId, selectedWaveId, urlCloudResourceId, urlFindingId]);
 

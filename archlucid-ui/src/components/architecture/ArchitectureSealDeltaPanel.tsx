@@ -33,6 +33,9 @@ import {
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DiffItem } from "@/types/authority-manifest";
+import { ARCHITECTURE_SEAL_DELTA_LOAD_FAILURE_NOT_ZERO_LINE } from "@/lib/architecture/architecture-seal-delta-load-failure-not-zero-copy";
+import { ARCHITECTURE_SEAL_DELTA_SINGLE_SEAL_COMPARE_BLOCKED_LINE } from "@/lib/architecture/architecture-seal-delta-single-seal-compare-blocked-copy";
+import { ARCHITECTURE_SEAL_DELTA_ZERO_CHANGES_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/architecture-seal-delta-zero-not-load-failure-copy";
 import { cn } from "@/lib/utils";
 
 type ArchitectureSealDeltaPanelProps = {
@@ -162,6 +165,14 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
           <p className={OPERATOR_TYPOGRAPHY.body}>{ARCHITECTURE_SEAL_DELTA_ERROR_LABEL}</p>
         )}
         {blockedReason === null ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="architecture-seal-delta-load-failure-not-zero"
+          >
+            {ARCHITECTURE_SEAL_DELTA_LOAD_FAILURE_NOT_ZERO_LINE}
+          </p>
+        ) : null}
+        {blockedReason === null ? (
           <Button type="button" variant="outline" size="sm" onClick={() => void query.refetch()}>
             {ARCHITECTURE_SEAL_DELTA_RETRY_LABEL}
           </Button>
@@ -221,6 +232,15 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
           </p>
         ) : null}
 
+        {diffsKnown && diffCount === 0 ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="architecture-seal-delta-zero-not-load-failure"
+          >
+            {ARCHITECTURE_SEAL_DELTA_ZERO_CHANGES_NOT_LOAD_FAILURE_LINE}
+          </p>
+        ) : null}
+
         {!diffsKnown ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Seal diff list not returned for this architecture.
@@ -270,6 +290,13 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
             <Link href={compareHref} className={OPERATOR_LINK.nav} data-testid="architecture-seal-delta-compare-link">
               {ARCHITECTURE_SEAL_DELTA_COMPARE_LABEL}
             </Link>
+          ) : sealedReviewRunId.length > 0 ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="architecture-seal-delta-single-seal-compare-blocked"
+            >
+              {ARCHITECTURE_SEAL_DELTA_SINGLE_SEAL_COMPARE_BLOCKED_LINE}
+            </p>
           ) : null}
           {whatIfHref !== null ? (
             <Link href={whatIfHref} className={OPERATOR_LINK.nav} data-testid="architecture-seal-delta-what-if-link">

@@ -10,6 +10,7 @@ import * as operatorScopeStorage from "@/lib/operator/operator-scope-storage";
 import * as facetsStorage from "@/lib/governance/governance-findings-queue-facets-storage";
 
 const searchParamsState = vi.hoisted(() => ({ query: "" }));
+const collectionSetupState = vi.hoisted(() => ({ missing: false }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
@@ -23,6 +24,21 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
   useProductLine: () => ({ productLine: "security" }),
 }));
+
+vi.mock("@/hooks/use-securenow-collection-setup-input", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/hooks/use-securenow-collection-setup-input")>();
+
+  return {
+    ...actual,
+    useSecureNowCollectionSetupInput: () => ({
+      collectionInput: collectionSetupState.missing
+        ? { hasConfiguredProvider: true, azureSubscriptionIdsPresent: true, hasSuccessfulPull: false }
+        : null,
+      isPending: false,
+      isError: false,
+    }),
+  };
+});
 
 vi.mock("@/lib/api", () => ({
   getRunExplanationSummary: vi.fn().mockResolvedValue({ traces: [] }),
@@ -201,6 +217,7 @@ const secureNowAssignedRiskRow = {
 describe("GovernanceFindingsQueueClient SecureNow /security/assigned-to-me", () => {
   beforeEach(() => {
     searchParamsState.query = "";
+    collectionSetupState.missing = false;
     pathInspectFindingIdRef.current = null;
     resetOperatorQueryClientForTests();
     vi.mocked(operatorScopeStorage.readOperatorScopeFromStorage).mockReturnValue({
@@ -245,6 +262,16 @@ describe("GovernanceFindingsQueueClient SecureNow /security/assigned-to-me", () 
     );
     expect(screen.queryByRole("link", { name: "View audit trail" })).not.toBeInTheDocument();
     expect(screen.getByTestId("governance-assigned-to-me-zero-row-resume")).toBeInTheDocument();
+  });
+
+  it("reports that assigned findings are not ready when collection is blocked", async () => {
+    collectionSetupState.missing = true;
+    renderSecureNowAssignedToMeQueue();
+
+    const emptyState = await screen.findByTestId("governance-findings-empty-state");
+    expect(emptyState).toHaveTextContent("Findings are not ready for this scope");
+    expect(emptyState).toHaveTextContent("Complete a successful inventory capture");
+    expect(emptyState).not.toHaveTextContent("No findings assigned to you");
   });
 
   it("shows active job-view filters at zero rows", async () => {

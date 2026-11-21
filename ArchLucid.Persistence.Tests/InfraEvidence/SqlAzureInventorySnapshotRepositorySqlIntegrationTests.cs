@@ -125,6 +125,25 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
   }
 
   [SkippableFact]
+  public async Task Empty_materialization_reports_a_missing_snapshot_header()
+  {
+    Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+    SqlConnectionFactory factory = new(fixture.ConnectionString);
+    SqlAzureInventorySnapshotRepository repository = new(factory);
+    ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectA };
+
+    Func<Task> materialize = () => repository.MaterializeSnapshotAsync(
+      scope,
+      Guid.NewGuid(),
+      new AzureInventorySnapshotMaterializeWriteRequest { CaptureStatus = AzureInventoryCaptureStatus.Partial },
+      CancellationToken.None);
+
+    await materialize.Should().ThrowAsync<InvalidOperationException>()
+      .WithMessage("Snapshot header was not found in the current scope.");
+  }
+
+  [SkippableFact]
   public async Task Drift_and_routing_slices_load_inventory_for_more_than_2100_ids()
   {
     Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);

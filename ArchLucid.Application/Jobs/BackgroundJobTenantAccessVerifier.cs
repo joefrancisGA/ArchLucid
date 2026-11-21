@@ -37,6 +37,10 @@ public sealed class BackgroundJobTenantAccessVerifier(
             ConsultingDocxWorkUnit w => await RunBelongsToScopeAsync(w.Payload.RunId, callerScope, cancellationToken),
             TenantDeletionWorkUnit w => w.Payload.TenantId == callerScope.TenantId,
             ItsmOutboundCreateWorkUnit w => ScopeMatches(w.Payload, callerScope),
+            FindingVerificationWorkUnit w => w.Payload.TenantId == callerScope.TenantId
+                && w.Payload.WorkspaceId == callerScope.WorkspaceId
+                && w.Payload.ProjectId == callerScope.ProjectId
+                && await RunBelongsToScopeAsync(w.Payload.RunId.ToString("N"), callerScope, cancellationToken),
             _ => false
         };
     }

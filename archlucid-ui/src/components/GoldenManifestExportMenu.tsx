@@ -44,6 +44,8 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE } from "@/lib/exports/golden-manifest-export-disabled-while-blocked-copy";
 import { GOLDEN_MANIFEST_EXPORT_DISABLED_AND_FINALIZE_LINE } from "@/lib/exports/golden-manifest-export-disabled-and-finalize-copy";
+import { GOLDEN_MANIFEST_LINEAGE_VERIFY_NOT_COMMIT_BEFORE_SEAL_LINE } from "@/lib/exports/golden-manifest-lineage-verify-not-commit-before-seal-copy";
+import { GOLDEN_MANIFEST_LINEAGE_VERIFY_HTTP_FAILURE_LINE } from "@/lib/exports/golden-manifest-lineage-verify-http-failure-copy";
 import { REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE } from "@/lib/reviews/review-commit-evidence-before-seal-copy";
 import { ExportPartialCaptureRecoveryHonesty } from "@/components/exports/ExportPartialCaptureRecoveryHonesty";
 import { EXPORT_FORMAT_MARKDOWN } from "@/lib/export-format-when-to-use";
@@ -119,6 +121,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
   const [exportVerifyRecovery, setExportVerifyRecovery] = useState<ReturnType<
     typeof exportVerifyBlockedRecovery
   > | null>(null);
+  const [exportVerifyRequestFailed, setExportVerifyRequestFailed] = useState(false);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const canExport: boolean =
@@ -141,6 +144,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     if (blockedReason !== null) {
       setExportError(blockedReason);
       setExportVerifyRecovery(null);
+      setExportVerifyRequestFailed(false);
       return;
     }
 
@@ -172,11 +176,13 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     if (careerExportBlockedReason !== null) {
       setExportError(careerExportBlockedReason);
       setExportVerifyRecovery(null);
+      setExportVerifyRequestFailed(false);
       return;
     }
 
     setExportError(null);
     setExportVerifyRecovery(null);
+    setExportVerifyRequestFailed(false);
     setExportVerifyStatus(null);
 
     const skipVerify = props.progressSummary?.isSample === true;
@@ -190,13 +196,16 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         if (!isRunExportLineageAttested(verifyResult)) {
           setExportVerifyStatus(formatRunExportLineageStatusLabel(verifyResult));
           setExportVerifyRecovery(exportVerifyBlockedRecovery(verifyResult));
+          setExportVerifyRequestFailed(false);
           return;
         }
 
         setExportVerifyStatus(formatRunExportLineageStatusLabel(verifyResult));
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
+        setExportVerifyRequestFailed(true);
         setExportError(message);
+        setExportVerifyRecovery(null);
         return;
       }
     }
@@ -300,10 +309,18 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
 
   const exportRecoveryChrome =
     exportVerifyRecovery !== null ? (
-      <OperatorErrorRecoveryContract
-        presentation={exportVerifyRecovery}
-        testId="golden-manifest-export-verify-recovery"
-      />
+      <div className="space-y-1">
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="golden-manifest-lineage-verify-not-commit-before-seal"
+        >
+          {GOLDEN_MANIFEST_LINEAGE_VERIFY_NOT_COMMIT_BEFORE_SEAL_LINE}
+        </p>
+        <OperatorErrorRecoveryContract
+          presentation={exportVerifyRecovery}
+          testId="golden-manifest-export-verify-recovery"
+        />
+      </div>
     ) : null;
   const sealedReviewSponsorCopy = isManifestCommittedForPilotScorecardPackage(manifestSummary) ? (
     <p
@@ -359,18 +376,20 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         </Button>
         <ExportFormatWhenToUseHint format="markdown" />
         {sponsorExportBlocked ? (
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="golden-manifest-export-disabled-while-blocked"
-          >
-            {GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE}
-          </p>
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="golden-manifest-export-disabled-and-finalize"
-          >
-            {GOLDEN_MANIFEST_EXPORT_DISABLED_AND_FINALIZE_LINE}
-          </p>
+          <>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="golden-manifest-export-disabled-while-blocked"
+            >
+              {GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE}
+            </p>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="golden-manifest-export-disabled-and-finalize"
+            >
+              {GOLDEN_MANIFEST_EXPORT_DISABLED_AND_FINALIZE_LINE}
+            </p>
+          </>
         ) : null}
         <SponsorExportSendHonestyStrip testIdPrefix="golden-manifest-export" />
         {exportDemoBanner}
@@ -380,9 +399,18 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         {exportPartialCaptureOnError}
         {exportError !== null ? (
           <div className="space-y-1" role="alert" data-testid="golden-manifest-export-error">
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-error-commit-before-seal">
-              {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
-            </p>
+            {exportVerifyRequestFailed ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="golden-manifest-lineage-verify-http-failure"
+              >
+                {GOLDEN_MANIFEST_LINEAGE_VERIFY_HTTP_FAILURE_LINE}
+              </p>
+            ) : (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-error-commit-before-seal">
+                {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
+              </p>
+            )}
             <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportError}</p>
           </div>
         ) : null}
@@ -446,18 +474,20 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       </SelectContent>
     </Select>
       {sponsorExportBlocked ? (
-        <p
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="golden-manifest-export-disabled-while-blocked-select"
-        >
-          {GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE}
+        <>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="golden-manifest-export-disabled-while-blocked-select"
+          >
+            {GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE}
           </p>
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="golden-manifest-export-disabled-and-finalize"
           >
             {GOLDEN_MANIFEST_EXPORT_DISABLED_AND_FINALIZE_LINE}
-        </p>
+          </p>
+        </>
       ) : null}
       <SponsorExportSendHonestyStrip testIdPrefix="golden-manifest-export" />
       {exportDemoBanner}

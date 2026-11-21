@@ -71,7 +71,12 @@ public sealed class RunEvidencePackagePinService(
         ArgumentNullException.ThrowIfNull(scope);
 
         if (string.IsNullOrWhiteSpace(header.PinnedEvidencePackagePinsJson))
+        {
+            if (header.PinnedEvidencePackagePinsHashSha256 is { Length: > 0 })
+                throw new ConflictException("Commit blocked: run has an evidence package pin hash but is missing the pinned JSON.");
+
             return;
+        }
 
         if (header.PinnedEvidencePackagePinsHashSha256 is null || header.PinnedEvidencePackagePinsHashSha256.Length == 0)
         {

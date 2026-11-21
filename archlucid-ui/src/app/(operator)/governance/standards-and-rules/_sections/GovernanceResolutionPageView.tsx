@@ -51,7 +51,6 @@ import { buildPolicyPacksImpactPreviewHref } from "@/lib/policy-packs-review-han
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { STANDARDS_RULES_CLAIM_DISCIPLINE } from "@/lib/standards-rules-evidence-copy";
-import { EMPTY_STANDARDS_RULES_FILTER_STATE } from "@/lib/standards-rules-rows";
 import {
   STANDARDS_RULES_FILTER_NO_MATCH_BODY,
   STANDARDS_RULES_FILTER_NO_MATCH_TITLE,
@@ -268,9 +267,7 @@ export function GovernanceResolutionPageView(props: Props) {
               totalCount={rows.allRuleRows.length}
               options={rows.filterOptions}
               onChange={rows.setFilters}
-              onReset={() => {
-                rows.setFilters(EMPTY_STANDARDS_RULES_FILTER_STATE);
-              }}
+              onReset={rows.resetFilters}
               onRefresh={() => {
                 void m.load();
               }}
@@ -299,9 +296,7 @@ export function GovernanceResolutionPageView(props: Props) {
                       variant="outline"
                       size="sm"
                       data-testid="standards-rules-clear-filters"
-                      onClick={() => {
-                        rows.setFilters(EMPTY_STANDARDS_RULES_FILTER_STATE);
-                      }}
+                      onClick={rows.resetFilters}
                     >
                       {STANDARDS_RULES_RESET_FILTERS}
                     </Button>

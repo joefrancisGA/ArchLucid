@@ -60,6 +60,33 @@ public sealed class AzureInventoryPublicIpReferenceParserTests
             id.Equals(PublicIpArmId, StringComparison.OrdinalIgnoreCase));
     }
 
+    [Theory]
+    [InlineData("frontendIPConfigurations")]
+    [InlineData("ipConfigurations")]
+    [InlineData("properties.publicIPAddress")]
+    public void Parse_ignores_non_public_ip_scalar_reference(string propertyName)
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [propertyName] =
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/loadBalancers/lb/frontendIPConfigurations/front",
+        };
+
+        AzureInventoryPublicIpReferenceParser.Parse(properties).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Parse_trims_scalar_public_ip_reference()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["properties.publicIPAddress"] = $"  {PublicIpArmId}  ",
+        };
+
+        AzureInventoryPublicIpReferenceParser.Parse(properties).Should().ContainSingle(id =>
+            id.Equals(PublicIpArmId, StringComparison.OrdinalIgnoreCase));
+    }
+
     [Fact]
     public void Parse_without_public_ip_reference_returns_empty()
     {
