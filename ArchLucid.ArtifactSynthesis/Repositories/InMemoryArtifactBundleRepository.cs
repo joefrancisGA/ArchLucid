@@ -59,11 +59,13 @@ public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
         lock (_lock)
 
         {
-            result = _store.LastOrDefault(x =>
-                x.ManifestId == manifestId &&
-                x.TenantId == scope.TenantId &&
-                x.WorkspaceId == scope.WorkspaceId &&
-                x.ProjectId == scope.ProjectId);
+            result = _store
+                .Where(x => x.ManifestId == manifestId &&
+                    x.TenantId == scope.TenantId &&
+                    x.WorkspaceId == scope.WorkspaceId &&
+                    x.ProjectId == scope.ProjectId)
+                .OrderBy(x => x.CreatedUtc)
+                .LastOrDefault();
         }
 
         if (result is null)
