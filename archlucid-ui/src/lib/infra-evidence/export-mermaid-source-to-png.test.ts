@@ -29,6 +29,23 @@ describe("appendDataFlowRollupMemberLegend", () => {
 
     expect(appendDataFlowRollupMemberLegend(svg)).toBe(svg);
   });
+
+  it("styles every rollup title as a legend heading", () => {
+    const svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80">',
+      '<g class="node" data-member-names="acct-a"><title>First rollup</title></g>',
+      '<g class="node" data-member-names="acct-b"><title>Second rollup</title></g>',
+      "</svg>",
+    ].join("");
+
+    const parsed = new DOMParser().parseFromString(appendDataFlowRollupMemberLegend(svg), "image/svg+xml");
+    const headings = [...parsed.querySelectorAll(".rollup-member-legend text")]
+      .filter((row) => row.textContent?.startsWith("["));
+
+    expect(headings.map((row) => row.textContent)).toEqual(["[1] First rollup", "[2] Second rollup"]);
+    expect(headings.map((row) => row.getAttribute("font-weight"))).toEqual(["700", "700"]);
+    expect(headings.map((row) => row.getAttribute("font-size"))).toEqual(["11", "11"]);
+  });
 });
 
 describe("exportSanitizedMermaidSvgMarkupToPngBlob", () => {
