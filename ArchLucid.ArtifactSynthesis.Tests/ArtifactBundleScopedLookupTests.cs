@@ -10,6 +10,44 @@ namespace ArchLucid.ArtifactSynthesis.Tests;
 [Trait("Suite", "Core")]
 public sealed class ArtifactBundleScopedLookupTests
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task GetByManifestIdAsync_uses_creation_time_and_prefers_the_last_save_when_creation_times_tie(
+        bool creationTimesTie)
+    {
+        InMemoryArtifactBundleRepository repository = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+        Guid manifestId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 11, 21, 12, 0, 0, DateTimeKind.Utc);
+
+        ArtifactBundle firstSaved = MakeBundle(createdUtc);
+        ArtifactBundle lastSaved = MakeBundle(creationTimesTie ? createdUtc : createdUtc.AddMinutes(-1));
+        await repository.SaveAsync(firstSaved, CancellationToken.None);
+        await repository.SaveAsync(lastSaved, CancellationToken.None);
+
+        ArtifactBundle? result = await repository.GetByManifestIdAsync(
+            scope, manifestId, loadArtifactBodies: true, CancellationToken.None);
+
+        result.Should().BeSameAs(creationTimesTie ? lastSaved : firstSaved);
+
+        ArtifactBundle MakeBundle(DateTime timestamp) => new()
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            BundleId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ManifestId = manifestId,
+            CreatedUtc = timestamp
+        };
+    }
+
     [Fact]
     public async Task GetByBundleIdInScopeAsync_uses_recorded_identity_and_enforces_three_part_scope()
     {
