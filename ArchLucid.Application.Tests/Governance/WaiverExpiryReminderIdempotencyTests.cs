@@ -15,7 +15,7 @@ public sealed class WaiverExpiryReminderIdempotencyTests
     public void BuildKey_is_stable_for_the_same_exception_deadline_and_boundary()
     {
         string first = WaiverExpiryReminderIdempotency.BuildKey(RiskExceptionId, Expiry, 7);
-        string second = WaiverExpiryReminderIdempotency.BuildKey(RiskExceptionId, Expiry.AddHours(9), 7);
+        string second = WaiverExpiryReminderIdempotency.BuildKey(RiskExceptionId, Expiry.ToOffset(TimeSpan.FromHours(-4)), 7);
 
         second.Should().Be(first);
     }
@@ -30,6 +30,15 @@ public sealed class WaiverExpiryReminderIdempotencyTests
     }
 
     [Fact]
+    public void BuildKey_differs_when_renewal_moves_deadline_within_same_utc_day()
+    {
+        string original = WaiverExpiryReminderIdempotency.BuildKey(RiskExceptionId, Expiry, 7);
+        string renewed = WaiverExpiryReminderIdempotency.BuildKey(RiskExceptionId, Expiry.AddHours(9), 7);
+
+        renewed.Should().NotBe(original);
+    }
+
+    [Fact]
     public void BuildKey_differs_after_renewal_moves_the_deadline()
     {
         string original = WaiverExpiryReminderIdempotency.BuildKey(RiskExceptionId, Expiry, 7);
@@ -39,12 +48,12 @@ public sealed class WaiverExpiryReminderIdempotencyTests
     }
 
     [Fact]
-    public void BuildKey_includes_the_template_id_and_utc_expiry_day()
+    public void BuildKey_includes_the_template_id_and_utc_expiry_instant()
     {
         string key = WaiverExpiryReminderIdempotency.BuildKey(RiskExceptionId, Expiry, 14);
 
         key.Should().StartWith(WaiverExpiryReminderIdempotency.EmailTemplateId);
-        key.Should().Contain("2026-09-01");
+        key.Should().Contain("2026-09-01T08:30:00.0000000Z");
         key.Should().EndWith(":14");
     }
 
