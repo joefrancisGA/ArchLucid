@@ -39,6 +39,7 @@ import { GraphLoadedZeroNodesPartialCaptureHonesty } from "@/app/(operator)/insi
 import { GraphTypeFilterEmptyPartialCaptureHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphTypeFilterEmptyPartialCaptureHonesty";
 import { GraphTypeFilterAndNodeFocusCombinedEmptyPartialHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphTypeFilterAndNodeFocusCombinedEmptyPartialHonesty";
 import { EVIDENCE_GRAPH_TYPE_FILTER_AND_NODE_FOCUS_COMBINED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/evidence-graph-type-filter-and-node-focus-combined-empty-not-load-failure-copy";
+import { EVIDENCE_GRAPH_TYPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/evidence-graph-type-filter-empty-not-load-failure-copy";
 import {
   EVIDENCE_GRAPH_PNG_RASTER_FAILURE_NOT_EMPTY_GRAPH_LINE,
   EVIDENCE_GRAPH_PNG_TAINTED_NOT_EMPTY_GRAPH_LINE,
@@ -165,7 +166,15 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
         </div>
       ) : null}
       {showTypeFilterEmptyHonesty && !showTypeFilterAndNodeFocusCombinedHonesty ? (
-        <GraphTypeFilterEmptyPartialCaptureHonesty />
+        <div className="mb-3 space-y-2">
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="evidence-graph-type-filter-empty-not-load-failure"
+          >
+            {EVIDENCE_GRAPH_TYPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+          </p>
+          <GraphTypeFilterEmptyPartialCaptureHonesty />
+        </div>
       ) : null}
       <div className="mb-3 flex flex-wrap items-center gap-3">
         <FilterChipGroup aria-label="Filter graph nodes by type" className="flex flex-wrap gap-2">
