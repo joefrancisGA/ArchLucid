@@ -228,6 +228,7 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluator(
             assignments
                 .OrderBy(static row => row.PolicyPackId)
                 .ThenBy(static row => row.PolicyPackVersion, StringComparer.Ordinal)
+                .ThenBy(static row => row.ScopeLevel)
                 .Select(static row => new { row.PolicyPackId, row.PolicyPackVersion, row.ScopeLevel }),
             ContractJson.Default);
 
