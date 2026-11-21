@@ -44,6 +44,7 @@ public sealed class DapperFindingSemanticSupportBandOverlayRepository(ISqlConnec
                                UPDATE SET SemanticSupportBand = @SemanticSupportBand,
                                           ScorerVersion = @ScorerVersion,
                                           EvidenceExcerptHashSha256 = @EvidenceExcerptHashSha256,
+                                          ScoredAtUtc = @ScoredAtUtc,
                                           UpdatedUtc = @UpdatedUtc
                            WHEN NOT MATCHED THEN
                                INSERT (
