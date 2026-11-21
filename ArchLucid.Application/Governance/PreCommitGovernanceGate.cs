@@ -153,8 +153,10 @@ public sealed class PreCommitGovernanceGate(
                     .ConfigureAwait(false)
                 : []);
 
-        PolicyPackAssignment? enforcing = assignments.Where(static a => a.IsEnabled && (a.BlockCommitOnCritical || a.BlockCommitMinimumSeverity.HasValue))
-            .OrderByDescending(static a => a.AssignedUtc).FirstOrDefault();
+        PolicyPackAssignment[] enforcingAssignments = assignments
+            .Where(static a => a.IsEnabled && (a.BlockCommitOnCritical || a.BlockCommitMinimumSeverity.HasValue))
+            .OrderByDescending(static a => a.AssignedUtc)
+            .ToArray();
 
         List<Finding> findings;
 
@@ -204,12 +206,26 @@ public sealed class PreCommitGovernanceGate(
                 findings,
                 cancellationToken).ConfigureAwait(false);
 
-        if (enforcing is not null)
-            return PreCommitGateEvaluator.EvaluateForAssignment(
-                findings,
-                enforcing,
-                _options.Value,
-                latestDispositions);
+        if (enforcingAssignments.Length > 0)
+        {
+            PreCommitGateResult? firstWarning = null;
+            foreach (PolicyPackAssignment enforcing in enforcingAssignments)
+            {
+                PreCommitGateResult result = PreCommitGateEvaluator.EvaluateForAssignment(
+                    findings,
+                    enforcing,
+                    _options.Value,
+                    latestDispositions);
+
+                if (result.Blocked)
+                    return result;
+
+                if (result.WarnOnly)
+                    firstWarning ??= result;
+            }
+
+            return firstWarning ?? PreCommitGateResult.Allowed();
+        }
 
         FindingSeverity? globalThreshold = PreCommitGateThresholdParser.TryParseMinimumSeverity(_options.Value.PreCommitGateThreshold);
 
