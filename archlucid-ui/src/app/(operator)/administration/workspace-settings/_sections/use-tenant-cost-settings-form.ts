@@ -168,14 +168,15 @@ export function useTenantCostSettingsForm({ canEdit }: UseTenantCostSettingsForm
     : "These values are used to estimate review savings and sponsor ROI when actual cost evidence is unavailable. Showing platform defaults until you save.";
 
   const dirty = useMemo(() => {
-    if (costSettingsQuery.data === undefined) {
+    const loaded = costSettingsQuery.data;
+    if (loaded === undefined) {
       return false;
     }
 
     return (
-      hourlyRate.trim() !== loadedSnapshotRef.current.hourlyRate.trim()
-      || incidentCost.trim() !== loadedSnapshotRef.current.incidentCost.trim()
-      || eaDiscountPercentage.trim() !== loadedSnapshotRef.current.eaDiscountPercentage.trim()
+      hourlyRate.trim() !== String(loaded.architectHourlyRateUsd)
+      || incidentCost.trim() !== String(loaded.averageIncidentCostUsd)
+      || eaDiscountPercentage.trim() !== String(loaded.eaDiscountPercentage ?? 0)
     );
   }, [costSettingsQuery.data, eaDiscountPercentage, hourlyRate, incidentCost]);
 
