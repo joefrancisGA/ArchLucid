@@ -112,6 +112,30 @@ public sealed class GovernanceDecisionsNeededSummaryCalculatorTests
         total.Should().Be(2);
     }
 
+    [Theory]
+    [InlineData(RiskExceptionStatus.Revoked, 0)]
+    [InlineData(RiskExceptionStatus.Expired, 0)]
+    [InlineData(RiskExceptionStatus.Active, 1)]
+    public void ComputeTotalDecisionItems_counts_only_active_expiring_waivers(
+        RiskExceptionStatus status, int expected)
+    {
+        RiskExceptionRecord waiver = new()
+        {
+            RiskExceptionId = Guid.NewGuid(),
+            TenantId = TenantId,
+            FindingId = "f-waiver",
+            OwnerUserId = "owner",
+            CreatedByUserId = "creator",
+            ExpiresAtUtc = Now.AddDays(3),
+            Status = status,
+        };
+
+        int total = ArchLucid.Application.Governance.GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems(
+            0, new ArchitectureRiskRegisterResponse(), [], [waiver], Now);
+
+        total.Should().Be(expected);
+    }
+
     private static FindingReviewEventRecord TrailEvent(
         string findingId,
         Disposition disposition,
