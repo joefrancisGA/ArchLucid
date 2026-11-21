@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
@@ -106,6 +106,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
   const searchParams = useSearchParams();
   const [exportError, setExportError] = useState<string | null>(null);
   const [pngRasterHonesty, setPngRasterHonesty] = useState<"tainted" | "raster" | null>(null);
+  const latestPngExport = useRef(0);
   const currentSearch = searchParams.toString();
   const runTrim = runId.trim();
   const showcaseRun = canonicalizeDemoRunId(runTrim) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
@@ -265,6 +266,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
                 return;
               }
 
+              const attempt = ++latestPngExport.current;
               setPngRasterHonesty(null);
               const element = document.getElementById("knowledge-graph-canvas");
 
@@ -285,7 +287,9 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
                 link.click();
                 document.body.removeChild(link);
               } catch (error: unknown) {
-                setPngRasterHonesty(formatInfraEvidenceMermaidPngExportError(error) !== null ? "tainted" : "raster");
+                if (attempt === latestPngExport.current) {
+                  setPngRasterHonesty(formatInfraEvidenceMermaidPngExportError(error) !== null ? "tainted" : "raster");
+                }
               }
             }}
           >
