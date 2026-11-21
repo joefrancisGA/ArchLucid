@@ -1469,6 +1469,40 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_whole_number_above_int64_range_does_not_coerce_to_min_value()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingId": "abc123",
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": { "oversized": 9223372036854775808 },
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "enforcementTier": "Advisory",
+                              "humanReviewStatus": "Pending",
+                              "runIdRef": 9223372036854775808
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.RunIdRef.Should().BeNull();
+        finding.Properties["oversized"].Should().BeEmpty();
+    }
+
+    [Fact]
     public void Deserialize_string_encoded_whole_number_double_runIdRef_coerces_to_string()
     {
         const string json = """
