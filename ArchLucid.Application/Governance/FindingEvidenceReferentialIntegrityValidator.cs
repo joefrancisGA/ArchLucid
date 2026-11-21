@@ -18,7 +18,12 @@ public static class FindingEvidenceReferentialIntegrityValidator
         ArgumentNullException.ThrowIfNull(findings);
 
         if (string.IsNullOrWhiteSpace(header.PinnedEvidencePackagePinsJson))
+        {
+            if (header.PinnedEvidencePackagePinsHashSha256 is { Length: > 0 })
+                return ["Evidence package pin JSON is missing despite a create-time pin hash commitment."];
+
             return [];
+        }
 
         if (!RunHeaderPinDeserializer.TryDeserializeEvidenceRows(
                 header.PinnedEvidencePackagePinsJson,
