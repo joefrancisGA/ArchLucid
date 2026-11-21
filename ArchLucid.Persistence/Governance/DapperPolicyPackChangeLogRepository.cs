@@ -100,7 +100,7 @@ public sealed class DapperPolicyPackChangeLogRepository(
                            FROM dbo.PolicyPackChangeLog
                            WHERE PolicyPackId = @PolicyPackId
                            {PersistenceTenantScope.AndTripleWhere(scope)}
-                           ORDER BY ChangedUtc DESC;
+                           ORDER BY ChangedUtc DESC, ChangeLogId DESC;
                            """;
 
         await using SqlConnection connection =
@@ -142,7 +142,7 @@ public sealed class DapperPolicyPackChangeLogRepository(
                            FROM dbo.PolicyPackChangeLog
                            WHERE TenantId = @TenantId
                              AND ChangedUtc IS NOT NULL
-                           ORDER BY ChangedUtc DESC;
+                           ORDER BY ChangedUtc DESC, ChangeLogId DESC;
                            """;
 
         await using SqlConnection connection =
@@ -177,7 +177,7 @@ public sealed class DapperPolicyPackChangeLogRepository(
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
                              AND ProjectId = @ProjectId
-                           ORDER BY ChangedUtc DESC;
+                           ORDER BY ChangedUtc DESC, ChangeLogId DESC;
                            """;
 
         await using SqlConnection connection =
