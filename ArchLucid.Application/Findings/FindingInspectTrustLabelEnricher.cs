@@ -21,7 +21,9 @@ public static class FindingInspectTrustLabelEnricher
                 return [];
             }
 
-            string? excerpt = inspectResponse.Evidence[0].Excerpt;
+            string? excerpt = inspectResponse.Evidence
+                .Select(item => item.Excerpt)
+                .FirstOrDefault(value => !string.IsNullOrWhiteSpace(value));
 
             return string.IsNullOrWhiteSpace(excerpt) ? [] : [excerpt];
         }
