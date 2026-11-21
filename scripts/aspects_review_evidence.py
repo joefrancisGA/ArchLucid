@@ -55,11 +55,11 @@ def record(path, observation):
     observation["captured_utc"] = dt.datetime.now(dt.timezone.utc).isoformat()
     # Stable identity makes retries safe. Distinct passes can still review the same spans.
     identity = (observation["baseline"], observation["blob"], observation["path"],
-                tuple(map(tuple, observation["spans"])), observation.get("defect_id"))
+                tuple(map(tuple, observation["spans"])), observation.get("defect_id"), observation["verified"])
     existing = read_records(path)
     for item in existing:
         prior = (item["baseline"], item["blob"], item["path"],
-                 tuple(map(tuple, item["spans"])), item.get("defect_id"))
+                 tuple(map(tuple, item["spans"])), item.get("defect_id"), item.get("verified") is True)
         if prior == identity:
             return False
     path.parent.mkdir(parents=True, exist_ok=True)
