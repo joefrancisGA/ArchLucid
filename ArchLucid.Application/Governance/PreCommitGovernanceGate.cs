@@ -130,8 +130,15 @@ public sealed class PreCommitGovernanceGate(
                 throw new GoldenManifestSchemaValidationException(manifestSchemaResult);
         }
 
-        if (!_options.Value.PreCommitGateEnabled || !Guid.TryParse(runId, out Guid runKey))
+        if (!_options.Value.PreCommitGateEnabled)
             return PreCommitGateResult.Allowed();
+
+        if (!Guid.TryParse(runId, out Guid runKey) || runKey == Guid.Empty)
+            return new PreCommitGateResult
+            {
+                Blocked = true,
+                Reason = "Commit blocked: run id is invalid for pre-commit governance evaluation."
+            };
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         bool needsRunHeader = preloadedData?.ScopePolicyPackAssignments is null
