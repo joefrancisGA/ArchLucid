@@ -53,7 +53,7 @@ public sealed class SqlGlobalSearchRepository(ISqlConnectionFactory connectionFa
                              AND fr.ProjectId = @ScopeProjectId
                              AND r.ArchivedUtc IS NULL
                              AND (fr.Title LIKE @Like ESCAPE '\' OR fr.FindingId LIKE @Like ESCAPE '\')
-                           ORDER BY fr.SortOrder ASC;
+                           ORDER BY fr.SortOrder ASC, r.RunId ASC, fr.FindingId ASC, fr.FindingsSnapshotId ASC;
 
                            SELECT TOP (@Take) PolicyPackId, Name, CAST(0 AS BIT) AS IsCatalogEntry
                            FROM dbo.PolicyPacks
@@ -61,7 +61,7 @@ public sealed class SqlGlobalSearchRepository(ISqlConnectionFactory connectionFa
                              AND WorkspaceId = @WorkspaceId
                              AND ProjectId = @ScopeProjectId
                              AND Name LIKE @Like ESCAPE '\'
-                           ORDER BY CreatedUtc DESC;
+                           ORDER BY CreatedUtc DESC, PolicyPackId DESC;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
