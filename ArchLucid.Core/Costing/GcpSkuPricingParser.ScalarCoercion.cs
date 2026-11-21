@@ -12,7 +12,7 @@ internal static partial class GcpSkuPricingParser
 
         if (element.ValueKind == JsonValueKind.Number
             && TryReadWholeNumberDouble(element, out double numeric)
-            && numeric <= long.MaxValue)
+            && numeric < 9223372036854775808d)
         {
             value = (long)numeric;
 
@@ -127,7 +127,7 @@ internal static partial class GcpSkuPricingParser
         if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
             && double.IsFinite(numeric)
             && numeric >= 0
-            && numeric <= long.MaxValue
+            && numeric < 9223372036854775808d
             && numeric == Math.Floor(numeric))
         {
             value = (long)numeric;
