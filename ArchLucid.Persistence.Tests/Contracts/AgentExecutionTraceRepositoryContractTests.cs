@@ -414,6 +414,42 @@ public abstract class AgentExecutionTraceRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task Concurrent_independent_patches_preserve_both_trace_json_changes()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-concurrent-patch-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTask(runId, "task-concurrent-patch");
+        string traceId = "concurrent-patch-trace-" + runId;
+
+        await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, traceId, TimeProvider.System.UtcNowDateTime()),
+            CancellationToken.None);
+
+        TaskCompletionSource start = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Task warningPatch = Task.Run(async () =>
+        {
+            await start.Task;
+            await repo.PatchQualityWarningAsync(traceId, true, CancellationToken.None);
+        });
+        Task rejectedPatch = Task.Run(async () =>
+        {
+            await start.Task;
+            await repo.PatchQualityRejectedAsync(traceId, true, CancellationToken.None);
+        });
+
+        start.SetResult();
+        await Task.WhenAll(warningPatch, rejectedPatch);
+
+        AgentExecutionTrace? trace = await repo.GetByTraceIdAsync(traceId, CancellationToken.None);
+
+        trace.Should().NotBeNull();
+        trace.QualityWarning.Should().BeTrue();
+        trace.QualityRejected.Should().BeTrue();
+    }
+
+    [SkippableFact]
     public async Task GetDistinctAgentTypesWithLlmResourceFallbackAsync_excludes_non_fallback_deployments()
     {
         SkipIfSqlServerUnavailable();
