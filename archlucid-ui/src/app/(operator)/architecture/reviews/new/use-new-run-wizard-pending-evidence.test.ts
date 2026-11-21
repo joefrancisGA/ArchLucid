@@ -95,6 +95,34 @@ describe("useNewRunWizardPendingEvidence (TB-2246)", () => {
     );
   });
 
+  it("ignores inventory platform detection that completes after pending evidence is cleared", async () => {
+    let resolvePlatform!: (platform: "aws") => void;
+    vi.mocked(detectTier1InventoryPlatformFromFile).mockReturnValue(
+      new Promise<"aws">((resolve) => { resolvePlatform = resolve; }),
+    );
+    const onInventoryFileSelected = vi.fn();
+    const { result } = renderHook(() =>
+      useNewRunWizardPendingEvidence({
+        runId: null,
+        autoUploadOnCreate: false,
+        onInventoryFileSelected,
+      }),
+    );
+
+    act(() => {
+      result.current.handlePendingEvidenceFileChange(buildAwsInventoryZipFile());
+    });
+    act(() => {
+      result.current.clearPendingEvidence();
+    });
+    await act(async () => {
+      resolvePlatform("aws");
+    });
+
+    expect(result.current.pendingEvidenceFile).toBeNull();
+    expect(onInventoryFileSelected).not.toHaveBeenCalled();
+  });
+
   it("waits for inventory platform detection before auto-uploading pending evidence", async () => {
     let resolvePlatform!: (platform: "aws" | null) => void;
     const platformPromise = new Promise<"aws" | null>((resolve) => {
