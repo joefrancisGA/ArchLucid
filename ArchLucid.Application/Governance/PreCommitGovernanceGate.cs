@@ -207,25 +207,8 @@ public sealed class PreCommitGovernanceGate(
                 cancellationToken).ConfigureAwait(false);
 
         if (enforcingAssignments.Length > 0)
-        {
-            PreCommitGateResult? firstWarning = null;
-            foreach (PolicyPackAssignment enforcing in enforcingAssignments)
-            {
-                PreCommitGateResult result = PreCommitGateEvaluator.EvaluateForAssignment(
-                    findings,
-                    enforcing,
-                    _options.Value,
-                    latestDispositions);
-
-                if (result.Blocked)
-                    return result;
-
-                if (result.WarnOnly)
-                    firstWarning ??= result;
-            }
-
-            return firstWarning ?? PreCommitGateResult.Allowed();
-        }
+            return PreCommitGateEvaluator.EvaluateAllAssignments(
+                findings, enforcingAssignments, _options.Value, latestDispositions);
 
         FindingSeverity? globalThreshold = PreCommitGateThresholdParser.TryParseMinimumSeverity(_options.Value.PreCommitGateThreshold);
 
