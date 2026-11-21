@@ -31,6 +31,31 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
     private static readonly Guid PackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
     [Fact]
+    public void HashCoverageAssignments_is_order_independent_for_tied_pack_and_coverage_keys()
+    {
+        CommittedCoverageAssignmentSnapshot a = new()
+        {
+            PolicyPackId = PackId,
+            PolicyPackVersion = "1.0.0",
+            CoverageType = "baseline",
+            SelectionState = "active",
+            QualityDimension = "security",
+        };
+        CommittedCoverageAssignmentSnapshot b = new()
+        {
+            PolicyPackId = PackId,
+            PolicyPackVersion = "1.0.0",
+            CoverageType = "baseline",
+            SelectionState = "excluded",
+            ExclusionReason = "manual",
+            QualityDimension = "security",
+        };
+
+        PreFinalizeExecuteBaselineDriftEvaluator.HashCoverageAssignments([a, b])
+            .Should().Be(PreFinalizeExecuteBaselineDriftEvaluator.HashCoverageAssignments([b, a]));
+    }
+
+    [Fact]
     public async Task EvaluateAsync_returns_no_items_when_governance_scope_json_is_missing()
     {
         PreFinalizeExecuteBaselineDriftEvaluator sut = CreateSut();
