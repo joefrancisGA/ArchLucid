@@ -118,6 +118,15 @@ function findingsHrefFromSources(
 }
 
 describe("operator hub findings routes product line", () => {
+  it("lets either product choose a review from the empty standards catalog", () => {
+    for (const productLine of ["architecture", "security"] as const) {
+      const action = resolveStandardsRulesEmptyCompact(productLine).actions?.find(
+        ({ label }) => label === "View review evidence",
+      );
+      expect(action?.href).toBe("/insights/evidence-graph");
+    }
+  });
+
   it("keeps architecture defaults on governance findings", () => {
     expect(findingsHrefFromSources(resolveAdministrationHubSources("architecture"))).toBe(GOVERNANCE_FINDINGS_PATH);
     expect(findingsHrefFromSources(resolveAlertsInboxOrientationSources("architecture"))).toBe(GOVERNANCE_FINDINGS_PATH);
