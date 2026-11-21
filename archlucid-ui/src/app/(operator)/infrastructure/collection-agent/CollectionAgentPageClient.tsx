@@ -150,7 +150,7 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
         aria-expanded={expandable ? expanded : undefined}
         onClick={expandable ? () => setExpanded((current) => !current) : undefined}
         onKeyDown={(event) => {
-          if (expandable && (event.key === "Enter" || event.key === " ")) {
+          if (expandable && event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
             event.preventDefault();
             setExpanded((current) => !current);
           }
