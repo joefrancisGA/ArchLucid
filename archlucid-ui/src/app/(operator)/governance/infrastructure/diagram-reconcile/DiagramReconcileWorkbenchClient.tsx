@@ -147,6 +147,7 @@ import {
   DIAGRAM_RECONCILE_FILTER_HID_ROWS_LINE,
   shouldShowDiagramReconcileFilterHidRowsHonesty,
 } from "@/lib/infra-evidence/diagram-reconcile-filter-hid-rows-copy";
+import { DIAGRAM_RECONCILE_STALE_SNAPSHOT_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/diagram-reconcile-stale-snapshot-filter-empty-not-load-failure-copy";
 import {
   DIAGRAM_RECONCILE_ZERO_CHANGES_NOT_CLEAN_LINE,
   shouldShowDiagramReconcileZeroChangesHonesty,
@@ -2192,6 +2193,17 @@ export function DiagramReconcileWorkbenchClient() {
                       ) ? (
                         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-filter-hid-rows">
                           {DIAGRAM_RECONCILE_FILTER_HID_ROWS_LINE}
+                        </p>
+                      ) : null}
+                      {diagramReconcilePinnedNotLatest
+                      && (reconciliation.rows?.length ?? 0) > 0
+                      && filteredRows.length === 0
+                      && !loadingModel ? (
+                        <p
+                          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                          data-testid="infra-diagram-reconcile-stale-snapshot-filter-empty-not-load-failure"
+                        >
+                          {DIAGRAM_RECONCILE_STALE_SNAPSHOT_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
                         </p>
                       ) : null}
                     </div>
