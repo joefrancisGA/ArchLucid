@@ -6,7 +6,21 @@
 # ArchLucid changelog
 
 
+## 2026-11-21 - Score lift round 105 (batch 70): Policy enforced, health tiles, deliverables export, investigation ROI
 
+**Outcome.** Policy enforced-rules empty names successful read with zero rules. System health summary tiles state point-in-time rollup discipline. Deliverables blocked primary export names unsealed gate versus load failure. Investigation-effort blocking banner names incomplete worksheet versus failed read.
+
+**Surfaces.** Policy packs enforced table, system health page, run detail deliverables exports, SecureNow investigation effort, honesty and mounted contract tests.
+
+
+
+
+
+## 2026-11-21 - Score lift round 101 (batch 66): Uncited band, hide generic, lifecycle hash, last-visit restore
+
+**Outcome.** Review uncited band and governance hide-generic filter name empty-not-load-failure. Lifecycle tab hash restore and findings last-visit toolbar restore distinguish restore from failed read.
+
+**Surfaces.** Run detail findings workspace, governance findings results, review tab shell, honesty and mounted contract tests.
 ## 2026-11-21 - Score lift round 104 (batch 69): Connection partial, findings header, graph filter, attack path table
 
 **Outcome.** Connection status names partial capture versus a failed configuration read. Run detail findings header mounts partial-capture recovery above the toolbar. Evidence graph names type-filter empty versus graph load failure. Attack path table names partial-capture thin ranking versus failed report read.

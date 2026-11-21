@@ -14,6 +14,7 @@ import { POLICY_PACKS_ENFORCED_RULES_TITLE } from "@/lib/policy/policy-packs-pag
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { PolicyPacksEnforcedRulesEmptyPartialHonesty } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksEnforcedRulesEmptyPartialHonesty";
+import { POLICY_PACKS_ENFORCED_RULES_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/policy/policy-packs-enforced-rules-empty-not-load-failure-copy";
 
 export type PolicyPacksEnforcedRulesTableProps = {
   readonly rows: readonly PolicyPackEnforcedRuleRow[];
@@ -30,6 +31,12 @@ export function PolicyPacksEnforcedRulesTable(props: PolicyPacksEnforcedRulesTab
         </h3>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           No compliance rules are currently enforced for this review.
+        </p>
+                <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="policy-packs-enforced-rules-empty-not-load-failure"
+        >
+          {POLICY_PACKS_ENFORCED_RULES_EMPTY_NOT_LOAD_FAILURE_LINE}
         </p>
         <PolicyPacksEnforcedRulesEmptyPartialHonesty />
       </section>
