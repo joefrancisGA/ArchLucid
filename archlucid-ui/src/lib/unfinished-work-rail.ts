@@ -55,6 +55,7 @@ export type UnfinishedWorkRailInputs = {
   readonly drafts: readonly ArchitectureDraftRegistryEntry[];
   readonly runs: readonly RunSummary[];
   readonly incompleteWizards: readonly IncompleteWizardSignal[];
+  readonly excludeKinds?: readonly UnfinishedWorkRailItemKind[];
   /** Soft cap for the compact rail (default 6). */
   readonly maxItems?: number;
   /** When true, review rows use nested architecture job URLs when parentage is known (AO-08). */
@@ -360,12 +361,16 @@ export function summarizeUnfinishedWorkRailItems(
     ...buildWizardItems(inputs.incompleteWizards),
   ]);
 
-  combined.sort(compareRailItems);
+  const { excludeKinds } = inputs;
+  const eligible = excludeKinds === undefined
+    ? combined
+    : combined.filter((item) => !excludeKinds.includes(item.kind));
+  eligible.sort(compareRailItems);
 
   return {
-    items: combined.slice(0, maxItems),
-    totalCount: combined.length,
-    truncated: combined.length > maxItems,
+    items: eligible.slice(0, maxItems),
+    totalCount: eligible.length,
+    truncated: eligible.length > maxItems,
   };
 }
 
