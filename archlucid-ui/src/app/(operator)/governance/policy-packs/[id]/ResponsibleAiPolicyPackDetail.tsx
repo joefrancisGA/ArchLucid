@@ -27,6 +27,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import {
   policyPacksEditHref,
   reviewsNewWithPackHref,
@@ -82,14 +83,14 @@ type SummaryMetricValue = {
   readonly qualifier?: string;
 };
 
-function formatPackTimestamp(value: string | null | undefined): string | null {
+export function formatPackTimestamp(value: string | null | undefined): string | null {
   const raw = value?.trim() ?? "";
 
   if (raw.length === 0) {
     return null;
   }
 
-  const ms = Date.parse(raw);
+  const ms = parseIsoUtcMs(raw);
 
   if (Number.isNaN(ms)) {
     return raw;
