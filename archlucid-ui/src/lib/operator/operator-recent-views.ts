@@ -184,7 +184,7 @@ function migrateLegacyRecentViewsState(parsed: {
     return createEmptyRecentViewsState();
   }
 
-  const entries = parsed.entries
+  const normalizedEntries = parsed.entries
     .filter(
       (entry): entry is OperatorRecentViewEntry =>
         typeof entry === "object"
@@ -199,8 +199,19 @@ function migrateLegacyRecentViewsState(parsed: {
         kind: normalizeOperatorRecentViewKind(String((entry as OperatorRecentViewEntry).kind ?? "page")),
       }),
     )
-    .filter((entry): entry is OperatorRecentViewEntry => entry !== null)
-    .slice(0, MAX_ENTRIES);
+    .filter((entry): entry is OperatorRecentViewEntry => entry !== null);
+
+  const entries: OperatorRecentViewEntry[] = [];
+  for (const entry of normalizedEntries) {
+    if (entries.some((existing) => resumeHrefsEquivalentForDedupe(existing.href, entry.href))) {
+      continue;
+    }
+
+    entries.push(entry);
+    if (entries.length === MAX_ENTRIES) {
+      break;
+    }
+  }
 
   return { schemaVersion: 2, entries };
 }
