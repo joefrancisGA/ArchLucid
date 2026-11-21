@@ -47,7 +47,7 @@ public sealed class RiskExceptionDispositionGuardTests
             FindingId = "f-1",
             ReviewerUserId = "reviewer",
             Action = FindingReviewAction.RecordDisposition,
-            Disposition = Disposition.AcceptedRisk,
+            Disposition = Disposition.Accepted,
             OccurredAtUtc = now.AddDays(-1),
         };
 
