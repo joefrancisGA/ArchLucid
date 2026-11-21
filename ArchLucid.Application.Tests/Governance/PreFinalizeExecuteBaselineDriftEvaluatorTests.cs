@@ -56,6 +56,26 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
     }
 
     [Fact]
+    public void HashPackAssignments_is_order_independent_for_tied_pack_versions()
+    {
+        CommittedGovernancePackAssignmentSnapshot workspace = new()
+        {
+            PolicyPackId = PackId,
+            PolicyPackVersion = "1.0.0",
+            ScopeLevel = GovernanceScopeLevel.Workspace.ToString(),
+        };
+        CommittedGovernancePackAssignmentSnapshot project = new()
+        {
+            PolicyPackId = PackId,
+            PolicyPackVersion = "1.0.0",
+            ScopeLevel = GovernanceScopeLevel.Project.ToString(),
+        };
+
+        PreFinalizeExecuteBaselineDriftEvaluator.HashPackAssignments([workspace, project])
+            .Should().Be(PreFinalizeExecuteBaselineDriftEvaluator.HashPackAssignments([project, workspace]));
+    }
+
+    [Fact]
     public async Task EvaluateAsync_returns_no_items_when_governance_scope_json_is_missing()
     {
         PreFinalizeExecuteBaselineDriftEvaluator sut = CreateSut();
