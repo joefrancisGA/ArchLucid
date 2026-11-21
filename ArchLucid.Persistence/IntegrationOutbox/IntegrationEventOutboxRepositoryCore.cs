@@ -1,3 +1,5 @@
+using System.Data.SqlTypes;
+
 using ArchLucid.Core.Integration;
 
 namespace ArchLucid.Persistence.IntegrationOutbox;
@@ -83,7 +85,8 @@ internal static class IntegrationEventOutboxRepositoryCore
 
         return entries
             .Where(IsDeadLetter)
-            .OrderByDescending(entry => entry.DeadLetteredUtc);
+            .OrderByDescending(entry => entry.DeadLetteredUtc)
+            .ThenBy(entry => new SqlGuid(entry.OutboxId));
     }
 
     public static IntegrationEventOutboxEntry CreateEnqueueEntry(
