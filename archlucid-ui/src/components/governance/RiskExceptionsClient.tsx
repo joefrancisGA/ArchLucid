@@ -200,7 +200,7 @@ export default function RiskExceptionsClient() {
           </div>
         ) : null}
 
-        {!loading && !loadError && records.length === 0 ? (
+        {!loading && !loadError && scopedRecords.length === 0 ? (
           <EnterpriseCompactEmptyState
             testId="risk-exceptions-empty-state"
             title={buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_TITLE : RISK_EXCEPTIONS_EMPTY_TITLE}
