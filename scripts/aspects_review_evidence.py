@@ -96,7 +96,7 @@ def coverage(records, baselines):
 
 def git(repo, *args):
     return subprocess.run(["git", "-C", str(repo), *args], check=True,
-                          capture_output=True, text=True).stdout.strip()
+                          capture_output=True, text=True).stdout
 
 
 def verified_observation(repo, baseline, path, spans, defect_id=None):
@@ -105,7 +105,7 @@ def verified_observation(repo, baseline, path, spans, defect_id=None):
         raise ValueError("A full pinned baseline SHA is required")
     path = normalize_path(path)
     parsed = parse_spans(spans)
-    blob = git(repo, "rev-parse", f"{baseline}:{path}")
+    blob = git(repo, "rev-parse", f"{baseline}:{path}").strip()
     if not SHA.fullmatch(blob):
         raise ValueError("Git did not resolve a source blob")
     source = git(repo, "show", f"{baseline}:{path}").splitlines()
