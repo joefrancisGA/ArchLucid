@@ -50,7 +50,7 @@ import {
   policyPacksPathForProductLine,
   remapGovernanceOperatorHref,
 } from "@/lib/product-line/securenow-compliance-routes";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { buildInsightsFinalizedReviewPrerequisiteEmpty } from "@/lib/insights-finalized-review-prerequisite-empty";
 import {
   buildOperatorFilteredEmptyCompact,
@@ -142,7 +142,7 @@ export const STANDARDS_RULES_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
     { label: "Open policy packs", href: "/governance/policy-packs", variant: "primary" },
     {
       label: "View review evidence",
-      href: `/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+      href: EVIDENCE_GRAPH_PATH,
       variant: "outline",
     },
   ],
