@@ -210,8 +210,8 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
       canExecute,
       readyToFinalize,
       latestRunHref:
-        commitContext.latestRunId !== null
-          ? resolveFirstReviewGuideRunHref(commitContext.latestRunId, stateInput)
+        latestRunId.length > 0
+          ? resolveFirstReviewGuideRunHref(latestRunId, stateInput)
           : null,
       hasCommittedManifest: commitContext.hasCommittedManifest,
       sealedReviewRecord: commitContext.sealedReviewRecord,
@@ -228,6 +228,7 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
     finishSetup.context,
     finishSetup.phase,
     isWorkingMode,
+    latestRunId,
     retry,
     policyPackSelectionQuery.data,
     policyPackSelectionQuery.isError,
