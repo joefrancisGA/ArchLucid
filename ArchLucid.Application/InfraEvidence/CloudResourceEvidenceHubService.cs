@@ -394,6 +394,7 @@ public sealed class CloudResourceEvidenceHubService(
             .Select(MapArchitectureFinding)
             .OrderByDescending(item => item.Severity ?? string.Empty, StringComparer.OrdinalIgnoreCase)
             .ThenBy(item => item.Title, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(item => item.Id, StringComparer.Ordinal)
             .ToList();
     }
 
