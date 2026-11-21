@@ -133,6 +133,33 @@ public sealed class FindingInspectDispositionAdr0076SqlIntegrationTests(SqlServe
         explicitStatus.HumanReviewStatusStored.Should().BeTrue();
     }
 
+    [SkippableFact]
+    public async Task Remediation_assignment_is_persisted_and_visible_in_finding_inspect()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Guid runId = await SeedFindingAsync(fixture.ConnectionString, scope);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperFindingRecordRemediationAssignmentRepository assignmentRepository = new(factory);
+        DapperFindingInspectReadRepository inspectRepository = new(factory);
+        const string assignedTo = "owner@contoso.com";
+        DateTimeOffset dueUtc = new(2026, 10, 1, 12, 0, 0, TimeSpan.Zero);
+
+        bool updated = await assignmentRepository.TryUpdateAssignmentAsync(
+            runId, FindingId, scope, assignedTo, dueUtc, CancellationToken.None);
+
+        updated.Should().BeTrue();
+        FindingInspectResponse? response = await inspectRepository.GetInspectAsync(scope, FindingId, CancellationToken.None);
+        response.Should().NotBeNull();
+        response!.AssignedToUserId.Should().Be(assignedTo);
+        response.RemediationDueUtc.Should().Be(dueUtc);
+    }
+
     private static async Task<Guid> SeedFindingAsync(string connectionString, ScopeContext scope)
     {
         SqlConnectionFactory factory = new(connectionString);
