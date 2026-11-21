@@ -19,6 +19,16 @@ RANGE = re.compile(r"^([1-9][0-9]*)(?:-([1-9][0-9]*))?$")
 def parse_spans(values):
     spans = []
     for value in values:
+        if isinstance(value, (list, tuple)) and len(value) == 2:
+            start, end = value
+            if (not isinstance(start, int) or isinstance(start, bool)
+                    or not isinstance(end, int) or isinstance(end, bool)
+                    or start < 1 or end < start):
+                raise ValueError(f"Invalid line span: {value}")
+            spans.append((start, end))
+            continue
+        if not isinstance(value, str):
+            raise ValueError(f"Invalid line span: {value}")
         match = RANGE.fullmatch(value)
         if not match:
             raise ValueError(f"Invalid line span: {value}")
