@@ -25,6 +25,16 @@ public sealed class AdvisoryTerraformRepresentationBuilderTests
     }
 
     [Fact]
+    public void Build_resource_mapping_preserves_the_complete_terraform_resource_type()
+    {
+        AdvisoryTerraformBuildResult result =
+            AdvisoryTerraformRepresentationBuilder.Build(BuildSnapshot(), aztfexportAvailable: false);
+
+        result.Mappings.Should().ContainSingle()
+            .Which.TerraformAddress.Should().Be("azurerm_storage_account.sa1");
+    }
+
+    [Fact]
     public void Build_advisory_terraform_files_omit_version_pins()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot();
