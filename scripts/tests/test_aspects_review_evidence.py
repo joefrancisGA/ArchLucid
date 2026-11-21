@@ -23,7 +23,7 @@ class EvidenceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             ledger = Path(tmp) / "review.jsonl"
             row = {"baseline": SHA1, "blob": SHA2, "path": "src/a.cs",
-                   "spans": ["1-4", "3-6"], "defect_id": "DEF-1"}
+                   "spans": ["1-4", "3-6"], "defect_id": "DEF-1", "verified": True}
             self.assertTrue(mod.record(ledger, dict(row)))
             self.assertFalse(mod.record(ledger, dict(row)))
             second = dict(row, spans=["5-8"])
@@ -36,9 +36,9 @@ class EvidenceTests(unittest.TestCase):
 
     def test_filters_by_first_parent_membership(self):
         rows = [{"baseline": SHA1, "blob": SHA2, "path": "src/a.cs",
-                 "spans": [[1, 10]], "defect_id": "D1"},
+                 "spans": [[1, 10]], "defect_id": "D1", "verified": True},
                 {"baseline": SHA2, "blob": SHA2, "path": "src/a.cs",
-                 "spans": [[11, 20]], "defect_id": "D2"}]
+                 "spans": [[11, 20]], "defect_id": "D2", "verified": True}]
         result = mod.coverage(rows, {SHA1})
         self.assertEqual(result["unique_path_blob_lines"], 10)
         self.assertEqual(result["confirmed_distinct_defects"], 1)
@@ -62,6 +62,29 @@ class EvidenceTests(unittest.TestCase):
         with patch.object(mod, "git", return_value=SHA1 + "\\n" + SHA2) as invoke:
             self.assertEqual(mod.verified_first_parent(".", SHA1, 2), {SHA1, SHA2})
             self.assertIn("--first-parent", invoke.call_args.args)
+
+
+    def test_unverified_imports_cannot_affect_density(self):
+        rows = [
+            {"baseline": SHA1, "blob": SHA2, "path": "src/a.cs",
+             "spans": [[1, 10]], "defect_id": "D1", "verified": True},
+            {"baseline": SHA1, "blob": SHA2, "path": "src/b.cs",
+             "spans": [[1, 1000]], "defect_id": "D2", "verified": False},
+            {"baseline": SHA1, "blob": SHA2, "path": "src/c.cs",
+             "spans": [[1, 1000]], "defect_id": "D3"},
+        ]
+        result = mod.coverage(rows, {SHA1})
+        self.assertEqual(result["included_records"], 1)
+        self.assertEqual(result["excluded_unverified_records"], 2)
+        self.assertEqual(result["unique_path_blob_lines"], 10)
+        self.assertEqual(result["confirmed_distinct_defects"], 1)
+
+    def test_raw_record_defaults_to_unverified(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / "review.jsonl"
+            mod.record(ledger, {"baseline": SHA1, "blob": SHA2, "path": "src/a.cs",
+                                "spans": ["1-2"], "defect_id": "D1"})
+            self.assertFalse(mod.read_records(ledger)[0]["verified"])
 
     def test_rejects_path_traversal(self):
         with self.assertRaises(ValueError):
