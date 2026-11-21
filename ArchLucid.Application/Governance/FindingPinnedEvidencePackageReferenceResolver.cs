@@ -43,9 +43,6 @@ internal static class FindingPinnedEvidencePackageReferenceResolver
 
         foreach (string candidate in CollectCandidateStrings(finding))
         {
-            foreach (Guid packageId in TryParsePackageId(candidate))
-                yield return packageId;
-
             foreach (Match match in EvidencePackageRefPattern.Matches(candidate))
             {
                 foreach (Guid packageId in TryParsePackageId(match.Groups[1].Value))
