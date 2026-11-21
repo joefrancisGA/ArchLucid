@@ -132,12 +132,9 @@ public sealed class PreCommitGovernanceGate(
 
         if (!_options.Value.PreCommitGateEnabled || !Guid.TryParse(runId, out Guid runKey))
             return PreCommitGateResult.Allowed();
-        if (PreCommitGateThresholdParser.IsInvalidConfiguredThreshold(_options.Value.PreCommitGateThreshold))
-            return new PreCommitGateResult
-            {
-                Blocked = true,
-                Reason = "Commit blocked: global pre-commit governance threshold is invalid."
-            };
+        PreCommitGateResult? configurationFailure = ValidateGlobalThresholdConfiguration(_options.Value.PreCommitGateThreshold);
+        if (configurationFailure is not null)
+            return configurationFailure;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
@@ -230,6 +227,19 @@ public sealed class PreCommitGovernanceGate(
             policyPackIdLabel: "global-pre-commit-threshold",
             _options.Value.WarnOnlySeverities,
             latestDispositions);
+    }
+
+    /// <summary>Validates the global threshold before evaluating any policy-pack assignments.</summary>
+    public static PreCommitGateResult? ValidateGlobalThresholdConfiguration(string? threshold)
+    {
+        if (!PreCommitGateThresholdParser.IsInvalidConfiguredThreshold(threshold))
+            return null;
+
+        return new PreCommitGateResult
+        {
+            Blocked = true,
+            Reason = "Commit blocked: global pre-commit governance threshold is invalid."
+        };
     }
 
     private static Finding CreateSyntheticFinding(string runId, int index, FindingSeverity severity)
