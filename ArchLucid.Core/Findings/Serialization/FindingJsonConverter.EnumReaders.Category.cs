@@ -21,7 +21,7 @@ public sealed partial class FindingJsonConverter
             return (FindingEnforcementTier)numeric;
         }
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingEnforcementTier parsed))
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingEnforcementTier parsed) && Enum.IsDefined(parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
