@@ -171,6 +171,11 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         total.Should().Be(3);
         page.Should().ContainSingle();
+
+        (IReadOnlyList<AgentExecutionTrace> beyondEnd, int beyondEndTotal) =
+            await repo.GetPagedByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, 3, 1, CancellationToken.None);
+        beyondEnd.Should().BeEmpty();
+        beyondEndTotal.Should().Be(3);
     }
 
     [SkippableFact]
@@ -226,6 +231,11 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         page[0].ModelAlias.Should().Be("standard-chat");
         page[0].ModelDeploymentName.Should().Be("gpt-test");
         page[0].QualityWarning.Should().BeTrue();
+
+        (IReadOnlyList<AgentExecutionTraceSummary> beyondEnd, int beyondEndTotal) =
+            await repo.GetPagedSummariesByRunIdAsync(scope, runId, 4, 1, CancellationToken.None);
+        beyondEnd.Should().BeEmpty();
+        beyondEndTotal.Should().Be(3);
     }
 
     [SkippableFact]
