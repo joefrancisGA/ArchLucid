@@ -101,8 +101,46 @@ The assistant proposed making **protecting people at scale** the founding purpos
 - Revisit pricing, licensing, and autonomy gates after collecting real-world evidence.
 - Define a conservative impact-assessment methodology for people protected, with evidence thresholds and uncertainty ranges.
 
+## November 21, 2026 — Release-first philosophy and 2.0 architectural hooks
+
+### User — Near-term priority and investment discipline (verbatim)
+
+> Yeah, that's a more ambitious goal than my current iteration of Secure Now and Arch Lucid. I think my most compelling priority is to get Secure Now and Arch Lucid out the door as much as I can. But, but, here's what I'm thinking, is at least start providing some of the hooks for the more broader ambition. And even if I don't thoroughly test those modules, try to integrate some of that work, but be very cautious about the investment of time. As I need, at the moment, to prioritize quality assurance and go-to-market for Arch Lucid 1.0 and Secure Now 1.0 rather than being too concerned about what might happen five years from now.
+
+### Assistant — Release-first recommendation (summary)
+
+The assistant endorsed making ArchLucid 1.0 and SecureNow 1.0 the immediate commercial and engineering priorities while allowing 2.0 to inform inexpensive architectural choices. Its guiding principle was:
+
+> **Ship 1.0. Prepare for 2.0. Don't let 2.0 delay 1.0.**
+
+The assistant suggested an **illustrative**, not binding, allocation of 65% of engineering effort to 1.0 QA and stabilization, 25% to 1.0 go-to-market and release readiness, and 10% to 2.0 foundations. It recommended lightweight interfaces, extension points, feature flags, and documentation rather than building large autonomous-remediation or orchestration modules before release.
+
+The assistant also proposed that experimental 2.0 code integrated into 1.0 be disabled by default, isolated from production behavior, and subject to sufficient basic testing to show that its presence cannot destabilize the release. No 2.0 feature should enter the 1.0 release path unless its integration cost is small and regression risk demonstrably low.
+
+### Proposed low-cost 2.0 hooks
+
+| Long-term capability | Near-term 1.0 preparation |
+| --- | --- |
+| Autonomous remediation | Define a stable interface; do not enable autonomous production execution |
+| AI orchestration | Provide extension points; defer the orchestration engine |
+| Security evidence | Strengthen and reuse Aspects' verified metrics and evidence records |
+| Enterprise integrations | Maintain versioned APIs and explicit contracts |
+| Governance | Introduce authorization and audit contracts without premature complexity |
+| Continuous learning | Preserve structured findings, remediation decisions, and verification outcomes |
+
+### 1.0 release criteria and decision guardrails
+
+- Prioritize stable CI, acceptable and verifiable defect density, validated security controls, reliable installation, documentation, and customer onboarding.
+- Preserve release-blocking QA and go-to-market work ahead of speculative 2.0 feature work.
+- Permit inexpensive, backward-compatible 2.0 extension points when they reduce future redesign cost.
+- Do **not** accept untested active modules, unbounded feature flags, or dormant code that could compromise 1.0 security, stability, or maintenance.
+- Revisit the effort allocation based on measured release risk, customer feedback, and actual opportunity cost; the 65/25/10 split is a planning heuristic, not a commitment.
+- Continue foundational architecture discussions without turning them into a competing delivery program.
+
+**Near-term success:** ship dependable, commercially useful ArchLucid 1.0 and SecureNow 1.0. **Long-term purpose:** advance toward verifiable autonomous defense that protects people at scale.
+
 ## Scope and decision status
 
-This document records a **strategic direction** for ArchLucid and SecureNow 2.0. It does not assert that these features are already implemented, that profitability is proven, or that deployment without human oversight is safe. It does not replace the existing roadmap or authorize changes to production systems.
+This document records a **strategic direction** for ArchLucid and SecureNow 2.0. It does not assert that these features are already implemented, that profitability is proven, or that deployment without human oversight is safe. It does not replace the existing roadmap or authorize changes to production systems. The release-first philosophy above explicitly places 1.0 quality assurance, stabilization, and go-to-market ahead of speculative 2.0 implementation.
 
 The three-message record above retains the user's exact commercial statement and summarizes the two lengthy assistant messages, rather than representing those summaries as verbatim transcripts.
