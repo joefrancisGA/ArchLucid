@@ -663,4 +663,17 @@ public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
         targetResourceId.Should().BeNull();
         targetHost.Should().Be(host);
     }
+
+    [Fact]
+    public void Extract_does_not_treat_oracle_service_name_as_a_host()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{ "serviceName": "orders.example" }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "Oracle");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().BeNull();
+    }
 }
