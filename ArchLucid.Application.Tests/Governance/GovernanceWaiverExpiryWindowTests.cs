@@ -55,15 +55,14 @@ public sealed class GovernanceWaiverExpiryWindowTests
     [InlineData(RiskExceptionStatus.Expired)]
     public void CountExpiringWithinDays_excludes_non_active_waivers(RiskExceptionStatus status)
     {
-        RiskExceptionRecord waiver = Waiver(expiresAt: Now.AddDays(3));
-        waiver.Status = status;
+        RiskExceptionRecord waiver = Waiver(expiresAt: Now.AddDays(3), status: status);
 
         int count = GovernanceWaiverExpiryWindow.CountExpiringWithinDays([waiver], Now, days: 14);
 
         count.Should().Be(0);
     }
 
-    private static RiskExceptionRecord Waiver(DateTimeOffset expiresAt) =>
+    private static RiskExceptionRecord Waiver(DateTimeOffset expiresAt, RiskExceptionStatus status = RiskExceptionStatus.Active) =>
         new()
         {
             RiskExceptionId = Guid.NewGuid(),
@@ -73,7 +72,7 @@ public sealed class GovernanceWaiverExpiryWindowTests
             FindingId = "finding-1",
             OwnerUserId = "owner",
             ExpiresAtUtc = expiresAt,
-            Status = RiskExceptionStatus.Active,
+            Status = status,
             CreatedAtUtc = Now.AddDays(-30),
             CreatedByUserId = "creator",
         };

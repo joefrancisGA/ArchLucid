@@ -141,6 +141,7 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
   const [expanded, setExpanded] = useState(false);
   const errorPresentation = resolveCollectionRunErrorSummaryPresentation(run);
   const expandable = errorPresentation !== null;
+  const importedSnapshotId = run.importedSnapshotId?.trim() ?? "";
 
   return (
     <>
@@ -162,13 +163,11 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
         </EnterpriseTableCell>
         <EnterpriseTableCell>{formatCollectionRunSubscriptionsLabel(run)}</EnterpriseTableCell>
         <EnterpriseTableCell>
-          {run.importedSnapshotId === null
-            || run.importedSnapshotId === undefined
-            || run.importedSnapshotId.length === 0 ? (
+          {importedSnapshotId.length === 0 ? (
             "Imported snapshot was not stored."
           ) : (
             <Link
-              href={`${SECURENOW_INFRASTRUCTURE_DRIFT_PATH}?snapshotId=${encodeURIComponent(run.importedSnapshotId)}`}
+              href={`${SECURENOW_INFRASTRUCTURE_DRIFT_PATH}?snapshotId=${encodeURIComponent(importedSnapshotId)}`}
               className={cn(OPERATOR_LINK.inline, "font-medium")}
               onClick={(event) => event.stopPropagation()}
             >

@@ -25,8 +25,10 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
     private static readonly Guid TestWorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     private static readonly Guid TestScopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-    [SkippableFact]
-    public async Task Save_then_GetById_round_trips_relational_collections()
+    [SkippableTheory]
+    [InlineData(1)]
+    [InlineData(2101)]
+    public async Task Save_then_GetById_round_trips_relational_collections(int canonicalObjectCount)
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
@@ -63,6 +65,21 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
             SourceHashes = new Dictionary<string, string>(StringComparer.Ordinal) { ["file.cs"] = "abc123" }
         };
 
+        for (int i = 2; i <= canonicalObjectCount; i++)
+        {
+            snapshot.CanonicalObjects.Add(new CanonicalObject
+            {
+                ObjectId = $"obj-{i}",
+                ObjectType = "Service",
+                Name = $"Api {i}",
+                SourceType = "Request",
+                SourceId = $"src-{i}",
+                Properties = i == canonicalObjectCount
+                    ? new Dictionary<string, string>(StringComparer.Ordinal) { ["region"] = "west" }
+                    : [],
+            });
+        }
+
         await using (SqlConnection seedConnection = await factory.CreateOpenConnectionAsync(CancellationToken.None))
             await AuthorityRunChainTestSeed.InsertRunAsync(
                 seedConnection,
@@ -81,10 +98,15 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         loaded.RunId.Should().Be(runId);
         loaded.ProjectId.Should().Be("proj-relational-1");
         loaded.DeltaSummary.Should().Be("delta");
-        loaded.CanonicalObjects.Should().ContainSingle();
+        loaded.CanonicalObjects.Should().HaveCount(canonicalObjectCount);
         loaded.CanonicalObjects[0].ObjectId.Should().Be("obj-1");
         loaded.CanonicalObjects[0].Properties.Should().HaveCount(2);
         loaded.CanonicalObjects[0].Properties["region"].Should().Be("east");
+        if (canonicalObjectCount > 1)
+        {
+            loaded.CanonicalObjects[^1].ObjectId.Should().Be($"obj-{canonicalObjectCount}");
+            loaded.CanonicalObjects[^1].Properties["region"].Should().Be("west");
+        }
         loaded.Warnings.Should().Equal("w1", "w2");
         loaded.Errors.Should().Equal("e1");
         loaded.SourceHashes["file.cs"].Should().Be("abc123");

@@ -19,6 +19,16 @@ RANGE = re.compile(r"^([1-9][0-9]*)(?:-([1-9][0-9]*))?$")
 def parse_spans(values):
     spans = []
     for value in values:
+        if isinstance(value, (list, tuple)) and len(value) == 2:
+            start, end = value
+            if (not isinstance(start, int) or isinstance(start, bool)
+                    or not isinstance(end, int) or isinstance(end, bool)
+                    or start < 1 or end < start):
+                raise ValueError(f"Invalid line span: {value}")
+            spans.append((start, end))
+            continue
+        if not isinstance(value, str):
+            raise ValueError(f"Invalid line span: {value}")
         match = RANGE.fullmatch(value)
         if not match:
             raise ValueError(f"Invalid line span: {value}")
@@ -124,6 +134,26 @@ def verified_observation(repo, baseline, path, spans, defect_id=None):
             "spans": spans, "defect_id": defect_id, "verified": True}
 
 
+
+def import_verified_records(repo, ledger, source_paths):
+    """Import independently verified source spans from JSONL files; reject forged verified flags."""
+    imported = 0
+    duplicates = 0
+    for source_path in source_paths:
+        for item in read_records(source_path):
+            if item.get("verified") is not True:
+                raise ValueError(f"Unverified evidence in {source_path}")
+            expected = verified_observation(
+                repo, item["baseline"], item["path"], item["spans"], item.get("defect_id"))
+            if expected["blob"] != item["blob"]:
+                raise ValueError(f"Blob mismatch for {item['path']} at {item['baseline']}")
+            if record(ledger, expected):
+                imported += 1
+            else:
+                duplicates += 1
+    return {"imported_records": imported, "duplicate_records": duplicates}
+
+
 def verified_first_parent(repo, head, window):
     if not SHA.fullmatch(head) or window <= 0:
         raise ValueError("Full pinned HEAD SHA and positive window are required")
@@ -149,6 +179,9 @@ def main():
     verified.add_argument("--path", required=True)
     verified.add_argument("--span", required=True, action="append")
     verified.add_argument("--defect-id")
+    imported = commands.add_parser("import-verified", help="Import JSONL evidence after Git blob/span validation")
+    imported.add_argument("--repo", required=True, type=Path)
+    imported.add_argument("--source", required=True, action="append", type=Path)
     report = commands.add_parser("report")
     report.add_argument("--repo", type=Path)
     report.add_argument("--head")
@@ -162,6 +195,8 @@ def main():
     elif args.command == "record-verified":
         observation = verified_observation(args.repo, args.baseline, args.path, args.span, args.defect_id)
         print(json.dumps({"appended": record(args.ledger, observation)}))
+    elif args.command == "import-verified":
+        print(json.dumps(import_verified_records(args.repo, args.ledger, args.source)))
     else:
         if args.repo and args.head:
             baselines = verified_first_parent(args.repo, args.head, args.window)

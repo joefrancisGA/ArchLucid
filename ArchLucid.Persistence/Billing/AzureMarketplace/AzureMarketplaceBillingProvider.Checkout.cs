@@ -18,13 +18,16 @@ public sealed partial class AzureMarketplaceBillingProvider
             throw new InvalidOperationException("Billing:AzureMarketplace:LandingPageUrl is not configured.");
 
         string sessionId = $"mkt_sess_{Guid.NewGuid():N}";
-        string join = landing.Contains('?', StringComparison.Ordinal) ? "&" : "?";
+        int fragmentIndex = landing.IndexOf('#');
+        string landingWithoutFragment = fragmentIndex >= 0 ? landing[..fragmentIndex] : landing;
+        string fragment = fragmentIndex >= 0 ? landing[fragmentIndex..] : string.Empty;
+        string join = landingWithoutFragment.Contains('?', StringComparison.Ordinal) ? "&" : "?";
         string url =
-            $"{landing}{join}tenantId={Uri.EscapeDataString(request.TenantId.ToString("D", CultureInfo.InvariantCulture))}"
+            $"{landingWithoutFragment}{join}tenantId={Uri.EscapeDataString(request.TenantId.ToString("D", CultureInfo.InvariantCulture))}"
             + $"&workspaceId={Uri.EscapeDataString(request.WorkspaceId.ToString("D", CultureInfo.InvariantCulture))}"
             + $"&projectId={Uri.EscapeDataString(request.ProjectId.ToString("D", CultureInfo.InvariantCulture))}"
             + $"&tier={Uri.EscapeDataString(BillingTierCode.CheckoutTierLabel(request.TargetTier))}"
-            + $"&session={Uri.EscapeDataString(sessionId)}";
+            + $"&session={Uri.EscapeDataString(sessionId)}{fragment}";
 
         string tierCode = BillingTierCode.FromCheckoutTier(request.TargetTier);
 

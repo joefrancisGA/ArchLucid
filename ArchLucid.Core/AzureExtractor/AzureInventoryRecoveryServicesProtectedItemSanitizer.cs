@@ -12,7 +12,8 @@ public static class AzureInventoryRecoveryServicesProtectedItemSanitizer
     {
         row = null;
 
-        if (!item.TryGetProperty("properties", out JsonElement properties)
+        if (item.ValueKind is not JsonValueKind.Object
+            || !item.TryGetProperty("properties", out JsonElement properties)
             || properties.ValueKind is not JsonValueKind.Object)
         {
             return false;
@@ -43,7 +44,8 @@ public static class AzureInventoryRecoveryServicesProtectedItemSanitizer
     {
         row = null;
 
-        if (!item.TryGetProperty("properties", out JsonElement properties)
+        if (item.ValueKind is not JsonValueKind.Object
+            || !item.TryGetProperty("properties", out JsonElement properties)
             || properties.ValueKind is not JsonValueKind.Object)
         {
             return false;

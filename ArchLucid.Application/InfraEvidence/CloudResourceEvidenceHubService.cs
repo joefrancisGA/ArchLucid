@@ -70,7 +70,7 @@ public sealed class CloudResourceEvidenceHubService(
         }
 
         (int page, int pageSize) = PaginationDefaults.Normalize(query.Page, query.PageSize);
-        Guid snapshotId = query.SnapshotId ?? identity.LastSeenSnapshotId ?? Guid.Empty;
+        Guid snapshotId = ResolveHubSnapshotId(query.SnapshotId, identity);
 
         if (snapshotId != Guid.Empty)
         {
@@ -628,6 +628,16 @@ public sealed class CloudResourceEvidenceHubService(
         };
     }
 
+
+    private static Guid ResolveHubSnapshotId(Guid? querySnapshotId, CloudResourceIdentityRecord identity)
+    {
+        if (querySnapshotId is Guid requested && requested != Guid.Empty)
+        {
+            return requested;
+        }
+
+        return identity.LastSeenSnapshotId ?? Guid.Empty;
+    }
     private static CloudResourceEvidenceFindingHubItem MapOperationalFinding(OperationalSecurityFindingRecord row)
         => new()
         {
