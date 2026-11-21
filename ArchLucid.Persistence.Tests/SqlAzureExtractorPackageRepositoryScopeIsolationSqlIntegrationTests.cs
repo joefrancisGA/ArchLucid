@@ -3,8 +3,11 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Tests.Support;
 
 using FluentAssertions;
+
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests;
 
@@ -60,5 +63,52 @@ public sealed class SqlAzureExtractorPackageRepositoryScopeIsolationSqlIntegrati
             "baseline presence must be project-scoped so sibling-project packages do not return (true, null).");
 
         artifacts.LatestScriptVersion.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task TryGetLatestProvenanceByRunId_preserves_stored_utc_creation_time()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlAzureExtractorPackageRepository repository = new(factory);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        await AuthorityRunChainTestSeed.SeedFullChainAsync(
+            connection,
+            TenantId,
+            WorkspaceId,
+            ProjectWithPackageId,
+            runId,
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "proj-package-provenance-utc",
+            CancellationToken.None);
+
+        DateTime createdUtc = new(2026, 1, 15, 12, 34, 56, DateTimeKind.Utc);
+        await repository.InsertAsync(new AzureExtractorPackageRecord
+        {
+            PackageId = Guid.NewGuid(),
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectWithPackageId,
+            RunId = runId,
+            CreatedUtc = createdUtc,
+            SchemaVersion = 1,
+            OriginalFileName = "provenance.zip",
+            ManifestJson = "{}",
+            PackageBytes = [0x50, 0x4B],
+        }, CancellationToken.None);
+
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectWithPackageId };
+        AzureExtractorPackageProvenance? provenance =
+            await repository.TryGetLatestProvenanceByRunIdAsync(scope, runId, CancellationToken.None);
+
+        provenance.Should().NotBeNull();
+        provenance!.CreatedUtc.Kind.Should().Be(DateTimeKind.Utc);
+        provenance!.CreatedUtc.Ticks.Should().Be(createdUtc.Ticks);
     }
 }
