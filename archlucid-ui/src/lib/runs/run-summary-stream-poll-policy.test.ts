@@ -31,5 +31,15 @@ describe("run-summary-stream poll policy (TB-2029)", () => {
         streamPhase: "poll-fallback",
       }),
     ).toBe(false);
+    });
+
+  it("does not run HTTP fallback after the stream completes", () => {
+    expect(
+      shouldRunRunSummaryFallbackPoll({
+        sseConnected: false,
+        documentHidden: false,
+        streamPhase: "complete",
+      }),
+    ).toBe(false);
   });
 });
