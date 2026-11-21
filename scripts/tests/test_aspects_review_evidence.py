@@ -54,9 +54,9 @@ class EvidenceTests(unittest.TestCase):
             ledger = Path(tmp) / "ledger.jsonl"
             source.write_text('{"baseline":"' + SHA1 + '","blob":"' + SHA2
                               + '","path":"src/a.cs","spans":[[1,2]],'
-                              + '"defect_id":"D1","verified":true}\\n', encoding="utf-8")
+                              + '"defect_id":"D1","verified":true}\n', encoding="utf-8")
             with patch.object(mod, "git", side_effect=lambda repo, *args:
-                              SHA2 if args[0] == "rev-parse" else "first\\nsecond"):
+                              SHA2 if args[0] == "rev-parse" else "first\nsecond"):
                 first = mod.import_verified_records(".", ledger, [source])
                 second = mod.import_verified_records(".", ledger, [source])
             self.assertEqual(first["imported_records"], 1)
@@ -68,9 +68,9 @@ class EvidenceTests(unittest.TestCase):
             source = Path(tmp) / "source.jsonl"
             source.write_text('{"baseline":"' + SHA1 + '","blob":"' + SHA1
                               + '","path":"src/a.cs","spans":[[1,2]],'
-                              + '"verified":true}\\n', encoding="utf-8")
+                              + '"verified":true}\n', encoding="utf-8")
             with patch.object(mod, "git", side_effect=lambda repo, *args:
-                              SHA2 if args[0] == "rev-parse" else "first\\nsecond"):
+                              SHA2 if args[0] == "rev-parse" else "first\nsecond"):
                 with self.assertRaisesRegex(ValueError, "Blob mismatch"):
                     mod.import_verified_records(".", Path(tmp) / "ledger.jsonl", [source])
 
@@ -85,21 +85,21 @@ class EvidenceTests(unittest.TestCase):
 
 
     def test_verified_observation_rejects_blank_and_out_of_range(self):
-        with patch.object(mod, "git", side_effect=[SHA2, "first\\n\\nthird"]):
+        with patch.object(mod, "git", side_effect=[SHA2, "first\n\nthird"]):
             with self.assertRaisesRegex(ValueError, "blank"):
                 mod.verified_observation(".", SHA1, "src/a.cs", ["1-3"])
-        with patch.object(mod, "git", side_effect=[SHA2, "first\\nsecond"]):
+        with patch.object(mod, "git", side_effect=[SHA2, "first\nsecond"]):
             with self.assertRaisesRegex(ValueError, "exceeds"):
                 mod.verified_observation(".", SHA1, "src/a.cs", ["1-3"])
 
     def test_verified_observation_uses_actual_blob(self):
-        with patch.object(mod, "git", side_effect=[SHA2, "first\\nsecond"]):
+        with patch.object(mod, "git", side_effect=[SHA2, "first\nsecond"]):
             row = mod.verified_observation(".", SHA1, "src/a.cs", ["1-2"], "D1")
         self.assertEqual(row["blob"], SHA2)
         self.assertEqual(row["spans"], ["1-2"])
 
     def test_first_parent_history_from_git(self):
-        with patch.object(mod, "git", return_value=SHA1 + "\\n" + SHA2) as invoke:
+        with patch.object(mod, "git", return_value=SHA1 + "\n" + SHA2) as invoke:
             self.assertEqual(mod.verified_first_parent(".", SHA1, 2), {SHA1, SHA2})
             self.assertIn("--first-parent", invoke.call_args.args)
 
