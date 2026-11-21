@@ -170,7 +170,7 @@ public sealed class CloudResourceEvidenceHubService(
             ArchitectureReviewFindings = BuildFindingStreamPage(
                 CloudResourceEvidenceFindingStreamKinds.ArchitectureReview,
                 CloudResourceEvidenceFindingStreamLabels.ArchitectureReview,
-                architectureItems,
+                architectureItems.Skip(PaginationDefaults.ToSkip(page, pageSize)).Take(pageSize).ToList(),
                 page,
                 pageSize,
                 architectureItems.Count),

@@ -136,7 +136,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
             Times.Once);
     }
     [Fact]
-    public async Task TryGetHubAsync_labels_operational_and_architecture_finding_streams_separately()
+    public async Task TryGetHubAsync_pages_architecture_findings_and_labels_finding_streams_separately()
     {
         Guid cloudResourceId = Guid.NewGuid();
         Guid tenantId = Guid.NewGuid();
@@ -197,6 +197,13 @@ public sealed class CloudResourceEvidenceHubServiceTests
                             Severity = FindingSeverity.Warning,
                             RelatedNodeIds = ["node-vm-1"],
                         },
+                        new Finding
+                        {
+                            FindingId = "arch-finding-2",
+                            Title = "Zone coverage gap",
+                            Severity = FindingSeverity.Warning,
+                            RelatedNodeIds = ["node-vm-1"],
+                        },
                     ],
                 },
                 GraphSnapshot = new GraphSnapshot
@@ -235,7 +242,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
         CloudResourceEvidenceHubQueryResult result = await hubService.TryGetHubAsync(
             scope,
             cloudResourceId,
-            new CloudResourceEvidenceHubQuery { RunId = runId, SnapshotId = snapshotId },
+            new CloudResourceEvidenceHubQuery { RunId = runId, SnapshotId = snapshotId, PageSize = 1 },
             CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
@@ -256,6 +263,21 @@ public sealed class CloudResourceEvidenceHubServiceTests
         result.Hub.ArchitectureReviewFindings.Items.Should().ContainSingle();
         result.Hub.ArchitectureReviewFindings.Items[0].StreamKind
             .Should().Be(CloudResourceEvidenceFindingStreamKinds.ArchitectureReview);
+        result.Hub.ArchitectureReviewFindings.Items[0].Title.Should().Be("Subnet segmentation gap");
+        result.Hub.ArchitectureReviewFindings.TotalCount.Should().Be(2);
+        result.Hub.ArchitectureReviewFindings.HasMore.Should().BeTrue();
+
+        CloudResourceEvidenceHubQueryResult nextPage = await hubService.TryGetHubAsync(
+            scope,
+            cloudResourceId,
+            new CloudResourceEvidenceHubQuery { RunId = runId, SnapshotId = snapshotId, Page = 2, PageSize = 1 },
+            CancellationToken.None);
+
+        nextPage.Succeeded.Should().BeTrue();
+        nextPage.Hub!.ArchitectureReviewFindings.Items.Should().ContainSingle()
+            .Which.Title.Should().Be("Zone coverage gap");
+        nextPage.Hub.ArchitectureReviewFindings.TotalCount.Should().Be(2);
+        nextPage.Hub.ArchitectureReviewFindings.HasMore.Should().BeFalse();
     }
 
     [Fact]
