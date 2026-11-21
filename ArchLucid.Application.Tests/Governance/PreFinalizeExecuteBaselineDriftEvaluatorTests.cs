@@ -62,13 +62,13 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
         {
             PolicyPackId = PackId,
             PolicyPackVersion = "1.0.0",
-            ScopeLevel = GovernanceScopeLevel.Workspace.ToString(),
+            ScopeLevel = GovernanceScopeLevel.Workspace,
         };
         CommittedGovernancePackAssignmentSnapshot project = new()
         {
             PolicyPackId = PackId,
             PolicyPackVersion = "1.0.0",
-            ScopeLevel = GovernanceScopeLevel.Project.ToString(),
+            ScopeLevel = GovernanceScopeLevel.Project,
         };
 
         PreFinalizeExecuteBaselineDriftEvaluator.HashPackAssignments([workspace, project])
