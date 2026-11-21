@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path
 import re
+import subprocess
 
 SHA = re.compile(r"^[0-9a-f]{40}$")
 RANGE = re.compile(r"^([1-9][0-9]*)(?:-([1-9][0-9]*))?$")
@@ -92,6 +93,40 @@ def coverage(records, baselines):
             "coverage_warning": "Path/blob interval union is not cross-revision content-lineage deduplication; not a verified whole-codebase density."}
 
 
+
+def git(repo, *args):
+    return subprocess.run(["git", "-C", str(repo), *args], check=True,
+                          capture_output=True, text=True).stdout.strip()
+
+
+def verified_observation(repo, baseline, path, spans, defect_id=None):
+    """Fail closed unless spans exist and contain only nonblank source lines at baseline."""
+    if not SHA.fullmatch(baseline):
+        raise ValueError("A full pinned baseline SHA is required")
+    path = normalize_path(path)
+    parsed = parse_spans(spans)
+    blob = git(repo, "rev-parse", f"{baseline}:{path}")
+    if not SHA.fullmatch(blob):
+        raise ValueError("Git did not resolve a source blob")
+    source = git(repo, "show", f"{baseline}:{path}").splitlines()
+    for start, end in parsed:
+        if end > len(source):
+            raise ValueError(f"Reviewed span exceeds source length: {start}-{end}")
+        if any(not line.strip() for line in source[start - 1:end]):
+            raise ValueError(f"Reviewed span includes blank lines: {start}-{end}")
+    return {"baseline": baseline, "blob": blob, "path": path,
+            "spans": spans, "defect_id": defect_id}
+
+
+def verified_first_parent(repo, head, window):
+    if not SHA.fullmatch(head) or window <= 0:
+        raise ValueError("Full pinned HEAD SHA and positive window are required")
+    history = git(repo, "rev-list", "--first-parent", f"--max-count={window}", head).splitlines()
+    if not history or history[0] != head:
+        raise ValueError("Unable to verify first-parent history")
+    return set(history)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--ledger", required=True, type=Path)
@@ -102,15 +137,32 @@ def main():
     add.add_argument("--path", required=True)
     add.add_argument("--span", required=True, action="append")
     add.add_argument("--defect-id")
+    verified = commands.add_parser("record-verified")
+    verified.add_argument("--repo", required=True, type=Path)
+    verified.add_argument("--baseline", required=True)
+    verified.add_argument("--path", required=True)
+    verified.add_argument("--span", required=True, action="append")
+    verified.add_argument("--defect-id")
     report = commands.add_parser("report")
-    report.add_argument("--first-parent-shas", required=True, type=Path)
+    report.add_argument("--repo", type=Path)
+    report.add_argument("--head")
+    report.add_argument("--window", type=int, default=800)
+    report.add_argument("--first-parent-shas", type=Path)
     args = parser.parse_args()
     if args.command == "record":
         observation = {"baseline": args.baseline, "blob": args.blob, "path": args.path,
                        "spans": args.span, "defect_id": args.defect_id}
         print(json.dumps({"appended": record(args.ledger, observation)}))
+    elif args.command == "record-verified":
+        observation = verified_observation(args.repo, args.baseline, args.path, args.span, args.defect_id)
+        print(json.dumps({"appended": record(args.ledger, observation)}))
     else:
-        baselines = set(args.first_parent_shas.read_text(encoding="utf-8").split())
+        if args.repo and args.head:
+            baselines = verified_first_parent(args.repo, args.head, args.window)
+        elif args.first_parent_shas:
+            baselines = set(args.first_parent_shas.read_text(encoding="utf-8").split())
+        else:
+            raise ValueError("Supply --repo and --head, or --first-parent-shas")
         if not baselines or any(not SHA.fullmatch(sha) for sha in baselines):
             raise ValueError("First-parent SHA file must contain verified full Git SHAs")
         print(json.dumps(coverage(read_records(args.ledger), baselines), indent=2))
