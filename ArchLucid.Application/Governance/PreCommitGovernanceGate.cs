@@ -111,6 +111,19 @@ public sealed class PreCommitGovernanceGate(
             : SimulateSyntheticFindingsInternalAsync(runId, syntheticSeverity, syntheticCount, null, null, requireScopedRun: true, cancellationToken);
     }
 
+    /// <summary>Reject invalid global threshold configuration before evaluating assignments.</summary>
+    public static PreCommitGateResult? ValidateGlobalThresholdConfiguration(string? threshold)
+    {
+        if (!PreCommitGateThresholdParser.IsInvalidConfiguredThreshold(threshold))
+            return null;
+
+        return new PreCommitGateResult
+        {
+            Blocked = true,
+            Reason = "Commit blocked: global pre-commit governance threshold is invalid."
+        };
+    }
+
     private async Task<PreCommitGateResult> SimulateSyntheticFindingsInternalAsync(
         string runId,
         FindingSeverity? syntheticSeverity,
@@ -133,6 +146,13 @@ public sealed class PreCommitGovernanceGate(
         PreCommitGateResult? preflight = ValidateRunIdForGovernance(runId, _options.Value.PreCommitGateEnabled);
         if (preflight is not null)
             return preflight;
+
+        if (_options.Value.PreCommitGateEnabled)
+        {
+            PreCommitGateResult? configurationFailure = ValidateGlobalThresholdConfiguration(_options.Value.PreCommitGateThreshold);
+            if (configurationFailure is not null)
+                return configurationFailure;
+        }
 
         Guid runKey = Guid.Parse(runId);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
