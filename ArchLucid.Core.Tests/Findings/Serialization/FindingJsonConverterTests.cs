@@ -10,6 +10,39 @@ namespace ArchLucid.Core.Tests.Findings.Serialization;
 [Trait("Category", "Unit")]
 public sealed class FindingJsonConverterTests
 {
+    [Theory]
+    [InlineData("9223372036854775807")]
+    [InlineData("\\"9223372036854775807\\"")]
+    [InlineData("-9223372036854775808")]
+    public void Deserialize_out_of_range_reviewedAtUtc_does_not_throw(string timestamp)
+    {
+        string json = """
+                      {
+                        "findingSchemaVersion": 2,
+                        "findingId": "timestamp-guard",
+                        "findingType": "TopologyGap",
+                        "category": "Topology",
+                        "engineType": "TopologyCoverage",
+                        "severity": "Warning",
+                        "title": "Timestamp boundary",
+                        "rationale": "External timestamp may be malformed.",
+                        "relatedNodeIds": [],
+                        "recommendedActions": [],
+                        "properties": {},
+                        "payloadType": null,
+                        "payload": null,
+                        "trace": {},
+                        "humanReviewStatus": "Pending",
+                        "enforcementTier": "Advisory",
+                        "reviewedAtUtc": __TIMESTAMP__
+                      }
+                      """.Replace("__TIMESTAMP__", timestamp);
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, CreateOptions());
+        finding.Should().NotBeNull();
+        finding!.ReviewedAtUtc.Should().BeNull();
+    }
+
     [Fact]
     public void Deserialize_withoutInsightDensityFields_leavesThemNull()
     {
