@@ -84,7 +84,9 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { REVIEW_FINDINGS_LAST_VISIT_RESTORE_NOT_LOAD_FAILURE_LINE } from "@/lib/findings/review-findings-last-visit-restore-not-load-failure-copy";
 import { REVIEW_UNCITED_BAND_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/findings/review-uncited-band-empty-not-load-failure-copy";
+import { GUIDED_REVIEW_FINDINGS_TOOLBAR_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/findings/guided-review-findings-toolbar-filter-empty-not-load-failure-copy";
 import { reviewFindingsLastVisitHasUrlParams } from "@/lib/findings/review-findings-last-visit-url";
+import { runDetailFindingsToolbarFilterActive } from "@/lib/findings/run-detail-findings-toolbar-filter-active";
 import { cn } from "@/lib/utils";
 
 export type RunDetailFindingsWorkspaceProps = {
@@ -537,6 +539,28 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       ) : null}
       {hiddenFilterHonesty.hasHidden ? (
         <FindingsHiddenFilterHonestyBand honesty={hiddenFilterHonesty} onShowAll={showAllFilteredFindings} />
+      ) : null}
+      {!architectWorkspaceChrome
+      && props.findings.length > 0
+      && toolbarScopedFindings.length === 0
+      && listFindings.length === 0
+      && runDetailFindingsToolbarFilterActive({
+        filter: toolbar.filter,
+        jobView: toolbar.jobView,
+        searchQuery: toolbar.searchQuery,
+        ownerFilter: toolbar.ownerFilter,
+        domainFilter: toolbar.domainFilter,
+        originFilter: toolbar.originFilter,
+        groundingFilter: toolbar.groundingFilter,
+      }) ? (
+        <div data-testid="guided-review-findings-toolbar-filter-empty">
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="guided-review-findings-toolbar-filter-empty-not-load-failure"
+          >
+            {GUIDED_REVIEW_FINDINGS_TOOLBAR_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+          </p>
+        </div>
       ) : null}
       {architectWorkspaceChrome
       && listFindings.length === 0
