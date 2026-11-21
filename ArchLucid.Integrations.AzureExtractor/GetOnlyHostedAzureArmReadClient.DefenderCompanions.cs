@@ -34,44 +34,46 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         List<HostedAzureArmDefenderAssessmentCountRecord> assessmentCounts = [];
         List<HostedAzureArmDefenderSecurityContactRecord> contacts = [];
 
-        try
-        {
-            await ReadDefenderPricingsAsync(
+        await ReadDefenderCompanionFailSoftAsync(
+            () => ReadDefenderPricingsAsync(
                 accessToken,
                 trimmedSubscriptionId,
                 pricings,
                 warnings,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken),
+            warnings).ConfigureAwait(false);
 
-            await ReadDefenderScoreControlsAsync(
+        await ReadDefenderCompanionFailSoftAsync(
+            () => ReadDefenderScoreControlsAsync(
                 accessToken,
                 trimmedSubscriptionId,
                 scoreControls,
                 warnings,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken),
+            warnings).ConfigureAwait(false);
 
-            await ReadDefenderAssessmentsAsync(
+        await ReadDefenderCompanionFailSoftAsync(
+            () => ReadDefenderAssessmentsAsync(
                 accessToken,
                 trimmedSubscriptionId,
                 assessments,
                 assessmentCounts,
                 warnings,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken),
+            warnings).ConfigureAwait(false);
 
-            contacts.Add(await ReadDefenderSecurityContactAsync(
-                accessToken,
-                trimmedSubscriptionId,
-                warnings,
-                cancellationToken).ConfigureAwait(false));
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (InvalidOperationException)
-        {
-            warnings.Add("defender-companions-rejected-next-link");
-        }
+        await ReadDefenderCompanionFailSoftAsync(
+            async () =>
+            {
+                HostedAzureArmDefenderSecurityContactRecord contact = await ReadDefenderSecurityContactAsync(
+                    accessToken,
+                    trimmedSubscriptionId,
+                    warnings,
+                    cancellationToken)
+                    .ConfigureAwait(false);
+                contacts.Add(contact);
+            },
+            warnings).ConfigureAwait(false);
 
         if (contacts.Count == 0)
         {
@@ -88,6 +90,20 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             SecurityContacts = contacts,
             Warnings = warnings,
         };
+    }
+
+    private static async Task ReadDefenderCompanionFailSoftAsync(
+        Func<Task> readAsync,
+        List<string> warnings)
+    {
+        try
+        {
+            await readAsync().ConfigureAwait(false);
+        }
+        catch (InvalidOperationException)
+        {
+            warnings.Add("defender-companions-rejected-next-link");
+        }
     }
 
     private async Task ReadDefenderPricingsAsync(
