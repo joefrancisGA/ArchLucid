@@ -7,6 +7,11 @@
 
 
 
+## 2026-11-21 - Score lift round 104 (batch 69): Connection partial, findings header, graph filter, attack path table
+
+**Outcome.** Connection status names partial capture versus a failed configuration read. Run detail findings header mounts partial-capture recovery above the toolbar. Evidence graph names type-filter empty versus graph load failure. Attack path table names partial-capture thin ranking versus failed report read.
+
+**Surfaces.** Connection status dashboard, run detail findings workspace, evidence graph loaded experience, remediation factory attack path report, honesty and mounted contract tests.
 ## 2026-11-21 - Score lift round 103 (batch 68): Resource hub, extract pending, reviews hub, governance collection
 
 **Outcome.** Resource hub findings names stored-scope empty versus load failure. Extract upload names accepted-without-linked-review versus failed read. Reviews hub mounts open-gate collection blocker with hub-specific not-failure copy. Governance findings empty queue names missing collection versus failed read.

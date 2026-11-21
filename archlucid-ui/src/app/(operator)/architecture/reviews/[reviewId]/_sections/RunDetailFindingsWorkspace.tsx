@@ -18,6 +18,7 @@ import { RunDetailFindingsListViewToggle } from "@/components/findings/RunDetail
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
 import { ReviewAssumptionConfirmationStrip } from "@/components/findings/ReviewAssumptionConfirmationStrip";
 import { RootCauseClusterDispositionStrip } from "@/components/findings/RootCauseClusterDispositionStrip";
+import { RunDetailFindingsHeaderPartialCaptureHonesty } from "@/components/findings/RunDetailFindingsHeaderPartialCaptureHonesty";
 import {
   RunDetailFindingsToolbar,
   filterFindingsForToolbar,
@@ -415,6 +416,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   );
   const toolbarEl = (
     <div className="space-y-3" data-testid="run-detail-findings-toolbar-hero">
+      <RunDetailFindingsHeaderPartialCaptureHonesty />
       {architectWorkspaceChrome && showActorCountNotStored ? (
         <ActorDependentFindingsQuietEnginesHint show={true} hintKind="actor-count-not-stored" />
       ) : null}
