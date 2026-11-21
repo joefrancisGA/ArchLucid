@@ -22,7 +22,6 @@ import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-w
 import {
   listIncompleteWizardSignals,
   resolveRecommendedUnfinishedWorkRailItem,
-  type UnfinishedWorkRailItemKind,
 } from "@/lib/unfinished-work-rail";
 import { resolveSystemNotJobWorkingResumeReviewHref } from "@/lib/system-not-job-portfolio-resume-href";
 import { cn } from "@/lib/utils";
@@ -78,22 +77,16 @@ export function OperatorHomeRecommendedNextCard(
     openFindingsCount: 0,
     governanceWarningsCount: 0,
   });
-  const excludeKinds: readonly UnfinishedWorkRailItemKind[] =
-    workspacePhase === "eval-with-drafts" ? ["architecture-draft"] : [];
-
-  const recommendedItem = useMemo(() => {
-    const item = resolveRecommendedUnfinishedWorkRailItem({
+  const excludeDrafts = workspacePhase === "eval-with-drafts";
+  const recommendedItem = useMemo(
+    () => resolveRecommendedUnfinishedWorkRailItem({
       drafts,
       runs,
       incompleteWizards,
-    });
-
-    if (item === null || excludeKinds.includes(item.kind)) {
-      return null;
-    }
-
-    return item;
-  }, [drafts, excludeKinds, incompleteWizards, runs]);
+      excludeKinds: excludeDrafts ? ["architecture-draft"] : undefined,
+    }),
+    [drafts, excludeDrafts, incompleteWizards, runs],
+  );
 
   const fallbackHref = useMemo((): string | null => {
     if (recommendedItem !== null) {
