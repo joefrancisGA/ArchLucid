@@ -26,6 +26,14 @@ public sealed class CloudInventoryExtractorPackageRepositoryCoreTests
         CloudInventoryExtractorPackageRepositoryCore.MapDownload(row).Should().BeNull();
     }
 
+    [Theory]
+    [InlineData(CloudInventoryExtractorPackageRepositoryCore.LatestProvenanceByRunSelectSql)]
+    [InlineData(CloudInventoryExtractorPackageRepositoryCore.LatestDownloadInScopeSelectSql)]
+    public void Latest_package_queries_break_timestamp_ties_by_package_id(string sql)
+    {
+        sql.Should().Contain("ORDER BY CreatedUtc DESC, PackageId DESC;");
+    }
+
     [Fact]
     public void NormalizeCollectionTimestampUtc_specifies_utc_kind()
     {
