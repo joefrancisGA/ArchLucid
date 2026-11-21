@@ -46,6 +46,8 @@ public static partial class AlertRoutingCriteriaMetadata
             if (!string.IsNullOrWhiteSpace(raw)
                 && double.TryParse(raw.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double numericFromDecimalString)
                 && double.IsFinite(numericFromDecimalString)
+                && numericFromDecimalString >= int.MinValue
+                && numericFromDecimalString <= int.MaxValue
                 && numericFromDecimalString == Math.Floor(numericFromDecimalString))
             {
                 return MapFindingSeverityOrdinalToAlertLabel((int)numericFromDecimalString);
@@ -82,6 +84,7 @@ public static partial class AlertRoutingCriteriaMetadata
         if (element.TryGetDouble(out double numeric)
             && double.IsFinite(numeric)
             && numeric >= 0
+            && numeric <= int.MaxValue
             && numeric == Math.Floor(numeric))
         {
             value = (int)numeric;
