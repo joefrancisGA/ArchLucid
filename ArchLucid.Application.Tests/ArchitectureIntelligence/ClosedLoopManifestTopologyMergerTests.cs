@@ -148,6 +148,51 @@ public sealed class ClosedLoopManifestTopologyMergerTests
         manifest.Topology.Relationships.Should().BeEmpty();
     }
 
+    [Theory]
+    [InlineData("Worker subscribes to order events", RelationshipType.SubscribesTo)]
+    [InlineData("Worker publishes order events", RelationshipType.PublishesTo)]
+    [InlineData("Order events", RelationshipType.PublishesTo)]
+    public void MergePublishableTopology_prefers_the_explicit_event_flow_verb(
+        string flowName,
+        RelationshipType expectedRelationshipType)
+    {
+        ManifestDocument manifest = new();
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-1",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "worker",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Order Worker",
+                    LifecycleScope = ArchitectureLifecycleScope.TargetState,
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "broker",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Order Event Broker",
+                    LifecycleScope = ArchitectureLifecycleScope.TargetState,
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "flow-event",
+                    Kind = ArchitectureElementKind.DataFlow,
+                    Name = flowName,
+                    RelatedElementIds = ["worker", "broker"],
+                },
+            ],
+        };
+
+        ClosedLoopManifestTopologyMerger.MergePublishableTopology(manifest, model);
+
+        manifest.Topology.Relationships.Should().ContainSingle()
+            .Which.RelationshipType.Should().Be(expectedRelationshipType);
+    }
+
     [Fact]
     public void MergePublishableTopology_skips_current_state_components()
     {
