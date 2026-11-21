@@ -133,6 +133,20 @@ public sealed class InventoryDiagramAvdIsolationApplierTests
     }
 
     [Fact]
+    public void Compile_full_subscription_keeps_unrelated_vm_with_session_host_name_when_backing_vm_is_explicit()
+    {
+        const string unrelatedVmArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/host1";
+        GraphSnapshot graph = BuildAvdTopologyGraph(includeDualRoleVm: false, includeFirewallEdge: false);
+        graph.Nodes.Add(CreateTopologyNode("unrelated-vm-node", unrelatedVmArmId, "Microsoft.Compute/virtualMachines"));
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+
+        ast.Nodes.Should().Contain(node => node.ArmResourceId == unrelatedVmArmId);
+        ast.Nodes.Should().NotContain(node => node.ArmResourceId == AvdOnlyVmArmId);
+    }
+
+    [Fact]
     public void Compile_full_subscription_omits_nic_exclusively_attached_to_avd_only_vm()
     {
         const string nicArmId =
