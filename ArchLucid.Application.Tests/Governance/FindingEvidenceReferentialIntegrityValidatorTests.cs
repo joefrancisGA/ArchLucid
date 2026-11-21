@@ -24,6 +24,22 @@ public sealed class FindingEvidenceReferentialIntegrityValidatorTests
     }
 
     [Fact]
+    public void MissingPinJson_WithEmptyCommittedHash_BlocksValidation()
+    {
+        RunRecord header = new()
+        {
+            PinnedEvidencePackagePinsJson = null,
+            PinnedEvidencePackagePinsHashSha256 = Array.Empty<byte>(),
+        };
+
+        IReadOnlyList<string> reasons = FindingEvidenceReferentialIntegrityValidator.GetBlockingReasons(
+            header, []);
+
+        Assert.Single(reasons);
+        Assert.Contains("missing", reasons[0], StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void LegacyHeader_WithoutEvidencePinCommitment_DoesNotFailThisCheck()
     {
         RunRecord header = new()
