@@ -10,6 +10,7 @@ type OperatorErrorRecoveryActionsProps = {
   readonly helpSlug?: string;
   readonly helpHashFragment?: string;
   readonly showSystemHealth?: boolean;
+  readonly onRetry?: () => void;
 };
 
 /** Standard retry / help actions below operator error callouts (request ID is shown by the parent callout). */
@@ -19,9 +20,7 @@ export function OperatorErrorRecoveryActions(props: OperatorErrorRecoveryActions
       <button
         type="button"
         className={cn("auth-panel-focus cursor-pointer", OPERATOR_BODY_INLINE_LINK_CLASS)}
-        onClick={() => {
-          window.location.reload();
-        }}
+        onClick={props.onRetry ?? (() => window.location.reload())}
       >
         Retry
       </button>

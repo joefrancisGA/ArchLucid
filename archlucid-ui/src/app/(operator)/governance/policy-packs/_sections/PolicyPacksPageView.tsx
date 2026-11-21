@@ -174,6 +174,7 @@ export function PolicyPacksPageView(props: Props) {
               problem={m.failure.problem}
               fallbackMessage={m.failure.message}
               correlationId={m.failure.correlationId}
+              onRetry={() => void m.load()}
             />
           </div>
         ) : null}
