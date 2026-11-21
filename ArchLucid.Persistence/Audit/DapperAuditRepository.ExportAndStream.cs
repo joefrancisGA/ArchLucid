@@ -43,7 +43,7 @@ public sealed partial class DapperAuditRepository
                              AND ProjectId = @ProjectId
                              AND OccurredUtc >= @FromUtc
                              AND OccurredUtc < @ToUtc
-                           ORDER BY OccurredUtc ASC;
+                           ORDER BY OccurredUtc ASC, EventId ASC;
                            """;
 
         await using SqlConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(ct);
