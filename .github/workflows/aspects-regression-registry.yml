@@ -1,0 +1,29 @@
+name: Aspects regression registry
+
+on:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'scripts/ci/aspects-regression-*'
+      - 'scripts/ci/aspects_regression_patterns.py'
+      - 'scripts/tests/test_aspects_regression_patterns.py'
+      - 'docs/engineering/ASPECTS_REGRESSION_PATTERNS.md'
+      - '.github/workflows/aspects-regression-registry.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  catalog-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate pattern coverage and runner invariants
+        run: python -m unittest discover -s scripts/tests -p test_aspects_regression_patterns.py
+      - name: Verify registered test methods and print targeted commands
+        run: python scripts/ci/aspects_regression_patterns.py --check --plan
