@@ -211,6 +211,13 @@ public sealed class PreCommitGovernanceGate(
                 _options.Value,
                 latestDispositions);
 
+        if (PreCommitGateThresholdParser.IsInvalidConfiguredThreshold(_options.Value.PreCommitGateThreshold))
+            return new PreCommitGateResult
+            {
+                Blocked = true,
+                Reason = "Commit blocked: global pre-commit governance threshold is invalid."
+            };
+
         FindingSeverity? globalThreshold = PreCommitGateThresholdParser.TryParseMinimumSeverity(_options.Value.PreCommitGateThreshold);
 
         if (globalThreshold is null)
