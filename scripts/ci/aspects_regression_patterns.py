@@ -189,7 +189,7 @@ def main(argv: list[str] | None = None) -> int:
                   "sql_excluded": omitted, "commands": outcomes,
                   "note": "Command-level results only; SQL skips require explicit audit."}
         args.report_json.parent.mkdir(parents=True, exist_ok=True)
-        args.report_json.write_text(json.dumps(report, indent=2) + "\\n", encoding="utf-8")
+        args.report_json.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return failure
 
 
