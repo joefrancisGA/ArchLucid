@@ -12,7 +12,7 @@ public sealed class FindingJsonConverterTests
 {
     [Theory]
     [InlineData("9223372036854775807")]
-    [InlineData("\\\"9223372036854775807\\\"")]
+    [InlineData("\"9223372036854775807\"")]
     [InlineData("-9223372036854775808")]
     public void Deserialize_out_of_range_reviewedAtUtc_does_not_throw(string timestamp)
     {
