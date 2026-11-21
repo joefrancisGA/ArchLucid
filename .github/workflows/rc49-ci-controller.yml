@@ -1,0 +1,44 @@
+name: RC49 CI Controller
+# RC49-only controller. Dispatch manually on RC49 or invoke from a trusted external scheduler.
+# workflow_run and schedule triggers require this workflow on the default branch.
+on:
+  workflow_dispatch:
+    inputs:
+      ready_sha:
+        description: "Reviewed RC49 HEAD ready for full CI (leave blank to observe)"
+        required: false
+        type: string
+      apply:
+        description: "Allow cancel/dispatch actions; otherwise dry-run"
+        required: false
+        default: false
+        type: boolean
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: rc49-ci-controller
+  cancel-in-progress: false
+jobs:
+  decide:
+    if: github.ref == 'refs/heads/RC49'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unit test decision policy
+        run: python -m unittest discover -s scripts/ci/tests -p test_rc49_ci_controller.py
+      - name: Observe or apply RC49 CI policy
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          READY_SHA: ${{ inputs.ready_sha }}
+          APPLY: ${{ inputs.apply }}
+        run: |
+          args=(--repo "${{ github.repository }}" --ready-sha "$READY_SHA")
+          if [[ "$APPLY" == "true" ]]; then args+=(--apply); fi
+          python scripts/ci/rc49_ci_controller.py "${args[@]}"
