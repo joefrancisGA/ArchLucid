@@ -20,7 +20,7 @@ public static class RunHeaderPinDeserializer
                 json,
                 ContractJson.CamelCaseIgnoreNullCompact);
 
-            if (parsed is not null)
+            if (parsed is not null && parsed.All(static row => row is not null))
             {
                 rows = parsed;
                 return true;
@@ -43,7 +43,7 @@ public static class RunHeaderPinDeserializer
                 json,
                 ContractJson.CamelCaseIgnoreNullCompact);
 
-            if (parsed is not null)
+            if (parsed is not null && parsed.All(static row => row is not null))
             {
                 rows = parsed;
                 return true;
