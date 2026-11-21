@@ -110,7 +110,8 @@ public sealed partial class AzureRetailPricesCatalogClient
             {
                 _logger.LogWarning(ex,
                     "Azure Retail Prices paging request failed.");
-                break;
+                // The probe is incomplete, so there is no confirmed cache miss.
+                return null;
             }
 
             RetailPriceDto[] rows = pagePayload?.Items ?? [];
