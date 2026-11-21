@@ -39,6 +39,15 @@ public sealed class WaiverExpiryReminderIdempotencyTests
     }
 
     [Fact]
+    public void BuildKey_distinguishes_deadlines_one_tick_apart()
+    {
+        string first = WaiverExpiryReminderIdempotency.BuildKey(RiskExceptionId, Expiry, 7);
+        string second = WaiverExpiryReminderIdempotency.BuildKey(RiskExceptionId, Expiry.AddTicks(1), 7);
+
+        second.Should().NotBe(first);
+    }
+
+    [Fact]
     public void BuildKey_differs_after_renewal_moves_the_deadline()
     {
         string original = WaiverExpiryReminderIdempotency.BuildKey(RiskExceptionId, Expiry, 7);
