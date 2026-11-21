@@ -279,9 +279,13 @@ public sealed class FourRealityDriftEngine(
 
             try
             {
-                return JsonSerializer.Deserialize<DiagramInfrastructureReconciliationResult>(
+                DiagramInfrastructureReconciliationResult? result = JsonSerializer.Deserialize<DiagramInfrastructureReconciliationResult>(
                     record.ResultJson,
                     DiagramJsonOptions);
+                if (result is not null)
+                {
+                    return result;
+                }
             }
             catch (JsonException ex)
             {
