@@ -124,6 +124,7 @@ function buildProps(
     assignedToMeOldestFindingTarget: null,
     firstFindingTriageTarget: null,
     hideGenericLowDensity: false,
+    genericFilterEmptiedResults: false,
     onHideGenericLowDensityChange: vi.fn(),
     showInsightDensityScore: false,
     selectedFindingIds: new Set<string>(),
