@@ -52,6 +52,7 @@ import {
   parseSystemHealthClaimScopeOpenFromSearch,
   systemHealthClaimScopeHrefFromSearch,
 } from "@/lib/administration/system-health-claim-scope-url";
+import { SYSTEM_HEALTH_SUMMARY_TILES_POINT_IN_TIME_NOT_LOAD_FAILURE_LINE } from "@/lib/administration/system-health-summary-tiles-point-in-time-not-load-failure-copy";
 
 type Props = {
   readonly model: SystemHealthPageViewModel;
@@ -178,6 +179,12 @@ export function SystemHealthPageView(props: Props) {
         testId="system-health-needs-attention"
       />
 
+            <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="system-health-summary-tiles-point-in-time-not-load-failure"
+      >
+        {SYSTEM_HEALTH_SUMMARY_TILES_POINT_IN_TIME_NOT_LOAD_FAILURE_LINE}
+      </p>
       <HealthSummaryTileGrid tiles={summaryTiles} testId="system-health-summary-tiles" />
       <HealthBuildDetailsDisclosure
         version={m.version}
