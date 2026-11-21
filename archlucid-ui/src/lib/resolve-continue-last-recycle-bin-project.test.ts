@@ -96,4 +96,19 @@ describe("resolveContinueLastRecycleBinProject", () => {
 
     expect(resolveContinueLastRecycleBinProject(projects)?.projectId).toBe("newer");
   });
+
+  it("does not substitute another project after the last-viewed project is restored", () => {
+    window.localStorage.setItem(RECYCLE_BIN_PROJECT_LAST_VIEWED_STORAGE_KEY, "restored-project");
+
+    expect(resolveContinueLastRecycleBinProject([
+      {
+        projectId: "still-deleted-project",
+        projectName: "Still deleted",
+        workspaceId: "ws-1",
+        workspaceName: "Production",
+        deletedUtcIso: "2026-08-01T11:00:00Z",
+        purgeAfterUtcIso: "2026-08-31T00:00:00Z",
+      },
+    ])).toBeNull();
+  });
 });

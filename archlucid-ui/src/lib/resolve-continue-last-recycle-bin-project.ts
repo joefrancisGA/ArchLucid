@@ -104,9 +104,8 @@ export function resolveContinueLastRecycleBinProject(
   if (storedId !== null) {
     const storedMatch = validProjects.find((project) => project.projectId === storedId);
 
-    if (storedMatch !== undefined) {
-      return toTarget(storedMatch);
-    }
+    // A restored or purged project is no longer a valid resume target.
+    return storedMatch === undefined ? null : toTarget(storedMatch);
   }
 
   let newest: RecycleBinContinueLastProjectInput | null = null;
