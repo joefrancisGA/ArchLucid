@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Copy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -53,6 +53,7 @@ export function ExtractUploadAcceptedPackagePanel(
   const { ianaTimeZoneId } = useIanaTimeZonePreference();
   const [copied, setCopied] = useState(false);
   const [copyPackageIdError, setCopyPackageIdError] = useState<string | null>(null);
+  const latestCopyAttempt = useRef(0);
 
   const packageIdDisplay = formatExtractUploadAcceptedPackageId(record.packageId);
   const packageIdCopyable = extractUploadPackageIdIsCopyable(record.packageId);
@@ -64,18 +65,30 @@ export function ExtractUploadAcceptedPackagePanel(
       : GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}?snapshotId=${encodeURIComponent(snapshotId)}`;
 
   const onCopyPackageId = useCallback(async () => {
-    setCopyPackageIdError(null);
-
     if (!packageIdCopyable) {
       return;
     }
 
+    const attempt = ++latestCopyAttempt.current;
+    setCopyPackageIdError(null);
+    setCopied(false);
+
     try {
       await navigator.clipboard.writeText(record.packageId.trim());
+      if (latestCopyAttempt.current !== attempt) {
+        return;
+      }
       setCopied(true);
       showSuccess("Upload id copied.");
-      window.setTimeout(() => setCopied(false), 2000);
+      window.setTimeout(() => {
+        if (latestCopyAttempt.current === attempt) {
+          setCopied(false);
+        }
+      }, 2000);
     } catch {
+      if (latestCopyAttempt.current !== attempt) {
+        return;
+      }
       setCopyPackageIdError(
         formatGovernanceInfrastructureInlineActionError(
           EXTRACT_UPLOAD_PACKAGE_ID_COPY_ERROR_TITLE,
