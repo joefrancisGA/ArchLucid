@@ -38,7 +38,7 @@ public sealed class SqlFindingInsightSignalRepository(ISqlConnectionFactory conn
                                      @SignalId, @TenantId, @RunId, @FindingId, @UserId, @Kind, SYSUTCDATETIME()
                                  WHERE NOT EXISTS (
                                      SELECT 1
-                                     FROM dbo.FindingInsightSignals
+                                     FROM dbo.FindingInsightSignals WITH (UPDLOCK, HOLDLOCK)
                                      WHERE TenantId = @TenantId
                                        AND RunId = @RunId
                                        AND FindingId = @FindingId
