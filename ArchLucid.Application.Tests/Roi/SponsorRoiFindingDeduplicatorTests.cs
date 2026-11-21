@@ -3,6 +3,8 @@ using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace ArchLucid.Application.Tests.Roi;
 
 [Trait("Suite", "Core")]
@@ -55,6 +57,20 @@ public sealed class SponsorRoiFindingDeduplicatorTests
         List<ArchitectureFinding> deduped = SponsorRoiFindingDeduplicator.DeduplicateByStableIdentity(findings).ToList();
 
         deduped.Should().HaveCount(3);
+    }
+
+    [Fact]
+    public void DeduplicateWithLogging_preserves_the_same_winner_and_identity_normalization()
+    {
+        ArchitectureFinding[] findings =
+        [
+            new ArchitectureFinding { FindingId = "cost-id", EstimatedUsdSavings = 50m },
+            new ArchitectureFinding { FindingId = " COST-ID ", EstimatedUsdSavings = 200m },
+            new ArchitectureFinding { FindingId = "cost-id", EstimatedUsdSavings = 150m },
+        ];
+
+        SponsorRoiFindingExclusionLogger.DeduplicateWithLogging(NullLogger.Instance, findings)
+            .Should().Equal(findings[1]);
     }
 
     [Fact]
