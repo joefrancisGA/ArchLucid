@@ -57,7 +57,13 @@ export type FindingExplainPanelProps = {
  * Redacted LLM prompt/completion audit for one finding, plus thumbs feedback (Execute). Deterministic trace lives in
  * `FindingExplainabilityDialog` / `GET …/explainability`.
  */
-export function FindingExplainPanel({
+export function FindingExplainPanel(props: FindingExplainPanelProps) {
+  // Keep pending loads and displayed results scoped to the selected finding.
+  const scopeKey = JSON.stringify([props.runId, props.findingId.trim()]);
+  return <FindingExplainPanelContent key={scopeKey} {...props} />;
+}
+
+function FindingExplainPanelContent({
   runId,
   findingId,
   confidenceLevel,
