@@ -59,6 +59,27 @@ public abstract class AgentTaskRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task GetByRunId_returns_tasks_after_five_hundred()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentTaskRepository repo = CreateRepository();
+        string requestId = "atr-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        await PrepareRequestAndRunAsync(requestId, runId, CancellationToken.None);
+
+        DateTime createdUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        AgentTask[] tasks = Enumerable.Range(0, 501)
+            .Select(index => NewTask(runId, $"task-{runId}-{index}", AgentType.Topology, createdUtc.AddSeconds(index)))
+            .ToArray();
+        await repo.CreateManyAsync(tasks, CancellationToken.None);
+
+        IReadOnlyList<AgentTask> loaded = await repo.GetByRunIdAsync(
+            ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
+
+        loaded.Select(task => task.TaskId).Should().Equal(tasks.Select(task => task.TaskId));
+    }
+
+    [SkippableFact]
     public async Task GetByRunId_when_none_returns_empty()
     {
         SkipIfSqlServerUnavailable();
