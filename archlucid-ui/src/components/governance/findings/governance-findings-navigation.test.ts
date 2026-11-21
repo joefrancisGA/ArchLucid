@@ -104,13 +104,36 @@ describe("navigateGovernanceFindingDetail row overload", () => {
     const pushed: string[] = [];
     const router = { push: (href: string) => pushed.push(href) };
 
-    governanceFindingDetailKeyboardActivate(
+    const activated = governanceFindingDetailKeyboardActivate(
       { key: "Enter", preventDefault: () => undefined } as never,
       router as never,
       row,
     );
 
+    expect(activated).toBe(true);
     expect(pushed).toEqual([governanceFindingQueuePrimaryInspectHref(row)]);
+  });
+
+  it("ignores non-activation keys on a row", () => {
+    const row = queueRow();
+    const pushed: string[] = [];
+    const router = { push: (href: string) => pushed.push(href) };
+    let prevented = false;
+
+    const activated = governanceFindingDetailKeyboardActivate(
+      {
+        key: "ArrowDown",
+        preventDefault: () => {
+          prevented = true;
+        },
+      } as never,
+      router as never,
+      row,
+    );
+
+    expect(activated).toBe(false);
+    expect(prevented).toBe(false);
+    expect(pushed).toEqual([]);
   });
 });
 

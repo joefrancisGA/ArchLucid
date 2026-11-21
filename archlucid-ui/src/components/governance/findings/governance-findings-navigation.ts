@@ -233,23 +233,23 @@ export function governanceFindingDetailKeyboardActivate(
   router: AppRouterInstance,
   row: GovernanceFindingQueueRow,
   options?: GovernanceFindingInspectHrefOptions,
-): void;
+): boolean;
 export function governanceFindingDetailKeyboardActivate(
   event: KeyboardEvent,
   router: AppRouterInstance,
   runId: string,
   findingId: string,
   options?: GovernanceFindingInspectHrefOptions,
-): void;
+): boolean;
 export function governanceFindingDetailKeyboardActivate(
   event: KeyboardEvent,
   router: AppRouterInstance,
   runIdOrRow: string | GovernanceFindingQueueRow,
   findingIdOrOptions?: string | GovernanceFindingInspectHrefOptions,
   options?: GovernanceFindingInspectHrefOptions,
-): void {
+): boolean {
   if (event.key !== "Enter" && event.key !== " ") {
-    return;
+    return false;
   }
 
   event.preventDefault();
@@ -257,7 +257,7 @@ export function governanceFindingDetailKeyboardActivate(
   if (typeof runIdOrRow !== "string") {
     navigateGovernanceFindingDetail(router, runIdOrRow, findingIdOrOptions as GovernanceFindingInspectHrefOptions | undefined);
 
-    return;
+    return true;
   }
 
   navigateGovernanceFindingDetail(
@@ -266,4 +266,6 @@ export function governanceFindingDetailKeyboardActivate(
     findingIdOrOptions as string,
     options,
   );
+
+  return true;
 }
