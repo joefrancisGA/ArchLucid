@@ -96,6 +96,36 @@ public sealed class CrossReviewFindingLifecycleServiceTests
     }
 
     [Fact]
+    public async Task BuildAsync_uses_the_same_disposition_for_tied_timestamps_in_either_order()
+    {
+        FindingReviewEventRecord deferred = new()
+        {
+            EventId = Guid.Parse("ffffffff-0000-0000-0000-000000000000"),
+            FindingId = "prior-1",
+            Action = FindingReviewAction.RecordDisposition,
+            Disposition = FindingDisposition.Deferred,
+            OccurredAtUtc = PriorReviewCreatedUtc.AddDays(2),
+        };
+        FindingReviewEventRecord remediated = new()
+        {
+            EventId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+            FindingId = "prior-1",
+            Action = FindingReviewAction.RecordDisposition,
+            Disposition = FindingDisposition.Remediated,
+            OccurredAtUtc = deferred.OccurredAtUtc,
+        };
+
+        StubReviewTrail(deferred, remediated);
+        CrossReviewFindingLifecycleResult first = await _service.BuildAsync(DroppedOutRequest());
+
+        StubReviewTrail(remediated, deferred);
+        CrossReviewFindingLifecycleResult second = await _service.BuildAsync(DroppedOutRequest());
+
+        first.Summary.ConfirmedResolvedCount.Should().Be(1);
+        second.Summary.ConfirmedResolvedCount.Should().Be(1);
+    }
+
+    [Fact]
     public async Task BuildAsync_reports_an_unexplained_dropout_when_the_trail_is_empty()
     {
         StubReviewTrail();
