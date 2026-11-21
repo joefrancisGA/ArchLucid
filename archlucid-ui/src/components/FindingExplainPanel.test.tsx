@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
@@ -21,6 +21,52 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
 }));
 
 describe("FindingExplainPanel", () => {
+  it("keeps the current finding's evidence when the previous audit finishes late", async () => {
+    const sample: FindingLlmAudit = {
+      traceId: "trace-current",
+      agentType: "Topology",
+      systemPromptRedacted: "system",
+      userPromptRedacted: "user",
+      rawResponseRedacted: "completion",
+      redactionCountsByCategory: {},
+    };
+    let resolvePreviousAudit!: (audit: FindingLlmAudit) => void;
+    const previousAudit = new Promise<FindingLlmAudit>((resolve) => {
+      resolvePreviousAudit = resolve;
+    });
+    const auditSpy = vi.spyOn(api, "getFindingLlmAudit").mockImplementation((_runId, findingId) =>
+      findingId === "previous" ? previousAudit : Promise.resolve(sample),
+    );
+    const chainSpy = vi.spyOn(api, "getFindingEvidenceChain").mockImplementation(async (runId, findingId) => ({
+      runId,
+      findingId,
+      manifestVersion: `record-${findingId}`,
+      findingsSnapshotId: null,
+      contextSnapshotId: null,
+      graphSnapshotId: null,
+      decisionTraceId: null,
+      goldenManifestId: null,
+      relatedGraphNodeIds: [],
+      agentExecutionTraceIds: [],
+    }));
+
+    try {
+      const { rerender } = render(<FindingExplainPanel runId="run-a" findingId="previous" />);
+      rerender(<FindingExplainPanel runId="run-a" findingId="current" />);
+      await screen.findByText("record-current");
+
+      await act(async () => {
+        resolvePreviousAudit({ ...sample, traceId: "trace-previous" });
+      });
+
+      expect(screen.getByText("record-current")).toBeInTheDocument();
+      expect(screen.queryByText("record-previous")).not.toBeInTheDocument();
+    } finally {
+      auditSpy.mockRestore();
+      chainSpy.mockRestore();
+    }
+  });
+
   it("loads redacted LLM audit text", async () => {
     const sample: FindingLlmAudit = {
       traceId: "abc",
