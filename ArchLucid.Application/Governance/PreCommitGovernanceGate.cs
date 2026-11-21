@@ -130,15 +130,11 @@ public sealed class PreCommitGovernanceGate(
                 throw new GoldenManifestSchemaValidationException(manifestSchemaResult);
         }
 
-        if (!_options.Value.PreCommitGateEnabled)
-            return PreCommitGateResult.Allowed();
+        PreCommitGateResult? preflight = ValidateRunIdForGovernance(runId, _options.Value.PreCommitGateEnabled);
+        if (preflight is not null)
+            return preflight;
 
-        if (!Guid.TryParse(runId, out Guid runKey) || runKey == Guid.Empty)
-            return new PreCommitGateResult
-            {
-                Blocked = true,
-                Reason = "Commit blocked: run id is invalid for pre-commit governance evaluation."
-            };
+        Guid runKey = Guid.Parse(runId);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         bool needsRunHeader = preloadedData?.ScopePolicyPackAssignments is null
@@ -230,6 +226,27 @@ public sealed class PreCommitGovernanceGate(
             policyPackIdLabel: "global-pre-commit-threshold",
             _options.Value.WarnOnlySeverities,
             latestDispositions);
+    }
+
+    /// <summary>
+    ///     Returns a terminal result for disabled governance or an invalid run identifier.
+    ///     A valid run identifier with governance enabled must continue through the gate.
+    /// </summary>
+    public static PreCommitGateResult? ValidateRunIdForGovernance(string runId, bool governanceEnabled)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!governanceEnabled)
+            return PreCommitGateResult.Allowed();
+
+        if (!Guid.TryParse(runId, out Guid runKey) || runKey == Guid.Empty)
+            return new PreCommitGateResult
+            {
+                Blocked = true,
+                Reason = "Commit blocked: run id is invalid for pre-commit governance evaluation."
+            };
+
+        return null;
     }
 
     private static Finding CreateSyntheticFinding(string runId, int index, FindingSeverity severity)
