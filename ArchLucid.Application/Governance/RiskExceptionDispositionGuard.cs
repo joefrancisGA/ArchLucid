@@ -41,12 +41,10 @@ public static class RiskExceptionDispositionGuard
 
     internal static Disposition? ResolveLatestDisposition(IReadOnlyList<FindingReviewEventRecord> events)
     {
-        foreach (FindingReviewEventRecord reviewEvent in events)
-        {
-            if (reviewEvent.Disposition is not null)
-                return reviewEvent.Disposition;
-        }
-
-        return null;
+        return events
+            .Where(static reviewEvent => reviewEvent.Disposition is not null)
+            .OrderByDescending(static reviewEvent => reviewEvent.OccurredAtUtc)
+            .Select(static reviewEvent => reviewEvent.Disposition)
+            .FirstOrDefault();
     }
 }
