@@ -35,6 +35,7 @@ internal static class GovernanceDashboardRecentRunTokenAggregator
         DateTime windowStartUtc = TimeProvider.System.UtcNowDateTime().Subtract(RecentWindow);
         List<string> recentRunIds = [];
         string? cursor = null;
+        HashSet<string> visitedCursors = new(StringComparer.Ordinal);
         const int take = 100;
 
         while (recentRunIds.Count < RecentRunCap)
@@ -69,7 +70,9 @@ internal static class GovernanceDashboardRecentRunTokenAggregator
                 recentRunIds.Add(summary.RunId);
             }
 
-            if (!hasMore || string.IsNullOrEmpty(next))
+            // A faulty keyset provider can repeat a cursor while claiming more pages.
+            // Stop rather than looping forever and repeatedly querying the same runs.
+            if (!hasMore || string.IsNullOrEmpty(next) || !visitedCursors.Add(next))
                 break;
 
             cursor = next;
