@@ -150,8 +150,9 @@ public static class RunHeaderPinnedPolicyPackAssignmentFactory
                     IsPinned = pinned.IsPinned,
                     ScopeLevel = pinned.ScopeLevel,
                     AssignedUtc = scopeAssignment.AssignedUtc,
-                    BlockCommitOnCritical = scopeAssignment.BlockCommitOnCritical,
-                    BlockCommitMinimumSeverity = scopeAssignment.BlockCommitMinimumSeverity,
+                    // Commit enforcement must use the create-time policy commitment, not mutable live settings.
+                    BlockCommitOnCritical = pinned.BlockCommitOnCritical,
+                    BlockCommitMinimumSeverity = pinned.BlockCommitMinimumSeverity,
                 });
         }
 
