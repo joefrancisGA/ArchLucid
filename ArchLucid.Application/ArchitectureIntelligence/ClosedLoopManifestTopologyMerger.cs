@@ -387,11 +387,14 @@ public static class ClosedLoopManifestTopologyMerger
         if (hint.Contains("READ", StringComparison.Ordinal) || hint.Contains("QUERY", StringComparison.Ordinal))
             return RelationshipType.ReadsFrom;
 
-        if (hint.Contains("PUBLISH", StringComparison.Ordinal) || hint.Contains("EVENT", StringComparison.Ordinal))
+        if (hint.Contains("PUBLISH", StringComparison.Ordinal))
             return RelationshipType.PublishesTo;
 
         if (hint.Contains("SUBSCRIBE", StringComparison.Ordinal))
             return RelationshipType.SubscribesTo;
+
+        if (hint.Contains("EVENT", StringComparison.Ordinal))
+            return RelationshipType.PublishesTo;
 
         if (hint.Contains("AUTH", StringComparison.Ordinal) || hint.Contains("TOKEN", StringComparison.Ordinal))
             return RelationshipType.AuthenticatesWith;
