@@ -26,6 +26,12 @@ public static class PreCommitGateThresholdParser
         return null;
     }
 
+    /// <summary>
+    ///     Distinguishes an absent optional threshold from a non-empty but invalid configuration.
+    /// </summary>
+    public static bool IsInvalidConfiguredThreshold(string? thresholdText) =>
+        !string.IsNullOrWhiteSpace(thresholdText) && !TryParseMinimumSeverity(thresholdText).HasValue;
+
     /// <summary>Maps a persisted or request-supplied severity ordinal to a defined <see cref="FindingSeverity"/>; null when out of range.</summary>
     public static int? TryCoerceDefinedSeverityOrdinal(int? ordinal)
     {
