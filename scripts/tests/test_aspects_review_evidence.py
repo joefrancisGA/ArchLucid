@@ -19,6 +19,20 @@ class EvidenceTests(unittest.TestCase):
             with self.subTest(bad=bad), self.assertRaises(ValueError):
                 mod.parse_spans([bad])
 
+    def test_imports_verified_json_pair_spans_without_crashing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / "review.jsonl"
+            row = {"baseline": SHA1, "blob": SHA2, "path": "src/a.cs",
+                   "spans": [[1, 2], [4, 5]], "defect_id": "D1", "verified": True}
+            self.assertTrue(mod.record(ledger, row))
+            self.assertFalse(mod.record(ledger, dict(row)))
+            self.assertEqual(mod.coverage(mod.read_records(ledger), {SHA1})["unique_path_blob_lines"], 4)
+
+    def test_rejects_invalid_json_pair_spans(self):
+        for bad in ([0, 1], [4, 3], [1, "2"], [True, 2], [1], [1, 2, 3]):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                mod.parse_spans([bad])
+
     def test_idempotent_record_and_interval_union(self):
         with tempfile.TemporaryDirectory() as tmp:
             ledger = Path(tmp) / "review.jsonl"
