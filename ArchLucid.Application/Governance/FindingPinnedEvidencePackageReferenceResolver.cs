@@ -43,9 +43,8 @@ internal static class FindingPinnedEvidencePackageReferenceResolver
 
         foreach (string candidate in CollectCandidateStrings(finding))
         {
-            foreach (Guid packageId in TryParsePackageId(candidate))
-                yield return packageId;
-
+            // Unlabelled GUIDs may identify graph nodes, traces or unrelated resources.
+            // Only explicit evidencePackage references in free text prove package linkage.
             foreach (Match match in EvidencePackageRefPattern.Matches(candidate))
             {
                 foreach (Guid packageId in TryParsePackageId(match.Groups[1].Value))
