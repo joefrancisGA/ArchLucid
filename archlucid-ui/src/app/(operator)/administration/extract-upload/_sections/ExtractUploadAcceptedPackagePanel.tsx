@@ -36,6 +36,7 @@ import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platf
 import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { showSuccess } from "@/lib/toast";
 import { EXTRACT_UPLOAD_ACCEPTED_NOT_EVALUATION_COMPLETE_LINE } from "@/lib/extract-upload/extract-upload-accepted-evaluation-honesty-copy";
+import { EXTRACT_UPLOAD_EVALUATION_PENDING_NOT_LOAD_FAILURE_LINE } from "@/lib/extract-upload/extract-upload-evaluation-pending-not-load-failure-copy";
 import { ExtractUploadPartialCaptureStrip } from "@/components/product-line/ExtractUploadPartialCaptureStrip";
 
 export type ExtractUploadAcceptedPackagePanelProps = {
@@ -110,6 +111,14 @@ export function ExtractUploadAcceptedPackagePanel(
           >
             {EXTRACT_UPLOAD_ACCEPTED_NOT_EVALUATION_COMPLETE_LINE}
           </p>
+          {(record.associateRunId?.trim().length ?? 0) === 0 ? (
+            <p
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="extract-upload-evaluation-pending-not-load-failure"
+            >
+              {EXTRACT_UPLOAD_EVALUATION_PENDING_NOT_LOAD_FAILURE_LINE}
+            </p>
+          ) : null}
           {isSecureNowProductLine(props.productLineId ?? "architecture") ? <ExtractUploadPartialCaptureStrip /> : null}
           <dl className="m-0 grid gap-2 sm:grid-cols-2">
             <div>
