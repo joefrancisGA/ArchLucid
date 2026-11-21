@@ -82,6 +82,59 @@ public sealed class CloudResourceEvidenceHubServiceTests
         result.Succeeded.Should().BeFalse();
     }
 
+
+    [Fact]
+    public async Task TryGetHubAsync_empty_snapshot_query_uses_last_seen_snapshot_for_hub_slice()
+    {
+        Guid cloudResourceId = Guid.NewGuid();
+        Guid lastSeenSnapshotId = Guid.NewGuid();
+        ScopeContext scope = CreateScope();
+
+        FakeCloudResourceIdentityDirectory identityDirectory = new();
+        identityDirectory.Records[cloudResourceId] = new CloudResourceIdentityRecord
+        {
+            CloudResourceId = cloudResourceId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            Provider = CloudProvider.Azure,
+            ExternalResourceIdNormalized =
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-1",
+            LastSeenSnapshotId = lastSeenSnapshotId,
+        };
+
+        Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
+        snapshotRepository
+            .Setup(repo => repo.ListResourcesBySnapshotIdPagedAsync(
+                scope,
+                lastSeenSnapshotId,
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                cloudResourceId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((new List<AzureInventoryResourceRecord>(), 0));
+
+        CloudResourceEvidenceHubService service = CreateService(
+            identityDirectory,
+            snapshotRepository: snapshotRepository.Object);
+
+        CloudResourceEvidenceHubQueryResult result = await service.TryGetHubAsync(
+            scope,
+            cloudResourceId,
+            new CloudResourceEvidenceHubQuery { SnapshotId = Guid.Empty },
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        snapshotRepository.Verify(
+            repo => repo.ListResourcesBySnapshotIdPagedAsync(
+                scope,
+                lastSeenSnapshotId,
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                cloudResourceId,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
     [Fact]
     public async Task TryGetHubAsync_labels_operational_and_architecture_finding_streams_separately()
     {
