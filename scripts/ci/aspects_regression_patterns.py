@@ -7,6 +7,7 @@ runs narrow dotnet/Vitest commands. SQL integration cases are opt-in.
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import json
 import re
 import shlex
@@ -131,6 +132,7 @@ def main(argv: list[str] | None = None) -> int:
     mode.add_argument("--plan", action="store_true", help="Print test commands without executing")
     mode.add_argument("--run", action="store_true", help="Execute focused existing tests")
     parser.add_argument("--check", action="store_true", help="Validate the catalog")
+    parser.add_argument("--report-json", type=Path, help="Write execution summary")
     parser.add_argument("--include-sql", action="store_true",
                         help="Include SQL integration tests (SQL Server fixture required)")
     parser.add_argument("--pattern", choices=sorted(PATTERNS), action="append",
@@ -155,19 +157,40 @@ def main(argv: list[str] | None = None) -> int:
     if not commands:
         print("No runnable cases match selected options.", file=sys.stderr)
         return 2
+    outcomes = []
+    failure = 0
     for command in commands:
         print("+ " + shlex.join(command), flush=True)
-        if args.run:
-            try:
-                code = subprocess.run(command, cwd=REPO_ROOT, check=False).returncode
-            except FileNotFoundError:
-                print(f"Required executable not installed: {command[0]}", file=sys.stderr)
-                return 2
-            if code:
-                return code
-    if args.include_sql and args.run:
-        print("SQL SkippableFact cases can skip; verify passed vs skipped in dotnet output.")
-    return 0
+        if not args.run:
+            outcomes.append({"command": command, "status": "planned"})
+            continue
+        try:
+            result = subprocess.run(command, cwd=REPO_ROOT, check=False,
+                                    capture_output=True, text=True)
+            print(result.stdout, end="")
+            print(result.stderr, end="", file=sys.stderr)
+            skipped = bool(re.search(r"\\bSkipped:\\s*[1-9]", result.stdout))
+            missing = bool(re.search(r"No test matches|No tests found|No test is available",
+                                     result.stdout + result.stderr, re.I))
+            status = "failed" if result.returncode or missing else (
+                "unverified-skips" if skipped else "passed")
+            outcomes.append({"command": command, "status": status,
+                             "exit_code": result.returncode,
+                             "skipped_detected": skipped, "no_tests": missing})
+            if status != "passed":
+                failure = 1
+        except FileNotFoundError:
+            outcomes.append({"command": command, "status": "missing-tool"})
+            failure = 2
+    if args.report_json:
+        report = {"generated_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+                  "mode": "run" if args.run else "plan",
+                  "registered_cases": len(cases), "selected_cases": len(chosen),
+                  "sql_excluded": omitted, "commands": outcomes,
+                  "note": "Command-level results only; SQL skips require explicit audit."}
+        args.report_json.parent.mkdir(parents=True, exist_ok=True)
+        args.report_json.write_text(json.dumps(report, indent=2) + "\\n", encoding="utf-8")
+    return failure
 
 
 if __name__ == "__main__":
