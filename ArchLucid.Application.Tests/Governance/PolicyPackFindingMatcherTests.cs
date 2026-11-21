@@ -9,6 +9,49 @@ namespace ArchLucid.Application.Tests.Governance;
 [Trait("Category", "Unit")]
 public sealed class PolicyPackFindingMatcherTests
 {
+    [Theory]
+    [InlineData("unrelated-{0}-rule")]
+    [InlineData("unrelated-{1}-rule")]
+    [InlineData("policy-pack-{0}extra-rule")]
+    public void MatchesAssignment_does_not_attribute_incidental_or_partial_pack_guid(string template)
+    {
+        Guid packId = Guid.Parse("12345678-1234-1234-1234-123456789abc");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+        };
+        Finding finding = new()
+        {
+            FindingId = "incidental-guid",
+            PolicyRuleId = template.Replace("{0}", packId.ToString("D"))
+                .Replace("{1}", packId.ToString("N")),
+            EngineType = "unrelated-engine",
+        };
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("D")]
+    [InlineData("N")]
+    public void MatchesAssignment_accepts_explicit_wrapped_pack_guid(string format)
+    {
+        Guid packId = Guid.Parse("12345678-1234-1234-1234-123456789abc");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+        };
+        Finding finding = new()
+        {
+            FindingId = "wrapped-guid",
+            PolicyRuleId = $"policy-pack-{packId.ToString(format)}-rule",
+            EngineType = "unrelated-engine",
+        };
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue();
+    }
+
+
     [Fact]
     public void MatchesAssignment_uses_pack_engine_type_when_rule_keys_miss_but_finding_is_pack_attributed()
     {
