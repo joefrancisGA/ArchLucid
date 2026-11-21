@@ -62,6 +62,9 @@ public static class RunExplanationConfidenceCalloutBuilder
         if (!string.IsNullOrWhiteSpace(signals.FaithfulnessWarning))
             return "WARN";
 
+        if (signals.FaithfulnessSupportRatio is null)
+            return "HOLD";
+
         if (signals.CitationCount == 0)
             return "WARN";
 
