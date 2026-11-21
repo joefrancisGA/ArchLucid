@@ -48,6 +48,32 @@ class EvidenceTests(unittest.TestCase):
             self.assertEqual(result["confirmed_distinct_defects"], 1)
             self.assertEqual(result["provisional_density_per_kloc"], 125.0)
 
+    def test_import_verified_records_checks_git_blob_and_deduplicates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "source.jsonl"
+            ledger = Path(tmp) / "ledger.jsonl"
+            source.write_text('{"baseline":"' + SHA1 + '","blob":"' + SHA2
+                              + '","path":"src/a.cs","spans":[[1,2]],'
+                              + '"defect_id":"D1","verified":true}\\n', encoding="utf-8")
+            with patch.object(mod, "git", side_effect=lambda repo, *args:
+                              SHA2 if args[0] == "rev-parse" else "first\\nsecond"):
+                first = mod.import_verified_records(".", ledger, [source])
+                second = mod.import_verified_records(".", ledger, [source])
+            self.assertEqual(first["imported_records"], 1)
+            self.assertEqual(second["duplicate_records"], 1)
+            self.assertEqual(mod.coverage(mod.read_records(ledger), {SHA1})["unique_path_blob_lines"], 2)
+
+    def test_import_verified_records_rejects_mismatched_blob(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "source.jsonl"
+            source.write_text('{"baseline":"' + SHA1 + '","blob":"' + SHA1
+                              + '","path":"src/a.cs","spans":[[1,2]],'
+                              + '"verified":true}\\n', encoding="utf-8")
+            with patch.object(mod, "git", side_effect=lambda repo, *args:
+                              SHA2 if args[0] == "rev-parse" else "first\\nsecond"):
+                with self.assertRaisesRegex(ValueError, "Blob mismatch"):
+                    mod.import_verified_records(".", Path(tmp) / "ledger.jsonl", [source])
+
     def test_filters_by_first_parent_membership(self):
         rows = [{"baseline": SHA1, "blob": SHA2, "path": "src/a.cs",
                  "spans": [[1, 10]], "defect_id": "D1", "verified": True},
