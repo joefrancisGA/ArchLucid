@@ -42,7 +42,7 @@ public sealed class SqlGlobalSearchRepository(ISqlConnectionFactory connectionFa
                              AND ScopeProjectId = @ScopeProjectId
                              AND ArchivedUtc IS NULL
                              AND (Description LIKE @Like ESCAPE '\' OR CAST(RunId AS NVARCHAR(36)) LIKE @Like ESCAPE '\')
-                           ORDER BY CreatedUtc DESC;
+                           ORDER BY CreatedUtc DESC, RunId DESC;
 
                            SELECT TOP (@Take) r.RunId, r.ArchitectureId, fr.FindingId, fr.Title, fr.Severity
                            FROM dbo.FindingRecords AS fr
