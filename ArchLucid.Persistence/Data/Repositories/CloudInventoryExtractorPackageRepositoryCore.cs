@@ -49,7 +49,7 @@ internal static class CloudInventoryExtractorPackageRepositoryCore
             AND ProjectId = @ProjectId
             AND RunId = @RunId
             AND CloudProvider = @CloudProvider
-        ORDER BY CreatedUtc DESC;
+        ORDER BY CreatedUtc DESC, PackageId DESC;
         """;
 
     public const string LatestCollectionTimestampSelectSql = """
@@ -70,7 +70,7 @@ internal static class CloudInventoryExtractorPackageRepositoryCore
             AND WorkspaceId = @WorkspaceId
             AND ProjectId = @ProjectId
             AND CloudProvider = @CloudProvider
-        ORDER BY CreatedUtc DESC;
+        ORDER BY CreatedUtc DESC, PackageId DESC;
         """;
 
     public static bool IsSupportedProvider(CloudProvider cloudProvider) =>
