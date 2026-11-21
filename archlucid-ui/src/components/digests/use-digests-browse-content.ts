@@ -181,19 +181,7 @@ export function useDigestsBrowseContent(
 
     const digestIdFromQuery = parseDigestsBrowseDigestIdFromSearch(searchParams.get(DIGESTS_BROWSE_DIGEST_PARAM));
 
-    if (digestIdFromQuery.length > 0) {
-      const matchFromQuery: ArchitectureDigest | undefined = digests.find(
-        (digest) => digest.digestId === digestIdFromQuery,
-      );
-
-      if (matchFromQuery !== undefined) {
-        void selectDigest(matchFromQuery.digestId).then(() => {
-          detailPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-        });
-
-        return;
-      }
-    }
+    const matchFromQuery = digests.find((digest) => digest.digestId === digestIdFromQuery);
 
     function selectFromHash(): void {
       const hashDigestId: string | null = digestIdFromLocationHash(window.location.hash);
@@ -215,7 +203,13 @@ export function useDigestsBrowseContent(
       });
     }
 
-    selectFromHash();
+    if (matchFromQuery !== undefined) {
+      void selectDigest(matchFromQuery.digestId).then(() => {
+        detailPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    } else {
+      selectFromHash();
+    }
     window.addEventListener("hashchange", selectFromHash);
 
     return () => window.removeEventListener("hashchange", selectFromHash);
