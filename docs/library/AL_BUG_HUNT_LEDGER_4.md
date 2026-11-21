@@ -47,6 +47,19 @@
 - **code-changed-since:** yes
 ## Zone: persistence-infra-evidence
 
+2026-11-21 thorough hunt #2 (hit+dry): promoted `SqlSecurityEvidencePathRepository.ListPagedAsync` — `CloudResourceId` of `Guid.Empty` over-filtered vs unset (`IS NULL` branch) while API/model binding may pass empty guid; normalize `Guid.Empty` to null for `SnapshotId` and `CloudResourceId` filter params; regression `ListPagedAsync_empty_cloud_resource_id_matches_unset_filter`. Cheap-disproof **valid-no-repro** scoped SQL list methods on inventory snapshot repository still push down workspace/project in SQL (`ProjectScopeSqlPushdownBoundaryTests`), **valid-no-repro** operational finding ingest batching is transactional at application orchestration layer (no partial SQL batch in repo surface), **valid-no-repro** audit snapshot inventory links insert inside single SQL transaction with header PK (retry hits duplicate snapshot not orphan links), **valid-no-repro** diff consumer fan-out for zero-change diffs lives in `AzureInventoryDiffService` with existing regression tests (application zone). Scoped `FullyQualifiedName~ListPagedAsync_empty_cloud_resource_id` (Skippable if no SQL container). Reseeded four `(candidate)` monitors below.
+
+- [x] (fixed) `SqlSecurityEvidencePathRepository.ListPagedAsync` — `Guid.Empty` cloud resource filter — **promoted 2026-11-21 thorough hunt #2:** `NormalizeOptionalListFilterGuid`.
+- [x] (valid-no-repro) `SqlAzureInventorySnapshotRepository` — list overload scope leak — **cheap-disproof 2026-11-21 thorough hunt #2:** pushdown boundary suite.
+- [x] (valid-no-repro) `SqlOperationalSecurityFindingRepository` — bulk upsert partial batch — **cheap-disproof 2026-11-21 thorough hunt #2:** no repo-level partial batch; app orchestration.
+- [x] (valid-no-repro) `SqlAuditEvidenceSnapshotRepository.InsertSnapshotInScopeAsync` — inventory link duplicate on retry — **cheap-disproof 2026-11-21 thorough hunt #2:** single transaction + header PK.
+- [x] (valid-no-repro) `SqlAzureInventoryDiffRepository` — zero-change diff consumer skip — **cheap-disproof 2026-11-21 thorough hunt #2:** application `AzureInventoryDiffService` tests.
+
+- [ ] (candidate) `SqlSecurityEvidencePathRepository.ListPagedAsync` — empty snapshot filter `Guid.Empty` vs null — locus: snapshot facet; input: empty snapshot guid; wrong outcome: zero rows; reachability: path inspector (monitor; hunt #2 fixed cloud resource; verify snapshot parity).
+- [ ] (candidate) `SqlAzureInventorySnapshotRepository.ListResourcesBySnapshotIdPaged` — `cloudResourceId` empty guid — locus: optional resource filter; input: `Guid.Empty`; wrong outcome: over-filter; reachability: inventory resource browser.
+- [ ] (candidate) `SqlOperationalSecurityFindingRepository` — natural key upsert race — locus: concurrent ingest; input: parallel same natural key; wrong outcome: duplicate finding; reachability: SecureNow ingest job.
+- [ ] (candidate) `SqlAuditEvidenceSnapshotRepository` — scoped header read without assessment join — locus: scope pushdown; input: foreign assessment id guess; wrong outcome: header leak; reachability: hybrid evidence (monitor; scoped header SQL join present).
+
 2026-11-20 thorough hunt #1 (dry): cheap-disproof on five seed `(hunt-ready)` monitors in `ArchLucid.Persistence/InfraEvidence` — **valid-no-repro** `NoOpAzureInventorySnapshotRepository` detail/header reads return `null` for unknown ids (regression `NoOpAzureInventorySnapshotRepositoryTests`), **valid-no-repro** `SqlRemediationWaveRepository` keys `WaveId` as `Guid` (no string padding boundary), **valid-no-repro** `SqlAuditEvidenceSnapshotRepository` binds `header.TenantId` as `Guid` on insert/read (no whitespace tenant string path), **valid-no-repro** `SqlAzureInventoryDiffNarrativeRepository.InsertAsync` is append-only insert without OCC (product accepts duplicate narratives unless upstream dedupes), **valid-no-repro** `SqlSecurityEvidencePathRepository.ListPagedAsync` optional filters use `IS NULL` so unset facets match all while `Guid.Empty` applies EXISTS (not blank-token match-all). Scoped `FullyQualifiedName~NoOpAzureInventorySnapshotRepositoryTests` **2/2** passed. Reseeded five `(candidate)` monitors below. No production change.
 
 - [x] (valid-no-repro) `NoOpAzureInventorySnapshotRepository` — missing snapshot returns default struct — **cheap-disproof 2026-11-20 thorough hunt #1:** `TryGet*` return `null`; regression tests.
@@ -55,21 +68,12 @@
 - [x] (valid-no-repro) `SqlAzureInventoryDiffNarrativeRepository` — concurrent narrative LWW — **cheap-disproof 2026-11-20 thorough hunt #1:** insert-only; no update path.
 - [x] (valid-no-repro) `SqlSecurityEvidencePathRepository.ListPagedAsync` — empty facet matches all paths — **cheap-disproof 2026-11-20 thorough hunt #1:** `NULL` optional filters; `Guid.Empty` narrows via EXISTS.
 
-- [ ] (candidate) `SqlSecurityEvidencePathRepository.ListPagedAsync` — `CloudResourceId` of `Guid.Empty` may over-filter vs caller intent to mean unset — locus: null vs empty guid; input: empty guid from API binding; wrong outcome: zero rows vs full list; reachability: security path inspector filter.
-- [ ] (candidate) `SqlAzureInventorySnapshotRepository` — materialized resource page may omit scope guard on rare list overload — locus: scope pushdown; input: cross-project id guess; wrong outcome: row leak; reachability: inventory resource browser (monitor; pushdown boundary suite).
-- [ ] (candidate) `SqlOperationalSecurityFindingRepository` — bulk upsert partial batch may leave mixed old/new path ids — locus: transaction boundary; input: failure mid-batch; wrong outcome: inconsistent findings; reachability: SecureNow ingest.
-- [ ] (candidate) `SqlAuditEvidenceSnapshotRepository.InsertSnapshotInScopeAsync` — inventory snapshot link table may duplicate on retry — locus: idempotent insert; input: retry same request id; wrong outcome: duplicate link rows; reachability: hybrid evidence collection.
-- [ ] (candidate) `SqlAzureInventoryDiffRepository` — zero-change diff header may still fan out consumers when cached — locus: WasExisting branch at application layer; input: persisted empty change set; wrong outcome: skipped downstream work; reachability: drift fan-out (monitor; application-infra-evidence candidate).
-
-2026-11-20 seed hunt (seed-only): coverage zone for `ArchLucid.Persistence/InfraEvidence` (nominate gap). Seeded five `(hunt-ready)` rows; no production change.
-
 ### Hypotheses
 
-- [ ] (candidate) `SqlSecurityEvidencePathRepository.ListPagedAsync` — `CloudResourceId` of `Guid.Empty` vs null asymmetry — monitor; thorough hunt #1 dry reseed.
-- [ ] (candidate) `SqlAzureInventorySnapshotRepository` — scope pushdown on list overload — monitor; thorough hunt #1 dry reseed.
-- [ ] (candidate) `SqlOperationalSecurityFindingRepository` — bulk upsert partial batch — monitor; thorough hunt #1 dry reseed.
-- [ ] (candidate) `SqlAuditEvidenceSnapshotRepository` — inventory snapshot link idempotency — monitor; thorough hunt #1 dry reseed.
-- [ ] (candidate) `SqlAzureInventoryDiffRepository` — zero-change diff consumer skip — monitor; thorough hunt #1 dry reseed.
+- [ ] (candidate) `SqlSecurityEvidencePathRepository.ListPagedAsync` — empty `SnapshotId` guid — monitor; hunt #2 reseed.
+- [ ] (candidate) `SqlAzureInventorySnapshotRepository.ListResourcesBySnapshotIdPaged` — empty resource filter guid — monitor; hunt #2 reseed.
+- [ ] (candidate) `SqlOperationalSecurityFindingRepository` — natural key upsert race — monitor; hunt #2 reseed.
+- [ ] (candidate) `SqlAuditEvidenceSnapshotRepository` — scoped header read — monitor; hunt #2 reseed.
 
 - **id:** persistence-infra-evidence
 - **status:** open
@@ -77,11 +81,11 @@
 - **aliases:** persistence infra evidence repositories
 - **paths:** ArchLucid.Persistence/InfraEvidence/
 - **test-filter:** FullyQualifiedName~InfraEvidence
-- **hunts:** 2
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-20
-- **last-bug:** never
+- **hunts:** 3
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-21
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ## Zone: weekly-digest-email
