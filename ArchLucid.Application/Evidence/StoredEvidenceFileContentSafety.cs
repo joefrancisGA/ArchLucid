@@ -22,7 +22,7 @@ public static class StoredEvidenceFileContentSafety
             return false;
         }
 
-        string normalized = (contentType ?? string.Empty).Trim().ToLowerInvariant();
+        string normalized = NormalizeContentType(contentType);
         string extension = Path.GetExtension(fileName ?? string.Empty).ToLowerInvariant();
 
         if (normalized.StartsWith("image/", StringComparison.Ordinal))
@@ -46,8 +46,21 @@ public static class StoredEvidenceFileContentSafety
 
     private static bool IsUnsafeInlineContentType(string? contentType)
     {
-        string normalized = (contentType ?? string.Empty).Trim().ToLowerInvariant();
+        string normalized = NormalizeContentType(contentType);
 
         return normalized is "text/html" or "application/xhtml+xml" or "image/svg+xml";
+    }
+
+    private static string NormalizeContentType(string? contentType)
+    {
+        ReadOnlySpan<char> value = contentType.AsSpan().Trim();
+        int parameterStart = value.IndexOf(';');
+
+        if (parameterStart >= 0)
+        {
+            value = value[..parameterStart].TrimEnd();
+        }
+
+        return value.ToString().ToLowerInvariant();
     }
 }
