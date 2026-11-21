@@ -142,7 +142,11 @@ internal static class ConsultingDocxOpenXmlPrimitives
     {
         AddStyledParagraph(body, $"[{language}]", "Subtle");
 
-        foreach (string line in OpenXmlWordText.ForXml(text).Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
+        string normalizedText = OpenXmlWordText.ForXml(text)
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace('\r', '\n');
+
+        foreach (string line in normalizedText.Split('\n'))
         {
             WpRun run = new(WordText(line))
             {
