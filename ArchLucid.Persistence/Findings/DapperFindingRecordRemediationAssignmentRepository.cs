@@ -66,6 +66,7 @@ public sealed class DapperFindingRecordRemediationAssignmentRepository(ISqlConne
                     RemediationDueUtc = remediationDueUtc?.UtcDateTime,
                     scope.TenantId,
                     scope.WorkspaceId,
+                    scope.ProjectId,
                     ScopeProjectId = scope.ProjectId
                 },
                 cancellationToken: ct));
