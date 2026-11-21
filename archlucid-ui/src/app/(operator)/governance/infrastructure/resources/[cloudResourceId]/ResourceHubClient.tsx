@@ -36,6 +36,7 @@ import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-
 import { RESOURCE_HUB_INVENTORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-evidence/resource-hub-inventory-snapshot-honesty-copy";
 import { formatResourceHubFindingsStoredEmptyLine } from "@/lib/infra-evidence/resource-hub-findings-empty-honesty-copy";
 import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
+import { RESOURCE_HUB_FINDINGS_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/resource-hub-findings-stored-empty-not-load-failure-copy";
 import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
 import { RESOURCE_HUB_AUDIT_TAB_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-hub-audit-tab-partial-capture-copy";
 import { RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-config-partial-capture-copy";
@@ -2351,6 +2352,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           data-testid={`infra-resource-hub-findings-empty-honesty-${stream.streamKind}`}
                         >
                           {formatResourceHubFindingsStoredEmptyLine(resolvedSnapshotId)}
+                        </p>
+                        <p
+                          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                          data-testid="resource-hub-findings-stored-empty-not-load-failure"
+                        >
+                          {RESOURCE_HUB_FINDINGS_STORED_EMPTY_NOT_LOAD_FAILURE_LINE}
                         </p>
                         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid={`infra-resource-hub-findings-empty-not-failure-${stream.streamKind}`}>
                           {RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE}

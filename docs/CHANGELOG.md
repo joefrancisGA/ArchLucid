@@ -7,6 +7,12 @@
 
 
 
+## 2026-11-21 - Score lift round 103 (batch 68): Resource hub, extract pending, reviews hub, governance collection
+
+**Outcome.** Resource hub findings names stored-scope empty versus load failure. Extract upload names accepted-without-linked-review versus failed read. Reviews hub mounts open-gate collection blocker with hub-specific not-failure copy. Governance findings empty queue names missing collection versus failed read.
+
+**Surfaces.** Resource hub, extract upload accepted panel, reviews hub, governance findings empty, honesty and mounted contract tests.
+
 ## 2026-11-21 - Score lift round 102 (batch 67): Guided toolbar, presenter, diagram stale, home open gate
 
 **Outcome.** Guided review findings names toolbar filter-empty apart from load failure. Presenter mode names zero findings apart from a failed read. Diagram reconcile names stale pinned snapshot with filter-empty table. Operator home mounts open-gate collection blocker with not-failure discipline.

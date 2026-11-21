@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils";
 
 export type OperatorHomeSecureNowCollectionBlockerStripProps = {
   readonly workingMode: boolean;
+  readonly notLoadFailureTestId?: string;
+  readonly notLoadFailureLine?: string;
 };
 
 export function OperatorHomeSecureNowCollectionBlockerStrip(
