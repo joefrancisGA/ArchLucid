@@ -63,6 +63,7 @@ vi.mock("@/lib/security-evidence-path-api", () => ({
 }));
 
 import { SecureNowHomeEnvironmentContext } from "./SecureNowHomeEnvironmentContext";
+import { writeSecureNowLastOpenedSnapshotId } from "@/lib/product-line/securenow-stickiness";
 
 function renderContext(): void {
   const queryClient = new QueryClient({
@@ -354,5 +355,27 @@ describe("SecureNowHomeEnvironmentContext", () => {
       "/security/remediation-factory?pathId=path-gone",
     );
     expect(delta).toHaveTextContent("This is not a usage claim.");
+  });
+
+  it("keeps the new-capture message after the path reports finish loading", async () => {
+    writeSecureNowLastOpenedSnapshotId({ tenantId: "tenant-1", workspaceId: "ws-1" }, "snap-old");
+    snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
+      items: [snapshot({ snapshotId: "snap-new" }), snapshot({ snapshotId: "snap-old" })],
+      totalCount: 2,
+      page: 1,
+      pageSize: 20,
+      hasMore: false,
+    });
+    attackPathReports.fetchSecurityEvidencePathAttackPathReport.mockImplementation(async (snapshotId: string) => ({
+      snapshotId,
+      vulnerableAttackPaths: [],
+      unevaluatedGroups: [],
+    }));
+
+    renderContext();
+
+    expect(await screen.findByTestId("securenow-last-opened-capture")).toHaveTextContent(
+      "New capture since you last opened Home.",
+    );
   });
 });
