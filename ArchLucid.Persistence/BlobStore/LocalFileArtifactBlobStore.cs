@@ -113,11 +113,7 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
         {
             return await File.ReadAllTextAsync(path, ct);
         }
-        catch (FileNotFoundException)
-        {
-            return null;
-        }
-        catch (DirectoryNotFoundException)
+        catch (Exception readError) when (readError is IOException or UnauthorizedAccessException)
         {
             return null;
         }
