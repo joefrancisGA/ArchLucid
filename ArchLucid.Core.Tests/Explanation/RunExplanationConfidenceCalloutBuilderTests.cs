@@ -33,6 +33,19 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void Missing_faithfulness_ratio_holds_even_when_citations_are_present()
+    {
+        RunExplanationConfidenceSignals signals = new(
+            FaithfulnessSupportRatio: null,
+            DeterministicFallbackUsed: false,
+            FaithfulnessWarning: null,
+            CitationCount: 2);
+
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("HOLD");
+        RunExplanationConfidenceCalloutBuilder.BuildLimitationsLine(signals).Should().Contain("HOLD");
+    }
+
+    [Fact]
     public void FromAggregateJson_maps_numeric_citation_count()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
