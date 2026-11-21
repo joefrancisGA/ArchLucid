@@ -3,6 +3,8 @@ import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { writeSecureNowPinnedPathId } from "@/lib/product-line/securenow-stickiness";
+import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import { fetchRemediationInstances } from "@/lib/infra-evidence/infra-evidence-remediation-api";
 import { fetchSecurityEvidencePathAttackPathReport } from "@/lib/security-evidence-path-api";
 
 import { SecureNowReturnHomeSection } from "./SecureNowReturnHomeSection";
@@ -14,12 +16,12 @@ vi.mock("@/hooks/use-securenow-collection-setup-input", () => ({
   useSecureNowCollectionSetupInput: () => ({ collectionInput: null }),
 }));
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
-  fetchInfraEvidenceSnapshots: async () => ({
+  fetchInfraEvidenceSnapshots: vi.fn(async () => ({
     items: ["latest", "previous"].map((snapshotId) => ({ snapshotId, captureStatus: "Succeeded" })),
-  }),
+  })),
 }));
 vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
-  fetchRemediationInstances: async () => [],
+  fetchRemediationInstances: vi.fn(async () => []),
 }));
 vi.mock("@/lib/security-evidence-path-api", () => ({
   fetchRankedSecurityEvidencePaths: async () => ({ items: [] }),
@@ -28,6 +30,23 @@ vi.mock("@/lib/security-evidence-path-api", () => ({
 
 describe("SecureNowReturnHomeSection", () => {
   afterEach(() => window.localStorage.clear());
+
+  it("distinguishes an unavailable remediation read from confirmed empty unfinished work", async () => {
+    vi.mocked(fetchInfraEvidenceSnapshots).mockResolvedValueOnce({
+      items: [], totalCount: 0, page: 1, pageSize: 20, hasMore: false,
+    });
+    vi.mocked(fetchRemediationInstances).mockRejectedValueOnce(new Error("Remediation read failed"));
+    const client = new QueryClient();
+
+    render(
+      <QueryClientProvider client={client}>
+        <SecureNowReturnHomeSection />
+      </QueryClientProvider>,
+    );
+
+    expect(await screen.findByText(/unfinished remediation work could not be checked/i)).toBeInTheDocument();
+    expect(screen.queryByText(/nothing unfinished/i)).not.toBeInTheDocument();
+  });
 
   it.each([
     { outcome: "failed request", comparisonAvailable: false },
