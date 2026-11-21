@@ -108,10 +108,10 @@ public sealed partial class InMemoryTenantRepository
 
     public Task SuspendTenantAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
-
         lock (_trialGate)
         {
+            ct.ThrowIfCancellationRequested();
+
             if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
                 return Task.CompletedTask;
 
@@ -123,10 +123,10 @@ public sealed partial class InMemoryTenantRepository
 
     public Task<bool> TrySuspendTenantAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
-
         lock (_trialGate)
         {
+            ct.ThrowIfCancellationRequested();
+
             if (!_byId.TryGetValue(tenantId, out TenantRecord? existing)
                 || existing.OffboardedUtc is not null
                 || existing.SuspendedUtc is not null)
@@ -145,10 +145,10 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task<bool> TryUnsuspendTenantAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
-
         lock (_trialGate)
         {
+            ct.ThrowIfCancellationRequested();
+
             if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
                 return Task.FromResult(false);
 
