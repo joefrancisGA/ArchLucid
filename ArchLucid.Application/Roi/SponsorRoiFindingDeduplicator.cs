@@ -14,7 +14,12 @@ public static class SponsorRoiFindingDeduplicator
     ///     <see cref="ArchitectureFinding.EstimatedUsdSavings"/> is kept.
     ///     Findings without a stable id are never deduplicated against each other.
     /// </summary>
-    public static IEnumerable<ArchitectureFinding> DeduplicateByStableIdentity(IEnumerable<ArchitectureFinding> findings)
+    public static IEnumerable<ArchitectureFinding> DeduplicateByStableIdentity(IEnumerable<ArchitectureFinding> findings) =>
+        DeduplicateByStableIdentity(findings, onExcluded: null);
+
+    internal static IEnumerable<ArchitectureFinding> DeduplicateByStableIdentity(
+        IEnumerable<ArchitectureFinding> findings,
+        Action<ArchitectureFinding>? onExcluded)
     {
         ArgumentNullException.ThrowIfNull(findings);
 
@@ -41,7 +46,14 @@ public static class SponsorRoiFindingDeduplicator
             }
 
             if (ResolveEstimatedUsdSavings(finding) > ResolveEstimatedUsdSavings(existing))
+            {
                 bestById[id] = finding;
+                onExcluded?.Invoke(existing);
+            }
+            else
+            {
+                onExcluded?.Invoke(finding);
+            }
         }
 
         foreach (string id in idOrder)

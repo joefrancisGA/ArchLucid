@@ -150,4 +150,22 @@ public sealed class CommitRunTelemetryMetricsTests
         metrics.AgentExecutionDurationMs.Should().BeGreaterThan(0L);
         metrics.ManualReviewDurationMs.Should().BeGreaterThan(0L);
     }
+
+    [Fact]
+    public void FromCommitContext_treats_unspecified_persisted_utc_values_as_utc_instants()
+    {
+        DateTime runCreated = new(2026, 5, 2, 12, 0, 0, DateTimeKind.Unspecified);
+        DateTime evidenceCreated = new(2026, 5, 2, 12, 3, 0, DateTimeKind.Utc);
+        DateTime committed = new(2026, 5, 2, 12, 10, 0, DateTimeKind.Utc);
+
+        CommitRunTelemetryMetrics metrics = CommitRunTelemetryMetrics.FromCommitContext(
+            new RunRecord { CreatedUtc = runCreated },
+            new AgentEvidencePackage { CreatedUtc = evidenceCreated },
+            [],
+            committed,
+            new ManifestDocument { Warnings = [] });
+
+        metrics.RequestDurationMs.Should().Be(180_000L);
+        metrics.ManualReviewDurationMs.Should().Be(420_000L);
+    }
 }

@@ -171,6 +171,19 @@ describe("WizardStepReview", () => {
     expect(advancedSection?.textContent).toContain("Documents were not added when untouched.");
   });
 
+  it("shows a prefilled prior manifest even when the field is untouched", () => {
+    const priorManifestVersion = "00000000-0000-0000-0000-000000000001";
+    render(
+      <DirectWizardFormProvider values={{ priorManifestVersion }}>
+        <WizardStepReview />
+      </DirectWizardFormProvider>,
+    );
+
+    const priorRow = screen.getByText("Prior manifest").closest("dl");
+    expect(priorRow?.textContent).toContain(priorManifestVersion);
+    expect(priorRow?.textContent).not.toContain("Prior manifest was not entered.");
+  });
+
   it("distinguishes missing assumptions, prior manifest, and policy references from stored empty values (P-17–P-19)", async () => {
     const { unmount } = render(
       <DirectWizardFormProvider

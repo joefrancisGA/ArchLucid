@@ -23,6 +23,7 @@ import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import {
   policyPacksEditHref,
   reviewsNewWithPackHref,
@@ -61,14 +62,14 @@ type PolicyPackGenericDetailProps = {
   readonly packsHubHref?: string;
 };
 
-function formatPackDate(value: string | null | undefined): string {
+export function formatPackDate(value: string | null | undefined): string {
   const raw = value?.trim() ?? "";
 
   if (raw.length === 0) {
     return "Date not recorded";
   }
 
-  const ms = Date.parse(raw);
+  const ms = parseIsoUtcMs(raw);
 
   if (Number.isNaN(ms)) {
     return "Date not readable";

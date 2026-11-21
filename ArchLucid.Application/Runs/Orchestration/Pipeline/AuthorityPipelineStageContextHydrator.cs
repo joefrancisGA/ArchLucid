@@ -115,10 +115,10 @@ public sealed class AuthorityPipelineStageContextHydrator(
 
     private async Task<bool> HydrateArtifactsAsync(AuthorityPipelineContext ctx, CancellationToken ct)
     {
-        Guid manifestId = ctx.Run.GoldenManifestId!.Value;
-        ArtifactBundle? bundle = await _artifactBundleRepository.GetByManifestIdAsync(
+        Guid bundleId = ctx.Run.ArtifactBundleId!.Value;
+        ArtifactBundle? bundle = await _artifactBundleRepository.GetByBundleIdInScopeAsync(
             ctx.Scope,
-            manifestId,
+            bundleId,
             loadArtifactBodies: false,
             ct);
 

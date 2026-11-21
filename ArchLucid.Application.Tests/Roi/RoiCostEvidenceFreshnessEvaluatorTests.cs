@@ -95,6 +95,29 @@ public sealed class RoiCostEvidenceFreshnessEvaluatorTests
         snapshot.LatestCollectionTimestampUtc.Should().Be(awsCollectionUtc);
     }
 
+    [Fact]
+    public async Task EvaluateAsync_treats_offset_free_utc_contract_timestamp_as_utc()
+    {
+        DateTime collectionUtc = new(2026, 5, 20, 12, 0, 0, DateTimeKind.Unspecified);
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 5, 26, 0, 0, 0, TimeSpan.Zero));
+        RoiCostEvidenceFreshnessEvaluator sut = CreateSut(clock, azureCollectionUtc: collectionUtc);
+
+        RoiCostEvidenceFreshnessSnapshot snapshot = await sut.EvaluateAsync(CancellationToken.None);
+
+        snapshot.LatestCollectionTimestampUtc.Should().Be(
+            DateTime.SpecifyKind(collectionUtc, DateTimeKind.Utc));
+    }
+
+    [Fact]
+    public void Normalize_preserves_offset_free_utc_contract_clock_value()
+    {
+        DateTime collectionUtc = new(2026, 5, 20, 12, 0, 0, DateTimeKind.Unspecified);
+
+        DateTime normalizedUtc = RoiCostEvidenceUtcNormalizer.Normalize(collectionUtc);
+
+        normalizedUtc.Should().Be(DateTime.SpecifyKind(collectionUtc, DateTimeKind.Utc));
+    }
+
     private static RoiCostEvidenceFreshnessEvaluator CreateSut(
         TimeProvider clock,
         DateTime? azureCollectionUtc = null,

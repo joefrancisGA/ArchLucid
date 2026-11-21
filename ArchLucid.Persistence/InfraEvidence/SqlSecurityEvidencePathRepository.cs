@@ -151,6 +151,9 @@ public sealed partial class SqlSecurityEvidencePathRepository(ISqlConnectionFact
         return result[0];
     }
 
+    private static Guid? NormalizeOptionalListFilterGuid(Guid? value) =>
+        value is Guid guid && guid == Guid.Empty ? null : value;
+
     public async Task<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)> ListPagedAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -164,6 +167,8 @@ public sealed partial class SqlSecurityEvidencePathRepository(ISqlConnectionFact
 
         (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
         int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+        Guid? snapshotId = NormalizeOptionalListFilterGuid(filter.SnapshotId);
+        Guid? cloudResourceId = NormalizeOptionalListFilterGuid(filter.CloudResourceId);
 
         const string whereClause = """
                                    WHERE p.TenantId = @TenantId
@@ -212,10 +217,10 @@ public sealed partial class SqlSecurityEvidencePathRepository(ISqlConnectionFact
             TenantId = tenantId,
             WorkspaceId = workspaceId,
             ProjectId = projectId,
-            SnapshotId = filter.SnapshotId,
+            SnapshotId = snapshotId,
             PathKind = filter.PathKind.HasValue ? (int?)filter.PathKind.Value : null,
             ConfidenceBand = filter.ConfidenceBand.HasValue ? (int?)filter.ConfidenceBand.Value : null,
-            CloudResourceId = filter.CloudResourceId,
+            CloudResourceId = cloudResourceId,
             Skip = skip,
             PageSize = safePageSize,
         };

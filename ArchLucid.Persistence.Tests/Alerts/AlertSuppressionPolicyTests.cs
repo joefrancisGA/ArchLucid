@@ -129,6 +129,7 @@ public sealed class AlertSuppressionPolicyTests
         decision.ShouldCreateAlert.Should().BeFalse();
         decision.WasSuppressed.Should().BeTrue();
         decision.Reason.Should().Contain("prior open or acknowledged alert still exists");
+        decision.Reason.Should().NotContainEquivalentOf("acknowledge it");
     }
 
     private CompositeAlertRule BuildRule(int cooldownMinutes, int suppressionWindowMinutes) =>

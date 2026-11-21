@@ -400,7 +400,8 @@ function resolveConnectorOutlineEdge(
 
   const selectedLabel = selection.label?.trim() ?? "";
 
-  return matchingEdges.find((edge) => edge.label?.trim() === selectedLabel) ?? matchingEdges[0];
+  const labelMatch = matchingEdges.find((edge) => (edge.label?.trim() ?? "") === selectedLabel);
+  return labelMatch ?? (matchingEdges.length === 1 ? matchingEdges[0] : null);
 }
 
 function FallbackCard(props: {

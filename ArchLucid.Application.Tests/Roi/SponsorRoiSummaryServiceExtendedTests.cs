@@ -162,8 +162,11 @@ public sealed class SponsorRoiSummaryServiceExtendedTests
             && issue.Count == 1);
     }
 
-    [Fact]
-    public async Task GetCrossTenantPortfolioSummaryAsync_does_not_deduplicate_findings_with_null_or_empty_finding_id()
+    [Theory]
+    [InlineData("Security")]
+    [InlineData("security")]
+    public async Task GetCrossTenantPortfolioSummaryAsync_groups_findings_without_stable_ids_by_category_ignoring_case(
+        string claimsCategory)
     {
         DateTime committedUtc = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
         Guid primaryTenantId = Guid.Parse("10000000-0000-0000-0000-000000000002");
@@ -214,7 +217,7 @@ public sealed class SponsorRoiSummaryServiceExtendedTests
                 new ArchitectureFinding
                 {
                     FindingId = "   ",
-                    Category = "Security",
+                    Category = claimsCategory,
                     Severity = FindingSeverity.Critical,
                     Message = "whitespace id is not stable",
                 },
@@ -230,7 +233,7 @@ public sealed class SponsorRoiSummaryServiceExtendedTests
 
         response.TotalCriticalFindings.Should().Be(2);
         response.TopSystemicIssues.Should().ContainSingle(issue =>
-            issue.Category == "Security"
+            string.Equals(issue.Category, "Security", StringComparison.OrdinalIgnoreCase)
             && issue.Severity == nameof(FindingSeverity.Critical)
             && issue.Count == 2);
     }

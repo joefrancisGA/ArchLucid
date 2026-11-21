@@ -191,6 +191,8 @@ public static class ScimFilterParser
                 if (!two.Equals(op.AsSpan(), StringComparison.OrdinalIgnoreCase))
                     continue;
                 Position += 2;
+                if (Eof || !char.IsWhiteSpace(_s[Position]))
+                    throw new ScimFilterParseException($"Compare operator '{op}' must be followed by whitespace.");
                 return op.ToLowerInvariant();
             }
 

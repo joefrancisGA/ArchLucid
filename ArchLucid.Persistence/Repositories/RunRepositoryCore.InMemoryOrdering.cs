@@ -35,7 +35,7 @@ internal static partial class RunRepositoryCore
 
             if (best is null
                 || candidate.CreatedUtc > best.CreatedUtc
-                || (candidate.CreatedUtc == best.CreatedUtc && new SqlGuid(candidate.RunId).CompareTo(new SqlGuid(best.RunId)) > 0))
+                || (candidate.CreatedUtc == best.CreatedUtc && CompareRunIds(candidate.RunId, best.RunId) > 0))
                 best = candidate;
         }
 
@@ -64,7 +64,7 @@ internal static partial class RunRepositoryCore
 
             if (bestUtc is not null
                 && (orderUtc < bestUtc.Value
-                    || (orderUtc == bestUtc.Value && candidate.RunId.CompareTo(bestRunId!.Value) <= 0)))
+                    || (orderUtc == bestUtc.Value && CompareRunIds(candidate.RunId, bestRunId!.Value) <= 0)))
                 continue;
 
             bestUtc = orderUtc;
@@ -98,7 +98,7 @@ internal static partial class RunRepositoryCore
             if (candidate.CreatedUtc > currentCreatedUtc)
                 continue;
 
-            if (candidate.CreatedUtc == currentCreatedUtc && candidate.RunId >= currentRunId)
+            if (candidate.CreatedUtc == currentCreatedUtc && CompareRunIds(candidate.RunId, currentRunId) >= 0)
                 continue;
 
             if (best is not null)
@@ -106,7 +106,7 @@ internal static partial class RunRepositoryCore
                 if (candidate.CreatedUtc < best.CreatedUtc)
                     continue;
 
-                if (candidate.CreatedUtc == best.CreatedUtc && candidate.RunId <= best.RunId)
+                if (candidate.CreatedUtc == best.CreatedUtc && CompareRunIds(candidate.RunId, best.RunId) <= 0)
                     continue;
             }
 
@@ -148,7 +148,7 @@ internal static partial class RunRepositoryCore
             if (candidate.CreatedUtc > currentCreatedUtc)
                 continue;
 
-            if (candidate.CreatedUtc == currentCreatedUtc && candidate.RunId >= currentRunId)
+            if (candidate.CreatedUtc == currentCreatedUtc && CompareRunIds(candidate.RunId, currentRunId) >= 0)
                 continue;
 
             if (best is not null)
@@ -156,7 +156,7 @@ internal static partial class RunRepositoryCore
                 if (candidate.CreatedUtc < best.CreatedUtc)
                     continue;
 
-                if (candidate.CreatedUtc == best.CreatedUtc && candidate.RunId <= best.RunId)
+                if (candidate.CreatedUtc == best.CreatedUtc && CompareRunIds(candidate.RunId, best.RunId) <= 0)
                     continue;
             }
 
@@ -200,7 +200,7 @@ internal static partial class RunRepositoryCore
 
             if (best is null
                 || candidate.CreatedUtc > best.CreatedUtc
-                || (candidate.CreatedUtc == best.CreatedUtc && candidate.RunId.CompareTo(best.RunId) > 0))
+                || (candidate.CreatedUtc == best.CreatedUtc && CompareRunIds(candidate.RunId, best.RunId) > 0))
             {
                 best = candidate;
             }
@@ -235,7 +235,7 @@ internal static partial class RunRepositoryCore
 
             if (best is null
                 || candidate.CreatedUtc > best.CreatedUtc
-                || (candidate.CreatedUtc == best.CreatedUtc && candidate.RunId.CompareTo(best.RunId) > 0))
+                || (candidate.CreatedUtc == best.CreatedUtc && CompareRunIds(candidate.RunId, best.RunId) > 0))
             {
                 best = candidate;
             }
@@ -243,4 +243,7 @@ internal static partial class RunRepositoryCore
 
         return best?.RunId;
     }
+
+    private static int CompareRunIds(Guid left, Guid right) =>
+        new SqlGuid(left).CompareTo(new SqlGuid(right));
 }

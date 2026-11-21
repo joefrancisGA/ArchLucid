@@ -37,6 +37,10 @@ public sealed partial class ArchitectureApplicationService
             return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
 
         ArchitectureRun run = detail.Run;
+        if (detail.AuthorityPipelineComplete)
+            return new SeedFakeResultsResult(false, 0, $"Run '{runId}' is authority-pipeline complete and does not accept agent results.",
+                ApplicationServiceFailureKind.Conflict);
+
         RunStateTransitionCheck seedSubmissionCheck = _runStateTransitionService.ValidateResultSubmissionAllowed(run.Status);
 
         if (!seedSubmissionCheck.IsAllowed)

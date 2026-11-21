@@ -12,6 +12,7 @@ import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-col
 import { whyDisabledNeedsPrerequisite, whyDisabledPolicy } from "@/lib/why-disabled-cta";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { REVIEW_SHARE_PACKAGE_COMMIT_DISABLED_LINE } from "@/lib/reviews/review-commit-evidence-before-seal-copy";
+import { SHARE_REVIEW_PACKAGE_POST_SEAL_API_FAILURE_LINE } from "@/lib/reviews/share-review-package-post-seal-api-failure-copy";
 import { showError, showMutationError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,7 @@ export type ShareReviewPackageButtonProps = {
 export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): React.JSX.Element {
   const { runId, systemName, committed, manifestVersion, variant = "outline", size = "sm" } = props;
   const [busy, setBusy] = useState(false);
+  const [sharePostSealApiFailure, setSharePostSealApiFailure] = useState(false);
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,
     manifestVersion,
@@ -39,6 +41,7 @@ export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): 
 
   const onShare = useCallback(async () => {
     setBusy(true);
+    setSharePostSealApiFailure(false);
 
     try {
       const markdown = await getFirstValueReportMarkdown(runId);
@@ -57,12 +60,13 @@ export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): 
     } catch (error: unknown) {
       const failure = toApiLoadFailure(error);
       const blocked = firstValueReportMutationBlockedReason(failure);
+      setSharePostSealApiFailure(committed && blocked === null);
 
       showMutationError("Share review", blocked ?? failure.message);
     } finally {
       setBusy(false);
     }
-  }, [runId, systemName]);
+  }, [runId, systemName, committed]);
 
   return (
     <div className="inline-flex flex-col items-start gap-1">
@@ -85,6 +89,11 @@ export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): 
       {shareDisabledReason !== null && !committed ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="share-review-package-commit-disabled-line">
           {REVIEW_SHARE_PACKAGE_COMMIT_DISABLED_LINE}
+        </p>
+      ) : null}
+      {sharePostSealApiFailure ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="share-review-package-post-seal-api-failure">
+          {SHARE_REVIEW_PACKAGE_POST_SEAL_API_FAILURE_LINE}
         </p>
       ) : null}
     </div>

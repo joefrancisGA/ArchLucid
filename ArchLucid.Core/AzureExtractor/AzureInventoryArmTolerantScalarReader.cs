@@ -118,7 +118,7 @@ public static class AzureInventoryArmTolerantScalarReader
             && element.TryGetDouble(out double numeric)
             && double.IsFinite(numeric)
             && numeric >= long.MinValue
-            && numeric <= long.MaxValue
+            && numeric < 9223372036854775808d
             && numeric == Math.Floor(numeric))
         {
             value = (long)numeric;
@@ -242,6 +242,7 @@ public static class AzureInventoryArmTolerantScalarReader
         if (element.TryGetDouble(out double wholeNumber)
             && double.IsFinite(wholeNumber)
             && wholeNumber >= 0
+            && wholeNumber < 9223372036854775808d
             && wholeNumber == Math.Floor(wholeNumber))
         {
             return ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
@@ -283,6 +284,7 @@ public static class AzureInventoryArmTolerantScalarReader
         if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
             && double.IsFinite(numeric)
             && numeric >= 0
+            && numeric < 9223372036854775808d
             && numeric == Math.Floor(numeric))
         {
             value = (long)numeric;

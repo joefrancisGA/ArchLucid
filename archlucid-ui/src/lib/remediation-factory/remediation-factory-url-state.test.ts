@@ -40,6 +40,34 @@ describe("remediation-factory-url-state", () => {
     });
   });
 
+  it("trims padded finding id on write", () => {
+    const findingId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const params = remediationFactoryUrlStateToSearchParams({
+      selectedFindingId: `  ${findingId}  `,
+      selectedPathId: null,
+      fromSnapshotId: null,
+      toSnapshotId: null,
+      metricsSummaryOpen: false,
+    });
+
+    expect(params.get(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM)).toBe(findingId);
+  });
+
+  it("drops whitespace-only finding id instead of writing blank param", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: "   ",
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=stale`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM)).toBeNull();
+  });
+
   it("clears empty selection params", () => {
     const params = remediationFactoryUrlStateToSearchParams(
       {

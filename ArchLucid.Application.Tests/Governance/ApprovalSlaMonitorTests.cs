@@ -167,4 +167,92 @@ public sealed class ApprovalSlaMonitorTests
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
+    private sealed class StubWebhookHandler(Func<HttpResponseMessage> responseFactory) : HttpMessageHandler
+    {
+        public int Calls { get; private set; }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            Calls++;
+            return Task.FromResult(responseFactory());
+        }
+    }
+
+    private async Task<GovernanceApprovalRequest> CreateBreachedRequestAsync()
+    {
+        GovernanceApprovalRequest request = new()
+        {
+            RunId = "webhook-test-run",
+            ManifestVersion = "v1",
+            SourceEnvironment = "dev",
+            TargetEnvironment = "prod",
+            Status = GovernanceApprovalStatus.Submitted,
+            RequestedBy = "webhook-tester",
+            RequestedUtc = TimeProvider.System.UtcNowDateTime().AddHours(-48),
+            SlaDeadlineUtc = TimeProvider.System.UtcNowDateTime().AddHours(-24),
+        };
+        await _approvalRepo.CreateAsync(request, CancellationToken.None);
+        return request;
+    }
+
+    private ApprovalSlaMonitor CreateWebhookSut(HttpClient client)
+    {
+        _httpClientFactory.Setup(f => f.CreateClient(ApprovalSlaMonitor.SlaEscalationHttpClientName))
+            .Returns(client);
+        return CreateSut(new PreCommitGovernanceGateOptions
+        {
+            ApprovalSlaHours = 24,
+            ApprovalSlaEscalationWebhookUrl = "https://example.test/governance/sla"
+        });
+    }
+
+    [Fact]
+    public async Task SuccessfulWebhook_MarksNotifiedAndDoesNotSendAgain()
+    {
+        GovernanceApprovalRequest request = await CreateBreachedRequestAsync();
+        StubWebhookHandler handler = new(() => new HttpResponseMessage(System.Net.HttpStatusCode.OK));
+        using HttpClient client = new(handler);
+        ApprovalSlaMonitor sut = CreateWebhookSut(client);
+
+        await sut.CheckAndEscalateAsync(CancellationToken.None);
+        await sut.CheckAndEscalateAsync(CancellationToken.None);
+
+        GovernanceApprovalRequest? updated = await _approvalRepo.GetByIdAsync(request.ApprovalRequestId, CancellationToken.None);
+        updated!.SlaBreachNotifiedUtc.Should().NotBeNull();
+        handler.Calls.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task FailedHttpWebhook_RemainsUnnotifiedAndRetriesOnNextCheck()
+    {
+        GovernanceApprovalRequest request = await CreateBreachedRequestAsync();
+        StubWebhookHandler handler = new(() => new HttpResponseMessage(System.Net.HttpStatusCode.BadRequest));
+        using HttpClient client = new(handler);
+        ApprovalSlaMonitor sut = CreateWebhookSut(client);
+
+        await sut.CheckAndEscalateAsync(CancellationToken.None);
+        GovernanceApprovalRequest? first = await _approvalRepo.GetByIdAsync(request.ApprovalRequestId, CancellationToken.None);
+        first!.SlaBreachNotifiedUtc.Should().BeNull();
+
+        await sut.CheckAndEscalateAsync(CancellationToken.None);
+        GovernanceApprovalRequest? second = await _approvalRepo.GetByIdAsync(request.ApprovalRequestId, CancellationToken.None);
+        second!.SlaBreachNotifiedUtc.Should().BeNull();
+        handler.Calls.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task ThrowingWebhook_RemainsUnnotified()
+    {
+        GovernanceApprovalRequest request = await CreateBreachedRequestAsync();
+        StubWebhookHandler handler = new(() => throw new HttpRequestException("simulated delivery failure"));
+        using HttpClient client = new(handler);
+        ApprovalSlaMonitor sut = CreateWebhookSut(client);
+
+        await sut.CheckAndEscalateAsync(CancellationToken.None);
+
+        GovernanceApprovalRequest? updated = await _approvalRepo.GetByIdAsync(request.ApprovalRequestId, CancellationToken.None);
+        updated!.SlaBreachNotifiedUtc.Should().BeNull();
+        handler.Calls.Should().BeGreaterThan(0);
+    }
+
 }

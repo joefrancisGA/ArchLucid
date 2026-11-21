@@ -14,16 +14,28 @@ export type RemediationFactoryUrlState = {
   readonly metricsSummaryOpen: boolean;
 };
 
-function readUuidParam(params: URLSearchParams, key: string): string | null {
-  const raw = params.get(key);
-
-  if (raw === null) {
+function normalizeUuidQueryValue(value: string | null): string | null {
+  if (value === null) {
     return null;
   }
 
-  const trimmed = raw.trim();
+  const trimmed = value.trim();
 
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function readUuidParam(params: URLSearchParams, key: string): string | null {
+  return normalizeUuidQueryValue(params.get(key));
+}
+
+function setUuidParam(params: URLSearchParams, key: string, value: string | null): void {
+  const normalized = normalizeUuidQueryValue(value);
+
+  if (normalized !== null) {
+    params.set(key, normalized);
+  } else {
+    params.delete(key);
+  }
 }
 
 export function parseRemediationFactoryUrlStateFromSearch(search: string): RemediationFactoryUrlState {
@@ -45,29 +57,10 @@ export function remediationFactoryUrlStateToSearchParams(
 ): URLSearchParams {
   const params = new URLSearchParams(baseSearch);
 
-  if (state.selectedFindingId !== null) {
-    params.set(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM, state.selectedFindingId);
-  } else {
-    params.delete(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM);
-  }
-
-  if (state.selectedPathId !== null) {
-    params.set(REMEDIATION_FACTORY_SELECTED_PATH_PARAM, state.selectedPathId);
-  } else {
-    params.delete(REMEDIATION_FACTORY_SELECTED_PATH_PARAM);
-  }
-
-  if (state.fromSnapshotId !== null) {
-    params.set(REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM, state.fromSnapshotId);
-  } else {
-    params.delete(REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM);
-  }
-
-  if (state.toSnapshotId !== null) {
-    params.set(REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM, state.toSnapshotId);
-  } else {
-    params.delete(REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM);
-  }
+  setUuidParam(params, REMEDIATION_FACTORY_SELECTED_FINDING_PARAM, state.selectedFindingId);
+  setUuidParam(params, REMEDIATION_FACTORY_SELECTED_PATH_PARAM, state.selectedPathId);
+  setUuidParam(params, REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM, state.fromSnapshotId);
+  setUuidParam(params, REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM, state.toSnapshotId);
 
   if (state.metricsSummaryOpen) {
     params.set(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM, "1");

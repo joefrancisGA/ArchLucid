@@ -35,6 +35,33 @@ public static class PreCommitGateEvaluator
             latestDispositionsByFindingId);
     }
 
+    /// <summary>Evaluates every enabled enforcing assignment; any blocking policy wins.</summary>
+    public static PreCommitGateResult EvaluateAllAssignments(
+        IReadOnlyList<Finding> findings,
+        IReadOnlyList<PolicyPackAssignment> assignments,
+        PreCommitGovernanceGateOptions options,
+        IReadOnlyDictionary<string, Disposition>? latestDispositionsByFindingId = null)
+    {
+        ArgumentNullException.ThrowIfNull(findings);
+        ArgumentNullException.ThrowIfNull(assignments);
+        ArgumentNullException.ThrowIfNull(options);
+
+        PreCommitGateResult? firstWarning = null;
+        foreach (PolicyPackAssignment assignment in assignments
+                     .Where(static a => a.IsEnabled && (a.BlockCommitOnCritical || a.BlockCommitMinimumSeverity.HasValue))
+                     .OrderByDescending(static a => a.AssignedUtc))
+        {
+            PreCommitGateResult result = EvaluateForAssignment(
+                findings, assignment, options, latestDispositionsByFindingId);
+            if (result.Blocked)
+                return result;
+            if (result.WarnOnly)
+                firstWarning ??= result;
+        }
+
+        return firstWarning ?? PreCommitGateResult.Allowed();
+    }
+
     /// <summary>
     ///     Evaluates proposed enforcement flags against findings (dry-run / what-if).
     /// </summary>
@@ -51,6 +78,13 @@ public static class PreCommitGateEvaluator
 
         int? minimumSeverity =
             PreCommitGateThresholdParser.TryCoerceDefinedSeverityOrdinal(blockCommitMinimumSeverity);
+
+        if (blockCommitMinimumSeverity.HasValue && !minimumSeverity.HasValue)
+            return new PreCommitGateResult
+            {
+                Blocked = true,
+                Reason = $"Commit blocked: policy pack '{policyPackIdLabel}' has an invalid minimum severity ordinal."
+            };
 
         if (!blockCommitOnCritical && !minimumSeverity.HasValue)
             return PreCommitGateResult.Allowed();
