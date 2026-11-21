@@ -145,7 +145,8 @@ public static class RunHeaderPinnedPolicyPackAssignmentFactory
                     ProjectId = pinned.ProjectId,
                     PolicyPackId = pinned.PolicyPackId,
                     PolicyPackVersion = pinned.PolicyPackVersion,
-                    IsEnabled = scopeAssignment.IsEnabled,
+                    // A pack enabled at run creation must not be disabled by later scope edits.
+                    IsEnabled = pinned.IsEnabled,
                     IsPinned = pinned.IsPinned,
                     ScopeLevel = pinned.ScopeLevel,
                     AssignedUtc = scopeAssignment.AssignedUtc,
