@@ -1,3 +1,6 @@
+using System.Security.Cryptography;
+using System.Text;
+
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -32,6 +35,11 @@ public static class ClosedLoopManifestTopologyMerger
         HashSet<string> existingDatastoreNames = topology.Datastores
             .Select(static datastore => datastore.DatastoreName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> existingNodeIds = topology.Services
+            .Select(static service => service.ServiceId)
+            .Concat(topology.Datastores.Select(static datastore => datastore.DatastoreId))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> collidingLegacyNodeIds = FindCollidingLegacyNodeIds(model.Elements);
 
         int mergedServiceCount = 0;
         int mergedDatastoreCount = 0;
@@ -44,13 +52,25 @@ public static class ClosedLoopManifestTopologyMerger
             if (element.Kind is not (ArchitectureElementKind.Component or ArchitectureElementKind.DeploymentTopology))
                 continue;
 
-            if (TryMergeDatastore(element, topology, existingDatastoreNames, elementIdToManifestNodeId))
+            if (TryMergeDatastore(
+                    element,
+                    topology,
+                    existingDatastoreNames,
+                    existingNodeIds,
+                    collidingLegacyNodeIds,
+                    elementIdToManifestNodeId))
             {
                 mergedDatastoreCount++;
                 continue;
             }
 
-            if (TryMergeService(element, topology, existingServiceNames, elementIdToManifestNodeId))
+            if (TryMergeService(
+                    element,
+                    topology,
+                    existingServiceNames,
+                    existingNodeIds,
+                    collidingLegacyNodeIds,
+                    elementIdToManifestNodeId))
                 mergedServiceCount++;
         }
 
@@ -73,6 +93,8 @@ public static class ClosedLoopManifestTopologyMerger
         ArchitectureModelElement element,
         TopologySection topology,
         HashSet<string> existingServiceNames,
+        HashSet<string> existingNodeIds,
+        HashSet<string> collidingLegacyNodeIds,
         Dictionary<string, string> elementIdToManifestNodeId)
     {
         if (existingServiceNames.Contains(element.Name))
@@ -90,7 +112,7 @@ public static class ClosedLoopManifestTopologyMerger
         string hint = BuildElementHint(element);
         ManifestService service = new()
         {
-            ServiceId = CreateStableNodeId(element.ElementId),
+            ServiceId = CreateStableNodeId(element.ElementId, existingNodeIds, collidingLegacyNodeIds),
             ServiceName = element.Name,
             ServiceType = InferServiceType(hint),
             RuntimePlatform = InferRuntimePlatform(hint, asDatastore: false),
@@ -100,6 +122,7 @@ public static class ClosedLoopManifestTopologyMerger
 
         topology.Services.Add(service);
         existingServiceNames.Add(element.Name);
+        existingNodeIds.Add(service.ServiceId);
         elementIdToManifestNodeId[element.ElementId] = service.ServiceId;
 
         return true;
@@ -109,6 +132,8 @@ public static class ClosedLoopManifestTopologyMerger
         ArchitectureModelElement element,
         TopologySection topology,
         HashSet<string> existingDatastoreNames,
+        HashSet<string> existingNodeIds,
+        HashSet<string> collidingLegacyNodeIds,
         Dictionary<string, string> elementIdToManifestNodeId)
     {
         string hint = BuildElementHint(element);
@@ -130,7 +155,7 @@ public static class ClosedLoopManifestTopologyMerger
 
         ManifestDatastore datastore = new()
         {
-            DatastoreId = CreateStableNodeId(element.ElementId),
+            DatastoreId = CreateStableNodeId(element.ElementId, existingNodeIds, collidingLegacyNodeIds),
             DatastoreName = element.Name,
             DatastoreType = InferDatastoreType(hint),
             RuntimePlatform = InferRuntimePlatform(hint, asDatastore: true),
@@ -139,6 +164,7 @@ public static class ClosedLoopManifestTopologyMerger
 
         topology.Datastores.Add(datastore);
         existingDatastoreNames.Add(element.Name);
+        existingNodeIds.Add(datastore.DatastoreId);
         elementIdToManifestNodeId[element.ElementId] = datastore.DatastoreId;
 
         return true;
@@ -207,7 +233,35 @@ public static class ClosedLoopManifestTopologyMerger
         return $"{element.Kind} {element.Name} {element.Description} {propertiesHint}";
     }
 
-    private static string CreateStableNodeId(string elementId) =>
+    private static string CreateStableNodeId(
+        string elementId,
+        HashSet<string> existingNodeIds,
+        HashSet<string> collidingLegacyNodeIds)
+    {
+        string legacyNodeId = CreateLegacyStableNodeId(elementId);
+
+        if (!collidingLegacyNodeIds.Contains(legacyNodeId) && !existingNodeIds.Contains(legacyNodeId))
+            return legacyNodeId;
+
+        string hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(elementId)));
+        return $"{legacyNodeId}-{hash[..12]}";
+    }
+
+    private static HashSet<string> FindCollidingLegacyNodeIds(IEnumerable<ArchitectureModelElement> elements) =>
+        elements
+            .Where(static element =>
+                element.LifecycleScope != ArchitectureLifecycleScope.CurrentState
+                && element.Kind is ArchitectureElementKind.Component or ArchitectureElementKind.DeploymentTopology)
+            .GroupBy(static element => CreateLegacyStableNodeId(element.ElementId), StringComparer.OrdinalIgnoreCase)
+            .Where(static group =>
+                group.Select(static element => element.ElementId)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Skip(1)
+                    .Any())
+            .Select(static group => group.Key)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    private static string CreateLegacyStableNodeId(string elementId) =>
         $"cl-{elementId.Replace("-", string.Empty, StringComparison.Ordinal)}";
 
     private static bool LooksLikeDatastore(string hint)

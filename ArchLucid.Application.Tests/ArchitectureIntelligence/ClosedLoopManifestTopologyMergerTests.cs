@@ -1,6 +1,7 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Manifest;
 
 using FluentAssertions;
@@ -58,6 +59,51 @@ public sealed class ClosedLoopManifestTopologyMergerTests
         manifest.Topology.Relationships.Should().ContainSingle(relationship =>
             relationship.RelationshipType == RelationshipType.WritesTo);
         manifest.Topology.Resources.Should().Contain("ClosedLoopStrengthened");
+    }
+
+    [Fact]
+    public void MergePublishableTopology_keeps_node_ids_distinct_when_element_ids_only_differ_by_hyphens()
+    {
+        ManifestDocument manifest = new();
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-1",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "svc-api",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Public API",
+                    LifecycleScope = ArchitectureLifecycleScope.TargetState,
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "svcapi",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Internal API",
+                    LifecycleScope = ArchitectureLifecycleScope.TargetState,
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "flow-read",
+                    Kind = ArchitectureElementKind.DataFlow,
+                    Name = "Public API reads from internal API",
+                    RelatedElementIds = ["svc-api", "svcapi"],
+                },
+            ],
+        };
+
+        ClosedLoopManifestTopologyMergeResult result =
+            ClosedLoopManifestTopologyMerger.MergePublishableTopology(manifest, model);
+
+        result.MergedServiceCount.Should().Be(2);
+        result.MergedRelationshipCount.Should().Be(1);
+        manifest.Topology.Services.Select(static service => service.ServiceId).Should().OnlyHaveUniqueItems();
+
+        ManifestRelationship relationship = manifest.Topology.Relationships.Should().ContainSingle().Subject;
+        relationship.SourceId.Should().NotBe(relationship.TargetId);
     }
 
     [Fact]
