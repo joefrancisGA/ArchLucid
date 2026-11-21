@@ -27,10 +27,8 @@ function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] 
   const citations = verdict.hardCitations;
 
   if (citations === null || citations === undefined) {
-    return ["### Authority citations", "", "Authority citations were not stored.", ""];
-  }
-
-  if (citations.length > 0) {
+    lines.push("### Authority citations", "", "Authority citations were not stored.", "");
+  } else if (citations.length > 0) {
     lines.push("### Authority citations");
     lines.push("");
 

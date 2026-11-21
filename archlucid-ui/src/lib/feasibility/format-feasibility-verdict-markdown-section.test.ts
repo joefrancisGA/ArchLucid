@@ -47,6 +47,20 @@ describe("formatFeasibilityVerdictMarkdownSection (FC-30 / FC-31)", () => {
     expect(markdown).toContain("INV-AVAIL-001");
   });
 
+  it.each([undefined, null])("includes the stored unsat core when authority citations are %s", (hardCitations) => {
+    const verdict: ManifestFeasibilityVerdict = {
+      kind: "HardInfeasible",
+      summary: "Required controls cannot be satisfied.",
+      hardCitations,
+      unsatCoreInvariantKeys: ["INV-AVAIL-001"],
+    };
+
+    expect(resolveHardInfeasibleCitationExportBlockedReason(verdict)).toBeNull();
+    const markdown = formatFeasibilityVerdictMarkdownSection(verdict);
+    expect(markdown).toContain("Authority citations were not stored.");
+    expect(markdown).toContain("**Unsat core:** INV-AVAIL-001");
+  });
+
   it("shows soft envelope copy instead of failed-review framing", () => {
     const verdict: ManifestFeasibilityVerdict = {
       kind: "SoftInfeasible",
