@@ -86,6 +86,8 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
 
       if (loaded.recordedUtc !== null) {
         setTenantAuditSaved(true);
+      } else {
+        setTenantAuditSaved(false);
       }
     });
 
