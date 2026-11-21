@@ -11,7 +11,7 @@ internal static class FindingPinnedEvidencePackageReferenceResolver
 {
     private static readonly Regex EvidencePackageRefPattern = new(
         @"(?<![\w])evidencePackage\s*:\s*([0-9a-fA-F]{32}|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(?![\w-])",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     public static bool ResolvesToPinnedPackageId(Finding finding, IReadOnlySet<Guid> pinnedPackageIds)
     {
