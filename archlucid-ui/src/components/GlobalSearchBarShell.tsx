@@ -105,7 +105,7 @@ export function GlobalSearchBarShell(props: GlobalSearchBarShellProps) {
             onKeyDown={handleInputKeyDown}
             role="combobox"
             aria-autocomplete="list"
-            aria-haspopup={resultsPanelOpen ? "listbox" : quickActionsPanelOpen ? "dialog" : undefined}
+            aria-haspopup={resultsPanelOpen || quickActionsPanelOpen ? "dialog" : undefined}
             aria-expanded={resultsPanelOpen || quickActionsPanelOpen}
             aria-controls={resultsPanelOpen || quickActionsPanelOpen ? `${inputId}-results` : undefined}
             aria-label={searchAriaLabel}

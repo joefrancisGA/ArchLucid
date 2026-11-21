@@ -188,13 +188,15 @@ describe("GlobalSearchBar", () => {
     expect(commitHrefIfChanged).not.toHaveBeenCalled();
   });
 
-  it("opens the results panel when the query is long enough", async () => {
+  it("exposes categorized search results as a dialog instead of an inoperable listbox", async () => {
     render(<GlobalSearchBar />);
 
     const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
     fireEvent.change(input, { target: { value: "ab" } });
 
-    expect(await screen.findByRole("listbox")).toBeInTheDocument();
+    const popup = await screen.findByRole("dialog", { name: "Search results" });
+    expect(input).toHaveAttribute("aria-haspopup", "dialog");
+    expect(input).toHaveAttribute("aria-controls", popup.id);
   });
 
   it("focuses the input when the find-a-page hash changes", async () => {

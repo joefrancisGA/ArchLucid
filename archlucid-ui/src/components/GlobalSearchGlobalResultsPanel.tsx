@@ -44,7 +44,8 @@ export function GlobalSearchGlobalResultsPanel(props: GlobalSearchGlobalResultsP
   return (
     <div
       id={`${inputId}-results`}
-      role="listbox"
+      role="dialog"
+      aria-label="Search results"
       className="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-y-auto rounded-md border border-neutral-200 bg-white shadow-lg dark:border-neutral-700 dark:bg-neutral-950"
     >
       {loading ? <p className={cn("m-0 px-3 py-2 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Searching…</p> : null}
