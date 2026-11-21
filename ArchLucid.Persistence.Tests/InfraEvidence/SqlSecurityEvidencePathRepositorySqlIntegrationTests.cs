@@ -50,6 +50,48 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
     }
 
     [SkippableFact]
+    public async Task ListPagedAsync_empty_snapshot_id_matches_unset_filter()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlSecurityEvidencePathRepository repository = new(factory);
+        Guid snapshotId = await InsertSnapshotAsync(factory, TenantA);
+        Guid pathId = Guid.NewGuid();
+
+        await repository.InsertIfNotExistsAsync(
+            CreatePathHeader(pathId, TenantA, snapshotId, DateTime.UtcNow),
+            CreateHops(pathId, TenantA, PathConfidenceBand.Confirmed),
+            CancellationToken.None);
+
+        SecurityEvidencePathListFilter unsetFilter = new();
+        SecurityEvidencePathListFilter emptySnapshotFilter = new() { SnapshotId = Guid.Empty };
+
+        (IReadOnlyList<SecurityEvidencePathRecord> unsetItems, int unsetTotal) = await repository.ListPagedAsync(
+            TenantA,
+            WorkspaceId,
+            ProjectId,
+            unsetFilter,
+            page: 1,
+            pageSize: 50,
+            cancellationToken: CancellationToken.None);
+
+        (IReadOnlyList<SecurityEvidencePathRecord> emptyItems, int emptyTotal) = await repository.ListPagedAsync(
+            TenantA,
+            WorkspaceId,
+            ProjectId,
+            emptySnapshotFilter,
+            page: 1,
+            pageSize: 50,
+            cancellationToken: CancellationToken.None);
+
+        unsetTotal.Should().BeGreaterThan(0);
+        emptyTotal.Should().Be(unsetTotal);
+        emptyItems.Select(path => path.PathId).Should().Contain(pathId);
+        unsetItems.Select(path => path.PathId).Should().Contain(pathId);
+    }
+
+    [SkippableFact]
     public async Task ListPagedAsync_empty_cloud_resource_id_matches_unset_filter()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
