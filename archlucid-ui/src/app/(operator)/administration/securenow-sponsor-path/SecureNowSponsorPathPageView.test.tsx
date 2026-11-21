@@ -120,4 +120,27 @@ describe("SecureNowSponsorPathPageView", () => {
     });
     expect(screen.queryByTestId("securenow-sponsor-path-tenant-audit-saved")).not.toBeInTheDocument();
   });
+
+  it("starts with a blank disposition when the next path is still loading", async () => {
+    load
+      .mockResolvedValueOnce({
+        record: { outcome: "Proceed", rationale: "Synthetic first-path disposition." },
+        recordedUtc: "2026-11-14T12:00:00.000Z",
+      })
+      .mockImplementationOnce(() => new Promise(() => {}));
+    const view = render(<SecureNowSponsorPathPageView />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Path disposition outcome")).toHaveValue("Proceed");
+    });
+
+    searchParams = new URLSearchParams("pathId=path-pending-2");
+    view.rerender(<SecureNowSponsorPathPageView />);
+
+    expect(load).toHaveBeenCalledWith("path-pending-2");
+    expect(screen.getByLabelText("Path disposition outcome")).toHaveValue("");
+    expect(screen.getByLabelText("Path disposition rationale")).toHaveValue("");
+    expect(screen.queryByTestId("securenow-sponsor-path-saved-disposition")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("securenow-sponsor-path-tenant-audit-saved")).not.toBeInTheDocument();
+  });
 });
