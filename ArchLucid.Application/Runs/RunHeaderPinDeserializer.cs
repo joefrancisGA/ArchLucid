@@ -20,7 +20,7 @@ public static class RunHeaderPinDeserializer
                 json,
                 ContractJson.CamelCaseIgnoreNullCompact);
 
-            if (parsed is not null && parsed.All(static row => row is not null))
+            if (parsed is not null && parsed.All(static row => row is not null && Guid.TryParse(row.PolicyPackId, out Guid id) && id != Guid.Empty && !string.IsNullOrWhiteSpace(row.PolicyPackVersion)))
             {
                 rows = parsed;
                 return true;
@@ -43,7 +43,7 @@ public static class RunHeaderPinDeserializer
                 json,
                 ContractJson.CamelCaseIgnoreNullCompact);
 
-            if (parsed is not null && parsed.All(static row => row is not null))
+            if (parsed is not null && parsed.All(static row => row is not null && !string.IsNullOrWhiteSpace(row.Provider) && row.PackageId != Guid.Empty))
             {
                 rows = parsed;
                 return true;
