@@ -27,7 +27,8 @@ internal static partial class ConsultingDocxSupplementalSections
                 ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, ConsultingDocxAppendixHonestyCopy.MermaidSourceNotStored,
                     "BodyText");
 
-            ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
+            if (options.IncludeAppendixExecutionTraceIndex || options.IncludeAppendixDeterminismAndComparison)
+                ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
         }
 
         if (options.IncludeAppendixExecutionTraceIndex)
@@ -57,7 +58,8 @@ internal static partial class ConsultingDocxSupplementalSections
                     "BodyText");
             }
 
-            ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
+            if (options.IncludeAppendixDeterminismAndComparison)
+                ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
         }
 
         if (!options.IncludeAppendixDeterminismAndComparison)
