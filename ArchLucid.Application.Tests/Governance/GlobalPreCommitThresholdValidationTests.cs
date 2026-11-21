@@ -19,6 +19,25 @@ public sealed class GlobalPreCommitThresholdValidationTests
     }
 
     [Theory]
+    [InlineData("nonsense")]
+    [InlineData("999")]
+    public void GatePreflight_BlocksInvalidThresholdBeforePolicyEvaluation(string threshold)
+    {
+        var result = PreCommitGovernanceGate.ValidateGlobalThresholdConfiguration(threshold);
+
+        Assert.NotNull(result);
+        Assert.True(result.Blocked);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("High")]
+    public void GatePreflight_ValidOrAbsentThresholdContinuesEvaluation(string? threshold)
+    {
+        Assert.Null(PreCommitGovernanceGate.ValidateGlobalThresholdConfiguration(threshold));
+    }
+
+    [Theory]
     [InlineData(null)]
     [InlineData("")]
     [InlineData("  ")]
