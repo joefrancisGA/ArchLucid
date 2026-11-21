@@ -28,6 +28,6 @@ public static class WaiverExpiryReminderIdempotency
 
         return string.Create(
             CultureInfo.InvariantCulture,
-            $"{EmailTemplateId}:{riskExceptionId:N}:{expiryDay}:{boundaryDays}");
+            $"{EmailTemplateId}:{riskExceptionId:N}:{expiryInstant}:{boundaryDays}");
     }
 }
