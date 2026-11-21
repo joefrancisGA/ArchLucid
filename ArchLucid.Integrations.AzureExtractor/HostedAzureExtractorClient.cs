@@ -169,7 +169,7 @@ public sealed class HostedAzureExtractorClient(
         networkAssociations.AddRange(staticSiteAndFabricAssociations.Associations);
 
         HostedAzureEffectiveNetworkControlCollectResult effectiveNetworkControls = await HostedAzureEffectiveNetworkControlCollector
-            .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
+            .CollectAsync(_postReadClient, accessToken.Token, resources, _logger, cancellationToken)
             .ConfigureAwait(false);
 
         IReadOnlyList<AzureInventoryAdfLinkedServiceRow> adfLinkedServices = await HostedAzureInventoryAdfLinkedServiceCollector
