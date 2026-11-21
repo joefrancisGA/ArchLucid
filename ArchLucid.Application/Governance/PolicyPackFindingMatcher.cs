@@ -49,10 +49,23 @@ internal static class PolicyPackFindingMatcher
 
     private static bool PolicyRuleIdReferencesPack(string policyRuleId, Guid packId)
     {
-        if (policyRuleId.Contains(packId.ToString("D"), StringComparison.OrdinalIgnoreCase))
-            return true;
+        // A GUID inside an unrelated rule identifier is not evidence of pack ownership.
+        // Recognize the explicit policy-pack wrapper used by generated rule IDs.
+        const string prefix = "policy-pack-";
+        if (!policyRuleId.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return false;
 
-        return policyRuleId.Contains(packId.ToString("N"), StringComparison.OrdinalIgnoreCase);
+        string remainder = policyRuleId[prefix.Length..];
+        foreach (string format in new[] { "D", "N" })
+        {
+            string token = packId.ToString(format);
+            if (remainder.StartsWith(token, StringComparison.OrdinalIgnoreCase)
+                && remainder.Length > token.Length
+                && remainder[token.Length] == '-')
+                return true;
+        }
+
+        return false;
     }
 
     private static bool EngineTypeReferencesPack(string? engineType, Guid packId)
