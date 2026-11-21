@@ -94,6 +94,25 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         signals!.FaithfulnessSupportRatio.Should().Be(0.75);
     }
 
+    [Theory]
+    [InlineData("\"1%\"", 0.01)]
+    [InlineData("\"0.5 %\"", 0.005)]
+    [InlineData("[[\"1%\"]]", 0.01)]
+    [InlineData("\"1\"", 1.0)]
+    public void FromAggregateJson_distinguishes_small_percentages_from_unit_ratios(string jsonRatio, double expected)
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            $$"""
+            {
+              "faithfulnessSupportRatio": {{jsonRatio}},
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(expected);
+    }
+
     [Fact]
     public void FromAggregateJson_scales_percent_suffixed_faithfulness_support_ratio_with_leading_space_before_digits()
     {
