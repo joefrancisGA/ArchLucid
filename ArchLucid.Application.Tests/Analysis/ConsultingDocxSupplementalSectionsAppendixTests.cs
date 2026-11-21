@@ -39,6 +39,32 @@ public sealed class ConsultingDocxSupplementalSectionsAppendixTests
     }
 
     [Fact]
+    public void Mermaid_appendix_preserves_mixed_line_endings_as_separate_paragraphs()
+    {
+        Body body = new();
+        ArchitectureAnalysisReport report = new()
+        {
+            Diagram = "flowchart TD\rNodeA --> NodeB\r\nNodeB --> NodeC\nNodeC --> NodeD",
+        };
+        ConsultingDocxTemplateOptions options = new()
+        {
+            IncludeAppendixMermaid = true,
+            IncludeAppendixExecutionTraceIndex = false,
+            IncludeAppendixDeterminismAndComparison = false,
+        };
+
+        ConsultingDocxSupplementalSections.AddAppendices(body, report, options);
+
+        body.Elements<Paragraph>().Select(paragraph => paragraph.InnerText).Should().Equal(
+            "Appendix A. Mermaid Source",
+            "[mermaid]",
+            "flowchart TD",
+            "NodeA --> NodeB",
+            "NodeB --> NodeC",
+            "NodeC --> NodeD");
+    }
+
+    [Fact]
     public void AddAppendices_includes_datastore_relationship_and_warning_manifest_counts()
     {
         Body body = new();
