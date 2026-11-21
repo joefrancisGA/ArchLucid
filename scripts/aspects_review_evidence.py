@@ -51,14 +51,15 @@ def record(path, observation):
         raise ValueError("Baseline and blob must be complete lowercase Git SHAs")
     observation["path"] = normalize_path(observation["path"])
     observation["spans"] = [list(pair) for pair in parse_spans(observation["spans"])]
+    observation["verified"] = observation.get("verified") is True
     observation["captured_utc"] = dt.datetime.now(dt.timezone.utc).isoformat()
     # Stable identity makes retries safe. Distinct passes can still review the same spans.
     identity = (observation["baseline"], observation["blob"], observation["path"],
-                tuple(map(tuple, observation["spans"])), observation.get("defect_id"))
+                tuple(map(tuple, observation["spans"])), observation.get("defect_id"), observation["verified"])
     existing = read_records(path)
     for item in existing:
         prior = (item["baseline"], item["blob"], item["path"],
-                 tuple(map(tuple, item["spans"])), item.get("defect_id"))
+                 tuple(map(tuple, item["spans"])), item.get("defect_id"), item.get("verified") is True)
         if prior == identity:
             return False
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -76,7 +77,11 @@ def coverage(records, baselines):
     covered = {}
     defects = set()
     included = 0
+    excluded_unverified = 0
     for item in records:
+        if item.get("verified") is not True:
+            excluded_unverified += 1
+            continue
         if item["baseline"] not in baselines:
             continue
         included += 1
@@ -87,7 +92,8 @@ def coverage(records, baselines):
         if item.get("defect_id"):
             defects.add(item["defect_id"])
     lines = sum(len(values) for values in covered.values())
-    return {"included_records": included, "unique_path_blob_lines": lines,
+    return {"included_records": included, "excluded_unverified_records": excluded_unverified,
+            "unique_path_blob_lines": lines,
             "confirmed_distinct_defects": len(defects),
             "provisional_density_per_kloc": round(1000 * len(defects) / lines, 6) if lines else None,
             "coverage_warning": "Path/blob interval union is not cross-revision content-lineage deduplication; not a verified whole-codebase density."}
@@ -115,7 +121,7 @@ def verified_observation(repo, baseline, path, spans, defect_id=None):
         if any(not line.strip() for line in source[start - 1:end]):
             raise ValueError(f"Reviewed span includes blank lines: {start}-{end}")
     return {"baseline": baseline, "blob": blob, "path": path,
-            "spans": spans, "defect_id": defect_id}
+            "spans": spans, "defect_id": defect_id, "verified": True}
 
 
 def verified_first_parent(repo, head, window):
@@ -131,7 +137,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--ledger", required=True, type=Path)
     commands = parser.add_subparsers(dest="command", required=True)
-    add = commands.add_parser("record")
+    add = commands.add_parser("record", help="Import unverified historical evidence (excluded from density)")
     add.add_argument("--baseline", required=True)
     add.add_argument("--blob", required=True)
     add.add_argument("--path", required=True)
@@ -151,7 +157,7 @@ def main():
     args = parser.parse_args()
     if args.command == "record":
         observation = {"baseline": args.baseline, "blob": args.blob, "path": args.path,
-                       "spans": args.span, "defect_id": args.defect_id}
+                       "spans": args.span, "defect_id": args.defect_id, "verified": False}
         print(json.dumps({"appended": record(args.ledger, observation)}))
     elif args.command == "record-verified":
         observation = verified_observation(args.repo, args.baseline, args.path, args.span, args.defect_id)
