@@ -2,6 +2,9 @@
 import copy
 import sys
 import unittest
+import json
+import tempfile
+from unittest.mock import patch
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -57,6 +60,25 @@ class RegressionCatalogTests(unittest.TestCase):
         self.assertTrue(all(isinstance(command, list) for command in commands))
         self.assertTrue(all(isinstance(arg, str) for command in commands for arg in command))
         self.assertTrue(all(command[0] in ("npm", "dotnet") for command in commands))
+
+    def test_plan_report_records_sql_exclusions(self):
+        with tempfile.TemporaryDirectory() as directory:
+            report = Path(directory) / "report.json"
+            result = library.main(["--plan", "--report-json", str(report)])
+            self.assertEqual(0, result)
+            payload = json.loads(report.read_text())
+            self.assertEqual(8, payload["registered_cases"])
+            self.assertEqual(3, payload["sql_excluded"])
+            self.assertTrue(all(x["status"] == "planned" for x in payload["commands"]))
+
+    def test_missing_runner_is_not_reported_as_pass(self):
+        with tempfile.TemporaryDirectory() as directory:
+            report = Path(directory) / "report.json"
+            with patch.object(library.subprocess, "run", side_effect=FileNotFoundError):
+                result = library.main(["--run", "--pattern", "pagination",
+                                       "--report-json", str(report)])
+            self.assertEqual(2, result)
+            self.assertEqual("missing-tool", json.loads(report.read_text())["commands"][0]["status"])
 
 
 if __name__ == "__main__":
