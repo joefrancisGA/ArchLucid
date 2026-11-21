@@ -50,14 +50,14 @@ describe("collection agent omission copy (P-16, P-17)", () => {
     expect(collectionRunStatusLabel("Running")).toBe("Collection is running.");
   });
 
-  it("does not link View changes when imported snapshot id is empty", () => {
+  it("does not link View changes when imported snapshot id is blank", () => {
     useTriggerCollectionRunMutationMock.mockReturnValue({
       error: null,
       isPending: false,
       mutate: vi.fn(),
     });
     useCollectionRunsQueryMock.mockReturnValue({
-      data: [{ ...successfulRun(), importedSnapshotId: "" }],
+      data: [{ ...successfulRun(), importedSnapshotId: "   " }],
       isPending: false,
       isError: false,
     });
