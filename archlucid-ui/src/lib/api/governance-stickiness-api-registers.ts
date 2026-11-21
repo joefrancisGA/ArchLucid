@@ -170,7 +170,9 @@ export async function getGovernanceDecisionsNeededSummary(
 
 export async function getGovernancePosture(projectId?: string): Promise<ArchitecturePostureSummary> {
   const query = new URLSearchParams();
-  if (projectId) query.set("projectId", projectId);
+  const normalizedProjectId = trimOptionalText(projectId);
+
+  if (normalizedProjectId !== undefined) query.set("projectId", normalizedProjectId);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
 
   try {
