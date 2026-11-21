@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
@@ -97,6 +97,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
   const lookupPath = useMemo(() => auditEvidenceLineageLookupPathFromPathname(pathname), [pathname]);
   const lineageChainOpenParam = searchParams.get("lineageChainOpen");
   const lineageQuery = useAuditEvidenceLineageQuery(props.assessmentId, props.snapshotId, props.controlId);
+  const packageDownloadInFlight = useRef(false);
   const [packageDownloadBusy, setPackageDownloadBusy] = useState(false);
   const [packageDownloadError, setPackageDownloadError] = useState<string | null>(null);
   const [packageDownloadAnnouncement, setPackageDownloadAnnouncement] = useState<string | null>(null);
@@ -151,6 +152,11 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
     : formatAuditEvidenceControlLineagePageTitle(undefined, undefined);
 
   const onDownloadEvidencePackage = useCallback(async () => {
+    if (packageDownloadInFlight.current) {
+      return;
+    }
+
+    packageDownloadInFlight.current = true;
     setPackageDownloadBusy(true);
     setPackageDownloadError(null);
     setPackageDownloadAnnouncement(null);
@@ -169,6 +175,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
         ),
       );
     } finally {
+      packageDownloadInFlight.current = false;
       setPackageDownloadBusy(false);
     }
   }, [props.assessmentId, props.snapshotId]);
