@@ -81,7 +81,9 @@ public static class GovernanceDecisionsNeededSummaryCalculator
         if (string.IsNullOrWhiteSpace(severity))
             return false;
 
-        return severity.Contains("high", StringComparison.OrdinalIgnoreCase)
-               || severity.Contains("critical", StringComparison.OrdinalIgnoreCase);
+        string normalized = severity.Trim();
+        return string.Equals(normalized, "High", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(normalized, "Critical", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(normalized, "Error", StringComparison.OrdinalIgnoreCase);
     }
 }
