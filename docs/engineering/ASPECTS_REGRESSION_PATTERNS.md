@@ -36,3 +36,14 @@ The runner uses subprocess argument arrays (never a shell). It requires the exis
 Register an existing behavior-level regression test for each genuinely recurring Aspects failure class. Prefer a test that failed before its fix and requires real expected behavior after it. Avoid adding hundreds of near-duplicates or building yet another large testing framework. The registry and runner are intentionally narrow to avoid consuming 1.0 release capacity.
 
 No production code, database migrations, default CI jobs, RC48 stabilization workflows, or existing hourly Aspects sweeps are changed.
+
+## Stabilization and execution evidence
+
+The registry's lightweight PR workflow validates references and runner integrity only; **it does not execute the eight application behavior tests**. The runner now supports a machine-readable command-level outcome report:
+
+    python3 scripts/ci/aspects_regression_patterns.py --run --report-json artifacts/aspects-regressions.json
+    python3 scripts/ci/aspects_regression_patterns.py --run --include-sql --report-json artifacts/aspects-regressions-sql.json
+
+The report records registered/selected cases, SQL exclusions, exact commands, exit status, and possible skips. Missing executables and commands reporting no matching tests are failures. A command that reports skipped tests is **unverified**, not passed. This is deliberately conservative: command-level output does not establish per-case success, and SQL-backed tests still require a real SQL Server fixture and manual inspection of skip output.
+
+**Release gate recommendation:** Keep this optional until the five non-SQL cases execute reliably on a provisioned .NET/Node runner. Then promote the focused behavioral check to required CI; do not confuse the green catalog-integrity job with a successful behavioral regression run. Preserve existing RC48 and Aspects workflows.
