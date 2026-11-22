@@ -141,6 +141,7 @@ ENV ARCHLUCID_BUILD_TIMESTAMP=${BUILD_TIMESTAMP}
 # apk upgrade + explicit OpenSSL floor (CVE-2026-28390) so cached layers cannot keep 3.5.5-r0.
 # Mermaid CLI (mmdc) + Chromium for server-side diagram PNG export (infra-evidence, DOCX).
 # Graphviz fdp for inventory snapshot layout SVG/PNG (IDG-02).
+# Security floor: block release images with vulnerable libfontenc/libxml2 (Trivy run #45046074131).
 RUN apk update --no-cache \
     && apk upgrade --no-cache \
     && apk add --no-cache --upgrade \
@@ -150,6 +151,7 @@ RUN apk update --no-cache \
          "libexpat>=2.10.0-r0" \
          "libxslt>=1.1.43-r4" \
     && apk add --no-cache icu-libs nodejs npm chromium ttf-dejavu fontconfig graphviz \
+    && apk add --no-cache --upgrade "libfontenc>=1.1.10-r0" "libxml2>=2.13.9-r3" \
     && npm install -g @mermaid-js/mermaid-cli@11 \
     && npm cache clean --force \
     && rm -rf /root/.npm
