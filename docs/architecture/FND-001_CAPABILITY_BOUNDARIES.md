@@ -48,3 +48,34 @@ These are conceptual contracts, **not** an assertion that matching production AP
 - [ ] Review against existing ADRs and remove contradictions.
 - [ ] Approve ownership decisions and only then mark FND-001 complete.
 - [ ] Begin FND-002 with schema fixtures and compatibility tests on an isolated branch.
+
+
+## Source-code mapping (master inspected 2026-11-22)
+
+This is a **file-level ownership inventory**, not a runtime security certification. Evidence below is drawn from existing master source files; names alone are not evidence of completed cross-product contracts.
+
+| Proposed context | Existing implementation anchor | Verified observation / boundary |
+| --- | --- | --- |
+| ArchLucid architecture intelligence | `ArchLucid.Provenance/ArchitectureGraphTemporalSnapshotResponse.cs` | Existing temporal architecture graph snapshot DTO identifies resolved run, as-of timestamp and graph. It documents `GET /v1/evidence-graph/snapshot`. Not yet the proposed cross-product `ArchitectureSnapshotRef`. |
+| SecureNow defense / exposure | `ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/AzureInventoryDefenderAttackPathReadModel.cs` | Existing Defender attack-path read model carries subscription, attack path, entry/target resource IDs and evidence reference. This is an ingestion/read model, not proof of an autonomous attack-path engine. |
+| Shared evidence | `ArchLucid.Core/Findings/FindingEvidenceRefs.cs`; `ArchLucid.Application/Governance/FindingEvidenceReferentialIntegrityValidator.cs` | Existing citation normalization and pinned-evidence integrity checks for high-severity findings. No claim that a universal canonical `EvidenceRef` schema exists. |
+| Governance and approvals | `ArchLucid.Contracts/Governance/GovernanceApprovalRequest.cs`; `ArchLucid.Contracts/Governance/RunOperatorGovernanceDecision.cs` | Existing tenant/workspace/project-scoped manifest promotion request and run disposition enum. These do not themselves grant generic autonomous remediation authority. |
+| Audit | `ArchLucid.Core/Audit/AuditEvent.cs` | Append-only-intent audit event with event/actor/tenant/workspace/project/run identifiers. Actual storage immutability and completeness require separate tests. |
+| Remediation | `ArchLucid.Api/Controllers/InfraEvidence/RemediationInstancesController.cs` | Existing tenant-tier-gated, authorized remediation-instance HTTP surface and scoped read endpoints. Do not equate it with a sandboxed autonomous executor or verified rollback. |
+| Experimental isolation | `ArchLucid.Core/Configuration/IFeatureFlags.cs` | Existing asynchronous feature-flag abstraction. Disabled-by-default behavior for each future feature must be independently tested. |
+| Tenant boundary enforcement | `ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs`; `ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs` | Compile-time analysis exists. Analyzer source explicitly excludes `ArchLucid.Api`, host assemblies and test assemblies for the first analyzer; runtime/API/database enforcement remains a separate concern. |
+
+### Ownership and overlap findings
+
+1. **Architecture / defense seam:** provenance graph snapshots and Defender attack-path ingestion live in different modules. FND-002 must define an immutable snapshot reference and evidence lineage so risk assessments cannot silently mix graph versions.
+2. **Evidence seam:** citation strings and pinned-package validation are established capabilities, but a typed, versioned cross-product evidence envelope is not established by the inspected files. Avoid duplicate evidence authorities and preserve legacy citation compatibility.
+3. **Governance / remediation seam:** an approval for manifest environment promotion is not authorization for arbitrary production remediation. Introduce an explicitly typed action, tenant scope, expiry, policy version and blast-radius bound before any future executor.
+4. **Audit seam:** audit-event intent is append-only, but the DTO has setters; verify repository and storage append-only enforcement rather than claiming immutability from comments.
+5. **Tenant seam:** analyzer exclusions mean analyzer coverage cannot be treated as a complete tenant-isolation guarantee. Trace controller scope providers, persistence predicates and integration tests before any autonomy elevation.
+6. **Feature seam:** an interface for flags exists; it does not guarantee all 2.0 experiments default to disabled. Future flags require negative-path CI tests.
+
+### FND-001 disposition
+
+**Source-code mapping: completed. Architectural acceptance: conditional.** Context boundaries now have concrete master anchors and identified risks, but a full dependency audit, ADR conflict review, and design approval are not yet demonstrated. Do not mark FND-001 fully accepted or merge merely because the mapping exists.
+
+**FND-002 handoff:** specify versioned `ArchitectureSnapshotRef`, `EvidenceRef`, `RemediationProposal`, `GovernanceDecision`, and `VerificationOutcome` contracts, with tenant/scope invariants, compatibility fixtures, and tests. Keep all executable remediation disabled.
