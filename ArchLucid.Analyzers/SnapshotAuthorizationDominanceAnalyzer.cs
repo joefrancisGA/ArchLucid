@@ -38,13 +38,25 @@ public sealed class SnapshotAuthorizationDominanceAnalyzer : DiagnosticAnalyzer
             method.Name != "GetArchitectureGraphTemporalSnapshot")
             return;
 
+        // Conditional SecureNow exchange authorization is not expected to
+        // dominate ordinary graph reads. Suppress the unconditional CFG rule
+        // only for the recognized dual-guard exchange pattern.
+        var declaration = method.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax()
+            as MethodDeclarationSyntax;
+        if (declaration is not null &&
+            SecureNowExchangeModePattern.HasTwoGuardedExchangeChecks(declaration))
+            return;
+
         foreach (var root in context.OperationBlocks)
         {
-            if (root is not IMethodBodyOperation body)
-                continue;
-            ControlFlowGraph graph;
-            try { graph = ControlFlowGraph.Create(body); }
+            // The Roslyn host may expose either a method-body or block root;
+            // asking the context for its CFG handles both without silently
+            // skipping analysis for the IBlockOperation case.
+            ControlFlowGraph? graph;
+            try { graph = context.GetControlFlowGraph(root); }
             catch (ArgumentException) { continue; }
+            if (graph is null)
+                continue;
             var blocks = graph.Blocks.ToArray();
             if (blocks.Length == 0)
                 continue;
@@ -121,9 +133,9 @@ public sealed class SnapshotAuthorizationDominanceAnalyzer : DiagnosticAnalyzer
             var current = pending.Pop();
             if (!found.Add(current.Ordinal))
                 continue;
-            if (current.FallThroughSuccessor.Destination is { } fall)
+            if (current.FallThroughSuccessor?.Destination is { } fall)
                 pending.Push(fall);
-            if (current.ConditionalSuccessor.Destination is { } conditional)
+            if (current.ConditionalSuccessor?.Destination is { } conditional)
                 pending.Push(conditional);
         }
         return found;

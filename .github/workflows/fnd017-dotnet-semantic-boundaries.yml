@@ -1,10 +1,13 @@
 name: FND-017 .NET Semantic Architecture Boundaries
 on:
   pull_request:
-    branches: [master, main, architecture/fnd017-conformance-advisory, architecture/fnd017-dotnet-compiler-boundaries, architecture/fnd017-auth-before-access-advisory, architecture/fnd017-authorization-result-flow, architecture/fnd017-cfg-dominance]
+    branches: [master, main, architecture/fnd017-conformance-advisory, architecture/fnd017-dotnet-compiler-boundaries, architecture/fnd017-auth-before-access-advisory, architecture/fnd017-authorization-result-flow, architecture/fnd017-cfg-dominance, architecture/fnd017-resource-binding, architecture/fnd017-baseline-reconciliation]
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: fnd017-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   semantic-boundaries:
     runs-on: ubuntu-latest
@@ -14,32 +17,21 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - name: Compile and test semantic architecture analyzer
-        run: >-
-          dotnet test ArchLucid.Analyzers.Tests/ArchLucid.Analyzers.Tests.csproj
-          --filter FullyQualifiedName~CoreDependencyBoundaryAnalyzerTests
-      - name: Test SecureNow authorization-before-access ordering
-        run: >-
-          dotnet test ArchLucid.Analyzers.Tests/ArchLucid.Analyzers.Tests.csproj
-          --filter FullyQualifiedName~SecureNowSnapshotAuthorizationOrderAnalyzerTests
-      - name: Test authorization result consumption and denial-path checks
-        run: >-
-          dotnet test ArchLucid.Analyzers.Tests/ArchLucid.Analyzers.Tests.csproj
-          --filter FullyQualifiedName~AuthorizationDecisionConsumptionAnalyzerTests
-      - name: Test control-flow dominance checks
-        run: >-
-          dotnet test ArchLucid.Analyzers.Tests/ArchLucid.Analyzers.Tests.csproj
-          --filter FullyQualifiedName~SnapshotAuthorizationDominanceAnalyzerTests
-      - name: Test tenant and resource authorization bindings
-        run: >-
-          dotnet test ArchLucid.Analyzers.Tests/ArchLucid.Analyzers.Tests.csproj
-          --filter FullyQualifiedName~SnapshotAuthorizationResourceBindingAnalyzerTests
+      - name: Run FND-017 analyzer and checked-in source regression tests
+        run: |
+          dotnet test ArchLucid.Analyzers.Tests/ArchLucid.Analyzers.Tests.csproj \
+            --filter 'FullyQualifiedName~CoreDependencyBoundaryAnalyzerTests|FullyQualifiedName~SecureNowSnapshotAuthorizationOrderAnalyzerTests|FullyQualifiedName~AuthorizationDecisionConsumptionAnalyzerTests|FullyQualifiedName~SnapshotAuthorizationDominanceAnalyzerTests|FullyQualifiedName~SnapshotAuthorizationResourceBindingAnalyzerTests|FullyQualifiedName~SecureNowExchangeModePatternTests|FullyQualifiedName~SecureNowActualEndpointSourceTests' \
+            --logger 'trx;LogFileName=fnd017-analyzers.trx' \
+            --results-directory fnd017-testresults
       - name: Run existing advisory conformance report
+        if: always()
         run: python3 scripts/architecture/fnd017_conformance.py --output fnd017-conformance-report.json
       - name: Publish advisory report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: fnd017-dotnet-semantic-review
-          path: fnd017-conformance-report.json
+          path: |
+            fnd017-conformance-report.json
+            fnd017-testresults/*.trx
           if-no-files-found: warn
