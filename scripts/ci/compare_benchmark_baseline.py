@@ -12,15 +12,25 @@ from pathlib import Path
 
 def load_means(results_dir: Path) -> dict[str, float]:
     means: dict[str, float] = {}
-    for path in sorted(results_dir.glob("*-report-full-compressed.json")):
+    if not results_dir.is_dir():
+        raise ValueError(f"benchmark results directory does not exist: {results_dir}")
+    result_files = sorted(results_dir.glob("*-report-full-compressed.json"))
+    if not result_files:
+        raise ValueError(f"no benchmark result files in {results_dir}")
+    for path in result_files:
         payload = json.loads(path.read_text(encoding="utf-8"))
-        for bench in payload.get("Benchmarks", []):
+        if not isinstance(payload, dict) or not isinstance(payload.get("Benchmarks"), list):
+            raise ValueError(f"malformed benchmark report: {path}")
+        for bench in payload["Benchmarks"]:
             full_name = bench.get("FullName")
             stats = bench.get("Statistics") or {}
             mean = stats.get("Mean")
             if full_name is None or mean is None:
                 continue
-            value = float(mean)
+            try:
+                value = float(mean)
+            except (TypeError, ValueError, OverflowError) as ex:
+                raise ValueError(f"invalid benchmark mean for {full_name}: {mean!r}") from ex
             if not math.isfinite(value) or value < 0:
                 raise ValueError(f"invalid benchmark mean for {full_name}: {mean!r}")
             if str(full_name) in means:
@@ -43,6 +53,11 @@ def main() -> int:
         if not math.isfinite(limit) or limit <= 0:
             raise ValueError(f"invalid benchmark baseline for {full_name}: {limit!r}")
     actual = load_means(args.results)
+    unexpected = sorted(set(actual) - set(expected))
+    if unexpected:
+        print(f"Benchmark evidence notice: {len(unexpected)} unbaselined result(s):", file=sys.stderr)
+        for name in unexpected:
+            print(f"  {name}", file=sys.stderr)
 
     failures: list[str] = []
     for full_name, max_mean in expected.items():
