@@ -37,6 +37,12 @@ public sealed class SecureNowSnapshotAuthorizationOrderAnalyzer : DiagnosticAnal
             context.Compilation.AssemblyName != "ArchLucid.Api")
             return;
 
+        // In exchange-only mode the gates intentionally do not dominate ordinary
+        // graph reads. A recognized pair of guarded exchange checks is reviewed
+        // by the mode-aware pattern; retain legacy diagnostics otherwise.
+        if (SecureNowExchangeModePattern.HasTwoGuardedExchangeChecks(method))
+            return;
+
         // We require a guard for both the anchor and resolved run. A guard
         // appearing only after a read does not satisfy this advisory rule.
         var invocations = method.Body.DescendantNodes()
