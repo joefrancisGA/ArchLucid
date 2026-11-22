@@ -1,0 +1,17 @@
+name: FND-010 .NET Evidence Authorization
+on:
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  evidence-access:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --filter FullyQualifiedName~EvidenceReadAuthorizationGateTests
