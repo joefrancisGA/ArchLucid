@@ -24,9 +24,6 @@ public static class DiagramInfrastructureMatcher
 
         snapshot = AzureInventoryVisibleSnapshotProjection.Apply(snapshot);
 
-        Dictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId = snapshot.Resources
-            .ToDictionary(resource => resource.ResourceRowId);
-
         Dictionary<Guid, InventoryResourceProfile> resourceProfiles = snapshot.Resources
             .Select(resource => BuildResourceProfile(resource, snapshot))
             .ToDictionary(profile => profile.ResourceRowId);
@@ -49,7 +46,7 @@ public static class DiagramInfrastructureMatcher
                     labelProfile,
                     confirmedMappings,
                     resourceProfiles,
-                    resourcesByRowId,
+                    claimedResourceRowIds,
                     out DiagramInfrastructureCorrespondenceRow? confirmedRow))
             {
                 row = confirmedRow;
@@ -57,21 +54,10 @@ public static class DiagramInfrastructureMatcher
             else
             {
                 List<InventoryResourceProfile> candidates = FindCandidates(labelProfile, resourceProfiles.Values);
-                row = ClassifyNodeMatch(node, labelProfile, candidates, resourcesByRowId);
+                row = ClassifyNodeMatch(node, labelProfile, candidates, claimedResourceRowIds);
             }
 
             rows.Add(row);
-
-            if (row.CloudResourceId is Guid cloudResourceId)
-            {
-                InventoryResourceProfile? matched = resourceProfiles.Values
-                    .FirstOrDefault(profile => profile.CloudResourceId == cloudResourceId);
-
-                if (matched is not null)
-                {
-                    claimedResourceRowIds.Add(matched.ResourceRowId);
-                }
-            }
         }
 
         foreach (InventoryResourceProfile resource in resourceProfiles.Values.OrderBy(profile => profile.AzureResourceId, StringComparer.Ordinal))
@@ -115,7 +101,7 @@ public static class DiagramInfrastructureMatcher
         DiagramInfrastructureLabelProfile labelProfile,
         IReadOnlyList<InfrastructureDiagramNodeMappingPersistRecord> confirmedMappings,
         Dictionary<Guid, InventoryResourceProfile> resourceProfiles,
-        Dictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId,
+        HashSet<Guid> claimedResourceRowIds,
         out DiagramInfrastructureCorrespondenceRow confirmedRow)
     {
         InfrastructureDiagramNodeMappingPersistRecord? mapping = FindConfirmedMapping(node, labelProfile, confirmedMappings);
@@ -139,7 +125,7 @@ public static class DiagramInfrastructureMatcher
             node,
             labelProfile,
             resource,
-            resourcesByRowId,
+            claimedResourceRowIds,
             DiagramInfrastructureMatchKinds.Confirmed,
             "An architect confirmed this diagram node is this inventory resource.");
 
@@ -174,7 +160,7 @@ public static class DiagramInfrastructureMatcher
         ArchitectureDiagramNodeRecord node,
         DiagramInfrastructureLabelProfile labelProfile,
         List<InventoryResourceProfile> candidates,
-        Dictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId)
+        HashSet<Guid> claimedResourceRowIds)
     {
         if (string.IsNullOrWhiteSpace(labelProfile.NormalizedName))
         {
@@ -217,7 +203,7 @@ public static class DiagramInfrastructureMatcher
                 node,
                 labelProfile,
                 exactCandidates[0],
-                resourcesByRowId,
+                claimedResourceRowIds,
                 DiagramInfrastructureMatchKinds.Exact,
                 "Name, resource group, and resource type matched exactly.");
         }
@@ -237,7 +223,7 @@ public static class DiagramInfrastructureMatcher
                 node,
                 labelProfile,
                 probableCandidates[0],
-                resourcesByRowId,
+                claimedResourceRowIds,
                 DiagramInfrastructureMatchKinds.Probable,
                 "Name and resource group matched; resource type was compatible.");
         }
@@ -248,7 +234,7 @@ public static class DiagramInfrastructureMatcher
                 node,
                 labelProfile,
                 candidates[0],
-                resourcesByRowId,
+                claimedResourceRowIds,
                 DiagramInfrastructureMatchKinds.Possible,
                 "Only the diagram node name matched the inventory resource.");
         }
@@ -273,7 +259,7 @@ public static class DiagramInfrastructureMatcher
         ArchitectureDiagramNodeRecord node,
         DiagramInfrastructureLabelProfile labelProfile,
         InventoryResourceProfile resource,
-        Dictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId,
+        HashSet<Guid> claimedResourceRowIds,
         string matchKind,
         string explainText)
     {
@@ -304,7 +290,7 @@ public static class DiagramInfrastructureMatcher
                 $"{explainText} Security discrepancy: diagram implies private exposure but inventory shows public exposure.";
         }
 
-        _ = resourcesByRowId;
+        claimedResourceRowIds.Add(resource.ResourceRowId);
 
         return row;
     }

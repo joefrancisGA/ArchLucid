@@ -122,6 +122,8 @@ internal static class RelationalSliceReadCore
         if (string.IsNullOrWhiteSpace(value))
             return fallback;
 
-        return Enum.TryParse(value, ignoreCase: true, out TEnum parsed) ? parsed : fallback;
+        return Enum.TryParse(value, ignoreCase: true, out TEnum parsed) && Enum.IsDefined(parsed)
+            ? parsed
+            : fallback;
     }
 }

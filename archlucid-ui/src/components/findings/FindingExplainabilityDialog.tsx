@@ -75,6 +75,7 @@ export function FindingExplainabilityDialog({
   const [data, setData] = useState<FindingExplainability | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [loading, setLoading] = useState(false);
+  const activeRequestId = useRef(0);
   const [technicalAuditOpen, setTechnicalAuditOpenState] = useState(() =>
     parseFindingExplainabilityTechnicalOpenFromSearch(null),
   );
@@ -131,17 +132,25 @@ export function FindingExplainabilityDialog({
       return;
     }
 
+    const requestId = ++activeRequestId.current;
+    const isCurrentRequest = () => activeRequestId.current === requestId;
     setLoading(true);
     setFailure(null);
     setData(null);
 
     try {
       const body = await getFindingExplainability(runId, findingId.trim());
-      setData(body);
+      if (isCurrentRequest()) {
+        setData(body);
+      }
     } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      if (isCurrentRequest()) {
+        setFailure(toApiLoadFailure(e));
+      }
     } finally {
-      setLoading(false);
+      if (isCurrentRequest()) {
+        setLoading(false);
+      }
     }
   }, [runId, findingId]);
 
@@ -151,6 +160,9 @@ export function FindingExplainabilityDialog({
     }
 
     void load();
+    return () => {
+      activeRequestId.current += 1;
+    };
   }, [open, findingId, load]);
 
   const traceCompleteness =

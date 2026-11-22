@@ -262,6 +262,7 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
     jobViewFilterActive,
     scopedRows,
     displayedRows,
+    genericFilterEmptiedResults: filteredRows.length > 0 && densityFilteredRows.length === 0,
     registerSummary,
     findingIds,
     filterNoMatchPreset,

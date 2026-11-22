@@ -17,8 +17,9 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
 
         lock (_gate)
         {
+            AgentExecutionTrace replacement = Clone(trace);
             _items.RemoveAll(existing => AgentExecutionTraceUpsertPolicy.ShouldRemoveExisting(existing, trace));
-            _items.Add(Clone(trace));
+            _items.Add(replacement);
         }
 
         return Task.CompletedTask;

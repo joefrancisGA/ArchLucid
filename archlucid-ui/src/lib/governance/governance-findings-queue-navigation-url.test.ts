@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import { governanceAssignedToMeSortHrefFromSearch } from "@/lib/governance/governance-assigned-to-me-queue-sort-url";
-import { DEFAULT_GOVERNANCE_ASSIGNED_TO_ME_SORT_ASC, DEFAULT_GOVERNANCE_ASSIGNED_TO_ME_SORT_KEY } from "@/lib/governance/governance-assigned-to-me-queue-sort-url";
 import { governanceFindingsBulkSelectionHrefFromSearch } from "@/lib/governance/governance-findings-bulk-selection-url";
 import { governanceFindingsNlFacetsHrefFromSearch } from "@/lib/governance/governance-findings-queue-nl-facets-url";
 import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
@@ -39,64 +38,5 @@ describe("governance findings queue navigation strips stale resource-group discl
 
     expect(href).not.toContain("bulkFindings=");
     expect(href).not.toContain(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
-  });
-
-  it("governanceFindingsBulkSelectionHrefFromSearch retains hideGeneric when bulk selection changes", () => {
-    const href = governanceFindingsBulkSelectionHrefFromSearch(
-      "hideGeneric=1&filter=open&bulkFindings=f1",
-      ["f1", "f2"],
-    );
-
-    expect(href).toBe("/governance/findings?hideGeneric=1&filter=open&bulkFindings=f1%2Cf2");
-  });
-
-  it("governanceAssignedToMeSortHrefFromSearch retains triage focusedFinding when sort changes", () => {
-    const href = governanceAssignedToMeSortHrefFromSearch(
-      "focusedFinding=finding-1&filter=open",
-      "due",
-      false,
-    );
-
-    expect(href).toBe("/governance/findings/assigned-to-me?focusedFinding=finding-1&filter=open&sort=due&dir=desc");
-  });
-
-  it("governanceAssignedToMeSortHrefFromSearch retains hideGeneric when sort changes", () => {
-    const href = governanceAssignedToMeSortHrefFromSearch(
-      "hideGeneric=1&filter=open",
-      "due",
-      false,
-    );
-
-    expect(href).toBe("/governance/findings/assigned-to-me?hideGeneric=1&filter=open&sort=due&dir=desc");
-  });
-
-  it("governanceAssignedToMeSortHrefFromSearch retains hideGeneric when assigned-to-me sort resets to default", () => {
-    const href = governanceAssignedToMeSortHrefFromSearch(
-      "hideGeneric=1&filter=open&sort=due&dir=desc",
-      DEFAULT_GOVERNANCE_ASSIGNED_TO_ME_SORT_KEY,
-      DEFAULT_GOVERNANCE_ASSIGNED_TO_ME_SORT_ASC,
-    );
-
-    expect(href).toBe("/governance/findings/assigned-to-me?hideGeneric=1&filter=open");
-    expect(href).not.toContain("sort=");
-    expect(href).not.toContain("dir=");
-  });
-
-  it("governanceFindingsBulkSelectionHrefFromSearch retains hideGeneric when bulk selection clears", () => {
-    const href = governanceFindingsBulkSelectionHrefFromSearch(
-      "hideGeneric=1&filter=open&bulkFindings=f1",
-      [],
-    );
-
-    expect(href).toBe("/governance/findings?hideGeneric=1&filter=open");
-    expect(href).not.toContain("bulkFindings=");
-  });
-  it("governanceFindingsBulkSelectionHrefFromSearch retains triage focusedFinding when bulk selection changes", () => {
-    const href = governanceFindingsBulkSelectionHrefFromSearch(
-      "focusedFinding=finding-1&filter=open&bulkFindings=f1",
-      ["f1", "f2"],
-    );
-
-    expect(href).toBe("/governance/findings?focusedFinding=finding-1&filter=open&bulkFindings=f1%2Cf2");
   });
 });

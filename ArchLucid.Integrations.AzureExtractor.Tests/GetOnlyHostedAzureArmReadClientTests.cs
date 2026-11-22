@@ -3297,13 +3297,15 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
-    public async Task CollectSubscriptionDefenderCompanionsAsync_rejects_cross_subscription_next_link()
+    public async Task CollectSubscriptionDefenderCompanionsAsync_rejects_cross_subscription_next_link_and_continues_other_companions()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";
         int calls = 0;
-        HttpMessageHandler handler = new RecordingHandler((_, _) =>
+        List<string> requestedPaths = [];
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
         {
             calls++;
+            requestedPaths.Add(request.RequestUri?.AbsolutePath ?? string.Empty);
             string body = calls == 1
                 ? "{\"value\":[{\"name\":\"VirtualMachines\",\"properties\":{\"pricingTier\":\"Standard\"}}],\"nextLink\":\"https://management.azure.com/subscriptions/22222222-2222-2222-2222-222222222222/providers/Microsoft.Security/pricings?api-version=2024-01-01\"}"
                 : """{"value":[]}""";
@@ -3316,7 +3318,11 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
             subscriptionId,
             CancellationToken.None);
 
-        Assert.Equal(1, calls);
+        Assert.Equal(5, calls);
+        Assert.Contains(requestedPaths, path => path.EndsWith("/secureScores", StringComparison.Ordinal));
+        Assert.Contains(requestedPaths, path => path.EndsWith("/assessments", StringComparison.Ordinal));
+        Assert.Contains(requestedPaths, path => path.EndsWith("/securityContacts", StringComparison.Ordinal));
+        Assert.Single(result.Pricings);
         Assert.Contains(result.Warnings, warning => warning.Contains("defender-companions-rejected-next-link", StringComparison.Ordinal));
     }
 

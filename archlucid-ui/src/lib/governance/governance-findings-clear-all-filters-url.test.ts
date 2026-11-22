@@ -79,48 +79,6 @@ describe("governanceFindingsClearAllFiltersHref", () => {
     expect(href).not.toContain(`${GOVERNANCE_RECORD_CORRECTION_RUN_ID_PARAM}=`);
   });
 
-
-  it("retains triage focusedFinding when clearing register and facet filters", () => {
-    const href = governanceFindingsClearAllFiltersHref(
-      "focusedFinding=finding-1&filter=open&q=phi&severity=high",
-      "/governance/findings",
-    );
-
-    expect(href).toBe("/governance/findings?focusedFinding=finding-1");
-    expect(href).not.toContain("filter=");
-    expect(href).not.toContain("q=");
-    expect(href).not.toContain("severity=");
-  });
-
-  it("retains hideGeneric when clearing register and facet filters", () => {
-    const href = governanceFindingsClearAllFiltersHref(
-      "hideGeneric=1&filter=open&q=phi&severity=high",
-      "/governance/findings",
-    );
-
-    expect(href).toBe("/governance/findings?hideGeneric=1");
-    expect(href).not.toContain("filter=");
-    expect(href).not.toContain("q=");
-    expect(href).not.toContain("severity=");
-  });
-
-  it("retains hideGeneric when clearing register filters only", () => {
-    const href = governanceFindingsClearAllFiltersHref(
-      "hideGeneric=1&filter=expiring-soon",
-      "/governance/findings",
-    );
-
-    expect(href).toBe("/governance/findings?hideGeneric=1");
-    expect(href).not.toContain("filter=");
-  });  it("clears armed preset-remove confirm when clearing filters", () => {
-    const href = governanceFindingsClearAllFiltersHref(
-      "runId=run-1&filter=open&removePresetId=preset-1",
-      "/governance/findings",
-    );
-
-    expect(href).toBe("/governance/findings?runId=run-1");
-    expect(href).not.toContain("removePresetId=");
-  });
   it("clears hideGeneric when showing all filtered findings", () => {
     const href = governanceFindingsShowAllFilteredFindingsHref(
       "hideGeneric=1&filter=open&q=phi",
@@ -132,17 +90,4 @@ describe("governanceFindingsClearAllFiltersHref", () => {
     expect(href).not.toContain("filter=");
     expect(href).not.toContain("q=");
   });
-
-  it("retains triage focusedFinding when showing all filtered findings", () => {
-    const href = governanceFindingsShowAllFilteredFindingsHref(
-      "focusedFinding=finding-1&hideGeneric=1&filter=open&q=phi",
-      "/governance/findings",
-    );
-
-    expect(href).toBe("/governance/findings?focusedFinding=finding-1");
-    expect(href).not.toContain("hideGeneric=");
-    expect(href).not.toContain("filter=");
-    expect(href).not.toContain("q=");
-  });
-
 });

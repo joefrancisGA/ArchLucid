@@ -62,15 +62,28 @@ public sealed class RunExecuteOwnershipReconciliationService(
 
         RunExecuteOwnershipLeaseOptions options = _optionsMonitor.CurrentValue;
         int batchSize = Math.Clamp(options.MaxReconciliationBatchSize, 1, 500);
+        int leaseDurationSeconds = Math.Clamp(options.LeaseDurationSeconds, 30, 3600);
         IReadOnlyList<Guid> expiredRunIds = await _leaseRepository
             .ListExpiredRunIdsAsync(TimeProvider.System.GetUtcNow(), batchSize, cancellationToken)
             .ConfigureAwait(false);
 
+        string reconcilerHolder = $"reconciliation-{Guid.NewGuid():N}";
         int reconciled = 0;
         int skipped = 0;
 
         foreach (Guid runId in expiredRunIds)
         {
+            // A worker can renew or acquire the lease after the expired-candidate query.
+            bool claimed = await _leaseRepository
+                .TryAcquireOrRenewAsync(runId, reconcilerHolder, leaseDurationSeconds, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!claimed)
+            {
+                skipped++;
+                continue;
+            }
+
             bool didReconcile = await TryReconcileOneAsync(runId, cancellationToken).ConfigureAwait(false);
 
             if (didReconcile)
@@ -78,7 +91,8 @@ public sealed class RunExecuteOwnershipReconciliationService(
             else
                 skipped++;
 
-            await _leaseRepository.TryDeleteAsync(runId, cancellationToken).ConfigureAwait(false);
+            // On failure the claim expires so the run can be retried. On success release only our own claim.
+            await _leaseRepository.TryReleaseAsync(runId, reconcilerHolder, cancellationToken).ConfigureAwait(false);
         }
 
         if (expiredRunIds.Count > 0 && _logger.IsEnabled(LogLevel.Information))

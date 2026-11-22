@@ -1,4 +1,5 @@
 ﻿using System.IO.Compression;
+using System.Text.Json;
 
 using ArchLucid.Application.Traceability;
 using ArchLucid.Contracts.Architecture;
@@ -69,7 +70,7 @@ public sealed class TraceabilityBundleBuilderTests
                 tenantId,
                 workspaceId,
                 projectId,
-                It.Is<AuditEventFilter>(f => f.RunId == runGuid && f.Take == 1000),
+                It.Is<AuditEventFilter>(f => f.RunId == runGuid && f.Take == 500),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
@@ -95,6 +96,54 @@ public sealed class TraceabilityBundleBuilderTests
         zip.GetEntry("audit-evidence-summary.md").Should().NotBeNull();
         zip.GetEntry("decision-traces.json").Should().NotBeNull();
         zip.GetEntry("README.txt").Should().NotBeNull();
+    }
+
+    [Theory]
+    [InlineData(1000, false)]
+    [InlineData(1001, true)]
+    public async Task BuildAsync_UsesBoundedAuditPagesAndReportsOnlyActualOverflow(
+        int eventCount,
+        bool expectedTruncation)
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail.Setup(service => service.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun { RunId = runId.ToString("N"), RequestId = "req" },
+            });
+        InMemoryAuditRepository audit = new();
+        DateTime occurredUtc = new(2026, 11, 20, 0, 0, 0, DateTimeKind.Utc);
+        for (int index = 0; index < eventCount; index++)
+        {
+            await audit.AppendAsync(new AuditEvent
+            {
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runId,
+                OccurredUtc = occurredUtc,
+                EventType = "RunCreated",
+            }, CancellationToken.None);
+        }
+
+        TraceabilityBundleBuilder sut = new(
+            runDetail.Object, audit, Mock.Of<IAuthorityQueryService>(), Mock.Of<IManifestHashService>());
+
+        byte[]? bytes = await sut.BuildAsync(runId.ToString("N"), scope, 10_000_000, CancellationToken.None);
+
+        bytes.Should().NotBeNull();
+        using MemoryStream input = new(bytes!);
+        await using ZipArchive zip = new(input, ZipArchiveMode.Read);
+        using JsonDocument events = await JsonDocument.ParseAsync(zip.GetEntry("audit-events.json")!.Open());
+        events.RootElement.GetArrayLength().Should().Be(1000);
+        events.RootElement.EnumerateArray().Select(row => row.GetProperty("eventId").GetGuid())
+            .Should().OnlyHaveUniqueItems();
+
+        using StreamReader readme = new(zip.GetEntry("README.txt")!.Open());
+        (await readme.ReadToEndAsync()).Contains("Audit events capped", StringComparison.Ordinal)
+            .Should().Be(expectedTruncation);
     }
 
     [SkippableFact]

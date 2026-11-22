@@ -342,6 +342,50 @@ describe("RemediationPatternsClient", () => {
     expect(screen.getByTestId("remediation-pattern-approve-dialog")).toBeInTheDocument();
   });
 
+  it.each([
+    ["ArrowDown", "ArrowUp", "11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"],
+    ["ArrowUp", "ArrowDown", "22222222-2222-2222-2222-222222222222", "11111111-1111-1111-1111-111111111111"],
+  ])("selects the edge row with %s and wraps with %s", (initialKey, wrapKey, initialId, wrappedId) => {
+    mockListQuery({
+      data: [
+        {
+          patternId: "11111111-1111-1111-1111-111111111111",
+          patternKey: "storage.encrypt",
+          displayName: "Encrypt storage",
+          currentApprovedVersion: null,
+          createdByActorKey: "author",
+          createdUtc: "2026-01-01T00:00:00Z",
+          updatedUtc: "2026-01-01T00:00:00Z",
+        },
+        {
+          patternId: "22222222-2222-2222-2222-222222222222",
+          patternKey: "network.private",
+          displayName: "Private endpoints",
+          currentApprovedVersion: null,
+          createdByActorKey: "author",
+          createdUtc: "2026-01-01T00:00:00Z",
+          updatedUtc: "2026-01-01T00:00:00Z",
+        },
+      ],
+    });
+    mockDetailQuery();
+
+    render(<RemediationPatternsClient />);
+
+    const registry = screen.getByTestId("remediation-pattern-registry-table-nav");
+    fireEvent.keyDown(registry, { key: initialKey });
+    expect(routerReplaceMock).toHaveBeenLastCalledWith(
+      `/security/remediation-patterns?patternId=${initialId}`,
+      { scroll: false },
+    );
+
+    fireEvent.keyDown(registry, { key: wrapKey });
+    expect(routerReplaceMock).toHaveBeenLastCalledWith(
+      `/security/remediation-patterns?patternId=${wrappedId}`,
+      { scroll: false },
+    );
+  });
+
   it("persists pattern selection in the URL", () => {
     mockListQuery({
       data: [

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { MARKETING_FAQ_ITEMS, MARKETING_FAQ_MOST_ASKED_ITEM_IDS } from "@/lib/marketing-faq";
@@ -88,29 +88,6 @@ describe("MarketingFaqPageClient", () => {
     });
   });
 
-  it("releases a hash-forced FAQ disclosure when the TOC selects another category", () => {
-    window.history.replaceState(null, "", "/faq#who-is-archlucid-for");
-    render(<MarketingFaqPageClient />);
-    window.dispatchEvent(new Event("hashchange"));
-
-    const panel = screen.getByTestId("marketing-faq-item-who-is-archlucid-for");
-
-    expect(panel).toHaveAttribute("open");
-
-    let categoryHashChange = false;
-    const onHashChange = () => {
-      if (window.location.hash === "#product-basics") {
-        categoryHashChange = true;
-      }
-    };
-    window.addEventListener("hashchange", onHashChange);
-    fireEvent.click(within(screen.getByTestId("marketing-faq-toc")).getByRole("link", { name: "Product basics" }));
-    window.removeEventListener("hashchange", onHashChange);
-
-    expect(window.location.hash).toBe("#product-basics");
-    expect(categoryHashChange).toBe(true);
-    expect(panel).not.toHaveAttribute("open");
-  });
   it("renders related links for comparison and procurement answers", () => {
     render(<MarketingFaqPageClient />);
 

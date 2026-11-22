@@ -189,7 +189,8 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
 
             foreach (AgentExecutionTrace trace in report.ExecutionTraces
                          .OrderBy(x => x.AgentType)
-                         .ThenBy(x => x.CreatedUtc))
+                         .ThenBy(x => x.CreatedUtc)
+                         .ThenBy(x => x.TraceId, StringComparer.Ordinal))
             {
                 string taskLabel = string.IsNullOrWhiteSpace(trace.TaskId)
                     ? ArchitectureEvidenceRequestExport.TraceTaskIdNotStoredCopy

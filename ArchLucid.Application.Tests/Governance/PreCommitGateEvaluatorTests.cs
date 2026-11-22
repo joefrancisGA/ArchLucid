@@ -113,6 +113,20 @@ public sealed class PreCommitGateEvaluatorTests
     }
 
     [Fact]
+    public void Evaluate_fails_closed_for_invalid_minimum_without_critical_enforcement()
+    {
+        PreCommitGateResult result = PreCommitGateEvaluator.Evaluate(
+            [],
+            blockCommitOnCritical: false,
+            blockCommitMinimumSeverity: 99,
+            policyPackIdLabel: "pack-test",
+            warnOnlySeverities: null);
+
+        result.Blocked.Should().BeTrue();
+        result.Reason.Should().Contain("invalid minimum severity");
+    }
+
+    [Fact]
     public void Evaluate_ignores_remediated_findings_when_blocking_on_critical()
     {
         List<Finding> findings =

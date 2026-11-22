@@ -20,7 +20,11 @@ import {
   dispatchReviewsNewWizardContinueRequested,
   requestReviewsNewWizardAutoRestore,
 } from "@/lib/reviews-new-wizard-session-resume";
-import { WIZARD_SESSION_IDS, writeWizardSessionSnapshot } from "@/lib/wizard-session-persistence";
+import {
+  readWizardSessionSnapshot,
+  WIZARD_SESSION_IDS,
+  writeWizardSessionSnapshot,
+} from "@/lib/wizard-session-persistence";
 
 type TestState = {
   readonly title: string;
@@ -156,6 +160,34 @@ describe("useWizardSessionPersistence (TB-2157)", () => {
     expect(screen.queryByRole("button", { name: "Resume saved wizard" })).not.toBeInTheDocument();
   });
 
+
+  it("cancels a pending debounced persist on unmount without flushing later writes", async () => {
+    vi.useFakeTimers();
+
+    writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart, {
+      stepIndex: 0,
+      state: { title: "First" },
+    });
+
+    const view = render(<TestHarness state={{ title: "First" }} onRestore={vi.fn()} />);
+
+    await act(async () => {
+      vi.advanceTimersByTime(900);
+    });
+
+    view.rerender(<TestHarness state={{ title: "Second draft" }} onRestore={vi.fn()} />);
+    view.unmount();
+
+    await act(async () => {
+      vi.advanceTimersByTime(2000);
+    });
+
+    const snapshot = readWizardSessionSnapshot<{ title: string }>(WIZARD_SESSION_IDS.reviewsNewQuickStart);
+
+    expect(snapshot?.state.title).toBe("First");
+
+    vi.useRealTimers();
+  });
   it("auto-accepts restore when the hub resume strip continues on the same page", async () => {
     writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart, {
       stepIndex: 0,

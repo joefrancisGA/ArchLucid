@@ -6,6 +6,37 @@
 # ArchLucid changelog
 
 
+## 2026-11-21 - Score lift round 105 (batch 70): Policy enforced, health tiles, deliverables export, investigation ROI
+
+**Outcome.** Policy enforced-rules empty names successful read with zero rules. System health summary tiles state point-in-time rollup discipline. Deliverables blocked primary export names unsealed gate versus load failure. Investigation-effort blocking banner names incomplete worksheet versus failed read.
+
+**Surfaces.** Policy packs enforced table, system health page, run detail deliverables exports, SecureNow investigation effort, honesty and mounted contract tests.
+
+
+
+
+
+## 2026-11-21 - Score lift round 101 (batch 66): Uncited band, hide generic, lifecycle hash, last-visit restore
+
+**Outcome.** Review uncited band and governance hide-generic filter name empty-not-load-failure. Lifecycle tab hash restore and findings last-visit toolbar restore distinguish restore from failed read.
+
+**Surfaces.** Run detail findings workspace, governance findings results, review tab shell, honesty and mounted contract tests.
+## 2026-11-21 - Score lift round 104 (batch 69): Connection partial, findings header, graph filter, attack path table
+
+**Outcome.** Connection status names partial capture versus a failed configuration read. Run detail findings header mounts partial-capture recovery above the toolbar. Evidence graph names type-filter empty versus graph load failure. Attack path table names partial-capture thin ranking versus failed report read.
+
+**Surfaces.** Connection status dashboard, run detail findings workspace, evidence graph loaded experience, remediation factory attack path report, honesty and mounted contract tests.
+## 2026-11-21 - Score lift round 103 (batch 68): Resource hub, extract pending, reviews hub, governance collection
+
+**Outcome.** Resource hub findings names stored-scope empty versus load failure. Extract upload names accepted-without-linked-review versus failed read. Reviews hub mounts open-gate collection blocker with hub-specific not-failure copy. Governance findings empty queue names missing collection versus failed read.
+
+**Surfaces.** Resource hub, extract upload accepted panel, reviews hub, governance findings empty, honesty and mounted contract tests.
+
+## 2026-11-21 - Score lift round 102 (batch 67): Guided toolbar, presenter, diagram stale, home open gate
+
+**Outcome.** Guided review findings names toolbar filter-empty apart from load failure. Presenter mode names zero findings apart from a failed read. Diagram reconcile names stale pinned snapshot with filter-empty table. Operator home mounts open-gate collection blocker with not-failure discipline.
+
+**Surfaces.** Run detail findings workspace, review detail presenter, diagram reconcile workbench, operator home, honesty and mounted contract tests.
 
 ## 2026-11-20 - Score lift round 100 (batch 65): Manifest lineage, share package, seal delta, compare lifecycle
 

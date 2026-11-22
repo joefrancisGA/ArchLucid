@@ -157,6 +157,7 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
 
   const seenKeys = new Set<string>();
   const claimedUrls = new Set<string>();
+  const claimedDestinations = new Set(staticRows.map((row) => helpDocLinkHref(row.url)));
 
   for (const e of staticRows) {
     seenKeys.add(`${e.category}|${e.title}|${e.url}`);
@@ -168,17 +169,20 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
   for (const e of fetched) {
     const k = `${e.category}|${e.title}|${e.url}`;
     const mergeDedupeKey = docIndexMergeDedupeKey(e.url);
+    const destination = helpDocLinkHref(e.url);
+    const isDeepLink = docIndexFetchedUrlHasDeepLinkSuffix(e.url);
     const duplicateNormalizedPath =
       mergeDedupeKey !== "/help"
       && claimedUrls.has(mergeDedupeKey)
-      && !docIndexFetchedUrlHasDeepLinkSuffix(e.url)
+      && !isDeepLink
       && !mergedIncludesDeepLinkVariantForKey(merged, mergeDedupeKey);
 
-    if (seenKeys.has(k) || duplicateNormalizedPath) {
+    if (seenKeys.has(k) || duplicateNormalizedPath || (isDeepLink && claimedDestinations.has(destination))) {
       continue;
     }
 
     seenKeys.add(k);
+    claimedDestinations.add(destination);
 
     if (mergeDedupeKey !== "/help") {
       claimedUrls.add(mergeDedupeKey);

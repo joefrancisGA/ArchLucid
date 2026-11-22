@@ -24,10 +24,12 @@ public sealed partial class AgentExecutionTraceRepository
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
 
         // Each key is patched only when supplied, so a partial upload does not blank the keys it did not write.
         AgentExecutionTracePatch? patch = await AgentExecutionTraceJsonPatcher.TryMutateAsync(
             connection,
+            transaction,
             traceId,
             trace =>
             {
@@ -38,7 +40,10 @@ public sealed partial class AgentExecutionTraceRepository
             cancellationToken);
 
         if (patch is null)
+        {
+            transaction.Commit();
             return;
+        }
 
         // Columns take the post-merge values: this statement assigns unconditionally, unlike the COALESCE inline update.
         await connection.ExecuteAsync(new CommandDefinition(
@@ -51,7 +56,10 @@ public sealed partial class AgentExecutionTraceRepository
                 patch.Trace.FullResponseBlobKey,
                 TraceJson = patch.Json
             },
+            transaction,
             cancellationToken: cancellationToken));
+
+        transaction.Commit();
     }
 
     /// <inheritdoc />
@@ -85,9 +93,11 @@ public sealed partial class AgentExecutionTraceRepository
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
 
         AgentExecutionTracePatch? patch = await AgentExecutionTraceJsonPatcher.TryMutateAsync(
             connection,
+            transaction,
             traceId,
             trace =>
             {
@@ -98,7 +108,10 @@ public sealed partial class AgentExecutionTraceRepository
             cancellationToken);
 
         if (patch is null)
+        {
+            transaction.Commit();
             return;
+        }
 
         // The statement COALESCEs each column, so unsupplied arguments leave the stored inline text alone.
         await connection.ExecuteAsync(new CommandDefinition(
@@ -111,7 +124,10 @@ public sealed partial class AgentExecutionTraceRepository
                 FullResponseInline = fullResponseInline,
                 TraceJson = patch.Json
             },
+            transaction,
             cancellationToken: cancellationToken));
+
+        transaction.Commit();
     }
 
     /// <inheritdoc />
@@ -126,15 +142,20 @@ public sealed partial class AgentExecutionTraceRepository
         bool? flag = failed ? true : null;
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
 
         AgentExecutionTracePatch? patch = await AgentExecutionTraceJsonPatcher.TryMutateAsync(
             connection,
+            transaction,
             traceId,
             trace => trace.InlineFallbackFailed = flag,
             cancellationToken);
 
         if (patch is null)
+        {
+            transaction.Commit();
             return;
+        }
 
         await connection.ExecuteAsync(new CommandDefinition(
             AgentExecutionTraceSql.UpdateInlineFallbackFailed,
@@ -144,7 +165,10 @@ public sealed partial class AgentExecutionTraceRepository
                 InlineFallbackFailed = flag,
                 TraceJson = patch.Json
             },
+            transaction,
             cancellationToken: cancellationToken));
+
+        transaction.Commit();
     }
 
     /// <inheritdoc />
@@ -156,15 +180,20 @@ public sealed partial class AgentExecutionTraceRepository
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
 
         AgentExecutionTracePatch? patch = await AgentExecutionTraceJsonPatcher.TryMutateAsync(
             connection,
+            transaction,
             traceId,
             trace => trace.QualityWarning = qualityWarning,
             cancellationToken);
 
         if (patch is null)
+        {
+            transaction.Commit();
             return;
+        }
 
         await connection.ExecuteAsync(new CommandDefinition(
             AgentExecutionTraceSql.UpdateQualityWarning,
@@ -174,7 +203,10 @@ public sealed partial class AgentExecutionTraceRepository
                 TraceJson = patch.Json,
                 QualityWarning = qualityWarning
             },
+            transaction,
             cancellationToken: cancellationToken));
+
+        transaction.Commit();
     }
 
     /// <inheritdoc />
@@ -186,15 +218,20 @@ public sealed partial class AgentExecutionTraceRepository
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
 
         AgentExecutionTracePatch? patch = await AgentExecutionTraceJsonPatcher.TryMutateAsync(
             connection,
+            transaction,
             traceId,
             trace => trace.QualityRejected = qualityRejected,
             cancellationToken);
 
         if (patch is null)
+        {
+            transaction.Commit();
             return;
+        }
 
         await connection.ExecuteAsync(new CommandDefinition(
             AgentExecutionTraceSql.UpdateQualityRejected,
@@ -204,7 +241,10 @@ public sealed partial class AgentExecutionTraceRepository
                 TraceJson = patch.Json,
                 QualityRejected = qualityRejected
             },
+            transaction,
             cancellationToken: cancellationToken));
+
+        transaction.Commit();
     }
 
     /// <inheritdoc />
@@ -226,10 +266,12 @@ public sealed partial class AgentExecutionTraceRepository
         bool qualityRejected = recordedOutcome == AgentOutputQualityGateOutcome.Rejected;
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
 
         // First outcome wins: the read filter and the write predicate both require an unrecorded outcome.
         AgentExecutionTracePatch? patch = await AgentExecutionTraceJsonPatcher.TryMutateUnrecordedQualityGateAsync(
             connection,
+            transaction,
             traceId,
             trace =>
             {
@@ -251,7 +293,10 @@ public sealed partial class AgentExecutionTraceRepository
             cancellationToken);
 
         if (patch is null)
+        {
+            transaction.Commit();
             return;
+        }
 
         await connection.ExecuteAsync(new CommandDefinition(
             AgentExecutionTraceSql.UpdateQualityGateRecordedSnapshot,
@@ -269,6 +314,9 @@ public sealed partial class AgentExecutionTraceRepository
                 RecordedRejectReasonCategory = evaluationSnapshot?.RejectReasonCategory,
                 RecordedTriageScenarioId = evaluationSnapshot?.TriageScenarioId,
             },
+            transaction,
             cancellationToken: cancellationToken));
+
+        transaction.Commit();
     }
 }

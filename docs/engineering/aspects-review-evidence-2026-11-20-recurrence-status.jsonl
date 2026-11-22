@@ -1,0 +1,1 @@
+{"baseline":"253529b2d198528404c5922133cb5c7a5b4e43a7","blob":"7acdaaed0334d69b73835b6343a1f22643ca2022","path":"ArchLucid.Application/Governance/RecurrenceScheduleValidation.cs","spans":[[1,2],[4,4],[6,9],[11,11],[13,15],[17,17],[19,25],[27,29],[31,31],[33,39],[41,43],[45,52]],"defect_id":"ASPECTS-7450","verified":true}

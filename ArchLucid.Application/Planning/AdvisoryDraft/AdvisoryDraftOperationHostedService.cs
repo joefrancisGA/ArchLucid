@@ -93,7 +93,7 @@ public sealed class AdvisoryDraftOperationHostedService(
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
-            await _store.MarkCanceledAsync(item.Scope, item.OperationId, stoppingToken);
+            await _store.MarkCanceledAsync(item.Scope, item.OperationId, CancellationToken.None);
         }
         catch (Exception ex)
         {

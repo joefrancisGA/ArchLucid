@@ -669,6 +669,21 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculatorTests
             "Cronos calendar aliases overflow when advancing from DateTime.MaxValue; persisted recurrence never supplies that reference");
     }
 
+
+    [Fact]
+    public void ComputeNextRunUtc_converts_local_kind_returned_by_schedule_calculator()
+    {
+        DateTime reference = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);
+        DateTime localResult = DateTime.SpecifyKind(reference.AddHours(2).ToLocalTime(), DateTimeKind.Local);
+        StubScanScheduleCalculator stub = new(localResult, localResult.AddHours(1));
+        ArchitectureReviewRecurrenceNextRunCalculator sut = new(stub);
+
+        DateTime? next = sut.ComputeNextRunUtc("@hourly", reference);
+
+        next.Should().Be(reference.AddHours(2));
+        next!.Value.Kind.Should().Be(DateTimeKind.Utc);
+    }
+
     private sealed class PastThenUnspecifiedScanScheduleCalculator : IScanScheduleCalculator
     {
         private readonly DateTime _first;

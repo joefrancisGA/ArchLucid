@@ -248,7 +248,7 @@ public abstract class AgentResultRepositoryContractTests
         projected[0].Findings[0].IacStub.Should().BeNull();
     }
 
-    private static AgentTask NewTaskRow(string runId, string taskId)
+    protected static AgentTask NewTaskRow(string runId, string taskId)
     {
         return new AgentTask
         {
@@ -262,7 +262,7 @@ public abstract class AgentResultRepositoryContractTests
         };
     }
 
-    private static AgentResult NewResult(string runId, string taskId, string resultId, DateTime createdUtc)
+    protected static AgentResult NewResult(string runId, string taskId, string resultId, DateTime createdUtc)
     {
         return new AgentResult
         {

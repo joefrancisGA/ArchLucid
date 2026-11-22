@@ -1,5 +1,8 @@
+using System.Text.Json;
+
 using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.InfraEvidence;
@@ -166,6 +169,54 @@ public sealed class FourRealityDriftEngineTests
         finding.InventoryDiffId.Should().Be(DiffId);
     }
 
+    [Fact]
+    public async Task RunAsync_uses_later_diagram_reconciliation_after_json_null()
+    {
+        ScopeContext scope = CreateScope();
+        AzureInventorySnapshotDetailReadModel currentSnapshot = BuildSnapshot(
+            CurrentSnapshotId,
+            enablePublicNetworkAccess: true,
+            terraformPublicNetworkAccess: null);
+        InMemorySecurityEvidencePathRepository pathRepository = new();
+        SeedPrivilegePath(pathRepository);
+
+        InMemoryOperationalSecurityFindingRepository findingRepository = new();
+        DiagramInfrastructureReconciliationResult validReconciliation = new()
+        {
+            SnapshotId = CurrentSnapshotId,
+            Rows =
+            [
+                new DiagramInfrastructureCorrespondenceRow
+                {
+                    CloudResourceId = StorageCloudResourceId,
+                    DiagramNodeLabel = "SQL (private endpoint only)",
+                },
+            ],
+        };
+        FourRealityDriftEngine sut = CreateEngine(
+            scope,
+            currentSnapshot,
+            priorSnapshot: null,
+            diffChanges: [],
+            pathRepository,
+            findingRepository,
+            reconciliationRecords:
+            [
+                new ArchitectureDiagramReconciliationPersistRecord { ResultJson = "null" },
+                new ArchitectureDiagramReconciliationPersistRecord { ResultJson = JsonSerializer.Serialize(validReconciliation) },
+            ]);
+
+        PrivilegePathEngineResult result = await sut.RunAsync(
+            scope,
+            CurrentSnapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.PathsDiscovered.Should().Be(1);
+        findingRepository.StoredFindings.Should().ContainSingle();
+    }
+
     private static void SeedPrivilegePath(InMemorySecurityEvidencePathRepository pathRepository)
     {
         DateTime utcNow = DateTime.UtcNow;
@@ -213,7 +264,8 @@ public sealed class FourRealityDriftEngineTests
         AzureInventorySnapshotDetailReadModel? priorSnapshot,
         IReadOnlyList<AzureInventoryChangeRecord> diffChanges,
         InMemorySecurityEvidencePathRepository pathRepository,
-        InMemoryOperationalSecurityFindingRepository findingRepository)
+        InMemoryOperationalSecurityFindingRepository findingRepository,
+        IReadOnlyList<ArchitectureDiagramReconciliationPersistRecord>? reconciliationRecords = null)
     {
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
         snapshotRepository
@@ -269,7 +321,7 @@ public sealed class FourRealityDriftEngineTests
         Mock<IArchitectureDiagramReconciliationRepository> reconciliationRepository = new();
         reconciliationRepository
             .Setup(repository => repository.ListBySnapshotAsync(scope.TenantId, CurrentSnapshotId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync(reconciliationRecords ?? []);
 
         OperationalSecurityFindingIngestService ingestService = CreateIngestService(findingRepository);
 

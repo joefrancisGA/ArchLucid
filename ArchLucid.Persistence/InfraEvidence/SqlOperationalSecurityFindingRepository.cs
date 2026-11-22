@@ -259,7 +259,7 @@ public sealed partial class SqlOperationalSecurityFindingRepository(ISqlConnecti
                                FROM dbo.OperationalSecurityFindings
                                WHERE TenantId = @TenantId
                                  AND CloudResourceId = @CloudResourceId
-                               ORDER BY LastObservedUtc DESC
+                               ORDER BY LastObservedUtc DESC, FindingId ASC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """;
 
@@ -317,7 +317,7 @@ public sealed partial class SqlOperationalSecurityFindingRepository(ISqlConnecti
                                 """;
 
         const string listSql = ScopedResourceFindingsSql + "\n" + """
-                               ORDER BY LastObservedUtc DESC
+                               ORDER BY LastObservedUtc DESC, FindingId ASC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """;
 

@@ -31,19 +31,19 @@ internal static partial class ContextSnapshotRelationalRead
         if (objectRows.Count == 0)
             return [];
 
-        List<Guid> rowIds = objectRows.Select(r => r.CanonicalObjectRowId).ToList();
-
         const string propsSql = """
-                                SELECT CanonicalObjectRowId, PropertySortOrder, PropertyKey, PropertyValue
-                                FROM dbo.ContextSnapshotCanonicalObjectProperties
-                                WHERE CanonicalObjectRowId IN @RowIds
-                                ORDER BY CanonicalObjectRowId, PropertySortOrder;
+                                SELECT p.CanonicalObjectRowId, p.PropertySortOrder, p.PropertyKey, p.PropertyValue
+                                FROM dbo.ContextSnapshotCanonicalObjectProperties p
+                                INNER JOIN dbo.ContextSnapshotCanonicalObjects o
+                                    ON o.CanonicalObjectRowId = p.CanonicalObjectRowId
+                                WHERE o.SnapshotId = @SnapshotId
+                                ORDER BY p.CanonicalObjectRowId, p.PropertySortOrder;
                                 """;
 
         List<PropertyRow> propertyRows = (await connection.QueryAsync<PropertyRow>(
             new CommandDefinition(
                 propsSql,
-                new { RowIds = rowIds },
+                new { SnapshotId = snapshotId },
                 transaction,
                 cancellationToken: ct))).ToList();
 

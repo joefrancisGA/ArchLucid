@@ -30,7 +30,7 @@ internal static class TenantItsmConnectorConnectionRepositoryCore
             OAuthClientSecretKeyVaultSecretName = command.OAuthClientSecretKeyVaultSecretName,
             OAuthRefreshTokenKeyVaultSecretName = command.OAuthRefreshTokenKeyVaultSecretName,
             InboundWebhookKeyVaultSecretName = command.InboundWebhookKeyVaultSecretName,
-            IsEnabled = ResolveIsEnabled(command),
+            IsEnabled = ResolveIsEnabled(command, authMode),
             Label = command.Label,
             UpdatedUtc = updatedUtc
         };
@@ -88,7 +88,9 @@ internal static class TenantItsmConnectorConnectionRepositoryCore
             ? ItsmConnectorAuthMode.BasicApiToken
             : authMode;
 
-    public static bool ResolveIsEnabled(TenantItsmConnectorConnectionUpsertCommand command)
+    public static bool ResolveIsEnabled(
+        TenantItsmConnectorConnectionUpsertCommand command,
+        ItsmConnectorAuthMode effectiveAuthMode)
     {
         ArgumentNullException.ThrowIfNull(command);
 
@@ -98,7 +100,7 @@ internal static class TenantItsmConnectorConnectionRepositoryCore
         if (string.IsNullOrWhiteSpace(command.InstanceBaseUrl))
             return false;
 
-        return command.AuthMode switch
+        return effectiveAuthMode switch
         {
             ItsmConnectorAuthMode.BasicApiToken =>
                 !string.IsNullOrWhiteSpace(command.CredentialKeyVaultSecretName),

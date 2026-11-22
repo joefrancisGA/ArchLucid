@@ -11,6 +11,33 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 [Trait("Suite", "Core")]
 public sealed class AzureExtractorPackageInventoryReaderTests
 {
+    [Theory]
+    [InlineData("null")]
+    [InlineData("\"  \"")]
+    public void TryReadFromZip_uses_alternate_resource_fields_when_preferred_fields_are_empty(string emptyJsonValue)
+    {
+        byte[] zipBytes = BuildZip(
+            $$"""
+            [
+              {
+                "resourceId": {{emptyJsonValue}},
+                "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1",
+                "resourceType": {{emptyJsonValue}},
+                "type": "Microsoft.Web/sites"
+              }
+            ]
+            """);
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].AzureResourceId.Should().Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1");
+        result.Resources[0].ResourceType.Should().Be("Microsoft.Web/sites");
+    }
+
     [Fact]
     public void TryReadFromZip_keeps_unknown_resource_type()
     {

@@ -8,8 +8,11 @@ internal static partial class GcpSkuPricingParser
     {
         hourlyUsd = 0m;
 
-        if (!TryGetPropertyCaseInsensitive(sku, "description", out JsonElement descriptionElement))
+        if (!TryGetPropertyCaseInsensitive(sku, "description", out JsonElement descriptionElement)
+            || descriptionElement.ValueKind != JsonValueKind.String)
+        {
             return false;
+        }
 
         string? description = descriptionElement.GetString();
 

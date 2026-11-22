@@ -60,7 +60,8 @@ internal static class AzureInventorySnapshotRecoveryServicesEdgeHydrator
 
             foreach (AzureInventoryRecoveryServicesProtectedItemRow item in ReadProtectedItems(property.PropertyValue))
             {
-                if (!item.CollectionStatus.Equals(
+                if (!string.Equals(
+                        item.CollectionStatus,
                         AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
                         StringComparison.OrdinalIgnoreCase)
                     || string.IsNullOrWhiteSpace(item.SourceResourceId))

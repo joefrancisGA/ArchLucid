@@ -364,6 +364,7 @@ export default function GovernanceFindingsQueueClient({
         assignedToMeOldestFindingTarget={synopsis.assignedToMeOldestFindingTarget}
         firstFindingTriageTarget={synopsis.firstFindingTriageTarget}
         hideGenericLowDensity={hideGenericLowDensity}
+        genericFilterEmptiedResults={synopsis.genericFilterEmptiedResults}
         onHideGenericLowDensityChange={setHideGenericLowDensity}
         showInsightDensityScore={isWorkingMode}
         selectedFindingIds={bulkActions.selectedFindingIds}

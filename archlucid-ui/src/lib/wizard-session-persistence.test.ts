@@ -49,6 +49,13 @@ describe("wizard-session-persistence (TB-2157)", () => {
     expect(snapshot?.state.briefText).toBe("Context");
   });
 
+  it("returns null when stored JSON is corrupted", () => {
+    const key = buildWizardSessionStorageKey(WIZARD_SESSION_IDS.reviewsNewQuickStart);
+
+    window.sessionStorage.setItem(key, "{not-json");
+
+    expect(readWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart)).toBeNull();
+  });
   it("clears persisted wizard state on successful completion", () => {
     writeWizardSessionSnapshot(WIZARD_SESSION_IDS.adminSsoWizard, {
       stepIndex: 1,

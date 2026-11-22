@@ -82,8 +82,61 @@ public sealed class CloudResourceEvidenceHubServiceTests
         result.Succeeded.Should().BeFalse();
     }
 
+
     [Fact]
-    public async Task TryGetHubAsync_labels_operational_and_architecture_finding_streams_separately()
+    public async Task TryGetHubAsync_empty_snapshot_query_uses_last_seen_snapshot_for_hub_slice()
+    {
+        Guid cloudResourceId = Guid.NewGuid();
+        Guid lastSeenSnapshotId = Guid.NewGuid();
+        ScopeContext scope = CreateScope();
+
+        FakeCloudResourceIdentityDirectory identityDirectory = new();
+        identityDirectory.Records[cloudResourceId] = new CloudResourceIdentityRecord
+        {
+            CloudResourceId = cloudResourceId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            Provider = CloudProvider.Azure,
+            ExternalResourceIdNormalized =
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-1",
+            LastSeenSnapshotId = lastSeenSnapshotId,
+        };
+
+        Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
+        snapshotRepository
+            .Setup(repo => repo.ListResourcesBySnapshotIdPagedAsync(
+                scope,
+                lastSeenSnapshotId,
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                cloudResourceId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((new List<AzureInventoryResourceRecord>(), 0));
+
+        CloudResourceEvidenceHubService service = CreateService(
+            identityDirectory,
+            snapshotRepository: snapshotRepository.Object);
+
+        CloudResourceEvidenceHubQueryResult result = await service.TryGetHubAsync(
+            scope,
+            cloudResourceId,
+            new CloudResourceEvidenceHubQuery { SnapshotId = Guid.Empty },
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        snapshotRepository.Verify(
+            repo => repo.ListResourcesBySnapshotIdPagedAsync(
+                scope,
+                lastSeenSnapshotId,
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                cloudResourceId,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+    [Fact]
+    public async Task TryGetHubAsync_pages_architecture_findings_and_labels_finding_streams_separately()
     {
         Guid cloudResourceId = Guid.NewGuid();
         Guid tenantId = Guid.NewGuid();
@@ -144,6 +197,26 @@ public sealed class CloudResourceEvidenceHubServiceTests
                             Severity = FindingSeverity.Warning,
                             RelatedNodeIds = ["node-vm-1"],
                         },
+                        new Finding
+                        {
+                            FindingId = "arch-finding-2",
+                            Title = "Zone coverage gap",
+                            Severity = FindingSeverity.Warning,
+                            Rationale = $"Check zone coverage for {externalResourceId}.",
+                        },
+                        new Finding
+                        {
+                            FindingId = "arch-finding-other-node",
+                            Title = "Availability gap on the other VM",
+                            Severity = FindingSeverity.Warning,
+                            RelatedNodeIds = ["node-vm-10"],
+                        },
+                        new Finding
+                        {
+                            FindingId = "arch-finding-other-text",
+                            Title = $"Review scaling for {externalResourceId}0",
+                            Severity = FindingSeverity.Warning,
+                        },
                     ],
                 },
                 GraphSnapshot = new GraphSnapshot
@@ -156,6 +229,13 @@ public sealed class CloudResourceEvidenceHubServiceTests
                             NodeType = "Compute",
                             Label = "vm-1",
                             SourceId = externalResourceId,
+                        },
+                        new GraphNode
+                        {
+                            NodeId = "node-vm-10",
+                            NodeType = "Compute",
+                            Label = "vm-10",
+                            Properties = new() { ["armResourceId"] = externalResourceId + "0" },
                         },
                     ],
                 },
@@ -182,7 +262,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
         CloudResourceEvidenceHubQueryResult result = await hubService.TryGetHubAsync(
             scope,
             cloudResourceId,
-            new CloudResourceEvidenceHubQuery { RunId = runId, SnapshotId = snapshotId },
+            new CloudResourceEvidenceHubQuery { RunId = runId, SnapshotId = snapshotId, PageSize = 1 },
             CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
@@ -203,6 +283,21 @@ public sealed class CloudResourceEvidenceHubServiceTests
         result.Hub.ArchitectureReviewFindings.Items.Should().ContainSingle();
         result.Hub.ArchitectureReviewFindings.Items[0].StreamKind
             .Should().Be(CloudResourceEvidenceFindingStreamKinds.ArchitectureReview);
+        result.Hub.ArchitectureReviewFindings.Items[0].Title.Should().Be("Subnet segmentation gap");
+        result.Hub.ArchitectureReviewFindings.TotalCount.Should().Be(2);
+        result.Hub.ArchitectureReviewFindings.HasMore.Should().BeTrue();
+
+        CloudResourceEvidenceHubQueryResult nextPage = await hubService.TryGetHubAsync(
+            scope,
+            cloudResourceId,
+            new CloudResourceEvidenceHubQuery { RunId = runId, SnapshotId = snapshotId, Page = 2, PageSize = 1 },
+            CancellationToken.None);
+
+        nextPage.Succeeded.Should().BeTrue();
+        nextPage.Hub!.ArchitectureReviewFindings.Items.Should().ContainSingle()
+            .Which.Title.Should().Be("Zone coverage gap");
+        nextPage.Hub.ArchitectureReviewFindings.TotalCount.Should().Be(2);
+        nextPage.Hub.ArchitectureReviewFindings.HasMore.Should().BeFalse();
     }
 
     [Fact]

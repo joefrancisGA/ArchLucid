@@ -40,7 +40,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
         if (!_byId.TryAdd(architectureId, record))
             throw new InvalidOperationException($"Architecture identity id '{architectureId:D}' already exists.");
 
-        return Task.FromResult(record);
+        return Task.FromResult(Clone(record));
     }
 
     public Task<ArchitectureIdentityRecord?> GetByIdAsync(
@@ -59,7 +59,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
             record.ScopeProjectId != scope.ProjectId)
             return Task.FromResult<ArchitectureIdentityRecord?>(null);
 
-        return Task.FromResult<ArchitectureIdentityRecord?>(record);
+        return Task.FromResult<ArchitectureIdentityRecord?>(Clone(record));
     }
 
     public Task UpdateCurrentModelAsync(
@@ -209,6 +209,25 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
 
         return Task.FromResult(count);
     }
+
+    // Never expose the mutable dictionary value to callers: a changed scope or
+    // RestrictToShares on that object would otherwise bypass repository mutation APIs.
+    private static ArchitectureIdentityRecord Clone(ArchitectureIdentityRecord record) =>
+        new()
+        {
+            ArchitectureId = record.ArchitectureId,
+            TenantId = record.TenantId,
+            WorkspaceId = record.WorkspaceId,
+            ScopeProjectId = record.ScopeProjectId,
+            DisplayName = record.DisplayName,
+            Description = record.Description,
+            CurrentModelId = record.CurrentModelId,
+            LatestSealedManifestId = record.LatestSealedManifestId,
+            CreatedUtc = record.CreatedUtc,
+            UpdatedUtc = record.UpdatedUtc,
+            ArchivedUtc = record.ArchivedUtc,
+            RestrictToShares = record.RestrictToShares,
+        };
 
     private ArchitectureIdentityRecord RequireScopedRecord(ScopeContext scope, Guid architectureId)
     {

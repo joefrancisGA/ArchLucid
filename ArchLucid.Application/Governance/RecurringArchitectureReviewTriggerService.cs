@@ -41,6 +41,7 @@ public sealed class RecurringArchitectureReviewTriggerService(
         DateTimeOffset triggeredAt = TimeProvider.System.UtcNowDateTime();
         Guid? priorTriggeredRunId = schedule.LastTriggeredRunId;
         bool checkpointPersisted = false;
+        bool executionCompleted = false;
 
         ScopeContext scope = new()
         {
@@ -100,6 +101,7 @@ public sealed class RecurringArchitectureReviewTriggerService(
                 await executeOrchestrator.ExecuteRunAsync(newRunId.ToString("N"), cancellationToken);
             }
 
+            executionCompleted = true;
             schedule.LastRunStatus = RecurrenceRunStatuses.Succeeded;
             schedule.LastErrorMessage = null;
             schedule.ConsecutiveFailureCount = 0;
@@ -131,7 +133,7 @@ public sealed class RecurringArchitectureReviewTriggerService(
                 $"{AuditEventTypes.ArchitectureReviewRecurrenceTriggered}:{schedule.ScheduleId:N}",
                 cancellationToken);
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex) when (!executionCompleted && ex is not OperationCanceledException)
         {
             if (logger.IsEnabled(LogLevel.Error))
                 logger.LogError(ex, "Recurring architecture review failed for schedule {ScheduleId}.", schedule.ScheduleId);

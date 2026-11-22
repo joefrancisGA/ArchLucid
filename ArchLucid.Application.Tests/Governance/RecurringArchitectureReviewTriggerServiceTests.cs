@@ -25,9 +25,11 @@ namespace ArchLucid.Application.Tests.Governance;
 public sealed class RecurringArchitectureReviewTriggerServiceTests
 {
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task TriggerScheduleAsync_persists_checkpoint_and_records_execution_outcome(bool notificationFails)
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public async Task TriggerScheduleAsync_persists_checkpoint_and_records_execution_outcome(
+        bool notificationFails, bool completionWriteFails)
     {
         Guid scheduleId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -46,12 +48,15 @@ public sealed class RecurringArchitectureReviewTriggerServiceTests
             NextRunUtc = new DateTime(2026, 5, 31, 8, 0, 0, DateTimeKind.Utc),
         };
 
+        InvalidOperationException completionWriteFailure = new("schedule persistence unavailable");
         List<string> callOrder = [];
         Mock<IArchitectureReviewRecurrenceScheduleRepository> schedules = new();
         schedules
             .Setup(repo => repo.UpdateAsync(It.IsAny<ArchitectureReviewRecurrenceSchedule>(), It.IsAny<CancellationToken>()))
             .Callback(() => callOrder.Add("update"))
-            .Returns(Task.CompletedTask);
+            .Returns(() => completionWriteFails && schedule.LastRunStatus == RecurrenceRunStatuses.Succeeded
+                ? Task.FromException(completionWriteFailure)
+                : Task.CompletedTask);
 
         Mock<IRunRepository> runs = new();
         runs
@@ -108,10 +113,19 @@ public sealed class RecurringArchitectureReviewTriggerServiceTests
             Mock.Of<IAuditService>(),
             NullLogger<RecurringArchitectureReviewTriggerService>.Instance);
 
-        await sut.TriggerScheduleAsync(schedule, CancellationToken.None);
+        if (completionWriteFails)
+        {
+            Func<Task> trigger = () => sut.TriggerScheduleAsync(schedule, CancellationToken.None);
+            var result = await trigger.Should().ThrowAsync<InvalidOperationException>();
+            result.Which.Should().BeSameAs(completionWriteFailure);
+        }
+        else
+        {
+            await sut.TriggerScheduleAsync(schedule, CancellationToken.None);
+        }
 
         notifications.Verify(
-            n => n.NotifyCompletionAsync(schedule, newRunId, CancellationToken.None), Times.Once);
+            n => n.NotifyCompletionAsync(schedule, newRunId, CancellationToken.None), completionWriteFails ? Times.Never() : Times.Once());
         callOrder.Should().Equal("create", "update", "execute", "update");
         schedule.IsEnabled.Should().BeTrue();
         schedule.LastErrorMessage.Should().BeNull();

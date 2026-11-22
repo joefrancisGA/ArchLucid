@@ -4,43 +4,7 @@ import { useEffect, useState } from "react";
 
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { MarketingFaqCategory } from "@/lib/marketing-faq";
-import { MARKETING_FAQ_ITEMS } from "@/lib/marketing-faq";
 import { cn } from "@/lib/utils";
-
-function readLocationCategoryHash(): string | null {
-  const hashId = window.location.hash.replace(/^#/, "").trim();
-
-  if (hashId.length === 0) {
-    return null;
-  }
-
-  return hashId;
-}
-
-function resolveActiveCategoryFromHash(
-  hashId: string,
-  categories: ReadonlyArray<MarketingFaqCategory>,
-): string | null {
-  const categoryMatch = categories.find((category) => category.id === hashId);
-
-  if (categoryMatch !== undefined) {
-    return categoryMatch.id;
-  }
-
-  const faqItem = MARKETING_FAQ_ITEMS.find((item) => item.id === hashId);
-
-  if (faqItem === undefined) {
-    return null;
-  }
-
-  const parentCategory = categories.find((category) => category.id === faqItem.categoryId);
-
-  if (parentCategory === undefined) {
-    return null;
-  }
-
-  return parentCategory.id;
-}
 
 export type MarketingFaqPageTocProps = {
   readonly categories: ReadonlyArray<MarketingFaqCategory>;
@@ -50,29 +14,6 @@ export type MarketingFaqPageTocProps = {
 export function MarketingFaqPageToc(props: MarketingFaqPageTocProps): React.JSX.Element | null {
   const { categories } = props;
   const [activeId, setActiveId] = useState<string | null>(categories[0]?.id ?? null);
-
-  useEffect(() => {
-    const syncActiveFromHash = (): void => {
-      const hashId = readLocationCategoryHash();
-
-      if (hashId === null) {
-        return;
-      }
-
-      const categoryId = resolveActiveCategoryFromHash(hashId, categories);
-
-      if (categoryId !== null) {
-        setActiveId(categoryId);
-      }
-    };
-
-    syncActiveFromHash();
-    window.addEventListener("hashchange", syncActiveFromHash);
-
-    return () => {
-      window.removeEventListener("hashchange", syncActiveFromHash);
-    };
-  }, [categories]);
 
   useEffect(() => {
     if (categories.length === 0) {
@@ -99,14 +40,6 @@ export function MarketingFaqPageToc(props: MarketingFaqPageTocProps): React.JSX.
         const id = visibleEntries[0]?.target.id;
 
         if (id && id.length > 0) {
-          const hashId = readLocationCategoryHash();
-          const hashLocksCategory =
-            hashId !== null && resolveActiveCategoryFromHash(hashId, categories) !== null;
-
-          if (hashLocksCategory) {
-            return;
-          }
-
           setActiveId(id);
         }
       },
@@ -151,8 +84,6 @@ export function MarketingFaqPageToc(props: MarketingFaqPageTocProps): React.JSX.
                 onClick={(event) => {
                   event.preventDefault();
                   window.history.pushState(null, "", `#${category.id}`);
-                  // pushState does not emit hashchange; FAQ disclosure state listens for that event.
-                  window.dispatchEvent(new Event("hashchange"));
                   document.getElementById(category.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
               >

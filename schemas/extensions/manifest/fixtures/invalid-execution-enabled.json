@@ -1,0 +1,15 @@
+{
+  "manifestVersion": "1.0.0",
+  "extensionId": "com.archlucid.example-analyzer",
+  "extensionVersion": "0.1.0",
+  "publisher": "ArchLucid example",
+  "executionMode": "enabled",
+  "capabilities": [
+    "architecture.read",
+    "finding.propose"
+  ],
+  "requestedPermissions": [
+    "architecture.read"
+  ],
+  "minimumHostContract": "1.0.0"
+}

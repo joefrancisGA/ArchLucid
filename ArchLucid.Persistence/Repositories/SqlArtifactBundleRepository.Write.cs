@@ -81,20 +81,7 @@ public sealed partial class SqlArtifactBundleRepository
                 ct);
         }
 
-        object args = new
-        {
-            bundle.BundleId,
-            bundle.RunId,
-            bundle.ManifestId,
-            bundle.CreatedUtc,
-            Status = bundle.Status.ToString(),
-            ArtifactsJson = artifactsJson,
-            TraceJson = traceJson,
-            bundle.TenantId,
-            bundle.WorkspaceId,
-            bundle.ProjectId,
-            BundlePayloadBlobUri = bundlePayloadBlobUri
-        };
+        object args = CreateBundleInsertParameters(bundle, artifactsJson, traceJson, bundlePayloadBlobUri);
 
         await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
 
@@ -102,6 +89,32 @@ public sealed partial class SqlArtifactBundleRepository
 
         await InsertArtifactBundleArtifactsRelationalAsync(bundle, connection, transaction, ct, persistContext);
         await InsertArtifactBundleTraceRelationalAsync(bundle, connection, transaction, ct);
+    }
+
+    internal static object CreateBundleInsertParameters(
+        ArtifactBundle bundle,
+        string artifactsJson,
+        string traceJson,
+        string? bundlePayloadBlobUri)
+    {
+        ArgumentNullException.ThrowIfNull(bundle);
+
+        bool payloadIsOffloaded = !string.IsNullOrWhiteSpace(bundlePayloadBlobUri);
+
+        return new
+        {
+            bundle.BundleId,
+            bundle.RunId,
+            bundle.ManifestId,
+            bundle.CreatedUtc,
+            Status = bundle.Status.ToString(),
+            ArtifactsJson = payloadIsOffloaded ? string.Empty : artifactsJson,
+            TraceJson = payloadIsOffloaded ? string.Empty : traceJson,
+            bundle.TenantId,
+            bundle.WorkspaceId,
+            bundle.ProjectId,
+            BundlePayloadBlobUri = bundlePayloadBlobUri
+        };
     }
 
     private static async Task InsertArtifactBundleArtifactsRelationalAsync(

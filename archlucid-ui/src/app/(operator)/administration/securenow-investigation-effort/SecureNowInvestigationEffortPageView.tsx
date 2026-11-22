@@ -28,6 +28,7 @@ import {
 import { resolveSecureNowInvestigationEffortResultState } from "@/lib/product-line/securenow-investigation-effort-result-state";
 import { SECURENOW_INVESTIGATION_EFFORT_OPERATOR_ROI_DISCIPLINE_LINE } from "@/lib/product-line/securenow-investigation-effort-operator-roi-discipline-copy";
 import { formatSecureNowInvestigationEffortBlockingBanner } from "@/lib/product-line/securenow-investigation-effort-blocking-banner-copy";
+import { SECURENOW_INVESTIGATION_EFFORT_BLOCKING_NOT_LOAD_FAILURE_LINE } from "@/lib/product-line/securenow-investigation-effort-blocking-not-load-failure-copy";
 import {
   loadSecureNowInvestigationEffortInputs,
   persistSecureNowInvestigationEffortInputsToAudit,
@@ -144,6 +145,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
             data-testid="securenow-investigation-effort-blocking-banner"
           >
             <p className={OPERATOR_TYPOGRAPHY.body}>{formatSecureNowInvestigationEffortBlockingBanner(resultState.reason)}</p>
+            <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-investigation-effort-blocking-not-load-failure">{SECURENOW_INVESTIGATION_EFFORT_BLOCKING_NOT_LOAD_FAILURE_LINE}</p>
             {resultState.incompleteReason === "missing_fields" ? (
               <SecureNowInvestigationEffortMissingFieldLabelsLine inputs={inputs} />
             ) : (

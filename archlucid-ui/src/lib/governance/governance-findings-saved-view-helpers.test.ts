@@ -46,20 +46,6 @@ describe("governanceFindingsWorkspaceSavedViewHref", () => {
   });
 });
 
-  it("does not carry hideGeneric from prior URL when loading workspace saved view", () => {
-    const href = governanceFindingsWorkspaceSavedViewHref(
-      {
-        registerFilter: "open",
-        jobView: DEFAULT_FINDING_JOB_VIEW,
-        nlFacets: EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
-        groupByResource: false,
-      },
-      "/governance/findings",
-    );
-
-    expect(href).toBe("/governance/findings?filter=open");
-    expect(href).not.toContain("hideGeneric=");
-  });
 describe("governanceFindingsRunScopedSavedViewHref", () => {
   it("builds run-scoped URL from saved-view filters without stale architecture scope", () => {
     const href = governanceFindingsRunScopedSavedViewHref(

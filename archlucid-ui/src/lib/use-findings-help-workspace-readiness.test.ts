@@ -1,8 +1,10 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { ProductLineProvider, useProductLine } from "@/components/product-line/ProductLineProvider";
 import { fetchGovernanceFindingsRegistersBundle } from "@/lib/api/governance-stickiness-api";
 import { FINDINGS_HELP_READINESS_LABELS } from "@/lib/findings/findings-help-guide-content";
+import { persistProductLineCookie } from "@/lib/product-line/product-line-storage";
 import { useFindingsHelpWorkspaceReadiness } from "@/lib/use-findings-help-workspace-readiness";
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
@@ -118,5 +120,36 @@ describe("useFindingsHelpWorkspaceReadiness", () => {
     expect(result.current.criticalAndError.valueLabel).toBe("0");
     expect(result.current.awaitingDecision.valueLabel).toBe("0");
     expect(result.current.recentlyResolved.valueLabel).toBe("0");
+  });
+
+  it.each(["success", "failure"])("ignores the previous product's late %s", async (outcome) => {
+    const previous = Promise.withResolvers<Awaited<ReturnType<typeof fetchGovernanceFindingsRegistersBundle>>>();
+    const emptyBundle = { riskRegister: { entries: [] }, decisionRegister: { decisions: [] } };
+    mockedBundle.mockReturnValueOnce(previous.promise).mockResolvedValueOnce(emptyBundle);
+
+    const { result } = renderHook(() => ({
+      readiness: useFindingsHelpWorkspaceReadiness(),
+      setProductLine: useProductLine().setProductLine,
+    }), { wrapper: ProductLineProvider });
+
+    try {
+      act(() => result.current.setProductLine("security"));
+      await waitFor(() => {
+        expect(result.current.readiness.criticalAndError.href).toBe("/compliance/findings?filter=critical-error");
+      });
+
+      await act(async () => {
+        if (outcome === "success") {
+          previous.resolve(emptyBundle);
+        } else {
+          previous.reject(new Error("Superseded request failed"));
+        }
+      });
+
+      expect(result.current.readiness.loadFailed).toBe(false);
+      expect(result.current.readiness.criticalAndError.href).toBe("/compliance/findings?filter=critical-error");
+    } finally {
+      persistProductLineCookie(null);
+    }
   });
 });

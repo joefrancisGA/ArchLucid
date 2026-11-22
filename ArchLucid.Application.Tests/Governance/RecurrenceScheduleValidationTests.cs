@@ -71,6 +71,19 @@ public sealed class RecurrenceScheduleValidationTests
             .WithMessage("*committed*");
     }
 
+    [Theory]
+    [InlineData("committed")]
+    [InlineData("COMMITTED")]
+    [InlineData("Committed")]
+    public void ValidateCommittedSourceRunOrThrow_accepts_case_insensitive_persisted_status(string status)
+    {
+        RunRecord run = new() { LegacyRunStatus = status };
+
+        Action act = () => RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow(run);
+
+        act.Should().NotThrow();
+    }
+
     [Fact]
     public void ValidateCommittedSourceRunOrThrow_accepts_committed_run()
     {

@@ -74,58 +74,12 @@ public static class MarketplaceQuantityReader
             return false;
         }
 
-        if (element.TryGetInt32(out value))
-        {
-            return true;
-        }
-
-        if (element.TryGetDouble(out double numeric)
-            && double.IsFinite(numeric)
-            && numeric >= 0
-            && numeric <= int.MaxValue
-            && numeric == Math.Floor(numeric))
-        {
-            value = (int)numeric;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
+        return element.TryGetInt32(out value)
+            || int.TryParse(element.GetRawText(), NumberStyles.Float, CultureInfo.InvariantCulture, out value);
     }
 
-    private static bool TryParseWholeNumberString(string? raw, out int value)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            value = default;
-
-            return false;
-        }
-
-        string trimmed = raw.Trim();
-
-        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
-        {
-            return true;
-        }
-
-        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
-            && double.IsFinite(numeric)
-            && numeric >= 0
-            && numeric <= int.MaxValue
-            && numeric == Math.Floor(numeric))
-        {
-            value = (int)numeric;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
+    private static bool TryParseWholeNumberString(string? raw, out int value) =>
+        int.TryParse(raw?.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out value);
 
     private static bool TryGetPropertyCaseInsensitive(JsonElement root, string propertyName, out JsonElement value)
     {

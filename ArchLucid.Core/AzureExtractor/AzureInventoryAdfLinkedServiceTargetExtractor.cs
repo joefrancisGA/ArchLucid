@@ -212,8 +212,7 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
         {
             return NormalizeHost(
                 AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "server")
-                ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "host")
-                ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "serviceName"));
+                ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "host"));
         }
 
         if (linkedServiceType.Equals("FtpServer", StringComparison.OrdinalIgnoreCase)

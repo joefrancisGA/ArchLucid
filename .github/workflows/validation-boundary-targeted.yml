@@ -1,0 +1,25 @@
+name: Validation boundary targeted tests
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Core/Findings/Serialization/FindingJsonDateReaders.cs'
+      - 'ArchLucid.Core.Tests/Findings/Serialization/FindingJsonConverterTests.cs'
+      - '.github/workflows/validation-boundary-targeted.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  targeted-dotnet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Run external timestamp boundary regressions
+        run: dotnet test ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj --configuration Release --filter 'FullyQualifiedName~Deserialize_out_of_range_reviewedAtUtc' --logger 'console;verbosity=normal'

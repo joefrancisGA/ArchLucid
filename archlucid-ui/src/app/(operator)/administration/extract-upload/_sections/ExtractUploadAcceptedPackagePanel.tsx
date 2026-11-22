@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Copy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,7 @@ import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platf
 import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { showSuccess } from "@/lib/toast";
 import { EXTRACT_UPLOAD_ACCEPTED_NOT_EVALUATION_COMPLETE_LINE } from "@/lib/extract-upload/extract-upload-accepted-evaluation-honesty-copy";
+import { EXTRACT_UPLOAD_EVALUATION_PENDING_NOT_LOAD_FAILURE_LINE } from "@/lib/extract-upload/extract-upload-evaluation-pending-not-load-failure-copy";
 import { ExtractUploadPartialCaptureStrip } from "@/components/product-line/ExtractUploadPartialCaptureStrip";
 
 export type ExtractUploadAcceptedPackagePanelProps = {
@@ -52,6 +53,7 @@ export function ExtractUploadAcceptedPackagePanel(
   const { ianaTimeZoneId } = useIanaTimeZonePreference();
   const [copied, setCopied] = useState(false);
   const [copyPackageIdError, setCopyPackageIdError] = useState<string | null>(null);
+  const latestCopyAttempt = useRef(0);
 
   const packageIdDisplay = formatExtractUploadAcceptedPackageId(record.packageId);
   const packageIdCopyable = extractUploadPackageIdIsCopyable(record.packageId);
@@ -63,18 +65,30 @@ export function ExtractUploadAcceptedPackagePanel(
       : GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}?snapshotId=${encodeURIComponent(snapshotId)}`;
 
   const onCopyPackageId = useCallback(async () => {
-    setCopyPackageIdError(null);
-
     if (!packageIdCopyable) {
       return;
     }
 
+    const attempt = ++latestCopyAttempt.current;
+    setCopyPackageIdError(null);
+    setCopied(false);
+
     try {
       await navigator.clipboard.writeText(record.packageId.trim());
+      if (latestCopyAttempt.current !== attempt) {
+        return;
+      }
       setCopied(true);
       showSuccess("Upload id copied.");
-      window.setTimeout(() => setCopied(false), 2000);
+      window.setTimeout(() => {
+        if (latestCopyAttempt.current === attempt) {
+          setCopied(false);
+        }
+      }, 2000);
     } catch {
+      if (latestCopyAttempt.current !== attempt) {
+        return;
+      }
       setCopyPackageIdError(
         formatGovernanceInfrastructureInlineActionError(
           EXTRACT_UPLOAD_PACKAGE_ID_COPY_ERROR_TITLE,
@@ -110,6 +124,14 @@ export function ExtractUploadAcceptedPackagePanel(
           >
             {EXTRACT_UPLOAD_ACCEPTED_NOT_EVALUATION_COMPLETE_LINE}
           </p>
+          {(record.associateRunId?.trim().length ?? 0) === 0 ? (
+            <p
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="extract-upload-evaluation-pending-not-load-failure"
+            >
+              {EXTRACT_UPLOAD_EVALUATION_PENDING_NOT_LOAD_FAILURE_LINE}
+            </p>
+          ) : null}
           {isSecureNowProductLine(props.productLineId ?? "architecture") ? <ExtractUploadPartialCaptureStrip /> : null}
           <dl className="m-0 grid gap-2 sm:grid-cols-2">
             <div>

@@ -75,6 +75,40 @@ public sealed class LocalFileArtifactBlobStoreTests
     }
 
     [SkippableFact]
+    public async Task ReadAsync_returns_null_while_payload_is_exclusively_open()
+    {
+        DirectoryInfo workingDirectory = Directory.CreateTempSubdirectory("archlucid-blob-lock-");
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(static m => m.GetCurrentScope()).Returns(
+            new ScopeContext
+            {
+                TenantId = ScopeIds.DefaultTenant,
+                WorkspaceId = ScopeIds.DefaultWorkspace,
+                ProjectId = ScopeIds.DefaultProject
+            });
+        LocalFileArtifactBlobStore store = new(workingDirectory.FullName, scope.Object);
+
+        try
+        {
+            string uri = await store.WriteAsync("c1", "a.json", "payload", CancellationToken.None);
+            string filePath = new Uri(uri).LocalPath;
+
+            using (FileStream lockedPayload = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+            {
+                string? read = await store.ReadAsync(uri, CancellationToken.None);
+                read.Should().BeNull();
+            }
+
+            string? recovered = await store.ReadAsync(uri, CancellationToken.None);
+            recovered.Should().Be("payload");
+        }
+        finally
+        {
+            workingDirectory.Delete(recursive: true);
+        }
+    }
+
+    [SkippableFact]
     public async Task ReadAsync_when_scope_tenant_mismatch_throws()
     {
         string root = Path.Combine(Path.GetTempPath(),

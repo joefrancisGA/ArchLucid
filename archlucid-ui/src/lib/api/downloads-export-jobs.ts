@@ -22,6 +22,7 @@ import {
   parseFilenameFromContentDisposition,
   triggerBrowserBlobDownload,
 } from "./downloads-blob";
+import { assertBinaryDownloadContentType } from "./downloads-blob-trigger-guard";
 
 /**
  * POST `/v1/architecture/comparisons/{comparisonRecordId}/replay?format=pdf`
@@ -59,6 +60,8 @@ export async function downloadComparisonReplayPdf(comparisonRecordId: string): P
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
+
+  assertBinaryDownloadContentType(response, ["application/pdf"]);
 
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
