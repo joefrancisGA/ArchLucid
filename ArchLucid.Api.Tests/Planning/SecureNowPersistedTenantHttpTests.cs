@@ -31,12 +31,10 @@ public sealed class SecureNowPersistedTenantHttpTests(ArchLucidApiFactory factor
         ownerResponse.StatusCode.Should().BeOneOf(
             HttpStatusCode.OK, HttpStatusCode.Conflict);
 
+        GreenfieldIntegrationTenantScope.Scope foreignScope = GreenfieldIntegrationTenantScope.CreateUniqueScope();
+        await GreenfieldIntegrationTenantScope.EnsureScopeAsync(factory.SqlConnectionString, foreignScope);
         using HttpClient outsider = factory.CreateClient();
-        GreenfieldIntegrationTenantScope.WireScope(
-            outsider,
-            Guid.Parse("99999999-9999-4999-8999-999999999999"),
-            Guid.Parse("88888888-8888-4888-8888-888888888888"),
-            Guid.Parse("77777777-7777-4777-8777-777777777777"));
+        GreenfieldIntegrationTenantScope.WireScope(outsider, foreignScope);
         using HttpResponseMessage denied = await outsider.GetAsync(url);
         denied.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
