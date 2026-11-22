@@ -109,7 +109,9 @@ public sealed partial class SqlRunRepository
 
         return await connection.QuerySingleOrDefaultAsync<RunRecord>(
             new CommandDefinition(
-                RunRepositorySql.SelectAnchorGuardByScopedId,
+                transaction is null
+                    ? RunRepositorySql.SelectAnchorGuardByScopedId
+                    : RunRepositorySql.SelectAnchorGuardForUpdateByScopedId,
                 RunRecordParameters.AnchorGuardKey(run),
                 transaction,
                 cancellationToken: ct)).ConfigureAwait(false);
