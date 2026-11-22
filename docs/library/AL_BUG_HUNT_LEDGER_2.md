@@ -24,7 +24,7 @@
 - **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ## Zone: tenant-settings-sql
 
 2026-10-21 seed hunt (seed-only, lane C): cheap-disproof five open cache/SQL candidates; one new regression; seeded five follow-on rows; 44 scoped tests passed.
@@ -107,13 +107,13 @@
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 57
-- **bugs-found:** 7
-- **consecutive-dry-hunts:** 14
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
-- **related-pd-tb:** PD-003
-- **code-changed-since:** unknown
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** yes
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded candidates; 38 scoped tests passed.
 
@@ -512,13 +512,13 @@
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 66
-- **bugs-found:** 15
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-10 — failed OTP delivery deleted a newer concurrent challenge
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-09 thorough hunt (hit): `VerifyAsync` advertised the clamped `Auth:EmailOtp:AccessTokenLifetimeMinutes` while `IssueAccessToken` stamped `exp` from `Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes`. A 2000-minute email OTP setting with a 60-minute trial TTL returned `ExpiresInSeconds` 86400 and a JWT that expired in 3600 seconds. The issuer now accepts the caller lifetime, and verify plus post-auth bootstrap pass the clamped email-OTP minutes. Trial password tokens still use the local-identity TTL. Padded invitation-token candidates are `(valid-no-repro)` because `EmailOtpInvitationTokenHasher.Hash` trims. Regressions `VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs` and `AcceptInvitationAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`. 12 focused API auth tests passed, and 45 scoped email-OTP service tests passed.
 
@@ -751,13 +751,13 @@
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 61
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-11-05
-- **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 **Hunts:** 61 · **Bugs found:** 22 · **Consecutive dry hunts:** 13
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed paragraph-separator and soft-hyphen handling, query-only protocol-relative scans, control-character rejection, and fragment `://` rejection; 196 scoped `AuthSignInReturnPathGuardTests` passed.
@@ -1552,11 +1552,11 @@
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 293
-- **bugs-found:** 496
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-11-18
-- **last-bug:** 2026-11-04 — clear legal hold audit retry after transient audit failure
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1572,7 +1572,7 @@
 2026-10-06 seed hunt (seed→hit): promoted quarantine-restore operator safe-retry parity with `TryClearLegalHoldAsync`; proved `TryRestoreQuarantineAsync` returned `false` on sequential retry after a successful restore (`OffboardedUtc` already null), surfacing admin `409 Conflict` instead of idempotent `204`; return success when quarantine is already cleared; regression `TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`; 45 scoped `TenantErasure` tests passed (18 Application + 23 Api + 4 Core).
 
 2026-10-05 seed hunt (seed→hit): proved `TenantErasureCommandService.NormalizeLegalHoldReason` trimmed surrounding whitespace only, so operator safe-retry with the same semantic reason but extra internal spaces duplicated `TenantErasureLegalHoldSet` audits; collapse internal whitespace runs when normalizing reasons; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_internal_whitespace`; 43 scoped `TenantErasure` tests passed (16 Application + 23 Api + 4 Core).
-- **last-bug:** 2026-10-05 — offboard safe-retry returned null (409) when tenant was already in erasure quarantine
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1716,13 +1716,13 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs; ArchLucid.Analyzers/TenantScopedSqlExpressionResolver.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests|FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerParityProbeTests
-- **hunts:** 61
-- **bugs-found:** 40
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-18
-- **last-bug:** 2026-11-18 — conditional scope-helper arm suppressed ARCH006 on sibling literal branch
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-11-08 thorough hunt (hit #363): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the `string.Format` factory monitor from hit **#362**: `: this(FormatRunSql(tenantId))` still missed ARCH006 when the factory returned `string.Format("SELECT … dbo.Runs … {0}", tenantId)`, because a non-static format argument made `TryResolveStringFormatInvocation` drop the format literal. The format literal is now kept. Regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_string_format_method_return`. Cheap-disproof closed three sibling monitors — **invalid** local function declared in the constructor body and called from `: this(...)` (the initializer cannot see that local function), **valid-no-repro** const string fields across partials (`IFieldSymbol.ConstantValue` is on the merged symbol), **valid-no-repro** `[TenantScopeExempt]` on a partial method declaration (attributes merge onto the symbol `TryGetExemption` reads). Left the direct `Query(FormatRunSql(tenantId))` interpolated call open. Reseeded five `(candidate)` rows; scoped analyzer tests **68/68** (`FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzer`; `RunAnalyzers=false`). Private beta: Persistence repositories that build tenant SQL through `: this(FormatRunSql(tenantId))` when the factory returns `string.Format` with a runtime argument now get ARCH006 in CI, so an unscoped `dbo.Runs` query is caught before it ships. No operator-visible change today.
 
@@ -2211,13 +2211,13 @@
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 75
-- **bugs-found:** 27
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-11-05
-- **last-bug:** 2026-10-07 — InMemory null-architecture backfill list exposed warning flags omitted by SQL backfill select
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 
 2026-09-27 seed hunt (seed→hit): reseeded sql-run-repository after LTRIM/RTRIM edge parity; proved `RunListQueryParameters` bound `@NormalizedArchitectureRequestId` / `@NormalizedSystemName` via `Normalize*` alone while InMemory paths use `RequireArchitectureRequestId` / `RequireSystemName` (Unicode trim) first, so tab-prefixed seeks missed active-run / existence / workspace collision SQL matches that InMemory counted; fixed parameter builders to require-then-normalize; regressions `ForActiveRunCountByArchitectureRequest_normalizes_tab_prefixed_seek_like_in_memory_require` and `ForActiveRunWithSystemNameInWorkspace_normalizes_tab_prefixed_seek_like_in_memory_require`; 158 scoped zone tests passed (1 SQL integration skipped).
@@ -2582,13 +2582,13 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 105
-- **bugs-found:** 29
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-31 — typed-payload JSON property names with surrounding whitespace ignored on inspect read
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-21 seed hunt (seed→hit, lane B): see ledger header.
 
@@ -3168,13 +3168,13 @@
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 59
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-11-01 — cap-only zero PUT persisted while auto-replenish stayed enabled
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ### Hypotheses
 
 2026-11-03 thorough hunt (dry #59): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`review-recurrence`** is **1/3** before this record). Attempted failing repro on five open `(candidate)` monitor rows from dry **#58** reseed (recycled dry **#57** queue); cheap-disproof closed all five **valid-no-repro** — pre-audit cancel propagates (`PutAsync_propagates_operation_canceled_from_update_wallet`; dry **#57** / **#55**); null PUT body **400** (`PutAsync_returns_bad_request_when_body_is_null`; dry **#57**); invalid cap step at consume (`UpdateWalletAsync_rejects_invalid_monthly_cap_step`; dry **#57**); reader PUT **403** / GET **200** by design (`PutAsync_returns_403_for_reader_role`, `GetAsync_returns_wallet_for_reader_role`; hit **2026-10-09**); stale `ExpectedRowVersion` **409** without server retry (intentional OCC; dry **#57** / **#55**). Reseeded five follow-on `(candidate)` rows below; scoped **52/52** `LlmTenantWalletServiceTests`, **8/8** `WalletControllerUnitTests` + `WalletControllerTests` filter (`RunAnalyzers=false`). Private beta: n/a.
@@ -3551,13 +3551,13 @@
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 58
-- **bugs-found:** 16
-- **consecutive-dry-hunts:** 16
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-11-01 seed hunt (seed-only #48): see zone header; **33/33** validation tests; five `(candidate)` rows seeded; no promotion.
 
@@ -3975,8 +3975,8 @@
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 56
-- **last-hunt:** 2026-11-03
+- **hunts:** 0
+- **last-hunt:** never
 
 - **id:** review-recurrence
 - **status:** open
@@ -3984,11 +3984,11 @@
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 23
-- **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ### Hypotheses
 
 2026-11-03 thorough hunt (dry #50): see zone diary above.
@@ -4546,11 +4546,11 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 67
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-11-18
-- **last-bug:** 2026-10-09 — second live user with the same userName was accepted
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
@@ -4838,13 +4838,13 @@
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 92
-- **bugs-found:** 55
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-21 — discover returned shared discovery service response instance
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 2026-10-20 seed hunt (seed-only): re-read activation/controller paths; cheap-disproof closed five `(candidate)` rows (discover/test-login HTTP 200 envelopes are intentional wizard contracts; GET partial canonicalization and audit summary shape match prior valid-no-repro notes; empty-string `keyVaultSecretName` is OpenAPI-only because SSO/SAML UIs send null); no new hunt-ready promotion; 66 scoped activation/controller tests passed.
 
 2026-10-20 seed hunt (seed-only): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService` after bugsmash merge; cheap-disproof closed empty-string `KeyVaultSecretName` preserve (wizard sends null via `trim() || null`), legacy PascalCase GET mapping (UI `parsePersistedClaimMappingJson`), and partial JWKS canonicalization on discover (discovery service already HTTP-validates `jwks_uri`); no row met hunt-ready bar; seeded five `(candidate)` rows; 66 scoped activation/controller tests passed.
@@ -5241,13 +5241,13 @@
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 20
-- **bugs-found:** 3
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-31 — wallet PUT could enable auto-replenish with Stripe customer id only (no payment method)
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-23 seed hunt (seed-only): re-read zone paths (`StripeWalletPaymentIdentifierGuard`, `StripeLinkedCustomerResolver`, `StripeWalletGateway`, `LlmTenantWalletConsumeStage`, `LlmTenantWalletRefillStage`, `WalletController`); no open hypotheses to cheap-disproof; no hunt-ready row promoted (guard/resolver fail closed on missing linked customer, Stripe API errors, and payment-method attachment mismatch; auto-refill re-validates persisted ids before charge). Seeded five `(candidate)` rows below; scoped Persistence guard tests 3/3 + Application wallet guard/refill regressions 2/2 (`RunAnalyzers=false`).
 
@@ -5480,13 +5480,13 @@
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 88
-- **bugs-found:** 11
-- **consecutive-dry-hunts:** 14
-- **last-hunt:** 2026-11-05
-- **last-bug:** 2026-11-01 — marketplace JWT-valid non-JSON webhook returned HTTP 500 instead of 400
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 2026-11-01 thorough hunt (dry #71): cheap-disproof closed five open `(candidate)` rows from 2026-10-31 thorough hunt (marketplace malformed JSON after JWT fails at `JsonDocument.Parse` ~28 before replay guard/ledger ~41–47 — same fail-closed class as missing-bearer regression; marketplace oversize payload returns `413` via `InboundWebhookBoundedBodyReader` before provider dispatch — TB-967 hostile-input contract parity with Stripe; invalid Stripe signature rejected in `ConstructEvent` `StripeException` catch ~44–46 before `TryInsertWebhookEventAsync` ~55 — complements `HandleWebhookAsync_without_signature_rejected`; marketplace in-memory `HasSeenAsync` before ledger insert is intentional per `BILLING_WEBHOOK_REPLAY_GUARD.md` — same class as Stripe regression `HandleWebhookAsync_when_replay_guard_has_seen_event_returns_replay_rejected`; non-positive wallet `payment_intent.succeeded` amounts skip provider throw when `amountCents <= 0` — regressions `ProcessPaymentIntentEventAsync_forwards_zero_amount_to_wallet_service_without_crediting` and `ProcessPaymentIntentEventAsync_forwards_negative_amount_cents_to_wallet_service_on_success`); seeded five follow-on `(candidate)` rows; scoped filter **39/39** billing webhook unit tests (24 Persistence + 15 Application, `RunAnalyzers=false`); Api SQL integration HTTP suites not run (no SQL Server on cloud VM). Private beta: n/a.
 
 - [x] (valid-no-repro) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — malformed JSON after JWT validation throws before `TryInsertWebhookEventAsync` — **cheap-disproof 2026-11-01 thorough hunt #71:** `JsonDocument.Parse` ~28 runs after JWT gate and before dedupe/ledger ~39–47; no ledger row on parse failure.
@@ -6470,13 +6470,13 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 147
-- **bugs-found:** 31
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-11-19
-- **last-bug:** 2026-10-30 — replacement character from ill-formed UTF-16 broke API key auth while admin snapshot showed configured
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-12 seed hunt #2007 (seed-only): reseeded api-key-auth after `-Refresh`; 44 scoped ApiKey auth/settings unit tests passed; no new hunt-ready rows.
 
@@ -6842,9 +6842,9 @@
 - [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — comma segment with only format-category paste — locus: per-segment normalize; input: `valid,sec\u200Bret`; reachability: rotation comma monitor.
 - [ ] (candidate) `ApiKeyAuthenticationHandler` — reader slot expiry evaluated after admin match — locus: `IsKeyExpired`; input: expired admin + valid reader; reachability: dual-slot expiry monitor.
 - [ ] (candidate) `AdminApiKeySettingsController` — rotation audit never stores plaintext key — locus: `CreateRotationAuditEvent`; input: rotate response; reachability: hunt #88 audit contract monitor.
-- **hunts:** 137
-- **bugs-found:** 26
-- **last-bug:** 2026-10-30 — combining grapheme joiner paste broke API key auth while admin snapshot showed configured
+- **hunts:** 0
+- **bugs-found:** 0
+- **last-bug:** never
 ## Zone: scope-binding-middleware
 
 2026-11-03 thorough hunt (dry #88): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`review-recurrence`** is **1/3** before this record — dry **`review-recurrence`** **#56** at run-log tail). Cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#87** (regression family dry **#86** / dry **#84**) — **invalid** mixed-case `/HEALTH/` trailing slash root aggregate miss (`IsRootHealthAggregateProbe` `TrimEnd('/')` plus `OrdinalIgnoreCase` — regressions `InvokeAsync_staging_host_skips_mixed_case_root_health_aggregate_path`, `InvokeAsync_staging_host_skips_trailing_slash_root_health_path`; dry **#84**); **valid-no-repro** SCIM path casing still enters reauthentication (`ApiPathSkipSafety.SafeStartsWithSegments` `/scim` ignore-case — regression `InvokeAsync_unauthenticated_scim_path_with_uppercase_prefix_authenticates_scim_bearer`; hit **2026-10-12**); **valid-no-repro** `AllowUnscopedRouteAttribute` skips route binding by contract while guard middleware honors the same metadata (`OnActionExecutionAsync_allow_unscoped_route_metadata_skips_binding`, `InvokeAsync_staging_host_skips_allow_unscoped_route_metadata`; dry **#84**); **invalid** mixed-case `/HEALTH/LIVE/` trailing slash misses live probe skip (regressions `InvokeAsync_staging_host_skips_trailing_slash_on_health_live_path`; seed **#220**); **invalid** duplicate parseable `x-workspace-id` with tenant-bound ApiKey (`ValidateHeaderOnlyScopeEscalation_rejects_duplicate_workspace_headers_without_claim_for_api_key`; dry **#80**). Reseeded five follow-on `(candidate)` monitor rows from dry **#87** closed themes; scoped filter **169/175** (`RunAnalyzers=false`; 6 SQL integration tests skipped without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: n/a.
@@ -6943,13 +6943,13 @@
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 88
-- **bugs-found:** 16
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-12 — authenticated non-SCIM principals bypassed SCIM rebinding on `/scim/v2/Users`
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 - [x] (proven) `ScopeIdentityBindingValidator.RequiresBoundScopeClaimsForHeaders` — lowercase `bearer` `AuthenticationType` skipped TB-072 header-only escalation so hostile `x-tenant-id` was accepted without a bound `tenant_id` claim — **hit 2026-10-06 seed hunt:** match scheme names with `OrdinalIgnoreCase`; regressions `ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_without_claim_for_lowercase_bearer_auth_type` and `InvokeAsync_lowercase_bearer_auth_type_rejects_x_tenant_id_header_without_claim`; 84 scoped Api unit tests passed (6 integration tests unavailable).
 
@@ -8918,11 +8918,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 168
-- **bugs-found:** 181
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-18
-- **last-bug:** 2026-11-18 — SCIM Bearer mix guard rejected U+26AB/U+2B50 placeholders before valid comma-folded token
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
@@ -9633,13 +9633,13 @@
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 971
-- **bugs-found:** 64
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-11-04 — board export used analysis evidence system name when stored manifest system name was whitespace-only
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-12 thorough hunt (dry): `tenant-data-export` — all five picker candidates were inspected; the `RunsExportController` career-block mapping candidate was plausible, but its focused repro could not execute because the API test build stopped on unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production change was made and all candidates remain unpromoted.
 
@@ -12017,13 +12017,13 @@
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 51
-- **bugs-found:** 32
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-10-29 — legacy non-tenant webhook route bypass under tenant-scope policy (#198)
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ### Hypotheses
 
 **Hunts:** 30 · **Bugs found:** 19 · **Consecutive dry hunts:** 8
@@ -13135,16 +13135,16 @@
 2026-10-27 thorough hunt (dry #379): cheap-disproof closed five recycled candidates (integration messageId without tenant prefix, ranker cost/token/run-id tie-break, checkout cancel propagation, negative unit rates guard, ChangeQuantity GA vs WebhookPlanMutationsEnabled); seventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 - **id:** application-billing-logic
-- **status:** cooling
+- **status:** open
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 327
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 283
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 
 2026-10-03 seed hunt (seed-only): re-read `ArchLucid.Application/Billing/` and the scoped Marketplace/BillingCheckout/TenantLlmCostReporting tests; no new reachable candidate emerged; 17 scoped tests passed.
@@ -16565,13 +16565,13 @@
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 942
-- **bugs-found:** 25
-- **consecutive-dry-hunts:** 11
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-21 — hourly OTP request rate limits ignored invalidated challenges
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed→hit): hourly verification SQL treated expired unused challenges as active replacements, so a later lockout was omitted from the hourly failure count; the active probe now requires `ExpiresUtc > @NowUtc`; regressions `Active_replacement_probe_ignores_expired_unused_challenges` and `CountRecentFailedVerifications_counts_lockout_when_only_other_challenge_is_expired`; 28 scoped AuthenticationIdentity, IdentityRepository, and EmailOtp tests passed (`RunAnalyzers=false`, 2 SQL integration skipped).
 
@@ -19488,16 +19488,16 @@
 - [x] (proven) `RunsController.RephraseClarificationAnswers` — JSON `"items": null` dereferenced `input.Items.Count` and threw `NullReferenceException` instead of `400 ValidationFailed` — **hit 2026-10-23 seed hunt:** null guard before count check (parity with `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers`); regression `RephraseClarificationAnswers_returns_bad_request_when_items_collection_is_null`
 
 - **id:** api-authority-admin-controllers
-- **status:** cooling
+- **status:** open
 - **impact:** high
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 415
-- **bugs-found:** 59
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — client-error telemetry null context value caused 500 instead of validation
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-16 seed hunt (seed→hit): promoted `AdminController.ArchiveRunsByIds` null `RunIds` collection gap; proved and fixed; reseeded five follow-on `(candidate)` rows.
@@ -19870,13 +19870,13 @@
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 353
-- **last-hunt:** 2026-11-03
-- **bugs-found:** 531
-- **consecutive-dry-hunts:** 11
-- **last-bug:** 2026-11-01 — batch/optional approval id max-length validation ignored invisible-prefix normalize
+- **hunts:** 0
+- **last-hunt:** never
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ### Hypotheses
 
 - [x] (valid-no-repro) `GovernanceController.GetComplianceDriftTrend` — bucket window overflow **400** before facade — **cheap-disproof 2026-11-02 thorough hunt #344:** see dry #344 diary.
@@ -21578,17 +21578,17 @@
 
 - **id:** api-policy-packs
 - **split-from:** api-governance-tenancy-controllers
-- **status:** cooling
+- **status:** open
 - **impact:** high
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 59
-- **bugs-found:** 24
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-27 — GetVersion scope failure mislabeled as pack not found
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
@@ -21830,16 +21830,16 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - **id:** api-governance-stickiness
 - **split-from:** api-governance-tenancy-controllers
-- **status:** cooling
+- **status:** open
 - **impact:** high
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 40
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-10-28
-- **last-bug:** 2026-10-27 — decisions-needed summary fail-open on pending approval runs
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21959,16 +21959,16 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - **id:** api-governance-stickiness
 - **split-from:** api-governance-tenancy-controllers
-- **status:** cooling
+- **status:** open
 - **impact:** high
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 40
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-10-28
-- **last-bug:** 2026-10-27 — decisions-needed summary fail-open on pending approval runs
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -22165,13 +22165,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 47
-- **bugs-found:** 12
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ### Hypotheses
 
 - [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` — coalesced empty inventory **404** vs empty shell — **cheap-disproof 2026-11-01 thorough hunt #39:** see zone hunt note; dry **#938**.
@@ -22622,13 +22622,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 64
-- **bugs-found:** 43
-- **consecutive-dry-hunts:** 5
-- **last-hunt:** 2026-11-05
-- **last-bug:** 2026-11-01 — un-normalized PolicyRuleId let a padded rule id containing an assigned compliance key match via substring
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -23959,11 +23959,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 228
-- **bugs-found:** 216
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-19
-- **last-bug:** 2026-11-19 — withdrawn/discarded/unavailable slug phrase duplicate-detector false positive
+- **last-hunt:** never
+- **last-bug:** never
 
 ### Hypotheses
 
@@ -23982,7 +23982,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-21 seed hunt (seed-only): re-read tenancy zone after provision guard series; cheap-disproof closed `TenantWorkspaceScopeGuard` offboard success (`TenantErasureQuarantineMiddleware` blocks authenticated tenant APIs); no new hunt-ready row promoted (`state-machine-gap` saturated); added five `(candidate)` rows for next passes.
 
 2026-10-21 seed hunt (seed→hit): promoted marketing first-touch after nav settings without erasure re-read; pre-marketing `GetByIdAsync` guard; regression `ProvisionAsync_skips_first_touch_persist_when_offboard_completes_after_nav_settings_before_marketing`; cheap-disproof closed migration complete audit and bootstrap catch metric/audit ordering candidates; 238 scoped tenancy tests passed.
-- **last-bug:** 2026-10-21 — trial signup failure audit after failure metric without post-metric erasure re-read
+- **last-bug:** never
 
 2026-10-21 seed hunt (seed→hit): promoted nav settings upsert race after policy pack seed; pre-settings erasure re-read; regression `ProvisionAsync_skips_nav_settings_when_offboard_completes_after_policy_pack_seed_before_settings`; 237 scoped tenancy tests passed.
 
@@ -24812,13 +24812,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 25
-- **bugs-found:** 12
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-11-19
-- **last-bug:** 2026-11-08 — shared nullability context threw when overlapping body checks ran
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 - [x] (proven) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null string inside nested `List<List<string>>` property — **hit 2026-10-27 seed hunt #343:** nested enumerable walk used `GenericTypeArguments[0]` when `ElementType` was null; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`.
 

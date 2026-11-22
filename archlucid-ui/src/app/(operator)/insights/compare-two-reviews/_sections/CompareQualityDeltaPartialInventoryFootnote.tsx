@@ -5,6 +5,7 @@ import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-ca
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 import { COMPARE_QUALITY_DELTA_PARTIAL_INVENTORY_FOOTNOTE } from "@/lib/architecture/compare-quality-delta-partial-inventory-footnote-copy";
+import { COMPARE_QUALITY_DELTA_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-quality-delta-partial-capture-not-load-failure-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,12 @@ export function CompareQualityDeltaPartialInventoryFootnote(): React.JSX.Element
     <div className="mt-2 space-y-2" data-testid="compare-quality-delta-partial-inventory-footnote">
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {COMPARE_QUALITY_DELTA_PARTIAL_INVENTORY_FOOTNOTE}
+      </p>
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="compare-quality-delta-partial-capture-not-load-failure"
+      >
+        {COMPARE_QUALITY_DELTA_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE}
       </p>
       <SecureNowPartialCaptureRecoveryParagraph
         testId="compare-quality-delta-partial-inventory-recovery"
