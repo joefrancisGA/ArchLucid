@@ -111,6 +111,7 @@ public partial class Program
         builder.Services.AddArchLucidSaml2IfEnabled(builder.Configuration, builder.Environment);
         builder.Services.AddArchLucidAuthorization();
         builder.Services.AddScoped<IEvidenceEntitlementAuthority, ScimProjectEvidenceEntitlementAuthority>();
+        builder.Services.AddScoped<ICentralAuthorizationDecisions, CentralAuthorizationDecisions>();
         builder.Services.AddScoped<EvidenceReadAuthorizationGate>();
 
         builder.Services.AddArchLucidOpenTelemetry(
