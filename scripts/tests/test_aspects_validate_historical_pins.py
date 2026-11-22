@@ -96,8 +96,8 @@ class HistoricalPinVerificationTests(unittest.TestCase):
 
     def test_complete_multifile_blob_pins_are_verified_atomically(self):
         (self.repo / "src").mkdir()
-        (self.repo / "src/a.cs").write_text("red\\nblue\\n", encoding="utf-8")
-        (self.repo / "src/b.cs").write_text("green\\nyellow\\n", encoding="utf-8")
+        (self.repo / "src/a.cs").write_text("red\nblue\n", encoding="utf-8")
+        (self.repo / "src/b.cs").write_text("green\nyellow\n", encoding="utf-8")
         run(self.repo, "add", "src")
         run(self.repo, "commit", "-qm", "two sources")
         commit = run(self.repo, "rev-parse", "HEAD")
