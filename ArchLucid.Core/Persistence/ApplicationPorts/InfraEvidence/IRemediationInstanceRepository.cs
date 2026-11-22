@@ -243,6 +243,12 @@ public sealed record RemediationInstanceMutation
     public string? PreflightResultJson { get; init; }
     public string? VerificationResultJson { get; init; }
     public string? ApprovedByActorKey { get; init; }
+    /// <summary>
+    /// Optional optimistic-concurrency precondition. When supplied, SQL updates
+    /// succeed only if the stored UpdatedUtc still matches the caller's read.
+    /// Legacy callers without a precondition retain existing behavior.
+    /// </summary>
+    public DateTime? ExpectedUpdatedUtc { get; init; }
     public required DateTime UpdatedUtc { get; init; }
     public DateTime? ApprovedUtc { get; init; }
     public DateTime? ExecutedUtc { get; init; }
