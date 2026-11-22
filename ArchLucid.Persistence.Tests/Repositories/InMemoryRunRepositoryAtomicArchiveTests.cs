@@ -35,7 +35,8 @@ public sealed class InMemoryRunRepositoryAtomicArchiveTests
 
         RunArchiveByIdsResult repeat = await repo.ArchiveRunsByIdsAsync([input.RunId], CancellationToken.None);
         repeat.ArchivedRuns.Should().BeEmpty();
-        repeat.AlreadyArchivedRunIds.Should().Contain(input.RunId);
+        repeat.Failed.Should().ContainSingle(failure =>
+            failure.RunId == input.RunId && failure.Reason == "Run already archived.");
     }
 
     [Fact]
