@@ -141,6 +141,27 @@ class HistoricalPinVerificationTests(unittest.TestCase):
         self.assertEqual(missing["verified_pin_rows"], 0)
         self.assertEqual(missing["classifications"]["multisource_reported_loc_mismatch"], 1)
 
+    def test_real_imported_multifile_rows_have_complete_parsed_source_goldens(self):
+        # These rows come from the immutable, checksum-validated 5,741-row
+        # historical import, not a synthetic or invented observation series.
+        corpus = (Path(__file__).resolve().parents[2] /
+                  "docs/engineering/aspects-historical/review-events/1200-1439.jsonl")
+        import json
+        rows = {row["excel_row"]: row for row in
+                (json.loads(line) for line in corpus.read_text(encoding="utf-8").splitlines())}
+        for excel_row, file_count, reported_loc in (
+                (1250, 8, 822), (1252, 14, 528), (1255, 12, 2343)):
+            with self.subTest(excel_row=excel_row):
+                row = rows[excel_row]
+                self.assertIsNone(row["parsed_pin"])
+                self.assertEqual(row["reviewed_loc_reported"], reported_loc)
+                sources = sut.source_pins(row)
+                self.assertEqual(len(sources), file_count)
+                self.assertEqual(
+                    sum(sum(end - start + 1 for start, end in pin["spans"])
+                        for pin in sources), reported_loc)
+                self.assertEqual(len({pin["path"] for pin in sources}), file_count)
+
     def test_full_quarantine_preserves_excel_rows_and_per_row_new_repeat_loc(self):
         audit = []
         rows = [self.event(excel_row=7),
