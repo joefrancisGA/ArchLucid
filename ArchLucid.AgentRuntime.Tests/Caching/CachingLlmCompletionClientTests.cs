@@ -15,6 +15,36 @@ namespace ArchLucid.AgentRuntime.Tests.Caching;
 [Trait("Category", "Unit")]
 public sealed class CachingLlmCompletionClientTests
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Unpartitioned_cache_is_rejected_only_in_production(bool simulator)
+    {
+        CountingCompletionClient inner = new();
+        MutableOptionsMonitor<LlmCompletionCacheOptions> opts =
+            new(new LlmCompletionCacheOptions { Enabled = true, PartitionByScope = false, TTLSeconds = 60 });
+        MutableOptionsMonitor<LlmTelemetryLabelOptions> telemetry =
+            new(new LlmTelemetryLabelOptions { ProviderId = "unit", ModelDeploymentLabel = "m1" });
+        using MemorySemanticCache semantic = new(
+            new MemoryCache(new MemoryCacheOptions { SizeLimit = 16 }), opts);
+        CachingLlmCompletionClient sut = new(
+            inner, new LlmCompletionResponseCache(semantic), simulator,
+            new FixedScopeProvider(new ScopeContext
+            {
+                TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid()
+            }), opts, telemetry, NullLogger<CachingLlmCompletionClient>.Instance);
+
+        Func<Task> action = () => sut.CompleteJsonAsync("system", "user");
+        if (simulator)
+            await action.Should().NotThrowAsync();
+        else
+            await action.Should().ThrowAsync<InvalidOperationException>();
+
+        inner.CallCount.Should().Be(simulator ? 1 : 0);
+    }
+
     [SkippableFact]
     public async Task CompleteJsonAsync_when_hit_does_not_call_inner()
     {

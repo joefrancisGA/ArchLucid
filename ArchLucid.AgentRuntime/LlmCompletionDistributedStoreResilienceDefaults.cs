@@ -37,7 +37,7 @@ public static class LlmCompletionDistributedStoreResilienceDefaults
                 MinimumThroughput = failureThreshold,
                 SamplingDuration = TimeSpan.FromMinutes(1),
                 BreakDuration = TimeSpan.FromSeconds(breakDurationSeconds),
-                ShouldHandle = new PredicateBuilder().Handle<Exception>(),
+                ShouldHandle = new PredicateBuilder().Handle<Exception>(static ex => ex is not OperationCanceledException),
                 OnOpened = args =>
                 {
                     logger.LogWarning(
