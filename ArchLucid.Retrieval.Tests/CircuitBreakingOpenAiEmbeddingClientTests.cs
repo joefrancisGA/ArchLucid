@@ -182,6 +182,52 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
     }
 
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Half_open_embedding_probe_skips_retry_pipeline(bool batch)
+    {
+        int calls = 0;
+        Mock<IOpenAiEmbeddingClient> inner = new();
+        Exception Failure() => new HttpRequestException("provider down", null, HttpStatusCode.ServiceUnavailable);
+        inner.Setup(c => c.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken _) =>
+            {
+                Interlocked.Increment(ref calls);
+                return Task.FromException<float[]>(Failure());
+            });
+        inner.Setup(c => c.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .Returns((IReadOnlyList<string> _, CancellationToken _) =>
+            {
+                Interlocked.Increment(ref calls);
+                return Task.FromException<IReadOnlyList<float[]>>(Failure());
+            });
+
+        MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        CircuitBreakerGate gate = new("embedding-single-probe",
+            new CircuitBreakerOptions { FailureThreshold = 1, DurationOfBreakSeconds = 30 },
+            clock.ToFunc());
+        ResiliencePipeline retry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
+            maxRetryAttempts: 3, baseDelay: TimeSpan.FromMilliseconds(1));
+        CircuitBreakingOpenAiEmbeddingClient sut = new(
+            inner.Object, gate, retry,
+            NullLogger<CircuitBreakingOpenAiEmbeddingClient>.Instance);
+
+        gate.RecordFailure();
+        clock.Advance(TimeSpan.FromSeconds(31));
+
+        Func<Task> invoke = batch
+            ? async () => { await sut.EmbedManyAsync(["x"], CancellationToken.None); }
+            : async () => { await sut.EmbedAsync("x", CancellationToken.None); };
+
+        await Assert.ThrowsAsync<HttpRequestException>(invoke);
+
+        calls.Should().Be(1);
+        gate.CurrentState.Should().Be("Open");
+        await Assert.ThrowsAsync<CircuitBreakerOpenException>(invoke);
+        calls.Should().Be(1);
+    }
+
+    [Theory]
     [InlineData(false, false)]
     [InlineData(true, false)]
     [InlineData(false, true)]
