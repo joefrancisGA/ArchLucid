@@ -1,3 +1,5 @@
+using System.Net;
+
 using ArchLucid.AgentRuntime;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Retrieval.Embedding;
@@ -177,6 +179,52 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
         await run.Should().ThrowAsync<InvalidOperationException>();
         await run.Should().ThrowAsync<InvalidOperationException>();
         gate.CurrentState.Should().Be("Closed");
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task Half_open_neutral_failure_releases_probe_for_next_embedding(bool batch, bool cancellation)
+    {
+        int calls = 0;
+        Exception NextFailure() => Interlocked.Increment(ref calls) == 1
+            ? new HttpRequestException("provider unavailable", null, HttpStatusCode.ServiceUnavailable)
+            : cancellation
+                ? new OperationCanceledException("operation cancelled")
+                : new HttpRequestException("bad embedding request", null, HttpStatusCode.BadRequest);
+
+        Mock<IOpenAiEmbeddingClient> inner = new();
+        inner.Setup(c => c.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken _) => Task.FromException<float[]>(NextFailure()));
+        inner.Setup(c => c.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .Returns((IReadOnlyList<string> _, CancellationToken _) =>
+                Task.FromException<IReadOnlyList<float[]>>(NextFailure()));
+
+        MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        CircuitBreakerGate gate = new("embedding-neutral-probe",
+            new CircuitBreakerOptions { FailureThreshold = 1, DurationOfBreakSeconds = 30 },
+            clock.ToFunc());
+        CircuitBreakingOpenAiEmbeddingClient sut = new(
+            inner.Object, gate, ResiliencePipeline.Empty,
+            NullLogger<CircuitBreakingOpenAiEmbeddingClient>.Instance);
+
+        Func<Task> invoke = batch
+            ? async () => { await sut.EmbedManyAsync(["x"], CancellationToken.None); }
+            : async () => { await sut.EmbedAsync("x", CancellationToken.None); };
+
+        await Assert.ThrowsAnyAsync<Exception>(invoke);
+        gate.CurrentState.Should().Be("Open");
+
+        clock.Advance(TimeSpan.FromSeconds(31));
+        await Assert.ThrowsAnyAsync<Exception>(invoke);
+        gate.CurrentState.Should().Be("Open");
+
+        // A second probe must be admitted immediately, not rejected as "probe in progress".
+        await Assert.ThrowsAnyAsync<Exception>(invoke);
+        calls.Should().Be(3);
+        gate.ConsecutiveFailureCount.Should().Be(1);
     }
 
     private sealed class MutableUtcClock
