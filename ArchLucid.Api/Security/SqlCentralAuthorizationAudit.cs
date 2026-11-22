@@ -16,14 +16,9 @@ public sealed class SqlCentralAuthorizationAudit(ISqlConnectionFactory connectio
         await using SqlConnection connection = await connections
             .CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using SqlCommand command = connection.CreateCommand();
-        command.CommandText = """
-            INSERT INTO dbo.AuthorizationDecisionJournal
-                (DecisionId, TenantId, WorkspaceId, ProjectId, ResourceId,
-                 ActionName, Allowed, ReasonCode, CallerKind, OccurredUtc)
-            VALUES
-                (@decision, @tenant, @workspace, @project, @resource,
-                 @action, @allowed, @reason, @caller, @occurred)
-            """;
+        // Stored procedure atomically commits the journal row and chained digest.
+        command.CommandType = System.Data.CommandType.StoredProcedure;
+        command.CommandText = "dbo.AppendAuthorizationDecision";
         command.CommandTimeout = 10;
         command.Parameters.Add("@decision", System.Data.SqlDbType.UniqueIdentifier).Value = record.DecisionId;
         command.Parameters.Add("@tenant", System.Data.SqlDbType.UniqueIdentifier).Value = record.TenantId;
@@ -35,9 +30,7 @@ public sealed class SqlCentralAuthorizationAudit(ISqlConnectionFactory connectio
         command.Parameters.Add("@reason", System.Data.SqlDbType.NVarChar, 128).Value = record.Reason;
         command.Parameters.Add("@caller", System.Data.SqlDbType.NVarChar, 64).Value = record.CallerKind;
         command.Parameters.Add("@occurred", System.Data.SqlDbType.DateTimeOffset).Value = record.OccurredUtc;
-        int written = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
-        if (written != 1)
-            throw new InvalidOperationException("Authorization audit insert was not confirmed.");
+        await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
     }
 }
 

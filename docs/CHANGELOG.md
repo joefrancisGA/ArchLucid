@@ -6,6 +6,13 @@
 # ArchLucid changelog
 
 
+## 2026-11-22 - Score lift round 107 (batch 72): Graph path-only, edge focus, assigned partial capture, golden manifest
+
+**Outcome.** Evidence graph path-only and edge-focus empty bands name successful load with no matching slice or edge pin. Assigned findings partial-capture empty names thin capture versus failed assignments read. Golden manifest Markdown export names unsealed finalize gate versus load failure.
+
+**Surfaces.** Evidence graph loaded experience, governance assigned-to-me empty, golden manifest export menu, honesty and mounted contract tests.
+
+
 ## 2026-11-22 - Score lift round 106 (batch 71): Graph node focus, health tiles, secondary exports, assigned collection
 
 **Outcome.** Evidence graph node-focus-only empty names successful load with no matching pin. System health summary tiles carry per-tile point-in-time discipline. Deliverables blocked secondary exports name unsealed gate versus load failure. Assigned findings empty collection blocker names incomplete capture versus failed assignments read.

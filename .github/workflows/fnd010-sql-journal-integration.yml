@@ -24,6 +24,8 @@ jobs:
             mcr.microsoft.com/mssql/server:2022-latest
       - name: Verify SQL journal behavior
         run: bash scripts/ci/run_fnd010_sql_journal_verify.sh
+      - name: Verify atomic hash-chain migration and concurrent appends
+        run: python3 scripts/ci/fnd010_hash_chain_verify.py
       - name: SQL container diagnostics on failure
         if: failure()
         run: docker logs --tail 60 fnd010-sql || true

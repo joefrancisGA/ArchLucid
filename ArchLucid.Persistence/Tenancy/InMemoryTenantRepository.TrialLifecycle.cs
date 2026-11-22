@@ -26,14 +26,7 @@ public sealed partial class InMemoryTenantRepository
         string? industryVerticalOther,
         CancellationToken ct)
     {
-        _ = ct;
-
-        TenantRecord? existing;
-        lock (_trialGate)
-        {
-            if (!_byId.TryGetValue(tenantId, out existing))
-                return Task.CompletedTask;
-        }
+        ct.ThrowIfCancellationRequested();
 
         TenantTrialLifecycleCore.CommitSelfServiceTrialMutation mutation =
             TenantTrialLifecycleCore.CreateCommitSelfServiceTrialMutation(
@@ -49,11 +42,14 @@ public sealed partial class InMemoryTenantRepository
                 architectureTeamSize,
                 industryVertical,
                 industryVerticalOther);
-        TenantRecord updated = TenantTrialLifecycleCore.ApplyCommitSelfServiceTrial(existing, mutation);
-
         lock (_trialGate)
         {
-            _byId[tenantId] = updated;
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
+                return Task.CompletedTask;
+
+            // Read and publish atomically with quota, conversion and other tenant writes.
+            // A snapshot constructed outside this lock can overwrite a newer quota debit.
+            _byId[tenantId] = TenantTrialLifecycleCore.ApplyCommitSelfServiceTrial(existing, mutation);
         }
 
         return Task.CompletedTask;
@@ -68,27 +64,21 @@ public sealed partial class InMemoryTenantRepository
         DateTimeOffset baselineReviewCycleCapturedUtc,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
-        TenantRecord? existing;
+        TenantTrialLifecycleCore.PersistTrialSignupBaselineReviewCycleMutation mutation = new()
+        {
+            BaselineReviewCycleHours = baselineReviewCycleHours,
+            BaselineReviewCycleSource = baselineReviewCycleSource,
+            BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc,
+        };
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out existing))
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
                 return Task.CompletedTask;
-        }
 
-        TenantRecord updated = TenantTrialLifecycleCore.ApplyPersistTrialSignupBaselineReviewCycle(
-            existing,
-            new TenantTrialLifecycleCore.PersistTrialSignupBaselineReviewCycleMutation
-            {
-                BaselineReviewCycleHours = baselineReviewCycleHours,
-                BaselineReviewCycleSource = baselineReviewCycleSource,
-                BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc,
-            });
-
-        lock (_trialGate)
-        {
-            _byId[tenantId] = updated;
+            _byId[tenantId] = TenantTrialLifecycleCore.ApplyPersistTrialSignupBaselineReviewCycle(
+                existing, mutation);
         }
 
         return Task.CompletedTask;
@@ -98,33 +88,29 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task<bool> MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
-        TenantRecord? existing;
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out existing))
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
                 return Task.FromResult(false);
-        }
 
-        TenantRecord? updated = TenantTrialLifecycleCore.TryApplyMarkTrialConverted(existing, newCommercialTier);
+            TenantRecord? updated = TenantTrialLifecycleCore.TryApplyMarkTrialConverted(
+                existing, newCommercialTier);
+            if (updated is null)
+                return Task.FromResult(false);
 
-        if (updated is null)
-            return Task.FromResult(false);
-
-        lock (_trialGate)
-        {
+            // The eligibility check and update must observe the same tenant version.
             _byId[tenantId] = updated;
+            return Task.FromResult(true);
         }
-
-        return Task.FromResult(true);
     }
 
 
     /// <inheritdoc />
     public Task<IReadOnlyList<Guid>> ListTrialLifecycleAutomationTenantIdsAsync(CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         List<Guid> ids;
 
@@ -149,7 +135,7 @@ public sealed partial class InMemoryTenantRepository
         CancellationToken ct)
     {
         _ = reason;
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -169,7 +155,7 @@ public sealed partial class InMemoryTenantRepository
         DateTimeOffset committedUtc,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -196,7 +182,7 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task E2eHarnessSetTrialExpiresUtcAsync(Guid tenantId, DateTimeOffset expiresUtc, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -212,7 +198,7 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task E2eHarnessGrantEnterpriseCommercialAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
