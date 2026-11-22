@@ -11,6 +11,8 @@ import {
 } from "@/lib/review-quality/compare-quality-delta";
 import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
 import { ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE } from "@/lib/architecture/compare-delta-counts-two-sealed-footnote-copy";
+import { COMPARE_QUALITY_DELTA_ZERO_COUNTS_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-quality-delta-zero-counts-one-unsealed-not-load-failure-copy";
+import { CompareQualityDeltaZeroCountsOneUnsealedPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaZeroCountsOneUnsealedPartialHonesty";
 import { CompareQualityDeltaPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPartialInventoryFootnote";
 
 export type CompareQualityDeltaPanelProps = {
