@@ -157,28 +157,43 @@ public sealed class CircuitBreakingAgentCompletionClient(
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         string stateBeforeOutcome = _gate.CurrentState;
-        bool success = false;
+        bool completed = false;
+        Exception? streamFailure = null;
 
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            await foreach (string chunk in AgentCompletionStreamingBridge.StreamJsonAsync(
-                               _inner,
-                               systemPrompt,
-                               userPrompt,
-                               maxTokens,
-                               temperature,
-                               cancellationToken).ConfigureAwait(false))
-            {
-                yield return chunk;
-            }
+            await using IAsyncEnumerator<string> enumerator =
+                AgentCompletionStreamingBridge.StreamJsonAsync(
+                    _inner, systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
+                    .GetAsyncEnumerator(cancellationToken);
 
-            success = true;
+            while (true)
+            {
+                bool hasNext;
+                try
+                {
+                    hasNext = await enumerator.MoveNextAsync();
+                }
+                catch (Exception ex)
+                {
+                    streamFailure = ex;
+                    throw;
+                }
+
+                if (!hasNext)
+                {
+                    completed = true;
+                    break;
+                }
+
+                yield return enumerator.Current;
+            }
         }
         finally
         {
-            if (success)
+            if (completed)
             {
                 _gate.RecordSuccess();
 
@@ -186,20 +201,20 @@ public sealed class CircuitBreakingAgentCompletionClient(
                     _gate.CurrentState.Equals("Closed", StringComparison.Ordinal))
                 {
                     string safeGate = LogSanitizer.Sanitize(_gate.GateName);
-
                     _logger.LogInformation(
                         "LLM Circuit Breaker reset; circuit closed and streaming completions may proceed. Gate={GateName}.",
                         safeGate);
                 }
             }
-            else if (cancellationToken.IsCancellationRequested)
+            else if (cancellationToken.IsCancellationRequested || streamFailure is null ||
+                     streamFailure is OperationCanceledException)
             {
+                // Early disposal and caller cancellation are not upstream failures.
                 _gate.RecordCallCancelled();
             }
-            else
+            else if (LlmCompletionFailureClassifier.ShouldRecordCircuitBreakerFailure(streamFailure))
             {
                 string stateBeforeFailure = _gate.CurrentState;
-
                 _gate.RecordFailure();
 
                 if (_gate.CurrentState.Equals("Open", StringComparison.Ordinal) &&
@@ -207,11 +222,15 @@ public sealed class CircuitBreakingAgentCompletionClient(
                      stateBeforeFailure.Equals("HalfOpen", StringComparison.Ordinal)))
                 {
                     string safeGate = LogSanitizer.Sanitize(_gate.GateName);
-
                     _logger.LogWarning(
                         "LLM Circuit Breaker opened due to consecutive streaming failures. Gate={GateName}.",
                         safeGate);
                 }
+            }
+            else
+            {
+                // Semantic-terminal errors do not tick the breaker.
+                _gate.RecordCallCancelled();
             }
         }
     }
