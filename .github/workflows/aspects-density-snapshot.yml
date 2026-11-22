@@ -54,6 +54,10 @@ jobs:
           else
             echo 'No prior snapshot yet; previous density and delta unavailable.'
           fi
+          previous_file="$(find .aspects-previous -type f -name aspects-density-snapshot.json -print -quit)"
+          if [ -n "$previous_file" ]; then
+            cp "$previous_file" .aspects-previous/previous.json
+          fi
 
       - name: Revalidate pinned source blobs and generate the 900-commit snapshot
         run: |
@@ -62,7 +66,7 @@ jobs:
             --ledger docs/engineering/aspects-review-ledger.jsonl \
             --head "$(git rev-parse HEAD)" \
             --window 900 \
-            --previous .aspects-previous/aspects-density-snapshot.json \
+            --previous .aspects-previous/previous.json \
             --json-out artifacts/aspects/aspects-density-snapshot.json \
             --markdown-out artifacts/aspects/aspects-density-snapshot.md
           cat artifacts/aspects/aspects-density-snapshot.md >> "$GITHUB_STEP_SUMMARY"
