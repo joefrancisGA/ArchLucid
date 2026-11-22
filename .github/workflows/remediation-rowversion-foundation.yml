@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [master]
     paths:
-      - 'ArchLucid.Persistence/Migrations/415_RemediationInstanceRowVersion.sql'
+      - 'ArchLucid.Persistence/Migrations/425_RemediationInstanceRowVersion.sql'
       - 'ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/RemediationInstanceRecord.cs'
       - 'scripts/ci/tests/test_remediation_rowversion_foundation.py'
       - '.github/workflows/remediation-rowversion-foundation.yml'
