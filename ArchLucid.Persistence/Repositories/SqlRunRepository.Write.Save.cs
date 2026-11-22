@@ -32,6 +32,13 @@ public sealed partial class SqlRunRepository
 
         if (connection is not null)
         {
+            // Trial quota consumption and run creation must commit or roll back together.
+            // A caller-owned connection without a transaction could consume the allowance
+            // even when the subsequent run INSERT fails.
+            if (RunRepositoryCore.ShouldConsumeTrialRunAllowanceOnCreate(run) && transaction is null)
+                throw new InvalidOperationException(
+                    "Trial run creation requires a caller-owned transaction when a connection is supplied.");
+
             if (RunRepositoryCore.ShouldConsumeTrialRunAllowanceOnCreate(run))
                 await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction).ConfigureAwait(false);
 
