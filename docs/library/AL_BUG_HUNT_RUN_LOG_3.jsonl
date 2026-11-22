@@ -1,3 +1,4 @@
 {"outcome":"reset","set":3,"zoneId":"_picker_reset","at":"2026-11-22T21:31:31.8730172Z","note":"option A picker metadata reset; archive stamp 2026-11-22"}
 {"at":"2026-11-22T21:56:16.5639001Z","zoneId":"ui-review-detail-workspace","outcome":"hit","set":3,"note":"seed hunt: hashchange clears workbench focus on non-workbench section"}
 {"at":"2026-11-22T22:22:08.9190173Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: initial hash hydration clears workbench focus on non-workbench section"}
+{"at":"2026-11-22T22:31:14.6606898Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared","set":3,"note":"seed hunt: pass-30 monitors cheap-disproved; five new candidates"}
