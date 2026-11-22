@@ -38,6 +38,15 @@ public sealed class SnapshotAuthorizationDominanceAnalyzer : DiagnosticAnalyzer
             method.Name != "GetArchitectureGraphTemporalSnapshot")
             return;
 
+        // Conditional SecureNow exchange authorization is not expected to
+        // dominate ordinary graph reads. Suppress the unconditional CFG rule
+        // only for the recognized dual-guard exchange pattern.
+        var declaration = method.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax()
+            as MethodDeclarationSyntax;
+        if (declaration is not null &&
+            SecureNowExchangeModePattern.HasTwoGuardedExchangeChecks(declaration))
+            return;
+
         foreach (var root in context.OperationBlocks)
         {
             if (root is not IMethodBodyOperation body)
