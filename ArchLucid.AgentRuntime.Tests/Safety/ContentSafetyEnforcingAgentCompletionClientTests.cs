@@ -70,7 +70,7 @@ public sealed class ContentSafetyEnforcingAgentCompletionClientTests
         guard.Setup(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(allowed);
         guard.Setup(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns((string _, CancellationToken _) =>
+            .Returns((string output, CancellationToken token) =>
             {
                 // Simulate a safety provider which returns a successful decision after cancellation.
                 caller.Cancel();
