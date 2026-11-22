@@ -34,7 +34,7 @@ def decide(runs, jobs, head_sha, ready_sha, threshold=4):
         return {"action": "wait", "reason": "multiple or pending full CI runs"}
     if running:
         run = running[0]
-        failed = {j["id"] for j in jobs if j.get("conclusion") == "failure" and j.get("run_id") == run["id"]}
+        failed = {j["id"] for j in jobs if j.get("conclusion") == "failure" and (j.get("run_id", run["id"]) == run["id"])}
         if len(failed) >= threshold and ready_sha == head_sha and head_sha != run.get("head_sha"):
             return {"action": "cancel", "run_id": run["id"], "failed_jobs": len(failed)}
         return {"action": "wait", "reason": "current run collecting evidence", "failed_jobs": len(failed)}
