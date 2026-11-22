@@ -18,7 +18,7 @@ public sealed partial class InMemoryTenantRepository
     {
         _ = connection;
         _ = transaction;
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -53,7 +53,7 @@ public sealed partial class InMemoryTenantRepository
     public Task TryClaimTrialSeatAsync(Guid tenantId, string principalKey, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(principalKey);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         string key = principalKey.Trim();
 

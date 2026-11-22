@@ -1,6 +1,6 @@
 # ADR FND-013 — Aspects measurement ledger exchange
 
-Status: Proposed schema-only foundation (2026-11-22). No changes to production Aspects accounting or existing reconciliation jobs.
+Status: Incremental evidence-based subset reporting (2026-11-22). Source-verified snapshots now run after master updates; historical workbook reconciliation and true cross-revision content-lineage deduplication remain incomplete.
 
 ## Source mapping
 - `scripts/aspects_review_evidence.py` is the current evidence recorder. It requires explicit verified review spans, baseline and blob SHAs, and unions path/blob intervals; it explicitly warns this is **not cross-revision content-lineage deduplication**.
@@ -21,3 +21,11 @@ Introduce a versioned reporting envelope for Aspects measurements: pinned head a
 
 ## Integration gates
 Build an adapter around `scripts/aspects_review_evidence.py` only after historical evidence reconciliation; add cross-revision lineage mapping before claiming unique LOC across commits. Keep the existing workflow manual-only and the 1.0 CI unaffected.
+
+## November 22, 2026 implementation
+
+- `scripts/aspects_density_snapshot.py` revalidates pinned blobs and line spans against Git, produces an auditable report with a deterministic evidence fingerprint, and rejects incomparable prior-rate deltas.
+- `.github/workflows/aspects-density-snapshot.yml` produces an artifact for master updates rather than silently reprinting the latest saved spreadsheet number.
+- `.github/workflows/aspects-evidence-gate.yml` requires new Aspects branches to submit ledger evidence; older pre-existing PRs remain exempt.
+- Historical observations are separately backfilled into the canonical ledger with exact source pins, not added directly to the old workbook denominator. See `docs/engineering/ASPECTS_DENSITY_MEASUREMENT.md`.
+- This is an evidence-backed **observed subset**; a verified full historical series requires independent row-level reconciliation and cross-revision deduplication.

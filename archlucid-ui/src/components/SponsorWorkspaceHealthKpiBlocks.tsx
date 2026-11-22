@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 
 import type { SponsorWorkspaceHealthKpiViewModel } from "./use-sponsor-workspace-health-dashboard";
 import { WORKSPACE_HEALTH_KPI_CARD_AS_OF_LINE } from "@/lib/insights/workspace-health-kpi-card-as-of-copy";
+import { WORKSPACE_HEALTH_KPI_TILES_POINT_IN_TIME_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/workspace-health-kpi-tiles-point-in-time-not-load-failure-copy";
 
 function WorkspaceHealthKpiCardAsOfLine(): React.JSX.Element {
   return (
@@ -80,6 +81,12 @@ export function SponsorWorkspaceHealthKpiBlocks({
 
   return (
     <>
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="workspace-health-kpi-tiles-point-in-time-not-load-failure"
+      >
+        {WORKSPACE_HEALTH_KPI_TILES_POINT_IN_TIME_NOT_LOAD_FAILURE_LINE}
+      </p>
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">

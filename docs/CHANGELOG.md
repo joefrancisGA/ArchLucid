@@ -6,6 +6,13 @@
 # ArchLucid changelog
 
 
+## 2026-11-22 - Score lift round 108 (batch 73): Findings partial capture, deliverables exports, workspace KPI tiles
+
+**Outcome.** Main findings queue partial-capture empty names thin capture versus failed read. Request JSON and review export ZIP name unsealed finalize gates versus load failure. Workspace health KPI tiles state point-in-time rollup discipline.
+
+**Surfaces.** Governance findings empty, run detail deliverables exports, workspace health KPI blocks, honesty and mounted contract tests.
+
+
 ## 2026-11-22 - Score lift round 107 (batch 72): Graph path-only, edge focus, assigned partial capture, golden manifest
 
 **Outcome.** Evidence graph path-only and edge-focus empty bands name successful load with no matching slice or edge pin. Assigned findings partial-capture empty names thin capture versus failed assignments read. Golden manifest Markdown export names unsealed finalize gate versus load failure.
