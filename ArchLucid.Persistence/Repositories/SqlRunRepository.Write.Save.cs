@@ -89,8 +89,11 @@ public sealed partial class SqlRunRepository
         }
 
         await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await EnsureCommittedRunHeaderAnchorsUnchangedAsync(owned, null, run, ct).ConfigureAwait(false);
-        await ApplyUpdateAsync(owned, null, run, sql, ct).ConfigureAwait(false);
+        await using SqlTransaction ownedTransaction =
+            (SqlTransaction)await owned.BeginTransactionAsync(ct).ConfigureAwait(false);
+        await EnsureCommittedRunHeaderAnchorsUnchangedAsync(owned, ownedTransaction, run, ct).ConfigureAwait(false);
+        await ApplyUpdateAsync(owned, ownedTransaction, run, sql, ct).ConfigureAwait(false);
+        await ownedTransaction.CommitAsync(ct).ConfigureAwait(false);
     }
 
     private static async Task EnsureCommittedRunHeaderAnchorsUnchangedAsync(
@@ -113,7 +116,9 @@ public sealed partial class SqlRunRepository
 
         return await connection.QuerySingleOrDefaultAsync<RunRecord>(
             new CommandDefinition(
-                RunRepositorySql.SelectAnchorGuardByScopedId,
+                transaction is null
+                    ? RunRepositorySql.SelectAnchorGuardByScopedId
+                    : RunRepositorySql.SelectAnchorGuardForUpdateByScopedId,
                 RunRecordParameters.AnchorGuardKey(run),
                 transaction,
                 cancellationToken: ct)).ConfigureAwait(false);
