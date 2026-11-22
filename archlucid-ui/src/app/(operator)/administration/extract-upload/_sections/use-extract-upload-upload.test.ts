@@ -39,7 +39,7 @@ describe("useExtractUploadUpload", () => {
 
       expect(result.current.packageId).toBeNull();
       expect(result.current.uploadError).toMatchObject({
-        message: expect.stringContaining("upload package ID"),
+        message: expect.stringContaining("upload reference"),
         correlationId: "receipt-test",
       });
       expect(onUploadAccepted).not.toHaveBeenCalled();

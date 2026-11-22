@@ -38,9 +38,11 @@ public sealed partial class GraphController
         {
             // The optional exchange format is hidden unless a server-side feature gate explicitly enables it.
             // Resolve from DI fail-closed: absence of the provider must never enable the capability.
+
             if (secureNowExchange)
             {
                 IFeatureFlags? flags = HttpContext.RequestServices.GetService<IFeatureFlags>();
+
                 if (flags is null || !await flags.IsEnabledAsync("SecureNow.ReadOnlySnapshotExchange", ct))
                     return NotFound();
             }

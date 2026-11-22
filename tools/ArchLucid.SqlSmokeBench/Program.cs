@@ -14,17 +14,21 @@ string Get(string key, string fallback = "") =>
 string database = Get("--database");
 string approval = Get("--approval");
 string output = Get("--output");
+
 if (!database.StartsWith("ArchLucidCapacityTest_", StringComparison.Ordinal)
     || approval != "I_APPROVE_DESTRUCTIVE_TEST_DATA_WRITES" || string.IsNullOrWhiteSpace(output))
     throw new InvalidOperationException("Dedicated ArchLucidCapacityTest_* database, explicit approval and output are required.");
 int rows = int.Parse(Get("--rows", "1000"));
 int workers = int.Parse(Get("--workers", "4"));
 int seconds = int.Parse(Get("--seconds", "30"));
+
 if (rows is < 1 or > 1000 || workers is < 1 or > 4 || seconds is < 1 or > 60)
     throw new ArgumentOutOfRangeException(nameof(args), "Smoke profile limits: rows 1..1000, workers 1..4, seconds 1..60.");
 string? rawConnection = Environment.GetEnvironmentVariable("ARCHLUCID_SQL_BENCH_CONNECTION");
+
 if (string.IsNullOrWhiteSpace(rawConnection)) throw new InvalidOperationException("Missing SQL benchmark connection environment variable.");
 SqlConnectionStringBuilder builder = new(rawConnection);
+
 if (!string.Equals(builder.InitialCatalog, database, StringComparison.OrdinalIgnoreCase)
     || !builder.Encrypt.Equals(SqlConnectionEncryptOption.Mandatory) && !builder.Encrypt.Equals(SqlConnectionEncryptOption.Strict)
     || builder.TrustServerCertificate)
