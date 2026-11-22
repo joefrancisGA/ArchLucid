@@ -4,6 +4,9 @@
 
 title = "ArchLucid"
 
+[extend]
+useDefault = true
+
 # OIDC bug-hunt narrative uses "PKCE storage-key isolation, primary/supplemental
 # authorize redirect cleanup". Gitleaks generic-api-key captured exactly the
 # 20-character phrase "primary/supplemental" (entropy 3.584184) from commit
