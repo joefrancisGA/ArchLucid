@@ -4,21 +4,6 @@
 
 title = "ArchLucid"
 
-# A historical FND-010 authorization-test fixture constructs a synthetic HMAC
-# envelope with an explicitly non-production test key and a deterministic nonce.
-# The generic-api-key heuristic treats its tuple arguments as an API key.
-# Scope the exception to the single existing GitLeaks finding fingerprint;
-# do not exempt the Python file or the generic secret rule.
-[[allowlists]]
-description = "Historical FND-010 unit-test HMAC fixture: exact synthetic key-id / nonce tuple"
-targetRules = ["generic-api-key"]
-fingerprints = [
-  "1d4c4c8e7775cba3e68df0c46949f119d323a4d6:scripts/tests/test_fnd010_evidence_authorization.py:generic-api-key:34",
-]
-
-[extend]
-useDefault = true
-
 # OIDC bug-hunt narrative uses "PKCE storage-key isolation, primary/supplemental
 # authorize redirect cleanup". Gitleaks generic-api-key captured exactly the
 # 20-character phrase "primary/supplemental" (entropy 3.584184) from commit
