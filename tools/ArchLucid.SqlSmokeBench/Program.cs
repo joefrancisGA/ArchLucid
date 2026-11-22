@@ -79,6 +79,7 @@ await using (SqlConnection setup = new(connectionString))
 }
 ConcurrentBag<double> readMs = new(), updateMs = new();
 ConcurrentBag<string> errors = new();
+TimeProvider clock = TimeProvider.System;
 DateTimeOffset start = clock.GetUtcNow();
 try
 {

@@ -69,6 +69,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         {
             List<CompositeAlertRule> result = CompositeAlertRuleRepositoryCore
                 .FilterByScope(_items, tenantId, workspaceId, projectId)
+                .OrderByDescending(static rule => rule.CreatedUtc)
                 .Select(CompositeAlertRuleRepositoryCore.CloneRule)
                 .ToList();
             return Task.FromResult<IReadOnlyList<CompositeAlertRule>>(result);
@@ -86,6 +87,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         {
             List<CompositeAlertRule> result = CompositeAlertRuleRepositoryCore
                 .FilterEnabledByScope(_items, tenantId, workspaceId, projectId)
+                .OrderByDescending(static rule => rule.CreatedUtc)
                 .Select(CompositeAlertRuleRepositoryCore.CloneRule)
                 .ToList();
             return Task.FromResult<IReadOnlyList<CompositeAlertRule>>(result);

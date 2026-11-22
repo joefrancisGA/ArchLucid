@@ -34,7 +34,9 @@ public sealed class ArtifactBundleScopedLookupTests
         ArtifactBundle? result = await repository.GetByManifestIdAsync(
             scope, manifestId, loadArtifactBodies: true, CancellationToken.None);
 
-        result.Should().BeSameAs(creationTimesTie ? lastSaved : firstSaved);
+        result.Should().NotBeNull();
+        result!.BundleId.Should().Be((creationTimesTie ? lastSaved : firstSaved).BundleId);
+        result.Should().NotBeSameAs(creationTimesTie ? lastSaved : firstSaved);
 
         ArtifactBundle MakeBundle(DateTime timestamp) => new()
         {

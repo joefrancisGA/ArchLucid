@@ -1,5 +1,5 @@
 /*
-  Rollback 425: Remove the SQL Server-managed optimistic concurrency token.
+  Rollback 425: Remove the additive SQL Server-managed RowVersion column.
   Only use after stopping writers that rely on RowVersion; values cannot be restored.
   Idempotent no-op when the table or column is absent.
 */

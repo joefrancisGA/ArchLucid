@@ -60,6 +60,18 @@
 - **code-changed-since:** yes
 ## Zone: persistence-infra-evidence
 
+2026-11-21 thorough hunt #3 (dry, backfill): cheap-disproof on four hunt #2 `(candidate)` reseeds — **valid-no-repro** `SqlSecurityEvidencePathRepository.ListPagedAsync` empty `SnapshotId` already normalized with hunt #2 `NormalizeOptionalListFilterGuid` (parity regression `ListPagedAsync_empty_snapshot_id_matches_unset_filter`), **valid-no-repro** `SqlAzureInventorySnapshotRepository.ListResourcesBySnapshotIdPagedAsync` treats `cloudResourceId == Guid.Empty` as unset (`resourceId != Guid.Empty` gate), **valid-no-repro** duplicate operational finding natural key fails closed in SQL (`Duplicate_natural_key_throws_and_foreign_tenant_lookup_returns_null`; not silent duplicate), **valid-no-repro** `SqlAuditEvidenceSnapshotRepository.TryGetHeaderInScopeAsync` joins `AuditAssessments` for workspace/project pushdown (`ProjectScopeSqlPushdownBoundaryTests`). Scoped `FullyQualifiedName~NoOpAzureInventorySnapshotRepositoryTests` **2/2** (SQL integrations skippable without container). Ledger/run-log recorded on master via backfill (hunt PR #7453 closed without merge). Reseeded five `(candidate)` monitors below.
+
+- [x] (valid-no-repro) `SqlSecurityEvidencePathRepository.ListPagedAsync` — empty snapshot `Guid.Empty` — **cheap-disproof 2026-11-21 thorough hunt #3:** hunt #2 normalizer + regression.
+- [x] (valid-no-repro) `SqlAzureInventorySnapshotRepository.ListResourcesBySnapshotIdPaged` — empty resource filter — **cheap-disproof 2026-11-21 thorough hunt #3:** optional filter gate in SQL partial.
+- [x] (valid-no-repro) `SqlOperationalSecurityFindingRepository` — natural key upsert race — **cheap-disproof 2026-11-21 thorough hunt #3:** duplicate insert throws; app transaction.
+- [x] (valid-no-repro) `SqlAuditEvidenceSnapshotRepository` — scoped header without assessment join — **cheap-disproof 2026-11-21 thorough hunt #3:** assessment join + pushdown boundary suite.
+
+- [ ] (candidate) `SqlSecurityEvidencePathRepository.ListPagedAsync` — `PathKind` unset vs invalid enum cast — locus: int? binding; input: out-of-range kind; wrong outcome: SQL error vs all rows; reachability: path inspector filters.
+- [ ] (candidate) `SqlAzureInventorySnapshotRepository.ListSnapshotsAsync` — whitespace `subscriptionId` vs SQL `NULL` — locus: trim; input: spaces-only subscription; wrong outcome: zero snapshots; reachability: drift snapshot picker.
+- [ ] (candidate) `SqlRemediationWaveRepository` — wave list paging with `Guid.Empty` tenant sentinel — locus: trusted job scope; input: empty tenant filter; wrong outcome: scope violation; reachability: remediation wave browser (monitor).
+- [ ] (candidate) `SqlAzureInventoryDiffRepository.ListChangesByDiffIdAsync` — empty `cloudResourceId` facet — locus: optional resource filter; input: `Guid.Empty`; wrong outcome: over-filter changes; reachability: diff detail (monitor parity with snapshot list).
+- [ ] (candidate) `SqlAuditEvidenceSnapshotRepository.ListItemsInScopeAsync` — foreign workspace snapshot id guess — locus: scope SQL; input: snapshot in other project; wrong outcome: item leak; reachability: hybrid evidence items.
 2026-11-21 thorough hunt #2 (hit+dry): promoted `SqlSecurityEvidencePathRepository.ListPagedAsync` — `CloudResourceId` of `Guid.Empty` over-filtered vs unset (`IS NULL` branch) while API/model binding may pass empty guid; normalize `Guid.Empty` to null for `SnapshotId` and `CloudResourceId` filter params; regression `ListPagedAsync_empty_cloud_resource_id_matches_unset_filter`. Cheap-disproof **valid-no-repro** scoped SQL list methods on inventory snapshot repository still push down workspace/project in SQL (`ProjectScopeSqlPushdownBoundaryTests`), **valid-no-repro** operational finding ingest batching is transactional at application orchestration layer (no partial SQL batch in repo surface), **valid-no-repro** audit snapshot inventory links insert inside single SQL transaction with header PK (retry hits duplicate snapshot not orphan links), **valid-no-repro** diff consumer fan-out for zero-change diffs lives in `AzureInventoryDiffService` with existing regression tests (application zone). Scoped `FullyQualifiedName~ListPagedAsync_empty_cloud_resource_id` (Skippable if no SQL container). Reseeded four `(candidate)` monitors below.
 
 - [x] (fixed) `SqlSecurityEvidencePathRepository.ListPagedAsync` — `Guid.Empty` cloud resource filter — **promoted 2026-11-21 thorough hunt #2:** `NormalizeOptionalListFilterGuid`.
@@ -68,10 +80,10 @@
 - [x] (valid-no-repro) `SqlAuditEvidenceSnapshotRepository.InsertSnapshotInScopeAsync` — inventory link duplicate on retry — **cheap-disproof 2026-11-21 thorough hunt #2:** single transaction + header PK.
 - [x] (valid-no-repro) `SqlAzureInventoryDiffRepository` — zero-change diff consumer skip — **cheap-disproof 2026-11-21 thorough hunt #2:** application `AzureInventoryDiffService` tests.
 
-- [ ] (candidate) `SqlSecurityEvidencePathRepository.ListPagedAsync` — empty snapshot filter `Guid.Empty` vs null — locus: snapshot facet; input: empty snapshot guid; wrong outcome: zero rows; reachability: path inspector (monitor; hunt #2 fixed cloud resource; verify snapshot parity).
-- [ ] (candidate) `SqlAzureInventorySnapshotRepository.ListResourcesBySnapshotIdPaged` — `cloudResourceId` empty guid — locus: optional resource filter; input: `Guid.Empty`; wrong outcome: over-filter; reachability: inventory resource browser.
-- [ ] (candidate) `SqlOperationalSecurityFindingRepository` — natural key upsert race — locus: concurrent ingest; input: parallel same natural key; wrong outcome: duplicate finding; reachability: SecureNow ingest job.
-- [ ] (candidate) `SqlAuditEvidenceSnapshotRepository` — scoped header read without assessment join — locus: scope pushdown; input: foreign assessment id guess; wrong outcome: header leak; reachability: hybrid evidence (monitor; scoped header SQL join present).
+- [x] (valid-no-repro) `SqlSecurityEvidencePathRepository.ListPagedAsync` — empty snapshot filter `Guid.Empty` vs null — **cheap-disproof hunt #3.** — locus: snapshot facet; input: empty snapshot guid; wrong outcome: zero rows; reachability: path inspector (monitor; hunt #2 fixed cloud resource; verify snapshot parity).
+- [x] (valid-no-repro) `SqlAzureInventorySnapshotRepository.ListResourcesBySnapshotIdPaged` — `cloudResourceId` empty guid — **cheap-disproof hunt #3.** — locus: optional resource filter; input: `Guid.Empty`; wrong outcome: over-filter; reachability: inventory resource browser.
+- [x] (valid-no-repro) `SqlOperationalSecurityFindingRepository` — natural key upsert race — **cheap-disproof hunt #3.** — locus: concurrent ingest; input: parallel same natural key; wrong outcome: duplicate finding; reachability: SecureNow ingest job.
+- [x] (valid-no-repro) `SqlAuditEvidenceSnapshotRepository` — scoped header read without assessment join — **cheap-disproof hunt #3.** — locus: scope pushdown; input: foreign assessment id guess; wrong outcome: header leak; reachability: hybrid evidence (monitor; scoped header SQL join present).
 
 2026-11-20 thorough hunt #1 (dry): cheap-disproof on five seed `(hunt-ready)` monitors in `ArchLucid.Persistence/InfraEvidence` — **valid-no-repro** `NoOpAzureInventorySnapshotRepository` detail/header reads return `null` for unknown ids (regression `NoOpAzureInventorySnapshotRepositoryTests`), **valid-no-repro** `SqlRemediationWaveRepository` keys `WaveId` as `Guid` (no string padding boundary), **valid-no-repro** `SqlAuditEvidenceSnapshotRepository` binds `header.TenantId` as `Guid` on insert/read (no whitespace tenant string path), **valid-no-repro** `SqlAzureInventoryDiffNarrativeRepository.InsertAsync` is append-only insert without OCC (product accepts duplicate narratives unless upstream dedupes), **valid-no-repro** `SqlSecurityEvidencePathRepository.ListPagedAsync` optional filters use `IS NULL` so unset facets match all while `Guid.Empty` applies EXISTS (not blank-token match-all). Scoped `FullyQualifiedName~NoOpAzureInventorySnapshotRepositoryTests` **2/2** passed. Reseeded five `(candidate)` monitors below. No production change.
 
@@ -83,10 +95,13 @@
 
 ### Hypotheses
 
-- [ ] (candidate) `SqlSecurityEvidencePathRepository.ListPagedAsync` — empty `SnapshotId` guid — monitor; hunt #2 reseed.
-- [ ] (candidate) `SqlAzureInventorySnapshotRepository.ListResourcesBySnapshotIdPaged` — empty resource filter guid — monitor; hunt #2 reseed.
-- [ ] (candidate) `SqlOperationalSecurityFindingRepository` — natural key upsert race — monitor; hunt #2 reseed.
-- [ ] (candidate) `SqlAuditEvidenceSnapshotRepository` — scoped header read — monitor; hunt #2 reseed.
+### Hypotheses
+
+- [ ] (candidate) `SqlSecurityEvidencePathRepository.ListPagedAsync` — `PathKind` enum edge — monitor; thorough hunt #3 reseed.
+- [ ] (candidate) `SqlAzureInventorySnapshotRepository.ListSnapshotsAsync` — whitespace `subscriptionId` — monitor; thorough hunt #3 reseed.
+- [ ] (candidate) `SqlRemediationWaveRepository` — empty tenant sentinel — monitor; thorough hunt #3 reseed.
+- [ ] (candidate) `SqlAzureInventoryDiffRepository` — empty `cloudResourceId` on change list — monitor; thorough hunt #3 reseed.
+- [ ] (candidate) `SqlAuditEvidenceSnapshotRepository.ListItemsInScopeAsync` — cross-project snapshot item scope — monitor; thorough hunt #3 reseed.
 
 - **id:** persistence-infra-evidence
 - **status:** open
@@ -94,9 +109,9 @@
 - **aliases:** persistence infra evidence repositories
 - **paths:** ArchLucid.Persistence/InfraEvidence/
 - **test-filter:** FullyQualifiedName~InfraEvidence
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-21
 - **last-bug:** 2026-11-21
 - **related-pd-tb:** none

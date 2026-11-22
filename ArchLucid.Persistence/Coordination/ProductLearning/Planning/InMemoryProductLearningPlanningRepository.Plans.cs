@@ -73,7 +73,7 @@ public sealed partial class InMemoryProductLearningPlanningRepository
             p.WorkspaceId == scope.WorkspaceId &&
             p.ProjectId == scope.ProjectId);
 
-        return Task.FromResult(found);
+        return Task.FromResult(found is null ? null : CopyPlan(found));
     }
 
     public Task<IReadOnlyList<ProductLearningImprovementPlanRecord>> ListPlansAsync(
@@ -94,6 +94,7 @@ public sealed partial class InMemoryProductLearningPlanningRepository
             .OrderByDescending(static p => p.CreatedUtc)
             .ThenBy(static p => p.PlanId)
             .Take(take)
+            .Select(CopyPlan)
             .ToList();
 
         return Task.FromResult<IReadOnlyList<ProductLearningImprovementPlanRecord>>(list);
@@ -159,8 +160,34 @@ public sealed partial class InMemoryProductLearningPlanningRepository
             .OrderByDescending(static p => p.CreatedUtc)
             .ThenBy(static p => p.PlanId)
             .Take(take)
+            .Select(CopyPlan)
             .ToList();
 
         return Task.FromResult<IReadOnlyList<ProductLearningImprovementPlanRecord>>(list);
     }
+
+    private static ProductLearningImprovementPlanRecord CopyPlan(ProductLearningImprovementPlanRecord plan) => new()
+    {
+        PlanId = plan.PlanId,
+        TenantId = plan.TenantId,
+        WorkspaceId = plan.WorkspaceId,
+        ProjectId = plan.ProjectId,
+        ThemeId = plan.ThemeId,
+        Title = plan.Title,
+        Summary = plan.Summary,
+        ActionSteps = plan.ActionSteps
+            .Select(static step => new ProductLearningImprovementPlanActionStep
+            {
+                Ordinal = step.Ordinal,
+                ActionType = step.ActionType,
+                Description = step.Description,
+                AcceptanceCriteria = step.AcceptanceCriteria
+            })
+            .ToList(),
+        PriorityScore = plan.PriorityScore,
+        PriorityExplanation = plan.PriorityExplanation,
+        Status = plan.Status,
+        CreatedUtc = plan.CreatedUtc,
+        CreatedByUserId = plan.CreatedByUserId
+    };
 }

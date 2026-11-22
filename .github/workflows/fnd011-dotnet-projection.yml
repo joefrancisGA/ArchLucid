@@ -13,9 +13,9 @@ permissions:
 jobs:
   projection-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    # The SecureNowSnapshot filter also selects HTTP integration tests backed by SQL.
-    # Match the repository's existing full-CI SQL service instead of skipping them.
+    timeout-minutes: 35
+    # SecureNowSnapshot includes real HTTP integration cases with SQL-backed factories.
+    # Keep those tests enabled; provision the same ephemeral SQL service as ci.yml.
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -30,13 +30,16 @@ jobs:
           --health-timeout 5s
           --health-retries 30
           --health-start-period 60s
-    env:
-      ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
     steps:
       - uses: actions/checkout@v4
-      - name: Wait for SQL Server service
+      - name: Wait for SQL Server to be ready
         uses: ./.github/actions/wait-for-sqlserver
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --filter FullyQualifiedName~SecureNowSnapshot
+      - name: Ensure SQL persistence test catalog
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
+      - name: Run full SecureNow snapshot tests (including SQL HTTP integration)
+        env:
+          ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
+        run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --filter FullyQualifiedName~SecureNowSnapshot
