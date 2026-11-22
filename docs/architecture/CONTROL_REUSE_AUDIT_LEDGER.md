@@ -61,3 +61,25 @@ Inspected `CachingAgentCompletionClient.cs`, `LlmCompletionCacheFingerprint.cs`,
 ## Legacy completion cache configuration enforcement (2026-11-22)
 
 The two production composition paths `AgentCompletionAzureScopedChainRegistrar` and `EchoAgentCompletionPipelineRegistrar` pass configurable `LlmCompletionResponseCacheOptions.PartitionByScope` into a shared completion cache. Although defaults and `appsettings.Advanced.json` set true, configuration overrides could set false and allow identical prompts to share cache responses across tenants. Added a common `RequireScopePartitioning` validation on the existing options type and invoked it only when the legacy shared cache is actually enabled in each registrar. A false setting now rejects startup of that legacy caching path instead of silently allowing cross-scope reuse. The modern cache has separate controls and is not changed. Added an options regression test. This is a deliberate fail-closed configuration behavior change; CI and compatibility tests are pending.
+
+
+## Ten-point audit batch — completion and resilience controls (2026-11-22)
+
+This batch inspects **ten distinct mechanisms**, not ten claimed defects. All findings are from source review; test outcomes remain unverified.
+
+| # | Mechanism inspected | Result |
+|---|---|---|
+| 1 | Legacy completion-cache options | Scope partition fail-closed guard committed in this PR |
+| 2 | Legacy Azure OpenAI cache registration | Reuses shared options guard |
+| 3 | Legacy Echo cache registration | Reuses shared options guard |
+| 4 | Modern `CachingLlmCompletionClient` scope admission | **Confirmed gap:** production mode accepted `PartitionByScope=false`; now rejects it |
+| 5 | Modern completion-cache hit path | Cancellation check before returning cached data added |
+| 6 | Modern completion-cache post-completion path | Cancellation check before staging/writing added |
+| 7 | `MemorySemanticCache` get | **Confirmed gap:** ignored cancellation; now checks |
+| 8 | `MemorySemanticCache` set | **Confirmed gap:** ignored cancellation; now checks |
+| 9 | `MemorySemanticCache` remove | **Confirmed gap:** ignored cancellation; now checks |
+| 10 | `LlmCallResilienceDefaults` retry classification and `CircuitBreakingAgentCompletionClient` | Existing classifier and caller cancellation handling observed; no unproven refactor |
+
+**Additional source review:** `LlmCompletionResponseCache` delegates to semantic store; `LlmCompletionCacheFingerprint` includes tenant/workspace/project when partitioning is enabled; `AgentCompletionCacheRegistrar` registers the modern decorator. Modern simulator mode remains explicitly exempt from tenant-scoped partition validation. The legacy direct cache is guarded only when enabled. Tests added for semantic-cache cancellation. CI pending.
+
+**Next:** inspect actual CI failures and deployment overrides; do not assert tenant isolation for uninspected caches or assume every identified gap represents an exploitable cross-tenant incident.
