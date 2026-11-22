@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0.0",
+  "mode": "advisory",
+  "rules": [
+    {
+      "id": "FND017-001",
+      "description": "Isolated dry-run and rollback planners must not acquire network, process, cloud SDK or SQL capabilities",
+      "paths": ["scripts/integration/fnd014_isolated_dry_run.py", "scripts/integration/fnd015_rollback_planner.py"],
+      "forbiddenImports": ["subprocess", "socket", "requests", "httpx", "urllib", "azure", "boto3", "google.cloud", "pyodbc", "sqlalchemy"],
+      "forbiddenCalls": ["eval", "exec", "compile", "__import__"]
+    },
+    {
+      "id": "FND017-002",
+      "description": "Central authorization service must retain mandatory audit-before-return behavior",
+      "paths": ["ArchLucid.Api/Security/CentralAuthorizationDecisions.cs"],
+      "requiredTokens": ["audit.WriteAsync(", "audit_unavailable", "authorization_unavailable"]
+    },
+    {
+      "id": "FND017-003",
+      "description": "SQL audit writer must use stored procedure rather than direct journal INSERT",
+      "paths": ["ArchLucid.Api/Security/SqlCentralAuthorizationAudit.cs"],
+      "requiredTokens": ["dbo.AppendAuthorizationDecision", "CommandType.StoredProcedure"],
+      "forbiddenTokens": ["INSERT INTO dbo.AuthorizationDecisionJournal"]
+    },
+    {
+      "id": "FND017-004",
+      "description": "Recovery safety assessment cannot directly authorize execution",
+      "paths": ["scripts/integration/fnd016_remediation_safety_controller.py", "scripts/integration/fnd016_recovery_stop_gate.py"],
+      "forbiddenTokens": ["eligible_for_execution=True", "eligible_for_execution = True"]
+    }
+  ]
+}
