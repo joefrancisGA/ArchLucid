@@ -60,7 +60,9 @@ public sealed class SecureNowSnapshotHttpBoundaryTests
                 {
                     RequestServices = services,
                     User = new ClaimsPrincipal(new ClaimsIdentity(
-                        [new Claim(ClaimTypes.NameIdentifier, "test-user")], "test"))
+                        [new Claim(ClaimTypes.NameIdentifier, "test-user"),
+                         new Claim("archlucid.resource_entitlement",
+                             $"evidence.read:{Scope.TenantId:D}:{Scope.WorkspaceId:D}:{Scope.ProjectId:D}:{Run:D}")], "test"))
                 }
             }
         };
