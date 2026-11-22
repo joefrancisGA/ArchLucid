@@ -25,7 +25,14 @@ public sealed class OversizedPaginationResponseContractTests
         ProducesResponseTypeAttribute response = action.GetCustomAttributes<ProducesResponseTypeAttribute>()
             .Single(x => x.StatusCode == StatusCodes.Status413PayloadTooLarge);
 
-        response.Type.Should().Be(typeof(ProblemDetails));
-        response.ContentTypes.Should().Contain("application/problem+json");
+        response.Type.Should().Be(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails));
+        // ProducesResponseTypeAttribute does not expose a public ContentTypes property.
+        // Inspect its declared content-type constructor argument instead.
+        CustomAttributeData declaration = action.GetCustomAttributesData()
+            .Single(attribute => attribute.AttributeType == typeof(ProducesResponseTypeAttribute)
+                && attribute.ConstructorArguments.Count >= 3
+                && attribute.ConstructorArguments[1].Value is int code
+                && code == StatusCodes.Status413PayloadTooLarge);
+        declaration.ConstructorArguments[2].Value.Should().Be("application/problem+json");
     }
 }

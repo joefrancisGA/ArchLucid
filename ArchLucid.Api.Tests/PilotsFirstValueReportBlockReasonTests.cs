@@ -47,7 +47,7 @@ public sealed class PilotsFirstValueReportBlockReasonTests
 
         ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
         conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
-        ProblemDetails problem = conflict.Value.Should().BeOfType<ProblemDetails>().Subject;
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = conflict.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         problem.Extensions.Should().ContainKey("blockReason");
         problem.Extensions["blockReason"].Should().Be(explanation);
         problem.Detail.Should().Be(explanation);
