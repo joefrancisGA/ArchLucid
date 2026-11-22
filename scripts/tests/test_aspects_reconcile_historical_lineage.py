@@ -1,0 +1,129 @@
+"""Goldens for cautious, source-pinned historical cross-revision accounting."""
+from __future__ import annotations
+
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import unittest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import aspects_reconcile_historical_lineage as sut
+from aspects_validate_historical_pins import VERIFIED
+
+
+def run(repo: Path, *args: str) -> str:
+    return subprocess.check_output(["git", "-C", str(repo), *args], text=True).strip()
+
+
+class HistoricalLineageTests(unittest.TestCase):
+    def setUp(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        self.repo = Path(temp.name)
+        run(self.repo, "init", "-q")
+        run(self.repo, "config", "user.email", "aspects@example.invalid")
+        run(self.repo, "config", "user.name", "Aspects Tests")
+        self.make_commit("alpha\n\nbeta\ngamma\n", "original")
+        self.old_head = run(self.repo, "rev-parse", "HEAD")
+        self.old_blob = run(self.repo, "rev-parse", "HEAD:a.cs")
+        self.make_commit("alpha\n\nbeta\ngamma\ndelta\n", "append")
+        self.new_head = run(self.repo, "rev-parse", "HEAD")
+        self.new_blob = run(self.repo, "rev-parse", "HEAD:a.cs")
+
+    def make_commit(self, source, message):
+        (self.repo / "a.cs").write_text(source, encoding="utf-8")
+        run(self.repo, "add", "a.cs")
+        run(self.repo, "commit", "-qm", message)
+
+    def event(self, row, head, blob, spans, membership="in_window"):
+        return {
+            "excel_row": row, "review_id": str(row), "reviewed_master_sha": head,
+            "pin_status": VERIFIED, "window_membership": membership,
+            "path": "a.cs", "blob": blob, "spans": spans,
+            "nonblank_reviewed_loc": sum(end - start + 1 for start, end in spans),
+        }
+
+    def checkpoint(self, window=2):
+        return {"head_sha": self.new_head,
+                "oldest_included_sha": self.old_head if window == 2 else self.new_head,
+                "window_first_parent_commits": window}
+
+    def pin_report(self, n):
+        return {"first_parent_checkpoint": {
+                    "status": "verified_first_parent_sha_membership",
+                    "head_sha": self.new_head},
+                "review_events_present": n}
+
+    def reconcile(self, rows, window=2):
+        return sut.reconcile(self.repo, rows, self.checkpoint(window),
+                             self.pin_report(len(rows)), expected_records=len(rows))
+
+    def test_cross_revision_unique_unchanged_lines_are_provisional_only(self):
+        rows = [self.event(7, self.old_head, self.old_blob, [[1, 1], [3, 3]]),
+                self.event(8, self.old_head, self.old_blob, [[1, 1]]),
+                self.event(9, self.new_head, self.new_blob, [[1, 1], [3, 3], [5, 5]])]
+        report = self.reconcile(rows)
+        self.assertEqual(report["status"], "provisional_same_path_unique_unchanged_lineage")
+        self.assertEqual(report["verified_pin_line_occurrences_in_window"], 6)
+        self.assertEqual(report["verified_unique_exact_path_blob_lines_in_window"], 5)
+        self.assertEqual(report["verified_repeated_exact_path_blob_lines_in_window"], 1)
+        self.assertEqual(report["provisionally_mapped_unique_loc"], 3)
+        self.assertEqual(report["provisionally_mapped_additional_repeated_loc"], 2)
+        self.assertIsNone(report["historical_900_density_recomputed"])
+        self.assertIsNone(report["historical_distinct_defects_reconciled"])
+
+    def test_ambiguous_repeated_text_does_not_map(self):
+        self.assertEqual(list(sut.unique_unchanged_pairs(
+            ["repeat", "repeat", "unique"], ["repeat", "repeat", "unique", "extra"])),
+            [(3, 3)])
+
+    def test_expired_older_review_excluded_after_window_rotation(self):
+        rows = [self.event(7, self.old_head, self.old_blob, [[1, 1]],
+                           membership="not_on_first_parent_window"),
+                self.event(8, self.new_head, self.new_blob, [[1, 1], [5, 5]])]
+        report = self.reconcile(rows, window=1)
+        self.assertEqual(report["eligible_verified_review_rows"], 1)
+        self.assertEqual(report["verified_unique_exact_path_blob_lines_in_window"], 2)
+        self.assertEqual(report["provisionally_mapped_unique_loc"], 2)
+        self.assertEqual(report["excluded_or_unverified_review_rows"], 1)
+
+    def test_unverified_and_no_source_never_contribute_coverage(self):
+        rows = [self.event(7, self.old_head, self.old_blob, [[1, 1]]),
+                {**self.event(8, self.new_head, self.new_blob, [[5, 5]]),
+                 "pin_status": "blob_mismatch"},
+                {**self.event(9, self.new_head, self.new_blob, [[1, 1]]),
+                 "window_membership": "membership_unverified"}]
+        report = self.reconcile(rows)
+        self.assertEqual(report["eligible_verified_review_rows"], 1)
+        self.assertEqual(report["verified_unique_exact_path_blob_lines_in_window"], 1)
+        self.assertEqual(report["excluded_or_unverified_review_rows"], 2)
+
+    def test_wrong_checkpoint_anchor_fails_closed(self):
+        rows = [self.event(7, self.old_head, self.old_blob, [[1, 1]])]
+        checkpoint = self.checkpoint()
+        checkpoint["oldest_included_sha"] = "f" * 40
+        report = sut.reconcile(self.repo, rows, checkpoint, self.pin_report(1),
+                               expected_records=1)
+        self.assertEqual(report["status"], "blocked_on_pin_window_validation")
+        self.assertNotIn("provisionally_mapped_unique_loc", report)
+
+    def test_missing_or_inconsistent_span_does_not_count(self):
+        rows = [self.event(7, self.old_head, self.old_blob, [[1, 1]])]
+        rows[0]["nonblank_reviewed_loc"] = 99
+        report = self.reconcile(rows)
+        self.assertEqual(report["status"], "blocked_on_pin_window_validation")
+        self.assertIn("Audited LOC disagrees", report["blocking_reason"])
+
+    def test_large_blob_comparison_is_skipped_not_assumed_equivalent(self):
+        rows = [self.event(7, self.old_head, self.old_blob, [[1, 1]]),
+                self.event(8, self.new_head, self.new_blob, [[1, 1]])]
+        report = sut.reconcile(self.repo, rows, self.checkpoint(),
+                               self.pin_report(len(rows)), max_blob_lines=1,
+                               expected_records=len(rows))
+        self.assertEqual(report["adjacent_reviewed_revision_pairs_skipped"], 1)
+        self.assertEqual(report["provisionally_mapped_unique_loc"], 2)
+
+
+if __name__ == "__main__":
+    unittest.main()
