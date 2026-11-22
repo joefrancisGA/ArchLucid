@@ -86,6 +86,24 @@ public sealed partial class GraphController
                     ProblemTypes.ResourceNotFound);
             }
 
+            // FND-010: the temporal resolver may select a different run than the
+            // anchor. Reauthorize the actual resolved resource before reading
+            // any graph details, and reject cross-project resolution.
+            if (secureNowExchange)
+            {
+                if (resolved.ProjectId != anchor.ProjectId || resolved.ProjectId != scope.ProjectId)
+                    return NotFound();
+
+                EvidenceReadAuthorizationGate? resolvedGate =
+                    HttpContext.RequestServices.GetService<EvidenceReadAuthorizationGate>();
+                if (resolvedGate is null)
+                    return NotFound();
+                EvidenceReadDecision resolvedAccess = await resolvedGate.AuthorizeAsync(
+                    User, scope.TenantId, scope.WorkspaceId, scope.ProjectId, resolved.RunId, ct);
+                if (!resolvedAccess.Allowed)
+                    return NotFound();
+            }
+
             RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, resolved.RunId, ct);
 
             if (detail is null)
