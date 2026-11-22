@@ -2,7 +2,7 @@ name: FND-011 .NET Projection Tests
 
 on:
   pull_request:
-    branches: [main, master]
+    branches: [main, master, integration/fnd011-authorized-http-boundary]
   merge_group:
     branches: [main, master]
   workflow_dispatch:
