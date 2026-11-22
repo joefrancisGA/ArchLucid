@@ -181,8 +181,10 @@ public sealed class AzureInventoryDiffServiceTests
         consumer.LastChanges.Should().BeEmpty();
     }
 
-    [Fact]
-    public async Task ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs(bool cancelLocally)
     {
         using IDisposable run = SecureNowAnalysisRun.Begin();
         ScopeContext scope = CreateScope();
@@ -225,7 +227,7 @@ public sealed class AzureInventoryDiffServiceTests
                 });
 
         RecordingDiffConsumer recordingConsumer = new();
-        ThrowingDiffConsumer throwingConsumer = new();
+        ThrowingDiffConsumer throwingConsumer = new(cancelLocally);
         AzureInventoryDiffService service = CreateService(
             diffRepository.Object,
             snapshotRepository.Object,
@@ -424,7 +426,7 @@ public sealed class AzureInventoryDiffServiceTests
         }
     }
 
-    private sealed class ThrowingDiffConsumer : IAzureInventoryDiffConsumer
+    private sealed class ThrowingDiffConsumer(bool cancelLocally) : IAzureInventoryDiffConsumer
     {
         public int InvocationCount { get; private set; }
 
@@ -434,7 +436,9 @@ public sealed class AzureInventoryDiffServiceTests
             CancellationToken cancellationToken = default)
         {
             InvocationCount++;
-            throw new InvalidOperationException("consumer failed");
+            return cancelLocally
+                ? Task.FromCanceled(new CancellationToken(canceled: true))
+                : Task.FromException(new InvalidOperationException("consumer failed"));
         }
     }
 }

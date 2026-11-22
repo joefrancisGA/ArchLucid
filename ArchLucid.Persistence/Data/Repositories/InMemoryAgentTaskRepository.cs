@@ -23,11 +23,11 @@ public sealed class InMemoryAgentTaskRepository : IAgentTaskRepository
     {
         ArgumentNullException.ThrowIfNull(tasks);
         cancellationToken.ThrowIfCancellationRequested();
+        List<AgentTask> batch = tasks.ToList();
+        cancellationToken.ThrowIfCancellationRequested();
+
         lock (_gate)
-
-            foreach (AgentTask task in tasks)
-
-                _tasks.Add(task);
+            _tasks.AddRange(batch);
 
         return Task.CompletedTask;
     }

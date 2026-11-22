@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   readArchLucidOpenGateReturnRecord,
@@ -8,6 +8,10 @@ import {
 describe("archlucid-open-gate-return-storage", () => {
   beforeEach(() => {
     window.localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("round-trips finding id and recorded time", () => {
@@ -38,5 +42,28 @@ describe("archlucid-open-gate-return-storage", () => {
     );
 
     expect(readArchLucidOpenGateReturnRecord("workspace-1")).toBeNull();
+  });
+
+  it("returns no saved gate when browser storage access is denied", () => {
+    vi.spyOn(window, "localStorage", "get").mockImplementation(() => {
+      throw new DOMException("Storage access denied", "SecurityError");
+    });
+
+    expect(readArchLucidOpenGateReturnRecord("workspace-1")).toBeNull();
+  });
+
+  it("keeps the review usable when saving the gate exceeds the storage quota", () => {
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("Storage quota exceeded", "QuotaExceededError");
+    });
+
+    expect(() =>
+      writeArchLucidOpenGateReturnRecord("workspace-1", {
+        runId: "run-1",
+        openGateLabel: "Open disposition",
+        href: "/architecture/reviews/run-1?reviewTab=findings",
+        recordedAtUtc: "2026-11-09T12:00:00.000Z",
+      }),
+    ).not.toThrow();
   });
 });

@@ -34,13 +34,9 @@ export function teamsNotificationsCollapsedCategoriesDisclosureHrefFromSearch(
 ): string {
   return buildOperatorHrefFromSearch(currentSearch, pathname, {
     selectionSwitch: { kind: "disclosure-only" },
+    // An empty value means every category is open. Absence uses the defaults.
     mutate: (params) => {
-
-    if (collapsedCategoryIds.length === 0) {
-      params.delete(TEAMS_NOTIFICATIONS_COLLAPSED_CATEGORIES_PARAM);
-    } else {
       params.set(TEAMS_NOTIFICATIONS_COLLAPSED_CATEGORIES_PARAM, collapsedCategoryIds.join(","));
-    }
     },
   });
 }

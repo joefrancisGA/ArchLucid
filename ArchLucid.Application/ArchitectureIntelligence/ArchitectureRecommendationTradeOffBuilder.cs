@@ -312,9 +312,17 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         string secondToken)
     {
         bool sawNegatedRelevantPair = false;
+        int previousPairEnd = 0;
 
         foreach (Match match in ExplicitDimensionPairMatches(priority))
         {
+            int pairClauseStart = Math.Min(previousPairEnd, match.Index);
+            int priorClauseBreak = priority.AsSpan(pairClauseStart, match.Index - pairClauseStart)
+                .LastIndexOfAny(".!?;\r\n");
+            pairClauseStart += priorClauseBreak + 1;
+            int pairEnd = match.Index + match.Length;
+            previousPairEnd = pairEnd;
+
             string left = match.Groups[1].Value;
             string right = match.Groups[2].Value;
 
@@ -326,7 +334,7 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             if (!prefersFirst && !prefersSecond)
                 continue;
 
-            if (IsNegatedDimensionMention(priority, left))
+            if (IsNegatedDimensionMention(priority[pairClauseStart..pairEnd], left))
             {
                 sawNegatedRelevantPair = true;
                 continue;

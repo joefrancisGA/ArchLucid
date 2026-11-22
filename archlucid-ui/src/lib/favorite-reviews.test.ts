@@ -106,6 +106,37 @@ describe("favorite-reviews", () => {
     ]);
   });
 
+  it("deduplicates normalized stored favorites before applying the pin limit", () => {
+    const pinnedAt = "2026-08-10T00:00:00.000Z";
+    const first = { runId: " run-a ", title: "First pin", pinnedAt };
+    const others = Array.from({ length: FAVORITE_REVIEWS_MAX - 1 }, (_, index) => ({
+      runId: `run-${index}`,
+      pinnedAt,
+    }));
+    window.localStorage.setItem(
+      FAVORITE_REVIEWS_STORAGE_KEY,
+      JSON.stringify([first, { runId: "run-a", title: "Older duplicate", pinnedAt }, ...others]),
+    );
+
+    expect(listFavoriteReviews()).toEqual([{ ...first, runId: "run-a" }, ...others]);
+  });
+
+  it("writes up to the pin limit of distinct normalized favorites", () => {
+    const pinnedAt = "2026-08-10T00:00:00.000Z";
+    const first = { runId: " run-a ", title: "First pin", pinnedAt };
+    const others = Array.from({ length: FAVORITE_REVIEWS_MAX }, (_, index) => ({
+      runId: `run-${index}`,
+      pinnedAt,
+    }));
+
+    writeFavoriteReviews([first, { runId: "run-a", title: "Older duplicate", pinnedAt }, ...others]);
+
+    expect(JSON.parse(window.localStorage.getItem(FAVORITE_REVIEWS_STORAGE_KEY)!)).toEqual([
+      { ...first, runId: "run-a" },
+      ...others.slice(0, FAVORITE_REVIEWS_MAX - 1),
+    ]);
+  });
+
   it("skips blank runIds on add", () => {
     expect(addFavoriteReview([], { runId: "   " })).toEqual([]);
   });

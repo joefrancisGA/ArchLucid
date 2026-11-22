@@ -45,7 +45,7 @@ internal static class DispositionAwareRoiBasisCalculator
 
             foreach (Finding finding in snapshot.Findings)
             {
-                if (!TryResolveAdjustedImpactUsd(finding, tenantSettings, defaults, out decimal impact))
+                if (finding.IsMuted || !TryResolveAdjustedImpactUsd(finding, tenantSettings, defaults, out decimal impact))
                     continue;
 
                 string findingId = finding.FindingId.Trim();

@@ -1,5 +1,5 @@
 import { plainLanguageFailureCauseSentence } from "@/lib/execution-vs-quality-outcome-copy";
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { formatIsoUtcForDisplay, parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { RunDetail } from "@/types/authority";
 import type { RunSummary } from "@/types/authority";
 
@@ -36,7 +36,7 @@ export function resolveReviewFailureRecordedAtUtc(input: {
   for (const candidate of candidates) {
     const normalized = (candidate ?? "").trim();
 
-    if (normalized.length > 0) {
+    if (Number.isFinite(parseIsoUtcMs(normalized))) {
       return normalized;
     }
   }

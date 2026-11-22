@@ -63,7 +63,11 @@ public sealed class InMemoryBillingLedger : IBillingLedger
 
     public Task MarkWebhookProcessedAsync(string dedupeKey, string resultStatus, CancellationToken cancellationToken)
     {
-        _webhookStatuses[dedupeKey] = resultStatus;
+        while (_webhookStatuses.TryGetValue(dedupeKey, out string? existing))
+        {
+            if (_webhookStatuses.TryUpdate(dedupeKey, resultStatus, existing))
+                break;
+        }
 
         return Task.CompletedTask;
     }

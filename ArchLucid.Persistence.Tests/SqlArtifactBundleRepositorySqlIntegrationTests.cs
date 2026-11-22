@@ -338,6 +338,21 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         loaded.Trace.GeneratorsUsed.Should().Equal("G");
         loaded.Trace.SourceDecisionIds.Should().Equal("Y");
         loaded.Trace.Notes.Should().Equal("n");
+
+        ArtifactBundle? manifestSummary = await repository.GetByManifestIdAsync(
+            scope, manifestId, loadArtifactBodies: false, CancellationToken.None);
+        manifestSummary.Should().NotBeNull();
+        SynthesizedArtifact summary = manifestSummary.Artifacts.Should().ContainSingle().Which;
+        summary.Content.Should().BeEmpty();
+        summary.ArtifactId.Should().Be(expectedArtifactId);
+        summary.ContentHash.Should().Be("h");
+        summary.Metadata["k"].Should().Be("v");
+        summary.ContributingDecisionIds.Should().Equal("x");
+
+        ArtifactBundle? bundleSummary = await repository.GetByBundleIdInScopeAsync(
+            scope, bundleId, loadArtifactBodies: false, CancellationToken.None);
+        bundleSummary.Should().NotBeNull();
+        bundleSummary.Artifacts.Should().ContainSingle().Which.Content.Should().BeEmpty();
     }
 
     [SkippableFact]

@@ -7,6 +7,8 @@ public sealed class InMemorySchemaVersionsJournalReader : ISchemaVersionsJournal
 {
     public Task<SchemaVersionsJournalSnapshot> GetSnapshotAsync(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         return Task.FromResult(new SchemaVersionsJournalSnapshot(
             TableMissing: true,
             AppliedCount: 0,

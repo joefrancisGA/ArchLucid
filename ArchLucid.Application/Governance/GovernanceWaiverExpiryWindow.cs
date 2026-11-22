@@ -44,7 +44,9 @@ public static class GovernanceWaiverExpiryWindow
 
         foreach (RiskExceptionRecord waiver in activeWaivers)
         {
-            if (waiver.ExpiresAtUtc >= nowUtc && waiver.ExpiresAtUtc <= windowEnd)
+            if (waiver.Status == RiskExceptionStatus.Active
+                && waiver.ExpiresAtUtc >= nowUtc
+                && waiver.ExpiresAtUtc <= windowEnd)
                 count++;
         }
 

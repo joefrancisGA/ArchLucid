@@ -993,6 +993,40 @@ namespace N
   }
 
   [Fact]
+  public async Task Reports_HttpContext_parameter_when_type_is_global_using_alias()
+  {
+    const string testCode = """
+
+global using Ctx = Microsoft.AspNetCore.Http.HttpContext;
+
+namespace Microsoft.AspNetCore.Http
+{
+    public sealed class HttpContext
+    {
+    }
+}
+
+namespace N
+{
+    public sealed class Handler
+    {
+        void M({|#0:Ctx|} context) { }
+    }
+}
+""";
+
+    DiagnosticResult expectedAliasTarget = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(2, 46, 2, 57)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    DiagnosticResult expectedParameter = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    await RunInnerLayerTestAsync(testCode, expectedAliasTarget, expectedParameter);
+  }
+
+  [Fact]
   public async Task Reports_HttpContext_parameter_when_type_is_file_scoped_using_alias()
   {
     const string testCode = """

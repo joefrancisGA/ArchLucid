@@ -4,7 +4,7 @@ export const SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_PREFIX =
   "securenow-investigation-effort-inputs:" as const;
 
 export const SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE =
-  "Tenant audit stores operator inputs for this workspace. This browser copy is a cache. Fixture worksheet values are not stored. They are not written to the pilot measurement log. This is not a customer result." as const;
+  "Tenant audit stores operator inputs for this project. This browser copy is a cache. Fixture worksheet values are not stored. They are not written to the pilot measurement log. This is not a customer result." as const;
 
 export const SECURENOW_INVESTIGATION_EFFORT_FIXTURE_BASELINE_HOURS = 3;
 export const SECURENOW_INVESTIGATION_EFFORT_FIXTURE_AFTER_HOURS = 2;
@@ -29,12 +29,13 @@ function resolveStorageKey(): string | null {
 
   const tenantId = scope.tenantId?.trim() ?? "";
   const workspaceId = scope.workspaceId?.trim() ?? "";
+  const projectId = scope.projectId?.trim() ?? "";
 
-  if (tenantId.length === 0 || workspaceId.length === 0) {
+  if (tenantId.length === 0 || workspaceId.length === 0 || projectId.length === 0) {
     return null;
   }
 
-  return `${SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_PREFIX}${tenantId}:${workspaceId}`;
+  return secureNowInvestigationEffortInputStorageKeyForScope(tenantId, workspaceId, projectId);
 }
 
 function parseStoredFields(raw: string): SecureNowInvestigationEffortInputFields | null {
@@ -98,8 +99,9 @@ export function persistSecureNowInvestigationEffortInputs(fields: SecureNowInves
 export function secureNowInvestigationEffortInputStorageKeyForScope(
   tenantId: string,
   workspaceId: string,
+  projectId: string,
 ): string {
-  return `${SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_PREFIX}${tenantId.trim()}:${workspaceId.trim()}`;
+  return `${SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_PREFIX}${tenantId.trim()}:${workspaceId.trim()}:${projectId.trim()}`;
 }
 
 function positiveNumber(value: string): number | null {

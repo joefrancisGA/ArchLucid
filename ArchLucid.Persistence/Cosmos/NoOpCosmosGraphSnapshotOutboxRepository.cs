@@ -12,8 +12,12 @@ public sealed class NoOpCosmosGraphSnapshotOutboxRepository : ICosmosGraphSnapsh
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     /// <inheritdoc />
     public Task EnqueueAsync(
@@ -24,32 +28,52 @@ public sealed class NoOpCosmosGraphSnapshotOutboxRepository : ICosmosGraphSnapsh
         Guid projectId,
         IDbConnection connection,
         IDbTransaction transaction,
-        CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     /// <inheritdoc />
     public Task<IReadOnlyList<CosmosGraphSnapshotOutboxEntry>> DequeuePendingAsync(
         int maxBatch,
         int leaseDurationSeconds,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<CosmosGraphSnapshotOutboxEntry>>([]);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<CosmosGraphSnapshotOutboxEntry>>([]);
+    }
 
     /// <inheritdoc />
-    public Task MarkProcessedAsync(Guid outboxId, CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+    public Task MarkProcessedAsync(Guid outboxId, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     /// <inheritdoc />
     public Task RecordBackoffAfterProcessingFailureAsync(
         Guid outboxId,
         DateTime nextAttemptUtc,
         string failedAttemptErrorSummaryTruncatedTo400,
-        CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     /// <inheritdoc />
     public Task RecordDeadLetterAsync(
         Guid outboxId,
         string failedAttemptErrorSummaryTruncatedTo400,
-        CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 }

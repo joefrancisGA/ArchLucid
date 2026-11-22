@@ -46,4 +46,46 @@ describe("DriftChangesTableHeaderCell", () => {
 
     expect(onSort).toHaveBeenCalledTimes(1);
   });
+
+  it("preserves unapplied filter text during an unrelated rerender", () => {
+    const onApply = vi.fn();
+    const renderHeader = (value: string, sortDir: "asc" | "desc") => (
+      <table>
+        <thead>
+          <tr>
+            <DriftChangesTableHeaderCell
+              column="resource"
+              label="Resource"
+              sortBy="resource"
+              sortDir={sortDir}
+              sortDirection={sortDir === "asc" ? "ascending" : "descending"}
+              onSort={vi.fn()}
+              filter={{
+                kind: "text",
+                value,
+                filterTestId: "infra-drift-resource-filter",
+                onApply,
+                onClear: vi.fn(),
+              }}
+            />
+          </tr>
+        </thead>
+      </table>
+    );
+
+    const { rerender } = render(renderHeader("gateway", "asc"));
+    fireEvent.click(screen.getByTestId("infra-drift-resource-filter-trigger"));
+    const input = screen.getByTestId("infra-drift-resource-filter");
+    fireEvent.change(input, { target: { value: "gateway-west" } });
+
+    rerender(renderHeader("gateway", "desc"));
+    expect(input).toHaveValue("gateway-west");
+
+    rerender(renderHeader("worker", "desc"));
+    expect(input).toHaveValue("worker");
+
+    fireEvent.change(input, { target: { value: "worker-east" } });
+    fireEvent.click(screen.getByTestId("infra-drift-resource-filter-apply"));
+    expect(onApply).toHaveBeenCalledWith("worker-east");
+  });
 });

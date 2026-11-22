@@ -111,6 +111,25 @@ public sealed class RoiCostEvidenceCollectionResolverTests
     }
 
     [Fact]
+    public async Task TryGetLatestCollectionTimestampUtcInScopeAsync_treats_offset_free_contract_values_as_utc()
+    {
+        DateTime azureUtc = new(2026, 5, 10, 0, 0, 0, DateTimeKind.Unspecified);
+
+        Mock<IAzureExtractorPackageRepository> azureRepository = new();
+        azureRepository
+            .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(Scope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(azureUtc);
+
+        Mock<ICloudInventoryExtractorPackageRepository> cloudRepository = new();
+        RoiCostEvidenceCollectionResolver sut =
+            RoiCostEvidenceCollectionResolverTestSupport.Create(azureRepository.Object, cloudRepository.Object);
+
+        DateTime? resolvedUtc = await sut.TryGetLatestCollectionTimestampUtcInScopeAsync(Scope, CancellationToken.None);
+
+        resolvedUtc.Should().Be(DateTime.SpecifyKind(azureUtc, DateTimeKind.Utc));
+    }
+
+    [Fact]
     public async Task TryResolveLatestCollectionTimestampUtcAsync_prefers_pinned_evidence_json_over_provenance()
     {
         Guid runId = Guid.Parse("44444444-5555-6666-7777-888888888888");

@@ -150,7 +150,9 @@ export async function fetchRemediationInstances(
 }
 
 export async function fetchRemediationInstanceDetail(instanceId: string): Promise<RemediationInstanceDetail> {
-  const raw = await proxyJsonGet<Record<string, unknown>>(`${INSTANCES_PATH}/${instanceId}`);
+  const raw = await proxyJsonGet<Record<string, unknown>>(
+    `${INSTANCES_PATH}/${encodeRequiredPathSegment(instanceId, "instanceId")}`,
+  );
   const instanceRaw = (raw.instance as Record<string, unknown>) ?? {};
   const findingRaw = raw.finding as Record<string, unknown> | null | undefined;
   const matchRaw = raw.activeMatch as Record<string, unknown> | null | undefined;

@@ -7,10 +7,13 @@ import {
   COMPARE_ROI_NO_ESTIMATED_SAVINGS_LABEL,
   type CompareRoiHeadlineDeltaView,
 } from "@/lib/review-quality/compare-roi-headline-delta";
+import { COMPARE_ROI_HEADLINE_ZERO_ESTIMATES_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-roi-headline-zero-estimates-one-unsealed-not-load-failure-copy";
+import { CompareRoiHeadlineZeroEstimatesOneUnsealedPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRoiHeadlineZeroEstimatesOneUnsealedPartialHonesty";
 
 export type CompareRoiHeadlineDeltaPanelProps = {
   readonly view: CompareRoiHeadlineDeltaView | null;
   readonly loading?: boolean;
+  readonly showZeroEstimatesUnsealedHonesty?: boolean;
 };
 
 /** Compare-two-reviews run-level estimated USD with disposition-aware non-summing honesty. */
@@ -31,7 +34,22 @@ export function CompareRoiHeadlineDeltaPanel(
   }
 
   if (props.view === null) {
-    return null;
+    if (!props.showZeroEstimatesUnsealedHonesty) {
+      return null;
+    }
+    return (
+      <section
+        className="rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-950"
+        data-testid="compare-roi-headline-zero-estimates-one-unsealed"
+      >
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {COMPARE_ROI_HEADLINE_ZERO_ESTIMATES_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE}
+        </p>
+        <div className="mt-2">
+          <CompareRoiHeadlineZeroEstimatesOneUnsealedPartialHonesty />
+        </div>
+      </section>
+    );
   }
 
   const { baseline, target, nonSummingLine } = props.view;

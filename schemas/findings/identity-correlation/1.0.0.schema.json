@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.archlucid.com/findings/identity-correlation/1.0.0.json",
+  "title": "FND-006 Finding Correlation Record v1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "runId",
+    "findingId",
+    "correlationMethod",
+    "correlationKey",
+    "confidenceClass",
+    "lifecycleStatus"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "runId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "findingId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "correlationMethod": {
+      "enum": [
+        "policy-rule-fingerprint",
+        "normalized-message-fuzzy",
+        "stable-external-id"
+      ]
+    },
+    "correlationKey": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "confidenceClass": {
+      "enum": [
+        "deterministic",
+        "possible-match"
+      ]
+    },
+    "lifecycleStatus": {
+      "enum": [
+        "new",
+        "recurring",
+        "resolved",
+        "reopened",
+        "unknown"
+      ]
+    },
+    "policyRuleId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fingerprintAlgorithm": {
+      "const": "adr0063-sha256-normalized-category-message-v1"
+    },
+    "sourceRevision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "correlationMethod": {
+            "const": "normalized-message-fuzzy"
+          }
+        },
+        "required": [
+          "correlationMethod"
+        ]
+      },
+      "then": {
+        "properties": {
+          "confidenceClass": {
+            "const": "possible-match"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "correlationMethod": {
+            "const": "policy-rule-fingerprint"
+          }
+        },
+        "required": [
+          "correlationMethod"
+        ]
+      },
+      "then": {
+        "required": [
+          "policyRuleId",
+          "fingerprintAlgorithm"
+        ]
+      }
+    }
+  ]
+}

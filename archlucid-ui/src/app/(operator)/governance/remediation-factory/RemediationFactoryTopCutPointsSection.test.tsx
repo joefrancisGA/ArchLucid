@@ -69,7 +69,7 @@ describe("RemediationFactoryTopCutPointsSection", () => {
     );
 
     expect(screen.getByTestId("remediation-factory-top-cut-point-1")).toHaveTextContent(
-      "Source endpoint was not stored → storage-account",
+      "Source endpoint was not stored. → storage-account",
     );
   });
 

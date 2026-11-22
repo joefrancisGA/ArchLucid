@@ -39,6 +39,21 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
     }
 
     [SkippableFact]
+    public async Task Duplicate_create_keeps_one_enabled_subscription()
+    {
+        InMemoryDigestSubscriptionRepository repo = new();
+        Guid id = Guid.NewGuid();
+        await repo.CreateAsync(Build(id, "original", true, BaseUtc), CancellationToken.None);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            repo.CreateAsync(Build(id, "duplicate", true, BaseUtc.AddMinutes(1)), CancellationToken.None));
+
+        IReadOnlyList<DigestSubscription> enabled =
+            await repo.ListEnabledByScopeAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None);
+        enabled.Should().ContainSingle().Which.Destination.Should().Be("original");
+    }
+
+    [SkippableFact]
     public async Task UpdateAsync_replaces_existing_by_SubscriptionId()
     {
         InMemoryDigestSubscriptionRepository repo = new();
@@ -55,6 +70,25 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
         loaded.Destination.Should().Be("new");
         loaded.IsEnabled.Should().BeFalse();
         loaded.LastDeliveredUtc.Should().Be(BaseUtc.AddHours(2));
+    }
+
+    [SkippableFact]
+    public async Task UpdateAsync_preserves_a_delivery_recorded_after_settings_were_loaded()
+    {
+        InMemoryDigestSubscriptionRepository repo = new();
+        Guid id = Guid.NewGuid();
+        DigestSubscription initial = Build(id, "digest@x.com", true, BaseUtc);
+        DigestSubscription staleSettings = Build(id, "digest@x.com", false, BaseUtc);
+        DateTime deliveredUtc = BaseUtc.AddHours(1);
+
+        await repo.CreateAsync(initial, CancellationToken.None);
+        await repo.RecordDeliveryAsync(initial, deliveredUtc, CancellationToken.None);
+        await repo.UpdateAsync(staleSettings, CancellationToken.None);
+
+        DigestSubscription? loaded = await repo.GetByIdAsync(TestScope, id, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.IsEnabled.Should().BeFalse();
+        loaded.LastDeliveredUtc.Should().Be(deliveredUtc);
     }
 
     [SkippableFact]

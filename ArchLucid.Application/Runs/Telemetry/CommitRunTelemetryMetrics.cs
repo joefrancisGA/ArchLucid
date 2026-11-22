@@ -68,7 +68,12 @@ public sealed record CommitRunTelemetryMetrics(
     }
 
     private static DateTime NormalizeToUtc(DateTime value) =>
-        value.Kind == DateTimeKind.Utc ? value : DateTime.SpecifyKind(value.ToUniversalTime(), DateTimeKind.Utc);
+        value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Unspecified => DateTime.SpecifyKind(value, DateTimeKind.Utc),
+            _ => value.ToUniversalTime(),
+        };
 
     private static long MillisecondsBetween(DateTime earlier, DateTime later)
     {

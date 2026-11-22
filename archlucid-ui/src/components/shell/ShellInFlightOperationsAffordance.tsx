@@ -14,7 +14,7 @@ import { cancelOperation } from "@/lib/api/operations-api";
 import { buildCancelAbandonInFlightClarity } from "@/lib/operations/cancel-abandon-in-flight-clarity";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { formatOperationElapsed } from "@/lib/operations/format-operation-elapsed";
-import { patchInFlightOperation } from "@/lib/operations/in-flight-operations-store";
+import { getInFlightOperations, patchInFlightOperation } from "@/lib/operations/in-flight-operations-store";
 import { ARCHLUCID_OPEN_SHELL_IN_FLIGHT_EVENT } from "@/lib/operations/open-shell-in-flight-event";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
 import {
@@ -198,10 +198,14 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
 
     try {
       await cancelOperation(trimmed);
-      patchInFlightOperation(trimmed, {
-        state: "CancelRequested",
-        stepLabel: "Cancel requested",
-      });
+      const current = getInFlightOperations().find((operation) => operation.operationId === trimmed);
+
+      if (current !== undefined && !isTerminalOperationState(current.state) && current.state !== "CancelRequested") {
+        patchInFlightOperation(trimmed, {
+          state: "CancelRequested",
+          stepLabel: "Cancel requested",
+        });
+      }
     } catch (error: unknown) {
       const detail = error instanceof Error ? error.message : "Try again in a moment.";
       setCancelFailureMessage(detail);

@@ -42,7 +42,7 @@ public static class RecurrenceScheduleValidation
     {
         ArgumentNullException.ThrowIfNull(sourceRun);
 
-        if (!string.Equals(sourceRun.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.Ordinal))
+        if (!string.Equals(sourceRun.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
         {
             throw new ArgumentException(
                 "Source run must be committed before it can seed a recurring architecture review schedule.",

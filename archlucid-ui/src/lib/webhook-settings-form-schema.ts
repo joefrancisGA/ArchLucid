@@ -46,7 +46,7 @@ const httpsWebhookUrlSchema = z
   });
 
 export const webhookSettingsFormSchema = z.object({
-  name: z.string().min(1, "Subscription name is required.").max(200, "Subscription name is too long."),
+  name: z.string().trim().min(1, "Subscription name is required.").max(200, "Subscription name is too long."),
   webhookUrl: httpsWebhookUrlSchema,
   secret: z
     .string()

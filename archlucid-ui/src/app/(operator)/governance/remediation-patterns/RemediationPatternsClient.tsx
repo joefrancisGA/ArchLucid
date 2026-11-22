@@ -55,6 +55,8 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-ty
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { REMEDIATION_PATTERNS_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-pattern/remediation-patterns-empty-not-load-failure-copy";
 import { REMEDIATION_PATTERNS_FILTER_NO_MATCH_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-pattern/remediation-patterns-filter-no-match-not-load-failure-copy";
+import { RemediationPatternsFilterEmptyPartialHonesty } from "@/app/(operator)/governance/remediation-patterns/RemediationPatternsFilterEmptyPartialHonesty";
+import { RemediationPatternsCatalogEmptyPartialHonesty } from "@/app/(operator)/governance/remediation-patterns/RemediationPatternsCatalogEmptyPartialHonesty";
 import { GOVERNANCE_AUDIT_PATH, SECURENOW_REMEDIATION_PATTERNS_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
@@ -386,6 +388,7 @@ export function RemediationPatternsClient() {
 
   const yamlInputRef = useRef<HTMLTextAreaElement>(null);
   const yamlFileInputRef = useRef<HTMLInputElement>(null);
+  const yamlFileReadGeneration = useRef(0);
   const detailSectionRef = useRef<HTMLElement>(null);
   const registryTableNavRef = useRef<HTMLDivElement>(null);
 
@@ -437,6 +440,7 @@ export function RemediationPatternsClient() {
   }, []);
 
   const closeImportPanel = useCallback(() => {
+    yamlFileReadGeneration.current++;
     writeRemediationPatternImportPanelOpenToSession(false);
     setImportPanelOpen(false);
   }, []);
@@ -588,7 +592,8 @@ export function RemediationPatternsClient() {
       }
 
       const currentIndex = filteredPatterns.findIndex((pattern) => pattern.patternId === selectedPatternId);
-      const startIndex = currentIndex >= 0 ? currentIndex : 0;
+      // Start before the first row when moving forward from no selection.
+      const startIndex = currentIndex < 0 && delta < 0 ? 0 : currentIndex;
       let nextIndex = startIndex + delta;
 
       if (nextIndex < 0) {
@@ -723,12 +728,25 @@ export function RemediationPatternsClient() {
       return;
     }
 
-    void file.text().then((text) => {
-      setYamlDraft(text);
-      setImportError(null);
-      setImportSuccess(null);
-      openImportPanel(true);
-    });
+    const generation = ++yamlFileReadGeneration.current;
+    void file.text().then(
+      (text) => {
+        if (generation !== yamlFileReadGeneration.current) {
+          return;
+        }
+
+        setYamlDraft(text);
+        setImportError(null);
+        setImportSuccess(null);
+        openImportPanel(true);
+      },
+      () => {
+        if (generation === yamlFileReadGeneration.current) {
+          setImportError("Could not read the YAML file.");
+          setImportSuccess(null);
+        }
+      },
+    );
 
     event.target.value = "";
   }, [openImportPanel]);
@@ -923,9 +941,12 @@ export function RemediationPatternsClient() {
             ]}
             testId="remediation-patterns-empty"
             footer={
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-patterns-empty-not-load-failure">
-                {REMEDIATION_PATTERNS_EMPTY_NOT_LOAD_FAILURE_LINE}
-              </p>
+              <div className="space-y-2">
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-patterns-empty-not-load-failure">
+                  {REMEDIATION_PATTERNS_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <RemediationPatternsCatalogEmptyPartialHonesty />
+              </div>
             }
           />
         ) : showFilteredRegistryEmpty ? (
@@ -944,6 +965,7 @@ export function RemediationPatternsClient() {
             <span className={cn("block mt-1", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-patterns-filtered-empty-not-failure">
               {REMEDIATION_PATTERNS_FILTER_NO_MATCH_NOT_LOAD_FAILURE_LINE}
             </span>
+            <RemediationPatternsFilterEmptyPartialHonesty />
           </p>
         ) : (
           <div

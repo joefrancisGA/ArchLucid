@@ -14,15 +14,15 @@ public static class AzureInventoryRestorePointCollectionSourceParser
         if (properties.TryGetValue(
                 InventoryDiagramParentAttachmentPropertyKeys.RestorePointSourceArmId,
                 out string? hydrated)
-            && !string.IsNullOrWhiteSpace(hydrated))
+            && TryResolveArmReferenceValue(hydrated) is { } hydratedArmId)
         {
-            return TryResolveArmReferenceValue(hydrated);
+            return hydratedArmId;
         }
 
         if (properties.TryGetValue("source.id", out string? sourceId)
-            && !string.IsNullOrWhiteSpace(sourceId))
+            && TryResolveArmReferenceValue(sourceId) is { } flattenedArmId)
         {
-            return TryResolveArmReferenceValue(sourceId);
+            return flattenedArmId;
         }
 
         if (properties.TryGetValue("source", out string? sourceJson)

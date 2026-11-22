@@ -350,7 +350,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                         cancellationToken);
                 }
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
             {
                 logger.LogWarning(
                     ex,
@@ -397,7 +397,9 @@ public sealed class AzureInventorySnapshotMaterializer(
 
         foreach (AzureInventoryResourceRelationshipWrite relationship in relationships
                      .OrderBy(r => r.FromAzureResourceId, StringComparer.Ordinal)
-                     .ThenBy(r => r.ToAzureResourceId, StringComparer.Ordinal))
+                     .ThenBy(r => r.ToAzureResourceId, StringComparer.Ordinal)
+                     .ThenBy(r => r.RelationshipType, StringComparer.Ordinal)
+                     .ThenBy(r => r.ProvenanceKind))
         {
             builder.Append(relationship.FromAzureResourceId)
                 .Append('>')
@@ -519,7 +521,7 @@ public sealed class AzureInventorySnapshotMaterializer(
 
     private static string? TryReadJsonString(JsonElement element, string propertyName)
     {
-        if (!element.TryGetProperty(propertyName, out JsonElement value))
+        if (!element.TryGetProperty(propertyName, out JsonElement value) || value.ValueKind is JsonValueKind.Null)
             return null;
 
         return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');

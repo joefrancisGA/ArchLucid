@@ -1,3 +1,6 @@
+using System.Data.SqlTypes;
+
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Alerts;
@@ -10,22 +13,31 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
 
     public Task CreateAsync(AlertDeliveryAttempt attempt, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
-            _items.Add(attempt);
+        {
+            if (_items.Exists(item => item.AlertDeliveryAttemptId == attempt.AlertDeliveryAttemptId))
+                throw new InvalidOperationException("An alert delivery attempt with this ID already exists.");
+
+            _items.Add(Copy(attempt));
+        }
         return Task.CompletedTask;
     }
 
     public Task UpdateAsync(AlertDeliveryAttempt attempt, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
-            int i = _items.FindIndex(x =>
+            AlertDeliveryAttempt? stored = _items.Find(x =>
                 x.AlertDeliveryAttemptId == attempt.AlertDeliveryAttemptId && SameScope(x, attempt));
-            if (i >= 0)
-                _items[i] = attempt;
+            if (stored is not null)
+            {
+                stored.Status = attempt.Status;
+                stored.ErrorMessage = attempt.ErrorMessage;
+                stored.RetryCount = attempt.RetryCount;
+            }
         }
 
         return Task.CompletedTask;
@@ -37,12 +49,15 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<AlertDeliveryAttempt> result = _items
                 .Where(x => x.AlertId == alertId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
+                .ThenByDescending(x => new SqlGuid(x.AlertDeliveryAttemptId))
+                .Take(PaginationDefaults.MaxPageSize)
+                .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<AlertDeliveryAttempt>>(result);
         }
@@ -55,17 +70,35 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<AlertDeliveryAttempt> result = _items
                 .Where(x => x.RoutingSubscriptionId == routingSubscriptionId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
+                .ThenByDescending(x => new SqlGuid(x.AlertDeliveryAttemptId))
                 .Take(take)
+                .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<AlertDeliveryAttempt>>(result);
         }
     }
+
+    private static AlertDeliveryAttempt Copy(AlertDeliveryAttempt attempt) => new()
+    {
+        AlertDeliveryAttemptId = attempt.AlertDeliveryAttemptId,
+        AlertId = attempt.AlertId,
+        RoutingSubscriptionId = attempt.RoutingSubscriptionId,
+        TenantId = attempt.TenantId,
+        WorkspaceId = attempt.WorkspaceId,
+        ProjectId = attempt.ProjectId,
+        AttemptedUtc = attempt.AttemptedUtc,
+        Status = attempt.Status,
+        ErrorMessage = attempt.ErrorMessage,
+        ChannelType = attempt.ChannelType,
+        Destination = attempt.Destination,
+        RetryCount = attempt.RetryCount,
+    };
 
     private static bool MatchesScope(AlertDeliveryAttempt attempt, ScopeContext scope) =>
         attempt.TenantId == scope.TenantId &&

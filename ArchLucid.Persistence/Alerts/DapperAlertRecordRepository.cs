@@ -130,7 +130,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
               AND ProjectId = @ProjectId
               AND (@Status IS NULL OR Status = @Status)
               AND (@IncludeArchived = 1 OR IsArchived = 0)
-            ORDER BY CreatedUtc DESC;
+            ORDER BY CreatedUtc DESC, AlertId DESC;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -172,7 +172,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
               AND ProjectId = @ProjectId
               AND (@Status IS NULL OR Status = @Status)
               AND (@IncludeArchived = 1 OR IsArchived = 0)
-            ORDER BY CreatedUtc DESC
+            ORDER BY CreatedUtc DESC, AlertId DESC
             OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
             """;
 

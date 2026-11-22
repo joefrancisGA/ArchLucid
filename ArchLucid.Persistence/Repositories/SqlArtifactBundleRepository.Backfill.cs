@@ -49,11 +49,7 @@ public sealed partial class SqlArtifactBundleRepository
             ct);
 
         if (SqlRelationalSliceBackfillCore.SliceNeedsBackfill(artifactRowCount, bundle.Artifacts.Count))
-        {
             await InsertArtifactBundleArtifactsRelationalAsync(bundle, connection, transaction, ct);
-            await InsertArtifactBundleTraceRelationalAsync(bundle, connection, transaction, ct);
-            return;
-        }
 
         if (SqlRelationalSliceBackfillCore.SliceNeedsBackfill(genCount, bundle.Trace.GeneratorsUsed.Count))
             await InsertArtifactBundleTraceGeneratorsRelationalAsync(bundle, connection, transaction, ct);

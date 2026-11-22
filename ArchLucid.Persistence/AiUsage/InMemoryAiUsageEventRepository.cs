@@ -10,6 +10,8 @@ public sealed class InMemoryAiUsageEventRepository : IAiUsageEventRepository
 
     public Task InsertAsync(AiUsageEventRecord record, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         _events.Add(record);
 
         return Task.CompletedTask;
@@ -20,6 +22,8 @@ public sealed class InMemoryAiUsageEventRepository : IAiUsageEventRepository
         int limit,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IReadOnlyList<AiUsageEventRecord> rows = _events
             .Where(e => e.TenantId == tenantId)
             .OrderByDescending(e => e.OccurredUtc)
@@ -34,6 +38,8 @@ public sealed class InMemoryAiUsageEventRepository : IAiUsageEventRepository
         DateTimeOffset fromUtc,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         Dictionary<AiUsageFeature, decimal> grouped = _events
             .Where(e => e.TenantId == tenantId && e.OccurredUtc >= fromUtc && !e.BudgetBlocked && !e.ServedFromDemoCache)
             .GroupBy(e => e.Feature)

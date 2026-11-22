@@ -23,6 +23,31 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
         ProjectId = ProjectId,
     };
 
+    [Fact]
+    public async Task Pre_canceled_operations_preserve_routing_settings()
+    {
+        InMemoryAlertRoutingSubscriptionRepository repo = new();
+        Guid id = Guid.NewGuid();
+        AlertRoutingSubscription subscription = BuildSubscription(id, true, BaseUtc, "saved@example.com");
+        CancellationToken canceled = new(canceled: true);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.CreateAsync(subscription, canceled));
+        Assert.Null(await repo.GetByIdAsync(Scope, id, CancellationToken.None));
+
+        await repo.CreateAsync(subscription, CancellationToken.None);
+        AlertRoutingSubscription disabled = BuildSubscription(id, false, BaseUtc, "changed@example.com");
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.UpdateAsync(disabled, canceled));
+        AlertRoutingSubscription saved = Assert.Single(
+            await repo.ListEnabledByScopeAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None));
+        Assert.Equal(subscription.Destination, saved.Destination);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.GetByIdAsync(Scope, id, canceled));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, canceled));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            repo.ListEnabledByScopeAsync(TenantId, WorkspaceId, ProjectId, canceled));
+    }
+
     [SkippableFact]
     public async Task CreateAsync_then_GetByIdAsync_returns_subscription()
     {
@@ -86,6 +111,25 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
         loaded.Should().NotBeNull();
         loaded.Destination.Should().Be("new");
         loaded.IsEnabled.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task UpdateAsync_preserves_a_delivery_recorded_after_settings_were_loaded()
+    {
+        InMemoryAlertRoutingSubscriptionRepository repo = new();
+        Guid id = Guid.NewGuid();
+        AlertRoutingSubscription initial = BuildSubscription(id, true, BaseUtc, "a@b.com");
+        AlertRoutingSubscription staleSettings = BuildSubscription(id, false, BaseUtc, "a@b.com");
+        DateTime deliveredUtc = BaseUtc.AddHours(1);
+
+        await repo.CreateAsync(initial, CancellationToken.None);
+        await repo.RecordDeliveryAsync(initial, deliveredUtc, CancellationToken.None);
+        await repo.UpdateAsync(staleSettings, CancellationToken.None);
+
+        AlertRoutingSubscription? loaded = await repo.GetByIdAsync(Scope, id, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.IsEnabled.Should().BeFalse();
+        loaded.LastDeliveredUtc.Should().Be(deliveredUtc);
     }
 
     [SkippableFact]

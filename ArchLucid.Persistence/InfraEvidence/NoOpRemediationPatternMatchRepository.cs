@@ -9,45 +9,78 @@ public sealed class NoOpRemediationPatternMatchRepository : IRemediationPatternM
         Guid tenantId,
         Guid findingId,
         CancellationToken cancellationToken = default)
-        => Task.CompletedTask;
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task InsertMatchResultAsync(
         RemediationPatternMatchResultRecord matchResult,
         CancellationToken cancellationToken = default)
-        => Task.CompletedTask;
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task InsertConflictAsync(
         RemediationPatternMatchConflictRecord conflict,
         CancellationToken cancellationToken = default)
-        => Task.CompletedTask;
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task ReplaceActiveMatchInScopeAsync(
         ProjectScopeKey scope,
         Guid findingId,
         RemediationPatternMatchResultRecord? matchResult,
         RemediationPatternMatchConflictRecord? conflict,
-        CancellationToken cancellationToken = default) => Task.CompletedTask;
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task<RemediationPatternMatchResultRecord?> TryGetActiveMatchAsync(
         Guid tenantId,
         Guid findingId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<RemediationPatternMatchResultRecord?>(null);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<RemediationPatternMatchResultRecord?>(null);
+    }
 
     public Task<IReadOnlyList<RemediationPatternMatchResultRecord>> ListActiveMatchesForOpenFindingsInScopeAsync(
         ProjectScopeKey scope,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<RemediationPatternMatchResultRecord>>([]);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<RemediationPatternMatchResultRecord>>([]);
+    }
 
     public Task<IReadOnlyList<RemediationPatternMatchResultRecord>> ListByFindingAsync(
         Guid tenantId,
         Guid findingId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<RemediationPatternMatchResultRecord>>([]);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<RemediationPatternMatchResultRecord>>([]);
+    }
 
     public Task<IReadOnlyList<RemediationPatternMatchConflictRecord>> ListConflictsByFindingAsync(
         Guid tenantId,
         Guid findingId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<RemediationPatternMatchConflictRecord>>([]);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<RemediationPatternMatchConflictRecord>>([]);
+    }
 }

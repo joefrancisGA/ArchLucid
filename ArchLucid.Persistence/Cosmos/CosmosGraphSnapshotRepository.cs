@@ -119,13 +119,16 @@ public sealed class CosmosGraphSnapshotRepository(
             query,
             requestOptions: new QueryRequestOptions { MaxItemCount = 1 });
 
-        if (!iterator.HasMoreResults)
-            return null;
+        while (iterator.HasMoreResults)
+        {
+            FeedResponse<GraphSnapshotDocument> page = await iterator.ReadNextAsync(ct);
+            GraphSnapshotDocument? doc = page.Resource.FirstOrDefault();
 
-        FeedResponse<GraphSnapshotDocument> page = await iterator.ReadNextAsync(ct);
-        GraphSnapshotDocument? doc = page.Resource.FirstOrDefault();
+            if (doc is not null)
+                return FromDocument(doc);
+        }
 
-        return doc is null ? null : FromDocument(doc);
+        return null;
     }
 
     public async Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId,

@@ -115,6 +115,7 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
 
   const clearPendingEvidence = useCallback(() => {
     pendingEvidenceUploadGenerationRef.current += 1;
+    inventoryPlatformDetectionGenerationRef.current += 1;
     setPendingEvidenceFile(null);
     setPendingInventoryPlatform(null);
     setInventoryPlatformDetectionPending(false);

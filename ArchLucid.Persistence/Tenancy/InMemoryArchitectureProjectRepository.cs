@@ -13,7 +13,7 @@ public sealed class InMemoryArchitectureProjectRepository : IArchitectureProject
     public Task InsertAsync(Guid id, Guid tenantId, Guid workspaceId, string name, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         string trimmed = name.Trim();
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
@@ -34,7 +34,7 @@ public sealed class InMemoryArchitectureProjectRepository : IArchitectureProject
     /// <inheritdoc />
     public Task<IReadOnlyList<ArchitectureProjectRecord>> ListActiveByTenantAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         IReadOnlyList<ArchitectureProjectRecord> list = _byId.Values
             .Where(r => !r.IsDeleted && r.TenantId == tenantId)
@@ -56,7 +56,7 @@ public sealed class InMemoryArchitectureProjectRepository : IArchitectureProject
     /// <inheritdoc />
     public Task<IReadOnlyList<ArchitectureProjectRecord>> ListSoftDeletedByTenantAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         IReadOnlyList<ArchitectureProjectRecord> list =
         [
@@ -82,7 +82,7 @@ public sealed class InMemoryArchitectureProjectRepository : IArchitectureProject
     /// <inheritdoc />
     public Task<ArchitectureProjectSoftDeleteResult> TrySoftDeleteAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         if (!_byId.TryGetValue(projectId, out ProjectRow? row))
             return Task.FromResult(ArchitectureProjectSoftDeleteResult.NotFound);
@@ -106,7 +106,7 @@ public sealed class InMemoryArchitectureProjectRepository : IArchitectureProject
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         if (!_byId.TryGetValue(projectId, out ProjectRow? row))
             return Task.FromResult(ArchitectureProjectRestoreResult.NotFoundOrNotDeleted);

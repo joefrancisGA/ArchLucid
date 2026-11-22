@@ -85,4 +85,44 @@ describe("ReviewsHubSummaryRow", () => {
       "/architecture/architectures/draft-001",
     );
   });
+
+  it("opens the sole ready draft when archived registry entries are also present", () => {
+    useArchitectureDraftRegistryEntriesMock.mockReturnValue([
+      {
+        draftId: "draft-ready",
+        displayName: "Payments",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-15T12:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-15T12:00:00.000Z",
+      },
+      {
+        draftId: "draft-archived",
+        displayName: "Legacy",
+        customerStatus: "archived",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-14T12:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-14T12:00:00.000Z",
+      },
+    ]);
+
+    render(
+      <ReviewsHubSummaryRow
+        summary={{
+          inProgress: 0,
+          committed: 0,
+          findings: 0,
+          openRisks: 0,
+          readyForGovernance: 0,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("reviews-hub-summary-ready-for-review")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/draft-ready",
+    );
+  });
 });

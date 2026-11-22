@@ -27,10 +27,8 @@ function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] 
   const citations = verdict.hardCitations;
 
   if (citations === null || citations === undefined) {
-    return ["### Authority citations", "", "Authority citations were not stored.", ""];
-  }
-
-  if (citations.length > 0) {
+    lines.push("### Authority citations", "", "Authority citations were not stored.", "");
+  } else if (citations.length > 0) {
     lines.push("### Authority citations");
     lines.push("");
 
@@ -56,7 +54,9 @@ function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] 
       }
 
       if (kind.length > 0) {
-        // kind already rendered on the citation line when reference is present.
+        if (reference.length === 0) {
+          lines.push(`- Citation kind: ${kind}`);
+        }
       } else if (citation.kind === null || citation.kind === undefined) {
         lines.push("- Citation kind was not stored.");
       } else {
@@ -67,6 +67,8 @@ function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] 
         lines.push("- Citation invariant keys were not stored.");
       } else if (invariantKeys.length === 0) {
         lines.push("- Citation invariant keys were stored empty.");
+      } else if (reference.length === 0) {
+        lines.push(`- Citation invariant keys: ${invariantKeys.join(", ")}`);
       }
     }
 

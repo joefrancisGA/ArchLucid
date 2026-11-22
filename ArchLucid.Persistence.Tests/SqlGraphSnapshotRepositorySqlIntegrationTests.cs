@@ -99,6 +99,52 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     }
 
     [SkippableFact]
+    public async Task GetLatestByContextSnapshotIdAsync_breaks_created_time_ties_by_snapshot_id()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlGraphSnapshotRepository repository = new(factory, Empty);
+        Guid contextId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 5, 1, 12, 0, 0, DateTimeKind.Utc);
+
+        byte[] snapshotIdBytes = Guid.NewGuid().ToByteArray();
+        snapshotIdBytes[^1] = 0;
+        Guid lowerId = new(snapshotIdBytes);
+        snapshotIdBytes[^1] = byte.MaxValue;
+        Guid higherId = new(snapshotIdBytes);
+
+        await using (SqlConnection seedConnection = await factory.CreateOpenConnectionAsync(CancellationToken.None))
+            await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+                seedConnection,
+                Guid.Empty,
+                Guid.Empty,
+                Guid.Empty,
+                runId,
+                contextId,
+                "proj-graph-latest-tie",
+                CancellationToken.None);
+
+        foreach (Guid graphSnapshotId in new[] { lowerId, higherId })
+        {
+            GraphSnapshot snapshot = new()
+            {
+                GraphSnapshotId = graphSnapshotId,
+                ContextSnapshotId = contextId,
+                RunId = runId,
+                CreatedUtc = createdUtc
+            };
+            await repository.SaveAsync(snapshot, CancellationToken.None);
+        }
+
+        GraphSnapshot? latest = await repository.GetLatestByContextSnapshotIdAsync(
+            Empty.GetCurrentScope(), contextId, CancellationToken.None);
+
+        latest.Should().NotBeNull();
+        latest!.GraphSnapshotId.Should().Be(higherId);
+    }
+
+    [SkippableFact]
     public async Task ListIndexedEdgesAsync_preserves_order_by_EdgeId_and_core_fields()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);

@@ -67,9 +67,9 @@ public sealed class ApprovalSlaMonitor
                             breachedByMinutes = (int)(TimeProvider.System.UtcNowDateTime() - request.SlaDeadlineUtc!.Value).TotalMinutes
                         })
                     }, cancellationToken);
-                await TrySendEscalationWebhookAsync(request, cancellationToken);
-                await _approvalRequestRepository.PatchSlaBreachNotifiedAsync(request.ApprovalRequestId, TimeProvider.System.UtcNowDateTime(),
-                    cancellationToken);
+                if (await TrySendEscalationWebhookAsync(request, cancellationToken))
+                    await _approvalRequestRepository.PatchSlaBreachNotifiedAsync(request.ApprovalRequestId, TimeProvider.System.UtcNowDateTime(),
+                        cancellationToken);
             }
             catch (Exception ex)
             {
@@ -79,11 +79,11 @@ public sealed class ApprovalSlaMonitor
         }
     }
 
-    private async Task TrySendEscalationWebhookAsync(GovernanceApprovalRequest request, CancellationToken cancellationToken)
+    private async Task<bool> TrySendEscalationWebhookAsync(GovernanceApprovalRequest request, CancellationToken cancellationToken)
     {
         string? webhookUrl = _options.Value.ApprovalSlaEscalationWebhookUrl;
         if (string.IsNullOrWhiteSpace(webhookUrl))
-            return;
+            return true;
         string sanitizedLabel = LogSanitizer.Sanitize(request.ApprovalRequestId);
         string payload = JsonSerializer.Serialize(new
         {
@@ -104,7 +104,7 @@ public sealed class ApprovalSlaMonitor
                 return await client.SendAsync(msg, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
             }, cancellationToken).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
-                return;
+                return true;
             if (_logger.IsEnabled(LogLevel.Error))
                 _logger.LogError("SLA escalation webhook failed after exhausting {MaxRetries} retry attempt(s): HTTP {StatusCode} for ApprovalRequestId={Id}.",
                     GovernanceSlaEscalationWebhookRetryPipeline.MaxRetryAttempts, (int)response.StatusCode, sanitizedLabel);
@@ -119,6 +119,7 @@ public sealed class ApprovalSlaMonitor
                 _logger.LogError(ex, "SLA escalation webhook failed after exhausting {MaxRetries} retry attempt(s) for ApprovalRequestId={Id}.",
                     GovernanceSlaEscalationWebhookRetryPipeline.MaxRetryAttempts, sanitizedLabel);
         }
+        return false;
     }
 
     private static HttpRequestMessage BuildEscalationRequest(string webhookUrl, string payload, string? secret)

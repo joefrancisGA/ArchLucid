@@ -25,10 +25,10 @@ internal static class InternalCrossTenantSqlMetricsQueries
     {
         const string sql = """
                            SELECT r.TenantId,
-                                  SUM(CASE WHEN r.ArchivedUtc IS NULL THEN 1 ELSE 0 END) AS TotalRunsNonArchived,
-                                  SUM(CASE
-                                          WHEN r.CompletedUtc IS NOT NULL AND r.ArchivedUtc IS NULL THEN 1
-                                          ELSE 0 END) AS TotalCompletedRuns,
+                                  COUNT_BIG(CASE WHEN r.ArchivedUtc IS NULL THEN 1 END) AS TotalRunsNonArchived,
+                                  COUNT_BIG(CASE
+                                                WHEN r.CompletedUtc IS NOT NULL AND r.ArchivedUtc IS NULL THEN 1
+                                            END) AS TotalCompletedRuns,
                                   SUM(CASE
                                           WHEN r.CompletedUtc IS NOT NULL AND r.ArchivedUtc IS NULL
                                               THEN CAST(DATEDIFF_BIG(SECOND, r.CreatedUtc, r.CompletedUtc) AS FLOAT)
@@ -48,10 +48,10 @@ internal static class InternalCrossTenantSqlMetricsQueries
         CancellationToken cancellationToken)
     {
         const string sql = """
-                           SELECT (SELECT COUNT(*)
+                           SELECT (SELECT COUNT_BIG(*)
                                    FROM dbo.Runs AS r
                                    WHERE r.ArchivedUtc IS NULL) AS TotalRunsNonArchived,
-                                  (SELECT COUNT(*)
+                                  (SELECT COUNT_BIG(*)
                                    FROM dbo.Runs AS r
                                    WHERE r.CompletedUtc IS NOT NULL
                                      AND r.ArchivedUtc IS NULL) AS TotalCompletedRuns,

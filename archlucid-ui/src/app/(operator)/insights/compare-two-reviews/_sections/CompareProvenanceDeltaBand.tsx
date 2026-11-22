@@ -21,6 +21,8 @@ import type { ComparePairGroundingForRunsOptions } from "@/lib/compare-pair-grou
 import { summarizeCompareHardCitationDelta } from "@/lib/livelihood-grade-no-compare-hard-citation-delta";
 import type { DiffItem, RunSummary } from "@/types/authority";
 import { cn } from "@/lib/utils";
+import { COMPARE_PROVENANCE_DELTA_PARTIAL_INVENTORY_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-provenance-delta-partial-inventory-not-load-failure-copy";
+import { CompareProvenanceDeltaPartialInventoryPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareProvenanceDeltaPartialInventoryPartialHonesty";
 
 export type CompareProvenanceDeltaBandProps = {
   readonly baselineRunId: string;
@@ -29,6 +31,7 @@ export type CompareProvenanceDeltaBandProps = {
   readonly targetPickedSummary: RunSummary | null;
   readonly manifestDiffs?: readonly DiffItem[];
   readonly groundingOptions?: ComparePairGroundingForRunsOptions;
+  readonly showPartialInventoryManifestHonesty?: boolean;
 };
 
 /** Working Compare hoists asserted / inferred / skipped MUST divergence (WA-09). Guided keeps a compact summary. */
@@ -133,6 +136,19 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
         <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           Assumption and provenance delta
         </h2>
+        {props.showPartialInventoryManifestHonesty === true && (props.manifestDiffs?.length ?? 0) > 0 ? (
+          <div className="mb-3">
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="compare-provenance-delta-partial-inventory-not-load-failure"
+            >
+              {COMPARE_PROVENANCE_DELTA_PARTIAL_INVENTORY_NOT_LOAD_FAILURE_LINE}
+            </p>
+            <div className="mt-2">
+              <CompareProvenanceDeltaPartialInventoryPartialHonesty />
+            </div>
+          </div>
+        ) : null}
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Baseline asserted {baselineAsserted}, skipped MUST {baselineSkippedMust} · Updated asserted {targetAsserted},
           skipped MUST {targetSkippedMust}.

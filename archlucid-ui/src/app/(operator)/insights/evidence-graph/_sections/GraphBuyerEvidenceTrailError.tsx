@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -9,6 +9,8 @@ import Link from "next/link";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { GRAPH_EVIDENCE_TRAIL_LOAD_FAILURE_PARTIAL_CAPTURE_LINE } from "@/lib/insights/graph-evidence-trail-load-failure-partial-capture-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import {
   BUYER_EVIDENCE_TRAIL_ERROR_BODY,
@@ -51,7 +53,10 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
   const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
     parseGraphEvidenceTrailErrorTechnicalDetailsOpenFromSearch(graphEvidenceTrailErrorTechnicalDetailsOpenParam),
   );
-  const correlationId = ensureCorrelationId(failure.correlationId ?? failure.problem?.correlationId);
+  const correlationId = useMemo(
+    () => ensureCorrelationId(failure.correlationId ?? failure.problem?.correlationId),
+    [failure],
+  );
   const httpStatus = failure.httpStatus ?? failure.problem?.status ?? null;
   const troubleshootingHref = resolveInAppDocHref("/docs/runbooks/TROUBLESHOOTING.md");
   const runTrim = runId.trim();
@@ -162,6 +167,21 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
           </div>
         </dl>
       </details>
+
+      {operatorShell ? (
+        <div className="mt-3 space-y-2">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="graph-evidence-trail-load-failure-partial-capture">
+            {GRAPH_EVIDENCE_TRAIL_LOAD_FAILURE_PARTIAL_CAPTURE_LINE}
+          </p>
+          <FatalPageReportProblemSupportRow
+            surfaceId="governance-evidence-graph-hard-failure"
+            errorTitle="Evidence graph load"
+            errorCode="evidence-graph-load-failed"
+            correlationId={correlationId}
+            httpStatus={httpStatus}
+          />
+        </div>
+      ) : null}
     </OperatorErrorCallout>
   );
 }

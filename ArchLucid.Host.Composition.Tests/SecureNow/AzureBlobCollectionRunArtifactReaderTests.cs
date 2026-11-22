@@ -1,15 +1,19 @@
 using System.Globalization;
 using System.Reflection;
 
+using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.SecureNow;
 using ArchLucid.Host.Composition.SecureNow;
 
 using Azure;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Options;
+
+using Moq;
 
 namespace ArchLucid.Host.Composition.Tests.SecureNow;
 
@@ -54,6 +58,47 @@ public sealed class AzureBlobCollectionRunArtifactReaderTests
         artifact.Should().BeNull();
     }
 
+    [Theory]
+    [InlineData(3, true)]
+    [InlineData(4, false)]
+    [InlineData(AzureExtractorUploadLimits.MaxZipBytes + 1, false)]
+    public async Task ReadArtifactAsync_checks_package_length_before_buffering(long contentLength, bool expected)
+    {
+        byte[] bytes = [1, 2, 3];
+        using MemoryStream content = new(bytes);
+        Mock<Stream> body = new();
+        body.Setup(stream => stream.ReadAsync(It.IsAny<Memory<byte>>(), It.IsAny<CancellationToken>()))
+            .Returns((Memory<byte> buffer, CancellationToken token) => content.ReadAsync(buffer, token));
+        BlobDownloadStreamingResult download = BlobsModelFactory.BlobDownloadStreamingResult(
+            content: body.Object,
+            details: BlobsModelFactory.BlobDownloadDetails(contentLength: contentLength));
+        Mock<BlobClient> package = new();
+        package.Setup(client => client.DownloadStreamingAsync(null, CancellationToken.None))
+            .ReturnsAsync(Response.FromValue(download, Mock.Of<Response>()));
+        Mock<BlobContainerClient> container = new();
+        container.Setup(client => client.GetBlobClient("runs/package.zip")).Returns(package.Object);
+        Mock<BlobServiceClient> service = new();
+        service.Setup(client => client.GetBlobContainerClient("securenow-collection")).Returns(container.Object);
+        AzureBlobCollectionRunArtifactReader reader = new(service.Object, Options.Create(
+            new CollectionRunStorageOptions { ContainerName = "securenow-collection" }));
+        CollectionRunManifest manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            StartedUtc = DateTime.UtcNow,
+            ZipPath = "runs/package.zip",
+        };
+
+        CollectionRunArtifact? artifact = await reader.ReadArtifactAsync(manifest);
+
+        if (expected)
+            artifact!.ZipBytes.Should().Equal(bytes);
+        else
+            artifact.Should().BeNull();
+
+        if (contentLength > AzureExtractorUploadLimits.MaxZipBytes)
+            body.Verify(stream => stream.ReadAsync(It.IsAny<Memory<byte>>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     [Fact]
     public void ParseManifestContent_parses_numeric_schemaVersion()
     {
@@ -61,11 +106,12 @@ public sealed class AzureBlobCollectionRunArtifactReaderTests
         CollectionRunManifest? manifest = AzureBlobCollectionRunArtifactReader.ParseManifestContent(
             BinaryData.FromString(
                 $$"""
-                  {"runId":"{{runId}}","startedUtc":"2026-01-01T12:00:00Z","schemaVersion":1,"status":"Succeeded"}
+                  {"runId":"{{runId}}","startedUtc":"2026-01-01T12:00:00Z","schemaVersion":1,"status":"Succeeded","schedule":"nightly"}
                   """));
 
         manifest.Should().NotBeNull();
         manifest!.SchemaVersion.Should().Be(1);
+        manifest.Schedule.Should().Be("nightly");
     }
 
     [Theory]

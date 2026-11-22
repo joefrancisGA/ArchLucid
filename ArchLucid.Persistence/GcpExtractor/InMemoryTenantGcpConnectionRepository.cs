@@ -12,6 +12,8 @@ public sealed class InMemoryTenantGcpConnectionRepository : ITenantGcpConnection
     private readonly ConcurrentDictionary<(Guid TenantId, string ProjectId), Guid> _connectionIdByProject =
         new();
 
+    private readonly Lock _sync = new();
+
     public Task<TenantGcpConnectionRecord?> TryGetAsync(
         Guid tenantId,
         Guid connectionId,
@@ -31,37 +33,54 @@ public sealed class InMemoryTenantGcpConnectionRepository : ITenantGcpConnection
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_connectionIdByProject.TryGetValue((tenantId, projectId.Trim()), out Guid connectionId))
-            return Task.FromResult<TenantGcpConnectionRecord?>(null);
+        lock (_sync)
+        {
+            if (!_connectionIdByProject.TryGetValue((tenantId, projectId.Trim()), out Guid connectionId))
+                return Task.FromResult<TenantGcpConnectionRecord?>(null);
 
-        _byConnection.TryGetValue((tenantId, connectionId), out TenantGcpConnectionRecord? record);
+            _byConnection.TryGetValue((tenantId, connectionId), out TenantGcpConnectionRecord? record);
 
-        return Task.FromResult(record);
+            return Task.FromResult(record);
+        }
     }
 
     public Task UpsertAsync(TenantGcpConnectionRecord record, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        Guid connectionId = record.ConnectionId == Guid.Empty ? Guid.NewGuid() : record.ConnectionId;
         string projectId = record.ProjectId.Trim();
+        var projectKey = (record.TenantId, projectId);
 
-        TenantGcpConnectionRecord stored = new()
+        lock (_sync)
         {
-            ConnectionId = connectionId,
-            TenantId = record.TenantId,
-            ProjectId = projectId,
-            WorkloadIdentityPoolProvider = record.WorkloadIdentityPoolProvider.Trim(),
-            ServiceAccountEmail = record.ServiceAccountEmail.Trim(),
-            Status = record.Status,
-            LastPolledUtc = record.LastPolledUtc,
-            CreatedUtc = record.CreatedUtc == default ? TimeProvider.System.GetUtcNow() : record.CreatedUtc,
-            UpdatedUtc = TimeProvider.System.GetUtcNow(),
-            UpdatedByActorId = record.UpdatedByActorId
-        };
+            TenantGcpConnectionRecord? existing = null;
+            if (_connectionIdByProject.TryGetValue(projectKey, out Guid existingId))
+                _byConnection.TryGetValue((record.TenantId, existingId), out existing);
 
-        _byConnection[(record.TenantId, connectionId)] = stored;
-        _connectionIdByProject[(record.TenantId, projectId)] = connectionId;
+            Guid connectionId = existing?.ConnectionId
+                ?? (record.ConnectionId == Guid.Empty ? Guid.NewGuid() : record.ConnectionId);
+            var connectionKey = (record.TenantId, connectionId);
+            if (existing is null && _byConnection.ContainsKey(connectionKey))
+                throw new InvalidOperationException($"GCP connection '{connectionId}' already belongs to another project.");
+
+            DateTimeOffset now = TimeProvider.System.GetUtcNow();
+            TenantGcpConnectionRecord stored = new()
+            {
+                ConnectionId = connectionId,
+                TenantId = record.TenantId,
+                ProjectId = projectId,
+                WorkloadIdentityPoolProvider = record.WorkloadIdentityPoolProvider.Trim(),
+                ServiceAccountEmail = record.ServiceAccountEmail.Trim(),
+                Status = record.Status,
+                LastPolledUtc = record.LastPolledUtc,
+                CreatedUtc = existing?.CreatedUtc ?? (record.CreatedUtc == default ? now : record.CreatedUtc),
+                UpdatedUtc = now,
+                UpdatedByActorId = record.UpdatedByActorId
+            };
+
+            _byConnection[connectionKey] = stored;
+            _connectionIdByProject[projectKey] = connectionId;
+        }
 
         return Task.CompletedTask;
     }
@@ -76,27 +95,30 @@ public sealed class InMemoryTenantGcpConnectionRepository : ITenantGcpConnection
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byConnection.TryGetValue((tenantId, connectionId), out TenantGcpConnectionRecord? existing)
-            || existing is null)
+        lock (_sync)
         {
-            return Task.CompletedTask;
+            if (!_byConnection.TryGetValue((tenantId, connectionId), out TenantGcpConnectionRecord? existing)
+                || existing is null)
+            {
+                return Task.CompletedTask;
+            }
+
+            TenantGcpConnectionRecord updated = new()
+            {
+                ConnectionId = existing.ConnectionId,
+                TenantId = existing.TenantId,
+                ProjectId = existing.ProjectId,
+                WorkloadIdentityPoolProvider = existing.WorkloadIdentityPoolProvider,
+                ServiceAccountEmail = existing.ServiceAccountEmail,
+                Status = status,
+                LastPolledUtc = lastPolledUtc ?? existing.LastPolledUtc,
+                CreatedUtc = existing.CreatedUtc,
+                UpdatedUtc = TimeProvider.System.GetUtcNow(),
+                UpdatedByActorId = updatedByActorId
+            };
+
+            _byConnection[(tenantId, connectionId)] = updated;
         }
-
-        TenantGcpConnectionRecord updated = new()
-        {
-            ConnectionId = existing.ConnectionId,
-            TenantId = existing.TenantId,
-            ProjectId = existing.ProjectId,
-            WorkloadIdentityPoolProvider = existing.WorkloadIdentityPoolProvider,
-            ServiceAccountEmail = existing.ServiceAccountEmail,
-            Status = status,
-            LastPolledUtc = lastPolledUtc ?? existing.LastPolledUtc,
-            CreatedUtc = existing.CreatedUtc,
-            UpdatedUtc = TimeProvider.System.GetUtcNow(),
-            UpdatedByActorId = updatedByActorId
-        };
-
-        _byConnection[(tenantId, connectionId)] = updated;
 
         return Task.CompletedTask;
     }
@@ -105,10 +127,13 @@ public sealed class InMemoryTenantGcpConnectionRepository : ITenantGcpConnection
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (_byConnection.TryRemove((tenantId, connectionId), out TenantGcpConnectionRecord? removed)
-            && removed is not null)
+        lock (_sync)
         {
-            _connectionIdByProject.TryRemove((tenantId, removed.ProjectId), out _);
+            if (_byConnection.TryRemove((tenantId, connectionId), out TenantGcpConnectionRecord? removed)
+                && removed is not null)
+            {
+                _connectionIdByProject.TryRemove((tenantId, removed.ProjectId), out _);
+            }
         }
 
         return Task.CompletedTask;

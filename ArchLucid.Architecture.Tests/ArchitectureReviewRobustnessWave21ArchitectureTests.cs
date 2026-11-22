@@ -57,7 +57,12 @@ public sealed class ArchitectureReviewRobustnessWave21ArchitectureTests
     {
         string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Admin/AuditController.Export.Guard.cs");
 
-        guard.Should().Contain("CountFilteredAsync");
+        // The export path now detects overflow using a bounded extra row instead of an expensive count.
+        // Keep its fail-closed source wiring covered; AuditExportRowCapTests exercises 409 with an empty body.
+        guard.Should().Contain("filter.IncludeExportOverflowRow = true;");
+        guard.Should().Contain("repo.GetFilteredExportAsync(");
+        guard.Should().Contain("if (events.Count <= filter.Take)");
+        guard.Should().Contain("return ([], this.ConflictProblem(");
         guard.Should().Contain("AuditExportRowCapExceeded");
     }
 

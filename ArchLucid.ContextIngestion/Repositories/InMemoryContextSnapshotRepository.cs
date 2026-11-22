@@ -28,7 +28,7 @@ public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
 
     public Task<ContextSnapshot?> GetLatestAsync(string projectId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         ReadScopeTriple? requestedScope = CaptureCurrentScope();
         lock (_lock)
         {
@@ -45,7 +45,7 @@ public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
 
     public Task<ContextSnapshot?> GetByIdAsync(ReadScopeTriple scope, Guid snapshotId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_lock)
         {
             if (!_store.TryGetValue(snapshotId, out ContextSnapshot? snapshot))
@@ -69,7 +69,7 @@ public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
         ReadScopeTriple? savedScope = CaptureCurrentScope();

@@ -1,3 +1,5 @@
+using System.Data.SqlTypes;
+
 using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Pagination;
 
@@ -19,6 +21,9 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_threads.Any(existing => existing.ThreadId == thread.ThreadId))
+                throw new InvalidOperationException($"Conversation thread '{thread.ThreadId}' already exists.");
+
             _threads.Add(thread);
             if (_threads.Count > MaxEntries)
                 _threads.RemoveRange(0, _threads.Count - MaxEntries);
@@ -56,6 +61,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
                             x.ProjectId == projectId &&
                             !x.ArchivedUtc.HasValue)
                 .OrderByDescending(x => x.LastUpdatedUtc)
+                .ThenBy(x => new SqlGuid(x.ThreadId))
                 .Take(take)
                 .ToList();
             return Task.FromResult<IReadOnlyList<ConversationThread>>(result);
@@ -83,6 +89,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
                             x.ProjectId == projectId &&
                             !x.ArchivedUtc.HasValue)
                 .OrderByDescending(x => x.LastUpdatedUtc)
+                .ThenBy(x => new SqlGuid(x.ThreadId))
                 .ToList();
             int total = ordered.Count;
             List<ConversationThread> page = ordered.Skip(skip).Take(take).ToList();
@@ -97,8 +104,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
         lock (_gate)
         {
             ConversationThread? thread = _threads.FirstOrDefault(x => x.ThreadId == threadId);
-            if (thread is { ArchivedUtc: null })
-
+            if (thread is { ArchivedUtc: null } && thread.LastUpdatedUtc < updatedUtc)
                 thread.LastUpdatedUtc = updatedUtc;
         }
 

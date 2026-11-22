@@ -29,7 +29,7 @@ public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 
-            _items.Add(pack);
+            _items.Add(Copy(pack));
         }
 
         return Task.CompletedTask;
@@ -46,7 +46,7 @@ public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
             if (i >= 0)
             {
                 PolicyPackDistributionScopeRules.EnsureDistributionScopeUnchanged(_items[i], pack);
-                _items[i] = pack;
+                _items[i] = Copy(pack);
             }
         }
 
@@ -57,7 +57,10 @@ public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
     {
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x => x.PolicyPackId == policyPackId && !x.IsDeleted));
+        {
+            PolicyPack? pack = _items.FirstOrDefault(x => x.PolicyPackId == policyPackId && !x.IsDeleted);
+            return Task.FromResult(pack is null ? null : Copy(pack));
+        }
     }
 
     public Task<IReadOnlyList<PolicyPack>> GetByIdsAsync(IReadOnlyCollection<Guid> policyPackIds, CancellationToken ct)
@@ -72,6 +75,7 @@ public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
         {
             List<PolicyPack> result = _items
                 .Where(x => idSet.Contains(x.PolicyPackId) && !x.IsDeleted)
+                .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<PolicyPack>>(result);
         }
@@ -90,8 +94,29 @@ public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
                 .Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId && !x.IsDeleted)
                 .OrderByDescending(x => x.CreatedUtc)
                 .Take(ListScopeCap)
+                .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<PolicyPack>>(result);
         }
     }
+
+    private static PolicyPack Copy(PolicyPack pack) =>
+        new()
+        {
+            PolicyPackId = pack.PolicyPackId,
+            TenantId = pack.TenantId,
+            WorkspaceId = pack.WorkspaceId,
+            ProjectId = pack.ProjectId,
+            Name = pack.Name,
+            PackSlug = pack.PackSlug,
+            Description = pack.Description,
+            PackType = pack.PackType,
+            DistributionScope = pack.DistributionScope,
+            Status = pack.Status,
+            CreatedUtc = pack.CreatedUtc,
+            ActivatedUtc = pack.ActivatedUtc,
+            CurrentVersion = pack.CurrentVersion,
+            IsDeleted = pack.IsDeleted,
+            QualityDimension = pack.QualityDimension,
+        };
 }

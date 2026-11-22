@@ -21,6 +21,40 @@ public sealed class RiskExceptionDispositionGuardTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
 
+
+    [Fact]
+    public void ResolveLatestDisposition_uses_timestamp_when_repository_events_are_unsorted()
+    {
+        DateTimeOffset now = new(2026, 11, 20, 12, 0, 0, TimeSpan.Zero);
+        FindingReviewEventRecord newer = new()
+        {
+            EventId = Guid.NewGuid(),
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ProjectId = Scope.ProjectId,
+            FindingId = "f-1",
+            ReviewerUserId = "reviewer",
+            Action = FindingReviewAction.RecordDisposition,
+            Disposition = Disposition.Remediated,
+            OccurredAtUtc = now,
+        };
+        FindingReviewEventRecord older = new()
+        {
+            EventId = Guid.NewGuid(),
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ProjectId = Scope.ProjectId,
+            FindingId = "f-1",
+            ReviewerUserId = "reviewer",
+            Action = FindingReviewAction.RecordDisposition,
+            Disposition = Disposition.Accepted,
+            OccurredAtUtc = now.AddDays(-1),
+        };
+
+        RiskExceptionDispositionGuard.ResolveLatestDisposition([older, newer])
+            .Should().Be(Disposition.Remediated);
+    }
+
     [Fact]
     public async Task EnsureWaiverAllowedForFindingAsync_rejects_remediated_latest_disposition()
     {

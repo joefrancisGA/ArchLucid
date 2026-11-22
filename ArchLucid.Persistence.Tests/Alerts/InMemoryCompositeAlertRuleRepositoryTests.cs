@@ -23,6 +23,29 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         ProjectId = ProjectId,
     };
 
+    [Fact]
+    public async Task Repository_honors_pre_canceled_operations()
+    {
+        InMemoryCompositeAlertRuleRepository repo = new();
+        Guid ruleId = Guid.NewGuid();
+        CompositeAlertRule rule = BuildRule(ruleId, "saved", BaseUtc, true);
+        CancellationToken canceled = new(canceled: true);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.CreateAsync(rule, canceled));
+        Assert.Null(await repo.GetByIdAsync(Scope, ruleId, CancellationToken.None));
+
+        await repo.CreateAsync(rule, CancellationToken.None);
+        rule.Name = "canceled update";
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.UpdateAsync(rule, canceled));
+        Assert.Equal("saved", (await repo.GetByIdAsync(Scope, ruleId, CancellationToken.None))?.Name);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.GetByIdAsync(Scope, ruleId, canceled));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, canceled));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            repo.ListEnabledByScopeAsync(TenantId, WorkspaceId, ProjectId, canceled));
+    }
+
     [SkippableFact]
     public async Task GetByIdAsync_returns_null_for_another_tenant()
     {
@@ -169,14 +192,17 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
             CancellationToken.None);
 
         await repo.CreateAsync(
+            BuildRule(Guid.Parse("51000000-0000-0000-0000-000000000003"), "newest-on", BaseUtc.AddHours(2), true),
+            CancellationToken.None);
+
+        await repo.CreateAsync(
             BuildRule(Guid.Parse("51000000-0000-0000-0000-000000000002"), "off", BaseUtc.AddHours(1), false),
             CancellationToken.None);
 
         IReadOnlyList<CompositeAlertRule> enabled =
             await repo.ListEnabledByScopeAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None);
 
-        enabled.Should().ContainSingle();
-        enabled[0].Name.Should().Be("on");
+        enabled.Select(static rule => rule.Name).Should().Equal("newest-on", "on");
     }
 
     [SkippableFact]

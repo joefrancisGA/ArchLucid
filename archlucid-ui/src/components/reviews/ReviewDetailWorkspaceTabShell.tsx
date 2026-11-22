@@ -1,11 +1,15 @@
 "use client";
 
-import { Fragment, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Fragment } from "react";
 
 import { PackageActivityAuditTrailVocabularyRail } from "@/components/PackageActivityAuditTrailVocabularyRail";
 import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
 import { PackageGovernanceApprovalQueueVocabularyRail } from "@/components/PackageGovernanceApprovalQueueVocabularyRail";
-import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
+import { resolveReviewDetailTabFromHash, type ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
+import { REVIEW_LIFECYCLE_TAB_HASH_RESTORED_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/review-lifecycle-tab-hash-restored-not-load-failure-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
 import {
   WorkbenchLayoutBridge,
@@ -93,6 +97,13 @@ export function ReviewDetailWorkspaceTabShell({
     counts,
   } = tabs;
   const activePanelLead = props.activePanelLead ?? null;
+  const [lifecycleHashHonesty, setLifecycleHashHonesty] = useState(false);
+
+  useEffect(() => {
+    const hash = window.location.hash.slice(1).trim();
+    const tabFromHash = resolveReviewDetailTabFromHash(hash);
+    setLifecycleHashHonesty(activeTab === "activity" && hash.length > 0 && tabFromHash === "activity");
+  }, [activeTab]);
 
   return (
     <div className="min-w-0 space-y-4" data-testid="review-detail-workspace">
@@ -114,6 +125,15 @@ export function ReviewDetailWorkspaceTabShell({
 
       {activePanelLead !== null ? (
         <div data-testid="review-detail-active-panel-lead">{activePanelLead}</div>
+      ) : null}
+
+      {lifecycleHashHonesty ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="review-lifecycle-tab-hash-restored-not-load-failure"
+        >
+          {REVIEW_LIFECYCLE_TAB_HASH_RESTORED_NOT_LOAD_FAILURE_LINE}
+        </p>
       ) : null}
 
       {workbenchVisible ? (

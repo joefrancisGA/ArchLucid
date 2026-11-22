@@ -15,7 +15,7 @@ public sealed class NoOpTenantMarketingAttributionRepository : ITenantMarketingA
         _ = snapshot;
         _ = coarseMedium;
         _ = coarsePlatform;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult(false);
     }

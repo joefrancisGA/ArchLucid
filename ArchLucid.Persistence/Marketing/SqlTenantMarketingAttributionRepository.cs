@@ -28,16 +28,13 @@ public sealed class SqlTenantMarketingAttributionRepository(ISqlConnectionFactor
         ArgumentException.ThrowIfNullOrWhiteSpace(coarsePlatform);
 
         const string sql = """
-                           IF NOT EXISTS (SELECT 1 FROM dbo.TenantMarketingAttribution WHERE TenantId = @TenantId)
-                           BEGIN
-                               INSERT INTO dbo.TenantMarketingAttribution
-                                   (TenantId, CapturedUtc, UtmSource, UtmMedium, UtmCampaign, UtmContent, CoarseMedium, CoarsePlatform)
-                               VALUES
-                                   (@TenantId, @CapturedUtc, @UtmSource, @UtmMedium, @UtmCampaign, @UtmContent, @CoarseMedium, @CoarsePlatform);
-                               SELECT CAST(1 AS bit);
-                           END
-                           ELSE
-                               SELECT CAST(0 AS bit);
+                           INSERT INTO dbo.TenantMarketingAttribution
+                               (TenantId, CapturedUtc, UtmSource, UtmMedium, UtmCampaign, UtmContent, CoarseMedium, CoarsePlatform)
+                           SELECT @TenantId, @CapturedUtc, @UtmSource, @UtmMedium, @UtmCampaign, @UtmContent, @CoarseMedium, @CoarsePlatform
+                           WHERE NOT EXISTS (
+                               SELECT 1 FROM dbo.TenantMarketingAttribution WITH (UPDLOCK, HOLDLOCK) WHERE TenantId = @TenantId
+                           );
+                           SELECT CAST(@@ROWCOUNT AS bit);
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

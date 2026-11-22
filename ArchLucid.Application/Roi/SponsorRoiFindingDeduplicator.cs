@@ -11,10 +11,15 @@ public static class SponsorRoiFindingDeduplicator
     /// <summary>
     ///     Returns findings deduplicated by stable <see cref="ArchitectureFinding.FindingId"/>.
     ///     When the same id appears more than once, the instance with the highest
-    ///     <see cref="ArchitectureFinding.EstimatedUsdSavings"/> is kept.
+    ///     known <see cref="ArchitectureFinding.EstimatedUsdSavings"/> is kept.
     ///     Findings without a stable id are never deduplicated against each other.
     /// </summary>
-    public static IEnumerable<ArchitectureFinding> DeduplicateByStableIdentity(IEnumerable<ArchitectureFinding> findings)
+    public static IEnumerable<ArchitectureFinding> DeduplicateByStableIdentity(IEnumerable<ArchitectureFinding> findings) =>
+        DeduplicateByStableIdentity(findings, onExcluded: null);
+
+    internal static IEnumerable<ArchitectureFinding> DeduplicateByStableIdentity(
+        IEnumerable<ArchitectureFinding> findings,
+        Action<ArchitectureFinding>? onExcluded)
     {
         ArgumentNullException.ThrowIfNull(findings);
 
@@ -40,14 +45,18 @@ public static class SponsorRoiFindingDeduplicator
                 continue;
             }
 
-            if (ResolveEstimatedUsdSavings(finding) > ResolveEstimatedUsdSavings(existing))
+            if (Nullable.Compare(finding.EstimatedUsdSavings, existing.EstimatedUsdSavings) > 0)
+            {
                 bestById[id] = finding;
+                onExcluded?.Invoke(existing);
+            }
+            else
+            {
+                onExcluded?.Invoke(finding);
+            }
         }
 
         foreach (string id in idOrder)
             yield return bestById[id];
     }
-
-    private static decimal ResolveEstimatedUsdSavings(ArchitectureFinding finding) =>
-        finding.EstimatedUsdSavings ?? 0m;
 }

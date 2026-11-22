@@ -9,6 +9,7 @@ import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { FormFieldLabelWithHelp } from "@/components/FormFieldLabelWithHelp";
 import { Input } from "@/components/ui/input";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { CLOUD_CONNECTION_POST_SAVE_REFRESH_FAILURE_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import { configureGcpTier2Connection } from "@/lib/api/gcp-cloud-connections-api";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -149,10 +150,16 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
         workloadIdentityPoolProvider: workloadIdentityPoolProvider.trim(),
         serviceAccountEmail: serviceAccountEmail.trim(),
       });
-      await refreshConnections();
       setSaveSucceeded(true);
-      setActionMessage("GCP connection saved.");
-      await props.onSaved?.();
+
+      try {
+        await refreshConnections();
+        setActionMessage("GCP connection saved.");
+        await props.onSaved?.();
+      } catch (err) {
+        console.error(err);
+        setFormError(CLOUD_CONNECTION_POST_SAVE_REFRESH_FAILURE_MESSAGE);
+      }
     } catch (err) {
       console.error(err);
       setFormError(GCP_CONNECTION_SAVE_FAILED_ERROR);

@@ -14,7 +14,7 @@ public sealed partial class InMemoryRunRepository
         if (!_store.TryGetValue(runId, out RunRecord? r) || !RunRepositoryCore.IsActiveInScope(r, scope))
             return Task.FromResult<RunRecord?>(null);
 
-        return Task.FromResult<RunRecord?>(r);
+        return Task.FromResult<RunRecord?>(CopyRunRecord(r));
     }
 
     public Task<RunRecord?> GetByIdIncludingArchivedAsync(ScopeContext scope, Guid runId, CancellationToken ct)
@@ -24,7 +24,7 @@ public sealed partial class InMemoryRunRepository
         if (!_store.TryGetValue(runId, out RunRecord? r) || !RunRepositoryCore.MatchesScope(r, scope))
             return Task.FromResult<RunRecord?>(null);
 
-        return Task.FromResult<RunRecord?>(r);
+        return Task.FromResult<RunRecord?>(CopyRunRecord(r));
     }
 
     public Task<RunRecord?> GetByRunIdAdminAsync(Guid runId, CancellationToken ct)
@@ -34,7 +34,7 @@ public sealed partial class InMemoryRunRepository
         if (!_store.TryGetValue(runId, out RunRecord? r) || r.ArchivedUtc.HasValue)
             return Task.FromResult<RunRecord?>(null);
 
-        return Task.FromResult<RunRecord?>(r);
+        return Task.FromResult<RunRecord?>(CopyRunRecord(r));
     }
 
     public Task<RunRecord?> GetLatestWithGraphAtOrBeforeAsync(
@@ -45,8 +45,9 @@ public sealed partial class InMemoryRunRepository
     {
         ct.ThrowIfCancellationRequested();
 
-        return Task.FromResult(
-            RunRepositoryCore.SelectLatestWithGraphAtOrBefore(_store.Values, scope, authorityProjectSlug, asOfUtc));
+        RunRecord? match = RunRepositoryCore.SelectLatestWithGraphAtOrBefore(
+            _store.Values, scope, authorityProjectSlug, asOfUtc);
+        return Task.FromResult(match is null ? null : CopyRunRecord(match));
     }
 
     /// <inheritdoc />

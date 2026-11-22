@@ -5,7 +5,7 @@ namespace ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 
 public interface ICollectionRunRepository
 {
-    /// <summary>Persists a run. A late Running record cannot replace a terminal record.</summary>
+    /// <summary>Persists a run. A late Running record cannot replace a terminal record. An Imported run is replaced only by another Imported run.</summary>
     Task UpsertAsync(CollectionRun collectionRun, CancellationToken cancellationToken = default);
 
     Task<CollectionRun?> GetAsync(

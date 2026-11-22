@@ -152,6 +152,7 @@ internal static class RealizedValueMetricsCalculator
         DateTimeOffset now)
     {
         Dictionary<string, DateTimeOffset> firstSeen = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> remediatedFindingIds = new(StringComparer.OrdinalIgnoreCase);
         List<double> durations = [];
 
         foreach (FindingReviewEventRecord reviewEvent in events.OrderBy(static e => e.OccurredAtUtc))
@@ -164,7 +165,7 @@ internal static class RealizedValueMetricsCalculator
             if (!firstSeen.ContainsKey(findingId))
                 firstSeen[findingId] = reviewEvent.OccurredAtUtc;
 
-            if (reviewEvent.Disposition != FindingDisposition.Remediated)
+            if (reviewEvent.Disposition != FindingDisposition.Remediated || !remediatedFindingIds.Add(findingId))
                 continue;
 
             DateTimeOffset start = firstSeen[findingId];

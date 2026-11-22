@@ -4,7 +4,7 @@ import {
   REMEDIATION_FACTORY_PERCENT_POPULATION_LINE,
 } from "@/lib/remediation-factory/remediation-factory-percent-format";
 import type { RemediationFactoryMetrics } from "@/lib/remediation-factory-types";
-import { parseNonNegativeFiniteNumber } from "@/lib/parse-finite-number";
+import { parseFiniteNumber, parseNonNegativeFiniteNumber } from "@/lib/parse-finite-number";
 
 export type RemediationFactoryMetricTile = {
   readonly id: string;
@@ -26,6 +26,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
   metricsLoaded: boolean,
 ): readonly RemediationFactoryMetricTile[] {
   const openFindingsHref = buildGovernanceFindingsQueueHref({ filter: "open" });
+  const netBurn = metricsLoaded ? parseFiniteNumber(metrics?.netBurn) : null;
 
   function formatCount(value: number | undefined): string | null {
     if (!metricsLoaded || metrics === undefined) {
@@ -101,7 +102,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
         metrics == null
           ? null
           : `Created ${metrics.createdThisWeek} · Remediated ${metrics.remediatedThisWeek}`,
-      value: formatCount(metrics?.netBurn),
+      value: netBurn === null ? null : String(netBurn),
     },
     {
       id: "pattern-exact",

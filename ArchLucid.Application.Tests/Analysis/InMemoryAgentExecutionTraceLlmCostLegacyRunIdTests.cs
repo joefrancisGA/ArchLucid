@@ -98,6 +98,37 @@ public sealed class InMemoryAgentExecutionTraceLlmCostLegacyRunIdTests
     }
 
     [Fact]
+    public void CollectMergedLlmCostSlices_keeps_two_equal_invocations_for_one_run_key()
+    {
+        const string runId = "abcdefabcdefabcdefabcdefabcdefab";
+        AgentExecutionTrace[] traces =
+        [
+            new() { TraceId = "first", RunId = runId, ModelDeploymentName = "gpt-test", InputTokenCount = 77 },
+            new() { TraceId = "second", RunId = runId, ModelDeploymentName = "gpt-test", InputTokenCount = 77 },
+        ];
+
+        AgentExecutionTraceQueryPatchCore.CollectMergedLlmCostSlices(traces, runId)
+            .Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task LoadMergedLlmCostSlicesByRunIdAsync_preserves_multiplicity_without_double_counting_aliases()
+    {
+        const string runId = "abcdefabcdefabcdefabcdefabcdefab";
+        string legacyRunId = runId.ToUpperInvariant();
+        AgentExecutionTraceLlmCostSlice slice = new() { ModelDeploymentName = "gpt-test", InputTokenCount = 77 };
+
+        IReadOnlyList<AgentExecutionTraceLlmCostSlice> result =
+            await AgentExecutionTraceQueryPatchCore.LoadMergedLlmCostSlicesByRunIdAsync(
+                runId,
+                (lookupKey, _) => Task.FromResult<IReadOnlyList<AgentExecutionTraceLlmCostSlice>>(
+                    lookupKey == runId ? [slice, slice] : lookupKey == legacyRunId ? [slice] : []),
+                CancellationToken.None);
+
+        result.Should().HaveCount(2);
+    }
+
+    [Fact]
     public async Task CompareQuality_GetByRunIdAsync_merges_traces_when_stored_under_legacy_run_id_key()
     {
         Guid runGuid = Guid.Parse("18181818-1818-1818-1818-181818181818");

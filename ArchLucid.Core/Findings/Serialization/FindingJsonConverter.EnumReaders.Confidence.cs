@@ -37,7 +37,7 @@ public sealed partial class FindingJsonConverter
             return (FindingConfidenceLevel)numericFromString;
         }
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingConfidenceLevel parsed))
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingConfidenceLevel parsed) && Enum.IsDefined(parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding confidence level value '{raw}'.");

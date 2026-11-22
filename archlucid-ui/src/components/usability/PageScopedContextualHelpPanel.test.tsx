@@ -332,11 +332,33 @@ describe("PageScopedContextualHelpPanel", () => {
     expect(input).toHaveValue("Unsaved brief");
   });
 
+  it("scrolls to the URL section even when only the section changes", async () => {
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+    const scrolledSections: string[] = [];
+    HTMLElement.prototype.scrollIntoView = function () {
+      scrolledSections.push(this.id);
+    };
+
+    try {
+      window.history.replaceState(null, "", "/governance/findings?pageHelpOpen=1&pageHelpSection=what-to-do-next");
+      render(<PageScopedContextualHelpPanel entry={FULL_ENTRY} triggerLabel="Reviews" learnMoreHref={null} />);
+      await screen.findByTestId("page-scoped-contextual-help-panel");
+      await waitFor(() => expect(scrolledSections).toContain(pageHelpDrawerSectionDomId("what-to-do-next")));
+
+      window.history.replaceState(null, "", "/governance/findings?pageHelpOpen=1&pageHelpSection=where-to-configure");
+      fireEvent.popState(window);
+      await waitFor(() => expect(scrolledSections.at(-1)).toBe(pageHelpDrawerSectionDomId("where-to-configure")));
+    } finally {
+      HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+      window.history.replaceState(null, "", "/");
+    }
+  });
+
   it("scrolls the requested section into view when the drawer opens", async () => {
     const scrollIntoView = vi.fn();
-    const originalScrollIntoView = Element.prototype.scrollIntoView;
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
 
-    Element.prototype.scrollIntoView = scrollIntoView;
+    HTMLElement.prototype.scrollIntoView = scrollIntoView;
 
     try {
       render(
@@ -358,7 +380,7 @@ describe("PageScopedContextualHelpPanel", () => {
         expect(scrollIntoView).toHaveBeenCalled();
       });
     } finally {
-      Element.prototype.scrollIntoView = originalScrollIntoView;
+      HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
     }
   });
 });

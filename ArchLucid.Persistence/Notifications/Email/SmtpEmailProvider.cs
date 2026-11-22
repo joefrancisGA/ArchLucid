@@ -18,7 +18,7 @@ public sealed class SmtpEmailProvider(IOptionsMonitor<EmailNotificationOptions> 
     public string ProviderName => EmailProviderNames.Smtp;
 
     /// <inheritdoc />
-    public Task SendAsync(EmailMessage message, CancellationToken cancellationToken)
+    public async Task SendAsync(EmailMessage message, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(message);
 
@@ -52,7 +52,7 @@ public sealed class SmtpEmailProvider(IOptionsMonitor<EmailNotificationOptions> 
                 mail.AlternateViews.Add(
                     AlternateView.CreateAlternateViewFromString(message.TextBody, null, "text/plain"));
 
-            return smtp.SendMailAsync(mail, cancellationToken);
+            await smtp.SendMailAsync(mail, cancellationToken).ConfigureAwait(false);
         }
 #pragma warning restore SYSLIB0014
 #pragma warning restore CA1416

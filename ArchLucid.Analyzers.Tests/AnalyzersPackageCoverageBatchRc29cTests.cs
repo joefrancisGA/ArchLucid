@@ -35,12 +35,13 @@ public sealed class AnalyzersPackageCoverageBatchRc29cTests
     }
 
     [Fact]
-    public void TenantScopedSqlExpressionResolver_partial_concat_is_not_statically_resolved()
+    public void TenantScopedSqlExpressionResolver_partial_concat_keeps_static_literal_fragment()
     {
         TenantScopedSqlExpressionResolver.ResolutionResult result =
             ResolveRightHandSide("\"SELECT RunId FROM \" + dynamicFragment");
 
-        result.IsStaticallyResolved.Should().BeFalse();
+        result.IsStaticallyResolved.Should().BeTrue();
+        result.SqlText.Should().Be("SELECT RunId FROM ");
     }
 
     [Theory]

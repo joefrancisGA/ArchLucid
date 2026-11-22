@@ -1,3 +1,5 @@
+using System.Runtime.ExceptionServices;
+
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications;
 using ArchLucid.Core.Notifications.Email;
@@ -24,6 +26,7 @@ internal static class MultiRecipientEmailDispatch
         Action<Exception, string>? logSendFailure,
         CancellationToken cancellationToken)
     {
+        ExceptionDispatchInfo? firstSendFailure = null;
         bool recordedAny = false;
         bool skippedAllAsAlreadyRecorded = true;
         List<string> distinctMailboxes = DistinctValidNormalizedMailboxes(mailboxes);
@@ -33,6 +36,8 @@ internal static class MultiRecipientEmailDispatch
 
         foreach (string mailbox in distinctMailboxes)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             string mailboxIdempotencyKey = BuildMailboxIdempotencyKey(idempotencyKeyPrefix, mailbox);
             SentEmailLedgerEntry ledgerEntry = new(
                 mailboxIdempotencyKey,
@@ -54,12 +59,16 @@ internal static class MultiRecipientEmailDispatch
             catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
             {
                 logSendFailure?.Invoke(ex, mailbox);
-                throw;
+                firstSendFailure ??= ExceptionDispatchInfo.Capture(ex);
+                continue;
             }
 
-            if (await sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken).ConfigureAwait(false))
+            // The provider confirmed the send. Persist the ledger before honoring caller cancellation.
+            if (await sentEmailLedger.TryRecordSentAsync(ledgerEntry, CancellationToken.None).ConfigureAwait(false))
                 recordedAny = true;
         }
+
+        firstSendFailure?.Throw();
 
         if (skippedAllAsAlreadyRecorded && distinctMailboxes.Count > 0)
             return true;

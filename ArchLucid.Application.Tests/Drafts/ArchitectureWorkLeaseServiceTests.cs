@@ -65,6 +65,28 @@ public sealed class ArchitectureWorkLeaseServiceTests
     }
 
     [Fact]
+    public async Task In_memory_lease_repository_detaches_row_version_on_write_and_read()
+    {
+        byte[] version = [1, 2];
+        await _leases.UpsertAsync(Scope, new ArchitectureWorkLeaseRecord
+        {
+            DraftId = DraftId,
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ScopeProjectId = Scope.ProjectId,
+            RowVersion = version,
+        });
+        version[0] = 9;
+
+        ArchitectureWorkLeaseRecord? first = await _leases.TryGetByDraftIdAsync(Scope, DraftId);
+        first!.RowVersion.Should().Equal(1, 2);
+        first.RowVersion![1] = 8;
+
+        ArchitectureWorkLeaseRecord? second = await _leases.TryGetByDraftIdAsync(Scope, DraftId);
+        second!.RowVersion.Should().Equal(1, 2);
+    }
+
+    [Fact]
     public async Task Acquire_second_holder_returns_held_by_other_until_expired()
     {
         string actorA = ArchitectureSharePlatformUserActorOid.FromUserId(HolderA);
@@ -207,6 +229,53 @@ public sealed class ArchitectureWorkLeaseServiceTests
 
         result.Status.Should().Be(ArchitectureWorkLeaseHeartbeatStatus.Extended);
         result.Response?.ExpiresUtc.Should().BeAfter(soon);
+    }
+
+    [Fact]
+    public async Task Heartbeat_does_not_extend_lease_after_draft_becomes_terminal()
+    {
+        string actorA = ArchitectureSharePlatformUserActorOid.FromUserId(HolderA);
+        DateTimeOffset originalExpiry = DateTimeOffset.UtcNow.AddMinutes(1);
+
+        _drafts
+            .Setup(d => d.GetAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, DraftId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DraftRequestResponse
+            {
+                DraftId = DraftId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ProjectId = Scope.ProjectId,
+                ArchitectureId = ArchitectureId,
+                Status = DraftRequestStatus.RunSpawned,
+            });
+        _holderResolver.Setup(r => r.TryResolveHolderUserIdAsync(Scope, actorA, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(HolderA);
+
+        await _leases.UpsertAsync(
+            Scope,
+            new ArchitectureWorkLeaseRecord
+            {
+                DraftId = DraftId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ScopeProjectId = Scope.ProjectId,
+                ArchitectureId = ArchitectureId,
+                HolderUserId = HolderA,
+                AcquiredUtc = DateTimeOffset.UtcNow.AddMinutes(-2),
+                LastHeartbeatUtc = DateTimeOffset.UtcNow.AddMinutes(-2),
+                ExpiresUtc = originalExpiry,
+            },
+            CancellationToken.None);
+
+        ArchitectureWorkLeaseHeartbeatResult result = await BuildSut().HeartbeatAsync(
+            Scope,
+            DraftId,
+            actorA,
+            CancellationToken.None);
+
+        result.Status.Should().Be(ArchitectureWorkLeaseHeartbeatStatus.DraftNotFound);
+        ArchitectureWorkLeaseRecord? lease = await _leases.TryGetByDraftIdAsync(Scope, DraftId);
+        lease!.ExpiresUtc.Should().Be(originalExpiry);
     }
 
     [Fact]

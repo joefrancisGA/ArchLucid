@@ -39,6 +39,27 @@ public sealed class BoundedBatchParallelismTests
     }
 
     [Fact]
+    public async Task ForEachAsync_stops_sequential_batch_after_cancellation()
+    {
+        using CancellationTokenSource cancellation = new();
+        List<int> seen = [];
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            BoundedBatchParallelism.ForEachAsync(
+                [1, 2, 3],
+                configuredMaxConcurrent: 1,
+                (item, _) =>
+                {
+                    seen.Add(item);
+                    cancellation.Cancel();
+                    return Task.CompletedTask;
+                },
+                cancellation.Token));
+
+        seen.Should().ContainSingle().Which.Should().Be(1);
+    }
+
+    [Fact]
     public async Task ForEachAsync_respects_max_concurrent_degree()
     {
         int configuredMax = 2;

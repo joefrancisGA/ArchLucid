@@ -14,6 +14,11 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { invalidateItsmFindingCorrelations } from "@/lib/itsm/itsm-finding-correlations-store";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
 import { useItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
+import {
+  ITSM_CREATE_CONNECTOR_OFF_NOT_FAILED_CREATE_LINE,
+  ITSM_CREATE_EMPTY_LINKAGE_NOT_FAILED_CREATE_LINE,
+  ITSM_CREATE_HARD_FAILURE_NOT_EMPTY_LINKAGE_LINE,
+} from "@/lib/itsm/itsm-create-state-honesty-copy";
 
 export type ItsmOutboundQuickActionsProps = {
   readonly findingId: string;
@@ -65,8 +70,12 @@ export function ItsmOutboundQuickActions({
     }
   }
 
-  if (correlationsLoaded && !nativeCreateEnabled && correlations.length === 0) {
-    return null;
+  if (correlationsLoaded && !correlationsError && !nativeCreateEnabled && correlations.length === 0) {
+    return (
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="itsm-create-connector-off-not-failed-create">
+        {ITSM_CREATE_CONNECTOR_OFF_NOT_FAILED_CREATE_LINE}
+      </p>
+    );
   }
 
   return (
@@ -143,7 +152,19 @@ export function ItsmOutboundQuickActions({
       ) : null}
 
       {statusMessage ? <p className={cn("text-green-700 dark:text-green-400", OPERATOR_TYPOGRAPHY.helper)}>{statusMessage}</p> : null}
-      {errorMessage ? <p className={cn("text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>{errorMessage}</p> : null}
+      {errorMessage ? (
+        <div className="space-y-1">
+          <p className={cn("text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>{errorMessage}</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="itsm-create-hard-failure-not-empty-linkage">
+            {ITSM_CREATE_HARD_FAILURE_NOT_EMPTY_LINKAGE_LINE}
+          </p>
+        </div>
+      ) : null}
+      {correlationsLoaded && !correlationsError && nativeCreateEnabled && correlations.length === 0 ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="itsm-create-empty-linkage-not-failed-create">
+          {ITSM_CREATE_EMPTY_LINKAGE_NOT_FAILED_CREATE_LINE}
+        </p>
+      ) : null}
       {correlationsLoaded && correlationsError && errorMessage === null ? (
         <p className={cn("text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>{linkageUnavailableMessage}</p>
       ) : null}

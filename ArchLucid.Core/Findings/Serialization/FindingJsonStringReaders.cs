@@ -30,6 +30,7 @@ internal static class FindingJsonStringReaders
             && el.TryGetDouble(out double wholeNumber)
             && double.IsFinite(wholeNumber)
             && wholeNumber >= 0
+            && wholeNumber < 9223372036854775808d
             && wholeNumber == Math.Floor(wholeNumber))
             return ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
 
@@ -116,6 +117,7 @@ internal static class FindingJsonStringReaders
             && element.TryGetDouble(out double wholeNumber)
             && double.IsFinite(wholeNumber)
             && wholeNumber >= 0
+            && wholeNumber < 9223372036854775808d
             && wholeNumber == Math.Floor(wholeNumber))
             return ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
 

@@ -189,6 +189,7 @@ export default function SignedRecordsListClient() {
       <SignedRecordsListEmptyStates
         showEmptyState={showEmptyState}
         showFilterNoMatch={showFilterNoMatch}
+        dateRangeFilterActive={dateRangePreset !== null}
         workspaceScopeTeaching={workspaceScopeTeaching}
         showcaseSampleAvailable={showcaseSampleAvailable}
         onClearFilters={clearFilters}

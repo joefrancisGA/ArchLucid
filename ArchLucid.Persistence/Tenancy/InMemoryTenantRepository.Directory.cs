@@ -13,7 +13,7 @@ public sealed partial class InMemoryTenantRepository
 
     public Task<TenantRecord?> GetByIdAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -40,7 +40,7 @@ public sealed partial class InMemoryTenantRepository
     public Task<TenantRecord?> GetByNormalizedOrganizationNameAsync(string normalizedOrganizationName, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(normalizedOrganizationName);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         string key = normalizedOrganizationName.Trim().ToUpperInvariant();
 
@@ -57,7 +57,7 @@ public sealed partial class InMemoryTenantRepository
     public Task<TenantRecord?> GetBySlugAsync(string slug, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         string key = TenantRepositoryCore.NormalizeSlug(slug);
 
@@ -67,7 +67,7 @@ public sealed partial class InMemoryTenantRepository
 
     public Task<TenantRecord?> GetByEntraTenantIdAsync(Guid entraTenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         return !_entraTenantIdToTenantId.TryGetValue(entraTenantId, out Guid tenantId) ? Task.FromResult<TenantRecord?>(null) : GetByIdAsync(tenantId, ct);
     }
@@ -75,7 +75,7 @@ public sealed partial class InMemoryTenantRepository
 
     public Task<IReadOnlyList<TenantRecord>> ListAsync(CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         IReadOnlyList<TenantRecord> list;
 

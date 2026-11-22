@@ -215,7 +215,11 @@ public static class InfraEvidenceMermaidModeParser
 
         if (string.Equals(normalized, "selectedResources", StringComparison.OrdinalIgnoreCase))
         {
-            if (string.IsNullOrWhiteSpace(seedNodeId))
+            string[] selectedNodeIds = seedNodeId?.Split(
+                ',',
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
+
+            if (selectedNodeIds.Length == 0)
             {
                 result = new InfraEvidenceMermaidModeParseResult
                 {
@@ -229,12 +233,7 @@ public static class InfraEvidenceMermaidModeParser
             result = Success(
                 DiagramMode.SelectedResources,
                 "selectedResources",
-                new DiagramAstCompileOptions
-                {
-                    SelectedNodeIds = seedNodeId.Split(
-                        ',',
-                        StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
-                },
+                new DiagramAstCompileOptions { SelectedNodeIds = selectedNodeIds },
                 includePrivateEndpointNodes,
                 includeRecoveryServices,
                 includeCrossGroupFanOut);

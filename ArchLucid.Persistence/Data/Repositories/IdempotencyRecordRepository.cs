@@ -46,7 +46,7 @@ public sealed class IdempotencyRecordRepository(IDbConnectionFactory connectionF
                            INSERT INTO dbo.IdempotencyRecords (IdempotencyKey, TenantId, StatusCode, ResponseBody, CreatedUtc)
                            SELECT @IdempotencyKey, @TenantId, @StatusCode, @ResponseBody, SYSUTCDATETIME()
                            WHERE NOT EXISTS (
-                               SELECT 1 FROM dbo.IdempotencyRecords
+                               SELECT 1 FROM dbo.IdempotencyRecords WITH (UPDLOCK, HOLDLOCK)
                                WHERE TenantId = @TenantId AND IdempotencyKey = @IdempotencyKey
                            );
                            """;

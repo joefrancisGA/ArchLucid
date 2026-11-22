@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState, type MutableRefObject } from "react";
-import type { UseFormGetValues, UseFormReset } from "react-hook-form";
+import type { UseFormGetValues } from "react-hook-form";
 
 import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
@@ -23,7 +23,7 @@ export type UseNewRunWizardTemplateRestoreParams = {
   readonly wizardStepCount: number;
   readonly templateWizardSessionState: WizardFormValues;
   readonly showFullWizardShell: boolean;
-  readonly reset: UseFormReset<WizardFormValues>;
+  readonly reset: (values: WizardFormValues) => void;
   readonly setStepIndex: (index: number) => void;
   readonly getValues: UseFormGetValues<WizardFormValues>;
 };
@@ -79,10 +79,11 @@ export function useNewRunWizardTemplateRestore(
 
   const saveWizardDraft = useCallback(() => {
     try {
-      writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewTemplates, {
-        stepIndex,
-        state: getValues(),
-      });
+      writeWizardSessionSnapshot(
+        WIZARD_SESSION_IDS.reviewsNewTemplates,
+        { stepIndex, state: getValues() },
+        { requireSessionStorage: true },
+      );
       setDraftSaveFeedback({ kind: "ok", message: "Architecture draft saved in this browser." });
     } catch {
       setDraftSaveFeedback({ kind: "err", message: "Could not save architecture draft." });

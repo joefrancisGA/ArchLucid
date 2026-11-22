@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "description": "Executable regression registry for repaired Aspects failure classes; references existing production-behavior tests rather than copying fixtures.",
+  "cases": [
+    {
+      "id": "atomic-agent-result-rollback",
+      "pattern": "persistence",
+      "product": "ArchLucid",
+      "source_pr": 7501,
+      "kind": "dotnet",
+      "sql": true,
+      "project": "ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj",
+      "source": "ArchLucid.Persistence.Tests/Contracts/DapperAgentResultRepositoryContractTests.cs",
+      "test": "ReplaceForRunTask_rolls_back_the_delete_when_the_insert_fails"
+    },
+    {
+      "id": "idempotent-signal-concurrency",
+      "pattern": "persistence",
+      "product": "SecureNow",
+      "source_pr": 7463,
+      "kind": "dotnet",
+      "sql": true,
+      "project": "ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj",
+      "source": "ArchLucid.Persistence.Tests/Findings/SqlFindingInsightSignalRepositoryTests.cs",
+      "test": "TryInsertAsync_concurrent_repeats_return_the_same_signal"
+    },
+    {
+      "id": "oversized-finding-identifier",
+      "pattern": "input-validation",
+      "product": "SecureNow",
+      "source_pr": 7538,
+      "kind": "dotnet",
+      "sql": false,
+      "project": "ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj",
+      "source": "ArchLucid.Core.Tests/Findings/Serialization/FindingJsonConverterTests.cs",
+      "test": "Deserialize_whole_number_above_int64_range_does_not_coerce_to_min_value"
+    },
+    {
+      "id": "risk-register-ticket-scope",
+      "pattern": "scope",
+      "product": "SecureNow",
+      "source_pr": 7457,
+      "kind": "dotnet",
+      "sql": true,
+      "project": "ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj",
+      "source": "ArchLucid.Persistence.Tests/Governance/ArchitectureRiskRegisterReaderDispositionScopeSqlIntegrationTests.cs",
+      "test": "ListAsync_does_not_apply_foreign_workspace_ticket_to_in_scope_register_row"
+    },
+    {
+      "id": "budget-caller-cancellation",
+      "pattern": "async-lifecycle",
+      "product": "ArchLucid",
+      "source_pr": 7467,
+      "kind": "dotnet",
+      "sql": false,
+      "project": "ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj",
+      "source": "ArchLucid.Application.Tests/Budgeting/RunScopedLlmBudgetReservationServiceTests.cs",
+      "test": "Admit_propagates_caller_cancellation_during_budget_read"
+    },
+    {
+      "id": "finding-panel-stale-audit",
+      "pattern": "async-lifecycle",
+      "product": "ArchLucid",
+      "source_pr": 7511,
+      "kind": "vitest",
+      "sql": false,
+      "source": "archlucid-ui/src/components/FindingExplainPanel.test.tsx",
+      "test": "keeps the current finding's evidence when the previous audit finishes late"
+    },
+    {
+      "id": "product-switch-stale-response",
+      "pattern": "async-lifecycle",
+      "product": "SecureNow",
+      "source_pr": 7523,
+      "kind": "vitest",
+      "sql": false,
+      "source": "archlucid-ui/src/lib/use-findings-help-workspace-readiness.test.ts",
+      "test": "ignores the previous product's late"
+    },
+    {
+      "id": "traceability-bounded-pages",
+      "pattern": "pagination",
+      "product": "ArchLucid",
+      "source_pr": 7532,
+      "kind": "dotnet",
+      "sql": false,
+      "project": "ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj",
+      "source": "ArchLucid.Application.Tests/Traceability/TraceabilityBundleBuilderTests.cs",
+      "test": "BuildAsync_UsesBoundedAuditPagesAndReportsOnlyActualOverflow"
+    }
+  ]
+}

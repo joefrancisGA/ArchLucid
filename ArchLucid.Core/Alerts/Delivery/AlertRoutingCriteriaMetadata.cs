@@ -22,7 +22,8 @@ public static partial class AlertRoutingCriteriaMetadata
             using JsonDocument document = JsonDocument.Parse(metadataJson);
             JsonElement root = document.RootElement;
 
-            if (!TryGetPropertyCaseInsensitive(root, RoutingCriteriaPropertyName, out JsonElement criteriaElement) ||
+            if (root.ValueKind != JsonValueKind.Object ||
+                !TryGetPropertyCaseInsensitive(root, RoutingCriteriaPropertyName, out JsonElement criteriaElement) ||
                 criteriaElement.ValueKind != JsonValueKind.Object)
             {
                 return new AlertRoutingCriteria();

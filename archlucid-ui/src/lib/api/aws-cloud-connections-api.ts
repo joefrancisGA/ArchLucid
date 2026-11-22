@@ -1,6 +1,6 @@
 import { trimRequiredText, trimTextFields } from "./api-boundary-normalization";
 import { apiDelete, apiGet, apiPostJson } from "./http";
-import { optionalHostedRunId, toTier2HostedRunResult } from "./tier2-hosted-run-response";
+import { optionalHostedRunId, toTier2HostedRunResult, type Tier2HostedRunResult } from "./tier2-hosted-run-response";
 
 export interface AwsTier2ConnectionResponse {
   connectionId: string;
@@ -68,10 +68,7 @@ export interface AwsTier2HostedRunBody {
   runId?: string;
 }
 
-export interface AwsTier2HostedRunResponse {
-  packageId: string;
-  resourceCount: number;
-}
+export type AwsTier2HostedRunResponse = Tier2HostedRunResult;
 
 /** On-demand hosted Tier 2 AWS pull after connection save (202 Accepted on success). */
 export async function triggerAwsTier2HostedRun(

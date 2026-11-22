@@ -178,6 +178,16 @@ internal static partial class RunRepositorySql
                                                          AND ScopeProjectId = @ScopeProjectId;
                                                        """;
 
+    public const string SelectAnchorGuardForUpdateByScopedId = $"""
+                                                       SELECT
+                                                           {RunDetailReadSql.SelectAnchorGuardColumns}
+                                                       FROM dbo.Runs WITH (UPDLOCK, HOLDLOCK)
+                                                       WHERE RunId = @RunId
+                                                         AND TenantId = @TenantId
+                                                         AND WorkspaceId = @WorkspaceId
+                                                         AND ScopeProjectId = @ScopeProjectId;
+                                                       """;
+
     public const string UpdateOperatorGovernanceDisposition = """
                                                               UPDATE dbo.Runs
                                                               SET OperatorGovernanceDecision = @Decision,
@@ -203,7 +213,8 @@ internal static partial class RunRepositorySql
                                                            AND TenantId = @TenantId
                                                            AND WorkspaceId = @WorkspaceId
                                                            AND ScopeProjectId = @ScopeProjectId
-                                                           AND ArchivedUtc IS NULL;
+                                                           AND ArchivedUtc IS NULL
+                                                           AND (GoldenManifestId IS NULL OR GoldenManifestId = @GoldenManifestId);
 
                                                          SELECT @@ROWCOUNT;
                                                          """;

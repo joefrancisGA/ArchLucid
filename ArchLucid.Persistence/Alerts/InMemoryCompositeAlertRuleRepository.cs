@@ -11,16 +11,21 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
     public Task CreateAsync(CompositeAlertRule rule, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(rule);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
+            if (_items.Exists(item => item.CompositeRuleId == rule.CompositeRuleId))
+                throw new InvalidOperationException("A composite alert rule with this ID already exists.");
+
             _items.Add(CompositeAlertRuleRepositoryCore.CloneRule(rule));
+        }
         return Task.CompletedTask;
     }
 
     public Task UpdateAsync(CompositeAlertRule rule, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(rule);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
@@ -30,7 +35,11 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
                 x.WorkspaceId == rule.WorkspaceId &&
                 x.ProjectId == rule.ProjectId);
             if (i >= 0)
-                _items[i] = CompositeAlertRuleRepositoryCore.CloneRule(rule);
+            {
+                CompositeAlertRule updated = CompositeAlertRuleRepositoryCore.CloneRule(rule);
+                updated.CreatedUtc = _items[i].CreatedUtc;
+                _items[i] = updated;
+            }
         }
 
         return Task.CompletedTask;
@@ -39,7 +48,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
     public Task<CompositeAlertRule?> GetByIdAsync(ScopeContext scope, Guid compositeRuleId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             CompositeAlertRule? found = CompositeAlertRuleRepositoryCore
@@ -55,11 +64,12 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<CompositeAlertRule> result = CompositeAlertRuleRepositoryCore
                 .FilterByScope(_items, tenantId, workspaceId, projectId)
+                .OrderByDescending(static rule => rule.CreatedUtc)
                 .Select(CompositeAlertRuleRepositoryCore.CloneRule)
                 .ToList();
             return Task.FromResult<IReadOnlyList<CompositeAlertRule>>(result);
@@ -72,11 +82,12 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<CompositeAlertRule> result = CompositeAlertRuleRepositoryCore
                 .FilterEnabledByScope(_items, tenantId, workspaceId, projectId)
+                .OrderByDescending(static rule => rule.CreatedUtc)
                 .Select(CompositeAlertRuleRepositoryCore.CloneRule)
                 .ToList();
             return Task.FromResult<IReadOnlyList<CompositeAlertRule>>(result);

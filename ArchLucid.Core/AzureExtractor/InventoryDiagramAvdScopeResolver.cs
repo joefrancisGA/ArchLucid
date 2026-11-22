@@ -186,7 +186,8 @@ public static class InventoryDiagramAvdScopeResolver
             string armId = ReadArmId(node);
 
             if (!armType.Contains("sessionHosts", StringComparison.OrdinalIgnoreCase)
-                || string.IsNullOrWhiteSpace(armId))
+                || string.IsNullOrWhiteSpace(armId)
+                || HasExplicitSessionHostBackingVm(graph, node.NodeId))
             {
                 continue;
             }
@@ -233,6 +234,12 @@ public static class InventoryDiagramAvdScopeResolver
                 StringComparison.OrdinalIgnoreCase));
     }
 
+    private static bool HasExplicitSessionHostBackingVm(GraphSnapshot graph, string sessionHostNodeId) =>
+        graph.Edges.Any(edge =>
+            edge.Weight >= MinimumEdgeWeight
+            && string.Equals(edge.FromNodeId, sessionHostNodeId, StringComparison.Ordinal)
+            && string.Equals(edge.InferenceSource, InventoryDiagramAvdEdgeSources.SessionHostToVm, StringComparison.OrdinalIgnoreCase));
+
     private static string? ResolveHostPoolArmIdForSessionHostVm(
         GraphNode vmNode,
         GraphSnapshot graph,
@@ -278,7 +285,8 @@ public static class InventoryDiagramAvdScopeResolver
                 continue;
             }
 
-            if (!string.Equals(ReadLastArmSegment(ReadArmId(hostNode)), vmLastSegment, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(ReadLastArmSegment(ReadArmId(hostNode)), vmLastSegment, StringComparison.OrdinalIgnoreCase)
+                || HasExplicitSessionHostBackingVm(graph, hostNode.NodeId))
             {
                 continue;
             }

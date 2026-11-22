@@ -42,7 +42,7 @@ public sealed class ProcessSharedValueReportJobPollStateCache : IValueReportJobP
 
         if (entry.ExpiresAtUtc <= TimeProvider.System.GetUtcNow())
         {
-            _entries.TryRemove(key, out _);
+            _entries.TryRemove(new KeyValuePair<string, CacheEntry>(key, entry));
 
             return null;
         }
@@ -61,10 +61,10 @@ public sealed class ProcessSharedValueReportJobPollStateCache : IValueReportJobP
     {
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
 
-        foreach (string staleKey in _entries.Keys.ToArray())
+        foreach (KeyValuePair<string, CacheEntry> entry in _entries)
         {
-            if (_entries.TryGetValue(staleKey, out CacheEntry? entry) && entry.ExpiresAtUtc <= now)
-                _entries.TryRemove(staleKey, out _);
+            if (entry.Value.ExpiresAtUtc <= now)
+                _entries.TryRemove(entry);
         }
     }
 

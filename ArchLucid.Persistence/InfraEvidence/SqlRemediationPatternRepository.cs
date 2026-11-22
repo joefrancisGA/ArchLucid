@@ -10,9 +10,28 @@ namespace ArchLucid.Persistence.InfraEvidence;
 public sealed partial class SqlRemediationPatternRepository(ISqlConnectionFactory connectionFactory)
     : IRemediationPatternRepository
 {
-    public async Task InsertPatternAsync(RemediationPatternRecord pattern, CancellationToken cancellationToken = default)
+    private const string InsertVersionSql = """
+                                   INSERT INTO dbo.RemediationPatternVersions
+                                   (
+                                       VersionId, PatternId, TenantId, Version, Status, ControlObjective, ContentJson,
+                                       MatchProvider, MatchResourceType, MatchControlId, MatchSeverityMin, MatchPropertyEqualsJson,
+                                       AutomationLevel, AuthorActorKey, ApprovedByActorKey, ApprovedUtc, CreatedUtc, UpdatedUtc
+                                   )
+                                   VALUES
+                                   (
+                                       @VersionId, @PatternId, @TenantId, @Version, @Status, @ControlObjective, @ContentJson,
+                                       @MatchProvider, @MatchResourceType, @MatchControlId, @MatchSeverityMin, @MatchPropertyEqualsJson,
+                                       @AutomationLevel, @AuthorActorKey, @ApprovedByActorKey, @ApprovedUtc, @CreatedUtc, @UpdatedUtc
+                                   );
+                                   """;
+
+    public async Task InsertDraftWithVersionAsync(
+        RemediationPatternRecord pattern,
+        RemediationPatternVersionRecord firstVersion,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(pattern);
+        ArgumentNullException.ThrowIfNull(firstVersion);
 
         const string sql = """
                            INSERT INTO dbo.RemediationPatterns
@@ -29,31 +48,22 @@ public sealed partial class SqlRemediationPatternRepository(ISqlConnectionFactor
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        await conn.ExecuteAsync(new CommandDefinition(sql, pattern, cancellationToken: cancellationToken));
+        using System.Data.IDbTransaction transaction = conn.BeginTransaction();
+
+        await conn.ExecuteAsync(new CommandDefinition(sql, pattern, transaction: transaction, cancellationToken: cancellationToken));
+        await conn.ExecuteAsync(new CommandDefinition(InsertVersionSql, MapVersionParameters(firstVersion),
+            transaction: transaction, cancellationToken: cancellationToken));
+
+        transaction.Commit();
     }
 
     public async Task InsertVersionAsync(RemediationPatternVersionRecord version, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(version);
 
-        const string sql = """
-                           INSERT INTO dbo.RemediationPatternVersions
-                           (
-                               VersionId, PatternId, TenantId, Version, Status, ControlObjective, ContentJson,
-                               MatchProvider, MatchResourceType, MatchControlId, MatchSeverityMin, MatchPropertyEqualsJson,
-                               AutomationLevel, AuthorActorKey, ApprovedByActorKey, ApprovedUtc, CreatedUtc, UpdatedUtc
-                           )
-                           VALUES
-                           (
-                               @VersionId, @PatternId, @TenantId, @Version, @Status, @ControlObjective, @ContentJson,
-                               @MatchProvider, @MatchResourceType, @MatchControlId, @MatchSeverityMin, @MatchPropertyEqualsJson,
-                               @AutomationLevel, @AuthorActorKey, @ApprovedByActorKey, @ApprovedUtc, @CreatedUtc, @UpdatedUtc
-                           );
-                           """;
-
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        await conn.ExecuteAsync(new CommandDefinition(sql, MapVersionParameters(version), cancellationToken: cancellationToken));
+        await conn.ExecuteAsync(new CommandDefinition(InsertVersionSql, MapVersionParameters(version), cancellationToken: cancellationToken));
     }
 
     public async Task UpdateVersionAsync(RemediationPatternVersionRecord version, CancellationToken cancellationToken = default)

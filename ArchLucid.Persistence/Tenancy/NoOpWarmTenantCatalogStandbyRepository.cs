@@ -4,15 +4,38 @@ namespace ArchLucid.Persistence.Tenancy;
 
 public sealed class NoOpWarmTenantCatalogStandbyRepository : IWarmTenantCatalogStandbyRepository
 {
-    public Task<int> CountUnclaimedAsync(CancellationToken cancellationToken) => Task.FromResult(0);
+    public Task<int> CountUnclaimedAsync(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
 
-    public Task<WarmTenantCatalogStandbyRecord?> TryClaimOldestUnclaimedAsync(CancellationToken cancellationToken) =>
-        Task.FromResult<WarmTenantCatalogStandbyRecord?>(null);
+        return Task.FromResult(0);
+    }
 
-    public Task InsertStandbyAsync(WarmTenantCatalogStandbyRecord record, CancellationToken cancellationToken) =>
-        Task.CompletedTask;
+    public Task<WarmTenantCatalogStandbyRecord?> TryClaimOldestUnclaimedAsync(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
 
-    public Task MarkClaimedAsync(Guid standbyId, CancellationToken cancellationToken) => Task.CompletedTask;
+        return Task.FromResult<WarmTenantCatalogStandbyRecord?>(null);
+    }
 
-    public Task ReleaseClaimAsync(Guid standbyId, CancellationToken cancellationToken) => Task.CompletedTask;
+    public Task InsertStandbyAsync(WarmTenantCatalogStandbyRecord record, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
+
+    public Task MarkClaimedAsync(Guid standbyId, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
+
+    public Task ReleaseClaimAsync(Guid standbyId, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 }

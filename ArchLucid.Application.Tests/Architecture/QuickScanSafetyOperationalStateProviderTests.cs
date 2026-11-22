@@ -45,6 +45,29 @@ public sealed class QuickScanSafetyOperationalStateProviderTests
     }
 
     [Fact]
+    public async Task GetSnapshotAsync_caller_cancellation_does_not_cache_an_outage()
+    {
+        using CancellationTokenSource caller = new();
+        caller.Cancel();
+        Mock<IQuickScanSafetyOperationalStateStore> store = new();
+        store.Setup(s => s.GetOverrideAsync(caller.Token))
+            .Returns(Task.FromCanceled<QuickScanSafetyOperationalOverrideRow?>(caller.Token));
+        store.Setup(s => s.GetOverrideAsync(CancellationToken.None))
+            .ReturnsAsync((QuickScanSafetyOperationalOverrideRow?)null);
+
+        QuickScanSafetyOperationalStateProvider sut = CreateProvider(
+            store.Object,
+            new QuickScanSafetyOptions { Enabled = true, AnonymousExecutionEnabled = true },
+            isProduction: true);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => sut.GetSnapshotAsync(caller.Token));
+
+        QuickScanSafetyOperationalSnapshot snapshot = await sut.GetSnapshotAsync();
+
+        snapshot.StoreHealthy.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task GetSnapshotAsync_store_failure_in_production_fails_closed()
     {
         Mock<IQuickScanSafetyOperationalStateStore> store = new();

@@ -75,6 +75,29 @@ describe("AwsConnectionSection", () => {
     expect(screen.getByTestId("aws-connection-wizard-step-save")).toBeInTheDocument();
   });
 
+  it("keeps a saved connection complete when the follow-up list request fails", async () => {
+    render(
+      <AwsConnectionDataProvider>
+        <AwsConnectionSection embedded />
+      </AwsConnectionDataProvider>,
+    );
+
+    fireEvent.change(await screen.findByTestId("aws-account-id"), {
+      target: { value: "123456789012" },
+    });
+    fireEvent.change(await screen.findByTestId("aws-role-arn"), {
+      target: { value: "arn:aws:iam::123456789012:role/ArchLucidReadOnly" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    listAwsTier2Connections.mockRejectedValueOnce(new Error("refresh unavailable"));
+    fireEvent.click(screen.getByRole("button", { name: "Save AWS connection" }));
+
+    expect(await screen.findByTestId("aws-connection-wizard-save-success")).toBeInTheDocument();
+    expect(await screen.findByRole("alert")).toHaveTextContent(/could not refresh connection details/i);
+    expect(screen.queryByRole("button", { name: "Save AWS connection" })).not.toBeInTheDocument();
+    expect(configureAwsTier2Connection).toHaveBeenCalledTimes(1);
+  });
+
   it("TB-1764: connected state exposes exactly one primary CTA in connection details", async () => {
     listAwsTier2Connections.mockResolvedValueOnce([
       {

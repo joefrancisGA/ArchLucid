@@ -5,7 +5,7 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -88,7 +88,11 @@ export function SlackIntegrationPageClient(): React.ReactElement {
   const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
   const [testingId, setTestingId] = useState<string | null>(null);
   const [testingForm, setTestingForm] = useState(false);
-  const [formTestFeedback, setFormTestFeedback] = useState<SlackIntegrationTestFeedback | null>(null);
+  const [formTest, setFormTest] = useState<{
+    readonly webhookUrl: string;
+    readonly secret: string;
+    readonly feedback: SlackIntegrationTestFeedback;
+  } | null>(null);
   const [rowTestFeedback, setRowTestFeedback] = useState<Record<string, SlackIntegrationTestFeedback>>({});
   const [mutationSuccessMessage, setMutationSuccessMessage] = useState<string | null>(null);
   const [pendingDisable, setPendingDisableState] = useState<AlertRoutingSubscriptionDisableTarget | null>(null);
@@ -120,6 +124,10 @@ export function SlackIntegrationPageClient(): React.ReactElement {
   });
 
   const { handleSubmit, reset } = form;
+  const [webhookUrl, secret] = useWatch({ control: form.control, name: ["webhookUrl", "secret"] as const });
+  const formTestFeedback = formTest?.webhookUrl === webhookUrl.trim() && formTest.secret === secret.trim()
+    ? formTest.feedback
+    : null;
 
   const slackRows = useMemo(
     () => items.filter((row) => row.channelType === SLACK_CHANNEL_TYPE),
@@ -213,19 +221,25 @@ export function SlackIntegrationPageClient(): React.ReactElement {
       return;
     }
 
-    setFormTestFeedback(null);
+    setFormTest(null);
     setTestingForm(true);
+    const testedUrl = values.webhookUrl.trim();
+    const testedSecret = values.secret.trim();
 
     try {
       const result = await dryRunOutboundWebhook({
-        targetUrl: values.webhookUrl.trim(),
-        sharedSecret: values.secret.trim().length > 0 ? values.secret.trim() : null,
+        targetUrl: testedUrl,
+        sharedSecret: testedSecret || null,
       });
-      setFormTestFeedback(interpretSlackIntegrationTestResult(result));
+      setFormTest({ webhookUrl: testedUrl, secret: testedSecret, feedback: interpretSlackIntegrationTestResult(result) });
     } catch {
-      setFormTestFeedback({
-        kind: "error",
-        message: "We could not deliver the test notification. Check the webhook URL and Slack permissions.",
+      setFormTest({
+        webhookUrl: testedUrl,
+        secret: testedSecret,
+        feedback: {
+          kind: "error",
+          message: "We could not deliver the test notification. Check the webhook URL and Slack permissions.",
+        },
       });
     } finally {
       setTestingForm(false);
@@ -308,7 +322,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
         metadataJson: buildWebhookSubscriptionMetadata(values.secret, values.eventTypes),
       });
       reset(slackIntegrationDefaultValues);
-      setFormTestFeedback(null);
+      setFormTest(null);
       await load();
       setMutationSuccessMessage(SLACK_INTEGRATION_SAVE_SUCCESS_MESSAGE);
     } catch {
@@ -350,7 +364,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
         >
           <div className="min-w-0 space-y-4" data-testid="slack-page-main">
             <SlackDestinationForm
-              onClearFormTestFeedback={() => setFormTestFeedback(null)}
+              onClearFormTestFeedback={() => setFormTest(null)}
               canMutate={canMutate}
               loading={loading}
               testingForm={testingForm}

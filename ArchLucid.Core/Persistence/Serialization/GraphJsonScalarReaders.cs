@@ -130,6 +130,7 @@ internal static class GraphJsonScalarReaders
         if (element.TryGetDouble(out double wholeNumber)
             && double.IsFinite(wholeNumber)
             && wholeNumber >= 0
+            && wholeNumber < 9223372036854775808d
             && wholeNumber == Math.Floor(wholeNumber))
         {
             return ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
@@ -193,6 +194,7 @@ internal static class GraphJsonScalarReaders
         if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
             && double.IsFinite(numeric)
             && numeric >= 0
+            && numeric < 9223372036854775808d
             && numeric == Math.Floor(numeric))
         {
             value = (long)numeric;

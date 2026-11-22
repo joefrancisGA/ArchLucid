@@ -86,12 +86,11 @@ public sealed partial class ManifestFinalizationService
                 decisionTraceId = audit.DecisionTraceId,
                 manifestId = persisted.ManifestId
             }, IntegrationEventJson.Options);
-        string? verifiedManifestHash = await RunIntegrationEventManifestHashResolver.TryResolveVerifiedManifestHashAsync(
-            request.RunId,
-            scope,
-            _authorityQueryService,
-            _manifestHashService,
-            cancellationToken);
+        // This transaction has not yet linked the golden manifest to the run's committed read model.
+        ManifestDecisionReceiptExportBinder.EnsureSealedManifestHashMatchesOrThrow(
+            persisted,
+            request.RunId.ToString("D"),
+            _manifestHashService);
         IntegrationEventCareerPostureFields careerPosture = IntegrationEventCareerHonestyPresenter.Resolve(
             locked.IsSample,
             locked.StructuralExecutionMode,
@@ -101,7 +100,7 @@ public sealed partial class ManifestFinalizationService
             schemaVersion = 1,
             runId = request.RunId,
             manifestId = persisted.ManifestId,
-            manifestHash = verifiedManifestHash,
+            manifestHash = persisted.ManifestHash,
             decisionTraceId = audit.DecisionTraceId,
             tenantId = scope.TenantId,
             workspaceId = scope.WorkspaceId,

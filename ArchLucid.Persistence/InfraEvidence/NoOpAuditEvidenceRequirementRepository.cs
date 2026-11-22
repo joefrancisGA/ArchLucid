@@ -8,11 +8,19 @@ public sealed class NoOpAuditEvidenceRequirementRepository : IAuditEvidenceRequi
         Guid tenantId,
         Guid frameworkId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<AuditEvidenceRequirementRecord>>([]);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<AuditEvidenceRequirementRecord>>([]);
+    }
 
     public Task<IReadOnlyList<AuditEvidenceRequirementRecord>> ListByControlIdAsync(
         Guid tenantId,
         Guid controlId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<AuditEvidenceRequirementRecord>>([]);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<AuditEvidenceRequirementRecord>>([]);
+    }
 }

@@ -78,24 +78,44 @@ public sealed partial class AdvisoryScanRunner
         }
         catch (Exception ex)
         {
-            execution.Status = StatusFailed;
-            execution.CompletedUtc = TimeProvider.System.UtcNowDateTime();
-            execution.ErrorMessage = ex.Message;
-            await executionRepository.UpdateAsync(execution, ct);
-            await auditService.LogAsync(
-                new AuditEvent
+            await executionRepository.MarkFailedIfStartedAsync(
+                scope,
+                execution.ExecutionId,
+                TimeProvider.System.UtcNowDateTime(),
+                ex.Message,
+                ct);
+            try
+            {
+                await auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.AdvisoryScanExecuted,
+                        DataJson = JsonSerializer.Serialize(
+                            new
+                            {
+                                scheduleId = schedule.ScheduleId,
+                                executionId = execution.ExecutionId,
+                                failed = true,
+                                error = ex.Message
+                            },
+                            AuditJsonSerializationOptions.Instance)
+                    }, ct);
+            }
+            catch (Exception auditException) when (auditException is not OperationCanceledException)
+            {
+                try
                 {
-                    EventType = AuditEventTypes.AdvisoryScanExecuted,
-                    DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            scheduleId = schedule.ScheduleId,
-                            executionId = execution.ExecutionId,
-                            failed = true,
-                            error = ex.Message
-                        },
-                        AuditJsonSerializationOptions.Instance)
-                }, ct);
+                    await AdvanceScheduleAsync(schedule, ct);
+                }
+                catch (Exception advanceException) when (advanceException is not OperationCanceledException)
+                {
+                    logger.LogWarning(advanceException,
+                        "Could not advance failed advisory scan schedule {ScheduleId}.", schedule.ScheduleId);
+                }
+
+                throw;
+            }
+
             await AdvanceScheduleAsync(schedule, ct);
         }
     }

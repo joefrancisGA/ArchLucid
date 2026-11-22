@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   findingsPathForProductLine,
+  findingsQueuePathFromPathname,
   isFindingsRoutePath,
 } from "@/lib/product-line/securenow-compliance-routes";
 

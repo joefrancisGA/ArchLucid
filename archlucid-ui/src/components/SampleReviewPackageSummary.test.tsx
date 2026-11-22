@@ -46,7 +46,7 @@ describe("SampleReviewPackageSummary", () => {
     expect(screen.getByRole("link", { name: "Start a real review" })).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByTestId("sample-review-package-aha-open")).toHaveAttribute(
       "href",
-      `/architecture/reviews/${CUSTOMER_INTAKE_SAMPLE_RUN_ID}/findings/${CUSTOMER_INTAKE_PRIMARY_FINDING_ID}`,
+      `/architecture/reviews/${CUSTOMER_INTAKE_SAMPLE_RUN_ID}?reviewTab=findings&findingId=${CUSTOMER_INTAKE_PRIMARY_FINDING_ID}#run-detail-first-review-spine-findings`,
     );
   });
 });

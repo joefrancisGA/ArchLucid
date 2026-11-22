@@ -17,6 +17,7 @@ import {
   PATH_INSPECT_LONG_PATH_ID_OVERFLOW_LINE,
   shouldShowPathInspectLongPathIdHonesty,
 } from "@/lib/product-line/path-inspect-long-path-id-honesty-copy";
+import { formatAttackPathReportPathChipLabel } from "@/lib/remediation-factory/attack-path-report-path-chip-label";
 
 import { RemediationFactoryBorderedSection } from "./RemediationFactoryBorderedSection";
 import {
@@ -169,6 +170,19 @@ export function RemediationFactoryTopCutPointsSection(props: {
                         {PATH_INSPECT_LONG_PATH_ID_OVERFLOW_LINE}
                       </p>
                     ) : null}
+                  </div>
+                ) : null}
+                {cutPoint.collapsedPathIds.length > 1 ? (
+                  <div
+                    className="mt-2 flex flex-wrap gap-2"
+                    data-testid={`remediation-factory-cut-point-collapsed-chips-${cutPoint.cutPointId}`}
+                  >
+                    {cutPoint.collapsedPathIds.map((pathId) => (
+                      <span key={pathId} className={cn("inline-flex items-center gap-1 break-all font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
+                        {formatAttackPathReportPathChipLabel(pathId)}
+                        <CopyIdButton value={pathId} aria-label="Copy full path ID for this cut point" />
+                      </span>
+                    ))}
                   </div>
                 ) : null}
               </li>

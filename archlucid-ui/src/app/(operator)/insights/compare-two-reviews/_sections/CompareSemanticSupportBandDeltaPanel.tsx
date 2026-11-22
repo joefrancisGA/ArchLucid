@@ -7,10 +7,13 @@ import {
   formatCompareSemanticSupportBandSideSummary,
   type CompareSemanticSupportBandDeltaView,
 } from "@/lib/review-quality/compare-semantic-support-band-delta";
+import { COMPARE_SEMANTIC_SUPPORT_BAND_ZERO_COUNTS_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-semantic-support-band-zero-counts-one-unsealed-not-load-failure-copy";
+import { CompareSemanticSupportBandZeroCountsOneUnsealedPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSemanticSupportBandZeroCountsOneUnsealedPartialHonesty";
 
 export type CompareSemanticSupportBandDeltaPanelProps = {
   readonly view: CompareSemanticSupportBandDeltaView | null;
   readonly loading?: boolean;
+  readonly showZeroCountsUnsealedHonesty?: boolean;
 };
 
 /** Compare-two-reviews semantic support band counts — inspectable stratification, not a score. */
@@ -31,7 +34,22 @@ export function CompareSemanticSupportBandDeltaPanel(
   }
 
   if (props.view === null) {
-    return null;
+    if (!props.showZeroCountsUnsealedHonesty) {
+      return null;
+    }
+    return (
+      <section
+        className="rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-950"
+        data-testid="compare-semantic-support-band-zero-counts-one-unsealed"
+      >
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {COMPARE_SEMANTIC_SUPPORT_BAND_ZERO_COUNTS_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE}
+        </p>
+        <div className="mt-2">
+          <CompareSemanticSupportBandZeroCountsOneUnsealedPartialHonesty />
+        </div>
+      </section>
+    );
   }
 
   const { baseline, target } = props.view;

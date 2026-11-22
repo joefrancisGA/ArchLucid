@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 
 import { resolveDeskContinuityReviewOpenHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 
@@ -114,6 +114,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
   const [packAId, setPackAId] = useState(initialPackComparison.packAId);
   const [packBId, setPackBId] = useState(initialPackComparison.packBId);
   const [busy, setBusy] = useState(false);
+  const previewRequestId = useRef(0);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [baselineResult, setBaselineResult] = useState<components["schemas"]["PolicyPackGovernanceDryRunResult"] | null>(
     null,
@@ -239,6 +240,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
       return;
     }
 
+    const requestId = ++previewRequestId.current;
     setBusy(true);
     setFailure(null);
     setBaselineResult(null);
@@ -281,6 +283,10 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
 
       const results = await Promise.all(simulateTasks);
 
+      if (requestId !== previewRequestId.current) {
+        return;
+      }
+
       setBaselineResult(results[0] ?? null);
       setStricterResult(results[1] ?? null);
 
@@ -291,6 +297,10 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
 
       setPreviewRunComplete(true);
     } catch (error: unknown) {
+      if (requestId !== previewRequestId.current) {
+        return;
+      }
+
       const loadFailure = toApiLoadFailure(error);
       setFailure(
         policyPackSimulateBlockedReason(loadFailure) !== null
@@ -299,7 +309,9 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
       );
       setPreviewRunComplete(false);
     } finally {
-      setBusy(false);
+      if (requestId === previewRequestId.current) {
+        setBusy(false);
+      }
     }
   }, [
     packAContent,
@@ -313,14 +325,18 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
   ]);
 
   useEffect(() => {
-    if (!scopedReviewFilterActive) {
-      setBaselineResult(null);
-      setStricterResult(null);
-      setPackAResult(null);
-      setPackBResult(null);
-      setPreviewRunComplete(false);
-    }
-  }, [scopedReviewFilterActive]);
+    setBusy(false);
+    setFailure(null);
+    setBaselineResult(null);
+    setStricterResult(null);
+    setPackAResult(null);
+    setPackBResult(null);
+    setPreviewRunComplete(false);
+
+    return () => {
+      previewRequestId.current += 1;
+    };
+  }, [scopedReviewId]);
 
   return (
     <section

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { FindingExplainabilityDialog } from "@/components/findings/FindingExplainabilityDialog";
@@ -66,6 +66,38 @@ describe("FindingExplainabilityDialog", () => {
     expect(screen.getByText("Policy breach on node n1.")).toBeInTheDocument();
     expect(spy).toHaveBeenCalledWith("run-a", "f-1");
     spy.mockRestore();
+  });
+
+  it("keeps the new finding visible when a previous request finishes late", async () => {
+    function explanation(findingId: string, title: string): FindingExplainability {
+      return {
+        findingId, title, engineType: "Policy", severity: "High",
+        graphNodeIdsExamined: [], rulesApplied: [], decisionsTaken: [],
+        alternativePathsConsidered: [], notes: [],
+        traceCompletenessRatio: 0.75,
+        evidence: { evidenceRefs: [], conclusion: "Synthetic evidence.", alternativePathsConsidered: [], ruleId: "r1" },
+        narrativeText: "Synthetic narrative.",
+      };
+    }
+    let resolveOld!: (value: FindingExplainability) => void;
+    const oldRequest = new Promise<FindingExplainability>((resolve) => { resolveOld = resolve; });
+    const fetchExplanation = vi.spyOn(api, "getFindingExplainability");
+    fetchExplanation.mockReturnValueOnce(oldRequest);
+    fetchExplanation.mockResolvedValueOnce(explanation("f-2", "Current finding"));
+
+    const { rerender } = render(
+      <FindingExplainabilityDialog open onOpenChange={() => {}} runId="run-a" findingId="f-1" />,
+    );
+    expect(fetchExplanation).toHaveBeenCalledWith("run-a", "f-1");
+    rerender(<FindingExplainabilityDialog open={false} onOpenChange={() => {}} runId="run-a" findingId={null} />);
+    rerender(<FindingExplainabilityDialog open onOpenChange={() => {}} runId="run-a" findingId="f-2" />);
+    expect(await screen.findByText("Current finding")).toBeInTheDocument();
+
+    await act(async () => { resolveOld(explanation("f-1", "Previous finding")); });
+
+    expect(screen.getByText("Current finding")).toBeInTheDocument();
+    expect(screen.queryByText("Previous finding")).not.toBeInTheDocument();
+    fetchExplanation.mockRestore();
   });
 
   it("shows API problem when fetch fails", async () => {

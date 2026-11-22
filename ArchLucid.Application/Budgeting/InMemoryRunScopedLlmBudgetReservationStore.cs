@@ -25,6 +25,7 @@ public sealed class InMemoryRunScopedLlmBudgetReservationStore : IRunScopedLlmBu
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (request.ReserveUsd <= 0m)
         {

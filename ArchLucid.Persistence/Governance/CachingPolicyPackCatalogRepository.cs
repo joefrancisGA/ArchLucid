@@ -52,11 +52,11 @@ public sealed class CachingPolicyPackCatalogRepository(
 
         if (demoted)
         {
-            await HotPathCacheEviction.InvalidatePolicyPackCatalogAsync(_hotPathReadCache, ct);
+            await HotPathCacheEviction.InvalidatePolicyPackCatalogAsync(_hotPathReadCache, CancellationToken.None);
             await HotPathCacheEviction.RemovePolicyPackCatalogDetailAsync(
                 _hotPathReadCache,
                 policyPackCatalogEntryId,
-                ct);
+                CancellationToken.None);
         }
 
         return demoted;
@@ -81,11 +81,11 @@ public sealed class CachingPolicyPackCatalogRepository(
             snapshotContentJson,
             ct);
 
-        await HotPathCacheEviction.InvalidatePolicyPackCatalogAsync(_hotPathReadCache, ct);
+        await HotPathCacheEviction.InvalidatePolicyPackCatalogAsync(_hotPathReadCache, CancellationToken.None);
         await HotPathCacheEviction.RemovePolicyPackCatalogDetailAsync(
             _hotPathReadCache,
             detail.PolicyPackCatalogEntryId,
-            ct);
+            CancellationToken.None);
 
         return detail;
     }

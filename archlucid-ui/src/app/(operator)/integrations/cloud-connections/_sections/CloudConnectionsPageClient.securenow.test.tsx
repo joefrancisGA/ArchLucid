@@ -1,6 +1,16 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { extendNextNavigationVitestMock } from "@/testing/next-navigation-vitest-mock";
+
+const { navigation } = vi.hoisted(() => ({ navigation: { search: "" } }));
+
+vi.mock("next/navigation", async (importOriginal) =>
+  extendNextNavigationVitestMock(importOriginal, {
+    useSearchParams: () => new URLSearchParams(navigation.search),
+  }),
+);
+
 vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
   showSuccess: vi.fn(),
@@ -45,8 +55,20 @@ import { CloudConnectionsPageClient } from "./CloudConnectionsPageClient";
 describe("CloudConnectionsPageClient (SecureNow collection missing)", () => {
   afterEach(() => {
     vi.clearAllMocks();
+    navigation.search = "";
     window.localStorage.clear();
     resetCloudPlatformScopeSessionStateForTests();
+  });
+
+  it.each(["aws", "gcp"])("falls back to supported connections for a bookmarked %s filter", async (platform) => {
+    navigation.search = `platform=${platform}`;
+
+    render(<CloudConnectionsPageClient />);
+
+    await waitFor(() => expect(screen.queryByText("Loading connection status...")).not.toBeInTheDocument());
+    expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
+    expect(screen.queryByTestId(`cloud-connection-card-${platform}`)).not.toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connections-platform-all")).toHaveAttribute("aria-current", "page");
   });
 
   it("names subscription scope on the collection-missing block when Azure has no successful pull", async () => {

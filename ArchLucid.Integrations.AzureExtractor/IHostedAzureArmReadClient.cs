@@ -149,14 +149,6 @@ public interface IHostedAzureArmReadClient
         CancellationToken cancellationToken);
 
     /// <summary>
-    ///     GET NIC effective NSG and route table (IE-RF-10). Fail-soft per control kind.
-    /// </summary>
-    Task<IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord>> ListEffectiveNetworkControlsForNicAsync(
-        string accessToken,
-        string nicResourceId,
-        CancellationToken cancellationToken);
-
-    /// <summary>
     ///     GET linked services for one Data Factory (ADF platform wiring).
     /// </summary>
     Task<IReadOnlyList<System.Text.Json.JsonElement>> ListFactoryLinkedServicesAsync(

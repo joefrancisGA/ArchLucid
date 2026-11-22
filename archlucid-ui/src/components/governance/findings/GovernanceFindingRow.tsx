@@ -96,8 +96,9 @@ function GovernanceFindingRowComponent({
         onKeyDown={
           rowIsDecision
             ? (event) => {
-                governanceFindingDetailKeyboardActivate(event, router, row, inspectHrefOptions);
-                onOpenRow?.();
+                if (governanceFindingDetailKeyboardActivate(event, router, row, inspectHrefOptions)) {
+                  onOpenRow?.();
+                }
               }
             : undefined
         }

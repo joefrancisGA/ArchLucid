@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ShellInFlightOperationsAffordance } from "@/components/shell/ShellInFlightOperationsAffordance";
-import { cancelOperation } from "@/lib/api/operations-api";
+import { cancelOperation, getOperation } from "@/lib/api/operations-api";
 import { buildCancelAbandonInFlightClarity } from "@/lib/operations/cancel-abandon-in-flight-clarity";
 import {
   getInFlightOperations,
@@ -179,6 +179,41 @@ describe("ShellInFlightOperationsAffordance", () => {
       expect(row?.state).toBe("CancelRequested");
       expect(row?.stepLabel).toBe("Cancel requested");
     });
+  });
+
+  it("keeps terminal state when an earlier cancel request completes", async () => {
+    type OperationStatus = Awaited<ReturnType<typeof getOperation>>;
+    let finishPoll!: (status: OperationStatus) => void;
+    vi.mocked(getOperation).mockReturnValueOnce(new Promise<OperationStatus>((resolve) => {
+      finishPoll = resolve;
+    }));
+    let finishCancel!: () => void;
+    vi.mocked(cancelOperation).mockReturnValueOnce(new Promise<void>((resolve) => {
+      finishCancel = resolve;
+    }));
+    trackInFlightOperation({
+      operationId: "run:demo",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/demo",
+      state: "Running",
+    });
+
+    render(<ShellInFlightOperationsAffordance />);
+    fireEvent.click(screen.getByTestId("shell-in-flight-operations-trigger"));
+    fireEvent.click(await screen.findByTestId("shell-in-flight-operation-cancel"));
+    fireEvent.click(await screen.findByRole("button", { name: "Stop operation" }));
+
+    await waitFor(() => expect(cancelOperation).toHaveBeenCalledWith("run:demo"));
+    await act(async () => {
+      finishPoll({ operationId: "run:demo", state: "Succeeded", stepLabel: "Complete", heartbeatUtc: "2026-11-20T01:35:00Z" });
+    });
+    expect(getInFlightOperations()[0]?.state).toBe("Succeeded");
+
+    await act(async () => {
+      finishCancel();
+    });
+
+    expect(getInFlightOperations()[0]).toMatchObject({ state: "Succeeded", stepLabel: "Complete" });
   });
 
   it("shows an error toast when cancel fails", async () => {

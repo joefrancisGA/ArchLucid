@@ -173,7 +173,9 @@ public sealed class CachingAuditRepository(
 
         RunListScopeRevisionState? state = await _hotPathReadCache.GetOrCreateAsync(
             revisionKey,
-            _ => Task.FromResult<RunListScopeRevisionState?>(new RunListScopeRevisionState { Revision = 0 }),
+            // Negative revisions distinguish reader-created generations from invalidation timestamps.
+            _ => Task.FromResult<RunListScopeRevisionState?>(
+                new RunListScopeRevisionState { Revision = Random.Shared.NextInt64(long.MinValue, 0) }),
             ct);
 
         return state?.Revision ?? 0;

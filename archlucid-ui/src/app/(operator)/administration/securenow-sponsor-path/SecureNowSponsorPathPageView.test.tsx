@@ -8,8 +8,11 @@ import {
   SECURENOW_SPONSOR_PATH_INVESTIGATION_EFFORT_HINT,
 } from "@/lib/product-line/securenow-investigation-effort-copy";
 
+let searchParams = new URLSearchParams("pathId=path-tenant-1");
+
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams("pathId=path-tenant-1"),
+  usePathname: () => "/administration/securenow-sponsor-path",
+  useSearchParams: () => searchParams,
 }));
 
 vi.mock("@/components/security/SecurityEvidencePathInspectPanel", () => ({
@@ -17,15 +20,18 @@ vi.mock("@/components/security/SecurityEvidencePathInspectPanel", () => ({
 }));
 
 const persist = vi.fn();
+const load = vi.fn();
 
 vi.mock("@/lib/product-line/securenow-pilot-disposition-sync", () => ({
-  loadSecureNowPilotDispositionForPath: vi.fn(async () => null),
+  loadSecureNowPilotDispositionForPath: (...args: unknown[]) => load(...args),
   persistSecureNowPilotDispositionForPath: (...args: unknown[]) => persist(...args),
 }));
 
 describe("SecureNowSponsorPathPageView", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    searchParams = new URLSearchParams("pathId=path-tenant-1");
+    load.mockResolvedValue(null);
     persist.mockResolvedValue({
       status: "saved",
       tenantAuditRecorded: true,
@@ -85,5 +91,56 @@ describe("SecureNowSponsorPathPageView", () => {
         "Tenant audit recorded",
       );
     });
+  });
+
+  it("clears tenant audit confirmation when the selected path only has a cached disposition", async () => {
+    load
+      .mockResolvedValueOnce({
+        record: { outcome: "Proceed", rationale: "Recorded for path one." },
+        recordedUtc: "2026-11-14T12:00:00.000Z",
+      })
+      .mockResolvedValueOnce({
+        record: { outcome: "Extend", rationale: "Cached for path two." },
+        recordedUtc: null,
+      });
+
+    const view = render(<SecureNowSponsorPathPageView />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("securenow-sponsor-path-tenant-audit-saved")).toBeInTheDocument();
+    });
+
+    searchParams = new URLSearchParams("pathId=path-cached-2");
+    view.rerender(<SecureNowSponsorPathPageView />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("securenow-sponsor-path-saved-disposition")).toHaveTextContent(
+        "Saved Extend: Cached for path two.",
+      );
+    });
+    expect(screen.queryByTestId("securenow-sponsor-path-tenant-audit-saved")).not.toBeInTheDocument();
+  });
+
+  it("starts with a blank disposition when the next path is still loading", async () => {
+    load
+      .mockResolvedValueOnce({
+        record: { outcome: "Proceed", rationale: "Synthetic first-path disposition." },
+        recordedUtc: "2026-11-14T12:00:00.000Z",
+      })
+      .mockImplementationOnce(() => new Promise(() => {}));
+    const view = render(<SecureNowSponsorPathPageView />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Path disposition outcome")).toHaveValue("Proceed");
+    });
+
+    searchParams = new URLSearchParams("pathId=path-pending-2");
+    view.rerender(<SecureNowSponsorPathPageView />);
+
+    expect(load).toHaveBeenCalledWith("path-pending-2");
+    expect(screen.getByLabelText("Path disposition outcome")).toHaveValue("");
+    expect(screen.getByLabelText("Path disposition rationale")).toHaveValue("");
+    expect(screen.queryByTestId("securenow-sponsor-path-saved-disposition")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("securenow-sponsor-path-tenant-audit-saved")).not.toBeInTheDocument();
   });
 });

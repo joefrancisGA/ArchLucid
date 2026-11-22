@@ -4,10 +4,18 @@ namespace ArchLucid.Persistence.Marketing;
 public sealed class NoOpMarketingPricingQuoteRequestFollowUpRepository : IMarketingPricingQuoteRequestFollowUpRepository
 {
     /// <inheritdoc />
-    public Task<bool> AcknowledgeAsync(Guid requestId, string? assignedOwner, CancellationToken cancellationToken) =>
-        Task.FromResult(false);
+    public Task<bool> AcknowledgeAsync(Guid requestId, string? assignedOwner, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(false);
+    }
 
     /// <inheritdoc />
-    public Task<bool> CloseAsync(Guid requestId, CancellationToken cancellationToken) =>
-        Task.FromResult(false);
+    public Task<bool> CloseAsync(Guid requestId, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(false);
+    }
 }

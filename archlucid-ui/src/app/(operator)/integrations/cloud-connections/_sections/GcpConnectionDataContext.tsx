@@ -20,6 +20,7 @@ import {
   formatGcpConnectionCollectionSuccessMessage,
   GCP_CONNECTION_COLLECTION_FAILED_ERROR,
 } from "@/lib/gcp-cloud-connection-copy";
+import { CLOUD_CONNECTIONS_REFRESH_FAILED_ERROR } from "@/lib/cloud-connections-copy";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 
 export type GcpConnectionDataContextValue = {
@@ -85,8 +86,11 @@ export function GcpConnectionDataProvider(props: { readonly children: ReactNode 
 
       try {
         const result = await triggerGcpTier2HostedRun({ connectionId: connection.connectionId });
-        await refreshConnections();
         setActionMessage(formatGcpConnectionCollectionSuccessMessage(result.resourceCount, result.packageId));
+        await refreshConnections().catch((err: unknown) => {
+          console.error(err);
+          setFormError(CLOUD_CONNECTIONS_REFRESH_FAILED_ERROR);
+        });
       } catch (err) {
         console.error(err);
         setFormError(GCP_CONNECTION_COLLECTION_FAILED_ERROR);

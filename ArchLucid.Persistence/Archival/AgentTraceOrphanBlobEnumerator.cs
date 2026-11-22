@@ -8,17 +8,10 @@ namespace ArchLucid.Persistence.Archival;
 internal static class AgentTraceOrphanBlobEnumerator
 {
     internal static Dictionary<string, List<string>> EnumerateLocalBlobsByRunPrefix(
-        ArtifactLargePayloadOptions blobOpts,
+        string containerDir,
         DateTimeOffset cutoff,
         CancellationToken cancellationToken)
     {
-        string root = string.IsNullOrWhiteSpace(blobOpts.LocalRootPath)
-            ? Path.Combine(AppContext.BaseDirectory, "blob-store")
-            : blobOpts.LocalRootPath;
-
-        root = Path.GetFullPath(root);
-        string containerDir = Path.Combine(root, AgentTraceOrphanBlobPathParser.SanitizeFileToken(AgentTraceOrphanBlobPathParser.AgentTracesContainer));
-
         Dictionary<string, List<string>> filesByRunPrefix = new(StringComparer.OrdinalIgnoreCase);
 
         if (!Directory.Exists(containerDir))

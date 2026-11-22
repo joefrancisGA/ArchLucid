@@ -286,7 +286,10 @@ public sealed class RemediationPatternMatcherServiceTests
         public Task<IReadOnlyList<RemediationPatternApprovedVersionRecord>> ListApprovedVersionsForTenantAsync(Guid tenantId, CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<RemediationPatternApprovedVersionRecord>>(ApprovedVersions.Where(row => row.Pattern.TenantId == tenantId).ToList());
 
-        public Task InsertPatternAsync(RemediationPatternRecord pattern, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task InsertDraftWithVersionAsync(
+            RemediationPatternRecord pattern,
+            RemediationPatternVersionRecord firstVersion,
+            CancellationToken cancellationToken = default) => Task.CompletedTask;
 
         public Task InsertVersionAsync(RemediationPatternVersionRecord version, CancellationToken cancellationToken = default) => Task.CompletedTask;
 

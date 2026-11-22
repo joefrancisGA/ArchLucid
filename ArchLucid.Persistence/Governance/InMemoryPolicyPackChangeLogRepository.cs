@@ -1,6 +1,7 @@
 using System.Data;
 
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Governance;
 
@@ -11,8 +12,18 @@ public sealed class InMemoryPolicyPackChangeLogRepository : IPolicyPackChangeLog
 {
     private const int MaxEntries = 10_000;
     private readonly Lock _gate = new();
+    private readonly IScopeContextProvider? _scopeContextProvider;
 
     private readonly List<PolicyPackChangeLogEntry> _items = [];
+
+    public InMemoryPolicyPackChangeLogRepository()
+    {
+    }
+
+    public InMemoryPolicyPackChangeLogRepository(IScopeContextProvider scopeContextProvider)
+    {
+        _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    }
 
     /// <inheritdoc />
     public Task AppendAsync(
@@ -66,10 +77,16 @@ public sealed class InMemoryPolicyPackChangeLogRepository : IPolicyPackChangeLog
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
         cancellationToken.ThrowIfCancellationRequested();
+        ScopeContext? scope = _scopeContextProvider?.GetCurrentScope();
+
         lock (_gate)
         {
             List<PolicyPackChangeLogEntry> result = _items
                 .Where(e => e.PolicyPackId == policyPackId)
+                .Where(e => scope is null
+                            || (e.TenantId == scope.TenantId
+                                && e.WorkspaceId == scope.WorkspaceId
+                                && e.ProjectId == scope.ProjectId))
                 .OrderByDescending(e => e.ChangedUtc)
                 .Take(maxRows)
                 .ToList();

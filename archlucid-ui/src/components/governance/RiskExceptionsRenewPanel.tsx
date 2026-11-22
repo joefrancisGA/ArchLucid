@@ -52,7 +52,7 @@ export function RiskExceptionsRenewPanel({
           className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
           value={toDatetimeLocalInputValue(renewExpiresAtUtc)}
           onChange={(event) => {
-            const next = new Date(event.target.value);
+            const next = new Date(`${event.target.value}Z`);
 
             if (!Number.isNaN(next.getTime())) {
               onRenewExpiresAtUtcChange(next.toISOString());

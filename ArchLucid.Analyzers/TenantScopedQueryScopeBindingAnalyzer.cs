@@ -394,12 +394,21 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
             return;
         }
 
+        // A scope-helper on one conditional/switch/coalesce arm must not suppress ARCH006 on sibling arms.
+        bool scopeHelperAppliesGlobally = resolution.BranchSqlTexts.Count <= 1;
+
         foreach (string sqlText in sqlTexts)
         {
             if (string.IsNullOrWhiteSpace(sqlText))
                 continue;
 
-            AnalyzeResolvedSql(context, registry, resolution, reportLocation, sqlText);
+            AnalyzeResolvedSql(
+                context,
+                registry,
+                resolution,
+                reportLocation,
+                sqlText,
+                scopeHelperAppliesGlobally);
         }
     }
 
@@ -408,9 +417,12 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         TenantScopedTableRegistry registry,
         TenantScopedSqlExpressionResolver.ResolutionResult resolution,
         Location reportLocation,
-        string sqlText)
+        string sqlText,
+        bool scopeHelperAppliesGlobally)
     {
         IReadOnlyList<string> targets = TenantScopedQuerySqlInspector.GetTopLevelScopedTargets(sqlText);
+
+        bool hasScopeHelperForText = scopeHelperAppliesGlobally && resolution.HasScopeHelperInvocation;
 
         foreach (string table in targets)
         {
@@ -423,7 +435,7 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
                     sqlText,
                     table,
                     requiresTriple,
-                    resolution.HasScopeHelperInvocation))
+                    hasScopeHelperForText))
                 continue;
 
             context.ReportDiagnostic(Arch006Descriptor.CreateUnscopedTable(reportLocation, table));

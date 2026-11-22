@@ -55,12 +55,8 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
 
         ArgumentNullException.ThrowIfNull(assigneeMailbox);
 
-        string mailbox = assigneeMailbox.Trim();
-
-        if (!IdentityEmailNormalizer.TryNormalize(mailbox, out string normalizedMailbox, out _))
+        if (!IdentityEmailNormalizer.TryNormalize(assigneeMailbox, out string normalizedMailbox, out string mailboxForDelivery))
             return false;
-
-        mailbox = normalizedMailbox;
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
@@ -74,7 +70,7 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
         string displayFindingTitle = EmailHeaderFragmentSanitizer.Sanitize(trimmedTitle);
         string runHex = runId.ToString("N");
         string idempotencyKey =
-            $"finding-remediation-assignment:{tenantId:N}:{runHex}:{trimmedFindingId}:{mailbox.ToLowerInvariant()}";
+            $"finding-remediation-assignment:{tenantId:N}:{runHex}:{trimmedFindingId}:{normalizedMailbox}";
 
         if (await _sentEmailLedger.IsRecordedAsync(tenantId, idempotencyKey, cancellationToken).ConfigureAwait(false))
             return true;
@@ -98,7 +94,7 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
 
         EmailMessage message = new()
         {
-            To = mailbox,
+            To = mailboxForDelivery,
             Subject = subject,
             HtmlBody = html,
             TextBody = text,
@@ -129,7 +125,7 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
         }
 
         SentEmailLedgerEntry ledgerEntry = new(idempotencyKey, tenantId, TemplateId, _emailProvider.ProviderName, null);
-        bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken).ConfigureAwait(false);
+        bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, CancellationToken.None).ConfigureAwait(false);
 
         return reserved;
     }

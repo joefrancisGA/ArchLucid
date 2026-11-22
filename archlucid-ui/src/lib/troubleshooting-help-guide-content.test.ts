@@ -6,6 +6,7 @@ import {
   TROUBLESHOOTING_DECISION_TREE_STEPS,
   TROUBLESHOOTING_PRIMARY_ACTIONS,
   TROUBLESHOOTING_REPORT_PROBLEM_LINK,
+  troubleshootingCommonIssues,
   troubleshootingDecisionTreeSteps,
 } from "@/lib/troubleshooting-help-guide-content";
 import {
@@ -90,6 +91,12 @@ describe("troubleshooting-help-guide-content", () => {
 
   it("keeps architecture decision tree unchanged for architecture product line", () => {
     expect(troubleshootingDecisionTreeSteps("architecture")).toEqual(TROUBLESHOOTING_DECISION_TREE_STEPS);
+  });
+
+  it("sends the SecureNow inventory upload troubleshooting action to its manual upload page", () => {
+    const uploadIssue = troubleshootingCommonIssues("security").find((issue) => issue.id === "evidence-upload-failed");
+
+    expect(uploadIssue?.nextSteps[0]?.href).toBe("/infrastructure/manual-upload");
   });
 
   it("never deep-links architecture reviews from SecureNow troubleshooting decision tree", () => {

@@ -1,6 +1,6 @@
 import { trimRequiredText, trimTextFields } from "./api-boundary-normalization";
 import { apiGet, apiPostJson } from "./http";
-import { optionalHostedRunId, toTier2HostedRunResult } from "./tier2-hosted-run-response";
+import { optionalHostedRunId, toTier2HostedRunResult, type Tier2HostedRunResult } from "./tier2-hosted-run-response";
 
 export interface Tier2ConnectionResponse {
   connectionId: string;
@@ -54,10 +54,7 @@ export interface Tier2HostedRunValidationBody {
   runId?: string;
 }
 
-export interface Tier2HostedRunValidationResponse {
-  packageId: string;
-  resourceCount: number;
-}
+export type Tier2HostedRunValidationResponse = Tier2HostedRunResult;
 
 /** On-demand hosted Tier 2 pull after connection save (202 Accepted on success). */
 export async function validateTier2ConnectionHostedRun(

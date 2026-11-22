@@ -102,7 +102,7 @@ public sealed class IntegrationEventOutboxProcessor(
             await outbox.MarkProcessedAsync(entry.OutboxId, ct).ConfigureAwait(false);
             ArchLucidInstrumentation.RecordIntegrationEventDeliverySuccess(entry.EventType);
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException || !ct.IsCancellationRequested)
         {
             ArchLucidInstrumentation.RecordIntegrationEventDeliveryFailure(entry.EventType);
 

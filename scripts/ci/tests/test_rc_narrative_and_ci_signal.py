@@ -142,5 +142,57 @@ class CiReleaseSignalHealthTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, msg=result.stderr)
 
 
+    def test_needs_only_success_never_certifies_full_ci(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            needs = root / "needs.json"
+            needs.write_text(
+                json.dumps({"dotnet-full-regression-slow-api": {"result": "success"}}),
+                encoding="utf-8",
+            )
+            json_out = root / "health.json"
+            markdown_out = root / "health.md"
+            result = run_py(
+                "report_ci_release_signal_health.py",
+                "--needs-json", str(needs),
+                "--json-out", str(json_out),
+                "--markdown-out", str(markdown_out),
+            )
+
+            self.assertEqual(result.returncode, 0, msg=result.stderr)
+            payload = json.loads(json_out.read_text(encoding="utf-8"))
+            self.assertEqual(payload["releaseAcceptance"], "NOT_ASSESSED")
+            self.assertEqual(payload["evidenceSource"], "github-actions-needs")
+            self.assertEqual(payload["failedCount"], 0)
+            self.assertGreater(payload["degradedCount"], 0)
+            self.assertIn("continue-on-error", payload["summary"])
+            self.assertIn("NOT_ASSESSED", markdown_out.read_text(encoding="utf-8"))
+
+    def test_required_skips_and_failures_are_degraded(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            needs = root / "needs.json"
+            needs.write_text(
+                json.dumps({
+                    "dotnet-full-regression-slow-api": {"result": "failure"},
+                    "ui-e2e-live": {"result": "skipped"},
+                }),
+                encoding="utf-8",
+            )
+            json_out = root / "health.json"
+            result = run_py(
+                "report_ci_release_signal_health.py",
+                "--needs-json", str(needs),
+                "--json-out", str(json_out),
+                "--markdown-out", str(root / "health.md"),
+            )
+
+            self.assertEqual(result.returncode, 0, msg=result.stderr)
+            payload = json.loads(json_out.read_text(encoding="utf-8"))
+            self.assertEqual(payload["failedCount"], 1)
+            self.assertGreaterEqual(payload["degradedCount"], 2)
+            self.assertEqual(payload["releaseAcceptance"], "NOT_ASSESSED")
+
+
 if __name__ == "__main__":
     unittest.main()

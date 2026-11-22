@@ -4,9 +4,12 @@ import { cn } from "@/lib/utils";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { CompareExecutionModeDeltaView } from "@/lib/review-quality/compare-execution-mode-delta";
+import { COMPARE_EXECUTION_MODE_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-execution-mode-one-unsealed-not-load-failure-copy";
+import { CompareExecutionModeOneUnsealedPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareExecutionModeOneUnsealedPartialHonesty";
 
 export type CompareExecutionModeDeltaPanelProps = {
   readonly view: CompareExecutionModeDeltaView | null;
+  readonly showOneUnsealedHonesty?: boolean;
 };
 
 /** Compare-two-reviews execution-mode delta in buyer verdict chrome (TB-2071 hoist). */
@@ -14,7 +17,22 @@ export function CompareExecutionModeDeltaPanel(
   props: CompareExecutionModeDeltaPanelProps,
 ): React.JSX.Element | null {
   if (props.view === null) {
-    return null;
+    if (!props.showOneUnsealedHonesty) {
+      return null;
+    }
+    return (
+      <section
+        className="rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-950"
+        data-testid="compare-execution-mode-one-unsealed-not-load-failure"
+      >
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {COMPARE_EXECUTION_MODE_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE}
+        </p>
+        <div className="mt-2">
+          <CompareExecutionModeOneUnsealedPartialHonesty />
+        </div>
+      </section>
+    );
   }
 
   const { baseline, target, changed, advisoryParagraph } = props.view;

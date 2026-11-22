@@ -18,7 +18,9 @@ public static class RecurringArchitectureReviewRequestCloner
         if (clone is null)
             throw new InvalidOperationException("Could not clone architecture request for recurrence.");
 
-        string suffix = triggeredAtUtc.ToString("yyyyMMddHHmmss");
+        // Second-resolution ids collide for two recurrences of the same run in one second.
+        // UTC ticks preserve deterministic identity across offset representations.
+        string suffix = triggeredAtUtc.UtcDateTime.Ticks.ToString("D19", System.Globalization.CultureInfo.InvariantCulture);
         string requestId = $"recurrence-{priorRunId:N}-{suffix}";
 
         if (requestId.Length > 64)
@@ -26,8 +28,11 @@ public static class RecurringArchitectureReviewRequestCloner
 
         clone.RequestId = requestId;
         clone.RequestSource = "recurrence";
-        clone.Description =
-            $"{source.Description.Trim()} (scheduled follow-up from run {priorRunId:N} at {triggeredAtUtc:u})";
+        string description = source.Description.Trim();
+        string followUpNote = $" (scheduled follow-up from run {priorRunId:N} at {triggeredAtUtc:u})";
+        clone.Description = description.Length <= ArchitectureRequestFieldLimits.MaxDescriptionLength - followUpNote.Length
+            ? description + followUpNote
+            : description;
 
         clone.PriorRunId = priorRunId.ToString("N");
 

@@ -220,11 +220,15 @@ public sealed class SqlAuditAssessmentRepository(ISqlConnectionFactory connectio
             FrameworkId = row.FrameworkId,
             FrameworkVersion = row.FrameworkVersion,
             ScopeJson = row.ScopeJson,
-            PeriodStartUtc = row.PeriodStartUtc,
-            PeriodEndUtc = row.PeriodEndUtc,
+            PeriodStartUtc = row.PeriodStartUtc is { } periodStartUtc
+                ? DateTime.SpecifyKind(periodStartUtc, DateTimeKind.Utc)
+                : null,
+            PeriodEndUtc = row.PeriodEndUtc is { } periodEndUtc
+                ? DateTime.SpecifyKind(periodEndUtc, DateTimeKind.Utc)
+                : null,
             Status = (AuditAssessmentStatus)row.Status,
             RequestedBy = row.RequestedBy,
-            CreatedUtc = row.CreatedUtc,
+            CreatedUtc = DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
         };
 
     private sealed class AssessmentRow

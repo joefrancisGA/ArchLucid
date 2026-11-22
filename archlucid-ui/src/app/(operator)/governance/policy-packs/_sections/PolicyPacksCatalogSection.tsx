@@ -7,6 +7,10 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PolicyPackCatalogListItem } from "@/types/policy-packs";
 import { POLICY_PACKS_CATALOG_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/policy/policy-packs-catalog-empty-honesty-copy";
+import { PolicyPacksCatalogEmptyPartialHonesty } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksCatalogEmptyPartialHonesty";
+import { PolicyPacksCatalogLoadFailurePartialHonesty } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksCatalogLoadFailurePartialHonesty";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 type PolicyPacksCatalogSectionProps = {
   readonly canMutatePacks: boolean;
@@ -23,6 +27,7 @@ type PolicyPacksCatalogSectionProps = {
  * Platform catalog of promoted policy pack snapshots (read-only list; clone creates a tenant-owned pack).
  */
 export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps) {
+  const { productLine } = useProductLine();
   const selected = props.items.find(
     (x) => x.policyPackCatalogEntryId === props.selectedCatalogEntryId,
   );
@@ -63,11 +68,23 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
       </p>
 
       {props.failure !== null ? (
-        <div role="alert">
+        <div className="space-y-2" role="alert" data-testid="policy-packs-catalog-load-failure">
           <OperatorApiProblem
             problem={props.failure.problem}
             fallbackMessage={props.failure.message}
             correlationId={props.failure.correlationId}
+          />
+          <PolicyPacksCatalogLoadFailurePartialHonesty />
+          <FatalPageReportProblemSupportRow
+            surfaceId={
+              productLine === "security"
+                ? "compliance-policy-packs-catalog-hard-failure"
+                : "governance-policy-packs-catalog-hard-failure"
+            }
+            errorTitle="Policy pack catalog"
+            errorCode="policy-packs-catalog-load-failed"
+            correlationId={props.failure.correlationId}
+            httpStatus={props.failure.httpStatus}
           />
         </div>
       ) : null}
@@ -84,6 +101,7 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
           >
             {POLICY_PACKS_CATALOG_EMPTY_NOT_LOAD_FAILURE_LINE}
           </p>
+          <PolicyPacksCatalogEmptyPartialHonesty />
         </div>
       ) : null}
 

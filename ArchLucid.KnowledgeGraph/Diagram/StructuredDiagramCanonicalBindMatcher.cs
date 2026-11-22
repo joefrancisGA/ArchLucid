@@ -54,6 +54,13 @@ public static class StructuredDiagramCanonicalBindMatcher
         }
 
         string needle = candidate.Trim();
+        GraphNode? byNodeId = bindTargets.FirstOrDefault(node =>
+            node is not null && DeclarationExistingNodeResolver.IdsEqual(node.NodeId, needle));
+
+        if (byNodeId is not null)
+        {
+            return byNodeId;
+        }
 
         foreach (GraphNode node in bindTargets)
         {
