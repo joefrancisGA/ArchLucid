@@ -19,6 +19,7 @@ public sealed class InMemoryFindingSemanticSupportBandOverlayRepository : IFindi
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(overlay);
         ArgumentException.ThrowIfNullOrWhiteSpace(overlay.FindingId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(overlay.ScorerVersion);
 
         OverlayKey key = new(findingsSnapshotId, overlay.FindingId.Trim(), scope);
 
