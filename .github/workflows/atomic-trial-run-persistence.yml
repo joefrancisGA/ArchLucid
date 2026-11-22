@@ -1,0 +1,28 @@
+name: Atomic trial run persistence
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Persistence/Repositories/SqlRunRepository.Write.Save.cs'
+      - 'scripts/ci/tests/test_atomic_trial_run_save.py'
+      - '.github/workflows/atomic-trial-run-persistence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  atomic-save:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s scripts/ci/tests -p test_atomic_trial_run_save.py -v
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build ArchLucid.Persistence/ArchLucid.Persistence.csproj --configuration Release
