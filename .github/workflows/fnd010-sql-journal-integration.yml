@@ -11,22 +11,18 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - name: Provision isolated SQL Server
-        env:
-          ACCEPT_EULA: "Y"
-          MSSQL_SA_PASSWORD: "${{ secrets.FND010_SQL_TEST_PASSWORD }}"
+      - name: Generate ephemeral SQL test password
         run: |
-          if [ -z "$MSSQL_SA_PASSWORD" ]; then
-            echo "FND010_SQL_TEST_PASSWORD is required for SQL Server integration" >&2
-            exit 1
-          fi
-          docker run -d --name fnd010-sql -e ACCEPT_EULA=Y \
-            -e MSSQL_SA_PASSWORD="$MSSQL_SA_PASSWORD" \
-            -e MSSQL_PID=Developer -p 127.0.0.1:1433:1433 \
+          password="Fnd010!$(openssl rand -hex 20)"
+          echo "::add-mask::$password"
+          echo "FND010_SQL_PASSWORD=$password" >> "$GITHUB_ENV"
+      - name: Provision isolated SQL Server
+        run: |
+          docker run -d --name fnd010-sql -e ACCEPT_EULA=Y \\
+            -e MSSQL_SA_PASSWORD="$FND010_SQL_PASSWORD" \\
+            -e MSSQL_PID=Developer -p 127.0.0.1:1433:1433 \\
             mcr.microsoft.com/mssql/server:2022-latest
       - name: Verify SQL journal behavior
-        env:
-          FND010_SQL_PASSWORD: "${{ secrets.FND010_SQL_TEST_PASSWORD }}"
         run: bash scripts/ci/run_fnd010_sql_journal_verify.sh
       - name: SQL container diagnostics on failure
         if: failure()
