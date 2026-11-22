@@ -203,6 +203,24 @@ describe("formatFeasibilityVerdictMarkdownSection (FC-30 / FC-31)", () => {
     expect(storedEmpty).not.toContain("Citation kind was not stored.");
   });
 
+  it.each([null, "  "])("includes stored citation details when the reference is %j", (reference) => {
+    const markdown = formatFeasibilityVerdictMarkdownSection({
+      kind: "HardInfeasible",
+      summary: "Required controls cannot be satisfied.",
+      hardCitations: [{ kind: "NamedLaw", reference, invariantKeys: ["INV-CITATION-1"] }],
+      unsatCoreInvariantKeys: ["INV-CORE-1"],
+    });
+
+    expect(markdown).toContain(
+      reference === null
+        ? "Citation reference was not stored."
+        : "Citation reference was stored empty.",
+    );
+    expect(markdown).toContain("Citation kind: NamedLaw");
+    expect(markdown).toContain("Citation invariant keys: INV-CITATION-1");
+    expect(markdown).toContain("**Unsat core:** INV-CORE-1");
+  });
+
   it("distinguishes missing authority citations from a stored empty collection", () => {
     const missing = formatFeasibilityVerdictMarkdownSection({
       kind: "HardInfeasible",
