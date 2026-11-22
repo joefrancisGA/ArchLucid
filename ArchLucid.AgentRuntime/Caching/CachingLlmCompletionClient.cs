@@ -96,6 +96,8 @@ public sealed class CachingLlmCompletionClient : IAgentCompletionClient
 
         LlmCompletionResult? cached = await _cache.TryGetAsync(cacheKey, cancellationToken);
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (cached is not null)
         {
             if (!LlmCompletionCacheWireAdmission.IsAdmissible(cached.JsonBody))
@@ -135,6 +137,8 @@ public sealed class CachingLlmCompletionClient : IAgentCompletionClient
 
         string result = await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken);
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!LlmCompletionCacheWireAdmission.IsAdmissible(result))
             return result;
 
@@ -161,8 +165,11 @@ public sealed class CachingLlmCompletionClient : IAgentCompletionClient
     /// </summary>
     private static void EnsureScopePartitionAllowsCache(bool partitionByScope, ScopeContext scope, bool simulatorMode)
     {
-        if (simulatorMode || !partitionByScope)
+        if (simulatorMode)
             return;
+
+        if (!partitionByScope)
+            throw new InvalidOperationException("Production AgentRuntime completion caching requires scope partitioning.");
 
         ArgumentNullException.ThrowIfNull(scope);
 
