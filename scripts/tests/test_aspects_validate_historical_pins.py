@@ -145,6 +145,15 @@ class HistoricalPinVerificationTests(unittest.TestCase):
         self.assertEqual(audit[0]["window_membership"], "membership_unverified")
 
 
+    def test_audit_digest_is_canonical_and_detects_changed_rows(self):
+        first = [{"excel_row": 7, "path": "a.cs", "spans": [[1, 1]]}]
+        reordered = [{"spans": [[1, 1]], "path": "a.cs", "excel_row": 7}]
+        self.assertEqual(sut.audited_rows_sha256(first),
+                         sut.audited_rows_sha256(reordered))
+        modified = [{"excel_row": 7, "path": "a.cs", "spans": [[3, 3]]}]
+        self.assertNotEqual(sut.audited_rows_sha256(first),
+                            sut.audited_rows_sha256(modified))
+
 
 if __name__ == "__main__":
     unittest.main()
