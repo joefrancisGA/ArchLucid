@@ -1221,10 +1221,9 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
       </section>
 
       {submitError != null ? (
-        <div className="space-y-2" data-testid="infra-ask-submit-error">
+        <div className="space-y-2" data-testid="infra-ask-submit-error" role="alert">
           <div
             className={cn("rounded-md border px-3 py-2", DESIGN_TOKENS.callout.warn)}
-            role="alert"
           >
             <div className="flex flex-wrap items-center gap-2">
               <StatusTag
