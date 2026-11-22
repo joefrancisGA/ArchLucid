@@ -45,7 +45,7 @@ public sealed class EvidenceReadAuthorizationGateTests
         audit.Setup(a => a.WriteAsync(
             It.IsAny<CentralAuthorizationAuditRecord>(),
             It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        return (new EvidenceReadAuthorizationGate(new CentralAuthorizationDecisions(scope.Object, entitlements.Object, auth.Object, audit.Object, TimeProvider.System)), auth);
+        return (new EvidenceReadAuthorizationGate(new CentralAuthorizationDecisions(scope.Object, entitlements.Object, auth.Object, audit.Object, TimeProvider.System, new DenyUnconfiguredRemediationApproval())), auth);
     }
 
     [Fact]
