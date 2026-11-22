@@ -133,11 +133,12 @@ export function useSignedRecordsListFilters(options: {
   }, [router, searchParams, searchQuery, urlSearchQuery]);
 
   const clearLocalFilters = useCallback(() => {
-    setSearchQuery("");
-    setIntegrityFilter("all");
-    setFromUtc("");
-    setToUtc("");
-  }, []);
+    setSearchQuery(urlSearchQuery);
+    setIntegrityFilter(urlIntegrity);
+    setDateRangePreset(urlDateRange);
+    setFromUtc(urlDateRange === null ? urlFromUtc : "");
+    setToUtc(urlDateRange === null ? urlToUtc : "");
+  }, [urlDateRange, urlFromUtc, urlIntegrity, urlSearchQuery, urlToUtc]);
 
   const clearFilters = useCallback(() => {
     setSearchQuery("");

@@ -592,7 +592,8 @@ export function RemediationPatternsClient() {
       }
 
       const currentIndex = filteredPatterns.findIndex((pattern) => pattern.patternId === selectedPatternId);
-      const startIndex = currentIndex >= 0 ? currentIndex : 0;
+      // Start before the first row when moving forward from no selection.
+      const startIndex = currentIndex < 0 && delta < 0 ? 0 : currentIndex;
       let nextIndex = startIndex + delta;
 
       if (nextIndex < 0) {

@@ -12,15 +12,25 @@ from pathlib import Path
 
 def load_means(results_dir: Path) -> dict[str, float]:
     means: dict[str, float] = {}
-    for path in sorted(results_dir.glob("*-report-full-compressed.json")):
+    if not results_dir.is_dir():
+        raise ValueError(f"benchmark results directory does not exist: {results_dir}")
+    result_files = sorted(results_dir.glob("*-report-full-compressed.json"))
+    if not result_files:
+        raise ValueError(f"no benchmark result files in {results_dir}")
+    for path in result_files:
         payload = json.loads(path.read_text(encoding="utf-8"))
-        for bench in payload.get("Benchmarks", []):
+        if not isinstance(payload, dict) or not isinstance(payload.get("Benchmarks"), list):
+            raise ValueError(f"malformed benchmark report: {path}")
+        for bench in payload["Benchmarks"]:
             full_name = bench.get("FullName")
             stats = bench.get("Statistics") or {}
             mean = stats.get("Mean")
             if full_name is None or mean is None:
                 continue
-            value = float(mean)
+            try:
+                value = float(mean)
+            except (TypeError, ValueError, OverflowError) as ex:
+                raise ValueError(f"invalid benchmark mean for {full_name}: {mean!r}") from ex
             if not math.isfinite(value) or value < 0:
                 raise ValueError(f"invalid benchmark mean for {full_name}: {mean!r}")
             if str(full_name) in means:
@@ -37,26 +47,35 @@ def main() -> int:
 
     baseline = json.loads(args.baseline.read_text(encoding="utf-8"))
     expected = {str(x["fullName"]): float(x["maxMeanNs"]) for x in baseline["benchmarks"]}
+    if not expected:
+        raise ValueError("benchmark baseline must contain at least one benchmark")
     if len(expected) != len(baseline["benchmarks"]):
         raise ValueError("duplicate benchmark baseline name")
     for full_name, limit in expected.items():
         if not math.isfinite(limit) or limit <= 0:
             raise ValueError(f"invalid benchmark baseline for {full_name}: {limit!r}")
     actual = load_means(args.results)
+    if not actual:
+        raise ValueError("BenchmarkDotNet result files contain no measured benchmark means")
+    unexpected = sorted(set(actual) - set(expected))
+    if unexpected:
+        print(f"Benchmark evidence notice: {len(unexpected)} unbaselined result(s):", file=sys.stderr)
+        for name in unexpected:
+            print(f"  {name}", file=sys.stderr)
 
     failures: list[str] = []
     for full_name, max_mean in expected.items():
         got = actual.get(full_name)
         if got is None:
-            failures.append(f"missing benchmark result: {full_name}")
+            failures.append(f"[MISSING_EVIDENCE] missing benchmark result: {full_name}")
             continue
         if got > max_mean:
             failures.append(
-                f"{full_name}: mean {got:.2f} ns exceeds baseline max {max_mean:.2f} ns"
+                f"[PERFORMANCE_REGRESSION] {full_name}: mean {got:.2f} ns exceeds baseline max {max_mean:.2f} ns"
             )
 
     if failures:
-        print("Benchmark regression check failed:", file=sys.stderr)
+        print("Benchmark comparison failed (see categorized findings):", file=sys.stderr)
         for line in failures:
             print(f"  {line}", file=sys.stderr)
         return 1
@@ -66,4 +85,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except (ValueError, KeyError, TypeError, json.JSONDecodeError, OSError) as exc:
+        print(f"[INVALID_EVIDENCE] {exc}", file=sys.stderr)
+        raise SystemExit(2) from None

@@ -1,6 +1,7 @@
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Decisions;
@@ -69,5 +70,36 @@ public sealed class AgentResultDiffServiceTests
         delta.AddedRequiredControls.Should().Contain("Private Endpoints");
         delta.LeftConfidence.Should().Be(0.90);
         delta.RightConfidence.Should().Be(0.95);
+    }
+
+    [Theory]
+    [InlineData("", "finding-1")]
+    [InlineData("finding-1", "")]
+    public void Compare_ignores_id_only_changes_without_hiding_added_or_removed_findings(string leftId, string rightId)
+    {
+        AgentResult left = new()
+        {
+            AgentType = AgentType.Topology,
+            Findings =
+            [
+                new() { FindingId = leftId, Message = "Unchanged finding" },
+                new() { FindingId = "removed", Message = "Removed finding" }
+            ]
+        };
+        AgentResult right = new()
+        {
+            AgentType = AgentType.Topology,
+            Findings =
+            [
+                new() { FindingId = rightId, Message = "Unchanged finding" },
+                new() { FindingId = "added", Message = "Added finding" }
+            ]
+        };
+        AgentResultDiffService service = new(new CrossReviewFindingCorrelationService());
+
+        AgentResultDelta delta = service.Compare("left", [left], "right", [right]).AgentDeltas.Single();
+
+        delta.AddedFindings.Should().Equal("Added finding");
+        delta.RemovedFindings.Should().Equal("Removed finding");
     }
 }

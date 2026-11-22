@@ -10,27 +10,37 @@ public interface IRemediationInstanceRepository
     Task InsertInstanceInScopeAsync(
         ProjectScopeKey scope,
         RemediationInstanceRecord instance,
-        CancellationToken cancellationToken = default) =>
-        InsertInstanceAsync(instance, cancellationToken);
-
-    Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default);
-
-    async Task UpdateInstanceInScopeAsync(
-        ProjectScopeKey scope,
-        RemediationInstanceMutation mutation,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ArgumentNullException.ThrowIfNull(mutation);
+        ArgumentNullException.ThrowIfNull(instance);
+        cancellationToken.ThrowIfCancellationRequested();
+        if (!scope.Matches(instance.TenantId, instance.WorkspaceId, instance.ProjectId))
+            throw new InvalidOperationException("Scoped remediation instance payload does not match project authority.");
 
-        RemediationInstanceRecord? current =
-            await TryGetByIdInScopeAsync(scope, mutation.InstanceId, cancellationToken);
-
-        if (current is null)
-            return;
-
-        await UpdateInstanceAsync(mutation.ApplyTo(current), cancellationToken);
+        return InsertInstanceAsync(instance, cancellationToken);
     }
+
+    Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Scoped updates must be implemented atomically by the repository.
+    /// A read-then-unscoped-write fallback can overwrite concurrent changes.
+    /// </summary>
+    Task UpdateInstanceInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceMutation mutation,
+        CancellationToken cancellationToken = default) =>
+        throw new NotSupportedException(
+            "Scoped remediation updates require a repository-specific atomic implementation.");
+
+    /// <summary>Persist verification evidence and the resulting instance state as one unit.</summary>
+    Task CommitVerificationInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceMutation mutation,
+        RemediationEvidenceRecord evidence,
+        CancellationToken cancellationToken = default) =>
+        throw new NotSupportedException("Atomic remediation verification is not supported by this repository.");
 
     Task<RemediationInstanceRecord?> TryGetByIdAsync(
         Guid tenantId,
@@ -53,11 +63,24 @@ public interface IRemediationInstanceRepository
 
     Task InsertEvidenceAsync(RemediationEvidenceRecord evidence, CancellationToken cancellationToken = default);
 
-    Task InsertEvidenceInScopeAsync(
+    async Task InsertEvidenceInScopeAsync(
         ProjectScopeKey scope,
         RemediationEvidenceRecord evidence,
-        CancellationToken cancellationToken = default) =>
-        InsertEvidenceAsync(evidence, cancellationToken);
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(evidence);
+        cancellationToken.ThrowIfCancellationRequested();
+        if (evidence.TenantId != scope.TenantId)
+            throw new InvalidOperationException("Scoped remediation evidence tenant does not match project authority.");
+
+        RemediationInstanceRecord? instance =
+            await TryGetByIdInScopeAsync(scope, evidence.InstanceId, cancellationToken);
+        if (instance is null)
+            throw new InvalidOperationException("Scoped remediation instance was not found for evidence insert.");
+
+        await InsertEvidenceAsync(evidence, cancellationToken);
+    }
 
     Task<IReadOnlyList<RemediationEvidenceRecord>> ListEvidenceByInstanceAsync(
         Guid tenantId,
@@ -177,12 +200,27 @@ public interface IRemediationInstanceRepository
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        (IReadOnlyList<RemediationInstanceRecord> items, _) =
-            await ListByCloudResourceIdPagedAsync(scope.TenantId, cloudResourceId, page, pageSize, cancellationToken);
-        IReadOnlyList<RemediationInstanceRecord> scoped = items
-            .Where(row => scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId))
+        ArgumentNullException.ThrowIfNull(scope);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // The legacy tenant-wide paged query cannot be filtered after paging:
+        // doing so produces incomplete pages and incorrect scoped totals.
+        // This compatibility fallback filters before paging; SQL repositories
+        // override it with a scoped COUNT and paged query pushed to SQL.
+        int safePage = Math.Max(1, page);
+        int safePageSize = Math.Clamp(pageSize, 1, 500);
+        IReadOnlyList<RemediationInstanceRecord> rows = await ListByScopeAsync(scope, cancellationToken);
+        List<RemediationInstanceRecord> filtered = rows
+            .Where(row => scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId)
+                && row.CloudResourceId == cloudResourceId)
+            .OrderByDescending(row => row.UpdatedUtc)
+            .ThenBy(row => row.InstanceId)
             .ToList();
-        return (scoped, scoped.Count);
+        long skip = ((long)safePage - 1) * safePageSize;
+        IReadOnlyList<RemediationInstanceRecord> items = skip >= filtered.Count
+            ? []
+            : filtered.Skip((int)skip).Take(safePageSize).ToList();
+        return (items, filtered.Count);
     }
 
     Task<IReadOnlyList<RemediationInstanceRecord>> ListByFindingIdAsync(
@@ -221,6 +259,8 @@ public interface IRemediationInstanceRepository
 
 public sealed record RemediationInstanceMutation
 {
+    /// <summary>Expected SQL rowversion from the record originally read; required for protected writes.</summary>
+    public byte[]? ExpectedRowVersion { get; init; }
     public required Guid InstanceId { get; init; }
     public required RemediationInstanceStatus Status { get; init; }
     public Guid? CloudResourceId { get; init; }

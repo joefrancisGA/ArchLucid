@@ -1,0 +1,24 @@
+name: Local service fault proxy contract
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'scripts/ci/local_service_fault_proxy.py'
+      - 'scripts/ci/tests/test_local_service_fault_proxy.py'
+      - '.github/workflows/local-service-fault-proxy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s scripts/ci/tests -p test_local_service_fault_proxy.py -v

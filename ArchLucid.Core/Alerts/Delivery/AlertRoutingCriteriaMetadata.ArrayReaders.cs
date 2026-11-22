@@ -192,10 +192,10 @@ public static partial class AlertRoutingCriteriaMetadata
             return numeric.ToString(CultureInfo.InvariantCulture);
         }
 
-        if (element.TryGetDouble(out double wholeNumber)
-            && double.IsFinite(wholeNumber)
+        if (element.TryGetDecimal(out decimal wholeNumber)
             && wholeNumber >= 0
-            && wholeNumber == Math.Floor(wholeNumber))
+            && wholeNumber <= long.MaxValue
+            && wholeNumber == decimal.Truncate(wholeNumber))
         {
             return ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);
         }
@@ -219,10 +219,10 @@ public static partial class AlertRoutingCriteriaMetadata
             return true;
         }
 
-        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
-            && double.IsFinite(numeric)
+        if (decimal.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out decimal numeric)
             && numeric >= 0
-            && numeric == Math.Floor(numeric))
+            && numeric <= long.MaxValue
+            && numeric == decimal.Truncate(numeric))
         {
             value = (long)numeric;
 

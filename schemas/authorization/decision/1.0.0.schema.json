@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.archlucid.com/authorization/decision/1.0.0.json",
+  "title": "FND-010 Authorization Decision Envelope v1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "decisionId",
+    "tenantId",
+    "actorRef",
+    "resourceRef",
+    "action",
+    "decision",
+    "approvalClass",
+    "policyRef",
+    "evaluatedAt",
+    "reasonCodes"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "decisionId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "actorRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "resourceRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action": {
+      "enum": [
+        "architecture.read",
+        "finding.read",
+        "remediation.propose",
+        "remediation.approve",
+        "remediation.execute",
+        "verification.record",
+        "audit.read"
+      ]
+    },
+    "decision": {
+      "enum": [
+        "allow",
+        "deny"
+      ]
+    },
+    "approvalClass": {
+      "enum": [
+        "none",
+        "operator",
+        "security-reviewer",
+        "change-approver",
+        "dual-control"
+      ]
+    },
+    "policyRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evaluatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reasonCodes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "approvalRefs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workspaceId",
+        "projectId"
+      ],
+      "properties": {
+        "workspaceId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "projectId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "attributes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "boolean",
+          "integer"
+        ]
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "enum": [
+              "remediation.approve",
+              "remediation.execute"
+            ]
+          },
+          "decision": {
+            "const": "allow"
+          }
+        },
+        "required": [
+          "action",
+          "decision"
+        ]
+      },
+      "then": {
+        "required": [
+          "approvalRefs"
+        ],
+        "properties": {
+          "approvalRefs": {
+            "minItems": 1
+          },
+          "approvalClass": {
+            "enum": [
+              "security-reviewer",
+              "change-approver",
+              "dual-control"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

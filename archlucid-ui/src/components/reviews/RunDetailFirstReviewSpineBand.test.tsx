@@ -73,6 +73,8 @@ describe("RunDetailFirstReviewSpineBand", () => {
     expect(screen.getByTestId("run-detail-first-review-spine-open-gate-primary")).toHaveTextContent(
       "Open gate: Uncommitted review",
     );
+    expect(document.querySelectorAll("#run-detail-first-review-spine-review-package")).toHaveLength(1);
+    expect(document.querySelectorAll("#run-detail-first-review-spine-findings")).toHaveLength(1);
   });
 
   it("shows the stored review snapshot", () => {
@@ -162,6 +164,8 @@ describe("RunDetailFirstReviewSpineBand", () => {
       "href",
       "/architecture/reviews/run-abc?reviewTab=findings&findingId=top-1&workbenchFocus=findings#run-detail-first-review-spine-findings",
     );
+    expect(document.querySelectorAll("#run-detail-first-review-spine-findings")).toHaveLength(1);
+    expect(document.querySelectorAll("#run-detail-first-review-spine-review-package")).toHaveLength(1);
   });
 
   it("withholds open gate links when review navigation input is missing", () => {

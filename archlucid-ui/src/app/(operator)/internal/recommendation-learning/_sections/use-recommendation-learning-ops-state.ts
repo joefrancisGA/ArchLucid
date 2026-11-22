@@ -42,6 +42,7 @@ export function useRecommendationLearningOpsState(props: InitialProps) {
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [isLoadingPersisted, setIsLoadingPersisted] = useState(false);
   const profileReadGeneration = useRef(0);
+  const bundleReadGeneration = useRef(0);
   const [rollbackReason, setRollbackReason] = useState("");
   const [rollbackProfileId, setRollbackProfileId] = useState<string | null>(null);
   const [activateReason, setActivateReason] = useState("");
@@ -57,10 +58,14 @@ export function useRecommendationLearningOpsState(props: InitialProps) {
   }, [props.initialFailure, props.initialHistory, props.initialProfile, props.initialStatus]);
 
   const refresh = useCallback(async () => {
+    const generation = ++bundleReadGeneration.current;
     setIsRefreshing(true);
 
     try {
       const bundle = await reloadRecommendationLearningOpsBundle();
+      if (generation !== bundleReadGeneration.current) {
+        return;
+      }
       // A completed bundle refresh supersedes any earlier profile-only read.
       profileReadGeneration.current += 1;
       setStatus(bundle.status);
@@ -68,9 +73,13 @@ export function useRecommendationLearningOpsState(props: InitialProps) {
       setHistory(bundle.history);
       setFailure(null);
     } catch (e: unknown) {
-      setFailure(toApiLoadFailure(e));
+      if (generation === bundleReadGeneration.current) {
+        setFailure(toApiLoadFailure(e));
+      }
     } finally {
-      setIsRefreshing(false);
+      if (generation === bundleReadGeneration.current) {
+        setIsRefreshing(false);
+      }
     }
   }, []);
 

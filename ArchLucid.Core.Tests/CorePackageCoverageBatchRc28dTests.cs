@@ -223,6 +223,23 @@ public sealed class CorePackageCoverageBatchRc28dTests
     }
 
     [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_preserves_numeric_preference_labels()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "findingTypes": [9007199254740993.0, "9007199254740993.0"],
+                "tags": [9223372036854775808.0, "9223372036854775808.0", 1.0000000000000001]
+              }
+            }
+            """);
+
+        parsed.FindingTypes.Should().Equal("9007199254740993", "9007199254740993");
+        parsed.Tags.Should().Equal("9223372036854775808.0", "9223372036854775808.0", "1.0000000000000001");
+    }
+
+    [Fact]
     public void AlertRoutingCriteriaMetadata_Parse_boolean_severities_coerce_to_strings()
     {
         AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(

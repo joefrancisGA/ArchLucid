@@ -66,7 +66,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                  SourceEvidenceReference
                           FROM dbo.AzureInventoryResources
                           WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId{resourceFilter}{neverShowFilter}
-                          ORDER BY AzureResourceId
+                          ORDER BY AzureResourceId ASC, ResourceRowId ASC
                           OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                           """
                           + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);

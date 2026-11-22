@@ -107,6 +107,7 @@ describe("HelpAlertsGuideView buyer-polished shell (HA)", () => {
     const sourcesSection = screen.getByTestId("help-alerts-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toHaveAttribute("tabindex", "-1");
     expect(firstViewport).toContainElement(actionPanel);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);

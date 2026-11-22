@@ -1,0 +1,34 @@
+name: Remediation rowversion enforcement
+
+on:
+  pull_request:
+    branches:
+      - master
+      - feat/remediation-rowversion-foundation-20261121
+    paths:
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/IRemediationInstanceRepository.cs'
+      - 'ArchLucid.Persistence/InfraEvidence/SqlRemediationInstanceRepository.cs'
+      - 'ArchLucid.Persistence/InfraEvidence/SqlRemediationInstanceRepository.AtomicVerification.cs'
+      - 'ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceService.cs'
+      - 'scripts/ci/tests/test_remediation_rowversion_enforcement.py'
+      - '.github/workflows/remediation-rowversion-enforcement.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s scripts/ci/tests -p test_remediation_rowversion_enforcement.py -v
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build ArchLucid.Persistence/ArchLucid.Persistence.csproj --configuration Release
+      - run: dotnet build ArchLucid.Application/ArchLucid.Application.csproj --configuration Release

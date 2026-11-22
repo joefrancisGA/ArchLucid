@@ -544,11 +544,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     }
   }, [cloudResourceId, runId, snapshotId]);
 
+  const snapshotPinned = snapshotId.length > 0 && (
+    urlSnapshotPinForCloudResourceIdRef.current === cloudResourceId
+    || (
+      urlSnapshotPinBootstrappedForResourceRef.current === cloudResourceId
+      && snapshotId !== committedUrlSnapshotPinRef.current
+    )
+  );
+
   const resolvedSnapshotId = useMemo(() => {
-    if (
-      snapshotId.length > 0
-      && urlSnapshotPinForCloudResourceIdRef.current === cloudResourceId
-    ) {
+    if (snapshotPinned) {
       return snapshotId;
     }
 
@@ -561,7 +566,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     }
 
     return lastResolvedHubSnapshotIdRef.current;
-  }, [cloudResourceId, hub?.cloudResourceId, hub?.currentConfiguration?.snapshotId, snapshotId]);
+  }, [cloudResourceId, hub?.cloudResourceId, hub?.currentConfiguration?.snapshotId, snapshotId, snapshotPinned]);
 
   useEffect(() => {
     const hubMatchesResource = hub?.cloudResourceId?.trim() === cloudResourceId;
@@ -588,13 +593,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
     return "";
   }, [cloudResourceId, runId]);
-
-  const snapshotPinned = useMemo(
-    () =>
-      snapshotId.length > 0
-      && urlSnapshotPinForCloudResourceIdRef.current === cloudResourceId,
-    [cloudResourceId, hub?.currentConfiguration?.snapshotId, snapshotId],
-  );
 
   useEffect(() => {
     const tabParams = searchParams.getAll(RESOURCE_HUB_TAB_PARAM);

@@ -1,0 +1,23 @@
+name: Execute lease admission cleanup
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs'
+      - '.github/workflows/execute-lease-admission-cleanup.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --configuration Release --filter 'FullyQualifiedName~RunExecuteOwnershipLeaseServiceAcquireTests|FullyQualifiedName~RunExecuteOwnershipLeaseServiceDrainTests'

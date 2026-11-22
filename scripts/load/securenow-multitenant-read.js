@@ -17,6 +17,8 @@ export const options = {
     http_req_failed: ["rate<0.01"],
     http_req_duration: ["p(95)<3000"],
     checks: ["rate>0.99"],
+    "http_req_duration{name:snapshot_list}": ["p(95)<3000"],
+    "http_req_duration{name:ranked_paths}": ["p(95)<3000"],
   },
 };
 
