@@ -74,4 +74,27 @@ public sealed class SecureNowExchangeModePatternTests
             }
             """));
     }
+    [Fact]
+    public void Additional_unprotected_anchor_read_is_not_exempt()
+    {
+        Assert.False(Recognized("""
+            runRepository.GetByIdAsync();
+            if (secureNowExchange) {
+              var resolvedAccess = gate.AuthorizeAsync(User, scope, resolved, ct);
+              if (!resolvedAccess.Allowed) return null;
+            }
+            """));
+    }
+
+    [Fact]
+    public void Denial_must_consume_its_own_gate_result()
+    {
+        Assert.False(Recognized("""
+            if (secureNowExchange) {
+              var resolvedAccess = gate.AuthorizeAsync(User, scope, resolved, ct);
+              if (!access.Allowed) return null;
+            }
+            """));
+    }
+
 }
