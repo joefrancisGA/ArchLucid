@@ -49,6 +49,10 @@ public sealed class SecureNowSnapshotExchangeContractTests
             .AddSingleton(flags.Object)
             .AddSingleton(scope.Object)
             .AddSingleton(authorization.Object)
+            .AddSingleton<IEvidenceEntitlementAuthority>(Mock.Of<IEvidenceEntitlementAuthority>(
+                e => e.HasCurrentReadEntitlementAsync(
+                    It.IsAny<ClaimsPrincipal>(), It.IsAny<EvidenceReadResource>(),
+                    It.IsAny<CancellationToken>()) == Task.FromResult(true)))
             .AddScoped<EvidenceReadAuthorizationGate>()
             .BuildServiceProvider();
         Mock<IRunRepository> runs = new();
