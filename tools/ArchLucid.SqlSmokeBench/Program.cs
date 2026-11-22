@@ -33,6 +33,8 @@ builder.ConnectTimeout = Math.Min(builder.ConnectTimeout, 15);
 string connectionString = builder.ConnectionString;
 using CancellationTokenSource timeout = new(TimeSpan.FromMinutes(10));
 CancellationToken ct = timeout.Token;
+// One clock source for reproducible and testable benchmark elapsed/evidence timing.
+TimeProvider clock = TimeProvider.System;
 Guid batch = Guid.NewGuid();
 const string table = "dbo.ArchLucidSqlSmokeRuns";
 await using (SqlConnection setup = new(connectionString))
@@ -73,7 +75,7 @@ await using (SqlConnection setup = new(connectionString))
 }
 ConcurrentBag<double> readMs = new(), updateMs = new();
 ConcurrentBag<string> errors = new();
-DateTimeOffset start = DateTimeOffset.UtcNow;
+DateTimeOffset start = clock.GetUtcNow();
 try
 {
     using CancellationTokenSource measurement = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -142,8 +144,8 @@ static object Stats(ConcurrentBag<double> samples)
 }
 var result = new {
     schemaVersion = 1, profile = "smoke", datasetRows = rows, concurrency = workers,
-    requestedSeconds = seconds, elapsedSeconds = (DateTimeOffset.UtcNow - start).TotalSeconds,
-    batchId = batch, database, generatedUtc = DateTimeOffset.UtcNow,
+    requestedSeconds = seconds, elapsedSeconds = (clock.GetUtcNow() - start).TotalSeconds,
+    batchId = batch, database, generatedUtc = clock.GetUtcNow(),
     commit = Environment.GetEnvironmentVariable("GITHUB_SHA") ?? "unknown",
     operations = new { scopedRead = Stats(readMs), conditionalUpdate = Stats(updateMs) },
     errorCount = errors.Count, errorsByType = errors.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count()),
