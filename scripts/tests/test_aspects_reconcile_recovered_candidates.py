@@ -113,7 +113,10 @@ class CandidateOverlapTests(unittest.TestCase):
 
     def test_derived_row_must_be_unpinned_in_original_audit(self):
         pinned, candidates = self.fixture()
-        pinned[1]["pin_status"] = VERIFIED
+        pinned[1].update({
+            "pin_status": VERIFIED, "path": "src/a.cs",
+            "blob": OLD_BLOB, "spans": [[2, 3]],
+        })
         result = self.run_case(pinned, candidates)
         self.assertIn("Already verified", result["blocking_reason"])
 
