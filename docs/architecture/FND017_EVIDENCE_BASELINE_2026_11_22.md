@@ -15,7 +15,7 @@ Private repository `joefrancisGA/ArchLucid`, stacked pull requests [#7766](https
 | #7772 | [45052870907](https://github.com/joefrancisGA/ArchLucid/actions/runs/45052870907) | Failure: RS2008 for FND017001–004; CS8602 at CFG successor access |
 | #7773 | [45053015293](https://github.com/joefrancisGA/ArchLucid/actions/runs/45053015293) | Failure: RS2008 for FND017001–005; CS8602 at CFG successor access |
 | #7774 | none observed on its own commit | No validated analyzer execution |
-| #7776 | original [45054618197](https://github.com/joefrancisGA/ArchLucid/actions/runs/45054618197) queued when inspected | No verified analyzer test result from that queued attempt |
+| #7776 | original [45054618197](https://github.com/joefrancisGA/ArchLucid/actions/runs/45054618197) | Failure: missing Roslyn `IsKind` extension import (CS1061, cascading CS0165), plus RS2008 and CS8602. All addressed by subsequent head commits; revalidation pending. |
 
 **No passing Roslyn analyzer suite was observed in those historical runs.** The workflow stopped at analyzer project compilation before any test results could be established.
 
@@ -43,10 +43,11 @@ The corrected `SecureNowExchangeModePattern` recognizes this narrow source shape
 
 ## Current corrective commits in #7776
 
-- Registered unshipped Roslyn rule IDs `FND017001`–`FND017005` as an `AdditionalFiles` manifest to address RS2008.
-- Fixed nullable CFG successor accesses that produced CS8602.
+- Registered all Roslyn rule IDs `FND017001`–`FND017005` as unshipped, with shipped/unshipped `AdditionalFiles` manifests, to address RS2008.
+- Fixed nullable CFG successor accesses that produced CS8602, and imported `Microsoft.CodeAnalysis` to resolve the `IsKind` extension missing in #7776's initial failure.
 - Switched CFG retrieval to `OperationBlockAnalysisContext.GetControlFlowGraph` so either method-body or block roots can be analyzed.
-- Added real-endpoint source-grounded regression tests to the targeted workflow.
+- Added real-endpoint source-grounded regression tests to the targeted workflow; tightened guard-pattern exemption to reject extra protected reads and mismatched denial-result variables.
+- Consolidated targeted .NET tests into one build/test invocation, preserved TRX output, and added concurrency cancellation of superseded PR runs to control runner cost.
 
 ## Enforcement disposition
 
