@@ -56,6 +56,7 @@ import { GOVERNANCE_FINDINGS_EMPTY_COLLECTION_BLOCKER_NOT_LOAD_FAILURE_LINE } fr
 import { GOVERNANCE_FINDINGS_EMPTY_COLLECTION_BLOCKER_PREFACE_LINE } from "@/lib/governance/governance-findings-empty-collection-blocker-preface-copy";
 import { GOVERNANCE_ASSIGNED_TO_ME_EMPTY_COLLECTION_BLOCKER_PREFACE_LINE } from "@/lib/governance/governance-assigned-to-me-empty-collection-blocker-preface-copy";
 import { GOVERNANCE_ASSIGNED_TO_ME_EMPTY_COLLECTION_BLOCKER_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/governance-assigned-to-me-empty-collection-blocker-not-load-failure-copy";
+import { GOVERNANCE_ASSIGNED_TO_ME_EMPTY_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/governance-assigned-to-me-empty-partial-capture-not-load-failure-copy";
 import { cn } from "@/lib/utils";
 import { SECURENOW_FINDINGS_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/product-line/securenow-findings-empty-partial-capture-copy";
 import { RISK_REGISTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/risk-register-empty-not-load-failure-copy";
@@ -262,6 +263,15 @@ export function GovernanceFindingsQueueOutcomeSection(
               props.isAssignedToMe ? (
                 <div className="space-y-3">
                   {findingsEmptyPartialCaptureStrip}
+                  
+                  {showFindingsEmptyPartialCapture && props.isAssignedToMe ? (
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="governance-assigned-to-me-empty-partial-capture-not-load-failure"
+                    >
+                      {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE}
+                    </p>
+                  ) : null}
                   {secureNowCollectionMissing ? (
                     <p
                       className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -278,7 +288,7 @@ export function GovernanceFindingsQueueOutcomeSection(
                       {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_COLLECTION_BLOCKER_NOT_LOAD_FAILURE_LINE}
                     </p>
                   ) : null}
-                  {{secureNowCollectionMissing && collectionInput !== null ? (
+                  {secureNowCollectionMissing && collectionInput !== null ? (
                     <SecureNowCollectionPrimaryBlockerLine
                       input={collectionInput}
                       testIdPrefix="governance-assigned-findings-empty"
@@ -295,6 +305,15 @@ export function GovernanceFindingsQueueOutcomeSection(
               ) : secureNowEmptyState !== null ? (
                 <div className="space-y-3">
                   {findingsEmptyPartialCaptureStrip}
+                  
+                  {showFindingsEmptyPartialCapture && props.isAssignedToMe ? (
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="governance-assigned-to-me-empty-partial-capture-not-load-failure"
+                    >
+                      {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE}
+                    </p>
+                  ) : null}
                   {secureNowCollectionMissing ? (
                     <p
                       className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
