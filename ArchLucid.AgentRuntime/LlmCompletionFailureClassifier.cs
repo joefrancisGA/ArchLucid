@@ -53,7 +53,7 @@ public static class LlmCompletionFailureClassifier
                 return LlmCompletionFailureKind.TransportRetryable;
             }
 
-            return IsRetryableHttpStatus((int)statusCode)
+            return ProviderHttpFailurePolicy.IsRetryableStatus((int)statusCode)
                 ? LlmCompletionFailureKind.TransportRetryable
                 : LlmCompletionFailureKind.SemanticTerminal;
         }
@@ -84,7 +84,4 @@ public static class LlmCompletionFailureClassifier
     /// <summary>Whether a failed call should advance the circuit breaker failure counter.</summary>
     public static bool ShouldRecordCircuitBreakerFailure(Exception ex) =>
         Classify(ex) == LlmCompletionFailureKind.TransportRetryable;
-
-    private static bool IsRetryableHttpStatus(int statusCode) =>
-        statusCode is 429 or 500 or 502 or 503 or 504;
 }
