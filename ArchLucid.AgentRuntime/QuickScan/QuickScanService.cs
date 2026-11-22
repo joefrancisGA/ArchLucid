@@ -96,7 +96,11 @@ public sealed class QuickScanService(
 
         cancellationToken.ThrowIfCancellationRequested();
         if (scanBudget.IsCancellationRequested)
+        {
+            // The deadline is authoritative even when an upstream client ignores cancellation.
+            jsonResponse = null;
             lastError = new TimeoutException("Quick scan processing timed out.");
+        }
 
         if (jsonResponse is null)
         {
