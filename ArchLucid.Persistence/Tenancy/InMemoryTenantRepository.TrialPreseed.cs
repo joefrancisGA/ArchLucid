@@ -12,7 +12,7 @@ public sealed partial class InMemoryTenantRepository
 {
     public Task EnqueueTrialArchitecturePreseedAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -29,7 +29,7 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task<IReadOnlyList<Guid>> ListTenantIdsPendingTrialArchitecturePreseedAsync(int take, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -53,7 +53,7 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task MarkTrialArchitecturePreseedCompletedAsync(Guid tenantId, Guid welcomeRunId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -70,7 +70,7 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task<int> IncrementTrialArchitecturePreseedAttemptAsync(Guid tenantId, string lastError, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -80,11 +80,17 @@ public sealed partial class InMemoryTenantRepository
             int nextAttempt = existing.TrialArchitecturePreseedAttemptCount + 1;
             DateTimeOffset? failedUtc = nextAttempt >= 5 ? TimeProvider.System.GetUtcNow() : existing.TrialArchitecturePreseedFailedUtc;
 
+            // Match the SQL repository's bounded error column: normalize whitespace
+            // and truncate before writing to avoid incompatible retry telemetry.
+            string normalizedError = string.IsNullOrWhiteSpace(lastError) ? "unknown" : lastError.Trim();
+            if (normalizedError.Length > 2048)
+                normalizedError = normalizedError[..2048];
+
             _byId[tenantId] = TenantRepositoryCore.CopyTenant(
                 existing,
                 trialArchitecturePreseedAttemptCount: nextAttempt,
                 trialArchitecturePreseedFailedUtc: failedUtc,
-                trialArchitecturePreseedLastError: lastError);
+                trialArchitecturePreseedLastError: normalizedError);
 
             return Task.FromResult(nextAttempt);
         }
