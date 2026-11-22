@@ -18,7 +18,9 @@ public sealed class EvidenceReadAuthorizationGateTests
     private static readonly Guid Evidence = Guid.Parse("44444444-4444-4444-8444-444444444444");
 
     private static ClaimsPrincipal Principal(bool authenticated = true) =>
-        new(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "operator")],
+        new(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "operator"),
+        new Claim("archlucid.resource_entitlement",
+            $"evidence.read:{Tenant:D}:{Workspace:D}:{Project:D}:{Evidence:D}")],
             authenticated ? "test" : null));
 
     private static (EvidenceReadAuthorizationGate Gate, Mock<IAuthorizationService> Authorization)
@@ -74,6 +76,16 @@ public sealed class EvidenceReadAuthorizationGateTests
         var (gate, _) = CreateGate(allowed: false);
         (await gate.AuthorizeAsync(Principal(), Tenant, Workspace, Project, Evidence))
             .Allowed.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Missing_exact_resource_entitlement_is_denied()
+    {
+        var (gate, auth) = CreateGate();
+        var identity = new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "operator")], "test");
+        (await gate.AuthorizeAsync(new ClaimsPrincipal(identity), Tenant, Workspace, Project, Evidence))
+            .Allowed.Should().BeFalse();
+        auth.VerifyNoOtherCalls();
     }
 
     [Fact]
