@@ -132,7 +132,7 @@ public sealed class SnapshotAuthorizationDominanceAnalyzer : DiagnosticAnalyzer
     private static Dictionary<int, HashSet<int>> ComputeDominators(
         BasicBlock[] blocks, HashSet<int> reachable)
     {
-        var all = reachable.ToHashSet();
+        var all = new HashSet<int>(reachable);
         var result = reachable.ToDictionary(i => i, i =>
             i == blocks[0].Ordinal ? new HashSet<int> { i } : new HashSet<int>(all));
         bool changed;
