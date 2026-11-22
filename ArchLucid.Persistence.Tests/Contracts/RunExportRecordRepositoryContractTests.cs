@@ -182,7 +182,7 @@ public abstract class RunExportRecordRepositoryContractTests
     }
 
     [SkippableFact]
-    public async Task GetByRunId_orders_descending_by_CreatedUtc()
+    public async Task GetByRunId_orders_descending_by_CreatedUtc_and_ExportRecordId()
     {
         SkipIfSqlServerUnavailable();
         IRunExportRecordRepository repo = CreateRepository();
@@ -193,13 +193,12 @@ public abstract class RunExportRecordRepositoryContractTests
         DateTime newer = new(2026, 4, 1, 11, 0, 0, DateTimeKind.Utc);
 
         await repo.CreateAsync(NewRecord("e-old", runId, older), CancellationToken.None);
-        await repo.CreateAsync(NewRecord("e-new", runId, newer), CancellationToken.None);
+        await repo.CreateAsync(NewRecord("e-new-a", runId, newer), CancellationToken.None);
+        await repo.CreateAsync(NewRecord("e-new-b", runId, newer), CancellationToken.None);
 
         IReadOnlyList<RunExportRecord> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
-        list.Should().HaveCount(2);
-        list[0].ExportRecordId.Should().Be("e-new");
-        list[1].ExportRecordId.Should().Be("e-old");
+        list.Select(record => record.ExportRecordId).Should().Equal("e-new-b", "e-new-a", "e-old");
     }
 
     private static RunExportRecord NewRecord(string exportId, string runId, DateTime createdUtc)
