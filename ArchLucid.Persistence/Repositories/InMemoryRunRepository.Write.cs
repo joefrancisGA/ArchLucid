@@ -127,25 +127,30 @@ public sealed partial class InMemoryRunRepository
         DateTime stamp = TimeProvider.System.UtcNowDateTime();
         List<ArchivedRunScopeRow> archived = [];
 
-        foreach (KeyValuePair<Guid, RunRecord> kv in _store.ToArray())
+        foreach (Guid id in _store.Keys.ToArray())
         {
-            RunRecord r = kv.Value;
+            ArchiveTransition transition = TryArchiveCurrentRun(
+                id, stamp,
+                r => r.CreatedUtc < cutoff &&
+                     (scope is null || RunRepositoryCore.MatchesScope(r, scope)),
+                unsealedGuard: null,
+                ct, out ArchivedRunScopeRow? row);
 
-            if (!RunRepositoryCore.IsEligibleForCreatedBeforeArchive(r, cutoff, scope))
-                continue;
-
-            archived.Add(RunRepositoryCore.ToArchivedRunScopeRow(r));
-
-            r.ArchivedUtc = stamp;
-            _store[kv.Key] = r;
+            if (transition == ArchiveTransition.Archived)
+                archived.Add(row!);
         }
 
-        return Task.FromResult(new RunArchiveBatchResult { UpdatedCount = archived.Count, ArchivedRuns = archived });
+        return Task.FromResult(new RunArchiveBatchResult
+        {
+            UpdatedCount = archived.Count,
+            ArchivedRuns = archived
+        });
     }
 
     /// <inheritdoc />
     public Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(runIds);
         ct.ThrowIfCancellationRequested();
 
         if (runIds.Count == 0)
@@ -158,23 +163,18 @@ public sealed partial class InMemoryRunRepository
 
         foreach (Guid id in distinctOrdered)
         {
-            if (!_store.TryGetValue(id, out RunRecord? run))
-                continue;
+            ArchiveTransition transition = TryArchiveCurrentRun(
+                id, stamp, static _ => true, unsealedGuard: null,
+                ct, out ArchivedRunScopeRow? row);
 
-            if (run.ArchivedUtc.HasValue)
-            {
+            if (transition == ArchiveTransition.Archived)
+                archived.Add(row!);
+            else if (transition == ArchiveTransition.AlreadyArchived)
                 alreadyArchivedRunIds.Add(id);
-                continue;
-            }
-
-            archived.Add(RunRepositoryCore.ToArchivedRunScopeRow(run));
-
-            run.ArchivedUtc = stamp;
-            _store[id] = run;
         }
 
-        return Task.FromResult(
-            RunArchiveByIdsOutcome.Assemble(distinctOrdered, archived, alreadyArchivedRunIds, new RunArchiveChildCascadeCounts()));
+        return Task.FromResult(RunArchiveByIdsOutcome.Assemble(
+            distinctOrdered, archived, alreadyArchivedRunIds, new RunArchiveChildCascadeCounts()));
     }
 
     /// <inheritdoc />
@@ -183,21 +183,17 @@ public sealed partial class InMemoryRunRepository
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
 
-        if (!_store.TryGetValue(runId, out RunRecord? run) || !RunRepositoryCore.MatchesScope(run, scope))
-            return Task.FromResult(RunArchiveByIdsOutcome.Assemble([runId], [], [], new()));
+        ArchiveTransition transition = TryArchiveCurrentRun(
+            runId, TimeProvider.System.UtcNowDateTime(),
+            r => RunRepositoryCore.MatchesScope(r, scope),
+            r => !r.GoldenManifestId.HasValue,
+            ct, out ArchivedRunScopeRow? row);
 
-        lock (run)
-        {
-            if (run.ArchivedUtc is not null)
-                return Task.FromResult(RunArchiveByIdsOutcome.Assemble([runId], [], [runId], new()));
-
-            if (run.GoldenManifestId is not null)
-                return Task.FromResult(RunArchiveByIdsOutcome.Assemble([runId], [], [], new()));
-
-            run.ArchivedUtc = TimeProvider.System.UtcNowDateTime();
-            return Task.FromResult(RunArchiveByIdsOutcome.Assemble(
-                [runId], [RunRepositoryCore.ToArchivedRunScopeRow(run)], [], new()));
-        }
+        return Task.FromResult(RunArchiveByIdsOutcome.Assemble(
+            [runId],
+            transition == ArchiveTransition.Archived ? [row!] : [],
+            transition == ArchiveTransition.AlreadyArchived ? [runId] : [],
+            new RunArchiveChildCascadeCounts()));
     }
 
     /// <inheritdoc />
