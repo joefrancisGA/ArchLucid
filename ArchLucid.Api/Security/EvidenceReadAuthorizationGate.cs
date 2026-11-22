@@ -11,7 +11,8 @@ namespace ArchLucid.Api.Security;
 /// </summary>
 public sealed class EvidenceReadAuthorizationGate(
     IAuthorizationService authorization,
-    IScopeContextProvider scopes)
+    IScopeContextProvider scopes,
+    IEvidenceEntitlementAuthority entitlements)
 {
     public async Task<EvidenceReadDecision> AuthorizeAsync(
         ClaimsPrincipal principal,
@@ -41,13 +42,20 @@ public sealed class EvidenceReadAuthorizationGate(
             scope.ProjectId != projectId)
             return EvidenceReadDecision.Deny("scope_mismatch");
 
-        // FND-010: broad ReadAuthority is necessary but not sufficient.
-        // Require an exact, trusted resource entitlement on the authenticated
-        // principal; no tenant-wide wildcard is accepted for this exchange.
-        // Identity issuance must only mint these claims after resource-level ACL checks.
-        string entitlement = $"evidence.read:{tenantId:D}:{workspaceId:D}:{projectId:D}:{evidenceId:D}";
-        if (!principal.HasClaim("archlucid.resource_entitlement", entitlement))
-            return EvidenceReadDecision.Deny("resource_entitlement_missing");
+        // Never accept client-supplied claims as proof of a current resource ACL.
+        // The server-side authority must validate identity, scope and revocation.
+        try
+        {
+            if (!await entitlements.HasCurrentReadEntitlementAsync(
+                    principal,
+                    new EvidenceReadResource(tenantId, workspaceId, projectId, evidenceId),
+                    cancellationToken))
+                return EvidenceReadDecision.Deny("resource_entitlement_missing");
+        }
+        catch (Exception)
+        {
+            return EvidenceReadDecision.Deny("entitlement_unavailable");
+        }
 
         try
         {
