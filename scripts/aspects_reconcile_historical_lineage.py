@@ -132,6 +132,17 @@ def reconcile(repo: Path, rows: list[dict], checkpoint: dict,
         groups[key].update(selected)
         first_seen[key] = min(first_seen.get(key, chronological[sha]), chronological[sha])
 
+    if eligible == 0:
+        result.update({
+            "status": "no_verified_review_pins_on_this_first_parent_window",
+            "eligible_verified_review_rows": 0,
+            "excluded_or_unverified_review_rows": len(rows),
+            "excluded_classifications": dict(sorted(excluded.items())),
+            "first_parent_checkpoint": anchor,
+            "blocking_reason": "No independently Git-pin-verified historical rows qualify in the anchored window; not a zero-reviewed-LOC claim.",
+        })
+        return result
+
     files: dict[str, list[str]] = defaultdict(list)
     for path, blob in groups:
         files[path].append(blob)
