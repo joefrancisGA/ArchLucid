@@ -58,9 +58,10 @@ public sealed class CircuitBreakingOpenAiEmbeddingClient : IOpenAiEmbeddingClien
         }
         catch (Exception ex)
         {
-            _gate.RecordFailure();
+            if (ProviderHttpFailurePolicy.ShouldRecordEmbeddingFailure(ex))
+                _gate.RecordFailure();
             _logger.LogWarning(ex,
-                "Azure OpenAI embedding call failed after retries; circuit breaker recorded failure.");
+                "Azure OpenAI embedding call failed after retries; circuit breaker evaluated failure.");
             throw;
         }
     }
@@ -89,9 +90,10 @@ public sealed class CircuitBreakingOpenAiEmbeddingClient : IOpenAiEmbeddingClien
         }
         catch (Exception ex)
         {
-            _gate.RecordFailure();
+            if (ProviderHttpFailurePolicy.ShouldRecordEmbeddingFailure(ex))
+                _gate.RecordFailure();
             _logger.LogWarning(ex,
-                "Azure OpenAI embedding batch failed after retries; circuit breaker recorded failure.");
+                "Azure OpenAI embedding batch failed after retries; circuit breaker evaluated failure.");
             throw;
         }
     }
