@@ -154,9 +154,10 @@ def reconcile(repo: Path, rows: list[dict], checkpoint: dict,
                 skipped_pairs += 1
                 skipped_reasons["unavailable_blob"] += 1
                 continue
-            if max(len(old_lines), len(new_lines)) > max_blob_lines:
+            if (max(len(old_lines), len(new_lines)) > max_blob_lines
+                    or len(old_lines) * len(new_lines) > 2_000_000):
                 skipped_pairs += 1
-                skipped_reasons["large_source_cap"] += 1
+                skipped_reasons["source_comparison_complexity_cap"] += 1
                 continue
             compared_pairs += 1
             for old_line, new_line in unique_unchanged_pairs(old_lines, new_lines):
