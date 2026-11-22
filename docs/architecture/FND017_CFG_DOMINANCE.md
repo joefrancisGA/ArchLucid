@@ -1,0 +1,5 @@
+# FND-017 CFG-based authorization gate dominance
+
+`FND017004` constructs a Roslyn `ControlFlowGraph` for the SecureNow temporal snapshot endpoint, computes reachable basic blocks and iterative dominator sets, and checks whether evidence gate invocations dominate selected run and detail repository reads. The anchor read requires one gate and the resolved detail read requires two. Five compiler-driven tests include conditional bypasses and correctly dominating gates.
+
+**Advisory only:** A dominating invocation is not necessarily a successful authorization. This analyzer does not prove that the returned decision is checked, that the authorized resource matches the resolved resource, that a gate cannot throw or be bypassed through other methods, or that a later state change invalidates authorization. FND017003 checks a limited denial-return pattern; the two analyses complement rather than replace each other. CFG checks are limited to the named endpoint and recognized method symbols. CI results and a real-source baseline are required before any mandatory enforcement.
