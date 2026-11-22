@@ -881,6 +881,7 @@ public sealed class RemediationInstanceService(
             ApprovedByActorKey = approvedByActorKey ?? source.ApprovedByActorKey,
             CreatedUtc = source.CreatedUtc,
             UpdatedUtc = updatedUtc ?? source.UpdatedUtc,
+            RowVersion = source.RowVersion,
             ApprovedUtc = approvedUtc ?? source.ApprovedUtc,
             ExecutedUtc = executedUtc ?? source.ExecutedUtc,
             ChangeImplementedUtc = changeImplementedUtc ?? source.ChangeImplementedUtc,
@@ -891,6 +892,7 @@ public sealed class RemediationInstanceService(
     private static RemediationInstanceMutation ToMutation(RemediationInstanceRecord source) =>
         new()
         {
+            ExpectedRowVersion = source.RowVersion,
             InstanceId = source.InstanceId,
             Status = source.Status,
             CloudResourceId = source.CloudResourceId,
