@@ -27,7 +27,7 @@ public sealed class PilotsFirstValueReportBlockReasonTests
         const string explanation = "Compare/export blocked: authority lifecycle must be Complete.";
         Mock<IAuthorityQueryService> authority = new();
         authority.Setup(s => s.GetRunDetailAsync(
-                It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+                It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>(), false))
             .ThrowsAsync(new ConflictException(explanation));
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid() });

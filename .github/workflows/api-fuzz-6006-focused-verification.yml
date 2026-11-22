@@ -1,0 +1,41 @@
+# Narrow, branch-scoped verification for issue #6006. No security gate overrides.
+name: "API fuzz #6006 focused regressions"
+on:
+  push:
+    branches:
+      - fix/api-fuzz-6006-20261122-reviewed
+    paths:
+      - "ArchLucid.Api.Tests/PilotsFirstValueReportBlockReasonTests.cs"
+      - ".github/workflows/api-fuzz-6006-focused-verification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: api-fuzz-6006-focused-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  focused-dotnet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Focused role, pilot, and pagination API regression tests
+        run: |
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj \
+            --configuration Release \
+            --filter "FullyQualifiedName~CustomRolesAdminControllerTests|FullyQualifiedName~PilotsFirstValueReportBlockReasonTests|FullyQualifiedName~OversizedPaginationResponseContractTests" \
+            --logger "trx;LogFileName=api-fuzz-6006.trx" \
+            --results-directory "${{ runner.temp }}/api-fuzz-6006"
+      - name: Upload focused test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-fuzz-6006-focused-results
+          path: ${{ runner.temp }}/api-fuzz-6006/*.trx
+          if-no-files-found: ignore
