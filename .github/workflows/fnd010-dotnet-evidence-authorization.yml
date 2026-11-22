@@ -1,7 +1,7 @@
 name: FND-010 .NET Evidence Authorization
 on:
   pull_request:
-    branches: [master, main, architecture/fnd010-scim-acl-authority, architecture/fnd010-run-ownership-guard, architecture/fnd010-central-decision-service, architecture/fnd010-decision-audit-worker]
+    branches: [master, main, architecture/fnd010-scim-acl-authority, architecture/fnd010-run-ownership-guard, architecture/fnd010-central-decision-service, architecture/fnd010-decision-audit-worker, architecture/fnd010-remediation-policy-boundary]
   workflow_dispatch:
 permissions:
   contents: read
@@ -17,4 +17,4 @@ jobs:
       - name: Run targeted FND-010 .NET authorization suites
         run: >-
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
-          --filter "FullyQualifiedName~RemediationCentralAuthorizationTests|FullyQualifiedName~CentralAuthorizationAuditWorkerTests|FullyQualifiedName~CentralAuthorizationDecisionsTests|FullyQualifiedName~EvidenceReadAuthorizationGateTests|FullyQualifiedName~ScimProjectEvidenceEntitlementAuthorityTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~SecureNowSnapshotExchangeContractTests"
+          --filter "FullyQualifiedName~DurableAuthorizationAuditTests|FullyQualifiedName~RemediationCentralAuthorizationTests|FullyQualifiedName~CentralAuthorizationAuditWorkerTests|FullyQualifiedName~CentralAuthorizationDecisionsTests|FullyQualifiedName~EvidenceReadAuthorizationGateTests|FullyQualifiedName~ScimProjectEvidenceEntitlementAuthorityTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~SecureNowSnapshotExchangeContractTests"
