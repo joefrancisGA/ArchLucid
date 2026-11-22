@@ -16,5 +16,7 @@ jobs:
           python-version: '3.12'
       - name: Install verification dependencies
         run: python -m pip install 'cryptography>=44,<47' 'azure-identity>=1.17,<2' 'azure-keyvault-keys>=4.9,<5' 'azure-storage-blob>=12.20,<13'
+      - name: Verify monitor escalation contract
+        run: python -m unittest discover -s scripts/tests -p 'test_fnd010_monitor_runner.py' -v
       - name: Verify independent integrity monitor contract
         run: python -m unittest discover -s scripts/tests -p 'test_fnd010_integrity_monitor.py' -v
