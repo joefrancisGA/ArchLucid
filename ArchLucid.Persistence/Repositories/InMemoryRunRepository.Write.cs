@@ -74,6 +74,13 @@ public sealed partial class InMemoryRunRepository
                 !ReferenceEquals(current, existing))
                 throw new RunConcurrencyConflictException(run.RunId);
 
+            // SQL UPDATE is bound to the stored tenant/workspace/project identity.
+            // A mutable caller record must never move a run into another scope.
+            if (existing.TenantId != run.TenantId ||
+                existing.WorkspaceId != run.WorkspaceId ||
+                existing.ScopeProjectId != run.ScopeProjectId)
+                throw new RunConcurrencyConflictException(run.RunId);
+
             CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(existing, run);
 
             if (run.RowVersion is not null &&
@@ -89,7 +96,7 @@ public sealed partial class InMemoryRunRepository
 
             // Preserve SQL semantics: the caller receives its new concurrency token,
             // but must not retain a reference to the token stored in the dictionary.
-            run.RowVersion = replacement.RowVersion.ToArray();
+            run.RowVersion = replacement.RowVersion!.ToArray();
         }
 
         return Task.CompletedTask;
