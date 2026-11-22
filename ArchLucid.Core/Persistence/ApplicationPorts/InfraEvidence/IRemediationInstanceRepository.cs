@@ -32,6 +32,14 @@ public interface IRemediationInstanceRepository
         await UpdateInstanceAsync(mutation.ApplyTo(current), cancellationToken);
     }
 
+    /// <summary>Persist verification evidence and the resulting instance state as one unit.</summary>
+    Task CommitVerificationInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceMutation mutation,
+        RemediationEvidenceRecord evidence,
+        CancellationToken cancellationToken = default) =>
+        throw new NotSupportedException("Atomic remediation verification is not supported by this repository.");
+
     Task<RemediationInstanceRecord?> TryGetByIdAsync(
         Guid tenantId,
         Guid instanceId,
