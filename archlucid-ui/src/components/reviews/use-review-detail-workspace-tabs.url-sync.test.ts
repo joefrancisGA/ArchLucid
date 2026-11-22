@@ -201,4 +201,34 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
 
     expect(result.current.activeTab).toBe("overview");
   });
+
+  it("clears workbench focus when a section hash moves to a non-workbench tab", () => {
+    searchParamsHarness.applyQuery("reviewTab=findings&workbenchFocus=findings");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&workbenchFocus=findings",
+    );
+
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.activeTab).toBe("findings");
+    expect(result.current.workbenchFocusColumn).toBe("findings");
+
+    act(() => {
+      window.history.replaceState(
+        {},
+        "",
+        "/architecture/reviews/run-abc?reviewTab=findings&workbenchFocus=findings#review-summary",
+      );
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+
+    expect(result.current.activeTab).toBe("overview");
+    expect(result.current.workbenchFocusColumn).toBeNull();
+    expect(window.location.search).not.toContain("workbenchFocus");
+    expect(window.location.hash).toBe("#review-summary");
+  });
 });

@@ -1,1 +1,2 @@
 {"outcome":"reset","set":3,"zoneId":"_picker_reset","at":"2026-11-22T21:31:31.8730172Z","note":"option A picker metadata reset; archive stamp 2026-11-22"}
+{"at":"2026-11-22T21:56:16.5639001Z","zoneId":"ui-review-detail-workspace","outcome":"hit","set":3,"note":"seed hunt: hashchange clears workbench focus on non-workbench section"}

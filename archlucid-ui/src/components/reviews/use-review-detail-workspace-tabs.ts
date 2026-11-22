@@ -346,7 +346,8 @@ export function useReviewDetailWorkspaceTabs(
     const onHashChange = () => {
       const hash = window.location.hash.slice(1);
       const params = new URLSearchParams(window.location.search);
-      const nextTab = resolveReviewDetailTabFromHash(hash) ?? (
+      const tabFromHash = resolveReviewDetailTabFromHash(hash);
+      const nextTab = tabFromHash ?? (
         props.tabLifecycle === undefined
           ? readReviewDetailTabFromWindowLocation()
           : resolveReviewWorkspaceTabFromSearchParams(
@@ -359,14 +360,25 @@ export function useReviewDetailWorkspaceTabs(
 
       setActiveTab((current) => (current === nextTab ? current : nextTab));
 
-      const nextWorkbenchFocus = resolveReviewWorkbenchFocusColumn(
-        params.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
-      );
-      const normalizedFocus = nextWorkbenchFocus ?? (isWorkbenchTab(nextTab) ? nextTab : null);
+      // A section hash names the tab. Do not keep a stale workbenchFocus query on a non-workbench tab.
+      const normalizedFocus = tabFromHash !== null
+        ? (isWorkbenchTab(nextTab) ? nextTab : null)
+        : (resolveReviewWorkbenchFocusColumn(params.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM))
+          ?? (isWorkbenchTab(nextTab) ? nextTab : null));
 
       if (workbenchFocusColumnRef.current !== normalizedFocus) {
         workbenchFocusColumnRef.current = normalizedFocus;
         setWorkbenchFocusColumnState(normalizedFocus);
+      }
+
+      if (tabFromHash !== null) {
+        writeReviewDetailTabToUrl(nextTab, {
+          hash: hash.length > 0 ? hash : null,
+          workbenchFocus: normalizedFocus,
+          presenter: presenterModeRef.current ? true : null,
+          runId: props.runId,
+          architectureId: props.parentArchitectureId,
+        });
       }
 
       if (hash.length === 0) {
@@ -379,7 +391,7 @@ export function useReviewDetailWorkspaceTabs(
     window.addEventListener("hashchange", onHashChange);
 
     return () => window.removeEventListener("hashchange", onHashChange);
-  }, [lifecycle, props.tabLifecycle, props.visitDefaultReviewTabWhenUrlSilent, resolved]);
+  }, [lifecycle, props.parentArchitectureId, props.runId, props.tabLifecycle, props.visitDefaultReviewTabWhenUrlSilent, resolved]);
 
   const counts = props.tabCounts ?? {};
   const inPipelineBanner = props.inPipelineBanner ?? null;
