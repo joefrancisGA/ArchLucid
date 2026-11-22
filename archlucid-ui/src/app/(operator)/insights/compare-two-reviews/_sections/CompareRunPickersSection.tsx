@@ -178,6 +178,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           preferAutoPick={false}
           autoFocus
           label={leftPickerLabel}
+          label="Baseline review"
           placeholder="Choose a baseline review"
           value={leftRunId}
           onChange={onLeftRunIdChange}
@@ -211,6 +212,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           </div>
         ) : null}
         <RunIdPicker
+          label="Updated review"
           placeholder="Choose an updated review"
           value={rightRunId}
           onChange={onRightRunIdChange}
