@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using ArchLucid.Api.Controllers.Planning;
+using ArchLucid.Core.Scoping;
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests.Planning;
@@ -9,7 +10,7 @@ namespace ArchLucid.Api.Tests.Planning;
 /// Isolated API factory enables the SecureNow exchange only inside this test host.
 /// Production feature configuration is untouched.
 /// </summary>
-internal sealed class SecureNowExchangeEnabledApiFactory : ArchLucidApiFactory
+public sealed class SecureNowExchangeEnabledApiFactory : ArchLucidApiFactory
 {
     protected override void ApplySqlCatalogCustomSettings(Dictionary<string, string?> settings)
     {
