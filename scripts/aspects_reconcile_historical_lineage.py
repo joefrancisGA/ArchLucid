@@ -67,7 +67,8 @@ def unique_unchanged_pairs(before: list[str], after: list[str]):
 
 
 def reconcile(repo: Path, rows: list[dict], checkpoint: dict,
-              pin_report: dict, max_blob_lines: int = 4000) -> dict:
+              pin_report: dict, max_blob_lines: int = 4000,
+              expected_records: int = 5741) -> dict:
     result = {
         "status": "blocked_on_pin_window_validation",
         "confidence": "historical_workbook_plus_git_pins; cross_revision_candidates_provisional",
@@ -82,18 +83,19 @@ def reconcile(repo: Path, rows: list[dict], checkpoint: dict,
             or old_anchor.get("head_sha") != checkpoint.get("head_sha")
             or not isinstance(rows, list)
             or len(rows) != pin_report.get("review_events_present")
-            or len(rows) != 5741
+            or len(rows) != expected_records
             or len({r.get("excel_row") for r in rows}) != len(rows)):
         result["blocking_reason"] = "Full pin-audit rows and matching 900-first-parent Git anchor required"
         result["first_parent_checkpoint"] = anchor
         return result
+    window_size = checkpoint.get("window_first_parent_commits", 900)
     ok, payload = git(repo, "rev-list", "--first-parent",
-                      "--max-count=900", checkpoint["head_sha"])
+                      f"--max-count={window_size}", checkpoint["head_sha"])
     history = payload.decode("ascii", "replace").splitlines() if ok else []
-    if len(history) != 900 or history[-1] != checkpoint["oldest_included_sha"]:
+    if len(history) != window_size or history[-1] != checkpoint["oldest_included_sha"]:
         result["blocking_reason"] = "Git history changed or incomplete since audit"
         return result
-    chronological = {commit: 899 - i for i, commit in enumerate(history)}
+    chronological = {commit: window_size - 1 - i for i, commit in enumerate(history)}
     groups: dict[tuple[str, str], set[int]] = defaultdict(set)
     first_seen = {}
     excluded = Counter()
@@ -183,7 +185,7 @@ def reconcile(repo: Path, rows: list[dict], checkpoint: dict,
         "files_with_verified_pins": len(files),
         "path_blob_identities": len(groups),
         "first_parent_checkpoint": anchor,
-        "window_definition": "900 first-parent SHAs including pinned head; only audited exact-SHA members",
+        "window_definition": f"{window_size} first-parent SHAs including pinned head; only audited exact-SHA members",
         "interpretation": "Exact path/blob union is the independent verified-pin upper count. "
             "Provisional mapping merges uniquely occurring unchanged source lines in adjacent "
             "pinned same-path revisions only; not a proven lower bound or complete history. "
