@@ -28,11 +28,12 @@ def canonical(record: dict) -> bytes:
 def head_from_sql(container: str, password: str) -> tuple[int, str]:
     query = """
     SET NOCOUNT ON;
-    SELECT CONCAT(CONVERT(VARCHAR(24),COALESCE(MAX(SequenceNo),0)),':',
+    SELECT CONCAT(
+      CONVERT(VARCHAR(24),(SELECT COALESCE(MAX(SequenceNo),0)
+                           FROM dbo.AuthorizationDecisionChain)), ':',
       COALESCE((SELECT TOP 1 CONVERT(VARCHAR(64),RecordHash,2)
                 FROM dbo.AuthorizationDecisionChain ORDER BY SequenceNo DESC),
-               REPLICATE('0',64)))
-    FROM dbo.AuthorizationDecisionChain;
+               REPLICATE('0',64)));
     """
     result = subprocess.run([
         "docker", "exec", "-i", container, "/opt/mssql-tools18/bin/sqlcmd",
