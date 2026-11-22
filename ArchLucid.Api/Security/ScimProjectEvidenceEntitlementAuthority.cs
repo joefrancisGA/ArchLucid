@@ -4,6 +4,7 @@ using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 
 namespace ArchLucid.Api.Security;
 
@@ -14,7 +15,8 @@ namespace ArchLucid.Api.Security;
 public sealed class ScimProjectEvidenceEntitlementAuthority(
     IScopeContextProvider scopeProvider,
     IScimUserRepository users,
-    IProjectRoleAssignmentRepository assignments)
+    IProjectRoleAssignmentRepository assignments,
+    IRunRepository runs)
     : IEvidenceEntitlementAuthority
 {
     public async Task<bool> HasCurrentReadEntitlementAsync(
@@ -48,6 +50,13 @@ public sealed class ScimProjectEvidenceEntitlementAuthority(
             resource.TenantId, resource.WorkspaceId, resource.ProjectId,
             user.Id, cancellationToken).ConfigureAwait(false);
 
-        return role >= ProjectScopedEffectiveRole.Reader;
+        if (role < ProjectScopedEffectiveRole.Reader)
+            return false;
+
+        // A project role alone must not grant access to a foreign run.
+        // GetByIdAsync is explicitly tenant/workspace/project-scoped.
+        var run = await runs.GetByIdAsync(scope, resource.EvidenceId, cancellationToken)
+            .ConfigureAwait(false);
+        return run is not null && run.RunId == resource.EvidenceId;
     }
 }
