@@ -23,6 +23,34 @@ from aspects_review_evidence import (
 
 METHOD = "first_parent_verified_path_blob_span_union_v1"
 LEDGER_DEFAULT = "docs/engineering/aspects-review-ledger.jsonl"
+HISTORICAL_STATE_DEFAULT = "docs/engineering/aspects-historical-restoration-state.json"
+
+
+def read_historical_checkpoint(path: Path) -> dict | None:
+    """Keep the legacy population visible without treating it as live Git-verified LOC."""
+    if not path.exists():
+        return None
+    state = json.loads(path.read_text(encoding="utf-8"))
+    baseline = state["last_900_first_parent_snapshot"]
+    if state["historical_review_observations"] != 5741:
+        raise ValueError("Historical review population has drifted")
+    if state["clean_review_observations"] != 4864:
+        raise ValueError("Missing clean historical review observations")
+    if baseline["defects"] != 463 or baseline["unique_loc"] != 343492:
+        raise ValueError("Historical 900-commit goldens have drifted")
+    rate = 1000 * baseline["defects"] / baseline["unique_loc"]
+    if abs(rate - baseline["per_kloc"]) > 1e-10:
+        raise ValueError("Historical density numerator/denominator mismatch")
+    return {
+        "status": "historical_workbook_partial_checkpoint_not_current",
+        "source_sha256": state["source"]["sha256"],
+        "all_history_review_observations": state["historical_review_observations"],
+        "clean_reviews": state["clean_review_observations"],
+        "known_all_history_incremental_loc_sum_not_window_union": state["historical_incremental_loc_reported_known_sum"],
+        "missing_incremental_loc_observations": state["missing_incremental_loc_observations"],
+        "latest_legacy_900_window": baseline,
+        "notice": "The historical baseline and Git source-verified subset are distinct; do not add them without identity and first-parent reconciliation.",
+    }
 
 
 def _identity(row: dict) -> str:
@@ -186,7 +214,25 @@ def build_snapshot(
 def markdown(snapshot: dict) -> str:
     d, r = snapshot["density"], snapshot["review"]
     fmt = lambda v: "unavailable" if v is None else f"{v:.6f}"
-    return "\n".join([
+    historical = snapshot.get("historical_checkpoint")
+    introduction = []
+    if historical:
+        old = historical["latest_legacy_900_window"]
+        introduction = [
+            "# Aspects historical accounting restoration",
+            "",
+            f"- Historical workbook reviewed observations: **{historical['all_history_review_observations']:,}**",
+            f"- Historical clean (zero-defect) observations: **{historical['clean_reviews']:,}**",
+            f"- Historical known all-row incremental LOC: **{historical['known_all_history_incremental_loc_sum_not_window_union']:,}** (not a rolling-window union)",
+            f"- Historical missing incremental LOC observations: **{historical['missing_incremental_loc_observations']}**",
+            f"- Last partial legacy 900-first-parent checkpoint: **{old['defects']} defects / {old['unique_loc']:,} reviewed LOC = {old['per_kloc']:.6f} defects/KLOC**",
+            f"- Legacy as-of: **{old['as_of_et']}**",
+            "- Legacy baseline is **not** a current fully reconciled rate; it is preserved separately from Git-backed new observations.",
+            "",
+            "## New source-verified Git ledger subset",
+            "",
+        ]
+    return "\n".join(introduction + [
         "# Aspects verified-subset defect-density snapshot",
         "",
         f"- Pinned head: `{snapshot['head']}`",
@@ -213,6 +259,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=Path, default=Path("."))
     parser.add_argument("--ledger", type=Path, default=Path(LEDGER_DEFAULT))
+    parser.add_argument("--historical-state", type=Path, default=Path(HISTORICAL_STATE_DEFAULT))
     parser.add_argument("--head", required=True)
     parser.add_argument("--window", type=int, default=900)
     parser.add_argument("--previous", type=Path)
@@ -230,6 +277,7 @@ def main() -> None:
     if args.previous is not None and args.previous.exists():
         prior = json.loads(args.previous.read_text(encoding="utf-8"))
     snapshot = build_snapshot(records, first_parent, args.head, args.window, prior)
+    snapshot["historical_checkpoint"] = read_historical_checkpoint(args.historical_state)
 
     args.json_out.parent.mkdir(parents=True, exist_ok=True)
     args.markdown_out.parent.mkdir(parents=True, exist_ok=True)
