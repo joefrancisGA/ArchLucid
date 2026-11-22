@@ -19,6 +19,11 @@ class ControllerTests(unittest.TestCase):
         jobs = [{"id": i, "run_id": 1, "conclusion": "failure"} for i in range(4)]
         self.assertEqual("cancel", decide(runs, jobs, "new", "new")["action"])
 
+    def test_counts_jobs_without_run_id(self):
+        runs = [{"id": 1, "status": "in_progress", "head_sha": "old"}]
+        jobs = [{"id": i, "conclusion": "failure"} for i in range(4)]
+        self.assertEqual("cancel", decide(runs, jobs, "new", "new")["action"])
+
     def test_never_cancels_without_reviewed_new_head(self):
         runs = [{"id": 1, "status": "in_progress", "head_sha": "old"}]
         jobs = [{"id": i, "run_id": 1, "conclusion": "failure"} for i in range(5)]
