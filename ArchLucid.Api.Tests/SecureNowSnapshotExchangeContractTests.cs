@@ -78,7 +78,9 @@ public sealed class SecureNowSnapshotExchangeContractTests
                     {
                         RequestServices = services,
                         User = new ClaimsPrincipal(new ClaimsIdentity(
-                            [new Claim(ClaimTypes.NameIdentifier, "operator")], "test"))
+                            [new Claim(ClaimTypes.NameIdentifier, "operator"),
+                             new Claim("archlucid.resource_entitlement",
+                                 $"evidence.read:{Scope.TenantId:D}:{Scope.WorkspaceId:D}:{Scope.ProjectId:D}:{Run:D}")], "test"))
                     } }
         };
         return (controller, runs, authority);
