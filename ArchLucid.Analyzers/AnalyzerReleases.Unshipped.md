@@ -10,6 +10,9 @@ FND017005 | Architecture | Info | Snapshot evidence authorization resource bindi
 
 ### Removed Rules
 
+Rule ID | Category | Severity | Notes
+--------|----------|----------|------
+
 ### Changed Rules
 
 Rule ID | New Category | New Severity | Old Category | Old Severity | Notes
