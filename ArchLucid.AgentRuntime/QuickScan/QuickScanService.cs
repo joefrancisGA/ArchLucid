@@ -35,10 +35,20 @@ public sealed class QuickScanService(
         string? jsonResponse = null;
         Exception? lastError = null;
 
+        // The configured hard timeout covers the whole scan, including retries.
+        // Creating a new timer for each attempt would multiply the admitted budget.
+        using CancellationTokenSource scanBudget = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        scanBudget.CancelAfter(timeout);
+
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
-            using CancellationTokenSource timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            timeoutCts.CancelAfter(timeout);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (scanBudget.IsCancellationRequested)
+            {
+                lastError = new TimeoutException("Quick scan processing timed out.");
+                break;
+            }
 
             try
             {
@@ -46,19 +56,47 @@ public sealed class QuickScanService(
                     QuickScanLlmPrompts.SystemPrompt,
                     userPrompt,
                     maxTokens: maxTokens,
-                    cancellationToken: timeoutCts.Token);
+                    cancellationToken: scanBudget.Token);
 
+                // Some providers can return a result after cancellation was requested.
+                // Never report a successful scan beyond the hard processing budget.
+                cancellationToken.ThrowIfCancellationRequested();
+                scanBudget.Token.ThrowIfCancellationRequested();
                 break;
             }
-            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                // Caller cancellation must never be swallowed or retried.
+                throw;
+            }
+            catch (OperationCanceledException) when (scanBudget.IsCancellationRequested)
             {
                 lastError = new TimeoutException("Quick scan processing timed out.");
+                break;
+            }
+            catch (OperationCanceledException ex) when (attempt < maxAttempts - 1)
+            {
+                // Provider cancellation without our deadline/caller cancellation is not a timeout.
+                lastError = ex;
+            }
+            catch (OperationCanceledException ex)
+            {
+                lastError = ex;
+            }
+            catch (Exception) when (scanBudget.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+            {
+                lastError = new TimeoutException("Quick scan processing timed out.");
+                break;
             }
             catch (Exception ex) when (attempt < maxAttempts - 1)
             {
                 lastError = ex;
             }
         }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        if (scanBudget.IsCancellationRequested)
+            lastError = new TimeoutException("Quick scan processing timed out.");
 
         if (jsonResponse is null)
         {
