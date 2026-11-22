@@ -58,6 +58,7 @@ public sealed partial class AzureOpenAiCompletionClient
             {
                 completion = await CompleteChatCoreAsync(messages, maxTokens, temperature, cancellationToken)
                     .ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
             }
             catch (Exception ex)
             {
@@ -125,6 +126,7 @@ public sealed partial class AzureOpenAiCompletionClient
             if (reasoningSnippet is not null)
                 AgentHandlerLlmReasoningTrace.AppendCompletionSnippet(reasoningSnippet);
 
+            cancellationToken.ThrowIfCancellationRequested();
             llmActivity?.SetStatus(ActivityStatusCode.Ok);
 
             completionSucceededForTelemetry = true;
