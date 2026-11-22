@@ -31,6 +31,32 @@ public sealed class AgentRuntimePackageCoverageBatch18Tests
         differentKey.Should().NotBeSameAs(first);
     }
 
+    [Fact]
+    public async Task RealAgentExecutorHandlerResiliencePipeline_Cancellation_does_not_open_circuit()
+    {
+        AgentExecutionResilienceOptions options = new()
+        {
+            HandlerCircuitBreakerFailureThreshold = 2,
+            HandlerCircuitBreakerBreakSeconds = 60,
+        };
+        var pipeline = RealAgentExecutorHandlerResiliencePipeline.Resolve(
+            "cancellation-audit-" + Guid.NewGuid().ToString("N"), 0, options);
+
+        for (int i = 0; i < 3; i++)
+        {
+            Func<Task> cancelled = async () =>
+                await pipeline.ExecuteAsync<AgentResult>(
+                    _ => throw new OperationCanceledException("caller cancelled"),
+                    CancellationToken.None);
+            await cancelled.Should().ThrowAsync<OperationCanceledException>();
+        }
+
+        AgentResult result = new();
+        AgentResult actual = await pipeline.ExecuteAsync(
+            _ => ValueTask.FromResult(result), CancellationToken.None);
+        actual.Should().BeSameAs(result);
+    }
+
     [Theory]
     [InlineData(typeof(TimeoutRejectedException), true)]
     [InlineData(typeof(BrokenCircuitException), true)]
