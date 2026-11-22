@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_5741_imported_atomic_multi_pin_audit_unpinned_recovery_and_cross_population_exact_overlap_CI_pending",
-  "next_priority": "Inspect current PR #7822 head Aspects-source, CI and Merge Protection jobs and published 34-blob multi-file audit, commit-derived candidate report and SHA-256 checked exact-overlap artifact. Repair any real test failures; only then merge if all required checks pass. Next independent stage: prove or quarantine defect IDs and per-PR fixing states, and reconcile 600/700 series without asserting invented points.",
+  "state": "historical_5741_imported_34_multisource_blobs_independently_verified_regression_CI_pending",
+  "next_priority": "Inspect current head PR #7822 required CI and Aspects artifact (34 pinned components, derived candidate report, exact-overlap SHA-256, provisional cross-revision lineage). Repair failures; calculate comparable new 900-window density only after deduplicated cohort and distinct defect IDs/fix-PR states are independently reconciled. Preserve all 600/700 points and source confidence; never splice partial denominators. Merge only once required checks pass.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -96,7 +96,7 @@
         "confidence": "workbook_blob_pinned_atomic_git_verification_pending_CI"
       }
     ],
-    "multi_file_source_integrity_status": "parser_goldens_34_file_spans_sum_to_3693_reported_nonblank_LOC_exactly; full git checks_pending; 4 representative path_blob identities independently matched Git",
+    "multi_file_source_integrity_status": "independent_GitHub_commit_path_blob_and_nonblank_spans_34_of_34_verified_2026-11-22; CI golden_required_pending",
     "unpinned_backfill": {
       "script": "scripts/aspects_recover_unpinned_historical_sources.py",
       "tests": "scripts/tests/test_aspects_recover_unpinned_historical_sources.py",
@@ -130,6 +130,24 @@
       "dedup_policy": "exact_path_blob_line_overlap_only_inside_same_900_SHA_window; candidate-only identities are NOT verified reviewed LOC or additive to 463/343492; cross-revision mapping pending",
       "new_verified_lines_added": 0,
       "defect_ids_reconciled_this_stage": 0
+    },
+    "multifile_34_source_checkpoint": {
+      "path": "docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-github-multisource-34.json",
+      "source_rows": [
+        1250,
+        1252,
+        1255
+      ],
+      "source_components": 34,
+      "verified_nonblank_line_occurrences": 3693,
+      "verified_exact_unique_lines_within_three_rows": 3693,
+      "repeated_within_three_rows": 0,
+      "source_provenance": "independent GitHub fetched commit:path blobs and nonblank interval counts",
+      "global_overlap_with_other_4511_single_pins": "not_yet_recomputed",
+      "verified_distinct_defects_added": 0,
+      "comparable_900_rate_computed": false,
+      "regression_test": "scripts/tests/test_aspects_historical_multisource_checkpoint.py",
+      "ci_status": "current_head_queued_not_passed"
     }
   }
 }
