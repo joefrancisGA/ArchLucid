@@ -38,6 +38,10 @@ jobs:
         run: >-
           dotnet test ArchLucid.Analyzers.Tests/ArchLucid.Analyzers.Tests.csproj
           --filter FullyQualifiedName~SecureNowExchangeModePatternTests
+      - name: Verify analyzer assumptions against actual SecureNow snapshot endpoint
+        run: >-
+          dotnet test ArchLucid.Analyzers.Tests/ArchLucid.Analyzers.Tests.csproj
+          --filter FullyQualifiedName~SecureNowActualEndpointSourceTests
       - name: Run existing advisory conformance report
         run: python3 scripts/architecture/fnd017_conformance.py --output fnd017-conformance-report.json
       - name: Publish advisory report
