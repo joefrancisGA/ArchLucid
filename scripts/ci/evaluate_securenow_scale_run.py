@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 
 
@@ -27,8 +28,35 @@ def evaluate(summary: dict, run: dict) -> dict:
     requests = values["http_reqs"].get("count")
     if any(value is None for value in (failure_rate, p95, check_rate, requests)):
         errors.append("required k6 metrics missing")
-    elif requests <= 0 or failure_rate >= 0.01 or p95 >= 3000 or check_rate <= 0.99:
+    elif all(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) for v in (requests, failure_rate, p95, check_rate)) and (requests <= 0 or failure_rate >= 0.01 or p95 >= 3000 or check_rate <= 0.99):
         errors.append("observed metrics exceed synthetic test thresholds")
+    # The two measured read endpoints must both have observed latency and
+    # passing k6 thresholds. Preflight is excluded from the measured workload.
+    for endpoint in ("snapshot_list", "ranked_paths"):
+        key = f"http_req_duration{{name:{endpoint}}}"
+        tagged = metrics.get(key) or {}
+        tagged_values = tagged.get("values") or {}
+        endpoint_p95 = tagged_values.get("p(95)")
+        if (isinstance(endpoint_p95, bool)
+                or not isinstance(endpoint_p95, (int, float))
+                or not math.isfinite(endpoint_p95) or endpoint_p95 <= 0):
+            errors.append(f"missing or invalid endpoint p95: {endpoint}")
+        elif endpoint_p95 >= 3000:
+            errors.append(f"endpoint p95 exceeds 3000ms: {endpoint}")
+        endpoint_thresholds = tagged.get("thresholds") or {}
+        if not endpoint_thresholds or any(
+                not isinstance(item, dict) or item.get("ok") is not True
+                for item in endpoint_thresholds.values()):
+            errors.append(f"missing or failed endpoint threshold: {endpoint}")
+    for name, value in (("failure rate", failure_rate), ("p95", p95),
+                        ("check rate", check_rate), ("request count", requests)):
+        if (isinstance(value, bool) or not isinstance(value, (int, float))
+                or not math.isfinite(value) or value < 0):
+            errors.append(f"invalid numeric metric: {name}")
+    if isinstance(check_rate, (int, float)) and check_rate > 1:
+        errors.append("invalid check rate above one")
+    if isinstance(failure_rate, (int, float)) and failure_rate > 1:
+        errors.append("invalid failure rate above one")
     for name in ("http_req_failed", "http_req_duration", "checks"):
         thresholds = (metrics.get(name) or {}).get("thresholds") or {}
         if not thresholds or any(item.get("ok") is not True for item in thresholds.values()):

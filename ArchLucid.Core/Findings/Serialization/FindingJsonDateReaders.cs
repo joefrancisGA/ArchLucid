@@ -15,7 +15,7 @@ internal static class FindingJsonDateReaders
                 && DateTimeOffset.TryParse(
                     raw,
                     CultureInfo.InvariantCulture,
-                    DateTimeStyles.RoundtripKind,
+                    DateTimeStyles.AssumeUniversal,
                     out value))
             {
                 return true;

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Findings;
@@ -11,10 +12,15 @@ namespace ArchLucid.Core.Tests.Findings.Serialization;
 public sealed class FindingJsonConverterTests
 {
     [Theory]
-    [InlineData("9223372036854775807")]
-    [InlineData("\"9223372036854775807\"")]
-    [InlineData("-9223372036854775808")]
-    public void Deserialize_out_of_range_reviewedAtUtc_does_not_throw(string timestamp)
+    [InlineData("9223372036854775807", null)]
+    [InlineData("\"9223372036854775807\"", null)]
+    [InlineData("-9223372036854775808", null)]
+    [InlineData("\"2026-11-21T18:20:00\"", "2026-11-21T18:20:00.0000000+00:00")]
+    [InlineData("\"2026-11-21T18:20:00Z\"", "2026-11-21T18:20:00.0000000+00:00")]
+    [InlineData("\"2026-11-21T13:20:00-05:00\"", "2026-11-21T13:20:00.0000000-05:00")]
+    public void Deserialize_reviewedAtUtc_handles_missing_offsets_and_out_of_range_values(
+        string timestamp,
+        string? expected)
     {
         string json = """
                       {
@@ -40,7 +46,8 @@ public sealed class FindingJsonConverterTests
 
         Finding? finding = JsonSerializer.Deserialize<Finding>(json, CreateOptions());
         finding.Should().NotBeNull();
-        finding!.ReviewedAtUtc.Should().BeNull();
+        string? actual = finding!.ReviewedAtUtc?.ToString("O", CultureInfo.InvariantCulture);
+        actual.Should().Be(expected);
     }
 
     [Fact]

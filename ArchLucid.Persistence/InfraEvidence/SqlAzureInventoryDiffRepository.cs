@@ -325,7 +325,7 @@ public sealed partial class SqlAzureInventoryDiffRepository(ISqlConnectionFactor
                            WHERE TenantId = @TenantId
                              AND DiffId = @DiffId
                              AND CloudResourceId = @CloudResourceId
-                           ORDER BY AzureResourceId, ChangeType, Property;
+                           ORDER BY AzureResourceId, ChangeType, Property, ChangeId;
                            """;
 
         using IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);

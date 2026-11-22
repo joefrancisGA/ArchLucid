@@ -36,7 +36,7 @@ public sealed class SqlRunExecuteOwnershipLeaseRepository(IDbConnectionFactory c
         {
             const string selectSql = """
                                      SELECT HolderInstanceId, LeaseExpiresUtc
-                                     FROM dbo.RunExecuteOwnershipLeases WITH (UPDLOCK, ROWLOCK)
+                                     FROM dbo.RunExecuteOwnershipLeases WITH (UPDLOCK, HOLDLOCK)
                                      WHERE RunId = @RunId
                                      """;
 
@@ -78,7 +78,7 @@ public sealed class SqlRunExecuteOwnershipLeaseRepository(IDbConnectionFactory c
 
                     return true;
                 }
-                catch (SqlException ex) when (ex.Number == 2627)
+                catch (SqlException ex) when (ex.Number is 2601 or 2627)
                 {
                     transaction.Rollback();
 
@@ -86,7 +86,7 @@ public sealed class SqlRunExecuteOwnershipLeaseRepository(IDbConnectionFactory c
                 }
             }
 
-            if (row.LeaseExpiresUtc < nowUtc
+            if (row.LeaseExpiresUtc <= nowUtc
                 || string.Equals(row.HolderInstanceId, holderInstanceId, StringComparison.Ordinal))
             {
                 const string updateSql = """
@@ -185,8 +185,8 @@ public sealed class SqlRunExecuteOwnershipLeaseRepository(IDbConnectionFactory c
         const string sql = """
                            SELECT TOP (@MaxRows) RunId
                            FROM dbo.RunExecuteOwnershipLeases
-                           WHERE LeaseExpiresUtc < @AsOfUtc
-                           ORDER BY LeaseExpiresUtc ASC
+                           WHERE LeaseExpiresUtc <= @AsOfUtc
+                           ORDER BY LeaseExpiresUtc ASC, RunId ASC
                            """;
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

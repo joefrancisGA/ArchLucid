@@ -22,6 +22,35 @@ regexes = [
   "^primary/supplemental$",
 ]
 
+# Historical FND-010 authorization test: only the fixed, synthetic signing-byte
+# fixture assigned to self.key is exempt. All other paths, values and rules
+# remain subject to full-history gitleaks scanning.
+[[allowlists]]
+description = "FND-010 historical signed-evidence test's non-production signing fixture"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = [
+  '''(?:^|/)scripts/tests/test_fnd010_evidence_authorization\.py$''',
+]
+regexes = [
+  '''self\.key = b"test-key-material-at-least-thirty-two-bytes"''',
+]
+
+# Historical deterministic nonce in retired FND-010 test fixture (commit 1d4c4c8e, line 34).
+# Exact path + exact line fragment + generic-api-key only; no other results excluded.
+[[allowlists]]
+description = "Synthetic FND-010 envelope nonce fixture, not a production credential"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = [
+  '''(?:^|/)scripts/tests/test_fnd010_evidence_authorization\.py$''',
+]
+regexes = [
+  '''"key-a", "nonce-unique-123456789"''',
+]
+
 # v8.25+ requires [[allowlists]]; legacy [allowlist] is ignored (unlike rules.allowlist migration).
 # Path-only: gitleaks global allowlists default to condition AND; mixing these paths with
 # regexes below would require BOTH path and a regex match per finding — so eval fixtures

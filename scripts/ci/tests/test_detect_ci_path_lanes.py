@@ -93,33 +93,25 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertTrue(lanes["run_terraform"])
         self.assertTrue(lanes["run_infra_diagrams_layout"])
 
-    def test_rolling_rc_push_concurrency_is_branch_scoped_and_merge_group_safe(self) -> None:
-        """RC push uses a branch-scoped group; merge_group never cancels in-progress."""
+    def test_rc49_dispatch_only_and_branch_scoped_concurrency(self) -> None:
+        """Retired RC pushes remain disabled; RC49 dispatch completes without cancellation."""
         workflow = (_REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        events = workflow.split("\non:\n", 1)[1].split("\nconcurrency:\n", 1)[0]
+        self.assertNotRegex(events, r"(?m)^  push:")
+        self.assertIn("  pull_request:", events)
+        self.assertIn("  merge_group:", events)
+        self.assertIn("  workflow_dispatch:", events)
         concurrency = workflow.split("\nconcurrency:\n", 1)[1].split("\n\n", 1)[0]
-        match = re.search(r"(?m)^  push:\n    branches: \[([^\]]+)\]$", workflow)
-        self.assertIsNotNone(match)
-        branches = {branch.strip() for branch in match.group(1).split(",")}
-        self.assertEqual({"RC43", "RC44", "RC46", "RC47"}, branches)
-        self.assertTrue({"RC45"}.isdisjoint(branches))  # RC45 retains separate repair workflow.
-
-        # Full-CI release pushes use separate groups; RC45 uses repair checks.
-        self.assertIn("github.event_name == 'push'", concurrency)
-        self.assertIn("github.ref == 'refs/heads/RC43'", concurrency)
-        self.assertIn("github.ref == 'refs/heads/RC44'", concurrency)
-        self.assertIn("github.ref == 'refs/heads/RC46'", concurrency)
-        self.assertIn("github.ref == 'refs/heads/RC47'", concurrency)
+        self.assertIn("github.event.pull_request.number || github.ref", concurrency)
+        self.assertIn("github.event_name != 'merge_group'", concurrency)
         self.assertIn("github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/RC49'", concurrency)
         self.assertIn("'rc49-dispatch'", concurrency)
-        self.assertIn("format('rc-push-{0}', github.ref)", concurrency)
-        self.assertIn("(github.event.pull_request.number || github.ref)", concurrency)
-        self.assertNotIn("github.sha", concurrency)
-        # Release-candidate pushes complete rather than being canceled by a second push.
-        self.assertIn("cancel-in-progress:", concurrency)
-        self.assertIn("github.event_name != 'merge_group'", concurrency)
         self.assertIn("!(github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/RC49')", concurrency)
-        self.assertNotIn("RC49", match.group(1))
 
+    def test_rc49_pre_corset_guards_are_blocking(self) -> None:
+        workflow = (_REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        guard_section = workflow.split("\n  guards-pre-corset:\n", 1)[1].split("\n  dotnet-fast-core-build:\n", 1)[0]
+        self.assertIn("github.ref != 'refs/heads/RC49'", guard_section)
 
     def test_initial_rc_push_uses_first_parent_diff_for_guards(self) -> None:
         """An all-zero before SHA on the first branch push must never disable diff guards."""

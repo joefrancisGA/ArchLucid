@@ -84,20 +84,38 @@ public sealed partial class AdvisoryScanRunner
                 TimeProvider.System.UtcNowDateTime(),
                 ex.Message,
                 ct);
-            await auditService.LogAsync(
-                new AuditEvent
+            try
+            {
+                await auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.AdvisoryScanExecuted,
+                        DataJson = JsonSerializer.Serialize(
+                            new
+                            {
+                                scheduleId = schedule.ScheduleId,
+                                executionId = execution.ExecutionId,
+                                failed = true,
+                                error = ex.Message
+                            },
+                            AuditJsonSerializationOptions.Instance)
+                    }, ct);
+            }
+            catch (Exception auditException) when (auditException is not OperationCanceledException)
+            {
+                try
                 {
-                    EventType = AuditEventTypes.AdvisoryScanExecuted,
-                    DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            scheduleId = schedule.ScheduleId,
-                            executionId = execution.ExecutionId,
-                            failed = true,
-                            error = ex.Message
-                        },
-                        AuditJsonSerializationOptions.Instance)
-                }, ct);
+                    await AdvanceScheduleAsync(schedule, ct);
+                }
+                catch (Exception advanceException) when (advanceException is not OperationCanceledException)
+                {
+                    logger.LogWarning(advanceException,
+                        "Could not advance failed advisory scan schedule {ScheduleId}.", schedule.ScheduleId);
+                }
+
+                throw;
+            }
+
             await AdvanceScheduleAsync(schedule, ct);
         }
     }

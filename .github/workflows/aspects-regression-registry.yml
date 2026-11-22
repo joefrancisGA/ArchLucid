@@ -1,14 +1,8 @@
 name: Aspects regression registry
 
+# Aspects check-ins must never trigger this workflow automatically.
+# Run explicitly from GitHub Actions only when authorized.
 on:
-  pull_request:
-    branches: [master, main]
-    paths:
-      - 'scripts/ci/aspects-regression-*'
-      - 'scripts/ci/aspects_regression_patterns.py'
-      - 'scripts/tests/test_aspects_regression_patterns.py'
-      - 'docs/engineering/ASPECTS_REGRESSION_PATTERNS.md'
-      - '.github/workflows/aspects-regression-registry.yml'
   workflow_dispatch:
 
 permissions:

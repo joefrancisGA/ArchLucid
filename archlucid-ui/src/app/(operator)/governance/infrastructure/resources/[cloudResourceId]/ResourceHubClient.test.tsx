@@ -739,6 +739,25 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-open-terraform-work")).not.toBeInTheDocument();
   });
 
+  it("requests only the newly pinned snapshot when pinning from latest evidence", async () => {
+    searchParams = new URLSearchParams("tab=overview");
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+    await screen.findByTestId("infra-resource-hub-snapshot-id");
+    fetchCachedInfraEvidenceResourceHub.mockClear();
+
+    const newlyPinnedId = "77777777-7777-7777-7777-777777777777";
+    searchParams = new URLSearchParams(`tab=overview&snapshotId=${newlyPinnedId}`);
+    rerender(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await waitFor(() => {
+      expect(fetchCachedInfraEvidenceResourceHub).toHaveBeenNthCalledWith(
+        1,
+        RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+        expect.objectContaining({ snapshotId: newlyPinnedId }),
+      );
+    });
+  });
+
   it("shows snapshot scope strip with pinned label when snapshotId is in the URL", async () => {
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 

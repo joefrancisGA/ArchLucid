@@ -1,12 +1,8 @@
 name: Aspects evidence reconciliation
 
+# Aspects check-ins must never trigger this workflow automatically.
+# Run explicitly from GitHub Actions only when authorized.
 on:
-  pull_request:
-    paths:
-      - 'scripts/aspects_review_evidence.py'
-      - 'scripts/tests/test_aspects_review_evidence.py'
-      - 'docs/engineering/aspects-review-*.jsonl'
-      - '.github/workflows/aspects-evidence-reconciliation.yml'
   workflow_dispatch:
 
 permissions:

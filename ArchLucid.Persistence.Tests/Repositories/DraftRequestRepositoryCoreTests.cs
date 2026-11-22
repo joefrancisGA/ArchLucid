@@ -39,6 +39,35 @@ public sealed class DraftRequestRepositoryCoreTests
     }
 
     [Fact]
+    public void ListRunSpawnedInScope_uses_sql_draft_id_order_for_tied_timestamps_before_cap()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        // SQL GUID order compares the node bytes ahead of the first group.
+        Guid lowerSqlId = Guid.Parse("ffffffff-0000-0000-0000-000000000001");
+        Guid higherSqlId = Guid.Parse("00000000-0000-0000-0000-000000000002");
+        DateTime updatedUtc = new(2026, 11, 20, 13, 0, 0, DateTimeKind.Utc);
+
+        InMemoryDraftRequestStoredDraft lower = new()
+        {
+            DraftId = lowerSqlId,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            Status = DraftRequestStatus.RunSpawned,
+            UpdatedUtc = updatedUtc,
+        };
+        InMemoryDraftRequestStoredDraft higher = lower with { DraftId = higherSqlId };
+
+        IReadOnlyList<DraftRequestResponse> drafts = DraftRequestRepositoryCore.ListRunSpawnedInScope(
+            [lower, higher], tenantId, workspaceId, projectId, Guid.Empty, 1,
+            static draft => new DraftRequestResponse { DraftId = draft.DraftId });
+
+        drafts.Should().ContainSingle().Which.DraftId.Should().Be(higherSqlId);
+    }
+
+    [Fact]
     public void NormalizeSystemName_uppercases() =>
         DraftRequestRepositoryCore.NormalizeSystemName(" abc ").Should().Be("ABC");
 

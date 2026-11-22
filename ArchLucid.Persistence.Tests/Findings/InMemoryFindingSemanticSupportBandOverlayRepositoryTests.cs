@@ -12,6 +12,30 @@ namespace ArchLucid.Persistence.Tests.Findings;
 public sealed class InMemoryFindingSemanticSupportBandOverlayRepositoryTests
 {
     [Fact]
+    public async Task Upsert_rejects_blank_scorer_version()
+    {
+        InMemoryFindingSemanticSupportBandOverlayRepository repository = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        FindingSemanticSupportBandOverlayRecord overlay = new()
+        {
+            FindingId = "finding-1",
+            Band = FindingSemanticSupportBand.Supported,
+            ScorerVersion = " ",
+        };
+
+        Func<Task> act = () => repository.UpsertAsync(Guid.NewGuid(), scope, overlay, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithParameterName("overlay.ScorerVersion");
+    }
+
+    [Fact]
     public async Task FreezeSnapshot_blocks_further_upserts()
     {
         InMemoryFindingSemanticSupportBandOverlayRepository repository = new();

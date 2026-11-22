@@ -101,7 +101,7 @@ export function FindingInspectRecommendedActionSection({
           </div>
           <div>
             <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
-              Next review
+              Remediation due
             </dt>
             <dd className="m-0 mt-0.5 text-al-text-primary">{resolvedNextReview}</dd>
           </div>

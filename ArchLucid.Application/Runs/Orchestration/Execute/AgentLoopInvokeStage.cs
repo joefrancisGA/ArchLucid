@@ -58,7 +58,19 @@ public sealed class AgentLoopInvokeStage(
                 logger.LogInformationAgentExecutionStateTransition(runId, "agent_batch_executing", "agent_results_persisting", prepared.ScheduledTaskIds);
             return results;
         }
-        catch { await FinalizeAsync(budgetAdmit, false, cancellationToken); throw; }
+        catch
+        {
+            try
+            {
+                await FinalizeAsync(budgetAdmit, false, CancellationToken.None);
+            }
+            catch (Exception releaseError)
+            {
+                logger.LogWarning(releaseError, "Could not release agent batch budget reservation {ReservationId}.", budgetAdmit.ReservationId);
+            }
+
+            throw;
+        }
     }
 
     private async Task<RunScopedLlmBudgetAdmitResult> AdmitAsync(Guid tenantId, string runId, int count, CancellationToken ct)

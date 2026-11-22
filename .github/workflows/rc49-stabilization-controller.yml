@@ -1,0 +1,34 @@
+name: RC49 Stabilization Controller
+# Lightweight decision-only controller. Runs on default branch; checks out RC49.
+# Only RC49 commits explicitly tagged RC49-CI-Ready: true can authorize a full run.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: rc49-stabilization-controller
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: RC49
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate controller
+        run: python -m unittest discover -s scripts/ci/tests -p test_rc49_ci_controller.py
+      - name: Inspect and apply RC49 policy
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/ci/rc49_ci_controller.py --repo "${{ github.repository }}" --auto-ready --apply

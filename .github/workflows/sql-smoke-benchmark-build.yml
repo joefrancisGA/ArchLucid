@@ -1,0 +1,25 @@
+name: SQL smoke benchmark build
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'tools/ArchLucid.SqlSmokeBench/**'
+      - 'docs/architecture/ARCHLUCID_SQL_SMOKE_BENCHMARK.md'
+      - '.github/workflows/sql-smoke-benchmark-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build tools/ArchLucid.SqlSmokeBench/ArchLucid.SqlSmokeBench.csproj --configuration Release
+      - run: dotnet run --no-build --configuration Release --project tools/ArchLucid.SqlSmokeBench -- --help
