@@ -716,6 +716,65 @@ public sealed class ItsmOutboundIssueCreationServiceTests
         handler.LastBody.Should().Contain("structuralExecutionMode: Simulator");
     }
 
+    [Theory]
+    [InlineData("missing", false, false)]
+    [InlineData("career", true, false)]
+    [InlineData("rehearsal", false, true)]
+    public async Task TryCreateForFindingAsync_applies_only_the_available_career_posture(
+        string posture,
+        bool includeCareerComplete,
+        bool labelRehearsal)
+    {
+        ScopeContext scope = Scope();
+        FindingInspectResponse inspect = Inspect(FindingSeverity.Error);
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings.Setup(f => f.GetInspectAsync(scope, inspect.FindingId, CancellationToken.None))
+            .ReturnsAsync(inspect);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority.Setup(query => query.GetRunDetailForManifestCompareAsync(
+                scope, inspect.RunId, CancellationToken.None))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = inspect.RunId },
+                GoldenManifest = CreateSealedGoldenManifest(scope, inspect.RunId),
+            });
+        RunSummaryDto? summary = posture switch
+        {
+            "career" => CreateCareerRealRunSummary(inspect.RunId),
+            "rehearsal" => CreateRehearsalSimulatorRunSummary(inspect.RunId),
+            _ => null,
+        };
+        authority.Setup(query => query.GetRunSummaryAsync(scope, inspect.RunId, CancellationToken.None))
+            .ReturnsAsync(summary);
+
+        Mock<IExternalTicketConnector> connector = new();
+        connector.Setup(vendor => vendor.TryCreateForFindingAsync(
+                It.IsAny<ExternalTicketCreateContext>(), CancellationToken.None))
+            .ReturnsAsync(new ItsmOutboundIssueCreationResult { Kind = ItsmOutboundCreateTerminalKind.Succeeded });
+        Mock<IExternalTicketConnectorRegistry> registry = new();
+        registry.Setup(value => value.GetRequired(ItsmOutboundIssueProvider.Jira))
+            .Returns(connector.Object);
+        ItsmOutboundIssueCreationService sut = new(
+            findings.Object,
+            Mock.Of<IItsmFindingCorrelationRepository>(),
+            Mock.Of<ITenantItsmOutboundSettingsRepository>(),
+            registry.Object,
+            authority.Object,
+            CreateManifestHashService());
+
+        ItsmOutboundIssueCreationResult result = await sut.TryCreateForFindingAsync(
+            ItsmOutboundIssueProvider.Jira, scope, inspect.FindingId, CancellationToken.None);
+
+        result.Kind.Should().Be(ItsmOutboundCreateTerminalKind.Succeeded);
+        connector.Verify(vendor => vendor.TryCreateForFindingAsync(
+                It.Is<ExternalTicketCreateContext>(context =>
+                    context.IncludeCareerCompleteCustomField == includeCareerComplete
+                    && (context.RehearsalRowLabel != null) == labelRehearsal),
+                CancellationToken.None),
+            Times.Once);
+    }
+
     [Fact]
     public async Task TryCreateForFindingAsync_rejects_checklist_coverage_classification()
     {
