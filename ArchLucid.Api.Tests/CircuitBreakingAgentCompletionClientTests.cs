@@ -238,15 +238,21 @@ public sealed class CircuitBreakingAgentCompletionClientTests
 
         Func<Task> invoke = () => sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None);
 
-        await Assert.ThrowsAnyAsync<Exception>(invoke);
+        await Assert.ThrowsAsync<HttpRequestException>(invoke);
         gate.CurrentState.Should().Be("Open");
 
         clock.Advance(TimeSpan.FromSeconds(31));
-        await Assert.ThrowsAnyAsync<Exception>(invoke);
+        if (cancellation)
+            await Assert.ThrowsAsync<OperationCanceledException>(invoke);
+        else
+            await Assert.ThrowsAsync<HttpRequestException>(invoke);
         gate.CurrentState.Should().Be("Open");
 
         // Semantic-terminal and intentional cancellation errors must not hold the probe slot.
-        await Assert.ThrowsAnyAsync<Exception>(invoke);
+        if (cancellation)
+            await Assert.ThrowsAsync<OperationCanceledException>(invoke);
+        else
+            await Assert.ThrowsAsync<HttpRequestException>(invoke);
         calls.Should().Be(3);
         gate.ConsecutiveFailureCount.Should().Be(1);
     }
