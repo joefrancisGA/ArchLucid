@@ -39,6 +39,34 @@ def _identity(row: dict) -> str:
     ).hexdigest()
 
 
+def _merged_intervals(rows: list[dict]) -> list[dict]:
+    """Content-aware line union keyed to the exact path and Git blob."""
+    by_source: dict[tuple[str, str], list[tuple[int, int]]] = {}
+    for row in rows:
+        by_source.setdefault((row["path"], row["blob"]), []).extend(parse_spans(row["spans"]))
+    output = []
+    for (path, blob), spans in sorted(by_source.items()):
+        merged = []
+        for start, end in sorted(spans):
+            if merged and start <= merged[-1][1] + 1:
+                merged[-1][1] = max(end, merged[-1][1])
+            else:
+                merged.append([start, end])
+        output.append({"path": path, "blob": blob, "spans": merged})
+    return output
+
+
+def _new_unique_lines(current: list[dict], previous: list[dict]) -> int:
+    """Count source-line intervals absent from previous exact path/blob coverage."""
+    prior = {(r["path"], r["blob"]): r["spans"] for r in previous}
+    total = 0
+    for row in current:
+        old = prior.get((row["path"], row["blob"]), [])
+        for left, right in row["spans"]:
+            covered = sum(max(0, min(right, b) - max(left, a) + 1) for a, b in old)
+            total += right - left + 1 - covered
+    return total
+
 def revalidate_rows(repo: Path, rows: list[dict], baselines: set[str]) -> list[dict]:
     """Do not trust a JSON verified=true flag without inspecting the pinned git blob."""
     valid = []
@@ -71,6 +99,7 @@ def build_snapshot(
     defects = sorted({r["defect_id"] for r in current_rows if r.get("defect_id")})
     files = sorted({r["path"] for r in current_rows})
     evidence_hash = hashlib.sha256("\n".join(identities).encode("ascii")).hexdigest()
+    intervals = _merged_intervals(current_rows)
     density = summary["provisional_density_per_kloc"]
 
     status = "source_verified_subset" if identities and density is not None else "unavailable"
@@ -80,6 +109,7 @@ def build_snapshot(
     new_evidence = None
     new_files = None
     newly_confirmed = None
+    new_unique_lines = None
 
     if previous is not None:
         comparable = (
@@ -94,6 +124,9 @@ def build_snapshot(
             new_evidence = len(set(identities) - prior_ids)
             new_files = len(set(files) - prior_files)
             newly_confirmed = len(set(defects) - prior_defects)
+            prior_intervals = previous.get("evidence", {}).get("path_blob_intervals")
+            if isinstance(prior_intervals, list):
+                new_unique_lines = _new_unique_lines(intervals, prior_intervals)
             prior_density = previous.get("density", {}).get("defects_per_kloc")
             if density is not None and isinstance(prior_density, (int, float)):
                 delta = round(density - prior_density, 6)
@@ -129,9 +162,11 @@ def build_snapshot(
             "new_observations_since_prior": new_evidence,
             "new_files_since_prior": new_files,
             "new_defects_since_prior": newly_confirmed,
+            "new_unique_path_blob_lines_since_prior": new_unique_lines,
         },
         "evidence": {
             "fingerprint": evidence_hash,
+            "path_blob_intervals": intervals,
             "identities": identities,
             "defect_ids": defects,
             "files": files,
@@ -154,7 +189,7 @@ def markdown(snapshot: dict) -> str:
     return "\n".join([
         "# Aspects verified-subset defect-density snapshot",
         "",
-        f"- Pinned head: \`{snapshot['head']}\`",
+        f"- Pinned head: `{snapshot['head']}`",
         f"- First-parent window: {snapshot['window_commits']} commits",
         f"- Status: **{snapshot['status']}**",
         f"- Evidence freshness: **{snapshot['freshness']}**",
@@ -165,12 +200,13 @@ def markdown(snapshot: dict) -> str:
         f"- Signed change: {fmt(d['signed_delta'])}",
         f"- Distinct source files reviewed: {r['distinct_reviewed_files']}",
         f"- Newly verified observations since prior: {r['new_observations_since_prior']}",
+        f"- New unique path/blob reviewed lines since prior: {r['new_unique_path_blob_lines_since_prior']}",
         "",
         "**Not comparable to the historical 1.3479 defects/KLOC workbook figure.**",
         "",
         *[f"- {limitation}" for limitation in snapshot["limitations"]],
         "",
-    ]).replace("\\`", "`")
+    ])
 
 
 def main() -> None:
