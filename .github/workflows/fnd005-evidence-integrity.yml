@@ -17,4 +17,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m unittest discover -s scripts/tests -p 'test_fnd005_*.py' -v
+      - name: Install schema validator required by FND-005 contract tests
+        run: python -m pip install 'jsonschema>=4.23,<5'
+      - name: Verify FND-005 evidence contracts
+        run: python -m unittest discover -s scripts/tests -p 'test_fnd005_*.py' -v
