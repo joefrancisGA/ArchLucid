@@ -109,6 +109,8 @@ public sealed class CircuitBreakingAgentCompletionClient(
             }
             else
             {
+                // Neutral errors must release a half-open recovery probe without ticking the breaker.
+                _gate.RecordCallCancelled();
                 _logger.LogWarning(ex, "LLM completion call failed with semantic-terminal error; circuit breaker not ticked.");
             }
 
