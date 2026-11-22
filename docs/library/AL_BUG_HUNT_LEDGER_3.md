@@ -4672,6 +4672,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-22 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Re-read `pkceStoredValueContainsUnsafeControlCharacters`, `readOAuthJsonErrorDescription`, `decodeOAuthErrorDescription`, `parseOidcTokenResponse`, `refreshBffSessionCookie`, `syncBffSessionCookieFromTokenResponse`, and `resolveExpiresInSeconds`. Cheap-disproof closed the five pass-25 monitors as the same predicates already covered by hunt #497: the C0 class includes form feed, punctuation-only descriptions already return empty, any non-object token JSON throws, and any refresh status other than 401 or 403 soft-fails without clearing the session. No new row was promoted. Seeded five `(candidate)` rows from other branches. Private beta: n/a.
+
+- [ ] (candidate) `syncBffSessionCookieFromTokenResponse` — a non-OK POST still resolves, so the caller continues after the BFF cookie was not issued — locus: `fetch` without `response.ok`; input: POST `/api/auth/bff-session` returns 503; wrong outcome: sign-in proceeds with no HttpOnly cookie; reachability: token sync after authorization-code exchange.
+- [ ] (candidate) `clearBffSessionCookie` — DELETE failure is swallowed, so sign-out can clear client hints while the HttpOnly cookie remains — locus: `fetch` DELETE without status check; input: DELETE returns 500; wrong outcome: later API calls still carry the session cookie; reachability: Operator sign-out.
+- [ ] (candidate) `resolveExpiresInSeconds` — a fractional `expires_in` below 1 truncates to 0 and is kept as an immediate expiry instead of the default hour — locus: `Math.trunc` then `=== 0`; input: JSON number `0.4`; wrong outcome: client treats a sub-second lifetime as already expired; reachability: token endpoint `expires_in`.
+- [ ] (candidate) `parseBffExpiresAtMs` — a numeric `expires_at_ms` uses `coerceAcceptedOidcEpochMsHint` while the same digits in a string use `parseOidcEpochMsHint` — locus: string versus number branch; input: refresh JSON number versus the same value as a string; wrong outcome: one form accepted and the other treated as expired; reachability: BFF refresh `expires_at_ms`.
+- [ ] (candidate) `initiateOidcRedirect` — the first safe return URL consumes the authorize-callback retry marker because no prior return URL is stored — locus: `shouldConsumeAuthorizeRetryForReturnUrl` when `prior` is null; input: retry marker set and the first `returnUrl` is `/architecture/reviews`; wrong outcome: retry state cleared before discovery; reachability: sign-in page return path after a failed callback.
+
 2026-11-17 thorough hunt #497 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five pass-24 `(candidate)` monitor rows reseeded after hunt **#495** — **valid-no-repro** vertical-tab PKCE `nonce` tamper (`pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session nonce contains interior vertical tab control characters`), **valid-no-repro** equals-only JSON `error_description` (existing regression `returns empty for equals-only token-endpoint JSON error_description values`), **valid-no-repro** equals-only percent-encoded authorize `error_description` (existing regression `returns empty for equals-only percent-encoded error descriptions`), **valid-no-repro** token-endpoint HTTP 200 JSON root `14` (regression `throws when a successful token response body is the JSON number 14`), **valid-no-repro** BFF refresh HTTP `519` soft-fail without session clear (regression `soft-fails refresh without clearing session when the refresh route returns 519 in opaque BFF refresh parity sequence`). Reseeded five pass-25 `(candidate)` monitor rows below. Scoped `src/lib/oidc` vitest **1049/1050** (one pre-existing `trimTokenFormParams` authorization-code normalization failure on this checkout unrelated to this hunt). Private beta: n/a.
 
 - [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `nonce` session value with interior vertical tab (`U+000B`) before callback — **cheap-disproof 2026-11-17 thorough hunt #497:** regression above.
@@ -4680,11 +4688,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `14` — **cheap-disproof 2026-11-17 thorough hunt #497:** regression above.
 - [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `519` without clearing session — **cheap-disproof 2026-11-17 thorough hunt #497:** regression above.
 
-- [ ] (candidate) `readPkceStateForFlow` — PKCE `nonce` session value with interior form-feed (`U+000C`) before callback — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered nonce with interior FF; monitor; pass 25 reseed.
-- [ ] (candidate) `readOAuthJsonErrorDescription` — colon-only (`U+003A`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint `":::"`; monitor; pass 25 reseed.
-- [ ] (candidate) `decodeOAuthErrorDescription` — colon-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: `%3A%3A%3A`; monitor; pass 25 reseed.
-- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `15` — locus: `parseOidcTokenResponse`; input: numeric root `15`; monitor; pass 25 reseed.
-- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `520` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `520`; monitor; pass 25 reseed.
+- [x] (valid-no-repro) `readPkceStateForFlow` — interior form-feed nonce — **cheap-disproof 2026-11-22 seed hunt:** `[\u0000-\u001F]` already includes U+000C; hunt #497 vertical-tab regression.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — colon-only JSON `error_description` — **cheap-disproof 2026-11-22 seed hunt:** punctuation-only details already return empty; hunt #497 equals-only regression.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — colon-only percent-encoded description — **cheap-disproof 2026-11-22 seed hunt:** same readable-detail guard; hunt #497 equals-only regression.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — JSON number `15` — **cheap-disproof 2026-11-22 seed hunt:** any non-object root throws; hunt #497 number `14` regression.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — HTTP 520 — **cheap-disproof 2026-11-22 seed hunt:** only 401 and 403 clear the session; hunt #497 status `519` regression.
 
 2026-11-17 thorough hunt #495 (dry): no rotation (shouldRotate: false; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five pass-23 `(candidate)` monitor rows reseeded after the 2026-11-04 seed pass — **valid-no-repro** bell PKCE `code_verifier` tamper (`pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session verifier contains interior bell control characters`), **valid-no-repro** plus-only JSON `error_description` (regression `returns empty for plus-only token-endpoint JSON error_description values`), **valid-no-repro** plus-only percent-encoded authorize `error_description` (existing regression `returns empty for percent-encoded plus-only error descriptions`), **valid-no-repro** token-endpoint HTTP 200 JSON root `13` (regression `throws when a successful token response body is the JSON number 13`), **valid-no-repro** BFF refresh HTTP `518` soft-fail without session clear (regression `soft-fails refresh without clearing session when the refresh route returns 518 in opaque BFF refresh parity sequence`). Reseeded five pass-24 `(candidate)` monitor rows below. Scoped `src/lib/oidc` vitest **1046/1047** passed (one pre-existing `trimTokenFormParams` authorization-code normalization failure on this checkout unrelated to this hunt). Private beta: n/a.
 - [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `code_verifier` session value with interior bell (`U+0007`) before callback — **cheap-disproof 2026-11-17 thorough hunt #495:** regression above.
@@ -7956,10 +7964,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-11-22
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
