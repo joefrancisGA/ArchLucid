@@ -3,3 +3,4 @@
 {"at":"2026-11-22T22:22:08.9190173Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: initial hash hydration clears workbench focus on non-workbench section"}
 {"at":"2026-11-22T22:31:14.6606898Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared","set":3,"note":"seed hunt: pass-30 monitors cheap-disproved; five new candidates"}
 {"at":"2026-11-22T22:35:05.8949995Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared","set":3,"note":"seed hunt: pass-25 ladder monitors cheap-disproved; five non-ladder candidates"}
+{"at":"2026-11-22T22:41:18.5041183Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","set":3,"note":"seed hunt: pass-19 ladder monitors cheap-disproved; five non-ladder candidates"}
