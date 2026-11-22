@@ -112,12 +112,17 @@ def extract(workbook: Path):
             v = _cells(row, 10)
             if all(x is None for x in v):
                 continue
-            if not isinstance(v[3], (int, float)) or not isinstance(v[4], (int, float)) or not isinstance(v[5], (int, float)):
-                raise ValueError(f"Non-numeric counts in Review evidence!{excel_row}")
-            defects, reviewed, fresh = int(v[3]), int(v[4]), int(v[5])
-            if (defects, reviewed, fresh) != (v[3], v[4], v[5]):
+            # 30 early workbook rows never recorded a new-unique-line count.
+            # Preserve that missing value as unknown, not as a fabricated zero.
+            if not isinstance(v[3], (int, float)) or not isinstance(v[4], (int, float)):
+                raise ValueError(f"Non-numeric defect/review counts in Review evidence!{excel_row}")
+            if v[5] is not None and not isinstance(v[5], (int, float)):
+                raise ValueError(f"Invalid incremental count in Review evidence!{excel_row}")
+            defects, reviewed = int(v[3]), int(v[4])
+            fresh = int(v[5]) if v[5] is not None else None
+            if defects != v[3] or reviewed != v[4] or (fresh is not None and fresh != v[5]):
                 raise ValueError(f"Fractional counts in Review evidence!{excel_row}")
-            if min(defects, reviewed, fresh) < 0 or fresh > reviewed:
+            if defects < 0 or reviewed < 0 or (fresh is not None and (fresh < 0 or fresh > reviewed)):
                 raise ValueError(f"Invalid review count in Review evidence!{excel_row}")
             pin = _spans(v[9])
             events.append({
@@ -131,7 +136,7 @@ def extract(workbook: Path):
                 "defects_recorded": defects,
                 "reviewed_loc_reported": reviewed,
                 "new_unique_loc_reported": fresh,
-                "repeated_loc_reported": reviewed - fresh,
+                "repeated_loc_reported": reviewed - fresh if fresh is not None else None,
                 "historical_status": v[6],
                 "scope": v[7],
                 "source_reference": v[8],
@@ -164,7 +169,7 @@ def extract(workbook: Path):
         raise ValueError(f"Unexpected Review evidence population: {len(events)} rows")
     if sum(e["defects_recorded"] for e in events) != 877:
         raise ValueError("Historical review defect observations changed unexpectedly")
-    if sum(e["new_unique_loc_reported"] for e in events) != 402314:
+    if sum(e["new_unique_loc_reported"] or 0 for e in events) != 402314:
         raise ValueError("Historical incremental LOC changed unexpectedly")
     if sum(not e["defects_recorded"] for e in events) != 4864:
         raise ValueError("Historical clean observations changed unexpectedly")
@@ -240,7 +245,8 @@ def main():
         "total_historical_observations": len(events),
         "clean_historical_observations": sum(e["defects_recorded"] == 0 for e in events),
         "historical_defect_observations_sum_not_distinct": sum(e["defects_recorded"] for e in events),
-        "all_history_incremental_loc_sum_not_window_union": sum(e["new_unique_loc_reported"] for e in events),
+        "all_history_incremental_loc_sum_not_window_union": sum(e["new_unique_loc_reported"] or 0 for e in events),
+        "historical_observations_missing_incremental_loc": sum(e["new_unique_loc_reported"] is None for e in events),
         "all_history_reviewed_loc_occurrences": sum(e["reviewed_loc_reported"] for e in events),
         "single_source_blob_pinned_rows_parseable_not_git_validated": sum(e["parsed_pin"] is not None for e in events),
         "historical_snapshot_count_900_commits": len(snapshots),
