@@ -1,7 +1,7 @@
 name: FND-010 Independent Integrity Monitor Contract
 on:
   pull_request:
-    branches: [master, main, architecture/fnd010-managed-checkpoint-retention]
+    branches: [master, main, architecture/fnd010-managed-checkpoint-retention, architecture/fnd010-scheduled-monitor-alerts]
   workflow_dispatch:
 permissions:
   contents: read

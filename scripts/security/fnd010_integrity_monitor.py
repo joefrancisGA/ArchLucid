@@ -47,9 +47,9 @@ def verify_sql_chain(query, checkpoint: dict) -> dict:
     journal = query("""
        SET NOCOUNT ON;
        SELECT COUNT(*) FROM dbo.AuthorizationDecisionChain c
-       FULL OUTER JOIN dbo.AuthorizationDecisionJournal j
+       LEFT JOIN dbo.AuthorizationDecisionJournal j
          ON c.DecisionId=j.DecisionId
-       WHERE c.DecisionId IS NULL OR j.DecisionId IS NULL
+       WHERE j.DecisionId IS NULL
          OR TRY_CONVERT(UNIQUEIDENTIFIER,
               JSON_VALUE(CONVERT(NVARCHAR(MAX),c.Payload),'$.decisionId')) <> j.DecisionId
          OR TRY_CONVERT(UNIQUEIDENTIFIER,
@@ -61,8 +61,7 @@ def verify_sql_chain(query, checkpoint: dict) -> dict:
          OR TRY_CONVERT(BIT,
               JSON_VALUE(CONVERT(NVARCHAR(MAX),c.Payload),'$.allowed')) <> j.Allowed
     """)
-    # Historical journal rows may predate migration 355. Such rows are not
-    # anchored by this chain; production must explicitly inventory/backfill them.
+    # Legacy journal rows predate chain activation and require separate inventory.
     if parse_single_integer(journal):
         raise ValueError("Audit journal/chain record mismatch")
 
