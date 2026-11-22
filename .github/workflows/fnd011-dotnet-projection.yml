@@ -1,0 +1,22 @@
+name: FND-011 .NET Projection Tests
+
+on:
+  pull_request:
+    branches: [main, master]
+  merge_group:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  projection-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --filter FullyQualifiedName~SecureNowSnapshotProjectionTests --no-restore
