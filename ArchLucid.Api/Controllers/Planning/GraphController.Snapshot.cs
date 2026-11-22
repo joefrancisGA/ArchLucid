@@ -23,7 +23,6 @@ public sealed partial class GraphController
     ///     (latest committed run ≤ <paramref name="asOf"/> with a persisted graph snapshot).
     /// </summary>
     [HttpGet("snapshot")]
-    [ProducesResponseType(typeof(SecureNowSnapshotEnvelope), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ArchitectureGraphTemporalSnapshotResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
