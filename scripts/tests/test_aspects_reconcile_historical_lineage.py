@@ -163,6 +163,16 @@ class HistoricalLineageTests(unittest.TestCase):
         self.assertIn("Excel row range", result["blocking_reason"])
 
 
+    def test_noninteger_excel_id_is_quarantined_without_exception(self):
+        rows = [self.event(7, self.old_head, self.old_blob, [[1, 1]]),
+                self.event(8, self.new_head, self.new_blob, [[5, 5]])]
+        rows[1]["excel_row"] = None
+        result = sut.reconcile(self.repo, rows, self.checkpoint(),
+                               self.pin_report(rows), expected_records=2,
+                               expected_first_excel_row=7)
+        self.assertEqual(result["status"], "blocked_on_pin_window_validation")
+        self.assertIn("Excel row range", result["blocking_reason"])
+
 
 if __name__ == "__main__":
     unittest.main()
