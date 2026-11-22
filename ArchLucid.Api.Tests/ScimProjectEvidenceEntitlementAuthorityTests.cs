@@ -5,6 +5,8 @@ using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using FluentAssertions;
 using Moq;
 
@@ -44,8 +46,11 @@ public sealed class ScimProjectEvidenceEntitlementAuthorityTests
         Mock<IProjectRoleAssignmentRepository> roles = new();
         roles.Setup(r => r.GetHighestRoleAsync(Tenant, Workspace, Project, UserId,
             It.IsAny<CancellationToken>())).ReturnsAsync(role);
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), Evidence,
+            It.IsAny<CancellationToken>())).ReturnsAsync(new RunRecord { RunId = Evidence });
         return (new ScimProjectEvidenceEntitlementAuthority(
-            scope.Object, users.Object, roles.Object), users, roles);
+            scope.Object, users.Object, roles.Object, runs.Object), users, roles);
     }
 
     private static EvidenceReadResource Resource(Guid? tenant = null) =>
