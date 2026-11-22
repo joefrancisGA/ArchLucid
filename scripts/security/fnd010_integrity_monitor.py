@@ -44,6 +44,28 @@ def verify_sql_chain(query, checkpoint: dict) -> dict:
     if failures:
         raise ValueError(f"Audit hash-chain integrity violations: {failures}")
 
+    journal = query("""
+       SET NOCOUNT ON;
+       SELECT COUNT(*) FROM dbo.AuthorizationDecisionChain c
+       FULL OUTER JOIN dbo.AuthorizationDecisionJournal j
+         ON c.DecisionId=j.DecisionId
+       WHERE c.DecisionId IS NULL OR j.DecisionId IS NULL
+         OR TRY_CONVERT(UNIQUEIDENTIFIER,
+              JSON_VALUE(CONVERT(NVARCHAR(MAX),c.Payload),'$.decisionId')) <> j.DecisionId
+         OR TRY_CONVERT(UNIQUEIDENTIFIER,
+              JSON_VALUE(CONVERT(NVARCHAR(MAX),c.Payload),'$.tenantId')) <> j.TenantId
+         OR TRY_CONVERT(UNIQUEIDENTIFIER,
+              JSON_VALUE(CONVERT(NVARCHAR(MAX),c.Payload),'$.resourceId')) <> j.ResourceId
+         OR JSON_VALUE(CONVERT(NVARCHAR(MAX),c.Payload),'$.actionName') <> j.ActionName
+         OR JSON_VALUE(CONVERT(NVARCHAR(MAX),c.Payload),'$.reasonCode') <> j.ReasonCode
+         OR TRY_CONVERT(BIT,
+              JSON_VALUE(CONVERT(NVARCHAR(MAX),c.Payload),'$.allowed')) <> j.Allowed
+    """)
+    # Historical journal rows may predate migration 355. Such rows are not
+    # anchored by this chain; production must explicitly inventory/backfill them.
+    if parse_single_integer(journal):
+        raise ValueError("Audit journal/chain record mismatch")
+
     stats = query("""
       SET NOCOUNT ON;
       SELECT CONCAT(COUNT_BIG(*),':',COALESCE(MAX(SequenceNo),0))
