@@ -74,7 +74,7 @@ internal static class RealAgentExecutorHandlerResiliencePipeline
                     MinimumThroughput = options.HandlerCircuitBreakerFailureThreshold,
                     BreakDuration = TimeSpan.FromSeconds(options.HandlerCircuitBreakerBreakSeconds),
                     SamplingDuration = TimeSpan.FromMinutes(2),
-                    ShouldHandle = new PredicateBuilder<AgentResult>().Handle<Exception>(),
+                    ShouldHandle = new PredicateBuilder<AgentResult>().Handle<Exception>(static ex => ex is not OperationCanceledException),
                 });
         }
 
