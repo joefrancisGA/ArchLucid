@@ -77,6 +77,52 @@ describe("toApiLoadFailure", () => {
   });
 });
 
+describe("isApiLoadFailureState runtime shape", () => {
+  const valid = {
+    message: "temporarily unavailable",
+    problem: { title: "Unavailable", errorCode: "DATABASE_TIMEOUT", status: 503 },
+    correlationId: "correlation-1",
+    httpStatus: 503,
+    retryAfterSeconds: 12,
+  };
+
+  it("accepts correctly typed structured failures", () => {
+    expect(isApiLoadFailureState(valid)).toBe(true);
+    expect(toApiLoadFailure(valid)).toBe(valid);
+  });
+
+  it.each([
+    ["missing problem", { problem: undefined }],
+    ["array problem", { problem: [] }],
+    ["string problem", { problem: "unavailable" }],
+    ["numeric error code", { problem: { errorCode: 17 } }],
+    ["string problem status", { problem: { status: "503" } }],
+    ["string HTTP status", { httpStatus: "503" }],
+    ["NaN HTTP status", { httpStatus: Number.NaN }],
+    ["wrong correlation id", { correlationId: { value: "x" } }],
+    ["string retry seconds", { retryAfterSeconds: "12" }],
+    ["infinite retry seconds", { retryAfterSeconds: Number.POSITIVE_INFINITY }],
+  ])("rejects %s rather than trusting its field presence", (_label, replacement) => {
+    expect(isApiLoadFailureState({ ...valid, ...replacement })).toBe(false);
+  });
+
+  it("does not throw when normalizing an untrusted numeric Problem Details errorCode", () => {
+    const malformed = {
+      message: "timeout",
+      problem: { errorCode: 17 },
+      correlationId: null,
+      httpStatus: null,
+      retryAfterSeconds: null,
+    };
+
+    expect(isApiLoadFailureState(malformed)).toBe(false);
+    const recovered = toApiLoadFailure(malformed);
+    expect(recovered.message).toBe("An unexpected error occurred.");
+    expect(() => isApiTransientLoadFailure(recovered)).not.toThrow();
+    expect(isApiTransientLoadFailure(recovered)).toBe(false);
+  });
+});
+
 describe("isApiNotFoundFailure", () => {
   it("is true for 404 httpStatus", () => {
     expect(

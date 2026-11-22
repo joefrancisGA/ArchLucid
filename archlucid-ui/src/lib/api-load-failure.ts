@@ -25,14 +25,36 @@ export function isApiLoadFailureState(value: unknown): value is ApiLoadFailureSt
     return false;
   }
 
-  const candidate = value as ApiLoadFailureState;
+  const candidate = value as Record<string, unknown>;
+  const problem = candidate.problem;
+
+  if (problem !== null) {
+    if (typeof problem !== "object" || Array.isArray(problem)) {
+      return false;
+    }
+
+    const detail = problem as Record<string, unknown>;
+
+    // Later classification calls errorCode.trim(); a malformed persisted response
+    // must not be mistaken for a normalized Problem Details payload.
+    if (detail.errorCode !== undefined && typeof detail.errorCode !== "string") {
+      return false;
+    }
+
+    if (detail.status !== undefined && (typeof detail.status !== "number" || !Number.isFinite(detail.status))) {
+      return false;
+    }
+  }
 
   return (
     typeof candidate.message === "string"
     && "problem" in candidate
-    && "correlationId" in candidate
-    && "httpStatus" in candidate
-    && "retryAfterSeconds" in candidate
+    && (candidate.correlationId === null || typeof candidate.correlationId === "string")
+    && (candidate.httpStatus === null || (typeof candidate.httpStatus === "number" && Number.isFinite(candidate.httpStatus)))
+    && (candidate.retryAfterSeconds === null || (
+      typeof candidate.retryAfterSeconds === "number"
+      && Number.isFinite(candidate.retryAfterSeconds)
+    ))
   );
 }
 
