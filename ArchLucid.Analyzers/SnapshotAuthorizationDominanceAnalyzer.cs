@@ -49,11 +49,14 @@ public sealed class SnapshotAuthorizationDominanceAnalyzer : DiagnosticAnalyzer
 
         foreach (var root in context.OperationBlocks)
         {
-            if (root is not IMethodBodyOperation body)
-                continue;
-            ControlFlowGraph graph;
-            try { graph = ControlFlowGraph.Create(body); }
+            // The Roslyn host may expose either a method-body or block root;
+            // asking the context for its CFG handles both without silently
+            // skipping analysis for the IBlockOperation case.
+            ControlFlowGraph? graph;
+            try { graph = context.GetControlFlowGraph(root); }
             catch (ArgumentException) { continue; }
+            if (graph is null)
+                continue;
             var blocks = graph.Blocks.ToArray();
             if (blocks.Length == 0)
                 continue;
