@@ -79,6 +79,10 @@ def verify_sql_chain(query, checkpoint: dict) -> dict:
 
     payload = checkpoint["payload"]
     seq, expected = payload["sequence"], payload["headSha256"]
+    # Detect loss/rollback before attempting to look up a missing signed anchor.
+    # Preserve distinct fail-closed diagnostics for missing versus forged history.
+    if maximum < seq:
+        raise ValueError("SQL chain rollback detected")
     if seq == 0:
         if expected != "00" * 32:
             raise ValueError("Invalid genesis anchor")
@@ -88,11 +92,9 @@ def verify_sql_chain(query, checkpoint: dict) -> dict:
           SELECT CONVERT(VARCHAR(64),RecordHash,2)
           FROM dbo.AuthorizationDecisionChain WHERE SequenceNo={seq}
         """)
-        hashes = re.findall(r"(?m)^\s*([0-9A-Fa-f]{{64}})\s*$", anchored)
+        hashes = re.findall(r"(?m)^\s*([0-9A-Fa-f]{64})\s*$", anchored)
         if len(hashes) != 1 or hashes[0].lower() != expected:
             raise ValueError("Signed checkpoint does not match SQL history")
-    if maximum < seq:
-        raise ValueError("SQL chain rollback detected")
     return {"checkedRecords": count, "headSequence": maximum,
             "trustedCheckpointSequence": seq, "integrity": "verified"}
 
