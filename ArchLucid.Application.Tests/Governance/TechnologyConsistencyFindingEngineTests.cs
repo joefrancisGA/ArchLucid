@@ -147,6 +147,43 @@ public sealed class TechnologyConsistencyFindingEngineTests
         findings.Should().BeEmpty();
     }
 
+    [Fact]
+    public void Evaluate_multiple_cross_family_violations_have_distinct_stable_ids()
+    {
+        List<TechnologyLedgerEntry> ledger =
+        [
+            Chosen(TechnologyLedgerRole.CloudPlatform, "Azure", CloudProvider.Azure, "cloud"),
+            Chosen(TechnologyLedgerRole.PrimaryDatastore, "AWS database", CloudProvider.Aws, "aws-db"),
+            Chosen(TechnologyLedgerRole.PrimaryDatastore, "GCP database", CloudProvider.Gcp, "gcp-db"),
+        ];
+
+        IReadOnlyList<Finding> findings = _engine.Evaluate("run-1", ledger, new());
+        string[] ids = findings.Where(f => f.Title == "ConflictingChosenProviderFamily")
+            .Select(f => f.FindingId).ToArray();
+
+        ids.Should().HaveCount(2);
+        ids.Should().OnlyHaveUniqueItems();
+        IReadOnlyList<Finding> reversed = _engine.Evaluate("run-1", ledger.AsEnumerable().Reverse().ToList(), new());
+        reversed.Where(f => f.Title == "ConflictingChosenProviderFamily")
+            .Select(f => f.FindingId).Should().BeEquivalentTo(ids);
+    }
+
+    [Fact]
+    public void Evaluate_multiple_assumed_overrides_have_distinct_ids()
+    {
+        List<TechnologyLedgerEntry> ledger =
+        [
+            Chosen(TechnologyLedgerRole.PrimaryDatastore, "Azure SQL", CloudProvider.Azure, "chosen", isLocked: true),
+            Assumed(TechnologyLedgerRole.PrimaryDatastore, "AWS RDS", CloudProvider.Aws, "assumed-a"),
+            Assumed(TechnologyLedgerRole.PrimaryDatastore, "GCP SQL", CloudProvider.Gcp, "assumed-b"),
+        ];
+
+        _engine.Evaluate("run-1", ledger, new())
+            .Where(f => f.Title == "LockedChosenOverriddenByAssumed")
+            .Select(f => f.FindingId)
+            .Should().OnlyHaveUniqueItems().And.HaveCount(2);
+    }
+
     private static TechnologyLedgerEntry Chosen(
         TechnologyLedgerRole role,
         string technologyName,
