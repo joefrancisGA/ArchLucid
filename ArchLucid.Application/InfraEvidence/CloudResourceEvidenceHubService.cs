@@ -427,11 +427,11 @@ public sealed class CloudResourceEvidenceHubService(
 
         foreach (KeyValuePair<string, string> property in node.Properties)
         {
-            if (property.Value.Contains(externalResourceId, StringComparison.OrdinalIgnoreCase))
+            if (ContainsResourceId(property.Value, externalResourceId))
                 return true;
         }
 
-        return node.Label.Contains(externalResourceId, StringComparison.OrdinalIgnoreCase);
+        return ContainsResourceId(node.Label, externalResourceId);
     }
 
     private static bool ArchitectureFindingMatchesResource(
@@ -445,15 +445,49 @@ public sealed class CloudResourceEvidenceHubService(
             return true;
         }
 
-        if (finding.Title.Contains(externalResourceId, StringComparison.OrdinalIgnoreCase))
+        if (ContainsResourceId(finding.Title, externalResourceId))
             return true;
 
-        if (finding.Rationale.Contains(externalResourceId, StringComparison.OrdinalIgnoreCase))
+        if (ContainsResourceId(finding.Rationale, externalResourceId))
             return true;
 
-        return finding.Properties.Values.Any(
-            value => value.Contains(externalResourceId, StringComparison.OrdinalIgnoreCase));
+        return finding.Properties.Values.Any(value => ContainsResourceId(value, externalResourceId));
     }
+
+    private static bool ContainsResourceId(string? text, string resourceId)
+    {
+        if (string.IsNullOrEmpty(text) || string.IsNullOrWhiteSpace(resourceId))
+            return false;
+
+        for (int start = 0; start <= text.Length - resourceId.Length;)
+        {
+            int match = text.IndexOf(resourceId, start, StringComparison.OrdinalIgnoreCase);
+            if (match < 0)
+                return false;
+
+            int end = match + resourceId.Length;
+            if ((match == 0 || !IsResourceIdCharacter(text[match - 1])) && IsResourceIdEnd(text, end))
+                return true;
+
+            start = match + 1;
+        }
+
+        return false;
+    }
+
+    private static bool IsResourceIdEnd(string text, int end)
+    {
+        if (end == text.Length)
+            return true;
+
+        // A dot or colon may be sentence punctuation or part of a longer resource ID.
+        char next = text[end];
+        return !IsResourceIdCharacter(next)
+            && (!(next is '.' or ':') || end + 1 == text.Length || !IsResourceIdCharacter(text[end + 1]));
+    }
+
+    private static bool IsResourceIdCharacter(char value) =>
+        char.IsLetterOrDigit(value) || value is '/' or '_' or '-' or '%' or '+' or '@' or '~';
 
     private async Task<List<CloudResourceInventoryChangeSummary>> ResolveRecentChangesAsync(
         ScopeContext scope,
