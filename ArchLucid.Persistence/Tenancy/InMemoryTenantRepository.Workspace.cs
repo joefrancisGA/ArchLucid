@@ -19,21 +19,42 @@ public sealed partial class InMemoryTenantRepository
         CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
-        List<TenantWorkspaceRow> list = _workspacesByTenant.GetOrAdd(tenantId, static _ => []);
+        // Match SQL's FK_TenantWorkspaces_Tenants and globally unique primary key.
+        // A single lock protects tenant existence and workspace-ID uniqueness across
+        // every tenant; locking only the tenant's list permits cross-tenant collisions.
+        lock (_trialGate)
+        {
+            ct.ThrowIfCancellationRequested();
+            if (!_byId.ContainsKey(tenantId))
+                throw new InvalidOperationException($"Tenant '{tenantId:D}' does not exist.");
 
-        lock (list)
+            foreach (List<TenantWorkspaceRow> existing in _workspacesByTenant.Values)
+            {
+                lock (existing)
+                {
+                    if (existing.Any(w => w.Id == workspaceId))
+                        throw new InvalidOperationException(
+                            $"Workspace '{workspaceId:D}' already exists.");
+                }
+            }
 
-            list.Add(
-                new TenantWorkspaceRow
+            List<TenantWorkspaceRow> list =
+                _workspacesByTenant.GetOrAdd(tenantId, static _ => []);
+
+            lock (list)
+            {
+                list.Add(new TenantWorkspaceRow
                 {
                     Id = workspaceId,
                     TenantId = tenantId,
                     Name = name,
                     DefaultProjectId = defaultProjectId,
-                    CreatedUtc = TimeProvider.System.GetUtcNow()
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
                 });
+            }
+        }
 
         return Task.CompletedTask;
     }
@@ -41,7 +62,7 @@ public sealed partial class InMemoryTenantRepository
 
     public Task<TenantWorkspaceLink?> GetFirstWorkspaceAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         if (!_workspacesByTenant.TryGetValue(tenantId, out List<TenantWorkspaceRow>? list))
             return Task.FromResult<TenantWorkspaceLink?>(null);
@@ -63,7 +84,7 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task<bool> WorkspaceExistsAsync(Guid tenantId, Guid workspaceId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         if (!_workspacesByTenant.TryGetValue(tenantId, out List<TenantWorkspaceRow>? list))
             return Task.FromResult(false);
@@ -79,7 +100,7 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task<TenantWorkspaceListItem?> GetWorkspaceByIdAsync(Guid tenantId, Guid workspaceId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         if (!_workspacesByTenant.TryGetValue(tenantId, out List<TenantWorkspaceRow>? list))
             return Task.FromResult<TenantWorkspaceListItem?>(null);
@@ -105,7 +126,7 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task<IReadOnlyList<TenantWorkspaceListItem>> ListWorkspacesAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         if (!_workspacesByTenant.TryGetValue(tenantId, out List<TenantWorkspaceRow>? list))
             return Task.FromResult<IReadOnlyList<TenantWorkspaceListItem>>([]);

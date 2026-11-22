@@ -135,19 +135,39 @@ public sealed partial class InMemoryRunRepository
             return Task.FromResult<IReadOnlyList<Guid>>([]);
 
         List<Guid> updatedRunIds = [];
-        foreach (RunRecord candidate in _store.Values)
+        foreach (Guid runId in _store.Keys.ToArray())
         {
-            if (!RunRepositoryCore.IsActiveInScope(candidate, scope))
-                continue;
+            while (true)
+            {
+                ct.ThrowIfCancellationRequested();
+                if (!_store.TryGetValue(runId, out RunRecord? candidate))
+                    break;
 
-            if (candidate.ArchitectureId != architectureId)
-                continue;
+                lock (candidate)
+                {
+                    // Do not clear a graph on a detached old run after archive/commit
+                    // has replaced the current row.
+                    if (!_store.TryGetValue(runId, out RunRecord? current) ||
+                        !ReferenceEquals(candidate, current))
+                        continue;
 
-            if (candidate.GoldenManifestId.HasValue || !candidate.GraphSnapshotId.HasValue)
-                continue;
+                    if (!RunRepositoryCore.IsActiveInScope(candidate, scope) ||
+                        candidate.ArchitectureId != architectureId ||
+                        candidate.GoldenManifestId.HasValue ||
+                        !candidate.GraphSnapshotId.HasValue)
+                        break;
 
-            candidate.GraphSnapshotId = null;
-            updatedRunIds.Add(candidate.RunId);
+                    RunRecord updated = CopyRunRecord(candidate);
+                    updated.GraphSnapshotId = null;
+                    updated.RowVersion = NextFakeRowVersion();
+
+                    if (_store.TryUpdate(runId, updated, candidate))
+                    {
+                        updatedRunIds.Add(runId);
+                        break;
+                    }
+                }
+            }
         }
 
         return Task.FromResult<IReadOnlyList<Guid>>(updatedRunIds);

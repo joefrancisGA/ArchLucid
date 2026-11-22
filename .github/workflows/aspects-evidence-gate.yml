@@ -1,0 +1,42 @@
+name: Aspects reviewed-source evidence gate
+
+# New Aspects PRs must carry source review evidence; historic PRs remain exempt.
+on:
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  require-new-aspects-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr.head.ref.startsWith('aspects/')) {
+              core.info('Not an Aspects sweep; no ledger requirement.');
+              return;
+            }
+            const enforcementStart = Date.parse('2026-11-22T17:00:00Z');
+            if (Date.parse(pr.created_at) < enforcementStart) {
+              core.info('Pre-existing Aspects PR grandfathered; evidence backfill is separate.');
+              return;
+            }
+            const changed = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              per_page: 100,
+            });
+            const evidence = changed.find(file =>
+              file.filename === 'docs/engineering/aspects-review-ledger.jsonl');
+            if (!evidence || evidence.status === 'removed' || evidence.additions < 1) {
+              core.setFailed('Every new Aspects sweep must add verified source spans and defect IDs to the canonical review ledger. A code fix without review evidence cannot advance the density report.');
+              return;
+            }
+            core.info('Aspects review ledger updated; source/blob verification runs in the density-snapshot workflow.');
