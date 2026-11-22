@@ -111,6 +111,13 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Install pinned UI type-generation dependencies
+        if: >-
+          github.event_name != 'workflow_dispatch'
+          || inputs.regenerate_ui_api_types
+        working-directory: archlucid-ui
+        run: npm ci --ignore-scripts
+
       - name: Regenerate OpenAPI snapshot (+ UI api-types)
         env:
           # Push/PR must regenerate split api-types or CI assert_api_types_in_sync fails.

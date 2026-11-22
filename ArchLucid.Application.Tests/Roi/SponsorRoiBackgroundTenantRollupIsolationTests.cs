@@ -130,7 +130,7 @@ public sealed class SponsorRoiBackgroundTenantRollupIsolationTests
                 It.IsAny<ScopeContext>(),
                 It.IsAny<ArchLucid.Contracts.Common.CloudProvider>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Persistence.Models.CloudInventoryExtractorPackageDownloadRecord?)null);
+            .ReturnsAsync((global::ArchLucid.Persistence.Models.CloudInventoryExtractorPackageDownloadRecord?)null);
 
         RoiCostEvidenceFreshnessEvaluator freshnessEvaluator = new(
             packageRepository.Object,

@@ -12,7 +12,7 @@ public sealed class InMemoryAdvisoryDraftOperationRepositoryTests
         var repository = new InMemoryAdvisoryDraftOperationRepository();
         AdvisoryDraftOperationRow row = CreateRow();
 
-        await repository.TryInsertPendingAsync(row, TestContext.Current.CancellationToken);
+        await repository.TryInsertPendingAsync(row, CancellationToken.None);
         row.StepLabel = "mutated without update";
 
         AdvisoryDraftOperationRow stored = (await repository.GetAsync(
@@ -20,7 +20,7 @@ public sealed class InMemoryAdvisoryDraftOperationRepositoryTests
             row.WorkspaceId,
             row.ProjectId,
             row.OperationId,
-            TestContext.Current.CancellationToken))!;
+            CancellationToken.None))!;
         stored.StepLabel = "mutated read";
 
         AdvisoryDraftOperationRow reread = (await repository.GetAsync(
@@ -28,7 +28,7 @@ public sealed class InMemoryAdvisoryDraftOperationRepositoryTests
             row.WorkspaceId,
             row.ProjectId,
             row.OperationId,
-            TestContext.Current.CancellationToken))!;
+            CancellationToken.None))!;
         Assert.Equal("queued", reread.StepLabel);
     }
 

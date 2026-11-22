@@ -2997,4 +2997,35 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
             LegalHoldUntilUtc = holdUntil,
             LegalHoldReason = "litigation",
         };
+
+    [Fact]
+    public async Task TryApproveErasureAsync_returns_false_when_tenant_suspended_but_not_offboarded()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 11, 18, 12, 0, 0, TimeSpan.Zero);
+        FakeTimeProvider clock = new(now);
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "Suspend Org",
+            "suspend-org-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+        (await tenants.TrySuspendTenantAsync(tenantId, CancellationToken.None)).Should().BeTrue();
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions());
+
+        TenantErasureCommandService sut = new(
+            tenants,
+            new Mock<IPlatformAuditRepository>(MockBehavior.Strict).Object,
+            clock,
+            options.Object);
+
+        (await sut.TryApproveErasureAsync(tenantId, "admin@example.com", "Admin", "corr", CancellationToken.None))
+            .Should()
+            .BeFalse();
+    }
 }

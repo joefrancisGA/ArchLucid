@@ -250,7 +250,7 @@ public sealed class ExecDigestComposerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto
             {
-                Run = new Persistence.Models.RunRecord { RunId = olderRunId },
+                Run = new global::ArchLucid.Persistence.Models.RunRecord { RunId = olderRunId },
                 GoldenManifest = CreateSealedGoldenManifest(
                     new ScopeContext { TenantId = Guid.Parse("11111111-2222-3333-4444-555555555555") },
                     olderRunId),
@@ -262,7 +262,7 @@ public sealed class ExecDigestComposerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto
             {
-                Run = new Persistence.Models.RunRecord { RunId = newerRunId },
+                Run = new global::ArchLucid.Persistence.Models.RunRecord { RunId = newerRunId },
                 GoldenManifest = CreateSealedGoldenManifest(
                     new ScopeContext { TenantId = Guid.Parse("11111111-2222-3333-4444-555555555555") },
                     newerRunId),
