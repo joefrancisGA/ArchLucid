@@ -5,7 +5,7 @@ ROOT = Path(__file__).resolve().parents[3]
 
 class RemediationRowVersionFoundationTests(unittest.TestCase):
     def test_migration_is_additive_and_idempotent(self):
-        sql = (ROOT / "ArchLucid.Persistence/Migrations/415_RemediationInstanceRowVersion.sql").read_text().lower()
+        sql = (ROOT / "ArchLucid.Persistence/Migrations/425_RemediationInstanceRowVersion.sql").read_text().lower()
         self.assertIn("col_length", sql)
         self.assertIn("rowversion not null", sql)
         self.assertIn("alter table dbo.remediationinstances add rowversion", sql)
