@@ -101,6 +101,12 @@ public interface IProjectScopedRemediationInstanceRepository
         RemediationEvidenceRecord evidence,
         CancellationToken cancellationToken = default);
 
+    Task CommitVerificationInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceMutation mutation,
+        RemediationEvidenceRecord evidence,
+        CancellationToken cancellationToken = default);
+
     Task UpdateInScopeAsync(
         ProjectScopeKey scope,
         RemediationInstanceMutation mutation,
