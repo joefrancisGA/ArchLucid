@@ -44,6 +44,7 @@ class DensitySnapshotTests(unittest.TestCase):
         after = mod.build_snapshot([row], {HEAD, PREV}, HEAD, 900, before)
         self.assertEqual(after["freshness"], "stale_no_new_verified_evidence")
         self.assertEqual(after["review"]["new_observations_since_prior"], 0)
+        self.assertEqual(after["review"]["new_unique_path_blob_lines_since_prior"], 0)
         self.assertEqual(after["density"]["signed_delta"], 0.0)
         self.assertEqual(after["density"]["previous_comparable"], 10.0)
 
@@ -56,6 +57,7 @@ class DensitySnapshotTests(unittest.TestCase):
         self.assertEqual(update["review"]["new_defects_since_prior"], 1)
         self.assertEqual(update["review"]["new_files_since_prior"], 1)
         self.assertEqual(update["review"]["new_observations_since_prior"], 1)
+        self.assertEqual(update["review"]["new_unique_path_blob_lines_since_prior"], 50)
         self.assertEqual(update["density"]["unique_path_blob_reviewed_lines"], 150)
         self.assertEqual(update["density"]["defects_per_kloc"], 13.333333)
         self.assertEqual(update["density"]["signed_delta"], 3.333333)
@@ -68,6 +70,22 @@ class DensitySnapshotTests(unittest.TestCase):
         self.assertEqual(result["density"]["distinct_confirmed_defects"], 2)
         self.assertEqual(result["review"]["distinct_verified_observations"], 2)
         self.assertEqual(result["density"]["unique_path_blob_reviewed_lines"], 15)
+
+    def test_new_reviewed_lines_are_deduplicated_against_prior_spans(self):
+        initial = observation("D1", spans=[[1, 20]])
+        prior = mod.build_snapshot([initial], {PREV}, PREV, 900)
+        additional = observation("D2", spans=[[15, 30]])
+        current = mod.build_snapshot([initial, additional], {HEAD, PREV}, HEAD, 900, prior)
+        self.assertEqual(current["density"]["unique_path_blob_reviewed_lines"], 30)
+        self.assertEqual(current["review"]["new_unique_path_blob_lines_since_prior"], 10)
+        self.assertEqual(current["review"]["new_files_since_prior"], 0)
+
+    def test_duplicate_source_evidence_never_claims_new_reviewed_lines(self):
+        item = observation("D1", spans=[[1, 100]])
+        prior = mod.build_snapshot([item], {PREV}, PREV, 900)
+        current = mod.build_snapshot([item, item], {HEAD, PREV}, HEAD, 900, prior)
+        self.assertEqual(current["freshness"], "stale_no_new_verified_evidence")
+        self.assertEqual(current["review"]["new_unique_path_blob_lines_since_prior"], 0)
 
     def test_unverified_and_outside_first_parent_window_excluded(self):
         result = mod.build_snapshot([
