@@ -1,1 +1,2 @@
 {"outcome":"reset","set":1,"zoneId":"_picker_reset","at":"2026-11-22T21:31:31.5382831Z","note":"option A picker metadata reset; archive stamp 2026-11-22"}
+{"outcome":"hit","set":1,"at":"2026-11-22T21:45:52.2650758Z","zoneId":"run-execute-ownership","note":"seed hunt: selective RunNotFound RunFailed audit parity"}
