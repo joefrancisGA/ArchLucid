@@ -94,5 +94,57 @@ class HistoricalPinVerificationTests(unittest.TestCase):
         self.assertEqual(result["unverified_total_excluding_unparseable"], 0)
 
 
+    def test_full_quarantine_preserves_excel_rows_and_per_row_new_repeat_loc(self):
+        audit = []
+        rows = [self.event(excel_row=7),
+                self.event(excel_row=8, spans=[[3, 4]], defects=1),
+                self.event(excel_row=9, spans=[[2, 2]]),
+                self.event(excel_row=10, spans=[[999, 999]])]
+        rows.append({**self.event(excel_row=11), "parsed_pin": None})
+        report = sut.verify_pins(self.repo, rows, audit_rows=audit)
+        self.assertEqual([a["excel_row"] for a in audit], [7, 8, 9, 10, 11])
+        self.assertEqual(report["quarantined_or_ambiguous_total"], 3)
+        self.assertEqual(audit[0]["new_exact_path_blob_loc"], 3)
+        self.assertEqual(audit[1]["repeated_exact_path_blob_loc"], 2)
+        self.assertTrue(all(not a["nonblank_reviewed_loc"]
+                            for a in audit[2:]))
+        self.assertEqual(report["verified_nonblank_line_occurrences"], 5)
+
+    def test_verified_checkpoint_membership_never_substitutes_legacy_density(self):
+        (self.repo / "a.cs").write_text("one\\n\\ntwo\\nthree\\nfour\\n", encoding="utf-8")
+        run(self.repo, "add", "a.cs")
+        run(self.repo, "commit", "-qm", "new revision")
+        newer = run(self.repo, "rev-parse", "HEAD")
+        newer_blob = run(self.repo, "rev-parse", "HEAD:a.cs")
+        checkpoint = {"head_sha": newer, "oldest_included_sha": newer,
+                      "window_first_parent_commits": 1}
+        audit = []
+        report = sut.verify_pins(self.repo, [
+            self.event(excel_row=7),
+            self.event(excel_row=8, head=newer, blob=newer_blob, spans=[[5, 5]])
+        ], checkpoint=checkpoint, audit_rows=audit)
+        self.assertEqual(report["first_parent_checkpoint"]["status"],
+                         "verified_first_parent_sha_membership")
+        self.assertEqual([a["window_membership"] for a in audit],
+                         ["not_on_first_parent_window", "in_window"])
+        self.assertEqual(report["first_parent_checkpoint"]
+                         ["verified_nonblank_exact_path_blob_unique_loc_subset"], 1)
+        self.assertIsNone(report["historical_900_first_parent_density_recomputed"])
+
+    def test_checkpoint_mismatch_leaves_membership_unknown_not_zero(self):
+        checkpoint = {"head_sha": self.first_commit,
+                      "oldest_included_sha": "0" * 40,
+                      "window_first_parent_commits": 1}
+        audit = []
+        report = sut.verify_pins(self.repo, [self.event()],
+                                 checkpoint=checkpoint, audit_rows=audit)
+        self.assertEqual(report["first_parent_checkpoint"]["status"],
+                         "checkpoint_anchor_mismatch")
+        self.assertIsNone(report["first_parent_checkpoint"]
+                          ["verified_nonblank_exact_path_blob_unique_loc_subset"])
+        self.assertEqual(audit[0]["window_membership"], "membership_unverified")
+
+
+
 if __name__ == "__main__":
     unittest.main()
