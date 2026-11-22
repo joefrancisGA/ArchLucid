@@ -1,0 +1,5 @@
+# FND-017 advisory SecureNow authorization-before-access check
+
+`FND017002` uses Roslyn semantic method resolution to inspect `GraphController.GetArchitectureGraphTemporalSnapshot` in the API assembly. It reports anchor run repository reads without a preceding `EvidenceReadAuthorizationGate.AuthorizeAsync` call, and resolved detail reads without two preceding authorization calls. Four compiler-driven tests exercise missing, late and properly ordered guards. This complements the existing tenant identity boundary analyzer and FND017001 core dependency rule.
+
+**Security limits:** This is an advisory ordering heuristic, not proof of authorization-before-access along every control-flow path. A preceding authorization invocation may be conditional, may return denial, or may be ignored. The rule does not currently inspect all endpoints, asynchronous paths, resolved-resource identity, exception paths, or full dataflow. A zero-diagnostic result is not a security certification. Future work should use Roslyn control-flow graphs and post-dominator/guard-return analysis plus real HTTP cross-tenant tests before making the rule mandatory.
