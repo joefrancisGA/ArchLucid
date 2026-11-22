@@ -1,1 +1,2 @@
 {"outcome":"reset","set":4,"zoneId":"_picker_reset","at":"2026-11-22T21:31:31.9713000Z","note":"option A picker metadata reset; archive stamp 2026-11-22"}
+{"at":"2026-11-22T22:04:49.3610070Z","zoneId":"cloud-extractors","outcome":"seed-only","productLine":"archlucid-shared","set":4,"note":"seed hunt: no hunt-ready row; five candidates from extractor sources"}
