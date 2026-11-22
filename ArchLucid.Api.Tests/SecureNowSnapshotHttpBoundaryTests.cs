@@ -48,6 +48,10 @@ public sealed class SecureNowSnapshotHttpBoundaryTests
             .AddSingleton(flags.Object)
             .AddSingleton(scope.Object)
             .AddSingleton(authorization.Object)
+            .AddSingleton<IEvidenceEntitlementAuthority>(Mock.Of<IEvidenceEntitlementAuthority>(
+                e => e.HasCurrentReadEntitlementAsync(
+                    It.IsAny<ClaimsPrincipal>(), It.IsAny<EvidenceReadResource>(),
+                    It.IsAny<CancellationToken>()) == Task.FromResult(true)))
             .AddScoped<EvidenceReadAuthorizationGate>()
             .BuildServiceProvider();
         return new GraphController(Mock.Of<IAuthorityQueryService>(), runs.Object, scope.Object,
