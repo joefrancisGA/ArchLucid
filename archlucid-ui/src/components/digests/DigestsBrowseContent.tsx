@@ -28,6 +28,7 @@ import { DigestsBrowseScopedAndSubscriptionFilterEmptyPartialHonesty } from "@/c
 import { DIGESTS_BROWSE_SCOPED_AND_SUBSCRIPTION_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/digests/digests-browse-scoped-and-subscription-filter-empty-not-load-failure-copy";
 import { DigestsBrowseSubscriptionListOnlyEmptyPartialHonesty } from "@/components/digests/DigestsBrowseSubscriptionListOnlyEmptyPartialHonesty";
 import { DIGESTS_BROWSE_SUBSCRIPTION_LIST_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/digests/digests-browse-subscription-list-only-empty-not-load-failure-copy";
+import { DIGESTS_BROWSE_SETUP_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/digests/digests-browse-setup-empty-not-load-failure-copy";
 import { DigestsBrowseSetupEmptyPartialHonesty } from "@/components/digests/DigestsBrowseSetupEmptyPartialHonesty";
 import { DigestsBrowseSetupChecklist } from "@/components/digests/DigestsBrowseSetupChecklist";
 import {
@@ -239,7 +240,14 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
               testId="digests-empty-state"
               title={DIGESTS_BROWSE_SETUP_UNKNOWN_TITLE}
               description={DIGESTS_BROWSE_SETUP_UNKNOWN_DESCRIPTION}
-              footer={<DigestsBrowseSetupEmptyPartialHonesty />}
+              footer={
+                <div className="space-y-2">
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digests-browse-setup-empty-not-load-failure">
+                    {DIGESTS_BROWSE_SETUP_EMPTY_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                  <DigestsBrowseSetupEmptyPartialHonesty />
+                </div>
+              }
             />
           )}
           <CollapsibleSection

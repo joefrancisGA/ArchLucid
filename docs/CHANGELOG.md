@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+## 2026-11-22 - Score lift round 113 (batch 78): Hub audit/terraform/overview, digests setup empty
+
+**Outcome.** Resource hub audit degraded, terraform not mapped, and overview audit unavailable name stored snapshot gaps versus hub load failure. Digests browse setup empty exposes mounted not-load-failure test id.
+
+**Surfaces.** Resource hub client, digests browse content, honesty and mounted contract tests.
+
 ## 2026-11-22 - Score lift round 112 (batch 77): Resource hub tabs, digests delivery empty
 
 **Outcome.** Resource hub drift, diagram, and remediation empty states name stored snapshot gaps versus hub load failure. Digests browse delivery attempts empty exposes mounted not-load-failure test id.
