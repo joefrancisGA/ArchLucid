@@ -40,3 +40,12 @@ FND-018 resilience controls are currently staged in PR #7779 rather than verifie
 **Confirmed issue:** the Redis cache breaker counted every exception including cancellation, while both cache read and write wrappers caught cancellation via `catch (Exception)` and attempted in-memory fallback. This could swallow caller cancellation and perform an unwanted cache write.
 
 **Fix:** exclude `OperationCanceledException` from breaker failure accounting; rethrow cancellation when the caller's token is canceled, before fallback catches. Added regression tests for canceled reads/writes. Other Redis failures continue to degrade to in-memory cache. No new controls introduced. Tests/CI pending.
+
+
+## Scope review — shared vs tenant-isolated resilience (2026-11-22)
+
+**Observed:** `RealAgentExecutorHandlerResiliencePipeline` caches static Polly pipelines by dispatch key, timeout and options, with **no tenant identifier**. Its breaker state is therefore shared by callers with the same dispatch key in a process. `ArchLucidDistributedCacheRegistrar.RegisterLlmCompletionResponseStore` registers one singleton distributed cache wrapper and one Redis circuit breaker per host, also shared across tenants. These are confirmed scope properties, **not yet confirmed tenant-isolation vulnerabilities**: provider/Redis outage protection may intentionally be host-wide, and tenant-specific isolation may occur in other layers.
+
+**Decision:** Do not silently change the breaker partition key to tenant ID. That could create unbounded per-tenant pipeline state and defeat host-level protection. Next inspect documented resource scope, rate limiting, tenant identity propagation, cache-key isolation and operational intent; add bounded tenant partitioning only with a source-grounded requirement and concurrency tests.
+
+**Additional correction:** a caller may cancel while Redis concurrently throws a non-cancellation error. Cache fallback catch blocks now re-check the caller token before doing fallback work. Focused CI remains pending.
