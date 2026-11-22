@@ -574,16 +574,6 @@ public sealed class RemediationInstanceService(
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
-        await AppendEvidenceAsync(
-            scope,
-            instanceId,
-            RemediationEvidencePhase.Verify,
-            verification.ResultJson,
-            actorKey,
-            correlationId: instance.InstanceId.ToString("N"),
-            utcNow,
-            cancellationToken);
-
         RemediationInstanceStatus nextStatus = verification.Passed
             ? RemediationInstanceStatus.Verified
             : RemediationInstanceStatus.VerificationFailed;
@@ -599,7 +589,20 @@ public sealed class RemediationInstanceService(
             verifiedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
+        RemediationEvidenceRecord verificationEvidence = new()
+        {
+            EvidenceId = Guid.NewGuid(),
+            InstanceId = instanceId,
+            TenantId = scope.TenantId,
+            Phase = RemediationEvidencePhase.Verify,
+            PayloadJson = verification.ResultJson,
+            ActorKey = actorKey.Trim(),
+            CorrelationId = instance.InstanceId.ToString("N"),
+            CreatedUtc = utcNow,
+        };
+
+        await instanceRepository.CommitVerificationInScopeAsync(
+            scope.ToProjectScopeKey(), ToMutation(updated), verificationEvidence, cancellationToken);
 
         // A failed check leaves the control unevidenced: do not insert a row and do not delete an older one.
         if (!verification.Passed)
