@@ -65,6 +65,7 @@ public sealed partial class AzureOpenAiCompletionClient
                 yield return chunk;
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
             ArchLucidInstrumentation.RecordLlmCompletionCallForCurrentRunBatch();
             llmActivity?.SetStatus(ActivityStatusCode.Ok);
             completionSucceededForTelemetry = true;
@@ -109,6 +110,7 @@ public sealed partial class AzureOpenAiCompletionClient
                            options,
                            cancellationToken).ConfigureAwait(false))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             IReadOnlyList<ChatMessageContentPart> parts = update.ContentUpdate;
 
             if (parts is null || parts.Count < 1)
@@ -119,6 +121,7 @@ public sealed partial class AzureOpenAiCompletionClient
                 if (part.Kind != ChatMessageContentPartKind.Text || string.IsNullOrEmpty(part.Text))
                     continue;
 
+                cancellationToken.ThrowIfCancellationRequested();
                 fullText.Append(part.Text);
                 yield return part.Text;
             }
@@ -150,6 +153,7 @@ public sealed partial class AzureOpenAiCompletionClient
                 LastModelMetadata.Value = (_deploymentName, update.Model.Trim());
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
         AzureOpenAiCompletionTruncationDiagnostics.ReportIfOutputTruncated(
             finishReason,
             resolvedMaxOutputTokens,
