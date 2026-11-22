@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+## 2026-11-22 - Score lift round 106 (batch 71): Graph node focus, health tiles, secondary exports, assigned collection
+
+**Outcome.** Evidence graph node-focus-only empty names successful load with no matching pin. System health summary tiles carry per-tile point-in-time discipline. Deliverables blocked secondary exports name unsealed gate versus load failure. Assigned findings empty collection blocker names incomplete capture versus failed assignments read.
+
+**Surfaces.** Evidence graph loaded experience, system health summary tiles, run detail deliverables exports, governance assigned-to-me empty state, honesty and mounted contract tests.
+
 ## 2026-11-21 - Score lift round 105 (batch 70): Policy enforced, health tiles, deliverables export, investigation ROI
 
 **Outcome.** Policy enforced-rules empty names successful read with zero rules. System health summary tiles state point-in-time rollup discipline. Deliverables blocked primary export names unsealed gate versus load failure. Investigation-effort blocking banner names incomplete worksheet versus failed read.

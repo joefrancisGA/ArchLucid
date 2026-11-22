@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Security;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Finalization;
@@ -53,6 +54,21 @@ public sealed partial class GraphController
 
             ScopeContext scope = scopeProvider.GetCurrentScope();
 
+            // FND-010: authorize the SecureNow evidence exchange before any run/evidence read.
+            // The requested run ID is the scoped anchor resource, not a claim that
+            // the resolved graph snapshot has already been authorized.
+            if (secureNowExchange)
+            {
+                EvidenceReadAuthorizationGate? gate =
+                    HttpContext.RequestServices.GetService<EvidenceReadAuthorizationGate>();
+                if (gate is null)
+                    return NotFound();
+                EvidenceReadDecision access = await gate.AuthorizeAsync(
+                    User, scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId, ct);
+                if (!access.Allowed)
+                    return NotFound();
+            }
+
             RunRecord? anchor = await runRepository.GetByIdAsync(scope, runId, ct);
 
             if (anchor is null)
@@ -68,6 +84,24 @@ public sealed partial class GraphController
                 return this.NotFoundProblem(
                     $"No persisted architecture graph exists for project '{anchor.ProjectId}' at or before the requested instant.",
                     ProblemTypes.ResourceNotFound);
+            }
+
+            // FND-010: the temporal resolver may select a different run than the
+            // anchor. Reauthorize the actual resolved resource before reading
+            // any graph details, and reject cross-project resolution.
+            if (secureNowExchange)
+            {
+                if (resolved.ProjectId != anchor.ProjectId)
+                    return NotFound();
+
+                EvidenceReadAuthorizationGate? resolvedGate =
+                    HttpContext.RequestServices.GetService<EvidenceReadAuthorizationGate>();
+                if (resolvedGate is null)
+                    return NotFound();
+                EvidenceReadDecision resolvedAccess = await resolvedGate.AuthorizeAsync(
+                    User, scope.TenantId, scope.WorkspaceId, scope.ProjectId, resolved.RunId, ct);
+                if (!resolvedAccess.Allowed)
+                    return NotFound();
             }
 
             RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, resolved.RunId, ct);
@@ -133,7 +167,7 @@ public sealed partial class GraphController
                 try
                 {
                     SecureNowSnapshotEnvelope exchange = SecureNowSnapshotProjection.Project(
-                        detail.GraphSnapshot, scope, resolved.RunId, DateTimeOffset.UtcNow);
+                        detail.GraphSnapshot, scope, resolved.RunId, TimeProvider.System.GetUtcNow());
                     return Ok(exchange);
                 }
                 catch (ArgumentException)

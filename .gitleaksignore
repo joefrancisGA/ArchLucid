@@ -34,3 +34,6 @@ a5dff22bb134d8c663a8a769e808762904e2cc8d:docs/library/AL_BUG_HUNT_LEDGER.md:gene
 
 # Stripe wallet guard unit test (1df3dd91a2): retired Stripe-shaped test SecretKey fixture; HEAD uses a non-credential-shaped literal. stripe-access-token matches the test-mode secret prefix even for low-entropy placeholders.
 1df3dd91a2a011fb570280ef02b4a9f14895e5ee:ArchLucid.Persistence.Tests/Billing/StripeWalletPaymentIdentifierGuardTests.cs:stripe-access-token:29
+
+# FND-010 historical unit fixture uses a documented synthetic HMAC key and nonce; not a deployed credential.
+1d4c4c8e7775cba3e68df0c46949f119d323a4d6:scripts/tests/test_fnd010_evidence_authorization.py:generic-api-key:34

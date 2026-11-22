@@ -40,6 +40,7 @@ import { GraphTypeFilterEmptyPartialCaptureHonesty } from "@/app/(operator)/insi
 import { GraphTypeFilterAndNodeFocusCombinedEmptyPartialHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphTypeFilterAndNodeFocusCombinedEmptyPartialHonesty";
 import { EVIDENCE_GRAPH_TYPE_FILTER_AND_NODE_FOCUS_COMBINED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/evidence-graph-type-filter-and-node-focus-combined-empty-not-load-failure-copy";
 import { EVIDENCE_GRAPH_TYPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/evidence-graph-type-filter-empty-not-load-failure-copy";
+import { EVIDENCE_GRAPH_NODE_FOCUS_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/evidence-graph-node-focus-only-empty-not-load-failure-copy";
 import {
   EVIDENCE_GRAPH_PNG_RASTER_FAILURE_NOT_EMPTY_GRAPH_LINE,
   EVIDENCE_GRAPH_PNG_TAINTED_NOT_EMPTY_GRAPH_LINE,
@@ -132,6 +133,16 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
     && graph.nodes.length > 0
     && typeFilterTrim.length > 0
     && filteredGraphByType.nodes.length === 0;
+  const pinnedGraphNodeId = graphNodeIdTrim.length > 0 ? graphNodeIdTrim : graphNodeFocusTrim;
+  const pinnedNodeMissingOnFilteredGraph =
+    pinnedGraphNodeId.length > 0
+    && !filteredGraphByType.nodes.some((node) => node.id === pinnedGraphNodeId);
+  const showNodeFocusOnlyEmptyHonesty =
+    !loading
+    && runTrim.length > 0
+    && graph.nodes.length > 0
+    && pinnedNodeMissingOnFilteredGraph
+    && !showTypeFilterEmptyHonesty;
   const showTypeFilterAndNodeFocusCombinedHonesty =
     showTypeFilterEmptyHonesty && graphNodeSearchActive;
 
@@ -154,6 +165,14 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
     <>
       {!loading && runTrim.length > 0 && graph.nodes.length === 0 ? (
         <GraphLoadedZeroNodesPartialCaptureHonesty />
+      ) : null}
+      {showNodeFocusOnlyEmptyHonesty ? (
+        <p
+          className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="evidence-graph-node-focus-only-empty-not-load-failure"
+        >
+          {EVIDENCE_GRAPH_NODE_FOCUS_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE}
+        </p>
       ) : null}
       {showTypeFilterAndNodeFocusCombinedHonesty ? (
         <div className="mb-3 space-y-2">

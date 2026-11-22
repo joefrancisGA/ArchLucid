@@ -1,0 +1,32 @@
+name: FND-010 SQL Journal Integration
+on:
+  pull_request:
+    branches: [master, main, architecture/fnd010-durable-sql-audit]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sql-journal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate ephemeral SQL test password
+        run: |
+          password="Fnd010!$(openssl rand -hex 20)"
+          echo "::add-mask::$password"
+          echo "FND010_SQL_PASSWORD=$password" >> "$GITHUB_ENV"
+      - name: Provision isolated SQL Server
+        run: |
+          docker run -d --name fnd010-sql -e ACCEPT_EULA=Y \
+            -e MSSQL_SA_PASSWORD="$FND010_SQL_PASSWORD" \
+            -e MSSQL_PID=Developer -p 127.0.0.1:1433:1433 \
+            mcr.microsoft.com/mssql/server:2022-latest
+      - name: Verify SQL journal behavior
+        run: bash scripts/ci/run_fnd010_sql_journal_verify.sh
+      - name: SQL container diagnostics on failure
+        if: failure()
+        run: docker logs --tail 60 fnd010-sql || true
+      - name: Remove disposable SQL Server
+        if: always()
+        run: docker rm -f fnd010-sql || true
