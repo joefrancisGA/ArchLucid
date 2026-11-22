@@ -22,6 +22,7 @@ BLOB_SPANS = re.compile(
     r"^(?P<path>.+?)\s+\[blob (?P<blob>[0-9a-f]{40})(?:;[^\]]*)?\]\s+(?P<ranges>.+)$"
 )
 RANGE = re.compile(r"^([1-9][0-9]*)(?:[-–—]([1-9][0-9]*))?$")
+NUMERIC = re.compile(r"^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$")
 DEFAULT_NAME = "ArchLucid_Defect_Density_Trend_repaired.xlsx"
 EXPECTED_WORKBOOK_SHA256 = "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787"
 EXPECTED_HEADER = [
@@ -64,7 +65,7 @@ def _excel_rows(archive: ZipFile, tab: int):
                 value = node.text if node is not None else None
                 if kind == "s" and value is not None:
                     value = shared[int(value)]
-                elif value is not None and kind not in ("str", "e", "b"):
+                elif value is not None and kind not in ("str", "e", "b", "d") and NUMERIC.fullmatch(value):
                     value = float(value) if "." in value or "E" in value.upper() else int(value)
             values[index - 1] = value
         yield int(row.attrib["r"]), [values.get(i) for i in range(max(values, default=-1) + 1)]
