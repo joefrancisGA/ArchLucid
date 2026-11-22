@@ -1,4 +1,8 @@
 using ArchLucid.Api.Controllers.Planning;
+using ArchLucid.Api.Security;
+using ArchLucid.Core.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -34,16 +38,30 @@ public sealed class SecureNowSnapshotHttpBoundaryTests
         Mock<IFeatureFlags> flags = new();
         flags.Setup(f => f.IsEnabledAsync("SecureNow.ReadOnlySnapshotExchange", It.IsAny<CancellationToken>()))
             .ReturnsAsync(enabled);
-        ServiceProvider services = new ServiceCollection().AddSingleton(flags.Object).BuildServiceProvider();
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IAuthorizationService> authorization = new();
+        authorization.Setup(a => a.AuthorizeAsync(
+            It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), ArchLucidPolicies.ReadAuthority))
+            .ReturnsAsync(AuthorizationResult.Success());
+        ServiceProvider services = new ServiceCollection()
+            .AddSingleton(flags.Object)
+            .AddSingleton(scope.Object)
+            .AddSingleton(authorization.Object)
+            .AddScoped<EvidenceReadAuthorizationGate>()
+            .BuildServiceProvider();
         return new GraphController(Mock.Of<IAuthorityQueryService>(), runs.Object, scope.Object,
             Mock.Of<IManifestHashService>(),
             Options.Create(new KnowledgeGraphLimitsOptions { FullGraphResponseMaxNodes = 500 }))
         {
             ControllerContext = new ControllerContext
             {
-                HttpContext = new DefaultHttpContext { RequestServices = services }
+                HttpContext = new DefaultHttpContext
+                {
+                    RequestServices = services,
+                    User = new ClaimsPrincipal(new ClaimsIdentity(
+                        [new Claim(ClaimTypes.NameIdentifier, "test-user")], "test"))
+                }
             }
         };
     }
