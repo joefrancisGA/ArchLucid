@@ -56,6 +56,31 @@ public sealed class OutboundExternalHttpResiliencePolicyTests
         policy.Should().NotBeNull();
     }
 
+    [Theory]
+    [InlineData(HttpStatusCode.RequestTimeout, 2)]
+    [InlineData(HttpStatusCode.TooManyRequests, 2)]
+    [InlineData(HttpStatusCode.ServiceUnavailable, 2)]
+    [InlineData(HttpStatusCode.BadRequest, 1)]
+    public async Task Outbound_retry_uses_shared_transient_http_classification(
+        HttpStatusCode status, int expectedCalls)
+    {
+        OutboundExternalHttpResilienceOptions options = new()
+        {
+            CircuitBreakerEnabled = false,
+            MaxRetryAttempts = 1
+        };
+        IAsyncPolicy<HttpResponseMessage> policy =
+            OutboundExternalHttpResiliencePolicy.Create(options, static _ => TimeSpan.Zero);
+        int calls = 0;
+        using HttpResponseMessage response = await policy.ExecuteAsync(
+            _ =>
+            {
+                calls++;
+                return Task.FromResult(new HttpResponseMessage(status));
+            }, CancellationToken.None);
+        calls.Should().Be(expectedCalls);
+    }
+
     private sealed class AlwaysFailHandler : HttpMessageHandler
     {
         public int SendCount
