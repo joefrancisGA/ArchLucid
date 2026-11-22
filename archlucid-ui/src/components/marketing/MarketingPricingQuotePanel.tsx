@@ -14,6 +14,7 @@ import {
   PROCUREMENT_AL_EVAL_ANCHOR_TEST_ID,
 } from "@/lib/procurement/procurement-evidence-map-anchors";
 
+const QUOTE_REQUEST_SECTION_ID = "pricing-quote-request";
 const MAX_MESSAGE_CHARS = 2000;
 const QUOTE_REQUEST_ERROR_MESSAGE = "We couldn't submit your request. Please try again.";
 
@@ -85,9 +86,44 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
       return;
     }
 
-    if (window.location.hash === "#pricing-quote-request" || openOnMount) {
+    const quoteHash = `#${QUOTE_REQUEST_SECTION_ID}`;
+    const openForQuoteHash = () => {
+      if (window.location.hash === quoteHash) {
+        setPanelOpen(true);
+      }
+    };
+
+    // The public header's client-side link can update history without a hashchange event.
+    const openForSamePageQuoteLink = (event: MouseEvent) => {
+      if (event.button !== 0 || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+        return;
+      }
+
+      const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[href]") : null;
+      if (
+        link?.hash === quoteHash &&
+        link.origin === window.location.origin &&
+        link.pathname === window.location.pathname &&
+        link.search === window.location.search &&
+        (!link.target || link.target === "_self") &&
+        !link.hasAttribute("download")
+      ) {
+        setPanelOpen(true);
+      }
+    };
+
+    if (openOnMount) {
       setPanelOpen(true);
+    } else {
+      openForQuoteHash();
     }
+
+    window.addEventListener("hashchange", openForQuoteHash);
+    document.addEventListener("click", openForSamePageQuoteLink);
+    return () => {
+      window.removeEventListener("hashchange", openForQuoteHash);
+      document.removeEventListener("click", openForSamePageQuoteLink);
+    };
   }, [openOnMount]);
 
   useEffect(() => {
@@ -158,7 +194,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
   return (
     <section
       data-testid="pricing-quote-request-section"
-      id="pricing-quote-request"
+      id={QUOTE_REQUEST_SECTION_ID}
       aria-labelledby="quote-request-heading"
       className="mb-10 rounded-xl border border-neutral-200 bg-neutral-50 p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/60"
     >
