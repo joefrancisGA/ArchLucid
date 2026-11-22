@@ -88,6 +88,31 @@ class UnpinnedRecoveryTests(unittest.TestCase):
         self.assertEqual(audited[1]["candidate_nonblank_loc"], 0)
         self.assertEqual(audited[2]["candidate_nonblank_loc"], 0)
 
+    def test_duplicate_explicit_full_path_fragments_coalesce_within_one_review(self):
+        raw = ("src/a.cs 1–1; src/a.cs 3–3; src/b.cs 1–1")
+        parsed = sut.parse_explicit_unpinned(raw)
+        self.assertEqual(len(parsed), 2)
+        self.assertEqual(parsed[0]["reported_inclusive_intervals"], [[1, 1], [3, 3]])
+        report, rows = sut.recover(self.repo, [self.row(969, raw, 3)],
+                                   self.checkpoint)
+        self.assertEqual(report["candidate_rows"], 1)
+        self.assertEqual(report["candidate_line_occurrences"], 3)
+        self.assertEqual(len(rows[0]["sources"]), 2)
+        self.assertEqual(rows[0]["candidate_new_exact_path_blob_loc"], 3)
+
+    def test_overlapping_duplicate_path_fragments_cannot_inflate_reviewed_loc(self):
+        raw = "src/a.cs 1–1; src/a.cs 1–1; src/a.cs 3–3"
+        parsed = sut.parse_explicit_unpinned(raw)
+        self.assertEqual(len(parsed), 1)
+        self.assertEqual(parsed[0]["reported_inclusive_intervals"], [[1, 1], [3, 3]])
+        _, rows = sut.recover(self.repo, [self.row(970, raw, 3)],
+                              self.checkpoint)
+        self.assertEqual(rows[0]["status"], "workbook_nonblank_loc_mismatch")
+        self.assertEqual(rows[0]["candidate_nonblank_loc"], 0)
+        _, good = sut.recover(self.repo, [self.row(971, raw, 2)],
+                              self.checkpoint)
+        self.assertEqual(good[0]["candidate_nonblank_loc"], 2)
+
     def test_unavailable_checkpoint_never_implies_window_membership(self):
         bad_checkpoint = {**self.checkpoint,
                           "oldest_included_sha": "f" * 40}
