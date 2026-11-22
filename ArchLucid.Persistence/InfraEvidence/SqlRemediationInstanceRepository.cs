@@ -528,7 +528,7 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                                FROM dbo.RemediationInstances
                                WHERE TenantId = @TenantId
                                  AND CloudResourceId = @CloudResourceId
-                               ORDER BY UpdatedUtc DESC
+                               ORDER BY UpdatedUtc DESC, InstanceId ASC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """;
 
