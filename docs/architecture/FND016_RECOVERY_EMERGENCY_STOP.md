@@ -1,0 +1,7 @@
+# FND-016 independently verified recovery and durable emergency stop
+
+Migration 356 introduces a tenant/project-scoped emergency-stop table with monotonically increasing generation and a generation-checked mutation procedure. A missing record is a **stop condition**. Only an independently privileged control-plane identity should receive EXECUTE on SetRemediationEmergencyStop; execution workers should receive read-only access. Database failure, absent records, unverified authority, stale snapshots, or active stop must deny.
+
+The pure recovery gate requires the FND-016 preliminary review, fresh independently verified stop snapshot, and a fresh independently signed recovery rehearsal attestation bound to tenant/project/proposal and source/rollback digests. Even if all checks pass it returns `review_required` and never grants execution.
+
+**Not yet implemented:** production SQL stop-state reader/writer adapters, cryptographic verification of rehearsal attestations, durable independent stop-control authority, real rehearsal runner, immediate cancellation of in-flight operations, production executor wiring, or live SQL integration verification. A caller-provided `authority_verified` boolean is an integration contract, not cryptographic proof. The stop generation must be re-read and compared atomically immediately before any future execution. SQL migration must be deployed separately with least-privilege grants. No production remediation enabled.
