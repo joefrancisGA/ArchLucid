@@ -40,13 +40,20 @@ jobs:
             const accountingOnly = new Set([
               'scripts/aspects_import_historical_workbook.py',
               'scripts/aspects_density_snapshot.py',
+              'scripts/aspects_validate_historical_corpus.py',
               'scripts/tests/test_aspects_import_historical_workbook.py',
               'scripts/tests/test_aspects_density_snapshot.py',
+              'scripts/tests/test_aspects_validate_historical_corpus.py',
               'docs/engineering/aspects-historical-restoration-state.json',
               '.github/workflows/aspects-density-snapshot.yml',
               '.github/workflows/aspects-evidence-gate.yml',
             ]);
-            if (changed.length && changed.every(file => accountingOnly.has(file.filename))) {
+            // Only the specifically named historical review data and accounting
+            // scripts qualify. Product code remains subject to the normal source
+            // evidence gate; this is not a broad bypass for arbitrary files.
+            const historicalData = /^docs\/engineering\/aspects-historical\/(?:review-events\/[0-9]{4}-[0-9]{4}\.jsonl|aspects-historical-900-snapshots\.jsonl|aspects-provisional-(?:600|700)-series\.jsonl|aspects-historical-import-manifest\.json)$/;
+            if (changed.length && changed.every(file =>
+              accountingOnly.has(file.filename) || historicalData.test(file.filename))) {
               core.info('Accounting-only migration: no application source review to record. CI/unit tests still required.');
               return;
             }
