@@ -49,3 +49,10 @@ FND-018 resilience controls are currently staged in PR #7779 rather than verifie
 **Decision:** Do not silently change the breaker partition key to tenant ID. That could create unbounded per-tenant pipeline state and defeat host-level protection. Next inspect documented resource scope, rate limiting, tenant identity propagation, cache-key isolation and operational intent; add bounded tenant partitioning only with a source-grounded requirement and concurrency tests.
 
 **Additional correction:** a caller may cancel while Redis concurrently throws a non-cancellation error. Cache fallback catch blocks now re-check the caller token before doing fallback work. Focused CI remains pending.
+
+
+## Cache key and fallback audit (2026-11-22)
+
+Inspected `CachingAgentCompletionClient.cs`, `LlmCompletionCacheFingerprint.cs`, `LlmCompletionResponseCacheOptions.cs`, `DistributedLlmCompletionResponseStore.cs`, `MemoryLlmCompletionResponseStore.cs`, `ArchLucidDistributedCacheRegistrar.cs`, and `AgentCompletionAzureScopedChainRegistrar.cs`. Cache keys incorporate tenant/workspace/project when `PartitionByScope=true` (default); it is configurable false, so strict tenant isolation requires validating deployment configuration and whether cross-scope reuse is permitted. No cross-tenant collision was demonstrated. Do not change key format without compatibility analysis.
+
+**Confirmed omission:** `MemoryLlmCompletionResponseStore` ignored its cancellation tokens on read and write, undermining cancellation propagation when Redis falls back to memory. Added cancellation checks before cache access/mutation and a focused regression test. This aligns existing cache implementation with the same cancellation contract, without introducing new control packages. Tests pending.
