@@ -300,7 +300,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     architectWorkspaceChrome
       ? filterFindingsByClassificationBand(densityFilteredFindings, classificationBand)
       : densityFilteredFindings;
-  const classificationCounts = countFindingsByClassificationBand(confidenceVisibleScoped);
+  const classificationCounts = countFindingsByClassificationBand(densityFilteredFindings);
   const findingsBeforeSort = architectWorkspaceChrome ? bandScopedFindings : confidenceVisibleScoped;
   // Density order is the Working default behind the Trust then severity chip. Any other findingsSort is the order that chip wrote.
   const listFindings =
@@ -605,7 +605,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
                   ["decision-grade", `Decision-grade (${classificationCounts.decisionGrade})`],
                   ["checklist", `Checklist (${classificationCounts.checklist})`],
                   ["uncited", `Uncited (${classificationCounts.uncited})`],
-                  ["all", `All (${confidenceVisibleScoped.length})`],
+                  ["all", `All (${densityFilteredFindings.length})`],
                 ] as const
               ).map(([bandId, label]) => (
                 <TabsTrigger key={bandId} value={bandId} data-testid={`run-detail-findings-band-${bandId}`}>
