@@ -7,16 +7,11 @@ import json
 import unittest
 from pathlib import Path
 
-try:
-    from jsonschema import Draft202012Validator, FormatChecker
-except ImportError:
-    Draft202012Validator = None
-    FormatChecker = None
+from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[2]
 DIR = ROOT / "schemas/cross-product/architecture-snapshot-published"
 
-@unittest.skipIf(Draft202012Validator is None, "Install jsonschema[format] to validate FND-002 fixtures")
 class ContractFixtures(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
