@@ -163,7 +163,7 @@
 - **hunts:** 0
 - **last-hunt:** never
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3254,10 +3254,10 @@
 - **hunts:** 0
 - **last-hunt:** never
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-11 seed hunt (seed-only): re-read `ArchLucid.Application/Billing/` and the scoped Marketplace, BillingCheckout, and TenantLlmCostReporting tests; 26 scoped tests passed. No newly seeded row met the full failing-repro bar. Preserved three concrete candidates for a later hunt.
 
@@ -3720,7 +3720,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-13 seed hunt #2397 (seed-only): reseeded arm-terraform-source-ids; no new hunt-ready rows.
 - **status:** unseeded
@@ -3734,7 +3734,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-20 seed hunt (seed→hit): promoted declared `endpointAliases` ARM keys with trailing slashes not indexed under `NormalizeArmResourceId`, so relationships using the canonical ARM path missed rename aliases and graph merge dropped edges; register ARM alias keys via `TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases`; regression `MapRelationships_resolves_declared_alias_when_alias_key_is_arm_id_with_trailing_slash`; 993 scoped edge-mapper/graph-merge tests passed.
 
@@ -3823,7 +3823,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-13 seed hunt #2447 (seed-only): reseeded arm-terraform-source-ids; no new hunt-ready rows.
 
@@ -6088,8 +6088,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** never
 - **last-bug:** never
-- **related-pd-tb:** TB-2226
-- **code-changed-since:** no
+- **related-pd-tb:** none
+- **code-changed-since:** yes
 
 2026-09-25 seed hunt (seed-only): reseeded commit-output-integrity after #3469 empty-trace fail-closed change; removed stale `GetBlockingReasons_when_empty_traces_returns_empty` test superseded by `GetBlockingReasons_when_real_pilot_strict_has_no_traces_returns_reason`; 88 scoped tests passed; no new hunt-ready rows.
 
@@ -6474,11 +6474,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/Runs/Orchestration/CompositeRequestContentSafetyPrecheck.cs; ArchLucid.Application/Runs/Orchestration/LlmSemanticAdmissionGate.cs; ArchLucid.Application/Runs/Orchestration/DefaultRequestContentSafetyPrecheck.cs
 - **test-filter:** FullyQualifiedName~DefaultRequestContentSafetyPrecheckTests|FullyQualifiedName~LlmSemanticAdmissionGateTests
 - **hunts:** 3- **bugs-found:** 0
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-11-18
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -6526,12 +6526,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **impact:** medium
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 3
+- **hunts:** 0
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-11-18
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
 - **last-bug:** never
-- **code-changed-since:** 1
+- **code-changed-since:** yes
 
 
 2026-11-02 thorough hunt (dry, hunt 292): **rotation fired** at pick time (`shouldRotate: true`; **`-AvoidZoneId commit-output-integrity`** after **3** consecutive dry hunts **125**, **126**, **127** on that zone; picker returned **`storage-vs-data-category`**). Run-log low-yield streak on **`storage-vs-data-category`** is **0/3** before this record — commit-output dry **125**–**127** at tail since storage dry **291**). Cheap-disproof closed five header `(candidate)` monitor rows from hunt 291 reseed — **valid-no-repro** rejected duplicate service display-name alias re-entry blocked by exclusive-rejected purge and strict identity keys (strict-identity regression family; hunt **280** parity), **valid-no-repro** indexed Terraform leaf rejected-key registration vs unindexed root defer edges (defer-edge regression family; hunt **280** parity), **valid-no-repro** relationship-only edge to rejected synthetic `ds-{name}` before pre-scan (`CollectDeclaredBatchEndpointKeys` pre-scan; pre-scan regression family; hunt **280** parity), **valid-no-repro** private-networking brief drop vs rejected duplicate ARM id edges (`ApplyBriefGrounding_prunes_relationships_to_dropped_services`; hunt **280** parity), **valid-no-repro** trimmed display-name relationship target after duplicate datastore dedupe (synthetic-key regression family; hunt **280** parity). Reseeded five alternate `(candidate)` monitor rows below; scoped post-processor and consistency-gate filter **45/45** (`RunAnalyzers=false`). **This dry starts 1/3** on `storage-vs-data-category` in the run log. Private beta: n/a.
@@ -7144,7 +7144,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7161,7 +7161,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7230,7 +7230,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 2026-11-17 thorough hunt #259 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five reseed `(candidate)` rows from hunt #258 pick — **invalid** omitted `workKind` treating default `Execute` as schema drift (2026-09-26 thorough hunt + regression `Deserialize_defaults_work_kind_to_execute_when_json_omits_work_kind`; out-of-range numerics already gated via `Enum.IsDefined`), **valid-no-repro** tab-only document or declaration `content` (`HasSubstantiveText` rejects whitespace-only before the multiline tab allowance; regression `Deserialize_filters_document_when_content_is_tab_only`), **valid-no-repro** ASCII leading/trailing spaces on `evidenceBundleId` (`AuthorityPipelineMaterializeWork` trims before repository lookup; regression `IsValidForProcessing_allows_evidence_bundle_id_with_ascii_leading_and_trailing_spaces`), **valid-no-repro** duplicate documents with identical name and content type (filter-only materialize; regression `Deserialize_keeps_duplicate_documents_with_same_name_and_content_type`), **valid-no-repro** unsupported MIME base with charset suffix keeps raw `contentType` for connector warn-skip (2026-10-30 charset parity; regression `Deserialize_keeps_document_when_content_type_is_unsupported_base_with_charset_parameter`). Added `AuthorityPipelineWorkPayloadHunt259ProbeTests`; bonus regression `Deserialize_rejects_negative_work_kind_numeric_values`. Reseeded five `(candidate)` rows below. Scoped filter **55/55** passed (`RunAnalyzers=false`). Private beta: n/a.
@@ -7314,7 +7314,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 - [x] (proven) `HasSubstantiveDocument` / `MaterializePathReferenceStringList` / `HasSubstantiveInfrastructureDeclaration` — compact identifier fields (document name/contentType, declaration name/format, policy/topology/security/capability refs) allowed embedded whitespace that path/batch normalizers only trim at ends — **hit 2026-10-04 seed hunt:** `HasUsableCompactIdentifierText` + `MaterializePathReferenceStringList`; regressions `Deserialize_filters_document_when_name_contains_embedded_nbsp`, `Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp`, and `Deserialize_keeps_inline_requirements_with_internal_spaces`.
@@ -8021,11 +8021,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 2
-- **bugs-found:** 1
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-18
-- **last-bug:** 2026-11-18
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8307,10 +8307,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 2
+- **hunts:** 0
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-18
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8606,13 +8606,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 1
+- **hunts:** 0
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-17
+- **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
 
 2026-09-12 seed hunt #2078 (seed-only): reseeded alert-simulation; no new hunt-ready rows
 
@@ -8739,10 +8739,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** 1
+- **code-changed-since:** yes
 
 2026-10-30 seed hunt (seed-only): re-read `ArchitectureRecommendationEngine` and `ArchitectureRecommendationTradeOffBuilder` after the explicit-balance rationale fix. No hunt-ready row. Closed three sibling lenses. Left three candidates. Private beta: n/a.
 2026-11-17 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Picker **thorough hunt** on three header `(candidate)` rows. **fail-open-validation** remains saturated (14d). Promoted `HumanDecisionRequired` fail findings still emitted must-change recommendations; extend `IsGovernanceClosedForRecommendation`. Regression `BuildRecommendations_skips_fail_findings_whose_governance_disposition_is_human_decision_required`. Cheap-disproof: unverified fail recommendations keep `SupportStatus.IndirectlySupported` — regression `BuildRecommendations_stamps_system_proposed_indirectly_supported_when_fail_evidence_is_unverified`; remediation-planned or human-pending security with open cost omits security-cost trade-off — regressions `BuildRecommendations_omits_security_cost_trade_off_when_security_finding_is_remediation_planned` and `BuildRecommendations_omits_security_cost_trade_off_when_security_finding_awaits_human_decision`. Reseeded three follow-on `(candidate)` rows above. Scoped architecture-recommendation tests **137/137** (`RunAnalyzers=false`). Private beta: when an invited operator marks a failed finding as awaiting human disposition, architecture recommendations no longer push a must-change proposal ahead of that review.
@@ -9103,7 +9103,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **hunts:** 0
 - **last-hunt:** never
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9377,7 +9377,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-12 seed hunt (seed-only): re-read the four selected router partials after three commits since the previous hunt and reviewed the focused tests. Promoted/reviewed a bounded email-domain `owner` candidate: `ops@owner.example.com` can be accepted at `@` as a marker start boundary while a separate `unowned` mention causes a false ownership-gap extraction. The focused repro was attempted but blocked before test discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
@@ -10768,10 +10768,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 2
-- **last-hunt:** 2026-11-17
+- **hunts:** 0
+- **last-hunt:** never
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -18132,11 +18132,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-17
-- **last-bug:** 2026-11-17
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -20909,7 +20909,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-22 thorough hunt (hit): promoted `RunDetailSampleLoadedNoRows` without requiring `RunDetailsTruncated` so committed runs with failed detail projection do not read as tenant-wide zero findings; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproved five picker candidates; 68 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
 
@@ -22072,7 +22072,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **last-bug:** never
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-12 seed hunt (seed-only): re-read the selected evaluation boundary and focused heuristic, structural, citation, faithfulness, and harness paths. No distinct new reachable mechanism-backed wrong outcome met the promotion bar; the scoped Evaluation filter was blocked before discovery on both attempts by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors. No new candidate was added and no production or regression code changed.
 
@@ -22387,7 +22387,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed→hit): proved a simple-terraform Cosmos account named `polyglot` with `terraformType` `azurerm_cosmosdb_account` was skipped by the RPO walk; longer product tokens and declaration type fields now count, and Cosmos role assignments stay excluded; regressions `AnalyzeAsync_emits_finding_when_terraform_cosmosdb_account_has_no_replica` and `AnalyzeAsync_emits_none_when_terraform_type_is_cosmos_role_assignment`; 33 scoped DrRpo, datastore-heuristic, and category-resolver tests passed.
 
@@ -23214,7 +23214,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-bug:** never
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
@@ -23614,7 +23614,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 
 - [x] (invalid) `PolicyExpectationCostGraphReader.RequiresBudgetCap` — accepts `yes`/`1` truthy strings — **cheap-disproof 2026-10-23 seed hunt (dry):** context snapshot stamps use strict `"true"`/`"false"` strings per policy overlay contract.
@@ -23739,10 +23739,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 1
+- **hunts:** 0
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-17
+- **last-hunt:** never
 - **last-bug:** never
 
 2026-10-27 thorough hunt (dry #88): repro-first on five open `(candidate)` rows (promote-loop wall-clock `Task.Delay` vs `TimeProvider` deadline, mid-wait `QueueWaitTimeoutSeconds` lengthen, double-fault abandon cleanup, renewal `cancellationToken` on host shutdown, promote refresh `UtcNow`); no failing repro; cheap-disproof closed all five; seeded five follow-on `(candidate)` rows below; 45 scoped QuickScanDistributedConcurrency tests passed (`RunAnalyzers=false`).
@@ -23784,7 +23784,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — capacity frees after service `admitUtcNow + QueueWaitTimeout` but before admit-refresh-stamped store `QueueExpiresUtc` should still promote — **cheap-disproof 2026-09-27 seed hunt #23:** deadline stays at pre-admit `admitUtcNow` (#6971) so clients never wait past the enqueue budget captured at admit intent; regression `WaitForAdmissionAsync_times_out_at_pre_admit_deadline_when_capacity_frees_after_deadline_but_before_store_queue_expiry`.
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyAdmitLimitRefreshStore.TryPromoteAsync` — must re-stamp `UtcNow` from `TimeProvider` like admit refresh or promote evaluates stale queue expiry — **cheap-disproof 2026-09-27 seed hunt #23:** promote loop supplies fresh `TimeProvider.GetUtcNow()` each poll (#1542); refresh re-reads limits only; regression `AdmitLimitRefreshStore_preserves_promote_utc_now_from_caller`.
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
 
 2026-10-20 thorough hunt (hit): `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` captured `PeriodicTimer` interval and lease duration at permit start, so a live decrease of `LeaseRenewalIntervalSeconds` via `IOptionsMonitor` did not speed up renewals and risked lease expiry on long scans. The loop now re-reads safety options each cycle and delays with `TimeProvider`. Cheap-disproved in-memory queue row retention after `ExpireStale` (capacity already excludes timed-out rows). Regression `Renewal_loop_re_reads_lease_renewal_interval_after_options_change`; 45 scoped QuickScanDistributedConcurrency tests passed.
 2026-10-10 seed hunt (seed-only): reread the service, SQL store, in-memory store, and concurrency/lease lifecycle tests; no fresh reachable mechanism remained after the equal-timestamp FIFO fix and prior cancellation, lease, cleanup, and timestamp findings. The scoped test project was blocked before execution by pre-existing duplicate `CreateEmptyAgentResultRepository` member `CS0111`. No production or regression code was changed.
@@ -24667,10 +24667,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 2
+- **hunts:** 0
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-17
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
 - **last-bug:** never
 - **code-changed-since:** yes
 - **related-pd-tb:** none
@@ -25806,10 +25806,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 2
+- **hunts:** 0
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-17
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes

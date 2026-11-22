@@ -31,11 +31,11 @@
 - **aliases:** governance lib; findings URL helpers
 - **paths:** archlucid-ui/src/lib/governance/
 - **test-filter:** lib/governance
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-20
-- **last-bug:** 2026-11-20 — whitespace-only architecture scope encoded padded architectureId
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -66,11 +66,11 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-20
-- **last-bug:** 2026-11-20 — findings queue pathname ignored active product line
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -102,11 +102,11 @@
 - **aliases:** UI API client; fetch boundaries
 - **paths:** archlucid-ui/src/lib/api/
 - **test-filter:** lib/api
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-20
-- **last-bug:** 2026-11-20 — padded keyset cursor forwarded without trim
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -138,10 +138,10 @@ odeCount >= maxNodes with null guard; **valid-no-repro** snapshot freshness uses
 - **aliases:** infra evidence UI lib
 - **paths:** archlucid-ui/src/lib/infra-evidence/
 - **test-filter:** lib/infra-evidence
-- **hunts:** 2
+- **hunts:** 0
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-20
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -176,11 +176,11 @@ odeCount >= maxNodes with null guard; **valid-no-repro** snapshot freshness uses
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-20
-- **last-bug:** 2026-11-20
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ## Zone: ui-hooks-shared
@@ -211,10 +211,10 @@ odeCount >= maxNodes with null guard; **valid-no-repro** snapshot freshness uses
 - **aliases:** shared React hooks
 - **paths:** archlucid-ui/src/hooks/
 - **test-filter:** src/hooks
-- **hunts:** 2
+- **hunts:** 0
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-21
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -976,12 +976,12 @@ odeCount >= maxNodes with null guard; **valid-no-repro** snapshot freshness uses
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 106
-- **bugs-found:** 18
-- **consecutive-dry-hunts:** 20
-- **last-hunt:** 2026-11-01
-- **last-bug:** 2026-10-30 — Organization input length contract
-- **related-pd-tb:** TB-2005
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
 - **code-changed-since:** yes
 
 TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs/library/UI_DESIGN_SYSTEM.md` and `.cursor/rules/UI-Form-Validation-Affordances.mdc` (disable primary until hard client validation passes; field errors on the form; `showError` toasts only for system/async failures).
@@ -1318,13 +1318,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 76
-- **bugs-found:** 33
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-01
-- **last-bug:** 2026-10-30 — missing CLI option value fell back to offline mode
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
 
 2026-10-03 seed hunt (seed-only): re-read the CLI tenant-isolation command/runner report and offline/live isolation boundaries; no new reachable mechanism-backed candidate emerged; 45 scoped TenantIsolationNegativeTestRunner tests passed.
 
@@ -2038,11 +2038,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 54
-- **bugs-found:** 17
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-11-01
-- **last-bug:** 2026-10-06 — `PromptRequiredAsync` infinite loop on stdin EOF
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2376,11 +2376,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 41
-- **bugs-found:** 2
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-10-08
-- **last-bug:** 2026-08-23
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2658,12 +2658,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 54
-- **last-hunt:** 2026-11-01
-- **bugs-found:** 26
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-11-01 — Escape filter clear dropped compareRuns when useSearchParams lagged committed compare- **related-pd-tb:** none
-- **code-changed-since:** 0
+- **hunts:** 0
+- **last-hunt:** never
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
+- **code-changed-since:** yes
 
 2026-10-31 seed hunt (seed-only): re-read the Runs List URL/popstate state boundaries and reran the focused 69-test suites after rotation; no source churn or new reachable mechanism-backed candidate emerged. No production change. Private beta: n/a.
 2026-10-31 seed hunt (seed-only): reread `RunsListClient`, `useRunsList`, the continue-last resolver, and the focused Runs List suites; no candidate met the same-run proof bar. Retained two bounded input-shape candidates for invalid server dates and recent-view row validity. No production change. Private beta: n/a.
@@ -3027,18 +3027,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; seeded five follow-on `(candidate)` rows below; 19 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
 - **id:** ui-auth-callback
-- **status:** exhausted
+- **status:** open
 - **impact:** low
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 35
-- **bugs-found:** 4
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-08 — Access request accepted control and bidi-format characters
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 2026-08-17 dry hunt: listed hypotheses do not hold on `AuthCallbackAccessPanel`. Denial keeps `AUTH_CALLBACK_ACCESS_HEADING` + `technicalDetail` (success title only after 2xx access-request submit as Î“Ã‡Â£Access request sentÎ“Ã‡Â¥). Recovery links are only `/auth/signin` (no operator-shell href). Panel is props-only (no `useSearchParams` / react-query / email-otp session); error strings are fixed copy and do not interpolate emails. Existing `AuthCallbackAccessPanel` + `CallbackClient` tests (6) pass.
 
@@ -3172,13 +3172,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 57
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-11-01
-- **last-bug:** 2026-10-29 — doc-index merge order dropped base vendor url after hash row
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -3425,11 +3425,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 63
-- **bugs-found:** 36
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — webhook test busy stuck after refresh during in-flight test
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3508,11 +3508,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 54
-- **bugs-found:** 27
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-11-01
-- **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3760,11 +3760,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 9
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-01
-- **last-bug:** 2026-10-29 — case-sensitive pathname split-host classification
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3858,13 +3858,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 57
-- **bugs-found:** 37
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — failed retry retained prior reasoning output
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-03 thorough hunt (dry): cheap-disproof found no raw URL parsing or whitespace-producing run-id path in the picked component; `activeRunId` is supplied by the page hook, so the malformed-run candidates were not reachable from this zone file. The golden-result checklist candidate was intentional because the checklist's Analyze step represents reasoning analysis, not the separate golden harness. The two scoped page-client suites passed 52/52.
 
@@ -4464,11 +4464,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 80
-- **bugs-found:** 37
-- **consecutive-dry-hunts:** 11
-- **last-hunt:** 2026-11-01
-- **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7333,8 +7333,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7352,8 +7352,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7371,8 +7371,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7390,8 +7390,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7468,8 +7468,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-20 — identity-less OIDC token responses still synced BFF cookie
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 
 - **id:** ui-oidc
 - **status:** open
@@ -7477,8 +7477,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7488,8 +7488,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7499,8 +7499,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7510,8 +7510,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7521,8 +7521,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7532,8 +7532,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7543,8 +7543,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7554,8 +7554,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7565,8 +7565,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7576,8 +7576,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7587,8 +7587,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7598,8 +7598,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7609,8 +7609,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7620,8 +7620,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7631,8 +7631,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7956,11 +7956,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 105
-- **bugs-found:** 74
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-11-17
-- **last-bug:** 2026-11-03 — token POST left non-trim C0 on authorization code and PKCE verifier
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8575,11 +8575,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 241
-- **bugs-found:** 355
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — governance approval RunId/ManifestVersion null JSON
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8720,8 +8720,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9683,11 +9683,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 140
-- **bugs-found:** 120
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-15 — Evolution / clarification contract JSON null lists
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10038,13 +10038,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 45
-- **last-hunt:** 2026-10-30
-- **bugs-found:** 35
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-30 — empty stored-evidence catalog restored stale persisted inventory
+- **hunts:** 0
+- **last-hunt:** never
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-13 seed hunt #2305 (seed-only): reseeded ui-operator-routes; no new hunt-ready rows.
 
@@ -10405,11 +10405,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 55
-- **bugs-found:** 48
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Pricing quote email format validation
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11282,11 +11282,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 40
-- **bugs-found:** 40
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-17
-- **last-bug:** 2026-11-17 — optional artifact/manifest scalar trim gaps in response guards
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11846,8 +11846,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11867,8 +11867,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12085,11 +12085,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 57
-- **bugs-found:** 39
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-01
-- **last-bug:** 2026-10-31 — deferred review section hash scroll stopped before a slow client chunk mounted
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
@@ -12429,8 +12429,8 @@ ABQ-09 churn hotspot; review detail route tree.
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-11-17 — stale guided prior-package filenames and job-chooser disclosure URL keys after path return
-- **code-changed-since:** no
+- **last-bug:** never
+- **code-changed-since:** yes
 
 **Hunts:** 81 · **Bugs found:** 51 · **Consecutive dry hunts:** 0
 
@@ -12567,11 +12567,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 69
-- **bugs-found:** 39
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-17
-- **last-bug:** 2026-11-04 — guided prior-run prefill did not reload when priorRunId changed without remount
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12811,11 +12811,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 61
-- **bugs-found:** 42
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-17
-- **last-bug:** 2026-11-17 — pick-review / clear-scope left correction confirm URLs
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12999,11 +12999,11 @@ ABQ-09 churn hotspot.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 58
-- **bugs-found:** 37
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — keyboard Enter navigated findings with blank run id
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -14187,8 +14187,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — Infrastructure Ask handoff duplicate stale tab params
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **duplicate `tab` query keys ignored trailing value** — `URLSearchParams.get` and `activeTab` used the first `tab` entry, so bookmarks like `tab=not-a-real-tab&tab=drift` opened Overview while a valid Drift tab was last; resolve active tab from the last `tab` value via `readResourceHubTabFromSearchParams` and dedupe on load; regression `uses the last tab query value and canonicalizes duplicate tab params on load`; cheap-disproof closed tab casing (normalize effect), empty `tab=` (whitespace normalize), manual Retry (generation guard), and terraform method-without-address (empty-state boundary); scoped ResourceHubClient vitest 140/140 plus filter-url unit test. Private beta: duplicated hub tab query keys in shared links honor the last tab segment and collapse to a single canonical param.
@@ -14210,8 +14210,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — duplicate tab query keys ignored trailing value
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **whitespace-only `tab` query left in resource hub URL** — hunt 118 normalized unknown tab tokens but returned early when `tab` trimmed empty, so `tab=%20%20%20` deep links kept a useless query key while Overview rendered; extend tab normalize effect to rewrite whitespace-only `tab` params; regression `normalizes whitespace-only tab query param via router on load`; cheap-disproof closed Ask handoff stale tab (normalize on load), busy id on tab switch (monitor), hub tab badges (saturated), drift change ids (defer); scoped ResourceHubClient vitest 139/139. Private beta: whitespace-only hub tab query noise is stripped from shared URLs the same way invalid tab typos are.
@@ -14233,8 +14233,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only tab query left in resource hub URL
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **invalid `tab` query left in resource hub URL** — `parseResourceHubTabFromSearch` rendered overview for typos like `tab=not-a-real-tab` but never rewrote the query string, so copied links and workbench exits kept a non-tab value while the UI showed Overview; normalize invalid tab params via `router.replace` on load; regression `normalizes invalid tab query param via router on load`; cheap-disproof closed in-flight create busy on tab switch (monitor), dismiss dialog while busy (Radix blocks cancel), concurrent two-finding create (single busy id by design), and drift badge vs preview slice (intentional); scoped ResourceHubClient vitest 138/138. Private beta: mistyped or stale hub tab query strings no longer linger in the address bar after the hub opens on Overview.
@@ -14256,8 +14256,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — invalid tab query left in resource hub URL
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below (keyboard tab shortcuts share `setActiveTab` with hunt 116 dialog dismiss, audit scope chip hidden when `hasUnlinkedAuditScopeInUrl` during defer load, finding action messages intentionally cleared on tab change, diagram whitespace correspondence id covered by regression, workQueue on audit clear covered by regressions); seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 137/137; no production or test code changed.
@@ -14279,9 +14279,9 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — create-remediation confirm dialog after hub tab switch
-- **code-changed-since:** no
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
+- **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **create-remediation confirm dialog left open after hub tab switch** — `setActiveTab` cleared finding action toasts but not `pendingRemediationFinding`, so leaving Findings with the confirm open and selecting another hub tab left a modal scoped to the prior tab’s finding; dismiss pending remediation on tab change; regression `closes create-remediation dialog when switching hub tabs`; cheap-disproof closed `suppressLinkedAuditScopeRefetch` skip (scope reset clears suppress), technical-key URL normalize (bookmark parity), whitespace terraform address (existing regression), hub tab badges (saturated monitor), and remediation cache invalidate (scope guards); scoped ResourceHubClient vitest 137/137. Private beta: operators switching resource-hub sections no longer see a stale “Create remediation instance?” confirm for a finding from the tab they left.
 
@@ -14303,8 +14303,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — create-remediation confirm dialog after hub tab switch
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below (terraform overview quick link polish, `resourceTitle` hub reset parity with `clears prior hub evidence when cloudResourceId changes`, manual Retry `loadRequestGeneration` guard, cold snapshot bookmark remount monitor, drift change-id trim defer); seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 136/136; no production or test code changed.
@@ -14326,9 +14326,9 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — stale URL audit scope on cross-workbench links after cloudResourceId change
-- **code-changed-since:** no
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
+- **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale URL audit scope on cross-workbench drift link** after `cloudResourceId` change — workbench/Ask audit context still trusted URL triples and prior-resource `hub.auditLineageLink` while the in-memory hub row or loading gap did not match the new `cloudResourceId`; add `hubMatchesActiveResource`, treat mismatched or unavailable lineage as unlinked, and defer URL audit params on workbench exits until the matching hub row loads; regression `omits stale URL audit scope on drift workbench link after cloudResourceId changes`; cheap-disproof closed terraform workbench row omission (intentional), `switchActiveAuditControl` deps (fixed hunt 113), ARM copy (polish), and drift change-id trim (defer); scoped ResourceHubClient vitest 136/136. Private beta: switching resource hubs no longer opens drift workbench pre-filtered to another resource’s audit control ids carried in the query string.
 
@@ -14349,8 +14349,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — stale URL audit scope on cross-workbench links after cloudResourceId change
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **prior resource hub snapshot on cross-workbench drift link** after `cloudResourceId` change — `resolvedSnapshotId` read `hub.currentConfiguration.snapshotId` before the in-memory hub row matched the new `cloudResourceId`, so drift (and sibling) workbench exits could carry the previous resource’s inventory snapshot until fetch settled; gate hub-derived snapshot resolution on `hub.cloudResourceId === cloudResourceId` and align snapshot ref updates; regression `omits stale snapshotId on drift workbench link after cloudResourceId changes`; cheap-disproof closed terraform quick link (polish), Ask handoff monitor row, manual Retry (generation guard), and drift change-id trim (defer); scoped ResourceHubClient vitest 135/135. Private beta: switching resource hubs no longer opens drift workbench with another resource’s snapshot id while the hub panel is still showing stale evidence.
@@ -14372,8 +14372,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — prior hub snapshot on cross-workbench links after cloudResourceId change
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale URL `runId` on cross-workbench links** after `cloudResourceId` change — hunt 111 stopped stale run pins on hub fetch, scope strip, and URL normalization, but overview and tab workbench/Ask hrefs still read raw `runId` from search params until `router.replace` completed, so remediation and sibling exits could briefly carry another resource’s review run; thread `resolvedRunId` through cross-workbench, drift, diagram, Ask, and diagram-reconcile remediation href builders; regression `omits stale runId on remediation workbench link after cloudResourceId changes`; cheap-disproof closed terraform quick link (polish), ARM copy (polish), cold bookmark remount (monitor), and drift change-id trim (defer); scoped ResourceHubClient vitest 134/134. Private beta: opening remediation or other infrastructure workbenches from a resource hub after switching resources no longer embeds a prior resource’s `runId` in the link.
@@ -14395,8 +14395,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — stale URL runId on cross-workbench links after cloudResourceId change
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale URL `runId` on hub fetch** after `cloudResourceId` change — client-side hub navigation reused the prior resource’s architecture-review `runId` query on fetch and scope strip while snapshot pin fixes ignored inactive snapshot params only; add per-resource URL run pin refs/bootstrap (parallel to snapshot), `resolvedRunId` for hub API calls and scope strip, and extend inactive-pin URL normalization to drop or rewrite stale `runId`; regression `ignores stale runId on hub fetch after cloudResourceId changes`; cheap-disproof closed cold bookmark remount (monitor), terraform quick link (polish), manual Retry (generation guard), and drift change-id trim (defer); scoped ResourceHubClient vitest 133/133. Private beta: switching resource hubs no longer scopes evidence to another resource’s review run id left in the URL.
@@ -14418,8 +14418,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — stale URL runId on hub fetch after cloudResourceId change
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **URL snapshot pin re-established on in-app resource switch** — the pin ref initializer treated any URL `snapshotId` as pinned for the current `cloudResourceId`, and the bootstrap path could run before inactive-pin URL normalization, so client-side hub navigation could briefly honor another resource’s snapshot query again; track per-resource bootstrap, clear the pin on `cloudResourceId` change without re-pinning from a carried query, and defer inactive-pin `router.replace` until bootstrap completes; scoped ResourceHubClient vitest 132/132 (existing regressions for stale fetch, URL normalize, and scope strip). Private beta: switching between resource hubs in one session no longer re-applies a carried snapshot query as a pin for the new resource.
@@ -14441,8 +14441,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — URL snapshot pin bootstrap on resource switch
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale `snapshotId` left in browser URL** after `cloudResourceId` change — hunts 106–107 ignored inactive URL pins for fetch and scope-strip copy, but the address bar still carried the prior resource’s `snapshotId` until the operator switched tabs, so copied/bookmarked links reopened the wrong pin; `router.replace` via `resourceHubFilterHrefFromSearch` when URL `snapshotId` is present but the per-resource pin ref is cleared, rewriting to `resolvedSnapshotId` (or dropping the param); regression `normalizes stale URL snapshotId via router after cloudResourceId changes`; cheap-disproof closed scope-key monitor row, terraform quick link (polish), ARM copy (polish), and drift change-id trim (defer); scoped ResourceHubClient vitest 132/132. Private beta: copying the resource hub URL after switching to another cloud resource no longer preserves another resource’s snapshot id in the query string.
@@ -14464,8 +14464,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — stale snapshotId in URL after cloudResourceId change
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed-only): re-read `ResourceHubClient` after per-resource URL snapshot pin + scope-strip label fixes (hunts 106–107); no new hunt-ready defect without another saturated `[state-machine-gap]` async-guard synonym; cheap-disproof closed cross-workbench remediation/drift hrefs (`resolvedSnapshotId`), tab `setActiveTab` URL rewrite, technical disclosure URL sync (`resourceHubFilterHrefFromSearch` overlay), manual Retry (`loadRequestGeneration`), and terraform quick link (polish); seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 131/131; no production code changed. Private beta: n/a.
@@ -14487,9 +14487,9 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — misleading pinned snapshot label after cloudResourceId change
-- **code-changed-since:** no
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
+- **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **misleading pinned snapshot label** after `cloudResourceId` change — hunt 106 stopped honoring a carried URL `snapshotId` on hub fetch, but `snapshotPinned` still keyed only on raw query length, so the scope strip kept showing **Pinned snapshot** and copy implying URL intent while evidence loaded unpinned; align `snapshotPinned` with the same per-resource URL pin ref as `resolvedSnapshotId`; regression `shows latest snapshot label when URL snapshotId is stale after cloudResourceId changes`; cheap-disproof closed technical disclosure carryover (URL-synced), terraform tab quick link (polish), drift change-id trim (deferred), and hub fetch pin (prior hit); scoped ResourceHubClient vitest 131/131. Private beta: switching resource hubs no longer tells operators their snapshot is URL-pinned when the hub is actually showing latest inventory for the new resource.
 
@@ -14510,8 +14510,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — misleading pinned snapshot label after cloudResourceId change
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale URL `snapshotId` pin** after `cloudResourceId` change — Next.js reused `ResourceHubClient` with the prior resource’s `snapshotId` still in the query string, and `loadHub` fell back to raw URL `snapshotId` when the resolved pin was empty, so the hub API loaded the wrong snapshot for the new cloud resource; honor URL snapshot pins only for the resource that introduced or last changed the pin, clear the pin on `cloudResourceId` change, and fetch with `resolvedSnapshotId` only; regression `ignores URL snapshotId pin on hub fetch immediately after cloudResourceId changes`; cheap-disproof closed implicit snapshot retention (prior hit), scope-key hub reset (prior hit), terraform tab quick link (polish), drift change-id trim (deferred), and manual Retry generation guard; scoped ResourceHubClient vitest 130/130. Private beta: navigating from one resource hub to another no longer reuses the previous resource’s pinned snapshot id from the URL when loading evidence for the new resource.
@@ -14534,8 +14534,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — stale URL snapshot pin after cloudResourceId change
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **lost implicit snapshot pin** when audit scope changes without URL `snapshotId` — scope reset cleared `hub` so `resolvedSnapshotId` became empty and the next `loadHub` called the API without the hub-derived snapshot the operator was already viewing; retain `lastResolvedHubSnapshotIdRef` across scope reloads on the same resource and clear it only on `cloudResourceId` change; regression `retains implicit snapshot pin on hub fetch when audit scope changes and URL omits snapshotId`; cheap-disproof closed load-error scope transition (scope effect clears), tab badge counts (scoped fetch), shortcuts while loading (`hub != null` gate), and snapshot strip label (tracks resolved id); scoped ResourceHubClient vitest 129/129. Private beta: operators who change audit scope on an unpinned resource hub keep viewing the same captured snapshot instead of silently re-querying without a snapshot id.
@@ -14557,9 +14557,9 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — implicit snapshot pin lost on audit scope change
-- **code-changed-since:** no
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
+- **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed-only): re-read `ResourceHubClient.tsx` after unified `hubClientScopeKey` reset (hunt 103); confirmed scope transitions clear hub/load error/remediation UI and in-flight remediation uses scope-key ref + unconditional `finally` busy clear; no new hunt-ready defect without another `[state-machine-gap]` synonym (saturated 14d); cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on rows; scoped `FullyQualifiedName~ResourceHubClient` filter 128/128; no production code changed. Private beta: n/a.
 
@@ -14580,9 +14580,9 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — stale hub when pinned snapshot changes
-- **code-changed-since:** no
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
+- **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale hub on pinned snapshot change** — hub reset ran only on `cloudResourceId` change, so changing `snapshotId` / run / audit URL scope reused the client and left the prior snapshot’s tables and title visible until the next fetch completed; reset hub, generation, and remediation UI state on any `buildResourceHubClientScopeKey` change (consolidated scope effect); regression `clears prior hub evidence when pinned snapshotId changes`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), technical disclosure carryover (URL sync), double-fetch on unlinked audit (intentional), and terraform workbench row (omitted); scoped ResourceHubClient vitest 128/128. Private beta: changing pinned snapshot on a resource hub no longer flashes the previous snapshot’s evidence while the new scope loads.
 
@@ -14603,9 +14603,9 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — stale hub when pinned snapshot changes
-- **code-changed-since:** no
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
+- **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stuck “Creating…”** on findings after hub URL scope change during in-flight remediation — scope-key guards skipped success UI but `finally` only cleared `findingActionBusyId` when scope still matched, so changing pinned snapshot (without `cloudResourceId` change) left the create-remediation button disabled with “Creating…” after the ignored async completed; always clear busy/dialog in `finally`; extended regression `ignores in-flight create remediation when snapshot scope changes before the API returns`; cheap-disproof closed manual Retry race (generation guard), terraform tab quick link (polish), drift change-id trim (deferred), technical disclosure carryover (URL sync), and ARM copy polish; scoped ResourceHubClient vitest 127/127. Private beta: changing snapshot scope mid remediation create no longer leaves the findings action stuck in a permanent busy state.
 
@@ -14626,9 +14626,9 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — stuck Creating after hub URL scope change during remediation
-- **code-changed-since:** no
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
+- **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **in-flight create remediation** after hub URL scope change (snapshot / run / audit params) — the prior `cloudResourceId`-only guard missed snapshot-scope navigation on the same resource, so a completing remediation could still apply success messages and call a stale `loadHub` closure for the old snapshot; capture `buildResourceHubClientScopeKey` at confirm time and compare against `hubClientScopeKeyRef` after each await; regression `ignores in-flight create remediation when snapshot scope changes before the API returns`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), double-fetch on unlinked audit (intentional), retainFindingMessages-only snapshot reload (covered by scope key), and terraform workbench row (omitted per regression); scoped ResourceHubClient vitest 127/127. Private beta: changing pinned snapshot or audit scope on a resource hub during remediation create no longer shows a success banner for the prior scope or reloads evidence for the wrong snapshot.
 
@@ -14649,9 +14649,9 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — in-flight remediation after hub URL scope change
-- **code-changed-since:** no
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
+- **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale hub evidence** when `cloudResourceId` changes without remount — client state (`hub`, audit inline-hydrate refs) stayed on the prior resource while the Next.js client reused `ResourceHubClient`, so operators could briefly see the previous resource title, tables, and scoped counts after navigating to another cloud resource id; reset hub/load error/finding messages, bump in-flight generation, and clear audit hydrate suppress refs when `cloudResourceId` changes; regression `clears prior hub evidence when cloudResourceId changes`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), and inline probe+scoped fetch cost (monitor); scoped ResourceHubClient vitest 124/124. Private beta: switching between resource hub routes no longer flashes the prior resource evidence while the new hub loads.
 
@@ -14671,8 +14671,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — stale hub when cloudResourceId changes
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **hub reload** skipped after inline audit hydrate when URL audit scope changes — `suppressLinkedAuditScopeRefetchRef` suppressed any `loadHub` with a non-empty `hubFetchAuditScope`, so switching the linked audit control (or otherwise changing the audit triple in the URL) before the duplicate effect refetch could leave stale scoped hub evidence on screen; only suppress the immediate duplicate refetch when the URL audit triple still matches the inline-hydrated scope, clear stale suppress flags otherwise, and bump request generation after the suppress decision; regression `refetches hub evidence when linked audit control in the URL changes`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), and unlinked double-fetch (intentional); scoped ResourceHubClient vitest 123/123. Private beta: changing audit scope on a resource hub URL always reloads evidence for the new control instead of reusing the prior scoped payload.
@@ -14693,8 +14693,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — suppress refetch blocked audit scope URL changes
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **hub load** flashing unscoped evidence when URL carries a linked audit triple — the deferred-audit first fetch still called `setHub` with unscoped API results before the audit-scoped refetch, so tab badges (e.g. findings counts) could show unscoped totals until the second fetch completed; when lineage confirms the URL triple, chain an audit-scoped hub fetch inside `loadHub` before committing hub state and suppress the redundant post-hydration refetch; regression `presents audit-scoped hub counts when URL carries linked audit scope`; cheap-disproof closed terraform overview quick link (polish), drift change-id trim (deferred), and buyer-polished ARM copy (intentional); scoped ResourceHubClient vitest 122/122. Private beta: landing on a resource hub with a valid audit scope in the URL no longer briefly shows unscoped finding/drift counts before scoped evidence loads.
@@ -14715,8 +14715,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — unscoped hub flash before audit-scoped load
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **hub fetch** retaining URL audit scope when lineage is unavailable — `hubFetchAuditScope` forwarded a full in-URL audit triple after the hub payload reported `auditLineageLink.available === false`, so evidence hub API/cache keys still used audit params the UI could not validate (overview shows lineage-unavailable while URL still carried assessment/snapshot/control ids); omit audit scope from hub fetch unless lineage is available and the triple is linked; regression `omits URL audit scope from hub fetch when audit lineage is unavailable`; cheap-disproof closed terraform overview quick link (polish), drift change-id trim (deferred), and linked-audit second fetch (intentional after lineage loads); scoped ResourceHubClient vitest 121/121. Private beta: opening a resource hub with audit query params while audit lineage is degraded no longer triggers a scoped hub API call keyed on that unvalidated triple.
@@ -14737,8 +14737,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — hub fetch audit scope when lineage unavailable
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **hub fetch** sending unlinked URL audit scope before lineage loads — `hubFetchAuditScope` forwarded the in-URL audit triple on the first fetch while `hub` was still null, so the evidence hub API/cache could key off a control id the UI later flags as unlinked; defer URL audit scope until hub payload is available and keep a stable empty scope object so unrelated reloads do not retrigger `loadHub`; regression `never passes unlinked URL audit controlId to hub fetch`; cheap-disproof closed terraform overview quick link (polish), drift change-id trim (deferred), and double-fetch monitor row; scoped ResourceHubClient vitest 125/125. Private beta: landing with a broken audit control in the URL no longer triggers a scoped hub API call with that invalid triple before the stale-scope banner appears.
@@ -14759,8 +14759,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — hub fetch unlinked audit before lineage
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **hub fetch** omitting resolved snapshot when URL has no `snapshotId` — `loadHub` always passed raw URL `snapshotId` (empty when omitted) so the evidence hub API/cache never received the configuration snapshot the UI already surfaces via `resolvedSnapshotId`; pass `resolvedSnapshotId` when non-empty and refetch when hub payload pins the default snapshot; regression `passes resolved snapshot id to hub fetch when URL omits snapshotId`; cheap-disproof closed terraform overview quick link (polish), resourceGroup DRY helper, and drift change-id trim (deferred); scoped ResourceHubClient vitest 124/124. Private beta: opening a resource hub without `snapshotId` in the URL still loads evidence for the snapshot shown in the scope strip instead of an unscoped cache/API call.
@@ -14781,8 +14781,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — hub fetch snapshot when URL omits snapshotId
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **hub fetch** scoped with invalid URL audit params — `loadHub` forwarded raw `assessmentId` / snapshot / `controlId` query segments even when the URL only had partial audit params or an unlinked triple, so the evidence hub API/cache key used audit scope the UI already treated as stale; derive `hubFetchAuditScope` from a full linked URL scope only and refetch without audit params once unlinked scope is detected; regressions `omits partial stale URL assessmentId from hub fetch` and `omits unlinked URL audit scope from hub fetch after lineage loads`; cheap-disproof closed drift/finding Ask partial inheritance (hunt #91 handoff base), terraform overview link polish, and drift change-id trim (deferred); scoped ResourceHubClient vitest 123/123. Private beta: resource hub evidence loads no longer key off broken partial or unlinked audit query params that the stale-scope banner already flags.
@@ -14803,8 +14803,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — hub fetch with invalid URL audit scope
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **Infrastructure Ask handoff** retaining partial stale URL audit params — `infrastructureAskHandoffSearch` was raw `searchParams`, so `buildInfrastructureAskHandoffHref` merged overlay params atop a lone `assessmentId` (or other partial audit query) even while the stale-scope banner was visible; strip audit query keys from the handoff base when `showStaleAuditScopeBanner` before Ask merges `askAuditContext`; regressions `clears partial stale URL audit params on overview Infrastructure Ask link` and unavailable-lineage variant; cheap-disproof closed stale-banner partial audit tab link (covered by hunt #90 workbench rewrite), buyer-polished ARM copy, and drift diffId trim (deferred); scoped ResourceHubClient vitest 121/121. Private beta: opening Ask from the resource hub no longer carries a broken partial audit query left in the URL when the stale-scope warning is showing.
@@ -14825,8 +14825,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — Ask handoff partial stale URL audit params
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale banner Open audit tab** link keeping unlinked URL audit params — `InfraAuditLineageUnavailableBanner` `auditTabHref` only patched tab/snapshot/runId atop `searchParams`, so unlinked `controlId` values survived the “Open audit tab” action despite the stale-scope warning; rewrite audit query fields from `workbenchLinkAuditContext` (hub/primary-match scope) when building the stale-banner audit tab href; regression `clears unlinked audit scope from stale banner Open audit tab link`; cheap-disproof closed overview terraform workbench row (intentionally omitted per regression), resourceGroup DRY helper, and drift change-id trim (deferred); scoped ResourceHubClient vitest 119/119. Private beta: clearing a bad audit scope in the URL and opening the audit tab no longer re-applies the same invalid control id.
@@ -14847,8 +14847,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — stale banner audit tab link retained unlinked URL scope
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **ARM path copy** beside omission copy — identifier strip showed `Copy ARM resource path` while `externalResourceId` was whitespace-only, so the control looked actionable but clipboard write was a silent no-op; hide the copy button unless trimmed `externalResourceId` is non-empty (keep cloud-resource copy fallback only while hub is null); regression extended `shows ARM resource path omission copy when externalResourceId is whitespace-only`; cheap-disproof closed partial stale URL chip (already hidden via `auditScopeActive`), overview terraform quick link (polish), and resourceGroup DRY helper; scoped ResourceHubClient vitest 118/118. Private beta: when capture did not store an ARM path, the resource hub no longer shows a broken copy affordance next to the omission message.
@@ -14869,8 +14869,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — ARM path copy affordance when path not stored
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **audit scope chip** beside stale unlinked URL banner — `InfraEvidenceAuditScopeBar` already hid when `hasUnlinkedAuditScopeInUrl`, but the tab-strip chip still rendered “Audit scoped” with hub-derived audit params while the stale-scope banner said URL scope could not be resolved; align chip visibility with the scope bar (`workbenchLinkAuditContext` present and URL scope linked); regression `hides audit scope chip when URL audit scope is unlinked in hub matches`; cheap-disproof closed ARM copy button whitespace (CopyIdButton trims/no-op), overview terraform quick link (polish), and drift change-id trim (deferred); scoped ResourceHubClient vitest 118/118. Private beta: operators with an invalid audit scope in the URL no longer see a conflicting “Audit scoped” chip above the stale-scope warning.
@@ -14891,8 +14891,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — audit scope chip vs stale unlinked URL
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **terraform tab** faux mapping UI when address not stored — without a captured terraform address the tab still rendered the full “Advisory Terraform mapping” block with omission copy and generation method, unlike the dedicated terraform workbench not-mapped empty state; when `!hasTerraformMapping`, show `EnterpriseCompactEmptyState` with shared not-mapped copy and drift workbench action; regression extended `treats whitespace-only terraform address as not stored on the terraform tab`; cheap-disproof closed overview terraform quick link (feature), Ask stale/unlinked precedence (prior hits), and drift change-id trim (deferred); scoped ResourceHubClient vitest 117/117. Private beta: operators without a terraform mapping see the same not-mapped guidance on the resource hub terraform tab as on the terraform workbench instead of a misleading advisory section.
@@ -14913,8 +14913,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — terraform tab not-mapped empty state
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **terraform tab** offering workbench when no address is stored — `hasTerraformMapping` was computed but unused, so operators still saw “Open terraform workbench” beside omission copy when `terraformAddress` was whitespace-only; gate the terraform workbench link on `hasTerraformMapping` and keep drift export available; extended regression `treats whitespace-only terraform address as not stored on the terraform tab`; cheap-disproof closed audit chip unlinked URL (hub-scoped href via `workbenchLinkAuditContext`), overview resourceGroup DRY helper, and drift change-id trim class (deferred); scoped ResourceHubClient vitest 117/117. Private beta: the resource hub terraform tab no longer sends operators to an empty terraform workbench when capture did not store a mapping.
@@ -14935,8 +14935,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — terraform workbench link without stored address
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale unlinked URL** with whitespace-only hub link ids dropping workbench audit scope — after hunt #84 cleared stale URL params, `askAuditContext` still relied on hub link fields that trim empty, so remediation and other exits lost audit scope when the URL carried an unlinked triple and capture stored whitespace-only link ids despite valid `matches`; when the stale banner is shown and hub link ids do not resolve, fall back to the primary match row before merging ask context; regression `uses primary match audit scope on overview remediation when URL scope is unlinked and hub link ids are whitespace-only`; cheap-disproof closed stale URL hub-link fallback (prior hit), partial URL + whitespace lineage (prior hit), and overview resourceGroup trim; scoped ResourceHubClient vitest 117/117. Private beta: with an invalid audit scope in the URL and blank link-level ids on the hub payload, cross-workbench links still carry audit scope from the first listed match instead of dropping it.
@@ -14957,8 +14957,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — stale unlinked URL with whitespace hub link ids on workbench scope
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale URL audit scope** leaking into workbench links — when the stale-scope banner was shown (`hasStaleInfraEvidenceAuditUrlParams` or unlinked full triple), `askAuditContext` still merged raw URL audit params into `resolveInfrastructureAskAuditContext`, so overview remediation and other exits carried the invalid `controlId` (or partial params) despite the banner; omit URL audit fields when `showStaleAuditScopeBanner` and fall back to hub payload only; regression `uses hub audit scope on overview remediation link when URL audit scope is unlinked`; cheap-disproof closed partial URL backfill (prior hit), lineage-derived context, and stale banner visibility; scoped ResourceHubClient vitest 116/116. Private beta: when audit scope in the URL cannot be resolved, cross-workbench links no longer propagate that stale scope and instead use the hub’s linked audit ids when available.
@@ -14980,8 +14980,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — stale URL audit scope on workbench links
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **partial URL audit params** blocking match backfill — `urlSpecifiesAuditScope` treated any single audit query param as a full scope, so a lone `assessmentId` in the URL skipped primary-match backfill for empty snapshot/control ids when hub link ids were whitespace-only and lineage failed; require all three URL audit params before treating scope as URL-complete; regression `resolves audit lineage when URL has only assessmentId and hub link audit ids are whitespace-only`; cheap-disproof closed ask context from lineage (prior hit), overview resourceGroup trim, and full triple URL scope; scoped ResourceHubClient vitest 115/115. Private beta: operators with a partial audit query on the resource hub still get lineage and workbench audit scope when capture left link ids blank but listed valid matches.
@@ -15003,8 +15003,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — partial URL audit params blocked match backfill
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **workbench/Ask audit context** missing after whitespace-only hub link ids — `resolvedAuditLineage` backfilled ids from `matches` but `askAuditContext` still read raw link fields through `resolveInfrastructureAskAuditContext`, so overview remediation and other workbench exits dropped audit query params when link ids trimmed empty; prefer `resolvedAuditLineage` ids when lineage resolves; regression `includes resolved audit scope on overview remediation link when hub link audit ids are whitespace-only`; cheap-disproof closed primary-match backfill (prior hit), audit scope chip path, and `resourceHubFilterHrefFromSearch` trim; scoped ResourceHubClient vitest 114/114. Private beta: cross-workbench links keep assessment audit scope when capture stored whitespace-only link ids but valid match rows still resolve lineage.
@@ -15026,8 +15026,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — ask/workbench audit context vs resolved lineage
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **hub link audit ids** with valid `matches` — after trim, link-level `assessmentId` / snapshot / `controlId` were empty while `matches` held real rows, so `resolvedAuditLineage` returned null and the audit tab showed degraded copy; when URL omits audit scope, backfill empty trimmed link ids from the first match row before lookup; regression `resolves audit lineage from the first match when hub link audit ids are whitespace-only`; cheap-disproof closed padded link id trim (prior hit), `switchActiveAuditControl` href writer trim in `resourceHubFilterHrefFromSearch`, and findings pagination empty caption; scoped ResourceHubClient vitest 113/113. Private beta: operators still see audit lineage on the resource hub when capture stored whitespace-only link ids but listed valid match rows.
@@ -15049,8 +15049,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only audit link ids with valid matches
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted padded **`auditLineageLink` ids** breaking lineage resolution — `resolvedAuditLineage` compared raw hub link ids to `matches` rows without trimming, so padded link-level assessment/snapshot/control ids failed strict equality and the audit tab fell through to degraded copy even when matches were valid; trim resolved ids and compare trimmed match keys; also trim when detecting stale URL audit scope against padded match rows; regressions padded hub link ids without URL scope and padded match rows with trimmed URL scope; cheap-disproof closed diagram correspondenceId actions (prior hit), findings `hasMore` with zero items caption, and overview resourceGroup trim; scoped ResourceHubClient vitest 112/112. Private beta: operators land on audit lineage and control links when capture padded audit ids with whitespace, instead of a false degraded or stale-scope state.
@@ -15072,8 +15072,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — padded audit lineage id resolution
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only / padded **`diagramCorrespondence.correspondenceId`** on diagram tab actions — reconciliation, remediation factory, and Ask buttons always rendered when correspondence payload was non-null even though workbench/ask URL builders drop whitespace-only ids, so operators saw scoped actions without a usable `correspondenceId`; trim gate hides actions and shows omission copy; suppress conflict remediation href when trim empty; regressions whitespace omission and padded Ask `href`; cheap-disproof closed overview audit degradedReason (prior hit), drift Ask `diffId` trim at URL layer, and pagination caption when `totalCount <= visibleCount`; scoped ResourceHubClient vitest 110/110. Private beta: on the resource hub diagram tab, operators no longer see reconciliation or Ask controls that omit correspondence context when capture stored only whitespace in `correspondenceId`.
@@ -15095,8 +15095,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — diagram correspondenceId on diagram tab actions
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted overview **audit lineage unavailable** copy when `degradedReason` is whitespace-only — overview passed raw `degradedReason` into `InfraAuditLineageUnavailableBanner` so whitespace fell through to the generic “hub and workbench links stay resource-scoped only” suffix while the audit tab already used `formatStoredInfraEvidenceHubField` with the default “No audit evidence snapshot rows…” paragraph; align overview with the same formatter/default; regression `shows default audit degraded copy on overview when degradedReason is whitespace-only`; cheap-disproof closed architecture finding id Ask (prior hit), overview `resourceGroup` inline trim, and exotic drift `changeType` tag kind; scoped ResourceHubClient vitest 108/108. Private beta: on the resource hub overview tab, operators see the same honest audit-lineage unavailable explanation as on the audit tab when capture stored only whitespace in `degradedReason`.
@@ -15118,8 +15118,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — overview audit degradedReason whitespace banner
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only / padded **architecture-review finding id** on Ask handoff — architecture stream still passed raw `item.id` into `buildHubFindingAskHref` and test ids while operational rows already used `findingIdTrimmed`, so whitespace-only ids rendered a broken Ask link and padded ids could ship encoded spaces in `findingId`; reuse trim gate with omission copy; regressions `shows finding id omission copy on architecture review rows when finding id is whitespace-only` and padded Ask `href`; cheap-disproof closed operational finding id (prior hit), overview audit `degradedReason` banner parity (component trims; audit tab uses formatter), and remediation blocker join mix; scoped ResourceHubClient vitest 107/107. Private beta: architecture-review finding rows on the resource hub findings tab no longer expose a misleading Ask link when capture stored only whitespace in finding `id`, and padded ids open Infrastructure Ask with a trimmed `findingId`.
@@ -15141,8 +15141,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — architecture-review finding id on Ask handoff
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **operational finding id** on findings rows — operational-security actions used raw `item.id` for factory/Ask/create links and `findingActionMessages` lookup while create flow keyed messages by trimmed id, so whitespace-only ids showed broken actions and padded ids could miss status text; trim gate shows omission copy and hides actions; regressions `shows finding id omission copy and hides operational actions when finding id is whitespace-only` and padded-id API/message parity; cheap-disproof closed remediation failure blockers (prior hit), overview `resourceGroup`/`region` formatter parity candidate deferred, and drift `changeType` exotic tag; scoped ResourceHubClient vitest 105/105. Private beta: on the resource hub findings tab, operators see “Finding id was not stored.” instead of dead factory or create links when capture stored only whitespace in finding `id`, and padded ids still wire remediation actions and status messages correctly.
@@ -15164,8 +15164,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only operational finding id on findings tab
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation create failure blockers** — `blockers.join(" ")` stayed truthy for whitespace-only entries so the UI skipped `errorMessage` and the generic `"Remediation create failed."` fallback and instead showed omission copy after `formatStoredInfraEvidenceHubField`; trim/filter blockers before join and trim `errorMessage` before fallback; regressions `shows generic remediation create failed when blockers are whitespace-only` and whitespace-only `errorMessage`; cheap-disproof closed remediation tab `instanceId` (prior hit), overview `resourceGroup`/`region` inline trim, and drift `changeType` normalize; scoped ResourceHubClient vitest 103/103. Private beta: after a failed create-remediation from a finding, operators see the generic failure line instead of “Remediation action message was not stored.” when the API returns only whitespace blockers or error text.
@@ -15187,8 +15187,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only remediation create failure blockers/errorMessage
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation tab instanceId** on listed instances — remediation rows always rendered factory/Ask links using raw `item.instanceId` so whitespace-only ids produced broken workbench handoffs; trim gate hides actions and shows omission copy; regression `does not show remediation tab factory links when instanceId is whitespace-only`; cheap-disproof closed create-from-finding `instanceId` (prior hit), failure `blockers.join` (status formatter), and overview `resourceGroup` inline trim; scoped ResourceHubClient vitest 102/102. Private beta: on the resource hub remediation tab, operators see “Remediation instance id was not stored.” instead of misleading factory links when capture stored only whitespace in `instanceId`.
@@ -15210,8 +15210,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only remediation tab instanceId
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation instanceId** after successful create-from-finding — `instanceId != null` let whitespace-only ids render a broken “Open in factory” link without a usable `instanceId` query param; trim gate when storing success message and before link; regression `does not show Open in factory when create remediation returns whitespace-only instanceId`; cheap-disproof closed blocker-join failure text (status formatter), confirm `resourceTitle` (path segment trim + display normalizer), and drift `changeType` whitespace; scoped ResourceHubClient vitest 101/101. Private beta: after creating remediation from a finding, operators no longer see a factory link when the API returns only whitespace in `instanceId`.
@@ -15233,8 +15233,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only remediation instanceId after create-from-finding
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **finding title** in create-remediation confirm dialog — table row already used omission copy but `findingTitle` prop passed raw `title` so dialog `<dd>` showed whitespace; `formatStoredInfraEvidenceHubField` on confirm payload; regression `shows finding title omission copy in create-remediation confirm dialog when title is whitespace-only`; cheap-disproof closed drift `changeType` (normalize already maps to “Change type was not stored.”), blocker-join failure message (display formatter covers), and network `relationshipType` (prior regression); scoped ResourceHubClient vitest 100/100. Private beta: confirming remediation create from a finding with a blank stored title shows “Finding title was not stored.” in the dialog instead of an empty Finding line.
@@ -15256,8 +15256,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only finding title in remediation confirm dialog
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **drift riskClassification** on drift tab — `riskClassification != null` let whitespace-only values render an empty `SeverityTag` instead of omission copy; trim gate before tag vs “Risk classification was not stored.”; regression `shows drift risk omission copy when riskClassification is whitespace-only`; cheap-disproof closed finding blocker-join (display formatter covers), pending dialog title (trim gate), and work queue banner (no repro); scoped ResourceHubClient vitest 99/99. Private beta: drift rows show “Risk classification was not stored.” when capture stored only whitespace in `riskClassification`.
@@ -15279,8 +15279,8 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only drift riskClassification
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **finding remediation action message** on findings tab — per-finding status paragraph rendered `findingActionMessages[id].message` raw so whitespace-only `errorMessage` / blocker join produced an empty `<p role="status">`; use `formatStoredInfraEvidenceHubField`; regression `shows remediation action omission copy when create remediation returns whitespace-only errorMessage`; cheap-disproof closed hub load error (prior hit), drift `riskClassification` (seeded below), and pending dialog title trim (already gated); scoped ResourceHubClient vitest 98/98. Private beta: after create-remediation from a finding, operators see “Remediation action message was not stored.” instead of a blank status line when the API returns only whitespace.
@@ -15303,8 +15303,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only finding remediation action message
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15342,8 +15342,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only audit degradedReason on audit tab
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15367,8 +15367,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only config ARM id blocked external title fallback
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15392,8 +15392,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only ARM resource path in identifier strip
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15417,8 +15417,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only audit other-linked control labels
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15442,8 +15442,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only overview resource type
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15467,8 +15467,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only remediation pattern key
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15492,8 +15492,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only drift property and old/new values
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15517,8 +15517,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only configuration tag keys
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15542,8 +15542,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — whitespace-only network relationship endpoint ids
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15567,8 +15567,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — whitespace-only RBAC principal and role cells
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15592,8 +15592,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — whitespace-only configuration property keys
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15617,8 +15617,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — whitespace-only evidence pointer kind
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15642,8 +15642,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — whitespace-only evidence pointer path
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15667,8 +15667,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — whitespace-only network relationship type
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15692,8 +15692,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — whitespace-only RBAC scope on overview
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15717,8 +15717,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — whitespace-only configuration tag values on overview
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15742,8 +15742,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — whitespace-only configuration property values on overview
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15767,8 +15767,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — whitespace-only stream labels and diagram match kind
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15784,8 +15784,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — whitespace-only hub field omission copy parity
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15809,8 +15809,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — whitespace-only hub field omission copy parity
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15834,8 +15834,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — pagination caption on empty findings/remediation streams
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15859,8 +15859,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — whitespace-only terraform address displayed as mapping
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15884,8 +15884,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — duplicate React keys on evidence pointers and drift rows
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15909,8 +15909,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — stale finding action messages after evidence hub reload
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15934,8 +15934,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — non-unique React keys collapsed RBAC/network/audit rows
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15959,8 +15959,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — architecture review findings pagination linked to remediation workbench
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16003,11 +16003,11 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 42
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — unlinked audit URL scope showed hub default control label
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 2026-10-20 seed hunt (seed→hit): promoted failed reload stale hub candidate; regression `clears_hub_evidence_when_a_newer_URL_selection_fails_to_load`; 55 scoped ResourceHubClient tests passed.
 
 - **related-pd-tb:** none
@@ -16176,18 +16176,18 @@ ABQ-09 churn hotspot.
 2026-10-10 seed hunt (seed-only): re-read `claim-discipline-policy.ts`, its live strip callers, and focused tests; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded four bounded `(candidate)` rows for static legacy alias drift, omitted live guide slugs, claim-heading id drift, and empty claim inputs. The focused policy suite passed 28/28.
 
 - **id:** ui-claim-discipline-policy
-- **status:** exhausted
+- **status:** open
 - **impact:** medium
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 43
-- **bugs-found:** 19
-- **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-29 — Connect AWS help TOC linked to missing claim anchor
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-29 thorough hunt (dry): re-promoted the three open `(candidate)` rows after the Connect AWS TOC hit — automated scan found zero live `stripSlug`/`slug` values that omit only through an unmapped legacy alias; every `resolveGuideHeadingsForStrip` call uses a slug consistent with `shouldOmitClaimDisciplineBand`; visible-band orientation strips trace non-empty claim props through `resolveClaimDisciplineForStrip` (undefined passthrough is intentional for omitted slugs and tested). No hunt-ready repro; 29 scoped `claim-discipline-policy` tests passed; no production code changed.
 
@@ -18379,8 +18379,8 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — post-save focus on wrong question after stale reload
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18404,8 +18404,8 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — silent snapshot guard on SecureNow save
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18429,8 +18429,8 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — empty listed snapshot id bypassed mutation guard
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18454,8 +18454,8 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — empty listed snapshot id bypassed mutation guard
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18479,8 +18479,8 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18498,8 +18498,8 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18517,8 +18517,8 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18536,8 +18536,8 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18669,8 +18669,8 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-25 — review promo when no open rows
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18726,11 +18726,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 42
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — reopen left stale answer fields on open questions
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18855,11 +18855,11 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 21
-- **bugs-found:** 19
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-11-17
-- **last-bug:** 2026-11-01 — completeness warnings lingered after snapshot URL change
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18993,16 +18993,16 @@ ABQ-09 churn hotspot.
 2026-10-11 thorough hunt (dry): cheap-disproved promotion of the focus-token collision candidate because the selected files and reachable production outline did not establish colliding short/long IDs; no failing repro was justified. Camera/click focus tests passed 9/9; the broader viewer file had 13 pre-existing failures.
 
 - **id:** ui-architecture-diagram
-- **status:** cooling
+- **status:** open
 - **impact:** medium
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 16
-- **bugs-found:** 9
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-09 — architecture name was counted twice when it repeated the only system
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
