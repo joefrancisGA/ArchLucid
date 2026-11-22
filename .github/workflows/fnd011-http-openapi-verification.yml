@@ -6,6 +6,7 @@ on:
       - master
       - main
       - integration/fnd011-http-contract-hardening
+      - integration/fnd011-tenant-openapi-verification
   workflow_dispatch:
 
 permissions:
@@ -23,6 +24,6 @@ jobs:
       - name: Compile API and test host
         run: dotnet build ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
       - name: Run FND-011 controller and projection tests
-        run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release --no-build --filter "FullyQualifiedName~SecureNowSnapshotProjectionTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~SecureNowSnapshotExchangeContractTests"
+        run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release --no-build --filter "FullyQualifiedName~SecureNowSnapshotProjectionTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~SecureNowSnapshotExchangeContractTests|FullyQualifiedName~SecureNowSnapshotSeededTenantIsolationTests"
       - name: Verify official OpenAPI v1 snapshot
         run: bash scripts/ci/check_openapi_contract_snapshot.sh
