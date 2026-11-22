@@ -1,4 +1,6 @@
 using System.Reflection;
+using System.Security.Claims;
+using ArchLucid.Api.Security;
 using ArchLucid.Api.Controllers.Planning;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Authorization;
@@ -37,9 +39,18 @@ public sealed class SecureNowSnapshotExchangeContractTests
         Mock<IFeatureFlags> flags = new();
         flags.Setup(x => x.IsEnabledAsync("SecureNow.ReadOnlySnapshotExchange", It.IsAny<CancellationToken>()))
             .ReturnsAsync(enabled);
-        ServiceProvider services = new ServiceCollection().AddSingleton(flags.Object).BuildServiceProvider();
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(x => x.GetCurrentScope()).Returns(Scope);
+        Mock<IAuthorizationService> authorization = new();
+        authorization.Setup(a => a.AuthorizeAsync(
+            It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), ArchLucidPolicies.ReadAuthority))
+            .ReturnsAsync(AuthorizationResult.Success());
+        ServiceProvider services = new ServiceCollection()
+            .AddSingleton(flags.Object)
+            .AddSingleton(scope.Object)
+            .AddSingleton(authorization.Object)
+            .AddScoped<EvidenceReadAuthorizationGate>()
+            .BuildServiceProvider();
         Mock<IRunRepository> runs = new();
         RunRecord run = new() { RunId = Run, ProjectId = "proj-a", CreatedUtc = DateTime.UtcNow.AddMinutes(-10) };
         runs.Setup(x => x.GetByIdAsync(Scope, Run, It.IsAny<CancellationToken>())).ReturnsAsync(run);
@@ -63,7 +74,12 @@ public sealed class SecureNowSnapshotExchangeContractTests
             Options.Create(new KnowledgeGraphLimitsOptions { FullGraphResponseMaxNodes = maxNodes }))
         {
             ControllerContext = new ControllerContext
-                { HttpContext = new DefaultHttpContext { RequestServices = services } }
+                { HttpContext = new DefaultHttpContext
+                    {
+                        RequestServices = services,
+                        User = new ClaimsPrincipal(new ClaimsIdentity(
+                            [new Claim(ClaimTypes.NameIdentifier, "operator")], "test"))
+                    } }
         };
         return (controller, runs, authority);
     }
