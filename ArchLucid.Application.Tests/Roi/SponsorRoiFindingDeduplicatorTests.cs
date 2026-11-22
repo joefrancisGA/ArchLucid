@@ -59,6 +59,20 @@ public sealed class SponsorRoiFindingDeduplicatorTests
         deduped.Should().HaveCount(3);
     }
 
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(0, true)]
+    [InlineData(-5, false)]
+    [InlineData(-5, true)]
+    public void DeduplicateByStableIdentity_prefers_a_known_estimate_to_an_unavailable_estimate(int estimate, bool knownFirst)
+    {
+        var unknown = new ArchitectureFinding { FindingId = "cost-id" };
+        var known = new ArchitectureFinding { FindingId = "cost-id", EstimatedUsdSavings = estimate };
+        ArchitectureFinding[] findings = knownFirst ? [known, unknown] : [unknown, known];
+
+        SponsorRoiFindingDeduplicator.DeduplicateByStableIdentity(findings).Should().Equal(known);
+    }
+
     [Fact]
     public void DeduplicateWithLogging_preserves_the_same_winner_and_identity_normalization()
     {
