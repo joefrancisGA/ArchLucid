@@ -60,7 +60,7 @@ public static class LlmCompletionFailureClassifier
 
         if (ex is ClientResultException clientResultException)
         {
-            return IsRetryableHttpStatus(clientResultException.Status)
+            return ProviderHttpFailurePolicy.IsRetryableStatus(clientResultException.Status)
                 ? LlmCompletionFailureKind.TransportRetryable
                 : LlmCompletionFailureKind.SemanticTerminal;
         }
