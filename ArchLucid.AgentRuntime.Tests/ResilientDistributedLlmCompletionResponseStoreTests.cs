@@ -54,6 +54,23 @@ public sealed class ResilientDistributedLlmCompletionResponseStoreTests
     }
 
     [Fact]
+    public async Task MemoryFallback_RejectsCanceledReadAndWrite()
+    {
+        using MemoryLlmCompletionResponseStore store = new(maxEntries: 8);
+        using CancellationTokenSource cancellation = new();
+        cancellation.Cancel();
+
+        Func<Task> write = () => store.SetAsync(
+            "cancelled-key", "body", TimeSpan.FromMinutes(1), cancellation.Token);
+        await write.Should().ThrowAsync<OperationCanceledException>();
+
+        Func<Task> read = async () => await store.TryGetAsync(
+            "cancelled-key", cancellation.Token);
+        await read.Should().ThrowAsync<OperationCanceledException>();
+        (await store.TryGetAsync("cancelled-key", CancellationToken.None)).Should().BeNull();
+    }
+
+    [Fact]
     public async Task TryGetAsync_WhenDistributedFails_FallsBackToMemory()
     {
         Mock<ILlmCompletionResponseStore> distributed = new();
