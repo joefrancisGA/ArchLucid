@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.archlucid.com/remediation/proposal/1.0.0.json",
+  "title": "FND-007 Remediation Proposal v1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "proposalId",
+    "tenantId",
+    "findingRefs",
+    "evidenceRefs",
+    "proposalStatus",
+    "changeType",
+    "affectedResources",
+    "preconditions",
+    "blastRadius",
+    "expectedOutcome",
+    "rollbackPlan",
+    "verificationPlan"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "proposalId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "findingRefs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "proposalStatus": {
+      "const": "proposed"
+    },
+    "changeType": {
+      "enum": [
+        "configuration",
+        "identity",
+        "network",
+        "policy",
+        "code",
+        "manual-procedure"
+      ]
+    },
+    "affectedResources": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "preconditions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "blastRadius": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assessment",
+        "dependentResources"
+      ],
+      "properties": {
+        "assessment": {
+          "enum": [
+            "unknown",
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        },
+        "dependentResources": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "expectedOutcome": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rollbackPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy",
+        "steps"
+      ],
+      "properties": {
+        "strategy": {
+          "enum": [
+            "manual",
+            "automated",
+            "not-yet-defined"
+          ]
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "limitations": {
+          "type": "string"
+        }
+      }
+    },
+    "verificationPlan": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "patternRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sourceSnapshotRef": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
