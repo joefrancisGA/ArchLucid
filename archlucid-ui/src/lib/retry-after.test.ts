@@ -23,6 +23,12 @@ describe("parseRetryAfterHeader", () => {
     expect(parseRetryAfterHeader("abc")).toBe(null);
   });
 
+  it("rejects overflow and imprecise delay-seconds tokens", () => {
+    expect(parseRetryAfterHeader("9".repeat(500))).toBeNull();
+    expect(parseRetryAfterHeader(String(Number.MAX_SAFE_INTEGER + 1))).toBeNull();
+    expect(parseRetryAfterHeader(String(Number.MAX_SAFE_INTEGER))).toBe(Number.MAX_SAFE_INTEGER);
+  });
+
   it("parses HTTP-date into positive seconds from now", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-05-01T12:00:00.000Z"));
