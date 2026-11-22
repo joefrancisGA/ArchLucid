@@ -47,11 +47,19 @@ internal static class SecureNowExchangeModePattern
                         m.Name.Identifier.ValueText == "AuthorizeAsync").ToArray();
         if (gates.Length != 1)
             return false;
+        var assignment = gates[0].Ancestors().OfType<LocalDeclarationStatementSyntax>()
+            .FirstOrDefault(x => x.Parent == block);
+        var decisionName = assignment?.Declaration.Variables.SingleOrDefault()?.Identifier.ValueText;
+        if (string.IsNullOrEmpty(decisionName))
+            return false;
         return block.Statements.OfType<IfStatementSyntax>().Any(denial =>
             denial.Condition is PrefixUnaryExpressionSyntax negative &&
             negative.IsKind(SyntaxKind.LogicalNotExpression) &&
             negative.Operand is MemberAccessExpressionSyntax allowed &&
             allowed.Name.Identifier.ValueText == "Allowed" &&
+            allowed.Expression is IdentifierNameSyntax decision &&
+            decision.Identifier.ValueText == decisionName &&
+            denial.SpanStart > assignment!.SpanStart &&
             (denial.Statement is ReturnStatementSyntax ||
              denial.Statement is BlockSyntax b &&
              b.Statements.LastOrDefault() is ReturnStatementSyntax));
