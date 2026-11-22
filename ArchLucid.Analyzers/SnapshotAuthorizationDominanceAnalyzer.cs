@@ -130,9 +130,9 @@ public sealed class SnapshotAuthorizationDominanceAnalyzer : DiagnosticAnalyzer
             var current = pending.Pop();
             if (!found.Add(current.Ordinal))
                 continue;
-            if (current.FallThroughSuccessor.Destination is { } fall)
+            if (current.FallThroughSuccessor?.Destination is { } fall)
                 pending.Push(fall);
-            if (current.ConditionalSuccessor.Destination is { } conditional)
+            if (current.ConditionalSuccessor?.Destination is { } conditional)
                 pending.Push(conditional);
         }
         return found;
