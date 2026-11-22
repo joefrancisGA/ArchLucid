@@ -32,7 +32,7 @@ public sealed partial class ArchitectureRiskRegisterReader
         string sql = $"""
                       ;WITH latestDisposition AS (
                           SELECT FindingId, ProjectId, Disposition, RevisitDueUtc, EvidenceRequestText, OccurredAtUtc, ReviewerUserId,
-                                 ROW_NUMBER() OVER (PARTITION BY FindingId, ProjectId ORDER BY OccurredAtUtc DESC) AS rn
+                                 ROW_NUMBER() OVER (PARTITION BY FindingId, ProjectId ORDER BY OccurredAtUtc DESC, EventId DESC) AS rn
                           FROM dbo.FindingReviewEvents
                           WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND Disposition IS NOT NULL
                       )

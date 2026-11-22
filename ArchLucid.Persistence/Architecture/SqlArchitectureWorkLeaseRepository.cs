@@ -24,9 +24,9 @@ public sealed class SqlArchitectureWorkLeaseRepository(ISqlConnectionFactory con
                 l.ScopeProjectId,
                 l.ArchitectureId,
                 l.HolderUserId,
-                l.AcquiredUtc,
-                l.LastHeartbeatUtc,
-                l.ExpiresUtc,
+                TODATETIMEOFFSET(l.AcquiredUtc, '+00:00') AS AcquiredUtc,
+                TODATETIMEOFFSET(l.LastHeartbeatUtc, '+00:00') AS LastHeartbeatUtc,
+                TODATETIMEOFFSET(l.ExpiresUtc, '+00:00') AS ExpiresUtc,
                 l.RowVersion
             FROM dbo.ArchitectureWorkLeases l
             WHERE l.TenantId = @TenantId

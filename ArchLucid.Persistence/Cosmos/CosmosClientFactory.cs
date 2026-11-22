@@ -16,6 +16,7 @@ namespace ArchLucid.Persistence.Cosmos;
 public sealed class CosmosClientFactory(IOptionsMonitor<CosmosDbOptions> optionsMonitor, ILogger<CosmosClientFactory> logger)
     : IDisposable
 {
+    private const string AuditEventsLeaseContainerId = "audit-events-leases";
     private readonly ConcurrentDictionary<string, Container> _containers = new(StringComparer.Ordinal);
     private readonly SemaphoreSlim _initLock = new(1, 1);
     private readonly ILogger<CosmosClientFactory> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -82,7 +83,7 @@ public sealed class CosmosClientFactory(IOptionsMonitor<CosmosDbOptions> options
 
     public async Task<Container> GetLeaseContainerAsync(CancellationToken ct)
     {
-        const string leaseContainerId = "audit-events-leases";
+        const string leaseContainerId = AuditEventsLeaseContainerId;
 
         if (_containers.TryGetValue(leaseContainerId, out Container? cached))
             return cached;
@@ -104,7 +105,7 @@ public sealed class CosmosClientFactory(IOptionsMonitor<CosmosDbOptions> options
             _client ??= CreateClient(opts);
             _database ??= await _client.CreateDatabaseIfNotExistsAsync(opts.DatabaseName, cancellationToken: ct);
 
-            ContainerProperties leaseProps = new(leaseContainerId, "/id");
+            ContainerProperties leaseProps = new(leaseContainerId, GetPartitionKeyPath(leaseContainerId));
             ContainerResponse leaseResponse = await _database.CreateContainerIfNotExistsAsync(
                 leaseProps,
                 ThroughputProperties.CreateManualThroughput(400),
@@ -134,13 +135,16 @@ public sealed class CosmosClientFactory(IOptionsMonitor<CosmosDbOptions> options
         return ttl;
     }
 
-    private static string GetPartitionKeyPath(string containerId)
+    internal static string GetPartitionKeyPath(string containerId)
     {
         if (string.Equals(containerId, "graph-snapshots", StringComparison.Ordinal))
             return "/graphSnapshotId";
 
         if (string.Equals(containerId, "agent-traces", StringComparison.Ordinal))
             return "/runId";
+
+        if (string.Equals(containerId, AuditEventsLeaseContainerId, StringComparison.Ordinal))
+            return "/id";
 
         return string.Equals(containerId, "audit-events", StringComparison.Ordinal)
             ? "/tenantId"

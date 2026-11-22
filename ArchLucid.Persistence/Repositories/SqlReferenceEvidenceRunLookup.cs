@@ -40,7 +40,7 @@ public sealed class SqlReferenceEvidenceRunLookup(IAuthorityRunListConnectionFac
                  r.WorkspaceId,
                  r.ScopeProjectId,
                  r.ArchitectureRequestId AS RequestId
-             FROM dbo.Runs r WITH (NOLOCK)
+             FROM dbo.Runs r
              WHERE r.TenantId = @TenantId
                AND r.ArchivedUtc IS NULL
                AND r.GoldenManifestId IS NOT NULL

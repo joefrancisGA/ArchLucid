@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ExtractUploadAcceptedPackagePanel } from "./ExtractUploadAcceptedPackagePanel";
@@ -154,5 +154,39 @@ describe("ExtractUploadAcceptedPackagePanel", () => {
     expect(screen.getByTestId("extract-upload-accepted-package-id-copy-error")).toHaveTextContent(
       "Could not write to clipboard — copy manually.",
     );
+  });
+
+  it("clears previous copy success when a retry fails", async () => {
+    render(<ExtractUploadAcceptedPackagePanel record={sampleRecord} />);
+    const copy = screen.getByTestId("extract-upload-accepted-package-id-copy");
+
+    fireEvent.click(copy);
+    await waitFor(() => expect(copy).toHaveTextContent("Copied"));
+
+    vi.mocked(navigator.clipboard.writeText).mockRejectedValueOnce(new Error("Clipboard blocked"));
+    fireEvent.click(copy);
+
+    expect(await screen.findByTestId("extract-upload-accepted-package-id-copy-error")).toBeInTheDocument();
+    expect(copy).toHaveTextContent("Copy id");
+  });
+
+  it("keeps the latest clipboard result when an earlier attempt fails late", async () => {
+    let rejectFirst!: (reason: Error) => void;
+    const first = new Promise<void>((_resolve, reject) => {
+      rejectFirst = reject;
+    });
+    vi.mocked(navigator.clipboard.writeText).mockReturnValueOnce(first);
+    render(<ExtractUploadAcceptedPackagePanel record={sampleRecord} />);
+    const copy = screen.getByTestId("extract-upload-accepted-package-id-copy");
+
+    fireEvent.click(copy);
+    fireEvent.click(copy);
+    await waitFor(() => expect(copy).toHaveTextContent("Copied"));
+    await act(async () => {
+      rejectFirst(new Error("Clipboard blocked"));
+    });
+
+    expect(copy).toHaveTextContent("Copied");
+    expect(screen.queryByTestId("extract-upload-accepted-package-id-copy-error")).not.toBeInTheDocument();
   });
 });

@@ -1,6 +1,7 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Manifest;
 
 using FluentAssertions;
@@ -61,6 +62,51 @@ public sealed class ClosedLoopManifestTopologyMergerTests
     }
 
     [Fact]
+    public void MergePublishableTopology_keeps_node_ids_distinct_when_element_ids_only_differ_by_hyphens()
+    {
+        ManifestDocument manifest = new();
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-1",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "svc-api",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Public API",
+                    LifecycleScope = ArchitectureLifecycleScope.TargetState,
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "svcapi",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Internal API",
+                    LifecycleScope = ArchitectureLifecycleScope.TargetState,
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "flow-read",
+                    Kind = ArchitectureElementKind.DataFlow,
+                    Name = "Public API reads from internal API",
+                    RelatedElementIds = ["svc-api", "svcapi"],
+                },
+            ],
+        };
+
+        ClosedLoopManifestTopologyMergeResult result =
+            ClosedLoopManifestTopologyMerger.MergePublishableTopology(manifest, model);
+
+        result.MergedServiceCount.Should().Be(2);
+        result.MergedRelationshipCount.Should().Be(1);
+        manifest.Topology.Services.Select(static service => service.ServiceId).Should().OnlyHaveUniqueItems();
+
+        ManifestRelationship relationship = manifest.Topology.Relationships.Should().ContainSingle().Subject;
+        relationship.SourceId.Should().NotBe(relationship.TargetId);
+    }
+
+    [Fact]
     public void MergePublishableTopology_skips_dataflow_when_relationship_type_cannot_be_stored()
     {
         ManifestDocument manifest = new();
@@ -100,6 +146,51 @@ public sealed class ClosedLoopManifestTopologyMergerTests
 
         result.MergedRelationshipCount.Should().Be(0);
         manifest.Topology.Relationships.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData("Worker subscribes to order events", RelationshipType.SubscribesTo)]
+    [InlineData("Worker publishes order events", RelationshipType.PublishesTo)]
+    [InlineData("Order events", RelationshipType.PublishesTo)]
+    public void MergePublishableTopology_prefers_the_explicit_event_flow_verb(
+        string flowName,
+        RelationshipType expectedRelationshipType)
+    {
+        ManifestDocument manifest = new();
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-1",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "worker",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Order Worker",
+                    LifecycleScope = ArchitectureLifecycleScope.TargetState,
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "broker",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Order Event Broker",
+                    LifecycleScope = ArchitectureLifecycleScope.TargetState,
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "flow-event",
+                    Kind = ArchitectureElementKind.DataFlow,
+                    Name = flowName,
+                    RelatedElementIds = ["worker", "broker"],
+                },
+            ],
+        };
+
+        ClosedLoopManifestTopologyMerger.MergePublishableTopology(manifest, model);
+
+        manifest.Topology.Relationships.Should().ContainSingle()
+            .Which.RelationshipType.Should().Be(expectedRelationshipType);
     }
 
     [Fact]

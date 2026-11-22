@@ -1,9 +1,10 @@
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
@@ -60,6 +61,7 @@ describe("usePilotScorecardPage", () => {
   const fetchMock = vi.fn<typeof fetch>();
 
   beforeEach(() => {
+    resetOperatorQueryClientForTests();
     writeOperatorScopeToStorage({ tenantId, workspaceId, projectId });
     fetchMock.mockResolvedValue(new Response(null, { status: 200 }));
     vi.stubGlobal("fetch", fetchMock);
@@ -69,6 +71,26 @@ describe("usePilotScorecardPage", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.mocked(getPilotScorecard).mockReset();
+  });
+
+  it("preserves an edited baseline when the mounted scorecard refresh returns unchanged baselines", async () => {
+    const data = scorecardPayload();
+    let finishRefresh!: (next: ReturnType<typeof scorecardPayload>) => void;
+    vi.mocked(getPilotScorecard).mockImplementationOnce(() => new Promise((resolve) => {
+      finishRefresh = resolve;
+    }));
+    const { result } = renderHook(
+      () => usePilotScorecardPage({ data, error: null }),
+      { wrapper: OperatorQueryTestWrapper },
+    );
+    await waitFor(() => expect(getPilotScorecard).toHaveBeenCalled());
+
+    act(() => result.current.setHours("10"));
+    await act(async () => finishRefresh({ ...data, totalRunsCommitted: data.totalRunsCommitted + 1 }));
+    await waitFor(() => expect(result.current.data?.totalRunsCommitted).toBe(3));
+
+    expect(result.current.hours).toBe("10");
+    expect(result.current.assumptionsDirty).toBe(true);
   });
 
   it("saves the same review count used by the ROI preview", async () => {
@@ -88,12 +110,17 @@ describe("usePilotScorecardPage", () => {
     expect(result.current.canSaveAssumptions).toBe(true);
     expect(result.current.livePreview?.statusQuoAnnualUsd).toBe(100 * 4 * 8 * 150);
 
+    const saved = scorecardPayload();
+    saved.baselines.baselineReviewsPerQuarter = 100;
+    vi.mocked(getPilotScorecard).mockResolvedValue(saved);
     await act(async () => {
       await result.current.onSaveBaselines();
     });
 
     const init = fetchMock.mock.calls[0]?.[1];
     expect(JSON.parse(String(init?.body))).toMatchObject({ baselineReviewsPerQuarter: 100 });
+    await waitFor(() => expect(result.current.assumptionsDirty).toBe(false));
+    expect(result.current.reviews).toBe("100");
   });
 
   it("forwards operator scope headers when saving ROI baselines", async () => {

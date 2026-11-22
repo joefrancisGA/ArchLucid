@@ -40,6 +40,18 @@ public sealed class InsightDensityJudgeBudgetCapTests
     }
 
     [Fact]
+    public void Resolve_clamps_before_converting_an_affordable_count_above_int_range()
+    {
+        InsightDensityJudgeBudgetCap.Resolve(40, 3000m, 0.000001m).Should().Be(40);
+    }
+
+    [Fact]
+    public void Resolve_clamps_an_affordable_count_above_decimal_range()
+    {
+        InsightDensityJudgeBudgetCap.Resolve(40, decimal.MaxValue, 0.1m).Should().Be(40);
+    }
+
+    [Fact]
     public void Resolve_returns_configured_cap_when_estimate_is_non_positive()
     {
         InsightDensityJudgeBudgetCap.Resolve(40, 10m, 0m).Should().Be(40);

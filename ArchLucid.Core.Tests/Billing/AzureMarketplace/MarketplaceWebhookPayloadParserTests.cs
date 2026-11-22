@@ -58,6 +58,31 @@ public sealed class MarketplaceWebhookPayloadParserTests
         quantity.Should().Be(5);
     }
 
+    [Theory]
+    [InlineData("""{"quantity":1.0000000000000001}""")]
+    [InlineData("""{"quantity":"1.0000000000000001"}""")]
+    [InlineData("""{"quantity":2147483647.0000001}""")]
+    [InlineData("""{"quantity":"2147483647.0000001"}""")]
+    public void TryReadQuantity_rejects_fractional_values_that_round_to_integers(string payload)
+    {
+        using JsonDocument document = JsonDocument.Parse(payload);
+
+        MarketplaceWebhookPayloadParser.TryReadQuantity(document.RootElement, out int quantity).Should().BeFalse();
+        quantity.Should().Be(0);
+    }
+
+    [Theory]
+    [InlineData("""{"quantity":5e1}""")]
+    [InlineData("""{"quantity":"5e1"}""")]
+    [InlineData("""{"quantity":500e-1}""")]
+    [InlineData("""{"quantity":"500e-1"}""")]
+    public void ReadQuantity_preserves_integer_values_in_exponent_notation(string payload)
+    {
+        using JsonDocument document = JsonDocument.Parse(payload);
+
+        MarketplaceWebhookPayloadParser.ReadQuantity(document.RootElement).Should().Be(50);
+    }
+
     [Fact]
     public void TryGetPlanId_reads_boolean_planId()
     {

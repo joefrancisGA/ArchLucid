@@ -300,9 +300,12 @@ public static class FourRealityDriftAnalyzer
         {
             string suffix = nodeId["resource:".Length..];
 
+            string resourceNameSuffix = "/" + suffix;
             directMatch = snapshot.Resources.FirstOrDefault(resource =>
-                resource.AzureResourceId.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
-                || resource.AzureResourceId.Contains(suffix, StringComparison.OrdinalIgnoreCase));
+                    string.Equals(resource.AzureResourceId, suffix, StringComparison.OrdinalIgnoreCase)
+                    || resource.AzureResourceId.EndsWith(resourceNameSuffix, StringComparison.OrdinalIgnoreCase))
+                ?? snapshot.Resources.FirstOrDefault(resource =>
+                    resource.AzureResourceId.Contains(suffix, StringComparison.OrdinalIgnoreCase));
 
             if (directMatch?.CloudResourceId is Guid resourceId && resourceId != Guid.Empty)
             {

@@ -63,30 +63,33 @@ export function useExtractUploadUpload(input: UseExtractUploadUploadInput = {}) 
         return null;
       }
 
-      let acceptedPackageId: string | null = null;
-      let acceptedSnapshotId: string | null = null;
-
+      let receipt: { packageId?: unknown; snapshotId?: unknown } | null;
       try {
-        const payload = JSON.parse(bodyText) as { packageId?: string; snapshotId?: string | null };
-        acceptedPackageId = payload.packageId?.trim() ?? null;
-        const snapshotId = payload.snapshotId?.trim() ?? "";
-        acceptedSnapshotId = snapshotId.length > 0 ? snapshotId : null;
-        setPackageId(acceptedPackageId);
+        receipt = JSON.parse(bodyText) as typeof receipt;
       } catch {
+        receipt = null;
+      }
+
+      const acceptedPackageId = typeof receipt?.packageId === "string" ? receipt.packageId.trim() : "";
+      if (acceptedPackageId.length === 0) {
         setPackageId(null);
-      }
-
-      if (acceptedPackageId !== null) {
-        const success = { packageId: acceptedPackageId, snapshotId: acceptedSnapshotId };
-        input.onUploadAccepted?.(success);
-        void getOperatorQueryClient().invalidateQueries({
-          queryKey: operatorQueryKeys.extractUploadBaselineArtifacts,
+        setUploadError({
+          message: "The server response did not include an upload package ID. Check your inventory before retrying.",
+          problem: null,
+          correlationId,
         });
-
-        return success;
+        return null;
       }
 
-      return null;
+      const snapshotId = typeof receipt?.snapshotId === "string" ? receipt.snapshotId.trim() : "";
+      setPackageId(acceptedPackageId);
+      const success = { packageId: acceptedPackageId, snapshotId: snapshotId.length > 0 ? snapshotId : null };
+      input.onUploadAccepted?.(success);
+      void getOperatorQueryClient().invalidateQueries({
+        queryKey: operatorQueryKeys.extractUploadBaselineArtifacts,
+      });
+
+      return success;
     } finally {
       setBusy(false);
     }

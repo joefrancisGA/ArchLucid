@@ -27,7 +27,13 @@ export const options = {
   thresholds: {
     // Baseline 2026-04-14: Docker Compose full-stack, VUS=5, DURATION=2m (see docs/LOAD_TEST_BASELINE.md).
     http_req_duration: ["p(95)<2000"],
-    checks: ["rate>0.85"],
+    checks: ["rate>0.99"],
+    // Tagged metrics must exist in exported evidence for all five hot paths.
+    "http_req_duration{name:create_run}": ["p(95)<2000"],
+    "http_req_duration{name:list_runs}": ["p(95)<2000"],
+    "http_req_duration{name:get_manifest}": ["p(95)<2000"],
+    "http_req_duration{name:list_comparisons}": ["p(95)<2000"],
+    "http_req_duration{name:retrieval_search}": ["p(95)<2000"],
   },
 };
 

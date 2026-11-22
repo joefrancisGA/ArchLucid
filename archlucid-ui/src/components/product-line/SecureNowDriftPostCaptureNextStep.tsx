@@ -55,7 +55,7 @@ export function SecureNowDriftPostCaptureNextStep(
       data-testid="securenow-drift-post-capture-next-step"
     >
       {SECURENOW_DRIFT_POST_CAPTURE_NEXT_SUMMARY}{" "}
-      {rankedPathsQuery.isPending ? (
+      {rankedPathsQuery.isLoading ? (
         <span>Loading next step…</span>
       ) : (
         <Link

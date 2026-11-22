@@ -102,8 +102,16 @@ public sealed partial class AgentResultRepository
         (IDbConnection conn, bool ownsConnection) =
             await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
+        IDbTransaction? localTransaction = null;
+
         try
         {
+            if (transaction is null && ownsConnection)
+            {
+                localTransaction = conn.BeginTransaction();
+                transaction = localTransaction;
+            }
+
             await conn.ExecuteAsync(new CommandDefinition(
                 AgentResultWriteSql.DeleteByRunTask,
                 AgentResultInsertParameters.RunTaskKey(replacement.RunId, replacement.TaskId),
@@ -115,9 +123,12 @@ public sealed partial class AgentResultRepository
                 AgentResultInsertParameters.Create(replacement),
                 transaction,
                 cancellationToken: cancellationToken));
+
+            localTransaction?.Commit();
         }
         finally
         {
+            localTransaction?.Dispose();
             ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
         }
     }

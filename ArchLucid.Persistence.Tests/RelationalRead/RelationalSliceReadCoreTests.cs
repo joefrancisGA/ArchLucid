@@ -65,18 +65,22 @@ public sealed class RelationalSliceReadCoreTests
         parsed["alpha"].Should().Be("1");
     }
 
-    [Fact]
-    public void ParseEnumOrDefault_returns_fallback_for_unknown_value()
+    [Theory]
+    [InlineData("missing")]
+    [InlineData("99")]
+    public void ParseEnumOrDefault_returns_fallback_for_unknown_value(string persistedValue)
     {
-        RelationalSliceReadCore.ParseEnumOrDefault("missing", SampleStatus.Unknown)
+        RelationalSliceReadCore.ParseEnumOrDefault(persistedValue, SampleStatus.Unknown)
             .Should()
             .Be(SampleStatus.Unknown);
     }
 
-    [Fact]
-    public void ParseEnumOrDefault_parses_case_insensitive_value()
+    [Theory]
+    [InlineData("ready")]
+    [InlineData("1")]
+    public void ParseEnumOrDefault_parses_defined_value(string persistedValue)
     {
-        RelationalSliceReadCore.ParseEnumOrDefault("ready", SampleStatus.Unknown)
+        RelationalSliceReadCore.ParseEnumOrDefault(persistedValue, SampleStatus.Unknown)
             .Should()
             .Be(SampleStatus.Ready);
     }

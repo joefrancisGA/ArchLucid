@@ -11,68 +11,51 @@ public sealed partial class RuleSimulationService
         RuleCandidateComparisonRequest request,
         CancellationToken ct)
     {
+        IReadOnlyList<AlertEvaluationContext> contexts = await contextProvider.GetContextsAsync(
+            tenantId, workspaceId, projectId, null, null, request.RecentRunCount, request.RunProjectSlug, ct);
+
         RuleSimulationResult candidateA;
         RuleSimulationResult candidateB;
 
         if (string.Equals(request.RuleKind, RuleKindSimple, StringComparison.OrdinalIgnoreCase))
         {
-            candidateA = await SimulateAsync(
-                    tenantId,
-                    workspaceId,
-                    projectId,
-                    new RuleSimulationRequest
-                    {
-                        RuleKind = RuleKindSimple,
-                        SimpleRule = request.CandidateASimpleRule,
-                        RecentRunCount = request.RecentRunCount,
-                        RunProjectSlug = request.RunProjectSlug,
-                    },
-                    ct)
-                ;
+            candidateA = await EvaluateContextsAsync(
+                new RuleSimulationRequest
+                {
+                    RuleKind = RuleKindSimple,
+                    SimpleRule = request.CandidateASimpleRule,
+                },
+                contexts,
+                ct);
 
-            candidateB = await SimulateAsync(
-                    tenantId,
-                    workspaceId,
-                    projectId,
-                    new RuleSimulationRequest
-                    {
-                        RuleKind = RuleKindSimple,
-                        SimpleRule = request.CandidateBSimpleRule,
-                        RecentRunCount = request.RecentRunCount,
-                        RunProjectSlug = request.RunProjectSlug,
-                    },
-                    ct)
-                ;
+            candidateB = await EvaluateContextsAsync(
+                new RuleSimulationRequest
+                {
+                    RuleKind = RuleKindSimple,
+                    SimpleRule = request.CandidateBSimpleRule,
+                },
+                contexts,
+                ct);
         }
         else
         {
-            candidateA = await SimulateAsync(
-                    tenantId,
-                    workspaceId,
-                    projectId,
-                    new RuleSimulationRequest
-                    {
-                        RuleKind = RuleKindComposite,
-                        CompositeRule = request.CandidateACompositeRule,
-                        RecentRunCount = request.RecentRunCount,
-                        RunProjectSlug = request.RunProjectSlug,
-                    },
-                    ct)
-                ;
+            candidateA = await EvaluateContextsAsync(
+                new RuleSimulationRequest
+                {
+                    RuleKind = RuleKindComposite,
+                    CompositeRule = request.CandidateACompositeRule,
+                },
+                contexts,
+                ct);
 
-            candidateB = await SimulateAsync(
-                    tenantId,
-                    workspaceId,
-                    projectId,
-                    new RuleSimulationRequest
-                    {
-                        RuleKind = RuleKindComposite,
-                        CompositeRule = request.CandidateBCompositeRule,
-                        RecentRunCount = request.RecentRunCount,
-                        RunProjectSlug = request.RunProjectSlug,
-                    },
-                    ct)
-                ;
+            candidateB = await EvaluateContextsAsync(
+                new RuleSimulationRequest
+                {
+                    RuleKind = RuleKindComposite,
+                    CompositeRule = request.CandidateBCompositeRule,
+                },
+                contexts,
+                ct);
         }
 
         RuleCandidateComparisonResult result = new()

@@ -185,15 +185,25 @@ odeCount >= maxNodes with null guard; **valid-no-repro** snapshot freshness uses
 - **code-changed-since:** yes
 ## Zone: ui-hooks-shared
 
+2026-11-21 thorough hunt #2 (dry): cheap-disproved five seed `(hunt-ready)` rows — **valid-no-repro** boolean URL-sync hooks commit via `commitHrefIfChanged` (`replaceState` only, open-ref dedupe, popstate resync; `use-boolean-search-param-url-sync.test.ts`), **valid-no-repro** debounced wizard persist clears pending timeout on unmount without post-navigation flush (`use-wizard-session-persistence` unmount regression; restore URL uses same commit helper with href equality guard), **valid-no-repro** `useViewportNarrow` intentionally defaults `false` until `matchMedia` effect runs (`useViewportNarrow.test.ts`), **valid-no-repro** run-summary HTTP fallback gated by `shouldRunRunSummaryFallbackPoll` (no poll while SSE connected, hidden, or complete; visibility resume does not overlap SSE — extended poll-policy regression), **valid-no-repro** corrupted wizard session JSON returns `null` from `readWizardSessionSnapshot` (parse catch; lib + hook layers). Scoped vitest **18/18** across new hook tests, wizard persist, poll policy. Reseeded five `(candidate)` monitor rows below. Private beta: n/a.
+
+- [x] (valid-no-repro) URL-sync replaceState vs pushState rapid toggles — cheap-disproof 2026-11-21 thorough hunt #2.
+- [x] (valid-no-repro) debounced persist flush on unmount to wrong URL — cheap-disproof 2026-11-21 thorough hunt #2.
+- [x] (valid-no-repro) media query SSR/client mismatch — cheap-disproof 2026-11-21 thorough hunt #2.
+- [x] (valid-no-repro) polling visibility duplicate fetch — cheap-disproof 2026-11-21 thorough hunt #2.
+- [x] (valid-no-repro) session storage JSON parse stale mount — cheap-disproof 2026-11-21 thorough hunt #2.
+
+- [ ] (candidate) `useBooleanSearchParamUrlSync` — missing search param vs explicit `panel=0` may disagree when `parseOpenFromSearch` treats empty as closed — locus: null param branch; input: delete param while UI open; wrong outcome: stale open UI; reachability: operator disclosure chips.
+- [ ] (candidate) `useWizardSessionPersistence` — debounced unmount cancel may drop last keystroke before navigation — locus: no unmount flush; input: navigate mid-debounce; wrong outcome: lost draft; reachability: reviews-new wizards (monitor product intent).
+- [ ] (candidate) `useViewportNarrow` — wide-default-first paint on narrow devices — locus: initial false; input: phone inspector; wrong outcome: layout flash; reachability: docked vs sheet inspector (monitor).
+- [ ] (candidate) `useRunSummaryStream` — visibility resume immediate `tickFallback` may double-fetch with in-flight interval tick — locus: ensureFallbackInterval; input: refocus during poll-fallback; wrong outcome: duplicate GET; reachability: run status banners (monitor).
+- [ ] (candidate) `readWizardSessionSnapshot` — schema-valid JSON with wrong `v` may leave hook pending restore empty while storage still populated — locus: version gate; input: manual v0 blob; wrong outcome: confusing empty restore; reachability: wizard resume strip.
+
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/hooks`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
 
-- [ ] (hunt-ready) URL-sync hook — `replaceState` vs `pushState` may desync when rapid param toggles interleave — locus: history mode; input: double-click facet chip; wrong outcome: back button skips state; reachability: filter hooks on operator pages.
-- [ ] (hunt-ready) debounced search hook — flush on unmount may write URL after navigation away — locus: cleanup timing; input: navigate before debounce fires; wrong outcome: wrong page gets query params; reachability: search hooks across lists.
-- [ ] (hunt-ready) media query hook — SSR first render may mismatch client breakpoint without hydration guard — locus: SSR default; input: narrow viewport; wrong outcome: layout flash; reachability: responsive operator components.
-- [ ] (hunt-ready) polling hook — visibility resume may issue duplicate fetch when interval and manual refresh overlap — locus: interval reset; input: tab refocus during poll; wrong outcome: duplicate API calls; reachability: status polling banners.
-- [ ] (hunt-ready) session storage hook — JSON parse failure may leave prior state mounted without error boundary — locus: parse catch; input: corrupted storage value; wrong outcome: stale UI state; reachability: persisted UI preferences.
+- [ ] (hunt-ready) reseed after hunt #2; prior queue closed in zone header diary.
 
 - **id:** ui-hooks-shared
 - **status:** open
@@ -201,13 +211,13 @@ odeCount >= maxNodes with null guard; **valid-no-repro** snapshot freshness uses
 - **aliases:** shared React hooks
 - **paths:** archlucid-ui/src/hooks/
 - **test-filter:** src/hooks
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-20
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-21
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ## Zone: ui-form-validation
 
 2026-11-01 thorough hunt #189 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `cli-draft-new` (dry **#186**, **#187**, **#188** / run log). Picker applied **`-AvoidZoneId cli-draft-new`** and returned `ui-form-validation` (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on 'cli-draft-new' (outcomes: dry, dry, dry).*). Attempted failing repro on five header `(candidate)` rows from pass **21** reseed (hunt **#185**); cheap-disproof closed all five — **valid-no-repro** **409** HTML conflict returns fixed duplicate-org copy before body parsing (`shows fixed duplicate organization toast when register returns 409 with HTML body`; status check precedes error detail), **valid-no-repro** `"Infinity"` team size fails `Number.isFinite` superRefine, **valid-no-repro** invalid email readiness precedes unsupported-character organization (bad email + NUL org → valid work email copy), **valid-no-repro** work email `maxLength` **254** plus schema `.max(254)` block overlong paste (`signupFormSchema rejects admin email longer than 254 characters`), **invalid** invalid `companySize` enum passes through builder on direct call by design while UI `canSubmit` blocks POST (`includes invalid company size enum in the register payload builder when called directly`). Reseeded five `(candidate)` monitor rows below (pass **22**). Focused `SignupForm` suite **144/144**. Run-log low-yield streak on `ui-form-validation` is **0/3** before this record (cli-draft-new dry **#186**–**#188** at tail). **This dry starts 1/3** on `ui-form-validation` in the run log. Private beta: n/a.

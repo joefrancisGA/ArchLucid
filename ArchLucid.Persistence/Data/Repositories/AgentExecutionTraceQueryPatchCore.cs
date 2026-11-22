@@ -53,16 +53,17 @@ internal static class AgentExecutionTraceQueryPatchCore
         ArgumentNullException.ThrowIfNull(traces);
         ArgumentException.ThrowIfNullOrWhiteSpace(primaryRunId);
 
-        Dictionary<string, AgentExecutionTraceLlmCostSlice> merged = new(StringComparer.Ordinal);
+        Dictionary<(string Fingerprint, int Occurrence), AgentExecutionTraceLlmCostSlice> merged = new();
 
         foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(primaryRunId))
         {
+            Dictionary<string, int> occurrences = new(StringComparer.Ordinal);
             foreach (AgentExecutionTrace trace in traces
                          .Where(trace => string.Equals(trace.RunId, lookupKey, StringComparison.Ordinal))
                          .OrderBy(trace => trace.CreatedUtc))
             {
                 AgentExecutionTraceLlmCostSlice slice = ToLlmCostSlice(trace);
-                merged.TryAdd(LlmCostSliceMergeKey(slice), slice);
+                AddCostSlice(merged, occurrences, slice);
             }
         }
 
@@ -77,7 +78,7 @@ internal static class AgentExecutionTraceQueryPatchCore
         ArgumentException.ThrowIfNullOrWhiteSpace(primaryRunId);
         ArgumentNullException.ThrowIfNull(loadSlicesForKeyAsync);
 
-        Dictionary<string, AgentExecutionTraceLlmCostSlice> merged = new(StringComparer.Ordinal);
+        Dictionary<(string Fingerprint, int Occurrence), AgentExecutionTraceLlmCostSlice> merged = new();
 
         foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(primaryRunId))
         {
@@ -87,16 +88,30 @@ internal static class AgentExecutionTraceQueryPatchCore
             if (slices is not { Count: > 0 })
                 continue;
 
+            Dictionary<string, int> occurrences = new(StringComparer.Ordinal);
             foreach (AgentExecutionTraceLlmCostSlice slice in slices)
             {
                 if (slice is null)
                     continue;
 
-                merged.TryAdd(LlmCostSliceMergeKey(slice), slice);
+                AddCostSlice(merged, occurrences, slice);
             }
         }
 
         return merged.Values.ToList();
+    }
+
+    private static void AddCostSlice(
+        Dictionary<(string Fingerprint, int Occurrence), AgentExecutionTraceLlmCostSlice> merged,
+        Dictionary<string, int> occurrences,
+        AgentExecutionTraceLlmCostSlice slice)
+    {
+        string key = LlmCostSliceMergeKey(slice);
+        int occurrence = occurrences.GetValueOrDefault(key);
+        occurrences[key] = occurrence + 1;
+
+        // Pair equivalent rows across alias keys while keeping every invocation within each key.
+        merged.TryAdd((key, occurrence), slice);
     }
 
     internal static IReadOnlyList<AgentExecutionTrace> CollectMergedTracesByRunId(

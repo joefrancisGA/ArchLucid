@@ -1,0 +1,28 @@
+name: Disposable SQL fault drill compile
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Persistence.Tests/SqlDependencyRecoveryDrillTests.cs'
+      - 'scripts/ci/tests/test_sql_fault_drill_safety.py'
+      - '.github/workflows/disposable-sql-fault-drill.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile-and-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s scripts/ci/tests -p test_sql_fault_drill_safety.py -v
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj --configuration Release

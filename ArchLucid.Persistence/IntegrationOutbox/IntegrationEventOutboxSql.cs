@@ -59,7 +59,7 @@ internal static class IntegrationEventOutboxSql
                                           WHERE DeadLetteredUtc IS NOT NULL
                                             AND ProcessedUtc IS NULL
                                             AND (@TenantId IS NULL OR TenantId = @TenantId)
-                                          ORDER BY DeadLetteredUtc DESC
+                                          ORDER BY DeadLetteredUtc DESC, OutboxId ASC
                                           OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
                                           """;
 

@@ -288,6 +288,57 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
     }
 
     [Fact]
+    public async Task DisposeAsync_releases_lease_when_cancellation_callback_throws()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore store = new();
+        Guid leaseId = Guid.NewGuid();
+
+        QuickScanConcurrencyAdmitResult direct = await store.TryAdmitAsync(
+            BuildAdmitRequest(leaseId, Guid.NewGuid(), "held", maxConcurrent: 1, maxQueued: 0));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(new QuickScanSafetyOptions
+        {
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 60,
+            },
+        });
+
+        QuickScanDistributedConcurrencyAdmissionResult admission = QuickScanDistributedConcurrencyAdmissionResult.Permit(
+            leaseId,
+            store,
+            Mock.Of<IQuickScanTelemetry>(),
+            new QuickScanGuardContext
+            {
+                ClientIp = "203.0.113.10",
+                SessionId = "session",
+                PayloadFingerprint = "trace",
+                UseDistributedConcurrencyLimit = true,
+            },
+            safetyOptions.Object,
+            TimeProvider.System,
+            CancellationToken.None);
+
+        var callbackFailure = new InvalidOperationException("Cancellation callback failed.");
+        using CancellationTokenRegistration registration = admission.ExecutionCancellationToken.Register(
+            () => throw callbackFailure);
+
+        Func<Task> dispose = async () => await admission.DisposeAsync();
+        var exception = await dispose.Should().ThrowAsync<AggregateException>();
+        exception.Which.InnerExceptions.Should().Contain(callbackFailure);
+
+        QuickScanConcurrencyAdmitResult followUp = await store.TryAdmitAsync(
+            BuildAdmitRequest(Guid.NewGuid(), Guid.NewGuid(), "follow-up", maxConcurrent: 1, maxQueued: 0));
+
+        followUp.Outcome.Should().Be(
+            QuickScanConcurrencyAdmitOutcome.DirectLease,
+            "a cancellation callback failure must not retain the released scan slot until expiry");
+    }
+
+    [Fact]
     public async Task ExecutionCancellationToken_is_cancelled_when_renewal_store_fails()
     {
         InMemoryQuickScanDistributedConcurrencyStore inner = new();

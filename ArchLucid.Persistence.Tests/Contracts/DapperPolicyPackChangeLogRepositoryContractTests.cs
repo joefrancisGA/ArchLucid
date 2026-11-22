@@ -14,6 +14,30 @@ namespace ArchLucid.Persistence.Tests.Contracts;
 public sealed class DapperPolicyPackChangeLogRepositoryContractTests(SqlServerPersistenceFixture fixture)
     : PolicyPackChangeLogRepositoryContractTests
 {
+    [SkippableFact]
+    public async Task GetByPolicyPackIdAsync_EqualTimestamps_ReturnsLastInsertedRowAtCap()
+    {
+        SkipIfSqlServerUnavailable();
+        IPolicyPackChangeLogRepository repository = CreateRepository();
+        Guid policyPackId = Guid.NewGuid();
+        DateTime changedUtc = new(2026, 11, 21, 18, 35, 0, DateTimeKind.Utc);
+
+        await EnsurePolicyPackRowAsync(policyPackId, TenantA, CancellationToken.None);
+
+        await repository.AppendAsync(
+            CreateEntry(policyPackId, "first", changedUtc),
+            CancellationToken.None);
+        await repository.AppendAsync(
+            CreateEntry(policyPackId, "second", changedUtc),
+            CancellationToken.None);
+
+        IReadOnlyList<PolicyPackChangeLogEntry> rows =
+            await repository.GetByPolicyPackIdAsync(policyPackId, 1, CancellationToken.None);
+
+        rows.Should().ContainSingle();
+        rows[0].SummaryText.Should().Be("second");
+    }
+
     protected override void SkipIfSqlServerUnavailable()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
@@ -57,4 +81,17 @@ public sealed class DapperPolicyPackChangeLogRepositoryContractTests(SqlServerPe
 
         await packRepository.CreateAsync(pack, cancellationToken);
     }
+
+    private PolicyPackChangeLogEntry CreateEntry(Guid policyPackId, string summary, DateTime changedUtc) =>
+        new()
+        {
+            PolicyPackId = policyPackId,
+            TenantId = TenantA,
+            WorkspaceId = WorkspaceW,
+            ProjectId = ProjectP,
+            ChangeType = PolicyPackChangeTypes.Created,
+            ChangedBy = "tester",
+            ChangedUtc = changedUtc,
+            SummaryText = summary,
+        };
 }

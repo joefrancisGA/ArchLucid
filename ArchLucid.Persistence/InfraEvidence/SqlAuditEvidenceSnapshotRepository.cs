@@ -693,7 +693,7 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
             CloudResourceId = row.CloudResourceId,
             AzureResourceId = row.AzureResourceId,
             EvidenceType = row.EvidenceType,
-            CollectedUtc = row.CollectedUtc,
+            CollectedUtc = DateTime.SpecifyKind(row.CollectedUtc, DateTimeKind.Utc),
             CollectorVersion = row.CollectorVersion,
             NormalizedPointer = row.NormalizedPointer,
             RawPointer = row.RawPointer,

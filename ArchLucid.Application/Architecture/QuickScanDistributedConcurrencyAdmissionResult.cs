@@ -87,8 +87,18 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
     /// <inheritdoc />
     public async ValueTask DisposeAsync()
     {
-        await StopRenewalLoopAsync().ConfigureAwait(false);
+        try
+        {
+            await StopRenewalLoopAsync().ConfigureAwait(false);
+        }
+        finally
+        {
+            await ReleaseLeaseAsync().ConfigureAwait(false);
+        }
+    }
 
+    private async Task ReleaseLeaseAsync()
+    {
         if (_released || !_leaseId.HasValue || _store is null)
         {
             return;
@@ -113,26 +123,31 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
 
         _renewalStopped = true;
 
-        if (!_executeCancellationSource.IsCancellationRequested)
+        try
         {
-            await _executeCancellationSource.CancelAsync().ConfigureAwait(false);
-        }
-
-        if (_renewalTask is not null)
-        {
-            try
+            if (!_executeCancellationSource.IsCancellationRequested)
             {
-                await _renewalTask.ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            catch (Exception)
-            {
-                // Renewal can stop when the store rejects RenewLeaseAsync; release must still run.
+                await _executeCancellationSource.CancelAsync().ConfigureAwait(false);
             }
         }
+        finally
+        {
+            if (_renewalTask is not null)
+            {
+                try
+                {
+                    await _renewalTask.ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                }
+                catch (Exception)
+                {
+                    // Renewal can stop when the store rejects RenewLeaseAsync; release must still run.
+                }
+            }
 
-        _executeCancellationSource.Dispose();
+            _executeCancellationSource.Dispose();
+        }
     }
 }

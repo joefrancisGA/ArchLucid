@@ -1213,6 +1213,41 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("deduplicates identical deep-link destinations while retaining distinct tabs", async () => {
+    const data = [
+      {
+        title: "Active reviews tab",
+        summary: "Direct link to active reviews.",
+        category: "Operations",
+        url: "/architecture/reviews?tab=active",
+      },
+      {
+        title: "Active reviews shortcut",
+        summary: "The same destination in another category.",
+        category: "Getting Started",
+        url: "/architecture/reviews?tab=active",
+      },
+      {
+        title: "Completed reviews tab",
+        summary: "Direct link to completed reviews.",
+        category: "Operations",
+        url: "/architecture/reviews?tab=completed",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: true, json: async () => data }) as Response),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Active reviews tab" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Active reviews shortcut" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Completed reviews tab" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Reviews list" })).toBeInTheDocument();
+  });
+
   it("renders fetched doc-index deep links when only a hash fragment differs from a static quick link path", async () => {
     const data = [
       {

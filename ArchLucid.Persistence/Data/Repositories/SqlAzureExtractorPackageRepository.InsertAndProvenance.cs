@@ -93,7 +93,7 @@ public sealed partial class SqlAzureExtractorPackageRepository
 
             return null;
 
-        DateTime effectiveCreated = row.CreatedUtc.Kind == DateTimeKind.Utc ? row.CreatedUtc : row.CreatedUtc.ToUniversalTime();
+        DateTime effectiveCreated = DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc);
 
         DateTime? collectionUtc = row.CollectionTimestampUtc is null ? null : DateTime.SpecifyKind(row.CollectionTimestampUtc.Value, DateTimeKind.Utc);
 

@@ -24,36 +24,12 @@ public sealed class SqlRoiBulletinAggregateReader(ISqlConnectionFactory connecti
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        const string countSql = """
-                                SELECT COUNT(1)
-                                FROM dbo.Tenants
-                                WHERE BaselineReviewCycleHours IS NOT NULL
-                                  AND BaselineReviewCycleCapturedUtc >= @Start
-                                  AND BaselineReviewCycleCapturedUtc < @End;
-                                """;
-
-        int count = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(
-                countSql,
-                new { Start = window.StartUtcInclusive, End = window.EndUtcExclusive },
-                cancellationToken: cancellationToken));
-
-        if (count < minimumTenantsRequired)
-        {
-            return new RoiBulletinAggregateReadResult(
-                false,
-                count,
-                null,
-                null,
-                null,
-                window.Label);
-        }
-
         const string statsSql = """
-                                SELECT
-                                    AVG(CAST(BaselineReviewCycleHours AS FLOAT)) AS MeanH,
-                                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY BaselineReviewCycleHours) AS P50,
-                                    PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY BaselineReviewCycleHours) AS P90
+                                SELECT TOP (1)
+                                    COUNT(1) OVER () AS TenantCount,
+                                    AVG(CAST(BaselineReviewCycleHours AS FLOAT)) OVER () AS MeanH,
+                                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY BaselineReviewCycleHours) OVER () AS P50,
+                                    PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY BaselineReviewCycleHours) OVER () AS P90
                                 FROM dbo.Tenants
                                 WHERE BaselineReviewCycleHours IS NOT NULL
                                   AND BaselineReviewCycleCapturedUtc >= @Start
@@ -66,7 +42,8 @@ public sealed class SqlRoiBulletinAggregateReader(ISqlConnectionFactory connecti
                 new { Start = window.StartUtcInclusive, End = window.EndUtcExclusive },
                 cancellationToken: cancellationToken));
 
-        if (row is null)
+        int count = row?.TenantCount ?? 0;
+        if (row is null || count < minimumTenantsRequired)
         {
             return new RoiBulletinAggregateReadResult(
                 false,
@@ -96,6 +73,8 @@ public sealed class SqlRoiBulletinAggregateReader(ISqlConnectionFactory connecti
 
     private sealed class StatsRow
     {
+        public int TenantCount { get; init; }
+
         public double? MeanH
         {
             get;

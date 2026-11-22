@@ -1,0 +1,56 @@
+name: Aspects regression registry
+
+# Aspects check-ins must never trigger this workflow automatically.
+# Run explicitly from GitHub Actions only when authorized.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  catalog-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate pattern coverage and runner invariants
+        run: python -m unittest discover -s scripts/tests -p test_aspects_regression_patterns.py
+      - name: Verify registered test methods and print targeted commands
+        run: python scripts/ci/aspects_regression_patterns.py --check --plan
+
+  behavior-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    continue-on-error: true # Observe first; promote only after reliable passes.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+      - name: Restore .NET test projects
+        run: |
+          dotnet restore ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj
+          dotnet restore ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj
+      - name: Install UI test dependencies
+        run: npm --prefix archlucid-ui ci
+      - name: Run non-SQL regression behaviors and record outcome
+        run: python scripts/ci/aspects_regression_patterns.py --run --report-json artifacts/aspects-regression-behavior.json
+      - name: Upload behavioral execution evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aspects-regression-behavior
+          path: artifacts/aspects-regression-behavior.json
+          if-no-files-found: warn

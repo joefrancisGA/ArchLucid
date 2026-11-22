@@ -127,6 +127,17 @@ public sealed class InfraEvidenceMermaidModeParserTests
     }
 
     [Fact]
+    public void TryParse_selected_resources_rejects_separator_only_seed_ids()
+    {
+        bool parsed = InfraEvidenceMermaidModeParser.TryParse(
+            "selectedResources", " , , ", out InfraEvidenceMermaidModeParseResult result);
+
+        parsed.Should().BeFalse();
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("seedNodeId is required for selectedResources mode.");
+    }
+
+    [Fact]
     public void TryParse_maps_include_recovery_services_into_compile_options()
     {
         InfraEvidenceMermaidModeParser.TryParse(

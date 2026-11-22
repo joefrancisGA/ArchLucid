@@ -1,0 +1,30 @@
+name: Remediation atomic update contract
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/IRemediationInstanceRepository.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationInstanceServiceTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPrioritizationAndWaveServiceTests.cs'
+      - 'scripts/ci/tests/test_remediation_atomic_update_contract.py'
+      - '.github/workflows/remediation-atomic-update-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s scripts/ci/tests -p test_remediation_atomic_update_contract.py -v
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --configuration Release --filter 'FullyQualifiedName~RemediationInstanceServiceTests|FullyQualifiedName~RemediationPrioritizationAndWaveServiceTests'

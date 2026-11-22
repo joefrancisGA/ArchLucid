@@ -70,6 +70,18 @@ public sealed class AgentResultRollupJsonReaderTests
     }
 
     [Fact]
+    public void ReadFindings_treats_null_legacy_labels_as_empty()
+    {
+        const string findingsJson = """[{"message":null,"category":null}]""";
+
+        List<ArchitectureFinding> findings = AgentResultRollupJsonReader.ReadFindings(findingsJson, "run1");
+
+        ArchitectureFinding finding = findings.Should().ContainSingle().Subject;
+        finding.Message.Should().BeEmpty();
+        finding.Category.Should().BeEmpty();
+    }
+
+    [Fact]
     public void ReadFindings_returns_empty_for_missing_fragment()
     {
         AgentResultRollupJsonReader.ReadFindings("  ", "run1").Should().BeEmpty();

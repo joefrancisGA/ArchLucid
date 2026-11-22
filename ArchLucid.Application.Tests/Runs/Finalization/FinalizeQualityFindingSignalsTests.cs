@@ -185,6 +185,7 @@ public sealed class FinalizeQualityFindingSignalsTests
     public void IsOpenDeferredJobView_counts_only_deferred_rows()
     {
         Finding deferred = NewFinding(title: "cannot determine ingress exposure");
+        deferred.HumanReviewStatus = FindingHumanReviewStatus.Approved;
         Finding open = NewFinding(title: "cannot determine ingress exposure");
 
         FinalizeQualityFindingSignals.IsOpenDeferredJobView(deferred, FindingDisposition.Deferred).Should().BeTrue();

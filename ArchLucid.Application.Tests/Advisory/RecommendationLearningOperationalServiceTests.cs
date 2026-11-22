@@ -29,6 +29,33 @@ public sealed class RecommendationLearningOperationalSupportTests
     }
 
     [Fact]
+    public void BuildWeightDeltas_includes_removed_features_with_neutral_proposed_weights()
+    {
+        RecommendationLearningProfile current = new();
+        current.CategoryWeights["Reliability"] = 1.5;
+        current.CategoryWeights["Cost"] = 0.75;
+        current.UrgencyWeights["Critical"] = 0.5;
+        current.SignalTypeWeights["Cleanup"] = 2.0;
+
+        RecommendationLearningProfile proposed = new();
+        proposed.CategoryWeights["cost"] = 1.25;
+        proposed.CategoryWeights["Performance"] = 1.5;
+
+        IReadOnlyList<RecommendationLearningWeightDelta> deltas =
+            RecommendationLearningOperationalSupport.BuildWeightDeltas(current, proposed);
+
+        deltas.Should().HaveCount(5);
+        deltas.Should().ContainSingle(row => row.FeatureGroup == "Category" && row.Feature == "Reliability"
+            && row.CurrentWeight == 1.5 && row.ProposedWeight == 1.0 && row.AbsoluteDelta == -0.5 && row.FallbackUsed);
+        deltas.Should().ContainSingle(row => row.FeatureGroup == "Urgency" && row.Feature == "Critical"
+            && row.CurrentWeight == 0.5 && row.ProposedWeight == 1.0 && row.FallbackUsed);
+        deltas.Should().ContainSingle(row => row.FeatureGroup == "SignalType" && row.Feature == "Cleanup"
+            && row.CurrentWeight == 2.0 && row.ProposedWeight == 1.0 && row.FallbackUsed);
+        deltas.Should().ContainSingle(row => row.FeatureGroup == "Category" && row.Feature == "cost"
+            && row.CurrentWeight == 0.75 && row.ProposedWeight == 1.25 && !row.FallbackUsed);
+    }
+
+    [Fact]
     public void PartitionOutcomes_excludes_proposed_and_truncates_to_batch_cap()
     {
         List<RecommendationRecord> records =

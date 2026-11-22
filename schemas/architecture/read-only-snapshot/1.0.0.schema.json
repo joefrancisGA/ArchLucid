@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.archlucid.com/architecture/read-only-snapshot/1.0.0.json",
+  "title": "FND-011 Read-only Architecture Snapshot Exchange v1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "runId",
+    "graphSnapshotId",
+    "sourceGraphSchemaVersion",
+    "capturedAt",
+    "freshness",
+    "lineage",
+    "nodes",
+    "edges",
+    "readOnly"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "workspaceId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "projectId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "runId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "graphSnapshotId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "sourceGraphSchemaVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "capturedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evaluatedAt",
+        "status"
+      ],
+      "properties": {
+        "evaluatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "enum": [
+            "current",
+            "stale",
+            "unknown"
+          ]
+        },
+        "maxAgeSeconds": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contextSnapshotId",
+        "sourceEvidenceRefs"
+      ],
+      "properties": {
+        "contextSnapshotId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "sourceEvidenceRefs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "manifestRef": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "nodeId",
+          "nodeType"
+        ],
+        "properties": {
+          "nodeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "nodeType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "fromNodeId",
+          "toNodeId",
+          "edgeType"
+        ],
+        "properties": {
+          "fromNodeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "toNodeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "edgeType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "readOnly": {
+      "const": true
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
