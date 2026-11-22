@@ -33,7 +33,7 @@ public sealed class SecureNowSnapshotHttpBoundaryTests
         ProjectId = Guid.Parse("33333333-3333-4333-8333-333333333333")
     };
 
-    private static GraphController Controller(bool enabled, Mock<IRunRepository> runs)
+    private static GraphController Controller(bool enabled, Mock<IRunRepository> runs, bool entitled = true)
     {
         Mock<IFeatureFlags> flags = new();
         flags.Setup(f => f.IsEnabledAsync("SecureNow.ReadOnlySnapshotExchange", It.IsAny<CancellationToken>()))
@@ -60,9 +60,12 @@ public sealed class SecureNowSnapshotHttpBoundaryTests
                 {
                     RequestServices = services,
                     User = new ClaimsPrincipal(new ClaimsIdentity(
-                        [new Claim(ClaimTypes.NameIdentifier, "test-user"),
-                         new Claim("archlucid.resource_entitlement",
-                             $"evidence.read:{Scope.TenantId:D}:{Scope.WorkspaceId:D}:{Scope.ProjectId:D}:{Run:D}")], "test"))
+                        entitled
+                            ? [new Claim(ClaimTypes.NameIdentifier, "test-user"),
+                               new Claim("archlucid.resource_entitlement",
+                                   $"evidence.read:{Scope.TenantId:D}:{Scope.WorkspaceId:D}:{Scope.ProjectId:D}:{Run:D}")]
+                            : [new Claim(ClaimTypes.NameIdentifier, "test-user")],
+                        "test"))
                 }
             }
         };
@@ -91,6 +94,17 @@ public sealed class SecureNowSnapshotHttpBoundaryTests
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         runs.Verify(r => r.GetByIdAsync(Scope, Run, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Enabled_exchange_without_entitlement_never_reads_repository()
+    {
+        Mock<IRunRepository> runs = new();
+        GraphController controller = Controller(true, runs, entitled: false);
+        IActionResult result = await controller.GetArchitectureGraphTemporalSnapshot(
+            Run, DateTimeOffset.UtcNow, secureNowExchange: true);
+        result.Should().BeOfType<NotFoundResult>();
+        runs.VerifyNoOtherCalls();
     }
 
     [Fact]
