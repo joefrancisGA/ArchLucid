@@ -1,0 +1,29 @@
+name: FND-017 .NET Semantic Architecture Boundaries
+on:
+  pull_request:
+    branches: [master, main, architecture/fnd017-conformance-advisory]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  semantic-boundaries:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Compile and test semantic architecture analyzer
+        run: >-
+          dotnet test ArchLucid.Analyzers.Tests/ArchLucid.Analyzers.Tests.csproj
+          --filter FullyQualifiedName~CoreDependencyBoundaryAnalyzerTests
+      - name: Run existing advisory conformance report
+        run: python3 scripts/architecture/fnd017_conformance.py --output fnd017-conformance-report.json
+      - name: Publish advisory report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnd017-dotnet-semantic-review
+          path: fnd017-conformance-report.json
+          if-no-files-found: warn
