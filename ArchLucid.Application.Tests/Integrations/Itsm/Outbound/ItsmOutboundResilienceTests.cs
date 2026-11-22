@@ -119,7 +119,7 @@ public sealed class ItsmOutboundResilienceTests
 
         Mock<IRunRepository> runs = new();
         runs.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Persistence.Models.RunRecord());
+            .ReturnsAsync(new global::ArchLucid.Persistence.Models.RunRecord());
 
         var options = ItsmOutboundConnectorTestFixture.OutboundServiceNowConfigured("https://mock.sn.local");
 
