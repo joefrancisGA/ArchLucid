@@ -29,6 +29,43 @@ def git(repo: Path, *args: str) -> tuple[bool, bytes]:
     return proc.returncode == 0, proc.stdout
 
 
+
+VERIFIED = "git_blob_and_nonblank_intervals_verified"
+
+
+def first_parent_checkpoint(repo: Path, checkpoint: dict | None) -> tuple[dict, set[str] | None]:
+    """Verify the exact historical first-parent window and oldest SHA.
+
+    A mismatched/short/unavailable chain has unknown membership, not zero
+    eligible observations. Membership alone does not reconstruct defect density.
+    """
+    if checkpoint is None:
+        return {"status": "not_requested"}, None
+    head = checkpoint.get("head_sha")
+    oldest = checkpoint.get("oldest_included_sha") or checkpoint.get("oldest_sha")
+    count = checkpoint.get("window_first_parent_commits", 900)
+    if not (isinstance(head, str) and SHA.fullmatch(head)
+            and isinstance(oldest, str) and SHA.fullmatch(oldest)
+            and type(count) is int and count > 0):
+        return {"status": "invalid_checkpoint_fields"}, None
+    ok, raw = git(repo, "rev-list", "--first-parent", f"--max-count={count}", head)
+    commits = raw.decode("ascii", "replace").splitlines() if ok else []
+    if not commits or commits[0] != head:
+        return {"status": "head_unavailable", "head_sha": head}, None
+    if len(commits) != count or commits[-1] != oldest:
+        return {
+            "status": "checkpoint_anchor_mismatch", "head_sha": head,
+            "expected_oldest_sha": oldest, "actual_oldest_sha": commits[-1],
+            "actual_commits": len(commits), "requested_commits": count,
+        }, None
+    return {
+        "status": "verified_first_parent_sha_membership",
+        "head_sha": head, "oldest_sha": oldest,
+        "first_parent_commits": len(commits),
+        "scope": "exact commit membership only; not legacy LOC or defect reconstruction",
+    }, set(commits)
+
+
 def inspect_pin(
     repo: Path, row: dict, source_cache: dict[tuple[str, str], str | None],
     lines_cache: dict[str, list[str] | None],
@@ -80,36 +117,79 @@ def inspect_pin(
     return "git_blob_and_nonblank_intervals_verified", selected
 
 
-def verify_pins(repo: Path, rows: list[dict]) -> dict:
+
+def verify_pins(
+    repo: Path, rows: list[dict], checkpoint: dict | None = None,
+    audit_rows: list[dict] | None = None,
+) -> dict:
     source_cache: dict[tuple[str, str], str | None] = {}
     lines_cache: dict[str, list[str] | None] = {}
     counts: Counter[str] = Counter()
     by_content: dict[tuple[str, str], set[int]] = defaultdict(set)
+    window_content: dict[tuple[str, str], set[int]] = defaultdict(set)
     duplicates = line_occurrences = positive_rows = clean_rows = 0
     quarantined: list[dict] = []
+    window_counts: Counter[str] = Counter()
+    window_summary, eligible_shas = first_parent_checkpoint(repo, checkpoint)
     for row in rows:
         status, covered = inspect_pin(repo, row, source_cache, lines_cache)
         counts[status] += 1
-        if status != "git_blob_and_nonblank_intervals_verified":
-            if status != "not_parseable":
-                quarantined.append({"excel_row": row["excel_row"], "reason": status})
+        membership = ("not_checked" if checkpoint is None else
+                      "membership_unverified" if eligible_shas is None else
+                      "in_window" if row.get("reviewed_master_sha") in eligible_shas else
+                      "not_on_first_parent_window")
+        window_counts[membership] += 1
+        record = {
+            "excel_row": row["excel_row"], "review_id": row.get("review_id"),
+            "reviewed_master_sha": row.get("reviewed_master_sha"),
+            "pin_status": status, "window_membership": membership,
+            "new_exact_path_blob_loc": 0, "repeated_exact_path_blob_loc": 0,
+            "nonblank_reviewed_loc": 0,
+            "provenance": "historical_workbook_reported; git_source_identity_only",
+        }
+        pin = row.get("parsed_pin")
+        if pin is not None:
+            record["path"] = pin.get("path")
+            record["blob"] = pin.get("blob")
+        if status != VERIFIED:
+            # Preserve ALL unparseable and invalid historical rows by original
+            # Excel row. No failed row contributes to verified LOC.
+            quarantined.append({"excel_row": row["excel_row"], "reason": status})
+            if audit_rows is not None:
+                audit_rows.append(record)
             continue
-        pin = row["parsed_pin"]
         content_key = (pin["path"], pin["blob"])
-        duplicates += len(covered & by_content[content_key])
+        repeated = len(covered & by_content[content_key])
+        fresh = len(covered) - repeated
+        record.update({"new_exact_path_blob_loc": fresh,
+                       "repeated_exact_path_blob_loc": repeated,
+                       "nonblank_reviewed_loc": len(covered)})
+        duplicates += repeated
         by_content[content_key].update(covered)
         line_occurrences += len(covered)
         if row["defects_recorded"] == 0:
             clean_rows += 1
         else:
             positive_rows += 1
+        if membership == "in_window":
+            window_content[content_key].update(covered)
+        if audit_rows is not None:
+            audit_rows.append(record)
     exact_unique = sum(len(lines) for lines in by_content.values())
+    # This is a separate source-pin-verified subset, not 343,492 historical LOC.
+    window_unique = (sum(len(lines) for lines in window_content.values())
+                     if eligible_shas is not None else None)
+    window_summary.update({
+        "review_events_by_membership": dict(sorted(window_counts.items())),
+        "verified_nonblank_exact_path_blob_unique_loc_subset": window_unique,
+        "confidence": "git_pin_verified_only_no_historical_density_reconstruction",
+    })
     return {
         "status": "git_blob_and_nonblank_intervals_subset_only_cross_revision_unresolved",
         "review_events_present": len(rows),
         "candidate_pin_count": sum(1 for row in rows if row.get("parsed_pin") is not None),
         "classifications": dict(sorted(counts.items())),
-        "verified_pin_rows": counts["git_blob_and_nonblank_intervals_verified"],
+        "verified_pin_rows": counts[VERIFIED],
         "verified_clean_review_rows": clean_rows,
         "verified_defect_positive_rows_not_distinct_defects": positive_rows,
         "verified_nonblank_line_occurrences": line_occurrences,
@@ -117,13 +197,17 @@ def verify_pins(repo: Path, rows: list[dict]) -> dict:
         "verified_repeated_exact_path_blob_lines": duplicates,
         "verified_path_blob_identities": len(by_content),
         "unverified_sample": quarantined[:100],
-        "unverified_total_excluding_unparseable": len(quarantined),
+        "unverified_total_excluding_unparseable": len(quarantined) - counts["not_parseable"],
+        "quarantined_or_ambiguous_total": len(quarantined),
+        "full_quarantine_details": "see audited row-by-row JSONL artifact",
+        "first_parent_checkpoint": window_summary,
         "known_all_history_incremental_loc_reported_not_git_union": 402314,
         "historical_900_first_parent_density_recomputed": None,
         "recent_ledger_combined_density": None,
         "cross_revision_lineage": "unresolved",
         "confidence": "source_pin_integrity_only_not_independent_reconstruction_of_review_history",
-        "note": "Nonblank blob identity validates only the pinned source; historical review and defect claims remain workbook-provenanced. Exact revision duplication is not a complete Git lineage union.",
+        "note": "Nonblank pinned source is not proof that a review occurred. "
+                "Exact path/blob overlap does not establish cross-revision line identity.",
     }
 
 
@@ -132,20 +216,31 @@ def main() -> None:
     parser.add_argument("--repo", type=Path, default=Path("."))
     parser.add_argument("--historical-root", type=Path,
                         default=Path("docs/engineering/aspects-historical"))
+    parser.add_argument("--state", type=Path,
+                        default=Path("docs/engineering/aspects-historical-restoration-state.json"))
     parser.add_argument("--json-out", type=Path)
+    parser.add_argument("--row-jsonl-out", type=Path)
     args = parser.parse_args()
     # Fail closed if the imported source has drifted or clean rows went missing.
     verify(args.historical_root)
     rows = []
     for path in sorted((args.historical_root / "review-events").glob("*.jsonl")):
         rows.extend(read_records(path))
-    report = verify_pins(args.repo, rows)
+    checkpoint = json.loads(args.state.read_text(encoding="utf-8"))["last_900_first_parent_snapshot"]
+    row_details: list[dict] = []
+    report = verify_pins(args.repo, rows, checkpoint=checkpoint, audit_rows=row_details)
+    if len(row_details) != len(rows):
+        raise RuntimeError("Incomplete row-level pin audit; refusing partial artifact")
     result = json.dumps(report, sort_keys=True, indent=2) + "\n"
     if args.json_out:
         args.json_out.parent.mkdir(parents=True, exist_ok=True)
         args.json_out.write_text(result, encoding="utf-8")
+    if args.row_jsonl_out:
+        args.row_jsonl_out.parent.mkdir(parents=True, exist_ok=True)
+        with args.row_jsonl_out.open("w", encoding="utf-8") as out:
+            for row in row_details:
+                out.write(json.dumps(row, sort_keys=True) + "\n")
     print(result)
-
 
 if __name__ == "__main__":
     main()
