@@ -21,4 +21,4 @@ jobs:
           python -m unittest discover -s scripts/tests -p 'test_fnd005_*.py' -v
           python -m unittest discover -s scripts/tests -p 'test_fnd010_*.py' -v
           python -m unittest discover -s scripts/tests -p 'test_fnd014_*.py' -v
-          python -m unittest discover -s scripts/tests -p 'test_fnd015_rollback_planner.py' -v
+          python -m unittest discover -s scripts/tests -p 'test_fnd015_*.py' -v
