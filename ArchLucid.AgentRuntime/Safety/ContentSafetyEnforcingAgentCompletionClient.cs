@@ -140,8 +140,13 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
 
             ThrowBlocked(outputSafety, "completion_json");
 
+        // The output scan may complete after a consumer abandons the stream.
+        // Never emit buffered content after cancellation, even if the guard ignored its token.
         foreach (string chunk in bufferedChunks)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
             yield return chunk;
+        }
     }
 
     private void ThrowBlocked(ContentSafetyResult result, string stageKey)
