@@ -23,6 +23,7 @@ BLOB_SPANS = re.compile(
 )
 RANGE = re.compile(r"^([1-9][0-9]*)(?:[-–—]([1-9][0-9]*))?$")
 DEFAULT_NAME = "ArchLucid_Defect_Density_Trend_repaired.xlsx"
+EXPECTED_WORKBOOK_SHA256 = "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787"
 EXPECTED_HEADER = [
     "Review period (ET)", "Reviewed master SHA", "Defect ID", "Defects",
     "Reviewed lines", "New unique lines", "Status", "Scope",
@@ -98,6 +99,8 @@ def _spans(raw: str):
 def extract(workbook: Path):
     """Return workbook observations, 900-commit snapshots, immutable provenance."""
     file_hash = hashlib.sha256(workbook.read_bytes()).hexdigest()
+    if file_hash != EXPECTED_WORKBOOK_SHA256:
+        raise ValueError("Historical workbook SHA256 mismatch; review provenance before importing")
     events = []
     snapshots = []
     with ZipFile(workbook) as book:
