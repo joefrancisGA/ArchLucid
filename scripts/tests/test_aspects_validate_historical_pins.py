@@ -106,7 +106,7 @@ class HistoricalPinVerificationTests(unittest.TestCase):
         raw = (f"src/a.cs [blob {blob_a}; last ignored] 1–2; "
                f"src/b.cs [blob {blob_b}; last ignored] 1–2")
         row = {**self.event(head=commit), "parsed_pin": None,
-               "reviewed_file_spans_raw": raw}
+               "reviewed_file_spans_raw": raw, "reviewed_loc_reported": 4}
         pins = sut.source_pins(row)
         self.assertEqual(len(pins), 2)
         audit = []
@@ -128,6 +128,18 @@ class HistoricalPinVerificationTests(unittest.TestCase):
         self.assertEqual(result["verified_pin_rows"], 0)
         self.assertEqual(result["quarantined_or_ambiguous_total"], 1)
         self.assertEqual(result["verified_unique_exact_path_blob_lines"], 0)
+        # All individual Git pins are valid, but the workbook total can be
+        # wrong or incomplete. In that case the whole review is quarantined.
+        wrong_total = {**row, "reviewed_loc_reported": 3}
+        mismatch = sut.verify_pins(self.repo, [wrong_total])
+        self.assertEqual(mismatch["verified_pin_rows"], 0)
+        self.assertEqual(mismatch["verified_nonblank_line_occurrences"], 0)
+        self.assertEqual(mismatch["classifications"]["multisource_reported_loc_mismatch"], 1)
+        missing_total = {**row}
+        del missing_total["reviewed_loc_reported"]
+        missing = sut.verify_pins(self.repo, [missing_total])
+        self.assertEqual(missing["verified_pin_rows"], 0)
+        self.assertEqual(missing["classifications"]["multisource_reported_loc_mismatch"], 1)
 
     def test_full_quarantine_preserves_excel_rows_and_per_row_new_repeat_loc(self):
         audit = []
