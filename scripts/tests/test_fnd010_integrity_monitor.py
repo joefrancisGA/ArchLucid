@@ -9,7 +9,7 @@ def fixture(seq=2, digest="ab" * 32):
 class IntegrityMonitorTests(unittest.TestCase):
     def test_valid_chain_with_signed_anchor(self):
         def query(sql):
-            if "COUNT(*) FROM Links" in sql:
+            if "COUNT(*) FROM Links" in sql or "COUNT(*) FROM dbo.AuthorizationDecisionChain c" in sql:
                 return "0\n"
             if "COUNT_BIG(*)" in sql:
                 return "3:3\n"
@@ -29,7 +29,7 @@ class IntegrityMonitorTests(unittest.TestCase):
 
     def test_anchor_mismatch_detected(self):
         def query(sql):
-            if "COUNT(*) FROM Links" in sql:
+            if "COUNT(*) FROM Links" in sql or "COUNT(*) FROM dbo.AuthorizationDecisionChain c" in sql:
                 return "0\n"
             if "COUNT_BIG(*)" in sql:
                 return "3:3\n"
