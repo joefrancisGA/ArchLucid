@@ -58,9 +58,25 @@ def parse_explicit_unpinned(raw: object) -> list[dict] | None:
                 return None
             intervals.append([lo, hi])
         sources.append({"path": path, "reported_inclusive_intervals": intervals})
-    if len({s["path"] for s in sources}) != len(sources):
-        return None
-    return sources
+    # A single workbook observation may list the SAME full path in several
+    # disjoint interval fragments. Consolidate only identical, explicit paths
+    # at the same reviewed commit. Do not count a repeated interval twice.
+    grouped: dict[str, list[list[int]]] = {}
+    for source in sources:
+        grouped.setdefault(source["path"], []).extend(
+            source["reported_inclusive_intervals"])
+    consolidated = []
+    for path, ranges in grouped.items():
+        merged = []
+        for start, end in sorted(ranges):
+            if merged and start <= merged[-1][1] + 1:
+                merged[-1][1] = max(merged[-1][1], end)
+            else:
+                merged.append([start, end])
+        consolidated.append({
+            "path": path, "reported_inclusive_intervals": merged,
+        })
+    return consolidated
 
 
 def contiguous_intervals(numbers: set[int]) -> list[list[int]]:
