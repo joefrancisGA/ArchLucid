@@ -28,7 +28,8 @@ public sealed class ScimProjectEvidenceEntitlementAuthorityTests
             : [new Claim(ClaimTypes.NameIdentifier, "unlinked-user")], "test"));
 
     private static (ScimProjectEvidenceEntitlementAuthority Authority,
-        Mock<IScimUserRepository> Users, Mock<IProjectRoleAssignmentRepository> Roles)
+        Mock<IScimUserRepository> Users, Mock<IProjectRoleAssignmentRepository> Roles,
+        Mock<IRunRepository> Runs)
         Setup(ProjectScopedEffectiveRole role = ProjectScopedEffectiveRole.Reader,
               bool active = true, bool removed = false)
     {
@@ -50,7 +51,7 @@ public sealed class ScimProjectEvidenceEntitlementAuthorityTests
         runs.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), Evidence,
             It.IsAny<CancellationToken>())).ReturnsAsync(new RunRecord { RunId = Evidence });
         return (new ScimProjectEvidenceEntitlementAuthority(
-            scope.Object, users.Object, roles.Object, runs.Object), users, roles);
+            scope.Object, users.Object, roles.Object, runs.Object), users, roles, runs);
     }
 
     private static EvidenceReadResource Resource(Guid? tenant = null) =>
@@ -59,7 +60,7 @@ public sealed class ScimProjectEvidenceEntitlementAuthorityTests
     [Fact]
     public async Task Current_project_reader_is_allowed()
     {
-        var (authority, _, _) = Setup();
+        var (authority, _, _, _) = Setup();
         (await authority.HasCurrentReadEntitlementAsync(
             Principal(), Resource(), CancellationToken.None)).Should().BeTrue();
     }
@@ -67,7 +68,7 @@ public sealed class ScimProjectEvidenceEntitlementAuthorityTests
     [Fact]
     public async Task Foreign_tenant_is_denied_without_acl_query()
     {
-        var (authority, users, roles) = Setup();
+        var (authority, users, roles, _) = Setup();
         (await authority.HasCurrentReadEntitlementAsync(
             Principal(), Resource(Guid.NewGuid()), CancellationToken.None)).Should().BeFalse();
         users.VerifyNoOtherCalls();
@@ -75,9 +76,19 @@ public sealed class ScimProjectEvidenceEntitlementAuthorityTests
     }
 
     [Fact]
+    public async Task Foreign_or_missing_run_is_denied_after_project_acl()
+    {
+        var (authority, _, _, runs) = Setup();
+        runs.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), Evidence,
+            It.IsAny<CancellationToken>())).ReturnsAsync((RunRecord?)null);
+        (await authority.HasCurrentReadEntitlementAsync(
+            Principal(), Resource(), CancellationToken.None)).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task Revoked_project_role_is_denied()
     {
-        var (authority, _, _) = Setup(ProjectScopedEffectiveRole.None);
+        var (authority, _, _, _) = Setup(ProjectScopedEffectiveRole.None);
         (await authority.HasCurrentReadEntitlementAsync(
             Principal(), Resource(), CancellationToken.None)).Should().BeFalse();
     }
@@ -85,7 +96,7 @@ public sealed class ScimProjectEvidenceEntitlementAuthorityTests
     [Fact]
     public async Task Deactivated_scim_user_is_denied()
     {
-        var (authority, _, roles) = Setup(active: false);
+        var (authority, _, roles, _) = Setup(active: false);
         (await authority.HasCurrentReadEntitlementAsync(
             Principal(), Resource(), CancellationToken.None)).Should().BeFalse();
         roles.VerifyNoOtherCalls();
@@ -94,7 +105,7 @@ public sealed class ScimProjectEvidenceEntitlementAuthorityTests
     [Fact]
     public async Task Deleted_scim_user_is_denied()
     {
-        var (authority, _, roles) = Setup(removed: true);
+        var (authority, _, roles, _) = Setup(removed: true);
         (await authority.HasCurrentReadEntitlementAsync(
             Principal(), Resource(), CancellationToken.None)).Should().BeFalse();
         roles.VerifyNoOtherCalls();
@@ -103,7 +114,7 @@ public sealed class ScimProjectEvidenceEntitlementAuthorityTests
     [Fact]
     public async Task Unlinked_identity_is_denied()
     {
-        var (authority, users, _) = Setup();
+        var (authority, users, _, _) = Setup();
         (await authority.HasCurrentReadEntitlementAsync(
             Principal(false), Resource(), CancellationToken.None)).Should().BeFalse();
         users.VerifyNoOtherCalls();
