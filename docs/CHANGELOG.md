@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+## 2026-11-22 - Score lift round 109 (batch 74): Evidence bundle, consulting exports, audit export, reviews hub collection
+
+**Outcome.** Evidence bundle download names unsealed finalize gate versus load failure. Consulting and whitelabel DOCX exports name finalize discipline beside blocked reasons. Run-scoped audit export names unsealed gate versus failed deliverables read. Reviews hub open-gate collection blocker uses reviews-specific not-load-failure copy.
+
+**Surfaces.** Run detail deliverables exports, consulting DOCX export button, whitelabel consulting export, run scoped audit export, reviews hub collection blocker host, honesty and mounted contract tests.
+
 ## 2026-11-22 - Score lift round 108 (batch 73): Findings partial capture, deliverables exports, workspace KPI tiles
 
 **Outcome.** Main findings queue partial-capture empty names thin capture versus failed read. Request JSON and review export ZIP name unsealed finalize gates versus load failure. Workspace health KPI tiles state point-in-time rollup discipline.

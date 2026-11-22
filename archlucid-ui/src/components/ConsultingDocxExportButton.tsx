@@ -17,6 +17,7 @@ import {
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { showError } from "@/lib/toast";
 
+import { CONSULTING_DOCX_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE } from "@/lib/exports/consulting-docx-export-finalize-not-load-failure-copy";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -79,13 +80,21 @@ export function ConsultingDocxExportButton(props: ConsultingDocxExportButtonProp
         Export to DOCX
       </Button>
       {sealedManifestBlockedReason !== null ? (
-        <p
-          role="alert"
-          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="consulting-docx-export-blocked-reason"
-        >
-          {sealedManifestBlockedReason}
-        </p>
+        <>
+          <p
+            role="alert"
+            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="consulting-docx-export-blocked-reason"
+          >
+            {sealedManifestBlockedReason}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="consulting-docx-export-finalize-not-load-failure"
+          >
+            {CONSULTING_DOCX_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE}
+          </p>
+        </>
       ) : null}
       <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="consulting-docx-export" />
     </div>
