@@ -120,6 +120,46 @@ public sealed class FallbackCancellationBoundaryTests
             It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
+    [Fact]
+    public async Task Streaming_first_fallback_failure_after_cancellation_does_not_start_second_fallback()
+    {
+        using CancellationTokenSource caller = new();
+        Mock<IAgentStreamingCompletionClient> primary = new();
+        Mock<IAgentStreamingCompletionClient> first = new();
+        Mock<IAgentStreamingCompletionClient> second = new();
+        primary.SetupGet(x => x.Descriptor).Returns(LlmProviderDescriptor.ForOffline("primary", "test"));
+        primary.Setup(x => x.StreamJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns(() => StreamThenFailWithoutCancel());
+        first.Setup(x => x.StreamJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns(() => StreamThenCancelAndFail(caller));
+
+        FallbackAgentCompletionClient sut = new(
+            primary.Object, [first.Object, second.Object],
+            NullLogger<FallbackAgentCompletionClient>.Instance);
+
+        Func<Task> invoke = async () =>
+        {
+            await foreach (string _ in sut.StreamJsonAsync("s", "u", cancellationToken: caller.Token))
+            {
+            }
+        };
+
+        await invoke.Should().ThrowAsync<OperationCanceledException>();
+        first.Verify(x => x.StreamJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Once);
+        second.Verify(x => x.StreamJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private static async IAsyncEnumerable<string> StreamThenFailWithoutCancel()
+    {
+        yield return "initial";
+        await Task.Yield();
+        throw new HttpRequestException("primary throttled", null, HttpStatusCode.TooManyRequests);
+    }
+
     private static async IAsyncEnumerable<string> StreamThenCancelAndFail(CancellationTokenSource caller)
     {
         yield return "initial";
