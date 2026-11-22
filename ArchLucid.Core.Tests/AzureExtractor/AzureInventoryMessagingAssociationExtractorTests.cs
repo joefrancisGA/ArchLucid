@@ -112,6 +112,34 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
     }
 
     [Fact]
+    public void TryExtractServiceBusChild_treats_null_forward_targets_as_absent()
+    {
+        const string namespaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/ns";
+        using JsonDocument document = JsonDocument.Parse($$"""
+            {
+              "id": "{{namespaceId}}/queues/orders",
+              "name": "orders",
+              "properties": {
+                "forwardTo": null,
+                "forwardDeadLetteredMessagesTo": null
+              }
+            }
+            """);
+
+        bool extracted = AzureInventoryMessagingAssociationExtractor.TryExtractServiceBusChild(
+            namespaceId,
+            document.RootElement,
+            AzureInventoryMessagingAssociationTypes.ServiceBusQueue,
+            out AzureInventoryMessagingAssociationRow? row);
+
+        extracted.Should().BeTrue();
+        row.Should().NotBeNull();
+        row!.ForwardToName.Should().BeNull();
+        row.ForwardDeadLetteredMessagesToName.Should().BeNull();
+    }
+
+    [Fact]
     public void TryExtractServiceBusChild_maps_forward_targets()
     {
         using JsonDocument document = JsonDocument.Parse("""
