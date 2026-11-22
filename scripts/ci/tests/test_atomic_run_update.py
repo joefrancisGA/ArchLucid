@@ -12,5 +12,12 @@ class AtomicRunUpdateTests(unittest.TestCase):
         self.assertIn("ApplyUpdateAsync(owned, ownedTransaction, run, sql, ct)", code)
         self.assertIn("ownedTransaction.CommitAsync(ct)", code)
 
+    def test_guard_read_locks_row_in_transaction(self):
+        sql = (SOURCE.parent.parent / "Sql/RunRepositorySql.ArchiveAndExistence.cs").read_text(encoding="utf-8")
+        locked = sql.split("SelectAnchorGuardForUpdateByScopedId =", 1)[1].split('""";', 1)[0]
+        self.assertIn("FROM dbo.Runs WITH (UPDLOCK, HOLDLOCK)", locked)
+        code = SOURCE.read_text(encoding="utf-8")
+        self.assertIn("RunRepositorySql.SelectAnchorGuardForUpdateByScopedId", code)
+
 if __name__ == "__main__":
     unittest.main()
