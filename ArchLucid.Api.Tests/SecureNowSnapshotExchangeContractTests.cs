@@ -54,6 +54,8 @@ public sealed class SecureNowSnapshotExchangeContractTests
             .AddSingleton(scope.Object)
             .AddSingleton(authorization.Object)
             .AddSingleton(entitlements.Object)
+            .AddSingleton(TimeProvider.System)
+            .AddSingleton<ICentralAuthorizationAudit>(Mock.Of<ICentralAuthorizationAudit>(a => a.WriteAsync(It.IsAny<CentralAuthorizationAuditRecord>(), It.IsAny<CancellationToken>()) == Task.CompletedTask))
             .AddScoped<ICentralAuthorizationDecisions, CentralAuthorizationDecisions>()
             .AddScoped<EvidenceReadAuthorizationGate>()
             .BuildServiceProvider();

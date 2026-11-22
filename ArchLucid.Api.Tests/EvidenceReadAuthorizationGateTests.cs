@@ -41,7 +41,11 @@ public sealed class EvidenceReadAuthorizationGateTests
         entitlements.Setup(e => e.HasCurrentReadEntitlementAsync(
             It.IsAny<ClaimsPrincipal>(), It.IsAny<EvidenceReadResource>(),
             It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        return (new EvidenceReadAuthorizationGate(new CentralAuthorizationDecisions(scope.Object, entitlements.Object, auth.Object)), auth);
+        Mock<ICentralAuthorizationAudit> audit = new();
+        audit.Setup(a => a.WriteAsync(
+            It.IsAny<CentralAuthorizationAuditRecord>(),
+            It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        return (new EvidenceReadAuthorizationGate(new CentralAuthorizationDecisions(scope.Object, entitlements.Object, auth.Object, audit.Object, TimeProvider.System)), auth);
     }
 
     [Fact]

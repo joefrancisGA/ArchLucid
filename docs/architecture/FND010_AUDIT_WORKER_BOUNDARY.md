@@ -1,0 +1,7 @@
+# FND-010 decision auditing and non-HTTP caller boundary
+
+This increment adds a structured decision audit interface and logging implementation, and a worker adapter that obtains its principal from an explicit trusted identity provider rather than job payload claims. The default worker identity provider returns no principal, so background jobs cannot acquire evidence access accidentally.
+
+The centralized decision service now writes a decision record (unique decision ID, action, scope, resource, outcome, reason, caller classification and UTC time) before returning any authorization decision. If audit writing fails, even an otherwise allowed decision is denied. Unknown actions, including remediation.execute, remain denied. No raw tokens, claims or evidence content are logged.
+
+**Release limitations:** The logging sink is not an immutable/durable audit store, so a successful logging call does not prove durable persistence. A production sink must provide append-only durable writes and delivery guarantees; consider separating a durable authorization journal from telemetry. Worker identity provider is deny-all until workload identity validation is integrated. The service is currently implemented in the API assembly; workers must not reference the API assembly as a long-term dependency—move the contract to a shared application/core layer when integrating workers. Resource action handlers for remediation and approval are not enabled. Tests and CI must pass before merging. No production feature flag was enabled.

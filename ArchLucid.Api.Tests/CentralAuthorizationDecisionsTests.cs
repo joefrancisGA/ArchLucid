@@ -33,7 +33,11 @@ public sealed class CentralAuthorizationDecisionsTests
         policy.Setup(p => p.AuthorizeAsync(
             It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
             .ReturnsAsync(AuthorizationResult.Success());
-        return (new CentralAuthorizationDecisions(scope.Object, entitlements.Object, policy.Object),
+        Mock<ICentralAuthorizationAudit> audit = new();
+        audit.Setup(a => a.WriteAsync(
+            It.IsAny<CentralAuthorizationAuditRecord>(),
+            It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        return (new CentralAuthorizationDecisions(scope.Object, entitlements.Object, policy.Object, audit.Object, TimeProvider.System),
             entitlements, policy);
     }
 
