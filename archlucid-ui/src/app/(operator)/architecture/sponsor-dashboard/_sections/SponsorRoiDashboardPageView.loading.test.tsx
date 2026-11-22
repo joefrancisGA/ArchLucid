@@ -1,6 +1,9 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+
+const bundleFetchStatus = vi.hoisted(() => ({ value: "fetching" as "fetching" | "paused" }));
 const evalChromeFixtureOn = vi.hoisted(() => ({ enabled: true }));
 
 vi.mock("next/navigation", async (importOriginal) => {
@@ -38,18 +41,14 @@ vi.mock("@/components/SeedSampleReviewButton", () => ({
   SeedSampleReviewButton: () => <button type="button">Load sample dashboard</button>,
 }));
 
-vi.mock("@/components/sponsor/SponsorDashboardDataContext", () => ({
-  SponsorDashboardDataProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  useSponsorDashboardData: () => ({
-    summary: null,
-    summaryLoading: true,
-    summaryError: null,
-    driftPoints: [],
-    driftLoading: false,
-    driftError: false,
-    refreshing: false,
-    lastRefreshedAt: null,
-    refreshDashboard: vi.fn(async () => undefined),
+vi.mock("@/hooks/use-sponsor-dashboard-bundle-query", () => ({
+  useSponsorDashboardBundleQuery: () => ({
+    data: undefined,
+    isPending: true,
+    isFetched: false,
+    isError: false,
+    isFetching: bundleFetchStatus.value === "fetching",
+    fetchStatus: bundleFetchStatus.value,
   }),
 }));
 
@@ -65,9 +64,19 @@ import { SponsorRoiDashboardPageView } from "./SponsorRoiDashboardPageView";
 
 describe("SponsorRoiDashboardPageView loading (TB-1532)", () => {
   it("shows structured loading skeleton while sponsor report loads", () => {
-    render(<SponsorRoiDashboardPageView surface="sponsor" />);
+    bundleFetchStatus.value = "fetching";
+    renderWithOperatorQuery(<SponsorRoiDashboardPageView surface="sponsor" />);
 
     expect(screen.getByTestId("sponsor-dashboard-loading-skeleton")).toBeInTheDocument();
+    expect(screen.queryByTestId("sponsor-dashboard-empty-state")).not.toBeInTheDocument();
+  });
+
+  it("reports a paused first fetch without presenting an empty workspace", () => {
+    bundleFetchStatus.value = "paused";
+    renderWithOperatorQuery(<SponsorRoiDashboardPageView surface="sponsor" />);
+
+    expect(screen.getByText("Waiting for a network connection to load portfolio ROI…")).toHaveAttribute("role", "status");
+    expect(screen.queryByTestId("sponsor-dashboard-loading-skeleton")).not.toBeInTheDocument();
     expect(screen.queryByTestId("sponsor-dashboard-empty-state")).not.toBeInTheDocument();
   });
 });
