@@ -1,0 +1,29 @@
+name: Isolated dependency recovery harness
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'scripts/ci/isolated_dependency_recovery.py'
+      - 'scripts/ci/tests/test_isolated_dependency_recovery.py'
+      - '.github/workflows/isolated-dependency-recovery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s scripts/ci/tests -p test_isolated_dependency_recovery.py -v
+      - run: python scripts/ci/isolated_dependency_recovery.py --output artifacts/isolated-recovery.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: isolated-recovery-evidence
+          path: artifacts/isolated-recovery.json
