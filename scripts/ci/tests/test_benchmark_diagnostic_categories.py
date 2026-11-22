@@ -22,9 +22,8 @@ class BenchmarkDiagnosticsTests(unittest.TestCase):
             return result, stderr.getvalue()
 
     def test_missing_evidence_is_classified(self):
-        result, message = self.compare([{"fullName":"Bench.A","maxMeanNs":10}], [])
-        self.assertEqual(result, 1)
-        self.assertIn("[MISSING_EVIDENCE]", message)
+        with self.assertRaisesRegex(ValueError, "contain no measured benchmark means"):
+            self.compare([{"fullName":"Bench.A","maxMeanNs":10}], [])
 
     def test_regression_is_classified(self):
         result, message = self.compare(
