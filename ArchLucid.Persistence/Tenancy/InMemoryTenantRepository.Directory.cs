@@ -69,7 +69,14 @@ public sealed partial class InMemoryTenantRepository
     {
         ct.ThrowIfCancellationRequested();
 
-        return !_entraTenantIdToTenantId.TryGetValue(entraTenantId, out Guid tenantId) ? Task.FromResult<TenantRecord?>(null) : GetByIdAsync(tenantId, ct);
+        // Read the directory index and row together with the binding write.
+        lock (_trialGate)
+        {
+            return Task.FromResult(
+                _entraTenantIdToTenantId.TryGetValue(entraTenantId, out Guid tenantId)
+                    ? _byId.GetValueOrDefault(tenantId)
+                    : null);
+        }
     }
 
 
