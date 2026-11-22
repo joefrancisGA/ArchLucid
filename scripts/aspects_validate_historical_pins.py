@@ -34,7 +34,7 @@ def git(repo: Path, *args: str) -> tuple[bool, bytes]:
 
 VERIFIED = "git_blob_and_nonblank_intervals_verified"
 MULTI_SOURCE_BOUNDARY = re.compile(
-    r";\\s+(?=[^;\\[\\]\\n]+\\s+\\[blob [0-9a-f]{40}\\b)"
+    r";\s+(?=[^;\[\]\n]+\s+\[blob [0-9a-f]{40}\b)"
 )
 
 
