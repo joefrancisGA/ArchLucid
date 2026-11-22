@@ -116,10 +116,10 @@ public static class AzureInventoryDiffComparer
 
         foreach (string key in keys.OrderBy(k => k, StringComparer.Ordinal))
         {
-            tagsA.TryGetValue(key, out string? oldValue);
-            tagsB.TryGetValue(key, out string? newValue);
+            bool hadTag = tagsA.TryGetValue(key, out string? oldValue);
+            bool hasTag = tagsB.TryGetValue(key, out string? newValue);
 
-            if (string.Equals(oldValue, newValue, StringComparison.Ordinal))
+            if (hadTag == hasTag && string.Equals(oldValue, newValue, StringComparison.Ordinal))
                 continue;
 
             changes.Add(CreateChange(

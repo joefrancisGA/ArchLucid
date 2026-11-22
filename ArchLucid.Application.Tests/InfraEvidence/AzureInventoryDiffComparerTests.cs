@@ -31,6 +31,29 @@ public sealed class AzureInventoryDiffComparerTests
         changes.Should().BeEmpty();
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Compare_detects_addition_or_removal_of_null_valued_tag(bool added)
+    {
+        Guid snapshotAId = Guid.NewGuid();
+        Guid snapshotBId = Guid.NewGuid();
+        Guid resourceRowId = Guid.NewGuid();
+        const string armId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+
+        AzureInventorySnapshotDetailReadModel snapshotA = BuildSnapshot(
+            snapshotAId, resourceRowId, armId, "eastus", added ? null : "env", null);
+        AzureInventorySnapshotDetailReadModel snapshotB = BuildSnapshot(
+            snapshotBId, resourceRowId, armId, "eastus", added ? "env" : null, null);
+
+        List<AzureInventoryChangeRecord> changes =
+            AzureInventoryDiffComparer.Compare(snapshotA, snapshotB, snapshotAId, snapshotBId);
+
+        AzureInventoryChangeRecord change = changes.Should().ContainSingle().Subject;
+        change.ChangeType.Should().Be(AzureInventoryChangeType.TagChanged);
+        change.Property.Should().Be("tag:env");
+    }
+
     [Fact]
     public void Compare_detects_resource_added_removed_tag_and_sku_changes()
     {
@@ -177,8 +200,8 @@ public sealed class AzureInventoryDiffComparerTests
         Guid resourceRowId,
         string armId,
         string region,
-        string tagKey,
-        string tagValue,
+        string? tagKey,
+        string? tagValue,
         string? sku = null,
         string? extraResourceArmId = null,
         string? secondExtraResourceArmId = null)
@@ -245,7 +268,9 @@ public sealed class AzureInventoryDiffComparerTests
             },
             Resources = resources,
             Properties = properties,
-            Tags =
+            Tags = tagKey is null
+                ? []
+                :
             [
                 new AzureInventoryTagReadModel
                 {
