@@ -37,7 +37,11 @@ public sealed class EvidenceReadAuthorizationGateTests
                 ArchLucidPolicies.ReadAuthority))
             .ReturnsAsync(allowed ? AuthorizationResult.Success()
                                   : AuthorizationResult.Failed());
-        return (new EvidenceReadAuthorizationGate(auth.Object, scope.Object), auth);
+        Mock<IEvidenceEntitlementAuthority> entitlements = new();
+        entitlements.Setup(e => e.HasCurrentReadEntitlementAsync(
+            It.IsAny<ClaimsPrincipal>(), It.IsAny<EvidenceReadResource>(),
+            It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        return (new EvidenceReadAuthorizationGate(auth.Object, scope.Object, entitlements.Object), auth);
     }
 
     [Fact]
@@ -79,10 +83,10 @@ public sealed class EvidenceReadAuthorizationGateTests
     }
 
     [Fact]
-    public async Task Missing_exact_resource_entitlement_is_denied()
+    public async Task Unauthenticated_principal_is_denied_before_entitlement_check()
     {
         var (gate, auth) = CreateGate();
-        var identity = new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "operator")], "test");
+        var identity = new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "operator")]);
         (await gate.AuthorizeAsync(new ClaimsPrincipal(identity), Tenant, Workspace, Project, Evidence))
             .Allowed.Should().BeFalse();
         auth.VerifyNoOtherCalls();
