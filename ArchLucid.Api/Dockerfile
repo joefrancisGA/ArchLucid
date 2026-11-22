@@ -150,6 +150,10 @@ RUN apk update --no-cache \
          "libexpat>=2.10.0-r0" \
          "libxslt>=1.1.43-r4" \
     && apk add --no-cache icu-libs nodejs npm chromium ttf-dejavu fontconfig graphviz \
+    # Require Alpine 3.24 patched packages after Chromium/Graphviz resolve transitive dependencies.
+    && apk add --no-cache --upgrade \
+         "libfontenc>=1.1.10-r0" \
+         "libxml2>=2.13.9-r3" \
     && npm install -g @mermaid-js/mermaid-cli@11 \
     && npm cache clean --force \
     && rm -rf /root/.npm
