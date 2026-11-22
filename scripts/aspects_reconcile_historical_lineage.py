@@ -84,11 +84,13 @@ def reconcile(repo: Path, rows: list[dict], checkpoint: dict,
     if not isinstance(audit_digest, str) or audited_rows_sha256(rows) != audit_digest:
         result["blocking_reason"] = "Missing or mismatched row-level source-pin audit SHA-256"
         return result
-    if (expected_first_excel_row is not None and
-            sorted(row.get("excel_row") for row in rows) !=
-            list(range(expected_first_excel_row, expected_first_excel_row + expected_records))):
-        result["blocking_reason"] = "Historical Excel row range missing, duplicated, or inconsistent"
-        return result
+    if expected_first_excel_row is not None:
+        excel_rows = [row.get("excel_row") for row in rows]
+        if (any(type(n) is not int for n in excel_rows) or
+                sorted(excel_rows) !=
+                list(range(expected_first_excel_row, expected_first_excel_row + expected_records))):
+            result["blocking_reason"] = "Historical Excel row range missing, duplicated, or inconsistent"
+            return result
     anchor, members = first_parent_checkpoint(repo, checkpoint)
     old_anchor = pin_report.get("first_parent_checkpoint", {})
     if (members is None or old_anchor.get("status") != "verified_first_parent_sha_membership"
