@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+## 2026-11-22 - Score lift round 111 (batch 76): Server manifest export, hub config, compare partial capture, connection scope
+
+**Outcome.** Golden manifest select menu names server Markdown finalize gate versus manifest read failure. Resource hub configuration empty names stored snapshot gap versus hub load failure. Compare quality-delta partial inventory names partial capture versus failed compare read. Connection status pinned subscription scope exposes mounted not-load-failure test id.
+
+**Surfaces.** Golden manifest export menu, resource hub client, compare quality delta footnote, connection status dashboard, honesty and mounted contract tests.
+
 ## 2026-11-22 - Score lift round 110 (batch 75): Manifest bundle, review DOCX, Terraform advisory, connection category empty
 
 **Outcome.** Manifest bundle ZIP names unsealed finalize gate versus load failure. Architecture review DOCX blocked state adds format-specific finalize discipline beside primary export copy. Terraform advisory export names unsealed gate versus failed read. Connection status category filter empty exposes mounted not-load-failure test id in footer.

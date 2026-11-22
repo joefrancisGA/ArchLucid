@@ -40,6 +40,7 @@ import { RESOURCE_HUB_FINDINGS_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/
 import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
 import { RESOURCE_HUB_AUDIT_TAB_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-hub-audit-tab-partial-capture-copy";
 import { RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-config-partial-capture-copy";
+import { RESOURCE_HUB_CONFIG_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-config-stored-empty-not-load-failure-copy";
 import { RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-partial-capture-copy";
 import { ResourceHubFindingsArchitectureScopeAndSeverityEmptyPartialHonesty } from "@/components/infra-evidence/ResourceHubFindingsArchitectureScopeAndSeverityEmptyPartialHonesty";
 import { RESOURCE_HUB_FINDINGS_ARCHITECTURE_SCOPE_AND_SEVERITY_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-architecture-scope-and-severity-empty-copy";
@@ -1702,14 +1703,22 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_BODY}
                     testId="infra-resource-hub-config-empty"
                     footer={
-                      isSecureNowProductLine(productLine) ? (
-                        <SecureNowInfraPartialCaptureStrip
+                      <div className="space-y-2">
+                        <p
+                          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                          data-testid="resource-hub-config-stored-empty-not-load-failure"
+                        >
+                          {RESOURCE_HUB_CONFIG_STORED_EMPTY_NOT_LOAD_FAILURE_LINE}
+                        </p>
+                        {isSecureNowProductLine(productLine) ? (
+                          <SecureNowInfraPartialCaptureStrip
                           testId="infra-resource-hub-config-empty-partial-capture"
                           middleLine={RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_EMPTY_LINE}
                           cloudConnectionsTestId="infra-resource-hub-config-empty-partial-cloud"
                           extractUploadTestId="infra-resource-hub-config-empty-partial-extract"
                         />
-                      ) : undefined
+                        ) : null}
+                      </div>
                     }
                   />
                 </>

@@ -45,6 +45,7 @@ import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCo
 import { GOLDEN_MANIFEST_EXPORT_DISABLED_WHILE_BLOCKED_LINE } from "@/lib/exports/golden-manifest-export-disabled-while-blocked-copy";
 import { GOLDEN_MANIFEST_EXPORT_DISABLED_AND_FINALIZE_LINE } from "@/lib/exports/golden-manifest-export-disabled-and-finalize-copy";
 import { GOLDEN_MANIFEST_MARKDOWN_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE } from "@/lib/exports/golden-manifest-markdown-export-finalize-not-load-failure-copy";
+import { GOLDEN_MANIFEST_SERVER_MARKDOWN_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE } from "@/lib/exports/golden-manifest-server-markdown-export-finalize-not-load-failure-copy";
 import { GOLDEN_MANIFEST_LINEAGE_VERIFY_NOT_COMMIT_BEFORE_SEAL_LINE } from "@/lib/exports/golden-manifest-lineage-verify-not-commit-before-seal-copy";
 import { GOLDEN_MANIFEST_LINEAGE_VERIFY_HTTP_FAILURE_LINE } from "@/lib/exports/golden-manifest-lineage-verify-http-failure-copy";
 import { REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE } from "@/lib/reviews/review-commit-evidence-before-seal-copy";
@@ -506,12 +507,20 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         </>
       ) : null}
       {manifestFinalizeExportBlocked ? (
-        <p
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="golden-manifest-markdown-export-finalize-not-load-failure"
-        >
-          {GOLDEN_MANIFEST_MARKDOWN_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE}
-        </p>
+        <>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="golden-manifest-markdown-export-finalize-not-load-failure"
+          >
+            {GOLDEN_MANIFEST_MARKDOWN_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="golden-manifest-server-markdown-export-finalize-not-load-failure"
+          >
+            {GOLDEN_MANIFEST_SERVER_MARKDOWN_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE}
+          </p>
+        </>
       ) : null}
       <SponsorExportSendHonestyStrip testIdPrefix="golden-manifest-export" />
       {exportDemoBanner}
