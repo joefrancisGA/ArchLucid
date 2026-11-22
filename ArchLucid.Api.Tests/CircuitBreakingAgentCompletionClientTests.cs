@@ -210,6 +210,45 @@ public sealed class CircuitBreakingAgentCompletionClientTests
         calls.Should().Be(2);
     }
 
+    [Fact]
+    public async Task Half_open_completion_probe_skips_retries_even_when_retry_pipeline_is_configured()
+    {
+        int calls = 0;
+        Mock<IAgentCompletionClient> inner = new();
+        inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
+        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                Interlocked.Increment(ref calls);
+                return Task.FromException<string>(new HttpRequestException("provider still down",
+                    null, HttpStatusCode.ServiceUnavailable));
+            });
+
+        TestClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        CircuitBreakerGate gate = new("completion-single-probe",
+            new CircuitBreakerOptions { FailureThreshold = 1, DurationOfBreakSeconds = 30 },
+            clock.ToFunc());
+        ResiliencePipeline retry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
+            maxRetryAttempts: 3, baseDelay: TimeSpan.FromMilliseconds(1));
+        CircuitBreakingAgentCompletionClient sut = new(
+            inner.Object, gate, retry,
+            NullLogger<CircuitBreakingAgentCompletionClient>.Instance);
+
+        gate.RecordFailure();
+        clock.Advance(TimeSpan.FromSeconds(31));
+
+        await Assert.ThrowsAsync<HttpRequestException>(() =>
+            sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None));
+
+        // A recovery probe is one provider call, not one Polly execution with four attempts.
+        calls.Should().Be(1);
+        gate.CurrentState.Should().Be("Open");
+        await Assert.ThrowsAsync<CircuitBreakerOpenException>(() =>
+            sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None));
+        calls.Should().Be(1);
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
