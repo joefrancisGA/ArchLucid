@@ -1,4 +1,3 @@
-using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Persistence.Repositories;
