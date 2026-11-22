@@ -41,6 +41,8 @@ public static class AgentCompletionStreamingBridge
                     yield return chunk;
             }
 
+            // A non-cooperative provider may signal end-of-stream after the caller canceled.
+            cancellationToken.ThrowIfCancellationRequested();
             yield break;
         }
 
