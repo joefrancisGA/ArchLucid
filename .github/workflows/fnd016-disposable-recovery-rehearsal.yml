@@ -1,0 +1,27 @@
+name: FND-016 Disposable Recovery Rehearsal
+on:
+  pull_request:
+    branches: [master, main, architecture/fnd016-isolated-recovery-rehearsal]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  disposable-rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute rehearsal in disposable network-isolated container
+        run: |
+          docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --pids-limit 64 \
+            --memory 512m --cpus 1 \
+            -e PYTHONDONTWRITEBYTECODE=1 \\
+            -v "$PWD:/work:ro" -w /work python:3.12-slim \
+            python -m unittest discover -s scripts/tests \
+              -p 'test_fnd016_isolated_recovery_rehearsal.py' -v
+      - name: Verify independent evidence-bound signing
+        run: |
+          python3 -m pip install 'cryptography>=44,<47'
+          python3 -m unittest discover -s scripts/tests \
+            -p 'test_fnd016_evidence_bound_attestation.py' -v
