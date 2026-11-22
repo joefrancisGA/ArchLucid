@@ -26,14 +26,22 @@ internal static class SecureNowExchangeModePattern
         var guarded = checks.Where(ContainsGateAndDenialReturn).ToArray();
         if (guarded.Length < 2)
             return false;
-        var anchor = method.Body.DescendantNodes().OfType<InvocationExpressionSyntax>()
-            .FirstOrDefault(x => x.Expression is MemberAccessExpressionSyntax m &&
-                                 m.Name.Identifier.ValueText == "GetByIdAsync");
-        var detail = method.Body.DescendantNodes().OfType<InvocationExpressionSyntax>()
-            .FirstOrDefault(x => x.Expression is MemberAccessExpressionSyntax m &&
-                                 m.Name.Identifier.ValueText == "GetRunDetailAsync");
-        return anchor is not null && detail is not null &&
-               guarded[0].SpanStart < anchor.SpanStart &&
+        // Exempt only the known endpoint shape. An extra read or gate must
+        // receive normal diagnostics, rather than masking an unsafe regression.
+        var calls = method.Body.DescendantNodes().OfType<InvocationExpressionSyntax>()
+            .Where(x => x.Expression is MemberAccessExpressionSyntax)
+            .ToArray();
+        var anchors = calls.Where(x => ((MemberAccessExpressionSyntax)x.Expression)
+            .Name.Identifier.ValueText == "GetByIdAsync").ToArray();
+        var details = calls.Where(x => ((MemberAccessExpressionSyntax)x.Expression)
+            .Name.Identifier.ValueText == "GetRunDetailAsync").ToArray();
+        var authorizations = calls.Where(x => ((MemberAccessExpressionSyntax)x.Expression)
+            .Name.Identifier.ValueText == "AuthorizeAsync").ToArray();
+        if (anchors.Length != 1 || details.Length != 1 || authorizations.Length != 2)
+            return false;
+        var anchor = anchors[0];
+        var detail = details[0];
+        return guarded[0].SpanStart < anchor.SpanStart &&
                guarded[1].SpanStart > anchor.SpanStart &&
                guarded[1].SpanStart < detail.SpanStart;
     }
