@@ -92,10 +92,12 @@ try
                 bool write = sequence % 5 == 0;
                 Stopwatch sw = Stopwatch.StartNew();
                 await using SqlCommand command = new(write
-                    ? $"UPDATE {table} SET Version = Version + 1 WHERE BatchId = @batch AND RunId = @run"
+                    ? $"UPDATE {table} SET Version = Version + 1 WHERE BatchId = @batch AND RunId = @run AND TenantId = @tenant AND WorkspaceId = @workspace"
                     : $"SELECT Version FROM {table} WHERE BatchId = @batch AND RunId = @run", conn);
                 command.Parameters.AddWithValue("@batch", batch);
                 command.Parameters.AddWithValue("@run", runId);
+                command.Parameters.AddWithValue("@tenant", Guid.Parse("11111111-1111-1111-1111-111111111111"));
+                command.Parameters.AddWithValue("@workspace", Guid.Parse("22222222-2222-2222-2222-222222222222"));
                 try
                 {
                     if (write)
