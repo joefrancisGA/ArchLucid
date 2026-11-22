@@ -56,6 +56,23 @@ public sealed class LlmCompletionFailureClassifierTests
     }
 
     [Fact]
+    public void Default_token_operation_cancel_is_not_retryable()
+    {
+        Exception cancelled = new OperationCanceledException("operation cancelled");
+        LlmCompletionFailureClassifier.Classify(cancelled)
+            .Should().Be(LlmCompletionFailureKind.Cancel);
+        LlmCompletionFailureClassifier.ShouldRetry(cancelled).Should().BeFalse();
+        LlmCompletionFailureClassifier.ShouldRecordCircuitBreakerFailure(cancelled).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Timeout_task_cancel_with_default_token_remains_retryable()
+    {
+        LlmCompletionFailureClassifier.Classify(new TaskCanceledException("transport timeout"))
+            .Should().Be(LlmCompletionFailureKind.TransportRetryable);
+    }
+
+    [Fact]
     public void ShouldRecordCircuitBreakerFailure_returns_false_for_semantic_terminal()
     {
         LlmCompletionFailureClassifier.ShouldRecordCircuitBreakerFailure(
