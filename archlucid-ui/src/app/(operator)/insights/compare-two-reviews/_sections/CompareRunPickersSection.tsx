@@ -178,7 +178,6 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           preferAutoPick={false}
           autoFocus
           label={leftPickerLabel}
-          label="Baseline review"
           placeholder="Choose a baseline review"
           value={leftRunId}
           onChange={onLeftRunIdChange}
