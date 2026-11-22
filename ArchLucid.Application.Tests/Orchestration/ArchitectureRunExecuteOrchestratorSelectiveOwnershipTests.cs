@@ -986,6 +986,126 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
             Times.Never);
     }
 
+
+    [Fact]
+    public async Task ExecuteSelectiveRunAsync_records_RunFailed_baseline_audit_when_run_deleted_after_ownership_acquire()
+    {
+        Guid runGuid = Guid.Parse("60606060-6060-6060-6060-606060606060");
+        string runId = runGuid.ToString("N");
+        int runLoadCount = 0;
+
+        RunRecord header = new()
+        {
+            RunId = runGuid,
+            TenantId = TestScope.TenantId,
+            WorkspaceId = TestScope.WorkspaceId,
+            ScopeProjectId = TestScope.ProjectId,
+            ProjectId = "default",
+            ArchitectureRequestId = "req-selective-audit",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
+            PinnedPolicyPackIdsJson = "[]",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = new();
+        ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
+        ownership
+            .Setup(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        ownership
+            .Setup(s => s.BeginRenewalScope(runGuid, It.IsAny<CancellationTokenSource>()))
+            .Returns(new RecordingRenewalScope());
+        ownership
+            .Setup(s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunRepository> runRepo = new();
+        runRepo
+            .Setup(r => r.GetByIdAsync(TestScope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                runLoadCount++;
+
+                return runLoadCount <= 5 ? header : null;
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IArchitectureRequestRepository> requestRepo = new();
+        requestRepo
+            .Setup(r => r.GetByIdAsync("req-selective-audit", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRequest
+            {
+                RequestId = "req-selective-audit",
+                Description = new string('x', 12),
+                SystemName = "SelectiveAudit",
+            });
+
+        Mock<IAgentTaskRepository> taskRepo = new();
+        taskRepo
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AgentTask { RunId = runId, AgentType = AgentType.Cost, TaskId = "cost-task-audit" },
+            ]);
+
+        Mock<IRequestContentSafetyPrecheck> safety = new();
+        safety
+            .Setup(s => s.EvaluateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("selective-audit-test");
+
+        Mock<IBaselineMutationAuditService> baselineAudit = new();
+        baselineAudit
+            .Setup(a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ArchitectureRunExecuteOrchestrator sut = ArchitectureRunExecuteOrchestratorTestFactory.Create(
+            runRepo.Object,
+            scopeProvider.Object,
+            requestRepo.Object,
+            taskRepo.Object,
+            Mock.Of<IAgentExecutor>(),
+            new ArchitectureRunExecuteOrchestratorCreateArgs
+            {
+                AgentEvaluationService = Mock.Of<IAgentEvaluationService>(),
+                AgentResultRepository = Mock.Of<IAgentResultRepository>(),
+                ActorContext = actor.Object,
+                BaselineMutationAuditService = baselineAudit.Object,
+                PostExecuteHooks = ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
+                    scopeContextProvider: scopeProvider.Object,
+                    runRepository: runRepo.Object),
+                RequestContentSafetyPrecheck = safety.Object,
+                AgentExecutionOptions = Options.Create(new AgentExecutionOptions()),
+                RunExecuteOwnershipLeaseService = ownership.Object,
+                Logger = NullLogger<ArchitectureRunExecuteOrchestrator>.Instance
+            });
+
+        Func<Task> act = () => sut.ExecuteSelectiveRunAsync(runId, new SelectiveAgentExecuteRequest { AgentTypes = ["Cost"] });
+
+        await act.Should().ThrowAsync<RunNotFoundException>();
+
+        ownership.Verify(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()), Times.Once);
+        ownership.Verify(s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()), Times.Once);
+
+        baselineAudit.Verify(
+            a => a.RecordAsync(
+                AuditEventTypes.Baseline.Architecture.RunFailed,
+                "selective-audit-test",
+                runId,
+                "Run not found.",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
     private sealed class RecordingRenewalScope : IAsyncDisposable
     {
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
