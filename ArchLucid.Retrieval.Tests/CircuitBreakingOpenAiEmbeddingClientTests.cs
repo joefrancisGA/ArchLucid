@@ -51,7 +51,7 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
     {
         Mock<IOpenAiEmbeddingClient> inner = new();
         inner.Setup(c => c.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new InvalidOperationException("API error"));
+            .ThrowsAsync(new HttpRequestException("provider unavailable"));
 
         CircuitBreakerOptions options = new()
         {
@@ -69,7 +69,7 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
 
         Func<Task> act = () => sut.EmbedAsync("x", CancellationToken.None);
 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().ThrowAsync<HttpRequestException>();
 
         clock.Advance(TimeSpan.FromSeconds(1));
         Func<Task> act2 = () => sut.EmbedAsync("y", CancellationToken.None);
@@ -152,6 +152,31 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
 
         result.Should().Equal(batch);
         calls.Should().Be(2);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Semantic_terminal_failure_does_not_trip_embedding_gate(bool batch)
+    {
+        Mock<IOpenAiEmbeddingClient> inner = new();
+        inner.Setup(c => c.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("invalid embedding payload"));
+        inner.Setup(c => c.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("invalid embedding payload"));
+        CircuitBreakerGate gate = new("embedding-semantic",
+            new CircuitBreakerOptions { FailureThreshold = 1, DurationOfBreakSeconds = 60 });
+        CircuitBreakingOpenAiEmbeddingClient sut = new(
+            inner.Object, gate, ResiliencePipeline.Empty,
+            NullLogger<CircuitBreakingOpenAiEmbeddingClient>.Instance);
+
+        Func<Task> run = batch
+            ? async () => await sut.EmbedManyAsync(["x"], CancellationToken.None)
+            : async () => await sut.EmbedAsync("x", CancellationToken.None);
+
+        await run.Should().ThrowAsync<InvalidOperationException>();
+        await run.Should().ThrowAsync<InvalidOperationException>();
+        gate.CurrentState.Should().Be("Closed");
     }
 
     private sealed class MutableUtcClock
