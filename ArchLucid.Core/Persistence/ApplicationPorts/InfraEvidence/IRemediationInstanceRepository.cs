@@ -185,12 +185,27 @@ public interface IRemediationInstanceRepository
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        (IReadOnlyList<RemediationInstanceRecord> items, _) =
-            await ListByCloudResourceIdPagedAsync(scope.TenantId, cloudResourceId, page, pageSize, cancellationToken);
-        IReadOnlyList<RemediationInstanceRecord> scoped = items
-            .Where(row => scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId))
+        ArgumentNullException.ThrowIfNull(scope);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // The legacy tenant-wide paged query cannot be filtered after paging:
+        // doing so produces incomplete pages and incorrect scoped totals.
+        // This compatibility fallback filters before paging; SQL repositories
+        // override it with a scoped COUNT and paged query pushed to SQL.
+        int safePage = Math.Max(1, page);
+        int safePageSize = Math.Clamp(pageSize, 1, 500);
+        IReadOnlyList<RemediationInstanceRecord> rows = await ListByScopeAsync(scope, cancellationToken);
+        List<RemediationInstanceRecord> filtered = rows
+            .Where(row => scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId)
+                && row.CloudResourceId == cloudResourceId)
+            .OrderByDescending(row => row.UpdatedUtc)
+            .ThenBy(row => row.InstanceId)
             .ToList();
-        return (scoped, scoped.Count);
+        long skip = ((long)safePage - 1) * safePageSize;
+        IReadOnlyList<RemediationInstanceRecord> items = skip >= filtered.Count
+            ? []
+            : filtered.Skip((int)skip).Take(safePageSize).ToList();
+        return (items, filtered.Count);
     }
 
     Task<IReadOnlyList<RemediationInstanceRecord>> ListByFindingIdAsync(
