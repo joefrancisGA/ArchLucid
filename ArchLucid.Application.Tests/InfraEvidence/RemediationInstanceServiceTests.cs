@@ -1180,6 +1180,22 @@ public sealed class RemediationInstanceServiceTests
             return Task.CompletedTask;
         }
 
+        public Task UpdateInstanceInScopeAsync(
+            ProjectScopeKey scope,
+            RemediationInstanceMutation mutation,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            int index = Instances.FindIndex(row =>
+                row.InstanceId == mutation.InstanceId
+                && scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId));
+            if (index < 0)
+                throw new InvalidOperationException("Scoped remediation instance was not found.");
+            Instances[index] = mutation.ApplyTo(Instances[index]);
+            return Task.CompletedTask;
+        }
+
+
         public Task CommitVerificationInScopeAsync(
             ProjectScopeKey scope,
             RemediationInstanceMutation mutation,
