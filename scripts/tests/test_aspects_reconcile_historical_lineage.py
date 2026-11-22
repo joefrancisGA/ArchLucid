@@ -99,6 +99,15 @@ class HistoricalLineageTests(unittest.TestCase):
         self.assertEqual(report["verified_unique_exact_path_blob_lines_in_window"], 1)
         self.assertEqual(report["excluded_or_unverified_review_rows"], 2)
 
+    def test_all_quarantined_rows_are_not_misreported_as_zero_loc(self):
+        row = {**self.event(7, self.old_head, self.old_blob, [[1, 1]]),
+               "pin_status": "path_or_commit_unavailable"}
+        report = self.reconcile([row])
+        self.assertEqual(report["status"],
+                         "no_verified_review_pins_on_this_first_parent_window")
+        self.assertNotIn("provisionally_mapped_unique_loc", report)
+        self.assertEqual(report["excluded_or_unverified_review_rows"], 1)
+
     def test_wrong_checkpoint_anchor_fails_closed(self):
         rows = [self.event(7, self.old_head, self.old_blob, [[1, 1]])]
         checkpoint = self.checkpoint()
