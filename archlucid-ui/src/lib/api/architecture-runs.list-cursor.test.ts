@@ -42,4 +42,24 @@ describe("listRuns keyset cursor", () => {
     expect(path).toContain("cursor=abc123");
     expect(path).toContain("take=10");
   });
+
+  it("trims padding around an opaque cursor token", async () => {
+    const apiGet = vi.spyOn(http, "apiGet").mockResolvedValue({ items: [], totalCount: 0 });
+
+    await listRunsInScopePaged(1, 20, { cursor: "  abc123  " });
+
+    const path = String(apiGet.mock.calls[0]?.[0] ?? "");
+    expect(path).toContain("cursor=abc123");
+    expect(path).not.toContain("cursor=%20");
+  });
+
+  it("treats whitespace-only cursor as empty first-page cursor", async () => {
+    const apiGet = vi.spyOn(http, "apiGet").mockResolvedValue({ items: [], totalCount: 0 });
+
+    await listRunsByProjectPaged("default", 1, 20, { cursor: "   " });
+
+    const path = String(apiGet.mock.calls[0]?.[0] ?? "");
+    expect(path).toMatch(/(?:^|[?&])cursor=(?:&|$)/);
+    expect(path).not.toMatch(/cursor=%20/);
+  });
 });

@@ -195,7 +195,7 @@ export function AuditEvidenceLookupClient() {
     const fields = fieldsFromDraft(draft);
     setAssessmentId(fields.assessmentId);
     setSnapshotId(fields.snapshotId);
-    setControlId(fields.controlId);
+    setControlId((current) => current || fields.controlId);
   }, []);
 
   useEffect(() => {

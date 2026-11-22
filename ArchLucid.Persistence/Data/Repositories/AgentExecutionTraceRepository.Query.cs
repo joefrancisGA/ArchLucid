@@ -111,11 +111,15 @@ public sealed partial class AgentExecutionTraceRepository
 
         List<AgentExecutionTracePageRow> list = rows.ToList();
 
+        // The window count is only present on returned rows.
+        if (list.Count == 0 && offset > 0)
+            return ([], await CountByRunIdOnConnectionAsync(connection, scope, runId, cancellationToken));
+
         IReadOnlyList<AgentExecutionTrace> traces = AgentExecutionTraceProjectionMapper.DeserializeTraces(
             list.Select(static row => row.TraceJson),
             $"run '{runId}' (paged)");
 
-        return (traces, ReadTotalCount(list, static row => row.TotalCount));
+        return (traces, list.Count > 0 ? list[0].TotalCount : 0);
     }
 
     /// <inheritdoc />
@@ -138,9 +142,10 @@ public sealed partial class AgentExecutionTraceRepository
 
         List<AgentExecutionTraceSummaryPageRow> list = rows.ToList();
 
-        return (
-            AgentExecutionTraceProjectionMapper.MapSummaries(list),
-            ReadTotalCount(list, static row => row.TotalCount));
+        if (list.Count == 0 && offset > 0)
+            return ([], await CountByRunIdOnConnectionAsync(connection, scope, runId, cancellationToken));
+
+        return (AgentExecutionTraceProjectionMapper.MapSummaries(list), list.Count > 0 ? list[0].TotalCount : 0);
     }
 
     /// <inheritdoc />
@@ -153,11 +158,15 @@ public sealed partial class AgentExecutionTraceRepository
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        return await connection.ExecuteScalarAsync<int>(new CommandDefinition(
+        return await CountByRunIdOnConnectionAsync(connection, scope, runId, cancellationToken);
+    }
+
+    private static Task<int> CountByRunIdOnConnectionAsync(
+        IDbConnection connection, ScopeContext scope, string runId, CancellationToken cancellationToken) =>
+        connection.ExecuteScalarAsync<int>(new CommandDefinition(
             AgentExecutionTraceQueryShapes.CountByRunId,
             AgentExecutionTraceQueryParameters.ForRun(scope, runId),
             cancellationToken: cancellationToken));
-    }
 
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(
         string taskId,
@@ -220,10 +229,4 @@ public sealed partial class AgentExecutionTraceRepository
 
         return AgentExecutionTraceProjectionMapper.GroupFallbackAgentTypes(rows, normalized);
     }
-
-    /// <summary>
-    ///     Reads the window-aggregate total repeated on every page row; an empty page means no matching rows at all.
-    /// </summary>
-    private static int ReadTotalCount<TRow>(List<TRow> page, Func<TRow, int> totalCountSelector) =>
-        page.Count > 0 ? totalCountSelector(page[0]) : 0;
 }

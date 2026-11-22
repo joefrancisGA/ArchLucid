@@ -71,6 +71,7 @@ type DashboardSectionsProps = {
   readonly surface: "operator" | "sponsor";
   readonly summary?: ReturnType<typeof useSponsorDashboardData>["summary"];
   readonly summaryLoading?: boolean;
+  readonly summaryWaitingForConnection?: boolean;
   readonly summaryError?: string | null;
   readonly driftPoints?: ReturnType<typeof useSponsorDashboardData>["driftPoints"];
   readonly driftLoading?: boolean;
@@ -84,6 +85,7 @@ function SponsorRoiDashboardPortfolioSections({
   surface,
   summary,
   summaryLoading,
+  summaryWaitingForConnection,
   summaryError,
   driftPoints,
   driftLoading,
@@ -191,7 +193,13 @@ function SponsorRoiDashboardPortfolioSections({
         />
       ) : null}
 
-      {summaryLoading ? <SponsorDashboardLoadingSkeleton /> : null}
+      {summaryLoading ? (
+        summaryWaitingForConnection ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
+            Waiting for a network connection to load portfolio ROI…
+          </p>
+        ) : <SponsorDashboardLoadingSkeleton />
+      ) : null}
 
       {!summaryLoading && dashboardEmpty ? (
         <>
@@ -279,6 +287,7 @@ function SponsorRoiDashboardPortfolioView({
   const {
     summary,
     summaryLoading,
+    summaryWaitingForConnection,
     summaryError,
     driftPoints,
     driftLoading,
@@ -307,6 +316,7 @@ function SponsorRoiDashboardPortfolioView({
       surface={surface}
       summary={summary}
       summaryLoading={summaryLoading}
+      summaryWaitingForConnection={summaryWaitingForConnection}
       summaryError={summaryError}
       driftPoints={driftPoints}
       driftLoading={driftLoading}

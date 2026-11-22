@@ -71,7 +71,13 @@ public sealed class ArchitectureRunProvenanceServiceTests
                     TaskId = "t1",
                     RunId = runId,
                     AgentType = AgentType.Topology,
-                    CreatedUtc = new DateTime(2026, 1, 1, 2, 0, 0, DateTimeKind.Utc)
+                    CreatedUtc = new DateTime(2026, 1, 1, 2, 0, 0, DateTimeKind.Utc),
+                    Findings =
+                    [
+                        new() { FindingId = "", Message = "First legacy finding" },
+                        new() { FindingId = "", Message = "Second legacy finding" },
+                        new() { FindingId = "stable", Message = "Identified finding" }
+                    ]
                 }
             ],
             Manifest = new GoldenManifest
@@ -139,6 +145,14 @@ public sealed class ArchitectureRunProvenanceServiceTests
         graph.Nodes.Should().Contain(n => n.Type == ArchitectureLinkageKinds.Nodes.AgentTask);
         graph.Nodes.Should().Contain(n => n.Type == ArchitectureLinkageKinds.Nodes.AgentResult);
         graph.Nodes.Should().Contain(n => n.Type == ArchitectureLinkageKinds.Nodes.ManifestVersion);
+        ArchitectureLinkageNode[] findingNodes = graph.Nodes
+            .Where(n => n.Type == ArchitectureLinkageKinds.Nodes.ArchitectureFinding)
+            .ToArray();
+        findingNodes.Select(n => n.Name).Should()
+            .BeEquivalentTo("First legacy finding", "Second legacy finding", "Identified finding");
+        findingNodes.Should().Contain(n => n.Id == "finding:res1:stable" && n.ReferenceId == "stable");
+        graph.Edges.Where(e => e.Type == ArchitectureLinkageKinds.Edges.ResultRaisedFinding)
+            .Select(e => e.ToNodeId).Should().BeEquivalentTo(findingNodes.Select(n => n.Id));
         graph.Timeline.Should().NotBeEmpty();
         graph.Timeline.Select(t => t.Kind).Should().Contain(ArchitectureLinkageKinds.Timeline.TraceEvent);
     }

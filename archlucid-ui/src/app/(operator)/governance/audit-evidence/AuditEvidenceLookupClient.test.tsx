@@ -2,11 +2,12 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 const pushMock = vi.fn();
+const searchParamsMock = vi.fn(() => new URLSearchParams());
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
   usePathname: () => "/governance/audit-evidence",
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => searchParamsMock(),
 }));
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
@@ -37,6 +38,26 @@ const VALID_SNAPSHOT = "22222222-2222-2222-2222-222222222222";
 const VALID_CONTROL = "33333333-3333-3333-3333-333333333333";
 
 describe("AuditEvidenceLookupClient (Working seat)", () => {
+  it("preserves a linked control ID while restoring other saved identifiers", () => {
+    window.localStorage.setItem(
+      AUDIT_EVIDENCE_LOOKUP_IDENTIFIER_DRAFT_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 1,
+        assessmentId: VALID_ASSESSMENT,
+        snapshotId: VALID_SNAPSHOT,
+        controlId: "AC-2",
+        updatedAtUtc: "2026-09-01T12:00:00Z",
+      }),
+    );
+    searchParamsMock.mockReturnValueOnce(new URLSearchParams({ controlId: VALID_CONTROL }));
+
+    render(<AuditEvidenceLookupClient />);
+
+    expect(screen.getByTestId("audit-evidence-assessment-id")).toHaveValue(VALID_ASSESSMENT);
+    expect(screen.getByTestId("audit-evidence-snapshot-id")).toHaveValue(VALID_SNAPSHOT);
+    expect(screen.getByTestId("audit-evidence-control-id")).toHaveValue(VALID_CONTROL);
+  });
+
   it("renders exactly one h1, short help trigger, scope chip, and Ctrl+Enter affordance", () => {
     render(<AuditEvidenceLookupClient />);
 

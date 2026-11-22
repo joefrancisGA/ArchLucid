@@ -1219,6 +1219,28 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_wrapper_chain_merges_transient_aggregate_with_deeper_mixed_aggregate()
+    {
+        int attempts = 0;
+        SqlException permanent = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        AggregateException deeperMixed = new(deadlock, permanent);
+        AggregateException shallowTransient = new(deadlock, SqlExceptionTestFactory.Create(1204));
+        SetInnerException(shallowTransient, deeperMixed);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new InvalidOperationException("parallel persist failed", shallowTransient);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_retries_when_top_level_aggregate_inner_is_nested_aggregate_with_only_transient_sql_inners()
     {
         int attempts = 0;

@@ -52,6 +52,16 @@ describe("infra-evidence-hub-filter-url", () => {
     ).toBe("/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111");
   });
 
+  it("strips run-scoped hub params when runId is cleared", () => {
+    const current =
+      "findingId=f-1&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222&diffId=diff-1";
+
+    expect(
+      resourceHubFilterHrefFromSearch("11111111-1111-1111-1111-111111111111", current, { runId: "" }),
+    ).toBe(
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+  });
   it("builds hub detail href with tab and audit lineage context", () => {
     expect(
       resourceHubFilterHrefFromSearch("11111111-1111-1111-1111-111111111111", "", {

@@ -1,6 +1,6 @@
 import { trimRequiredText, trimTextFields } from "./api-boundary-normalization";
 import { apiDelete, apiGet, apiPostJson } from "./http";
-import { optionalHostedRunId, toTier2HostedRunResult } from "./tier2-hosted-run-response";
+import { optionalHostedRunId, toTier2HostedRunResult, type Tier2HostedRunResult } from "./tier2-hosted-run-response";
 
 export interface GcpTier2ConnectionResponse {
   connectionId: string;
@@ -69,10 +69,7 @@ export interface GcpTier2HostedRunBody {
   runId?: string;
 }
 
-export interface GcpTier2HostedRunResponse {
-  packageId: string;
-  resourceCount: number;
-}
+export type GcpTier2HostedRunResponse = Tier2HostedRunResult;
 
 /** On-demand hosted Tier 2 GCP pull after connection save (202 Accepted on success). */
 export async function triggerGcpTier2HostedRun(

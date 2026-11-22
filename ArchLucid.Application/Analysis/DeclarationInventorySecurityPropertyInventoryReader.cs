@@ -38,6 +38,46 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             return true;
         }
 
+        if (logicalName == DeclarationSecurityPropertyLogicalNames.HttpsOnly
+            && cloudProvider is InventoryTopologyCloudProvider.Gcp
+            && TryReadNestedGcpIpConfigurationField(properties, "requireSsl", out string? nestedRequireSsl))
+        {
+            value = nestedRequireSsl;
+            return true;
+        }
+
+        if (logicalName == DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess
+            && cloudProvider is InventoryTopologyCloudProvider.Gcp
+            && TryReadNestedGcpIpConfigurationField(properties, "ipv4Enabled", out string? nestedIpv4Enabled))
+        {
+            value = nestedIpv4Enabled;
+            return true;
+        }
+
+        if (logicalName == DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess
+            && cloudProvider is InventoryTopologyCloudProvider.Gcp
+            && TryReadNestedGcpIpConfigurationField(properties, "enablePublicAccess", out string? nestedEnablePublicAccess))
+        {
+            value = nestedEnablePublicAccess;
+            return true;
+        }
+
+        if (logicalName == DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess
+            && cloudProvider is InventoryTopologyCloudProvider.Aws
+            && TryReadNestedAwsDbInstanceField(properties, "publiclyAccessible", out string? nestedPubliclyAccessible))
+        {
+            value = nestedPubliclyAccessible;
+            return true;
+        }
+
+        if (logicalName == DeclarationSecurityPropertyLogicalNames.StorageEncrypted
+            && cloudProvider is InventoryTopologyCloudProvider.Azure
+            && TryReadNestedAzureEncryptionBlobEnabled(properties, out string? nestedBlobEncryptionEnabled))
+        {
+            value = nestedBlobEncryptionEnabled;
+            return true;
+        }
+
         if (logicalName == DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess
             && cloudProvider is InventoryTopologyCloudProvider.Azure)
         {
@@ -168,6 +208,81 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             return false;
 
         return TryReadPropertyIgnoreCase(siteConfig, "minTlsVersion", out value);
+    }
+
+    private static bool TryReadNestedAwsDbInstanceField(
+        JsonElement properties,
+        string fieldName,
+        out string? value)
+    {
+        value = null;
+
+        if (properties.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        if (!TryGetPropertyIgnoreCase(properties, "DBInstance", out JsonElement dbInstance)
+            || dbInstance.ValueKind is not JsonValueKind.Object)
+        {
+            return false;
+        }
+
+        return TryReadPropertyIgnoreCase(dbInstance, fieldName, out value);
+    }
+
+    private static bool TryReadNestedAzureEncryptionBlobEnabled(JsonElement properties, out string? value)
+    {
+        value = null;
+
+        if (properties.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        if (!TryGetPropertyIgnoreCase(properties, "encryption", out JsonElement encryption)
+            || encryption.ValueKind is not JsonValueKind.Object)
+        {
+            return false;
+        }
+
+        if (!TryGetPropertyIgnoreCase(encryption, "services", out JsonElement services)
+            || services.ValueKind is not JsonValueKind.Object)
+        {
+            return false;
+        }
+
+        if (!TryGetPropertyIgnoreCase(services, "blob", out JsonElement blob)
+            || blob.ValueKind is not JsonValueKind.Object)
+        {
+            return false;
+        }
+
+        return TryReadPropertyIgnoreCase(blob, "enabled", out value);
+    }
+
+    private static bool TryReadNestedGcpIpConfigurationField(
+        JsonElement properties,
+        string fieldName,
+        out string? value)
+    {
+        value = null;
+
+        if (properties.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        if (TryGetPropertyIgnoreCase(properties, "settings", out JsonElement settings)
+            && settings.ValueKind is JsonValueKind.Object
+            && TryGetPropertyIgnoreCase(settings, "ipConfiguration", out JsonElement ipConfiguration)
+            && ipConfiguration.ValueKind is JsonValueKind.Object
+            && TryReadPropertyIgnoreCase(ipConfiguration, fieldName, out value))
+        {
+            return true;
+        }
+
+        if (TryGetPropertyIgnoreCase(properties, "ipConfiguration", out JsonElement flatIpConfiguration)
+            && flatIpConfiguration.ValueKind is JsonValueKind.Object)
+        {
+            return TryReadPropertyIgnoreCase(flatIpConfiguration, fieldName, out value);
+        }
+
+        return false;
     }
 
     private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)

@@ -36,6 +36,8 @@ public sealed class InMemoryPatternInsightAggregateRepository : IPatternInsightA
         int minimumContributingTenants,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IEnumerable<PatternInsightCard> query = SeedRows
             .Where(c => c.ContributingTenantCount >= minimumContributingTenants);
 

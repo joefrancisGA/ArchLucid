@@ -68,12 +68,13 @@ function AwsCloudConnectionHeaderStatus(): React.ReactElement {
     return <StatusTag kind="neutral" label="Not connected" data-testid="aws-connection-header-status" />;
   }
 
-  const primaryConnection = connections[0];
+  const displayedConnection =
+    connections.find((connection) => awsConnectionStatusTagKind(connection.status) === "blocked") ?? connections[0];
 
   return (
     <StatusTag
-      kind={awsConnectionStatusTagKind(primaryConnection.status)}
-      label={primaryConnection.status}
+      kind={awsConnectionStatusTagKind(displayedConnection.status)}
+      label={displayedConnection.status}
       data-testid="aws-connection-header-status"
     />
   );

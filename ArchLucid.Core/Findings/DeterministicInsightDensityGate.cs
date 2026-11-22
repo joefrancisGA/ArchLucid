@@ -98,10 +98,10 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
         (double duplicationSimilarity, InsightDensityGateCandidate? duplicationPeer) =
             InsightDensityTextSimilarityWithPeer.MaxPeerSimilarityWithPeer(
                 candidate.Message,
-                snapshotPeers,
+                snapshotPeers.Where(peer => IsDuplicationPeer(candidate, peer)).ToArray(),
                 candidate.CandidateKey);
 
-        bool applyDuplicationPenalty = ShouldApplyDuplicationPenalty(candidate, duplicationPeer);
+        bool applyDuplicationPenalty = duplicationPeer is not null;
 
         if (applyDuplicationPenalty && duplicationSimilarity >= _options.HighDuplicationSimilarityThreshold)
         {
@@ -160,15 +160,10 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
         };
     }
 
-    private static bool ShouldApplyDuplicationPenalty(
+    private static bool IsDuplicationPeer(
         InsightDensityGateCandidate candidate,
-        InsightDensityGateCandidate? duplicationPeer)
+        InsightDensityGateCandidate duplicationPeer)
     {
-        if (duplicationPeer is null)
-        {
-            return true;
-        }
-
         if (string.IsNullOrWhiteSpace(duplicationPeer.EngineType))
         {
             return true;

@@ -1,0 +1,41 @@
+name: Merge Protection
+# Lightweight, build-free PR and merge-queue gate.
+# Does not replace GitHub's required status checks until repository rules are updated.
+on:
+  pull_request:
+    branches: [main, master]
+  merge_group:
+    branches: [main, master]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  merge-protection:
+    name: Merge Protection
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify event and merge result
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.sha }}
+          PR_MERGEABLE: ${{ github.event.pull_request.mergeable }}
+          PR_DRAFT: ${{ github.event.pull_request.draft }}
+        run: |
+          set -euo pipefail
+          test -n "$HEAD_SHA"
+          case "$EVENT_NAME" in
+            pull_request)
+              if [[ "$PR_DRAFT" == "true" ]]; then
+                echo "Draft PR: not ready for merge" >&2
+                exit 1
+              fi
+              if [[ "$PR_MERGEABLE" == "false" ]]; then
+                echo "PR reports merge conflicts" >&2
+                exit 1
+              fi
+              ;;
+            merge_group|workflow_dispatch) ;;
+            *) echo "Unsupported event: $EVENT_NAME" >&2; exit 1 ;;
+          esac
+          echo "Merge Protection lightweight gate passed"

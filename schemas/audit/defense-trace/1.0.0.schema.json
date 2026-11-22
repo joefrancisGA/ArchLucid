@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.archlucid.com/audit/defense-trace/1.0.0.json",
+  "title": "FND-009 Defense Workflow Audit Correlation v1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "traceEventId",
+    "tenantId",
+    "correlationId",
+    "occurredAt",
+    "stage",
+    "actor",
+    "subjectRefs",
+    "auditEventRef",
+    "previousTraceEventRefs"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "traceEventId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "correlationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "stage": {
+      "enum": [
+        "finding-discovered",
+        "evidence-recorded",
+        "remediation-proposed",
+        "approval-recorded",
+        "execution-recorded",
+        "verification-recorded"
+      ]
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "reference"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "human",
+            "service"
+          ]
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "subjectRefs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "auditEventRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "previousTraceEventRefs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      }
+    },
+    "workspaceId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "projectId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "runId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "decision": {
+      "enum": [
+        "approved",
+        "denied",
+        "expired",
+        "revoked"
+      ]
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "approval-recorded"
+          }
+        },
+        "required": [
+          "stage"
+        ]
+      },
+      "then": {
+        "required": [
+          "decision"
+        ]
+      }
+    }
+  ]
+}

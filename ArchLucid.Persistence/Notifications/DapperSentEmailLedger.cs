@@ -56,7 +56,8 @@ public sealed class DapperSentEmailLedger(ISqlConnectionFactory connectionFactor
                            WHERE NOT EXISTS (
                                SELECT 1
                                FROM dbo.SentEmails e WITH (UPDLOCK, HOLDLOCK)
-                               WHERE e.IdempotencyKey = @IdempotencyKey);
+                               WHERE e.IdempotencyKey = @IdempotencyKey
+                                 AND e.TenantId = @TenantId);
 
                            SELECT @@ROWCOUNT;
                            """;

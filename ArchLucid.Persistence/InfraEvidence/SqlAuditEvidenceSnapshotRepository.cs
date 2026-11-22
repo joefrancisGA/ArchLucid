@@ -669,8 +669,8 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
             AssessmentId = row.AssessmentId,
             TenantId = row.TenantId,
             SubscriptionIds = subscriptionIds,
-            CollectionStartedUtc = row.CollectionStartedUtc,
-            CollectionCompletedUtc = row.CollectionCompletedUtc,
+            CollectionStartedUtc = DateTime.SpecifyKind(row.CollectionStartedUtc, DateTimeKind.Utc),
+            CollectionCompletedUtc = DateTime.SpecifyKind(row.CollectionCompletedUtc, DateTimeKind.Utc),
             SelectorVersionsJson = row.SelectorVersionsJson,
             FrameworkVersion = row.FrameworkVersion,
             ControlCatalogVersion = row.ControlCatalogVersion,
@@ -679,7 +679,7 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
             Warnings = warnings,
             EvidenceHashSha256 = row.EvidenceHashSha256,
             InventorySnapshotIds = inventorySnapshotIds,
-            CreatedUtc = row.CreatedUtc,
+            CreatedUtc = DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
         };
     }
 
@@ -693,7 +693,7 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
             CloudResourceId = row.CloudResourceId,
             AzureResourceId = row.AzureResourceId,
             EvidenceType = row.EvidenceType,
-            CollectedUtc = row.CollectedUtc,
+            CollectedUtc = DateTime.SpecifyKind(row.CollectedUtc, DateTimeKind.Utc),
             CollectorVersion = row.CollectorVersion,
             NormalizedPointer = row.NormalizedPointer,
             RawPointer = row.RawPointer,

@@ -1,4 +1,6 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { act, fireEvent, render as renderWithProviders, screen, waitFor } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CommandPalette, palettePressUsesPaletteModifier } from "@/components/CommandPalette";
@@ -6,6 +8,8 @@ import {
   COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
   COMMAND_PALETTE_DISPLAY_SHORTCUT,
 } from "@/lib/keyboard-shortcut-display";
+
+import { requestCommandPaletteOpen } from "@/lib/command-palette-open-intent";
 
 const mockPush = vi.fn();
 const mockReplace = vi.fn();
@@ -25,6 +29,23 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/",
   useSearchParams: () => new URLSearchParams(),
 }));
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const workspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => workspace,
+    useWorkspaceModeOrDefault: () => workspace.mode,
+  };
+});
 
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({
   useWorkspaceActiveRun: () => null,
@@ -58,6 +79,11 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
 vi.mock("@/lib/operator/operator-static-demo", () => ({
   isStaticDemoPayloadFallbackEnabled: () => false,
 }));
+
+function render(palette: ReactElement) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return renderWithProviders(<QueryClientProvider client={client}>{palette}</QueryClientProvider>);
+}
 
 describe("CommandPalette", () => {
   beforeAll(() => {
@@ -122,6 +148,19 @@ describe("CommandPalette", () => {
     await waitFor(() => {
       expect(commitHrefIfChanged).not.toHaveBeenCalled();
     });
+  });
+
+  it("does not reopen a dismissed palette when it remounts after an open request", () => {
+    const mounted = render(<CommandPalette />);
+    act(() => requestCommandPaletteOpen("architecture"));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: "k", ctrlKey: true, bubbles: true });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    mounted.unmount();
+
+    render(<CommandPalette />);
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   it("toggles the dialog on Ctrl+K", () => {

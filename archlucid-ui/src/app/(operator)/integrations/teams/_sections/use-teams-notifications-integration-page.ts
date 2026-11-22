@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -97,7 +97,13 @@ export function useTeamsNotificationsIntegrationPage(
 
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(liveSeed?.failure ?? null);
   const [conn, setConn] = useState<TeamsIncomingWebhookConnectionResponse | null>(liveSeed?.conn ?? null);
-  const [secretName, setSecretName] = useState(liveSeed?.form.secretName ?? "");
+  const [secretName, setSecretNameState] = useState(liveSeed?.form.secretName ?? "");
+  const currentSecretNameRef = useRef(secretName);
+  const setSecretName = useCallback((value: SetStateAction<string>): void => {
+    const next = typeof value === "function" ? value(currentSecretNameRef.current) : value;
+    currentSecretNameRef.current = next;
+    setSecretNameState(next);
+  }, []);
   const [label, setLabel] = useState(liveSeed?.form.label ?? "");
   const [catalog, setCatalog] = useState<string[]>(liveSeed?.catalog ?? []);
   const [enabledTriggers, setEnabledTriggers] = useState<Set<string>>(
@@ -181,7 +187,7 @@ export function useTeamsNotificationsIntegrationPage(
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [setSecretName]);
 
   useEffect(() => {
     if (isDemo) {
@@ -244,15 +250,21 @@ export function useTeamsNotificationsIntegrationPage(
 
     setValidating(true);
     setSecretValidation(null);
+    const requestedSecretName = secretName.trim();
 
     try {
-      const response = await validateTeamsIncomingWebhookSecret(secretName.trim());
-      setSecretValidation(mapTeamsSecretValidationApiOutcome(response.outcome));
+      const response = await validateTeamsIncomingWebhookSecret(requestedSecretName);
+
+      if (currentSecretNameRef.current.trim() === requestedSecretName) {
+        setSecretValidation(mapTeamsSecretValidationApiOutcome(response.outcome));
+      }
     } catch {
-      setSecretValidation({
-        outcome: "permission-denied",
-        message: TEAMS_INTEGRATION_SECRET_ACCESS_FAILURE_MESSAGE,
-      });
+      if (currentSecretNameRef.current.trim() === requestedSecretName) {
+        setSecretValidation({
+          outcome: "permission-denied",
+          message: TEAMS_INTEGRATION_SECRET_ACCESS_FAILURE_MESSAGE,
+        });
+      }
     } finally {
       setValidating(false);
     }
@@ -266,9 +278,15 @@ export function useTeamsNotificationsIntegrationPage(
     setTesting(true);
     setTestMessage(null);
     setTestKind(null);
+    const requestedSecretName = secretName.trim();
 
     try {
-      const response = await testTeamsIncomingWebhookConnection(secretName.trim());
+      const response = await testTeamsIncomingWebhookConnection(requestedSecretName);
+
+      if (currentSecretNameRef.current.trim() !== requestedSecretName) {
+        return;
+      }
+
       const success = response.delivered === true;
 
       setTestKind(success ? "success" : "error");
@@ -278,8 +296,10 @@ export function useTeamsNotificationsIntegrationPage(
         setLastTestMessage(TEAMS_INTEGRATION_TEST_SUCCESS);
       }
     } catch {
-      setTestKind("error");
-      setTestMessage(TEAMS_INTEGRATION_TEST_FAILURE);
+      if (currentSecretNameRef.current.trim() === requestedSecretName) {
+        setTestKind("error");
+        setTestMessage(TEAMS_INTEGRATION_TEST_FAILURE);
+      }
     } finally {
       setTesting(false);
     }
@@ -389,7 +409,7 @@ export function useTeamsNotificationsIntegrationPage(
     } finally {
       setSaving(false);
     }
-  }, [canMutate, load]);
+  }, [canMutate, load, setSecretName]);
 
   return {
     isDemo,

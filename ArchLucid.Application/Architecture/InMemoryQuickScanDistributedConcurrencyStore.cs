@@ -22,6 +22,7 @@ public sealed class InMemoryQuickScanDistributedConcurrencyStore : IQuickScanDis
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+        cancellationToken.ThrowIfCancellationRequested();
 
         lock (_sync)
         {
@@ -75,6 +76,7 @@ public sealed class InMemoryQuickScanDistributedConcurrencyStore : IQuickScanDis
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+        cancellationToken.ThrowIfCancellationRequested();
 
         lock (_sync)
         {

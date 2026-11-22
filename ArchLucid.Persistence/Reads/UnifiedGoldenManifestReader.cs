@@ -107,7 +107,7 @@ public sealed class UnifiedGoldenManifestReader(
 
         ArchLucid.Core.Manifest.ManifestDocument? authorityByVersion =
             await _authorityGoldenManifests
-                .GetByContractManifestVersionAsync(scope, manifestVersionKey, cancellationToken)
+                .GetByRunAndContractManifestVersionAsync(scope, runId, manifestVersionKey, cancellationToken)
                 .ConfigureAwait(false);
 
         if (authorityByVersion is null)
@@ -121,28 +121,17 @@ public sealed class UnifiedGoldenManifestReader(
             .ConfigureAwait(false);
     }
 
-    private async Task<string> ResolveSystemNameAsync(RunRecord run, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(run.ArchitectureRequestId))
-            return !string.IsNullOrWhiteSpace(run.ProjectId) ? run.ProjectId : "Unknown";
-
-        ArchitectureRequest? request =
-            await _requestRepository.GetByIdAsync(run.ArchitectureRequestId, cancellationToken);
-
-        if (request is not null && !string.IsNullOrWhiteSpace(request.SystemName))
-            return request.SystemName;
-
-        return !string.IsNullOrWhiteSpace(run.ProjectId) ? run.ProjectId : "Unknown";
-    }
-
     private async Task<AuthorityCommitProjectionInput> BuildProjectionInputAsync(
         RunRecord run,
         CancellationToken cancellationToken)
     {
-        string systemName = await ResolveSystemNameAsync(run, cancellationToken).ConfigureAwait(false);
         ArchitectureRequest? request = string.IsNullOrWhiteSpace(run.ArchitectureRequestId)
             ? null
             : await _requestRepository.GetByIdAsync(run.ArchitectureRequestId, cancellationToken).ConfigureAwait(false);
+
+        string systemName = request is not null && !string.IsNullOrWhiteSpace(request.SystemName)
+            ? request.SystemName
+            : !string.IsNullOrWhiteSpace(run.ProjectId) ? run.ProjectId : "Unknown";
 
         return new AuthorityCommitProjectionInput
         {

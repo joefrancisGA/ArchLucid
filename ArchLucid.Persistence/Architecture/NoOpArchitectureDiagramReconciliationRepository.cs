@@ -7,7 +7,7 @@ public sealed class NoOpArchitectureDiagramReconciliationRepository : IArchitect
     public Task UpsertAsync(ArchitectureDiagramReconciliationPersistRecord record, CancellationToken cancellationToken = default)
     {
         _ = record;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
         return Task.CompletedTask;
     }
 
@@ -20,7 +20,7 @@ public sealed class NoOpArchitectureDiagramReconciliationRepository : IArchitect
         _ = tenantId;
         _ = runId;
         _ = snapshotId;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
         return Task.FromResult<ArchitectureDiagramReconciliationPersistRecord?>(null);
     }
 
@@ -31,7 +31,7 @@ public sealed class NoOpArchitectureDiagramReconciliationRepository : IArchitect
     {
         _ = tenantId;
         _ = snapshotId;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult<IReadOnlyList<Guid>>([]);
     }
@@ -43,7 +43,7 @@ public sealed class NoOpArchitectureDiagramReconciliationRepository : IArchitect
     {
         _ = tenantId;
         _ = snapshotId;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult<IReadOnlyList<ArchitectureDiagramReconciliationPersistRecord>>([]);
     }
@@ -55,7 +55,7 @@ public sealed class NoOpArchitectureDiagramReconciliationRepository : IArchitect
     {
         _ = tenantId;
         _ = snapshotIds;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult<IReadOnlyList<ArchitectureDiagramReconciliationSnapshotRunRecord>>([]);
     }

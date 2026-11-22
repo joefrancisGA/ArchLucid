@@ -18,6 +18,7 @@ import {
   parseStandardsRulesFrameworkFromSearch,
   parseStandardsRulesPackFromSearch,
   standardsRulesClearSearchHrefFromSearch,
+  standardsRulesResetFiltersHrefFromSearch,
   standardsRulesSearchHrefFromSearch,
 } from "@/lib/governance/standards-rules-filters-url";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
@@ -67,9 +68,13 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
 
   useEffect(() => {
+    setFiltersState((current) => ({ ...current, searchQuery: urlSearchQuery }));
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
+
+  useEffect(() => {
     setFiltersState((current) => ({
       ...current,
-      searchQuery: urlSearchQuery,
       severity: urlSeverity,
       linkedFindings: urlLinkedFindings,
       evidenceCoverage: urlEvidenceCoverage,
@@ -77,8 +82,7 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
       standardFramework: urlFramework,
       sourcePolicyPack: urlPack,
     }));
-    setSearchQuery(urlSearchQuery);
-  }, [urlEnforcement, urlEvidenceCoverage, urlFramework, urlLinkedFindings, urlPack, urlSearchQuery, urlSeverity]);
+  }, [urlEnforcement, urlEvidenceCoverage, urlFramework, urlLinkedFindings, urlPack, urlSeverity]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -109,6 +113,12 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
   const clearSearch = useCallback(() => {
     setSearchQuery("");
     router.replace(standardsRulesClearSearchHrefFromSearch(currentSearch, pathname), { scroll: false });
+  }, [currentSearch, pathname, router]);
+
+  const resetFilters = useCallback(() => {
+    setFiltersState(EMPTY_STANDARDS_RULES_FILTER_STATE);
+    setSearchQuery("");
+    router.replace(standardsRulesResetFiltersHrefFromSearch(currentSearch, pathname), { scroll: false });
   }, [currentSearch, pathname, router]);
 
   const onPickRun = useCallback(
@@ -193,6 +203,7 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
     searchQuery,
     setSearchQuery,
     clearSearch,
+    resetFilters,
     onPickRun,
     allRuleRows,
     filteredRuleRows,

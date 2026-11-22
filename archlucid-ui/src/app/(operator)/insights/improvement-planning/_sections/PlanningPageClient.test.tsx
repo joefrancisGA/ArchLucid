@@ -99,6 +99,36 @@ describe("PlanningPageClient", () => {
     routerReplace.mockClear();
   });
 
+  const selectionsWithoutAuthoritativeThemeLists: [string, PlanningPageServerLoadResult][] = [
+    ["a failed request", {
+      ...loaded,
+      summary: null,
+      themes: [],
+      failure: {
+        message: "Temporarily unavailable",
+        problem: null,
+        correlationId: null,
+        httpStatus: 503,
+        retryAfterSeconds: null,
+      },
+    }],
+    ["a static demo fallback", { ...loaded, usedPlanningDemoFallback: true }],
+    ["a capped theme list", { ...loaded, summary: { ...summary, themeCount: 51 } }],
+  ];
+
+  it.each(selectionsWithoutAuthoritativeThemeLists)("keeps the saved theme after %s", (_, result) => {
+    searchParamsState.query = "theme=saved-theme";
+
+    render(
+      <SearchParamsHost>
+        <PlanningPageClient loaded={result} />
+      </SearchParamsHost>,
+    );
+
+    expect(routerReplace).not.toHaveBeenCalled();
+    expect(screen.getByTestId("planning-selected-theme-id")).toHaveTextContent("saved-theme");
+  });
+
   it("clears stale theme from the URL when the theme is missing from loaded themes", async () => {
     searchParamsState.query = "theme=theme-missing";
 

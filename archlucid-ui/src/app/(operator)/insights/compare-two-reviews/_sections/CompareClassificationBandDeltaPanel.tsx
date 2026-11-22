@@ -4,10 +4,13 @@ import { cn } from "@/lib/utils";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { CompareClassificationBandDeltaView } from "@/lib/review-quality/compare-classification-band-delta";
+import { COMPARE_CLASSIFICATION_BAND_ZERO_COUNTS_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-classification-band-zero-counts-one-unsealed-not-load-failure-copy";
+import { CompareClassificationBandZeroCountsOneUnsealedPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareClassificationBandZeroCountsOneUnsealedPartialHonesty";
 
 export type CompareClassificationBandDeltaPanelProps = {
   readonly view: CompareClassificationBandDeltaView | null;
   readonly loading?: boolean;
+  readonly showZeroCountsUnsealedHonesty?: boolean;
 };
 
 /** Compare-two-reviews decision-grade vs checklist counts — inspectable stratification, not a score. */
@@ -28,7 +31,22 @@ export function CompareClassificationBandDeltaPanel(
   }
 
   if (props.view === null) {
-    return null;
+    if (!props.showZeroCountsUnsealedHonesty) {
+      return null;
+    }
+    return (
+      <section
+        className="rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-950"
+        data-testid="compare-classification-band-zero-counts-one-unsealed"
+      >
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {COMPARE_CLASSIFICATION_BAND_ZERO_COUNTS_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE}
+        </p>
+        <div className="mt-2">
+          <CompareClassificationBandZeroCountsOneUnsealedPartialHonesty />
+        </div>
+      </section>
+    );
   }
 
   const { baseline, target } = props.view;

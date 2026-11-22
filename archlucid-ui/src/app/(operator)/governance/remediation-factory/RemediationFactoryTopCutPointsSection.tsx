@@ -178,8 +178,9 @@ export function RemediationFactoryTopCutPointsSection(props: {
                     data-testid={`remediation-factory-cut-point-collapsed-chips-${cutPoint.cutPointId}`}
                   >
                     {cutPoint.collapsedPathIds.map((pathId) => (
-                      <span key={pathId} className={cn("font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)} title={pathId}>
+                      <span key={pathId} className={cn("inline-flex items-center gap-1 break-all font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
                         {formatAttackPathReportPathChipLabel(pathId)}
+                        <CopyIdButton value={pathId} aria-label="Copy full path ID for this cut point" />
                       </span>
                     ))}
                   </div>

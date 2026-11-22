@@ -92,6 +92,42 @@ public sealed class SecureNowInvestigationEffortInputServiceTests
     }
 
     [Fact]
+    public async Task TryGetLatestAsync_skips_non_object_payloads_and_uses_the_audit_timestamp()
+    {
+        InMemoryAuditRepository auditRepository = new();
+        SecureNowInvestigationEffortInputService sut = CreateSut(auditRepository);
+        DateTime occurredUtc = new(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc);
+
+        await auditRepository.AppendAsync(new AuditEvent
+        {
+            EventType = AuditEventTypes.SecureNowInvestigationEffortInputsRecorded,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            OccurredUtc = occurredUtc,
+            DataJson = """
+                {"baselineHours":"5","afterHours":"3","annualInvestigations":"10","hourlyRate":"80","annualCost":"5000","recordedUtc":42}
+                """,
+        }, CancellationToken.None);
+        await auditRepository.AppendAsync(new AuditEvent
+        {
+            EventType = AuditEventTypes.SecureNowInvestigationEffortInputsRecorded,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            OccurredUtc = occurredUtc.AddMinutes(1),
+            DataJson = "[]",
+        }, CancellationToken.None);
+
+        SecureNowInvestigationEffortInputsResponse? latest =
+            await sut.TryGetLatestAsync(CreateScope(), CancellationToken.None);
+
+        latest.Should().NotBeNull();
+        latest!.BaselineHours.Should().Be("5");
+        latest.RecordedUtc.Should().Be(occurredUtc);
+    }
+
+    [Fact]
     public async Task SaveAsync_does_not_report_success_when_required_audit_write_fails()
     {
         Mock<IAuditService> auditService = new();

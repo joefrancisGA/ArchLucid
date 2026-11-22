@@ -20,6 +20,8 @@ public sealed partial class InMemoryProductLearningPlanningRepository : IProduct
 
     public Task InsertThemeAsync(ProductLearningImprovementThemeRecord theme, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPlanningRepositoryValidation.EnsureTheme(theme);
 
         string status = ProductLearningPlanningRepositoryValidation.NormalizeThemeStatus(theme.Status);
@@ -67,6 +69,8 @@ public sealed partial class InMemoryProductLearningPlanningRepository : IProduct
         ProductLearningScope scope,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
 
         ProductLearningImprovementThemeRecord? found = _themes.FirstOrDefault(t =>
@@ -83,6 +87,8 @@ public sealed partial class InMemoryProductLearningPlanningRepository : IProduct
         int take,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
         ProductLearningPlanningRepositoryValidation.EnsureTake(take);
 

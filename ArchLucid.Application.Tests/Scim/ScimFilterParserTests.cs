@@ -216,4 +216,13 @@ public sealed class ScimFilterParserTests
         Action act = () => ScimFilterParser.Parse(@"userName eq ""a"" junk");
         act.Should().Throw<ScimFilterParseException>();
     }
+
+    [SkippableTheory]
+    [InlineData("userName eqfoo")]
+    [InlineData("userName eq\"foo\"")]
+    public void Parse_compare_operator_without_required_separator_throws(string filter)
+    {
+        Action act = () => ScimFilterParser.Parse(filter);
+        act.Should().Throw<ScimFilterParseException>();
+    }
 }

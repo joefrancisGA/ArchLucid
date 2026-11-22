@@ -10,6 +10,7 @@ public sealed class InMemoryTenantAiBudgetPolicyRepository : ITenantAiBudgetPoli
 
     public Task<TenantAiBudgetPolicyRow?> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         _rows.TryGetValue(tenantId, out TenantAiBudgetPolicyRow? row);
 
         return Task.FromResult(row);
@@ -21,6 +22,7 @@ public sealed class InMemoryTenantAiBudgetPolicyRepository : ITenantAiBudgetPoli
         DateTimeOffset trialExpirationUtc,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         TenantAiBudgetPolicyRow policy = new()
         {
             TenantId = tenantId,

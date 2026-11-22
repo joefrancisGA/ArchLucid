@@ -18,12 +18,19 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            _items.RemoveAll(x =>
+            RecommendationRecord updated = Copy(recommendation);
+            int existingIndex = _items.FindIndex(x =>
                 x.RecommendationId == recommendation.RecommendationId && SameScope(x, recommendation));
+            if (existingIndex >= 0)
+            {
+                updated.CreatedUtc = _items[existingIndex].CreatedUtc;
+                _items.RemoveAt(existingIndex);
+            }
+
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 
-            _items.Add(Copy(recommendation));
+            _items.Add(updated);
         }
 
         return Task.CompletedTask;

@@ -1,3 +1,4 @@
+using System.Data.SqlTypes;
 
 using ArchLucid.Core.Scoping;
 
@@ -18,7 +19,12 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
         ArgumentNullException.ThrowIfNull(attempt);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
+            if (_items.Exists(item => item.AttemptId == attempt.AttemptId))
+                throw new InvalidOperationException($"The digest delivery attempt '{attempt.AttemptId}' already exists.");
+
             _items.Add(Copy(attempt));
+        }
         return Task.CompletedTask;
     }
 
@@ -52,6 +58,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
             List<DigestDeliveryAttempt> result = _items
                 .Where(x => x.DigestId == digestId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
+                .ThenByDescending(x => new SqlGuid(x.AttemptId))
                 .Take(ListByDigestCap)
                 .Select(Copy)
                 .ToList();
@@ -84,8 +91,11 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
                     x.WorkspaceId == workspaceId &&
                     x.ProjectId == projectId)
                 .GroupBy(x => x.DigestId)
-                .SelectMany(static g => g.OrderByDescending(x => x.AttemptedUtc).Take(ListByDigestCap))
+                .SelectMany(static g => g.OrderByDescending(x => x.AttemptedUtc)
+                    .ThenByDescending(x => new SqlGuid(x.AttemptId))
+                    .Take(ListByDigestCap))
                 .OrderByDescending(x => x.AttemptedUtc)
+                .ThenByDescending(x => new SqlGuid(x.AttemptId))
                 .Select(Copy)
                 .ToList();
 
@@ -106,6 +116,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
             List<DigestDeliveryAttempt> result = _items
                 .Where(x => x.SubscriptionId == subscriptionId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
+                .ThenByDescending(x => new SqlGuid(x.AttemptId))
                 .Take(Math.Clamp(take, 1, 200))
                 .Select(Copy)
                 .ToList();

@@ -54,7 +54,7 @@ public sealed class LlmWalletSettlementHostedService(
                     await walletService.TryAutoRefillAsync(item.TenantId, item.CorrelationId, stoppingToken).ConfigureAwait(false);
                 }
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            catch (Exception ex) when (ex is not OperationCanceledException || !stoppingToken.IsCancellationRequested)
             {
                 logger.LogError(
                     ex,

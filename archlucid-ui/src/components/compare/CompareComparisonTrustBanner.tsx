@@ -15,11 +15,14 @@ import {
 } from "@/lib/compare/compare-trust-caveats-disclosure-url";
 import type { FindingSeverityKind } from "@/lib/design-tokens";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { COMPARE_TRUST_BANNER_CURRENT_EFFECTIVE_UNSEALED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-trust-banner-current-effective-unsealed-not-load-failure-copy";
+import { CompareTrustBannerCurrentEffectiveUnsealedPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareTrustBannerCurrentEffectiveUnsealedPartialHonesty";
 
 export type CompareComparisonTrustBannerProps = {
   readonly executionModeHonesty: CompareExecutionModeHonesty | null;
   readonly usesCurrentEffectiveOnly: boolean;
   readonly hasAiNarrative: boolean;
+  readonly compareIncludesUnsealedReview?: boolean;
 };
 
 const SEVERITY_RANK: Record<FindingSeverityKind, number> = {
@@ -107,6 +110,14 @@ export function CompareComparisonTrustBanner(props: CompareComparisonTrustBanner
           </p>
         </div>
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{only.detail}</p>
+        {props.usesCurrentEffectiveOnly && props.compareIncludesUnsealedReview === true ? (
+          <div className="mt-2">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-trust-banner-current-effective-unsealed-not-load-failure">
+              {COMPARE_TRUST_BANNER_CURRENT_EFFECTIVE_UNSEALED_NOT_LOAD_FAILURE_LINE}
+            </p>
+            <CompareTrustBannerCurrentEffectiveUnsealedPartialHonesty />
+          </div>
+        ) : null}
       </section>
     );
   }
@@ -128,6 +139,15 @@ export function CompareComparisonTrustBanner(props: CompareComparisonTrustBanner
         <ul className="m-0 mt-2 list-none space-y-3 p-0" data-testid="compare-trust-visible-items">
           {alwaysVisibleItems.map((item) => renderTrustItem(item))}
         </ul>
+      ) : null}
+
+      {props.usesCurrentEffectiveOnly && props.compareIncludesUnsealedReview === true ? (
+        <div className="mt-2">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-trust-banner-current-effective-unsealed-not-load-failure">
+            {COMPARE_TRUST_BANNER_CURRENT_EFFECTIVE_UNSEALED_NOT_LOAD_FAILURE_LINE}
+          </p>
+          <CompareTrustBannerCurrentEffectiveUnsealedPartialHonesty />
+        </div>
       ) : null}
 
       {collapsibleItems.length > 0 ? (

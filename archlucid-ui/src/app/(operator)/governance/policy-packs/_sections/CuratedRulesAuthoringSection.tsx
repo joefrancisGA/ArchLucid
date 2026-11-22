@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { usePolicyPacksHubPath } from "@/lib/product-line/use-policy-packs-hub-path";
-import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -91,22 +91,18 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
   );
 
   const setDialogOpen = useCallback(
-    (value: SetStateAction<boolean>) => {
-      setDialogOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
+    (open: boolean) => {
+      setDialogOpenState(open);
 
-        if (!next) {
-          syncCuratedRuleEditToUrl(null);
-        } else if (editIndex !== null) {
-          const row = curatedDoc.rules[editIndex];
+      if (!open) {
+        syncCuratedRuleEditToUrl(null);
+      } else if (editIndex !== null) {
+        const row = curatedDoc.rules[editIndex];
 
-          if (row !== undefined && row.id.trim().length > 0) {
-            syncCuratedRuleEditToUrl(row.id);
-          }
+        if (row !== undefined && row.id.trim().length > 0) {
+          syncCuratedRuleEditToUrl(row.id);
         }
-
-        return next;
-      });
+      }
     },
     [curatedDoc.rules, editIndex, syncCuratedRuleEditToUrl],
   );

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import { countArchitectureDraftsReadyForReview } from "@/lib/architecture/architecture-draft-ready-for-review";
+import { filterArchitectureDraftsEligibleToStartReview } from "@/lib/architecture/architecture-draft-ready-for-review";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import {
@@ -121,8 +121,9 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
   const { productLine } = useProductLine();
   const { summary } = props;
   const draftEntries = useArchitectureDraftRegistryEntries();
-  const draftsReady = countArchitectureDraftsReadyForReview(draftEntries);
-  const draftPrimary = resolveReviewsHubHeaderPrimary(draftEntries);
+  const readyDraftEntries = filterArchitectureDraftsEligibleToStartReview(draftEntries);
+  const draftsReady = readyDraftEntries.length;
+  const draftPrimary = resolveReviewsHubHeaderPrimary(readyDraftEntries);
   const attentionMetricsAllZero =
     summary.findings === 0 && summary.openRisks === 0 && summary.readyForGovernance === 0;
 
@@ -182,7 +183,7 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
           ? draftPrimary.href
           : undefined,
       onClick:
-        draftsReady > 0 && shouldShowReviewsHubResumeDrafts(draftEntries.length)
+        draftsReady > 0 && shouldShowReviewsHubResumeDrafts(readyDraftEntries.length)
           ? scrollToReadyForReviewSection
           : undefined,
       testId: "reviews-hub-summary-ready-for-review",

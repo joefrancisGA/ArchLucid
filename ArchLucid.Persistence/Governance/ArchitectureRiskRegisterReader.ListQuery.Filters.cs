@@ -13,7 +13,7 @@ public sealed partial class ArchitectureRiskRegisterReader
         return $"""
                 ;WITH latestDisposition AS (
                     SELECT FindingId, ProjectId, Disposition, RevisitDueUtc, EvidenceRequestText, OccurredAtUtc, ReviewerUserId,
-                           ROW_NUMBER() OVER (PARTITION BY FindingId, ProjectId ORDER BY OccurredAtUtc DESC) AS rn
+                           ROW_NUMBER() OVER (PARTITION BY FindingId, ProjectId ORDER BY OccurredAtUtc DESC, EventId DESC) AS rn
                     FROM dbo.FindingReviewEvents
                     WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND Disposition IS NOT NULL
                 )
@@ -33,7 +33,12 @@ public sealed partial class ArchitectureRiskRegisterReader
                        ld.EvidenceRequestText,
                        ld.OccurredAtUtc AS LastReviewedUtc,
                        ld.ReviewerUserId AS OwnerUserId,
-                       re.ExpiresAtUtc AS WaiverExpiresAtUtc,
+                       (SELECT MAX(re.ExpiresAtUtc)
+                        FROM dbo.RiskExceptions AS re
+                        WHERE re.TenantId = fr.TenantId
+                          AND re.WorkspaceId = fr.WorkspaceId
+                          AND re.FindingId = fr.FindingId
+                          AND re.Status = N'Active') AS WaiverExpiresAtUtc,
                        itsmAgg.LinkedTickets AS ItsmLinkedTicketsSummary,
                        NULLIF(LTRIM(RTRIM(ar.SystemName)), N'') AS SystemName,
                        COALESCE(
@@ -52,16 +57,14 @@ public sealed partial class ArchitectureRiskRegisterReader
                     ORDER BY fp.PropertySortOrder
                 ) AS resourceProp
                 LEFT JOIN latestDisposition AS ld ON ld.FindingId = fr.FindingId AND ld.ProjectId = fr.ProjectId AND ld.rn = 1
-                LEFT JOIN dbo.RiskExceptions AS re
-                    ON re.TenantId = fr.TenantId
-                   AND re.WorkspaceId = fr.WorkspaceId
-                   AND re.FindingId = fr.FindingId
-                   AND re.Status = N'Active'
                 OUTER APPLY (
                     SELECT STRING_AGG(CONCAT(itsm.Provider, N':', itsm.ExternalKey), N'; ')
                         WITHIN GROUP (ORDER BY itsm.CreatedUtc) AS LinkedTickets
                     FROM dbo.ItsmFindingCorrelations AS itsm
-                    WHERE itsm.TenantId = fr.TenantId AND itsm.FindingId = fr.FindingId
+                    WHERE itsm.TenantId = fr.TenantId
+                      AND itsm.WorkspaceId = fr.WorkspaceId
+                      AND itsm.ProjectId = fr.ProjectId
+                      AND itsm.FindingId = fr.FindingId
                 ) AS itsmAgg
                 WHERE fr.TenantId = @TenantId AND fr.WorkspaceId = @WorkspaceId{projectFilter}{assigneeFilter}{openFindingsFilter}
                 ORDER BY fs.CreatedUtc DESC;

@@ -455,7 +455,54 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             Times.Once);
     }
 
-    private static InfraEvidenceAskGroundingService CreateService()
+
+    [Fact]
+    public async Task TryAnswerAsync_simulator_diagram_insufficient_returns_citations_without_view_plan()
+    {
+        InfraEvidenceAskEvidenceBundle bundle = new()
+        {
+            TopicKind = InfraEvidenceAskTopicKinds.DiagramView,
+        };
+
+        bundle.AddCitation(
+            InfraEvidenceAskCitationKinds.ChangeId,
+            Guid.NewGuid().ToString("D"),
+            "ResourceAdded",
+            "change row");
+
+        Mock<IInfraEvidenceAskEvidenceCollector> collector = new();
+
+        collector
+            .Setup(c => c.CollectAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<InfraEvidenceAskRequest>(),
+                InfraEvidenceAskTopicKinds.DiagramView,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(bundle);
+
+        InfraEvidenceAskGroundingService service = new(
+            collector.Object,
+            Mock.Of<IAgentCompletionClient>(),
+            Mock.Of<IPromptRedactor>(),
+            Mock.Of<IArchitectureDiagramReconciliationRepository>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            NullLogger<InfraEvidenceAskGroundingService>.Instance);
+
+        InfraEvidenceAskGroundingResult result = await service.TryAnswerAsync(
+            new ScopeContext(),
+            new InfraEvidenceAskRequest
+            {
+                Question = "Show me the diagram",
+                UseSimulator = true,
+            },
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Response!.InsufficientEvidence.Should().BeTrue();
+        result.Response.ViewPlan.Should().BeNull();
+        result.Response.Citations.Should().NotBeEmpty();
+    }    private static InfraEvidenceAskGroundingService CreateService()
     {
         Mock<IInfraEvidenceAskEvidenceCollector> collector = new();
 

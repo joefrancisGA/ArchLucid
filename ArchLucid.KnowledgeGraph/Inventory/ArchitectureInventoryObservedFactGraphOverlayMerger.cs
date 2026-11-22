@@ -37,12 +37,13 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
             if (existingNodeIds.Contains(normalizedInventoryNodeId))
             {
-                GraphNode retainedNode = mergedNodes.First(node =>
+                int retainedIndex = mergedNodes.FindIndex(node =>
                     string.Equals(
                         NormalizeNodeId(node.NodeId),
                         normalizedInventoryNodeId,
                         StringComparison.OrdinalIgnoreCase));
 
+                GraphNode retainedNode = mergedNodes[retainedIndex];
                 bool isBaseGraphNode = baseNodeIds.Contains(normalizedInventoryNodeId);
                 bool shouldValidateOverlayDuplicateAgreement = !isBaseGraphNode
                     || baseGraphNodeIdsWithOverlayDuplicateRowSeen.Contains(normalizedInventoryNodeId);
@@ -50,6 +51,13 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                 if (shouldValidateOverlayDuplicateAgreement)
                 {
                     TryValidateOverlayNodeAgreement(inventoryNode, retainedNode);
+                }
+
+                if (!shouldValidateOverlayDuplicateAgreement)
+                {
+                    // Keep backfill local to the result if this or a subsequent overlay row fails validation.
+                    retainedNode = CopyBaseNode(retainedNode);
+                    mergedNodes[retainedIndex] = retainedNode;
                 }
 
                 TryMergeOverlayNodePropertyBackfillFromDuplicateRow(inventoryNode, retainedNode);
@@ -96,9 +104,10 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
             if (!edgeKeys.Add(edgeKey))
             {
-                GraphEdge retainedEdge = mergedEdges.First(edge =>
+                int retainedIndex = mergedEdges.FindIndex(edge =>
                     string.Equals(BuildEdgeKey(edge), edgeKey, StringComparison.OrdinalIgnoreCase));
 
+                GraphEdge retainedEdge = mergedEdges[retainedIndex];
                 bool isBaseGraphEdge = baseEdgeKeys.Contains(edgeKey);
                 bool shouldValidateOverlayDuplicateAgreement = !isBaseGraphEdge
                     || baseGraphEdgeKeysWithOverlayDuplicateRowSeen.Contains(edgeKey);
@@ -106,6 +115,13 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                 if (shouldValidateOverlayDuplicateAgreement)
                 {
                     TryValidateOverlayEdgeAgreement(inventoryEdge, retainedEdge);
+                }
+
+                if (!shouldValidateOverlayDuplicateAgreement)
+                {
+                    // Keep backfill local to the result if this or a subsequent overlay row fails validation.
+                    retainedEdge = CopyBaseEdge(retainedEdge);
+                    mergedEdges[retainedIndex] = retainedEdge;
                 }
 
                 TryMergeOverlayEdgePropertyBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
@@ -754,6 +770,19 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
     private static string NormalizeEdgeType(string? edgeType) => (edgeType ?? string.Empty).Trim();
 
+    private static GraphNode CopyBaseNode(GraphNode node) =>
+        new()
+        {
+            NodeId = node.NodeId,
+            NodeType = node.NodeType,
+            Label = node.Label,
+            Category = node.Category,
+            SourceType = node.SourceType,
+            SourceId = node.SourceId,
+            ReasoningTrace = node.ReasoningTrace,
+            Properties = node.Properties,
+        };
+
     private static GraphNode NormalizeOverlayNode(GraphNode node) =>
         new()
         {
@@ -767,6 +796,22 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
             Properties = node.Properties is null || node.Properties.Count == 0
                 ? []
                 : NormalizeOverlayPropertyBag(node.Properties),
+        };
+
+    private static GraphEdge CopyBaseEdge(GraphEdge edge) =>
+        new()
+        {
+            EdgeId = edge.EdgeId,
+            FromNodeId = edge.FromNodeId,
+            ToNodeId = edge.ToNodeId,
+            EdgeType = edge.EdgeType,
+            Label = edge.Label,
+            Weight = edge.Weight,
+            InferenceSource = edge.InferenceSource,
+            ProvenanceKind = edge.ProvenanceKind,
+            DeclaredConnectionId = edge.DeclaredConnectionId,
+            ReasoningTrace = edge.ReasoningTrace,
+            Properties = edge.Properties,
         };
 
     private static GraphEdge NormalizeOverlayEdge(GraphEdge edge) =>

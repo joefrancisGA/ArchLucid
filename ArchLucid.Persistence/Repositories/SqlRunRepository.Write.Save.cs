@@ -32,6 +32,13 @@ public sealed partial class SqlRunRepository
 
         if (connection is not null)
         {
+            // Trial quota consumption and run creation must commit or roll back together.
+            // A caller-owned connection without a transaction could consume the allowance
+            // even when the subsequent run INSERT fails.
+            if (RunRepositoryCore.ShouldConsumeTrialRunAllowanceOnCreate(run) && transaction is null)
+                throw new InvalidOperationException(
+                    "Trial run creation requires a caller-owned transaction when a connection is supplied.");
+
             if (RunRepositoryCore.ShouldConsumeTrialRunAllowanceOnCreate(run))
                 await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction).ConfigureAwait(false);
 
@@ -52,8 +59,8 @@ public sealed partial class SqlRunRepository
 
             byte[] ownedStamp =
                 await owned.QuerySingleAsync<byte[]>(new CommandDefinition(sql, insertParams, tran, cancellationToken: ct)).ConfigureAwait(false);
-            run.RowVersion = ownedStamp;
             await tran.CommitAsync(ct).ConfigureAwait(false);
+            run.RowVersion = ownedStamp;
         }
         catch
         {
@@ -82,8 +89,11 @@ public sealed partial class SqlRunRepository
         }
 
         await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await EnsureCommittedRunHeaderAnchorsUnchangedAsync(owned, null, run, ct).ConfigureAwait(false);
-        await ApplyUpdateAsync(owned, null, run, sql, ct).ConfigureAwait(false);
+        await using SqlTransaction ownedTransaction =
+            (SqlTransaction)await owned.BeginTransactionAsync(ct).ConfigureAwait(false);
+        await EnsureCommittedRunHeaderAnchorsUnchangedAsync(owned, ownedTransaction, run, ct).ConfigureAwait(false);
+        await ApplyUpdateAsync(owned, ownedTransaction, run, sql, ct).ConfigureAwait(false);
+        await ownedTransaction.CommitAsync(ct).ConfigureAwait(false);
     }
 
     private static async Task EnsureCommittedRunHeaderAnchorsUnchangedAsync(
@@ -106,7 +116,9 @@ public sealed partial class SqlRunRepository
 
         return await connection.QuerySingleOrDefaultAsync<RunRecord>(
             new CommandDefinition(
-                RunRepositorySql.SelectAnchorGuardByScopedId,
+                transaction is null
+                    ? RunRepositorySql.SelectAnchorGuardByScopedId
+                    : RunRepositorySql.SelectAnchorGuardForUpdateByScopedId,
                 RunRecordParameters.AnchorGuardKey(run),
                 transaction,
                 cancellationToken: ct)).ConfigureAwait(false);

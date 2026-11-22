@@ -4,11 +4,19 @@ namespace ArchLucid.Persistence.Data.Repositories;
 
 public sealed class NoOpRiskExceptionRepository : IRiskExceptionRepository
 {
-    public Task CreateAsync(RiskExceptionRecord record, CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+    public Task CreateAsync(RiskExceptionRecord record, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
 
-    public Task<RiskExceptionRecord?> GetByIdAsync(Guid tenantId, Guid riskExceptionId, CancellationToken cancellationToken = default) =>
-        Task.FromResult<RiskExceptionRecord?>(null);
+        return Task.CompletedTask;
+    }
+
+    public Task<RiskExceptionRecord?> GetByIdAsync(Guid tenantId, Guid riskExceptionId, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<RiskExceptionRecord?>(null);
+    }
 
     public Task<RiskExceptionRecord?> GetActiveForScopeFindingAsync(
         Guid tenantId,
@@ -16,28 +24,44 @@ public sealed class NoOpRiskExceptionRepository : IRiskExceptionRepository
         Guid projectId,
         string findingId,
         DateTimeOffset asOfUtc,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<RiskExceptionRecord?>(null);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<RiskExceptionRecord?>(null);
+    }
 
     public Task<IReadOnlyList<RiskExceptionRecord>> ListActiveForTenantAsync(
         Guid tenantId,
         Guid? projectId,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<RiskExceptionRecord>>([]);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<RiskExceptionRecord>>([]);
+    }
 
     public Task RevokeAsync(
         Guid tenantId,
         Guid riskExceptionId,
         string revokedByUserId,
         DateTimeOffset revokedAtUtc,
-        CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task<IReadOnlyList<RiskExceptionRecord>> MarkExpiredAsync(
         Guid tenantId,
         DateTimeOffset asOfUtc,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<RiskExceptionRecord>>([]);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<RiskExceptionRecord>>([]);
+    }
 
     public Task RenewAsync(
         Guid tenantId,
@@ -46,13 +70,21 @@ public sealed class NoOpRiskExceptionRepository : IRiskExceptionRepository
         string renewedByUserId,
         string? rationale,
         string? evidenceRef,
-        CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task<IReadOnlyList<RiskExceptionRecord>> ListRetiredSinceUtcAsync(
         Guid tenantId,
         Guid? projectId,
         DateTimeOffset sinceUtc,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<RiskExceptionRecord>>([]);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<RiskExceptionRecord>>([]);
+    }
 }

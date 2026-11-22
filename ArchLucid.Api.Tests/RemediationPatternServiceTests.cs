@@ -187,9 +187,13 @@ public sealed class RemediationPatternServiceTests
 
         public List<RemediationPatternVersionRecord> Versions { get; } = [];
 
-        public Task InsertPatternAsync(RemediationPatternRecord pattern, CancellationToken cancellationToken = default)
+        public Task InsertDraftWithVersionAsync(
+            RemediationPatternRecord pattern,
+            RemediationPatternVersionRecord firstVersion,
+            CancellationToken cancellationToken = default)
         {
             Patterns.Add(pattern);
+            Versions.Add(firstVersion);
             return Task.CompletedTask;
         }
 

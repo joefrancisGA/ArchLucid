@@ -14,6 +14,8 @@ public sealed class InMemoryCorePilotTeamChecklistRepository : ICorePilotTeamChe
         Guid projectId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         lock (_gate)
         {
             List<CorePilotChecklistStepRow> copy = _rows
@@ -35,6 +37,8 @@ public sealed class InMemoryCorePilotTeamChecklistRepository : ICorePilotTeamChe
         string? updatedByUserId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         lock (_gate)
         {
             DateTimeOffset now = TimeProvider.System.GetUtcNow();

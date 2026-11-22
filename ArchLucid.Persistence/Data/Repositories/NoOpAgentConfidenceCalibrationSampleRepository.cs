@@ -9,12 +9,20 @@ public sealed class NoOpAgentConfidenceCalibrationSampleRepository : IAgentConfi
         AgentType agentType,
         double rawConfidence,
         double semanticScore,
-        CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task<IReadOnlyList<AgentConfidenceCalibrationSampleRow>> GetRecentByAgentTypeAsync(
         AgentType agentType,
         int maxCount,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<AgentConfidenceCalibrationSampleRow>>([]);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<AgentConfidenceCalibrationSampleRow>>([]);
+    }
 }

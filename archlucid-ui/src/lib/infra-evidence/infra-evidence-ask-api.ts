@@ -77,9 +77,7 @@ function parseDiagramViewPlan(raw: unknown): DiagramViewPlan | null {
     fitTargetNodeId: typeof row.fitTargetNodeId === "string" && row.fitTargetNodeId.trim().length > 0
       ? row.fitTargetNodeId.trim()
       : null,
-    honestyLabel: typeof row.honestyLabel === "string" && row.honestyLabel.trim().length > 0
-      ? row.honestyLabel.trim()
-      : null,
+    honestyLabel: typeof row.honestyLabel === "string" ? row.honestyLabel.trim() : null,
   };
 }
 

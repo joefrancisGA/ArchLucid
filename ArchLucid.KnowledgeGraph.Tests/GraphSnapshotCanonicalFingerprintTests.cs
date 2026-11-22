@@ -1,5 +1,6 @@
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.KnowledgeGraph.Mapping;
 using ArchLucid.KnowledgeGraph.Services;
 
 using FluentAssertions;
@@ -121,6 +122,35 @@ public sealed class GraphSnapshotCanonicalFingerprintTests
         string fb = GraphSnapshotCanonicalFingerprint.Compute(BuildSnapshot("p", setB));
 
         fa.Should().Be(fb);
+    }
+
+    [Fact]
+    public void AreEquivalentForReuse_WhenMappedCategoryChanges_ReturnsFalse()
+    {
+        CanonicalObject previousObject = BuildCanonicalResource(new() { ["category"] = "storage" });
+        CanonicalObject currentObject = BuildCanonicalResource(new() { ["category"] = "compute" });
+        GraphNodeFactory nodeFactory = new();
+
+        nodeFactory.CreateNode(previousObject).Category.Should().Be("storage");
+        nodeFactory.CreateNode(currentObject).Category.Should().Be("compute");
+        GraphSnapshotCanonicalFingerprint.AreEquivalentForReuse(
+                BuildSnapshot("proj", [previousObject]),
+                BuildSnapshot("proj", [currentObject]),
+                priorKnowledgeModel: null,
+                currentKnowledgeModel: null)
+            .Should().BeFalse();
+    }
+
+    [Fact]
+    public void Compute_IsOrderInsensitiveForCanonicalProperties()
+    {
+        ContextSnapshot previous = BuildSnapshot(
+            "proj", [BuildCanonicalResource(new() { ["category"] = "storage", ["owner"] = "platform" })]);
+        ContextSnapshot current = BuildSnapshot(
+            "proj", [BuildCanonicalResource(new() { ["owner"] = "platform", ["category"] = "storage" })]);
+
+        GraphSnapshotCanonicalFingerprint.Compute(previous)
+            .Should().Be(GraphSnapshotCanonicalFingerprint.Compute(current));
     }
 
     [Fact]
@@ -332,6 +362,16 @@ public sealed class GraphSnapshotCanonicalFingerprintTests
             ],
         };
     }
+
+    private static CanonicalObject BuildCanonicalResource(Dictionary<string, string> properties) => new()
+    {
+        ObjectId = "resource-1",
+        ObjectType = "resource",
+        Name = "Storage account",
+        SourceType = "inventory",
+        SourceId = "fixture-1",
+        Properties = properties,
+    };
 
     private static ContextSnapshot BuildSnapshot(string projectId, List<CanonicalObject> objects,
         Guid? snapshotId = null)

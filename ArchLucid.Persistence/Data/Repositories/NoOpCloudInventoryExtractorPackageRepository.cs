@@ -8,14 +8,22 @@ namespace ArchLucid.Persistence.Data.Repositories;
 public sealed class NoOpCloudInventoryExtractorPackageRepository : ICloudInventoryExtractorPackageRepository
 {
     public Task InsertAsync(CloudInventoryExtractorPackageRecord record, CancellationToken cancellationToken = default)
-        => Task.CompletedTask;
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task<CloudInventoryExtractorPackageDownloadRecord?> TryGetDownloadByPackageIdAsync(
         ScopeContext scope,
         CloudProvider cloudProvider,
         Guid packageId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<CloudInventoryExtractorPackageDownloadRecord?>(null);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<CloudInventoryExtractorPackageDownloadRecord?>(null);
+    }
 
     public Task<CloudInventoryExtractorPackageProvenance?> TryGetLatestProvenanceByRunIdAsync(
         ScopeContext scope,
@@ -23,6 +31,8 @@ public sealed class NoOpCloudInventoryExtractorPackageRepository : ICloudInvento
         CloudProvider cloudProvider,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!CloudInventoryExtractorPackageRepositoryCore.IsSupportedProvider(cloudProvider))
             return Task.FromResult<CloudInventoryExtractorPackageProvenance?>(null);
 
@@ -34,6 +44,8 @@ public sealed class NoOpCloudInventoryExtractorPackageRepository : ICloudInvento
         CloudProvider cloudProvider,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!CloudInventoryExtractorPackageRepositoryCore.IsSupportedProvider(cloudProvider))
             return Task.FromResult<DateTime?>(null);
 
@@ -45,6 +57,8 @@ public sealed class NoOpCloudInventoryExtractorPackageRepository : ICloudInvento
         CloudProvider cloudProvider,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!CloudInventoryExtractorPackageRepositoryCore.IsSupportedProvider(cloudProvider))
             return Task.FromResult<CloudInventoryExtractorPackageDownloadRecord?>(null);
 

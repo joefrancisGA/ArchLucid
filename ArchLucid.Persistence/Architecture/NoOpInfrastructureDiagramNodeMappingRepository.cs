@@ -6,6 +6,8 @@ public sealed class NoOpInfrastructureDiagramNodeMappingRepository : IInfrastruc
 {
     public Task UpsertAsync(InfrastructureDiagramNodeMappingPersistRecord record, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         _ = record;
         return Task.CompletedTask;
     }
@@ -15,6 +17,8 @@ public sealed class NoOpInfrastructureDiagramNodeMappingRepository : IInfrastruc
         Guid snapshotId,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         _ = tenantId;
         _ = snapshotId;
         return Task.FromResult<IReadOnlyList<InfrastructureDiagramNodeMappingPersistRecord>>([]);

@@ -69,6 +69,7 @@ vi.mock("@/lib/desk-continuity-preference", async (importOriginal) => {
 
 import {
   ARCHITECTURES_NEW_PATH,
+  architectureIdentityPath,
   architectureNestedAskPath,
   architectureNestedComparePath,
   architectureNestedGraphPath,
@@ -131,6 +132,26 @@ describe("useShortcutNavigation", () => {
     fireEvent.keyDown(window, { key: "c", altKey: true });
 
     expect(routerPush).toHaveBeenCalledWith("/insights/compare-two-reviews");
+  });
+
+  it.each([
+    { key: "r", destination: architectureIdentityPath },
+    { key: "c", destination: architectureNestedComparePath },
+  ])("reads refreshed Working continuity when Alt+$key is pressed", ({ key, destination }) => {
+    mockWorkspaceMode.mockReturnValue({
+      mode: "working",
+      mounted: true,
+      accountSyncState: "synced",
+      isWorkingMode: true,
+      setAndPersist: vi.fn(),
+    });
+    mockReadCachedLastOpenArchitectureId.mockReturnValue("architecture-initial");
+    renderHook(() => useShortcutNavigation());
+
+    mockReadCachedLastOpenArchitectureId.mockReturnValue("architecture-restored");
+    fireEvent.keyDown(window, { key, altKey: true });
+
+    expect(routerPush).toHaveBeenCalledWith(destination("architecture-restored"));
   });
 
   it("prefills Compare base review when Alt+C is pressed on review-detail in Guided mode", () => {

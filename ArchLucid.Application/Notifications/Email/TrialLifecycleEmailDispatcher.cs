@@ -140,6 +140,8 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         if (trigger is TrialLifecycleEmailTrigger.ApproachingRunLimit)
         {
+            if (tenant.TrialExpiresUtc is { } exp && exp <= utcNow)
+                return false;
             if (tenant.TrialRunsLimit is not ({ } limit and > 0))
                 return false;
             int threshold = (int)Math.Ceiling(limit * 0.8d);

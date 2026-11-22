@@ -1,0 +1,23 @@
+name: FND-003 Manifest Compatibility
+
+on:
+  pull_request:
+    branches: [main, master]
+  merge_group:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  manifest-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'jsonschema[format]==4.23.0'
+      - run: python -m unittest discover -s scripts/tests -p 'test_fnd003_manifest_contract.py' -v

@@ -33,6 +33,8 @@ import { RESOURCES_EXPLORER_SNAPSHOT_SCOPE_HONESTY_LINE } from "@/lib/infra-evid
 import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
 import { RESOURCE_EXPLORER_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-partial-capture-copy";
 import { ResourcesExplorerFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/resources/ResourcesExplorerFilterEmptyPartialHonesty";
+import { ResourcesExplorerCategoryAndNamePrefixCombinedFilterEmptyPartialHonesty } from "@/components/infra-evidence/ResourcesExplorerCategoryAndNamePrefixCombinedFilterEmptyPartialHonesty";
+import { RESOURCE_EXPLORER_CATEGORY_AND_NAME_PREFIX_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-category-and-name-prefix-combined-filter-empty-not-load-failure-copy";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -664,6 +666,17 @@ export function ResourcesExplorerClient() {
                         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-resource-explorer-empty-partial-capture">
                           {RESOURCE_EXPLORER_EMPTY_PARTIAL_CAPTURE_LINE}
                         </p>
+                      ) : null}
+                      {urlResourceType.length > 0 && urlNamePrefix.length > 0 ? (
+                        <>
+                          <p
+                            className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+                            data-testid="infra-resource-explorer-category-and-name-prefix-combined-filter-empty"
+                          >
+                            {RESOURCE_EXPLORER_CATEGORY_AND_NAME_PREFIX_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                          </p>
+                          <ResourcesExplorerCategoryAndNamePrefixCombinedFilterEmptyPartialHonesty />
+                        </>
                       ) : null}
                       {hasAppliedFilters ? <ResourcesExplorerFilterEmptyPartialHonesty /> : null}
                     </>

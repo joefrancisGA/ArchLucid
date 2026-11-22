@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Diagrams;
@@ -29,12 +30,19 @@ internal static partial class ConsultingDocxSupplementalSections
             ? ConsultingDocxExportHonestyCopy.ManifestRequiredControlCountNotStored
             : report.Manifest.Governance.RequiredControls.Count.ToString(CultureInfo.InvariantCulture);
 
-        string text = options.SponsorReportTextTemplate
-            .Replace("{SystemName}", systemName, StringComparison.OrdinalIgnoreCase)
-            .Replace("{OrganizationName}", options.OrganizationName, StringComparison.OrdinalIgnoreCase)
-            .Replace("{ServiceCount}", serviceCountLabel, StringComparison.OrdinalIgnoreCase)
-            .Replace("{DatastoreCount}", datastoreCountLabel, StringComparison.OrdinalIgnoreCase)
-            .Replace("{ControlCount}", controlCountLabel, StringComparison.OrdinalIgnoreCase);
+        string text = Regex.Replace(
+            options.SponsorReportTextTemplate,
+            @"\{(?:SystemName|OrganizationName|ServiceCount|DatastoreCount|ControlCount)\}",
+            match => match.Value.ToUpperInvariant() switch
+            {
+                "{SYSTEMNAME}" => systemName,
+                "{ORGANIZATIONNAME}" => options.OrganizationName ?? string.Empty,
+                "{SERVICECOUNT}" => serviceCountLabel,
+                "{DATASTORECOUNT}" => datastoreCountLabel,
+                "{CONTROLCOUNT}" => controlCountLabel,
+                _ => match.Value,
+            },
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, text, "BodyText");
 

@@ -22,13 +22,13 @@ export function readArchLucidOpenGateReturnRecord(workspaceId: string): ArchLuci
     return null;
   }
 
-  const raw = window.localStorage.getItem(storageKey(workspaceId));
-
-  if (raw === null) {
-    return null;
-  }
-
   try {
+    const raw = window.localStorage.getItem(storageKey(workspaceId));
+
+    if (raw === null) {
+      return null;
+    }
+
     const parsed: unknown = JSON.parse(raw);
 
     if (!isArchLucidOpenGateReturnRecord(parsed)) {
@@ -72,5 +72,9 @@ export function writeArchLucidOpenGateReturnRecord(
     return;
   }
 
-  window.localStorage.setItem(storageKey(workspaceId), JSON.stringify(record));
+  try {
+    window.localStorage.setItem(storageKey(workspaceId), JSON.stringify(record));
+  } catch {
+    // The return link is optional when browser storage is unavailable.
+  }
 }

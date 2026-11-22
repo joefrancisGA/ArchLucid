@@ -10,8 +10,8 @@ namespace ArchLucid.Application.Governance;
 internal static class FindingPinnedEvidencePackageReferenceResolver
 {
     private static readonly Regex EvidencePackageRefPattern = new(
-        @"evidencePackage\s*:\s*([0-9a-fA-F-]{32,36})",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        @"(?<![\w])evidencePackage\s*:\s*([0-9a-fA-F]{32}|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(?![\w-])",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     public static bool ResolvesToPinnedPackageId(Finding finding, IReadOnlySet<Guid> pinnedPackageIds)
     {
@@ -43,9 +43,6 @@ internal static class FindingPinnedEvidencePackageReferenceResolver
 
         foreach (string candidate in CollectCandidateStrings(finding))
         {
-            foreach (Guid packageId in TryParsePackageId(candidate))
-                yield return packageId;
-
             foreach (Match match in EvidencePackageRefPattern.Matches(candidate))
             {
                 foreach (Guid packageId in TryParsePackageId(match.Groups[1].Value))

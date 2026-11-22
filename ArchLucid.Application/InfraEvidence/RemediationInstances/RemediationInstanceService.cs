@@ -574,16 +574,6 @@ public sealed class RemediationInstanceService(
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
-        await AppendEvidenceAsync(
-            scope,
-            instanceId,
-            RemediationEvidencePhase.Verify,
-            verification.ResultJson,
-            actorKey,
-            correlationId: instance.InstanceId.ToString("N"),
-            utcNow,
-            cancellationToken);
-
         RemediationInstanceStatus nextStatus = verification.Passed
             ? RemediationInstanceStatus.Verified
             : RemediationInstanceStatus.VerificationFailed;
@@ -599,7 +589,20 @@ public sealed class RemediationInstanceService(
             verifiedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
+        RemediationEvidenceRecord verificationEvidence = new()
+        {
+            EvidenceId = Guid.NewGuid(),
+            InstanceId = instanceId,
+            TenantId = scope.TenantId,
+            Phase = RemediationEvidencePhase.Verify,
+            PayloadJson = verification.ResultJson,
+            ActorKey = actorKey.Trim(),
+            CorrelationId = instance.InstanceId.ToString("N"),
+            CreatedUtc = utcNow,
+        };
+
+        await instanceRepository.CommitVerificationInScopeAsync(
+            scope.ToProjectScopeKey(), ToMutation(updated), verificationEvidence, cancellationToken);
 
         // A failed check leaves the control unevidenced: do not insert a row and do not delete an older one.
         if (!verification.Passed)
@@ -878,6 +881,7 @@ public sealed class RemediationInstanceService(
             ApprovedByActorKey = approvedByActorKey ?? source.ApprovedByActorKey,
             CreatedUtc = source.CreatedUtc,
             UpdatedUtc = updatedUtc ?? source.UpdatedUtc,
+            RowVersion = source.RowVersion,
             ApprovedUtc = approvedUtc ?? source.ApprovedUtc,
             ExecutedUtc = executedUtc ?? source.ExecutedUtc,
             ChangeImplementedUtc = changeImplementedUtc ?? source.ChangeImplementedUtc,
@@ -888,6 +892,7 @@ public sealed class RemediationInstanceService(
     private static RemediationInstanceMutation ToMutation(RemediationInstanceRecord source) =>
         new()
         {
+            ExpectedRowVersion = source.RowVersion,
             InstanceId = source.InstanceId,
             Status = source.Status,
             CloudResourceId = source.CloudResourceId,

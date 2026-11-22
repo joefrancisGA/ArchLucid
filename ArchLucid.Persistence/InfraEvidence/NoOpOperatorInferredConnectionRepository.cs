@@ -4,23 +4,39 @@ public sealed class NoOpOperatorInferredConnectionRepository : IOperatorInferred
 {
     public Task UpsertProposalsAsync(
         IReadOnlyList<OperatorInferredConnectionRecord> records,
-        CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     public Task<OperatorInferredConnectionRecord?> TryGetByIdAsync(
         Guid tenantId,
         Guid connectionId,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<OperatorInferredConnectionRecord?>(null);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<OperatorInferredConnectionRecord?>(null);
+    }
 
     public Task<IReadOnlyList<OperatorInferredConnectionRecord>> ListBySnapshotAsync(
         Guid tenantId,
         Guid snapshotId,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<OperatorInferredConnectionRecord>>([]);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<OperatorInferredConnectionRecord>>([]);
+    }
 
     public Task UpdateStatusAsync(
         OperatorInferredConnectionRecord record,
-        CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 }

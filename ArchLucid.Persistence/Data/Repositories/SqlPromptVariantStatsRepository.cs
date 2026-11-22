@@ -17,15 +17,16 @@ public sealed class SqlPromptVariantStatsRepository(IDbConnectionFactory connect
         ArgumentException.ThrowIfNullOrWhiteSpace(promptTemplateName);
 
         const string sql = """
-                           SELECT
+                           SELECT DISTINCT
                                PromptVariantKey AS VariantKey,
-                               COUNT(*) AS SampleCount,
-                               AVG(SemanticScore) AS MeanSemanticScore,
-                               PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY SemanticScore) AS MedianSemanticScore,
-                               AVG(CAST(QualityGatePassed AS FLOAT)) AS QualityGatePassRate
+                               COUNT(*) OVER (PARTITION BY PromptVariantKey) AS SampleCount,
+                               AVG(SemanticScore) OVER (PARTITION BY PromptVariantKey) AS MeanSemanticScore,
+                               PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY SemanticScore)
+                                   OVER (PARTITION BY PromptVariantKey) AS MedianSemanticScore,
+                               AVG(CAST(QualityGatePassed AS FLOAT))
+                                   OVER (PARTITION BY PromptVariantKey) AS QualityGatePassRate
                            FROM dbo.AgentOutputEvaluations
                            WHERE PromptTemplateName = @PromptTemplateName
-                           GROUP BY PromptVariantKey
                            ORDER BY PromptVariantKey;
                            """;
 

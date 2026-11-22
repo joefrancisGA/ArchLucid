@@ -33,6 +33,19 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void Missing_faithfulness_ratio_holds_even_when_citations_are_present()
+    {
+        RunExplanationConfidenceSignals signals = new(
+            FaithfulnessSupportRatio: null,
+            DeterministicFallbackUsed: false,
+            FaithfulnessWarning: null,
+            CitationCount: 2);
+
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("HOLD");
+        RunExplanationConfidenceCalloutBuilder.BuildLimitationsLine(signals).Should().Contain("HOLD");
+    }
+
+    [Fact]
     public void FromAggregateJson_maps_numeric_citation_count()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
@@ -92,6 +105,25 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
 
         signals.Should().NotBeNull();
         signals!.FaithfulnessSupportRatio.Should().Be(0.75);
+    }
+
+    [Theory]
+    [InlineData("\"1%\"", 0.01)]
+    [InlineData("\"0.5 %\"", 0.005)]
+    [InlineData("[[\"1%\"]]", 0.01)]
+    [InlineData("\"1\"", 1.0)]
+    public void FromAggregateJson_distinguishes_small_percentages_from_unit_ratios(string jsonRatio, double expected)
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            $$"""
+            {
+              "faithfulnessSupportRatio": {{jsonRatio}},
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(expected);
     }
 
     [Fact]

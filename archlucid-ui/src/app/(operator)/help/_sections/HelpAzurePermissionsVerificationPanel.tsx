@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 export type AzurePermissionsVerificationState =
   | { status: "idle" }
   | { status: "checking" }
-  | { status: "confirmed"; resourceCount: number; subscriptionId: string }
+  | { status: "confirmed"; resourceCount: number | null; subscriptionId: string }
   | { status: "missing"; message: string }
   | { status: "failed"; message: string; technicalDetail?: string };
 
@@ -182,8 +182,11 @@ export function HelpAzurePermissionsVerificationPanel(props: HelpAzurePermission
       ) : null}
       {state.status === "confirmed" ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="azure-permissions-verify-success">
-          Reader access confirmed for subscription {state.subscriptionId}. Validation collected {state.resourceCount}{" "}
-          resources. Cost Management Reader assignment was not validated — the hosted collector does not call cost APIs
+          Reader access confirmed for subscription {state.subscriptionId}.{" "}
+          {state.resourceCount === null
+            ? "Resource count was not stored."
+            : `Validation collected ${state.resourceCount} resources.`}{" "}
+          Cost Management Reader assignment was not validated — the hosted collector does not call cost APIs
           today.
         </p>
       ) : null}

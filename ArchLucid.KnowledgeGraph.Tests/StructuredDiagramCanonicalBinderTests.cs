@@ -92,6 +92,18 @@ public sealed class StructuredDiagramCanonicalBinderTests
     }
 
     [Fact]
+    public void TryBindDiagramNode_exact_node_id_takes_precedence_over_shared_display_name()
+    {
+        GraphNode displayNameOnly = CreateTopologyNode("other-db", "pay-db", []);
+        GraphNode exactNode = CreateTopologyNode("pay-db", "pay-db", []);
+
+        GraphNode? bound = StructuredDiagramCanonicalBindMatcher.TryBindDiagramNode(
+            "sql", "pay-db", [displayNameOnly, exactNode]);
+
+        bound.Should().BeSameAs(exactNode);
+    }
+
+    [Fact]
     public void BindToCanonicalNodes_ambiguous_display_name_does_not_bind()
     {
         GraphNode first = CreateTopologyNode("obj-sql-1", "SQL Database", []);

@@ -36,6 +36,14 @@ describe("sealed-record pagination", () => {
 
   afterEach(() => window.history.replaceState(null, "", "/"));
 
+  it("applies the current request after Strict Mode replays its effects", async () => {
+    setLocation();
+    const { result } = renderHook(() => useSignedRecordsListFetch(options), { reactStrictMode: true });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current).toMatchObject({ hasMore: true, nextCursor: "page-2" });
+  });
+
   it("returns to page one from a bookmark containing a cursor", async () => {
     setLocation("cursor=page-2");
     const { result, rerender } = renderHook(() => useSignedRecordsListFetch(options));

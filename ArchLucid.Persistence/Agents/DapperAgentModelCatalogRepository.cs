@@ -1,3 +1,4 @@
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -187,6 +188,8 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                                      """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync(
+            IsolationLevel.Serializable, cancellationToken);
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -211,10 +214,11 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                     row.OutputUsdPerMillionTokens,
                     row.ReasoningUsdPerMillionTokens
                 },
+                transaction: transaction,
                 cancellationToken: cancellationToken));
 
         await connection.ExecuteAsync(
-            new CommandDefinition(deleteEvalSql, new { row.AliasId }, cancellationToken: cancellationToken));
+            new CommandDefinition(deleteEvalSql, new { row.AliasId }, transaction, cancellationToken: cancellationToken));
 
         foreach (AgentModelCatalogEvaluationRow evaluation in row.Evaluations)
         {
@@ -230,8 +234,11 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                         evaluation.EvidenceJson,
                         evaluation.EvaluatedUtc
                     },
+                    transaction: transaction,
                     cancellationToken: cancellationToken));
         }
+
+        await transaction.CommitAsync(cancellationToken);
     }
 
 }

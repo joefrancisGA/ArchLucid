@@ -39,6 +39,7 @@ import { resolveReviewsHubContinueReviewCandidate } from "@/lib/reviews-hub-cont
 import { resolveReviewsHubAttentionSuppressKinds } from "@/lib/reviews-hub-attention-suppress";
 import { ReviewsHubDisclosuresClient } from "./ReviewsHubDisclosuresClient";
 import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
+import { ReviewsHubOpenGateCollectionBlockerHost } from "./ReviewsHubOpenGateCollectionBlockerHost";
 import type { RunsPageModel } from "./runs-page-model";
 import { deriveReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 

@@ -388,6 +388,7 @@ export function RemediationPatternsClient() {
 
   const yamlInputRef = useRef<HTMLTextAreaElement>(null);
   const yamlFileInputRef = useRef<HTMLInputElement>(null);
+  const yamlFileReadGeneration = useRef(0);
   const detailSectionRef = useRef<HTMLElement>(null);
   const registryTableNavRef = useRef<HTMLDivElement>(null);
 
@@ -439,6 +440,7 @@ export function RemediationPatternsClient() {
   }, []);
 
   const closeImportPanel = useCallback(() => {
+    yamlFileReadGeneration.current++;
     writeRemediationPatternImportPanelOpenToSession(false);
     setImportPanelOpen(false);
   }, []);
@@ -590,7 +592,8 @@ export function RemediationPatternsClient() {
       }
 
       const currentIndex = filteredPatterns.findIndex((pattern) => pattern.patternId === selectedPatternId);
-      const startIndex = currentIndex >= 0 ? currentIndex : 0;
+      // Start before the first row when moving forward from no selection.
+      const startIndex = currentIndex < 0 && delta < 0 ? 0 : currentIndex;
       let nextIndex = startIndex + delta;
 
       if (nextIndex < 0) {
@@ -725,12 +728,25 @@ export function RemediationPatternsClient() {
       return;
     }
 
-    void file.text().then((text) => {
-      setYamlDraft(text);
-      setImportError(null);
-      setImportSuccess(null);
-      openImportPanel(true);
-    });
+    const generation = ++yamlFileReadGeneration.current;
+    void file.text().then(
+      (text) => {
+        if (generation !== yamlFileReadGeneration.current) {
+          return;
+        }
+
+        setYamlDraft(text);
+        setImportError(null);
+        setImportSuccess(null);
+        openImportPanel(true);
+      },
+      () => {
+        if (generation === yamlFileReadGeneration.current) {
+          setImportError("Could not read the YAML file.");
+          setImportSuccess(null);
+        }
+      },
+    );
 
     event.target.value = "";
   }, [openImportPanel]);

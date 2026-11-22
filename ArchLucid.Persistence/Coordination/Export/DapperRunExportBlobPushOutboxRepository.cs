@@ -95,7 +95,9 @@ public sealed class DapperRunExportBlobPushOutboxRepository(ISqlConnectionFactor
         IEnumerable<RunExportBlobPushOutboxEntry> rows = await connection.QueryAsync<RunExportBlobPushOutboxEntry>(
             new CommandDefinition(sql, new { Take = take, LeaseSeconds = lease }, cancellationToken: ct));
 
-        return rows.ToList();
+        return rows.OrderBy(row => row.CreatedUtc)
+            .ThenBy(row => new System.Data.SqlTypes.SqlGuid(row.OutboxId))
+            .ToList();
     }
 
     /// <inheritdoc />
@@ -106,7 +108,8 @@ public sealed class DapperRunExportBlobPushOutboxRepository(ISqlConnectionFactor
                            SET ProcessedUtc = SYSUTCDATETIME(),
                                LockedUntilUtc = NULL
                            WHERE OutboxId = @OutboxId
-                             AND ProcessedUtc IS NULL;
+                             AND ProcessedUtc IS NULL
+                             AND DeadLetteredUtc IS NULL;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);

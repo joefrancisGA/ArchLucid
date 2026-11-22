@@ -1,0 +1,1 @@
+{"baseline":"253529b2d198528404c5922133cb5c7a5b4e43a7","blob":"706bb21fbc9c5d6a85a0c1109c3cca9c9c319558","path":"ArchLucid.Application/Governance/FindingEvidenceReferentialIntegrityValidator.cs","spans":[[1,4],[6,6],[8,18],[20,23],[25,26],[28,33],[35,38],[40,40],[42,45],[47,48],[50,51],[53,58],[60,62],[64,66]],"defect_id":"ASPECTS-7455","verified":true}

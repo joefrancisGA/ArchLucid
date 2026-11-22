@@ -15,11 +15,16 @@ vi.mock("next/navigation", async (importOriginal) => {
 });
 
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
+import { fetchWizardIntakeDraft } from "@/lib/api/wizard-intake-draft-api";
 import {
   dispatchReviewsNewWizardContinueRequested,
   requestReviewsNewWizardAutoRestore,
 } from "@/lib/reviews-new-wizard-session-resume";
-import { WIZARD_SESSION_IDS, writeWizardSessionSnapshot } from "@/lib/wizard-session-persistence";
+import {
+  readWizardSessionSnapshot,
+  WIZARD_SESSION_IDS,
+  writeWizardSessionSnapshot,
+} from "@/lib/wizard-session-persistence";
 
 type TestState = {
   readonly title: string;
@@ -54,6 +59,66 @@ function TestHarness(props: {
 describe("useWizardSessionPersistence (TB-2157)", () => {
   afterEach(() => {
     sessionStorage.clear();
+    vi.mocked(fetchWizardIntakeDraft).mockReset().mockResolvedValue(null);
+  });
+
+  it("restores a local draft when the remote draft fetch is temporarily unavailable", async () => {
+    writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart, {
+      stepIndex: 0,
+      state: { title: "Offline draft" },
+    });
+    vi.mocked(fetchWizardIntakeDraft).mockRejectedValueOnce(new TypeError("fetch failed"));
+
+    render(<TestHarness state={{ title: "" }} onRestore={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Resume saved wizard" })).toBeInTheDocument();
+    });
+  });
+
+  it("does not expose a local draft when the remote API denies access", async () => {
+    writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart, {
+      stepIndex: 0,
+      state: { title: "Protected draft" },
+    });
+    vi.mocked(fetchWizardIntakeDraft).mockRejectedValueOnce({
+      message: "Forbidden",
+      problem: null,
+      correlationId: null,
+      httpStatus: 403,
+      retryAfterSeconds: null,
+    });
+
+    render(<TestHarness state={{ title: "" }} onRestore={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(fetchWizardIntakeDraft).toHaveBeenCalledWith(WIZARD_SESSION_IDS.reviewsNewQuickStart);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(screen.queryByRole("button", { name: "Resume saved wizard" })).not.toBeInTheDocument();
+  });
+
+  it("still offers a saved draft when a re-render cancels the first restore check", async () => {
+    writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart, {
+      stepIndex: 0,
+      state: { title: "Saved title" },
+    });
+    let finishFirstRead: (value: null) => void = () => {};
+    vi.mocked(fetchWizardIntakeDraft).mockReturnValueOnce(
+      new Promise((resolve) => {
+        finishFirstRead = resolve;
+      }),
+    );
+
+    const onRestore = vi.fn();
+    const view = render(<TestHarness state={{ title: "" }} onRestore={onRestore} />);
+    view.rerender(<TestHarness state={{ title: "" }} onRestore={onRestore} />);
+
+    expect(await screen.findByRole("button", { name: "Resume saved wizard" })).toBeInTheDocument();
+    expect(fetchWizardIntakeDraft).toHaveBeenCalledTimes(2);
+    await act(async () => finishFirstRead(null));
   });
 
   it("offers resume when a saved wizard snapshot exists", async () => {
@@ -95,6 +160,34 @@ describe("useWizardSessionPersistence (TB-2157)", () => {
     expect(screen.queryByRole("button", { name: "Resume saved wizard" })).not.toBeInTheDocument();
   });
 
+
+  it("cancels a pending debounced persist on unmount without flushing later writes", async () => {
+    vi.useFakeTimers();
+
+    writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart, {
+      stepIndex: 0,
+      state: { title: "First" },
+    });
+
+    const view = render(<TestHarness state={{ title: "First" }} onRestore={vi.fn()} />);
+
+    await act(async () => {
+      vi.advanceTimersByTime(900);
+    });
+
+    view.rerender(<TestHarness state={{ title: "Second draft" }} onRestore={vi.fn()} />);
+    view.unmount();
+
+    await act(async () => {
+      vi.advanceTimersByTime(2000);
+    });
+
+    const snapshot = readWizardSessionSnapshot<{ title: string }>(WIZARD_SESSION_IDS.reviewsNewQuickStart);
+
+    expect(snapshot?.state.title).toBe("First");
+
+    vi.useRealTimers();
+  });
   it("auto-accepts restore when the hub resume strip continues on the same page", async () => {
     writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart, {
       stepIndex: 0,

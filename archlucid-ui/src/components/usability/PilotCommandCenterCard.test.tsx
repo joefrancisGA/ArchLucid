@@ -273,6 +273,26 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("operator-home-lifecycle-alternatives-disclosure")).toBeNull();
   });
 
+  it("updates the workspace phase when an existing draft is archived", () => {
+    const draft = {
+      draftId: "draft-001",
+      displayName: "Claims intake",
+      customerStatus: "draft" as const,
+      ownerLabel: "You",
+      lastUpdatedUtc: "2026-01-01T00:00:00.000Z",
+      linkedReviewId: null,
+      serverUpdatedUtc: "2026-01-01T00:00:00.000Z",
+    };
+    vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([draft]);
+    const { rerender } = renderWithOperatorQuery(<PilotCommandCenterCard />);
+    expect(screen.getByTestId("pilot-command-center-card")).toHaveAttribute("data-workspace-phase", "eval-with-drafts");
+
+    vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([{ ...draft, customerStatus: "archived" }]);
+    rerender(<PilotCommandCenterCard />);
+
+    expect(screen.getByTestId("pilot-command-center-card")).toHaveAttribute("data-workspace-phase", "eval-empty");
+  });
+
   it("shows resume-draft callout and lifecycle cards when drafts exist without reviews", () => {
     vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
       {

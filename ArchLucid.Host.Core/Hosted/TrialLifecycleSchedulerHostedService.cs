@@ -46,8 +46,16 @@ public sealed class TrialLifecycleSchedulerHostedService(
                         .ConfigureAwait(false);
 
                 foreach (Guid tenantId in tenantIds)
-
-                    await engine.TryAdvanceTenantAsync(tenantId, leaderToken).ConfigureAwait(false);
+                {
+                    try
+                    {
+                        await engine.TryAdvanceTenantAsync(tenantId, leaderToken).ConfigureAwait(false);
+                    }
+                    catch (Exception ex) when (!leaderToken.IsCancellationRequested)
+                    {
+                        logger.LogError(ex, "Trial lifecycle scheduler failed for tenant {TenantId}.", tenantId);
+                    }
+                }
             }
             catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {

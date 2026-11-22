@@ -171,4 +171,29 @@ describe("operator-recent-views", () => {
     expect(migrated.entries[0]?.kind).toBe("architecture");
     expect(migrated.entries[0]?.architectureId).toBe("architecture-identity-001");
   });
+
+  it.each([1, 2])("dedupes normalized recents before capping stored v%i entries", (schemaVersion) => {
+    const deskHref = "/architecture/architectures/architecture-identity-001";
+    const recent = (href: string, label: string) => ({
+      href,
+      label,
+      kind: "review",
+      visitedAtUtc: "2026-01-02T10:00:00.000Z",
+    });
+    const entries = [
+      recent(`${deskHref}/reviews/latest`, "Latest review"),
+      recent(`${deskHref}/reviews/older`, "Older review"),
+      recent(`${deskHref}?highlightReviewId=run-a`, "Targeted desk review"),
+      ...Array.from({ length: 6 }, (_, i) => recent(`/architecture/reviews/run-${i}`, "Review")),
+    ];
+
+    const migrated = parseStoredRecentViews(JSON.stringify({ schemaVersion, entries }));
+
+    expect(migrated.entries.map(({ href }) => href)).toEqual([
+      deskHref,
+      entries[2]!.href,
+      ...entries.slice(3).map(({ href }) => href),
+    ]);
+    expect(migrated.entries[0]?.label).toBe("Latest review");
+  });
 });

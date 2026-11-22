@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { SecureNowSponsorPathPageView } from "./SecureNowSponsorPathPageView";
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/administration/securenow-sponsor-path",
   useSearchParams: () => new URLSearchParams(),
 }));
 

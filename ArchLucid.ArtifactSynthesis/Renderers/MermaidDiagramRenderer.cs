@@ -241,7 +241,10 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
     private static string QuoteMetadataValue(string value)
     {
-        string trimmed = value.Trim();
+        string trimmed = value.Trim()
+            .Replace("\r\n", " ", StringComparison.Ordinal)
+            .Replace('\r', ' ')
+            .Replace('\n', ' ');
 
         if (trimmed.Length == 0)
         {

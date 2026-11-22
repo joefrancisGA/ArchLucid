@@ -146,6 +146,9 @@ export function OperatorShellTopBarMoreMenu(props: OperatorShellTopBarMoreMenuPr
     function onKeyDown(event: KeyboardEvent): void {
       if (event.key === "Escape") {
         close();
+        if (panelRef.current?.contains(document.activeElement)) {
+          triggerRef.current?.focus();
+        }
       }
     }
 

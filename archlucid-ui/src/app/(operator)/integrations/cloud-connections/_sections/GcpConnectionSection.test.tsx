@@ -81,6 +81,32 @@ describe("GcpConnectionSection", () => {
     expect(screen.getByTestId("gcp-connection-wizard-step-save")).toBeInTheDocument();
   });
 
+  it("keeps a saved connection complete when the follow-up list request fails", async () => {
+    render(
+      <GcpConnectionDataProvider>
+        <GcpConnectionSection embedded />
+      </GcpConnectionDataProvider>,
+    );
+
+    fireEvent.change(await screen.findByTestId("gcp-project-id"), {
+      target: { value: "my-gcp-project" },
+    });
+    fireEvent.change(await screen.findByTestId("gcp-pool-provider"), {
+      target: { value: "//iam.googleapis.com/projects/my-gcp-project/locations/global/workloadIdentityPools/archlucid/providers/archlucid" },
+    });
+    fireEvent.change(await screen.findByTestId("gcp-service-account-email"), {
+      target: { value: "archlucid-readonly@my-gcp-project.iam.gserviceaccount.com" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    listGcpTier2Connections.mockRejectedValueOnce(new Error("refresh unavailable"));
+    fireEvent.click(screen.getByRole("button", { name: "Save GCP connection" }));
+
+    expect(await screen.findByTestId("gcp-connection-wizard-save-success")).toBeInTheDocument();
+    expect(await screen.findByRole("alert")).toHaveTextContent(/could not refresh connection details/i);
+    expect(screen.queryByRole("button", { name: "Save GCP connection" })).not.toBeInTheDocument();
+    expect(configureGcpTier2Connection).toHaveBeenCalledTimes(1);
+  });
+
   it("requires confirmation before disconnecting a saved connection", async () => {
     listGcpTier2Connections.mockResolvedValueOnce([
       {

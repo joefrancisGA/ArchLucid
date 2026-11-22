@@ -27,7 +27,7 @@ public sealed class AzureInventorySnapshotRecoveryServicesEdgePolicyTests
         "backup", "replication", "unknown-kind", "case-insensitive", "backup-first", "replication-first",
         "explicit", "reverse", "missing-source", "self", "redacted",
         "wrong-property", "wrong-type", "invalid-json", "null-json", "empty-json", "blank-value",
-        "missing-vault", "wrong-row", "failed", "blank-source", "invalid-source", "no-metadata", "blank-metadata",
+        "missing-vault", "wrong-row", "failed", "null-status", "blank-source", "invalid-source", "no-metadata", "blank-metadata",
     }.Select(mode => new object[] { mode });
 
     [Theory]
@@ -39,7 +39,7 @@ public sealed class AzureInventorySnapshotRecoveryServicesEdgePolicyTests
             && graph.Nodes.Single(node => node.NodeId == edge.FromNodeId).SourceId == Vault).ToArray();
         bool suppressed = mode is "missing-source" or "wrong-property" or "wrong-type" or "invalid-json"
             or "null-json" or "empty-json" or "blank-value" or "missing-vault" or "wrong-row"
-            or "failed" or "blank-source" or "invalid-source";
+            or "failed" or "null-status" or "blank-source" or "invalid-source";
         Assert.Equal(suppressed ? 0 : 1, forward.Length);
 
         foreach (GraphEdge edge in forward)
@@ -214,7 +214,7 @@ public sealed class AzureInventorySnapshotRecoveryServicesEdgePolicyTests
             ItemKind = mode == "unknown-kind" ? "unknown" : mode == "case-insensitive" ? "REPLICATE"
                 : replication ? AzureInventoryRecoveryServices.ReplicationItemKind : AzureInventoryRecoveryServices.BackupItemKind,
             SourceResourceId = mode == "self" ? Vault : mode == "blank-source" ? " " : mode == "invalid-source" ? "invalid" : "  " + Source.ToUpperInvariant() + "  ",
-            CollectionStatus = mode == "failed" ? "Failed" : "SUCCEEDED",
+            CollectionStatus = mode == "failed" ? "Failed" : mode == "null-status" ? null! : "SUCCEEDED",
             TargetRegion = mode == "no-metadata" ? null : mode == "blank-metadata" ? " " : later ? "later region" : "  westus2  ",
             TargetResourceId = mode == "no-metadata" ? null : mode == "blank-metadata" ? " " : later ? Source : "  " + Target.ToUpperInvariant() + "  ",
         };

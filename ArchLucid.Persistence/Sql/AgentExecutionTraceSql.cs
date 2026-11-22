@@ -79,11 +79,23 @@ internal static class AgentExecutionTraceSql
                                                    WHERE TraceId = @TraceId;
                                                    """;
 
+    public const string SelectTraceJsonByTraceIdForUpdate = """
+                                                            SELECT TraceJson
+                                                            FROM AgentExecutionTraces WITH (UPDLOCK, HOLDLOCK)
+                                                            WHERE TraceId = @TraceId;
+                                                            """;
+
     public const string SelectTraceJsonAndRecordedOutcomeByTraceId = """
                                                                      SELECT TraceJson, RecordedQualityGateOutcome
                                                                      FROM AgentExecutionTraces
                                                                      WHERE TraceId = @TraceId;
                                                                      """;
+
+    public const string SelectTraceJsonAndRecordedOutcomeByTraceIdForUpdate = """
+                                                                              SELECT TraceJson, RecordedQualityGateOutcome
+                                                                              FROM AgentExecutionTraces WITH (UPDLOCK, HOLDLOCK)
+                                                                              WHERE TraceId = @TraceId;
+                                                                              """;
 
     public const string UpdateBlobStorageFields = """
                                                   UPDATE AgentExecutionTraces

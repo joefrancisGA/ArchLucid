@@ -8,6 +8,8 @@ public sealed class InMemoryStaleInFlightRunMetricsReader : IStaleInFlightRunMet
     /// <inheritdoc />
     public Task<StaleInFlightRunMetricsSnapshot> ReadSnapshotAsync(CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         return Task.FromResult(Empty);
     }
 }

@@ -209,7 +209,7 @@ public static class FinalizeQualityFindingSignals
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        if (finding.IsMuted || IsFinalizeResolved(finding, latestDisposition))
+        if (finding.IsMuted)
             return false;
 
         return IsDeferred(latestDisposition);

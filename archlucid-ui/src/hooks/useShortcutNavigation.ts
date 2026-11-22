@@ -48,11 +48,6 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
           lastOpenReviewId: readCachedDeskContinuity().lastOpenReviewId,
         })
       : readReviewRunIdFromPathname(pathname ?? "");
-    const lastOpenArchitectureId = readCachedLastOpenArchitectureId();
-    const workingAltRHref = resolveWorkingAltRHref({
-      lastOpenArchitectureId,
-    }).href;
-    const deskContinuity = readCachedDeskContinuity();
 
     for (const entry of SHORTCUTS) {
       if (entry.route !== undefined && entry.route !== "") {
@@ -62,35 +57,28 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
           continue;
         }
 
-        let route =
-          workingMode && entry.key === "alt+n"
-            ? workingCreateStartHref
-            : workingMode && entry.key === "alt+r"
-              ? workingAltRHref
-              : resolveRegistryShortcutRoute(entry, productLine);
-
-        if (workingMode) {
-          const deskTool = workingDeskToolFromShortcutKey(entry.key);
-
-          if (deskTool !== null) {
-            route = resolveWorkingDeskToolHref({
-              tool: deskTool,
-              lastOpenArchitectureId,
-              pathname,
-              lastOpenReviewId: deskContinuity.lastOpenReviewId,
-              productLine,
-            });
-          }
-        } else if (entry.key === "alt+c") {
-          const reviewRunId = readReviewRunIdFromPathname(pathname ?? "");
-
-          if (reviewRunId !== null) {
-            route = buildCompareTwoReviewsHref({ baseRunId: reviewRunId });
-          }
-        }
-
         next[entry.key] = {
           handler: () => {
+            let route = registryRoute;
+            if (workingMode && entry.key === "alt+n") {
+              route = workingCreateStartHref;
+            } else if (workingMode && entry.key === "alt+r") {
+              route = resolveWorkingAltRHref({ lastOpenArchitectureId: readCachedLastOpenArchitectureId() }).href;
+            } else if (workingMode) {
+              const deskTool = workingDeskToolFromShortcutKey(entry.key);
+              if (deskTool !== null) {
+                route = resolveWorkingDeskToolHref({
+                  tool: deskTool,
+                  lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+                  pathname,
+                  lastOpenReviewId: readCachedDeskContinuity().lastOpenReviewId,
+                  productLine,
+                });
+              }
+            } else if (entry.key === "alt+c" && openPackageRunId !== null) {
+              route = buildCompareTwoReviewsHref({ baseRunId: openPackageRunId });
+            }
+
             router.push(route);
           },
           description: resolveShortcutDescription(entry, workingMode, openPackageRunId !== null, productLine),

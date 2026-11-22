@@ -644,9 +644,10 @@ public static class AzureExtractorPackageInventoryReader
 
     private static string? TryReadString(JsonElement row, string propertyName)
     {
-        if (!row.TryGetProperty(propertyName, out JsonElement value))
+        if (!row.TryGetProperty(propertyName, out JsonElement value) || value.ValueKind is JsonValueKind.Null)
             return null;
 
-        return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
+        string? text = value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
+        return string.IsNullOrWhiteSpace(text) ? null : text;
     }
 }

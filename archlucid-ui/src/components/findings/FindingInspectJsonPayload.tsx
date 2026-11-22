@@ -82,8 +82,7 @@ export function FindingInspectJsonPayload({ value }: { value: unknown }) {
       className="rounded-md border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950/40"
       open={open}
       onToggle={(event) => {
-        event.preventDefault();
-        setOpen(!openRef.current);
+        setOpen(event.currentTarget.open);
       }}
     >
       <summary className={cn("cursor-pointer px-3 py-2 text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>

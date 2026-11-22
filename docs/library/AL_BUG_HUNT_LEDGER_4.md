@@ -1,5 +1,121 @@
 > **Scope:** Contributor-reference — hunt ledger for `/al-bug4` (Core, host, persistence, and extraction). Edit this file only from that command. Sync and push `bugsmash-4`. Do not edit the other set ledgers in the same hunt.
 
+## Zone: application-infra-evidence
+
+2026-11-21 thorough hunt #3 (hit+dry): promoted `CloudResourceEvidenceHubService.TryGetHubAsync` — explicit `SnapshotId = Guid.Empty` bypassed `LastSeenSnapshotId` via null-coalescing (`??` treats empty guid as set) and skipped hub slice load; `ResolveHubSnapshotId` normalizes empty guid to unset before identity fallback; regression `TryGetHubAsync_empty_snapshot_query_uses_last_seen_snapshot_for_hub_slice`. Cheap-disproof **valid-no-repro** drift workbench list paths omit dedicated resource-type text filter (never-show ARM types only; no padded token path), **valid-no-repro** `AuditHybridEvidenceQueryService` returns null when snapshot header missing or assessment mismatch (line 37 gate), **valid-no-repro** `VisionDiagramIngestService` runs sealed-hash guard before every `UpsertAsync` (single ingest path), **valid-no-repro** `StructuredDiagramIngestService.MergeModel` keeps trust-boundary labels case-distinct (`StringComparer.Ordinal` append). Also fixed master compile typo `WaiverExpiryReminderIdempotency.BuildKey` (`expiryDay` -> `expiryInstant`) and init-only waiver status test assignment uncovered while building. Focused filters **8/8** (hub + idempotency). Reseeded five `(candidate)` monitors below.
+
+- [x] (fixed) `CloudResourceEvidenceHubService` — empty snapshot query skipped last-seen slice — **promoted 2026-11-21 thorough hunt #3:** `ResolveHubSnapshotId`.
+- [x] (valid-no-repro) `InfraEvidenceDriftWorkbenchQueryService` — whitespace resource type filter — **cheap-disproof 2026-11-21 thorough hunt #3:** no resource-type filter param in service surface.
+- [x] (valid-no-repro) `AuditHybridEvidenceQueryService` — items without snapshot header — **cheap-disproof 2026-11-21 thorough hunt #3:** header null/mismatch gate.
+- [x] (valid-no-repro) `VisionDiagramIngestService` — retry bypasses sealed-hash guard — **cheap-disproof 2026-11-21 thorough hunt #3:** guard precedes upsert.
+- [x] (valid-no-repro) `StructuredDiagramIngestService.MergeModel` — trust-boundary case collapse — **cheap-disproof 2026-11-21 thorough hunt #3:** ordinal distinct labels kept.
+
+- [ ] (candidate) `CloudResourceEvidenceHubService` — explicit `RunId = Guid.Empty` may still seal-guard skip vs hub deep link — locus: run id normalization; input: empty run guid in query; wrong outcome: missing reconcile handoff; reachability: hub CTAs.
+- [ ] (candidate) `InfraEvidenceDriftWorkbenchQueryService.ListSnapshotsAsync` — whitespace `subscriptionId` may return zero rows vs all subscriptions — locus: SQL `NULL` vs blank; input: padded subscription filter; wrong outcome: empty workbench; reachability: drift snapshot list.
+- [ ] (candidate) `AuditHybridEvidenceQueryService` — snapshot items returned when manual links empty but requirements mismatch — locus: requirement id join; input: orphan snapshot items; wrong outcome: empty kinds vs misleading automated; reachability: hybrid tab.
+- [ ] (candidate) `VisionDiagramIngestService` — second concurrent ingest same run — locus: new diagram id each call; input: duplicate ingest; wrong outcome: multiple vision models; reachability: ingest retries (monitor).
+- [ ] (candidate) `InfrastructureDiagramComparisonService.MergeModel` — trust-boundary merge vs structured ingest parity — locus: duplicate helpers; input: divergent future edit; wrong outcome: behavior skew; reachability: diagram merge paths (monitor).
+2026-11-21 thorough hunt #2 (dry): cheap-disproof on five reseed `(candidate)` monitors from hunt #1 — **valid-no-repro by design** `AzureInventorySnapshotMaterializer.TryMaterializePackageAsync` still returns `Succeeded` when post-commit coordinator fails (`AnalysisPostCommitFailed`; regression `TryMaterializePackageAsync_reports_committed_snapshot_when_analysis_fails`), **valid-no-repro** `InfrastructureDiagramComparisonService.MergeModel` edge dedupe key includes `SourceId|TargetId|Label` (distinct labels kept), **valid-no-repro** `InfraEvidenceAskGroundingService` simulator diagram insufficient path returns citations without `ViewPlan` by design (regression `TryAnswerAsync_simulator_diagram_insufficient_returns_citations_without_view_plan`), **valid-no-repro** `FourRealityDriftEngine.RunAsync` logs persist failures and returns `PathsDiscovered` vs `PathsPersisted` separately, **valid-no-repro** `AzureInventoryDiffService.ComputeAndPersistDiffAsync` still notifies consumers for cached pairs and zero-change diffs (`ComputeAndPersistDiffAsync_when_snapshot_pair_already_persisted_still_notifies_diff_consumers`, `when_snapshots_share_content_hash_still_notifies_diff_consumers`). Scoped filters above passed in workspace run. Reseeded five `(candidate)` monitors below. No production change.
+
+- [x] (valid-no-repro) `AzureInventorySnapshotMaterializer` — post-materialization analysis failure silent success — **cheap-disproof 2026-11-21 thorough hunt #2:** operator flag `AnalysisPostCommitFailed`; hunt #7330 class.
+- [x] (valid-no-repro) `InfrastructureDiagramComparisonService.MergeModel` — duplicate edge merge drops label variants — **cheap-disproof 2026-11-21 thorough hunt #2:** label in edge key.
+- [x] (valid-no-repro) `InfraEvidenceAskGroundingService` — simulator citations without view plan — **cheap-disproof 2026-11-21 thorough hunt #2:** insufficient diagram branch + regression test.
+- [x] (valid-no-repro) `FourRealityDriftEngine` — swallowed path persist under-reports paths — **cheap-disproof 2026-11-21 thorough hunt #2:** `PathsDiscovered`/`PathsPersisted` split.
+- [x] (valid-no-repro) `AzureInventoryDiffService` — cached zero-change diff skips consumers — **cheap-disproof 2026-11-21 thorough hunt #2:** existing consumer notification tests.
+
+- [x] (fixed) `CloudResourceEvidenceHubService` — hub slice merge may drop scope guard when snapshot id empty — **promoted hunt #3:** wrong monitor; actual bug was empty guid blocked LastSeen fallback. — locus: empty snapshot; input: `Guid.Empty` slice request; wrong outcome: cross-snapshot rows; reachability: evidence hub panel.
+- [x] (valid-no-repro) `InfraEvidenceDriftWorkbenchQueryService` — drift workbench filter may accept whitespace-only resource type — **cheap-disproof hunt #3.** — locus: trim; input: padded resource type token; wrong outcome: over-broad filter; reachability: drift workbench list.
+- [x] (valid-no-repro) `AuditHybridEvidenceQueryService` — hybrid bundle may surface assessment items when snapshot header missing — **cheap-disproof hunt #3.** — locus: header gate; input: items without header; wrong outcome: misleading bundle; reachability: hybrid evidence tab.
+- [x] (valid-no-repro) `VisionDiagramIngestService` — duplicate ingest may bypass sealed-hash guard on retry — **cheap-disproof hunt #3.** — locus: guard ordering; input: second upsert same diagram; wrong outcome: unguarded persist; reachability: vision ingest job.
+- [x] (valid-no-repro) `StructuredDiagramIngestService.MergeModel` — merge may drop trust-boundary label case variants — **cheap-disproof hunt #3.** — locus: case sensitivity; input: mixed-case boundary labels; wrong outcome: boundary loss; reachability: structured ingest compare.
+
+2026-11-20 thorough hunt #1 (dry): attempted failing repros on five seed `(hunt-ready)` monitors in `ArchLucid.Application/InfraEvidence`; cheap-disproof closed all five — **valid-no-repro** diagram compare ids are `Guid` keys with mapping label trim (`InfrastructureDiagramComparisonService.SaveNodeMappingAndRefreshAsync`), **valid-no-repro** ask grounding gates empty bundles on `HasEvidence` (`InfraEvidenceAskGroundingService`), **valid-no-repro** vision ingest runs sealed-hash guard before `repository.UpsertAsync`, **valid-no-repro** hybrid evidence compares `AssessmentId` to snapshot header (`AuditHybridEvidenceQueryService`), **valid-no-repro** four-reality drift partial subscription concerns not observed on `FourRealityDriftEngine.RunAsync` without a failing fixture. Scoped `FullyQualifiedName~InfraEvidence` **1645/1651** (six unrelated snapshot-mermaid golden/layout failures in this workspace run; not promoted). Reseeded five `(candidate)` monitors below. No production change.
+
+- [x] (valid-no-repro) `IInfrastructureDiagramComparisonService` — padded diagram id compare mismatch — **cheap-disproof 2026-11-20 thorough hunt #1:** Guid comparison + label trim.
+- [x] (valid-no-repro) `IInfraEvidenceAskGroundingService` — header-only snapshot confident answer — **cheap-disproof 2026-11-20 thorough hunt #1:** `!bundle.HasEvidence` insufficient path.
+- [x] (valid-no-repro) `IFourRealityDriftEngine` — partial enumeration flag omitted — **cheap-disproof 2026-11-20 thorough hunt #1:** no failing repro; drift analyzer inputs.
+- [x] (valid-no-repro) `IAuditHybridEvidenceQueryService` — padded assessment id inconsistency — **cheap-disproof 2026-11-20 thorough hunt #1:** header `AssessmentId` equality gate.
+- [x] (valid-no-repro) `IVisionDiagramIngestService` — persist before sealed-hash guard — **cheap-disproof 2026-11-20 thorough hunt #1:** guard precedes upsert.
+
+### Hypotheses
+
+- [ ] (candidate) `CloudResourceEvidenceHubService` — empty snapshot hub slice scope — monitor; thorough hunt #2 reseed.
+- [ ] (candidate) `InfraEvidenceDriftWorkbenchQueryService` — whitespace resource type filter — monitor; thorough hunt #2 reseed.
+- [ ] (candidate) `AuditHybridEvidenceQueryService` — items without snapshot header — monitor; thorough hunt #2 reseed.
+- [ ] (candidate) `VisionDiagramIngestService` — retry sealed-hash guard — monitor; thorough hunt #2 reseed.
+- [ ] (candidate) `StructuredDiagramIngestService.MergeModel` — trust-boundary case merge — monitor; thorough hunt #2 reseed.
+
+- **id:** application-infra-evidence
+- **status:** open
+- **impact:** high
+- **aliases:** application infra evidence services
+- **paths:** ArchLucid.Application/InfraEvidence/
+- **test-filter:** FullyQualifiedName~InfraEvidence
+- **hunts:** 3
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-21
+- **last-bug:** 2026-11-21
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+## Zone: persistence-infra-evidence
+
+2026-11-21 thorough hunt #3 (dry, backfill): cheap-disproof on four hunt #2 `(candidate)` reseeds — **valid-no-repro** `SqlSecurityEvidencePathRepository.ListPagedAsync` empty `SnapshotId` already normalized with hunt #2 `NormalizeOptionalListFilterGuid` (parity regression `ListPagedAsync_empty_snapshot_id_matches_unset_filter`), **valid-no-repro** `SqlAzureInventorySnapshotRepository.ListResourcesBySnapshotIdPagedAsync` treats `cloudResourceId == Guid.Empty` as unset (`resourceId != Guid.Empty` gate), **valid-no-repro** duplicate operational finding natural key fails closed in SQL (`Duplicate_natural_key_throws_and_foreign_tenant_lookup_returns_null`; not silent duplicate), **valid-no-repro** `SqlAuditEvidenceSnapshotRepository.TryGetHeaderInScopeAsync` joins `AuditAssessments` for workspace/project pushdown (`ProjectScopeSqlPushdownBoundaryTests`). Scoped `FullyQualifiedName~NoOpAzureInventorySnapshotRepositoryTests` **2/2** (SQL integrations skippable without container). Ledger/run-log recorded on master via backfill (hunt PR #7453 closed without merge). Reseeded five `(candidate)` monitors below.
+
+- [x] (valid-no-repro) `SqlSecurityEvidencePathRepository.ListPagedAsync` — empty snapshot `Guid.Empty` — **cheap-disproof 2026-11-21 thorough hunt #3:** hunt #2 normalizer + regression.
+- [x] (valid-no-repro) `SqlAzureInventorySnapshotRepository.ListResourcesBySnapshotIdPaged` — empty resource filter — **cheap-disproof 2026-11-21 thorough hunt #3:** optional filter gate in SQL partial.
+- [x] (valid-no-repro) `SqlOperationalSecurityFindingRepository` — natural key upsert race — **cheap-disproof 2026-11-21 thorough hunt #3:** duplicate insert throws; app transaction.
+- [x] (valid-no-repro) `SqlAuditEvidenceSnapshotRepository` — scoped header without assessment join — **cheap-disproof 2026-11-21 thorough hunt #3:** assessment join + pushdown boundary suite.
+
+- [ ] (candidate) `SqlSecurityEvidencePathRepository.ListPagedAsync` — `PathKind` unset vs invalid enum cast — locus: int? binding; input: out-of-range kind; wrong outcome: SQL error vs all rows; reachability: path inspector filters.
+- [ ] (candidate) `SqlAzureInventorySnapshotRepository.ListSnapshotsAsync` — whitespace `subscriptionId` vs SQL `NULL` — locus: trim; input: spaces-only subscription; wrong outcome: zero snapshots; reachability: drift snapshot picker.
+- [ ] (candidate) `SqlRemediationWaveRepository` — wave list paging with `Guid.Empty` tenant sentinel — locus: trusted job scope; input: empty tenant filter; wrong outcome: scope violation; reachability: remediation wave browser (monitor).
+- [ ] (candidate) `SqlAzureInventoryDiffRepository.ListChangesByDiffIdAsync` — empty `cloudResourceId` facet — locus: optional resource filter; input: `Guid.Empty`; wrong outcome: over-filter changes; reachability: diff detail (monitor parity with snapshot list).
+- [ ] (candidate) `SqlAuditEvidenceSnapshotRepository.ListItemsInScopeAsync` — foreign workspace snapshot id guess — locus: scope SQL; input: snapshot in other project; wrong outcome: item leak; reachability: hybrid evidence items.
+2026-11-21 thorough hunt #2 (hit+dry): promoted `SqlSecurityEvidencePathRepository.ListPagedAsync` — `CloudResourceId` of `Guid.Empty` over-filtered vs unset (`IS NULL` branch) while API/model binding may pass empty guid; normalize `Guid.Empty` to null for `SnapshotId` and `CloudResourceId` filter params; regression `ListPagedAsync_empty_cloud_resource_id_matches_unset_filter`. Cheap-disproof **valid-no-repro** scoped SQL list methods on inventory snapshot repository still push down workspace/project in SQL (`ProjectScopeSqlPushdownBoundaryTests`), **valid-no-repro** operational finding ingest batching is transactional at application orchestration layer (no partial SQL batch in repo surface), **valid-no-repro** audit snapshot inventory links insert inside single SQL transaction with header PK (retry hits duplicate snapshot not orphan links), **valid-no-repro** diff consumer fan-out for zero-change diffs lives in `AzureInventoryDiffService` with existing regression tests (application zone). Scoped `FullyQualifiedName~ListPagedAsync_empty_cloud_resource_id` (Skippable if no SQL container). Reseeded four `(candidate)` monitors below.
+
+- [x] (fixed) `SqlSecurityEvidencePathRepository.ListPagedAsync` — `Guid.Empty` cloud resource filter — **promoted 2026-11-21 thorough hunt #2:** `NormalizeOptionalListFilterGuid`.
+- [x] (valid-no-repro) `SqlAzureInventorySnapshotRepository` — list overload scope leak — **cheap-disproof 2026-11-21 thorough hunt #2:** pushdown boundary suite.
+- [x] (valid-no-repro) `SqlOperationalSecurityFindingRepository` — bulk upsert partial batch — **cheap-disproof 2026-11-21 thorough hunt #2:** no repo-level partial batch; app orchestration.
+- [x] (valid-no-repro) `SqlAuditEvidenceSnapshotRepository.InsertSnapshotInScopeAsync` — inventory link duplicate on retry — **cheap-disproof 2026-11-21 thorough hunt #2:** single transaction + header PK.
+- [x] (valid-no-repro) `SqlAzureInventoryDiffRepository` — zero-change diff consumer skip — **cheap-disproof 2026-11-21 thorough hunt #2:** application `AzureInventoryDiffService` tests.
+
+- [x] (valid-no-repro) `SqlSecurityEvidencePathRepository.ListPagedAsync` — empty snapshot filter `Guid.Empty` vs null — **cheap-disproof hunt #3.** — locus: snapshot facet; input: empty snapshot guid; wrong outcome: zero rows; reachability: path inspector (monitor; hunt #2 fixed cloud resource; verify snapshot parity).
+- [x] (valid-no-repro) `SqlAzureInventorySnapshotRepository.ListResourcesBySnapshotIdPaged` — `cloudResourceId` empty guid — **cheap-disproof hunt #3.** — locus: optional resource filter; input: `Guid.Empty`; wrong outcome: over-filter; reachability: inventory resource browser.
+- [x] (valid-no-repro) `SqlOperationalSecurityFindingRepository` — natural key upsert race — **cheap-disproof hunt #3.** — locus: concurrent ingest; input: parallel same natural key; wrong outcome: duplicate finding; reachability: SecureNow ingest job.
+- [x] (valid-no-repro) `SqlAuditEvidenceSnapshotRepository` — scoped header read without assessment join — **cheap-disproof hunt #3.** — locus: scope pushdown; input: foreign assessment id guess; wrong outcome: header leak; reachability: hybrid evidence (monitor; scoped header SQL join present).
+
+2026-11-20 thorough hunt #1 (dry): cheap-disproof on five seed `(hunt-ready)` monitors in `ArchLucid.Persistence/InfraEvidence` — **valid-no-repro** `NoOpAzureInventorySnapshotRepository` detail/header reads return `null` for unknown ids (regression `NoOpAzureInventorySnapshotRepositoryTests`), **valid-no-repro** `SqlRemediationWaveRepository` keys `WaveId` as `Guid` (no string padding boundary), **valid-no-repro** `SqlAuditEvidenceSnapshotRepository` binds `header.TenantId` as `Guid` on insert/read (no whitespace tenant string path), **valid-no-repro** `SqlAzureInventoryDiffNarrativeRepository.InsertAsync` is append-only insert without OCC (product accepts duplicate narratives unless upstream dedupes), **valid-no-repro** `SqlSecurityEvidencePathRepository.ListPagedAsync` optional filters use `IS NULL` so unset facets match all while `Guid.Empty` applies EXISTS (not blank-token match-all). Scoped `FullyQualifiedName~NoOpAzureInventorySnapshotRepositoryTests` **2/2** passed. Reseeded five `(candidate)` monitors below. No production change.
+
+- [x] (valid-no-repro) `NoOpAzureInventorySnapshotRepository` — missing snapshot returns default struct — **cheap-disproof 2026-11-20 thorough hunt #1:** `TryGet*` return `null`; regression tests.
+- [x] (valid-no-repro) `SqlRemediationWaveRepository` — padded wave id not found — **cheap-disproof 2026-11-20 thorough hunt #1:** `WaveId` is `Guid`.
+- [x] (valid-no-repro) `SqlAuditEvidenceSnapshotRepository` — padded tenant id orphan row — **cheap-disproof 2026-11-20 thorough hunt #1:** `TenantId` is `Guid` in SQL parameters.
+- [x] (valid-no-repro) `SqlAzureInventoryDiffNarrativeRepository` — concurrent narrative LWW — **cheap-disproof 2026-11-20 thorough hunt #1:** insert-only; no update path.
+- [x] (valid-no-repro) `SqlSecurityEvidencePathRepository.ListPagedAsync` — empty facet matches all paths — **cheap-disproof 2026-11-20 thorough hunt #1:** `NULL` optional filters; `Guid.Empty` narrows via EXISTS.
+
+### Hypotheses
+
+### Hypotheses
+
+- [ ] (candidate) `SqlSecurityEvidencePathRepository.ListPagedAsync` — `PathKind` enum edge — monitor; thorough hunt #3 reseed.
+- [ ] (candidate) `SqlAzureInventorySnapshotRepository.ListSnapshotsAsync` — whitespace `subscriptionId` — monitor; thorough hunt #3 reseed.
+- [ ] (candidate) `SqlRemediationWaveRepository` — empty tenant sentinel — monitor; thorough hunt #3 reseed.
+- [ ] (candidate) `SqlAzureInventoryDiffRepository` — empty `cloudResourceId` on change list — monitor; thorough hunt #3 reseed.
+- [ ] (candidate) `SqlAuditEvidenceSnapshotRepository.ListItemsInScopeAsync` — cross-project snapshot item scope — monitor; thorough hunt #3 reseed.
+
+- **id:** persistence-infra-evidence
+- **status:** open
+- **impact:** high
+- **aliases:** persistence infra evidence repositories
+- **paths:** ArchLucid.Persistence/InfraEvidence/
+- **test-filter:** FullyQualifiedName~InfraEvidence
+- **hunts:** 4
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-21
+- **last-bug:** 2026-11-21
+- **related-pd-tb:** none
+- **code-changed-since:** yes
 ## Zone: weekly-digest-email
 2026-11-04 thorough hunt #1686 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `host-core-coordination` (dry **#1683**, **#1684**, **#1685** / run log; picker **`shouldRotate: true`** with **`-AvoidZoneId host-core-coordination`** → `weekly-digest-email`; reason: *3 consecutive low-yield hunt(s) on 'host-core-coordination' (outcomes: dry, dry, dry).*). Cheap-disproof closed five header `(candidate)` monitor rows from hunt #1680 reseed (regression family hunt **#1119**) — **valid-no-repro** executive summary cancellation after provider accept before ledger record (send-then-record TB-089 tradeoff — hunts #1081/#1051; parity hunt **#1252**), **valid-no-repro** sponsor report partial multi-recipient `false` while first mailbox ledger-recorded (intentional retry contract — `WeeklySponsorReportEmailDispatcher_partial_multi_recipient_send_failure_delivers_remaining_recipients_on_retry`; hunt #1081; parity **#1252**), **valid-no-repro** provider exception after remote accept without ledger row (ambiguous failure retries safely — hunt #1051; parity **#1252**), **valid-no-repro** options reload mid-dispatch (`EmailNotificationOptions` captured once via `CurrentValue` in `WeeklyExecutiveSummaryEmailDispatcher`; hunt #1081; parity **#1252**), **valid-no-repro** Unicode line separators in summary markdown (`EmailMultipartPlainTextLineBreakNormalizer.NormalizeOptional` before render — hunt #1081 + `EmailMultipartPlainTextLineBreakNormalizerTests`; parity **#1252**). Reseeded five `(candidate)` monitor rows below (regression family hunt **#1089**; hunt #1686 reseed); scoped **2/2** `WeeklyExecutiveSummaryJobTests` + **80/80** `DigestEmailDispatcherIdempotencyTests` passed (`RunAnalyzers=false`). Run-log low-yield streak on `weekly-digest-email` **starts 1/3** after this record (rotation target). Private beta: n/a.
 
@@ -412,13 +528,13 @@
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-12 seed hunt #2138 (seed-only): reseeded weekly-digest-email; no new hunt-ready rows.
 
@@ -558,8 +674,8 @@
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **consecutive-dry-hunts:** 1
-- **last-bug:** never
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
 - **code-changed-since:** 7
 
@@ -574,11 +690,11 @@
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 2
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
+- **hunts:** 3
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-17
-- **last-bug:** never
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
 - **code-changed-since:** 7
 
@@ -1194,13 +1310,13 @@
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed all five open `(candidate)` rows; regressions `Worker_host_skips_pilot_overlay_in_development_from_content_root`, `Worker_host_leaves_modern_max_payload_unset_when_advanced_carries_legacy_context_ingestion_only`, and `Worker_host_starts_in_testing_when_archlucid_auth_mode_unset`; reaffirmed post-`Build()` `CollectErrors` parity via existing `Worker_host_fails_fast_when_simulator_has_negative_max_completion_tokens`; 17 scoped worker host/composition tests passed.
 
@@ -1630,13 +1746,13 @@
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed four seeded candidates; reseeded four candidates; 76 Host.Core + 42 focused Api background-job tests passed.
 
@@ -1722,13 +1838,13 @@
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-05 thorough hunt (dry): cheap-disproved four seeded candidates (MarkCanceled vs TryAssignUnlessCanceled, processor not-claimable poll, hung execute watchdog vs execute lease TTL, integration outbox dequeue pagination); 74 Host.Core + 15 focused Api tests passed.
 
@@ -2120,11 +2236,11 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-16 seed hunt (seed-only): re-read the three analyzer implementations; cheap-disproved interface `[AllowAnonymous]` inherited-action AL0001 symmetry gap; regression lock `Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface`; seeded five `(candidate)` rows; 90 scoped analyzer tests passed (`RunAnalyzers=false`).
@@ -2387,11 +2503,11 @@
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 0
-- **last-hunt:** never
-- **bugs-found:** 0
+- **hunts:** 1
+- **last-hunt:** 2026-11-20
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2621,11 +2737,11 @@
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 0
-- **last-hunt:** never
-- **bugs-found:** 0
+- **hunts:** 1
+- **last-hunt:** 2026-11-20
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2745,11 +2861,11 @@
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 2
+- **hunts:** 3
 - **last-hunt:** 2026-11-17
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 - **reseed-policy:** `docs/library/AL_BUG_INVENTORY_HOST_LADDER_SATURATION.md` — arithmetic sibling classes saturated; no new per-integer tests (CI allowlist); reseed from churn/sibling-path/analyzer signal only.
@@ -5813,11 +5929,11 @@
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 0
-- **last-hunt:** never
-- **bugs-found:** 0
+- **hunts:** 1
+- **last-hunt:** 2026-11-20
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11250,10 +11366,10 @@
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-25 thorough hunt (hit): promoted JSON reference `/subscriptions/` guard; non-ARM `{"id":"not-an-arm-id"}` string scalars no longer persist as capture storage ids and leading-`{` strings no longer fall back to raw JSON text; regressions `TryReadScalarString_returns_null_for_json_reference_without_subscription_arm_id` and `TryReadScalarString_returns_null_for_json_string_scalar_without_subscription_arm_id`; cheap-disproof closed capture edge mapper normalization (`MapAssociations` already calls `ArmResourceIdNormalizer.Normalize`), Event Grid webhook userinfo (`TryExtractHost_strips_userinfo_from_webhook_url`), Cosmos Mongo host index parity (`ExtractKnownHosts` already emits `mongo.cosmos.azure.com`), route-table JSON `nextHopArmId` string scalars (`Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_json_string_scalar_wrapping_id_object`); seeded five follow-on `(candidate)` rows; 1598 scoped `AzureExtractor` tests passed. Private beta: invited operators do not get spurious Event Hub capture edges to malformed companion reference blobs.
 
@@ -11274,16 +11390,16 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 
 2026-11-03 thorough hunt (hit): promoted package round-trip of Service Bus forwardTo / forwardDeadLetteredMessagesTo. Live ARM extraction already stored the entity names, but HostedAzureExtractorZipBuilder omitted them and AzureInventoryMessagingAssociationParser never read them back, so imported packages dropped Forwards to edges. JSON null on optional companion fields was also persisted as the word null via GetRawText(), which invented a capture target. The package now writes forwardToName and forwardDeadLetteredMessagesToName, the parser reads them, and JSON null stays absent. Regressions TryParse_reads_service_bus_forward_target_names, TryParse_treats_json_null_capture_and_forward_fields_as_absent, BuildZip_round_trips_service_bus_forward_target_names. Private beta: invited operators who import a hosted Azure inventory package keep Service Bus Forwards to and Forwards dead-letter to edges when a queue or topic names another entity in the same namespace, and messaging rows without capture no longer store the word null as a capture target.
 
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed→hit): promoted Application Gateway `backendIPConfigurations`. A NIC-only pool produced no backend target because the resolver required `backendAddresses`. Ip configurations now resolve to the NIC, and address targets stay. Regression `ResolveApplicationGatewayBackends_reads_ip_configuration_from_backend_pool`. 1474 scoped AzureExtractor tests passed (1447 Core + 27 Application), and 5 load-balancer diagram applier tests passed.
 
@@ -16917,18 +17033,18 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
-- **last-bug:** never
-- **last-bug:** never
-- **last-bug:** never
-- **last-bug:** never
-- **last-bug:** never
-- **last-bug:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
+- **last-bug:** 2026-11-21
+- **last-bug:** 2026-11-21
+- **last-bug:** 2026-11-21
+- **last-bug:** 2026-11-21
+- **last-bug:** 2026-11-21
+- **last-bug:** 2026-11-21
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 - **reseed-policy:** `docs/library/AL_BUG_CONFIGURATION_SUMMARY_LADDER_SATURATION.md` — arithmetic sibling classes saturated; no new per-integer tests (CI allowlist); reseed from churn/sibling-path/analyzer signal only.
@@ -17017,13 +17133,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-16 thorough hunt (hit): proved `AzureOpenAiEndpointNormalizer.EnsureTrailingSlash` appended `/` after query strings on non-classic Azure OpenAI hosts; `EnsureTrailingSlash` now ends the path before the query; proved `ArchLucid:Secrets:*` metadata paths redacted because segment `Secrets` matched embedded `Secret`; negated plural `Secrets` section segment; cheap-disproved Quick Scan merge identity-cap candidate; 1087 scoped Configuration tests passed (`RunAnalyzers=false`).
 
@@ -17245,13 +17361,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-13 thorough hunt (hit): reseeded after master merge; proved `InsightDensityTextSimilarity.Tokenize` left `%`/`$`/`?` glued tokens at Jaccard 0.625; split delimiters; proved `non-compliant with the constraint` missed `HasFalsifiabilitySignal`; regex `non[- ]?compliant`; regressions in `DeterministicInsightDensityGateTests` and `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`; cheap-disproof closed caret/tilde/conflict/noncompliant/forbidden-from candidates; 1727 scoped tests passed.
 
@@ -17436,11 +17552,11 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 
 2026-10-30 thorough hunt #864 (hit): proved spaced ASCII `^`, `~`, `!`, and `?` between managed-identity words missed `HasManagedIdentityConstraint` while compact slug forms stayed suppressed; extended `NormalizeSpacedPhraseSeparators`; cheap-disproof closed spaced-ampersand suffix negation as `(valid-no-repro)`; regressions in `RequestConstraintPhraseSpacedCaretTildeExclamationQuestionTests`; reseeded five `(candidate)` rows; scoped RequestConstraint filter **935/935** (Release, `RunAnalyzers=false`). Private beta: paste-style spaced carets, tildes, exclamation points, and question marks in architecture constraint text now classify managed identity instead of silently missing them on the RC35 line.
 
@@ -17652,13 +17768,13 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-30 thorough hunt #887 (dry): **Zone rotation** after three consecutive dry hunts on `knowledge-graph-provenance` (dry, dry, dry). Cheap-disproof closed five open `(candidate)` rows — stateless transition table allows a single `CommitFinalized` from `ReadyForCommit` and denies repeat finalize from `Committed` (`TryTransition_allows_commit_finalized_from_ready_for_commit`, `TryTransition_denies_commit_finalized_from_committed`), `FailedPartial` + pipeline dead-letter precedes terminal failure branch (`ResolveFromRunHeader_failed_partial_with_pipeline_dead_letter_returns_failed_not_in_progress`), JSON string `"null"` `failureClass` is not pipeline dead-letter (`IsDeadLettered_returns_false_for_quoted_null_string_failure_class`; parity with JSON null token test), Unicode NBSP-only legacy status coerces to `Created` via `string.IsNullOrWhiteSpace` (`TryParseStatus_coerces_unicode_nbsp_whitespace_only_legacy_status_to_created`), and `ExecutionCompletedQualityRejected` + pipeline dead-letter (`ResolveFromRunHeader_quality_rejected_with_pipeline_dead_letter_returns_failed_like_terminal_only`); reseeded five `(candidate)` rows; scoped **77** Core `RunAuthority`/`AuthorityRunLifecycle` tests passed. Private beta: no product change.
 
@@ -18070,13 +18186,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-12 thorough hunt #2088 (seed-only): reseeded core-tenancy-commercial; 6 scoped tests passed; no new hunt-ready rows
 
@@ -18118,13 +18234,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 2026-09-12 seed hunt #2168 (seed-only): reseeded core-tenancy-commercial with `-Hint billing-webhooks`; no new hunt-ready rows.
 2026-09-12 seed hunt #2168 (seed-only): reseeded core-tenancy-commercial with `-Hint billing-webhooks`; no new hunt-ready rows.
 
@@ -18203,13 +18319,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-11-02 thorough hunt #1428 (dry): no rotation (`shouldRotate: false`; zone **`consecutive-dry-hunts`** was **5** before this dry — **this dry completes 6**; **`reopened`** after git churn with five monitor rows from seed **#28** / **2026-10-08** dry family). Cheap-disproof closed five header `(candidate)` monitor rows — **valid-no-repro** `DelayGenerator` uses exponential backoff without honoring `Retry-After` on HTTP 429 (documented ARM/retail retry posture in `AzureRmAndRetailPricesHttpRetryPolicy`; bounded retries; regression `AzureRmAndRetailPricesHttpRetryPolicy_retries_http_429_too_many_requests`; parity **2026-10-08** dry), **valid-no-repro** HTTP `501` falls in transient `500`–`599` band with **MaxRetryAttempts** cap (intentional 5xx retry posture; regression `AzureRmAndRetailPricesHttpRetryPolicy_retries_http_502_on_fixed_public_authorities` / `AzureRmAndRetailPricesHttpRetryPolicy_retries_http_503_service_unavailable`; parity **2026-10-08** dry), **invalid** `ContentSafetyResult` allows contradictory allowed/block fields (scoped zone is the result contract only; no reachable consumer interprets impossible tuples; regression `ContentSafetyResult_is_llm_moderation_outcome_not_url_policy`; parity **2026-10-08** dry), **invalid** blocked `ContentSafetyResult` with null diagnostic fields (no scoped caller requires non-null reason/category/severity; parity **2026-10-08** dry), **valid-no-repro** `OutboundSocketsHttpHandlerSettings.Apply` omits connect timeout (pool profile tuning only; client timeout and connect guard wired outside this path; regression `External_integration_long_timeout_still_wires_private_network_connect_guard`; parity **2026-10-08** dry). Reseeded five `(candidate)` monitor rows below (seed **#28** regression family); scoped **75/75** Core `FullyQualifiedName~PrivateNetwork` tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -20298,13 +20414,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 - [x] (invalid) `IllustrativeInfrastructureCostFallback.ScaleByQuantity` — manifest nodes with `Quantity` 0 from `NormalizeQuantity` — **cheap-disproof 2026-10-30 seed hunt #951:** normalized zero quantity matches live `Math.Max(1, quantity)` billing on unit-month price.
 - [x] (invalid) `GcpSkuPricingParser.IsHourlyUsageUnit` — GCP catalog `usageUnit` token `"1 h"` — **cheap-disproof 2026-10-30 seed hunt #951:** spaced `"1 h"` is outside the explicit hourly token allow-list by design.
@@ -20478,10 +20594,10 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty` — object-shaped `evidenceRefs` with whitespace-only `text` and readable `id` dropped the ref when `text` key was present — **hit 2026-10-21 seed hunt:** independent `text`/`id` resolution; regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_id_when_text_property_is_whitespace_only`.
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
-- **last-hunt:** never
+- **last-bug:** 2026-11-21
+- **last-hunt:** 2026-11-20
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-28 thorough hunt #694 (dry): cheap-disproof closed five open `(candidate)` rows from hunt #103 reseed — intentional first-win on `[0.8, 0.9]` structured confidence arrays (regression `TryNormalizeStructuredJson_uses_finite_confidence_when_array_leads_with_boolean_entry` parity), null-skip on `[null, 0.75]` (same array reader), faithfulness `[true, 0.55]` via poison skip then finite parse (regression `FromAggregateJson_scales_percent_suffixed_faithfulness_support_ratio_with_interior_space_before_percent` parity with confidence boolean lead), duplicate `CONFIDENCE` trailing `["75 %"]` PreferLastNonEmpty contract (regression `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_interior_space_in_array`), and thin-space `"75\u2009%"` percent trim (regression `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_interior_space_before_percent`); seeded five follow-on `(candidate)` rows; scoped RunExplanation filter 236 passed (233 Core + 3 Application, Release); no production change.
 
@@ -20634,13 +20750,13 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `RunExplanationRiskCalloutBuilder.TryParseRiskPosture` — trailing empty `riskPosture` duplicate discarded earlier posture string — **hit 2026-10-14 seed hunt:** `PreferLastNonEmpty` on `riskPosture`; regression `FromAggregateJson_uses_non_empty_risk_posture_when_later_duplicate_is_empty`.
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.CountCitationObject` — trailing empty case-variant `id` on citation objects dropped countable citations — **hit 2026-10-14 seed hunt:** `PreferLastNonEmpty` for `id`/`text`; regression `FromAggregateJson_counts_object_citation_when_later_case_variant_id_is_empty`.
 - [x] (proven) `StructuredExplanationParser.TryReadObjectStringProperty` — trailing empty case-variant `id` on structured list objects dropped evidence ref ids — **hit 2026-10-14 seed hunt:** `PreferLastNonEmpty` when reading object-shaped list entries; regressions `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_when_later_case_variant_id_is_empty` and `RunExplanation_structured_json_object_evidence_ref_survives_empty_id_duplicate`.
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-11-02 thorough hunt #1512 (dry): no rotation (`shouldRotate: false`; default picker returned `core-explanation-json`; zone **`consecutive-dry-hunts`** was **8** before this dry — **this dry completes 9** on `core-explanation-json`; `code-changed-since` **no**). Cheap-disproof closed five header `(candidate)` monitor rows from hunt #1457 reseed (regression family hunt **#1244** / **#1143**) — **valid-no-repro** structured `"75\u205F%"` medium-mathematical-space percent trim (`char.IsWhiteSpace`; parity `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_interior_space_before_percent`; hunt **#1143** / **#1244**), **valid-no-repro** faithfulness `[true, null, 0.55]` boolean/null skip then ratio parse (aggregate array reader; hunt **#1143**), **valid-no-repro** duplicate `CONFIDENCE:false` trailing boolean scalar (regression `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_boolean_scalar` — boolean alias empty; keeps `0.8`), **valid-no-repro** confidence `[true, 0.75]` structured boolean skip (regression `TryNormalizeStructuredJson_uses_finite_confidence_when_array_leads_with_boolean_entry`), **valid-no-repro** confidence `[0.75, 0.9]` first-finite policy (hunt **#694** / **#967**). Reseeded five `(candidate)` monitor rows below (regression family hunt **#1260** / **#1135**); scoped RunExplanation filter **233/233** passed (Core, `RunAnalyzers=false`). Private beta: n/a.
 
@@ -23014,11 +23130,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -26721,13 +26837,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-30 thorough hunt #1001 (dry): rotation did not fire (`shouldRotate: false`; picker marked `seedHunt: true` with empty JSON candidate list while ledger retained five open `(candidate)` rows from hunt #999 — executed thorough cheap-disproof on that queue). Closed five header `(candidate)` rows — **valid-no-repro** padded plus case-variant duplicate manifest decision ids vs contained-in-manifest (`Build_deduplicates_contained_in_manifest_when_manifest_lists_padded_duplicate_decision_ids`); **valid-no-repro** base-graph overlay duplicate edge `InferenceSource` casing (`Merge_coalesces_base_graph_overlay_duplicate_edge_inference_sources_when_inference_sources_differ_only_by_casing`; parity with overlay-only inference casing regression); **valid-no-repro** duplicate finding rows with padded related-node ids plus case-variant graph nodes (`Build_deduplicates_influence_edges_when_duplicate_finding_rows_list_padded_related_ids_and_graph_lists_case_variant_nodes`, hunt #998); **valid-no-repro** duplicate ARM row subscription id backfill with case-variant metadata (`BuildOverlay_backfills_subscription_id_from_duplicate_row_when_first_row_omits_subscription_id_with_case_variant`; `TryMergeTrimmedScalarProperty` case-insensitive agreement); **valid-no-repro** duplicate artifact display names differing only by padding (`Build_coalesces_duplicate_artifact_rows_when_names_differ_only_by_surrounding_whitespace`). Reseeded five follow-on `(candidate)` rows; scoped filter **712** KnowledgeGraph + **202** Provenance tests passed. Private beta: n/a.
 
@@ -29505,11 +29621,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29921,11 +30037,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -30481,10 +30597,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 68
 - **last-hunt:** 2026-10-20
 - **bugs-found:** 55
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -30514,10 +30630,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 82
 - **last-hunt:** 2026-10-20
 - **bugs-found:** 57
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -30596,10 +30712,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 68
 - **last-hunt:** 2026-10-20
 - **bugs-found:** 54
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -31030,12 +31146,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
-- **code-changed-since:** no
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
+- **code-changed-since:** yes
 
 2026-10-30 thorough hunt #983 (dry, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (dry, dry, dry), picker rotated with **`-AvoidZoneId`** to `host-composition`. Cheap-disproof closed five open `(candidate)` rows reseeded after hunt #979 — valid-no-repro local completed with document bytes kept when distributed reports failed with peer-specific error (`TryPoll_keeps_local_completed_bytes_when_distributed_is_failed`), valid-no-repro peer-only invalid distributed JSON returns failed poll copy (`TryPoll_reports_failure_when_distributed_state_payload_is_invalid_json`), valid-no-repro operation-canceled ingest propagates without importing remainder (`DiscoverAsync_propagates_operation_canceled_when_ingest_is_canceled`), valid-no-repro local pending overridden by distributed failed with authoritative peer error (`TryPoll_prefers_distributed_terminal_state_over_local_pending`), and valid-no-repro operation canceled during distributed cache read propagates cancel (`TryPoll_propagates_operation_canceled_when_distributed_cache_read_is_canceled`); reseeded five `(candidate)` rows; scoped filter **514** `FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions` tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -31138,8 +31254,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-23 thorough hunt (dry): cheap-disproof closed four open `(candidate)` rows below with falsify attempts and regressions; no failing repro or fix shipped; seeded five follow-on `(candidate)` rows; scoped host-composition + discovery tests 5 passed (`PollingCollectionRunDiscoveryTests`, `AzureBlobCollectionRunArtifactReaderTests`, `InMemoryValueReportJobQueueDistributedPollStateTests`; `RunAnalyzers=false`).
 
 2026-10-21 seed hunt (seed→hit): ApiRequestUsageEventBatchFlushHostedService outer disabled loop now flushes requeued API usage before idle delay; regression ExecuteAsync_flushes_requeued_events_when_metering_stays_disabled; 4 metering tests passed.
-- **last-bug:** never
-- **code-changed-since:** no
+- **last-bug:** 2026-11-21
+- **code-changed-since:** yes
 - **related-pd-tb:** none
 
 2026-09-12 seed hunt #2176 (seed-only): reseeded host-composition with `-Hint host composition`; no new hunt-ready rows.
@@ -31258,12 +31374,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
-- **code-changed-since:** no
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
+- **code-changed-since:** yes
 - **related-pd-tb:** none
 
 2026-10-20 seed hunt (seed→hit): promoted `ApiRequestUsageEventBatchFlushHostedService.ExecuteAsync` when `MeteringOptions.Enabled` flips false during the flush timer loop; drain buffered API usage before exiting the loop (not only on `StopAsync`); regression `ExecuteAsync_flushes_buffered_events_when_metering_disabled_before_timer_tick`; 3 metering tests passed.
@@ -32042,16 +32158,16 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 
 2026-10-21 seed hunt (seed→hit): cloud-extractors — Paas child listings dropped PartialCollection via ListChildJsonElementsAsync; fixed with ListChildResourcesWithStatusAsync and partial-child-enumeration warnings; regression CollectAsync_warns_when_sql_database_list_is_partially_collected.
-- **last-bug:** never
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-03 seed hunt (hit): promoted the subscription policy-assignment pagination candidate; `ListPolicyAssignmentsAtRestPathAsync` validated only the subscription, so an ARM `nextLink` into `policyDefinitions` was followed and could merge another collection's rows. Fixed with exact listing-path validation for subscription and management-group policy assignments; regression `ListSubscriptionPolicyAssignmentsAsync_rejects_next_link_for_different_policy_collection`; 1 focused Azure extractor test passed.
 
@@ -32305,13 +32421,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-08 seed hunt (hit): promoted Defender secure-score pagination; `ListSubscriptionDefenderSummariesAsync` validated only the subscription on `nextLink`, so a same-subscription cursor into `roleAssignments` was followed; fixed by also requiring `subscriptions/{id}/providers/Microsoft.Security/secureScores`; regression `ListSubscriptionDefenderSummariesAsync_rejects_next_link_for_different_security_collection`. Azure extractor tests passed 114/114.
 
@@ -33572,11 +33688,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -33836,13 +33952,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** chatops webhook; authority commit notification; slack teams delivery
 - **paths:** ArchLucid.Notifications/AuthorityRunCommittedChatOpsHook.cs; ArchLucid.Notifications/AuthorityRunCompletedChatOpsIntegrationEventHandler.cs
 - **test-filter:** FullyQualifiedName~AuthorityRunCommittedChatOps|FullyQualifiedName~AuthorityRunCompletedChatOps
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-30 thorough hunt #963 (dry, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (#961–#962 dry plus run-log streak), picker rotated with **`-AvoidZoneId`** to `chatops-delivery`. Cheap-disproof closed three open `(candidate)` rows — invalid `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` blank `findingId` headline inflation (`AuthorityCommittedPipelineFinalizer.BuildAuthorityRunCompletedFindingLinks` filters whitespace ids before publishing; canonical `findings` array length matches link rows; handler `Count` matches producer array), valid-no-repro all-enabled-target misconfigured webhook URI silent complete (`HandleAsync_completes_when_enabled_target_uses_non_https_webhook_url`; hunt #1369 family), valid-no-repro Slack `AdaptMessageForTarget` title escape gap (`ChatOpsIncomingWebhookBodies.ForSlack` escapes `message.Title` via `ChatOpsSlackMrkdwnEscaper`; authority-run titles are numeric finding-count headlines without `SeverityLabel`); reseeded five `(candidate)` rows; scoped filter **22** AuthorityRunCommitted/Completed ChatOps tests passed. Private beta: n/a.
 
@@ -33933,11 +34049,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-21
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

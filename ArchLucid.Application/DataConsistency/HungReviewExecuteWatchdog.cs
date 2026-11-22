@@ -73,7 +73,8 @@ public sealed class HungReviewExecuteWatchdog(
 
         foreach (Guid runId in candidateIds)
         {
-            int updated = await MarkFailedAsync(connection, runId, failureSummary, cancellationToken).ConfigureAwait(false);
+            int updated = await MarkFailedAsync(connection, runId, staleHours, failureSummary, cancellationToken)
+                .ConfigureAwait(false);
 
             if (updated > 0)
                 failed.Add(runId.ToString("D"));
@@ -121,6 +122,7 @@ public sealed class HungReviewExecuteWatchdog(
     private static async Task<int> MarkFailedAsync(
         DbConnection connection,
         Guid runId,
+        int staleHours,
         string failureSummary,
         CancellationToken cancellationToken)
     {
@@ -131,6 +133,11 @@ public sealed class HungReviewExecuteWatchdog(
         runIdParameter.ParameterName = "@RunId";
         runIdParameter.Value = runId;
         command.Parameters.Add(runIdParameter);
+
+        DbParameter staleHoursParameter = command.CreateParameter();
+        staleHoursParameter.ParameterName = "@StaleHours";
+        staleHoursParameter.Value = staleHours;
+        command.Parameters.Add(staleHoursParameter);
 
         DbParameter failureParameter = command.CreateParameter();
         failureParameter.ParameterName = "@LastFailureReason";

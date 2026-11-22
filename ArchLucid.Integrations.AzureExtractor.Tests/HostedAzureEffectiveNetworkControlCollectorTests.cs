@@ -29,8 +29,8 @@ public sealed class HostedAzureEffectiveNetworkControlCollectorTests
                 Properties: new Dictionary<string, object?>()));
         }
 
-        Mock<IHostedAzureArmReadClient> armClient = new(MockBehavior.Strict);
-        armClient
+        Mock<IHostedAzureManagementPostReadClient> postReadClient = new(MockBehavior.Strict);
+        postReadClient
             .Setup(client => client.ListEffectiveNetworkControlsForNicAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
@@ -38,7 +38,7 @@ public sealed class HostedAzureEffectiveNetworkControlCollectorTests
             .ReturnsAsync([]);
 
         HostedAzureEffectiveNetworkControlCollectResult result = await HostedAzureEffectiveNetworkControlCollector.CollectAsync(
-            armClient.Object,
+            postReadClient.Object,
             "token",
             resources,
             NullLogger.Instance,
@@ -47,7 +47,7 @@ public sealed class HostedAzureEffectiveNetworkControlCollectorTests
         Assert.True(result.Capped);
         Assert.Contains(AzureInventoryRelationshipCompletenessWarningCodes.EffectiveControlsCapped, result.Warnings);
         Assert.Empty(result.Rows);
-        armClient.Verify(
+        postReadClient.Verify(
             client => client.ListEffectiveNetworkControlsForNicAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),

@@ -9,7 +9,7 @@ namespace ArchLucid.Persistence.Archival;
 
 internal static class AgentTraceOrphanBlobDeleter
 {
-    internal static int DeleteLocalOrphanFiles(IReadOnlyList<string> filePaths)
+    internal static int DeleteLocalOrphanFiles(string containerDir, IReadOnlyList<string> filePaths)
     {
         int deleted = 0;
 
@@ -20,7 +20,7 @@ internal static class AgentTraceOrphanBlobDeleter
             ArchLucidInstrumentation.DataArchivalBlobsDeletedTotal.Add(1);
         }
 
-        TryDeleteEmptyRunDirectories(filePaths);
+        TryDeleteEmptyRunDirectories(containerDir, filePaths);
 
         return deleted;
     }
@@ -50,13 +50,14 @@ internal static class AgentTraceOrphanBlobDeleter
         return deleted;
     }
 
-    internal static void TryDeleteEmptyRunDirectories(IReadOnlyList<string> filePaths)
+    private static void TryDeleteEmptyRunDirectories(string containerDir, IReadOnlyList<string> filePaths)
     {
         foreach (string filePath in filePaths)
         {
             string? directory = Path.GetDirectoryName(filePath);
 
-            while (!string.IsNullOrEmpty(directory))
+            while (!string.IsNullOrEmpty(directory) &&
+                   !string.Equals(directory, containerDir, StringComparison.Ordinal))
             {
                 if (Directory.Exists(directory) && !Directory.EnumerateFileSystemEntries(directory).Any())
                     Directory.Delete(directory);

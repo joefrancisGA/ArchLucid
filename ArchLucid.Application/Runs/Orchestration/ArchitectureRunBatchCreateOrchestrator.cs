@@ -126,6 +126,10 @@ public sealed class ArchitectureRunBatchCreateOrchestrator(
         {
             return FailedItem(request.RequestId, BatchCreateRunItemFailureKind.Conflict, ex.Message);
         }
+        catch (RequestContentSafetyRejectedException)
+        {
+            return FailedItem(request.RequestId, BatchCreateRunItemFailureKind.InvalidRequest, "Request did not pass validation.");
+        }
         catch (InvalidOperationException ex)
         {
             return FailedItem(request.RequestId, BatchCreateRunItemFailureKind.InvalidRequest, ex.Message);

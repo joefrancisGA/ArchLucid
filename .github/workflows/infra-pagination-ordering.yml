@@ -1,0 +1,26 @@
+name: Infrastructure pagination ordering contract
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Persistence/InfraEvidence/SqlRemediationInstanceRepository.cs'
+      - 'ArchLucid.Persistence/InfraEvidence/SqlOperationalSecurityFindingRepository.cs'
+      - 'ArchLucid.Persistence/InfraEvidence/SqlAzureInventorySnapshotRepository.ListResourcesPaged.cs'
+      - 'scripts/ci/tests/test_infra_pagination_stable_order.py'
+      - '.github/workflows/infra-pagination-ordering.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pagination-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s scripts/ci/tests -p test_infra_pagination_stable_order.py -v

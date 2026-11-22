@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -19,6 +20,7 @@ public sealed class TraceabilityBundleBuilder(
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService) : ITraceabilityBundleBuilder
 {
+    private const int AuditLimit = 1000;
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -62,11 +64,13 @@ public sealed class TraceabilityBundleBuilder(
                 cancellationToken);
         }
 
-        IReadOnlyList<AuditEvent> audits = runGuid == Guid.Empty
+        List<AuditEvent> audits = runGuid == Guid.Empty
             ? []
-            : await _auditRepository.GetFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, new AuditEventFilter { RunId = runGuid, Take = 1000, IncludeDataJson = true },
-                cancellationToken);
-        bool auditTruncated = audits.Count >= 1000;
+            : await ReadAuditSliceAsync(runGuid, scope, cancellationToken);
+        bool auditTruncated = audits.Count > AuditLimit;
+        if (auditTruncated)
+            audits.RemoveAt(AuditLimit);
+
         object summary = new
         {
             detail.Run.RunId,
@@ -81,6 +85,29 @@ public sealed class TraceabilityBundleBuilder(
         };
         byte[] zipBytes = BuildZipInMemory(detail.Run.RunId, summary, audits, auditTruncated, detail.DecisionTraces);
         return zipBytes.LongLength > maxZipBytes ? throw new TraceabilityBundleTooLargeException(zipBytes.LongLength, maxZipBytes) : zipBytes;
+    }
+
+    private async Task<List<AuditEvent>> ReadAuditSliceAsync(
+        Guid runId,
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        List<AuditEvent> audits = [];
+        AuditEventFilter filter = new() { RunId = runId, IncludeDataJson = true };
+        while (audits.Count <= AuditLimit)
+        {
+            filter.Take = Math.Min(PaginationDefaults.MaxListingTake, AuditLimit + 1 - audits.Count);
+            IReadOnlyList<AuditEvent> page = await _auditRepository.GetFilteredAsync(
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId, filter, cancellationToken);
+            audits.AddRange(page);
+            if (page.Count < filter.Take)
+                break;
+
+            filter.BeforeUtc = page[^1].OccurredUtc;
+            filter.BeforeEventId = page[^1].EventId;
+        }
+
+        return audits;
     }
 
     private static byte[] BuildZipInMemory(

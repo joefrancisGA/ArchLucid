@@ -26,7 +26,10 @@ internal static class HungReviewExecuteWatchdogSql
                                                        LastFailureReason = @LastFailureReason
                                                    WHERE RunId = @RunId
                                                      AND ArchivedUtc IS NULL
-                                                     AND LegacyRunStatus = N'WaitingForResults';
+                                                     AND LegacyRunStatus = N'WaitingForResults'
+                                                     AND COALESCE(
+                                                         (SELECT MAX(so.StartedUtc) FROM dbo.RunStageOutcomes so WHERE so.RunId = @RunId),
+                                                         CreatedUtc) < DATEADD(HOUR, -@StaleHours, SYSUTCDATETIME());
                                                    SELECT @@ROWCOUNT;
                                                    """;
 }

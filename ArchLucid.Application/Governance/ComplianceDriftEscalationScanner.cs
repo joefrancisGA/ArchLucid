@@ -196,10 +196,9 @@ public sealed class ComplianceDriftEscalationScanner(
                 OpenFindingsLookback,
                 cancellationToken).ConfigureAwait(false);
 
-        if (!buckets.TryGetValue(fromUtc, out ComplianceDriftFindingsBucketCounts? bucketCounts))
-            return 0d;
-
-        return bucketCounts.OpenFindingsCount;
+        // The reader already bounds events to the requested window. SQL bucket
+        // labels need not match the exact caller timestamp.
+        return buckets.Values.Sum(static bucket => (double)bucket.OpenFindingsCount);
     }
 
     private async Task<double?> TryMeasurePolicyPackStaleHoursAsync(

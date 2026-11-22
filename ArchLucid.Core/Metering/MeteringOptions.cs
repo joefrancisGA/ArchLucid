@@ -5,7 +5,7 @@ public sealed class MeteringOptions
 {
     public const string SectionName = "Metering";
 
-    /// <summary>When false, <see cref="IUsageMeteringService" /> no-ops (except summaries return empty).</summary>
+    /// <summary>Controls new usage recording and summaries. Previously accepted request batches still drain.</summary>
     public bool Enabled
     {
         get;

@@ -1539,15 +1539,21 @@ public sealed class GetOnlyHostedAzureArmReadClientDefenderFollowOnTests
     }
 
     [Fact]
-    public async Task CollectSubscriptionDefenderFollowOnAsync_rejects_compliance_controls_next_link_with_governance_assignments_scope()
+    public async Task CollectSubscriptionDefenderFollowOnAsync_rejects_compliance_controls_next_link_and_continues_alerts()
     {
         string crossScopeNextLink =
             $"https://management.azure.com/subscriptions/{SubscriptionId}/providers/Microsoft.Security/governanceAssignments?api-version=2022-01-01-preview&$skiptoken=leak";
         int controlRequests = 0;
+        bool alertsRequested = false;
 
         HttpMessageHandler handler = new RecordingHandler((request, _) =>
         {
             string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (path.Contains("/alerts", StringComparison.Ordinal))
+            {
+                alertsRequested = true;
+            }
 
             if (path.EndsWith("/regulatoryComplianceStandards", StringComparison.OrdinalIgnoreCase))
             {
@@ -1596,6 +1602,7 @@ public sealed class GetOnlyHostedAzureArmReadClientDefenderFollowOnTests
             CancellationToken.None);
 
         Assert.Equal(1, controlRequests);
+        Assert.True(alertsRequested);
         Assert.Contains(result.Warnings, warning => warning.Contains("defender-companions-rejected-next-link", StringComparison.Ordinal));
     }
 

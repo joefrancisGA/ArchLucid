@@ -112,9 +112,11 @@ export function RunsRowBaselineMenu(props: { runId: string }) {
       data-testid={`runs-row-baseline-menu-${props.runId}`}
       open={menuOpen}
       onToggle={(event) => {
-        event.preventDefault();
-        const nextOpen = !menuOpen;
-        setOpenRunId(nextOpen ? props.runId : null);
+        const nextOpen = event.currentTarget.open;
+
+        if (nextOpen !== menuOpen) {
+          setOpenRunId(nextOpen ? props.runId : null);
+        }
       }}
       onClick={(e) => {
         e.stopPropagation();

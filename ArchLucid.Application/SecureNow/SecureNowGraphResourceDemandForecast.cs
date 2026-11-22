@@ -43,10 +43,17 @@ public static class SecureNowGraphResourceDemandForecast
         // Linear CPU/worker-time interpolation is a scenario assumption. Peak memory
         // is kept at the observed calibrated value rather than falsely extrapolated.
         decimal ratio = (decimal)topology.PrefixCount / calibration.MeasuredPrefixCount;
-        return new(true,
-            checked(calibration.MeasuredCpuSeconds * ratio),
-            calibration.MeasuredPeakGiB,
-            checked(calibration.MeasuredWorkerSeconds * ratio),
-            "CALIBRATED_INPUT_LINEAR_SCENARIO");
+        try
+        {
+            return new(true,
+                calibration.MeasuredCpuSeconds * ratio,
+                calibration.MeasuredPeakGiB,
+                calibration.MeasuredWorkerSeconds * ratio,
+                "CALIBRATED_INPUT_LINEAR_SCENARIO");
+        }
+        catch (OverflowException)
+        {
+            return new(false, null, null, null, "RESOURCE_FORECAST_OVERFLOW");
+        }
     }
 }

@@ -91,4 +91,32 @@ describe("useNewRunWizardTemplateRestore", () => {
     expect(setStepIndex).toHaveBeenCalledWith(8);
     expect(reset).toHaveBeenCalledWith(savedState);
   });
+
+  it("reports an explicit draft save failure when session storage rejects the write", () => {
+    const values = buildDefaultWizardValues();
+    const { result } = renderHook(() =>
+      useNewRunWizardTemplateRestore({
+        stepIndex: 1,
+        wizardStepCount: 9,
+        templateWizardSessionState: values,
+        showFullWizardShell: true,
+        reset: vi.fn(),
+        setStepIndex: vi.fn(),
+        getValues: () => values,
+      }),
+    );
+    const write = vi.spyOn(Storage.prototype, "setItem").mockImplementationOnce(() => {
+      throw new DOMException("Storage quota reached", "QuotaExceededError");
+    });
+
+    try {
+      act(() => result.current.saveWizardDraft());
+      expect(result.current.draftSaveFeedback).toEqual({
+        kind: "err",
+        message: "Could not save architecture draft.",
+      });
+    } finally {
+      write.mockRestore();
+    }
+  });
 });

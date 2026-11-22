@@ -35,11 +35,11 @@ type PatternLibraryRelatedPolicyPacksProps = {
 };
 
 export function PatternLibraryRelatedPolicyPacks(props: PatternLibraryRelatedPolicyPacksProps): React.JSX.Element | null {
+  const { productLine } = useProductLine();
+
   if (props.packs.length === 0) {
     return null;
   }
-
-  const { productLine } = useProductLine();
   const policyPacksHubHref =
     props.policyPacksHubHref ?? resolvePatternLibraryPolicyPacksHubPath(productLine);
 

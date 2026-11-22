@@ -23,7 +23,7 @@ public sealed class InMemoryAdvisoryDraftOperationRepository : IAdvisoryDraftOpe
     {
         cancellationToken.ThrowIfCancellationRequested();
         _rows.TryGetValue(BuildKey(tenantId, workspaceId, projectId, operationId), out AdvisoryDraftOperationRow? row);
-        return Task.FromResult(row);
+        return Task.FromResult(row is null ? null : Copy(row));
     }
 
     /// <inheritdoc />
@@ -35,7 +35,7 @@ public sealed class InMemoryAdvisoryDraftOperationRepository : IAdvisoryDraftOpe
         cancellationToken.ThrowIfCancellationRequested();
 
         string key = BuildKey(row.TenantId, row.WorkspaceId, row.ProjectId, row.OperationId);
-        bool inserted = _rows.TryAdd(key, row);
+        bool inserted = _rows.TryAdd(key, Copy(row));
         return Task.FromResult(inserted);
     }
 
@@ -48,9 +48,27 @@ public sealed class InMemoryAdvisoryDraftOperationRepository : IAdvisoryDraftOpe
         cancellationToken.ThrowIfCancellationRequested();
 
         string key = BuildKey(row.TenantId, row.WorkspaceId, row.ProjectId, row.OperationId);
-        _rows[key] = row;
+        if (_rows.ContainsKey(key))
+            _rows[key] = Copy(row);
         return Task.CompletedTask;
     }
+
+    private static AdvisoryDraftOperationRow Copy(AdvisoryDraftOperationRow row) =>
+        new()
+        {
+            TenantId = row.TenantId,
+            WorkspaceId = row.WorkspaceId,
+            ProjectId = row.ProjectId,
+            OperationId = row.OperationId,
+            State = row.State,
+            StepLabel = row.StepLabel,
+            CurrentStep = row.CurrentStep,
+            CreatedUtc = row.CreatedUtc,
+            HeartbeatUtc = row.HeartbeatUtc,
+            CompletedUtc = row.CompletedUtc,
+            ResultJson = row.ResultJson,
+            ErrorMessage = row.ErrorMessage,
+        };
 
     private static string BuildKey(Guid tenantId, Guid workspaceId, Guid projectId, Guid operationId) =>
         $"{tenantId:N}:{workspaceId:N}:{projectId:N}:{operationId:N}";

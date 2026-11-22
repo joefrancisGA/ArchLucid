@@ -20,7 +20,7 @@ public static class AdvisoryTerraformAddressBuilder
         {
             TerraformResourceType = terraformType,
             TerraformName = terraformName,
-            TerraformAddress = $"azurerm_{terraformType.Split('_').Last()}.{terraformName}",
+            TerraformAddress = $"{terraformType}.{terraformName}",
             CategoryFolder = category,
         };
     }

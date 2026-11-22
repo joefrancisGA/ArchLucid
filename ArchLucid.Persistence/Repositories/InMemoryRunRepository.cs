@@ -24,6 +24,9 @@ public sealed partial class InMemoryRunRepository(ITenantRepository? tenantRepos
 
     private readonly ConcurrentDictionary<Guid, RunRecord> _store = new();
 
+    // Save is an INSERT, not an UPSERT. Hold this gate across quota accounting and insertion.
+    private readonly SemaphoreSlim _saveGate = new(1, 1);
+
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? new InMemoryTenantRepository();
 
     private long _fakeRowVersion;

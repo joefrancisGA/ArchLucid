@@ -88,6 +88,48 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
     }
 
     [Fact]
+    public void GenerateMarkdown_equal_trace_sort_keys_orders_by_trace_id()
+    {
+        DateTime createdUtc = new(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc);
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed
+                },
+            ExecutionTraces =
+            [
+                new AgentExecutionTrace
+                {
+                    AgentType = AgentType.Topology,
+                    TaskId = "task-1",
+                    TraceId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                    ParseSucceeded = true,
+                    CreatedUtc = createdUtc
+                },
+                new AgentExecutionTrace
+                {
+                    AgentType = AgentType.Topology,
+                    TaskId = "task-2",
+                    TraceId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    ParseSucceeded = true,
+                    CreatedUtc = createdUtc
+                }
+            ]
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        int firstTrace = md.IndexOf("Trace ID: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", StringComparison.Ordinal);
+        int secondTrace = md.IndexOf("Trace ID: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", StringComparison.Ordinal);
+        firstTrace.Should().BeGreaterThanOrEqualTo(0);
+        secondTrace.Should().BeGreaterThan(firstTrace);
+    }
+
+    [Fact]
     public void GenerateMarkdown_trace_prompt_fence_stays_closed_when_prompt_contains_backtick_fence()
     {
         const string prompt = "before\n```\ninside fence\n```\nafter";

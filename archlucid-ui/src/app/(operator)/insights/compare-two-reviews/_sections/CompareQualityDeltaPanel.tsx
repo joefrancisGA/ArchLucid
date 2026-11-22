@@ -5,21 +5,28 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   buildCompareQualityDeltaRows,
+  compareQualityDeltaCountsAllZero,
   type CompareQualityDeltaCounts,
   type CompareTrustLaneBreakdownRow,
 } from "@/lib/review-quality/compare-quality-delta";
 import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
 import { ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE } from "@/lib/architecture/compare-delta-counts-two-sealed-footnote-copy";
+import { COMPARE_QUALITY_DELTA_ZERO_COUNTS_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-quality-delta-zero-counts-one-unsealed-not-load-failure-copy";
+import { CompareQualityDeltaZeroCountsOneUnsealedPartialHonesty } from "./CompareQualityDeltaZeroCountsOneUnsealedPartialHonesty";
+import { CompareQualityDeltaPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPartialInventoryFootnote";
 
 export type CompareQualityDeltaPanelProps = {
   readonly counts: CompareQualityDeltaCounts;
   readonly newFindingTrustLanes?: readonly CompareTrustLaneBreakdownRow[];
+  readonly compareIncludesUnsealedReview?: boolean;
 };
 
 /** TB-2317: stratified auditable improvement counts on compare. */
 export function CompareQualityDeltaPanel(props: CompareQualityDeltaPanelProps): React.JSX.Element {
   const rows = buildCompareQualityDeltaRows(props.counts);
   const trustLanes = props.newFindingTrustLanes ?? [];
+  const showZeroCountsUnsealedHonesty =
+    compareQualityDeltaCountsAllZero(props.counts) && props.compareIncludesUnsealedReview === true;
 
   return (
     <section
@@ -48,6 +55,7 @@ export function CompareQualityDeltaPanel(props: CompareQualityDeltaPanelProps): 
       >
         {ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE}
       </p>
+      
       <dl className="m-0 mt-3 grid gap-3 sm:grid-cols-2">
         {rows.map((row) => (
           <div key={row.label} className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
@@ -84,6 +92,15 @@ export function CompareQualityDeltaPanel(props: CompareQualityDeltaPanelProps): 
           </dl>
         </div>
       ) : null}
+      {showZeroCountsUnsealedHonesty ? (
+        <div className="mt-3 space-y-2" data-testid="compare-quality-delta-zero-counts-one-unsealed">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            {COMPARE_QUALITY_DELTA_ZERO_COUNTS_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE}
+          </p>
+          <CompareQualityDeltaZeroCountsOneUnsealedPartialHonesty />
+        </div>
+      ) : null}
+      <CompareQualityDeltaPartialInventoryFootnote />
     </section>
   );
 }

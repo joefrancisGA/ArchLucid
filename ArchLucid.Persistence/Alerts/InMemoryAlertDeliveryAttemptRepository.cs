@@ -1,3 +1,5 @@
+using System.Data.SqlTypes;
+
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 
@@ -13,7 +15,12 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
     {
         ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
+            if (_items.Exists(item => item.AlertDeliveryAttemptId == attempt.AlertDeliveryAttemptId))
+                throw new InvalidOperationException("An alert delivery attempt with this ID already exists.");
+
             _items.Add(Copy(attempt));
+        }
         return Task.CompletedTask;
     }
 
@@ -48,6 +55,7 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
             List<AlertDeliveryAttempt> result = _items
                 .Where(x => x.AlertId == alertId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
+                .ThenByDescending(x => new SqlGuid(x.AlertDeliveryAttemptId))
                 .Take(PaginationDefaults.MaxPageSize)
                 .Select(Copy)
                 .ToList();
@@ -68,6 +76,7 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
             List<AlertDeliveryAttempt> result = _items
                 .Where(x => x.RoutingSubscriptionId == routingSubscriptionId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
+                .ThenByDescending(x => new SqlGuid(x.AlertDeliveryAttemptId))
                 .Take(take)
                 .Select(Copy)
                 .ToList();

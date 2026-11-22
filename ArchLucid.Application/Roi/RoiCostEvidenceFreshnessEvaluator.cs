@@ -49,9 +49,7 @@ public sealed class RoiCostEvidenceFreshnessEvaluator(
             };
         }
 
-        DateTime normalizedUtc = collectionUtc.Value.Kind == DateTimeKind.Utc
-            ? collectionUtc.Value
-            : collectionUtc.Value.ToUniversalTime();
+        DateTime normalizedUtc = RoiCostEvidenceUtcNormalizer.Normalize(collectionUtc.Value);
 
         double ageDays = (_clock.GetUtcNow().UtcDateTime - normalizedUtc).TotalDays;
         string status = ageDays > staleAfterDays ? RoiCostEvidenceFreshness.Stale : RoiCostEvidenceFreshness.Fresh;
@@ -92,9 +90,7 @@ public sealed class RoiCostEvidenceFreshnessEvaluator(
             if (timestamp is null)
                 continue;
 
-            DateTime normalizedUtc = timestamp.Value.Kind == DateTimeKind.Utc
-                ? timestamp.Value
-                : timestamp.Value.ToUniversalTime();
+            DateTime normalizedUtc = RoiCostEvidenceUtcNormalizer.Normalize(timestamp.Value);
 
             if (latest is null || normalizedUtc > latest.Value)
                 latest = normalizedUtc;

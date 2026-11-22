@@ -51,6 +51,40 @@ public sealed class FourRealityDriftAnalyzerTests
     }
 
     [Fact]
+    public void Analyze_prefers_exact_resource_name_when_earlier_name_contains_it()
+    {
+        AzureInventorySnapshotDetailReadModel currentSnapshot = BuildSnapshot(
+            CurrentSnapshotId,
+            enablePublicNetworkAccess: true,
+            terraformPublicNetworkAccess: "disabled",
+            firstResource: new AzureInventoryResourceRecord
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = CurrentSnapshotId,
+                TenantId = TenantId,
+                AzureResourceId = StorageArm + "0",
+                ResourceType = "Microsoft.Storage/storageAccounts",
+                CloudResourceId = Guid.NewGuid(),
+            });
+        List<SecurityEvidencePathHopRecord> hops = BuildSourceHops(
+            toNodeId: "resource:sa1",
+            cloudResourceId: null);
+
+        IReadOnlyList<FourRealityDriftCandidate> candidates = FourRealityDriftAnalyzer.Analyze(
+            new FourRealityDriftAnalysisInputs
+            {
+                CurrentSnapshot = currentSnapshot,
+                SourcePaths = [BuildSourcePath(hops)],
+                HopsByPathId = new Dictionary<Guid, IReadOnlyList<SecurityEvidencePathHopRecord>>
+                {
+                    [SourcePathId] = hops,
+                },
+            });
+
+        candidates.Should().ContainSingle().Which.CloudResourceId.Should().Be(StorageCloudResourceId);
+    }
+
+    [Fact]
     public void Analyze_identical_realities_returns_none()
     {
         AzureInventorySnapshotDetailReadModel currentSnapshot = BuildSnapshot(
@@ -166,7 +200,7 @@ public sealed class FourRealityDriftAnalyzerTests
         candidates[0].DiagramPosture.Should().Be(FourRealityAccessPosture.Private);
     }
 
-    private static SecurityEvidencePathRecord BuildSourcePath()
+    private static SecurityEvidencePathRecord BuildSourcePath(List<SecurityEvidencePathHopRecord>? hops = null)
     {
         DateTime utcNow = DateTime.UtcNow;
 
@@ -183,10 +217,13 @@ public sealed class FourRealityDriftAnalyzerTests
             UpdatedUtc = utcNow,
         };
 
-        return SecurityEvidencePathGuard.ValidateAndMaterialize(header, BuildSourceHops()).Path;
+        return SecurityEvidencePathGuard.ValidateAndMaterialize(header, hops ?? BuildSourceHops()).Path;
     }
 
     private static List<SecurityEvidencePathHopRecord> BuildSourceHops() =>
+        BuildSourceHops(StorageArm, StorageCloudResourceId);
+
+    private static List<SecurityEvidencePathHopRecord> BuildSourceHops(string toNodeId, Guid? cloudResourceId) =>
     [
         new SecurityEvidencePathHopRecord
         {
@@ -195,19 +232,20 @@ public sealed class FourRealityDriftAnalyzerTests
             TenantId = TenantId,
             HopOrdinal = 1,
             FromNodeId = "principal:owner",
-            ToNodeId = StorageArm,
+            ToNodeId = toNodeId,
             EdgeType = GraphEdgeTypes.CanWrite,
             ProvenanceKind = ProvenanceKind.ObservedFact,
             HopConfidenceBand = PathConfidenceBand.Confirmed,
             EvidenceReference = "test:write",
-            CloudResourceId = StorageCloudResourceId,
+            CloudResourceId = cloudResourceId,
         },
     ];
 
     private static AzureInventorySnapshotDetailReadModel BuildSnapshot(
         Guid snapshotId,
         bool enablePublicNetworkAccess,
-        string? terraformPublicNetworkAccess)
+        string? terraformPublicNetworkAccess,
+        AzureInventoryResourceRecord? firstResource = null)
     {
         Guid storageRowId = Guid.NewGuid();
         List<AzureInventoryResourcePropertyReadModel> properties =
@@ -241,6 +279,7 @@ public sealed class FourRealityDriftAnalyzerTests
             },
             Resources =
             [
+                .. (firstResource is null ? Array.Empty<AzureInventoryResourceRecord>() : [firstResource]),
                 new AzureInventoryResourceRecord
                 {
                     ResourceRowId = storageRowId,

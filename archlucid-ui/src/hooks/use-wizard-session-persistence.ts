@@ -21,7 +21,7 @@ import {
   fetchWizardIntakeDraft,
   upsertWizardIntakeDraft,
 } from "@/lib/api/wizard-intake-draft-api";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isApiTransientLoadFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { wizardIntakeDraftMutationBlockedReason } from "@/lib/architecture/wizard-intake-draft-mutation-blocked-reason";
 import { getOrCreateWizardIdempotencyKey } from "@/lib/wizard-idempotency-key";
 import {
@@ -66,7 +66,9 @@ export function useWizardSessionPersistence<TState>(
   const [pendingRestore, setPendingRestore] = useState<WizardSessionSnapshot<TState> | null>(null);
   const restorePromptCheckedRef = useRef(false);
   const restoreDecisionPendingRef = useRef(false);
-  const persistedSnapshotRef = useRef<string | null>(null);
+  const persistedSnapshotRef = useRef<{ stepIndex: number; serializedState: string } | null>(
+    null,
+  );
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const syncWizardRestoreToUrl = useCallback(
@@ -100,13 +102,29 @@ export function useWizardSessionPersistence<TState>(
       return;
     }
 
-    restorePromptCheckedRef.current = true;
-
     let canceled = false;
 
     void (async () => {
       const localSnapshot = readWizardSessionSnapshot<TState>(args.wizardId);
-      const remoteDraft = await fetchWizardIntakeDraft(args.wizardId);
+      let remoteDraft: Awaited<ReturnType<typeof fetchWizardIntakeDraft>> = null;
+      let mayRestore = true;
+
+      try {
+        remoteDraft = await fetchWizardIntakeDraft(args.wizardId);
+      } catch (error: unknown) {
+        // A transient outage must not discard the operator's local draft.
+        // Denied access and other non-transient failures remain fail-closed.
+        mayRestore = isApiTransientLoadFailure(toApiLoadFailure(error));
+      }
+
+      if (canceled) {
+        return;
+      }
+
+      restorePromptCheckedRef.current = true;
+      if (!mayRestore) {
+        return;
+      }
 
       let remoteSnapshot: WizardSessionSnapshot<TState> | null = null;
 
@@ -121,10 +139,6 @@ export function useWizardSessionPersistence<TState>(
         } catch {
           remoteSnapshot = null;
         }
-      }
-
-      if (canceled) {
-        return;
       }
 
       const snapshot =
@@ -157,7 +171,10 @@ export function useWizardSessionPersistence<TState>(
     restoreDecisionPendingRef.current = false;
     setPendingRestore(null);
     syncWizardRestoreToUrl(false);
-    persistedSnapshotRef.current = JSON.stringify(pendingRestore.state);
+    persistedSnapshotRef.current = {
+      stepIndex: pendingRestore.stepIndex,
+      serializedState: JSON.stringify(pendingRestore.state),
+    };
     setLastSavedUtc(pendingRestore.savedAtUtc);
     setSaveState("saved");
   }, [args, pendingRestore, syncWizardRestoreToUrl]);
@@ -238,7 +255,10 @@ export function useWizardSessionPersistence<TState>(
 
     const serialized = JSON.stringify(args.state);
 
-    if (serialized === persistedSnapshotRef.current) {
+    if (
+      persistedSnapshotRef.current?.stepIndex === args.stepIndex &&
+      persistedSnapshotRef.current.serializedState === serialized
+    ) {
       return;
     }
 
@@ -254,7 +274,10 @@ export function useWizardSessionPersistence<TState>(
         stepIndex: args.stepIndex,
         state: args.state,
       });
-      persistedSnapshotRef.current = serialized;
+      persistedSnapshotRef.current = {
+        stepIndex: args.stepIndex,
+        serializedState: serialized,
+      };
       setLastSavedUtc(savedAtUtc);
       setSaveState("saved");
 

@@ -157,7 +157,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
         CancellationToken ct)
     {
         const string sql = """
-            SELECT TOP 200
+            SELECT
                 SubscriptionId, TenantId, WorkspaceId, ProjectId,
                 Name, ChannelType, Destination, IsEnabled,
                 CreatedUtc, LastDeliveredUtc, MetadataJson

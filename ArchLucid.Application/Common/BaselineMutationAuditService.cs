@@ -37,9 +37,13 @@ public sealed class BaselineMutationAuditService(
 
         if (!IsArchitectureBaselineMutationEvent(eventType))
             return;
+
+        string durableDetails = BaselineMutationAuditGovernedArchitectureEventTypes.IsGovernedEcho(eventType)
+            ? details?.Trim() ?? string.Empty
+            : safeDetails;
         try
         {
-            await BaselineMutationAuditArchitectureDurableWriter.TryWriteArchitectureDurableEchoAsync(eventType, actor, entityId, safeDetails, auditService,
+            await BaselineMutationAuditArchitectureDurableWriter.TryWriteArchitectureDurableEchoAsync(eventType, actor, entityId, durableDetails, auditService,
                 scopeContextProvider, logger, cancellationToken);
         }
         catch (OperationCanceledException)

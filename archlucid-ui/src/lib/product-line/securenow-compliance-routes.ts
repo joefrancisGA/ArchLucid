@@ -228,3 +228,38 @@ export function resolvePolicyPacksHubPath(
 
   return policyPacksPathForProductLine(productLine);
 }
+
+/**
+ * Findings queue pathname for client URL sync: preserves query strings and remaps
+ * cross-namespace bookmarks to the active product line.
+ */
+export function findingsQueuePathFromPathname(
+  pathname: string | null | undefined,
+  productLine: ProductLineId,
+): string {
+  if (pathname === null || pathname === undefined || pathname.length === 0) {
+    return findingsPathForProductLine(productLine);
+  }
+
+  const queryIndex = pathname.indexOf("?");
+  const bare = queryIndex >= 0 ? pathname.slice(0, queryIndex) : pathname;
+  const querySuffix = queryIndex >= 0 ? pathname.slice(queryIndex) : "";
+
+  if (!isFindingsRoutePath(bare)) {
+    return findingsPathForProductLine(productLine);
+  }
+
+  if (productLine === "security") {
+    if (bare === GOVERNANCE_FINDINGS_PATH || bare.startsWith(`${GOVERNANCE_FINDINGS_PATH}/`)) {
+      const rest = bare.slice(GOVERNANCE_FINDINGS_PATH.length);
+
+      return `${SECURENOW_FINDINGS_PATH}${rest}${querySuffix}`;
+    }
+  } else if (bare === SECURENOW_FINDINGS_PATH || bare.startsWith(`${SECURENOW_FINDINGS_PATH}/`)) {
+    const rest = bare.slice(SECURENOW_FINDINGS_PATH.length);
+
+    return `${GOVERNANCE_FINDINGS_PATH}${rest}${querySuffix}`;
+  }
+
+  return pathname;
+}

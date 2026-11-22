@@ -101,6 +101,12 @@ public interface IProjectScopedRemediationInstanceRepository
         RemediationEvidenceRecord evidence,
         CancellationToken cancellationToken = default);
 
+    Task CommitVerificationInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceMutation mutation,
+        RemediationEvidenceRecord evidence,
+        CancellationToken cancellationToken = default);
+
     Task UpdateInScopeAsync(
         ProjectScopeKey scope,
         RemediationInstanceMutation mutation,
@@ -146,19 +152,15 @@ public interface IProjectScopedRemediationInstanceRepository
         Guid findingId,
         CancellationToken cancellationToken = default);
 
-    async Task<IReadOnlyList<RemediationInstanceRecord>> ListByControlIdInScopeAsync(
+    /// <summary>
+    /// Query by control within project scope. Implementations must preserve repository
+    /// query pushdown; the scoped port must not silently scan an entire tenant.
+    /// </summary>
+    Task<IReadOnlyList<RemediationInstanceRecord>> ListByControlIdInScopeAsync(
         ProjectScopeKey scope,
         Guid controlId,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
+        CancellationToken cancellationToken = default);
 
-        IReadOnlyList<RemediationInstanceRecord> rows = await ListByScopeAsync(scope, cancellationToken);
-
-        return rows
-            .Where(row => row.ControlId == controlId)
-            .ToList();
-    }
 }
 
 public interface IProjectScopedAuditAssessmentRepository

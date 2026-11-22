@@ -8,11 +8,14 @@ import { areSpineStaticDemoPayloadsAvailable } from "@/lib/operator/operator-sta
 import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
 import { resolveContinueLastSignedRecordsListRow } from "@/lib/resolve-continue-last-signed-record";
 import {
+  SIGNED_RECORDS_LIST_DATE_RANGE_PARAM,
   parseSignedRecordsListDateRangeFromSearch,
   signedRecordsListDateRangeHrefFromSearch,
   type SignedRecordsListDateRangePreset,
 } from "@/lib/signed-records/signed-records-list-date-range-url";
 import {
+  SIGNED_RECORDS_LIST_FROM_PARAM,
+  SIGNED_RECORDS_LIST_TO_PARAM,
   parseSignedRecordsListCustomDateFromSearch,
   signedRecordsListCustomDateHrefFromSearch,
 } from "@/lib/signed-records/signed-records-list-custom-date-url";
@@ -20,10 +23,12 @@ import {
   signedRecordsListClearCursorHrefFromSearch,
 } from "@/lib/signed-records/signed-records-list-pagination-url";
 import {
+  SIGNED_RECORDS_LIST_INTEGRITY_PARAM,
   parseSignedRecordsListIntegrityFilter,
   signedRecordsListIntegrityHrefFromSearch,
 } from "@/lib/signed-records/signed-records-list-integrity-url";
 import {
+  SIGNED_RECORDS_LIST_SEARCH_PARAM,
   parseSignedRecordsListSearchQuery,
   signedRecordsListSearchHrefFromSearch,
 } from "@/lib/signed-records/signed-records-list-search";
@@ -128,11 +133,12 @@ export function useSignedRecordsListFilters(options: {
   }, [router, searchParams, searchQuery, urlSearchQuery]);
 
   const clearLocalFilters = useCallback(() => {
-    setSearchQuery("");
-    setIntegrityFilter("all");
-    setFromUtc("");
-    setToUtc("");
-  }, []);
+    setSearchQuery(urlSearchQuery);
+    setIntegrityFilter(urlIntegrity);
+    setDateRangePreset(urlDateRange);
+    setFromUtc(urlDateRange === null ? urlFromUtc : "");
+    setToUtc(urlDateRange === null ? urlToUtc : "");
+  }, [urlDateRange, urlFromUtc, urlIntegrity, urlSearchQuery, urlToUtc]);
 
   const clearFilters = useCallback(() => {
     setSearchQuery("");
@@ -140,18 +146,13 @@ export function useSignedRecordsListFilters(options: {
     setDateRangePreset(null);
     setFromUtc("");
     setToUtc("");
-    router.replace(
-      signedRecordsListClearCursorHrefFromSearch(
-        signedRecordsListSearchHrefFromSearch(
-          signedRecordsListDateRangeHrefFromSearch(
-            signedRecordsListIntegrityHrefFromSearch(searchParams.toString(), "all"),
-            null,
-          ),
-          "",
-        ),
-      ),
-      { scroll: false },
-    );
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(SIGNED_RECORDS_LIST_SEARCH_PARAM);
+    params.delete(SIGNED_RECORDS_LIST_INTEGRITY_PARAM);
+    params.delete(SIGNED_RECORDS_LIST_DATE_RANGE_PARAM);
+    params.delete(SIGNED_RECORDS_LIST_FROM_PARAM);
+    params.delete(SIGNED_RECORDS_LIST_TO_PARAM);
+    router.replace(signedRecordsListClearCursorHrefFromSearch(params.toString()), { scroll: false });
   }, [router, searchParams]);
 
   const onPickReviewForFiltering = useCallback(

@@ -66,10 +66,10 @@ internal static class SqlRelationalBackfillStageProcessor
                 try
                 {
                     await processEntityAsync(row.EntityId, ct);
-                    report.SuccessCount++;
                     await quarantine.ClearAsync(stage, entityKey, ct);
-                    checkpointCandidate = rowCursor;
                     logger.LogInformation("Backfill {Stage}: completed {EntityKey}", stage, entityKey);
+                    report.SuccessCount++;
+                    checkpointCandidate = rowCursor;
                 }
                 catch (Exception ex) when (!ct.IsCancellationRequested)
                 {

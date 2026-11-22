@@ -119,7 +119,8 @@ public sealed class DapperRetrievalIndexingOutboxRepository(ISqlConnectionFactor
                            SET ProcessedUtc = SYSUTCDATETIME(),
                                LockedUntilUtc = NULL
                            WHERE OutboxId = @OutboxId
-                             AND ProcessedUtc IS NULL;
+                             AND ProcessedUtc IS NULL
+                             AND DeadLetteredUtc IS NULL;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);

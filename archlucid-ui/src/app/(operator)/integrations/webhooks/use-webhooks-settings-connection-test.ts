@@ -77,7 +77,10 @@ export function useWebhooksSettingsConnectionTest(
         }));
         presentWebhookConnectionTestRequestFailure(error);
       } finally {
-        if (options.scopeGenerationRef.current === scopeGeneration) {
+        if (
+          options.scopeGenerationRef.current === scopeGeneration
+          && testGenerationRef.current === testGeneration
+        ) {
           setTestingId(null);
         }
       }

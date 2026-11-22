@@ -3,7 +3,6 @@
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { Button } from "@/components/ui/button";
-import { EMPTY_STANDARDS_RULES_FILTER_STATE } from "@/lib/standards-rules-rows";
 import {
   STANDARDS_RULES_FILTER_NO_MATCH_BODY,
   STANDARDS_RULES_FILTER_NO_MATCH_TITLE,
@@ -68,9 +67,7 @@ export function StandardsRulesWorkingRulesSection(props: StandardsRulesWorkingRu
         totalCount={rows.allRuleRows.length}
         options={rows.filterOptions}
         onChange={rows.setFilters}
-        onReset={() => {
-          rows.setFilters(EMPTY_STANDARDS_RULES_FILTER_STATE);
-        }}
+        onReset={rows.resetFilters}
         onRefresh={() => {
           void m.load();
         }}
@@ -93,9 +90,7 @@ export function StandardsRulesWorkingRulesSection(props: StandardsRulesWorkingRu
                 variant="outline"
                 size="sm"
                 data-testid="standards-rules-working-clear-filters"
-                onClick={() => {
-                  rows.setFilters(EMPTY_STANDARDS_RULES_FILTER_STATE);
-                }}
+                onClick={rows.resetFilters}
               >
                 {STANDARDS_RULES_RESET_FILTERS}
               </Button>

@@ -77,6 +77,6 @@ describe("CitationChips", () => {
     render(<CitationChips citations={[base]} runId="run-a" />);
 
     const link = screen.getByRole("link", { name: /Finding: Example finding/i });
-    expect(link.getAttribute("href")).toBe("/architecture/reviews/run-a/findings/finding-123");
+    expect(link.getAttribute("href")).toBe("/architecture/reviews/run-a?reviewTab=findings&findingId=finding-123");
   });
 });

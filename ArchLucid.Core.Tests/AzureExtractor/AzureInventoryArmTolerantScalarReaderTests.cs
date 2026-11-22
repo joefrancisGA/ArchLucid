@@ -50,4 +50,24 @@ public sealed class AzureInventoryArmTolerantScalarReaderTests
         AzureInventoryArmTolerantScalarReader.TryReadInt32(document.RootElement, out int port).Should().BeTrue();
         port.Should().Be(8080);
     }
+
+    [Theory]
+    [InlineData("9007199254740993.0", 9007199254740993L)]
+    [InlineData("\"9007199254740993.0\"", 9007199254740993L)]
+    [InlineData("9223372036854775807.0", long.MaxValue)]
+    public void TryReadInt64_preserves_whole_decimal_values(string json, long expected)
+    {
+        using JsonDocument document = JsonDocument.Parse(json);
+
+        AzureInventoryArmTolerantScalarReader.TryReadInt64(document.RootElement, out long value).Should().BeTrue();
+        value.Should().Be(expected);
+    }
+
+    [Fact]
+    public void TryReadInt32_rejects_fractional_port_close_to_integer()
+    {
+        using JsonDocument document = JsonDocument.Parse("8080.00000000000001");
+
+        AzureInventoryArmTolerantScalarReader.TryReadInt32(document.RootElement, out _).Should().BeFalse();
+    }
 }

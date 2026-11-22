@@ -1,0 +1,24 @@
+name: SQL repository benchmark compile
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Persistence.Tests/SqlRunRepositoryBenchmarkSmokeTests.cs'
+      - 'docs/architecture/ARCHLUCID_SQL_REPOSITORY_BENCHMARK.md'
+      - '.github/workflows/sql-repository-benchmark-compile.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj --configuration Release

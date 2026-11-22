@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -53,7 +53,10 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
   const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
     parseGraphEvidenceTrailErrorTechnicalDetailsOpenFromSearch(graphEvidenceTrailErrorTechnicalDetailsOpenParam),
   );
-  const correlationId = ensureCorrelationId(failure.correlationId ?? failure.problem?.correlationId);
+  const correlationId = useMemo(
+    () => ensureCorrelationId(failure.correlationId ?? failure.problem?.correlationId),
+    [failure],
+  );
   const httpStatus = failure.httpStatus ?? failure.problem?.status ?? null;
   const troubleshootingHref = resolveInAppDocHref("/docs/runbooks/TROUBLESHOOTING.md");
   const runTrim = runId.trim();

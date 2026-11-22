@@ -176,14 +176,14 @@ public sealed class CollectionRunIngestService(
         }
     }
 
-    private static CollectionRunStatus ParseStatus(string status) =>
-        status.Equals("Partial", StringComparison.OrdinalIgnoreCase)
+    private static CollectionRunStatus ParseStatus(string? status) =>
+        string.Equals(status, "Partial", StringComparison.OrdinalIgnoreCase)
             ? CollectionRunStatus.PartiallySucceeded
             : Enum.TryParse(status, ignoreCase: true, out CollectionRunStatus parsed)
                 ? parsed
                 : CollectionRunStatus.Failed;
 
-    private static bool IsImportableManifestStatus(string status) =>
-        status.Equals("Succeeded", StringComparison.OrdinalIgnoreCase) ||
-        status.Equals("Partial", StringComparison.OrdinalIgnoreCase);
+    private static bool IsImportableManifestStatus(string? status) =>
+        string.Equals(status, "Succeeded", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(status, "Partial", StringComparison.OrdinalIgnoreCase);
 }
