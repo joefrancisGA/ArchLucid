@@ -1,0 +1,86 @@
+name: Aspects source-verified density snapshot
+
+# Never substitute a cached workbook figure for live source-verified evidence.
+# This is a read-only measurement job: it does not commit or alter source code.
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+    paths:
+      - docs/engineering/aspects-review-ledger.jsonl
+      - scripts/aspects_review_evidence.py
+      - scripts/aspects_density_snapshot.py
+      - scripts/tests/test_aspects_review_evidence.py
+      - scripts/tests/test_aspects_density_snapshot.py
+      - .github/workflows/aspects-density-snapshot.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: aspects-density-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  evidence-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify evidence recorder regressions
+        run: python -m unittest discover -s scripts/tests -p 'test_aspects_review_evidence.py' -v
+
+      - name: Verify snapshot freshness and window regressions
+        run: python -m unittest discover -s scripts/tests -p 'test_aspects_density_snapshot.py' -v
+
+      - name: Locate latest comparable master snapshot
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p .aspects-previous
+          prior_id="$(gh run list --workflow aspects-density-snapshot.yml --branch master --status success --limit 10 --json databaseId --jq '.[0].databaseId' || true)"
+          if [ -n "$prior_id" ] && [ "$prior_id" != "null" ]; then
+            gh run download "$prior_id" --name aspects-900-density-snapshot --dir .aspects-previous || echo 'No comparable historical artifact; delta unavailable.'
+          else
+            echo 'No prior snapshot yet; previous density and delta unavailable.'
+          fi
+
+      - name: Revalidate pinned source blobs and generate the 900-commit snapshot
+        run: |
+          python scripts/aspects_density_snapshot.py \
+            --repo . \
+            --ledger docs/engineering/aspects-review-ledger.jsonl \
+            --head "$(git rev-parse HEAD)" \
+            --window 900 \
+            --previous .aspects-previous/aspects-density-snapshot.json \
+            --json-out artifacts/aspects/aspects-density-snapshot.json \
+            --markdown-out artifacts/aspects/aspects-density-snapshot.md
+          cat artifacts/aspects/aspects-density-snapshot.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload source-verified evidence snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: aspects-900-density-snapshot
+          path: |
+            artifacts/aspects/aspects-density-snapshot.json
+            artifacts/aspects/aspects-density-snapshot.md
+          if-no-files-found: error
+
+      - name: Signal missing review evidence for Aspects code PR
+        if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'aspects/')
+        run: |
+          git fetch --no-tags origin master
+          if ! git diff --name-only "$(git merge-base HEAD origin/master)" HEAD -- \
+              docs/engineering/aspects-review-ledger.jsonl | grep -q 'aspects-review-ledger.jsonl'; then
+            echo '::warning::This Aspects PR has no source-verified review evidence. New code findings will not move defect density until exact reviewed spans are recorded.'
+          fi
