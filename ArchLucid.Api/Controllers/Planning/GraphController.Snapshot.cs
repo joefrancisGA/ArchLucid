@@ -133,7 +133,7 @@ public sealed partial class GraphController
                 try
                 {
                     SecureNowSnapshotEnvelope exchange = SecureNowSnapshotProjection.Project(
-                        detail.GraphSnapshot, scope, resolved.RunId, DateTimeOffset.UtcNow);
+                        detail.GraphSnapshot, scope, resolved.RunId, TimeProvider.System.GetUtcNow());
                     return Ok(exchange);
                 }
                 catch (ArgumentException)
