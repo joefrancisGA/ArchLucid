@@ -33,7 +33,7 @@ public sealed class CentralAuthorizationDecisionsTests
         policy.Setup(p => p.AuthorizeAsync(
             It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), It.IsAny<string>()))
             .ReturnsAsync(AuthorizationResult.Success());
-        return (new CentralAuthorizationDecisions(scope.Object, entitlements.Object, policy.Object),
+        return (new CentralAuthorizationDecisions(scope.Object, entitlements.Object, policy.Object, Mock.Of<ICentralAuthorizationAudit>(), TimeProvider.System),
             entitlements, policy);
     }
 
