@@ -102,7 +102,7 @@ internal static class SponsorRoiSummaryServiceTestSupport
                 resolvedScope,
                 It.IsAny<ArchLucid.Contracts.Common.CloudProvider>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Persistence.Models.CloudInventoryExtractorPackageDownloadRecord?)null);
+            .ReturnsAsync((global::ArchLucid.Persistence.Models.CloudInventoryExtractorPackageDownloadRecord?)null);
 
         RoiCostEvidenceFreshnessEvaluator freshnessEvaluator = new(
             packageRepository.Object,
@@ -207,7 +207,7 @@ internal static class SponsorRoiSummaryServiceTestSupport
         Mock<ITenantCostSettingsRepository> repository = new();
         repository
             .Setup(repo => repo.TryGetAsync(resolvedScope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Persistence.Roi.TenantCostSettingsRecord?)null);
+            .ReturnsAsync((global::ArchLucid.Persistence.Roi.TenantCostSettingsRecord?)null);
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(resolvedScope);
