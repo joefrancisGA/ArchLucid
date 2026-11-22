@@ -97,18 +97,8 @@ public static class OutboundExternalHttpResiliencePolicy
     }
 
     /// <summary>Transient HTTP outcomes that consume retry budget.</summary>
-    private static bool ShouldRetryOutboundResponse(HttpResponseMessage response)
-    {
-        HttpStatusCode code = response.StatusCode;
-
-        if (code == HttpStatusCode.RequestTimeout)
-            return true;
-
-        if (code == HttpStatusCode.TooManyRequests)
-            return true;
-
-        return (int)code >= 500 && (int)code < 600;
-    }
+    private static bool ShouldRetryOutboundResponse(HttpResponseMessage response) =>
+        AzureRmAndRetailPricesHttpRetryPolicy.ShouldRetryHttpResponse(response);
 
     /// <summary>Failures that count toward the ratio-based breaker (includes 401/403 to avoid hammering bad credentials).</summary>
     private static bool CountsAsCircuitBreakerFailure(HttpResponseMessage response)
