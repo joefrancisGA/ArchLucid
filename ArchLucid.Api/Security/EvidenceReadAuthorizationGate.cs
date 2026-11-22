@@ -41,6 +41,14 @@ public sealed class EvidenceReadAuthorizationGate(
             scope.ProjectId != projectId)
             return EvidenceReadDecision.Deny("scope_mismatch");
 
+        // FND-010: broad ReadAuthority is necessary but not sufficient.
+        // Require an exact, trusted resource entitlement on the authenticated
+        // principal; no tenant-wide wildcard is accepted for this exchange.
+        // Identity issuance must only mint these claims after resource-level ACL checks.
+        string entitlement = $"evidence.read:{tenantId:D}:{workspaceId:D}:{projectId:D}:{evidenceId:D}";
+        if (!principal.HasClaim("archlucid.resource_entitlement", entitlement))
+            return EvidenceReadDecision.Deny("resource_entitlement_missing");
+
         try
         {
             AuthorizationResult result = await authorization.AuthorizeAsync(
