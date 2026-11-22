@@ -229,6 +229,8 @@ public interface IRemediationInstanceRepository
 
 public sealed record RemediationInstanceMutation
 {
+    /// <summary>Expected SQL rowversion from the record originally read; required for protected writes.</summary>
+    public byte[]? ExpectedRowVersion { get; init; }
     public required Guid InstanceId { get; init; }
     public required RemediationInstanceStatus Status { get; init; }
     public Guid? CloudResourceId { get; init; }
