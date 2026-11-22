@@ -55,7 +55,7 @@ jobs:
         if: always()
         run: rm -f /tmp/fnd010-test-signing.pem
       - name: Verify live SQL chain with independent managed-signature monitor
-        run: python3 scripts/ci/fnd010_monitor_sql_e2e.py
+        run: python3 -m scripts.ci.fnd010_monitor_sql_e2e
       - name: SQL container diagnostics on failure
         if: failure()
         run: docker logs --tail 60 fnd010-sql || true
