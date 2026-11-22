@@ -141,6 +141,7 @@ ENV ARCHLUCID_BUILD_TIMESTAMP=${BUILD_TIMESTAMP}
 # apk upgrade + explicit OpenSSL floor (CVE-2026-28390) so cached layers cannot keep 3.5.5-r0.
 # Mermaid CLI (mmdc) + Chromium for server-side diagram PNG export (infra-evidence, DOCX).
 # Graphviz fdp for inventory snapshot layout SVG/PNG (IDG-02).
+# Security floor: block release images with vulnerable libfontenc/libxml2 (Trivy run #45046074131).
 # Fail closed if the runtime cannot install the Alpine 3.24 security-fixed libfontenc/libxml2 packages.
 RUN apk update --no-cache \
     && apk upgrade --no-cache \
