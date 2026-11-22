@@ -18,3 +18,16 @@ For each control: document branch and SHA, exact source files inspected, definit
 ## First finding
 
 FND-018 resilience controls are currently staged in PR #7779 rather than verified on master. The first priority is **usage discovery and deduplication**, not new control development. No source-code changes or production integration are authorized solely by this preliminary finding.
+
+
+## Audit update — agent handler cancellation and circuit accounting (2026-11-22)
+
+**Source:** master at audit branch creation. Inspected `ArchLucid.Core/Resilience/CircuitBreakerGate.cs`, `ArchLucid.AgentRuntime/RealAgentExecutorHandlerResiliencePipeline.cs`, `ArchLucid.AgentRuntime/RealAgentExecutorSingleHandlerExecution.cs`, `ArchLucid.AgentRuntime.Tests/AgentRuntimePackageCoverageBatch18Tests.cs`, `ArchLucid.Host.Core/Http/OutboundExternalHttpResiliencePolicy.cs`, `ArchLucid.Host.Core/Http/AzureRetailPricesHttpResiliencePolicy.cs`.
+
+**Production consumers:** `RealAgentExecutorSingleHandlerExecution.ExecuteSingleAsync` calls the cached per-dispatch-key Polly pipeline. This is a production-oriented call site, not an FND-018 Python reference consumer. The Core `CircuitBreakerGate` and Polly pipelines have different runtime contracts and should not be mechanically substituted.
+
+**Confirmed defect:** the agent handler circuit breaker used `Handle<Exception>()`, counting caller cancellation as an infrastructure failure; the caller cancellation could also be wrapped as `AgentExecutionFailedException`. This diverges from `CircuitBreakerGate`'s documented cancellation-neutral probe semantics.
+
+**Narrow correction:** exclude `OperationCanceledException` from the agent circuit-breaker handled outcomes; propagate caller-requested cancellation before fallback/error wrapping. Added focused regression test for repeated cancellations not opening the breaker. The test and full CI are not yet verified.
+
+**Next audit:** trace cancellation and exception classification through the agent timeout/LLM pipelines, then inspect tenant partitioning and policy registration. FND-018 Python controls remain reference-only; do not wire them into production without a separate integration review.
