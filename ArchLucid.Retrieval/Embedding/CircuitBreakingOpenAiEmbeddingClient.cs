@@ -1,3 +1,4 @@
+using ArchLucid.AgentRuntime;
 using ArchLucid.Core.Resilience;
 
 using Microsoft.Extensions.Logging;
@@ -58,7 +59,11 @@ public sealed class CircuitBreakingOpenAiEmbeddingClient : IOpenAiEmbeddingClien
         }
         catch (Exception ex)
         {
-            _gate.RecordFailure();
+            if (LlmCompletionFailureClassifier.ShouldRecordCircuitBreakerFailure(ex))
+                _gate.RecordFailure();
+            else
+                _gate.RecordCallCancelled();
+
             _logger.LogWarning(ex,
                 "Azure OpenAI embedding call failed after retries; circuit breaker recorded failure.");
             throw;
@@ -89,7 +94,11 @@ public sealed class CircuitBreakingOpenAiEmbeddingClient : IOpenAiEmbeddingClien
         }
         catch (Exception ex)
         {
-            _gate.RecordFailure();
+            if (LlmCompletionFailureClassifier.ShouldRecordCircuitBreakerFailure(ex))
+                _gate.RecordFailure();
+            else
+                _gate.RecordCallCancelled();
+
             _logger.LogWarning(ex,
                 "Azure OpenAI embedding batch failed after retries; circuit breaker recorded failure.");
             throw;
