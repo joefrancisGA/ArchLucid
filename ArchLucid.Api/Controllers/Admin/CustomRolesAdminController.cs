@@ -92,7 +92,9 @@ public sealed class CustomRolesAdminController(
                 },
                 cancellationToken);
 
-            return CreatedAtAction(nameof(ListAsync), CustomRoleResponse.FromRecord(created));
+            // MVC suppresses the Async suffix in controller action names by default.
+            // The action is named "List", not "ListAsync", for URL generation.
+            return CreatedAtAction("List", CustomRoleResponse.FromRecord(created));
         }
         catch (ArgumentException ex)
         {

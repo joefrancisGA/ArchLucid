@@ -61,7 +61,12 @@ public sealed partial class PilotsController
                 ? ProblemTypes.DecisionReceiptSealedIncomplete
                 : ProblemTypes.Conflict;
 
-        return this.ConflictProblem(ex.Message, problemType);
+        // Keep the existing sealed-manifest/lifecycle rejection, while matching the
+        // first-value-report 409 contract: a user-safe reason is mandatory.
+        return this.ConflictProblem(
+            ex.Message,
+            problemType,
+            extensions: new Dictionary<string, object?> { ["blockReason"] = ex.Message });
     }
 
     private async Task<IActionResult?> EnsurePilotRecentDeltasSealedManifestReadAllowedAsync(

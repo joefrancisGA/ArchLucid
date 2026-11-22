@@ -36,6 +36,7 @@ public sealed class OperationalSecurityPathsController(
 {
     [HttpGet]
     [ProducesResponseType(typeof(PagedResponse<SecurityEvidencePathSummaryResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status413PayloadTooLarge, "application/problem+json")]
     public async Task<IActionResult> ListPaths(
         [FromQuery] Guid? snapshotId,
         [FromQuery] PathKind? pathKind,
@@ -99,6 +100,7 @@ public sealed class OperationalSecurityPathsController(
 
     [HttpGet("ranked")]
     [ProducesResponseType(typeof(SecurityEvidencePathRankedPageResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status413PayloadTooLarge, "application/problem+json")]
     public async Task<IActionResult> ListRankedPaths(
         [FromQuery] Guid? snapshotId,
         [FromQuery] int page = PaginationDefaults.DefaultPage,

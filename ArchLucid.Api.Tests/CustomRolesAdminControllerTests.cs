@@ -1,6 +1,7 @@
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Application.Authorization;
 using ArchLucid.Application.Common;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 
@@ -86,5 +87,43 @@ public sealed class CustomRolesAdminControllerTests
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
 
         customRoleService.VerifyNoOtherCalls();
+    }
+    [Fact]
+    public async Task CreateAsync_returns_created_with_resolvable_list_action_name()
+    {
+        Guid tenantId = Guid.NewGuid();
+        CustomRoleRecord role = new()
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            Name = "Reviewer",
+            Permissions = [],
+        };
+        Mock<ICustomRoleService> customRoleService = new();
+        customRoleService.Setup(s => s.CreateAsync(
+                "Reviewer", null, It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(role);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+        Mock<IAuditService> auditService = new();
+        auditService.Setup(s => s.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        CustomRolesAdminController controller = new(
+            customRoleService.Object,
+            scopeProvider.Object,
+            auditService.Object,
+            Mock.Of<IActorContext>(),
+            Mock.Of<ILogger<CustomRolesAdminController>>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.CreateAsync(
+            new CustomRoleUpsertRequest { Name = "Reviewer", Permissions = [] }, CancellationToken.None);
+        CreatedAtActionResult created = action.Should().BeOfType<CreatedAtActionResult>().Subject;
+        created.ActionName.Should().Be("List", "MVC strips Async from discovered action names");
+        created.Value.Should().BeOfType<CustomRoleResponse>();
+        auditService.Verify(s => s.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

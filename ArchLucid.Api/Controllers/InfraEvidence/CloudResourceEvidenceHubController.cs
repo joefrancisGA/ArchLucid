@@ -34,6 +34,7 @@ public sealed partial class CloudResourceEvidenceHubController(
 {
     [HttpGet]
     [ProducesResponseType(typeof(PagedResponse<CloudResourceSummary>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status413PayloadTooLarge, "application/problem+json")]
     public async Task<IActionResult> ListCloudResources(
         [FromQuery] string? namePrefix,
         [FromQuery] string? resourceType,
@@ -70,7 +71,7 @@ public sealed partial class CloudResourceEvidenceHubController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status413PayloadTooLarge, "application/problem+json")]
     public async Task<IActionResult> GetHub(
         Guid cloudResourceId,
         [FromQuery] Guid? runId,
