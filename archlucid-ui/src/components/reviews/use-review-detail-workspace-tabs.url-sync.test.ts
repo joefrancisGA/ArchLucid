@@ -202,6 +202,24 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     expect(result.current.activeTab).toBe("overview");
   });
 
+  it("clears workbench focus on initial load when a section hash selects a non-workbench tab", () => {
+    searchParamsHarness.applyQuery("reviewTab=findings&workbenchFocus=findings");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&workbenchFocus=findings#review-summary",
+    );
+
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.activeTab).toBe("overview");
+    expect(result.current.workbenchFocusColumn).toBeNull();
+    expect(window.location.search).not.toContain("workbenchFocus");
+    expect(window.location.hash).toBe("#review-summary");
+  });
+
   it("clears workbench focus when a section hash moves to a non-workbench tab", () => {
     searchParamsHarness.applyQuery("reviewTab=findings&workbenchFocus=findings");
     window.history.replaceState(

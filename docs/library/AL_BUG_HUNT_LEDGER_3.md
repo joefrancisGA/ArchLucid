@@ -11399,14 +11399,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-11-22 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted initial hash hydration: a section hash that selects a non-workbench tab on first load left `workbenchFocus` from the query; the mount effect now follows the hash tab and rewrites the URL. Regression `clears workbench focus on initial load when a section hash selects a non-workbench tab`. URL-sync vitest **8/8**. Private beta: When an invited operator opens a review link that already points at a section such as the summary while a workbench column is still in the query, the workspace follows that section and drops the leftover column focus on first load.
+
+- [x] (proven) `useReviewDetailWorkspaceTabs` hash hydration — a section hash that selects a non-workbench tab on first load kept `workbenchFocus` from the query — **hit 2026-11-22 seed hunt:** mount effect follows the hash tab and URL rewrite clears focus; regression `clears workbench focus on initial load when a section hash selects a non-workbench tab`.
+- [ ] (candidate) `ReviewDetailWorkspaceTabShell.renderTabPanel` — toggling `workbenchVisible` may unmount tab-mode findings panel while `WorkbenchFindingSelectionSync` stays enabled via findings tab — locus: dual findings mount paths; input: enable workbench from findings tab mid-selection; wrong outcome: selection sync targets missing cards; reachability: professional workbench toggle (monitor; hunt #122).
+- [ ] (candidate) `ReviewWorkspaceStaleBanner` — visibility refetch on tab focus may advance baseline before operator reads stale warning — locus: `visibilitychange` refetch vs baseline seeding; input: background tab activity bump then foreground; wrong outcome: stale warning never surfaces; reachability: multi-tab review monitoring (monitor; hunt #122).
+
 2026-11-22 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted hashchange workbench-focus drift: a section hash that selects a non-workbench tab left `workbenchFocus` from the query; `onHashChange` now follows the hash tab and rewrites the URL. Regression `clears workbench focus when a section hash moves to a non-workbench tab`. URL-sync vitest **7/7**. Private beta: When an invited operator opens a review section such as the summary while a workbench column was focused, the workspace follows that section and drops the leftover column focus.
 
 2026-11-01 thorough hunt #122 (dry): **rotation fired** (`shouldRotate: true`; **3** consecutive low-yield hunts on **`ui-oidc`**: dry, dry, dry; `-AvoidZoneId ui-oidc` applied; **cooldown fallback** selected **`ui-review-detail-workspace`**). Cheap-disproof closed five header `(candidate)` rows from hunt #118 reseed — **valid-no-repro** `navigateTab` hash scroll after presenter (`navigateTab` passes `hash: null` to `writeReviewDetailTabToUrl`; `activeTab` + `hashchange` effects call `scheduleScrollToReviewDetailSection` when location hash remains), **invalid** `ReviewInPipelineBanner` dismiss/localStorage reset (banner has no dismiss control or storage-backed dismiss state — reinjection on tab return matches hunt #118 deferred-mount design), **invalid** `usePinnedReviewContext.openPin` (hook exposes URL-driven `pinRunId` + `closePin` only; no `openPin` locus), **invalid** `ReviewWorkspaceStaleBanner` incremental stream frames (banner reads authoritative `useRunSummaryQuery` fingerprint only; refresh button intentionally clears warning after successful refetch even when fingerprint unchanged), **valid-no-repro** `writeReviewDetailFindingIdToUrl` deferred findings panel (same LI-13 reconcile path as hunt #118 `WorkbenchFindingSelectionSync`). Reseeded five `(candidate)` monitor rows below; focused workspace vitest bundle **57/57**. Private beta: n/a.
 
 - [x] (valid-no-repro) `ReviewInPipelineBanner` activity CTA — **cheap-disproof 2026-11-22:** `navigateTab` passes `hash: null` on purpose when leaving a section.
 - [x] (proven) `useReviewDetailWorkspaceTabs` hashchange — section hash to a non-workbench tab kept `workbenchFocus` from the query — **hit 2026-11-22 seed hunt:** hash tab wins and URL rewrite clears focus; regression `clears workbench focus when a section hash moves to a non-workbench tab`.
-- [ ] (candidate) `ReviewDetailWorkspaceTabShell.renderTabPanel` — toggling `workbenchVisible` may unmount tab-mode findings panel while `WorkbenchFindingSelectionSync` stays enabled via findings tab — locus: dual findings mount paths; input: enable workbench from findings tab mid-selection; wrong outcome: selection sync targets missing cards; reachability: professional workbench toggle (monitor; hunt #122).
-- [ ] (candidate) `ReviewWorkspaceStaleBanner` — visibility refetch on tab focus may advance baseline before operator reads stale warning — locus: `visibilitychange` refetch vs baseline seeding; input: background tab activity bump then foreground; wrong outcome: stale warning never surfaces; reachability: multi-tab review monitoring (monitor; hunt #122).
 - [x] (valid-no-repro) `navigateTab` to overview — **cheap-disproof 2026-11-22:** non-workbench destination already sets `workbenchFocus` null and `writeReviewDetailTabToUrl` deletes the query.
 
 - [x] (valid-no-repro) `navigateTab` — switching to a package tab while a review-section hash is set may write tab URL without re-scheduling section scroll when presenter mode was active — **cheap-disproof 2026-11-01 thorough hunt #122:** hunt #118 reseed queue; hash scroll effects + `hash: null` tab writes.
@@ -12087,8 +12091,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-22
 - **last-bug:** 2026-11-22

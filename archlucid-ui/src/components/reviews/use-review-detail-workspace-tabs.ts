@@ -317,14 +317,29 @@ export function useReviewDetailWorkspaceTabs(
       return;
     }
 
+    // A section hash names the tab on first paint. Do not keep the query workbenchFocus on a non-workbench tab.
+    const normalizedFocus = isWorkbenchTab(tabFromHash) ? tabFromHash : null;
+
     setActiveTab(tabFromHash);
-    writeReviewDetailTabToUrl(tabFromHash, { hash });
+
+    if (workbenchFocusColumnRef.current !== normalizedFocus) {
+      workbenchFocusColumnRef.current = normalizedFocus;
+      setWorkbenchFocusColumnState(normalizedFocus);
+    }
+
+    writeReviewDetailTabToUrl(tabFromHash, {
+      hash,
+      workbenchFocus: normalizedFocus,
+      presenter: presenterModeRef.current ? true : null,
+      runId: props.runId,
+      architectureId: props.parentArchitectureId,
+    });
     setHashResolved(true);
 
     if (hash.length > 0) {
       scheduleScrollToReviewDetailSection(hash);
     }
-  }, [hashResolved]);
+  }, [hashResolved, props.parentArchitectureId, props.runId]);
 
   useEffect(() => {
     const hash = window.location.hash.slice(1);
