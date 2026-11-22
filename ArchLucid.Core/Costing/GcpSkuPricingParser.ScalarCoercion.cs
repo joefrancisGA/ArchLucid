@@ -11,8 +11,8 @@ internal static partial class GcpSkuPricingParser
             return true;
 
         if (element.ValueKind == JsonValueKind.Number
-            && TryReadWholeNumberDouble(element, out double numeric)
-            && numeric < 9223372036854775808d)
+            && TryReadWholeNumberDecimal(element, out decimal numeric)
+            && numeric <= long.MaxValue)
         {
             value = (long)numeric;
 
@@ -57,7 +57,7 @@ internal static partial class GcpSkuPricingParser
         }
 
         if (element.ValueKind == JsonValueKind.Number
-            && TryReadWholeNumberDouble(element, out double numeric)
+            && TryReadWholeNumberDecimal(element, out decimal numeric)
             && numeric >= int.MinValue
             && numeric <= int.MaxValue)
         {
@@ -88,14 +88,14 @@ internal static partial class GcpSkuPricingParser
         return TryParseWholeNumberString(raw.Trim(), out value);
     }
 
-    private static bool TryReadWholeNumberDouble(JsonElement element, out double value)
+    private static bool TryReadWholeNumberDecimal(JsonElement element, out decimal value)
     {
         value = default;
 
-        if (element.ValueKind != JsonValueKind.Number || !element.TryGetDouble(out value))
+        if (element.ValueKind != JsonValueKind.Number || !element.TryGetDecimal(out value))
             return false;
 
-        return double.IsFinite(value) && value >= 0 && value == Math.Floor(value);
+        return value >= 0 && value == decimal.Truncate(value);
     }
 
     private static bool TryParseWholeNumberString(string raw, out int value)
@@ -103,11 +103,10 @@ internal static partial class GcpSkuPricingParser
         if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
             return true;
 
-        if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
-            && double.IsFinite(numeric)
+        if (decimal.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out decimal numeric)
             && numeric >= 0
             && numeric <= int.MaxValue
-            && numeric == Math.Floor(numeric))
+            && numeric == decimal.Truncate(numeric))
         {
             value = (int)numeric;
 
@@ -124,11 +123,10 @@ internal static partial class GcpSkuPricingParser
         if (long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
             return true;
 
-        if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
-            && double.IsFinite(numeric)
+        if (decimal.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out decimal numeric)
             && numeric >= 0
-            && numeric < 9223372036854775808d
-            && numeric == Math.Floor(numeric))
+            && numeric <= long.MaxValue
+            && numeric == decimal.Truncate(numeric))
         {
             value = (long)numeric;
 
