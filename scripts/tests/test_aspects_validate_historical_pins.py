@@ -94,6 +94,41 @@ class HistoricalPinVerificationTests(unittest.TestCase):
         self.assertEqual(result["unverified_total_excluding_unparseable"], 0)
 
 
+    def test_complete_multifile_blob_pins_are_verified_atomically(self):
+        (self.repo / "src").mkdir()
+        (self.repo / "src/a.cs").write_text("red\\nblue\\n", encoding="utf-8")
+        (self.repo / "src/b.cs").write_text("green\\nyellow\\n", encoding="utf-8")
+        run(self.repo, "add", "src")
+        run(self.repo, "commit", "-qm", "two sources")
+        commit = run(self.repo, "rev-parse", "HEAD")
+        blob_a = run(self.repo, "rev-parse", "HEAD:src/a.cs")
+        blob_b = run(self.repo, "rev-parse", "HEAD:src/b.cs")
+        raw = (f"src/a.cs [blob {blob_a}; last ignored] 1–2; "
+               f"src/b.cs [blob {blob_b}; last ignored] 1–2")
+        row = {**self.event(head=commit), "parsed_pin": None,
+               "reviewed_file_spans_raw": raw}
+        pins = sut.source_pins(row)
+        self.assertEqual(len(pins), 2)
+        audit = []
+        report = sut.verify_pins(self.repo, [
+            {**row, "excel_row": 7},
+            {**row, "excel_row": 8}
+        ], audit_rows=audit)
+        self.assertEqual(report["candidate_pin_count"], 2)
+        self.assertEqual(report["verified_pin_rows"], 2)
+        self.assertEqual(report["verified_unique_exact_path_blob_lines"], 4)
+        self.assertEqual(report["verified_repeated_exact_path_blob_lines"], 4)
+        self.assertEqual(report["verified_nonblank_line_occurrences"], 8)
+        self.assertEqual(len(audit[0]["pinned_sources"]), 2)
+        self.assertEqual(audit[1]["repeated_exact_path_blob_loc"], 4)
+        # No partial credit: an incorrect blob poisons the entire event.
+        bad = row.copy()
+        bad["reviewed_file_spans_raw"] = raw.replace(blob_b, "f" * 40)
+        result = sut.verify_pins(self.repo, [bad])
+        self.assertEqual(result["verified_pin_rows"], 0)
+        self.assertEqual(result["quarantined_or_ambiguous_total"], 1)
+        self.assertEqual(result["verified_unique_exact_path_blob_lines"], 0)
+
     def test_full_quarantine_preserves_excel_rows_and_per_row_new_repeat_loc(self):
         audit = []
         rows = [self.event(excel_row=7),
