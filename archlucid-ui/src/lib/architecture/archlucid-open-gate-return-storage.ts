@@ -1,3 +1,5 @@
+import { canonicalSafeReturnPath } from "@/lib/navigation/safe-return-path";
+
 import {
   isFirstReviewOpenGateLabel,
   type FirstReviewOpenGateLabel,
@@ -52,6 +54,7 @@ function isArchLucidOpenGateReturnRecord(value: unknown): value is ArchLucidOpen
     typeof candidate.runId !== "string"
     || !isFirstReviewOpenGateLabel(candidate.openGateLabel)
     || typeof candidate.href !== "string"
+    || canonicalSafeReturnPath(candidate.href) !== candidate.href
     || typeof candidate.recordedAtUtc !== "string"
   ) {
     return false;
@@ -68,7 +71,11 @@ export function writeArchLucidOpenGateReturnRecord(
   workspaceId: string,
   record: ArchLucidOpenGateReturnRecord,
 ): void {
-  if (typeof window === "undefined" || workspaceId.trim().length === 0) {
+  if (
+    typeof window === "undefined"
+    || workspaceId.trim().length === 0
+    || !isArchLucidOpenGateReturnRecord(record)
+  ) {
     return;
   }
 
