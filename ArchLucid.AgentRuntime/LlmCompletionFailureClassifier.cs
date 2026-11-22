@@ -30,7 +30,8 @@ public static class LlmCompletionFailureClassifier
     {
         ArgumentNullException.ThrowIfNull(ex);
 
-        if (ex is OperationCanceledException { CancellationToken.IsCancellationRequested: true })
+        if (ex is OperationCanceledException cancellation &&
+            (cancellation.CancellationToken.IsCancellationRequested || ex is not TaskCanceledException))
         {
             return LlmCompletionFailureKind.Cancel;
         }
