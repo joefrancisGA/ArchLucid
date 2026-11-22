@@ -13,6 +13,8 @@ on:
       - scripts/aspects_import_historical_workbook.py
       - scripts/aspects_validate_historical_corpus.py
       - scripts/aspects_validate_historical_pins.py
+      - scripts/aspects_recover_unpinned_historical_sources.py
+      - scripts/tests/test_aspects_recover_unpinned_historical_sources.py
       - scripts/aspects_reconcile_historical_lineage.py
       - scripts/tests/test_aspects_reconcile_historical_lineage.py
       - scripts/tests/test_aspects_validate_historical_pins.py
@@ -97,6 +99,30 @@ jobs:
               f.write("Cross-revision line identity and historical distinct-defect reconciliation remain unresolved.\n\n")
           PY
 
+      - name: Classify unpinned workbook source references without inflating verified coverage
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_recover_unpinned_historical_sources.py' -v
+          python scripts/aspects_recover_unpinned_historical_sources.py \
+            --repo . \
+            --historical-root docs/engineering/aspects-historical \
+            --state docs/engineering/aspects-historical-restoration-state.json \
+            --json-out artifacts/aspects/historical-unpinned-source-candidates.json \
+            --rows-out artifacts/aspects/historical-unpinned-source-candidates.jsonl
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          data = json.loads(Path("artifacts/aspects/historical-unpinned-source-candidates.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
+              output.write(
+                  f"Unpinned workbook review triage (not independently pinned): "
+                  f"**{data.get('candidate_rows', 0):,}** Git-resolved candidate rows, "
+                  f"**{data.get('candidate_line_occurrences', 0):,}** candidate "
+                  f"nonblank line occurrences; candidate in-900-window rows "
+                  f"**{data.get('in_window_candidate_rows', 0):,}**. "
+                  "These are EXCLUDED from pinned-verified and legacy density.\\n\\n"
+              )
+          PY
+
       - name: Reconcile provisional cross-revision unchanged-line identity in the exact historical window
         run: |
           python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_historical_lineage.py' -v
@@ -176,6 +202,8 @@ jobs:
             artifacts/aspects/historical-corpus-validation.json
             artifacts/aspects/historical-git-pin-audit.json
             artifacts/aspects/historical-git-pin-rows.jsonl
+            artifacts/aspects/historical-unpinned-source-candidates.json
+            artifacts/aspects/historical-unpinned-source-candidates.jsonl
             artifacts/aspects/historical-900-cross-revision-lineage.json
             artifacts/aspects/aspects-historical-exact-overlap.json
           if-no-files-found: error
