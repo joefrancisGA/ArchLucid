@@ -1,7 +1,7 @@
 name: FND-010 SQL Journal Integration
 on:
   pull_request:
-    branches: [master, main, architecture/fnd010-durable-sql-audit]
+    branches: [master, main, architecture/fnd010-durable-sql-audit, architecture/fnd010-scheduled-monitor-alerts]
   workflow_dispatch:
 permissions:
   contents: read
@@ -54,6 +54,8 @@ jobs:
       - name: Remove ephemeral signing key
         if: always()
         run: rm -f /tmp/fnd010-test-signing.pem
+      - name: Verify live SQL chain with independent managed-signature monitor
+        run: python3 scripts/ci/fnd010_monitor_sql_e2e.py
       - name: SQL container diagnostics on failure
         if: failure()
         run: docker logs --tail 60 fnd010-sql || true
