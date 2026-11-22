@@ -31,7 +31,8 @@ public sealed partial class SqlRemediationInstanceRepository
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
-              AND InstanceId = @InstanceId;
+              AND InstanceId = @InstanceId
+              AND (@ExpectedRowVersion IS NULL OR RowVersion = @ExpectedRowVersion);
             """;
         const string evidenceSql = """
             INSERT INTO dbo.RemediationEvidence
@@ -51,6 +52,7 @@ public sealed partial class SqlRemediationInstanceRepository
                 scope.WorkspaceId,
                 scope.ProjectId,
                 mutation.InstanceId,
+                mutation.ExpectedRowVersion,
                 Status = (int)mutation.Status,
                 mutation.VerificationSnapshotId,
                 mutation.VerificationResultJson,
