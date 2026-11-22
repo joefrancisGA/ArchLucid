@@ -22,6 +22,7 @@ import {
 } from "@/lib/governance/manifest-buyer-bundle-download-disclosure-url";
 
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { RUN_DETAIL_MANIFEST_BUNDLE_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE } from "@/lib/runs/run-detail-manifest-bundle-export-finalize-not-load-failure-copy";
 import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
 import { showError } from "@/lib/toast";
 
@@ -143,7 +144,15 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
         </CardHeader>
         <CardContent className="space-y-3">
           {deliverableDisabledReason !== null ? (
-            <WhyDisabledCtaHint id={blockedHintId} reason={deliverableDisabledReason} />
+            <>
+              <WhyDisabledCtaHint id={blockedHintId} reason={deliverableDisabledReason} />
+              <p
+                className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="manifest-buyer-bundle-export-finalize-not-load-failure"
+              >
+                {RUN_DETAIL_MANIFEST_BUNDLE_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE}
+              </p>
+            </>
           ) : null}
           {action}
         </CardContent>
@@ -166,7 +175,15 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
       </summary>
       <div className="space-y-3 border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
         {deliverableDisabledReason !== null ? (
-          <WhyDisabledCtaHint id={blockedHintId} reason={deliverableDisabledReason} />
+          <>
+            <WhyDisabledCtaHint id={blockedHintId} reason={deliverableDisabledReason} />
+            <p
+              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="manifest-buyer-bundle-export-finalize-not-load-failure"
+            >
+              {RUN_DETAIL_MANIFEST_BUNDLE_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE}
+            </p>
+          </>
         ) : null}
         {action}
       </div>
