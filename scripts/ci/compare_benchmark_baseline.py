@@ -67,15 +67,15 @@ def main() -> int:
     for full_name, max_mean in expected.items():
         got = actual.get(full_name)
         if got is None:
-            failures.append(f"missing benchmark result: {full_name}")
+            failures.append(f"[MISSING_EVIDENCE] missing benchmark result: {full_name}")
             continue
         if got > max_mean:
             failures.append(
-                f"{full_name}: mean {got:.2f} ns exceeds baseline max {max_mean:.2f} ns"
+                f"[PERFORMANCE_REGRESSION] {full_name}: mean {got:.2f} ns exceeds baseline max {max_mean:.2f} ns"
             )
 
     if failures:
-        print("Benchmark regression check failed:", file=sys.stderr)
+        print("Benchmark comparison failed (see categorized findings):", file=sys.stderr)
         for line in failures:
             print(f"  {line}", file=sys.stderr)
         return 1
@@ -85,4 +85,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except (ValueError, KeyError, TypeError, json.JSONDecodeError, OSError) as exc:
+        print(f"[INVALID_EVIDENCE] {exc}", file=sys.stderr)
+        raise SystemExit(2) from None
