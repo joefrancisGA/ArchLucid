@@ -121,30 +121,44 @@ def reconcile(repo: Path, rows: list[dict], checkpoint: dict,
             excluded[(membership or "missing_membership") + ":" +
                      (row.get("pin_status") or "missing_pin_status")] += 1
             continue
-        sha, path, blob = row.get("reviewed_master_sha"), row.get("path"), row.get("blob")
-        spans = row.get("spans")
-        if (sha not in members or not isinstance(path, str) or not path
-                or not isinstance(blob, str) or not isinstance(spans, list)
-                or not spans):
+        sha = row.get("reviewed_master_sha")
+        sources = row.get("pinned_sources")
+        if sources is None:
+            sources = [row]
+        if sha not in members or not isinstance(sources, list) or not sources:
             result["blocking_reason"] = f"Malformed audited row {row.get('excel_row')}"
             return result
-        key = (path, blob)
-        selected = set()
-        for pair in spans:
-            if (not isinstance(pair, list) or len(pair) != 2
-                    or type(pair[0]) is not int or type(pair[1]) is not int
-                    or pair[0] < 1 or pair[1] < pair[0]
-                    or pair[1] - pair[0] > 100000):
-                result["blocking_reason"] = f"Invalid audited span at row {row['excel_row']}"
+        row_occurrences = 0
+        # A multi-file review is one observation, but each pinned file/span
+        # has its own source identity. Do not assign all lines to one blob.
+        for source in sources:
+            if not isinstance(source, dict):
+                result["blocking_reason"] = f"Malformed audited source at row {row['excel_row']}"
                 return result
-            selected.update(range(pair[0], pair[1] + 1))
-        if len(selected) != row.get("nonblank_reviewed_loc"):
+            path, blob, spans = source.get("path"), source.get("blob"), source.get("spans")
+            if (not isinstance(path, str) or not path
+                    or not isinstance(blob, str) or not isinstance(spans, list)
+                    or not spans):
+                result["blocking_reason"] = f"Malformed audited source at row {row['excel_row']}"
+                return result
+            key = (path, blob)
+            selected = set()
+            for pair in spans:
+                if (not isinstance(pair, list) or len(pair) != 2
+                        or type(pair[0]) is not int or type(pair[1]) is not int
+                        or pair[0] < 1 or pair[1] < pair[0]
+                        or pair[1] - pair[0] > 100000):
+                    result["blocking_reason"] = f"Invalid audited span at row {row['excel_row']}"
+                    return result
+                selected.update(range(pair[0], pair[1] + 1))
+            row_occurrences += len(selected)
+            groups[key].update(selected)
+            first_seen[key] = min(first_seen.get(key, chronological[sha]), chronological[sha])
+        if row_occurrences != row.get("nonblank_reviewed_loc"):
             result["blocking_reason"] = f"Audited LOC disagrees at row {row['excel_row']}"
             return result
         eligible += 1
-        total_occurrences += len(selected)
-        groups[key].update(selected)
-        first_seen[key] = min(first_seen.get(key, chronological[sha]), chronological[sha])
+        total_occurrences += row_occurrences
 
     if eligible == 0:
         result.update({
