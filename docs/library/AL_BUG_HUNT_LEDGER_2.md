@@ -2,15 +2,21 @@
 
 ## Zone: persistence-migrations
 
-2026-11-20 seed hunt (seed-only): coverage zone for `ArchLucid.Persistence/Migrations` (nominate gap). Seeded five `(hunt-ready)` rows; no production change.
+2026-11-22 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five template `(hunt-ready)` rows: no schema-history re-apply, rollback pairing guard, tenant seed upsert, filtered-index collation, or online-DDL locus exists inside `ArchLucid.Persistence/Migrations`. No failing repro. Reseeded five `(candidate)` rows from scripts read (`076`, both `400_` files, `424`, `R424`). Private beta: n/a.
 
 ### Hypotheses
 
-- [ ] (hunt-ready) migration bootstrap — re-apply script when schema history row exists but object missing may skip recreate — locus: history vs reality drift; input: manual drop table; wrong outcome: app starts against missing object; reachability: local SQL bootstrap.
-- [ ] (hunt-ready) rollback script pairing — rollback entry without matching up migration id may still execute destructive drop — locus: rollback pairing guard; input: orphan rollback file; wrong outcome: unintended drop; reachability: dev rollback workflows.
-- [ ] (hunt-ready) tenant scope seed migration — duplicate seed insert may violate unique index without idempotent upsert — locus: seed idempotency; input: second bootstrap on partial DB; wrong outcome: migration fail mid-chain; reachability: fresh tenant catalog seed.
-- [ ] (hunt-ready) index creation — filtered index predicate may use wrong collation for case-sensitive column — locus: predicate vs column collation; input: CI collation mismatch; wrong outcome: duplicate key acceptance; reachability: tenancy index migrations.
-- [ ] (hunt-ready) extended property migration — adding column with default may lock large table when not online — locus: DDL online hint; input: big table add column; wrong outcome: long production lock; reachability: release migration cadence.
+- [x] (invalid) migration bootstrap — re-apply when schema history exists but object missing — **cheap-disproof 2026-11-22:** no history-vs-object check in `Migrations/*.sql`; DbUp journals script names outside these files.
+- [x] (invalid) rollback pairing guard executes orphan rollback — **cheap-disproof 2026-11-22:** `Migrations/Rollback/*.sql` are not invoked by the forward migrator script filter.
+- [x] (invalid) tenant scope seed duplicate insert — **cheap-disproof 2026-11-22:** no named seed `INSERT` in this zone matches the claim.
+- [x] (invalid) filtered index wrong collation — **cheap-disproof 2026-11-22:** no cited filtered-index predicate in a numbered script.
+- [x] (invalid) extended property / add-column default locks table — **cheap-disproof 2026-11-22:** no named table DDL with a missing `ONLINE` hint was specified.
+
+- [ ] (candidate) `424_SentEmails_TenantScopedIdempotency.sql` — drops the current PK then adds `PK_SentEmails_TenantId_IdempotencyKey` without skipping when that constraint is already present — locus: drop-then-add; input: replay after the new PK exists; wrong outcome: table briefly has no PK if the add fails; reachability: DbUp replay of `dbo.SentEmails`.
+- [ ] (candidate) `400_FirstTenantFunnelEvents_LiveSeatScope.sql` and `400_OperationalSecurityFindingsScopedNaturalKey.sql` — two forward scripts share prefix `400_` — locus: filename order; input: lexicographic embed names; wrong outcome: operators treat a single `400` as complete; reachability: tenant-plane migrator resource list.
+- [ ] (candidate) `Rollback/R424_SentEmails_TenantScopedIdempotency.sql` — `THROW` when duplicate `IdempotencyKey` rows exist aborts before PK restore — locus: pre-drop duplicate check; input: two tenants share a key; wrong outcome: rollback stops with the tenant-scoped PK still in place; reachability: operator rollback of 424.
+- [ ] (candidate) `076_SentEmails.sql` — PK is `IdempotencyKey` only until `424` replaces it — locus: `076` create vs `424` alter; input: catalog that applied 076 and not 424; wrong outcome: global uniqueness across tenants; reachability: mail idempotency ledger before 424.
+- [ ] (candidate) `Rollback/R424_SentEmails_TenantScopedIdempotency.sql` — `ADD CONSTRAINT PK_SentEmails` after drop does not skip when that name already exists — locus: add after drop; input: second rollback when `PK_SentEmails` remains; wrong outcome: rollback fails after dropping the current PK; reachability: repeated rollback of 424.
 
 - **id:** persistence-migrations
 - **status:** open
@@ -18,10 +24,10 @@
 - **aliases:** SQL migrations; schema bootstrap
 - **paths:** ArchLucid.Persistence/Migrations/
 - **test-filter:** FullyQualifiedName~Migration|FullyQualifiedName~SchemaBootstrap
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-22
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
