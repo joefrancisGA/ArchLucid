@@ -45,10 +45,15 @@ public sealed class SecureNowSnapshotExchangeContractTests
         authorization.Setup(a => a.AuthorizeAsync(
             It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), ArchLucidPolicies.ReadAuthority))
             .ReturnsAsync(AuthorizationResult.Success());
+        Mock<IEvidenceEntitlementAuthority> entitlements = new();
+        entitlements.Setup(e => e.HasCurrentReadEntitlementAsync(
+            It.IsAny<ClaimsPrincipal>(), It.IsAny<EvidenceReadResource>(),
+            It.IsAny<CancellationToken>())).ReturnsAsync(true);
         ServiceProvider services = new ServiceCollection()
             .AddSingleton(flags.Object)
             .AddSingleton(scope.Object)
             .AddSingleton(authorization.Object)
+            .AddSingleton(entitlements.Object)
             .AddScoped<EvidenceReadAuthorizationGate>()
             .BuildServiceProvider();
         Mock<IRunRepository> runs = new();
