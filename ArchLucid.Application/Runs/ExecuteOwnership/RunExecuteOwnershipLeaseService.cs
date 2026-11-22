@@ -90,11 +90,7 @@ public sealed class RunExecuteOwnershipLeaseService(
 
             if (_drainGate.IsDraining)
             {
-                // Roll back the SQL row even when the caller token is already cancelled (TB-961 drain admission).
-                await _leaseRepository
-                    .TryReleaseAsync(runId, holderInstanceId, CancellationToken.None)
-                    .ConfigureAwait(false);
-
+                // The catch path releases the acquired SQL lease with an independent token.
                 throw new ConflictException(
                     "Host is draining for shutdown; execute ownership is not admitting new leases. Retry on another replica after drain completes.");
             }
