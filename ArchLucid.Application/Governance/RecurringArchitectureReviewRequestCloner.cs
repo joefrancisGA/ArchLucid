@@ -28,8 +28,11 @@ public static class RecurringArchitectureReviewRequestCloner
 
         clone.RequestId = requestId;
         clone.RequestSource = "recurrence";
-        clone.Description =
-            $"{source.Description.Trim()} (scheduled follow-up from run {priorRunId:N} at {triggeredAtUtc:u})";
+        string description = source.Description.Trim();
+        string followUpNote = $" (scheduled follow-up from run {priorRunId:N} at {triggeredAtUtc:u})";
+        clone.Description = description.Length <= ArchitectureRequestFieldLimits.MaxDescriptionLength - followUpNote.Length
+            ? description + followUpNote
+            : description;
 
         clone.PriorRunId = priorRunId.ToString("N");
 
