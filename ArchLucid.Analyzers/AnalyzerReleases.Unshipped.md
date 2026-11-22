@@ -1,4 +1,3 @@
-; FND-017 architecture analyzer rules are advisory until validated.
 ### New Rules
 
 Rule ID | Category | Severity | Notes
@@ -10,6 +9,9 @@ FND017004 | Architecture | Info | Snapshot evidence authorization dominance
 FND017005 | Architecture | Info | Snapshot evidence authorization resource binding
 
 ### Removed Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|------
 
 ### Changed Rules
 
