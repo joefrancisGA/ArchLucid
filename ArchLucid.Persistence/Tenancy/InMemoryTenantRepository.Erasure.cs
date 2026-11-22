@@ -13,6 +13,8 @@ public sealed partial class InMemoryTenantRepository
 
     public Task<bool> TryApproveTenantErasureAsync(Guid tenantId, DateTimeOffset approvedUtc, string approvedByUserId, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         lock (_trialGate)
         {
             if (!_byId.TryGetValue(tenantId, out TenantRecord? t) || !TenantRepositoryCore.CanApproveTenantErasure(t))
@@ -43,6 +45,9 @@ public sealed partial class InMemoryTenantRepository
                 TrialStatus = t.TrialStatus,
                 TrialSampleRunId = t.TrialSampleRunId,
                 TrialArchitecturePreseedEnqueuedUtc = t.TrialArchitecturePreseedEnqueuedUtc,
+                TrialArchitecturePreseedAttemptCount = t.TrialArchitecturePreseedAttemptCount,
+                TrialArchitecturePreseedFailedUtc = t.TrialArchitecturePreseedFailedUtc,
+                TrialArchitecturePreseedLastError = t.TrialArchitecturePreseedLastError,
                 TrialWelcomeRunId = t.TrialWelcomeRunId,
                 TrialFirstManifestCommittedUtc = t.TrialFirstManifestCommittedUtc,
                 BaselineReviewCycleHours = t.BaselineReviewCycleHours,
@@ -70,7 +75,7 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task<bool> TryRevertTenantErasureApprovalAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -105,6 +110,9 @@ public sealed partial class InMemoryTenantRepository
                 TrialStatus = t.TrialStatus,
                 TrialSampleRunId = t.TrialSampleRunId,
                 TrialArchitecturePreseedEnqueuedUtc = t.TrialArchitecturePreseedEnqueuedUtc,
+                TrialArchitecturePreseedAttemptCount = t.TrialArchitecturePreseedAttemptCount,
+                TrialArchitecturePreseedFailedUtc = t.TrialArchitecturePreseedFailedUtc,
+                TrialArchitecturePreseedLastError = t.TrialArchitecturePreseedLastError,
                 TrialWelcomeRunId = t.TrialWelcomeRunId,
                 TrialFirstManifestCommittedUtc = t.TrialFirstManifestCommittedUtc,
                 BaselineReviewCycleHours = t.BaselineReviewCycleHours,
@@ -136,7 +144,7 @@ public sealed partial class InMemoryTenantRepository
         DateTimeOffset erasureEligibleUtc,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -153,7 +161,7 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task<bool> TryRestoreTenantErasureQuarantineAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -176,7 +184,7 @@ public sealed partial class InMemoryTenantRepository
         string legalHoldSetByUserId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         if (!TenantRepositoryCore.CanSetTenantErasureLegalHold(legalHoldUntilUtc, utcNow))
             return Task.FromResult(false);
@@ -202,7 +210,7 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task<bool> TryClearTenantErasureLegalHoldAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -222,7 +230,7 @@ public sealed partial class InMemoryTenantRepository
         int take,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -247,7 +255,7 @@ public sealed partial class InMemoryTenantRepository
         int take,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
