@@ -20,14 +20,14 @@ public sealed class InMemoryArchitectureVersionRepositoryTests
             SourceRequestId = "original",
         };
 
-        ArchitectureVersionRecord created = await repository.CreateAsync(scope, input, TestContext.Current.CancellationToken);
+        ArchitectureVersionRecord created = await repository.CreateAsync(scope, input, CancellationToken.None);
         created.SourceRequestId = "mutated";
         created.ContentHashSha256[0] = 9;
 
         ArchitectureVersionRecord stored = (await repository.GetByIdAsync(
             scope,
             created.ArchitectureVersionId,
-            TestContext.Current.CancellationToken))!;
+            CancellationToken.None))!;
         Assert.Equal("original", stored.SourceRequestId);
         Assert.Equal(1, stored.ContentHashSha256[0]);
 
@@ -36,7 +36,7 @@ public sealed class InMemoryArchitectureVersionRepositoryTests
             scope,
             input.ArchitectureId,
             input.ContentHashSha256,
-            TestContext.Current.CancellationToken))!;
+            CancellationToken.None))!;
         Assert.Equal(4, reread.IntakeRequestHashSha256[0]);
     }
 }
