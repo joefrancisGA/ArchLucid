@@ -180,6 +180,19 @@ jobs:
             artifacts/aspects/aspects-historical-exact-overlap.json
           if-no-files-found: error
 
+      - name: Require anchored, nonempty historical lineage cohort
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("artifacts/aspects/historical-900-cross-revision-lineage.json").read_text())
+          if report["status"] != "provisional_same_path_unique_unchanged_lineage":
+              raise SystemExit("::error::Historical first-parent cohort is not independently verifiable: "
+                               + report["status"] + "; see uploaded audit artifacts")
+          if report["eligible_verified_review_rows"] <= 0:
+              raise SystemExit("::error::No Git-pin-verified historical review lines in anchored cohort")
+          PY
+
       - name: Signal missing review evidence for Aspects code PR
         if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'aspects/')
         run: |
