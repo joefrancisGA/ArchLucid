@@ -45,8 +45,8 @@ public sealed class PilotValueReportService(
     /// </summary>
     public const int DefaultRunDetailCap = 400;
 
-    /// <summary>Audit export row cap (matches <see cref = "DapperAuditRepository.GetExportAsync"/> clamp).</summary>
-    public const int AuditExportMaxRows = 10_000;
+    /// <summary>Audit rows retained in the report after checking for one overflow row.</summary>
+    public const int AuditExportMaxRows = IAuditRepository.BulkExportRowLimit;
 
     /// <summary>
     ///     Default pilot-to-date window when <c>fromUtc</c> is omitted (parity with

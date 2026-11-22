@@ -318,8 +318,15 @@ public sealed class PolicyPackManagementServiceTests
             Times.Once);
     }
 
-    [Fact]
-    public async Task PublishVersion_skips_change_log_when_identical_operator_retry()
+    [Theory]
+    [InlineData(PolicyPackStatus.Draft, "1.0.0", true)]
+    [InlineData(PolicyPackStatus.Active, "1.0.0", false)]
+    [InlineData(PolicyPackStatus.Active, "2.0.0", false)]
+    [InlineData(PolicyPackStatus.Retired, "1.0.0", false)]
+    public async Task PublishVersion_with_identical_content_only_promotes_draft_packs(
+        string status,
+        string currentVersion,
+        bool shouldActivate)
     {
         Guid packId = Guid.NewGuid();
         const string version = "1.0.0";
@@ -356,8 +363,8 @@ public sealed class PolicyPackManagementServiceTests
                     Name = "n",
                     Description = "",
                     PackType = PolicyPackType.BuiltIn,
-                    Status = PolicyPackStatus.Active,
-                    CurrentVersion = version,
+                    Status = status,
+                    CurrentVersion = currentVersion,
                 });
         packRepo.Setup(p => p.UpdateAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -388,8 +395,14 @@ public sealed class PolicyPackManagementServiceTests
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IDbConnection?>(),
                 It.IsAny<IDbTransaction?>()),
-            Times.Never);
-        packRepo.Verify(p => p.UpdateAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()), Times.Never);
+            shouldActivate ? Times.Once() : Times.Never());
+        packRepo.Verify(
+            p => p.UpdateAsync(
+                It.Is<PolicyPack>(pack => pack.Status == PolicyPackStatus.Active && pack.CurrentVersion == version),
+                It.IsAny<CancellationToken>()),
+            shouldActivate ? Times.Once() : Times.Never());
+        if (!shouldActivate)
+            packRepo.Verify(p => p.UpdateAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

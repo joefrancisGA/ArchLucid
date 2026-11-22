@@ -117,16 +117,18 @@ function CaptureDeltaBlock(props: {
   readonly reportQueries: ReadonlyArray<{ readonly isPending: boolean; readonly isError: boolean; readonly data: ReturnType<typeof collectSecurityEvidencePathIdsFromAttackPathReport> | undefined }>;
 }): React.JSX.Element {
   const latestSnapshotId = props.eligibleSnapshots[0]?.snapshotId ?? null;
+  const { tenantId, workspaceId } = props.stickinessScope;
   const [lastOpenedSnapshotId, setLastOpenedSnapshotId] = useState<string | null>(null);
 
   useEffect(() => {
-    const previous = readSecureNowLastOpenedSnapshotId(props.stickinessScope);
+    const stickinessScope = { tenantId, workspaceId };
+    const previous = readSecureNowLastOpenedSnapshotId(stickinessScope);
     setLastOpenedSnapshotId(previous);
 
     if (latestSnapshotId !== null) {
-      writeSecureNowLastOpenedSnapshotId(props.stickinessScope, latestSnapshotId);
+      writeSecureNowLastOpenedSnapshotId(stickinessScope, latestSnapshotId);
     }
-  }, [latestSnapshotId, props.stickinessScope]);
+  }, [latestSnapshotId, tenantId, workspaceId]);
   if (props.eligibleSnapshots.length < 2) {
     return (
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-capture-delta">

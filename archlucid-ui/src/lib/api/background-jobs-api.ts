@@ -56,7 +56,11 @@ export async function waitForBackgroundJobTerminal(
   while (Date.now() < deadline) {
     const info = await fetchBackgroundJob(jobId);
 
-    if (info.state === BACKGROUND_JOB_STATE.Succeeded || info.state === BACKGROUND_JOB_STATE.Failed) {
+    if (
+      info.state === BACKGROUND_JOB_STATE.Succeeded
+      || info.state === BACKGROUND_JOB_STATE.Failed
+      || info.state === BACKGROUND_JOB_STATE.Canceled
+    ) {
       return info;
     }
 

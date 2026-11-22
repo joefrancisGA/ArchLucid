@@ -8,6 +8,19 @@ namespace ArchLucid.Persistence.Tests.Repositories;
 public sealed class InMemoryTenantAiBudgetPolicyRepositoryTests
 {
     [Fact]
+    public async Task Canceled_provisioning_leaves_the_budget_policy_absent()
+    {
+        InMemoryTenantAiBudgetPolicyRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            repository.EnsureDefaultTrialPolicyIfAbsentAsync(
+                tenantId, 25m, DateTimeOffset.UtcNow.AddDays(1), new CancellationToken(canceled: true)));
+
+        Assert.Null(await repository.GetByTenantIdAsync(tenantId));
+    }
+
+    [Fact]
     public async Task Concurrent_provisioning_preserves_the_winning_budget()
     {
         InMemoryTenantAiBudgetPolicyRepository repository = new();

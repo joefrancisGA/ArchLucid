@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.archlucid.com/risk/exposure-semantics/1.0.0.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "findingRef",
+    "snapshotRef",
+    "exploitability",
+    "businessCriticality",
+    "blastRadius",
+    "uncertainty",
+    "evidenceGrade",
+    "scoringPolicyRef",
+    "reachability"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "findingRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "snapshotRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exploitability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "band",
+        "evidenceRefs"
+      ],
+      "properties": {
+        "band": {
+          "enum": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "critical",
+            "unknown"
+          ]
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "businessCriticality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "band",
+        "evidenceRefs"
+      ],
+      "properties": {
+        "band": {
+          "enum": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "critical",
+            "unknown"
+          ]
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "blastRadius": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "band",
+        "evidenceRefs"
+      ],
+      "properties": {
+        "band": {
+          "enum": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "critical",
+            "unknown"
+          ]
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "uncertainty": {
+      "enum": [
+        "confirmed",
+        "highly-likely",
+        "probable",
+        "possible",
+        "insufficient-evidence"
+      ]
+    },
+    "evidenceGrade": {
+      "enum": [
+        "observed-fact",
+        "derived-fact",
+        "deterministic-inference",
+        "ai-inference",
+        "human-assertion",
+        "insufficient-evidence"
+      ]
+    },
+    "scoringPolicyRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reachability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "evidenceRefs"
+      ],
+      "properties": {
+        "classification": {
+          "enum": [
+            "observed",
+            "intended",
+            "not-reachable",
+            "unverified",
+            "insufficient-evidence"
+          ]
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pathRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

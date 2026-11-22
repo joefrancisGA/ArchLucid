@@ -1,4 +1,5 @@
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
+import { encodeRequiredPathSegment } from "@/lib/api/api-boundary-normalization";
 import {
   finiteNonNegativeNumberOrDefault,
   parseFiniteNumber,
@@ -309,7 +310,9 @@ function mapRouting(raw: Record<string, unknown>): SecurityEvidencePathRoutingRo
 export async function fetchOperationalSecurityFindingDetail(
   findingId: string,
 ): Promise<OperationalSecurityFindingDetail | null> {
-  const raw = await proxyJsonGet<Record<string, unknown>>(`${FINDINGS_PATH}/${findingId.trim()}`);
+  const raw = await proxyJsonGet<Record<string, unknown>>(
+    `${FINDINGS_PATH}/${encodeRequiredPathSegment(findingId, "findingId")}`,
+  );
 
   if (raw.succeeded !== true) {
     return null;
@@ -409,7 +412,9 @@ export async function fetchRankedSecurityEvidencePaths(
 }
 
 export async function fetchSecurityEvidencePathRank(pathId: string): Promise<SecurityEvidencePathRankDetail | null> {
-  const raw = await proxyJsonGet<Record<string, unknown>>(`${PATHS_PATH}/${pathId.trim()}/rank`);
+  const raw = await proxyJsonGet<Record<string, unknown>>(
+    `${PATHS_PATH}/${encodeRequiredPathSegment(pathId, "pathId")}/rank`,
+  );
 
   if (raw.succeeded === false) {
     return null;
@@ -431,10 +436,13 @@ export async function buildSecurityEvidencePathExplanation(
     readonly allowInsufficientEvidence: boolean;
   },
 ): Promise<SecurityEvidencePathExplanationResult> {
-  const raw = await proxyJsonPost<Record<string, unknown>>(`${PATHS_PATH}/${pathId.trim()}/explanations`, {
+  const raw = await proxyJsonPost<Record<string, unknown>>(
+    `${PATHS_PATH}/${encodeRequiredPathSegment(pathId, "pathId")}/explanations`,
+    {
     useSimulator: options.useSimulator,
     allowInsufficientEvidence: options.allowInsufficientEvidence,
-  });
+    },
+  );
 
   const explanationRaw = raw.explanation as Record<string, unknown> | null | undefined;
 
@@ -446,7 +454,9 @@ export async function buildSecurityEvidencePathExplanation(
 }
 
 export async function fetchSecurityEvidencePathDetail(pathId: string): Promise<SecurityEvidencePathDetail | null> {
-  const raw = await proxyJsonGet<Record<string, unknown>>(`${PATHS_PATH}/${pathId.trim()}`);
+  const raw = await proxyJsonGet<Record<string, unknown>>(
+    `${PATHS_PATH}/${encodeRequiredPathSegment(pathId, "pathId")}`,
+  );
 
   if (raw.succeeded === false) {
     return null;

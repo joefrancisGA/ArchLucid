@@ -112,13 +112,15 @@ public sealed class CrossTenantPortfolioSummaryBuilder(
         }
 
         List<SystemicIssueSummary> topIssues = allIssues
-            .GroupBy(static issue => (issue.Category, issue.Severity))
-            .Select(static group => new SystemicIssueSummary
-            {
-                Category = group.Key.Category,
-                Severity = group.Key.Severity,
-                Count = group.Sum(static i => i.Count),
-            })
+            .GroupBy(static issue => issue.Category, StringComparer.OrdinalIgnoreCase)
+            .SelectMany(static category => category
+                .GroupBy(static issue => issue.Severity)
+                .Select(severity => new SystemicIssueSummary
+                {
+                    Category = category.Key,
+                    Severity = severity.Key,
+                    Count = severity.Sum(static issue => issue.Count),
+                }))
             .OrderByDescending(static issue => issue.Count)
             .ThenBy(static issue => issue.Category, StringComparer.OrdinalIgnoreCase)
             .ThenBy(static issue => issue.Severity, StringComparer.OrdinalIgnoreCase)

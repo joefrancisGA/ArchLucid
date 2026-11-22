@@ -1,5 +1,223 @@
 > **Scope:** Contributor-reference — hunt ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
+## Zone: ui-lib-governance
+
+2026-11-20 thorough hunt #2 (hit): cheap-disproof closed four header `(hunt-ready)` URL helpers — **valid-no-repro** `governanceFindingsClearAllFiltersHref` drops bulk confirm without selection (`governance-findings-clear-all-filters-url.test.ts`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` clears keyboard triage with `runId` removal (suite), **valid-no-repro** `governanceFindingQueueRowReviewHref` trims padded ids via `resolveGovernanceScopedReviewOpenHref`, **valid-no-repro** NL title/`URLSearchParams` encoding for embedded `=` (title facet join path). Promoted architecture scope chip: `governanceFindingsArchitectureScopeHrefFromSearch` wrote whitespace-only `architectureId` into the URL instead of canonical `all`; normalize trim and map empty to `architectureId=all`; regression `treats whitespace-only architecture id as all-architectures scope without dropping filters`; architecture-scope suite **6/6**. Scoped governance URL cluster **26/26** (pick-review, clear filters, clear scope, architecture-scope). Private beta: bad architecture scope input no longer leaves padded `architectureId` query junk on the findings queue.
+
+- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — bulk confirm without selection may linger — **cheap-disproof 2026-11-20 thorough hunt #2:** existing regression clears confirm param.
+- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — keyboard triage params may linger after scope clear — **cheap-disproof 2026-11-20 thorough hunt #2:** existing regression.
+- [x] (valid-no-repro) `governanceFindingQueueRowReviewHref` — padded `runId` encoding mismatch — **cheap-disproof 2026-11-20 thorough hunt #2:** scoped review open href trims.
+- [x] (valid-no-repro) `governanceFindingsNlFacetsHrefFromSearch` — embedded `=` in title facet — **cheap-disproof 2026-11-20 thorough hunt #2:** `URLSearchParams.set` encoding.
+- [x] (proven) `governanceFindingsArchitectureScopeHrefFromSearch` — whitespace-only architecture id wrote literal spaces to `architectureId` — **hit 2026-11-20 thorough hunt #2:** trim + empty→`all`; regression above.
+
+2026-11-20 thorough hunt (seed→hit): promoted `governanceFindingsPickReviewForTriageHref` whitespace-only `reviewId` early return dropping active register/facet query string when `architectureId` was absent; preserve `currentSearch` when trim empties review id; regression `preserves register and facet params when review id is whitespace-only`; scoped pick-review-url suite **7/7**. Reseeded four remaining `(hunt-ready)` rows as `(candidate)` monitors below. Private beta: keyboard triage no longer strips filters on blank pick-review input.
+
+- [x] (proven) `governanceFindingsPickReviewForTriageHref` — whitespace-only `reviewId` returns bare pathname and drops unrelated params when `architectureId` was absent — **hit 2026-11-20 thorough hunt (ui-lib-governance #1):** regression above.
+
+- [ ] (candidate) `governanceFindingsClearAllFiltersUrl` — clearing filters may retain bulk-disposition confirm params when bulk selection param already cleared — locus: param deletion order; input: bulk confirm without selection; wrong outcome: stale confirm modal URL; reachability: clear-all-filters control (monitor; pass 1 reseed).
+- [ ] (candidate) `governanceFindingsClearReviewScopeUrl` — may leave keyboard triage params when only `runId` removed — locus: scope vs triage params; input: scoped run with triage confirm params; wrong outcome: triage overlay stuck; reachability: clear review scope chip (monitor; pass 1 reseed).
+- [ ] (candidate) `governanceFindingQueueRowReviewHref` — padded `runId` on row may encode unpadded id inconsistently vs inspect link — locus: trim at encode boundary; input: padded run id row; wrong outcome: review vs inspect mismatch; reachability: queue row review column (monitor; pass 1 reseed).
+- [ ] (candidate) `governanceFindingsNlFacetFilterUrl` — NL facet token with embedded `=` may split incorrectly when re-appended to search — locus: facet encoding; input: value containing `=`; wrong outcome: broken facet filter URL; reachability: NL facet chips (monitor; pass 1 reseed).
+
+2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/governance` (nominate gap — app route zone did not cover lib URL helpers). Seeded five `(hunt-ready)` rows on findings queue URL builders; no production change.
+
+### Hypotheses
+
+- [ ] (hunt-ready) reseed after hunt #2; prior queue closed in zone header diary.
+
+- **id:** ui-lib-governance
+- **status:** open
+- **impact:** high
+- **aliases:** governance lib; findings URL helpers
+- **paths:** archlucid-ui/src/lib/governance/
+- **test-filter:** lib/governance
+- **hunts:** 2
+- **bugs-found:** 2
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-20 — whitespace-only architecture scope encoded padded architectureId
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+## Zone: ui-lib-product-line
+
+2026-11-20 thorough hunt #1 (hit): cheap-disproved four (hunt-ready) monitors — valid-no-repro filterNavGroupsForProductLine (typed ProductLineId), valid-no-repro resolveProductLineIdForServer (cookie trim), valid-no-repro marketing route trailing-slash normalize, valid-no-repro collection snapshot helper. Promoted useFindingsQueuePath: governance pathname under SecureNow shell broke triage URL sync — findingsQueuePathFromPathname remaps namespace and preserves query; securenow-compliance-routes vitest 8/8.
+
+- [x] (valid-no-repro) filterNavGroupsForProductLine — unknown product line leak — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (valid-no-repro) resolve-product-line-id-server — mixed-case header — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (valid-no-repro) securenow-marketing-route-policy — trailing-slash allowlist — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (valid-no-repro) resolve-collection-snapshot-capture-succeeded — empty error success — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (proven) use-findings-queue-path — governance pathname under security shell — hit 2026-11-20 thorough hunt #1: findingsQueuePathFromPathname.
+
+- [ ] (candidate) remapGovernanceOperatorHref — nested findings subpaths — monitor; hunt #1 reseed.
+- [ ] (candidate) readProductLineCookie — padded cookie — monitor; hunt #1 reseed.
+- [ ] (candidate) resolveProductLineAssignmentForPath — trailing slash href — monitor; hunt #1 reseed.
+- [ ] (candidate) mergeInternalNavUnderAdministration — admin href merge order — monitor; hunt #1 reseed.
+- [ ] (candidate) findingsQueuePathFromPathname — assigned-to-me family — monitor; hunt #1 reseed.
+2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/product-line`. Seeded five `(hunt-ready)` rows; no production change.
+
+### Hypotheses
+
+- [ ] (hunt-ready) reseed after hunt #1; prior queue closed in zone header diary.
+
+- **id:** ui-lib-product-line
+- **status:** open
+- **impact:** high
+- **aliases:** product line lib; SecureNow routing
+- **paths:** archlucid-ui/src/lib/product-line/
+- **test-filter:** lib/product-line
+- **hunts:** 2
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-20 — findings queue pathname ignored active product line
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+## Zone: ui-lib-api
+
+2026-11-20 thorough hunt #1 (hit): cheap-disproved four (hunt-ready) monitors — **valid-no-repro** `throwApiRequestError` 5xx toast requires `isBrowser()` and explicit `showErrorToast`; **valid-no-repro** `http.warmup-retry` reuses one `fetchOnce` closure so correlation headers apply once per request; **valid-no-repro** governance stickiness boundary suites already trim POST bodies and null drops (no product-line header merge path in zone); **valid-no-repro** run package export sealed-manifest handling lives on `downloadRunPackageExport` response via `runPackageExportMutationBlockedReason`, not the URL builder. Promoted list cursor boundary: `listRunsByProjectPaged` / `listRunsInScopePaged` forwarded padded or whitespace-only cursor query values while the reviews hub loader trims URL cursors — normalize with `runListCursor` (parity with `alerts-inbox-api`); regressions trim padding and whitespace-only first page; list-cursor vitest **5/5**.
+
+- [x] (valid-no-repro) `throwApiRequestError` — 5xx toast on server render — **cheap-disproof 2026-11-20 thorough hunt #1:** browser + opt-in gate.
+- [x] (valid-no-repro) `governance-stickiness-boundary` — sticky header merge on warmup retry — **cheap-disproof 2026-11-20 thorough hunt #1:** no product-line header path; existing trim regressions.
+- [x] (valid-no-repro) `http.warmup-retry` — duplicate correlation header on retry — **cheap-disproof 2026-11-20 thorough hunt #1:** single header apply before `fetchWithWarmupRetry`.
+- [x] (valid-no-repro) `downloads-api.run-package-export` — missing sealed-manifest guard on URL-only export — **cheap-disproof 2026-11-20 thorough hunt #1:** blocked reason on scoped proxy GET.
+- [x] (proven) `architecture-runs.list-cursor` — padded or whitespace-only cursor forwarded literally — **hit 2026-11-20 thorough hunt #1:** `runListCursor` trim at API boundary; regressions above.
+
+- [ ] (candidate) `throwApiRequestError` — 402 trial-limit bridge may fire on non-browser runtimes when cookie present — locus: `isBrowser` guard; input: SSR with trial problem; wrong outcome: trial modal side effect; reachability: server actions (monitor; hunt #1 reseed).
+- [ ] (candidate) `apiGet` malformed JSON body — may throw using error path without `showErrorToast` on 200 — locus: parse fallback; input: HTML 200 body; wrong outcome: generic error without toast policy; reachability: misconfigured proxy (monitor; hunt #1 reseed).
+- [ ] (candidate) `reviews-paged-inventory` — scope-wide 404 fallback may send untrimmed cursor when hub passes padded token — locus: pass-through cursor; input: padded cursor via inventory helper; wrong outcome: stale page after fallback — **partially addressed** by list cursor trim; monitor fallback ordering (hunt #1 reseed).
+- [ ] (candidate) `downloadScopedProxyFileGet` — binary content-type guard may accept `text/html` error page as success — locus: content-type assert; input: HTML error masquerading as export; wrong outcome: corrupt download; reachability: run package export CTA (monitor; hunt #1 reseed).
+- [ ] (candidate) `applyCorrelationHeaders` — session traceparent replay may skip refresh when stored value invalid — locus: traceparent validation; input: malformed session value; wrong outcome: missing distributed trace; reachability: outbound API GET (monitor; hunt #1 reseed).
+
+2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/api`. Seeded five `(hunt-ready)` rows; no production change.
+
+### Hypotheses
+
+- [ ] (hunt-ready) reseed after hunt #1; prior queue closed in zone header diary.
+
+- **id:** ui-lib-api
+- **status:** open
+- **impact:** high
+- **aliases:** UI API client; fetch boundaries
+- **paths:** archlucid-ui/src/lib/api/
+- **test-filter:** lib/api
+- **hunts:** 2
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-20 — padded keyset cursor forwarded without trim
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+## Zone: ui-lib-infra-evidence
+
+2026-11-20 thorough hunt #1 (dry): cheap-disproved five (hunt-ready) monitors — **valid-no-repro** diagram/ask deep links use URLSearchParams encoding (ARM seedNodeId regression in hub-filter suite); **valid-no-repro** peel budget coach uses 
+odeCount >= maxNodes with null guard; **valid-no-repro** snapshot freshness uses ormatInstantInPreferredTimeZone plus UTC title suffix in ormatInfraEvidenceSnapshotCapturedTimeTitle; **valid-no-repro** Ask UI branches null vs empty citations (InfrastructureAskClient); **valid-no-repro** hub facet cleanup via stripInfraResourceHubRunScopedParams on run-scope switch (new regression strips run-scoped hub params when runId is cleared). Scoped vitest **43/43** across hub-filter, density coach, ask-api, snapshot label.
+
+- [x] (valid-no-repro) diagram compare URL builder ARM encoding — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (valid-no-repro) peel budget copy null vs zero — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (valid-no-repro) snapshot freshness timezone label — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (valid-no-repro) ask panel grounding undefined citations — cheap-disproof 2026-11-20 thorough hunt #1.
+- [x] (valid-no-repro) resource hub facet dependent keys — cheap-disproof 2026-11-20 thorough hunt #1; runId clear regression above.
+
+- [ ] (candidate) uildInfrastructureAskHref — audit scope without unId may omit run-scoped handoff — monitor; hunt #1 reseed.
+- [ ] (candidate) diagramReconcileFilterHrefFromSearch — compare mode param may linger when filter reset — monitor; hunt #1 reseed.
+- [ ] (candidate) ormatInfraEvidenceSnapshotCapturedUtcLabel — double UTC suffix when TZ already UTC — monitor; hunt #1 reseed.
+- [ ] (candidate) submitInfraEvidenceAsk — non-array citations becomes empty array not null — monitor; hunt #1 reseed.
+- [ ] (candidate) esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePrefix — monitor; hunt #1 reseed.
+2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/infra-evidence`. Seeded five `(hunt-ready)` rows; no production change.
+
+### Hypotheses
+
+- [ ] (hunt-ready) reseed after hunt #1; prior queue closed in zone header diary.
+
+- **id:** ui-lib-infra-evidence
+- **status:** open
+- **impact:** medium
+- **aliases:** infra evidence UI lib
+- **paths:** archlucid-ui/src/lib/infra-evidence/
+- **test-filter:** lib/infra-evidence
+- **hunts:** 2
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-20
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+## Zone: ui-lib-remediation-factory
+
+2026-11-20 thorough hunt #1 (hit): cheap-disproof closed four seed monitors outside lib URL/metrics scope — **valid-no-repro** pattern catalog defaulting lives in app/API layers not `src/lib/remediation-factory`, **valid-no-repro** wave grouping keys are server persistence not lib, **valid-no-repro** `buildRemediationFactoryExecutiveMetricTiles` always returns a tile array with `null` cell values when metrics are unloaded (no null aggregate object), **valid-no-repro** route/product-line policy is enforced via `remediationFactoryPathForProductLine` in app hooks not `remediationFactoryHrefFromSearch` (disclosure-only operator writer). Promoted `remediationFactoryUrlStateToSearchParams`: padded or whitespace-only `selectedFindingId` wrote raw query values while parse trimmed on read — symmetric `normalizeUuidQueryValue` + `setUuidParam` on write for all selection UUID params; regressions trim padding and drop whitespace-only ids; `remediation-factory-url-state` vitest **4/4**. Reseeded four `(candidate)` monitors below. Private beta: selection URL no longer retains blank `selectedFinding` tokens.
+
+- [x] (fixed) finding id trim at factory boundary — padded/whitespace `selectedFindingId` on write — **promoted 2026-11-20 thorough hunt #1:** `normalizeUuidQueryValue` on write.
+- [x] (valid-no-repro) pattern match resolver — unknown pattern id default — **cheap-disproof 2026-11-20 thorough hunt #1:** not in lib zone paths.
+- [x] (valid-no-repro) wave grouping key case sensitivity — **cheap-disproof 2026-11-20 thorough hunt #1:** not in lib zone paths.
+- [x] (valid-no-repro) factory metrics aggregation empty catalog null — **cheap-disproof 2026-11-20 thorough hunt #1:** tiles array always defined.
+- [x] (valid-no-repro) route safety cross product line — **cheap-disproof 2026-11-20 thorough hunt #1:** pathname resolution in app `useRemediationFactoryUrlState`.
+
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — padded metrics disclosure flag variants beyond `1`/`true` — locus: boolean parse; input: `TRUE` with spaces; wrong outcome: panel closed; reachability: metrics summary drawer URL.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — mutates selection params when used with non-disclosure switch — locus: operator writer contract; input: misuse from new caller; wrong outcome: dropped facets; reachability: future deep links (monitor).
+- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — negative API percent may round oddly — locus: non-finite guard; input: negative fraction; wrong outcome: misleading `-%` tile; reachability: executive metrics strip.
+- [ ] (candidate) `attack-path-report-path-chip-label` — extremely short path ids after trim — locus: ellipsis threshold; input: 3-char id; wrong outcome: odd chip label; reachability: attack path report chips.
+
+2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/remediation-factory`. Seeded five `(hunt-ready)` rows; no production change.
+
+### Hypotheses
+
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — metrics disclosure boolean parse edge — monitor; thorough hunt #1 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — operator writer misuse guard — monitor; thorough hunt #1 reseed.
+- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — negative percent display — monitor; thorough hunt #1 reseed.
+- [ ] (candidate) `attack-path-report-path-chip-label` — short path id chip label — monitor; thorough hunt #1 reseed.
+
+- **id:** ui-lib-remediation-factory
+- **status:** open
+- **impact:** medium
+- **aliases:** remediation factory lib
+- **paths:** archlucid-ui/src/lib/remediation-factory/
+- **test-filter:** remediation-factory
+- **hunts:** 2
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-20
+- **last-bug:** 2026-11-20
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+## Zone: ui-hooks-shared
+
+2026-11-21 thorough hunt #2 (dry): cheap-disproved five seed `(hunt-ready)` rows — **valid-no-repro** boolean URL-sync hooks commit via `commitHrefIfChanged` (`replaceState` only, open-ref dedupe, popstate resync; `use-boolean-search-param-url-sync.test.ts`), **valid-no-repro** debounced wizard persist clears pending timeout on unmount without post-navigation flush (`use-wizard-session-persistence` unmount regression; restore URL uses same commit helper with href equality guard), **valid-no-repro** `useViewportNarrow` intentionally defaults `false` until `matchMedia` effect runs (`useViewportNarrow.test.ts`), **valid-no-repro** run-summary HTTP fallback gated by `shouldRunRunSummaryFallbackPoll` (no poll while SSE connected, hidden, or complete; visibility resume does not overlap SSE — extended poll-policy regression), **valid-no-repro** corrupted wizard session JSON returns `null` from `readWizardSessionSnapshot` (parse catch; lib + hook layers). Scoped vitest **18/18** across new hook tests, wizard persist, poll policy. Reseeded five `(candidate)` monitor rows below. Private beta: n/a.
+
+- [x] (valid-no-repro) URL-sync replaceState vs pushState rapid toggles — cheap-disproof 2026-11-21 thorough hunt #2.
+- [x] (valid-no-repro) debounced persist flush on unmount to wrong URL — cheap-disproof 2026-11-21 thorough hunt #2.
+- [x] (valid-no-repro) media query SSR/client mismatch — cheap-disproof 2026-11-21 thorough hunt #2.
+- [x] (valid-no-repro) polling visibility duplicate fetch — cheap-disproof 2026-11-21 thorough hunt #2.
+- [x] (valid-no-repro) session storage JSON parse stale mount — cheap-disproof 2026-11-21 thorough hunt #2.
+
+- [ ] (candidate) `useBooleanSearchParamUrlSync` — missing search param vs explicit `panel=0` may disagree when `parseOpenFromSearch` treats empty as closed — locus: null param branch; input: delete param while UI open; wrong outcome: stale open UI; reachability: operator disclosure chips.
+- [ ] (candidate) `useWizardSessionPersistence` — debounced unmount cancel may drop last keystroke before navigation — locus: no unmount flush; input: navigate mid-debounce; wrong outcome: lost draft; reachability: reviews-new wizards (monitor product intent).
+- [ ] (candidate) `useViewportNarrow` — wide-default-first paint on narrow devices — locus: initial false; input: phone inspector; wrong outcome: layout flash; reachability: docked vs sheet inspector (monitor).
+- [ ] (candidate) `useRunSummaryStream` — visibility resume immediate `tickFallback` may double-fetch with in-flight interval tick — locus: ensureFallbackInterval; input: refocus during poll-fallback; wrong outcome: duplicate GET; reachability: run status banners (monitor).
+- [ ] (candidate) `readWizardSessionSnapshot` — schema-valid JSON with wrong `v` may leave hook pending restore empty while storage still populated — locus: version gate; input: manual v0 blob; wrong outcome: confusing empty restore; reachability: wizard resume strip.
+
+2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/hooks`. Seeded five `(hunt-ready)` rows; no production change.
+
+### Hypotheses
+
+- [ ] (hunt-ready) reseed after hunt #2; prior queue closed in zone header diary.
+
+- **id:** ui-hooks-shared
+- **status:** open
+- **impact:** medium
+- **aliases:** shared React hooks
+- **paths:** archlucid-ui/src/hooks/
+- **test-filter:** src/hooks
+- **hunts:** 2
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-21
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** yes
 ## Zone: ui-form-validation
 
 2026-11-01 thorough hunt #189 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `cli-draft-new` (dry **#186**, **#187**, **#188** / run log). Picker applied **`-AvoidZoneId cli-draft-new`** and returned `ui-form-validation` (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on 'cli-draft-new' (outcomes: dry, dry, dry).*). Attempted failing repro on five header `(candidate)` rows from pass **21** reseed (hunt **#185**); cheap-disproof closed all five — **valid-no-repro** **409** HTML conflict returns fixed duplicate-org copy before body parsing (`shows fixed duplicate organization toast when register returns 409 with HTML body`; status check precedes error detail), **valid-no-repro** `"Infinity"` team size fails `Number.isFinite` superRefine, **valid-no-repro** invalid email readiness precedes unsupported-character organization (bad email + NUL org → valid work email copy), **valid-no-repro** work email `maxLength` **254** plus schema `.max(254)` block overlong paste (`signupFormSchema rejects admin email longer than 254 characters`), **invalid** invalid `companySize` enum passes through builder on direct call by design while UI `canSubmit` blocks POST (`includes invalid company size enum in the register payload builder when called directly`). Reseeded five `(candidate)` monitor rows below (pass **22**). Focused `SignupForm` suite **144/144**. Run-log low-yield streak on `ui-form-validation` is **0/3** before this record (cli-draft-new dry **#186**–**#188** at tail). **This dry starts 1/3** on `ui-form-validation` in the run log. Private beta: n/a.

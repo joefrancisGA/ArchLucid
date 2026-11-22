@@ -177,6 +177,12 @@ describe("PilotScorecardPageView", () => {
     expect(screen.queryByText(/SOURCE:/i)).not.toBeInTheDocument();
   });
 
+  it("labels when live scorecard metrics were last loaded", () => {
+    render(<PilotScorecardPageView model={buildModel({ metricsAsOfUtc: "2026-11-22T01:30:00.000Z" })} />);
+
+    expect(screen.getByTestId("review-scorecard-metrics-as-of")).toHaveTextContent("Metrics as of");
+  });
+
   it("shows review picker when no runId is scoped", () => {
     mockUseSearchParams.mockReturnValue(new URLSearchParams());
 
@@ -251,11 +257,13 @@ describe("PilotScorecardPageView", () => {
       <PilotScorecardPageView
         model={buildModel({
           data: { ...scorecardData, totalRunsCommitted: 0, totalManifestsCreated: 0 },
+          metricsAsOfUtc: "2026-11-22T01:30:00.000Z",
         })}
       />,
     );
 
     expect(screen.getByTestId("review-scorecard-sample-banner")).toBeInTheDocument();
+    expect(screen.queryByTestId("review-scorecard-metrics-as-of")).not.toBeInTheDocument();
     expect(screen.getByTestId("review-scorecard-summary-row")).toBeInTheDocument();
     expect(screen.queryByTestId("review-scorecard-empty-state")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save ROI assumptions" })).toBeDisabled();

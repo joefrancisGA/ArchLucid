@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
@@ -6,7 +8,11 @@ namespace ArchLucid.Persistence.Repositories;
 
 public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepository
 {
-    private readonly Dictionary<(Guid ArchitectureId, string ActorOid), ArchitectureShareRecord> _byKey = new();
+    // Share records do not carry scope identifiers, so scope must be part of the storage key.
+    // This mirrors the tenant/workspace/project predicates used by the SQL repository.
+    private readonly ConcurrentDictionary<
+        (Guid TenantId, Guid WorkspaceId, Guid ProjectId, Guid ArchitectureId, string ActorOid),
+        ArchitectureShareRecord> _byKey = new();
 
     public Task<IReadOnlyList<ArchitectureShareRecord>> ListByArchitectureIdAsync(
         ScopeContext scope,
@@ -14,10 +20,11 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
-        List<ArchitectureShareRecord> shares = _byKey.Values
-            .Where(record => record.ArchitectureId == architectureId)
+        List<ArchitectureShareRecord> shares = _byKey
+            .Where(entry => IsInScope(entry.Key, scope, architectureId))
+            .Select(entry => entry.Value)
             .OrderBy(record => record.ActorOid, StringComparer.Ordinal)
             .Select(Clone)
             .ToList();
@@ -33,9 +40,9 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(actorOid);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byKey.TryGetValue((architectureId, actorOid.Trim()), out ArchitectureShareRecord? record))
+        if (!_byKey.TryGetValue(Key(scope, architectureId, actorOid), out ArchitectureShareRecord? record))
             return Task.FromResult<ArchitectureShareRecord?>(null);
 
         return Task.FromResult<ArchitectureShareRecord?>(Clone(record));
@@ -48,9 +55,10 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(record);
-        _ = cancellationToken;
+        ArgumentException.ThrowIfNullOrWhiteSpace(record.ActorOid);
+        cancellationToken.ThrowIfCancellationRequested();
 
-        _byKey[(record.ArchitectureId, record.ActorOid.Trim())] = Clone(record);
+        _byKey[Key(scope, record.ArchitectureId, record.ActorOid)] = Clone(record);
 
         return Task.CompletedTask;
     }
@@ -63,9 +71,9 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(actorOid);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
-        return Task.FromResult(_byKey.Remove((architectureId, actorOid.Trim())));
+        return Task.FromResult(_byKey.TryRemove(Key(scope, architectureId, actorOid), out _));
     }
 
     public Task<int> CountByArchitectureIdAsync(
@@ -74,12 +82,25 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
-        int count = _byKey.Values.Count(record => record.ArchitectureId == architectureId);
+        int count = _byKey.Keys.Count(key => IsInScope(key, scope, architectureId));
 
         return Task.FromResult(count);
     }
+
+    private static (Guid TenantId, Guid WorkspaceId, Guid ProjectId, Guid ArchitectureId, string ActorOid)
+        Key(ScopeContext scope, Guid architectureId, string actorOid) =>
+        (scope.TenantId, scope.WorkspaceId, scope.ProjectId, architectureId, actorOid.Trim());
+
+    private static bool IsInScope(
+        (Guid TenantId, Guid WorkspaceId, Guid ProjectId, Guid ArchitectureId, string ActorOid) key,
+        ScopeContext scope,
+        Guid architectureId) =>
+        key.TenantId == scope.TenantId
+        && key.WorkspaceId == scope.WorkspaceId
+        && key.ProjectId == scope.ProjectId
+        && key.ArchitectureId == architectureId;
 
     private static ArchitectureShareRecord Clone(ArchitectureShareRecord record) =>
         new()
@@ -89,6 +110,6 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
             Role = record.Role,
             GrantedBy = record.GrantedBy,
             GrantedUtc = record.GrantedUtc,
-            RowVersion = record.RowVersion,
+            RowVersion = record.RowVersion?.ToArray(),
         };
 }

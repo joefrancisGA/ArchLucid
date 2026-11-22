@@ -56,13 +56,13 @@ describe("ItsmOutboundQuickActions", () => {
   it("hides create actions when native ITSM create is disabled and no correlations exist", async () => {
     useItsmNativeCreateEnabled.mockReturnValue(false);
 
-    const { container } = render(<ItsmOutboundQuickActions findingId="finding-001" />);
+    render(<ItsmOutboundQuickActions findingId="finding-001" />);
 
     await waitFor(() => {
       expect(listItsmFindingCorrelationsBatch).toHaveBeenCalled();
     });
 
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.getByTestId("itsm-create-connector-off-not-failed-create")).toBeInTheDocument();
     expect(screen.queryByTestId("itsm-sync-jira")).not.toBeInTheDocument();
   });
 

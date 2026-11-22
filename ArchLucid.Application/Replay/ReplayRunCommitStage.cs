@@ -156,28 +156,27 @@ public sealed class ReplayRunCommitStage(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunRecord? replayHeader = await _authorityRunRepository.GetByIdAsync(scope, replayGuid, cancellationToken);
 
-        if (replayHeader is not null)
-        {
-            RunRecord? sourceHeader = null;
+        if (replayHeader is null)
+            throw new ConflictException($"Replay commit blocked for run '{preparedReplayRunId}': replay run header was not found.");
 
-            if (Guid.TryParse(originalRunId, out Guid originalGuid))
-                sourceHeader = await _authorityRunRepository.GetByIdAsync(scope, originalGuid, cancellationToken);
+        if (!Guid.TryParse(originalRunId, out Guid originalGuid))
+            throw new ConflictException($"Replay commit blocked: source run '{originalRunId}' is not a valid run identifier.");
 
-            if (sourceHeader is not null)
-            {
-                ReplayRunScopeAssertionGuard.EnsureReplayHeaderMatchesSourceScopeOrThrow(
-                    replayHeader,
-                    sourceHeader,
-                    originalRunId);
-            }
+        RunRecord? sourceHeader = await _authorityRunRepository.GetByIdAsync(scope, originalGuid, cancellationToken);
+        if (sourceHeader is null)
+            throw new ConflictException($"Replay commit blocked for run '{originalRunId}': source run header was not found.");
 
-            await _runPolicyPackPinService
-                .VerifyPinIntegrityOrThrowAsync(replayHeader, scope, cancellationToken)
-                .ConfigureAwait(false);
-            await _runEvidencePackagePinService
-                .VerifyPinIntegrityOrThrowAsync(replayHeader, scope, cancellationToken)
-                .ConfigureAwait(false);
-        }
+        ReplayRunScopeAssertionGuard.EnsureReplayHeaderMatchesSourceScopeOrThrow(
+            replayHeader,
+            sourceHeader,
+            originalRunId);
+
+        await _runPolicyPackPinService
+            .VerifyPinIntegrityOrThrowAsync(replayHeader, scope, cancellationToken)
+            .ConfigureAwait(false);
+        await _runEvidencePackagePinService
+            .VerifyPinIntegrityOrThrowAsync(replayHeader, scope, cancellationToken)
+            .ConfigureAwait(false);
 
         Guid manifestId = Guid.NewGuid();
         Guid contextSnapshotId = Guid.NewGuid();

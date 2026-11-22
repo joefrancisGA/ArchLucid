@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { PolicyPackComplianceRuleKeyDiffView } from "@/components/policy/PolicyPackComplianceRuleKeyDiffView";
@@ -166,7 +166,7 @@ describe("PolicyPackImpactPreviewPanel", () => {
         failedChecks: ["critical-finding"],
       });
 
-    render(
+    const { rerender } = render(
       <PolicyPackImpactPreviewPanel
         effectiveContent={{ complianceRuleKeys: ["alpha"] }}
         selectedPackId="00000000-0000-0000-0000-000000000001"
@@ -196,5 +196,34 @@ describe("PolicyPackImpactPreviewPanel", () => {
     expect(screen.getAllByTestId("policy-pack-rule-key-diff-added")[0]).toHaveTextContent("beta");
     expect(screen.getByTestId("policy-impact-preview-pack-gate-delta")).toBeInTheDocument();
     expect(screen.getByTestId("policy-impact-preview-pack-gate-changed")).toBeInTheDocument();
+
+    rerender(
+      <PolicyPackImpactPreviewPanel
+        effectiveContent={{ complianceRuleKeys: ["alpha"] }}
+        selectedPackId="00000000-0000-0000-0000-000000000001"
+        packVersions={[]}
+        packs={samplePacks}
+        scopedReviewId="run-def"
+      />,
+    );
+
+    expect(screen.queryByTestId("policy-impact-preview-gate-delta")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("policy-impact-preview-pack-gate-delta")).not.toBeInTheDocument();
+  });
+
+  it("ignores an earlier preview that completes after a different review is selected", async () => {
+    const result = { gateResult: { blocked: false, warnOnly: false }, failedChecks: [] };
+    let resolvePreview!: (value: typeof result) => void;
+    const pending = new Promise<typeof result>((resolve) => { resolvePreview = resolve; });
+    vi.mocked(simulatePolicyPackAgainstRun).mockClear().mockReturnValue(pending);
+    const props = { effectiveContent: {}, selectedPackId: "", packVersions: [], packs: [] };
+    const { rerender } = render(<PolicyPackImpactPreviewPanel {...props} scopedReviewId="run-abc" />);
+    fireEvent.click(screen.getByTestId("policy-impact-preview-run"));
+    expect(simulatePolicyPackAgainstRun).toHaveBeenCalled();
+
+    rerender(<PolicyPackImpactPreviewPanel {...props} scopedReviewId="run-def" />);
+    await act(async () => { resolvePreview(result); });
+
+    expect(screen.queryByTestId("policy-impact-preview-gate-delta")).not.toBeInTheDocument();
   });
 });

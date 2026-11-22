@@ -12,6 +12,7 @@ import {
 import {
   auditEvidencePathForProductLine,
   findingsPathForProductLine,
+  findingsQueuePathFromPathname,
   isAuditEvidenceLookupRoutePath,
   isFindingsRoutePath,
   isPolicyPacksRoutePath,
@@ -80,7 +81,10 @@ describe("securenow-compliance-routes", () => {
     ] as const;
 
     expect(remapEvidenceSourceFindingsQueueHref(sources, "architecture")).toBe(sources);
-    expect(remapEvidenceSourceFindingsQueueHref(sources, "security")[0]?.href).toBe(SECURENOW_FINDINGS_PATH);
+    const remapped = remapEvidenceSourceFindingsQueueHref(sources, "security");
+
+    expect(remapped[0]?.href).toBe(SECURENOW_FINDINGS_PATH);
+    expect(remapped[1]?.href).toBe("/governance/audit");
   });
 
   it("resolves policy packs hub from pathname on pack routes and product line elsewhere", () => {
@@ -97,6 +101,16 @@ describe("securenow-compliance-routes", () => {
     );
     expect(policyPackDetailPathForProductLine("architecture", "pack-1")).toBe(
       `${GOVERNANCE_POLICY_PACKS_PATH}/pack-1`,
+    );
+  });
+
+  it("remaps findings queue pathnames to the active product line namespace", () => {
+    expect(findingsQueuePathFromPathname(`${GOVERNANCE_FINDINGS_PATH}?register=open`, "security")).toBe(
+      `${SECURENOW_FINDINGS_PATH}?register=open`,
+    );
+    expect(findingsQueuePathFromPathname(SECURENOW_FINDINGS_PATH, "architecture")).toBe(GOVERNANCE_FINDINGS_PATH);
+    expect(findingsQueuePathFromPathname(`${SECURENOW_FINDINGS_PATH}?facet=x`, "security")).toBe(
+      `${SECURENOW_FINDINGS_PATH}?facet=x`,
     );
   });
 });

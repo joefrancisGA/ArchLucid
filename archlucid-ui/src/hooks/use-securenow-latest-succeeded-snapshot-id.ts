@@ -2,6 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
+
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { isInfraEvidenceSnapshotCaptureSucceeded } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
@@ -21,8 +23,9 @@ export function useSecureNowLatestSucceededSnapshotId(): {
   readonly isPending: boolean;
   readonly isError: boolean;
 } {
+  const scope = useOperatorScopeQueryKey();
   const query = useQuery({
-    queryKey: [...operatorQueryKeys.infraEvidenceSnapshotsList(1, SNAPSHOT_PAGE_SIZE), "latest-succeeded"],
+    queryKey: [...operatorQueryKeys.infraEvidenceSnapshotsList(1, SNAPSHOT_PAGE_SIZE), "latest-succeeded", scope],
     queryFn: async ({ signal }) => {
       let pageNumber = 1;
       let page = await fetchInfraEvidenceSnapshots(pageNumber, SNAPSHOT_PAGE_SIZE);

@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Persistence.Context;
@@ -11,7 +13,7 @@ namespace ArchLucid.Core.Persistence.Graph;
 public static class GraphSnapshotCanonicalFingerprint
 {
     /// <summary>
-    ///     When both snapshots have the same ordered fingerprint of canonical identity fields,
+    ///     When both snapshots have the same fingerprint of canonical object fields and properties,
     ///     a previously built <see cref="GraphSnapshot" /> can be cloned with new ids instead of rebuilding.
     /// </summary>
     public static bool AreEquivalent(ContextSnapshot? previous, ContextSnapshot current)
@@ -65,17 +67,25 @@ public static class GraphSnapshotCanonicalFingerprint
             StringComparison.Ordinal);
     }
 
-    /// <summary>Deterministic string over canonical objects (ObjectId, type, name, source).</summary>
+    /// <summary>Versioned digest of canonical objects and their graph properties.</summary>
     public static string Compute(ContextSnapshot snapshot)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        IEnumerable<string> parts = snapshot.CanonicalObjects
-            .OrderBy(o => o.ObjectId, StringComparer.OrdinalIgnoreCase)
-            .Select(o =>
-                $"{o.ObjectId}|{o.ObjectType}|{o.Name}|{o.SourceType}|{o.SourceId}");
+        var objects = snapshot.CanonicalObjects
+            .OrderBy(static item => item.ObjectId, StringComparer.Ordinal)
+            .Select(static item => new
+            {
+                item.ObjectId,
+                item.ObjectType,
+                item.Name,
+                item.SourceType,
+                item.SourceId,
+                Properties = item.Properties.OrderBy(static property => property.Key, StringComparer.Ordinal),
+            });
 
-        return string.Join("\n", parts);
+        byte[] content = JsonSerializer.SerializeToUtf8Bytes(objects);
+        return $"v2:{Convert.ToHexStringLower(SHA256.HashData(content))}";
     }
 
     /// <summary>

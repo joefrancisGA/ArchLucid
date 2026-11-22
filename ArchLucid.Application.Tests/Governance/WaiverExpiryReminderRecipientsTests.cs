@@ -66,6 +66,21 @@ public sealed class WaiverExpiryReminderRecipientsTests
         act.Should().Throw<ArgumentNullException>();
     }
 
+
+    [Theory]
+    [InlineData("@")]
+    [InlineData("owner@")]
+    [InlineData("not an email@example.com")]
+    [InlineData("Owner <owner@example.com>")]
+    public void Resolve_rejects_malformed_owner_and_uses_valid_admin_fallback(string invalidOwner)
+    {
+        IReadOnlyList<string> recipients = WaiverExpiryReminderRecipients.Resolve(
+            Waiver(invalidOwner, "directory-user-id"),
+            "admin@example.com");
+
+        recipients.Should().Equal("admin@example.com");
+    }
+
     private static RiskExceptionRecord Waiver(string ownerUserId, string createdByUserId)
     {
         return new RiskExceptionRecord

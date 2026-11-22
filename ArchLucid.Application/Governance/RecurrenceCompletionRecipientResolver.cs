@@ -1,3 +1,4 @@
+using System.Net.Mail;
 using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Application.Governance;
@@ -17,8 +18,8 @@ public sealed class RecurrenceCompletionRecipientResolver(
     {
         HashSet<string> mailboxes = new(StringComparer.OrdinalIgnoreCase);
 
-        if (!string.IsNullOrWhiteSpace(scheduleCreatedByUserId) && scheduleCreatedByUserId.Contains('@', StringComparison.Ordinal))
-            mailboxes.Add(scheduleCreatedByUserId.Trim());
+        if (TryNormalizeMailbox(scheduleCreatedByUserId, out string? creatorMailbox))
+            mailboxes.Add(creatorMailbox);
 
         IReadOnlyList<string> admins = await _SponsorReportRecipientLookup
             .ListRecipientMailboxesAsync(tenantId, cancellationToken)
@@ -26,10 +27,25 @@ public sealed class RecurrenceCompletionRecipientResolver(
 
         foreach (string mailbox in admins)
         {
-            if (!string.IsNullOrWhiteSpace(mailbox))
-                mailboxes.Add(mailbox.Trim());
+            if (TryNormalizeMailbox(mailbox, out string? adminMailbox))
+                mailboxes.Add(adminMailbox);
         }
 
         return mailboxes.OrderBy(static m => m, StringComparer.OrdinalIgnoreCase).ToArray();
+    }
+
+    private static bool TryNormalizeMailbox(string? candidate, out string normalized)
+    {
+        normalized = string.Empty;
+        if (string.IsNullOrWhiteSpace(candidate))
+            return false;
+
+        string trimmed = candidate.Trim();
+        if (!MailAddress.TryCreate(trimmed, out MailAddress? parsed)
+            || !string.Equals(parsed.Address, trimmed, StringComparison.Ordinal))
+            return false;
+
+        normalized = parsed.Address;
+        return true;
     }
 }

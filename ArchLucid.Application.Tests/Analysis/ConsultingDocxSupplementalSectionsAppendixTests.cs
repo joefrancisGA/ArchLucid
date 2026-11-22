@@ -11,6 +11,59 @@ namespace ArchLucid.Application.Tests.Analysis;
 [Trait("Category", "Unit")]
 public sealed class ConsultingDocxSupplementalSectionsAppendixTests
 {
+    [Theory]
+    [InlineData(true, false, false, 0)]
+    [InlineData(false, true, false, 0)]
+    [InlineData(true, true, false, 1)]
+    [InlineData(true, false, true, 1)]
+    [InlineData(false, true, true, 1)]
+    [InlineData(true, true, true, 2)]
+    public void AddAppendices_only_adds_page_breaks_between_enabled_appendices(
+        bool includeMermaid,
+        bool includeExecutionTraceIndex,
+        bool includeDeterminismAndComparison,
+        int expectedPageBreaks)
+    {
+        Body body = new();
+        ConsultingDocxTemplateOptions options = new()
+        {
+            IncludeAppendixMermaid = includeMermaid,
+            IncludeAppendixExecutionTraceIndex = includeExecutionTraceIndex,
+            IncludeAppendixDeterminismAndComparison = includeDeterminismAndComparison,
+        };
+
+        ConsultingDocxSupplementalSections.AddAppendices(body, new ArchitectureAnalysisReport(), options);
+
+        body.Descendants<Break>().Count(pageBreak => pageBreak.Type?.Value == BreakValues.Page)
+            .Should().Be(expectedPageBreaks);
+    }
+
+    [Fact]
+    public void Mermaid_appendix_preserves_mixed_line_endings_as_separate_paragraphs()
+    {
+        Body body = new();
+        ArchitectureAnalysisReport report = new()
+        {
+            Diagram = "flowchart TD\rNodeA --> NodeB\r\nNodeB --> NodeC\nNodeC --> NodeD",
+        };
+        ConsultingDocxTemplateOptions options = new()
+        {
+            IncludeAppendixMermaid = true,
+            IncludeAppendixExecutionTraceIndex = false,
+            IncludeAppendixDeterminismAndComparison = false,
+        };
+
+        ConsultingDocxSupplementalSections.AddAppendices(body, report, options);
+
+        body.Elements<Paragraph>().Select(paragraph => paragraph.InnerText).Should().Equal(
+            "Appendix A. Mermaid Source",
+            "[mermaid]",
+            "flowchart TD",
+            "NodeA --> NodeB",
+            "NodeB --> NodeC",
+            "NodeC --> NodeD");
+    }
+
     [Fact]
     public void AddAppendices_includes_datastore_relationship_and_warning_manifest_counts()
     {

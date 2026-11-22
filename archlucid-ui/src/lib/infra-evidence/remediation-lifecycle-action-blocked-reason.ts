@@ -49,9 +49,13 @@ export function remediationLifecycleActionBlockedReason(
         return "Preflight is blocked until remediation blockers are cleared.";
       }
 
-      return canRunRemediationPreflight(context.selectedStatus)
-        ? null
-        : "Preflight is available only while the instance is classified.";
+      if (!canRunRemediationPreflight(context.selectedStatus)) {
+        return "Preflight is available only while the instance is classified.";
+      }
+
+      return context.selectedSnapshotId.trim().length === 0
+        ? "Choose an inventory snapshot before running preflight."
+        : null;
     case "approve":
       if (context.selectedStatus === null) {
         return "Select a remediation instance before approving.";

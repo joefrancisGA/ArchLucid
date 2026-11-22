@@ -1406,7 +1406,7 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
 
         const string json = """
                               {
-                                  "CITATIONS": [{ "source": "doc" }],
+                                  "CITATIONS": [{ "source": "ev-1" }],
                                   "EVIDENCEREFS": ["ev-1"]
                               }
                               """;

@@ -1,4 +1,5 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.SecureNow;
 using ArchLucid.Persistence.SecureNow;
 
 using FluentAssertions;
@@ -12,7 +13,8 @@ public sealed class InMemoryCollectionTriggerClaimRepositoryTests
     [Fact]
     public async Task TryReserveAsync_first_caller_acquires_and_second_reuses_run_id()
     {
-        InMemoryCollectionTriggerClaimRepository repository = new();
+        InMemoryCollectionRunRepository runs = new();
+        InMemoryCollectionTriggerClaimRepository repository = new(runs);
         ProjectScopeKey scope = ProjectScopeKey.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
         Guid firstRunId = Guid.NewGuid();
         Guid secondRunId = Guid.NewGuid();
@@ -33,7 +35,8 @@ public sealed class InMemoryCollectionTriggerClaimRepositoryTests
     [Fact]
     public async Task TryReserveAsync_canceled_request_leaves_key_available_for_retry()
     {
-        InMemoryCollectionTriggerClaimRepository repository = new();
+        InMemoryCollectionRunRepository runs = new();
+        InMemoryCollectionTriggerClaimRepository repository = new(runs);
         ProjectScopeKey scope = ProjectScopeKey.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
         Guid retryRunId = Guid.NewGuid();
 
@@ -52,11 +55,14 @@ public sealed class InMemoryCollectionTriggerClaimRepositoryTests
     [Fact]
     public async Task ReconcilePersistedRunAsync_marks_matching_pending_claim_scheduled()
     {
-        InMemoryCollectionTriggerClaimRepository repository = new();
+        InMemoryCollectionRunRepository runs = new();
+        InMemoryCollectionTriggerClaimRepository repository = new(runs);
         ProjectScopeKey scope = ProjectScopeKey.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
         Guid runId = Guid.NewGuid();
 
         await repository.TryReserveAsync(scope, "idem-2", runId);
+        (await repository.ReconcilePersistedRunAsync(scope, "idem-2", runId)).Should().BeFalse();
+        await SaveRunAsync(runs, scope, runId);
         bool reconciled = await repository.ReconcilePersistedRunAsync(scope, "idem-2", runId);
 
         reconciled.Should().BeTrue();
@@ -67,10 +73,12 @@ public sealed class InMemoryCollectionTriggerClaimRepositoryTests
     [Fact]
     public async Task ReconcilePersistedRunAsync_only_one_caller_transitions_the_claim()
     {
-        InMemoryCollectionTriggerClaimRepository repository = new();
+        InMemoryCollectionRunRepository runs = new();
+        InMemoryCollectionTriggerClaimRepository repository = new(runs);
         ProjectScopeKey scope = ProjectScopeKey.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
         Guid runId = Guid.NewGuid();
         await repository.TryReserveAsync(scope, "concurrent", runId);
+        await SaveRunAsync(runs, scope, runId);
 
         TaskCompletionSource start = new(TaskCreationOptions.RunContinuationsAsynchronously);
         Task<bool>[] callers = Enumerable.Range(0, 16).Select(async _ =>
@@ -90,7 +98,8 @@ public sealed class InMemoryCollectionTriggerClaimRepositoryTests
     [Fact]
     public async Task TryReserveAsync_rejects_empty_run_id_and_oversized_key()
     {
-        InMemoryCollectionTriggerClaimRepository repository = new();
+        InMemoryCollectionRunRepository runs = new();
+        InMemoryCollectionTriggerClaimRepository repository = new(runs);
         ProjectScopeKey scope = ProjectScopeKey.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
 
         Func<Task> emptyRun = () => repository.TryReserveAsync(scope, "idem-3", Guid.Empty);
@@ -103,14 +112,25 @@ public sealed class InMemoryCollectionTriggerClaimRepositoryTests
     [Fact]
     public async Task ReconcilePersistedRunAsync_returns_false_when_missing_or_already_scheduled()
     {
-        InMemoryCollectionTriggerClaimRepository repository = new();
+        InMemoryCollectionRunRepository runs = new();
+        InMemoryCollectionTriggerClaimRepository repository = new(runs);
         ProjectScopeKey scope = ProjectScopeKey.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
         Guid runId = Guid.NewGuid();
 
         (await repository.ReconcilePersistedRunAsync(scope, "missing", runId)).Should().BeFalse();
         await repository.TryReserveAsync(scope, "idem-4", runId);
         (await repository.ReconcilePersistedRunAsync(scope, "idem-4", Guid.NewGuid())).Should().BeFalse();
+        await SaveRunAsync(runs, scope, runId);
         (await repository.ReconcilePersistedRunAsync(scope, "idem-4", runId)).Should().BeTrue();
         (await repository.ReconcilePersistedRunAsync(scope, "idem-4", runId)).Should().BeFalse();
     }
+
+    private static Task SaveRunAsync(InMemoryCollectionRunRepository runs, ProjectScopeKey scope, Guid runId) =>
+        runs.UpsertAsync(new CollectionRun
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            RunId = runId,
+        });
 }

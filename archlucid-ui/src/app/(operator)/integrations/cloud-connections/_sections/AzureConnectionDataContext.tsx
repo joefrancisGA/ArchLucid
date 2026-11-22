@@ -21,6 +21,7 @@ import {
   AZURE_CONNECTION_VALIDATION_FALLBACK_ERROR,
   formatAzureConnectionValidationSuccessMessage,
 } from "@/lib/azure-cloud-connection-copy";
+import { CLOUD_CONNECTIONS_REFRESH_FAILED_ERROR } from "@/lib/cloud-connections-copy";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { sanitizeHostedAzureValidationError } from "@/lib/sanitize-hosted-azure-validation-error";
@@ -102,8 +103,11 @@ export function AzureConnectionDataProvider(props: { readonly children: ReactNod
 
       try {
         const result = await validateTier2ConnectionHostedRun({ subscriptionId });
-        await refreshConnections();
         setActionMessage(formatAzureConnectionValidationSuccessMessage(result.resourceCount, result.packageId));
+        await refreshConnections().catch((err: unknown) => {
+          console.error(err);
+          setFormError(CLOUD_CONNECTIONS_REFRESH_FAILED_ERROR);
+        });
       } catch (err) {
         console.error(err);
         const sanitized = sanitizeHostedAzureValidationError(err);

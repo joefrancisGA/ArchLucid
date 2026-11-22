@@ -17,7 +17,7 @@ public sealed class InMemoryGlobalSearchRepository : IGlobalSearchRepository
         _ = tenantId;
         _ = workspaceId;
         _ = projectId;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (string.IsNullOrWhiteSpace(query))
             return Task.FromResult(new GlobalSearchResult());

@@ -49,51 +49,50 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         List<HostedAzureArmDefenderVulnerabilityCountRecord> vulnerabilityCounts = [];
         List<HostedAzureArmDefenderVulnerabilityFindingRecord> vulnerabilityFindings = [];
 
-        try
-        {
-            await ReadDefenderGovernanceAsync(
+        await ReadDefenderCompanionFailSoftAsync(
+            () => ReadDefenderGovernanceAsync(
                 accessToken,
                 trimmedSubscriptionId,
                 assessmentKeys ?? [],
                 governance,
                 warnings,
-                cancellationToken).ConfigureAwait(false);
-            await ReadDefenderComplianceAsync(
+                cancellationToken),
+            warnings).ConfigureAwait(false);
+        await ReadDefenderCompanionFailSoftAsync(
+            () => ReadDefenderComplianceAsync(
                 accessToken,
                 trimmedSubscriptionId,
                 standards,
                 controls,
                 warnings,
-                cancellationToken).ConfigureAwait(false);
-            await ReadDefenderAlertsAsync(
+                cancellationToken),
+            warnings).ConfigureAwait(false);
+        await ReadDefenderCompanionFailSoftAsync(
+            () => ReadDefenderAlertsAsync(
                 accessToken,
                 trimmedSubscriptionId,
                 alerts,
                 warnings,
-                cancellationToken).ConfigureAwait(false);
-            await ReadDefenderAttackPathsAsync(
+                cancellationToken),
+            warnings).ConfigureAwait(false);
+        await ReadDefenderCompanionFailSoftAsync(
+            () => ReadDefenderAttackPathsAsync(
                 accessToken,
                 trimmedSubscriptionId,
                 pricings ?? [],
                 attackPaths,
                 warnings,
-                cancellationToken).ConfigureAwait(false);
-            await ReadDefenderVulnerabilitiesAsync(
+                cancellationToken),
+            warnings).ConfigureAwait(false);
+        await ReadDefenderCompanionFailSoftAsync(
+            () => ReadDefenderVulnerabilitiesAsync(
                 accessToken,
                 trimmedSubscriptionId,
                 vulnerabilityCounts,
                 vulnerabilityFindings,
                 warnings,
-                cancellationToken).ConfigureAwait(false);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (InvalidOperationException)
-        {
-            warnings.Add("defender-companions-rejected-next-link");
-        }
+                cancellationToken),
+            warnings).ConfigureAwait(false);
 
         return new HostedAzureDefenderFollowOnCollectResult
         {

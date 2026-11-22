@@ -185,7 +185,18 @@ export function ItsmOutboundCreateIssueDialog({
     try {
       const created = await createItsmOutboundIssue(findingId, provider);
       showSuccess(`${created.provider} issue created: ${created.externalKey ?? "linked"}`);
-      await reloadCorrelations();
+
+      try {
+        await reloadCorrelations();
+      } catch {
+        // The create response already confirms that this provider was linked.
+        setCorrelations((current) => [
+          ...current.filter((correlation) => correlation.provider !== provider),
+          { provider, externalKey: created.externalKey ?? undefined },
+        ]);
+        setCorrelationsLoaded(true);
+      }
+
       setOpen(false);
     } catch (error) {
       const message = error instanceof Error ? error.message : "ITSM create failed.";

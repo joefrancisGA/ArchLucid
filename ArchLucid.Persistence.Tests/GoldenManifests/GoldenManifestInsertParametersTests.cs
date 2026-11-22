@@ -64,6 +64,28 @@ public sealed class GoldenManifestInsertParametersTests
     }
 
     [Fact]
+    public void Create_omits_inline_payload_slices_when_the_payload_was_offloaded()
+    {
+        ManifestDocument manifest = Manifest();
+        manifest.Assumptions.Add("large payload");
+
+        object parameters = GoldenManifestInsertParameters.Create(
+            manifest,
+            GoldenManifestSerializedPayload.FromDocument(manifest),
+            "https://blobs/golden-manifests/manifest.json");
+
+        string[] payloadProperties =
+        [
+            "MetadataJson", "RequirementsJson", "TopologyJson", "SecurityJson", "ComplianceJson", "CostJson",
+            "ConstraintsJson", "UnresolvedIssuesJson", "DecisionsJson", "AssumptionsJson", "WarningsJson",
+            "ProvenanceJson", "HasherBoundJson"
+        ];
+
+        foreach (string property in payloadProperties)
+            Read<string>(parameters, property).Should().BeEmpty();
+    }
+
+    [Fact]
     public void ForSupersede_retires_active_rows_only()
     {
         object parameters = GoldenManifestInsertParameters.ForSupersede(Scope(), ManifestId);

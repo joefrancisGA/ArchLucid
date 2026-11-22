@@ -188,14 +188,15 @@ internal static class RequestConstraintTokenMatcher
 
         ReadOnlySpan<char> before = haystack.AsSpan(0, tokenIndex).TrimEnd();
 
-        if (before.Length < 2)
-            return false;
+        if (!before.IsEmpty && before[^1] is '-' or '_' or '.')
+            before = before[..^1];
 
-        return before.EndsWith("un", StringComparison.OrdinalIgnoreCase)
-            || before.EndsWith("un-", StringComparison.OrdinalIgnoreCase)
-            || before.EndsWith("un_", StringComparison.OrdinalIgnoreCase)
-            || before.EndsWith("un.", StringComparison.OrdinalIgnoreCase)
-            || before.EndsWith("un ", StringComparison.OrdinalIgnoreCase);
+        const string prefix = "un";
+        int prefixStart = before.Length - prefix.Length;
+
+        return prefixStart >= 0
+            && before.EndsWith(prefix, StringComparison.OrdinalIgnoreCase)
+            && (prefixStart == 0 || !char.IsLetterOrDigit(before[prefixStart - 1]));
     }
 
     private static bool IsNoPrefixedNegation(string haystack, int tokenIndex)

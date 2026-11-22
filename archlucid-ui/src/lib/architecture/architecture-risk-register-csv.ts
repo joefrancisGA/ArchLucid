@@ -67,11 +67,18 @@ export type ArchitectureRiskRegisterCsvRow = {
 };
 
 function escapeCsvCell(value: string): string {
-  if (value.includes('"') || value.includes(",") || value.includes("\n") || value.includes("\r")) {
-    return `"${value.replace(/"/g, '""')}"`;
+  const formulaSafeValue = /^[\t\r ]*[=+\-@]/.test(value) ? `'${value}` : value;
+
+  if (
+    formulaSafeValue.includes('"') ||
+    formulaSafeValue.includes(",") ||
+    formulaSafeValue.includes("\n") ||
+    formulaSafeValue.includes("\r")
+  ) {
+    return `"${formulaSafeValue.replace(/"/g, '""')}"`;
   }
 
-  return value;
+  return formulaSafeValue;
 }
 
 /** Buyer-facing architecture risk register export (TB-057). */

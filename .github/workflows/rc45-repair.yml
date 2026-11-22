@@ -1,4 +1,4 @@
-name: RC45 repair checks
+name: RC45 / RC46 repair checks
 
 on:
   push:
@@ -25,7 +25,7 @@ concurrency:
 
 jobs:
   guards:
-    if: github.ref == 'refs/heads/RC45'
+    if: github.ref == 'refs/heads/RC45' || github.ref == 'refs/heads/RC46'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:

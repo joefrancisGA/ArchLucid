@@ -58,17 +58,21 @@ public sealed class ArchitectureFinding
         set;
     }
 
+    private string category = string.Empty;
+
     public string Category
     {
-        get;
-        set;
-    } = string.Empty;
+        get => category;
+        set => category = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string message = string.Empty;
 
     public string Message
     {
-        get;
-        set;
-    } = string.Empty;
+        get => message;
+        set => message = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Optional short rationale for reviewers (LLM or rules may populate; omit when unknown).</summary>
     public string? ReasoningTrace

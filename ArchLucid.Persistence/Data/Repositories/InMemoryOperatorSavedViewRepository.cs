@@ -17,6 +17,8 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
         string? surface,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IEnumerable<OperatorSavedViewStoredRow> query = _views.Values.Where(view =>
             OperatorSavedViewRepositoryCore.IsVisibleToUser(
                 tenantId,
@@ -45,6 +47,8 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
         bool isShared,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
         OperatorSavedViewStoredRow stored = new()
         {
@@ -79,6 +83,8 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
         Guid viewId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!_views.TryGetValue(viewId, out OperatorSavedViewStoredRow? stored))
             return Task.FromResult(false);
 

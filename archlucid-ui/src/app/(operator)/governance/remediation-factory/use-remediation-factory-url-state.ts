@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import type { RemediationFactoryPathView } from "@/lib/governance/remediation-factory-path-view";
 import { remediationFactoryPathForProductLine } from "@/lib/product-line/securenow-remediation-factory-route";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
@@ -57,6 +58,7 @@ export function useRemediationFactoryUrlState(productLine: ProductLineId) {
       readonly fromSnapshot?: string | null;
       readonly toSnapshot?: string | null;
       readonly rankedPage?: number;
+      readonly pathView?: RemediationFactoryPathView;
     }) => {
       router.replace(remediationFactorySelectionHrefFromSearch(searchString, patch, resolvedPath), {
         scroll: false,
@@ -73,8 +75,8 @@ export function useRemediationFactoryUrlState(productLine: ProductLineId) {
   );
 
   const selectPath = useCallback(
-    (nextPathId: string) => {
-      syncSelection({ pathId: nextPathId, findingId: null });
+    (nextPathId: string, pathView?: RemediationFactoryPathView) => {
+      syncSelection({ pathId: nextPathId, findingId: null, pathView });
     },
     [syncSelection],
   );

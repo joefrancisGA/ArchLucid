@@ -58,7 +58,7 @@ export function PolicyAtCommitScopeSummary(
   const exclusionSummary = buildCommittedCoverageExclusionSummary(snapshot, policyPackBuyerLabel);
   const exclusionLines = buildCommittedCoverageExclusionLines(snapshot, policyPackBuyerLabel);
 
-  if (!snapshot.hasEffectivePolicy) {
+  if (snapshot.hasEffectivePolicy === false) {
     return (
       <p
         className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
@@ -71,6 +71,11 @@ export function PolicyAtCommitScopeSummary(
 
   return (
     <div className="space-y-2" data-testid={`${testIdPrefix}-summary`}>
+      {snapshot.hasEffectivePolicy === null ? (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Effective policy status was not stored.
+        </p>
+      ) : null}
       <p
         className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
         data-testid={`${testIdPrefix}-counts`}

@@ -189,8 +189,7 @@ public static class AzureInventoryNsgSecurityRuleParser
 
         foreach ((string propertyKey, string propertyValue) in properties)
         {
-            if (propertyKey.StartsWith(keyPrefix, StringComparison.OrdinalIgnoreCase)
-                && propertyKey.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
+            if (string.Equals(propertyKey, exactKey, StringComparison.OrdinalIgnoreCase)
                 && !string.IsNullOrWhiteSpace(propertyValue))
             {
                 return propertyValue.Trim();

@@ -10,7 +10,7 @@ public sealed class InMemoryPolicyPackCatalogRepository : IPolicyPackCatalogRepo
     /// <inheritdoc />
     public Task<IReadOnlyList<PolicyPackCatalogListItem>> ListPromotedAsync(CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_gate)
         {
@@ -29,7 +29,7 @@ public sealed class InMemoryPolicyPackCatalogRepository : IPolicyPackCatalogRepo
         Guid policyPackCatalogEntryId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_gate)
         {
@@ -44,7 +44,7 @@ public sealed class InMemoryPolicyPackCatalogRepository : IPolicyPackCatalogRepo
     /// <inheritdoc />
     public Task<bool> TryDemoteAsync(Guid policyPackCatalogEntryId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_gate)
         {
@@ -70,7 +70,7 @@ public sealed class InMemoryPolicyPackCatalogRepository : IPolicyPackCatalogRepo
         string snapshotContentJson,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
         ArgumentNullException.ThrowIfNull(description);

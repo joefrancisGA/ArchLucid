@@ -130,7 +130,7 @@ public sealed class AzureInventoryDiffService(
             {
                 await consumer.OnDiffComputedAsync(summary, changes, cancellationToken);
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
             {
                 allConsumersSucceeded = false;
 

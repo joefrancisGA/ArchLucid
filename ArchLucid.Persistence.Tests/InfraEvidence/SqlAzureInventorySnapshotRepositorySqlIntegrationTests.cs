@@ -125,6 +125,25 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
   }
 
   [SkippableFact]
+  public async Task Empty_materialization_reports_a_missing_snapshot_header()
+  {
+    Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+    SqlConnectionFactory factory = new(fixture.ConnectionString);
+    SqlAzureInventorySnapshotRepository repository = new(factory);
+    ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectA };
+
+    Func<Task> materialize = () => repository.MaterializeSnapshotAsync(
+      scope,
+      Guid.NewGuid(),
+      new AzureInventorySnapshotMaterializeWriteRequest { CaptureStatus = AzureInventoryCaptureStatus.Partial },
+      CancellationToken.None);
+
+    await materialize.Should().ThrowAsync<InvalidOperationException>()
+      .WithMessage("Snapshot header was not found in the current scope.");
+  }
+
+  [SkippableFact]
   public async Task Drift_and_routing_slices_load_inventory_for_more_than_2100_ids()
   {
     Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
@@ -169,6 +188,10 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
 
     Guid diffId = Guid.NewGuid();
     Guid changeId = Guid.NewGuid();
+    string tiedChangePrefix = Guid.NewGuid().ToString("N")[..30];
+    Guid[] tiedChangeIds = Enumerable.Range(1, 26)
+      .Select(index => Guid.ParseExact($"{tiedChangePrefix}{index:x2}", "N"))
+      .ToArray();
     await diffs.InsertDiffAsync(scope, new AzureInventoryDiffPersistRequest
     {
       DiffId = diffId,
@@ -179,7 +202,7 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
         DiffId = diffId,
         SnapshotAId = priorId,
         SnapshotBId = currentId,
-        TotalChanges = 1,
+        TotalChanges = 1 + tiedChangeIds.Length,
       },
       Changes =
       [
@@ -191,6 +214,16 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
           CloudResourceId = cloudResourceIds[^1],
           ChangeType = AzureInventoryChangeType.ResourceModified,
         },
+        .. tiedChangeIds.Reverse().Select(id => new AzureInventoryChangeRecord
+        {
+          ChangeId = id,
+          SnapshotAId = priorId,
+          SnapshotBId = currentId,
+          CloudResourceId = cloudResourceIds[^2],
+          AzureResourceId = resources[^2].AzureResourceId,
+          ChangeType = AzureInventoryChangeType.ResourceModified,
+          Property = "sku",
+        }),
       ],
     });
 
@@ -199,7 +232,11 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
     var (priorResources, priorProperties) =
       await snapshots.ListResourcesAndPropertiesByCloudResourceIdsAsync(scope, priorId, cloudResourceIds);
 
-    changes.Should().ContainSingle().Which.ChangeId.Should().Be(changeId);
+    changes.Where(change => change.CloudResourceId == cloudResourceIds[^1])
+      .Should().ContainSingle().Which.ChangeId.Should().Be(changeId);
+    IReadOnlyList<AzureInventoryChangeRecord> cappedChanges =
+      await diffs.ListChangesByDiffAndCloudResourceAsync(scope, diffId, cloudResourceIds[^2], 25);
+    cappedChanges.Select(change => change.ChangeId).Should().Equal(tiedChangeIds.Take(25));
     priorResources.Select(resource => resource.CloudResourceId).Should().BeEquivalentTo(cloudResourceIds.Select(id => (Guid?)id));
     priorProperties.Select(property => property.ResourceRowId).Should().BeEquivalentTo(resources.Select(resource => resource.ResourceRowId));
 

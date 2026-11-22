@@ -58,6 +58,30 @@ public sealed class AzureInventoryNetworkConnectionEndpointParserTests
         result.HasBothEndpoints.Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData("50%")]
+    [InlineData("null")]
+    public void Parse_uses_resolvable_endpoint_fallbacks_after_invalid_flattened_ids(string malformedId)
+    {
+        const string first = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworkGateways/gw-a";
+        const string second = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/localNetworkGateways/lng-b";
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["connectionType"] = "IPsec",
+            ["virtualNetworkGateway1.id"] = malformedId,
+            ["virtualNetworkGateway1"] = $$"""{"id":"{{first}}"}""",
+            ["localNetworkGateway2.id"] = malformedId,
+            ["localNetworkGateway2"] = $$"""{"id":"{{second}}"}""",
+        };
+
+        AzureInventoryNetworkConnectionEndpointParseResult result =
+            AzureInventoryNetworkConnectionEndpointParser.Parse(properties);
+
+        result.Endpoint1ArmId.Should().Be(ArmResourceIdNormalizer.Normalize(first));
+        result.Endpoint2ArmId.Should().Be(ArmResourceIdNormalizer.Normalize(second));
+        result.HasBothEndpoints.Should().BeTrue();
+    }
+
     [Fact]
     public void Parse_reads_id_from_raw_json_when_another_property_contains_percent_encoding()
     {

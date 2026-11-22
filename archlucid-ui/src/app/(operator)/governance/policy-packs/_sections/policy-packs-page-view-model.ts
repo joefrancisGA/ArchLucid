@@ -93,9 +93,9 @@ export type PolicyPacksPageViewModel = {
   readonly openAuthoringWizardFromGenerator: () => void;
   readonly authoringWizardInputMode: "guided" | "visual" | "json" | "ai";
   readonly authoringAdvancedOpen: boolean;
-  readonly setAuthoringAdvancedOpen: Dispatch<SetStateAction<boolean>>;
+  readonly setAuthoringAdvancedOpen: (open: boolean) => void;
   readonly authoringToolsOpen: boolean;
-  readonly setAuthoringToolsOpen: Dispatch<SetStateAction<boolean>>;
+  readonly setAuthoringToolsOpen: (open: boolean) => void;
   readonly onCreateFromGenerator: () => Promise<void>;
   readonly pickedReviewId: string;
   readonly pickedPackAId: string;

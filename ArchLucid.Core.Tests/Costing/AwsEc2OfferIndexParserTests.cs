@@ -82,6 +82,45 @@ public sealed class AwsEc2OfferIndexParserTests
     }
 
     [Fact]
+    public void TryGetLinuxOnDemandHourlyUsd_rejects_numeric_price_above_decimal_range()
+    {
+        const string sample = """
+            {
+              "products": {
+                "ABC": {
+                  "attributes": {
+                    "instanceType": "t3.micro",
+                    "operatingSystem": "Linux",
+                    "tenancy": "Shared",
+                    "preInstalledSw": "NA"
+                  }
+                }
+              },
+              "terms": {
+                "OnDemand": {
+                  "ABC": {
+                    "ABCTERM": {
+                      "priceDimensions": {
+                        "ABCDIM": {
+                          "unit": "Hrs",
+                          "pricePerUnit": { "USD": 1e100 }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """;
+
+        decimal? hourly = null;
+        Action act = () => hourly = AwsEc2OfferIndexParser.TryGetLinuxOnDemandHourlyUsd(sample, "t3.micro");
+
+        act.Should().NotThrow();
+        hourly.Should().BeNull();
+    }
+
+    [Fact]
     public void TryGetLinuxOnDemandHourlyUsd_rejects_boolean_usd_price()
     {
         const string sample = """

@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
@@ -37,7 +37,7 @@ public sealed class MicrosoftMarketplaceJwtVerifier(IOptionsMonitor<BillingOptio
         if (audiences.Length == 0)
             return null;
 
-        JwtSecurityTokenHandler handler = new();
+        JsonWebTokenHandler handler = new();
 
         ConfigurationManager<OpenIdConnectConfiguration> configurationManager = new(
             metadataAddressRequired,
@@ -60,9 +60,15 @@ public sealed class MicrosoftMarketplaceJwtVerifier(IOptionsMonitor<BillingOptio
 
         try
         {
-            _ = handler.ValidateToken(bearerToken, validationParameters, out SecurityToken validatedToken);
+            TokenValidationResult validated = await handler
+                .ValidateTokenAsync(bearerToken, validationParameters)
+                .ConfigureAwait(false);
 
-            return validatedToken is not JwtSecurityToken jwt ? null : new MarketplaceWebhookValidatedToken(jwt.Claims);
+            // Never construct an ambient ClaimsPrincipal inside Persistence.
+            // Invalid issuer, signature, audience or lifetime must remain fail-closed.
+            return validated.IsValid && validated.ClaimsIdentity is not null
+                ? new MarketplaceWebhookValidatedToken(validated.ClaimsIdentity.Claims)
+                : null;
         }
         catch (SecurityTokenException)
         {

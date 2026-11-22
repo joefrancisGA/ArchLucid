@@ -7,7 +7,7 @@ public sealed class InMemoryTrialFunnelOperationalMetricsReader : ITrialFunnelOp
 {
     public Task<long> CountActiveSelfServiceTrialsAsync(CancellationToken cancellationToken = default)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult(0L);
     }
@@ -17,7 +17,7 @@ public sealed class InMemoryTrialFunnelOperationalMetricsReader : ITrialFunnelOp
         bool comparePreviousPeriod = false,
         CancellationToken cancellationToken = default)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
         _ = periodDays;
         _ = comparePreviousPeriod;
 

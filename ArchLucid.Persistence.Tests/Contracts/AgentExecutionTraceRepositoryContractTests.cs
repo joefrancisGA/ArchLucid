@@ -171,6 +171,11 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         total.Should().Be(3);
         page.Should().ContainSingle();
+
+        (IReadOnlyList<AgentExecutionTrace> beyondEnd, int beyondEndTotal) =
+            await repo.GetPagedByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, 3, 1, CancellationToken.None);
+        beyondEnd.Should().BeEmpty();
+        beyondEndTotal.Should().Be(3);
     }
 
     [SkippableFact]
@@ -226,6 +231,11 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         page[0].ModelAlias.Should().Be("standard-chat");
         page[0].ModelDeploymentName.Should().Be("gpt-test");
         page[0].QualityWarning.Should().BeTrue();
+
+        (IReadOnlyList<AgentExecutionTraceSummary> beyondEnd, int beyondEndTotal) =
+            await repo.GetPagedSummariesByRunIdAsync(scope, runId, 4, 1, CancellationToken.None);
+        beyondEnd.Should().BeEmpty();
+        beyondEndTotal.Should().Be(3);
     }
 
     [SkippableFact]
@@ -401,6 +411,42 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         t.Should().NotBeNull();
         t.QualityRejected.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task Concurrent_independent_patches_preserve_both_trace_json_changes()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-concurrent-patch-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTask(runId, "task-concurrent-patch");
+        string traceId = "concurrent-patch-trace-" + runId;
+
+        await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, traceId, TimeProvider.System.UtcNowDateTime()),
+            CancellationToken.None);
+
+        TaskCompletionSource start = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Task warningPatch = Task.Run(async () =>
+        {
+            await start.Task;
+            await repo.PatchQualityWarningAsync(traceId, true, CancellationToken.None);
+        });
+        Task rejectedPatch = Task.Run(async () =>
+        {
+            await start.Task;
+            await repo.PatchQualityRejectedAsync(traceId, true, CancellationToken.None);
+        });
+
+        start.SetResult();
+        await Task.WhenAll(warningPatch, rejectedPatch);
+
+        AgentExecutionTrace? trace = await repo.GetByTraceIdAsync(traceId, CancellationToken.None);
+
+        trace.Should().NotBeNull();
+        trace.QualityWarning.Should().BeTrue();
+        trace.QualityRejected.Should().BeTrue();
     }
 
     [SkippableFact]

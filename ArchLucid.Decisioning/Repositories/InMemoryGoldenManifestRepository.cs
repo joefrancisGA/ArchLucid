@@ -96,6 +96,21 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
 
     /// <inheritdoc />
     public Task<ManifestDocument?> GetByContractManifestVersionAsync(ScopeContext scope, string manifestVersion,
+        CancellationToken ct) =>
+        ReadByContractManifestVersionAsync(scope, manifestVersion, null, ct);
+
+    /// <inheritdoc />
+    public Task<ManifestDocument?> GetByRunAndContractManifestVersionAsync(
+        ScopeContext scope,
+        Guid runId,
+        string manifestVersion,
+        CancellationToken ct) =>
+        ReadByContractManifestVersionAsync(scope, manifestVersion, runId, ct);
+
+    private Task<ManifestDocument?> ReadByContractManifestVersionAsync(
+        ScopeContext scope,
+        string manifestVersion,
+        Guid? runId,
         CancellationToken ct)
     {
         if (scope is null)
@@ -113,6 +128,7 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
                     x.TenantId == scope.TenantId &&
                     x.WorkspaceId == scope.WorkspaceId &&
                     x.ProjectId == scope.ProjectId &&
+                    (!runId.HasValue || x.RunId == runId.Value) &&
                     string.Equals(x.Metadata.Version, manifestVersion, StringComparison.OrdinalIgnoreCase))
                 .OrderByDescending(x => x.CreatedUtc)
                 .FirstOrDefault();

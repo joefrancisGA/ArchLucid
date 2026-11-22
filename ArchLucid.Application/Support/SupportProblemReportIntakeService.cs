@@ -91,33 +91,15 @@ public sealed class SupportProblemReportIntakeService(
 
         SupportProblemReportRecord created = await _reports.InsertAsync(insert, cancellationToken).ConfigureAwait(false);
 
-        string? bundleAttachWarning = null;
-        bool supportBundleAttached = false;
-        SupportProblemReportRecord reportForNotify = created;
-
-        if (request.AttachSupportBundle)
-        {
-            (string? supportBundleBlobPath, supportBundleAttached, bundleAttachWarning) =
-                await TryAttachSupportBundleAsync(reportId, submittedByActorId.Trim(), cancellationToken)
-                    .ConfigureAwait(false);
-
-            if (supportBundleBlobPath is not null)
-            {
-                SupportProblemReportRecord? updated = await _reports
-                    .UpdateSupportBundleBlobPathAsync(scope.TenantId, reportId, supportBundleBlobPath, cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (updated is null)
-                {
-                    supportBundleAttached = false;
-                    bundleAttachWarning = SupportBundleAttachFailedWarning;
-                }
-                else
-                {
-                    reportForNotify = updated;
-                }
-            }
-        }
+        SupportProblemReportRecord? attachedReport = request.AttachSupportBundle
+            ? await TryAttachSupportBundleAsync(scope.TenantId, reportId, submittedByActorId.Trim(), cancellationToken)
+                .ConfigureAwait(false)
+            : null;
+        bool supportBundleAttached = attachedReport is not null;
+        string? bundleAttachWarning = request.AttachSupportBundle && !supportBundleAttached
+            ? SupportBundleAttachFailedWarning
+            : null;
+        SupportProblemReportRecord reportForNotify = attachedReport ?? created;
 
         await _notifier.NotifySupportInboxAsync(reportForNotify, submittedByActorId.Trim(), supportBundleAttached, cancellationToken)
             .ConfigureAwait(false);
@@ -138,7 +120,8 @@ public sealed class SupportProblemReportIntakeService(
         };
     }
 
-    private async Task<(string? BlobPath, bool Attached, string? Warning)> TryAttachSupportBundleAsync(
+    private async Task<SupportProblemReportRecord?> TryAttachSupportBundleAsync(
+        Guid tenantId,
         Guid reportId,
         string submittedByActorId,
         CancellationToken cancellationToken)
@@ -155,10 +138,11 @@ public sealed class SupportProblemReportIntakeService(
 
             if (blobPath is null)
             {
-                return (null, false, SupportBundleAttachFailedWarning);
+                return null;
             }
 
-            return (blobPath, true, null);
+            return await _reports.UpdateSupportBundleBlobPathAsync(tenantId, reportId, blobPath, cancellationToken)
+                .ConfigureAwait(false);
         }
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
@@ -167,7 +151,7 @@ public sealed class SupportProblemReportIntakeService(
                 _logger.LogWarning(ex, "Support bundle attach failed for problem report {ReportId}.", reportId);
             }
 
-            return (null, false, SupportBundleAttachFailedWarning);
+            return null;
         }
     }
 

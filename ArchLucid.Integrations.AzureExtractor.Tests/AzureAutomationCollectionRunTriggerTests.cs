@@ -18,6 +18,7 @@ using Xunit;
 
 namespace ArchLucid.Integrations.AzureExtractor.Tests;
 
+[Trait("Category", "Unit")]
 public sealed class AzureAutomationCollectionRunTriggerTests
 {
     [Theory]

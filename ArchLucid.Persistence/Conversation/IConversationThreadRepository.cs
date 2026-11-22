@@ -41,6 +41,6 @@ public interface IConversationThreadRepository
     /// </summary>
     Task<int> ArchiveThreadsLastUpdatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct);
 
-    /// <summary>Sets <see cref="ConversationThread.LastUpdatedUtc" /> after a message append.</summary>
+    /// <summary>Advances <see cref="ConversationThread.LastUpdatedUtc" /> after a message append to an active thread.</summary>
     Task UpdateLastUpdatedAsync(Guid threadId, DateTime updatedUtc, CancellationToken ct);
 }

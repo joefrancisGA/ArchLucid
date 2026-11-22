@@ -315,11 +315,17 @@ export function parseAzureBoardsLastConnectionTestSuccess(
     || normalized.includes("error")
     || normalized.includes("unauthorized")
     || normalized.includes("did not succeed")
+    || normalized.endsWith("request timed out.")
   ) {
     return false;
   }
 
-  if (normalized.includes("succeeded") || normalized.includes("connection check passed")) {
+  if (
+    normalized.includes("succeeded")
+    || normalized.includes("connection check passed")
+    || normalized === "azure boards reachable."
+    || normalized.startsWith("azure boards reachable (")
+  ) {
     return true;
   }
 

@@ -56,11 +56,5 @@ public sealed partial class DapperPilotReportCardMetricsReader
             get;
             init;
         }
-
-        public object? TotalFindingRowsSnapshot
-        {
-            get;
-            init;
-        }
     }
 }

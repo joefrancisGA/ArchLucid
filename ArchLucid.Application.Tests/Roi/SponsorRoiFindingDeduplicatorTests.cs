@@ -3,6 +3,8 @@ using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace ArchLucid.Application.Tests.Roi;
 
 [Trait("Suite", "Core")]
@@ -55,6 +57,34 @@ public sealed class SponsorRoiFindingDeduplicatorTests
         List<ArchitectureFinding> deduped = SponsorRoiFindingDeduplicator.DeduplicateByStableIdentity(findings).ToList();
 
         deduped.Should().HaveCount(3);
+    }
+
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(0, true)]
+    [InlineData(-5, false)]
+    [InlineData(-5, true)]
+    public void DeduplicateByStableIdentity_prefers_a_known_estimate_to_an_unavailable_estimate(int estimate, bool knownFirst)
+    {
+        var unknown = new ArchitectureFinding { FindingId = "cost-id" };
+        var known = new ArchitectureFinding { FindingId = "cost-id", EstimatedUsdSavings = estimate };
+        ArchitectureFinding[] findings = knownFirst ? [known, unknown] : [unknown, known];
+
+        SponsorRoiFindingDeduplicator.DeduplicateByStableIdentity(findings).Should().Equal(known);
+    }
+
+    [Fact]
+    public void DeduplicateWithLogging_preserves_the_same_winner_and_identity_normalization()
+    {
+        ArchitectureFinding[] findings =
+        [
+            new ArchitectureFinding { FindingId = "cost-id", EstimatedUsdSavings = 50m },
+            new ArchitectureFinding { FindingId = " COST-ID ", EstimatedUsdSavings = 200m },
+            new ArchitectureFinding { FindingId = "cost-id", EstimatedUsdSavings = 150m },
+        ];
+
+        SponsorRoiFindingExclusionLogger.DeduplicateWithLogging(NullLogger.Instance, findings)
+            .Should().Equal(findings[1]);
     }
 
     [Fact]

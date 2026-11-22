@@ -20,6 +20,9 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_items.Exists(item => item.ScheduleId == schedule.ScheduleId))
+                throw new InvalidOperationException($"The advisory scan schedule '{schedule.ScheduleId}' already exists.");
+
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 

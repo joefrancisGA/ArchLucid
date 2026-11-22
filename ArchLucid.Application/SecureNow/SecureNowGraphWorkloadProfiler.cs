@@ -59,13 +59,17 @@ public static class SecureNowGraphWorkloadProfiler
         });
         long start = Stopwatch.GetTimestamp();
         SecureNowTopologyCardinalityForecast.Result topology;
-        try { topology = await operation(cancellationToken).ConfigureAwait(false); }
+        double elapsedMs;
+        try
+        {
+            topology = await operation(cancellationToken).ConfigureAwait(false);
+            elapsedMs = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
+        }
         finally
         {
             await samplerStop.CancelAsync().ConfigureAwait(false);
             await sampler.ConfigureAwait(false);
         }
-        double elapsedMs = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
         process.Refresh();
         long memoryAfter = process.WorkingSet64;
         long allocatedAfter = GC.GetTotalAllocatedBytes(false);

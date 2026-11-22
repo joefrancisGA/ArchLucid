@@ -82,7 +82,7 @@ export function useAdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormP
   // A new useRouter/useSearchParams wrapper can recreate syncAdvancedToUrl
   // without a new reset request. Rebuilding the form object in that case
   // caused an unbounded render/effect cycle (and potential worker OOM).
-  const handledFormResetKeyRef = useRef<number | null>(null);
+  const handledFormResetKeyRef = useRef(props.formResetKey);
   useEffect(() => {
     if (handledFormResetKeyRef.current === props.formResetKey) {
       return;

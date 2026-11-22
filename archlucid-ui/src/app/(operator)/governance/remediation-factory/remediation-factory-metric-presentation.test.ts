@@ -33,6 +33,14 @@ describe("remediation-factory-metric-presentation", () => {
     );
   });
 
+  it("shows negative net burn when more findings were remediated than opened", () => {
+    const metrics = { createdThisWeek: 2, remediatedThisWeek: 5, netBurn: -3 } as RemediationFactoryMetrics;
+
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.value).toBe("-3");
+  });
+
   it("keeps the rule version out of the visible tile helpers", () => {
     const metrics: RemediationFactoryMetrics = {
       openFindings: 3,

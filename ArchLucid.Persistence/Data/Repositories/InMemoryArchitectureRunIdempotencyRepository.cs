@@ -12,6 +12,9 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
     private readonly Dictionary<string, InMemoryArchitectureRunIdempotencyRow> _rows = new();
 
     private sealed record InMemoryArchitectureRunIdempotencyRow(
+        Guid TenantId,
+        Guid WorkspaceId,
+        Guid ProjectId,
         ArchitectureRunIdempotencyLookup Lookup,
         DateTime CreatedUtc);
 
@@ -47,6 +50,9 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
         {
             InMemoryArchitectureRunIdempotencyRow? match = _rows.Values
                 .Where(row =>
+                    row.TenantId == tenantId &&
+                    row.WorkspaceId == workspaceId &&
+                    row.ProjectId == projectId &&
                     row.CreatedUtc >= createdAfterUtc &&
                     CryptographicOperations.FixedTimeEquals(row.Lookup.RequestFingerprint, requestFingerprint))
                 .OrderByDescending(row => row.CreatedUtc)
@@ -79,6 +85,9 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
                 return Task.FromResult(false);
 
             _rows[k] = new InMemoryArchitectureRunIdempotencyRow(
+                tenantId,
+                workspaceId,
+                projectId,
                 new ArchitectureRunIdempotencyLookup
                 {
                     RunId = runId,

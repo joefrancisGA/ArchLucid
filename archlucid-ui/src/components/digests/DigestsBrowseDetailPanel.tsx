@@ -25,6 +25,8 @@ import {
 } from "@/lib/digests/digests-browse-disclosure-url";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
+import { DIGESTS_BROWSE_DELIVERY_ATTEMPTS_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/digests/digests-browse-delivery-attempts-empty-not-load-failure-copy";
+import { DigestsBrowseDeliveryAttemptsEmptyPartialHonesty } from "@/components/digests/DigestsBrowseDeliveryAttemptsEmptyPartialHonesty";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import type { ArchitectureDigest } from "@/types/advisory-scheduling";
@@ -144,6 +146,14 @@ export function DigestsBrowseDetailPanel({
                 label={resolveDigestDeliveryStatus(deliveryAttempts).label}
               />
             </div>
+            {deliveryAttempts.length === 0 ? (
+              <div className="mt-2 space-y-2" data-testid="digests-browse-delivery-attempts-empty">
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  {DIGESTS_BROWSE_DELIVERY_ATTEMPTS_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <DigestsBrowseDeliveryAttemptsEmptyPartialHonesty />
+              </div>
+            ) : null}
             {deliveryAttempts.length > 0 ? (
               <ul
                 className={cn("m-0 mt-2 list-disc space-y-1 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}

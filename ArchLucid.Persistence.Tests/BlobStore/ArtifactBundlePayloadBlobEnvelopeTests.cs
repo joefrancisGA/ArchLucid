@@ -41,6 +41,18 @@ public sealed class ArtifactBundlePayloadBlobEnvelopeTests
         ArtifactBundlePayloadBlobEnvelope.TryDeserialize("{").Should().BeNull();
     }
 
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("""{"artifactsJson":"[]","traceJson":"{}"}""")]
+    [InlineData("""{"schemaVersion":1,"artifactsJson":"[]"}""")]
+    [InlineData("""{"schemaVersion":1,"traceJson":"{}"}""")]
+    [InlineData("""{"schemaVersion":1,"artifactsJson":null,"traceJson":"{}"}""")]
+    [InlineData("""{"schemaVersion":1,"artifactsJson":"[]","traceJson":null}""")]
+    public void TryDeserialize_incomplete_payload_returns_null(string json)
+    {
+        ArtifactBundlePayloadBlobEnvelope.TryDeserialize(json).Should().BeNull();
+    }
+
     [SkippableFact]
     public void MergeIntoRow_copies_json_fields()
     {

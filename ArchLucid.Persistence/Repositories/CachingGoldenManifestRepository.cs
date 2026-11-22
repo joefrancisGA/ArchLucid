@@ -28,7 +28,7 @@ public sealed class CachingGoldenManifestRepository(
         await _inner.SaveAsync(manifest, ct, connection, transaction);
 
         await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, AmbientScope(manifest), manifest.ManifestId,
-            ct);
+            transaction is null ? CancellationToken.None : ct);
     }
 
     /// <inheritdoc />
@@ -51,7 +51,8 @@ public sealed class CachingGoldenManifestRepository(
             connection,
             transaction,
             authorityPersistBody);
-        await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, scope, result.ManifestId, ct);
+        await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, scope, result.ManifestId,
+            transaction is null ? CancellationToken.None : ct);
         return result;
     }
 
@@ -74,6 +75,14 @@ public sealed class CachingGoldenManifestRepository(
     {
         return _inner.GetByContractManifestVersionAsync(scope, manifestVersion, ct);
     }
+
+    /// <inheritdoc />
+    public Task<ManifestDocument?> GetByRunAndContractManifestVersionAsync(
+        ScopeContext scope,
+        Guid runId,
+        string manifestVersion,
+        CancellationToken ct) =>
+        _inner.GetByRunAndContractManifestVersionAsync(scope, runId, manifestVersion, ct);
 
     /// <inheritdoc />
     public Task<IReadOnlyList<ManifestDocument>> ListPriorCommittedForRetrievalAsync(
@@ -100,7 +109,7 @@ public sealed class CachingGoldenManifestRepository(
         if (transaction is null)
         {
             foreach (Guid manifestId in superseded)
-                await EvictCachedManifestAsync(scope, manifestId, cancellationToken);
+                await EvictCachedManifestAsync(scope, manifestId, CancellationToken.None);
         }
 
         return superseded;
@@ -117,7 +126,8 @@ public sealed class CachingGoldenManifestRepository(
         CancellationToken cancellationToken)
     {
         await _inner.UpdateSealedHasherBoundSliceAsync(scope, manifest, cancellationToken);
-        await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, scope, manifest.ManifestId, cancellationToken);
+        // The SQL update has committed, so finish invalidation even if the caller cancels.
+        await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, scope, manifest.ManifestId, CancellationToken.None);
     }
 
     private static ScopeContext AmbientScope(ManifestDocument manifest)

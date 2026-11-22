@@ -77,16 +77,13 @@ public sealed partial class CosmosAgentExecutionTraceRepository
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+    public Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(
         ScopeContext scope,
         string runId,
         CancellationToken cancellationToken = default)
     {
         _ = scope;
-        IReadOnlyList<AgentTypeDeploymentProjection> rows =
-            await QueryAgentTypeDeploymentProjectionsByRunIdAsync(runId, cancellationToken);
-
-        return DistinctFallbackAgentTypes(rows);
+        return QueryFallbackAgentTypesByRunIdAsync(runId, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -103,33 +100,19 @@ public sealed partial class CosmosAgentExecutionTraceRepository
 
         foreach (string rid in normalized)
         {
-            IReadOnlyList<AgentTypeDeploymentProjection> rows =
-                await QueryAgentTypeDeploymentProjectionsByRunIdAsync(rid, cancellationToken);
-            map[rid] = DistinctFallbackAgentTypes(rows);
+            map[rid] = await QueryFallbackAgentTypesByRunIdAsync(rid, cancellationToken);
         }
 
         return map;
     }
 
-    private static IReadOnlyList<string> DistinctFallbackAgentTypes(IReadOnlyList<AgentTypeDeploymentProjection> rows)
-    {
-        return rows
-            .Where(static row => AgentExecutionTraceDegradationProbe.LlmResourceFallbackModelDeployment(row.ModelDeploymentName))
-            .Select(static row => row.AgentType)
-            .Where(static agentType => !string.IsNullOrWhiteSpace(agentType))
-            .Select(static agentType => agentType!)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(static agentType => agentType, StringComparer.OrdinalIgnoreCase)
-            .ToArray();
-    }
-
-    private async Task<IReadOnlyList<AgentTypeDeploymentProjection>> QueryAgentTypeDeploymentProjectionsByRunIdAsync(
+    private async Task<IReadOnlyList<string>> QueryFallbackAgentTypesByRunIdAsync(
         string runId,
         CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        Dictionary<string, AgentTypeDeploymentProjection> merged = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> agentTypes = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(runId))
         {
@@ -138,12 +121,15 @@ public sealed partial class CosmosAgentExecutionTraceRepository
 
             foreach (AgentTypeDeploymentProjection row in rows)
             {
-                string agentType = row.AgentType ?? string.Empty;
-                merged.TryAdd(agentType, row);
+                if (!string.IsNullOrWhiteSpace(row.AgentType)
+                    && AgentExecutionTraceDegradationProbe.LlmResourceFallbackModelDeployment(row.ModelDeploymentName))
+                {
+                    agentTypes.Add(row.AgentType);
+                }
             }
         }
 
-        return merged.Values.ToList();
+        return agentTypes.OrderBy(static agentType => agentType, StringComparer.OrdinalIgnoreCase).ToArray();
     }
 
     private async Task<IReadOnlyList<AgentTypeDeploymentProjection>> QueryAgentTypeDeploymentProjectionsForPartitionRunIdAsync(
@@ -248,11 +234,14 @@ public sealed partial class CosmosAgentExecutionTraceRepository
             countQuery,
             requestOptions: CosmosAgentTraceQueryCore.PartitionedByRunId(runId));
 
-        if (!countIt.HasMoreResults)
-            return 0;
+        // Cosmos can return an empty page before the scalar count.
+        while (countIt.HasMoreResults)
+        {
+            FeedResponse<int> countPage = await countIt.ReadNextAsync(cancellationToken);
+            foreach (int count in countPage.Resource)
+                return count;
+        }
 
-        FeedResponse<int> countPage = await countIt.ReadNextAsync(cancellationToken);
-
-        return countPage.Resource.FirstOrDefault();
+        return 0;
     }
 }

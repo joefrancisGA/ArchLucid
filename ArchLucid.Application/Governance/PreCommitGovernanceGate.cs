@@ -111,6 +111,19 @@ public sealed class PreCommitGovernanceGate(
             : SimulateSyntheticFindingsInternalAsync(runId, syntheticSeverity, syntheticCount, null, null, requireScopedRun: true, cancellationToken);
     }
 
+    /// <summary>Reject invalid global threshold configuration before evaluating assignments.</summary>
+    public static PreCommitGateResult? ValidateGlobalThresholdConfiguration(string? threshold)
+    {
+        if (!PreCommitGateThresholdParser.IsInvalidConfiguredThreshold(threshold))
+            return null;
+
+        return new PreCommitGateResult
+        {
+            Blocked = true,
+            Reason = "Commit blocked: global pre-commit governance threshold is invalid."
+        };
+    }
+
     private async Task<PreCommitGateResult> SimulateSyntheticFindingsInternalAsync(
         string runId,
         FindingSeverity? syntheticSeverity,
@@ -130,8 +143,18 @@ public sealed class PreCommitGovernanceGate(
                 throw new GoldenManifestSchemaValidationException(manifestSchemaResult);
         }
 
-        if (!_options.Value.PreCommitGateEnabled || !Guid.TryParse(runId, out Guid runKey))
-            return PreCommitGateResult.Allowed();
+        PreCommitGateResult? preflight = ValidateRunIdForGovernance(runId, _options.Value.PreCommitGateEnabled);
+        if (preflight is not null)
+            return preflight;
+
+        if (_options.Value.PreCommitGateEnabled)
+        {
+            PreCommitGateResult? configurationFailure = ValidateGlobalThresholdConfiguration(_options.Value.PreCommitGateThreshold);
+            if (configurationFailure is not null)
+                return configurationFailure;
+        }
+
+        Guid runKey = Guid.Parse(runId);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         bool needsRunHeader = preloadedData?.ScopePolicyPackAssignments is null
@@ -153,8 +176,10 @@ public sealed class PreCommitGovernanceGate(
                     .ConfigureAwait(false)
                 : []);
 
-        PolicyPackAssignment? enforcing = assignments.Where(static a => a.IsEnabled && (a.BlockCommitOnCritical || a.BlockCommitMinimumSeverity.HasValue))
-            .OrderByDescending(static a => a.AssignedUtc).FirstOrDefault();
+        PolicyPackAssignment[] enforcingAssignments = assignments
+            .Where(static a => a.IsEnabled && (a.BlockCommitOnCritical || a.BlockCommitMinimumSeverity.HasValue))
+            .OrderByDescending(static a => a.AssignedUtc)
+            .ToArray();
 
         List<Finding> findings;
 
@@ -204,12 +229,9 @@ public sealed class PreCommitGovernanceGate(
                 findings,
                 cancellationToken).ConfigureAwait(false);
 
-        if (enforcing is not null)
-            return PreCommitGateEvaluator.EvaluateForAssignment(
-                findings,
-                enforcing,
-                _options.Value,
-                latestDispositions);
+        if (enforcingAssignments.Length > 0)
+            return PreCommitGateEvaluator.EvaluateAllAssignments(
+                findings, enforcingAssignments, _options.Value, latestDispositions);
 
         FindingSeverity? globalThreshold = PreCommitGateThresholdParser.TryParseMinimumSeverity(_options.Value.PreCommitGateThreshold);
 
@@ -223,6 +245,27 @@ public sealed class PreCommitGovernanceGate(
             policyPackIdLabel: "global-pre-commit-threshold",
             _options.Value.WarnOnlySeverities,
             latestDispositions);
+    }
+
+    /// <summary>
+    ///     Returns a terminal result for disabled governance or an invalid run identifier.
+    ///     A valid run identifier with governance enabled must continue through the gate.
+    /// </summary>
+    public static PreCommitGateResult? ValidateRunIdForGovernance(string runId, bool governanceEnabled)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!governanceEnabled)
+            return PreCommitGateResult.Allowed();
+
+        if (!Guid.TryParse(runId, out Guid runKey) || runKey == Guid.Empty)
+            return new PreCommitGateResult
+            {
+                Blocked = true,
+                Reason = "Commit blocked: run id is invalid for pre-commit governance evaluation."
+            };
+
+        return null;
     }
 
     private static Finding CreateSyntheticFinding(string runId, int index, FindingSeverity severity)

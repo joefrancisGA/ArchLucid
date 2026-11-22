@@ -54,7 +54,7 @@ internal static partial class GraphSnapshotRelationalRead
         {
             if (!propsByNode.TryGetValue(pr.GraphNodeRowId, out Dictionary<string, string>? dict))
             {
-                dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                dict = new Dictionary<string, string>(StringComparer.Ordinal);
                 propsByNode[pr.GraphNodeRowId] = dict;
             }
 
@@ -65,7 +65,7 @@ internal static partial class GraphSnapshotRelationalRead
         foreach (GraphNodeRow r in nodeRows)
         {
             propsByNode.TryGetValue(r.GraphNodeRowId, out Dictionary<string, string>? props);
-            props ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            props ??= new Dictionary<string, string>(StringComparer.Ordinal);
 
             result.Add(
                 new GraphNode

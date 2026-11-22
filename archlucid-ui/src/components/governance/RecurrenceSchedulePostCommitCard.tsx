@@ -39,6 +39,7 @@ import {
 } from "@/lib/governance/recurrence-schedule-architecture-scope";
 import {
   parseRecurrenceSchedulePostCommitOpenFromSearch,
+  RECURRENCE_SCHEDULE_POST_COMMIT_OPEN_PARAM,
   recurrenceSchedulePostCommitDisclosureHrefFromSearch,
 } from "@/lib/governance/recurrence-schedule-post-commit-disclosure-url";
 
@@ -63,20 +64,22 @@ export function RecurrenceSchedulePostCommitCard({
   pagePrimaryOwnedElsewhere = false,
 }: RecurrenceSchedulePostCommitCardProps) {
   const pathname = usePathname() ?? "/";
-  const [open, setOpenState] = useState(
-    () =>
-      parseRecurrenceSchedulePostCommitOpenFromSearch(null) || hasStickinessPrompt,
-  );
+  const [open, setOpenState] = useState(hasStickinessPrompt);
   const openRef = useRef(open);
   openRef.current = open;
   const syncOpenToUrl = useCallback(
     (nextOpen: boolean) => {
       commitHrefIfChanged(
-        recurrenceSchedulePostCommitDisclosureHrefFromSearch(readWindowLocationSearch(), nextOpen, pathname),
+        recurrenceSchedulePostCommitDisclosureHrefFromSearch(
+          readWindowLocationSearch(),
+          nextOpen,
+          pathname,
+          hasStickinessPrompt,
+        ),
         { notify: false },
       );
     },
-    [pathname],
+    [hasStickinessPrompt, pathname],
   );
   const setOpen = useCallback(
     (nextOpen: boolean) => {
@@ -95,8 +98,9 @@ export function RecurrenceSchedulePostCommitCard({
     const syncOpenFromUrl = (): void => {
       const next =
         parseRecurrenceSchedulePostCommitOpenFromSearch(
-          new URLSearchParams(window.location.search).get("recurrenceSchedulePostCommitOpen"),
-        ) || hasStickinessPrompt;
+          new URLSearchParams(window.location.search).get(RECURRENCE_SCHEDULE_POST_COMMIT_OPEN_PARAM),
+          hasStickinessPrompt,
+        );
 
       if (openRef.current === next) {
         return;
@@ -134,15 +138,26 @@ export function RecurrenceSchedulePostCommitCard({
     }
   }, [runId]);
 
+  const scheduleLoadVersion = useRef(0);
   const reload = useCallback(async (): Promise<void> => {
-    const rows = await listArchitectureReviewRecurrenceSchedules();
-    setSchedules(
-      filterRecurrenceSchedulesForReviewScope({
-        schedules: rows,
-        sourceRunId: runId,
-        architectureId,
-      }),
-    );
+    const version = ++scheduleLoadVersion.current;
+    try {
+      const rows = await listArchitectureReviewRecurrenceSchedules();
+
+      if (version === scheduleLoadVersion.current) {
+        setSchedules(
+          filterRecurrenceSchedulesForReviewScope({
+            schedules: rows,
+            sourceRunId: runId,
+            architectureId,
+          }),
+        );
+      }
+    } catch (error) {
+      if (version === scheduleLoadVersion.current) {
+        throw error;
+      }
+    }
   }, [architectureId, runId]);
 
   useEffect(() => {
@@ -160,6 +175,7 @@ export function RecurrenceSchedulePostCommitCard({
 
     return () => {
       canceled = true;
+      scheduleLoadVersion.current++;
     };
   }, [reload]);
 

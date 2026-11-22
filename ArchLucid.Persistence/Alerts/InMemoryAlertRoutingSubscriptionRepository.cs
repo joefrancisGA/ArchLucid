@@ -12,7 +12,12 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
     {
         ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
+            if (_items.Exists(item => item.RoutingSubscriptionId == subscription.RoutingSubscriptionId))
+                throw new InvalidOperationException("An alert routing subscription with this ID already exists.");
+
             _items.Add(Copy(subscription));
+        }
         return Task.CompletedTask;
     }
 

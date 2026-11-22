@@ -116,6 +116,7 @@ public sealed class DapperFindingRecordMuteRepository(ISqlConnectionFactory conn
                     MuteExpiresAtUtc = expiresAtUtc?.UtcDateTime,
                     scope.TenantId,
                     scope.WorkspaceId,
+                    scope.ProjectId,
                     ScopeProjectId = scope.ProjectId
                 },
                 cancellationToken: ct));
@@ -164,6 +165,7 @@ public sealed class DapperFindingRecordMuteRepository(ISqlConnectionFactory conn
                     RunId = runId,
                     scope.TenantId,
                     scope.WorkspaceId,
+                    scope.ProjectId,
                     ScopeProjectId = scope.ProjectId
                 },
                 cancellationToken: ct));

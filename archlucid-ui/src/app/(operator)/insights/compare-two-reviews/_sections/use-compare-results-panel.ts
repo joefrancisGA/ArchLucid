@@ -22,6 +22,7 @@ import { buildCompareExecutionModeDeltaView } from "@/lib/review-quality/compare
 import { useComparisonSearchQuery } from "@/hooks/use-comparison-search-query";
 import { useComparisonDriftDownload } from "@/hooks/use-comparison-drift-download";
 import type { CompareResultsPanelProps } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanel";
+import { COMPARE_LIVE_REGION_STALE_INPUTS_ANNOUNCEMENT } from "@/lib/architecture/compare-live-region-stale-inputs-copy";
 
 export function useCompareResultsPanel(props: CompareResultsPanelProps) {
   const {
@@ -45,8 +46,10 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
 
   const [pdfDownloading, setPdfDownloading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [pdfExportBlockedReason, setPdfExportBlockedReason] = useState<string | null>(null);
   const [docxDownloading, setDocxDownloading] = useState(false);
   const [docxError, setDocxError] = useState<string | null>(null);
+  const [docxExportBlockedReason, setDocxExportBlockedReason] = useState<string | null>(null);
 
   const comparisonSearchQuery = useComparisonSearchQuery({
     query: {
@@ -66,11 +69,14 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     if (!lastComparedPair) return;
     setPdfDownloading(true);
     setPdfError(null);
+    setPdfExportBlockedReason(null);
     try {
       await createAndDownloadComparisonPdf(lastComparedPair.left, lastComparedPair.right);
     } catch (e: unknown) {
       const failure = toApiLoadFailure(e);
-      setPdfError(comparisonReplayMutationBlockedReason(failure) ?? failure.message);
+      const blocked = comparisonReplayMutationBlockedReason(failure);
+      setPdfExportBlockedReason(blocked);
+      setPdfError(blocked ?? failure.message);
     } finally {
       setPdfDownloading(false);
     }
@@ -80,13 +86,16 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     if (golden === null) return;
     setDocxDownloading(true);
     setDocxError(null);
+    setDocxExportBlockedReason(null);
     try {
       await downloadArchitecturePackageDocx(golden.baseRunId, golden.targetRunId, {
         includeComparisonExplanation: true,
       });
     } catch (e: unknown) {
       const failure = toApiLoadFailure(e);
-      setDocxError(comparisonDocxMutationBlockedReason(failure) ?? failure.message);
+      const blocked = comparisonDocxMutationBlockedReason(failure);
+      setDocxExportBlockedReason(blocked);
+      setDocxError(blocked ?? failure.message);
     } finally {
       setDocxDownloading(false);
     }
@@ -100,6 +109,7 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     props.hasResultsToNavigate && citeBaselineRunId.trim().length > 0 && citeUpdatedRunId.trim().length > 0;
   const executionModeHonesty = resolveCompareExecutionModeHonesty(leftPickedSummary, rightPickedSummary);
   const showExecutionModeHonesty =
+    !showStaleInputsWarning &&
     props.hasResultsToNavigate &&
     citeBaselineRunId.trim().length > 0 &&
     citeUpdatedRunId.trim().length > 0 &&
@@ -128,16 +138,23 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     targetRunId: golden?.targetRunId ?? null,
   });
   const packAssignmentDeltaView = buildComparePackAssignmentDeltaView(governanceDiffState.view);
-  const executionModeDeltaView = buildCompareExecutionModeDeltaView(executionModeHonesty);
+  const trustExecutionModeHonesty = showStaleInputsWarning ? null : executionModeHonesty;
+  const executionModeDeltaView = buildCompareExecutionModeDeltaView(trustExecutionModeHonesty);
   const newFindingTrustLanes =
     golden !== null ? buildCompareNewFindingTrustLaneRows(findingCorrelationState.lifecycleRecords) : [];
   const usesCurrentEffectiveOnly = governanceDiffState.view?.usesCurrentEffectiveOnly === true;
   const hasAiNarrative = comparisonNarrative !== null || props.aiExplanation !== null;
   const showLoadedComparisonChrome = golden !== null;
-  const trustExecutionModeHonesty = showStaleInputsWarning ? null : executionModeHonesty;
   const showTrustBanner = showLoadedComparisonChrome;
   const showVerdictSummary = showLoadedComparisonChrome;
   const verdictSummary = golden !== null ? buildCompareVerdictSummary(golden) : null;
+
+  useEffect(() => {
+    if (showStaleInputsWarning) {
+      setLiveAnnouncement(COMPARE_LIVE_REGION_STALE_INPUTS_ANNOUNCEMENT);
+      return;
+    }
+  }, [showStaleInputsWarning]);
 
   useEffect(() => {
     if (loading || verdictSummary === null || lastComparedPair === null) {
@@ -165,8 +182,10 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     liveAnnouncement,
     pdfDownloading,
     pdfError,
+    pdfExportBlockedReason,
     docxDownloading,
     docxError,
+    docxExportBlockedReason,
     handleDownloadPdf,
     handleDownloadDocx,
     showDocxDownload,

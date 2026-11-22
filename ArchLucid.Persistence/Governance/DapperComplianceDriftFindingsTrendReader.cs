@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -38,8 +40,8 @@ public sealed class DapperComplianceDriftFindingsTrendReader(IReadOnlyDbConnecti
         // surfaced to callers as a 503 via ApplicationProblemMapper.TryMapDatabaseException. SECOND-scale
         // offsets stay within int32 for date ranges up to ~68 years, and bucketMinutes (the only current
         // caller, GovernanceController) is always a whole number of minutes, so second precision loses
-        // nothing. (Floor-division identity floor(floor(a/b)/c) == floor(a/(b*c)) keeps this bucketing
-        // identical to the tick-based math InMemoryComplianceDriftFindingsTrendReader uses.)
+        // nothing when using completed seconds. DATEDIFF_BIG counts wall-clock boundaries, so subtract
+        // the early crossing when the event's fractional second precedes the origin's fraction.
 
         if (bucketSize.Ticks % TimeSpan.TicksPerSecond != 0)
             throw new ArgumentException("Bucket size must be a whole number of seconds.", nameof(bucketSize));
@@ -48,46 +50,47 @@ public sealed class DapperComplianceDriftFindingsTrendReader(IReadOnlyDbConnecti
 
         const string sql = """
                            SELECT
-                               DATEADD(
-                                   SECOND,
-                                   (DATEDIFF_BIG(SECOND, @FromUtc, OccurredUtc) / @BucketSeconds) * @BucketSeconds,
-                                   @FromUtc) AS BucketUtc,
+                               bucket.BucketUtc,
                                SUM(CASE WHEN EventType IN @OpenedTypes THEN 1 ELSE 0 END) AS OpenFindingsCount,
                                SUM(CASE WHEN EventType IN @ResolvedTypes THEN 1 ELSE 0 END) AS ResolvedFindingsCount
                            FROM dbo.AuditEvents
+                           CROSS APPLY (VALUES (DATEADD(
+                               SECOND,
+                               ((DATEDIFF_BIG(SECOND, @FromUtc, OccurredUtc)
+                                   - CASE WHEN DATEPART(NANOSECOND, OccurredUtc) < DATEPART(NANOSECOND, @FromUtc)
+                                          THEN 1 ELSE 0 END) / @BucketSeconds) * @BucketSeconds,
+                               @FromUtc))) AS bucket(BucketUtc)
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
                              AND ProjectId = @ProjectId
                              AND OccurredUtc >= @FromUtc
                              AND OccurredUtc < @ToUtc
                              AND EventType IN @AllTypes
-                           GROUP BY DATEADD(
-                               SECOND,
-                               (DATEDIFF_BIG(SECOND, @FromUtc, OccurredUtc) / @BucketSeconds) * @BucketSeconds,
-                               @FromUtc);
+                           GROUP BY bucket.BucketUtc;
                            """;
 
         string[] allTypes = ComplianceDriftFindingsTrendAuditTypes.Opened
             .Concat(ComplianceDriftFindingsTrendAuditTypes.Resolved)
             .ToArray();
+        DynamicParameters parameters = new(new
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            BucketSeconds = bucketSeconds,
+            OpenedTypes = ComplianceDriftFindingsTrendAuditTypes.Opened,
+            ResolvedTypes = ComplianceDriftFindingsTrendAuditTypes.Resolved,
+            AllTypes = allTypes,
+        });
+        parameters.Add("FromUtc", fromUtc, DbType.DateTime2, scale: 7);
+        parameters.Add("ToUtc", toUtc, DbType.DateTime2, scale: 7);
 
         await using SqlConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         IEnumerable<BucketRow> rows = await connection.QueryAsync<BucketRow>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId,
-                    FromUtc = fromUtc,
-                    ToUtc = toUtc,
-                    BucketSeconds = bucketSeconds,
-                    OpenedTypes = ComplianceDriftFindingsTrendAuditTypes.Opened,
-                    ResolvedTypes = ComplianceDriftFindingsTrendAuditTypes.Resolved,
-                    AllTypes = allTypes,
-                },
+                parameters,
                 cancellationToken: cancellationToken));
 
         Dictionary<DateTime, ComplianceDriftFindingsBucketCounts> map = new();

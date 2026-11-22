@@ -1,3 +1,5 @@
+using System.Data.SqlTypes;
+
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -58,6 +60,9 @@ public sealed class CrossReviewFindingLifecycleService : ICrossReviewFindingLife
                 request.DispositionsSinceUtc,
                 cancellationToken);
 
-        return CrossReviewLatestDispositionMap.Build(reviewEvents);
+        // The map stably orders by occurrence time. Supply the SQL Server EventId
+        // order first so the comparison uses the same tie-break as the risk register.
+        return CrossReviewLatestDispositionMap.Build(
+            reviewEvents.OrderBy(static reviewEvent => new SqlGuid(reviewEvent.EventId)).ToArray());
     }
 }

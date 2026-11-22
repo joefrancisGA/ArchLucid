@@ -95,7 +95,13 @@ export function governanceFindingsArchitectureScopeHrefFromSearch(
     if (architectureId === null) {
       params.set("architectureId", GOVERNANCE_FINDINGS_ARCHITECTURE_SCOPE_ALL);
     } else {
-      params.set("architectureId", architectureId);
+      const trimmedArchitectureId = architectureId.trim();
+
+      if (trimmedArchitectureId.length === 0) {
+        params.set("architectureId", GOVERNANCE_FINDINGS_ARCHITECTURE_SCOPE_ALL);
+      } else {
+        params.set("architectureId", trimmedArchitectureId);
+      }
     }
     },
   });

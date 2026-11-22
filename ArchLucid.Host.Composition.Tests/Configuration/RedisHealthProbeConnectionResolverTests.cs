@@ -124,6 +124,26 @@ public sealed class RedisHealthProbeConnectionResolverTests
             .Be("hot");
     }
 
+    [Theory]
+    [InlineData("   ", "llm")]
+    [InlineData("  projection  ", "projection")]
+    public void TryResolve_graph_projection_normalizes_projection_endpoint_before_selecting_it(
+        string projectionRedis,
+        string expectedRedis)
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{KnowledgeGraphProjectionCacheOptions.SectionName}:CacheProvider"] = "Distributed",
+                [$"{KnowledgeGraphProjectionCacheOptions.SectionName}:RedisConnectionString"] = projectionRedis,
+                [$"{LlmCompletionResponseCacheOptions.SectionName}:RedisConnectionString"] = "llm",
+            })
+            .Build();
+
+        RedisHealthProbeConnectionResolver.TryResolveGraphProjectionDistributedRedisConnectionString(configuration)
+            .Should().Be(expectedRedis);
+    }
+
     [Fact]
     public void TryResolve_graph_projection_distributed_redis_when_auto_promotes_on_multi_replica()
     {

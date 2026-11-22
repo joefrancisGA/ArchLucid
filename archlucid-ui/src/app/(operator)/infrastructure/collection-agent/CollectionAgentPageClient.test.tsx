@@ -50,14 +50,14 @@ describe("collection agent omission copy (P-16, P-17)", () => {
     expect(collectionRunStatusLabel("Running")).toBe("Collection is running.");
   });
 
-  it("does not link View changes when imported snapshot id is empty", () => {
+  it("does not link View changes when imported snapshot id is blank", () => {
     useTriggerCollectionRunMutationMock.mockReturnValue({
       error: null,
       isPending: false,
       mutate: vi.fn(),
     });
     useCollectionRunsQueryMock.mockReturnValue({
-      data: [{ ...successfulRun(), importedSnapshotId: "" }],
+      data: [{ ...successfulRun(), importedSnapshotId: "   " }],
       isPending: false,
       isError: false,
     });
@@ -219,6 +219,26 @@ describe("CollectionAgentPageClient", () => {
     fireEvent.click(screen.getAllByRole("row")[1]!);
 
     expect(screen.getByText("Reader denied")).toBeInTheDocument();
+  });
+
+  it("leaves Enter on a failed run's imported snapshot link to the link", () => {
+    useCollectionRunsQueryMock.mockReturnValue({
+      data: [{ ...successfulRun(), runId: "run-2", status: "Failed", errorSummary: "Reader denied" }],
+      isPending: false,
+      isError: false,
+    });
+
+    render(<CollectionAgentPageClient />);
+
+    const link = screen.getByRole("link", { name: "Open drift for this snapshot" });
+    expect(fireEvent.keyDown(link, { key: "Enter" })).toBe(true);
+    expect(screen.queryByText("Reader denied")).not.toBeInTheDocument();
+
+    const row = screen.getAllByRole("row")[1]!;
+    fireEvent.keyDown(row, { key: "Enter" });
+    expect(screen.getByText("Reader denied")).toBeInTheDocument();
+    fireEvent.keyDown(row, { key: " " });
+    expect(screen.queryByText("Reader denied")).not.toBeInTheDocument();
   });
 
   it("shows empty and failed-load states without an empty table", () => {

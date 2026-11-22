@@ -77,7 +77,7 @@ public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepositor
             WasSuppressed = true,
             WasReopened = false,
             Reason =
-                "Suppression window elapsed, but a prior open or acknowledged alert still exists for this key. Resolve or acknowledge it to allow a new composite alert.",
+                "Suppression window elapsed, but a prior open or acknowledged alert still exists for this key. Resolve it to allow a new composite alert.",
             DeduplicationKey = dedupeKey,
         };
     }

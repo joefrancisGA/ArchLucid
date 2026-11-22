@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.archlucid.com/cross-product/architecture-snapshot-published/1.0.0.json",
+  "title": "ArchitectureSnapshotPublished v1.0.0 (proposed cross-product envelope)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "schemaVersion",
+    "messageId",
+    "tenantId",
+    "occurredAt",
+    "producer",
+    "correlationId",
+    "payload",
+    "evidenceRefs"
+  ],
+  "properties": {
+    "contract": {
+      "const": "architecture.snapshot.published"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "messageId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer": {
+      "const": "archlucid"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "graphSnapshotId",
+        "contextSnapshotId",
+        "runId",
+        "createdUtc",
+        "contentDigest"
+      ],
+      "properties": {
+        "graphSnapshotId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "contextSnapshotId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "runId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "createdUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "contentDigest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "sourceGraphSchemaVersion": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  }
+}

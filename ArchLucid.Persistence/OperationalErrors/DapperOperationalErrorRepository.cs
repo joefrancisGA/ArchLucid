@@ -103,7 +103,7 @@ public sealed class DapperOperationalErrorRepository(
             parameters.Add("Search", $"%{criteria.Search.Trim()}%");
         }
 
-        sql.Append(" ORDER BY OccurredUtc DESC");
+        sql.Append(" ORDER BY OccurredUtc DESC, Id DESC");
 
         await using SqlConnection connection =
             await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);

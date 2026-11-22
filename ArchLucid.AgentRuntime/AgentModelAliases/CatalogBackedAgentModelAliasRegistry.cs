@@ -18,6 +18,9 @@ public sealed class CatalogBackedAgentModelAliasRegistry(
         tierResolver ?? throw new ArgumentNullException(nameof(tierResolver));
 
     private readonly object _cacheGate = new();
+    // Loading must never hold the cache gate used by async bootstrap invalidation.
+    private readonly object _reloadGate = new();
+    private int _cacheGeneration;
     private IReadOnlyDictionary<string, AgentModelAliasRegistryEntry>? _cachedEntries;
 
     public void Invalidate()
@@ -25,6 +28,7 @@ public sealed class CatalogBackedAgentModelAliasRegistry(
         lock (_cacheGate)
         {
             _cachedEntries = null;
+            _cacheGeneration++;
         }
     }
 
@@ -73,6 +77,19 @@ public sealed class CatalogBackedAgentModelAliasRegistry(
             {
                 return _cachedEntries;
             }
+        }
+
+        // The bootstrapper calls Invalidate() asynchronously; never wait for it
+        // while holding _cacheGate or a circular lock inversion can occur.
+        lock (_reloadGate)
+        {
+            lock (_cacheGate)
+            {
+                if (_cachedEntries is not null)
+                {
+                    return _cachedEntries;
+                }
+            }
 
             using IServiceScope scope = _scopeFactory.CreateScope();
             IAgentModelCatalogRepository catalogRepository =
@@ -81,24 +98,46 @@ public sealed class CatalogBackedAgentModelAliasRegistry(
             AgentModelCatalogBootstrapper bootstrapper = new(catalogRepository, this);
             bootstrapper.EnsureSeededAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-            IReadOnlyList<AgentModelCatalogRow> rows =
-                catalogRepository.ListAllAsync(CancellationToken.None).GetAwaiter().GetResult();
-
-            Dictionary<string, AgentModelAliasRegistryEntry> map = new(StringComparer.OrdinalIgnoreCase);
-
-            foreach (AgentModelCatalogRow row in rows)
+            while (true)
             {
-                if (!AgentModelCatalogOfferability.IsRegistryVisible(row))
+                int generation;
+                lock (_cacheGate)
                 {
-                    continue;
+                    generation = _cacheGeneration;
                 }
 
-                map[row.AliasId] = MapRow(row);
+                IReadOnlyList<AgentModelCatalogRow> rows =
+                    catalogRepository.ListAllAsync(CancellationToken.None).GetAwaiter().GetResult();
+
+                Dictionary<string, AgentModelAliasRegistryEntry> map = new(StringComparer.OrdinalIgnoreCase);
+
+                foreach (AgentModelCatalogRow row in rows)
+                {
+                    if (!AgentModelCatalogOfferability.IsRegistryVisible(row))
+                    {
+                        continue;
+                    }
+
+                    map[row.AliasId] = MapRow(row);
+                }
+
+                lock (_cacheGate)
+                {
+                    if (_cachedEntries is not null)
+                    {
+                        return _cachedEntries;
+                    }
+
+                    // A concurrent mutation may have invalidated the rows during loading.
+                    if (_cacheGeneration != generation)
+                    {
+                        continue;
+                    }
+
+                    _cachedEntries = map;
+                    return _cachedEntries;
+                }
             }
-
-            _cachedEntries = map;
-
-            return _cachedEntries;
         }
     }
 

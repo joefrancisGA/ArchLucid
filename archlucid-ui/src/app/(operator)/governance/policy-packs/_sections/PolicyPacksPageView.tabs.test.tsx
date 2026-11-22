@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { PolicyPacksPageView } from "./PolicyPacksPageView";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 import { policyPackPublishSuccessMessage } from "@/lib/governance/governance-mutation-outcome-copy";
+import { uiFailureFromMessage } from "@/lib/api-load-failure";
 
 function buildModel(overrides: Partial<PolicyPacksPageViewModel> = {}): PolicyPacksPageViewModel {
   return {
@@ -104,6 +105,16 @@ vi.mock("@/components/policy/PolicyPackImpactPreviewPanel", () => ({
 }));
 
 describe("PolicyPacksPageView tabs (TB-668)", () => {
+  it("lets classic operator users retry after a policy packs load failure", () => {
+    const load = vi.fn(async () => undefined);
+
+    render(<PolicyPacksPageView model={buildModel({ failure: uiFailureFromMessage("Load failed"), load })} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /retry/i }));
+
+    expect(load).toHaveBeenCalledOnce();
+  });
+
   it("exposes tablist semantics on My packs and Catalog", () => {
     render(<PolicyPacksPageView model={buildModel()} />);
 

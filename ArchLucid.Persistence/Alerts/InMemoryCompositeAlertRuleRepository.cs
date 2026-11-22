@@ -13,7 +13,12 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         ArgumentNullException.ThrowIfNull(rule);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
+            if (_items.Exists(item => item.CompositeRuleId == rule.CompositeRuleId))
+                throw new InvalidOperationException("A composite alert rule with this ID already exists.");
+
             _items.Add(CompositeAlertRuleRepositoryCore.CloneRule(rule));
+        }
         return Task.CompletedTask;
     }
 
@@ -64,6 +69,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         {
             List<CompositeAlertRule> result = CompositeAlertRuleRepositoryCore
                 .FilterByScope(_items, tenantId, workspaceId, projectId)
+                .OrderByDescending(static rule => rule.CreatedUtc)
                 .Select(CompositeAlertRuleRepositoryCore.CloneRule)
                 .ToList();
             return Task.FromResult<IReadOnlyList<CompositeAlertRule>>(result);
@@ -81,6 +87,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         {
             List<CompositeAlertRule> result = CompositeAlertRuleRepositoryCore
                 .FilterEnabledByScope(_items, tenantId, workspaceId, projectId)
+                .OrderByDescending(static rule => rule.CreatedUtc)
                 .Select(CompositeAlertRuleRepositoryCore.CloneRule)
                 .ToList();
             return Task.FromResult<IReadOnlyList<CompositeAlertRule>>(result);

@@ -4,10 +4,13 @@ import { cn } from "@/lib/utils";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { CompareGateOutcomeDeltaView } from "@/lib/review-quality/compare-gate-outcome-delta";
+import { COMPARE_GATE_OUTCOME_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-gate-outcome-empty-not-load-failure-copy";
+import { CompareGateOutcomeEmptyPartialHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareGateOutcomeEmptyPartialHonesty";
 
 export type CompareGateOutcomeDeltaPanelProps = {
   readonly view: CompareGateOutcomeDeltaView | null;
   readonly loading?: boolean;
+  readonly showEmptyNotLoadFailureHonesty?: boolean;
 };
 
 /** Compare-two-reviews pre-commit gate outcome — not a quality score. */
@@ -28,7 +31,22 @@ export function CompareGateOutcomeDeltaPanel(
   }
 
   if (props.view === null) {
-    return null;
+    if (!props.showEmptyNotLoadFailureHonesty) {
+      return null;
+    }
+    return (
+      <section
+        className="rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-950"
+        data-testid="compare-gate-outcome-empty-not-load-failure"
+      >
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {COMPARE_GATE_OUTCOME_EMPTY_NOT_LOAD_FAILURE_LINE}
+        </p>
+        <div className="mt-2">
+          <CompareGateOutcomeEmptyPartialHonesty />
+        </div>
+      </section>
+    );
   }
 
   const { baseline, target, changed } = props.view;

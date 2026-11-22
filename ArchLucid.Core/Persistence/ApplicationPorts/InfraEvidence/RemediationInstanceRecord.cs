@@ -156,6 +156,16 @@ public sealed class RemediationInstanceRecord
         init;
     }
 
+    /// <summary>
+    /// SQL Server-managed concurrency token. Null for records not yet loaded
+    /// from a rowversion-aware persistence query.
+    /// </summary>
+    public byte[]? RowVersion
+    {
+        get;
+        init;
+    }
+
     public DateTime UpdatedUtc
     {
         get;

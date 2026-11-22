@@ -95,9 +95,9 @@ export function useAppShellState() {
 
       setHelpGuidesOpenState(open);
 
-      if (tab !== null) {
-        setHelpGuidesInitialTab(tab);
-      }
+      // The URL omits helpTab for Guides; clear any previously selected tab
+      // when Back/Forward returns to that default.
+      setHelpGuidesInitialTab(tab ?? "guides");
 
       setHelpDocSearchOpenState(parseHelpDocSearchOpenFromSearch(params.get("helpSearchOpen")));
     };

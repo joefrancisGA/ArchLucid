@@ -5,6 +5,8 @@ public sealed class NoOpAgentOutputEvaluationRepository : IAgentOutputEvaluation
 {
     public Task AppendAsync(AgentOutputEvaluationInsert row, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         _ = row;
         return Task.CompletedTask;
     }

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { CopyIdButton } from "@/components/CopyIdButton";
+
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import {
   PATH_INSPECT_LONG_PATH_ID_OVERFLOW_LINE,
@@ -23,9 +25,9 @@ export function SecurityEvidencePathRankSortKeyDisclosure(props: {
       <p
         className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.micro)}
         data-testid={`remediation-factory-ranked-path-id-${props.pathId}`}
-        title={props.pathId}
       >
         {pathChipLabel}
+        <CopyIdButton value={props.pathId} aria-label="Copy full path ID" />
       </p>
       {shouldShowPathInspectLongPathIdHonesty(props.pathId) ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid={`remediation-factory-ranked-path-id-overflow-${props.pathId}`}>

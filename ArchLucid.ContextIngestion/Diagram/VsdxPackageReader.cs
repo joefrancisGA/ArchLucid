@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -9,11 +10,13 @@ namespace ArchLucid.ContextIngestion.Diagram;
 /// </summary>
 internal static class VsdxPackageReader
 {
+    private const int MaxPageXmlCharacters = 4_000_000;
+
     private static readonly XmlReaderSettings SafeXmlReaderSettings = new()
     {
         DtdProcessing = DtdProcessing.Prohibit,
         XmlResolver = null,
-        MaxCharactersInDocument = 4_000_000,
+        MaxCharactersInDocument = MaxPageXmlCharacters,
     };
 
     internal static VsdxPackageReadResult Read(byte[] packageBytes)
@@ -54,8 +57,13 @@ internal static class VsdxPackageReader
                 }
 
                 using Stream entryStream = entry.Open();
-                using StreamReader reader = new(entryStream);
-                string pageXml = reader.ReadToEnd();
+
+                if (!TryReadPageXml(entryStream, out string pageXml))
+                {
+                    warnings.Add($"Rejected oversized Visio page XML entry '{entry.FullName}'.");
+
+                    continue;
+                }
 
                 if (!string.IsNullOrWhiteSpace(pageXml))
                 {
@@ -84,6 +92,33 @@ internal static class VsdxPackageReader
             PageXmlDocuments = pageXmlDocuments,
             Warnings = warnings,
         };
+    }
+
+    private static bool TryReadPageXml(Stream entryStream, out string pageXml)
+    {
+        using StreamReader reader = new(entryStream);
+        StringBuilder content = new();
+        char[] buffer = new char[8192];
+
+        while (true)
+        {
+            int remaining = MaxPageXmlCharacters - content.Length;
+            int charactersRead = reader.ReadBlock(buffer, 0, Math.Min(buffer.Length, remaining + 1));
+
+            if (charactersRead == 0)
+                break;
+
+            if (charactersRead > remaining)
+            {
+                pageXml = string.Empty;
+                return false;
+            }
+
+            content.Append(buffer, 0, charactersRead);
+        }
+
+        pageXml = content.ToString();
+        return true;
     }
 
     internal static bool TryDecodePackageContent(string? content, out byte[] packageBytes, List<string> warnings)

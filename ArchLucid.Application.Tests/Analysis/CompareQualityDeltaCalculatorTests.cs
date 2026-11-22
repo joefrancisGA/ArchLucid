@@ -116,4 +116,31 @@ public sealed class CompareQualityDeltaCalculatorTests
 
         counts.Should().BeNull();
     }
+
+    [Fact]
+    public void Build_high_severity_delta_uses_severity_only_not_finding_taxonomy_dimension()
+    {
+        ArchitectureKnowledgeModel empty = new()
+        {
+            ModelId = "m1",
+            TenantId = "tenant",
+            RunId = "run-left",
+        };
+
+        ArchitectureFinding costStyledFinding = new()
+        {
+            FindingId = "f-cost",
+            Severity = FindingSeverity.Error,
+            Message = "cost ceiling",
+            Category = "cost",
+        };
+
+        CompareQualityDeltaCounts counts = CompareQualityDeltaCalculator.Build(
+            empty,
+            [],
+            empty,
+            [costStyledFinding])!;
+
+        counts.HighSeverityAfter.Should().Be(1);
+    }
 }

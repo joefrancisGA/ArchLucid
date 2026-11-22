@@ -248,8 +248,8 @@ export function buildQuickDecisionFindingsCsv(
       formatItsmFindingIdCell(finding.findingId),
       formatItsmRunIdCell(runId),
       severityLabelFromQuickDecisionFinding(finding),
-      escapeCsvCell(formatItsmFindingTitleCell(finding.title)),
-      escapeCsvCell(formatItsmFindingRecommendationCell(finding.recommendation)),
+      formatItsmFindingTitleCell(finding.title),
+      formatItsmFindingRecommendationCell(finding.recommendation),
       formatItsmFindingConfidenceCell(finding.confidenceLevel),
       formatItsmPolicyRuleIdCell(finding.policyRuleId),
       "trustLabel" in trustFields
@@ -269,9 +269,9 @@ export function buildQuickDecisionFindingsCsv(
       semanticSupportBand,
       resolveFindingSemanticSupportBandScorerVersion(finding),
       finding.isMuted ? "Muted" : humanReviewStatusLabelForExport(finding),
-      escapeCsvCell(formatFindingsCsvItsmLinkageCell(finding.itsmLinkedTicketsSummary)),
-      escapeCsvCell(recordStatus),
-    ].join(",");
+      formatFindingsCsvItsmLinkageCell(finding.itsmLinkedTicketsSummary),
+      recordStatus,
+    ].map(escapeCsvCell).join(",");
   });
 
   const exportRowsAbsentLine =

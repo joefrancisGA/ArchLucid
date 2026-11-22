@@ -68,12 +68,10 @@ internal static class ArchLucidDistributedCacheRegistrar
         if (!distributedProjectionCache)
             return;
 
-        string? kgRedis = kg.RedisConnectionString?.Trim();
-
         bool distributedCacheAlreadyRegistered = services.Any(static d => d.ServiceType == typeof(IDistributedCache));
 
         string redis = ResolveGraphProjectionRedisConnectionString(
-            kgRedis,
+            kg.RedisConnectionString,
             llm,
             hotPath,
             distributedCacheAlreadyRegistered);
@@ -99,8 +97,8 @@ internal static class ArchLucidDistributedCacheRegistrar
         if (distributedCacheAlreadyRegistered)
         return ResolveAlreadyRegisteredDistributedCacheRedisConnectionString(llm, hotPath, kgRedis);
 
-        if (!string.IsNullOrEmpty(kgRedis))
-            return kgRedis;
+        if (!string.IsNullOrWhiteSpace(kgRedis))
+            return kgRedis.Trim();
 
         return ResolveLlmOrHotPathRedisConnectionString(llm, hotPath);
     }

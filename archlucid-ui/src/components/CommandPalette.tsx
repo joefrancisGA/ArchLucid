@@ -344,6 +344,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
 
   useEffect(() => {
     const onOpenRequest = (event: Event): void => {
+      consumePendingCommandPaletteOpen();
       const detail = (event as CustomEvent<OpenCommandPaletteEventDetail>).detail;
       const initialQuery = detail?.initialQuery?.trim() ?? "";
 

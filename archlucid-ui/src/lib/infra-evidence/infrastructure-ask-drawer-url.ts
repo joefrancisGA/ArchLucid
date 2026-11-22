@@ -1,10 +1,25 @@
-import { buildInfrastructureAskHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  RESOURCE_HUB_CORRESPONDENCE_ID_PARAM,
+  RESOURCE_HUB_DIFF_ID_PARAM,
+  RESOURCE_HUB_FINDING_ID_PARAM,
+  RESOURCE_HUB_INSTANCE_ID_PARAM,
+  RESOURCE_HUB_SEED_NODE_ID_PARAM,
+  buildInfrastructureAskHref,
+} from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   isInfrastructureAskNavHref,
   isInfrastructureAskOverlayEligiblePath,
 } from "@/lib/infra-evidence/infrastructure-ask-overlay-path";
 
 export const INFRASTRUCTURE_ASK_OPEN_PARAM = "infrastructureAskOpen";
+
+const INFRASTRUCTURE_ASK_TARGET_PARAMS = [
+  RESOURCE_HUB_DIFF_ID_PARAM,
+  RESOURCE_HUB_FINDING_ID_PARAM,
+  RESOURCE_HUB_INSTANCE_ID_PARAM,
+  RESOURCE_HUB_CORRESPONDENCE_ID_PARAM,
+  RESOURCE_HUB_SEED_NODE_ID_PARAM,
+] as const;
 
 export function parseInfrastructureAskOpenFromSearch(raw: string | null | undefined): boolean {
   if (raw === null || raw === undefined) {
@@ -40,6 +55,7 @@ export function buildInfrastructureAskHandoffHref(
   const params = new URLSearchParams(currentSearch);
   const askParams = new URLSearchParams(askQuery);
 
+  INFRASTRUCTURE_ASK_TARGET_PARAMS.forEach((key) => params.delete(key));
   askParams.forEach((value, key) => {
     params.set(key, value);
   });

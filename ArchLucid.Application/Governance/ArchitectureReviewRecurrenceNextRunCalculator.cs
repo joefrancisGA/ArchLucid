@@ -79,6 +79,10 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculator(IScanScheduleC
         return DateTime.SpecifyKind(reference, DateTimeKind.Utc);
     }
 
-    private static DateTime SpecifyUtc(DateTime value) =>
-        value.Kind == DateTimeKind.Utc ? value : DateTime.SpecifyKind(value, DateTimeKind.Utc);
+    private static DateTime SpecifyUtc(DateTime value) => value.Kind switch
+    {
+        DateTimeKind.Utc => value,
+        DateTimeKind.Local => value.ToUniversalTime(),
+        _ => DateTime.SpecifyKind(value, DateTimeKind.Utc),
+    };
 }

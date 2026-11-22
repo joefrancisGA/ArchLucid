@@ -1,3 +1,5 @@
+using ArchLucid.Persistence.BlobStore;
+
 using Dapper;
 
 using Microsoft.Data.SqlClient;
@@ -15,6 +17,7 @@ internal static partial class ArtifactBundleRelationalRead
         SqlConnection connection,
         Guid bundleId,
         Guid artifactId,
+        IArtifactBlobStore blobStore,
         CancellationToken ct)
     {
         const string artifactSql = """
@@ -73,7 +76,7 @@ internal static partial class ArtifactBundleRelationalRead
             ArtifactType = row.ArtifactType,
             Name = row.Name,
             Format = row.Format,
-            Content = row.Content ?? string.Empty,
+            Content = await LoadArtifactContentAsync(row, blobStore, ct),
             ContentHash = row.ContentHash,
             Status = SynthesizedArtifactSliceStatusParser.Parse(row.GenerationStatus),
             Metadata = metadata,

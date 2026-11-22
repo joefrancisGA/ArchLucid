@@ -63,6 +63,16 @@ public sealed class InMemoryRetrievalGroundingTraceWriterTests
         rows[0].QueryText.Should().Be("network segmentation");
         rows[0].CreatedUtc.Should().Be(createdUtc);
         sut.Rows.Should().HaveCount(2);
+
+        IReadOnlyList<RetrievalGroundingTraceRecord> reread = await sut.GetByRunIdAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            CancellationToken.None);
+
+        rows[0].TraceId.Should().NotBeEmpty();
+        reread.Should().ContainSingle().Which.TraceId.Should().Be(rows[0].TraceId);
     }
 
     [Fact]
@@ -73,5 +83,35 @@ public sealed class InMemoryRetrievalGroundingTraceWriterTests
         Func<Task> act = async () => await sut.AppendAsync(null!, CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    [Fact]
+    public async Task AppendAsync_and_Rows_isolate_persisted_trace_from_caller_mutation()
+    {
+        InMemoryRetrievalGroundingTraceWriter sut = new();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        RetrievalGroundingTraceInsert insert = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            RunId = runId,
+            AgentName = "planner",
+            RetrievedChunkIds = new List<string> { "chunk-1" }
+        };
+
+        await sut.AppendAsync(insert, CancellationToken.None);
+        insert.AgentName = "changed after append";
+        ((List<string>)insert.RetrievedChunkIds)[0] = "changed-after-append";
+        sut.Rows[0].AgentName = "changed through rows";
+        ((List<string>)sut.Rows[0].RetrievedChunkIds)[0] = "changed-through-rows";
+
+        RetrievalGroundingTraceRecord row = (await sut.GetByRunIdAsync(
+            tenantId, workspaceId, projectId, runId, CancellationToken.None)).Single();
+        row.AgentName.Should().Be("planner");
+        row.RetrievedChunkIds.Should().Equal("chunk-1");
     }
 }

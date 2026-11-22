@@ -191,6 +191,7 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluator(
         string canonical = JsonSerializer.Serialize(
             rows
                 .OrderBy(static row => row.QualityDimension, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(static row => row.Reason, StringComparer.Ordinal)
                 .Select(static row => new { row.QualityDimension, row.Reason }),
             ContractJson.Default);
 
@@ -204,6 +205,9 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluator(
                 .OrderBy(static row => row.PolicyPackId)
                 .ThenBy(static row => row.PolicyPackVersion, StringComparer.Ordinal)
                 .ThenBy(static row => row.CoverageType, StringComparer.Ordinal)
+                .ThenBy(static row => row.SelectionState, StringComparer.Ordinal)
+                .ThenBy(static row => row.ExclusionReason, StringComparer.Ordinal)
+                .ThenBy(static row => row.QualityDimension, StringComparer.Ordinal)
                 .Select(static row => new
                 {
                     row.PolicyPackId,
@@ -224,6 +228,7 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluator(
             assignments
                 .OrderBy(static row => row.PolicyPackId)
                 .ThenBy(static row => row.PolicyPackVersion, StringComparer.Ordinal)
+                .ThenBy(static row => row.ScopeLevel)
                 .Select(static row => new { row.PolicyPackId, row.PolicyPackVersion, row.ScopeLevel }),
             ContractJson.Default);
 

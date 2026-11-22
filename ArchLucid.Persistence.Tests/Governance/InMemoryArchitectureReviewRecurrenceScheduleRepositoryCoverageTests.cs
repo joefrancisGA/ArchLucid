@@ -59,6 +59,30 @@ public sealed class InMemoryArchitectureReviewRecurrenceScheduleRepositoryCovera
     }
 
     [Fact]
+    public async Task Duplicate_schedule_id_does_not_create_a_second_due_review()
+    {
+        InMemoryArchitectureReviewRecurrenceScheduleRepository sut = new();
+        DateTime dueUtc = new(2026, 7, 10, 8, 0, 0, DateTimeKind.Utc);
+        ArchitectureReviewRecurrenceSchedule schedule = new()
+        {
+            ScheduleId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            SourceRunId = Guid.NewGuid(),
+            IsEnabled = true,
+            NextRunUtc = dueUtc
+        };
+
+        await sut.CreateAsync(schedule, CancellationToken.None);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.CreateAsync(schedule, CancellationToken.None));
+
+        IReadOnlyList<ArchitectureReviewRecurrenceSchedule> due =
+            await sut.ListDueAsync(dueUtc, take: 10, CancellationToken.None);
+        due.Should().ContainSingle().Which.ScheduleId.Should().Be(schedule.ScheduleId);
+    }
+
+    [Fact]
     public async Task Scheduler_changes_are_visible_only_after_update()
     {
         InMemoryArchitectureReviewRecurrenceScheduleRepository sut = new();

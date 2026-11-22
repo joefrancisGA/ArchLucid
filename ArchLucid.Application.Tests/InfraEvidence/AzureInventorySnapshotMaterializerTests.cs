@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Text;
+using System.Text.Json;
 
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Contracts.Common;
@@ -74,7 +75,45 @@ public sealed class AzureInventorySnapshotMaterializerTests
     }
 
     [Fact]
-    public async Task TryMaterializePackageAsync_reports_committed_snapshot_when_analysis_fails()
+    public async Task TryMaterializePackageAsync_hash_is_independent_of_same_endpoint_relationship_order()
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        Guid snapshotId = Guid.NewGuid();
+        AzureInventorySnapshotMaterializer sut = new(
+            CreateSnapshotRepository(scope, snapshotId, _ => { }).Object,
+            CreateIdentityDirectory(scope, snapshotId).Object,
+            CreateNoOpPostMaterializeCoordinator(),
+            NullLogger<AzureInventorySnapshotMaterializer>.Instance);
+        const string factory = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/source";
+        const string storage = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/target";
+        var associations = new[]
+        {
+            new { fromResourceId = factory, toResourceId = storage, associationType = AzureInventoryRelationshipAssociationTypes.AdfLinkedService },
+            new { fromResourceId = factory, toResourceId = storage, associationType = AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred },
+            new { fromResourceId = factory, toResourceId = storage, associationType = AzureInventoryRelationshipAssociationTypes.AdfReadsFrom },
+        };
+
+        AzureInventorySnapshotMaterializeResult first = await sut.TryMaterializePackageAsync(
+            scope, snapshotId, Guid.NewGuid(),
+            BuildZip("[]", networkAssociationsJson: JsonSerializer.Serialize(associations)),
+            AzureInventoryCaptureMethod.CustomerScript, "0.4.0", CancellationToken.None);
+        AzureInventorySnapshotMaterializeResult reversed = await sut.TryMaterializePackageAsync(
+            scope, snapshotId, Guid.NewGuid(),
+            BuildZip("[]", networkAssociationsJson: JsonSerializer.Serialize(associations.Reverse())),
+            AzureInventoryCaptureMethod.CustomerScript, "0.4.0", CancellationToken.None);
+
+        first.Succeeded.Should().BeTrue();
+        reversed.Succeeded.Should().BeTrue();
+        first.RelationshipCount.Should().Be(3);
+        reversed.RelationshipCount.Should().Be(3);
+        first.ContentHashSha256.Should().NotBeNull();
+        reversed.ContentHashSha256.Should().Equal(first.ContentHashSha256!);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TryMaterializePackageAsync_reports_committed_snapshot_when_analysis_fails(bool cancelLocally)
     {
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };
         Guid snapshotId = Guid.NewGuid();
@@ -88,7 +127,9 @@ public sealed class AzureInventorySnapshotMaterializerTests
         coordinator
             .Setup(c => c.OnSnapshotMaterializedAsync(scope, snapshotId, "sub", CancellationToken.None))
             .Callback(() => analysisStartedAfterWrite = snapshotWritten)
-            .ThrowsAsync(new InvalidOperationException("Analysis unavailable"));
+            .Returns(() => cancelLocally
+                ? Task.FromCanceled(new CancellationToken(canceled: true))
+                : Task.FromException(new InvalidOperationException("Analysis unavailable")));
         AzureInventorySnapshotMaterializer sut = new(
             snapshotRepository.Object,
             CreateIdentityDirectory(scope, snapshotId).Object,
@@ -305,8 +346,10 @@ public sealed class AzureInventorySnapshotMaterializerTests
             .Should().ContainSingle(resource => resource.ResourceType == "Microsoft.Storage/storageAccounts");
     }
 
-    [Fact]
-    public async Task TryMaterializePackageAsync_writes_logsTo_relationship_from_diagnostic_settings()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TryMaterializePackageAsync_writes_logsTo_relationship_from_diagnostic_settings(bool useFallbackNames)
     {
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };
         Guid snapshotId = Guid.NewGuid();
@@ -320,6 +363,8 @@ public sealed class AzureInventorySnapshotMaterializerTests
 
         Mock<ICloudResourceIdentityDirectory> identityDirectory = CreateIdentityDirectory(scope, snapshotId);
 
+        const string targetResourceId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string workspaceResourceId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/log1";
         byte[] zipBytes = BuildZipWithDiagnostics(
             """
             [
@@ -331,15 +376,18 @@ public sealed class AzureInventorySnapshotMaterializerTests
               }
             ]
             """,
-            """
-            [
-              {
-                "targetResourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
-                "name": "diag1",
-                "workspaceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/log1"
-              }
-            ]
-            """);
+            JsonSerializer.Serialize(new[]
+            {
+                new
+                {
+                    targetResourceId = useFallbackNames ? null : targetResourceId,
+                    resourceId = useFallbackNames ? targetResourceId : null,
+                    name = "diag1",
+                    workspaceId = useFallbackNames ? null : workspaceResourceId,
+                    workspaceResourceId = useFallbackNames ? workspaceResourceId : null,
+                    storageAccountId = (string?)null,
+                },
+            }));
 
         AzureInventorySnapshotMaterializer sut = new(
             snapshotRepository.Object,
@@ -363,6 +411,10 @@ public sealed class AzureInventorySnapshotMaterializerTests
         captured.Relationships.Should().ContainSingle(relationship =>
             relationship.RelationshipType == GraphEdgeTypes.ConnectsTo
             && relationship.ToAzureResourceId.EndsWith("/workspaces/log1", StringComparison.OrdinalIgnoreCase));
+        captured.Relationships.Should().ContainSingle();
+        captured.Diagnostics.Should().ContainSingle(diagnostic =>
+            diagnostic.TargetAzureResourceId == ArmResourceIdNormalizer.Normalize(targetResourceId)
+            && diagnostic.WorkspaceResourceId == ArmResourceIdNormalizer.Normalize(workspaceResourceId));
         captured.RelationshipCount.Should().Be(captured.Relationships.Count);
         result.RelationshipCount.Should().Be(captured.Relationships.Count);
         HashSet<string> visibleArmIds = AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(captured.Resources);
@@ -503,7 +555,8 @@ public sealed class AzureInventorySnapshotMaterializerTests
     private static byte[] BuildZip(
         string resourcesJson,
         string subscriptionId = "sub",
-        string? subscriptionName = null)
+        string? subscriptionName = null,
+        string? networkAssociationsJson = null)
     {
         using MemoryStream ms = new();
 
@@ -526,8 +579,17 @@ public sealed class AzureInventorySnapshotMaterializerTests
             }
 
             ZipArchiveEntry entry = archive.CreateEntry(AzureExtractorPackageZipEntryNames.Resources);
-            using StreamWriter writer = new(entry.Open(), Encoding.UTF8);
-            writer.Write(resourcesJson);
+            using (StreamWriter writer = new(entry.Open(), Encoding.UTF8))
+            {
+                writer.Write(resourcesJson);
+            }
+
+            if (networkAssociationsJson is not null)
+            {
+                ZipArchiveEntry associationsEntry = archive.CreateEntry(AzureExtractorPackageZipEntryNames.NetworkAssociations);
+                using StreamWriter associationWriter = new(associationsEntry.Open(), Encoding.UTF8);
+                associationWriter.Write(networkAssociationsJson);
+            }
         }
 
         return ms.ToArray();

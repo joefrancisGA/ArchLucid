@@ -115,6 +115,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
     lastCheckedAt,
     refresh,
     setHealth,
+    setSettings,
   } = useItsmConnectorPage({
     providerId: "jira",
     buildPageLoadResult: buildJiraPageLoadResult,
@@ -252,6 +253,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
         },
         { returnPath: livelihoodReturnPath },
       ) as TenantItsmOutboundSettingsResponse;
+      setSettings(saved);
       applySettings(saved);
       setSaveSuccess(JIRA_SAVE_SUCCESS);
     } catch (error: unknown) {
@@ -263,7 +265,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
     } finally {
       setIsSaving(false);
     }
-  }, [applySettings, issueTypeJson, jiraProjectKey, jiraSendInfo, livelihoodReturnPath, workspaceRoutingEditable]);
+  }, [applySettings, issueTypeJson, jiraProjectKey, jiraSendInfo, livelihoodReturnPath, setSettings, workspaceRoutingEditable]);
 
   const connectWithAtlassian = useCallback(async () => {
     if (!connectGate.allowed || connection === null) {

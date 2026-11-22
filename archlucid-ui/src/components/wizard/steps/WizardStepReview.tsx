@@ -504,9 +504,9 @@ export function WizardStepReview(props: {
             <dd className="m-0">
               {v.priorManifestVersion === null || v.priorManifestVersion === undefined
                 ? "Prior manifest was not stored."
-                : formState.touchedFields.priorManifestVersion === true
-                  ? v.priorManifestVersion.trim() || "Prior manifest was stored empty."
-                  : "Prior manifest was not entered."}
+                : v.priorManifestVersion.trim() || (formState.touchedFields.priorManifestVersion === true
+                  ? "Prior manifest was stored empty."
+                  : "Prior manifest was not entered.")}
             </dd>
           </dl>
         </ReadOnlyBlock>

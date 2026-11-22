@@ -11,6 +11,8 @@ public sealed class InMemoryAgentModelCatalogRepository : IAgentModelCatalogRepo
 
     public Task<int> CountAsync(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         lock (_gate)
         {
             return Task.FromResult(_rows.Count);
@@ -19,6 +21,8 @@ public sealed class InMemoryAgentModelCatalogRepository : IAgentModelCatalogRepo
 
     public Task<IReadOnlyList<AgentModelCatalogRow>> ListAllAsync(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         lock (_gate)
         {
             return Task.FromResult<IReadOnlyList<AgentModelCatalogRow>>(_rows.Select(AgentModelCatalogRepositoryCore.Clone).ToList());
@@ -27,6 +31,8 @@ public sealed class InMemoryAgentModelCatalogRepository : IAgentModelCatalogRepo
 
     public Task<AgentModelCatalogRow?> TryGetAsync(string aliasId, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (string.IsNullOrWhiteSpace(aliasId))
         {
             return Task.FromResult<AgentModelCatalogRow?>(null);
@@ -43,6 +49,8 @@ public sealed class InMemoryAgentModelCatalogRepository : IAgentModelCatalogRepo
 
     public Task UpsertAsync(AgentModelCatalogRow row, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(row);
 
         lock (_gate)

@@ -1180,6 +1180,40 @@ public sealed class RemediationInstanceServiceTests
             return Task.CompletedTask;
         }
 
+        public Task UpdateInstanceInScopeAsync(
+            ProjectScopeKey scope,
+            RemediationInstanceMutation mutation,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            int index = Instances.FindIndex(row =>
+                row.InstanceId == mutation.InstanceId
+                && scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId));
+            if (index < 0)
+                throw new InvalidOperationException("Scoped remediation instance was not found.");
+            Instances[index] = mutation.ApplyTo(Instances[index]);
+            return Task.CompletedTask;
+        }
+
+
+        public Task CommitVerificationInScopeAsync(
+            ProjectScopeKey scope,
+            RemediationInstanceMutation mutation,
+            RemediationEvidenceRecord evidence,
+            CancellationToken cancellationToken = default)
+        {
+            int index = Instances.FindIndex(row =>
+                row.InstanceId == mutation.InstanceId
+                && scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId));
+            if (index < 0 || evidence.InstanceId != mutation.InstanceId || evidence.TenantId != scope.TenantId)
+                throw new InvalidOperationException("Scoped verification mismatch.");
+
+            RemediationInstanceRecord updated = mutation.ApplyTo(Instances[index]);
+            Instances[index] = updated;
+            Evidence.Add(evidence);
+            return Task.CompletedTask;
+        }
+
         public Task<RemediationInstanceRecord?> TryGetByIdAsync(
             Guid tenantId,
             Guid instanceId,
@@ -1273,7 +1307,10 @@ public sealed class RemediationInstanceServiceTests
     {
         public List<RemediationPatternVersionRecord> Versions { get; } = [];
 
-        public Task InsertPatternAsync(RemediationPatternRecord pattern, CancellationToken cancellationToken = default) =>
+        public Task InsertDraftWithVersionAsync(
+            RemediationPatternRecord pattern,
+            RemediationPatternVersionRecord firstVersion,
+            CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
 
         public Task InsertVersionAsync(RemediationPatternVersionRecord version, CancellationToken cancellationToken = default) =>

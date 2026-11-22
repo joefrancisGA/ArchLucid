@@ -137,7 +137,7 @@ public sealed class AdminDeploymentStatusQuery(
 
             return report.Status.ToString();
         }
-        catch (Exception)
+        catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
             return AdminDeploymentStatusValues.Unknown;
         }
@@ -158,7 +158,7 @@ public sealed class AdminDeploymentStatusQuery(
 
             return snapshot.LatestScriptName.Trim();
         }
-        catch (Exception)
+        catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
             return AdminDeploymentStatusValues.Unknown;
         }

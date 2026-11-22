@@ -18,7 +18,7 @@ internal static partial class RunRepositorySql
                                      PinnedEvidencePackagePinsJson, PinnedEvidencePackagePinsHashSha256,
                                      PinnedFocusedPilotModeEnabled, PinnedFocusedPilotCloudProvider,
                                      PinnedArchitectureVersionContentHashSha256,
-                                     PinnedKnowledgeModelContentHashSha256
+                                     KnowledgeModelId, PinnedKnowledgeModelContentHashSha256
                                  )
                                  OUTPUT inserted.RowVersionStamp INTO @RunInsertOutput
                                  VALUES
@@ -34,7 +34,7 @@ internal static partial class RunRepositorySql
                                      @PinnedEvidencePackagePinsJson, @PinnedEvidencePackagePinsHashSha256,
                                      @PinnedFocusedPilotModeEnabled, @PinnedFocusedPilotCloudProvider,
                                      @PinnedArchitectureVersionContentHashSha256,
-                                     @PinnedKnowledgeModelContentHashSha256
+                                     @KnowledgeModelId, @PinnedKnowledgeModelContentHashSha256
                                  );
 
                                  SELECT RowVersionStamp FROM @RunInsertOutput;

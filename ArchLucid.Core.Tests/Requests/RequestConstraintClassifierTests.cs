@@ -50,6 +50,20 @@ public sealed class RequestConstraintClassifierTests
         RequestConstraintClassifier.HasPrivateNetworkingConstraint(request).Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData("Run private workloads", true)]
+    [InlineData("Run private endpoints", true)]
+    [InlineData("un-private workloads", false)]
+    [InlineData("Do not use private endpoints", false)]
+    public void HasPrivateNetworkingConstraint_distinguishes_un_prefix_from_word_endings(
+        string constraint,
+        bool expected)
+    {
+        ArchitectureRequest request = CreateRequest(constraints: [constraint]);
+
+        RequestConstraintClassifier.HasPrivateNetworkingConstraint(request).Should().Be(expected);
+    }
+
     [Fact]
     public void HasPrivateNetworkingConstraint_detects_private_networking_phrasing()
     {

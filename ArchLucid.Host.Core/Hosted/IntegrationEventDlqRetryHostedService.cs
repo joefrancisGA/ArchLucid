@@ -38,6 +38,8 @@ public static class IntegrationEventDlqRetryBackgroundWork
             if (deadLetters.Count == 0)
                 break;
 
+            int retained = deadLetters.Count;
+
             foreach (IntegrationEventOutboxDeadLetterRow row in deadLetters)
             {
                 if (IntegrationEventDlqRetryPolicy.IsPermanentlyFailed(row))
@@ -55,10 +57,14 @@ public static class IntegrationEventDlqRetryBackgroundWork
                     .ConfigureAwait(false);
 
                 if (ok)
+                {
                     requeued++;
+                    retained--;
+                }
             }
 
-            skip += deadLetters.Count;
+            // Requeued rows no longer occupy positions in the dead-letter listing.
+            skip += retained;
 
             if (deadLetters.Count < batchSize)
                 break;

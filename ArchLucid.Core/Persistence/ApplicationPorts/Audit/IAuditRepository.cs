@@ -10,6 +10,9 @@ namespace ArchLucid.Persistence.Audit;
 /// </summary>
 public interface IAuditRepository
 {
+    /// <summary>Maximum raw export rows retained by callers. One additional row is available for overflow detection.</summary>
+    const int BulkExportRowLimit = 10_000;
+
     /// <summary>
     ///     Appends a single audit event. Implementations must never update or delete rows;
     ///     this method is insert-only.
@@ -70,7 +73,7 @@ public interface IAuditRepository
     ///     <c>OccurredUtc</c> in the half-open range <c>[fromUtc, toUtc)</c> (i.e.
     ///     <c>&gt;= fromUtc</c> and <c>&lt; toUtc</c>), ordered oldest-first.
     /// </summary>
-    /// <param name="maxRows">Maximum rows to return; implementations clamp to 1–10,000.</param>
+    /// <param name="maxRows">Maximum rows to return. Defaults to the bulk export limit; callers may request one extra row to detect truncation.</param>
     Task<IReadOnlyList<AuditEvent>> GetExportAsync(
         Guid tenantId,
         Guid workspaceId,

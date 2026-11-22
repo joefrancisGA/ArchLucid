@@ -1,0 +1,28 @@
+name: Scoped remediation contract parity
+
+on:
+  pull_request:
+    branches:
+      - master
+      - fix/atomic-remediation-scoped-contract-20261121
+    paths:
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ProjectScopedRepositoryCapabilities.cs'
+      - 'ArchLucid.Persistence/InfraEvidence/ProjectScopedRepositoryAdapters.cs'
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/IRemediationInstanceRepository.cs'
+      - 'scripts/ci/tests/test_scoped_remediation_contract_parity.py'
+      - '.github/workflows/scoped-remediation-contract-parity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s scripts/ci/tests -p test_scoped_remediation_contract_parity.py -v

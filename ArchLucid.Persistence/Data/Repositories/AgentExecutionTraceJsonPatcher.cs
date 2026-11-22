@@ -25,18 +25,21 @@ internal static class AgentExecutionTraceJsonPatcher
     /// </summary>
     public static async Task<AgentExecutionTracePatch?> TryMutateAsync(
         IDbConnection connection,
+        IDbTransaction transaction,
         string traceId,
         Action<AgentExecutionTrace> mutate,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(connection);
+        ArgumentNullException.ThrowIfNull(transaction);
 
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
-            AgentExecutionTraceSql.SelectTraceJsonByTraceId,
+            AgentExecutionTraceSql.SelectTraceJsonByTraceIdForUpdate,
             new
             {
                 TraceId = traceId
             },
+            transaction,
             cancellationToken: cancellationToken));
 
         return Mutate(rowJson, mutate);
@@ -48,19 +51,22 @@ internal static class AgentExecutionTraceJsonPatcher
     /// </summary>
     public static async Task<AgentExecutionTracePatch?> TryMutateUnrecordedQualityGateAsync(
         IDbConnection connection,
+        IDbTransaction transaction,
         string traceId,
         Action<AgentExecutionTrace> mutate,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(connection);
+        ArgumentNullException.ThrowIfNull(transaction);
 
         (string? RowJson, byte? ExistingOutcome)? row =
             await connection.QuerySingleOrDefaultAsync<(string? RowJson, byte? ExistingOutcome)>(new CommandDefinition(
-                AgentExecutionTraceSql.SelectTraceJsonAndRecordedOutcomeByTraceId,
+                AgentExecutionTraceSql.SelectTraceJsonAndRecordedOutcomeByTraceIdForUpdate,
                 new
                 {
                     TraceId = traceId
                 },
+                transaction,
                 cancellationToken: cancellationToken));
 
         if (row?.ExistingOutcome is not null)

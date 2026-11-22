@@ -7,9 +7,9 @@ internal static class ProposedEvidencePayloadNormalizer
     {
         ArgumentNullException.ThrowIfNull(payload);
 
-        payload.Type = payload.Type.Trim();
-        payload.Title = payload.Title.Trim();
-        payload.Description = payload.Description.Trim();
-        payload.Rationale = payload.Rationale.Trim();
+        payload.Type = ProposedEvidenceTextValidation.StripUnicodeFormatCharacters(payload.Type.Trim());
+        payload.Title = ProposedEvidenceTextValidation.StripUnicodeFormatCharacters(payload.Title.Trim());
+        payload.Description = ProposedEvidenceTextValidation.StripUnicodeFormatCharacters(payload.Description.Trim());
+        payload.Rationale = ProposedEvidenceTextValidation.StripUnicodeFormatCharacters(payload.Rationale.Trim());
     }
 }

@@ -51,3 +51,34 @@ it.each([
     client.clear();
   }
 });
+
+it("clears the dirty state when refreshed settings match the local edit", async () => {
+  scope.tenantId = "tenant-a";
+  const client = new QueryClient();
+  const prior = {
+    architectHourlyRateUsd: 100,
+    averageIncidentCostUsd: 200,
+    eaDiscountPercentage: 0,
+    isTenantConfigured: true,
+    updatedUtc: null,
+  };
+  client.setQueryData(operatorQueryKeys.tenantCostSettings, prior);
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={client}>{children}</QueryClientProvider>
+  );
+  const { result, unmount } = renderHook(() => useTenantCostSettingsForm({ canEdit: true }), { wrapper });
+  try {
+    act(() => result.current.setHourlyRate("150"));
+    expect(result.current.dirty).toBe(true);
+
+    act(() => {
+      client.setQueryData(operatorQueryKeys.tenantCostSettings, { ...prior, architectHourlyRateUsd: 150 });
+    });
+
+    await waitFor(() => expect(result.current.dirty).toBe(false));
+    expect(result.current.hourlyRate).toBe("150");
+  } finally {
+    unmount();
+    client.clear();
+  }
+});

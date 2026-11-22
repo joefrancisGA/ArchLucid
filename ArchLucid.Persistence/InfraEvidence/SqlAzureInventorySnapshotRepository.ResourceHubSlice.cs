@@ -25,7 +25,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                            FROM dbo.AzureInventoryResourceProperties
                            WHERE TenantId = @TenantId
                              AND SnapshotId = @SnapshotId
-                             AND ResourceRowId = @ResourceRowId;
+                             AND ResourceRowId = @ResourceRowId
+                           ORDER BY PropertyRowId;
                            """;
 
         using System.Data.IDbConnection conn =
@@ -62,7 +63,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                            FROM dbo.AzureInventoryTags
                            WHERE TenantId = @TenantId
                              AND SnapshotId = @SnapshotId
-                             AND ResourceRowId = @ResourceRowId;
+                             AND ResourceRowId = @ResourceRowId
+                           ORDER BY TagRowId;
                            """;
 
         using System.Data.IDbConnection conn =

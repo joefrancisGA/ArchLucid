@@ -11,6 +11,10 @@ public sealed class InMemoryProjectRoleAssignmentRepository : IProjectRoleAssign
         Guid workspaceId,
         Guid projectId,
         Guid scimUserId,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult(ProjectScopedEffectiveRole.None);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(ProjectScopedEffectiveRole.None);
+    }
 }

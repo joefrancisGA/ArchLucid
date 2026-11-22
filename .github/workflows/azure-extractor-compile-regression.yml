@@ -1,0 +1,23 @@
+name: Azure extractor compile regression
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Integrations.AzureExtractor/HostedAzureExtractorClient.cs'
+      - '.github/workflows/azure-extractor-compile-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  azure-extractor-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build ArchLucid.Integrations.AzureExtractor/ArchLucid.Integrations.AzureExtractor.csproj --configuration Release

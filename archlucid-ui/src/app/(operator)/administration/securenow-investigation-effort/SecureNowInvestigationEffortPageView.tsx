@@ -28,6 +28,7 @@ import {
 import { resolveSecureNowInvestigationEffortResultState } from "@/lib/product-line/securenow-investigation-effort-result-state";
 import { SECURENOW_INVESTIGATION_EFFORT_OPERATOR_ROI_DISCIPLINE_LINE } from "@/lib/product-line/securenow-investigation-effort-operator-roi-discipline-copy";
 import { formatSecureNowInvestigationEffortBlockingBanner } from "@/lib/product-line/securenow-investigation-effort-blocking-banner-copy";
+import { SECURENOW_INVESTIGATION_EFFORT_BLOCKING_NOT_LOAD_FAILURE_LINE } from "@/lib/product-line/securenow-investigation-effort-blocking-not-load-failure-copy";
 import {
   loadSecureNowInvestigationEffortInputs,
   persistSecureNowInvestigationEffortInputsToAudit,
@@ -49,6 +50,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
   const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const [inputs, setInputs] = useState<EffortInputs>(EMPTY_INPUTS);
   const [restoreComplete, setRestoreComplete] = useState(false);
+  const [auditSaveError, setAuditSaveError] = useState<string | null>(null);
   const inputEditsRef = useRef<Partial<EffortInputs>>({});
 
   useEffect(() => {
@@ -79,11 +81,17 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
       return;
     }
 
+    let cancelled = false;
     const handle = window.setTimeout(() => {
-      void persistSecureNowInvestigationEffortInputsToAudit(inputs);
+      void persistSecureNowInvestigationEffortInputsToAudit(inputs).then((error) => {
+        if (!cancelled) {
+          setAuditSaveError(error);
+        }
+      });
     }, 400);
 
     return () => {
+      cancelled = true;
       window.clearTimeout(handle);
     };
   }, [inputs, restoreComplete]);
@@ -91,6 +99,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
   const resultState = useMemo(() => resolveSecureNowInvestigationEffortResultState(inputs), [inputs]);
 
   const updateInput = (field: keyof EffortInputs, value: string) => {
+    setAuditSaveError(null);
     inputEditsRef.current = { ...inputEditsRef.current, [field]: value };
     setInputs((current) => ({ ...current, [field]: value }));
   };
@@ -136,6 +145,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
             data-testid="securenow-investigation-effort-blocking-banner"
           >
             <p className={OPERATOR_TYPOGRAPHY.body}>{formatSecureNowInvestigationEffortBlockingBanner(resultState.reason)}</p>
+            <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-investigation-effort-blocking-not-load-failure">{SECURENOW_INVESTIGATION_EFFORT_BLOCKING_NOT_LOAD_FAILURE_LINE}</p>
             {resultState.incompleteReason === "missing_fields" ? (
               <SecureNowInvestigationEffortMissingFieldLabelsLine inputs={inputs} />
             ) : (
@@ -161,6 +171,11 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
           >
             {SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE}
           </p>
+          {auditSaveError !== null ? (
+            <p role="status" className={OPERATOR_TYPOGRAPHY.helper}>
+              {auditSaveError}
+            </p>
+          ) : null}
           <div className="grid gap-3 sm:grid-cols-2">
             {([
               ["baselineHours", "Baseline hours (B)"],

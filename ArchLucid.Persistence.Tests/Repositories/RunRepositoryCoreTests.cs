@@ -188,6 +188,47 @@ public sealed class RunRepositoryCoreTests
     }
 
     [Fact]
+    public void SelectLatestCommittedRunIdByArchitectureVersionId_matches_sql_uniqueidentifier_tie_breaking()
+    {
+        ScopeContext scope = Scope(TenantId, WorkspaceId, ProjectId);
+        Guid architectureVersionId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 1, 5, 0, 0, 0, DateTimeKind.Utc);
+        Guid dotNetHigherRunId = Guid.Parse("00000001-0000-0000-0000-000000000000");
+        Guid sqlHigherRunId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
+        Guid? selected = RunRepositoryCore.SelectLatestCommittedRunIdByArchitectureVersionId(
+            [
+                new RunRecord
+                {
+                    RunId = dotNetHigherRunId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ProjectId = "project-slug",
+                    ArchitectureVersionId = architectureVersionId,
+                    CreatedUtc = createdUtc,
+                    GoldenManifestId = Guid.NewGuid(),
+                },
+                new RunRecord
+                {
+                    RunId = sqlHigherRunId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ProjectId = "project-slug",
+                    ArchitectureVersionId = architectureVersionId,
+                    CreatedUtc = createdUtc,
+                    GoldenManifestId = Guid.NewGuid(),
+                },
+            ],
+            scope,
+            architectureVersionId);
+
+        selected.Should().Be(sqlHigherRunId,
+            "the in-memory repository must match SQL Server ORDER BY uniqueidentifier DESC");
+    }
+
+    [Fact]
     public void IsEligibleForCreatedBeforeArchive_respects_scope()
     {
         ScopeContext scope = Scope(TenantId, WorkspaceId, ProjectId);

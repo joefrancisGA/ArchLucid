@@ -41,7 +41,7 @@ describe("loadFindingInspectForRoute — showcase primary finding", () => {
     expect(result.payload?.findingId).toBe(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID);
     expect(result.payload?.typedPayload.title).toBe(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE);
     expect(showcasePrimaryFindingDetailHref()).toBe(
-      `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}/findings/${SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID}`,
+      `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}?reviewTab=findings&findingId=${SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID}#run-detail-first-review-spine-findings`,
     );
   });
 });
