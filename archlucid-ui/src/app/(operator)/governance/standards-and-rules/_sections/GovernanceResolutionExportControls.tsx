@@ -32,7 +32,7 @@ export function GovernanceResolutionExportControls(
 
   return (
     <section
-      aria-labelledby="governance-change-controls-heading"
+      aria-labelledby={compact ? "governance-change-controls-heading-compact" : "governance-change-controls-heading"}
       className={cn(
         compact ? "mb-4" : "mb-7",
         !canMutateEnterprisePolicySurfaces &&
@@ -41,7 +41,7 @@ export function GovernanceResolutionExportControls(
       )}
     >
       <h3
-        id="governance-change-controls-heading"
+        id={compact ? "governance-change-controls-heading-compact" : "governance-change-controls-heading"}
         className={cn(compact ? "sr-only" : undefined, OPERATOR_TYPOGRAPHY.cardTitle)}
       >
         {governanceResolutionRefreshPolicySectionHeading}
