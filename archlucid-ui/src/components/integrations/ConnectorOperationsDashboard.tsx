@@ -327,6 +327,12 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
                 </>
               ) : (
                 <div className="space-y-2" data-testid="connection-status-category-only-filter-empty">
+                  <p
+                    className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="connection-status-category-filter-empty-not-load-failure"
+                  >
+                    {CONNECTION_STATUS_CATEGORY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                  </p>
                   <ConnectionStatusCategoryFilterEmptyPartialHonesty />
                 </div>
               )}

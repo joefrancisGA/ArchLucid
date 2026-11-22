@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+## 2026-11-22 - Score lift round 110 (batch 75): Manifest bundle, review DOCX, Terraform advisory, connection category empty
+
+**Outcome.** Manifest bundle ZIP names unsealed finalize gate versus load failure. Architecture review DOCX blocked state adds format-specific finalize discipline beside primary export copy. Terraform advisory export names unsealed gate versus failed read. Connection status category filter empty exposes mounted not-load-failure test id in footer.
+
+**Surfaces.** Run detail deliverables exports, Terraform advisory export button, connection status dashboard, honesty and mounted contract tests.
+
 ## 2026-11-22 - Score lift round 109 (batch 74): Evidence bundle, consulting exports, audit export, reviews hub collection
 
 **Outcome.** Evidence bundle download names unsealed finalize gate versus load failure. Consulting and whitelabel DOCX exports name finalize discipline beside blocked reasons. Run-scoped audit export names unsealed gate versus failed deliverables read. Reviews hub open-gate collection blocker uses reviews-specific not-load-failure copy.
