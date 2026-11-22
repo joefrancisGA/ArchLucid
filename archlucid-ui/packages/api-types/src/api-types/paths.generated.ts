@@ -70641,6 +70641,7 @@ export interface paths {
                 query?: {
                     runId?: string;
                     asOf?: string;
+                    secureNowExchange?: boolean;
                 };
                 header?: {
                     /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */
