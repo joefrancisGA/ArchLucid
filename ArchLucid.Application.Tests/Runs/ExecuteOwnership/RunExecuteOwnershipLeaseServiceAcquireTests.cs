@@ -148,6 +148,41 @@ public sealed class RunExecuteOwnershipLeaseServiceAcquireTests
         leases.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task AcquireAsync_releases_once_with_uncancelled_token_when_drain_starts_after_sql_claim()
+    {
+        Guid runId = Guid.NewGuid();
+        using CancellationTokenSource requestCancellation = new();
+        WorkerHostDrainGate drainGate = new();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases.Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                drainGate.BeginDrain();
+                requestCancellation.Cancel();
+                return true;
+            });
+        leases.Setup(l => l.TryReleaseAsync(runId, "instance-a", CancellationToken.None))
+            .Returns(Task.CompletedTask);
+
+        Mock<IHostProcessInstanceId> instance = new();
+        instance.Setup(i => i.Value).Returns("instance-a");
+        Mock<IArchLucidStorageMode> storage = new();
+        storage.Setup(x => x.IsInMemory).Returns(false);
+        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>> options = new();
+        options.Setup(x => x.CurrentValue).Returns(new RunExecuteOwnershipLeaseOptions { Enabled = true });
+        RunExecuteOwnershipLeaseService sut = new(
+            leases.Object, instance.Object, storage.Object, drainGate, options.Object,
+            NullLogger<RunExecuteOwnershipLeaseService>.Instance,
+            new RunExecuteOwnershipActiveHolderRegistry());
+
+        await ((Func<Task>)(() => sut.AcquireAsync(runId, requestCancellation.Token)))
+            .Should().ThrowAsync<ConflictException>();
+
+        leases.Verify(l => l.TryReleaseAsync(runId, "instance-a", CancellationToken.None), Times.Once);
+        sut.IsLocallyHoldingExecuteOwnership(runId).Should().BeFalse();
+    }
+
     private static RunExecuteOwnershipLeaseService CreateSut(
         Mock<IRunExecuteOwnershipLeaseRepository> leases,
         Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>>? optionsMonitor = null)
