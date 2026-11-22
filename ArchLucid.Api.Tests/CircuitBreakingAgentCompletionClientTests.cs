@@ -249,6 +249,48 @@ public sealed class CircuitBreakingAgentCompletionClientTests
         calls.Should().Be(1);
     }
 
+    [Fact]
+    public async Task Half_open_completion_reopens_one_probe_at_a_time_until_success_streak_closes()
+    {
+        int calls = 0;
+        Mock<IAgentCompletionClient> inner = new();
+        inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
+        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                Interlocked.Increment(ref calls);
+                return Task.FromResult("{}");
+            });
+
+        TestClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        CircuitBreakerGate gate = new("completion-streak",
+            new CircuitBreakerOptions
+            {
+                FailureThreshold = 1,
+                DurationOfBreakSeconds = 30,
+                HalfOpenSuccessThreshold = 2
+            }, clock.ToFunc());
+        ResiliencePipeline retry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
+            maxRetryAttempts: 3, baseDelay: TimeSpan.FromMilliseconds(1));
+        CircuitBreakingAgentCompletionClient sut = new(
+            inner.Object, gate, retry,
+            NullLogger<CircuitBreakingAgentCompletionClient>.Instance);
+
+        gate.RecordFailure();
+        clock.Advance(TimeSpan.FromSeconds(31));
+
+        (await sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None))
+            .Should().Be("{}");
+        gate.CurrentState.Should().Be("HalfOpen");
+        calls.Should().Be(1);
+
+        (await sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None))
+            .Should().Be("{}");
+        gate.CurrentState.Should().Be("Closed");
+        calls.Should().Be(2);
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
