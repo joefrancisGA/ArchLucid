@@ -45,6 +45,10 @@ public sealed class ResilientDistributedLlmCompletionResponseStore : ILlmComplet
                 async ct => await _distributed.TryGetAsync(key, ct),
                 cancellationToken);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (BrokenCircuitException ex)
         {
             if (_logger.IsEnabled(LogLevel.Debug))
