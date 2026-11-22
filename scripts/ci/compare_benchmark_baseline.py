@@ -47,12 +47,16 @@ def main() -> int:
 
     baseline = json.loads(args.baseline.read_text(encoding="utf-8"))
     expected = {str(x["fullName"]): float(x["maxMeanNs"]) for x in baseline["benchmarks"]}
+    if not expected:
+        raise ValueError("benchmark baseline must contain at least one benchmark")
     if len(expected) != len(baseline["benchmarks"]):
         raise ValueError("duplicate benchmark baseline name")
     for full_name, limit in expected.items():
         if not math.isfinite(limit) or limit <= 0:
             raise ValueError(f"invalid benchmark baseline for {full_name}: {limit!r}")
     actual = load_means(args.results)
+    if not actual:
+        raise ValueError("BenchmarkDotNet result files contain no measured benchmark means")
     unexpected = sorted(set(actual) - set(expected))
     if unexpected:
         print(f"Benchmark evidence notice: {len(unexpected)} unbaselined result(s):", file=sys.stderr)
