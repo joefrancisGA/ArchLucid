@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_5741_imported_first_full_pin_audit_passed_multisource_coverage_PR_pending",
-  "next_priority": "Run the revised Git source-pin and lineage jobs for PR covering 3 fully blob-pinned multi-file historical rows (Excel 1250/1252/1255); validate all atomic source checks, row-level digest and 900-first-parent lineage. Then tackle 479 in-window rows without pinned blobs conservatively and reconcile distinct defect IDs/fix merge statuses. Do not merge before required checks.",
+  "state": "historical_5741_imported_multifile_integrity_guard_and_unpinned_source_triage_PR_pending",
+  "next_priority": "Check the latest PR #7822 head's historical Git-pin, inferred-at-commit candidate and lineage workflow artifacts; repair actual failing tests/gates. Compare derived candidate spans with 4511 independent original pins without summing evidence populations, then reconcile verified distinct defect identities and fix PR statuses. Do not merge before required CI and merge-protection checks pass.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -75,6 +75,47 @@
       "first_parent_anchor": "verified_900_SHAs",
       "git_source_failures_among_parseable": 0,
       "not_recomputed": "historical 463/343492 and 600/700 cumulative series"
+    },
+    "multi_file_review_goldens": [
+      {
+        "excel_row": 1250,
+        "file_pins": 8,
+        "workbook_nonblank_loc": 822,
+        "confidence": "workbook_blob_pinned_atomic_git_verification_pending_CI"
+      },
+      {
+        "excel_row": 1252,
+        "file_pins": 14,
+        "workbook_nonblank_loc": 528,
+        "confidence": "workbook_blob_pinned_atomic_git_verification_pending_CI"
+      },
+      {
+        "excel_row": 1255,
+        "file_pins": 12,
+        "workbook_nonblank_loc": 2343,
+        "confidence": "workbook_blob_pinned_atomic_git_verification_pending_CI"
+      }
+    ],
+    "multi_file_source_integrity_status": "parser_goldens_34_file_spans_sum_to_3693_reported_nonblank_LOC_exactly; full git checks_pending; 4 representative path_blob identities independently matched Git",
+    "unpinned_backfill": {
+      "script": "scripts/aspects_recover_unpinned_historical_sources.py",
+      "tests": "scripts/tests/test_aspects_recover_unpinned_historical_sources.py",
+      "run_in_workflow": ".github/workflows/aspects-density-snapshot.yml",
+      "candidate_summary_artifact": "artifacts/aspects/historical-unpinned-source-candidates.json",
+      "row_level_artifact": "artifacts/aspects/historical-unpinned-source-candidates.jsonl",
+      "original_unparsed_rows_without_any_blob_pin": 1227,
+      "unpinned_rows_in_reported_900_commit_window": 479,
+      "originally_blob_pinned_multi_file_rows": 3,
+      "candidates_git_provenance": "derived_from_reported_review_sha_plus_explicit_repo_relative_path_not_original_blob_pin",
+      "verified_source_example": {
+        "excel_row": 247,
+        "reported_nonblank_loc": 85,
+        "resolved_nonblank_loc": 85,
+        "derived_blob": "40eeeaeec78f47861e703932a29701ca6f1d96fd",
+        "scope": "one all-history candidate, 900-window membership not yet established"
+      },
+      "coverage_count_status": "pending_GitHub_CI_on_new_head_not_in_verified_density",
+      "counting_contract": "Do not add candidate lines to independently pinned exact path/blob union or to workbook 463/343492. Missing/conflicting full paths and nonblank mismatches get zero candidate coverage; all rows remain in immutable corpus."
     }
   }
 }
