@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_5741_rows_in_master_git_pin_and_lineage_code_integrated_ci_backlogged_audit_row_integrity_followup_in_pr",
-  "next_priority": "Inspect source-pin CI artifact when GitHub Actions begins; triage actual row-level mismatches, missing path/blobs and first-parent anchor, then validate lineage output. Check why PR #7809 merged before CI; do not merge the audit-row integrity follow-up before required checks pass. Reconcile historical defect IDs and recent ledger only after source evidence is verified.",
+  "state": "historical_5741_imported_first_full_pin_audit_passed_multisource_coverage_PR_pending",
+  "next_priority": "Run the revised Git source-pin and lineage jobs for PR covering 3 fully blob-pinned multi-file historical rows (Excel 1250/1252/1255); validate all atomic source checks, row-level digest and 900-first-parent lineage. Then tackle 479 in-window rows without pinned blobs conservatively and reconcile distinct defect IDs/fix merge statuses. Do not merge before required checks.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -42,7 +42,7 @@
     "expected_records": 5741,
     "expected_shards": 24,
     "expected_clean_reviews": 4864,
-    "source_span_verification": "source_pin_audit_queued_no_results_as_of_this_run",
+    "source_span_verification": "successful_2026-11-22_run_45074611128_4511_of_4511_single_source_pins_verified_1230_unparseable",
     "validation_entrypoint": "scripts/aspects_validate_historical_corpus.py",
     "historical_snapshots": 79,
     "independent_600_and_700_series_staged": true,
@@ -53,12 +53,28 @@
     "cross_revision_lineage_script": "scripts/aspects_reconcile_historical_lineage.py",
     "cross_revision_lineage_artifact": "artifacts/aspects/historical-900-cross-revision-lineage.json",
     "cross_revision_lineage_confidence": "provisional_same_path_unique_unchanged_lines_not_verified_historical_review_or_window_density",
-    "cross_revision_lineage_status": "merged_to_master_but_CI_pending",
+    "cross_revision_lineage_status": "merged_to_master; successful source-pin artifact arrived; lineage recomputation pending updated workflow run",
     "audit_row_digest_contract": "SHA-256 over canonical sorted-key UTF-8 JSONL; aggregate audit and 5741 row artifact must match; missing/altered rows block lineage; not an authentication of workbook origin",
-    "audit_row_integrity_status": "in_followup_pull_request_CI_pending",
+    "audit_row_integrity_status": "merged_to_master; runtime proof pending updated workflow run",
     "audit_row_expected_complete_excel_range": [
       7,
       5747
-    ]
+    ],
+    "source_pin_audit_confidence": "Git path/blob/nonblank source and exact 900-first-parent SHA membership verified for all 4511 parseable single-file rows; occurrence of review, cross-revision unique source and distinct defects remain unverified",
+    "source_pin_audit_run_url": "https://github.com/joefrancisGA/ArchLucid/actions/runs/45074611128",
+    "source_pin_audit_checkpoint_path": "docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-git-pin-45074611128.json",
+    "source_pin_audit_20261122": {
+      "review_events": 5741,
+      "verified_single_source_rows": 4511,
+      "unparseable_rows": 1230,
+      "unparseable_in_900_window": 482,
+      "multi_blob_pinned_in_900_window": 3,
+      "verified_source_nonblank_occurrences": 234546,
+      "exact_path_blob_unique_loc_all_history_subset": 228684,
+      "repeated_exact_path_blob_loc_all_history_subset": 5862,
+      "first_parent_anchor": "verified_900_SHAs",
+      "git_source_failures_among_parseable": 0,
+      "not_recomputed": "historical 463/343492 and 600/700 cumulative series"
+    }
   }
 }
