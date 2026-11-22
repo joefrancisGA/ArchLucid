@@ -2,7 +2,7 @@ name: FND-005 Evidence Integrity Verification
 
 on:
   pull_request:
-    branches: [master, main]
+    branches: [master, main, architecture/fnd005-evidence-integrity-verifier]
   workflow_dispatch:
 
 permissions:
@@ -17,4 +17,4 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m unittest discover -s scripts/tests -p 'test_fnd005_evidence_verifier.py' -v
+      - run: python -m unittest discover -s scripts/tests -p 'test_fnd005_*.py' -v
