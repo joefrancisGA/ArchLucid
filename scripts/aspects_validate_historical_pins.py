@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+"""Conservatively verify workbook-sourced Aspects path/blob/line pins against Git.
+
+These observations remain historical workbook reports, even when the referenced
+Git blob and nonblank intervals can be independently revalidated. Validation
+does not prove review happened, first-parent window membership, defect identity,
+or cross-revision line equivalence. Never add this subset to another denominator.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter, defaultdict
+import json
+from pathlib import Path
+import re
+import subprocess
+
+from aspects_review_evidence import read_records
+from aspects_validate_historical_corpus import verify
+
+SHA = re.compile(r"^[0-9a-f]{40}$")
+
+
+def git(repo: Path, *args: str) -> tuple[bool, bytes]:
+    proc = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=45, check=False,
+    )
+    return proc.returncode == 0, proc.stdout
+
+
+def inspect_pin(
+    repo: Path, row: dict, source_cache: dict[tuple[str, str], str | None],
+    lines_cache: dict[str, list[str] | None],
+) -> tuple[str, set[int]]:
+    """Return classification and exact nonblank lines for one pinned revision."""
+    pin = row.get("parsed_pin")
+    if pin is None:
+        return "not_parseable", set()
+    commit = row.get("reviewed_master_sha")
+    blob = pin.get("blob")
+    path = pin.get("path")
+    spans = pin.get("spans")
+    if not (isinstance(commit, str) and SHA.fullmatch(commit)
+            and isinstance(blob, str) and SHA.fullmatch(blob)
+            and isinstance(path, str) and bool(path)
+            and isinstance(spans, list) and bool(spans)):
+        return "invalid_identity", set()
+    identity = (commit, path)
+    if identity not in source_cache:
+        ok, payload = git(repo, "rev-parse", "--verify", f"{commit}:{path}")
+        resolved = payload.strip().decode("ascii", "replace") if ok else None
+        source_cache[identity] = resolved if resolved and SHA.fullmatch(resolved) else None
+    actual = source_cache[identity]
+    if actual is None:
+        return "path_or_commit_unavailable", set()
+    if actual != blob:
+        return "blob_mismatch", set()
+    if blob not in lines_cache:
+        ok, payload = git(repo, "cat-file", "-p", blob)
+        if not ok or b"\x00" in payload:
+            lines_cache[blob] = None
+        else:
+            try:
+                lines_cache[blob] = payload.decode("utf-8").splitlines()
+            except UnicodeDecodeError:
+                lines_cache[blob] = None
+    lines = lines_cache[blob]
+    if lines is None:
+        return "blob_unreadable", set()
+    selected: set[int] = set()
+    for span in spans:
+        if (not isinstance(span, list) or len(span) != 2
+                or type(span[0]) is not int or type(span[1]) is not int
+                or span[0] < 1 or span[1] < span[0] or span[1] > len(lines)):
+            return "span_out_of_bounds", set()
+        selected.update(range(span[0], span[1] + 1))
+    if any(not lines[index - 1].strip() for index in selected):
+        return "blank_line_in_reported_span", set()
+    return "git_blob_and_nonblank_intervals_verified", selected
+
+
+def verify_pins(repo: Path, rows: list[dict]) -> dict:
+    source_cache: dict[tuple[str, str], str | None] = {}
+    lines_cache: dict[str, list[str] | None] = {}
+    counts: Counter[str] = Counter()
+    by_content: dict[tuple[str, str], set[int]] = defaultdict(set)
+    duplicates = line_occurrences = positive_rows = clean_rows = 0
+    quarantined: list[dict] = []
+    for row in rows:
+        status, covered = inspect_pin(repo, row, source_cache, lines_cache)
+        counts[status] += 1
+        if status != "git_blob_and_nonblank_intervals_verified":
+            if status != "not_parseable":
+                quarantined.append({"excel_row": row["excel_row"], "reason": status})
+            continue
+        pin = row["parsed_pin"]
+        content_key = (pin["path"], pin["blob"])
+        duplicates += len(covered & by_content[content_key])
+        by_content[content_key].update(covered)
+        line_occurrences += len(covered)
+        if row["defects_recorded"] == 0:
+            clean_rows += 1
+        else:
+            positive_rows += 1
+    exact_unique = sum(len(lines) for lines in by_content.values())
+    return {
+        "status": "git_blob_and_nonblank_intervals_subset_only_cross_revision_unresolved",
+        "review_events_present": len(rows),
+        "candidate_pin_count": sum(1 for row in rows if row.get("parsed_pin") is not None),
+        "classifications": dict(sorted(counts.items())),
+        "verified_pin_rows": counts["git_blob_and_nonblank_intervals_verified"],
+        "verified_clean_review_rows": clean_rows,
+        "verified_defect_positive_rows_not_distinct_defects": positive_rows,
+        "verified_nonblank_line_occurrences": line_occurrences,
+        "verified_unique_exact_path_blob_lines": exact_unique,
+        "verified_repeated_exact_path_blob_lines": duplicates,
+        "verified_path_blob_identities": len(by_content),
+        "unverified_sample": quarantined[:100],
+        "unverified_total_excluding_unparseable": len(quarantined),
+        "known_all_history_incremental_loc_reported_not_git_union": 402314,
+        "historical_900_first_parent_density_recomputed": None,
+        "recent_ledger_combined_density": None,
+        "cross_revision_lineage": "unresolved",
+        "confidence": "source_pin_integrity_only_not_independent_reconstruction_of_review_history",
+        "note": "Nonblank blob identity validates only the pinned source; historical review and defect claims remain workbook-provenanced. Exact revision duplication is not a complete Git lineage union.",
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", type=Path, default=Path("."))
+    parser.add_argument("--historical-root", type=Path,
+                        default=Path("docs/engineering/aspects-historical"))
+    parser.add_argument("--json-out", type=Path)
+    args = parser.parse_args()
+    # Fail closed if the imported source has drifted or clean rows went missing.
+    verify(args.historical_root)
+    rows = []
+    for path in sorted((args.historical_root / "review-events").glob("*.jsonl")):
+        rows.extend(read_records(path))
+    report = verify_pins(args.repo, rows)
+    result = json.dumps(report, sort_keys=True, indent=2) + "\n"
+    if args.json_out:
+        args.json_out.parent.mkdir(parents=True, exist_ok=True)
+        args.json_out.write_text(result, encoding="utf-8")
+    print(result)
+
+
+if __name__ == "__main__":
+    main()
