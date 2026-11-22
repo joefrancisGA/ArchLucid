@@ -3,11 +3,12 @@
   "source": {
     "name": "ArchLucid_Defect_Density_Trend_repaired.xlsx",
     "sha256": "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787",
-    "repository_copy_present": false,
+    "repository_copy_present": true,
     "library_file_id": "file_00000000731081f58e9c07a7770f2925",
     "review_sheet": "Review evidence",
     "first_excel_row": 7,
-    "last_excel_row": 5747
+    "last_excel_row": 5747,
+    "repository_corpus_path": "docs/engineering/aspects-historical/review-events/"
   },
   "historical_review_observations": 5741,
   "clean_review_observations": 4864,
@@ -28,6 +29,22 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "source_examined_migration_script_and_tests_committed_corpus_not_yet_imported_to_repository",
-  "next_priority": "Run importer against exact Library workbook and transfer full JSONL archive into private repository, then revalidate pinned Git blobs and restore reporting without incompatible splice."
+  "state": "all_5741_historical_records_and_900_snapshots_committed_to_PR_validation_and_git_lineage_pending",
+  "next_priority": "Run CI integrity checks against full data corpus, reconcile current GitHub reviews against historical pins by exact identity and distinguish historical 900-commit window from recent verified subset; do not splice unverified measurements.",
+  "corpus_import": {
+    "status": "all_shards_committed_CI_integrity_validation_pending",
+    "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
+    "source_workbook_sha256": "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787",
+    "expected_excel_rows": [
+      7,
+      5747
+    ],
+    "expected_records": 5741,
+    "expected_shards": 24,
+    "expected_clean_reviews": 4864,
+    "source_span_verification": "not_yet_complete",
+    "validation_entrypoint": "scripts/aspects_validate_historical_corpus.py",
+    "historical_snapshots": 79,
+    "independent_600_and_700_series_staged": true
+  }
 }
