@@ -1,4 +1,3 @@
-; FND-017 architecture analyzer rules are advisory until validated.
 ### New Rules
 
 Rule ID | Category | Severity | Notes
