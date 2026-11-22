@@ -8,7 +8,10 @@ namespace ArchLucid.Persistence.Repositories;
 /// <summary>In-memory <see cref="IArchitectureInventoryBindingRepository" /> for tests and storage mode <c>InMemory</c>.</summary>
 public sealed class InMemoryArchitectureInventoryBindingRepository : IArchitectureInventoryBindingRepository
 {
-    private readonly ConcurrentDictionary<Guid, ArchitectureInventoryBindingRecord> _byArchitectureId = new();
+    // Match the full SQL binding key. Architecture IDs can be reused in distinct scopes.
+    private readonly ConcurrentDictionary<
+        (Guid TenantId, Guid WorkspaceId, Guid ProjectId, Guid ArchitectureId),
+        ArchitectureInventoryBindingRecord> _byScopeAndArchitectureId = new();
 
     public Task<ArchitectureInventoryBindingRecord?> TryGetByArchitectureIdAsync(
         ScopeContext scope,
@@ -16,25 +19,20 @@ public sealed class InMemoryArchitectureInventoryBindingRepository : IArchitectu
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byArchitectureId.TryGetValue(architectureId, out ArchitectureInventoryBindingRecord? record))
-            return Task.FromResult<ArchitectureInventoryBindingRecord?>(null);
-
-        if (record.TenantId != scope.TenantId
-            || record.WorkspaceId != scope.WorkspaceId
-            || record.ScopeProjectId != scope.ProjectId)
-        {
-            return Task.FromResult<ArchitectureInventoryBindingRecord?>(null);
-        }
-
-        return Task.FromResult<ArchitectureInventoryBindingRecord?>(record);
+        return Task.FromResult(
+            _byScopeAndArchitectureId.TryGetValue(Key(scope, architectureId), out ArchitectureInventoryBindingRecord? record)
+                ? Clone(record)
+                : null);
     }
 
     public Task UpsertAsync(ArchitectureInventoryBindingRecord record, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(record);
+        cancellationToken.ThrowIfCancellationRequested();
 
-        _byArchitectureId[record.ArchitectureId] = record;
+        _byScopeAndArchitectureId[Key(record)] = Clone(record);
 
         return Task.CompletedTask;
     }
@@ -45,17 +43,29 @@ public sealed class InMemoryArchitectureInventoryBindingRepository : IArchitectu
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byArchitectureId.TryGetValue(architectureId, out ArchitectureInventoryBindingRecord? record))
-            return Task.FromResult(false);
-
-        if (record.TenantId != scope.TenantId
-            || record.WorkspaceId != scope.WorkspaceId
-            || record.ScopeProjectId != scope.ProjectId)
-        {
-            return Task.FromResult(false);
-        }
-
-        return Task.FromResult(_byArchitectureId.TryRemove(new KeyValuePair<Guid, ArchitectureInventoryBindingRecord>(architectureId, record)));
+        return Task.FromResult(_byScopeAndArchitectureId.TryRemove(Key(scope, architectureId), out _));
     }
+
+    private static (Guid TenantId, Guid WorkspaceId, Guid ProjectId, Guid ArchitectureId)
+        Key(ScopeContext scope, Guid architectureId) =>
+        (scope.TenantId, scope.WorkspaceId, scope.ProjectId, architectureId);
+
+    private static (Guid TenantId, Guid WorkspaceId, Guid ProjectId, Guid ArchitectureId)
+        Key(ArchitectureInventoryBindingRecord record) =>
+        (record.TenantId, record.WorkspaceId, record.ScopeProjectId, record.ArchitectureId);
+
+    private static ArchitectureInventoryBindingRecord Clone(ArchitectureInventoryBindingRecord record) =>
+        new()
+        {
+            ArchitectureId = record.ArchitectureId,
+            TenantId = record.TenantId,
+            WorkspaceId = record.WorkspaceId,
+            ScopeProjectId = record.ScopeProjectId,
+            SnapshotId = record.SnapshotId,
+            BoundBy = record.BoundBy,
+            BoundUtc = record.BoundUtc,
+            RowVersion = record.RowVersion?.ToArray(),
+        };
 }
