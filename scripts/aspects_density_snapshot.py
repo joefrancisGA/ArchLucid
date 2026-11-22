@@ -31,6 +31,12 @@ def read_historical_checkpoint(path: Path) -> dict | None:
     if not path.exists():
         return None
     state = json.loads(path.read_text(encoding="utf-8"))
+    # The legacy baseline stays distinct from Git-verified review subsets,
+    # but once the historical corpus is committed it MUST be checked for loss.
+    corpus = None
+    if state.get("corpus_import", {}).get("expected_records"):
+        from aspects_validate_historical_corpus import verify
+        corpus = verify(path.parent / "aspects-historical")
     baseline = state["last_900_first_parent_snapshot"]
     if state["historical_review_observations"] != 5741:
         raise ValueError("Historical review population has drifted")
@@ -43,6 +49,14 @@ def read_historical_checkpoint(path: Path) -> dict | None:
         raise ValueError("Historical density numerator/denominator mismatch")
     return {
         "status": "historical_workbook_partial_checkpoint_not_current",
+        "git_staged_corpus": (
+            {
+                "status": corpus["status"],
+                "review_observations": corpus["observations_imported"],
+                "clean_reviews": corpus["zero_defect_observations"],
+                "import_sha256": corpus["corpus_sha256"],
+            } if corpus is not None else None
+        ),
         "source_sha256": state["source"]["sha256"],
         "all_history_review_observations": state["historical_review_observations"],
         "clean_reviews": state["clean_review_observations"],
@@ -232,6 +246,13 @@ def markdown(snapshot: dict) -> str:
             "## New source-verified Git ledger subset",
             "",
         ]
+        staged = historical.get("git_staged_corpus")
+        if staged:
+            introduction.insert(
+                3,
+                f"- Git-staged historical review events: **{staged['review_observations']:,}**, "
+                f"checksum validated; **source-line ancestry remains unverified**.",
+            )
     return "\n".join(introduction + [
         "# Aspects verified-subset defect-density snapshot",
         "",
