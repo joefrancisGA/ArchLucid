@@ -1,7 +1,7 @@
 name: FND-017 .NET Semantic Architecture Boundaries
 on:
   pull_request:
-    branches: [master, main, architecture/fnd017-conformance-advisory, architecture/fnd017-dotnet-compiler-boundaries, architecture/fnd017-auth-before-access-advisory, architecture/fnd017-authorization-result-flow, architecture/fnd017-cfg-dominance]
+    branches: [master, main, architecture/fnd017-conformance-advisory, architecture/fnd017-dotnet-compiler-boundaries, architecture/fnd017-auth-before-access-advisory, architecture/fnd017-authorization-result-flow, architecture/fnd017-cfg-dominance, architecture/fnd017-resource-binding, architecture/fnd017-baseline-reconciliation]
   workflow_dispatch:
 permissions:
   contents: read
@@ -34,6 +34,10 @@ jobs:
         run: >-
           dotnet test ArchLucid.Analyzers.Tests/ArchLucid.Analyzers.Tests.csproj
           --filter FullyQualifiedName~SnapshotAuthorizationResourceBindingAnalyzerTests
+      - name: Test SecureNow exchange mode reconciliation
+        run: >-
+          dotnet test ArchLucid.Analyzers.Tests/ArchLucid.Analyzers.Tests.csproj
+          --filter FullyQualifiedName~SecureNowExchangeModePatternTests
       - name: Run existing advisory conformance report
         run: python3 scripts/architecture/fnd017_conformance.py --output fnd017-conformance-report.json
       - name: Publish advisory report
