@@ -11,7 +11,11 @@ BEGIN
       AND kc.[type] = N'PK';
 
     IF @PrimaryKeyName IS NOT NULL
-        EXEC(N'ALTER TABLE dbo.SentEmails DROP CONSTRAINT ' + QUOTENAME(@PrimaryKeyName) + N';');
+    BEGIN
+        DECLARE @DropPrimaryKeySql NVARCHAR(MAX) =
+            N'ALTER TABLE dbo.SentEmails DROP CONSTRAINT ' + QUOTENAME(@PrimaryKeyName) + N';';
+        EXEC sys.sp_executesql @DropPrimaryKeySql;
+    END;
 
     ALTER TABLE dbo.SentEmails
         ADD CONSTRAINT PK_SentEmails_TenantId_IdempotencyKey
