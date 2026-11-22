@@ -31,3 +31,12 @@ FND-018 resilience controls are currently staged in PR #7779 rather than verifie
 **Narrow correction:** exclude `OperationCanceledException` from the agent circuit-breaker handled outcomes; propagate caller-requested cancellation before fallback/error wrapping. Added focused regression test for repeated cancellations not opening the breaker. The test and full CI are not yet verified.
 
 **Next audit:** trace cancellation and exception classification through the agent timeout/LLM pipelines, then inspect tenant partitioning and policy registration. FND-018 Python controls remain reference-only; do not wire them into production without a separate integration review.
+
+
+## Follow-up — distributed LLM cache cancellation (2026-11-22)
+
+**Production wiring inspected:** `ArchLucid.Host.Composition/Configuration/ArchLucidDistributedCacheRegistrar.cs` references `ResilientDistributedLlmCompletionResponseStore`; `ArchLucid.AgentRuntime/ResilientDistributedLlmCompletionResponseStore.cs` invokes `LlmCompletionDistributedStoreResilienceDefaults.BuildCircuitBreakerPipeline`. Tests in `ArchLucid.AgentRuntime.Tests/ResilientDistributedLlmCompletionResponseStoreTests.cs`.
+
+**Confirmed issue:** the Redis cache breaker counted every exception including cancellation, while both cache read and write wrappers caught cancellation via `catch (Exception)` and attempted in-memory fallback. This could swallow caller cancellation and perform an unwanted cache write.
+
+**Fix:** exclude `OperationCanceledException` from breaker failure accounting; rethrow cancellation when the caller's token is canceled, before fallback catches. Added regression tests for canceled reads/writes. Other Redis failures continue to degrade to in-memory cache. No new controls introduced. Tests/CI pending.
