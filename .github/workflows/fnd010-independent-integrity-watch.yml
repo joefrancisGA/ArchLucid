@@ -1,0 +1,69 @@
+name: FND-010 Independent Integrity Watch
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: fnd010-independent-watch
+  cancel-in-progress: false
+jobs:
+  verify:
+    # Explicit opt-in. The runner must be operated independently from SQL writers.
+    if: vars.FND010_MONITOR_ENABLED == 'true'
+    runs-on: [self-hosted, linux, fnd010-independent-monitor]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify independently anchored audit history
+        id: verify
+        continue-on-error: true
+        env:
+          FND010_KEY_ID: ${{ vars.FND010_PINNED_KEY_ID }}
+        run: |
+          set -euo pipefail
+          test -n "$FND010_KEY_ID"
+          test -f /etc/fnd010/trusted-checkpoint.json
+          test -f /etc/fnd010/pinned-verification.pem
+          # Runner-provided sqlcmd uses a read-only, independently managed
+          # credential and MUST NOT embed credentials in command arguments.
+          python3 -m pip install --disable-pip-version-check \
+            'cryptography>=44,<47' 'azure-identity>=1.17,<2' \
+            'azure-keyvault-keys>=4.9,<5' 'azure-storage-blob>=12.20,<13'
+          python3 scripts/security/fnd010_monitor_runner.py \
+            --checkpoint /etc/fnd010/trusted-checkpoint.json \
+            --pinned-public-key /etc/fnd010/pinned-verification.pem \
+            --expected-key-id "$FND010_KEY_ID" \
+            --incident fnd010-incident.json \
+            --sqlcmd /usr/local/bin/fnd010-readonly-sqlcmd -b -h -1 -W
+      - name: Persist critical incident evidence
+        if: steps.verify.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnd010-integrity-incident
+          path: |
+            fnd010-incident.json
+            fnd010-incident.verifier.json
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Open or update security incident
+        if: steps.verify.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          title="SECURITY: FND-010 independent integrity verification failed"
+          existing="$(gh issue list --state open --search "$title in:title" --json number,title \
+            --jq '.[] | select(.title == "SECURITY: FND-010 independent integrity verification failed") | .number' | head -n 1)"
+          message="Critical: independent authorization audit verification failed or could not complete. Inspect the protected runner and incident artifact. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$message"
+          else
+            gh issue create --title "$title" --body "$message"
+          fi
+      - name: Fail workflow on integrity failure
+        if: steps.verify.outcome == 'failure'
+        run: exit 1
