@@ -44,6 +44,38 @@ describe("archlucid-open-gate-return-storage", () => {
     expect(readArchLucidOpenGateReturnRecord("workspace-1")).toBeNull();
   });
 
+  it.each([
+    ["absolute external URL", "https://evil.example/steal"],
+    ["script scheme", "javascript:alert(1)"],
+    ["protocol-relative external URL", "//evil.example/steal"],
+    ["encoded slash smuggling", "/%2f%2fevil.example/steal"],
+    ["backslash traversal", "/\\evil.example/steal"],
+    ["control-character injection", "/architecture/reviews/\u000Brun-1"],
+  ])("does not use an unsafe browser-stored %s", (_label, href) => {
+    window.localStorage.setItem(
+      "archlucid-open-gate-return:workspace-1",
+      JSON.stringify({
+        runId: "run-1",
+        openGateLabel: "Open disposition",
+        href,
+        recordedAtUtc: "2026-11-09T12:00:00.000Z",
+      }),
+    );
+
+    expect(readArchLucidOpenGateReturnRecord("workspace-1")).toBeNull();
+  });
+
+  it("does not persist unsafe return links", () => {
+    writeArchLucidOpenGateReturnRecord("workspace-1", {
+      runId: "run-1",
+      openGateLabel: "Open disposition",
+      href: "javascript:alert(1)",
+      recordedAtUtc: "2026-11-09T12:00:00.000Z",
+    });
+
+    expect(window.localStorage.getItem("archlucid-open-gate-return:workspace-1")).toBeNull();
+  });
+
   it("returns no saved gate when browser storage access is denied", () => {
     vi.spyOn(window, "localStorage", "get").mockImplementation(() => {
       throw new DOMException("Storage access denied", "SecurityError");
