@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { usePolicyPackRuleTemplatesQuery } from "@/hooks/use-policy-pack-rule-templates-query";
 import { simulatePolicyPackAgainstRun } from "@/lib/api";
@@ -87,6 +87,13 @@ export function usePolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) 
   const [simulateResult, setSimulateResult] = useState<
     components["schemas"]["PolicyPackGovernanceDryRunResult"] | null
   >(null);
+  const simulateInputRevision = useRef(0);
+
+  useLayoutEffect(() => {
+    simulateInputRevision.current += 1;
+    setSimulateFailure(null);
+    setSimulateResult(null);
+  }, [effectiveSimulateRunId, jsonPreview, selectedPackId]);
 
   const syncTemplateToUrl = useCallback(
     (templateId: string) => {
@@ -209,6 +216,7 @@ export function usePolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) 
 
   async function runSimulate(): Promise<void> {
     const trimmedRun = effectiveSimulateRunId.trim();
+    setSimulateResult(null);
 
     if (trimmedRun.length === 0) {
       setSimulateFailure(uiFailureFromMessage("Pick a finalized review to validate this policy content."));
@@ -224,6 +232,7 @@ export function usePolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) 
       return;
     }
 
+    const inputRevision = simulateInputRevision.current;
     setSimulateBusy(true);
     setSimulateFailure(null);
 
@@ -236,9 +245,15 @@ export function usePolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) 
         proposedPolicyPackId: proposedId,
       };
       const result = await simulatePolicyPackAgainstRun(body);
+      if (inputRevision !== simulateInputRevision.current) {
+        return;
+      }
       setSimulateResult(result);
       presentPolicyPackSimulateToast(result);
     } catch (error: unknown) {
+      if (inputRevision !== simulateInputRevision.current) {
+        return;
+      }
       const loadFailure = toApiLoadFailure(error);
       const blockedReason = policyPackSimulateBlockedReason(loadFailure);
 
