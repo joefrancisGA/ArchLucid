@@ -258,6 +258,42 @@ public sealed class CircuitBreakingAgentCompletionClientTests
     }
 
     [Fact]
+    public async Task Half_open_unenumerated_stream_does_not_reserve_recovery_probe()
+    {
+        Mock<IAgentStreamingCompletionClient> inner = new();
+        inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
+        inner.Setup(c => c.StreamJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, string _, int? _, float? _, CancellationToken _) => TwoChunks());
+
+        TestClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        CircuitBreakerGate gate = new("stream-lazy-probe",
+            new CircuitBreakerOptions { FailureThreshold = 1, DurationOfBreakSeconds = 30 },
+            clock.ToFunc());
+        CircuitBreakingAgentCompletionClient sut = new(
+            inner.Object, gate, ResiliencePipeline.Empty,
+            NullLogger<CircuitBreakingAgentCompletionClient>.Instance);
+
+        gate.RecordFailure();
+        gate.CurrentState.Should().Be("Open");
+        clock.Advance(TimeSpan.FromSeconds(31));
+
+        // Merely constructing an IAsyncEnumerable must not consume the half-open probe slot.
+        IAsyncEnumerable<string> abandoned = sut.StreamJsonAsync("s", "u");
+        abandoned.Should().NotBeNull();
+        gate.CurrentState.Should().Be("Open");
+
+        int chunks = 0;
+        await foreach (string _ in sut.StreamJsonAsync("s", "u"))
+            chunks++;
+
+        chunks.Should().Be(2);
+        gate.CurrentState.Should().Be("Closed");
+        inner.Verify(c => c.StreamJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task Early_stream_disposal_does_not_open_circuit()
     {
         Mock<IAgentStreamingCompletionClient> inner = new();
