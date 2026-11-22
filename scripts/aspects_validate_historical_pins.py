@@ -174,6 +174,15 @@ def verify_pins(
                 # Multi-file rows are atomic: one bad segment quarantines the
                 # entire review, never silently counting the valid fragments.
                 status = invalid if len(pins) == 1 else "multisource_" + invalid
+        if status == VERIFIED and len(pins) > 1:
+            # Workbook provenance must agree with the COMPLETE atomic review.
+            # A parser that silently drops one multi-file component must never
+            # promote its surviving subset as a verified historical review.
+            reported = row.get("reviewed_loc_reported")
+            actual = sum(len(lines) for _, lines in reviewed)
+            if type(reported) is not int or reported != actual:
+                status = "multisource_reported_loc_mismatch"
+                reviewed = []
         counts[status] += 1
         membership = ("not_checked" if checkpoint is None else
                       "membership_unverified" if eligible_shas is None else
