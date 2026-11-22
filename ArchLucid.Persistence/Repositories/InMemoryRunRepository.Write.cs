@@ -274,14 +274,22 @@ public sealed partial class InMemoryRunRepository
 
         lock (run)
         {
-            if (!RunRepositoryCore.IsActiveInScope(run, scope))
+            // An archive or update may replace this record while we wait.
+            if (!_store.TryGetValue(runId, out RunRecord? current) ||
+                !ReferenceEquals(current, run) ||
+                !RunRepositoryCore.IsActiveInScope(run, scope))
                 throw new RunConcurrencyConflictException(runId);
 
-            run.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
-            run.CompletedUtc ??= completedUtc;
+            RunRecord committed = CopyRunRecord(run);
+            committed.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
+            committed.CompletedUtc ??= completedUtc;
 
-            if (run.GoldenManifestId is null || run.GoldenManifestId == Guid.Empty)
-                run.GoldenManifestId = goldenManifestId;
+            if (committed.GoldenManifestId is null || committed.GoldenManifestId == Guid.Empty)
+                committed.GoldenManifestId = goldenManifestId;
+
+            committed.RowVersion = NextFakeRowVersion();
+            if (!_store.TryUpdate(runId, committed, run))
+                throw new RunConcurrencyConflictException(runId);
         }
 
         return Task.CompletedTask;
@@ -298,27 +306,34 @@ public sealed partial class InMemoryRunRepository
     {
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
-
-        // Match the SQL repository: reject missing IDs, blank decisions and blank actors
-        // before touching a run. Otherwise an invalid decision could be persisted.
         RunRepositoryCore.ValidateOperatorGovernanceDispositionArgs(runId, decision, actorUserId);
 
-        if (!_store.TryGetValue(runId, out RunRecord? run))
-            return Task.FromResult(false);
-
-        lock (run)
+        while (true)
         {
-            if (!RunRepositoryCore.IsActiveInScope(run, scope))
+            ct.ThrowIfCancellationRequested();
+            if (!_store.TryGetValue(runId, out RunRecord? run))
                 return Task.FromResult(false);
 
-            // Keep all four disposition fields together against simultaneous updates.
-            run.OperatorGovernanceDecision = decision.Trim();
-            run.OperatorGovernanceDecisionRationale = rationale;
-            run.OperatorGovernanceDecisionUtc = occurredUtc;
-            run.OperatorGovernanceDecisionByUserId = actorUserId.Trim();
-        }
+            lock (run)
+            {
+                if (!_store.TryGetValue(runId, out RunRecord? current) ||
+                    !ReferenceEquals(current, run))
+                    continue;
 
-        return Task.FromResult(true);
+                if (!RunRepositoryCore.IsActiveInScope(run, scope))
+                    return Task.FromResult(false);
+
+                RunRecord updated = CopyRunRecord(run);
+                updated.OperatorGovernanceDecision = decision.Trim();
+                updated.OperatorGovernanceDecisionRationale = rationale;
+                updated.OperatorGovernanceDecisionUtc = occurredUtc;
+                updated.OperatorGovernanceDecisionByUserId = actorUserId.Trim();
+                updated.RowVersion = NextFakeRowVersion();
+
+                if (_store.TryUpdate(runId, updated, run))
+                    return Task.FromResult(true);
+            }
+        }
     }
 
     private byte[] NextFakeRowVersion()
