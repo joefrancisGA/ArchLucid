@@ -8,6 +8,7 @@ using ArchLucid.Api.Configuration;
 using ArchLucid.Api.Demo;
 using ArchLucid.Api.Hosting;
 using ArchLucid.Api.Startup;
+using ArchLucid.Api.Security;
 using ArchLucid.Api.Workers;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Core.Configuration;
@@ -109,6 +110,7 @@ public partial class Program
         builder.Services.AddArchLucidAuth(builder.Configuration);
         builder.Services.AddArchLucidSaml2IfEnabled(builder.Configuration, builder.Environment);
         builder.Services.AddArchLucidAuthorization();
+        builder.Services.AddScoped<EvidenceReadAuthorizationGate>();
 
         builder.Services.AddArchLucidOpenTelemetry(
             builder.Configuration,
