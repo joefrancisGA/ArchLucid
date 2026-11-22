@@ -9,9 +9,9 @@
     "sha256": "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787",
     "review_sheet": "Review evidence",
     "total_observations": 5741,
-    "match_policy": "literal repository-relative pathname mentions; shorthand/multifile ambiguities unresolved"
+    "match_policy": "Explicit full repository-relative path or exact basename in the workbook reviewed-file-spans field. Ambiguous shorthand references and unparsed review scopes remain unresolved."
   },
-  "method": "In-order exact equal-line alignment via LCS for each historical pinned source revision to the current pinned source. Count only nonblank text uniquely appearing once in each revision and only when both original and current span selections include the line. Union candidate current line numbers across historical rows. No rename/copy inference or alternate-lineage verification.",
+  "method": "In-order exact equal-line alignment via LCS between each historical commit-resolved Git source blob and the current pinned Git blob. Count only nonblank text occurring exactly once in each revision and only when both source interval selections include the line. Union candidate current line numbers across historical rows. No rename/copy inference or independent proof of review history.",
   "confidence": "PROVISIONAL: candidate unchanged-line correspondences, not a validated historical reviewed-line union or proven newly reviewed LOC",
   "populations": {
     "current_reviewed_nonblank_loc": 142,
