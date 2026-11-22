@@ -74,6 +74,8 @@ import { RunDetailDeliverablesBlockedExportFinalizeAndPartialHonesty } from "@/c
 import { RUN_DETAIL_DELIVERABLES_BLOCKED_EXPORT_FINALIZE_AND_PARTIAL_CAPTURE_LINE } from "@/lib/runs/run-detail-deliverables-blocked-export-finalize-and-partial-capture-copy";
 import { RUN_DETAIL_DELIVERABLES_PRIMARY_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE } from "@/lib/runs/run-detail-deliverables-primary-export-finalize-not-load-failure-copy";
 import { RUN_DETAIL_DELIVERABLES_SECONDARY_EXPORTS_FINALIZE_NOT_LOAD_FAILURE_LINE } from "@/lib/runs/run-detail-deliverables-secondary-exports-finalize-not-load-failure-copy";
+import { RUN_DETAIL_ARCHITECTURE_REQUEST_JSON_FINALIZE_NOT_LOAD_FAILURE_LINE } from "@/lib/runs/run-detail-architecture-request-json-finalize-not-load-failure-copy";
+import { RUN_DETAIL_REVIEW_EXPORT_ZIP_FINALIZE_NOT_LOAD_FAILURE_LINE } from "@/lib/runs/run-detail-review-export-zip-finalize-not-load-failure-copy";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -423,7 +425,19 @@ export function RunDetailArtifactsExportsSection(
                 <ExportFormatWhenToUseHint format="docx" />
               </div>
             )}
-            {requestId ? (
+            {requestId && collateralExportBlockedReason !== null ? (
+              <div className={cn("flex flex-col gap-1.5", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>
+                <Button type="button" variant="secondary" disabled data-testid="run-detail-architecture-request-json-export-blocked">
+                  Download Request JSON
+                </Button>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="run-detail-architecture-request-json-finalize-not-load-failure"
+                >
+                  {RUN_DETAIL_ARCHITECTURE_REQUEST_JSON_FINALIZE_NOT_LOAD_FAILURE_LINE}
+                </p>
+              </div>
+            ) : requestId ? (
               <Button
                 type="button"
                 variant="secondary"
@@ -727,6 +741,12 @@ export function RunDetailArtifactsExportsSection(
                         data-testid="run-detail-review-export-blocked-finalize-partial"
                       >
                         {RUN_DETAIL_DELIVERABLES_BLOCKED_EXPORT_FINALIZE_AND_PARTIAL_CAPTURE_LINE}
+                      </p>
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="run-detail-review-export-zip-finalize-not-load-failure"
+                      >
+                        {RUN_DETAIL_REVIEW_EXPORT_ZIP_FINALIZE_NOT_LOAD_FAILURE_LINE}
                       </p>
                     </>
                   ) : (
