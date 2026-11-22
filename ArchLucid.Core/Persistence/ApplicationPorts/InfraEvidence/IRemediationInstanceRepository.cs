@@ -10,8 +10,16 @@ public interface IRemediationInstanceRepository
     Task InsertInstanceInScopeAsync(
         ProjectScopeKey scope,
         RemediationInstanceRecord instance,
-        CancellationToken cancellationToken = default) =>
-        InsertInstanceAsync(instance, cancellationToken);
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(instance);
+        cancellationToken.ThrowIfCancellationRequested();
+        if (!scope.Matches(instance.TenantId, instance.WorkspaceId, instance.ProjectId))
+            throw new InvalidOperationException("Scoped remediation instance payload does not match project authority.");
+
+        return InsertInstanceAsync(instance, cancellationToken);
+    }
 
     Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default);
 
@@ -61,11 +69,24 @@ public interface IRemediationInstanceRepository
 
     Task InsertEvidenceAsync(RemediationEvidenceRecord evidence, CancellationToken cancellationToken = default);
 
-    Task InsertEvidenceInScopeAsync(
+    async Task InsertEvidenceInScopeAsync(
         ProjectScopeKey scope,
         RemediationEvidenceRecord evidence,
-        CancellationToken cancellationToken = default) =>
-        InsertEvidenceAsync(evidence, cancellationToken);
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(evidence);
+        cancellationToken.ThrowIfCancellationRequested();
+        if (evidence.TenantId != scope.TenantId)
+            throw new InvalidOperationException("Scoped remediation evidence tenant does not match project authority.");
+
+        RemediationInstanceRecord? instance =
+            await TryGetByIdInScopeAsync(scope, evidence.InstanceId, cancellationToken);
+        if (instance is null)
+            throw new InvalidOperationException("Scoped remediation instance was not found for evidence insert.");
+
+        await InsertEvidenceAsync(evidence, cancellationToken);
+    }
 
     Task<IReadOnlyList<RemediationEvidenceRecord>> ListEvidenceByInstanceAsync(
         Guid tenantId,
