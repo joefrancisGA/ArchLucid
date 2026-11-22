@@ -301,6 +301,26 @@ public sealed class ProductLearningPlanningRepositoryTests
     }
 
     [SkippableFact]
+    public async Task Artifact_link_rejects_duplicate_link_id()
+    {
+        InMemoryProductLearningPlanningRepository repo = new();
+        Guid planId = await SeedPlanAsync(repo);
+        Guid linkId = Guid.NewGuid();
+        ProductLearningImprovementPlanArtifactLinkRecord link = new()
+        {
+            LinkId = linkId,
+            PlanId = planId,
+            PilotArtifactHint = "diagram.png"
+        };
+
+        await repo.AddPlanArtifactLinkAsync(link, CancellationToken.None);
+
+        InvalidOperationException error = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => repo.AddPlanArtifactLinkAsync(link, CancellationToken.None));
+        Assert.Contains(linkId.ToString(), error.Message, StringComparison.Ordinal);
+    }
+
+    [SkippableFact]
     public void Action_step_validation_rejects_duplicates_and_overflow()
     {
         List<ProductLearningImprovementPlanActionStep> dupOrd =
@@ -324,5 +344,49 @@ public sealed class ProductLearningPlanningRepositoryTests
 
         Assert.Throws<ArgumentException>(() =>
             ProductLearningPlanningRepositoryValidation.EnsureActionSteps(tooMany));
+    }
+
+    private static async Task<Guid> SeedPlanAsync(InMemoryProductLearningPlanningRepository repo)
+    {
+        ProductLearningScope scope = Scope();
+        await repo.InsertThemeAsync(
+            new ProductLearningImprovementThemeRecord
+            {
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                ThemeKey = "duplicate-artifact-link",
+                Title = "Theme",
+                Summary = "Summary",
+                AffectedArtifactTypeOrWorkflowArea = "Architecture",
+                SeverityBand = "Low",
+                EvidenceSignalCount = 1,
+                DistinctRunCount = 1,
+                DerivationRuleVersion = "59R-v1"
+            },
+            CancellationToken.None);
+        Guid themeId = (await repo.ListThemesAsync(scope, 1, CancellationToken.None))[0].ThemeId;
+        await repo.InsertPlanAsync(
+            new ProductLearningImprovementPlanRecord
+            {
+                ThemeId = themeId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                Title = "Plan",
+                Summary = "Summary",
+                ActionSteps =
+                [
+                    new ProductLearningImprovementPlanActionStep
+                    {
+                        Ordinal = 1,
+                        ActionType = "Review",
+                        Description = "Review"
+                    }
+                ],
+                PriorityScore = 1
+            },
+            CancellationToken.None);
+        return (await repo.ListPlansAsync(scope, 1, CancellationToken.None))[0].PlanId;
     }
 }
