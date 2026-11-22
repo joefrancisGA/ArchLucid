@@ -263,15 +263,27 @@ public sealed partial class InMemoryRunRepository
         DateTime occurredUtc,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
 
-        if (!_store.TryGetValue(runId, out RunRecord? run) || !RunRepositoryCore.IsActiveInScope(run, scope))
+        // Match the SQL repository: reject missing IDs, blank decisions and blank actors
+        // before touching a run. Otherwise an invalid decision could be persisted.
+        RunRepositoryCore.ValidateOperatorGovernanceDispositionArgs(runId, decision, actorUserId);
+
+        if (!_store.TryGetValue(runId, out RunRecord? run))
             return Task.FromResult(false);
 
-        run.OperatorGovernanceDecision = decision.Trim();
-        run.OperatorGovernanceDecisionRationale = rationale;
-        run.OperatorGovernanceDecisionUtc = occurredUtc;
-        run.OperatorGovernanceDecisionByUserId = actorUserId.Trim();
+        lock (run)
+        {
+            if (!RunRepositoryCore.IsActiveInScope(run, scope))
+                return Task.FromResult(false);
+
+            // Keep all four disposition fields together against simultaneous updates.
+            run.OperatorGovernanceDecision = decision.Trim();
+            run.OperatorGovernanceDecisionRationale = rationale;
+            run.OperatorGovernanceDecisionUtc = occurredUtc;
+            run.OperatorGovernanceDecisionByUserId = actorUserId.Trim();
+        }
 
         return Task.FromResult(true);
     }
