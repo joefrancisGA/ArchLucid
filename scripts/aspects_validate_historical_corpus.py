@@ -146,7 +146,7 @@ def verify(root: Path) -> dict:
                  f"Out-of-order {count}-observation trend")
         _require(all(x["cumulative_loc"] > 0 and
                      abs(1000 * x["cumulative_defects"] / x["cumulative_loc"] -
-                         x["defects_per_kloc" if count == 600 else "defects_per_kloc"]) < 1e-10
+                         x["defects_per_kloc_reported" if count == 600 else "defects_per_kloc"]) < 1e-10
                      for x in series), f"Invalid {count}-series cumulative rate")
         _require(series[-1]["cumulative_defects"] == 491 and series[-1]["cumulative_loc"] == 343818,
                  f"Unexpected final provisional {count}-observation total")
