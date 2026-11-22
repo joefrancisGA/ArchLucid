@@ -13,6 +13,8 @@ on:
       - scripts/aspects_import_historical_workbook.py
       - scripts/aspects_validate_historical_corpus.py
       - scripts/aspects_validate_historical_pins.py
+      - scripts/aspects_reconcile_historical_lineage.py
+      - scripts/tests/test_aspects_reconcile_historical_lineage.py
       - scripts/tests/test_aspects_validate_historical_pins.py
       - scripts/aspects_reconcile_historical_corpus.py
       - scripts/tests/test_aspects_reconcile_historical_corpus.py
@@ -95,6 +97,26 @@ jobs:
               f.write("Cross-revision line identity and historical distinct-defect reconciliation remain unresolved.\n\n")
           PY
 
+      - name: Reconcile provisional cross-revision unchanged-line identity in the exact historical window
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_historical_lineage.py' -v
+          python scripts/aspects_reconcile_historical_lineage.py \
+            --repo . \
+            --rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --pin-report artifacts/aspects/historical-git-pin-audit.json \
+            --state docs/engineering/aspects-historical-restoration-state.json \
+            --json-out artifacts/aspects/historical-900-cross-revision-lineage.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path("artifacts/aspects/historical-900-cross-revision-lineage.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
+              output.write(f"Cross-revision historical pin reconciliation: **{report['status']}**.\n\n")
+              if report["status"] == "provisional_same_path_unique_unchanged_lineage":
+                  output.write(f"Exact path/blob union (window-eligible only): **{report['verified_unique_exact_path_blob_lines_in_window']:,} LOC**; provisional uniquely unchanged-line union: **{report['provisionally_mapped_unique_loc']:,} LOC**.\n\n")
+              output.write("Legacy 463/343,492 density remains independent and partial; source-line mappings do not verify reviewed events or distinct defects.\n\n")
+          PY
+
       - name: Validate historical workbook import when migration source is staged
         shell: bash
         run: |
@@ -154,6 +176,7 @@ jobs:
             artifacts/aspects/historical-corpus-validation.json
             artifacts/aspects/historical-git-pin-audit.json
             artifacts/aspects/historical-git-pin-rows.jsonl
+            artifacts/aspects/historical-900-cross-revision-lineage.json
             artifacts/aspects/aspects-historical-exact-overlap.json
           if-no-files-found: error
 
