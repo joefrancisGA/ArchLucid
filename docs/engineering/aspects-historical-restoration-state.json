@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "source": {
+    "name": "ArchLucid_Defect_Density_Trend_repaired.xlsx",
+    "sha256": "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787",
+    "repository_copy_present": false,
+    "library_file_id": "file_00000000731081f58e9c07a7770f2925",
+    "review_sheet": "Review evidence",
+    "first_excel_row": 7,
+    "last_excel_row": 5747
+  },
+  "historical_review_observations": 5741,
+  "clean_review_observations": 4864,
+  "confirmed_defect_observations_not_distinct": 877,
+  "historical_incremental_loc_reported_known_sum": 402314,
+  "historical_reviewed_loc_occurrences": 443456,
+  "missing_incremental_loc_observations": 30,
+  "parseable_single_source_blob_pinned_observations": 4511,
+  "unparseable_or_multi_file_observations": 1230,
+  "last_900_first_parent_snapshot": {
+    "as_of_utc": "2026-11-22T14:43:27.293Z",
+    "as_of_et": "November 22, 2026, 9:43:27 AM EST",
+    "defects": 463,
+    "unique_loc": 343492,
+    "per_kloc": 1.3479207667136353,
+    "head_sha": "15ac3b9abeff23e4fa8cb7a16027bf9b17211251",
+    "oldest_included_sha": "6252805a908f5bf0413bb40c68cb546013ff1843",
+    "verification": "historical workbook partial"
+  },
+  "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
+  "state": "source_examined_migration_script_and_tests_committed_corpus_not_yet_imported_to_repository",
+  "next_priority": "Run importer against exact Library workbook and transfer full JSONL archive into private repository, then revalidate pinned Git blobs and restore reporting without incompatible splice."
+}
