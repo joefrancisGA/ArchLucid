@@ -211,6 +211,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           </div>
         ) : null}
         <RunIdPicker
+          label="Updated review"
           placeholder="Choose an updated review"
           value={rightRunId}
           onChange={onRightRunIdChange}
