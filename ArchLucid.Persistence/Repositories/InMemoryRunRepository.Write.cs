@@ -42,7 +42,7 @@ public sealed partial class InMemoryRunRepository
             }
 
             run.RowVersion = NextFakeRowVersion();
-            if (!_store.TryAdd(run.RunId, run))
+            if (!_store.TryAdd(run.RunId, CopyRunRecord(run)))
                 throw new InvalidOperationException($"Run '{run.RunId:D}' already exists.");
         }
         finally
@@ -66,15 +66,32 @@ public sealed partial class InMemoryRunRepository
             throw new InvalidOperationException(
                 string.Format(CultureInfo.InvariantCulture, "Run '{0:D}' was not found for update.", run.RunId));
 
-        CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(existing, run);
+        lock (existing)
+        {
+            // A concurrent update can replace the dictionary value while this caller
+            // waits to acquire the lock; reject stale writes rather than overwriting it.
+            if (!_store.TryGetValue(run.RunId, out RunRecord? current) ||
+                !ReferenceEquals(current, existing))
+                throw new RunConcurrencyConflictException(run.RunId);
 
-        if (run.RowVersion is not null &&
-            existing.RowVersion is not null &&
-            !existing.RowVersion.AsSpan().SequenceEqual(run.RowVersion))
-            throw new RunConcurrencyConflictException(run.RunId);
+            CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(existing, run);
 
-        run.RowVersion = NextFakeRowVersion();
-        _store[run.RunId] = run;
+            if (run.RowVersion is not null &&
+                existing.RowVersion is not null &&
+                !existing.RowVersion.AsSpan().SequenceEqual(run.RowVersion))
+                throw new RunConcurrencyConflictException(run.RunId);
+
+            RunRecord replacement = CopyRunRecord(run);
+            replacement.RowVersion = NextFakeRowVersion();
+
+            if (!_store.TryUpdate(run.RunId, replacement, existing))
+                throw new RunConcurrencyConflictException(run.RunId);
+
+            // Preserve SQL semantics: the caller receives its new concurrency token,
+            // but must not retain a reference to the token stored in the dictionary.
+            run.RowVersion = replacement.RowVersion.ToArray();
+        }
+
         return Task.CompletedTask;
     }
 
