@@ -13,7 +13,10 @@ import sys
 from pathlib import Path
 
 from cryptography.hazmat.primitives import serialization
-from fnd010_managed_checkpoint import verify_checkpoint
+try:
+    from .fnd010_managed_checkpoint import verify_checkpoint
+except ImportError:
+    from fnd010_managed_checkpoint import verify_checkpoint
 
 
 def sql_query(command: list[str], statement: str) -> str:
