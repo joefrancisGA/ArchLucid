@@ -58,8 +58,11 @@ public sealed class CircuitBreakingOpenAiEmbeddingClient : IOpenAiEmbeddingClien
         }
         catch (Exception ex)
         {
-            if (ProviderHttpFailurePolicy.ShouldRecordEmbeddingFailure(ex))
+            if (ProviderHttpFailurePolicy.ShouldRecordProviderFailure(ex))
                 _gate.RecordFailure();
+            else
+                // A semantic-terminal error is neutral; release a half-open recovery probe.
+                _gate.RecordCallCancelled();
             _logger.LogWarning(ex,
                 "Azure OpenAI embedding call failed after retries; circuit breaker evaluated failure.");
             throw;
@@ -90,8 +93,11 @@ public sealed class CircuitBreakingOpenAiEmbeddingClient : IOpenAiEmbeddingClien
         }
         catch (Exception ex)
         {
-            if (ProviderHttpFailurePolicy.ShouldRecordEmbeddingFailure(ex))
+            if (ProviderHttpFailurePolicy.ShouldRecordProviderFailure(ex))
                 _gate.RecordFailure();
+            else
+                // A semantic-terminal error is neutral; release a half-open recovery probe.
+                _gate.RecordCallCancelled();
             _logger.LogWarning(ex,
                 "Azure OpenAI embedding batch failed after retries; circuit breaker evaluated failure.");
             throw;
