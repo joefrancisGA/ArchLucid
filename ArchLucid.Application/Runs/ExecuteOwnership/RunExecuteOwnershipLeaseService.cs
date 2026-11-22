@@ -73,9 +73,10 @@ public sealed class RunExecuteOwnershipLeaseService(
                 $"Run '{runId:D}' execute is already in progress on this host instance. Wait for the in-flight execute to finish or retry on another replica.");
         }
 
+        bool acquired = false;
         try
         {
-            bool acquired = await _leaseRepository.TryAcquireOrRenewAsync(
+            acquired = await _leaseRepository.TryAcquireOrRenewAsync(
                 runId,
                 holderInstanceId,
                 durationSeconds,
@@ -100,8 +101,24 @@ public sealed class RunExecuteOwnershipLeaseService(
         }
         catch
         {
-            _activeHolders.TryRemove(runId);
+            // A cancellation or exception after SQL acquisition must not strand a lease
+            // until its expiry. Cleanup must not inherit the cancelled request token.
+            if (acquired)
+            {
+                try
+                {
+                    await _leaseRepository.TryReleaseAsync(
+                        runId, holderInstanceId, CancellationToken.None).ConfigureAwait(false);
+                }
+                catch (Exception cleanupException)
+                {
+                    if (_logger.IsEnabled(LogLevel.Warning))
+                        _logger.LogWarning(cleanupException,
+                            "Failed to release execute lease after unsuccessful admission for RunId={RunId}.", runId);
+                }
+            }
 
+            _activeHolders.TryRemove(runId);
             throw;
         }
     }
