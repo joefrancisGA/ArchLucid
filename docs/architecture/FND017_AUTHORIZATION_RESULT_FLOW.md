@@ -1,0 +1,5 @@
+# FND-017 authorization decision consumption (advisory)
+
+`FND017003` inspects the SecureNow temporal snapshot method and resolves actual `EvidenceReadAuthorizationGate.AuthorizeAsync` symbols. It flags ignored authorization results, assignments without a negative `Allowed` guard, and guards whose denial branch does not terminate. A recognized pattern is a local assignment followed immediately by `if (!decision.Allowed) return ...;` or an equivalent throw. This complements FND017002's call-order heuristic.
+
+This is a deliberately **narrow, advisory pattern check**, not a general control-flow or dataflow proof. In particular, a return nested in a conditional branch may not terminate all paths, alternate guards and helper methods may produce false positives, and an authorized decision may be invalidated after the guard. No CI blocking or production authorization changes are introduced. Future work should use Roslyn control-flow graph dominance and operation analysis, review the baseline, and validate with cross-tenant HTTP tests before enforcement.
