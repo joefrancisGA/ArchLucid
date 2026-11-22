@@ -1,7 +1,7 @@
 name: FND-010 .NET Evidence Authorization
 on:
   pull_request:
-    branches: [master, main]
+    branches: [master, main, architecture/fnd010-scim-acl-authority]
   workflow_dispatch:
 permissions:
   contents: read
@@ -14,4 +14,7 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --filter FullyQualifiedName~EvidenceReadAuthorizationGateTests|FullyQualifiedName~ScimProjectEvidenceEntitlementAuthorityTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~SecureNowSnapshotExchangeContractTests
+      - name: Run targeted FND-010 .NET authorization suites
+        run: >-
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+          --filter "FullyQualifiedName~EvidenceReadAuthorizationGateTests|FullyQualifiedName~ScimProjectEvidenceEntitlementAuthorityTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~SecureNowSnapshotExchangeContractTests"
