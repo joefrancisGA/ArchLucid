@@ -53,10 +53,7 @@ jobs:
         run: |
           workbook="docs/engineering/input/ArchLucid_Defect_Density_Trend_repaired.xlsx"
           if [ -f "$workbook" ]; then
-            python scripts/aspects_import_historical_workbook.py \\
-              --workbook "$workbook" \\
-              --new-ledger docs/engineering/aspects-review-ledger.jsonl \\
-              --output-dir artifacts/aspects/historical
+            python scripts/aspects_import_historical_workbook.py --workbook "$workbook" --new-ledger docs/engineering/aspects-review-ledger.jsonl --output-dir artifacts/aspects/historical
           else
             echo '::notice::Historical baseline is preserved from source workbook, but full per-row corpus is not in this checkout. Git-backed cross-revision reconciliation remains pending.'
           fi
