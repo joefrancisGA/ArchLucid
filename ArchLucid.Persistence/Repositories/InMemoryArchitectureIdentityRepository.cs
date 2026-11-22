@@ -72,11 +72,8 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
         ArgumentException.ThrowIfNullOrWhiteSpace(currentModelId);
         cancellationToken.ThrowIfCancellationRequested();
 
-        ArchitectureIdentityRecord record = RequireScopedRecord(scope, architectureId);
 
-        record.CurrentModelId = currentModelId;
-        record.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-
+        UpdateScopedRecord(scope, architectureId, null, record => record.CurrentModelId = currentModelId, throwOnMissing: true);
         return Task.CompletedTask;
     }
 
@@ -89,11 +86,8 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
         ArgumentNullException.ThrowIfNull(scope);
         cancellationToken.ThrowIfCancellationRequested();
 
-        ArchitectureIdentityRecord record = RequireScopedRecord(scope, architectureId);
 
-        record.LatestSealedManifestId = manifestId;
-        record.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-
+        UpdateScopedRecord(scope, architectureId, null, record => record.LatestSealedManifestId = manifestId, throwOnMissing: true);
         return Task.CompletedTask;
     }
 
@@ -107,29 +101,20 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
         ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? record))
-            return Task.FromResult(false);
-
-        if (record.TenantId != scope.TenantId ||
-            record.WorkspaceId != scope.WorkspaceId ||
-            record.ScopeProjectId != scope.ProjectId)
-            return Task.FromResult(false);
-
         string normalizedDisplayName = ArchitectureIdentityDisplayNameDefaults.Resolve(displayName);
-
-        if (!string.Equals(
-                record.DisplayName,
-                ArchitectureIdentityDisplayNameDefaults.UntitledArchitecture,
+        if (string.Equals(normalizedDisplayName, ArchitectureIdentityDisplayNameDefaults.UntitledArchitecture,
                 StringComparison.Ordinal))
             return Task.FromResult(false);
 
-        if (string.Equals(record.DisplayName, normalizedDisplayName, StringComparison.Ordinal))
-            return Task.FromResult(false);
-
-        record.DisplayName = normalizedDisplayName;
-        record.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-
-        return Task.FromResult(true);
+        // The precondition and replacement must be one atomic compare/exchange.
+        // Multiple concurrent backfill calls must not both claim the untitled row.
+        return Task.FromResult(UpdateScopedRecord(
+            scope,
+            architectureId,
+            record => string.Equals(record.DisplayName,
+                ArchitectureIdentityDisplayNameDefaults.UntitledArchitecture,
+                StringComparison.Ordinal),
+            record => record.DisplayName = normalizedDisplayName));
     }
 
     public Task<bool> TryPatchAsync(
@@ -147,26 +132,20 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
         if (!updateDisplayName && !updateDescription)
             return Task.FromResult(false);
 
-        if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? record))
-            return Task.FromResult(false);
-
-        if (record.TenantId != scope.TenantId ||
-            record.WorkspaceId != scope.WorkspaceId ||
-            record.ScopeProjectId != scope.ProjectId)
-            return Task.FromResult(false);
-
         if (updateDisplayName)
-        {
             ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
-            record.DisplayName = displayName!;
-        }
 
-        if (updateDescription)
-            record.Description = description;
-
-        record.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-
-        return Task.FromResult(true);
+        return Task.FromResult(UpdateScopedRecord(
+            scope,
+            architectureId,
+            null,
+            record =>
+            {
+                if (updateDisplayName)
+                    record.DisplayName = displayName!;
+                if (updateDescription)
+                    record.Description = description;
+            }));
     }
 
     public Task<bool> TrySetArchivedAsync(
@@ -178,20 +157,9 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
         ArgumentNullException.ThrowIfNull(scope);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? record))
-            return Task.FromResult(false);
-
-        if (record.TenantId != scope.TenantId ||
-            record.WorkspaceId != scope.WorkspaceId ||
-            record.ScopeProjectId != scope.ProjectId)
-            return Task.FromResult(false);
-
         DateTime nowUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-
-        record.ArchivedUtc = archived ? nowUtc : null;
-        record.UpdatedUtc = nowUtc;
-
-        return Task.FromResult(true);
+        return Task.FromResult(UpdateScopedRecord(
+            scope, architectureId, null, record => record.ArchivedUtc = archived ? nowUtc : null));
     }
 
     public Task<int> CountArchivedInScopeAsync(
@@ -229,17 +197,46 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
             RestrictToShares = record.RestrictToShares,
         };
 
-    private ArchitectureIdentityRecord RequireScopedRecord(ScopeContext scope, Guid architectureId)
+    /// <summary>
+    /// Atomically replaces a scoped row. Stored dictionary records are never mutated after
+    /// publication, so reads and list enumeration see consistent field snapshots.
+    /// This matches SQL's conditional UPDATE semantics for the untitled transition.
+    /// </summary>
+    private bool UpdateScopedRecord(
+        ScopeContext scope,
+        Guid architectureId,
+        Func<ArchitectureIdentityRecord, bool>? precondition,
+        Action<ArchitectureIdentityRecord> mutate,
+        bool throwOnMissing = false)
     {
-        if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? record))
-            throw new InvalidOperationException($"Architecture identity id '{architectureId:D}' was not found.");
+        while (true)
+        {
+            if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? current))
+            {
+                if (throwOnMissing)
+                    throw new InvalidOperationException($"Architecture identity id '{architectureId:D}' was not found.");
+                return false;
+            }
 
-        if (record.TenantId != scope.TenantId ||
-            record.WorkspaceId != scope.WorkspaceId ||
-            record.ScopeProjectId != scope.ProjectId)
-            throw new InvalidOperationException(
-                $"Architecture identity id '{architectureId:D}' is outside the active scope.");
+            if (current.TenantId != scope.TenantId ||
+                current.WorkspaceId != scope.WorkspaceId ||
+                current.ScopeProjectId != scope.ProjectId)
+            {
+                if (throwOnMissing)
+                    throw new InvalidOperationException(
+                        $"Architecture identity id '{architectureId:D}' is outside the active scope.");
+                return false;
+            }
 
-        return record;
+            if (precondition is not null && !precondition(current))
+                return false;
+
+            ArchitectureIdentityRecord replacement = Clone(current);
+            mutate(replacement);
+            replacement.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+
+            if (_byId.TryUpdate(architectureId, replacement, current))
+                return true;
+        }
     }
 }
