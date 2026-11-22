@@ -115,6 +115,7 @@ public partial class Program
         builder.Services.AddScoped<ICentralAuthorizationAudit, LoggingCentralAuthorizationAudit>();
         builder.Services.AddScoped<ITrustedWorkerIdentity, DenyUnconfiguredWorkerIdentity>();
         builder.Services.AddScoped<WorkerAuthorizationAdapter>();
+        builder.Services.AddScoped<IRemediationApprovalAuthority, DenyUnconfiguredRemediationApproval>();
         builder.Services.AddScoped<ICentralAuthorizationDecisions, CentralAuthorizationDecisions>();
         builder.Services.AddScoped<EvidenceReadAuthorizationGate>();
 

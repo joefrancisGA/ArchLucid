@@ -33,7 +33,7 @@ public sealed class CentralAuthorizationAuditWorkerTests
             .ThrowsAsync(new InvalidOperationException("audit unavailable"));
 
         CentralAuthorizationDecisions service = new(
-            scopes.Object, entitlements.Object, policies.Object, audit.Object, TimeProvider.System);
+            scopes.Object, entitlements.Object, policies.Object, audit.Object, TimeProvider.System, new DenyUnconfiguredRemediationApproval());
         ClaimsPrincipal principal = new(new ClaimsIdentity(
             [new Claim(ClaimTypes.NameIdentifier, "operator")], "test"));
         CentralAuthorizationDecision decision = await service.DecideAsync(principal,

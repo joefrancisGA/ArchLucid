@@ -37,7 +37,7 @@ public sealed class CentralAuthorizationDecisionsTests
         audit.Setup(a => a.WriteAsync(
             It.IsAny<CentralAuthorizationAuditRecord>(),
             It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        return (new CentralAuthorizationDecisions(scope.Object, entitlements.Object, policy.Object, audit.Object, TimeProvider.System),
+        return (new CentralAuthorizationDecisions(scope.Object, entitlements.Object, policy.Object, audit.Object, TimeProvider.System, new DenyUnconfiguredRemediationApproval()),
             entitlements, policy);
     }
 

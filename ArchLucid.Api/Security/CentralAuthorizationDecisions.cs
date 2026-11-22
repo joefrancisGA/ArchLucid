@@ -29,7 +29,8 @@ public sealed class CentralAuthorizationDecisions(
     IEvidenceEntitlementAuthority entitlements,
     IAuthorizationService authorization,
     ICentralAuthorizationAudit audit,
-    TimeProvider clock) : ICentralAuthorizationDecisions
+    TimeProvider clock,
+    IRemediationApprovalAuthority remediationApprovals) : ICentralAuthorizationDecisions
 {
     public async Task<CentralAuthorizationDecision> DecideAsync(
         ClaimsPrincipal principal, CentralAuthorizationRequest request,
@@ -76,7 +77,7 @@ public sealed class CentralAuthorizationDecisions(
         CancellationToken cancellationToken)
     {
         if (principal.Identity?.IsAuthenticated != true ||
-            request.Action != "evidence.read" ||
+            (request.Action != "evidence.read" && request.Action != "remediation.plan") ||
             request.TenantId == Guid.Empty || request.WorkspaceId == Guid.Empty ||
             request.ProjectId == Guid.Empty || request.ResourceId == Guid.Empty)
             return CentralAuthorizationDecision.Deny("invalid_identity_action_or_resource");
@@ -86,6 +87,24 @@ public sealed class CentralAuthorizationDecisions(
             scope.WorkspaceId != request.WorkspaceId ||
             scope.ProjectId != request.ProjectId)
             return CentralAuthorizationDecision.Deny("scope_mismatch");
+
+        if (request.Action == "remediation.plan")
+        {
+            // Independent approval is required in addition to a project-level
+            // execute policy. The default approval provider denies every request.
+            if (!await remediationApprovals.IsApprovedAsync(
+                    principal, request, cancellationToken).ConfigureAwait(false))
+                return CentralAuthorizationDecision.Deny("remediation_approval_missing");
+
+            AuthorizationResult executePolicy = await authorization.AuthorizeAsync(
+                principal, new EvidenceReadResource(
+                    request.TenantId, request.WorkspaceId, request.ProjectId, request.ResourceId),
+                ArchLucid.Core.Authorization.ArchLucidPolicies.ExecuteAuthority)
+                .ConfigureAwait(false);
+            return executePolicy.Succeeded
+                ? new CentralAuthorizationDecision(true, "authorized")
+                : CentralAuthorizationDecision.Deny("not_authorized");
+        }
 
         var resource = new EvidenceReadResource(
             request.TenantId, request.WorkspaceId, request.ProjectId, request.ResourceId);

@@ -55,6 +55,7 @@ public sealed class SecureNowSnapshotHttpBoundaryTests
             .AddSingleton(entitlements.Object)
             .AddSingleton(TimeProvider.System)
             .AddSingleton<ICentralAuthorizationAudit>(Mock.Of<ICentralAuthorizationAudit>(a => a.WriteAsync(It.IsAny<CentralAuthorizationAuditRecord>(), It.IsAny<CancellationToken>()) == Task.CompletedTask))
+            .AddSingleton<IRemediationApprovalAuthority, DenyUnconfiguredRemediationApproval>()
             .AddScoped<ICentralAuthorizationDecisions, CentralAuthorizationDecisions>()
             .AddScoped<EvidenceReadAuthorizationGate>()
             .BuildServiceProvider();
