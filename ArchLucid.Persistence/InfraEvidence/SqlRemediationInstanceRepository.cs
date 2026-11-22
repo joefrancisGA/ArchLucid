@@ -134,7 +134,8 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
                              AND ProjectId = @ProjectId
-                             AND InstanceId = @InstanceId;
+                             AND InstanceId = @InstanceId
+                             AND (@ExpectedUpdatedUtc IS NULL OR UpdatedUtc = @ExpectedUpdatedUtc);
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -148,6 +149,7 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                     scope.WorkspaceId,
                     scope.ProjectId,
                     mutation.InstanceId,
+                    mutation.ExpectedUpdatedUtc,
                     Status = (int)mutation.Status,
                     mutation.CloudResourceId,
                     mutation.PathId,
@@ -171,7 +173,9 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                 cancellationToken: cancellationToken));
 
         if (affected != 1)
-            throw new InvalidOperationException("Scoped remediation instance mutation did not update exactly one record.");
+            throw new InvalidOperationException(mutation.ExpectedUpdatedUtc.HasValue
+                ? "Scoped remediation mutation failed: record missing, outside scope, or changed since it was read."
+                : "Scoped remediation instance mutation did not update exactly one record.");
     }
 
     public async Task<RemediationInstanceRecord?> TryGetByIdAsync(
