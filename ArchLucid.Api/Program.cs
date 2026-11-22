@@ -111,6 +111,10 @@ public partial class Program
         builder.Services.AddArchLucidSaml2IfEnabled(builder.Configuration, builder.Environment);
         builder.Services.AddArchLucidAuthorization();
         builder.Services.AddScoped<IEvidenceEntitlementAuthority, ScimProjectEvidenceEntitlementAuthority>();
+        builder.Services.AddSingleton(TimeProvider.System);
+        builder.Services.AddScoped<ICentralAuthorizationAudit, LoggingCentralAuthorizationAudit>();
+        builder.Services.AddScoped<ITrustedWorkerIdentity, DenyUnconfiguredWorkerIdentity>();
+        builder.Services.AddScoped<WorkerAuthorizationAdapter>();
         builder.Services.AddScoped<ICentralAuthorizationDecisions, CentralAuthorizationDecisions>();
         builder.Services.AddScoped<EvidenceReadAuthorizationGate>();
 
