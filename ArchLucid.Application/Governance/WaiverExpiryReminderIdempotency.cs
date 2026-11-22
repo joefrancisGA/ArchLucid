@@ -12,9 +12,9 @@ public static class WaiverExpiryReminderIdempotency
     /// <summary>
     ///     One key per exception, per expiry deadline, per boundary.
     ///     <para>
-    ///         The expiry day is part of the key on purpose. Keyed only by exception and boundary, a renewed waiver
+    ///         The exact UTC expiry instant is part of the key on purpose. Keyed only by exception and boundary, a renewed waiver
     ///         would be permanently silent — its new deadline would reuse a key that was already burned against the
-    ///         old deadline. Including the day means a renewal starts a fresh reminder series while a process restart
+    ///         old deadline. Including the instant means even same-day renewal starts a fresh reminder series while a process restart
     ///         still reuses the same key and stays deduplicated.
     ///     </para>
     /// </summary>
@@ -23,12 +23,11 @@ public static class WaiverExpiryReminderIdempotency
         if (riskExceptionId == Guid.Empty)
             throw new ArgumentException("Risk exception id is required.", nameof(riskExceptionId));
 
-        string expiryDay = DateOnly
-            .FromDateTime(expiresAtUtc.UtcDateTime)
-            .ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        string expiryInstant = expiresAtUtc.UtcDateTime
+            .ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ", CultureInfo.InvariantCulture);
 
         return string.Create(
             CultureInfo.InvariantCulture,
-            $"{EmailTemplateId}:{riskExceptionId:N}:{expiryDay}:{boundaryDays}");
+            $"{EmailTemplateId}:{riskExceptionId:N}:{expiryInstant}:{boundaryDays}");
     }
 }

@@ -33,4 +33,41 @@ public sealed class DapperAgentResultRepositoryContractTests(SqlServerPersistenc
         await ArchitectureCommitTestSeed.InsertRequestAndRunAsync(connection, requestId, runId, ct);
         await ArchitectureCommitTestSeed.InsertAgentTaskAsync(connection, task, ct);
     }
+
+    [SkippableFact]
+    public async Task ReplaceForRunTask_rolls_back_the_delete_when_the_insert_fails()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentResultRepository repository = CreateRepository();
+        string requestId = "arr-replace-rollback-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask replacedTask = NewTaskRow(runId, "replace-rollback-target");
+        AgentTask conflictingTask = NewTaskRow(runId, "replace-rollback-conflict");
+
+        await PrepareRunTaskChainAsync(requestId, runId, replacedTask, CancellationToken.None);
+        await PrepareRunTaskChainAsync(requestId, runId, conflictingTask, CancellationToken.None);
+
+        DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
+        await repository.CreateAsync(
+            NewResult(runId, replacedTask.TaskId, "original-result", createdUtc),
+            CancellationToken.None);
+        await repository.CreateAsync(
+            NewResult(runId, conflictingTask.TaskId, "conflicting-result-id", createdUtc),
+            CancellationToken.None);
+
+        Func<Task> replace = () => repository.ReplaceForRunTaskAsync(
+            NewResult(runId, replacedTask.TaskId, "conflicting-result-id", createdUtc.AddSeconds(1)),
+            CancellationToken.None);
+
+        await replace.Should().ThrowAsync<SqlException>();
+
+        IReadOnlyList<AgentResult> loaded = await repository.GetByRunIdAsync(
+            ArchitectureCommitTestSeed.AsScopeContext(),
+            runId,
+            CancellationToken.None);
+
+        loaded.Select(static result => result.ResultId)
+            .Should()
+            .BeEquivalentTo(["original-result", "conflicting-result-id"]);
+    }
 }

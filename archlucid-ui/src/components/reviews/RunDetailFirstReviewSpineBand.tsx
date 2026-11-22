@@ -189,6 +189,15 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
       data-testid="run-detail-first-review-spine-band"
       aria-label="First-review spine"
     >
+      {(["findings", "review-package"] as const)
+        .filter((tab) => tab !== summary.openGateReviewTab)
+        .map((tab) => (
+          <span
+            key={tab}
+            id={resolveFirstReviewSpineOpenGateSectionId(tab) ?? undefined}
+            className="block scroll-mt-24"
+          />
+        ))}
       <div className="flex flex-wrap items-center gap-2">
         <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>First-review spine</p>
         <StatusTag

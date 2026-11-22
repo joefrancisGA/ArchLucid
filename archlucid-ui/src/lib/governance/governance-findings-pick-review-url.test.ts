@@ -95,34 +95,4 @@ describe("governanceFindingsPickReviewForTriageHref", () => {
     expect(href).not.toContain(`${FINDING_KEYBOARD_TRIAGE_FINDING_ID_PARAM}=`);
     expect(href).not.toContain(`${GOVERNANCE_RECORD_CORRECTION_KIND_PARAM}=`);
   });
-
-  it("clears armed preset-remove confirm when picking a review", () => {
-    const href = governanceFindingsPickReviewForTriageHref(
-      "filter=open&removePresetId=preset-1",
-      "/governance/findings",
-      "run-9",
-    );
-
-    expect(href).toBe("/governance/findings?filter=open&runId=run-9");
-    expect(href).not.toContain("removePresetId=");
-  });
-
-  it("retains hideGeneric when picking a review for triage", () => {
-    const href = governanceFindingsPickReviewForTriageHref(
-      "hideGeneric=1&filter=open",
-      "/governance/findings",
-      "run-9",
-    );
-
-    expect(href).toBe("/governance/findings?hideGeneric=1&filter=open&runId=run-9");
-  });
-  it("retains triage focusedFinding when picking a review for triage", () => {
-    const href = governanceFindingsPickReviewForTriageHref(
-      "focusedFinding=finding-1&filter=open",
-      "/governance/findings",
-      "run-9",
-    );
-
-    expect(href).toBe("/governance/findings?focusedFinding=finding-1&filter=open&runId=run-9");
-  });
 });

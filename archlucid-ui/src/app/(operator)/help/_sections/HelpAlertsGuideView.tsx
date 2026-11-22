@@ -225,6 +225,7 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
           <div
             id={ALERTS_HELP_SKIP_TARGET_ID}
             data-testid={ALERTS_HELP_FIRST_VIEWPORT_TEST_ID}
+            tabIndex={-1}
             className={cn(
               "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
               OPERATOR_LAYOUT.sectionStack,

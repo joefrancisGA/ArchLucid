@@ -172,7 +172,7 @@ public sealed partial class DapperDraftRequestRepository
                              AND ProjectId = @ProjectId
                              AND Status = N'RunSpawned'
                              AND DraftId <> @ExcludeDraftId
-                           ORDER BY UpdatedUtc DESC;
+                           ORDER BY UpdatedUtc DESC, DraftId DESC;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

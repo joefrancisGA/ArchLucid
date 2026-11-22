@@ -94,6 +94,7 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
                 .GroupBy(r => r.ExportRecordId, StringComparer.Ordinal)
                 .Select(g => g.First())
                 .OrderByDescending(r => r.CreatedUtc)
+                .ThenByDescending(r => r.ExportRecordId, StringComparer.Ordinal)
                 .Select(Clone)
                 .ToList();
 

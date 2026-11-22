@@ -70,6 +70,36 @@ public sealed class RunScopedLlmBudgetReservationServiceTests
     }
 
     [Fact]
+    public async Task Admit_propagates_caller_cancellation_during_budget_read()
+    {
+        using CancellationTokenSource cancellation = new();
+        Mock<ILlmTenantBudgetRepository> budgetRepo = new();
+        budgetRepo
+            .Setup(r => r.GetOrCreateAsync(
+                It.IsAny<Guid>(),
+                LlmBudgetPeriod.Monthly,
+                It.IsAny<string>(),
+                cancellation.Token))
+            .Returns(() =>
+            {
+                cancellation.Cancel();
+                return Task.FromCanceled<LlmTenantBudgetStateReadModel>(cancellation.Token);
+            });
+
+        RunScopedLlmBudgetReservationService sut = CreateSut(
+            reservationEnabled: true,
+            monthlyEnabled: true,
+            assumedUsdPerCall: 5m,
+            maxCostPerRun: null,
+            hardCutoffUsd: 100m,
+            budgetRepository: budgetRepo.Object);
+
+        var exception = await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            () => sut.AdmitBeforeAgentBatchAsync(Guid.NewGuid(), "run-canceled", 1, cancellation.Token));
+        Assert.Equal(cancellation.Token, exception.CancellationToken);
+    }
+
+    [Fact]
     public async Task Admit_pass_through_when_feature_disabled()
     {
         RunScopedLlmBudgetReservationService sut = CreateSut(

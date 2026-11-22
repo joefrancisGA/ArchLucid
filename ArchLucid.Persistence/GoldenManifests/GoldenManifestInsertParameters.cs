@@ -20,6 +20,21 @@ internal static class GoldenManifestInsertParameters
         ArgumentNullException.ThrowIfNull(manifest);
         ArgumentNullException.ThrowIfNull(payload);
 
+        bool payloadIsOffloaded = !string.IsNullOrWhiteSpace(manifestPayloadBlobUri);
+        string metadataJson = payloadIsOffloaded ? string.Empty : payload.MetadataJson;
+        string requirementsJson = payloadIsOffloaded ? string.Empty : payload.RequirementsJson;
+        string topologyJson = payloadIsOffloaded ? string.Empty : payload.TopologyJson;
+        string securityJson = payloadIsOffloaded ? string.Empty : payload.SecurityJson;
+        string complianceJson = payloadIsOffloaded ? string.Empty : payload.ComplianceJson;
+        string costJson = payloadIsOffloaded ? string.Empty : payload.CostJson;
+        string constraintsJson = payloadIsOffloaded ? string.Empty : payload.ConstraintsJson;
+        string unresolvedIssuesJson = payloadIsOffloaded ? string.Empty : payload.UnresolvedIssuesJson;
+        string decisionsJson = payloadIsOffloaded ? string.Empty : payload.DecisionsJson;
+        string assumptionsJson = payloadIsOffloaded ? string.Empty : payload.AssumptionsJson;
+        string warningsJson = payloadIsOffloaded ? string.Empty : payload.WarningsJson;
+        string provenanceJson = payloadIsOffloaded ? string.Empty : payload.ProvenanceJson;
+        string hasherBoundJson = payloadIsOffloaded ? string.Empty : payload.HasherBoundJson;
+
         return new
         {
             manifest.TenantId,
@@ -36,19 +51,19 @@ internal static class GoldenManifestInsertParameters
             manifest.RuleSetId,
             manifest.RuleSetVersion,
             manifest.RuleSetHash,
-            payload.MetadataJson,
-            payload.RequirementsJson,
-            payload.TopologyJson,
-            payload.SecurityJson,
-            payload.ComplianceJson,
-            payload.CostJson,
-            payload.ConstraintsJson,
-            payload.UnresolvedIssuesJson,
-            payload.DecisionsJson,
-            payload.AssumptionsJson,
-            payload.WarningsJson,
-            payload.ProvenanceJson,
-            payload.HasherBoundJson,
+            MetadataJson = metadataJson,
+            RequirementsJson = requirementsJson,
+            TopologyJson = topologyJson,
+            SecurityJson = securityJson,
+            ComplianceJson = complianceJson,
+            CostJson = costJson,
+            ConstraintsJson = constraintsJson,
+            UnresolvedIssuesJson = unresolvedIssuesJson,
+            DecisionsJson = decisionsJson,
+            AssumptionsJson = assumptionsJson,
+            WarningsJson = warningsJson,
+            ProvenanceJson = provenanceJson,
+            HasherBoundJson = hasherBoundJson,
             ManifestPayloadBlobUri = manifestPayloadBlobUri,
             LifecycleStatus = nameof(GoldenManifestLifecycleStatus.Active),
             ContractManifestVersion = ResolveContractManifestVersion(manifest)

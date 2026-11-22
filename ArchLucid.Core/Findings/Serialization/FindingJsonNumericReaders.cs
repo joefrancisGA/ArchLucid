@@ -19,14 +19,15 @@ internal static class FindingJsonNumericReaders
             return true;
         }
 
-        if (element.TryGetDouble(out double numeric)
-            && double.IsFinite(numeric)
+        // Parse the original JSON token exactly; a double can round an
+        // out-of-range integer into a different in-range value.
+        if (decimal.TryParse(element.GetRawText(), NumberStyles.Float,
+                             CultureInfo.InvariantCulture, out decimal numeric)
             && numeric >= 0
             && numeric <= int.MaxValue
-            && numeric == Math.Floor(numeric))
+            && numeric == decimal.Truncate(numeric))
         {
             value = (int)numeric;
-
             return true;
         }
 
@@ -98,14 +99,13 @@ internal static class FindingJsonNumericReaders
             return true;
         }
 
-        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
-            && double.IsFinite(numeric)
+        if (decimal.TryParse(trimmed, NumberStyles.Float,
+                             CultureInfo.InvariantCulture, out decimal numeric)
             && numeric >= 0
             && numeric <= int.MaxValue
-            && numeric == Math.Floor(numeric))
+            && numeric == decimal.Truncate(numeric))
         {
             value = (int)numeric;
-
             return true;
         }
 
@@ -130,14 +130,15 @@ internal static class FindingJsonNumericReaders
             return true;
         }
 
-        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
-            && double.IsFinite(numeric)
+        // Decimal preserves integral values across the full Int64 range,
+        // including values beyond double's exact-integer precision.
+        if (decimal.TryParse(trimmed, NumberStyles.Float,
+                             CultureInfo.InvariantCulture, out decimal numeric)
             && numeric >= 0
-            && numeric < 9223372036854775808d
-            && numeric == Math.Floor(numeric))
+            && numeric <= long.MaxValue
+            && numeric == decimal.Truncate(numeric))
         {
             value = (long)numeric;
-
             return true;
         }
 

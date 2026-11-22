@@ -64,6 +64,7 @@ describe("HelpAdvisoryScansGuideView buyer-polished shell (HAD)", () => {
     const sourcesSection = screen.getByTestId("help-advisory-scans-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toHaveAttribute("tabindex", "-1");
     expect(firstViewport).toContainElement(actionPanel);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);

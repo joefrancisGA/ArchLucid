@@ -185,15 +185,25 @@ odeCount >= maxNodes with null guard; **valid-no-repro** snapshot freshness uses
 - **code-changed-since:** yes
 ## Zone: ui-hooks-shared
 
+2026-11-21 thorough hunt #2 (dry): cheap-disproved five seed `(hunt-ready)` rows — **valid-no-repro** boolean URL-sync hooks commit via `commitHrefIfChanged` (`replaceState` only, open-ref dedupe, popstate resync; `use-boolean-search-param-url-sync.test.ts`), **valid-no-repro** debounced wizard persist clears pending timeout on unmount without post-navigation flush (`use-wizard-session-persistence` unmount regression; restore URL uses same commit helper with href equality guard), **valid-no-repro** `useViewportNarrow` intentionally defaults `false` until `matchMedia` effect runs (`useViewportNarrow.test.ts`), **valid-no-repro** run-summary HTTP fallback gated by `shouldRunRunSummaryFallbackPoll` (no poll while SSE connected, hidden, or complete; visibility resume does not overlap SSE — extended poll-policy regression), **valid-no-repro** corrupted wizard session JSON returns `null` from `readWizardSessionSnapshot` (parse catch; lib + hook layers). Scoped vitest **18/18** across new hook tests, wizard persist, poll policy. Reseeded five `(candidate)` monitor rows below. Private beta: n/a.
+
+- [x] (valid-no-repro) URL-sync replaceState vs pushState rapid toggles — cheap-disproof 2026-11-21 thorough hunt #2.
+- [x] (valid-no-repro) debounced persist flush on unmount to wrong URL — cheap-disproof 2026-11-21 thorough hunt #2.
+- [x] (valid-no-repro) media query SSR/client mismatch — cheap-disproof 2026-11-21 thorough hunt #2.
+- [x] (valid-no-repro) polling visibility duplicate fetch — cheap-disproof 2026-11-21 thorough hunt #2.
+- [x] (valid-no-repro) session storage JSON parse stale mount — cheap-disproof 2026-11-21 thorough hunt #2.
+
+- [ ] (candidate) `useBooleanSearchParamUrlSync` — missing search param vs explicit `panel=0` may disagree when `parseOpenFromSearch` treats empty as closed — locus: null param branch; input: delete param while UI open; wrong outcome: stale open UI; reachability: operator disclosure chips.
+- [ ] (candidate) `useWizardSessionPersistence` — debounced unmount cancel may drop last keystroke before navigation — locus: no unmount flush; input: navigate mid-debounce; wrong outcome: lost draft; reachability: reviews-new wizards (monitor product intent).
+- [ ] (candidate) `useViewportNarrow` — wide-default-first paint on narrow devices — locus: initial false; input: phone inspector; wrong outcome: layout flash; reachability: docked vs sheet inspector (monitor).
+- [ ] (candidate) `useRunSummaryStream` — visibility resume immediate `tickFallback` may double-fetch with in-flight interval tick — locus: ensureFallbackInterval; input: refocus during poll-fallback; wrong outcome: duplicate GET; reachability: run status banners (monitor).
+- [ ] (candidate) `readWizardSessionSnapshot` — schema-valid JSON with wrong `v` may leave hook pending restore empty while storage still populated — locus: version gate; input: manual v0 blob; wrong outcome: confusing empty restore; reachability: wizard resume strip.
+
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/hooks`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
 
-- [ ] (hunt-ready) URL-sync hook — `replaceState` vs `pushState` may desync when rapid param toggles interleave — locus: history mode; input: double-click facet chip; wrong outcome: back button skips state; reachability: filter hooks on operator pages.
-- [ ] (hunt-ready) debounced search hook — flush on unmount may write URL after navigation away — locus: cleanup timing; input: navigate before debounce fires; wrong outcome: wrong page gets query params; reachability: search hooks across lists.
-- [ ] (hunt-ready) media query hook — SSR first render may mismatch client breakpoint without hydration guard — locus: SSR default; input: narrow viewport; wrong outcome: layout flash; reachability: responsive operator components.
-- [ ] (hunt-ready) polling hook — visibility resume may issue duplicate fetch when interval and manual refresh overlap — locus: interval reset; input: tab refocus during poll; wrong outcome: duplicate API calls; reachability: status polling banners.
-- [ ] (hunt-ready) session storage hook — JSON parse failure may leave prior state mounted without error boundary — locus: parse catch; input: corrupted storage value; wrong outcome: stale UI state; reachability: persisted UI preferences.
+- [ ] (hunt-ready) reseed after hunt #2; prior queue closed in zone header diary.
 
 - **id:** ui-hooks-shared
 - **status:** open
@@ -201,13 +211,13 @@ odeCount >= maxNodes with null guard; **valid-no-repro** snapshot freshness uses
 - **aliases:** shared React hooks
 - **paths:** archlucid-ui/src/hooks/
 - **test-filter:** src/hooks
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-20
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-21
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ## Zone: ui-form-validation
 
 2026-11-01 thorough hunt #189 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `cli-draft-new` (dry **#186**, **#187**, **#188** / run log). Picker applied **`-AvoidZoneId cli-draft-new`** and returned `ui-form-validation` (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on 'cli-draft-new' (outcomes: dry, dry, dry).*). Attempted failing repro on five header `(candidate)` rows from pass **21** reseed (hunt **#185**); cheap-disproof closed all five — **valid-no-repro** **409** HTML conflict returns fixed duplicate-org copy before body parsing (`shows fixed duplicate organization toast when register returns 409 with HTML body`; status check precedes error detail), **valid-no-repro** `"Infinity"` team size fails `Number.isFinite` superRefine, **valid-no-repro** invalid email readiness precedes unsupported-character organization (bad email + NUL org → valid work email copy), **valid-no-repro** work email `maxLength` **254** plus schema `.max(254)` block overlong paste (`signupFormSchema rejects admin email longer than 254 characters`), **invalid** invalid `companySize` enum passes through builder on direct call by design while UI `canSubmit` blocks POST (`includes invalid company size enum in the register payload builder when called directly`). Reseeded five `(candidate)` monitor rows below (pass **22**). Focused `SignupForm` suite **144/144**. Run-log low-yield streak on `ui-form-validation` is **0/3** before this record (cli-draft-new dry **#186**–**#188** at tail). **This dry starts 1/3** on `ui-form-validation` in the run log. Private beta: n/a.
@@ -1310,7 +1320,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
 - **hunts:** 76
 - **bugs-found:** 33
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — missing CLI option value fell back to offline mode
 - **related-pd-tb:** none
@@ -2030,7 +2040,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
 - **hunts:** 54
 - **bugs-found:** 17
-- **consecutive-dry-hunts:** 23
+- **consecutive-dry-hunts:** 13
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-06 — `PromptRequiredAsync` infinite loop on stdin EOF
 - **related-pd-tb:** none
@@ -2368,7 +2378,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
 - **hunts:** 41
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 23
+- **consecutive-dry-hunts:** 13
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
@@ -2651,7 +2661,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 54
 - **last-hunt:** 2026-11-01
 - **bugs-found:** 26
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-11-01 — Escape filter clear dropped compareRuns when useSearchParams lagged committed compare- **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -3415,9 +3425,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 65
+- **hunts:** 63
 - **bugs-found:** 36
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-29 — webhook test busy stuck after refresh during in-flight test
 - **related-pd-tb:** none
@@ -3752,7 +3762,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** host-gate
 - **hunts:** 9
 - **bugs-found:** 5
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-29 — case-sensitive pathname split-host classification
 - **related-pd-tb:** none
@@ -3850,7 +3860,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** ArchitectureIntelligencePageClient
 - **hunts:** 57
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-31 — failed retry retained prior reasoning output
 - **related-pd-tb:** none
@@ -4456,7 +4466,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** lib/auth|proxy-route|proxy.ts
 - **hunts:** 80
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 21
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
@@ -7323,7 +7333,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7342,7 +7352,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7361,7 +7371,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7380,7 +7390,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7458,7 +7468,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-20 — identity-less OIDC token responses still synced BFF cookie
 
 - **id:** ui-oidc
@@ -7467,7 +7477,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7478,7 +7488,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7489,7 +7499,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7500,7 +7510,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7511,7 +7521,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7522,7 +7532,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7533,7 +7543,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7544,7 +7554,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7555,7 +7565,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7566,7 +7576,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7577,7 +7587,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7588,7 +7598,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7599,7 +7609,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7610,7 +7620,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7621,7 +7631,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7949,7 +7959,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 105
 - **bugs-found:** 74
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-11-19
+- **last-hunt:** 2026-11-17
 - **last-bug:** 2026-11-03 — token POST left non-trim C0 on authorization code and PKCE verifier
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8567,7 +8577,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~Contracts
 - **hunts:** 241
 - **bugs-found:** 355
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-29 — governance approval RunId/ManifestVersion null JSON
 - **related-pd-tb:** none
@@ -8710,7 +8720,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8780,7 +8790,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **bugs-found:** 122- **consecutive-dry-hunts:** 2
+- **bugs-found:** 122- **consecutive-dry-hunts:** 1
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9675,7 +9685,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~Contracts
 - **hunts:** 140
 - **bugs-found:** 120
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-15 — Evolution / clarification contract JSON null lists
 - **related-pd-tb:** none
@@ -10031,7 +10041,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 45
 - **last-hunt:** 2026-10-30
 - **bugs-found:** 35
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-30 — empty stored-evidence catalog restored stale persisted inventory
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -10120,40 +10130,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
-2026-11-19 thorough hunt #532 (hit, round-robin): no rotation (`shouldRotate: false`). Promoted FAQ TOC category-only hash sync from hunt #531 — a deep link to an FAQ answer id left `aria-current` on the first category. `MarketingFaqPageToc` resolves answer ids to parent `categoryId` via `MARKETING_FAQ_ITEMS` and keeps the IO guard while the hash names a category or answer. Regression `highlights the parent category when the hash targets an FAQ answer id`. Cheap-disproof closed four monitors — privacy TOC `replaceState` matches scroll-sync contract; quick-scan disclosure URL sync is synchronous in tests; tier quote focus targets the section shell by design; showcase sign-in `returnUrl` already targets the review href (`ShowcaseQuickNav.test.tsx`). FAQ vitest 12/12. Private beta: Invited buyers who open a shared FAQ answer link hear the correct parent category in the sticky TOC instead of the default first category.
-
-- [x] (proven) `MarketingFaqPageToc` — FAQ answer deep link leaves wrong TOC `aria-current` — **hit 2026-11-19 thorough hunt #532:** map answer ids to parent categories on hashchange.
-- [x] (valid-no-repro) `PrivacyPolicyTableOfContents` — `replaceState` hash vs Back — **cheap-disproof 2026-11-19 thorough hunt #532:** scroll-driven hash replace is intentional; no failing Back repro.
-- [x] (valid-no-repro) `QuickScanWorkspaceSection` — privacy disclosure URL lags toggle — **cheap-disproof 2026-11-19 thorough hunt #532:** state and param sync in component; no reachable desync in scoped tests.
-- [x] (invalid) `MarketingTierPricingSection` — quote focus lands on section shell — **cheap-disproof 2026-11-19 thorough hunt #532:** `focusQuotePanel` scroll/focus contract is section-first; not a required-field focus defect.
-- [x] (valid-no-repro) `ShowcaseQuickNav` — sign-in return path — **cheap-disproof 2026-11-19 thorough hunt #532:** `ShowcaseQuickNav.test.tsx` asserts review `returnUrl`.
-
-
-2026-11-19 seed hunt #531 (seed-only): no rotation (`shouldRotate: false`). Re-read FAQ TOC hash contracts after hunt #530, privacy-policy TOC history behavior, quick-scan privacy disclosure URL sync, pricing quote focus from tier CTAs, and showcase quick-nav sign-in return paths. No mechanism met the hunt-ready bar without a failing repro in this pass. Seeded five bounded `(candidate)` rows below. Scoped vitest (FAQ TOC, privacy TOC, quick-scan privacy URL helper) 8/8. No production code changed. Private beta: n/a.
-
-
-
-2026-11-19 thorough hunt #530 (hit): no rotation (`shouldRotate: false`). Promoted FAQ TOC `activeId` tracked IntersectionObserver only, so a category fragment in the URL could leave `aria-current` on the wrong TOC row after **Back** or deep link until scroll. `MarketingFaqPageToc` syncs `activeId` from category hashes on `hashchange` and holds that highlight while the hash still names a category. Regression `marks the TOC category matching the location hash when the hash changes` in `MarketingFaqPageToc.test.tsx`. Cheap-disproof closed four monitors — get-started path state without URL persistence is intentional refresh behavior; hash-forced FAQ panels suppress toggle by deep-link contract; trust-center `?focus=` scroll is visual-only by design; pricing quote hash opens the panel without required field focus (no regression yet). FAQ vitest 11/11. Private beta: Invited buyers who land on `/faq` with a category hash or use **Back** hear the matching TOC category as the current in-page location instead of the first category staying highlighted.
-
-- [x] (proven) `MarketingFaqPageToc` — `activeId` tracks IntersectionObserver only — **hit 2026-11-19 thorough hunt #530:** hashchange category sync + hold highlight while hash names a category.
-- [x] (valid-no-repro) `GetStartedPageClient` — trial vs sample path selection without URL sync — **cheap-disproof 2026-11-19 thorough hunt #530:** refresh resets path choice by product design; covered by existing get-started interaction tests.
-- [x] (valid-no-repro) `MarketingFaqItemPanel` — `forceOpen` ignores `onToggle` — **cheap-disproof 2026-11-19 thorough hunt #530:** deep-linked answers stay open while the fragment targets them; hunt #528 collapse when hash moves away.
-- [x] (invalid) `TrustCenterFocusScroll` — `?focus=` scroll without keyboard focus — **cheap-disproof 2026-11-19 thorough hunt #530:** cheat-panel deep links are scroll anchors, not focus traps; no failing a11y repro promoted.
-- [x] (valid-no-repro) `MarketingPricingQuotePanel` — `#pricing-quote-request` opens without focusing first field — **cheap-disproof 2026-11-19 thorough hunt #530:** hash opens disclosure; field focus not required in existing quote-panel contract.
-
-
-2026-11-19 seed hunt #529 (seed-only): no rotation (`shouldRotate: false`). Re-read FAQ hash/TOC wiring, get-started path selection, trust-center focus scrolling, pricing quote hash open, and markdown external-link rendering after hunt #528. Cheap-disproof closed the two reseeded monitors — browser **Back** after a TOC `pushState` restores the prior fragment and emits `hashchange`, which `MarketingFaqPageClient` already handles; mailto `target=_blank` matches the external-link contract without a visible opens-email hint. Closed stale `MarketingResourcesMenu` focus row (proven hunt #73). Seeded five bounded `(candidate)` rows below. Focused marketing vitest (FAQ client/TOC + privacy TOC) 11/11. No production code changed. Private beta: n/a.
-
-- [x] (valid-no-repro) `MarketingFaqPageToc` + `MarketingFaqPageClient` — browser Back after a category click does not restore the previous hash-forced answer — **cheap-disproof 2026-11-19 seed hunt #529:** Back restores the prior URL fragment; native `hashchange` reopens the deep-linked `<details>` via the existing listener.
-- [x] (invalid) `renderInline` — mailto links omit a visible opens-email hint — **cheap-disproof 2026-11-19 seed hunt #529:** external mailto uses the shared marketing external-link contract; no product requirement for an extra visible hint.
-
-
-2026-11-19 thorough hunt #528 (hit): no rotation (shouldRotate false). Promoted FAQ TOC pushState without hashchange, so a deep-linked answer stayed force-open after another category was selected. MarketingFaqPageToc dispatches hashchange, and MarketingFaqItemPanel collapses a panel that was open only because of the previous hash. Regression releases a hash-forced FAQ disclosure when the TOC selects another category. Mailto target=_blank monitor closed valid-no-repro (external-link policy; no blank-document repro). Scoped FAQ vitest 10/10. Private beta: Invited buyers who open an FAQ answer from a link and then choose another category see that answer collapse instead of staying locked open.
-
 2026-10-30 seed hunt #81 (seed-only): re-read marketing markdown link rendering, FAQ hash synchronization, privacy-policy navigation, and pricing quote interactions; no additional hypothesis met the hunt-ready reachability bar without a failing repro. Seeded two bounded candidates for a future thorough hunt.
 
-- [x] (valid-no-repro) `renderInline` — mailto links use target=_blank — **cheap-disproof 2026-11-19 thorough hunt #528:** external-link policy; no blank-document repro.
-- [x] (proven) `MarketingFaqPageToc` + `MarketingFaqPageClient` — pushState omits hashchange — **hit 2026-11-19 thorough hunt #528:** dispatch hashchange and release hash-forced panels.
+- [ ] (candidate) `renderInline` — `mailto:` markdown links are classified as external and receive `target="_blank"`; input: a buyer selects an email link rendered from a privacy/help markdown document; monitor whether browser mail-client handoff opens an unnecessary blank browsing context.
+- [ ] (candidate) `MarketingFaqPageToc` + `MarketingFaqPageClient` — category navigation uses `history.pushState` without a `hashchange` event; input: a visitor deep-links to an FAQ item, then selects a different category in the TOC; monitor whether the client’s hash-driven disclosure state remains stale.
 
 2026-10-30 seed hunt #80 (hit): proved `MarketingPricingQuotePanel` marked its email input `type="email"` but disabled native validation with `noValidate`, and the submit handler only checked presence, so malformed addresses could reach the quote API; added a format guard and `does not submit when the work email is malformed` in `MarketingPricingQuotePanel.test.tsx`. Focused quote-panel suite passed 3/3. Private beta: invited buyers who enter an invalid work email now receive immediate correction guidance instead of sending an unusable pricing request to the quote service.
 
@@ -10425,14 +10405,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 60
-- **bugs-found:** 51
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-19
-- **last-bug:** 2026-11-19 — FAQ TOC aria-current lags category hash
-- **last-bug:** 2026-11-19 — FAQ TOC ignores answer-level deep links
-- **code-changed-since:** no
+- **hunts:** 55
+- **bugs-found:** 48
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — Pricing quote email format validation
+- **related-pd-tb:** none
 - **code-changed-since:** yes
+
 2026-09-12 seed hunt #1947 (seed-only): re-read marketing surfaces after master merge churn; sign-in returnUrl, see-it disclosure, and quick-scan parity paths remain covered by existing regressions; no new mechanism-backed hunt-ready rows.
 
 2026-09-30 seed hunt (seed-only): repeated the marketing route review; the marketing filter retained the same 442 passing and 26 failing baseline; no new reachable product candidate emerged.
@@ -11304,8 +11284,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** lib/operator
 - **hunts:** 40
 - **bugs-found:** 40
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-11-19
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-17
 - **last-bug:** 2026-11-17 — optional artifact/manifest scalar trim gaps in response guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11419,13 +11399,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
-2026-11-18 seed hunt (seed-only): no rotation (`shouldRotate: false`). Picker status **unseeded** with empty open queue. Re-read `useReviewDetailWorkspaceSelection`, `useReviewDetailWorkspaceTabs`, and `ReviewDetailWorkspaceTabShell` deferred-mount contracts. No hunt-ready row (finding-id URL writes tab-independent by design; workbench focus snapshots coordinator `activeTab` — dry **#114**). Seeded five follow-on `(candidate)` monitor rows below. No production code changed. Private beta: n/a.
-
-- [ ] (candidate) `useReviewDetailWorkspaceSelection.onFindingIdChange` — finding id URL write ignores active tab so selection can appear while a non-findings tab is visible — locus: `writeReviewDetailFindingIdToUrl` ~24; input: pick finding then tab away before parents reconcile (monitor seed **2026-11-18**).
-- [ ] (candidate) `useReviewDetailWorkspaceTabs` — whitespace-only `findingId` query treated as absent — locus: `.trim()` on read ~87; input: `findingId=%20` deep link (monitor seed **2026-11-18**).
-- [ ] (candidate) `useReviewDetailWorkspaceSelection.onFocusColumnChange` — workbench focus write uses snapshotted `activeTab` during in-flight tab navigation — locus: `useCallback` deps `[input.activeTab]` ~31; input: column change same tick as tab click (monitor seed **2026-11-18** / dry **#114**).
-- [ ] (candidate) `useReviewDetailWorkspaceTabs` — presenter query flag persists after navigating to a non-presenter package tab — locus: `readPresenterModeFromSearchParams` ~123; input: `presenter=1` then package tab (monitor seed **2026-11-18**).
-- [ ] (candidate) `ReviewDetailWorkspaceTabShell` — deferred hidden panel unmount drops in-panel draft state on tab round-trip — locus: `!hidden ? content : null`; input: edit on package tab then switch away and back (monitor seed **2026-11-18** / dry **#118**).
 2026-11-01 thorough hunt #122 (dry): **rotation fired** (`shouldRotate: true`; **3** consecutive low-yield hunts on **`ui-oidc`**: dry, dry, dry; `-AvoidZoneId ui-oidc` applied; **cooldown fallback** selected **`ui-review-detail-workspace`**). Cheap-disproof closed five header `(candidate)` rows from hunt #118 reseed — **valid-no-repro** `navigateTab` hash scroll after presenter (`navigateTab` passes `hash: null` to `writeReviewDetailTabToUrl`; `activeTab` + `hashchange` effects call `scheduleScrollToReviewDetailSection` when location hash remains), **invalid** `ReviewInPipelineBanner` dismiss/localStorage reset (banner has no dismiss control or storage-backed dismiss state — reinjection on tab return matches hunt #118 deferred-mount design), **invalid** `usePinnedReviewContext.openPin` (hook exposes URL-driven `pinRunId` + `closePin` only; no `openPin` locus), **invalid** `ReviewWorkspaceStaleBanner` incremental stream frames (banner reads authoritative `useRunSummaryQuery` fingerprint only; refresh button intentionally clears warning after successful refetch even when fingerprint unchanged), **valid-no-repro** `writeReviewDetailFindingIdToUrl` deferred findings panel (same LI-13 reconcile path as hunt #118 `WorkbenchFindingSelectionSync`). Reseeded five `(candidate)` monitor rows below; focused workspace vitest bundle **57/57**. Private beta: n/a.
 
 - [ ] (candidate) `ReviewInPipelineBanner` — activity CTA `navigateTab("activity")` may clear review-section hash before activity panel scroll targets mount — locus: tab URL writer vs activity panel anchors; input: deep-linked evidence hash then click View activity from banner; wrong outcome: section anchor lost on activity tab; reachability: in-pipeline CTA (monitor; hunt #122).
@@ -11873,7 +11846,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11894,7 +11867,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -12114,7 +12087,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
 - **hunts:** 57
 - **bugs-found:** 39
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-31 — deferred review section hash scroll stopped before a slow client chunk mounted
 - **related-pd-tb:** none
@@ -12455,7 +12428,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - **impact:** high
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-11-17 — stale guided prior-package filenames and job-chooser disclosure URL keys after path return
 - **code-changed-since:** no
 
@@ -12596,8 +12569,8 @@ ABQ-09 churn hotspot; review detail route tree.
 - **test-filter:** FullyQualifiedName~reviews/new
 - **hunts:** 69
 - **bugs-found:** 39
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-11-19
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-17
 - **last-bug:** 2026-11-04 — guided prior-run prefill did not reload when priorRunId changed without remount
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -12767,423 +12740,6 @@ ABQ-09 churn hotspot; intake wizard route tree.
 ---
 
 ## Zone: ui-governance-findings-queue
-## Zone: ui-governance-findings-queue
-## Zone: ui-governance-findings-queue
-2026-11-19 thorough hunt #542 (dry, round-robin): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**60** `(candidate)` rows from hunt **#541** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `focusedFinding` when picking a review for triage (triage cursor independent of review pick; regression `retains triage focusedFinding when picking a review for triage`; hunt **#538**), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `hideGeneric` when register filter widens to all (view-density param; regression `retains hideGeneric when register filter widens to all`; hunt **#538**), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `focusedFinding` when clearing review scope (triage cursor retention; regression `retains triage focusedFinding when clearing review scope`; hunt **#538**), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `focusedFinding` when assigned-to-me sort changes (regression `governanceAssignedToMeSortHrefFromSearch retains triage focusedFinding when sort changes`; hunt **#538**), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `focusedFinding` when bulk selection changes (regression `governanceFindingsBulkSelectionHrefFromSearch retains triage focusedFinding when bulk selection changes`; hunt **#538**). Scoped vitest **100/100** on `src/lib/governance/governance-findings*`. Reseeded five pass-**61** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #542:** hunt **#538** regression above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — **valid-no-repro 2026-11-19 thorough hunt #542:** hunt **#538** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #542:** hunt **#538** regression above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — **valid-no-repro 2026-11-19 thorough hunt #542:** hunt **#538** regression above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — **valid-no-repro 2026-11-19 thorough hunt #542:** hunt **#538** regression above.
-
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — locus: pick-review href; input: density on + pick review; monitor; pass 61 reseed.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — locus: register-filter href; input: triage deep link + narrow register; monitor; pass 61 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — locus: clear-review-scope href; input: density on + clear scope; monitor; pass 61 reseed.
-- [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — locus: assigned-to-me sort href; input: density on + sort reset; monitor; pass 61 reseed.
-- [ ] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — locus: bulk-selection href; input: density on + bulk clear; monitor; pass 61 reseed.
-
-- [x] (superseded) pass-**60** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #542:** see hunt **#542** header and pass **#61** reseed.
-
-2026-11-19 thorough hunt #541 (dry, round-robin): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**59** `(candidate)` rows from hunt **#540** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `hideGeneric` when picking a review for triage (view-density param; regression `retains hideGeneric when picking a review for triage`; hunt **#537**), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `focusedFinding` when register filter narrows (triage cursor not a register chip; regression `retains triage focusedFinding when register filter narrows`; hunt **#537**), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `hideGeneric` when clearing review scope (intentional density retention; regression `retains hideGeneric when clearing review scope`; hunt **#537**), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `hideGeneric` when assigned-to-me sort resets to default (regression `governanceAssignedToMeSortHrefFromSearch retains hideGeneric when assigned-to-me sort resets to default`; hunt **#537**), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `hideGeneric` when bulk selection clears (regression `governanceFindingsBulkSelectionHrefFromSearch retains hideGeneric when bulk selection clears`; hunt **#537**). Scoped vitest **100/100** on `src/lib/governance/governance-findings*`. Reseeded five pass-**60** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #541:** hunt **#537** regression above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — **valid-no-repro 2026-11-19 thorough hunt #541:** hunt **#537** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #541:** hunt **#537** regression above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — **valid-no-repro 2026-11-19 thorough hunt #541:** hunt **#537** regression above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — **valid-no-repro 2026-11-19 thorough hunt #541:** hunt **#537** regression above.
-
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — locus: pick-review href; input: triage deep link + pick review; monitor; pass 60 reseed.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — locus: register-filter href; input: density on + widen register; monitor; pass 60 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — locus: clear-review-scope href; input: triage cursor + clear scope; monitor; pass 60 reseed.
-- [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — locus: assigned-to-me sort href; input: triage deep link + sort chip; monitor; pass 60 reseed.
-- [ ] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — locus: bulk-selection href; input: triage cursor + bulk chip; monitor; pass 60 reseed.
-
-- [x] (superseded) pass-**59** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #541:** see hunt **#541** header and pass **#60** reseed.
-
-2026-11-19 thorough hunt #540 (dry, round-robin): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**58** `(candidate)` rows from hunt **#539** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `focusedFinding` when picking a review for triage (triage cursor independent of review pick; regression `retains triage focusedFinding when picking a review for triage`; hunt **#538**), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `hideGeneric` when register filter widens to all (view-density param; regression `retains hideGeneric when register filter widens to all`; hunt **#538**), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `focusedFinding` when clearing review scope (triage cursor retention; regression `retains triage focusedFinding when clearing review scope`; hunt **#538**), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `focusedFinding` when assigned-to-me sort changes (regression `governanceAssignedToMeSortHrefFromSearch retains triage focusedFinding when sort changes`; hunt **#538**), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `focusedFinding` when bulk selection changes (regression `governanceFindingsBulkSelectionHrefFromSearch retains triage focusedFinding when bulk selection changes`; hunt **#538**). Scoped vitest **100/100** on `src/lib/governance/governance-findings*`. Reseeded five pass-**59** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #540:** hunt **#538** regression above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — **valid-no-repro 2026-11-19 thorough hunt #540:** hunt **#538** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #540:** hunt **#538** regression above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — **valid-no-repro 2026-11-19 thorough hunt #540:** hunt **#538** regression above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — **valid-no-repro 2026-11-19 thorough hunt #540:** hunt **#538** regression above.
-
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — locus: pick-review href; input: density on + pick review; monitor; pass 59 reseed.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — locus: register-filter href; input: triage deep link + narrow register; monitor; pass 59 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — locus: clear-review-scope href; input: density on + clear scope; monitor; pass 59 reseed.
-- [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — locus: assigned-to-me sort href; input: density on + sort reset; monitor; pass 59 reseed.
-- [ ] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — locus: bulk-selection href; input: density on + bulk clear; monitor; pass 59 reseed.
-
-- [x] (superseded) pass-**58** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #540:** see hunt **#540** header and pass **#59** reseed.
-
-2026-11-19 thorough hunt #539 (dry, round-robin): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**57** `(candidate)` rows from hunt **#538** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `hideGeneric` when picking a review for triage (view-density param; regression `retains hideGeneric when picking a review for triage`), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `focusedFinding` when register filter narrows (triage cursor not a register chip; regression `retains triage focusedFinding when register filter narrows`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `hideGeneric` when clearing review scope (intentional density retention; regression `retains hideGeneric when clearing review scope`), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `hideGeneric` when assigned-to-me sort resets to default (regression `governanceAssignedToMeSortHrefFromSearch retains hideGeneric when assigned-to-me sort resets to default`), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `hideGeneric` when bulk selection clears (regression `governanceFindingsBulkSelectionHrefFromSearch retains hideGeneric when bulk selection clears`). Scoped vitest **100/100** on `src/lib/governance/governance-findings*`. Reseeded five pass-**58** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #539:** regression above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — **valid-no-repro 2026-11-19 thorough hunt #539:** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #539:** regression above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — **valid-no-repro 2026-11-19 thorough hunt #539:** regression above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — **valid-no-repro 2026-11-19 thorough hunt #539:** regression above.
-
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — locus: pick-review href; input: triage deep link + pick review; monitor; pass 58 reseed.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — locus: register-filter href; input: density on + widen register; monitor; pass 58 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — locus: clear-review-scope href; input: triage cursor + clear scope; monitor; pass 58 reseed.
-- [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — locus: assigned-to-me sort href; input: triage deep link + sort chip; monitor; pass 58 reseed.
-- [ ] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — locus: bulk-selection href; input: triage cursor + bulk chip; monitor; pass 58 reseed.
-
-- [x] (superseded) pass-**57** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #539:** see hunt **#539** header and pass **#58** reseed.
-2026-11-19 thorough hunt #538 (dry, round-robin): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**56** `(candidate)` rows from hunt **#537** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `focusedFinding` when picking a review for triage (triage cursor independent of review pick; regression `retains triage focusedFinding when picking a review for triage`), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `hideGeneric` when register filter widens to all (view-density param; regression `retains hideGeneric when register filter widens to all`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `focusedFinding` when clearing review scope (triage cursor retention; regression `retains triage focusedFinding when clearing review scope`), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `focusedFinding` when assigned-to-me sort changes (regression `governanceAssignedToMeSortHrefFromSearch retains triage focusedFinding when sort changes`), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `focusedFinding` when bulk selection changes (regression `governanceFindingsBulkSelectionHrefFromSearch retains triage focusedFinding when bulk selection changes`). Scoped vitest **100/100** on `src/lib/governance/governance-findings*`. Reseeded five pass-**57** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #538:** regression above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — **valid-no-repro 2026-11-19 thorough hunt #538:** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #538:** regression above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — **valid-no-repro 2026-11-19 thorough hunt #538:** regression above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — **valid-no-repro 2026-11-19 thorough hunt #538:** regression above.
-
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — locus: pick-review href; input: density on + pick review; monitor; pass 57 reseed.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — locus: register-filter href; input: triage deep link + narrow register; monitor; pass 57 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — locus: clear-review-scope href; input: density on + clear scope; monitor; pass 57 reseed.
-- [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — locus: assigned-to-me sort href; input: density on + sort reset; monitor; pass 57 reseed.
-- [ ] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — locus: bulk-selection href; input: density on + bulk clear; monitor; pass 57 reseed.
-
-- [x] (superseded) pass-**56** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #538:** see hunt **#538** header and pass **#57** reseed.
-2026-11-19 thorough hunt #537 (dry, round-robin): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**55** `(candidate)` rows from hunt **#536** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `hideGeneric` when picking a review for triage (view-density param; regression `retains hideGeneric when picking a review for triage`), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `focusedFinding` when register filter narrows (triage cursor not a register chip; regression `retains triage focusedFinding when register filter narrows`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `hideGeneric` when clearing review scope (intentional density retention; regression `retains hideGeneric when clearing review scope`), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `hideGeneric` when assigned-to-me sort resets to default (regression `governanceAssignedToMeSortHrefFromSearch retains hideGeneric when assigned-to-me sort resets to default`), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `hideGeneric` when bulk selection clears (regression `governanceFindingsBulkSelectionHrefFromSearch retains hideGeneric when bulk selection clears`). Scoped vitest **100/100** on `src/lib/governance/governance-findings*`. Reseeded five pass-**56** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #537:** regression above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — **valid-no-repro 2026-11-19 thorough hunt #537:** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #537:** regression above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — **valid-no-repro 2026-11-19 thorough hunt #537:** regression above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — **valid-no-repro 2026-11-19 thorough hunt #537:** regression above.
-
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — locus: pick-review href; input: triage deep link + pick review; monitor; pass 56 reseed.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — locus: register-filter href; input: density on + widen register; monitor; pass 56 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — locus: clear-review-scope href; input: triage cursor + clear scope; monitor; pass 56 reseed.
-- [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — locus: assigned-to-me sort href; input: triage deep link + sort chip; monitor; pass 56 reseed.
-- [ ] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — locus: bulk-selection href; input: triage cursor + bulk chip; monitor; pass 56 reseed.
-
-- [x] (superseded) pass-**55** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #537:** see hunt **#537** header and pass **#56** reseed.
-2026-11-19 thorough hunt #536 (dry, round-robin): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**54** `(candidate)` rows from hunt **#535** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `focusedFinding` when picking a review for triage (triage cursor independent of review pick; regression `retains triage focusedFinding when picking a review for triage`), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `hideGeneric` when register filter widens to all (view-density param; regression `retains hideGeneric when register filter widens to all`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `focusedFinding` when clearing review scope (triage cursor retention; regression `retains triage focusedFinding when clearing review scope`), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `focusedFinding` when assigned-to-me sort changes (regression `governanceAssignedToMeSortHrefFromSearch retains triage focusedFinding when sort changes`), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `focusedFinding` when bulk selection changes (regression `governanceFindingsBulkSelectionHrefFromSearch retains triage focusedFinding when bulk selection changes`). Scoped vitest **100/100** on `src/lib/governance/governance-findings*`. Reseeded five pass-**55** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #536:** regression above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — **valid-no-repro 2026-11-19 thorough hunt #536:** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #536:** regression above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — **valid-no-repro 2026-11-19 thorough hunt #536:** regression above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — **valid-no-repro 2026-11-19 thorough hunt #536:** regression above.
-
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — locus: pick-review href; input: density on + pick review; monitor; pass 55 reseed.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — locus: register-filter href; input: triage deep link + narrow register; monitor; pass 55 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — locus: clear-review-scope href; input: density on + clear scope; monitor; pass 55 reseed.
-- [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — locus: assigned-to-me sort href; input: density on + sort reset; monitor; pass 55 reseed.
-- [ ] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — locus: bulk-selection href; input: density on + bulk clear; monitor; pass 55 reseed.
-
-- [x] (superseded) pass-**54** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #536:** see hunt **#536** header and pass **#55** reseed.
-2026-11-19 thorough hunt #535 (dry, round-robin): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**53** `(candidate)` rows from hunt **#534** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `hideGeneric` when picking a review for triage (view-density param; regression `retains hideGeneric when picking a review for triage`), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `focusedFinding` when register filter narrows (triage cursor not a register chip; regression `retains triage focusedFinding when register filter narrows`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `hideGeneric` when clearing review scope (intentional density retention; regression `retains hideGeneric when clearing review scope`), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `hideGeneric` when assigned-to-me sort resets to default (regression `governanceAssignedToMeSortHrefFromSearch retains hideGeneric when assigned-to-me sort resets to default`), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `hideGeneric` when bulk selection clears (regression `governanceFindingsBulkSelectionHrefFromSearch retains hideGeneric when bulk selection clears`). Scoped vitest **100/100** on `src/lib/governance/governance-findings*`. Reseeded five pass-**54** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #535:** regression above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — **valid-no-repro 2026-11-19 thorough hunt #535:** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #535:** regression above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — **valid-no-repro 2026-11-19 thorough hunt #535:** regression above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — **valid-no-repro 2026-11-19 thorough hunt #535:** regression above.
-
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — locus: pick-review href; input: triage deep link + pick review; monitor; pass 54 reseed.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — locus: register-filter href; input: density on + widen register; monitor; pass 54 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — locus: clear-review-scope href; input: triage cursor + clear scope; monitor; pass 54 reseed.
-- [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — locus: assigned-to-me sort href; input: triage deep link + sort chip; monitor; pass 54 reseed.
-- [ ] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — locus: bulk-selection href; input: triage cursor + bulk chip; monitor; pass 54 reseed.
-
-- [x] (superseded) pass-**53** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #535:** see hunt **#535** header and pass **#54** reseed.
-2026-11-19 thorough hunt #534 (dry, round-robin): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**52** `(candidate)` rows from hunt **#533** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `focusedFinding` when picking a review for triage (triage cursor independent of review pick; regression `retains triage focusedFinding when picking a review for triage`), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `hideGeneric` when register filter widens to all (view-density param; regression `retains hideGeneric when register filter widens to all`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `focusedFinding` when clearing review scope (triage cursor retention; regression `retains triage focusedFinding when clearing review scope`), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `focusedFinding` when assigned-to-me sort changes (regression `governanceAssignedToMeSortHrefFromSearch retains triage focusedFinding when sort changes`), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `focusedFinding` when bulk selection changes (regression `governanceFindingsBulkSelectionHrefFromSearch retains triage focusedFinding when bulk selection changes`). Scoped vitest **100/100** on `src/lib/governance/governance-findings*`. Reseeded five pass-**53** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #534:** regression above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — **valid-no-repro 2026-11-19 thorough hunt #534:** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #534:** regression above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — **valid-no-repro 2026-11-19 thorough hunt #534:** regression above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — **valid-no-repro 2026-11-19 thorough hunt #534:** regression above.
-
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — locus: pick-review href; input: density on + pick review; monitor; pass 53 reseed.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — locus: register-filter href; input: triage deep link + narrow register; monitor; pass 53 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — locus: clear-review-scope href; input: density on + clear scope; monitor; pass 53 reseed.
-- [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — locus: assigned-to-me sort href; input: hideGeneric + default sort; monitor; pass 53 reseed.
-- [ ] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — locus: bulk-selection href; input: density on + clear bulk; monitor; pass 53 reseed.
-
-- [x] (superseded) pass-**52** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #534:** see hunt **#534** header and pass **#53** reseed.
-2026-11-19 thorough hunt #533 (dry, round-robin): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**51** `(candidate)` rows from hunt **#526** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `hideGeneric` when picking a review for triage (view-density param; regression `retains hideGeneric when picking a review for triage`), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `focusedFinding` when register filter narrows (triage cursor not a register chip; regression `retains triage focusedFinding when register filter narrows`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `hideGeneric` when clearing review scope (intentional density retention; regression `retains hideGeneric when clearing review scope`), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `hideGeneric` when assigned-to-me sort resets to default (regression `governanceAssignedToMeSortHrefFromSearch retains hideGeneric when assigned-to-me sort resets to default`), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `hideGeneric` when bulk selection clears (regression `governanceFindingsBulkSelectionHrefFromSearch retains hideGeneric when bulk selection clears`). Scoped vitest **100/100** on `src/lib/governance/governance-findings*`. Reseeded five pass-**52** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #533:** regression above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — **valid-no-repro 2026-11-19 thorough hunt #533:** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #533:** regression above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — **valid-no-repro 2026-11-19 thorough hunt #533:** regression above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — **valid-no-repro 2026-11-19 thorough hunt #533:** regression above.
-
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — locus: pick-review href; input: triage deep link + pick review; monitor; pass 52 reseed.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — locus: register-filter href; input: density on + widen register; monitor; pass 52 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — locus: clear-review-scope href; input: triage cursor + clear scope; monitor; pass 52 reseed.
-- [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — locus: assigned-to-me sort href; input: triage deep link + sort chip; monitor; pass 52 reseed.
-- [ ] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — locus: bulk-selection href; input: triage cursor + bulk chip; monitor; pass 52 reseed.
-
-- [x] (superseded) pass-**51** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #533:** see hunt **#533** header and pass **#52** reseed.
-## Zone: ui-governance-findings-queue
-2026-11-19 thorough hunt #526 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**50** `(candidate)` rows from hunt **#525** reseed — **valid-no-repro** `governanceFindingsGroupByHrefFromSearch` retaining `focusedFinding` when group-by changes to a non-default key (triage cursor independent of group-by chip; regression `retains triage focusedFinding when group-by changes to a non-default key`), **valid-no-repro** `governanceFindingsNlFacetsHrefFromSearch` retaining `focusedFinding` when a single NL facet chip is removed (regression `retains triage focusedFinding when a single NL facet chip is removed`), **valid-no-repro** `governanceFindingsClearAllFiltersHref` retaining `hideGeneric` when clearing register filters only (density param survives narrow clear-all; regression `retains hideGeneric when clearing register filters only`), **valid-no-repro** `reviewFindingsJobViewHrefFromSearch` retaining `hideGeneric` when job view clears to default (regression `retains hideGeneric when job view clears to default`), **invalid** `governanceFindingsHideGenericHrefFromSearch` retaining `hideGeneric` when toggling hide-generic off (toggle-off strips density by design; regression `clears hideGeneric when toggling hide-generic off`). Scoped vitest **67/67** on governance-findings URL helper bundle. Reseeded five pass-**51** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsGroupByHrefFromSearch` — may retain `focusedFinding` when group-by changes to a non-default key — **valid-no-repro 2026-11-19 thorough hunt #526:** regression above.
-- [x] (valid-no-repro) `governanceFindingsNlFacetsHrefFromSearch` — may retain `focusedFinding` when a single NL facet chip is removed — **valid-no-repro 2026-11-19 thorough hunt #526:** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — may retain `hideGeneric` when clearing register filters only — **valid-no-repro 2026-11-19 thorough hunt #526:** regression above.
-- [x] (valid-no-repro) `reviewFindingsJobViewHrefFromSearch` — may retain `hideGeneric` when job view clears to default — **valid-no-repro 2026-11-19 thorough hunt #526:** regression above.
-- [x] (invalid) `governanceFindingsHideGenericHrefFromSearch` — may retain `hideGeneric` when toggling hide-generic off — **invalid 2026-11-19 thorough hunt #526:** regression above.
-
-- [x] (superseded) `governanceFindingsPickReviewForTriageHref` — pass 51 — **superseded 2026-11-19 thorough hunt #533:** closed at hunt **#533** header.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — locus: register-filter href; input: triage deep link + narrow register; monitor; pass 51 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — locus: clear-review-scope href; input: density on + clear scope; monitor; pass 51 reseed.
-- [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — locus: assigned-to-me sort href; input: hideGeneric + default sort; monitor; pass 51 reseed.
-- [ ] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — locus: bulk-selection href; input: density on + clear bulk; monitor; pass 51 reseed.
-
-- [x] (superseded) pass-**50** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #526:** see hunt **#526** header and pass **#51** reseed.
-## Zone: ui-governance-findings-queue
-2026-11-19 thorough hunt #525 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**49** `(candidate)` rows from hunt **#524** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `focusedFinding` when picking a review for triage (triage cursor independent of review pick; regression `retains triage focusedFinding when picking a review for triage`), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `hideGeneric` when register filter widens to all (view-density param; regression `retains hideGeneric when register filter widens to all`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `focusedFinding` when clearing review scope (triage cursor retention; regression `retains triage focusedFinding when clearing review scope`), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `focusedFinding` when assigned-to-me sort changes (regression `governanceAssignedToMeSortHrefFromSearch retains triage focusedFinding when sort changes`), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `focusedFinding` when bulk selection changes (regression `governanceFindingsBulkSelectionHrefFromSearch retains triage focusedFinding when bulk selection changes`). Scoped vitest **67/67** on governance-findings URL helper bundle. Reseeded five pass-**50** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #525:** regression above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — **valid-no-repro 2026-11-19 thorough hunt #525:** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #525:** regression above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — **valid-no-repro 2026-11-19 thorough hunt #525:** regression above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — **valid-no-repro 2026-11-19 thorough hunt #525:** regression above.
-
-- [ ] (candidate) `governanceFindingsGroupByHrefFromSearch` — may retain `focusedFinding` when group-by changes to a non-default key — locus: group-by href; input: triage deep link + group-by chip; monitor; pass 50 reseed.
-- [ ] (candidate) `governanceFindingsNlFacetsHrefFromSearch` — may retain `focusedFinding` when a single NL facet chip is removed — locus: NL facets href; input: focusedFinding + remove severity; monitor; pass 50 reseed.
-- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — may retain `hideGeneric` when clearing register filters only — locus: clear-all helper; input: density on + narrow clear; monitor; pass 50 reseed.
-- [ ] (candidate) `reviewFindingsJobViewHrefFromSearch` — may retain `hideGeneric` when job view clears to default — locus: job-view href; input: hideGeneric + default lane; monitor; pass 50 reseed.
-- [ ] (candidate) `governanceFindingsHideGenericHrefFromSearch` — may retain `hideGeneric` when toggling hide-generic off — locus: hide-generic toggle; input: density on then off; monitor; pass 50 reseed.
-
-- [x] (superseded) pass-**49** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #525:** see hunt **#525** header and pass **#50** reseed.
-## Zone: ui-governance-findings-queue
-2026-11-19 thorough hunt #524 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**48** `(candidate)` rows from hunt **#523** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `hideGeneric` when picking a review for triage (view-density param; regression `retains hideGeneric when picking a review for triage`), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `focusedFinding` when register filter narrows (triage cursor not a register chip; regression `retains triage focusedFinding when register filter narrows`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `hideGeneric` when clearing review scope (intentional density retention; regression `retains hideGeneric when clearing review scope`), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `hideGeneric` when assigned-to-me sort resets to default (regression `governanceAssignedToMeSortHrefFromSearch retains hideGeneric when assigned-to-me sort resets to default`), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `hideGeneric` when bulk selection clears (regression `governanceFindingsBulkSelectionHrefFromSearch retains hideGeneric when bulk selection clears`). Scoped vitest **67/67** on governance-findings URL helper bundle. Reseeded five pass-**49** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #524:** regression above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — **valid-no-repro 2026-11-19 thorough hunt #524:** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #524:** regression above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — **valid-no-repro 2026-11-19 thorough hunt #524:** regression above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — **valid-no-repro 2026-11-19 thorough hunt #524:** regression above.
-
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — locus: pick-review href; input: triage deep link + pick review; monitor; pass 49 reseed.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — locus: register-filter href; input: density on + widen register; monitor; pass 49 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — locus: clear-review-scope href; input: triage cursor + clear scope; monitor; pass 49 reseed.
-- [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — locus: assigned-to-me sort href; input: triage deep link + sort chip; monitor; pass 49 reseed.
-- [ ] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — locus: bulk-selection href; input: triage cursor + bulk chip; monitor; pass 49 reseed.
-
-- [x] (superseded) pass-**48** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #524:** see hunt **#524** header and pass **#49** reseed.
-## Zone: ui-governance-findings-queue
-2026-11-19 thorough hunt #523 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**47** `(candidate)` rows from hunt **#522** reseed — **valid-no-repro** `governanceFindingsGroupByHrefFromSearch` retaining `focusedFinding` when group-by changes to a non-default key (triage cursor independent of group-by chip; regression `retains triage focusedFinding when group-by changes to a non-default key`), **valid-no-repro** `governanceFindingsNlFacetsHrefFromSearch` retaining `focusedFinding` when a single NL facet chip is removed (regression `retains triage focusedFinding when a single NL facet chip is removed`), **valid-no-repro** `governanceFindingsClearAllFiltersHref` retaining `hideGeneric` when clearing register filters only (density param survives narrow clear-all; regression `retains hideGeneric when clearing register filters only`), **valid-no-repro** `reviewFindingsJobViewHrefFromSearch` retaining `hideGeneric` when job view clears to default (regression `retains hideGeneric when job view clears to default`), **invalid** `governanceFindingsHideGenericHrefFromSearch` retaining `hideGeneric` when toggling hide-generic off (toggle-off strips density by design; regression `clears hideGeneric when toggling hide-generic off`). Scoped vitest **67/67** on governance-findings URL helper bundle. Reseeded five pass-**48** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsGroupByHrefFromSearch` — may retain `focusedFinding` when group-by changes to a non-default key — **valid-no-repro 2026-11-19 thorough hunt #523:** regression above.
-- [x] (valid-no-repro) `governanceFindingsNlFacetsHrefFromSearch` — may retain `focusedFinding` when a single NL facet chip is removed — **valid-no-repro 2026-11-19 thorough hunt #523:** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — may retain `hideGeneric` when clearing register filters only — **valid-no-repro 2026-11-19 thorough hunt #523:** regression above.
-- [x] (valid-no-repro) `reviewFindingsJobViewHrefFromSearch` — may retain `hideGeneric` when job view clears to default — **valid-no-repro 2026-11-19 thorough hunt #523:** regression above.
-- [x] (invalid) `governanceFindingsHideGenericHrefFromSearch` — may retain `hideGeneric` when toggling hide-generic off — **invalid 2026-11-19 thorough hunt #523:** regression above.
-
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — locus: pick-review href; input: density on + pick review; monitor; pass 48 reseed.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — locus: register-filter href; input: triage deep link + narrow register; monitor; pass 48 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — locus: clear-review-scope href; input: density on + clear scope; monitor; pass 48 reseed.
-- [ ] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — locus: assigned-to-me sort href; input: hideGeneric + default sort; monitor; pass 48 reseed.
-- [ ] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — locus: bulk-selection href; input: density on + clear bulk; monitor; pass 48 reseed.
-
-- [x] (superseded) pass-**47** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #523:** see hunt **#523** header and pass **#48** reseed.
-2026-11-19 thorough hunt #522 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**46** `(candidate)` rows from hunt **#521** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `focusedFinding` when picking a review (triage cursor independent of review pick; regression `retains triage focusedFinding when picking a review for triage`), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `hideGeneric` when register filter widens to all (view-density param; regression `retains hideGeneric when register filter widens to all`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `focusedFinding` when clearing review scope (triage cursor retention; regression `retains triage focusedFinding when clearing review scope`), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `focusedFinding` when assigned-to-me sort changes (regression `governanceAssignedToMeSortHrefFromSearch retains triage focusedFinding when sort changes`), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `focusedFinding` when bulk selection changes (regression `governanceFindingsBulkSelectionHrefFromSearch retains triage focusedFinding when bulk selection changes`). Scoped vitest **63/63** on governance-findings URL helper bundle. Reseeded five pass-**47** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #522:** regression above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — **valid-no-repro 2026-11-19 thorough hunt #522:** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #522:** regression above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — **valid-no-repro 2026-11-19 thorough hunt #522:** regression above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — **valid-no-repro 2026-11-19 thorough hunt #522:** regression above.
-
-- [ ] (candidate) `governanceFindingsGroupByHrefFromSearch` — may retain `focusedFinding` when group-by changes to a non-default key — locus: group-by href; input: triage deep link + group-by chip; monitor; pass 47 reseed.
-- [ ] (candidate) `governanceFindingsNlFacetsHrefFromSearch` — may retain `focusedFinding` when a single NL facet chip is removed — locus: NL facets href; input: focusedFinding + remove severity; monitor; pass 47 reseed.
-- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — may retain `hideGeneric` when clearing register filters only — locus: clear-all helper; input: density on + narrow clear; monitor; pass 47 reseed.
-- [ ] (candidate) `reviewFindingsJobViewHrefFromSearch` — may retain `hideGeneric` when job view clears to default — locus: job-view href; input: hideGeneric + default lane; monitor; pass 47 reseed.
-- [ ] (candidate) `governanceFindingsHideGenericHrefFromSearch` — may retain `hideGeneric` when toggling hide-generic off — locus: hide-generic toggle; input: density on then off; monitor; pass 47 reseed.
-
-- [x] (superseded) pass-**46** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #522:** see hunt **#522** header and pass **#47** reseed.
-2026-11-19 thorough hunt #521 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**45** `(candidate)` rows from hunt **#520** reseed — **valid-no-repro** `governanceFindingsGroupByHrefFromSearch` retaining `hideGeneric` when group-by changes to a non-default key (view-density param survives group-by chip; regression `retains hideGeneric when group-by changes to a non-default key`), **valid-no-repro** `reviewFindingsJobViewHrefFromSearch` retaining `focusedFinding` when job view changes (triage cursor independent of job-view lane; regression `retains triage focusedFinding when job view changes on the findings queue`), **valid-no-repro** `governanceFindingsNlFacetsHrefFromSearch` retaining `hideGeneric` when a single NL facet chip is removed (queue-navigation switch does not strip density; regression `retains hideGeneric when a single NL facet chip is removed`), **invalid** `governanceFindingsShowAllFilteredFindingsHref` retaining `hideGeneric` when expanding filtered rows (`showAll` delegates to clear-all then turns hide-generic off by design hunt **#507** / **#511**; regression `clears hideGeneric when showing all filtered findings`), **valid-no-repro** `governanceFindingsHideGenericHrefFromSearch` retaining `focusedFinding` when toggling hide-generic on (triage cursor independent of density toggle; regression `retains triage focusedFinding when hide-generic density toggles`). Scoped vitest **62/62** on governance-findings URL helper bundle. Reseeded five pass-**46** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsGroupByHrefFromSearch` — may retain `hideGeneric` when group-by changes to a non-default key — **valid-no-repro 2026-11-19 thorough hunt #521:** regression above.
-- [x] (valid-no-repro) `reviewFindingsJobViewHrefFromSearch` — may retain `focusedFinding` when job view changes — **valid-no-repro 2026-11-19 thorough hunt #521:** regression above.
-- [x] (valid-no-repro) `governanceFindingsNlFacetsHrefFromSearch` — may retain `hideGeneric` when a single NL facet chip is removed — **valid-no-repro 2026-11-19 thorough hunt #521:** regression above.
-- [x] (invalid) `governanceFindingsShowAllFilteredFindingsHref` — may retain `hideGeneric` when expanding filtered rows — **invalid 2026-11-19 thorough hunt #521:** show-all clears density by design; regression above.
-- [x] (valid-no-repro) `governanceFindingsHideGenericHrefFromSearch` — may retain `focusedFinding` when toggling hide-generic on — **valid-no-repro 2026-11-19 thorough hunt #521:** regression above.
-
-- [x] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — locus: pick-review href; input: triage deep link + pick review; monitor; pass 46 reseed.
-- [x] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter widens to all — locus: register-filter href; input: density on + widen register; monitor; pass 46 reseed.
-- [x] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — locus: clear-review-scope href; input: triage cursor + clear scope; monitor; pass 46 reseed.
-- [x] (candidate) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — locus: assigned-to-me sort href; input: triage deep link + sort chip; monitor; pass 46 reseed.
-- [x] (candidate) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — locus: bulk-selection href; input: triage cursor + bulk param; monitor; pass 46 reseed.
-
-- [x] (superseded) pass-**45** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #521:** see hunt **#521** header and pass **#46** reseed.
-2026-11-19 thorough hunt #520 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**44** `(candidate)` rows from hunt **#519** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `hideGeneric` when picking a review (view-density preference survives review pick; regression `retains hideGeneric when picking a review for triage`), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `focusedFinding` when register filter narrows (triage cursor not a register chip; regression `retains triage focusedFinding when register filter narrows`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `hideGeneric` when clearing review scope (intentional density retention; regression `retains hideGeneric when clearing review scope`), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `hideGeneric` when assigned-to-me sort resets to default (default sort params omitted without stripping density; regression `governanceAssignedToMeSortHrefFromSearch retains hideGeneric when assigned-to-me sort resets to default`), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `hideGeneric` when bulk selection clears (queue-navigation switch strips bulk param only; regression `governanceFindingsBulkSelectionHrefFromSearch retains hideGeneric when bulk selection clears`). Scoped vitest **61/61** on governance-findings URL helper bundle. Reseeded five pass-**45** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #520:** regression above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — **valid-no-repro 2026-11-19 thorough hunt #520:** regression above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #520:** regression above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort resets to default — **valid-no-repro 2026-11-19 thorough hunt #520:** regression above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection clears — **valid-no-repro 2026-11-19 thorough hunt #520:** regression above.
-
-- [x] (candidate) `governanceFindingsGroupByHrefFromSearch` — may retain `hideGeneric` when group-by changes to a non-default key — locus: group-by href; input: density on + group-by resource; monitor; pass 45 reseed.
-- [x] (candidate) `reviewFindingsJobViewHrefFromSearch` — may retain `focusedFinding` when job view changes — locus: job-view href; input: triage deep link + job view toggle; monitor; pass 45 reseed.
-- [x] (candidate) `governanceFindingsNlFacetsHrefFromSearch` — may retain `hideGeneric` when a single NL facet chip is removed — locus: NL facets href; input: hideGeneric + remove severity; monitor; pass 45 reseed.
-- [x] (candidate) `governanceFindingsShowAllFilteredFindingsHref` — may retain `hideGeneric` when expanding filtered rows — locus: show-all href; input: density on + show all; monitor; pass 45 reseed.
-- [x] (candidate) `governanceFindingsHideGenericHrefFromSearch` — may retain `focusedFinding` when toggling hide-generic on — locus: hide-generic toggle; input: triage cursor + density on; monitor; pass 45 reseed.
-
-- [x] (superseded) pass-**44** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #520:** see hunt **#520** header and pass **#45** reseed.
-
-2026-11-19 thorough hunt #519 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**43** `(candidate)` rows from hunt **#518** reseed — **valid-no-repro** `governanceFindingsGroupByHrefFromSearch` retaining `focusedFinding` when group-by clears to default (triage cursor independent of group-by chip; regression `retains triage focusedFinding when group-by is turned off`), **valid-no-repro** `governanceFindingsNlFacetsHrefFromSearch` retaining `hideGeneric` when NL facet chips reset (view-density param; regression `retains hideGeneric when NL facet chips reset`), **valid-no-repro** `reviewFindingsJobViewHrefFromSearch` retaining `focusedFinding` when job view clears to default (triage cursor retention; regression `retains triage focusedFinding when job view clears to default`), **valid-no-repro** `governanceFindingsClearAllFiltersHref` retaining `focusedFinding` when clearing register and facet filters (triage cursor not a register chip; regression `retains triage focusedFinding when clearing register and facet filters`), **invalid** `governanceFindingsHideGenericHrefFromSearch` retaining `removePresetId` when toggling hide-generic off (`governance-findings-queue-navigation` selection switch strips confirm; regression `clears armed preset-remove confirm when hide-generic toggles off`). Scoped vitest **58/58** on governance-findings URL helper tests. Reseeded five pass-**44** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsGroupByHrefFromSearch` — may retain `focusedFinding` when group-by clears to default — **valid-no-repro 2026-11-19 thorough hunt #519:** triage cursor retention; regression above.
-- [x] (valid-no-repro) `governanceFindingsNlFacetsHrefFromSearch` — may retain `hideGeneric` when NL facet chips reset — **valid-no-repro 2026-11-19 thorough hunt #519:** view-density param; regression above.
-- [x] (valid-no-repro) `reviewFindingsJobViewHrefFromSearch` — may retain `focusedFinding` when job view clears to default — **valid-no-repro 2026-11-19 thorough hunt #519:** triage cursor retention; regression above.
-- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — may retain `focusedFinding` when clearing register filters only — **valid-no-repro 2026-11-19 thorough hunt #519:** triage cursor retention; regression above.
-- [x] (invalid) `governanceFindingsHideGenericHrefFromSearch` — may retain `removePresetId` when toggling hide-generic off — **invalid 2026-11-19 thorough hunt #519:** queue-navigation switch strips confirm; regression above.
-
-
-- [x] (superseded) pass-**43** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #519:** see hunt **#519** header and pass **#44** reseed.
-2026-11-19 thorough hunt #518 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**42** `(candidate)` rows from hunt **#517** reseed — **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `focusedFinding` (triage cursor independent of review pick; hunt **#510** / **#517** hideGeneric class), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `focusedFinding` when register widens to all (triage cursor not a register chip; hunt **#510**), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `focusedFinding` (triage cursor independent of review-scope clear; hunt **#513** / **#517** hideGeneric class), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `hideGeneric` (view-density param; hunt **#516** pick-review class), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `focusedFinding` (triage cursor independent of bulk selection; hunt **#516** NL-facet class). Scoped vitest **53/53** on governance-findings URL helper tests. Cheap-disproof regressions document intentional retention on pick-review, register widen, clear-review-scope, assigned-to-me sort, and bulk selection helpers. Reseeded five pass-**43** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #518:** triage cursor retention; regression `retains triage focusedFinding when picking a review for triage`.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter widens to all — **valid-no-repro 2026-11-19 thorough hunt #518:** see zone diary above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #518:** see zone diary above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort changes — **valid-no-repro 2026-11-19 thorough hunt #518:** see zone diary above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — **valid-no-repro 2026-11-19 thorough hunt #518:** see zone diary above.
-
-
-- [x] (superseded) pass-**42** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #518:** see hunt **#518** header and pass **#43** reseed.
-2026-11-19 thorough hunt #517 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**41** `(candidate)` rows from hunt **#516** reseed — **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `hideGeneric` (view-density param not stripped on review-scope clear; hunt **#514** / **#516** clear-all class), **valid-no-repro** `governanceFindingsShowAllFilteredFindingsHref` retaining `focusedFinding` (triage cursor independent of show-all filter clear; hunt **#513** / **#507**), **valid-no-repro** `governanceFindingsBulkSelectionHrefFromSearch` retaining `hideGeneric` (queue-navigation switch; hunt **#510** / **#516** pick-review class), **valid-no-repro** `governanceAssignedToMeSortHrefFromSearch` retaining `focusedFinding` (triage cursor independent of sort chip; hunt **#516** NL-facet class), **invalid** `governanceFindingsRegisterFilterHrefFromSearch` retaining `removePresetId` when register filter widens (`governance-findings-register-filter` selection switch strips confirm param; regression `clears armed preset-remove confirm when register filter widens to all`). Scoped vitest **48/48** on governance-findings URL helper tests. Cheap-disproof regressions document intentional retention on clear-review-scope, show-all, bulk selection, and assigned-to-me sort helpers. Reseeded five pass-**42** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #517:** view-density param; regression `retains hideGeneric when clearing review scope`.
-- [x] (valid-no-repro) `governanceFindingsShowAllFilteredFindingsHref` — may retain `focusedFinding` when expanding filtered rows — **valid-no-repro 2026-11-19 thorough hunt #517:** triage cursor retention; regression `retains triage focusedFinding when showing all filtered findings`.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection changes — **valid-no-repro 2026-11-19 thorough hunt #517:** intentional density retention; regression `governanceFindingsBulkSelectionHrefFromSearch retains hideGeneric when bulk selection changes`.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — **valid-no-repro 2026-11-19 thorough hunt #517:** triage cursor retention; regression `governanceAssignedToMeSortHrefFromSearch retains triage focusedFinding when sort changes`.
-- [x] (invalid) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `removePresetId` when register filter widens — **invalid 2026-11-19 thorough hunt #517:** register-filter selection switch; regression `clears armed preset-remove confirm when register filter widens to all`.
-
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #518:** see zone diary above.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter widens to all — **valid-no-repro 2026-11-19 thorough hunt #518:** see zone diary above.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #518:** see zone diary above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `hideGeneric` when assigned-to-me sort changes — **valid-no-repro 2026-11-19 thorough hunt #518:** see zone diary above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `focusedFinding` when bulk selection changes — **valid-no-repro 2026-11-19 thorough hunt #518:** see zone diary above.
-
-- [x] (superseded) pass-**41** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #517:** see hunt **#517** header and pass **#42** reseed.
-2026-11-19 thorough hunt #516 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**40** `(candidate)` rows from hunt **#515** reseed — **valid-no-repro** `governanceFindingsGroupByHrefFromSearch` retaining `hideGeneric` (view-density param not stripped by queue-navigation switch; hunt **#510** / **#515** register-filter class), **valid-no-repro** `reviewFindingsJobViewHrefFromSearch` retaining `hideGeneric` (same intentional density retention; hunt **#515**), **valid-no-repro** `governanceFindingsNlFacetsHrefFromSearch` retaining `focusedFinding` (triage cursor independent of NL facet chips; hunt **#510** / **#515** group-by class), **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `hideGeneric` (view-density preference survives review pick; hunt **#510**), **valid-no-repro** `governanceFindingsHideGenericHrefFromSearch` retaining `focusedFinding` (triage cursor independent of density toggle; hunt **#515** hide-generic parity). Scoped vitest **40/40** on governance-findings URL helper tests. Cheap-disproof regressions document intentional retention on group-by, job-view, NL facets, pick-review, and hide-generic helpers. Reseeded five pass-**41** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsGroupByHrefFromSearch` — may retain `hideGeneric` when group-by toggle changes — **valid-no-repro 2026-11-19 thorough hunt #516:** view-density param; regression `retains hideGeneric when group-by changes`.
-- [x] (valid-no-repro) `reviewFindingsJobViewHrefFromSearch` — may retain `hideGeneric` when job view toggle changes — **valid-no-repro 2026-11-19 thorough hunt #516:** intentional density retention; regression `retains hideGeneric when job view changes on the findings queue`.
-- [x] (valid-no-repro) `governanceFindingsNlFacetsHrefFromSearch` — may retain `focusedFinding` when NL facet chip changes — **valid-no-repro 2026-11-19 thorough hunt #516:** triage cursor retention; regression `retains triage focusedFinding when NL facet chips change`.
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — **valid-no-repro 2026-11-19 thorough hunt #516:** view-density preference; regression `retains hideGeneric when picking a review for triage`.
-- [x] (valid-no-repro) `governanceFindingsHideGenericHrefFromSearch` — may retain `focusedFinding` when toggling hide-generic density — **valid-no-repro 2026-11-19 thorough hunt #516:** triage cursor retention; regression `retains triage focusedFinding when hide-generic density toggles`.
-
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #517:** see zone diary above.
-- [x] (valid-no-repro) `governanceFindingsShowAllFilteredFindingsHref` — may retain `focusedFinding` when expanding filtered rows — **valid-no-repro 2026-11-19 thorough hunt #517:** see zone diary above.
-- [x] (valid-no-repro) `governanceFindingsBulkSelectionHrefFromSearch` — may retain `hideGeneric` when bulk selection changes — **valid-no-repro 2026-11-19 thorough hunt #517:** see zone diary above.
-- [x] (valid-no-repro) `governanceAssignedToMeSortHrefFromSearch` — may retain `focusedFinding` when assigned-to-me sort changes — **valid-no-repro 2026-11-19 thorough hunt #517:** see zone diary above.
-- [x] (invalid) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `removePresetId` when register filter widens — **invalid 2026-11-19 thorough hunt #517:** see zone diary above.
-
-- [x] (superseded) pass-**40** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #516:** see hunt **#516** header and pass **#41** reseed.
-2026-11-19 thorough hunt #515 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**39** `(candidate)` rows from hunt **#514** reseed — **valid-no-repro** `governanceFindingsNlFacetsHrefFromSearch` retaining `hideGeneric` (view-density param not in queue-navigation strip set; hunt **#510** / **#514** clear-review-scope class), **valid-no-repro** `governanceFindingsGroupByHrefFromSearch` retaining `focusedFinding` (triage cursor independent of group-by chip; hunt **#510** / **#514** register-filter class), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `hideGeneric` (intentional density retention; hunt **#510**), **valid-no-repro** `reviewFindingsJobViewHrefFromSearch` retaining `focusedFinding` (triage cursor independent of job-view toggle; hunt **#514** register-filter class), **valid-no-repro** `governanceFindingsClearAllFiltersHref` retaining `hideGeneric` (density toggle cleared only by show-all helper; hunt **#510** / **#507**). Scoped vitest **38/38** on governance-findings URL helper tests. Cheap-disproof regressions document intentional retention on NL facets, group-by, register filter, job view, and clear-all helpers. Reseeded five pass-**40** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (valid-no-repro) `governanceFindingsNlFacetsHrefFromSearch` — may retain `hideGeneric` when NL facet chip changes — **valid-no-repro 2026-11-19 thorough hunt #515:** view-density param; regression `retains hideGeneric when NL facet chips change`.
-- [x] (valid-no-repro) `governanceFindingsGroupByHrefFromSearch` — may retain `focusedFinding` when group-by toggle changes — **valid-no-repro 2026-11-19 thorough hunt #515:** triage cursor retention; regression `retains triage focusedFinding when group-by changes`.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter narrows — **valid-no-repro 2026-11-19 thorough hunt #515:** intentional density retention; regression `retains hideGeneric when register filter narrows`.
-- [x] (valid-no-repro) `reviewFindingsJobViewHrefFromSearch` — may retain `focusedFinding` when job view toggle changes — **valid-no-repro 2026-11-19 thorough hunt #515:** triage cursor retention; regression `retains triage focusedFinding when job view changes on the findings queue`.
-- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — may retain `hideGeneric` when clearing register/facet filters — **valid-no-repro 2026-11-19 thorough hunt #515:** show-all helper clears density; regression `retains hideGeneric when clearing register and facet filters`.
-
-- [ ] (candidate) `governanceFindingsGroupByHrefFromSearch` — may retain `hideGeneric` when group-by toggle changes — locus: group-by href; input: `hideGeneric=1` + group-by chip; monitor; pass 40 reseed.
-- [ ] (candidate) `reviewFindingsJobViewHrefFromSearch` — may retain `hideGeneric` when job view toggle changes — locus: job view href; input: `hideGeneric=1` + job view chip; monitor; pass 40 reseed.
-- [ ] (candidate) `governanceFindingsNlFacetsHrefFromSearch` — may retain `focusedFinding` when NL facet chip changes — locus: NL facet href; input: triage deep link + severity chip; monitor; pass 40 reseed.
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `hideGeneric` when picking a review for triage — locus: pick-review href; input: `hideGeneric=1` + pick review; monitor; pass 40 reseed.
-- [ ] (candidate) `governanceFindingsHideGenericHrefFromSearch` — may retain `focusedFinding` when toggling hide-generic density — locus: hide-generic href; input: triage deep link + hide-generic toggle; monitor; pass 40 reseed.
-
-- [x] (superseded) pass-**39** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #515:** see hunt **#515** header and pass **#40** reseed.
-2026-11-19 thorough hunt #514 (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**38** `(candidate)` rows from hunt **#513** reseed — **invalid** `governanceFindingsNlFacetsHrefFromSearch` retaining `removePresetId` (`governance-findings-queue-navigation` selection switch; hunt **#511** confirm-param class), **proven** `reviewFindingsJobViewHrefFromSearch` retaining `removePresetId` (`disclosure-only` switch skipped strip on job-view toggle; hunt **#506**–**#508** hygiene class), **invalid** `governanceFindingsGroupByHrefFromSearch` retaining `removePresetId` (queue-navigation switch), **valid-no-repro** `governanceFindingsRegisterFilterHrefFromSearch` retaining `focusedFinding` (triage cursor independent of register chip; hunt **#510**), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `hideGeneric` (view-density param not in review-scope clears; hunt **#510**). `reviewFindingsJobViewHrefFromSearch` uses `governance-findings-queue-navigation` selection switch; regression `clears armed preset-remove confirm when job view changes on the findings queue`. Scoped vitest **163/163** on governance-findings-named and job-view URL helper tests. Reseeded five pass-**39** `(candidate)` rows below. Private beta: Invited operators changing findings job-view lanes on the governance queue no longer keep a stale saved-filter preset removal dialog armed in the URL.
-
-- [x] (invalid) `governanceFindingsNlFacetsHrefFromSearch` — may retain `removePresetId` when NL facet chip changes — **invalid 2026-11-19 thorough hunt #514:** queue-navigation switch strips confirm param; hunt **#511**.
-- [x] (proven) `reviewFindingsJobViewHrefFromSearch` — may retain `removePresetId` when job view toggle changes — **hit 2026-11-19 thorough hunt #514:** governance-findings-queue-navigation switch; regression `clears armed preset-remove confirm when job view changes on the findings queue`.
-- [x] (invalid) `governanceFindingsGroupByHrefFromSearch` — may retain `removePresetId` when group-by toggle changes — **invalid 2026-11-19 thorough hunt #514:** queue-navigation switch strips confirm param; hunt **#511**.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — **valid-no-repro 2026-11-19 thorough hunt #514:** triage cursor retention; hunt **#510**.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #514:** intentional density retention; hunt **#510**.
-
-- [ ] (candidate) `governanceFindingsNlFacetsHrefFromSearch` — may retain `hideGeneric` when NL facet chip changes — locus: NL facet href; input: `hideGeneric=1` + severity/status chip; monitor; pass 39 reseed.
-- [ ] (candidate) `governanceFindingsGroupByHrefFromSearch` — may retain `focusedFinding` when group-by toggle changes — locus: group-by href; input: triage deep link + group-by chip; monitor; pass 39 reseed.
-- [ ] (candidate) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `hideGeneric` when register filter narrows — locus: register filter href; input: `hideGeneric=1` + register chip; monitor; pass 39 reseed.
-- [ ] (candidate) `reviewFindingsJobViewHrefFromSearch` — may retain `focusedFinding` when job view toggle changes — locus: job view href; input: triage deep link + job view chip; monitor; pass 39 reseed.
-- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — may retain `hideGeneric` when clearing register/facet filters — locus: clear-all helper; input: `hideGeneric=1` + clear all; monitor; pass 39 reseed.
-
-- [x] (superseded) pass-**38** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #514:** see hunt **#514** header and pass **#39** reseed.
-2026-11-19 thorough hunt #513 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**37** `(candidate)` rows from hunt **#512** reseed — **invalid** `governanceFindingsWorkspaceSavedViewHref` retaining `removePresetId` (saved-view href rebuilds from filter payload only; `onLoadFindingsSavedView` full-replaces URL; hunt **#509** / **#512** run-scoped class), **valid-no-repro** `GovernanceFindingsFilterBar` preset remove on assigned-to-me pathname (`isAssignedToMeFindingsPath` routes to `governanceAssignedToMePresetRemoveConfirmHrefFromSearch`; wave11 parity expectation), **valid-no-repro** `governanceFindingsClearReviewScopeHref` retaining `focusedFinding` (triage cursor independent of review-scope clears; hunt **#510** / **#512** clear-all parity), **valid-no-repro** `governanceFindingsShowAllFilteredFindingsHref` retaining `focusedFinding` (show-all delegates clear-all; triage cursor not a register/facet param; hunt **#507**), **valid-no-repro** `useGovernanceFindingTriageWithCursor` register filter leaving `focusedFinding` on filtered-out row (strip effect when focused id absent from `displayedRows`; regression `strips unknown focusedFinding after finding rows load`). Scoped vitest **121/121** on governance findings URL/hook helper tests. Reseeded five pass-**38** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (invalid) `governanceFindingsWorkspaceSavedViewHref` — may retain `removePresetId` when loading workspace saved view — **invalid 2026-11-19 thorough hunt #513:** full-replace saved-view href contract; hunt **#512** class.
-- [x] (valid-no-repro) `GovernanceFindingsFilterBar` — preset remove confirm may fail to sync on assigned-to-me route pathname — **valid-no-repro 2026-11-19 thorough hunt #513:** assigned-to-me preset-remove href helper; hunt **#512** parity class.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #518:** see zone diary above.
-- [x] (valid-no-repro) `governanceFindingsShowAllFilteredFindingsHref` — may retain `focusedFinding` when expanding filtered rows — **valid-no-repro 2026-11-19 thorough hunt #513:** triage cursor not cleared on show-all; hunt **#507**.
-- [x] (valid-no-repro) `useGovernanceFindingTriageWithCursor` — register filter chip may leave URL `focusedFinding` on filtered-out row — **valid-no-repro 2026-11-19 thorough hunt #513:** displayed-rows strip effect; hunt **#507**.
-
-- [x] (invalid) `governanceFindingsNlFacetsHrefFromSearch` — may retain `removePresetId` when NL facet chip changes — locus: NL facet href; input: armed preset remove + severity/status chip; monitor; pass 38 reseed.
-- [x] (proven) `reviewFindingsJobViewHrefFromSearch` — may retain `removePresetId` when job view toggle changes — locus: job view href; input: armed preset remove + job view chip; monitor; pass 38 reseed.
-- [x] (invalid) `governanceFindingsGroupByHrefFromSearch` — may retain `removePresetId` when group-by toggle changes — locus: group-by href; input: armed preset remove + group-by chip; monitor; pass 38 reseed.
-- [x] (valid-no-repro) `governanceFindingsRegisterFilterHrefFromSearch` — may retain `focusedFinding` when register filter narrows — locus: register filter href; input: triage deep link + register chip; monitor; pass 38 reseed.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — locus: clear-review-scope helper; input: `hideGeneric=1` + clear review scope; monitor; pass 38 reseed.
-
-- [x] (superseded) pass-**37** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #513:** see hunt **#513** header and pass **#38** reseed.
-
-2026-11-19 thorough hunt #512 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**36** `(candidate)` rows from hunt **#511** reseed — **invalid** `governanceFindingsRunScopedSavedViewHref` retaining `removePresetId` (saved-view href rebuilds from filter payload; `onLoadFindingsSavedView` full-replaces URL), **valid-no-repro** `governanceFindingsShowAllFilteredFindingsHref` retaining `removePresetId` (delegates to clear-all helper fixed hunt **#511**), **valid-no-repro** `governanceFindingsClearAllFiltersHref` retaining `focusedFinding` (triage cursor independent of register/facet clears; hunt **#510** / **#507**), **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `focusedFinding` with register filters preserved (intentional triage cursor; hunt **#510**), **valid-no-repro** `governanceAssignedToMePresetRemoveConfirmHrefFromSearch` assigned-to-me preset remove parity (`buildOperatorHrefFromSearch` arms `removePresetId` after queue-navigation hygiene; wave33 regressions). Scoped vitest **156/156** on governance findings URL/client/hook tests. Reseeded five pass-**37** `(candidate)` rows below. Private beta: n/a.
-
-- [x] (invalid) `governanceFindingsRunScopedSavedViewHref` — may retain `removePresetId` when loading run-scoped saved view — **invalid 2026-11-19 thorough hunt #512:** full-replace saved-view href contract; hunt **#509** class.
-- [x] (valid-no-repro) `governanceFindingsShowAllFilteredFindingsHref` — may retain `removePresetId` when expanding filtered rows — **valid-no-repro 2026-11-19 thorough hunt #512:** show-all calls clear-all helper; hunt **#511**.
-- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — may retain `focusedFinding` when clearing register/facet filters — **valid-no-repro 2026-11-19 thorough hunt #512:** triage cursor not a filter param; hunt **#510**.
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when switching `runId` with register filters preserved — **valid-no-repro 2026-11-19 thorough hunt #512:** intentional cursor retention; hunt **#510**.
-- [x] (valid-no-repro) `governanceAssignedToMePresetRemoveConfirmHrefFromSearch` — may fail to arm remove confirm on assigned-to-me path parity — **valid-no-repro 2026-11-19 thorough hunt #512:** shared `buildOperatorHrefFromSearch` arm path; wave33 expectation.
-
-- [ ] (candidate) `governanceFindingsWorkspaceSavedViewHref` — may retain `removePresetId` when loading workspace saved view — locus: workspace saved-view href; input: armed preset remove + load workspace saved view; monitor; pass 37 reseed.
-- [ ] (candidate) `GovernanceFindingsFilterBar` — preset remove confirm may fail to sync on assigned-to-me route pathname — locus: FilterBar `syncRemovePresetToUrl`; input: assigned-to-me pathname + arm remove; monitor; pass 37 reseed.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `focusedFinding` when clearing review scope — **valid-no-repro 2026-11-19 thorough hunt #518:** see zone diary above.
-- [ ] (candidate) `governanceFindingsShowAllFilteredFindingsHref` — may retain `focusedFinding` when expanding filtered rows — locus: show-all helper; input: `focusedFinding` + show all filtered; monitor; pass 37 reseed.
-- [ ] (candidate) `useGovernanceFindingTriageWithCursor` — register filter chip may leave URL `focusedFinding` on filtered-out row — locus: cursor strip vs register chip; input: open triage + narrow register filter; monitor; pass 37 reseed.
-
-- [x] (superseded) pass-**36** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #512:** see hunt **#512** header and pass **#37** reseed.
-
-2026-11-18 thorough hunt #511 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**35** `(candidate)` rows — **proven** `removePresetId` survived clear-all, clear-review-scope, pick-review, and register-filter chip navigation (hunt **#506**–**#508** confirm-param hygiene class); **valid-no-repro** `governanceFindingsWorkspaceSavedViewHref` retaining `hideGeneric` (saved-view href rebuilt from filter payload only). Shared `stripGovernanceFindingsPresetRemoveConfirmParams` on queue navigation helpers; register-filter + clear-all via selection switch. Regressions on clear-all, clear-review-scope, pick-review, register-filter URL helpers; scoped vitest **32/32** on governance findings URL/client/hook tests. Reseeded five pass-**36** `(candidate)` rows below. Private beta: Invited operators clearing filters, changing register chips, clearing review scope, or picking another review on the governance findings queue no longer keep a stale saved-filter preset removal dialog armed in the URL.
-
-- [x] (proven) `governanceFindingsClearAllFiltersHref` — may retain `removePresetId` when clearing register/facet filters — **hit 2026-11-18 thorough hunt #511:** strip on queue-navigation switch; regression `clears armed preset-remove confirm when clearing filters`.
-- [x] (proven) `governanceFindingsClearReviewScopeHref` — may retain `removePresetId` when clearing review scope — **hit 2026-11-18 thorough hunt #511:** shared strip helper; regression `clears armed preset-remove confirm when clearing review scope`.
-- [x] (proven) `governanceFindingsPickReviewForTriageHref` — may retain `removePresetId` when switching `runId` — **hit 2026-11-18 thorough hunt #511:** shared strip helper; regression `clears armed preset-remove confirm when picking a review`.
-- [x] (valid-no-repro) `governanceFindingsWorkspaceSavedViewHref` — may retain `hideGeneric` when loading workspace saved view — **valid-no-repro 2026-11-18 thorough hunt #511:** workspace saved-view href does not merge prior query; regression documents intent.
-- [x] (proven) `GovernanceFindingsFilterBar` — `removePresetId` confirm may survive register filter chip navigation — **hit 2026-11-18 thorough hunt #511:** register-filter selection switch strips confirm param; regression `clears armed preset-remove confirm when register filter changes`.
-
-- [ ] (candidate) `governanceFindingsRunScopedSavedViewHref` — may retain `removePresetId` when loading run-scoped saved view — locus: run-scoped saved-view href; input: armed preset remove + load run-scoped saved view; monitor; pass 36 reseed.
-- [ ] (candidate) `governanceFindingsShowAllFilteredFindingsHref` — may retain `removePresetId` when expanding filtered rows — locus: show-all helper; input: `removePresetId` armed + show all filtered; monitor; pass 36 reseed.
-- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — may retain `focusedFinding` when clearing register/facet filters — locus: clear-all helper; input: triage deep link + clear all; monitor; pass 36 reseed.
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when switching `runId` with register filters preserved — locus: pick-review href; input: `focusedFinding` + pick another review; monitor; pass 36 reseed.
-- [ ] (candidate) `governanceAssignedToMePresetRemoveConfirmHrefFromSearch` — may fail to arm remove confirm on assigned-to-me path parity — locus: assigned-to-me preset remove href; input: queue-navigation switch + arm preset; monitor; pass 36 reseed.
-
-- [x] (superseded) pass-**35** `(candidate)` queue — **superseded 2026-11-18 thorough hunt #511:** see hunt **#511** header and pass **#36** reseed.
-2026-11-18 thorough hunt #510 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**34** monitor rows — **valid-no-repro** `governanceFindingsClearAllFiltersHref` / `governanceFindingsClearReviewScopeHref` retaining `hideGeneric` (view-density param; atomic clear is `governanceFindingsShowAllFilteredFindingsHref` hunt **#1375** / **#507**); **valid-no-repro** `governanceFindingsPickReviewForTriageHref` retaining `focusedFinding` when register filters preserved (triage cursor independent of pick-review scope swap; hunt **#509**); **invalid** `GovernanceFindingsFilterBar` `removePresetId` surviving saved-view load (`onLoadFindingsSavedView` / saved-view href helpers full-replace URL); **invalid** `useGovernanceFindingsQueueSavedViews.dismissActiveFilterChip` register chip URL gap (export unused — hook not wired in queue client). Scoped vitest **22/22** on clear-all, clear-review-scope, pick-review URL helpers, and `use-governance-findings-queue-saved-views`. Reseeded five pass-**35** `(candidate)` rows below.
-
-- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — may retain `hideGeneric` when clearing register/facet filters — **valid-no-repro 2026-11-18 thorough hunt #510:** density toggle not a register/facet param; show-all helper clears it.
-- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `hideGeneric` when clearing review scope — **valid-no-repro 2026-11-18 thorough hunt #510:** same intentional retention as clear-all.
-- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when switching `runId` with register filters preserved — **valid-no-repro 2026-11-18 thorough hunt #510:** triage cursor not cleared on pick-review; hunt **#507** / **#509**.
-- [x] (invalid) `GovernanceFindingsFilterBar` — `removePresetId` confirm may survive saved-view load — **invalid 2026-11-18 thorough hunt #510:** saved-view load replaces URL from filter payload, not prior query merge.
-- [x] (invalid) `useGovernanceFindingsQueueFacets.dismissActiveFilterChip` — register chip clear may skip URL sync when only `setRegisterFilter` runs — **invalid 2026-11-18 thorough hunt #510:** `dismissActiveFilterChip` is dead export (saved-views hook has no production consumer).
-
-- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — may retain `removePresetId` when clearing register/facet filters — locus: clear-all helper; input: `removePresetId` armed + clear all; monitor; pass 35 reseed.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `removePresetId` when clearing review scope — locus: clear-review-scope helper; input: scoped run + `removePresetId`; monitor; pass 35 reseed.
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `removePresetId` when switching `runId` — locus: pick-review href; input: armed preset remove + pick another review; monitor; pass 35 reseed.
-- [ ] (candidate) `governanceFindingsWorkspaceSavedViewHref` — may retain `hideGeneric` when loading workspace saved view — locus: workspace saved-view href; input: `hideGeneric=1` + load saved view; monitor; pass 35 reseed.
-- [ ] (candidate) `GovernanceFindingsFilterBar` — `removePresetId` confirm may survive register filter chip navigation — locus: FilterChip href vs armed remove dialog; input: `removePresetId` + register chip click; monitor; pass 35 reseed.
-
-- [x] (superseded) pass **#34** monitor `(candidate)` queue — **superseded 2026-11-18 thorough hunt #510:** see hunt **#510** header and pass **#35** reseed.
-
-2026-11-18 thorough hunt #509 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**33** monitor rows — **invalid** `governanceFindingsWorkspaceSavedViewHref` / `governanceFindingsRunScopedSavedViewHref` retaining `govCorrection*` / `kbDisp*` (saved-view load uses `router.replace` with hrefs rebuilt from filter helpers, not `currentSearch` merge); **valid-no-repro** `governanceFindingsClearAllFiltersHref` + `focusedFinding` (triage cursor independent of filter clears; hunt **#507**); **valid-no-repro** `useGovernanceRecordCorrectionUrlSync` vs pick-review navigation (`governanceFindingsPickReviewForTriageHref` strips confirm params hunt **#508**; URL effect closes dialog when params absent); **valid-no-repro** `GovernanceFindingsQueueScopeSection` clear review scope + `focusedFinding` (triage cursor retained by design, parity with clear-all). Scoped vitest **25/25** on saved-view load, clear-all, clear-review-scope, and pick-review URL helpers plus `use-governance-findings-queue-saved-views` (round-robin verification after `npm ci`). Reseeded five pass-**34** `(candidate)` rows below.
-
-- [x] (invalid) `governanceFindingsWorkspaceSavedViewHref` — saved workspace view load may retain `govCorrection*` from prior URL — **invalid 2026-11-18 thorough hunt #509:** href builder does not read prior query; `onLoadFindingsSavedView` full-replaces URL.
-- [x] (invalid) `governanceFindingsRunScopedSavedViewHref` — run-scoped saved view may retain stale `kbDisp*` — **invalid 2026-11-18 thorough hunt #509:** same full-replace contract as workspace saved-view load.
-- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — may retain `focusedFinding` when clearing filters — **valid-no-repro 2026-11-18 thorough hunt #509:** triage cursor not a register/facet param; hunt **#507**.
-- [x] (valid-no-repro) `useGovernanceRecordCorrectionUrlSync` — correction dialog vs pick-review navigation ordering — **valid-no-repro 2026-11-18 thorough hunt #509:** pick-review href + hook URL sync; hunt **#508**.
-- [x] (valid-no-repro) `GovernanceFindingsQueueScopeSection` — clear review scope link vs `focusedFinding` triage cursor — **valid-no-repro 2026-11-18 thorough hunt #509:** intentional cursor retention after scope clear.
-
-- [x] (superseded) pass **#33** monitor `(candidate)` queue — **superseded 2026-11-18 thorough hunt #509:** see hunt **#509** header and pass **#34** reseed.
 
 2026-11-17 thorough hunt #508 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**32** monitor rows — **proven** `governanceFindingsClearReviewScopeHref` still left `govCorrection*` after Clear review scope (hunt **#507** clear-all class incomplete on scope clear); **proven** `governanceFindingsPickReviewForTriageHref` retained keyboard + record-correction confirm params when switching `runId` (hunt **#1375** bulk-clear class); **valid-no-repro** `showAllFilteredFindings` + `govCorrection*` (delegates to clear-all helper fixed hunt **#507**); **valid-no-repro** `focusedFinding` surviving clear-all with open triage (triage cursor URL sync rewrites when panel open); **valid-no-repro** keyboard host pending after URL `kbDisp` strip (`FindingKeyboardTriageHost` effect clears pending when params empty). Regressions `clears record-correction confirm params when clearing review scope` and `clears stale keyboard and record-correction confirm params when picking a review`; pick-review **6/6** + clear-review-scope **6/6**. Reseeded five pass-**33** `(candidate)` rows below. Private beta: picking another review or clearing review scope on the governance findings queue no longer keeps record-correction or keyboard disposition confirms tied to the prior run.
 
@@ -13193,11 +12749,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient` — `focusedFinding` survives clear-all with open triage — **cheap-disproof 2026-11-17 thorough hunt #508:** triage cursor sync owns `focusedFinding` while open.
 - [x] (valid-no-repro) `FindingKeyboardTriageHost` — pending confirm after scope clear strips `kbDisp` — **cheap-disproof 2026-11-17 thorough hunt #508:** URL sync effect nulls pending when params absent.
 
-- [x] (superseded) `governanceFindingsWorkspaceSavedViewHref` — saved workspace view load may retain `govCorrection*` from prior URL — **superseded 2026-11-18 thorough hunt #509:** see hunt **#509** header and pass **#34** reseed.
-- [x] (superseded) `governanceFindingsRunScopedSavedViewHref` — run-scoped saved view may retain stale `kbDisp*` — **superseded 2026-11-18 thorough hunt #509:** same.
-- [x] (superseded) `governanceFindingsClearAllFiltersHref` — may retain `focusedFinding` when clearing filters — **superseded 2026-11-18 thorough hunt #509:** same.
-- [x] (superseded) `useGovernanceRecordCorrectionUrlSync` — correction dialog vs pick-review navigation ordering — **superseded 2026-11-18 thorough hunt #509:** same.
-- [x] (superseded) `GovernanceFindingsQueueScopeSection` — clear review scope link vs `focusedFinding` triage cursor — **superseded 2026-11-18 thorough hunt #509:** same.
+- [ ] (candidate) `governanceFindingsWorkspaceSavedViewHref` — saved workspace view load may retain `govCorrection*` from prior URL — locus: saved-view href builder; input: correction params + load view; monitor; pass 33 reseed.
+- [ ] (candidate) `governanceFindingsRunScopedSavedViewHref` — run-scoped saved view may retain stale `kbDisp*` — locus: run-scoped saved-view href; input: keyboard confirm + saved run scope; monitor; pass 33 reseed.
+- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — may retain `focusedFinding` when clearing filters — locus: clear-all helper; input: open triage deep link + clear all; monitor; pass 33 reseed.
+- [ ] (candidate) `useGovernanceRecordCorrectionUrlSync` — correction dialog vs pick-review navigation ordering — locus: run change with open correction; input: pick review while correction armed; monitor; pass 33 reseed.
+- [ ] (candidate) `GovernanceFindingsQueueScopeSection` — clear review scope link vs `focusedFinding` triage cursor — locus: scope clear + triage URL; input: scoped run + focusedFinding; monitor; pass 33 reseed.
 
 - [x] (superseded) pass **#32** monitor `(candidate)` queue — **superseded 2026-11-17 thorough hunt #508:** see hunt **#508** header and pass **#33** reseed.
 
@@ -13255,11 +12811,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 70
-- **bugs-found:** 44
+- **hunts:** 61
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-19
-- **last-bug:** 2026-11-19 — job view toggle left armed preset-remove confirm URLs
+- **last-hunt:** 2026-11-17
+- **last-bug:** 2026-11-17 — pick-review / clear-scope left correction confirm URLs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13445,7 +13001,7 @@ ABQ-09 churn hotspot.
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
 - **hunts:** 58
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 — keyboard Enter navigated findings with blank run id
 - **related-pd-tb:** none
@@ -14631,7 +14187,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — Infrastructure Ask handoff duplicate stale tab params
 - **code-changed-since:** yes
 
@@ -14654,7 +14210,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — duplicate tab query keys ignored trailing value
 - **code-changed-since:** yes
 
@@ -14677,7 +14233,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only tab query left in resource hub URL
 - **code-changed-since:** yes
 
@@ -14700,7 +14256,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — invalid tab query left in resource hub URL
 - **code-changed-since:** yes
 
@@ -14723,7 +14279,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — create-remediation confirm dialog after hub tab switch
 - **code-changed-since:** no
 
@@ -14747,7 +14303,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — create-remediation confirm dialog after hub tab switch
 - **code-changed-since:** yes
 
@@ -14770,7 +14326,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale URL audit scope on cross-workbench links after cloudResourceId change
 - **code-changed-since:** no
 
@@ -14793,7 +14349,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale URL audit scope on cross-workbench links after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -14816,7 +14372,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — prior hub snapshot on cross-workbench links after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -14839,7 +14395,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale URL runId on cross-workbench links after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -14862,7 +14418,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale URL runId on hub fetch after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -14885,7 +14441,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — URL snapshot pin bootstrap on resource switch
 - **code-changed-since:** yes
 
@@ -14908,7 +14464,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale snapshotId in URL after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -14931,7 +14487,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — misleading pinned snapshot label after cloudResourceId change
 - **code-changed-since:** no
 
@@ -14954,7 +14510,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — misleading pinned snapshot label after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -14978,7 +14534,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale URL snapshot pin after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -15001,7 +14557,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — implicit snapshot pin lost on audit scope change
 - **code-changed-since:** no
 
@@ -15024,7 +14580,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale hub when pinned snapshot changes
 - **code-changed-since:** no
 
@@ -15047,7 +14603,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale hub when pinned snapshot changes
 - **code-changed-since:** no
 
@@ -15070,7 +14626,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stuck Creating after hub URL scope change during remediation
 - **code-changed-since:** no
 
@@ -15093,7 +14649,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — in-flight remediation after hub URL scope change
 - **code-changed-since:** no
 
@@ -15115,7 +14671,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale hub when cloudResourceId changes
 - **code-changed-since:** yes
 
@@ -15137,7 +14693,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — suppress refetch blocked audit scope URL changes
 - **code-changed-since:** yes
 
@@ -15159,7 +14715,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — unscoped hub flash before audit-scoped load
 - **code-changed-since:** yes
 
@@ -15181,7 +14737,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — hub fetch audit scope when lineage unavailable
 - **code-changed-since:** yes
 
@@ -15203,7 +14759,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — hub fetch unlinked audit before lineage
 - **code-changed-since:** yes
 
@@ -15225,7 +14781,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — hub fetch snapshot when URL omits snapshotId
 - **code-changed-since:** yes
 
@@ -15247,7 +14803,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — hub fetch with invalid URL audit scope
 - **code-changed-since:** yes
 
@@ -15269,7 +14825,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — Ask handoff partial stale URL audit params
 - **code-changed-since:** yes
 
@@ -15291,7 +14847,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale banner audit tab link retained unlinked URL scope
 - **code-changed-since:** yes
 
@@ -15313,7 +14869,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — ARM path copy affordance when path not stored
 - **code-changed-since:** yes
 
@@ -15335,7 +14891,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — audit scope chip vs stale unlinked URL
 - **code-changed-since:** yes
 
@@ -15357,7 +14913,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — terraform tab not-mapped empty state
 - **code-changed-since:** yes
 
@@ -15379,7 +14935,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — terraform workbench link without stored address
 - **code-changed-since:** yes
 
@@ -15401,7 +14957,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale unlinked URL with whitespace hub link ids on workbench scope
 - **code-changed-since:** yes
 
@@ -15424,7 +14980,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — stale URL audit scope on workbench links
 - **code-changed-since:** yes
 
@@ -15447,7 +15003,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — partial URL audit params blocked match backfill
 - **code-changed-since:** yes
 
@@ -15470,7 +15026,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — ask/workbench audit context vs resolved lineage
 - **code-changed-since:** yes
 
@@ -15493,7 +15049,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only audit link ids with valid matches
 - **code-changed-since:** yes
 
@@ -15516,7 +15072,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — padded audit lineage id resolution
 - **code-changed-since:** yes
 
@@ -15539,7 +15095,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — diagram correspondenceId on diagram tab actions
 - **code-changed-since:** yes
 
@@ -15562,7 +15118,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — overview audit degradedReason whitespace banner
 - **code-changed-since:** yes
 
@@ -15585,7 +15141,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — architecture-review finding id on Ask handoff
 - **code-changed-since:** yes
 
@@ -15608,7 +15164,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only operational finding id on findings tab
 - **code-changed-since:** yes
 
@@ -15631,7 +15187,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only remediation create failure blockers/errorMessage
 - **code-changed-since:** yes
 
@@ -15654,7 +15210,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only remediation tab instanceId
 - **code-changed-since:** yes
 
@@ -15677,7 +15233,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only remediation instanceId after create-from-finding
 - **code-changed-since:** yes
 
@@ -15700,7 +15256,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only finding title in remediation confirm dialog
 - **code-changed-since:** yes
 
@@ -15723,7 +15279,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only drift riskClassification
 - **code-changed-since:** yes
 
@@ -15747,7 +15303,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only finding remediation action message
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15786,7 +15342,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only audit degradedReason on audit tab
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15811,7 +15367,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only config ARM id blocked external title fallback
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15836,7 +15392,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only ARM resource path in identifier strip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15861,7 +15417,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only audit other-linked control labels
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15886,7 +15442,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only overview resource type
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15911,7 +15467,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only remediation pattern key
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15936,7 +15492,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only drift property and old/new values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15961,7 +15517,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only configuration tag keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15986,7 +15542,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — whitespace-only network relationship endpoint ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16011,7 +15567,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only RBAC principal and role cells
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16036,7 +15592,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only configuration property keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16061,7 +15617,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only evidence pointer kind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16086,7 +15642,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only evidence pointer path
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16111,7 +15667,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only network relationship type
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16136,7 +15692,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only RBAC scope on overview
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16161,7 +15717,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only configuration tag values on overview
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16186,7 +15742,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only configuration property values on overview
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16211,7 +15767,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only stream labels and diagram match kind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16228,7 +15784,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only hub field omission copy parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16253,7 +15809,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only hub field omission copy parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16278,7 +15834,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — pagination caption on empty findings/remediation streams
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16303,7 +15859,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — whitespace-only terraform address displayed as mapping
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16328,7 +15884,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — duplicate React keys on evidence pointers and drift rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16353,7 +15909,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — stale finding action messages after evidence hub reload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16378,7 +15934,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — non-unique React keys collapsed RBAC/network/audit rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16403,7 +15959,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — architecture review findings pagination linked to remediation workbench
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16449,7 +16005,7 @@ ABQ-09 churn hotspot.
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **hunts:** 42
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — unlinked audit URL scope showed hub default control label
 2026-10-20 seed hunt (seed→hit): promoted failed reload stale hub candidate; regression `clears_hub_evidence_when_a_newer_URL_selection_fails_to_load`; 55 scoped ResourceHubClient tests passed.
@@ -18823,7 +18379,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-26 — post-save focus on wrong question after stale reload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -18848,7 +18404,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — silent snapshot guard on SecureNow save
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -18873,7 +18429,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — empty listed snapshot id bypassed mutation guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -18898,7 +18454,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — empty listed snapshot id bypassed mutation guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -18923,7 +18479,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -18942,7 +18498,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -18961,7 +18517,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -18980,7 +18536,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -19113,7 +18669,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-25 — review promo when no open rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -19172,7 +18728,7 @@ ABQ-09 churn hotspot.
 - **test-filter:** SecureNowQuestion
 - **hunts:** 42
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 — reopen left stale answer fields on open questions
 - **related-pd-tb:** none
@@ -19299,27 +18855,13 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 22
+- **hunts:** 21
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-11-19
+- **last-hunt:** 2026-11-17
 - **last-bug:** 2026-11-01 — completeness warnings lingered after snapshot URL change
 - **related-pd-tb:** none
 - **code-changed-since:** yes
-
-2026-11-19 thorough hunt #527 (dry): rotation (`shouldRotate: true`; 12 consecutive low-yield outcomes on `ui-governance-findings-queue`; pinned `infra-evidence-diagrams`). Cheap-disproof closed five pass-26 monitors — **valid-no-repro** seed catalog (`cancelled` + snapshot reset), **valid-no-repro** `loadingPreview` (regression `ignores a slow prior snapshot preview response after URL snapshot change`), **valid-no-repro** PNG export (regression `passes the active render query to PNG export`), **valid-no-repro** declared vs inventory panels, **valid-no-repro** evidence-family clamp. Reseeded pass-27 monitors below. Stale-guard vitest 3/3. Private beta: n/a.
-
-- [x] (valid-no-repro) `DiagramsWorkbenchClient` — slow render repopulates `seedCatalogSnapshotId` after URL snapshot change when seed catalog guard regresses — **cheap-disproof 2026-11-19 thorough hunt #527:** snapshot reset + `loadSeedCatalog` `cancelled` gate.
-- [x] (valid-no-repro) `DiagramsWorkbenchClient` — `loadingPreview` stays true after snapshot change until slow prior preview finally settles — **cheap-disproof 2026-11-19 thorough hunt #527:** regression `ignores a slow prior snapshot preview response after URL snapshot change`.
-- [x] (valid-no-repro) `DiagramsWorkbenchClient` — PNG export uses prior snapshot id when render ref guard regresses — **cheap-disproof 2026-11-19 thorough hunt #527:** regression `passes the active render query to PNG export`.
-- [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — declared edge detail panel stays open when controlled `selectedInventoryEdge` clears but declared edge remains selected — **cheap-disproof 2026-11-19 thorough hunt #527:** intentional declared selection independent of inventory clear.
-- [x] (valid-no-repro) `DiagramsWorkbenchClient` — evidence-family filter keeps prior snapshot family chip when new diagram has zero matching edges — **cheap-disproof 2026-11-19 thorough hunt #527:** `resolveSelectableInfraEvidenceDiagramFamily` sync effect.
-
-- [ ] (candidate) `DiagramsWorkbenchClient` — subscription RG prefetch repopulates picker rows for prior snapshot when ref guard regresses — locus: subscription RG prefetch effect; input: deep-linked snapshot while list loading; monitor; pass 27 reseed.
-- [ ] (candidate) `DiagramsWorkbenchClient` — slow render metrics override cleared preview state after snapshot reset — locus: stale `setRenderResult`; input: partitioned render then URL snapshot B; monitor; pass 27 reseed.
-- [ ] (candidate) `DiagramsWorkbenchClient` — `exportBusy` stuck after PNG failure during snapshot navigation — locus: `runPngExport` finally; input: export reject after URL change; monitor; pass 27 reseed.
-- [ ] (candidate) `InfraEvidenceDiagramOutline` — declared connection fetch keeps loading after outline swap — locus: `selectedDeclaredEdge` effect; input: outline swap with declared panel open; monitor; pass 27 reseed.
-- [ ] (candidate) `DiagramsWorkbenchClient` — URL seed persists when new snapshot outline lacks neighborhood node — locus: `appliedSeedNodeId` sync; input: deep-linked seed missing on new snapshot; monitor; pass 27 reseed.
 
 2026-11-17 thorough hunt #496 (dry): no rotation (continuation from queued set-3 picker — zone `infra-evidence-diagrams`; thorough hunt). Cheap-disproof closed five pass-25 `(candidate)` monitor rows reseeded after hunt #495 on `ui-oidc` — **valid-no-repro** slow prior snapshot preview repopulating mode preview state (`selectedSnapshotIdRef` guard on `loadPreview`; snapshot reset clears `modePreviews`; regression `ignores a slow prior snapshot preview response after URL snapshot change`), **valid-no-repro** render `completenessWarnings` overriding cleared preview warnings (`renderResult` cleared on snapshot change; stale render guarded by `selectedSnapshotIdRef`; regression `does not show render completeness warnings from a slow prior snapshot after URL snapshot change`), **valid-no-repro** deep-linked missing snapshot retaining preview warnings (`deepLinkedSnapshotMissing` preview branch clears warnings; regression `clears completeness warnings when deep-linking a missing snapshot after viewing warnings on a valid snapshot`), **valid-no-repro** edges disclosure vs cleared inventory selection (inventory detail panel hides when controlled `selectedInventoryEdge` clears; edges section may stay expanded; regression `hides the inventory edge detail panel when controlled selection clears after auto-expand`), **valid-no-repro** subscription RG preview prefetching wrong snapshot during initial snapshots load (deep-linked `snapshotId` seeds `selectedSnapshotId` before list resolves; regression `prefetches subscription resource groups for the deep-linked snapshot id while snapshots are still loading`). Reseeded five pass-26 `(candidate)` monitor rows below. Scoped DiagramsWorkbenchClient + InfraEvidenceDiagramOutline vitest **109/111** on changed files (two pre-existing copy/assertion failures on this checkout unrelated to this hunt). Private beta: n/a.
 
@@ -19329,6 +18871,11 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — edges disclosure stays expanded with no selected edge after parent clears inventory selection — **cheap-disproof 2026-11-17 thorough hunt #496:** regression above; detail panel clears; expanded edges disclosure is intentional chrome.
 - [x] (valid-no-repro) `DiagramsWorkbenchClient` — subscription RG preview uses prefetch snapshot id while URL snapshot id differs during initial snapshots load — **cheap-disproof 2026-11-17 thorough hunt #496:** regression `prefetches subscription resource groups for the deep-linked snapshot id while snapshots are still loading`.
 
+- [ ] (candidate) `DiagramsWorkbenchClient` — slow render repopulates `seedCatalogSnapshotId` after URL snapshot change when seed catalog guard regresses — locus: `loadSeedCatalog` + `selectedSnapshotIdRef`; input: dependency neighborhood catalog fetch during rapid snapshot navigation; monitor; pass 26 reseed.
+- [ ] (candidate) `DiagramsWorkbenchClient` — `loadingPreview` stays true after snapshot change until slow prior preview finally settles — locus: `loadPreview` `finally` without snapshot ref check; input: concurrent preview during snapshot navigation; monitor; pass 26 reseed.
+- [ ] (candidate) `DiagramsWorkbenchClient` — PNG export uses prior snapshot id when render ref guard regresses — locus: PNG download handler + `selectedSnapshotIdRef`; input: export click during snapshot URL change mid-render; monitor; pass 26 reseed.
+- [ ] (candidate) `InfraEvidenceDiagramOutline` — declared edge detail panel stays open when controlled `selectedInventoryEdge` clears but declared edge remains selected — locus: `selectedDeclaredEdge` vs `selectedInventoryEdgeProp`; input: mode change clears inventory selection only; monitor; pass 26 reseed.
+- [ ] (candidate) `DiagramsWorkbenchClient` — evidence-family filter keeps prior snapshot family chip when new diagram has zero matching edges — locus: `resolveSelectableInfraEvidenceDiagramFamily` on snapshot sync; input: deep-linked family on snapshot without matching edges; monitor; pass 26 reseed.
 
 2026-11-01 thorough hunt (hit): promoted **snapshot completeness warnings banner keeping prior snapshot copy after URL snapshot navigation** — `selectedSnapshotId` reset cleared `modePreviews` but left `snapshotCompletenessWarnings` populated until the next preview fetch finished, and a slow preview for snapshot A could still reapply warnings without an immediate reset; clear `snapshotCompletenessWarnings` with other snapshot-scoped preview state on `selectedSnapshotId` change (preview fetch already guarded by `selectedSnapshotIdRef`); regression `clears completeness warnings when URL snapshot id changes before a slow preview for the prior snapshot completes`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped DiagramsWorkbenchClient vitest 68/68 passed. Private beta: Invited operators who change infra diagram snapshots no longer see the previous snapshot's completeness warning banner while the new snapshot's preview loads.
 

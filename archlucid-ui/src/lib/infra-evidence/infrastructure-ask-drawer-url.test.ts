@@ -32,6 +32,24 @@ describe("buildInfrastructureAskHandoffHref", () => {
       "/governance/infrastructure/ask?snapshotId=11111111-1111-1111-1111-111111111111",
     );
   });
+
+  it("replaces a stale drawer target while preserving unrelated workbench state", () => {
+    const href = buildInfrastructureAskHandoffHref(
+      "/governance/infrastructure/resources/resource-1",
+      "snapshotId=snapshot-1&findingId=finding-1&details=1",
+      {
+        cloudResourceId: "resource-1",
+        snapshotId: "snapshot-1",
+        instanceId: "remediation-1",
+        hubTab: "remediation",
+      },
+    );
+
+    expect(href).toContain("snapshotId=snapshot-1");
+    expect(href).toContain("instanceId=remediation-1");
+    expect(href).toContain("details=1");
+    expect(href).not.toContain("findingId=");
+  });
 });
 
 describe("infrastructureAskDrawerCloseHref", () => {

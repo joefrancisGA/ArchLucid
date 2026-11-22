@@ -7,6 +7,7 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(diff);
+        cancellationToken.ThrowIfCancellationRequested();
         ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
 
         using OpenXmlDocxDocumentBuilder builder = new();

@@ -66,6 +66,33 @@ public sealed class TenantBrandingServiceTests
         profile.CompanyDisplayName.Should().Be("Active Co");
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task GetBrandingProfileAsync_does_not_read_fallbacks_after_selecting_modern_profile(bool hasActive)
+    {
+        DateTime utcNow = new(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc);
+        Mock<ITenantBrandingProfileRepository> repository = new(MockBehavior.Strict);
+        repository.Setup(repo => repo.TryGetActiveAsync(TenantA, CancellationToken.None))
+            .ReturnsAsync(hasActive ? BuildProfile(TenantA, BrandingProfileStatus.Active, utcNow, "Active Co") : null);
+        if (!hasActive)
+        {
+            repository.Setup(repo => repo.TryGetDefaultAsync(TenantA, CancellationToken.None))
+                .ReturnsAsync(BuildProfile(TenantA, BrandingProfileStatus.Default, utcNow, "Default Co"));
+        }
+
+        using MemoryCache memory = new(new MemoryCacheOptions());
+        TenantBrandingService service = new(
+            repository.Object,
+            new Mock<ITenantFirstValueReportBrandingRepository>(MockBehavior.Strict).Object,
+            Mock.Of<IBrandAssetService>(),
+            new TenantBrandingResolvedProfileCache(memory));
+
+        ResolvedTenantBrandingProfile profile = await service.GetBrandingProfileAsync(TenantA, CancellationToken.None);
+
+        profile.CompanyDisplayName.Should().Be(hasActive ? "Active Co" : "Default Co");
+    }
+
     [Fact]
     public async Task Interleaved_tenant_resolution_does_not_leak_company_names()
     {
@@ -141,17 +168,17 @@ public sealed class TenantBrandingServiceTests
         TenantBrandingResolvedProfileCache cache = new(memory);
         Mock<ITenantBrandingProfileRepository> repository = new();
         repository.SetupSequence(repo => repo.TryGetActiveAsync(TenantA, CancellationToken.None))
-            .ReturnsAsync(BuildProfile(TenantA, BrandingProfileStatus.Active, DateTime.UtcNow, "Tenant A Holdings"))
+            .ReturnsAsync(() =>
+            {
+                cache.InvalidateTenantCache(TenantA);
+                return BuildProfile(TenantA, BrandingProfileStatus.Active, DateTime.UtcNow, "Tenant A Holdings");
+            })
             .ReturnsAsync((TenantBrandingProfileRecord?)null);
         repository.Setup(repo => repo.TryGetDefaultAsync(TenantA, CancellationToken.None))
             .ReturnsAsync((TenantBrandingProfileRecord?)null);
         Mock<ITenantFirstValueReportBrandingRepository> legacy = new();
         legacy.Setup(repo => repo.TryGetAsync(TenantA, CancellationToken.None))
-            .ReturnsAsync(() =>
-            {
-                cache.InvalidateTenantCache(TenantA);
-                return (TenantFirstValueReportBrandingRow?)null;
-            });
+            .ReturnsAsync((TenantFirstValueReportBrandingRow?)null);
         TenantBrandingService service = new(repository.Object, legacy.Object, Mock.Of<IBrandAssetService>(), cache);
 
         TenantBrandingSurfacePresentation presentation = await service.GetSurfacePresentationAsync(

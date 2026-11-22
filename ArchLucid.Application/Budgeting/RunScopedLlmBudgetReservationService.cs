@@ -164,7 +164,7 @@ public sealed class RunScopedLlmBudgetReservationService(
 
             return RunScopedLlmBudgetAdmitResult.Permit(heldReservationId, estimateUsd);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
             _logger.LogErrorRunScopedLlmBudgetReservationFailed(ex, tenantId, runId);
 

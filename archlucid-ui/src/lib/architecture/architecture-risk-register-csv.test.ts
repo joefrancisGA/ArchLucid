@@ -188,4 +188,22 @@ describe("buildArchitectureRiskRegisterCsv", () => {
 
     expect(csv).toContain(ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_NOT_STORED);
   });
+
+  it("neutralizes spreadsheet formulas in buyer-controlled cells", () => {
+    const csv = buildArchitectureRiskRegisterCsv([
+      {
+        recordKind: "finding",
+        runId: "run-1",
+        findingId: "f-1",
+        title: "=HYPERLINK(\"https://example.test\",\"click\")",
+        severity: "High",
+        category: "Claims intake",
+        status: "Open",
+        recommended: "  +SUM(1,1)",
+      },
+    ]);
+
+    expect(csv).toContain(`"'=HYPERLINK(""https://example.test"",""click"")"`);
+    expect(csv).toContain(`"'  +SUM(1,1)"`);
+  });
 });

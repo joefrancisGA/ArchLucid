@@ -1,0 +1,31 @@
+name: Evidence hub pagination regression
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Application/InfraEvidence/CloudResourceEvidenceHubService.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/CloudResourceEvidenceHubServiceTests.cs'
+      - 'scripts/tests/test_evidence_hub_pagination_order.py'
+      - '.github/workflows/evidence-hub-pagination-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify deterministic ordering before pagination
+        run: python -m unittest discover -s scripts/tests -p test_evidence_hub_pagination_order.py -v
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Run evidence hub behavioral regression
+        run: dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --configuration Release --filter 'FullyQualifiedName~TryGetHubAsync_pages_architecture_findings_and_labels_finding_streams_separately' --logger 'console;verbosity=normal'

@@ -11,7 +11,6 @@ import {
 import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM } from "@/lib/infra-evidence/infra-resource-hub-technical-disclosure-url";
 import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
-import { stripGovernanceFindingsPresetRemoveConfirmParams } from "@/lib/governance/governance-findings-preset-remove-confirm-url";
 import { POLICY_PACK_AUTHORING_INPUT_MODE_PARAM } from "@/lib/policy/policy-pack-authoring-input-mode-url";
 import { POLICY_PACK_CATALOG_ENTRY_PARAM } from "@/lib/policy/policy-pack-catalog-entry-url";
 import { POLICY_PACK_GENERATOR_TEMPLATE_PARAM } from "@/lib/policy/policy-pack-generator-template-url";
@@ -137,7 +136,6 @@ export function applyOperatorUrlSelectionSwitch(
     case "governance-findings-register-filter":
     case "governance-findings-queue-navigation":
       params.delete(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
-      stripGovernanceFindingsPresetRemoveConfirmParams(params);
       break;
     case "infra-resource-hub-tab":
       applyInfraResourceHubTabParamOwnership(params, selectionSwitch.tab);

@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { PolicyAtCommitScopeSummary } from "@/components/policy/PolicyAtCommitScopeSummary";
+import { parseCompareManifestGovernanceSnapshot } from "@/lib/compare-effective-governance-diff";
 import { SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 
 describe("PolicyAtCommitScopeSummary", () => {
@@ -69,6 +70,37 @@ describe("PolicyAtCommitScopeSummary", () => {
 
     expect(screen.getByText(/Policy pack detail link was not stored\./)).toBeInTheDocument();
     expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("retains recorded assignments when the effective policy flag was not stored", () => {
+    const { atCommit: snapshot } = parseCompareManifestGovernanceSnapshot({
+      effectiveGovernanceAtCommit: {
+        complianceRuleKeyCount: 2,
+        packAssignments: [{ policyPackId: "recorded-pack", policyPackVersion: "1.2.0", scopeLevel: "Project" }],
+      },
+    });
+    const { rerender } = render(<PolicyAtCommitScopeSummary snapshot={snapshot} />);
+
+    expect(screen.getByText("Effective policy status was not stored.")).toBeInTheDocument();
+    expect(screen.getByTestId("policy-at-commit-scope-packs")).toHaveTextContent("recorded-pack");
+    expect(screen.getByTestId("policy-at-commit-scope-counts")).toHaveTextContent("2 compliance rule key(s)");
+
+    rerender(
+      <PolicyAtCommitScopeSummary
+        snapshot={{
+          generatedUtc: null,
+          ruleSetHash: null,
+          complianceRuleKeyCount: 0,
+          complianceRuleKeys: [],
+          conflictCount: 0,
+          hasEffectivePolicy: false,
+          packAssignments: [],
+          coverageAssignments: [],
+        }}
+      />,
+    );
+    expect(screen.getByTestId("policy-at-commit-scope-empty")).toBeInTheDocument();
+    expect(screen.queryByText("Effective policy status was not stored.")).not.toBeInTheDocument();
   });
 
   it("keeps committed pack detail links in the SecureNow namespace", () => {

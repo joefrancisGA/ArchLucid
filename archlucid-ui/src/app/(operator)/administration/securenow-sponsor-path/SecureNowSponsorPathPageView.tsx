@@ -41,6 +41,10 @@ import { cn } from "@/lib/utils";
 export function SecureNowSponsorPathPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
   const pathId = searchParams.get("pathId")?.trim() ?? "";
+  return <SecureNowSponsorPathContent key={pathId} pathId={pathId} />;
+}
+
+function SecureNowSponsorPathContent({ pathId }: { readonly pathId: string }): React.JSX.Element {
   const storageKey = pathId.length > 0 ? secureNowPilotDispositionStorageKey(pathId) : null;
   const partialCapture = useLatestSnapshotCaptureIsPartial(true);
   const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
@@ -86,6 +90,8 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
 
       if (loaded.recordedUtc !== null) {
         setTenantAuditSaved(true);
+      } else {
+        setTenantAuditSaved(false);
       }
     });
 

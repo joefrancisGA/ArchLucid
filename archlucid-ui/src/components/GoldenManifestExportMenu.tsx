@@ -260,10 +260,11 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     try {
       await downloadManifestMarkdownExport(manifestId);
       recordFirstExportOpenedOnce();
-      setExportMenuKey((k: number) => k + 1);
     } catch (error: unknown) {
       const failure = toApiLoadFailure(error);
       setExportError(manifestMarkdownExportBlockedReason(failure) ?? failure.message);
+    } finally {
+      setExportMenuKey((k: number) => k + 1);
     }
   }
 

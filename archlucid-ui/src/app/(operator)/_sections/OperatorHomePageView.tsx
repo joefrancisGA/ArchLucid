@@ -8,6 +8,7 @@ import { UnfinishedWorkRail } from "@/components/operator-home/UnfinishedWorkRai
 import { OperatorHomeWorkspaceMetricsStrip } from "@/components/operator-home/OperatorHomeWorkspaceMetricsStrip";
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { OperatorHomeCompactStartingActionsSection } from "@/components/operator-home/OperatorHomeCompactStartingActionsSection";
+import { OperatorHomeSecureNowCollectionBlockerStrip } from "@/components/operator-home/OperatorHomeSecureNowCollectionBlockerStrip";
 import { OperatorHomeSecureNowCollectionSetupSection } from "@/components/operator-home/OperatorHomeSecureNowCollectionSetupSection";
 import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
 import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
@@ -374,6 +375,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
             className="scroll-mt-24 space-y-4"
             data-testid="operator-home-primary-content"
           >
+            <OperatorHomeSecureNowCollectionBlockerStrip workingMode={isWorkingMode} />
             <OperatorHomePageBody model={model} buyerPolishedShell={evalChromeShell} workingMode={isWorkingMode} />
           </div>
         </OperatorPageContainer>

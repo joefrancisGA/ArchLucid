@@ -56,10 +56,11 @@ export function appendDataFlowRollupMemberLegend(svgMarkup: string): string {
 
   rows.forEach((row, index) => {
     const text = parsed.createElementNS(SVG_NS, "text");
+    const isTitleRow = /^\[\d+\] /u.test(row);
     text.setAttribute("x", "10");
     text.setAttribute("y", String(topPadding + 12 + index * rowHeight));
-    text.setAttribute("font-size", index === 0 || row.includes(" [") ? "11" : "10");
-    text.setAttribute("font-weight", index === 0 || row.includes(" [") ? "700" : "400");
+    text.setAttribute("font-size", isTitleRow ? "11" : "10");
+    text.setAttribute("font-weight", isTitleRow ? "700" : "400");
     text.setAttribute("font-family", "system-ui,sans-serif");
     text.setAttribute("fill", "#334155");
     text.textContent = row;

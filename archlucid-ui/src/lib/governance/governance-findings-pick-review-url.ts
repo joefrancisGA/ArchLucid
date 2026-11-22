@@ -10,7 +10,6 @@ import {
   GOVERNANCE_RECORD_CORRECTION_RUN_ID_PARAM,
   GOVERNANCE_RECORD_CORRECTION_SUBJECT_ID_PARAM,
 } from "@/lib/governance/governance-record-correction-confirm-url";
-import { stripGovernanceFindingsPresetRemoveConfirmParams } from "@/lib/governance/governance-findings-preset-remove-confirm-url";
 
 /** Sets review scope on the findings queue URL and clears conflicting architecture scope. */
 export function governanceFindingsPickReviewForTriageHref(
@@ -43,7 +42,6 @@ export function governanceFindingsPickReviewForTriageHref(
   params.delete(GOVERNANCE_RECORD_CORRECTION_SUBJECT_ID_PARAM);
   params.delete(GOVERNANCE_RECORD_CORRECTION_RUN_ID_PARAM);
   params.delete(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
-  stripGovernanceFindingsPresetRemoveConfirmParams(params);
 
   const nextQuery = params.toString();
 

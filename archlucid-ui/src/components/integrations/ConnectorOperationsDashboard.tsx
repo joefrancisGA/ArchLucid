@@ -11,6 +11,7 @@ import { ConnectionStatusEmptyPartialHonesty } from "@/components/integrations/C
 import { ConnectionStatusCategoryFilterEmptyPartialHonesty } from "@/components/integrations/ConnectionStatusCategoryFilterEmptyPartialHonesty";
 import { CONNECTION_STATUS_CATEGORY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/integrations/connection-status-category-filter-empty-not-load-failure-copy";
 import { ConnectionStatusCategoryAndSubscriptionScopeFilterEmptyPartialHonesty } from "@/components/integrations/ConnectionStatusCategoryAndSubscriptionScopeFilterEmptyPartialHonesty";
+import { ConnectionStatusDashboardPartialCaptureHonesty } from "@/components/integrations/ConnectionStatusDashboardPartialCaptureHonesty";
 import { CONNECTION_STATUS_CATEGORY_AND_SUBSCRIPTION_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/integrations/connection-status-category-and-subscription-scope-filter-empty-not-load-failure-copy";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -272,6 +273,7 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
 
   return (
     <div className="space-y-4">
+      <ConnectionStatusDashboardPartialCaptureHonesty />
       <FilterChipGroup
         aria-label="Filter integrations by category"
         className="flex flex-wrap gap-2"

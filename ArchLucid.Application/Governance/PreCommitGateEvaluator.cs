@@ -79,13 +79,15 @@ public static class PreCommitGateEvaluator
         int? minimumSeverity =
             PreCommitGateThresholdParser.TryCoerceDefinedSeverityOrdinal(blockCommitMinimumSeverity);
 
-        if (blockCommitMinimumSeverity.HasValue && !minimumSeverity.HasValue)
+        if (blockCommitMinimumSeverity.HasValue && !minimumSeverity.HasValue && !blockCommitOnCritical)
             return new PreCommitGateResult
             {
                 Blocked = true,
                 Reason = $"Commit blocked: policy pack '{policyPackIdLabel}' has an invalid minimum severity ordinal."
             };
 
+        // An invalid optional minimum cannot disable an explicitly enabled critical gate.
+        // When critical enforcement is off, the invalid policy fails closed above.
         if (!blockCommitOnCritical && !minimumSeverity.HasValue)
             return PreCommitGateResult.Allowed();
 

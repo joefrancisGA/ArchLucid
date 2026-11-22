@@ -33,6 +33,7 @@ import { formatRemediationFactoryAttackPathOverflowLine } from "@/lib/remediatio
 import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import { REMEDIATION_FACTORY_ATTACK_PATH_PARTIAL_RERANK_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-partial-rerank-copy";
 import { REMEDIATION_FACTORY_ATTACK_PATH_TABLE_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-table-partial-capture-copy";
+import { REMEDIATION_FACTORY_ATTACK_PATH_TABLE_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-table-partial-capture-not-load-failure-copy";
 import { REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_ONLY_PARTIAL_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-unevaluated-only-partial-copy";
 import { REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_ONLY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-unevaluated-only-not-load-failure-copy";
 import { REMEDIATION_FACTORY_ATTACK_PATH_REPORT_LOAD_FAILURE_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-report-load-failure-partial-capture-copy";
@@ -153,13 +154,21 @@ export function RemediationFactoryAttackPathReportSection(props: {
           </>
         ) : props.reportQuery.isSuccess && props.reportQuery.data ? (
         <>
-          {props.partialCapture === true ? (
-            <p
-              className={OPERATOR_TYPOGRAPHY.helper}
-              data-testid="attack-path-report-table-partial-capture"
-            >
-              {REMEDIATION_FACTORY_ATTACK_PATH_TABLE_PARTIAL_CAPTURE_LINE}
-            </p>
+                    {props.partialCapture === true ? (
+            <div className="space-y-1">
+              <p
+                className={OPERATOR_TYPOGRAPHY.helper}
+                data-testid="attack-path-report-table-partial-capture"
+              >
+                {REMEDIATION_FACTORY_ATTACK_PATH_TABLE_PARTIAL_CAPTURE_LINE}
+              </p>
+              <p
+                className={OPERATOR_TYPOGRAPHY.helper}
+                data-testid="attack-path-report-table-partial-capture-not-load-failure"
+              >
+                {REMEDIATION_FACTORY_ATTACK_PATH_TABLE_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE}
+              </p>
+            </div>
           ) : null}
           {props.reportQuery.data.vulnerableAttackPaths.length === 0
           && props.reportQuery.data.unevaluatedGroups.length > 0 ? (

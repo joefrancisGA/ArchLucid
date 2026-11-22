@@ -73,7 +73,8 @@ export function SponsorRoiSystemicIssueTrendChart(props: SponsorRoiSystemicIssue
 
   const monthKeys = series[0]?.points.map((point) => point.monthKey) ?? [];
   const normalized = series.map((entry, index) => ({
-    dataKey: `${entry.category} · ${entry.severity}`,
+    dataKey: `finding:${entry.findingId}`,
+    label: `${entry.category} · ${entry.severity}`,
     color: SERIES_COLORS[index % SERIES_COLORS.length],
     countsByMonth: new Map(entry.points.map((point) => [point.monthKey, safeCount(point.count)])),
   }));
@@ -110,7 +111,7 @@ export function SponsorRoiSystemicIssueTrendChart(props: SponsorRoiSystemicIssue
             />
             <Legend wrapperStyle={{ fontSize: "12px" }} />
             {normalized.map((entry) => (
-              <Bar key={entry.dataKey} dataKey={entry.dataKey} stackId="issues" fill={entry.color} />
+              <Bar key={entry.dataKey} dataKey={entry.dataKey} name={entry.label} stackId="issues" fill={entry.color} />
             ))}
           </BarChart>
         </ResponsiveContainer>

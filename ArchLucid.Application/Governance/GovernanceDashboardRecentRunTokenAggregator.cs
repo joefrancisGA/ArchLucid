@@ -34,7 +34,9 @@ internal static class GovernanceDashboardRecentRunTokenAggregator
 
         DateTime windowStartUtc = TimeProvider.System.UtcNowDateTime().Subtract(RecentWindow);
         List<string> recentRunIds = [];
+        HashSet<string> seenRunIds = new(StringComparer.OrdinalIgnoreCase);
         string? cursor = null;
+        HashSet<string> visitedCursors = new(StringComparer.Ordinal);
         const int take = 100;
 
         while (recentRunIds.Count < RecentRunCap)
@@ -66,10 +68,14 @@ internal static class GovernanceDashboardRecentRunTokenAggregator
                     continue;
                 }
 
-                recentRunIds.Add(summary.RunId);
+                // Repeated or overlapping keyset pages must not double-count token usage.
+                if (seenRunIds.Add(summary.RunId))
+                    recentRunIds.Add(summary.RunId);
             }
 
-            if (!hasMore || string.IsNullOrEmpty(next))
+            // A faulty keyset provider can repeat a cursor while claiming more pages.
+            // Stop rather than looping forever and repeatedly querying the same runs.
+            if (!ShouldAdvanceCursor(hasMore, next, visitedCursors))
                 break;
 
             cursor = next;
@@ -77,6 +83,9 @@ internal static class GovernanceDashboardRecentRunTokenAggregator
 
         return await SumTokenTotalsAsync(scope, traceRepository, recentRunIds, cancellationToken);
     }
+
+    internal static bool ShouldAdvanceCursor(bool hasMore, string? next, ISet<string> visitedCursors) =>
+        hasMore && !string.IsNullOrEmpty(next) && visitedCursors.Add(next);
 
     private static async Task<(long PromptTokens, long CompletionTokens)> SumTokenTotalsAsync(
         ScopeContext scope,

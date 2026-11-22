@@ -99,7 +99,14 @@ public static class AwsEc2OfferIndexParser
                 && double.IsFinite(numeric)
                 && numeric > 0)
             {
-                hourlyUsd = (decimal)numeric;
+                try
+                {
+                    hourlyUsd = (decimal)numeric;
+                }
+                catch (OverflowException)
+                {
+                    return false;
+                }
 
                 return hourlyUsd > 0m;
             }

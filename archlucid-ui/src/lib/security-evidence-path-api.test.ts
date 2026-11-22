@@ -2,8 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   buildSecurityEvidencePathExplanation,
+  fetchOperationalSecurityFindingDetail,
   fetchSecurityEvidencePathAttackPathReport,
   fetchSecurityEvidencePathDetail,
+  fetchSecurityEvidencePathRank,
 } from "@/lib/security-evidence-path-api";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 import {
@@ -19,6 +21,49 @@ vi.mock("@/lib/proxy-json-client", () => ({
 }));
 
 describe("security-evidence-path-api", () => {
+  it("rejects blank finding and path identifiers before issuing requests", async () => {
+    await expect(fetchOperationalSecurityFindingDetail("  ")).rejects.toThrow("findingId is required.");
+    await expect(fetchSecurityEvidencePathDetail("  ")).rejects.toThrow("pathId is required.");
+    await expect(fetchSecurityEvidencePathRank("  ")).rejects.toThrow("pathId is required.");
+    await expect(buildSecurityEvidencePathExplanation("  ", {
+      useSimulator: false,
+      allowInsufficientEvidence: false,
+    })).rejects.toThrow("pathId is required.");
+
+    expect(proxyJsonGet).not.toHaveBeenCalled();
+    expect(proxyJsonPost).not.toHaveBeenCalled();
+  });
+
+  it("trims and encodes finding and path identifiers as single route segments", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValue({ succeeded: false });
+    vi.mocked(proxyJsonPost).mockResolvedValue({ succeeded: false });
+
+    await fetchOperationalSecurityFindingDetail(" finding/1 ");
+    await fetchSecurityEvidencePathDetail(" path/1 ");
+    await fetchSecurityEvidencePathRank(" path/1 ");
+    await buildSecurityEvidencePathExplanation(" path/1 ", {
+      useSimulator: false,
+      allowInsufficientEvidence: false,
+    });
+
+    expect(proxyJsonGet).toHaveBeenNthCalledWith(
+      1,
+      "/api/proxy/v1/operational-security/findings/finding%2F1",
+    );
+    expect(proxyJsonGet).toHaveBeenNthCalledWith(
+      2,
+      "/api/proxy/v1/operational-security/paths/path%2F1",
+    );
+    expect(proxyJsonGet).toHaveBeenNthCalledWith(
+      3,
+      "/api/proxy/v1/operational-security/paths/path%2F1/rank",
+    );
+    expect(proxyJsonPost).toHaveBeenCalledWith(
+      "/api/proxy/v1/operational-security/paths/path%2F1/explanations",
+      { useSimulator: false, allowInsufficientEvidence: false },
+    );
+  });
+
   it("returns normalized stored hop labels", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValue({
       pathId: "path-1",

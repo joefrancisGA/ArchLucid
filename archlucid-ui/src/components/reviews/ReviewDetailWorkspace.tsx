@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, type ReactNode } from "react";
+import { createContext, Fragment, useCallback, useContext, type ReactNode } from "react";
 
 import { PinnedReviewContextPanel } from "@/components/reviews/PinnedReviewContextPanel";
 import { ReviewPresenterSurface } from "@/components/reviews/ReviewPresenterSurface";
@@ -22,6 +22,9 @@ import {
 import { type ResolveReviewDetailVisibleTabsInput } from "@/lib/resolve-review-detail-visible-tabs";
 import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { REVIEW_PRESENTER_MODE_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/reviews/review-presenter-mode-empty-not-load-failure-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type ReviewDetailTabCounts = {
   readonly findings?: number | null;
@@ -130,11 +133,25 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
     return trimmed.length > 0 ? trimmed : "Finding title was not stored.";
   })();
 
+  const presenterFindingsEmpty = (props.tabCounts?.findings ?? 0) === 0;
+
   if (tabs.presenterMode && isWorkingMode && props.suppressPresenterSurface !== true) {
     return (
       <ReviewPresenterSurface
         title={props.presenterFindingTitle ?? "Review title was not stored."}
-        body={presenterBody}
+        body={
+          <Fragment>
+            {presenterFindingsEmpty ? (
+              <p
+                className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="review-presenter-mode-empty-not-load-failure"
+              >
+                {REVIEW_PRESENTER_MODE_EMPTY_NOT_LOAD_FAILURE_LINE}
+              </p>
+            ) : null}
+            {presenterBody}
+          </Fragment>
+        }
         actions={props.presenterFindingActions}
         onExit={presenter.exitPresenter}
       />

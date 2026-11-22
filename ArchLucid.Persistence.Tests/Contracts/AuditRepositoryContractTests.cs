@@ -462,6 +462,31 @@ public abstract class AuditRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task GetExportAsync_BreaksTimestampTieBeforeApplyingRowCap()
+    {
+        SkipIfSqlServerUnavailable();
+        IAuditRepository repo = CreateRepository();
+        Guid isolatedProjectId = Guid.NewGuid();
+        DateTime occurredUtc = TimeProvider.System.UtcNowDateTime().AddHours(-3);
+        string idPrefix = Guid.NewGuid().ToString("D")[..^1];
+        Guid lowerId = Guid.Parse(idPrefix + "1");
+        Guid higherId = Guid.Parse(idPrefix + "2");
+
+        await repo.AppendAsync(
+            NewEvent(occurredUtc: occurredUtc, projectId: isolatedProjectId, eventId: higherId),
+            CancellationToken.None);
+        await repo.AppendAsync(
+            NewEvent(occurredUtc: occurredUtc, projectId: isolatedProjectId, eventId: lowerId),
+            CancellationToken.None);
+
+        IReadOnlyList<AuditEvent> list = await repo.GetExportAsync(
+            TenantId, WorkspaceId, isolatedProjectId, occurredUtc.AddMinutes(-1),
+            occurredUtc.AddMinutes(1), 1, CancellationToken.None);
+
+        Assert.Single(list).EventId.Should().Be(lowerId);
+    }
+
+    [SkippableFact]
     public async Task GetExportAsync_RespectsMaxRows()
     {
         SkipIfSqlServerUnavailable();

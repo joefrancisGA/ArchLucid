@@ -148,7 +148,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
                       SELECT RecordJson
                       FROM RunExportRecords
                       WHERE LOWER(LTRIM(RTRIM(RunId))) IN @RunIds
-                      ORDER BY CreatedUtc DESC
+                      ORDER BY CreatedUtc DESC, ExportRecordId DESC
                       {SqlPagingSyntax.FirstRowsOnly(500)};
                       """;
 

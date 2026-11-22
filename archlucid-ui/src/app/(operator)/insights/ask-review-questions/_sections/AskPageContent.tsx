@@ -156,7 +156,15 @@ export function AskPageContent(props: AskPageContentProps = {}) {
 
         {buyerPolishedShell ? <OperatorHomeWorkingOpenGateStrip /> : null}
 
-        {showUnscopedWorkingAskEmpty ? <WorkingAskPickArchitectureEmptyState /> : null}
+        {showUnscopedWorkingAskEmpty ? (
+          <div
+            id={buyerPolishedShell ? ASK_REVIEW_QUESTIONS_SKIP_TARGET_ID : undefined}
+            tabIndex={buyerPolishedShell ? -1 : undefined}
+            className={buyerPolishedShell ? "scroll-mt-24" : undefined}
+          >
+            <WorkingAskPickArchitectureEmptyState />
+          </div>
+        ) : null}
 
         {buyerPolishedShell && !showUnscopedWorkingAskEmpty ? (
           <div

@@ -107,6 +107,51 @@ describe("EvolutionReviewPageView", () => {
     expect(screen.queryByText(/DevelopmentBypass/i)).not.toBeInTheDocument();
   });
 
+  it("only shows simulation results for the selected baseline", () => {
+    baselineAvailabilityMock.mockReturnValue({ loading: false, finalizedCount: 2 });
+    const candidate = {
+      candidateChangeSetId: "candidate-1",
+      sourcePlanId: "plan-1",
+      status: "Ready",
+      title: "Retire legacy integration",
+      summary: "Consolidate ingress paths.",
+      derivationRuleVersion: "v1",
+      createdUtc: "2026-07-01T12:00:00Z",
+    };
+    const model = buildModel({
+      candidates: [candidate],
+      selectedId: candidate.candidateChangeSetId,
+      baselineOptions: [
+        { runId: "run-1", label: "First baseline" },
+        { runId: "run-2", label: "Second baseline" },
+      ],
+      selectedBaselineId: "run-1",
+      detail: {
+        candidate,
+        planSnapshotJson: "{}",
+        simulationRuns: [
+          {
+            simulationRunId: "simulation-1",
+            baselineArchitectureRunId: "run-1",
+            evaluationMode: "Shadow",
+            outcomeJson: "{}",
+            isShadowOnly: true,
+          },
+        ],
+      },
+    });
+
+    const { rerender } = render(<EvolutionReviewPageView {...defaultScopedViewProps} model={model} />);
+    expect(screen.getByTestId("impact-preview-results-section")).toBeInTheDocument();
+
+    rerender(
+      <EvolutionReviewPageView {...defaultScopedViewProps} model={{ ...model, selectedBaselineId: "run-2" }} />,
+    );
+
+    expect(screen.queryByTestId("impact-preview-results-section")).not.toBeInTheDocument();
+    expect(screen.getByTestId("impact-preview-output-preview")).toBeInTheDocument();
+  });
+
   it("shows the no proposed changes empty state", () => {
     baselineAvailabilityMock.mockReturnValue({ loading: false, finalizedCount: 2 });
 

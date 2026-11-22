@@ -35,6 +35,7 @@ internal static partial class DraftRequestRepositoryCore
                     stored.DraftId,
                     excludeDraftId))
             .OrderByDescending(stored => stored.UpdatedUtc)
+            .ThenByDescending(stored => new SqlGuid(stored.DraftId))
             .Take(effectiveMax)
             .Select(map)
             .ToList();

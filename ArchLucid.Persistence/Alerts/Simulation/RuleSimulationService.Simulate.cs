@@ -36,6 +36,14 @@ public sealed partial class RuleSimulationService
                 ct)
             ;
 
+        return await EvaluateContextsAsync(request, contexts, ct);
+    }
+
+    private async Task<RuleSimulationResult> EvaluateContextsAsync(
+        RuleSimulationRequest request,
+        IReadOnlyList<AlertEvaluationContext> contexts,
+        CancellationToken ct)
+    {
         RuleSimulationResult result = new()
         {
             RuleKind = request.RuleKind,

@@ -136,9 +136,12 @@ public sealed partial class ArchitectureRunProvenanceService
                 ReferenceId = result.ResultId
             });
 
+            int anonymousFindingIndex = 0;
             foreach (ArchitectureFinding finding in result.Findings)
             {
-                string findingNodeId = $"finding:{result.ResultId}:{finding.FindingId}";
+                string findingNodeId = string.IsNullOrWhiteSpace(finding.FindingId)
+                    ? $"finding-without-id:{result.ResultId}:{(anonymousFindingIndex++).ToString(CultureInfo.InvariantCulture)}"
+                    : $"finding:{result.ResultId}:{finding.FindingId}";
                 AddNode(new ArchitectureLinkageNode
                 {
                     Id = findingNodeId,

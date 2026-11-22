@@ -11,6 +11,7 @@ using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Planning;
@@ -30,10 +31,20 @@ public sealed partial class GraphController
     public async Task<IActionResult> GetArchitectureGraphTemporalSnapshot(
         [FromQuery] Guid runId,
         [FromQuery] DateTimeOffset? asOf,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        [FromQuery] bool secureNowExchange = false)
     {
         try
         {
+            // The optional exchange format is hidden unless a server-side feature gate explicitly enables it.
+            // Resolve from DI fail-closed: absence of the provider must never enable the capability.
+            if (secureNowExchange)
+            {
+                IFeatureFlags? flags = HttpContext.RequestServices.GetService<IFeatureFlags>();
+                if (flags is null || !await flags.IsEnabledAsync("SecureNow.ReadOnlySnapshotExchange", ct))
+                    return NotFound();
+            }
+
             if (runId == Guid.Empty)
                 return this.BadRequestProblem("Query parameter \"runId\" is required.");
 
@@ -115,6 +126,21 @@ public sealed partial class GraphController
                     + $"{limits.FullGraphResponseMaxNodes} for resolved run '{resolved.RunId:D}'. Use GET /v1/evidence-graph/reviews/{resolved.RunId:D}/nodes with page/pageSize (resolvedRunId returned in this problem).",
                     ProblemTypes.GraphTooLargeForFullResponse,
                     extensions: new Dictionary<string, object?> { ["resolvedRunId"] = resolved.RunId });
+            }
+
+            if (secureNowExchange)
+            {
+                try
+                {
+                    SecureNowSnapshotEnvelope exchange = SecureNowSnapshotProjection.Project(
+                        detail.GraphSnapshot, scope, resolved.RunId, DateTimeOffset.UtcNow);
+                    return Ok(exchange);
+                }
+                catch (ArgumentException)
+                {
+                    // A malformed persisted graph must not be exposed through the SecureNow exchange.
+                    return Conflict();
+                }
             }
 
             GraphViewModel graph = MapArchitectureGraph(detail.GraphSnapshot);

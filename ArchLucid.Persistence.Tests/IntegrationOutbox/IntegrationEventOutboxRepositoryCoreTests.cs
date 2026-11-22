@@ -27,6 +27,22 @@ public sealed class IntegrationEventOutboxRepositoryCoreTests
     }
 
     [Fact]
+    public void OrderDeadLettersForList_breaks_timestamp_ties_in_sql_guid_order()
+    {
+        DateTime timestamp = new(2026, 1, 2, 12, 0, 0, DateTimeKind.Utc);
+        IntegrationEventOutboxEntry firstTie = CreateEntry(
+            deadLetteredUtc: timestamp, outboxId: Guid.Parse("f0000000-0000-0000-0000-000000000001"));
+        IntegrationEventOutboxEntry secondTie = CreateEntry(
+            deadLetteredUtc: timestamp, outboxId: Guid.Parse("00000000-0000-0000-0000-000000000002"));
+        IntegrationEventOutboxEntry newest = CreateEntry(deadLetteredUtc: timestamp.AddSeconds(1));
+
+        IntegrationEventOutboxRepositoryCore.OrderDeadLettersForList([secondTie, firstTie, newest])
+            .Should().Equal(newest, firstTie, secondTie);
+        IntegrationEventOutboxSql.ListDeadLetters.Should()
+            .Contain("ORDER BY DeadLetteredUtc DESC, OutboxId ASC");
+    }
+
+    [Fact]
     public void WithPublishFailure_truncates_error_message()
     {
         IntegrationEventOutboxEntry entry = CreateEntry();
@@ -58,10 +74,11 @@ public sealed class IntegrationEventOutboxRepositoryCoreTests
         int priority = 1,
         DateTime? createdUtc = null,
         DateTime? deadLetteredUtc = null,
-        int retryCount = 0) =>
+        int retryCount = 0,
+        Guid? outboxId = null) =>
         new()
         {
-            OutboxId = Guid.NewGuid(),
+            OutboxId = outboxId ?? Guid.NewGuid(),
             EventType = "RunCompleted",
             PayloadUtf8 = [1, 2, 3],
             TenantId = Guid.NewGuid(),

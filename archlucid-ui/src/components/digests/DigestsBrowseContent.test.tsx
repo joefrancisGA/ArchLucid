@@ -22,6 +22,19 @@ const digestBrowseApiMocks = vi.hoisted(() => ({
   listDigestDeliveryAttemptsBatch: vi.fn(),
 }));
 
+const navigation = vi.hoisted(() => ({
+  searchParams: new URLSearchParams(),
+  router: { replace: vi.fn() },
+}));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+  return extendNextNavigationVitestMock(importOriginal, {
+    useSearchParams: () => navigation.searchParams as ReturnType<typeof import("next/navigation").useSearchParams>,
+    useRouter: () => navigation.router as ReturnType<typeof import("next/navigation").useRouter>,
+  });
+});
+
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
@@ -77,6 +90,7 @@ describe("DigestsBrowseContent", () => {
     vi.mocked(listDigestDeliveryAttemptsBatch).mockReset();
     vi.mocked(getArchitectureDigest).mockReset();
     vi.mocked(listDigestDeliveryAttemptsBatch).mockResolvedValue([]);
+    navigation.searchParams = new URLSearchParams();
     window.location.hash = "";
   });
 
@@ -193,6 +207,22 @@ describe("DigestsBrowseContent", () => {
     await screen.findByRole("table", { name: "Architecture digest history" });
 
     expect(getArchitectureDigest).not.toHaveBeenCalled();
+  });
+
+  it("responds to digest hash navigation after loading a query-selected digest", async () => {
+    const nextDigest = { ...digestRow, digestId: "d2", contentMarkdown: "# Next digest body" };
+    navigation.searchParams = new URLSearchParams({ digest: digestRow.digestId });
+    vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow, nextDigest]);
+    vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([]);
+    vi.mocked(getArchitectureDigest).mockImplementation(async (id) => id === nextDigest.digestId ? nextDigest : digestRow);
+
+    renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+
+    expect(await screen.findByTestId("digests-preview-body")).toHaveTextContent("# Body");
+    window.history.replaceState(null, "", "#digest-d2");
+    fireEvent(window, new HashChangeEvent("hashchange"));
+
+    await waitFor(() => expect(screen.getByTestId("digests-preview-body")).toHaveTextContent("# Next digest body"));
   });
 
   it("maps delivery status and hides raw exception text (TB-1504)", async () => {

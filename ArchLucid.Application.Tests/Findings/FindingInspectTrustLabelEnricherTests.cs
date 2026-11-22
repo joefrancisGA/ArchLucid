@@ -76,6 +76,26 @@ public sealed class FindingInspectTrustLabelEnricherTests
     }
 
     [Fact]
+    public void Enrich_UsesLaterEvidenceWhenFirstExcerptIsBlank()
+    {
+        FindingInspectResponse response = new()
+        {
+            FindingId = "f-later-evidence",
+            Evidence =
+            [
+                new FindingInspectEvidenceItem { Excerpt = " " },
+                new FindingInspectEvidenceItem { Excerpt = "node-2" },
+            ],
+            RunStructuralExecutionMode = StructuralExecutionMode.Real,
+            ConfidenceLevel = FindingConfidenceLevel.High,
+        };
+
+        FindingInspectResponse enriched = FindingInspectTrustLabelEnricher.Enrich(response, new FindingTrustLabelMapper());
+
+        enriched.TrustLabel.Should().Be(nameof(FindingTrustLabel.RealModel));
+    }
+
+    [Fact]
     public void Enrich_MixedRun_Surfaces_run_execution_mode_without_promoting_to_Real()
     {
         FindingInspectResponse response = new()

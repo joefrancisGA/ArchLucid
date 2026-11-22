@@ -9,6 +9,7 @@ import { useAdvisoryScheduleCreateForm } from "./use-advisory-schedule-create-fo
 
 const navigation = vi.hoisted(() => ({
   replace: vi.fn(),
+  search: "",
 }));
 
 vi.mock("next/navigation", () => ({
@@ -16,10 +17,14 @@ vi.mock("next/navigation", () => ({
   // change reference identity while the underlying URL is unchanged.
   useRouter: () => ({ replace: navigation.replace }),
   usePathname: () => "/governance/advisory-scans",
-  useSearchParams: () => ({
-    get: () => null,
-    toString: () => "",
-  }),
+  useSearchParams: () => {
+    const params = new URLSearchParams(navigation.search);
+
+    return {
+      get: (key: string) => params.get(key),
+      toString: () => params.toString(),
+    };
+  },
 }));
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
@@ -29,6 +34,7 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
 describe("useAdvisoryScheduleCreateForm reset identity", () => {
   it("does not reset on equivalent navigation wrappers, but resets for a new formResetKey", () => {
     navigation.replace.mockReset();
+    navigation.search = "";
     let renders = 0;
     const onCreate = vi.fn(async () => undefined);
 
@@ -63,13 +69,35 @@ describe("useAdvisoryScheduleCreateForm reset identity", () => {
     view.rerender({ resetKey: 1 });
     expect(view.result.current.form.name).not.toBe("Operator-edit-preserved");
     expect(renders).toBeLessThanOrEqual(25);
-    // Both the initial reset and the explicit new reset key synchronize URL state.
-    expect(navigation.replace).toHaveBeenCalledTimes(2);
+    expect(navigation.replace).toHaveBeenCalledTimes(1);
     view.unmount();
+  });
+
+  it("preserves an advanced-panel deep link on initial mount", () => {
+    navigation.replace.mockReset();
+    navigation.search = "advanced=1";
+
+    const { result, unmount } = renderHook(() =>
+      useAdvisoryScheduleCreateForm({
+        canEdit: true,
+        sampleModeBlocked: false,
+        creating: false,
+        createSuccess: false,
+        projectLabel: "Claims",
+        onCreate: vi.fn(async () => undefined),
+        runProjectSlug: "default",
+        formResetKey: 0,
+      }),
+    );
+
+    expect(result.current.advancedOpen).toBe(true);
+    expect(navigation.replace).not.toHaveBeenCalled();
+    unmount();
   });
 });
 
 it("waits for the current preset preview before creating a schedule", async () => {
+  navigation.search = "";
   vi.useFakeTimers();
   const preview = vi.mocked(previewRecurrenceScheduleRuns);
   preview.mockResolvedValue({
