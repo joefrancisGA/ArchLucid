@@ -1,5 +1,8 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
+
+using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Tenancy;
 
