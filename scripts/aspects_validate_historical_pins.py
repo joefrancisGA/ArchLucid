@@ -151,6 +151,7 @@ def verify_pins(
         if pin is not None:
             record["path"] = pin.get("path")
             record["blob"] = pin.get("blob")
+            record["spans"] = pin.get("spans")
         if status != VERIFIED:
             # Preserve ALL unparseable and invalid historical rows by original
             # Excel row. No failed row contributes to verified LOC.
