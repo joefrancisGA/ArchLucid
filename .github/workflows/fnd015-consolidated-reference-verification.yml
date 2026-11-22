@@ -14,6 +14,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install JSON Schema validator used by existing evidence contract tests
+        run: python -m pip install 'jsonschema>=4.23,<5'
       - name: Verify evidence, authorization, simulation and rollback
         run: |
           python -m unittest discover -s scripts/tests -p 'test_fnd005_*.py' -v
