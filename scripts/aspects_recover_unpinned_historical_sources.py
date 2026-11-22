@@ -17,7 +17,7 @@ import re
 from aspects_import_historical_workbook import RANGE
 from aspects_review_evidence import read_records
 from aspects_validate_historical_corpus import verify
-from aspects_validate_historical_pins import SHA, first_parent_checkpoint, git
+from aspects_validate_historical_pins import SHA, first_parent_checkpoint, git, audited_rows_sha256
 
 # Strict syntax on purpose: unknown narratives, bare filenames, comments,
 # renames, glob patterns, and inferred basename-to-path matches are excluded.
@@ -190,6 +190,8 @@ def recover(repo: Path, rows: list[dict], checkpoint: dict) -> tuple[dict, list[
             totals["in_window_candidate_line_occurrences"] += actual_loc
         audit.append(record)
     report = {
+        "candidate_rows_sha256": audited_rows_sha256(audit),
+        "candidate_rows_digest_method": "sha256_canonical_sorted_keys_jsonl_v1",
         "status": "provisional_source_at_commit_triage_not_verified_legacy_pin",
         "first_parent_checkpoint": anchor,
         "unparsed_historical_rows_examined": len(audit),
