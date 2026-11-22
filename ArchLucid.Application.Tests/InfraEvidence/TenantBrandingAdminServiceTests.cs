@@ -15,6 +15,32 @@ public sealed class TenantBrandingAdminServiceTests
     private static readonly Guid LogoId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
     [Fact]
+    public async Task SaveDraft_keeps_original_creation_metadata_when_editing()
+    {
+        InMemoryTenantBrandingProfileRepository repository = new();
+        TenantBrandingAdminService service = CreateService(repository, logoExists: true);
+        ScopeContext scope = new() { TenantId = TenantId };
+
+        await service.SaveDraftAsync(scope, new TenantBrandingDraftPutRequest { CompanyDisplayName = "Original" },
+            "creator", CancellationToken.None);
+        TenantBrandingProfileRecord? original = await repository.TryGetDraftAsync(TenantId, CancellationToken.None);
+        original.Should().NotBeNull();
+        original!.CreatedBy.Should().Be("creator");
+
+        await service.SaveDraftAsync(scope, new TenantBrandingDraftPutRequest { CompanyDisplayName = "Edited" },
+            "editor", CancellationToken.None);
+        TenantBrandingProfileRecord? edited = await repository.TryGetDraftAsync(TenantId, CancellationToken.None);
+
+        edited.Should().NotBeNull();
+        edited!.BrandingProfileId.Should().Be(original.BrandingProfileId);
+        edited.CreatedUtc.Should().Be(original.CreatedUtc);
+        edited.CreatedBy.Should().Be("creator");
+        edited.UpdatedUtc.Should().BeOnOrAfter(original.UpdatedUtc);
+        edited.UpdatedBy.Should().Be("editor");
+        edited.CompanyDisplayName.Should().Be("Edited");
+    }
+
+    [Fact]
     public async Task ActivateDraft_rejects_when_validation_fails()
     {
         InMemoryTenantBrandingProfileRepository repository = new();

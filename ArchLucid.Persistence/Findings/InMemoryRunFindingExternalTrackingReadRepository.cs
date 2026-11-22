@@ -46,10 +46,13 @@ public sealed class InMemoryRunFindingExternalTrackingReadRepository(
             if (rows.Count == 0)
                 continue;
 
-            ItsmFindingCorrelationRecord primary = rows.OrderBy(static r => r.CreatedUtc).First();
+            List<ItsmFindingCorrelationRecord> orderedRows = rows
+                .OrderBy(static r => r.CreatedUtc)
+                .ToList();
+            ItsmFindingCorrelationRecord primary = orderedRows[0];
             string summary = string.Join(
                 "; ",
-                rows.Select(static r => $"{r.Provider}:{r.ExternalKey}"));
+                orderedRows.Select(static r => $"{r.Provider}:{r.ExternalKey}"));
 
             result[findingId] = new RunFindingExternalTrackingReadRow
             {

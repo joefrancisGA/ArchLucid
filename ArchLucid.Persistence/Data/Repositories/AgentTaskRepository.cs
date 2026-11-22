@@ -117,8 +117,7 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
                       {PersistenceTenantScope.InnerJoinRuns("at")}
                       WHERE at.RunId = @RunId
                         AND {PersistenceTenantScope.RunChildScopeWhereClause}
-                      ORDER BY at.CreatedUtc
-                      {SqlPagingSyntax.FirstRowsOnly(500)};
+                      ORDER BY at.CreatedUtc;
                       """;
 
         IEnumerable<AgentTaskRow> rows = await connection.QueryAsync<AgentTaskRow>(new CommandDefinition(

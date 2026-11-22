@@ -232,6 +232,53 @@ public sealed class ArchitectureWorkLeaseServiceTests
     }
 
     [Fact]
+    public async Task Heartbeat_does_not_extend_lease_after_draft_becomes_terminal()
+    {
+        string actorA = ArchitectureSharePlatformUserActorOid.FromUserId(HolderA);
+        DateTimeOffset originalExpiry = DateTimeOffset.UtcNow.AddMinutes(1);
+
+        _drafts
+            .Setup(d => d.GetAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, DraftId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DraftRequestResponse
+            {
+                DraftId = DraftId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ProjectId = Scope.ProjectId,
+                ArchitectureId = ArchitectureId,
+                Status = DraftRequestStatus.RunSpawned,
+            });
+        _holderResolver.Setup(r => r.TryResolveHolderUserIdAsync(Scope, actorA, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(HolderA);
+
+        await _leases.UpsertAsync(
+            Scope,
+            new ArchitectureWorkLeaseRecord
+            {
+                DraftId = DraftId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ScopeProjectId = Scope.ProjectId,
+                ArchitectureId = ArchitectureId,
+                HolderUserId = HolderA,
+                AcquiredUtc = DateTimeOffset.UtcNow.AddMinutes(-2),
+                LastHeartbeatUtc = DateTimeOffset.UtcNow.AddMinutes(-2),
+                ExpiresUtc = originalExpiry,
+            },
+            CancellationToken.None);
+
+        ArchitectureWorkLeaseHeartbeatResult result = await BuildSut().HeartbeatAsync(
+            Scope,
+            DraftId,
+            actorA,
+            CancellationToken.None);
+
+        result.Status.Should().Be(ArchitectureWorkLeaseHeartbeatStatus.DraftNotFound);
+        ArchitectureWorkLeaseRecord? lease = await _leases.TryGetByDraftIdAsync(Scope, DraftId);
+        lease!.ExpiresUtc.Should().Be(originalExpiry);
+    }
+
+    [Fact]
     public async Task Cross_tenant_draft_lookup_returns_not_found()
     {
         ScopeContext otherTenant = new()

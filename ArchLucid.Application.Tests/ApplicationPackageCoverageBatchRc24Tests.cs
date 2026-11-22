@@ -98,6 +98,31 @@ public sealed class ApplicationPackageCoverageBatchRc24Tests
     }
 
     [Fact]
+    public void ConsultingDocxSupplementalSections_AddSponsorReport_preserves_markers_in_inserted_names()
+    {
+        Body body = new();
+        ArchitectureAnalysisReport report = new()
+        {
+            Manifest = new GoldenManifest
+            {
+                SystemName = "Claims {ServiceCount}",
+                Services = [new ManifestService { ServiceName = "api" }],
+                Governance = new ManifestGovernance { RequiredControls = ["encrypt"] },
+            },
+            Warnings = [],
+        };
+        ConsultingDocxTemplateOptions options = new()
+        {
+            OrganizationName = "Contoso {ControlCount}",
+            SponsorReportTextTemplate = "{systemName} for {OrganizationName}: {ServiceCount}/{ControlCount} {Unknown}",
+        };
+
+        ConsultingDocxSupplementalSections.AddSponsorReport(body, report, options);
+
+        body.InnerText.Should().Contain("Claims {ServiceCount} for Contoso {ControlCount}: 1/1 {Unknown}");
+    }
+
+    [Fact]
     public void ConsultingDocxSupplementalSections_AddSponsorReport_labels_missing_manifest_counts()
     {
         Body body = new();

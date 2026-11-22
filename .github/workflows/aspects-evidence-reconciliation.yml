@@ -1,0 +1,49 @@
+name: Aspects evidence reconciliation
+
+# Aspects check-ins must never trigger this workflow automatically.
+# Run explicitly from GitHub Actions only when authorized.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-reviewed-lines:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run evidence recorder unit tests
+        run: python -m unittest discover -s scripts/tests -p test_aspects_review_evidence.py -v
+      - name: Revalidate all pinned source blobs and consolidate ledger
+        run: |
+          python - <<'PY'
+          import glob
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, "scripts")
+          import aspects_review_evidence as evidence
+          sources = sorted(Path(p) for p in glob.glob("docs/engineering/aspects-review-evidence-2026-11-20*.jsonl"))
+          if len(sources) != 9:
+              raise SystemExit(f"Expected 9 original evidence sources; found {len(sources)}")
+          report = evidence.import_verified_records(".", Path("docs/engineering/aspects-review-ledger.jsonl"), sources)
+          if report["imported_records"] != 0 or report["duplicate_records"] != 9:
+              raise SystemExit(f"Canonical ledger mismatch: {report}")
+          print(report)
+          PY
+      - name: Verify 800 first-parent membership and compute observed subset coverage
+        run: |
+          python scripts/aspects_review_evidence.py \
+            --ledger docs/engineering/aspects-review-ledger.jsonl \
+            report --repo . --head "$(git rev-parse HEAD)" --window 800 > aspects-coverage.json
+          cat aspects-coverage.json
+      - name: Upload auditable subset coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: aspects-800-first-parent-subset
+          path: aspects-coverage.json

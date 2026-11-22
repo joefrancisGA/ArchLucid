@@ -22,8 +22,15 @@ public static class InsightDensityJudgeBudgetCap
             return 0;
         }
 
-        int budgetCap = (int)Math.Floor(remainingUsd.Value / estimatedCostPerJudgmentUsd.Value);
-
-        return Math.Clamp(budgetCap, 0, configuredCap);
+        try
+        {
+            decimal affordableJudgments = remainingUsd.Value / estimatedCostPerJudgmentUsd.Value;
+            return (int)Math.Min(Math.Floor(affordableJudgments), configuredCap);
+        }
+        catch (OverflowException)
+        {
+            // A positive quotient beyond decimal's range also exceeds the configured cap.
+            return configuredCap;
+        }
     }
 }

@@ -108,6 +108,24 @@ public sealed class DiagramInfrastructureMatcherTests
     }
 
     [Fact]
+    public void Match_without_cloud_resource_id_does_not_emit_an_infrastructure_only_duplicate()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(
+            [CreateResource(Guid.NewGuid(), null, "api", "rg-core", "Microsoft.Web/sites")]);
+        ArchitectureDiagramModelRecord diagram = new()
+        {
+            Nodes = [new ArchitectureDiagramNodeRecord { Id = "api1", Label = "api (rg-core)" }],
+        };
+
+        DiagramInfrastructureReconciliationResult result = DiagramInfrastructureMatcher.Match(
+            diagram, snapshot, RunId, SnapshotId);
+
+        DiagramInfrastructureCorrespondenceRow match = result.Rows.Should().ContainSingle().Subject;
+        match.DiagramNodeId.Should().Be("api1");
+        match.CloudResourceId.Should().BeNull();
+    }
+
+    [Fact]
     public void Match_unmatched_inventory_resource_is_infrastructure_only()
     {
         Guid matchedRowId = Guid.Parse("55555555-6666-7777-8888-999999999999");
@@ -414,7 +432,7 @@ public sealed class DiagramInfrastructureMatcherTests
 
     private static AzureInventoryResourceRecord CreateResource(
         Guid resourceRowId,
-        Guid cloudResourceId,
+        Guid? cloudResourceId,
         string resourceName,
         string resourceGroup,
         string resourceType) =>

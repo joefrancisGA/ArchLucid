@@ -4,6 +4,8 @@ using ArchLucid.Persistence.InfraEvidence;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchLucid.Persistence.InfraEvidence;
 
 public sealed class SqlSecurityCrosswalkRepository(ISqlConnectionFactory connectionFactory)
@@ -33,7 +35,8 @@ public sealed class SqlSecurityCrosswalkRepository(ISqlConnectionFactory connect
                            );
                            """;
 
-        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlTransaction transaction = (SqlTransaction)await conn.BeginTransactionAsync(cancellationToken);
 
         foreach (SecurityCrosswalkMappingRecord mapping in mappings)
         {
@@ -57,8 +60,11 @@ public sealed class SqlSecurityCrosswalkRepository(ISqlConnectionFactory connect
                         mapping.CreatedUtc,
                         mapping.UpdatedUtc,
                     },
+                    transaction: transaction,
                     cancellationToken: cancellationToken));
         }
+
+        await transaction.CommitAsync(cancellationToken);
 
         return mappings;
     }

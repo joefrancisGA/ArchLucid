@@ -6,8 +6,16 @@ import {
   OPERATOR_HOME_RECOMMENDED_NEXT_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
 import type { RunSummary } from "@/types/authority";
+import { WIZARD_SESSION_IDS } from "@/lib/wizard-session-persistence";
 
 let mockDraftEntries: ArchitectureDraftRegistryEntry[] = [];
+let mockHasWorkspaceReviews = true;
+let mockIncompleteWizards: import("@/lib/unfinished-work-rail").IncompleteWizardSignal[] = [];
+
+vi.mock("@/lib/unfinished-work-rail", async (importOriginal) => ({
+  ...await importOriginal<typeof import("@/lib/unfinished-work-rail")>(),
+  listIncompleteWizardSignals: () => mockIncompleteWizards,
+}));
 
 vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
   useArchitectureDraftRegistryEntries: () => mockDraftEntries,
@@ -15,7 +23,7 @@ vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
 
 vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
   useOperatorHomeWorkspaceActivity: () => ({
-    hasWorkspaceReviews: true,
+    hasWorkspaceReviews: mockHasWorkspaceReviews,
     hasOverviewReviewRows: true,
     liveRunsSnapshot: null,
   }),
@@ -41,6 +49,8 @@ import { OperatorHomeRecommendedNextCard } from "@/components/operator-home/Oper
 describe("OperatorHomeRecommendedNextCard", () => {
   beforeEach(() => {
     mockDraftEntries = [];
+    mockHasWorkspaceReviews = true;
+    mockIncompleteWizards = [];
   });
 
   it("renders recommended next label and action on one line", () => {
@@ -71,5 +81,30 @@ describe("OperatorHomeRecommendedNextCard", () => {
     expect(screen.getByRole("heading", { name: "Recommended next: Continue ArchLucid review" })).toBeInTheDocument();
     expect(screen.queryByText(/^Recommended next$/)).toBeNull();
     expect(screen.getByTestId("operator-home-recommended-next-cta")).toHaveTextContent("Continue");
+  });
+  it("recommends a saved wizard when evaluation hides the higher-ranked architecture draft", () => {
+    mockHasWorkspaceReviews = false;
+    mockDraftEntries = [{
+      draftId: "draft-1",
+      displayName: "Payments edge",
+      customerStatus: "draft",
+      ownerLabel: "You",
+      lastUpdatedUtc: "2026-08-10T12:00:00Z",
+      linkedReviewId: null,
+      serverUpdatedUtc: "2026-08-10T12:00:00Z",
+      parentArchitectureId: null,
+    }];
+    mockIncompleteWizards = [{
+      wizardId: WIZARD_SESSION_IDS.reviewsNewGuidedQuestions,
+      stepIndex: 1,
+      savedAtUtc: "2026-08-10T11:00:00Z",
+    }];
+
+    render(<OperatorHomeRecommendedNextCard runsDashboard={{ projectId: "default", items: [] }} />);
+
+    expect(screen.getByTestId("operator-home-recommended-next-cta")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new?path=guided-intake",
+    );
   });
 });

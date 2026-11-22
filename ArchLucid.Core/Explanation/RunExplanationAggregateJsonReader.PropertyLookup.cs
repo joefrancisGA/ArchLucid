@@ -1223,7 +1223,7 @@ internal static partial class RunExplanationAggregateJsonReader
 
     internal static double? TryReadAggregateRatioToken(JsonElement element)
     {
-        double? direct = TryReadFiniteDouble(element);
+        double? direct = TryReadAggregateRatioScalar(element);
 
         if (direct is not null)
             return direct;
@@ -1270,11 +1270,27 @@ internal static partial class RunExplanationAggregateJsonReader
                 continue;
             }
 
-            if (TryReadFiniteDouble(item) is double ratio)
+            if (TryReadAggregateRatioScalar(item) is double ratio)
                 return ratio;
         }
 
         return null;
+    }
+
+    private static double? TryReadAggregateRatioScalar(JsonElement element)
+    {
+        double? value = TryReadFiniteDouble(element);
+        // NormalizeUnitRatio interprets [0, 1] as fractions. Convert explicitly marked small
+        // percentages before the marker is lost, preserving implicit fractions and larger percentages.
+        if (value is > 0 and <= 1
+            && element.ValueKind == JsonValueKind.String
+            && element.GetString() is { } text
+            && text.Contains('%', StringComparison.Ordinal))
+        {
+            return value / 100;
+        }
+
+        return value;
     }
 
     private static bool AggregateWholeNumberCountArrayItemIsDuplicateAliasPoison(JsonElement item)

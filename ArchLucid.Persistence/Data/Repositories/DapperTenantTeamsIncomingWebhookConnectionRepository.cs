@@ -72,7 +72,7 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
             : TeamsNotificationTriggerCatalog.Serialize(enabledTriggers.Count == 0 ? [] : enabledTriggers);
 
         const string mergeSql = """
-                                MERGE dbo.TenantTeamsIncomingWebhookConnections AS t
+                                MERGE dbo.TenantTeamsIncomingWebhookConnections WITH (HOLDLOCK) AS t
                                 USING (
                                     SELECT
                                         @TenantId AS TenantId,

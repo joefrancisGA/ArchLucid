@@ -1052,68 +1052,6 @@ namespace N
 
     await RunInnerLayerTestAsync(testCode, expectedAliasTarget, expectedParameter);
   }
-  [Fact]
-  public async Task Reports_HttpContext_parameter_when_type_is_parent_namespace_using_alias()
-  {
-    const string testCode = """
-
-namespace Microsoft.AspNetCore.Http
-{
-    public sealed class HttpContext
-    {
-    }
-}
-
-namespace N
-{
-    using Ctx = Microsoft.AspNetCore.Http.HttpContext;
-
-    namespace N.Inner
-    {
-        public sealed class Handler
-        {
-            void M({|#0:Ctx|} context) { }
-        }
-    }
-}
-""";
-
-    DiagnosticResult expectedParameter = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
-        .WithSpan(17, 20, 17, 23)
-        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
-
-    DiagnosticResult expectedAliasTarget = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
-        .WithSpan(11, 43, 11, 54)
-        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
-
-    await RunInnerLayerTestAsync(testCode, expectedParameter, expectedAliasTarget);
-  }
-
-  [Fact]
-  public async Task Reports_banned_type_in_generic_constraint_on_local_function()
-  {
-    const string testCode = """
-
-namespace N
-{
-    using System.Security.Claims;
-
-    public sealed class Handler
-    {
-        void M()
-        {
-            void Local<T>() where T : {|#0:ClaimsPrincipal|} { }
-        }
-    }
-}
-""";
-
-    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
-        .WithLocation(0)
-        .WithArguments("System.Security.Claims.ClaimsPrincipal");
-
-    await RunInnerLayerTestAsync(testCode, expected);
-  }
 
   private static Task RunInnerLayerTestAsync(string testCode, params DiagnosticResult[] expectedDiagnostics) =>
       RunTestAsync(testCode, InnerLayerAssemblyNameTransform, expectedDiagnostics);

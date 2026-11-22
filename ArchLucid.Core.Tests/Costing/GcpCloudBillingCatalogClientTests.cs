@@ -17,6 +17,33 @@ namespace ArchLucid.Core.Tests.Costing;
 public sealed class GcpCloudBillingCatalogClientTests
 {
     [Fact]
+    public async Task TryGetComputeEngineMonthlyUsdAsync_skips_non_string_sku_description()
+    {
+        const string catalogJson = """
+            {
+              "skus": [
+                { "description": 42 },
+                {
+                  "description": "Compute Engine n1-standard-1 in us-central1",
+                  "pricingInfo": [{
+                    "pricingExpression": {
+                      "usageUnit": "h",
+                      "tieredRates": [{ "unitPrice": { "nanos": 10400000 } }]
+                    }
+                  }]
+                }
+              ]
+            }
+            """;
+        GcpCloudBillingCatalogClient client = CreateClient(catalogJson);
+
+        decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync(
+            "n1-standard-1", 1, CancellationToken.None);
+
+        monthly.Should().Be(7.59m);
+    }
+
+    [Fact]
     public async Task TryGetComputeEngineMonthlyUsdAsync_parses_string_encoded_unit_price_tokens()
     {
         const string catalogJson = """
@@ -747,6 +774,42 @@ public sealed class GcpCloudBillingCatalogClientTests
         decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
 
         monthly.Should().Be(730.00m);
+    }
+
+    [Theory]
+    [InlineData("9007199254740993.0")]
+    [InlineData("\"9007199254740993.0\"")]
+    public async Task TryGetComputeEngineMonthlyUsdAsync_preserves_whole_decimal_units(string unitsToken)
+    {
+        string catalogJson = $$"""
+            {
+              "skus": [
+                {
+                  "description": "Compute Engine n1-standard-1 in us-central1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": {{unitsToken}}
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+            """;
+
+        GcpCloudBillingCatalogClient client = CreateClient(catalogJson);
+
+        decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
+
+        monthly.Should().Be(9007199254740993m * 730m);
     }
 
     [Fact]

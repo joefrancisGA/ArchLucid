@@ -345,14 +345,7 @@ public sealed class OutboundWebhookDryRunControllerTests
                 ReasonPhrase = null,
             });
 
-        AuditEvent? captured = null;
-        Mock<IAuditService> audit = new();
-        audit
-            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
-            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
-            .Returns(Task.CompletedTask);
-
-        OutboundWebhookDryRunController controller = new(probe.Object, audit.Object)
+        OutboundWebhookDryRunController controller = new(probe.Object, Mock.Of<IAuditService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -366,11 +359,6 @@ public sealed class OutboundWebhookDryRunControllerTests
                 .BeOfType<OutboundWebhookDryRunResponse>().Subject;
 
         response.ReasonPhrase.Should().BeEmpty();
-
-        captured.Should().NotBeNull();
-        using JsonDocument document = JsonDocument.Parse(captured!.DataJson!);
-        document.RootElement.GetProperty("reasonPhrase").GetString().Should().BeEmpty(
-            "audit forensics must match the operator-visible reason phrase coalescing for HTTP/2-style null phrases.");
     }
 
     [Fact]

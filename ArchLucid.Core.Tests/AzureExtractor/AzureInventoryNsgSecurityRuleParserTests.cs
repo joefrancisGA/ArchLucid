@@ -91,4 +91,20 @@ public sealed class AzureInventoryNsgSecurityRuleParserTests
         rules[0].Direction.Should().Be("Inbound");
         rules[0].Access.Should().Be("Allow");
     }
+
+    [Fact]
+    public void Parse_keeps_optional_names_with_their_own_flattened_rule()
+    {
+        string prefix = InventoryDiagramNodeRelationshipPropertyKeys.NsgRulePrefix;
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{prefix}1.protocol"] = "TCP",
+            [$"{prefix}10.protocol"] = "TCP",
+            [$"{prefix}10.Name"] = "inventory-display-label",
+        };
+
+        IReadOnlyList<AzureInventoryNsgSecurityRule> rules = AzureInventoryNsgSecurityRuleParser.Parse(properties);
+
+        rules.Select(rule => rule.RuleName).Should().BeEquivalentTo(new string?[] { null, "inventory-display-label" });
+    }
 }

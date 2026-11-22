@@ -165,7 +165,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     }),
     [
       commitQuery.data?.hasCommittedManifest,
-      draftEntries.length,
+      draftEntries,
       governanceWarningsCount,
       hasCommittedArchitectureReview,
       hasOverviewReviewRows,

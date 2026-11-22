@@ -68,9 +68,13 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
 
   useEffect(() => {
+    setFiltersState((current) => ({ ...current, searchQuery: urlSearchQuery }));
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
+
+  useEffect(() => {
     setFiltersState((current) => ({
       ...current,
-      searchQuery: urlSearchQuery,
       severity: urlSeverity,
       linkedFindings: urlLinkedFindings,
       evidenceCoverage: urlEvidenceCoverage,
@@ -78,8 +82,7 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
       standardFramework: urlFramework,
       sourcePolicyPack: urlPack,
     }));
-    setSearchQuery(urlSearchQuery);
-  }, [urlEnforcement, urlEvidenceCoverage, urlFramework, urlLinkedFindings, urlPack, urlSearchQuery, urlSeverity]);
+  }, [urlEnforcement, urlEvidenceCoverage, urlFramework, urlLinkedFindings, urlPack, urlSeverity]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {

@@ -256,10 +256,7 @@ export function GovernanceFindingsQueueResultsSection(
         </label>
       ) : null}
 
-      {!props.loading
-      && props.hideGenericLowDensity
-      && props.rows.length > 0
-      && props.displayedRows.length === 0 ? (
+      {!props.loading && props.genericFilterEmptiedResults ? (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="governance-findings-hide-generic-filter-empty"

@@ -150,6 +150,38 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
     }
 
     [SkippableFact]
+    public async Task RunCompleted_preserves_metadata_beyond_the_log_preview()
+    {
+        string runId = Guid.NewGuid().ToString("N");
+        string systemName = new('s', 500);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+        Mock<IAuditService> auditService = new();
+
+        BaselineMutationAuditService sut = new(
+            NullLogger<BaselineMutationAuditService>.Instance,
+            auditService.Object,
+            scopeProvider.Object);
+
+        await sut.RecordAsync(
+            AuditEventTypes.Baseline.Architecture.RunCompleted,
+            "actor-a",
+            runId,
+            $"ManifestVersion=vA; SystemName={systemName}; WarningCount=1; CommitPath=authority",
+            CancellationToken.None);
+
+        auditService.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.Run.CommitCompleted
+                    && JsonHasString(e.DataJson, "systemName", systemName)
+                    && JsonHasString(e.DataJson, "commitPath", "authority")
+                    && JsonHasInt(e.DataJson, "warningCount", 1)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task RunFailed_emits_Run_Failed()
     {
         string runId = Guid.NewGuid().ToString("N");

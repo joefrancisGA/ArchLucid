@@ -13,6 +13,7 @@ import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 export type SponsorDashboardData = {
   summary: SponsorRoiSummary | null;
   summaryLoading: boolean;
+  summaryWaitingForConnection: boolean;
   summaryError: string | null;
   driftPoints: ComplianceDriftTrendPoint[];
   driftLoading: boolean;
@@ -35,6 +36,7 @@ export function SponsorDashboardDataProvider({ children }: { children: ReactNode
   const summaryLoading =
     bundleQuery.isPending ||
     (summary === null && !bundleQuery.isFetched);
+  const summaryWaitingForConnection = summary === null && bundleQuery.fetchStatus === "paused";
   const summaryError =
     bundleQuery.isError
       ? (() => {
@@ -77,6 +79,7 @@ export function SponsorDashboardDataProvider({ children }: { children: ReactNode
     () => ({
       summary,
       summaryLoading,
+      summaryWaitingForConnection,
       summaryError,
       driftPoints,
       driftLoading,
@@ -88,6 +91,7 @@ export function SponsorDashboardDataProvider({ children }: { children: ReactNode
     [
       summary,
       summaryLoading,
+      summaryWaitingForConnection,
       summaryError,
       driftPoints,
       driftLoading,

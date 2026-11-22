@@ -140,6 +140,44 @@ public sealed class AzureInventoryAdfLinkedServiceTargetResolverTests
             ArmResourceIdNormalizer.Normalize(containerAppArmId));
     }
 
+    [Theory]
+    [InlineData(" adb-1234567890123456.7.AZUREDATABRICKS.NET ")]
+    [InlineData("https://adb-1234567890123456.7.azuredatabricks.net/")]
+    public void TryResolveTargetArmId_resolves_databricks_workspace_from_inventory_url(string workspaceUrl)
+    {
+        const string workspaceArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Databricks/workspaces/analytics";
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new()
+            {
+                AzureResourceId = workspaceArmId,
+                ResourceType = "Microsoft.Databricks/workspaces",
+                Name = "analytics",
+                Properties = new Dictionary<string, string> { ["workspaceUrl"] = workspaceUrl },
+            },
+        ];
+        AzureInventoryAdfLinkedServiceRow linkedService = new()
+        {
+            FactoryResourceId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1",
+            LinkedServiceName = "DatabricksLs",
+            TargetHost = "adb-1234567890123456.7.azuredatabricks.net",
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        };
+
+        bool resolved = AzureInventoryAdfLinkedServiceTargetResolver.TryResolveTargetArmId(
+            linkedService,
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildVisibleArmIdSet(resources),
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources),
+            out string? targetArmId,
+            out ProvenanceKind provenanceKind,
+            out _);
+
+        resolved.Should().BeTrue();
+        targetArmId.Should().Be(ArmResourceIdNormalizer.Normalize(workspaceArmId));
+        provenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+    }
+
     [Fact]
     public void BuildHostIndex_omits_ambiguous_container_app_fqdn()
     {

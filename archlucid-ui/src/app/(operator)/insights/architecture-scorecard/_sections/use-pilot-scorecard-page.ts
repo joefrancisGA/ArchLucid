@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { usePilotScorecardQuery } from "@/hooks/use-pilot-scorecard-query";
 import {
   areArchitectureScorecardAssumptionsComplete,
@@ -43,7 +44,9 @@ export type UsePilotScorecardPageModel = {
   resolvedStatusQuoCostLabel: string | null;
 };
 
-function baselineFieldsFromData(data: PilotScorecardJson | null): { hours: string; reviews: string; rate: string } {
+type BaselineFields = { hours: string; reviews: string; rate: string };
+
+function baselineFieldsFromData(data: PilotScorecardJson | null): BaselineFields {
   if (data?.baselines === null || data?.baselines === undefined) {
     return { hours: "", reviews: "", rate: "" };
   }
@@ -59,40 +62,38 @@ function fieldsMatchBaselines(
   hours: string,
   reviews: string,
   rate: string,
-  data: PilotScorecardJson | null,
+  saved: BaselineFields,
 ): boolean {
-  const saved = baselineFieldsFromData(data);
-
   return hours.trim() === saved.hours.trim() && reviews.trim() === saved.reviews.trim() && rate.trim() === saved.rate.trim();
-}
-
-function syncBaselineFieldsFromScorecard(json: PilotScorecardJson): { hours: string; reviews: string; rate: string } {
-  if (!json.baselines) {
-    return { hours: "", reviews: "", rate: "" };
-  }
-
-  return {
-    hours: json.baselines.baselineHoursPerReview?.toString() ?? "",
-    reviews: json.baselines.baselineReviewsPerQuarter?.toString() ?? "",
-    rate: json.baselines.baselineArchitectHourlyCost?.toString() ?? "",
-  };
 }
 
 export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): UsePilotScorecardPageModel {
   const canExecute = useOperateCapability();
-  const initialFields = baselineFieldsFromData(loaded.data);
+  const { tenantId, workspaceId, projectId } = useOperatorScopeQueryKey();
+  const scope = `${tenantId}:${workspaceId}:${projectId}`;
   const scorecardQuery = usePilotScorecardQuery({
     initialData: loaded.data,
     throwOnError: true,
   });
 
-  const [hours, setHours] = useState(initialFields.hours);
-  const [reviews, setReviews] = useState(initialFields.reviews);
-  const [rate, setRate] = useState(initialFields.rate);
+  const [draft, setDraft] = useState<{ scope: string; fields: Partial<BaselineFields> } | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
   const data = scorecardQuery.data ?? null;
+  const saved = baselineFieldsFromData(data);
+  const edited = draft?.scope === scope ? draft.fields : undefined;
+  const hours = edited?.hours ?? saved.hours;
+  const reviews = edited?.reviews ?? saved.reviews;
+  const rate = edited?.rate ?? saved.rate;
+
+  function editBaseline(field: keyof BaselineFields, value: string): void {
+    setDraft((current) => ({
+      scope,
+      fields: { ...(current?.scope === scope ? current.fields : undefined), [field]: value },
+    }));
+  }
+
   const metricsAsOfUtc =
     scorecardQuery.dataUpdatedAt > 0 ? new Date(scorecardQuery.dataUpdatedAt).toISOString() : null;
 
@@ -104,17 +105,6 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
       : null;
 
   const error = saveError ?? queryError ?? loaded.error;
-
-  useEffect(() => {
-    if (scorecardQuery.data === undefined || data === null) {
-      return;
-    }
-
-    const synced = syncBaselineFieldsFromScorecard(data);
-    setHours(synced.hours);
-    setReviews(synced.reviews);
-    setRate(synced.rate);
-  }, [scorecardQuery.dataUpdatedAt, data]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -139,7 +129,7 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
   }, [data]);
 
   const assumptionsComplete = areArchitectureScorecardAssumptionsComplete(hours, reviews, rate);
-  const assumptionsDirty = !fieldsMatchBaselines(hours, reviews, rate, data);
+  const assumptionsDirty = !fieldsMatchBaselines(hours, reviews, rate, saved);
   const fieldErrors = architectureScorecardAssumptionFieldErrors(hours, reviews, rate);
   const canSaveAssumptions = canExecute && assumptionsComplete && assumptionsDirty && !saving;
 
@@ -180,7 +170,12 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
         throw new Error(`HTTP ${res.status}`);
       }
 
-      await scorecardQuery.refetch();
+      const refreshed = await scorecardQuery.refetch();
+
+      if (refreshed.isSuccess) {
+        setDraft((current) => current === draft ? null : current);
+      }
+
       showSuccess("ROI assumptions saved.");
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "Save failed.";
@@ -189,7 +184,7 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
     } finally {
       setSaving(false);
     }
-  }, [canSaveAssumptions, hours, rate, reviews, scorecardQuery]);
+  }, [canSaveAssumptions, draft, hours, rate, reviews, scorecardQuery]);
 
   const resolvedQuarterlySavingsLabel = useMemo(() => {
     if (data?.roiEstimate === null || data?.roiEstimate === undefined) {
@@ -250,8 +245,8 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
     resolvedQuarterlySavingsLabel,
     resolvedStatusQuoCostLabel,
     saving,
-    setHours,
-    setRate,
-    setReviews,
+    setHours: (value) => editBaseline("hours", value),
+    setRate: (value) => editBaseline("rate", value),
+    setReviews: (value) => editBaseline("reviews", value),
   };
 }

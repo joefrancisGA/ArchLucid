@@ -13,7 +13,7 @@ public sealed partial class ArchitectureRiskRegisterReader
         return $"""
                 ;WITH latestDisposition AS (
                     SELECT FindingId, ProjectId, Disposition, RevisitDueUtc, EvidenceRequestText, OccurredAtUtc, ReviewerUserId,
-                           ROW_NUMBER() OVER (PARTITION BY FindingId, ProjectId ORDER BY OccurredAtUtc DESC) AS rn
+                           ROW_NUMBER() OVER (PARTITION BY FindingId, ProjectId ORDER BY OccurredAtUtc DESC, EventId DESC) AS rn
                     FROM dbo.FindingReviewEvents
                     WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND Disposition IS NOT NULL
                 )
@@ -61,7 +61,10 @@ public sealed partial class ArchitectureRiskRegisterReader
                     SELECT STRING_AGG(CONCAT(itsm.Provider, N':', itsm.ExternalKey), N'; ')
                         WITHIN GROUP (ORDER BY itsm.CreatedUtc) AS LinkedTickets
                     FROM dbo.ItsmFindingCorrelations AS itsm
-                    WHERE itsm.TenantId = fr.TenantId AND itsm.FindingId = fr.FindingId
+                    WHERE itsm.TenantId = fr.TenantId
+                      AND itsm.WorkspaceId = fr.WorkspaceId
+                      AND itsm.ProjectId = fr.ProjectId
+                      AND itsm.FindingId = fr.FindingId
                 ) AS itsmAgg
                 WHERE fr.TenantId = @TenantId AND fr.WorkspaceId = @WorkspaceId{projectFilter}{assigneeFilter}{openFindingsFilter}
                 ORDER BY fs.CreatedUtc DESC;

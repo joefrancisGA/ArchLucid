@@ -1,6 +1,9 @@
 using System.Globalization;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
+
+using ArchLucid.Core.AzureExtractor;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -11,6 +14,84 @@ namespace ArchLucid.Integrations.AzureExtractor.Tests;
 
 public sealed class HostedAzureManagementPostReadClientTests
 {
+    [Fact]
+    public async Task ListEffectiveNetworkControlsForNicAsync_uses_post_and_polls_accepted_response()
+    {
+        const string nicId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1";
+        const string nsgId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Network/networkSecurityGroups/nsg1";
+        const string operationUrl =
+            "https://management.azure.com/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Network/locations/eastus/operations/op1";
+
+        List<HttpMethod> methods = [];
+        int requestCount = 0;
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                methods.Add(request.Method);
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    Assert.Equal(HttpMethod.Post, request.Method);
+                    Assert.EndsWith(
+                        "/effectiveNetworkSecurityGroups?api-version=2023-09-01",
+                        request.RequestUri?.AbsoluteUri,
+                        StringComparison.Ordinal);
+
+                    HttpResponseMessage accepted = new(HttpStatusCode.Accepted);
+                    accepted.Headers.Location = new Uri(operationUrl);
+                    accepted.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.Zero);
+                    return Task.FromResult(accepted);
+                }
+
+                if (current == 2)
+                {
+                    Assert.Equal(HttpMethod.Get, request.Method);
+                    Assert.Equal(operationUrl, request.RequestUri?.AbsoluteUri);
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(
+                                $$"""
+                                  { "value": [ { "networkSecurityGroup": { "id": "{{nsgId}}" } } ] }
+                                  """,
+                                Encoding.UTF8,
+                                "application/json"),
+                        });
+                }
+
+                Assert.Equal(3, current);
+                Assert.Equal(HttpMethod.Post, request.Method);
+                Assert.EndsWith(
+                    "/effectiveRouteTable?api-version=2023-09-01",
+                    request.RequestUri?.AbsoluteUri,
+                    StringComparison.Ordinal);
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(
+                            """{ "value": [ { "source": "Default", "nextHopType": "Internet" } ] }""",
+                            Encoding.UTF8,
+                            "application/json"),
+                    });
+            });
+
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord> rows =
+            await client.ListEffectiveNetworkControlsForNicAsync("token-abc", nicId, CancellationToken.None);
+
+        Assert.Equal(new[] { HttpMethod.Post, HttpMethod.Get, HttpMethod.Post }, methods);
+        Assert.Equal(2, rows.Count);
+        Assert.Equal(AzureInventoryEffectiveNetworkControlCollectionStatus.Succeeded, rows[0].CollectionStatus);
+        Assert.Equal(nsgId, rows[0].EffectiveResourceId);
+        Assert.Equal(AzureInventoryEffectiveNetworkControlCollectionStatus.Skipped, rows[1].CollectionStatus);
+    }
+
     [Fact]
     public async Task QueryPolicyComplianceAsync_rejects_same_subscription_next_link_for_another_resource()
     {

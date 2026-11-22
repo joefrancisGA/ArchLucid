@@ -50,7 +50,7 @@ public sealed partial class ComparisonRecordRepository
                           {ComparisonRecordListSql.SelectColumnsWithoutPayloadJson}
                       FROM ComparisonRecords
                       WHERE LeftRunId = @RunId OR RightRunId = @RunId
-                      ORDER BY CreatedUtc DESC;
+                      ORDER BY CreatedUtc DESC, {ComparisonRecordIdSql.TrimmedColumnExpression} DESC;
                       """;
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
@@ -74,7 +74,7 @@ public sealed partial class ComparisonRecordRepository
                       FROM ComparisonRecords
                       WHERE LOWER(LTRIM(RTRIM(LeftExportRecordId))) = LOWER(@ExportRecordId)
                          OR LOWER(LTRIM(RTRIM(RightExportRecordId))) = LOWER(@ExportRecordId)
-                      ORDER BY CreatedUtc DESC;
+                      ORDER BY CreatedUtc DESC, {ComparisonRecordIdSql.TrimmedColumnExpression} DESC;
                       """;
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(

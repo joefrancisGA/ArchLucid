@@ -13,7 +13,7 @@ public sealed class InMemoryRetrievalGroundingTraceWriter : IRetrievalGroundingT
         get
         {
             lock (_sync)
-                return _rows.Select(static row => row.Insert).ToList();
+                return _rows.Select(static row => CopyInsert(row.Insert)).ToList();
         }
     }
 
@@ -24,7 +24,7 @@ public sealed class InMemoryRetrievalGroundingTraceWriter : IRetrievalGroundingT
         cancellationToken.ThrowIfCancellationRequested();
 
         lock (_sync)
-            _rows.Add((Guid.NewGuid(), insert));
+            _rows.Add((Guid.NewGuid(), CopyInsert(insert)));
 
         return Task.CompletedTask;
     }
@@ -82,4 +82,29 @@ public sealed class InMemoryRetrievalGroundingTraceWriter : IRetrievalGroundingT
             CreatedUtc = insert.CreatedUtc,
         };
     }
+
+    private static RetrievalGroundingTraceInsert CopyInsert(RetrievalGroundingTraceInsert insert) => new()
+    {
+        TenantId = insert.TenantId,
+        WorkspaceId = insert.WorkspaceId,
+        ProjectId = insert.ProjectId,
+        RunId = insert.RunId,
+        AgentName = insert.AgentName,
+        RetrievedChunkIds = insert.RetrievedChunkIds.ToList(),
+        TokensIn = insert.TokensIn,
+        TokensOut = insert.TokensOut,
+        CitationCoverage = insert.CitationCoverage,
+        QueryText = insert.QueryText,
+        TopK = insert.TopK,
+        CorpusKind = insert.CorpusKind,
+        ScoresJson = insert.ScoresJson,
+        DocumentIdsJson = insert.DocumentIdsJson,
+        AgentExecutionTraceId = insert.AgentExecutionTraceId,
+        GraphRagNeighborsAdded = insert.GraphRagNeighborsAdded,
+        GraphRagSeedHits = insert.GraphRagSeedHits,
+        GraphRagExpansionLatencyMs = insert.GraphRagExpansionLatencyMs,
+        IterativeRetrievalRounds = insert.IterativeRetrievalRounds,
+        IterativeCritiqueDecisionsJson = insert.IterativeCritiqueDecisionsJson,
+        CreatedUtc = insert.CreatedUtc,
+    };
 }

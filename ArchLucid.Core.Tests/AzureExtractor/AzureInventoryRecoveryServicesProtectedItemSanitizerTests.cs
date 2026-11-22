@@ -16,6 +16,24 @@ public sealed class AzureInventoryRecoveryServicesProtectedItemSanitizerTests
     private const string VmId =
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/app-vm";
 
+    [Theory]
+    [InlineData("null")]
+    [InlineData("[]")]
+    public void TrySanitize_rejects_non_object_protected_items(string json)
+    {
+        using JsonDocument document = JsonDocument.Parse(json);
+
+        bool backupParsed = AzureInventoryRecoveryServicesProtectedItemSanitizer.TrySanitizeBackupItem(
+            VaultId, document.RootElement, out AzureInventoryRecoveryServicesProtectedItemRow? backup);
+        bool replicationParsed = AzureInventoryRecoveryServicesProtectedItemSanitizer.TrySanitizeReplicationItem(
+            VaultId, document.RootElement, out AzureInventoryRecoveryServicesProtectedItemRow? replication);
+
+        backupParsed.Should().BeFalse();
+        backup.Should().BeNull();
+        replicationParsed.Should().BeFalse();
+        replication.Should().BeNull();
+    }
+
     [Fact]
     public void TrySanitizeReplicationItem_reads_current_recovery_fabric_location()
     {

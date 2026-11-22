@@ -167,7 +167,10 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
   const methodologyLines =
     displayData !== null ? buildReviewScorecardMethodologyLines(displayData.metricSources) : [];
   const scopeCue = displayData !== null ? buildReviewScorecardScopeCue(displayData) : null;
-  const metricsAsOfLabel = buildReviewScorecardMetricsAsOfLabel(metricsAsOfUtc);
+  const metricsAsOfLabel =
+    displayData !== null && displayData === data
+      ? buildReviewScorecardMetricsAsOfLabel(metricsAsOfUtc)
+      : null;
   const displayHours = sampleMode && displayData?.baselines ? String(displayData.baselines.baselineHoursPerReview ?? "") : hours;
   const displayReviews =
     sampleMode && displayData?.baselines ? String(displayData.baselines.baselineReviewsPerQuarter ?? "") : reviews;

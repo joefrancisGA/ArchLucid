@@ -21,7 +21,7 @@ public sealed class TenantItsmConnectorConnectionRepositoryCoreTests
             IsEnabled = true,
         };
 
-        TenantItsmConnectorConnectionRepositoryCore.ResolveIsEnabled(command).Should().BeTrue();
+        TenantItsmConnectorConnectionRepositoryCore.ResolveIsEnabled(command, command.AuthMode).Should().BeTrue();
 
         TenantItsmConnectorConnectionUpsertCommand missingSecret = new()
         {
@@ -31,7 +31,7 @@ public sealed class TenantItsmConnectorConnectionRepositoryCoreTests
             IsEnabled = true,
         };
 
-        TenantItsmConnectorConnectionRepositoryCore.ResolveIsEnabled(missingSecret).Should().BeFalse();
+        TenantItsmConnectorConnectionRepositoryCore.ResolveIsEnabled(missingSecret, missingSecret.AuthMode).Should().BeFalse();
     }
 
     [Fact]
@@ -66,5 +66,26 @@ public sealed class TenantItsmConnectorConnectionRepositoryCoreTests
         record.TenantId.Should().Be(tenantId);
         record.IsEnabled.Should().BeTrue();
         record.Provider.Should().Be(TenantItsmConnectorProvider.Jira);
+    }
+
+    [Fact]
+    public void CreateFromUpsert_resolves_enabled_against_azure_boards_normalized_auth_mode()
+    {
+        TenantItsmConnectorConnectionUpsertCommand command = new()
+        {
+            InstanceBaseUrl = "https://dev.azure.com/example",
+            AuthMode = ItsmConnectorAuthMode.OAuth2ClientCredentials,
+            CredentialKeyVaultSecretName = "personal-access-token",
+            IsEnabled = true,
+        };
+
+        TenantItsmConnectorConnectionRecord record = TenantItsmConnectorConnectionRepositoryCore.CreateFromUpsert(
+            Guid.NewGuid(),
+            TenantItsmConnectorProvider.AzureBoards,
+            command,
+            DateTimeOffset.UtcNow);
+
+        record.AuthMode.Should().Be(ItsmConnectorAuthMode.BasicApiToken);
+        record.IsEnabled.Should().BeTrue();
     }
 }

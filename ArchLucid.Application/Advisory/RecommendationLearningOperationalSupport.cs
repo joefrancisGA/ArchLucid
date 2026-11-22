@@ -174,30 +174,34 @@ public static class RecommendationLearningOperationalSupport
         IReadOnlyDictionary<string, double> proposedWeights,
         IReadOnlyList<RecommendationOutcomeStats> stats)
     {
-        foreach (KeyValuePair<string, double> entry in proposedWeights)
+        IEnumerable<string> features = proposedWeights.Keys;
+        if (currentWeights is not null)
         {
-            double current = currentWeights is not null && currentWeights.TryGetValue(entry.Key, out double existing)
-                ? existing
-                : 1.0;
+            features = features.Concat(currentWeights.Keys.Where(key => !proposedWeights.ContainsKey(key)));
+        }
 
-            double proposed = entry.Value;
+        foreach (string feature in features)
+        {
+            double current = currentWeights?.GetValueOrDefault(feature, 1.0) ?? 1.0;
+            bool hasProposedWeight = proposedWeights.TryGetValue(feature, out double explicitProposedWeight);
+            double proposed = hasProposedWeight ? explicitProposedWeight : 1.0;
             double absoluteDelta = proposed - current;
             double percentageDelta = current == 0 ? 0 : (absoluteDelta / current) * 100.0;
-            RecommendationOutcomeStats? stat = stats.FirstOrDefault(x => string.Equals(x.Key, entry.Key, StringComparison.OrdinalIgnoreCase));
+            RecommendationOutcomeStats? stat = stats.FirstOrDefault(x => string.Equals(x.Key, feature, StringComparison.OrdinalIgnoreCase));
             int observations = stat is null ? 0 : stat.ProposedCount + stat.AcceptedCount + stat.RejectedCount + stat.DeferredCount + stat.ImplementedCount;
             double confidence = observations == 0 ? 0 : Math.Min(1.0, observations / 25.0);
 
             deltas.Add(new RecommendationLearningWeightDelta
             {
                 FeatureGroup = group,
-                Feature = entry.Key,
+                Feature = feature,
                 CurrentWeight = current,
                 ProposedWeight = proposed,
                 AbsoluteDelta = absoluteDelta,
                 PercentageDelta = percentageDelta,
                 ObservationCount = observations,
                 Confidence = confidence,
-                FallbackUsed = currentWeights is null || !currentWeights.ContainsKey(entry.Key),
+                FallbackUsed = !hasProposedWeight || currentWeights is null || !currentWeights.ContainsKey(feature),
             });
         }
     }

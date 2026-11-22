@@ -192,14 +192,17 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
             CancellationToken.None);
 
         await repo.CreateAsync(
+            BuildRule(Guid.Parse("51000000-0000-0000-0000-000000000003"), "newest-on", BaseUtc.AddHours(2), true),
+            CancellationToken.None);
+
+        await repo.CreateAsync(
             BuildRule(Guid.Parse("51000000-0000-0000-0000-000000000002"), "off", BaseUtc.AddHours(1), false),
             CancellationToken.None);
 
         IReadOnlyList<CompositeAlertRule> enabled =
             await repo.ListEnabledByScopeAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None);
 
-        enabled.Should().ContainSingle();
-        enabled[0].Name.Should().Be("on");
+        enabled.Select(static rule => rule.Name).Should().Equal("newest-on", "on");
     }
 
     [SkippableFact]

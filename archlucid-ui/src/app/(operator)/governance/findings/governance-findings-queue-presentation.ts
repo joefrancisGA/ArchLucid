@@ -229,10 +229,16 @@ export function deriveSponsorSynopsisPackageTitle(
   displayedRows: readonly GovernanceFindingQueueRow[],
   scopedRunId: string | null,
 ): string {
-  return (
-    displayedRows.find((row) => row.recordKind === "finding")?.runLabel ??
-    (scopedRunId !== null && scopedRunId.length > 0 ? scopedRunId : "this workspace")
-  );
+  const firstFinding = displayedRows.find((row) => row.recordKind === "finding");
+  const hasExplicitReview = scopedRunId !== null && scopedRunId.length > 0;
+  if (
+    !hasExplicitReview &&
+    displayedRows.some((row) => row.recordKind === "finding" && row.runId !== firstFinding?.runId)
+  ) {
+    return "this workspace";
+  }
+
+  return firstFinding?.runLabel ?? (hasExplicitReview ? scopedRunId : "this workspace");
 }
 
 export function deriveSponsorSynopsisCounts(

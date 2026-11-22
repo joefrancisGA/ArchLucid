@@ -234,11 +234,14 @@ public sealed partial class CosmosAgentExecutionTraceRepository
             countQuery,
             requestOptions: CosmosAgentTraceQueryCore.PartitionedByRunId(runId));
 
-        if (!countIt.HasMoreResults)
-            return 0;
+        // Cosmos can return an empty page before the scalar count.
+        while (countIt.HasMoreResults)
+        {
+            FeedResponse<int> countPage = await countIt.ReadNextAsync(cancellationToken);
+            foreach (int count in countPage.Resource)
+                return count;
+        }
 
-        FeedResponse<int> countPage = await countIt.ReadNextAsync(cancellationToken);
-
-        return countPage.Resource.FirstOrDefault();
+        return 0;
     }
 }

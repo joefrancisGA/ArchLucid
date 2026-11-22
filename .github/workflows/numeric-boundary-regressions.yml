@@ -1,0 +1,33 @@
+name: Numeric boundary regression tests
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Core/Findings/Serialization/FindingJsonNumericReaders.cs'
+      - 'ArchLucid.Core.Tests/Findings/Serialization/FindingJsonNumericBoundaryTests.cs'
+      - '.github/workflows/numeric-boundary-regressions.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  numeric-boundaries:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        test:
+          - Int64_parsing_preserves_exact_large_integer
+          - Int64_parsing_rejects_overflow_fraction_and_nonfinite
+          - Int32_string_parsing_rejects_invalid_boundaries
+          - Int32_json_token_rejects_rounded_out_of_range_value
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Run exact integer boundary regressions
+        run: dotnet test ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj --configuration Release --filter 'FullyQualifiedName~${{ matrix.test }}' --logger 'console;verbosity=normal'

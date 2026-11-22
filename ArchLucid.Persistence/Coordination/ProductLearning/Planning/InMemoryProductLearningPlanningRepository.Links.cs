@@ -79,6 +79,9 @@ public sealed partial class InMemoryProductLearningPlanningRepository
 
         Guid linkId = link.LinkId == Guid.Empty ? Guid.NewGuid() : link.LinkId;
 
+        if (_artifactLinks.Any(a => a.LinkId == linkId))
+            throw new InvalidOperationException("Artifact link already exists for LinkId=" + linkId + ".");
+
         _artifactLinks.Add(
             new ProductLearningImprovementPlanArtifactLinkRecord
             {

@@ -28,7 +28,7 @@ public sealed class InMemoryArchitectureVersionRepository : IArchitectureVersion
             && record.ScopeProjectId == scope.ProjectId
             && record.ContentHashSha256.SequenceEqual(contentHashSha256));
 
-        return Task.FromResult(match);
+        return Task.FromResult(match is null ? null : Copy(match));
     }
 
     public Task<int> GetLatestVersionNumberAsync(
@@ -84,7 +84,7 @@ public sealed class InMemoryArchitectureVersionRepository : IArchitectureVersion
         if (!_byId.TryAdd(stored.ArchitectureVersionId, stored))
             throw new InvalidOperationException($"Architecture version id '{stored.ArchitectureVersionId:D}' already exists.");
 
-        return Task.FromResult(stored);
+        return Task.FromResult(Copy(stored));
     }
 
     public Task<ArchitectureVersionRecord?> GetByIdAsync(
@@ -105,7 +105,7 @@ public sealed class InMemoryArchitectureVersionRepository : IArchitectureVersion
             return Task.FromResult<ArchitectureVersionRecord?>(null);
         }
 
-        return Task.FromResult<ArchitectureVersionRecord?>(record);
+        return Task.FromResult<ArchitectureVersionRecord?>(Copy(record));
     }
 
     public Task<ArchitectureVersionRecord?> GetByArchitectureIdAndVersionNumberAsync(
@@ -127,7 +127,7 @@ public sealed class InMemoryArchitectureVersionRepository : IArchitectureVersion
             && record.WorkspaceId == scope.WorkspaceId
             && record.ScopeProjectId == scope.ProjectId);
 
-        return Task.FromResult(match);
+        return Task.FromResult(match is null ? null : Copy(match));
     }
 
     public Task<IReadOnlyList<ArchitectureVersionRecord>> ListByArchitectureIdAsync(
@@ -148,8 +148,24 @@ public sealed class InMemoryArchitectureVersionRepository : IArchitectureVersion
                 && record.WorkspaceId == scope.WorkspaceId
                 && record.ScopeProjectId == scope.ProjectId)
             .OrderByDescending(record => record.VersionNumber)
+            .Select(Copy)
             .ToList();
 
         return Task.FromResult(matches);
     }
+
+    private static ArchitectureVersionRecord Copy(ArchitectureVersionRecord record) =>
+        new()
+        {
+            ArchitectureVersionId = record.ArchitectureVersionId,
+            ArchitectureId = record.ArchitectureId,
+            TenantId = record.TenantId,
+            WorkspaceId = record.WorkspaceId,
+            ScopeProjectId = record.ScopeProjectId,
+            VersionNumber = record.VersionNumber,
+            ContentHashSha256 = (byte[])record.ContentHashSha256.Clone(),
+            IntakeRequestHashSha256 = (byte[])record.IntakeRequestHashSha256.Clone(),
+            SourceRequestId = record.SourceRequestId,
+            CreatedUtc = record.CreatedUtc,
+        };
 }
