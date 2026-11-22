@@ -45,8 +45,9 @@ public sealed class AgentRuntimePackageCoverageBatch18Tests
         for (int i = 0; i < 3; i++)
         {
             Func<Task> cancelled = async () =>
-                await pipeline.ExecuteAsync<AgentResult>(
-                    _ => throw new OperationCanceledException("caller cancelled"),
+                await pipeline.ExecuteAsync(
+                    _ => ValueTask.FromException<AgentResult>(
+                        new OperationCanceledException("caller cancelled")),
                     CancellationToken.None);
             await cancelled.Should().ThrowAsync<OperationCanceledException>();
         }
