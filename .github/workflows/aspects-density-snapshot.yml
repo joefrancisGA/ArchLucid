@@ -9,6 +9,14 @@ on:
     branches: [master]
     paths:
       - docs/engineering/aspects-review-ledger.jsonl
+      - docs/engineering/aspects-historical-restoration-state.json
+      - scripts/aspects_import_historical_workbook.py
+      - scripts/aspects_validate_historical_corpus.py
+      - scripts/aspects_reconcile_historical_corpus.py
+      - scripts/tests/test_aspects_reconcile_historical_corpus.py
+      - docs/engineering/aspects-historical/**
+      - scripts/tests/test_aspects_validate_historical_corpus.py
+      - scripts/tests/test_aspects_import_historical_workbook.py
       - scripts/aspects_review_evidence.py
       - scripts/aspects_density_snapshot.py
       - scripts/tests/test_aspects_review_evidence.py
@@ -41,6 +49,44 @@ jobs:
 
       - name: Verify snapshot freshness and window regressions
         run: python -m unittest discover -s scripts/tests -p 'test_aspects_density_snapshot.py' -v
+
+      - name: Verify legacy workbook importer and clean review invariants
+        run: python -m unittest discover -s scripts/tests -p 'test_aspects_import_historical_workbook.py' -v
+
+      - name: Validate full Git-staged historical corpus and clean-review denominator
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_validate_historical_corpus.py' -v
+          python scripts/aspects_validate_historical_corpus.py \
+            --root docs/engineering/aspects-historical \
+            --json-out artifacts/aspects/historical-corpus-validation.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path("artifacts/aspects/historical-corpus-validation.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write(f"Historical records Git-staged and checksum-validated: **{report['observations_imported']:,}**, clean reviews: **{report['zero_defect_observations']:,}**.\n\n")
+              f.write("**Historical review spans are workbook-provenanced, not cross-revision Git-verified.**\n\n")
+          PY
+
+      - name: Validate historical workbook import when migration source is staged
+        shell: bash
+        run: |
+          workbook="docs/engineering/input/ArchLucid_Defect_Density_Trend_repaired.xlsx"
+          if [ -f "$workbook" ]; then
+            python scripts/aspects_import_historical_workbook.py --workbook "$workbook" --new-ledger docs/engineering/aspects-review-ledger.jsonl --output-dir artifacts/aspects/historical
+          else
+            echo '::notice::Historical source workbook is not in this checkout; the full normalized review corpus is committed and validated separately. Cross-revision Git identity mapping remains pending.'
+          fi
+
+      - name: Reconcile exact Git source identity without combining densities
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_historical_corpus.py' -v
+          python scripts/aspects_reconcile_historical_corpus.py \
+            --repo . \
+            --historical-root docs/engineering/aspects-historical \
+            --new-ledger docs/engineering/aspects-review-ledger.jsonl \
+            --json-out artifacts/aspects/aspects-historical-exact-overlap.json
+          echo 'Historical-vs-new exact blob overlaps computed; cross-revision mappings remain explicitly unresolved.' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Locate latest comparable master snapshot
         if: github.event_name != 'pull_request'
@@ -78,6 +124,8 @@ jobs:
           path: |
             artifacts/aspects/aspects-density-snapshot.json
             artifacts/aspects/aspects-density-snapshot.md
+            artifacts/aspects/historical-corpus-validation.json
+            artifacts/aspects/aspects-historical-exact-overlap.json
           if-no-files-found: error
 
       - name: Signal missing review evidence for Aspects code PR

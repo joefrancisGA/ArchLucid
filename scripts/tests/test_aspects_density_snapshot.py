@@ -127,6 +127,30 @@ class DensitySnapshotTests(unittest.TestCase):
         repeated = mod.build_snapshot([item, item], {HEAD, PREV}, HEAD, 900, one)
         self.assertEqual(repeated["freshness"], "stale_no_new_verified_evidence")
 
+    def test_historical_checkpoint_is_visible_without_changing_subset_numerator(self):
+        with patch.object(mod, "read_historical_checkpoint", return_value={
+            "status": "historical_workbook_partial_checkpoint_not_current",
+            "all_history_review_observations": 5741,
+            "clean_reviews": 4864,
+            "known_all_history_incremental_loc_sum_not_window_union": 402314,
+            "missing_incremental_loc_observations": 30,
+            "latest_legacy_900_window": {
+                "defects": 463, "unique_loc": 343492,
+                "per_kloc": 1000 * 463 / 343492,
+                "as_of_et": "November 22, 2026 9:43 AM EST",
+            },
+        }):
+            legacy = mod.read_historical_checkpoint(Path("ignored"))
+            snapshot = mod.build_snapshot([observation("D1")], {PREV}, PREV, 900)
+            before = snapshot["density"]["unique_path_blob_reviewed_lines"]
+            snapshot["historical_checkpoint"] = legacy
+            report = mod.markdown(snapshot)
+            self.assertIn("343,492 reviewed LOC", report)
+            self.assertIn("5,741", report)
+            self.assertIn("4,864", report)
+            self.assertIn("not** a current", report)
+            self.assertEqual(snapshot["density"]["unique_path_blob_reviewed_lines"], before)
+
     def test_snapshot_is_explicitly_not_comparable_to_legacy_spreadsheet(self):
         report = mod.markdown(mod.build_snapshot([observation("D1")], {PREV}, PREV, 900))
         self.assertIn("Not comparable to the historical 1.3479", report)
