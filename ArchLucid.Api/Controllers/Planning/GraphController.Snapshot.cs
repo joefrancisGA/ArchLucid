@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Security;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Finalization;
@@ -52,6 +53,21 @@ public sealed partial class GraphController
                 return this.BadRequestProblem("Query parameter \"asOf\" is required.");
 
             ScopeContext scope = scopeProvider.GetCurrentScope();
+
+            // FND-010: authorize the SecureNow evidence exchange before any run/evidence read.
+            // The requested run ID is the scoped anchor resource, not a claim that
+            // the resolved graph snapshot has already been authorized.
+            if (secureNowExchange)
+            {
+                EvidenceReadAuthorizationGate? gate =
+                    HttpContext.RequestServices.GetService<EvidenceReadAuthorizationGate>();
+                if (gate is null)
+                    return NotFound();
+                EvidenceReadDecision access = await gate.AuthorizeAsync(
+                    User, scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId, ct);
+                if (!access.Allowed)
+                    return NotFound();
+            }
 
             RunRecord? anchor = await runRepository.GetByIdAsync(scope, runId, ct);
 
