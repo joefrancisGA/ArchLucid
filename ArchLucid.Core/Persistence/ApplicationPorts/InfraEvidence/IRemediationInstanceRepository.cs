@@ -15,22 +15,16 @@ public interface IRemediationInstanceRepository
 
     Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default);
 
-    async Task UpdateInstanceInScopeAsync(
+    /// <summary>
+    /// Scoped updates must be implemented atomically by the repository.
+    /// A read-then-unscoped-write fallback can overwrite concurrent changes.
+    /// </summary>
+    Task UpdateInstanceInScopeAsync(
         ProjectScopeKey scope,
         RemediationInstanceMutation mutation,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-        ArgumentNullException.ThrowIfNull(mutation);
-
-        RemediationInstanceRecord? current =
-            await TryGetByIdInScopeAsync(scope, mutation.InstanceId, cancellationToken);
-
-        if (current is null)
-            return;
-
-        await UpdateInstanceAsync(mutation.ApplyTo(current), cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        throw new NotSupportedException(
+            "Scoped remediation updates require a repository-specific atomic implementation.");
 
     /// <summary>Persist verification evidence and the resulting instance state as one unit.</summary>
     Task CommitVerificationInScopeAsync(
