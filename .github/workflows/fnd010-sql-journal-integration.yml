@@ -26,6 +26,34 @@ jobs:
         run: bash scripts/ci/run_fnd010_sql_journal_verify.sh
       - name: Verify atomic hash-chain migration and concurrent appends
         run: python3 scripts/ci/fnd010_hash_chain_verify.py
+      - name: Install checkpoint crypto dependency
+        run: python3 -m pip install 'cryptography>=44,<47'
+      - name: Run signed checkpoint negative tests
+        run: python3 -m unittest discover -s scripts/tests -p 'test_fnd010_signed_checkpoint.py' -v
+      - name: Issue and verify independent checkpoint
+        run: |
+          openssl genpkey -algorithm Ed25519 -out /tmp/fnd010-test-signing.pem
+          openssl pkey -in /tmp/fnd010-test-signing.pem -pubout -out /tmp/fnd010-test-verifying.pem
+          python3 scripts/ci/fnd010_signed_checkpoint.py issue \
+            --private-key /tmp/fnd010-test-signing.pem \
+            --public-key /tmp/fnd010-test-verifying.pem \
+            --checkpoint /tmp/fnd010-checkpoint.json
+          python3 scripts/ci/fnd010_signed_checkpoint.py verify \
+            --public-key /tmp/fnd010-test-verifying.pem \
+            --checkpoint /tmp/fnd010-checkpoint.json --compare-sql
+          cp /tmp/fnd010-checkpoint.json ./fnd010-checkpoint.json
+          cp /tmp/fnd010-test-verifying.pem ./fnd010-verifying.pem
+      - name: Publish checkpoint outside SQL Server
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnd010-signed-checkpoint
+          path: |
+            fnd010-checkpoint.json
+            fnd010-verifying.pem
+          retention-days: 30
+      - name: Remove ephemeral signing key
+        if: always()
+        run: rm -f /tmp/fnd010-test-signing.pem
       - name: SQL container diagnostics on failure
         if: failure()
         run: docker logs --tail 60 fnd010-sql || true
