@@ -9,8 +9,14 @@ public sealed partial class InMemoryRunRepository
     /// five mutable byte-array hash/version fields, which require deep copies.
     /// All 56 persisted/read fields are copied explicitly to make schema drift visible.
     /// </summary>
-    private static RunRecord CopyRunRecord(RunRecord source) => new()
+    private static RunRecord CopyRunRecord(RunRecord source)
     {
+        // Commit and operator-disposition updates take this same row lock.
+        // A read snapshot must not capture half of either multi-field change.
+        lock (source)
+        {
+            return new RunRecord
+            {
             TenantId = source.TenantId,
             WorkspaceId = source.WorkspaceId,
             ScopeProjectId = source.ScopeProjectId,
@@ -67,5 +73,7 @@ public sealed partial class InMemoryRunRepository
             PinnedEvidencePackagePinsHashSha256 = source.PinnedEvidencePackagePinsHashSha256?.ToArray(),
             PinnedFocusedPilotModeEnabled = source.PinnedFocusedPilotModeEnabled,
             PinnedFocusedPilotCloudProvider = source.PinnedFocusedPilotCloudProvider,
-    };
+            };
+        }
+    }
 }
