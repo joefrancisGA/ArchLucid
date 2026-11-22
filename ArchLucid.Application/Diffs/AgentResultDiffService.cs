@@ -144,12 +144,9 @@ public sealed class AgentResultDiffService(ICrossReviewFindingCorrelationService
         List<string> removed = SelectUnmatchedFindingMessages(leftWithIds, unmatchedLeftIds, right);
         List<string> added = SelectUnmatchedFindingMessages(rightWithIds, unmatchedRightIds, left);
 
-        // Findings without stable ids still use message-only comparison.
-        List<string> leftMessagesWithoutId = SelectFindingMessagesWithoutId(left);
-        List<string> rightMessagesWithoutId = SelectFindingMessagesWithoutId(right);
-
-        removed.AddRange(Except(leftMessagesWithoutId, rightMessagesWithoutId));
-        added.AddRange(Except(rightMessagesWithoutId, leftMessagesWithoutId));
+        // A finding can gain or lose an id without its message changing.
+        removed.AddRange(Except(SelectFindingMessagesWithoutId(left), right.Select(FormatFindingMessage).ToArray()));
+        added.AddRange(Except(SelectFindingMessagesWithoutId(right), left.Select(FormatFindingMessage).ToArray()));
 
         return (
             added.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(static message => message).ToList(),
