@@ -25,6 +25,7 @@ RANGE = re.compile(r"^([1-9][0-9]*)(?:[-–—]([1-9][0-9]*))?$")
 NUMERIC = re.compile(r"^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$")
 DEFAULT_NAME = "ArchLucid_Defect_Density_Trend_repaired.xlsx"
 EXPECTED_WORKBOOK_SHA256 = "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787"
+EXPECTED_600_SHA256 = "adc004bbc45a9fbd37530961faf3f592a43532090d91051746c6c40cfdfcc5f1"
 EXPECTED_HEADER = [
     "Review period (ET)", "Reviewed master SHA", "Defect ID", "Defects",
     "Reviewed lines", "New unique lines", "Status", "Scope",
@@ -223,11 +224,100 @@ def reconcile_exact_pins(events: list[dict], verified_ledger: list[dict]):
     }
 
 
+
+def extend_700_from_600(events: list[dict], workbook600: Path):
+    """Extend an *existing* 600-observation provisional series with 100 genuine prior reviews.
+
+    This is observation-order continuity, NOT an invented 700-commit Git window.
+    Back-project the first supplied cumulative seed exactly, and preserve all original
+    600 rows without refitting their historical cumulative values.
+    """
+    source_sha = hashlib.sha256(workbook600.read_bytes()).hexdigest()
+    if source_sha != EXPECTED_600_SHA256:
+        raise ValueError("600-observation workbook SHA256 mismatch")
+    series = []
+    with ZipFile(workbook600) as book:
+        for excel_row, row in _excel_rows(book, 2):
+            if excel_row < 2:
+                continue
+            v = _cells(row, 10)
+            if not isinstance(v[0], (float, int)):
+                continue
+            series.append({
+                "observation": int(v[0]),
+                "source_excel_row": excel_row,
+                "phase": v[1],
+                "review_or_defect_id": v[2],
+                "defects": int(v[3]),
+                "new_unique_loc": int(v[4]),
+                "cumulative_defects": int(v[5]),
+                "cumulative_loc": int(v[6]),
+                "defects_per_kloc": v[7],
+                "sma_25_reported": v[8],
+                "source_link": v[9],
+                "source_sha256": source_sha,
+                "provenance": "provisional_600_series_workbook",
+            })
+    if len(series) != 600 or [item["observation"] for item in series] != list(range(1, 601)):
+        raise ValueError("600-observation original series is incomplete")
+    last = series[-1]
+    if last["cumulative_defects"] != 491 or last["cumulative_loc"] != 343818:
+        raise ValueError("Provisional 600-series golden changed")
+    for item in series:
+        if abs(1000 * item["cumulative_defects"] / item["cumulative_loc"] - item["defects_per_kloc"]) > 1e-10:
+            raise ValueError("Invalid cumulative rate in 600 source workbook")
+    matches = [i for i, item in enumerate(events) if item["review_id"] == series[0]["review_or_defect_id"]]
+    if len(matches) != 1 or matches[0] < 100:
+        raise ValueError("Cannot anchor the 600-series first observation unambiguously")
+    prefix = events[matches[0] - 100:matches[0]]
+    if any(item["new_unique_loc_reported"] is None for item in prefix):
+        raise ValueError("Missing incremental line values in the 100-row predecessor segment")
+    first = series[0]
+    before_defects = first["cumulative_defects"] - first["defects"]
+    before_loc = first["cumulative_loc"] - first["new_unique_loc"]
+    defects = before_defects - sum(item["defects_recorded"] for item in prefix)
+    loc = before_loc - sum(item["new_unique_loc_reported"] for item in prefix)
+    if min(defects, loc) <= 0:
+        raise ValueError("Provisional 700 prefix has invalid seed")
+    result = []
+    for ordinal, item in enumerate(prefix, 1):
+        defects += item["defects_recorded"]
+        loc += item["new_unique_loc_reported"]
+        result.append({
+            "observation": ordinal,
+            "phase": "Historical workbook back-projection",
+            "review_or_defect_id": item["review_id"],
+            "source_excel_row": item["excel_row"],
+            "defects": item["defects_recorded"],
+            "new_unique_loc": item["new_unique_loc_reported"],
+            "cumulative_defects": defects,
+            "cumulative_loc": loc,
+            "defects_per_kloc": 1000 * defects / loc,
+            "source_link": item["source_reference"],
+            "provenance": "provisional_backprojection_from_600_series_seed",
+        })
+    if (defects, loc) != (before_defects, before_loc):
+        raise ValueError("Back-projection did not rejoin 600-series first observation")
+    for item in series:
+        result.append({**item, "observation": item["observation"] + 100})
+    for i, item in enumerate(result):
+        item["sma_25"] = (
+            sum(x["defects_per_kloc"] for x in result[i - 24:i + 1]) / 25
+            if i >= 24 else None
+        )
+    if len(result) != 700:
+        raise ValueError("Provisional 700 series has wrong length")
+    if abs(result[-1]["sma_25"] - last["sma_25_reported"]) > 1e-10:
+        raise ValueError("700-tail moving average changed when preserving 600-series rows")
+    return series, result
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--workbook", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--new-ledger", type=Path)
+    parser.add_argument("--provisional-600", type=Path)
     args = parser.parse_args()
     events, snapshots, sha = extract(args.workbook)
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -239,6 +329,16 @@ def main():
         with (args.output_dir / filename).open("w", encoding="utf-8") as out:
             for row in rows:
                 out.write(json.dumps(row, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n")
+    series600, series700 = [], []
+    if args.provisional_600:
+        series600, series700 = extend_700_from_600(events, args.provisional_600)
+        for filename, rows in [
+            ("aspects-provisional-600-series.jsonl", series600),
+            ("aspects-provisional-700-series.jsonl", series700),
+        ]:
+            with (args.output_dir / filename).open("w", encoding="utf-8") as out:
+                for row in rows:
+                    out.write(json.dumps(row, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n")
     review_ledger = []
     if args.new_ledger and args.new_ledger.exists():
         review_ledger = [json.loads(line) for line in args.new_ledger.read_text(encoding="utf-8").splitlines() if line.strip()]
@@ -254,6 +354,9 @@ def main():
         "all_history_reviewed_loc_occurrences": sum(e["reviewed_loc_reported"] for e in events),
         "single_source_blob_pinned_rows_parseable_not_git_validated": sum(e["parsed_pin"] is not None for e in events),
         "historical_snapshot_count_900_commits": len(snapshots),
+        "provisional_600_observations": len(series600),
+        "provisional_700_observations": len(series700),
+        "provisional_700_provenance": "600-sample series plus 100 workbook predecessors, NOT a 700-commit first-parent window",
         "last_legacy_900_snapshot": snapshots[-1],
         "new_ledger_overlap": reconcile_exact_pins(events, review_ledger),
         "source_truth": "legacy_workbook_claims_preserved_with_source_sha256; no automatic verified promotion",
