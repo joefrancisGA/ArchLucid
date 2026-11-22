@@ -126,6 +126,23 @@ public sealed class CircuitBreakingAgentCompletionClient(
         float? temperature = null,
         CancellationToken cancellationToken = default)
     {
+        // Reserve a half-open recovery probe only when the stream is actually enumerated.
+        // An IAsyncEnumerable that is created but never consumed has no disposal callback.
+        return StreamJsonWithBreakerAsync(
+            systemPrompt,
+            userPrompt,
+            maxTokens,
+            temperature,
+            cancellationToken);
+    }
+
+    private async IAsyncEnumerable<string> StreamJsonWithBreakerAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens,
+        float? temperature,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
         try
         {
             _gate.ThrowIfBroken();
@@ -143,21 +160,6 @@ public sealed class CircuitBreakingAgentCompletionClient(
             throw;
         }
 
-        return StreamJsonWithBreakerAsync(
-            systemPrompt,
-            userPrompt,
-            maxTokens,
-            temperature,
-            cancellationToken);
-    }
-
-    private async IAsyncEnumerable<string> StreamJsonWithBreakerAsync(
-        string systemPrompt,
-        string userPrompt,
-        int? maxTokens,
-        float? temperature,
-        [EnumeratorCancellation] CancellationToken cancellationToken)
-    {
         string stateBeforeOutcome = _gate.CurrentState;
         bool completed = false;
         Exception? streamFailure = null;
