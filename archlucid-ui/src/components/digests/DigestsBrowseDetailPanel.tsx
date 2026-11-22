@@ -148,7 +148,10 @@ export function DigestsBrowseDetailPanel({
             </div>
             {deliveryAttempts.length === 0 ? (
               <div className="mt-2 space-y-2" data-testid="digests-browse-delivery-attempts-empty">
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                <p
+                  className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="digests-browse-delivery-attempts-empty-not-load-failure"
+                >
                   {DIGESTS_BROWSE_DELIVERY_ATTEMPTS_EMPTY_NOT_LOAD_FAILURE_LINE}
                 </p>
                 <DigestsBrowseDeliveryAttemptsEmptyPartialHonesty />

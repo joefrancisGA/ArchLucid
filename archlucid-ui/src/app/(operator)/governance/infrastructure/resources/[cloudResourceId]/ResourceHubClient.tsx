@@ -41,6 +41,9 @@ import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evide
 import { RESOURCE_HUB_AUDIT_TAB_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-hub-audit-tab-partial-capture-copy";
 import { RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-config-partial-capture-copy";
 import { RESOURCE_HUB_CONFIG_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-config-stored-empty-not-load-failure-copy";
+import { RESOURCE_HUB_DRIFT_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-drift-stored-empty-not-load-failure-copy";
+import { RESOURCE_HUB_DIAGRAM_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-diagram-stored-empty-not-load-failure-copy";
+import { RESOURCE_HUB_REMEDIATION_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-remediation-stored-empty-not-load-failure-copy";
 import { RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-partial-capture-copy";
 import { ResourceHubFindingsArchitectureScopeAndSeverityEmptyPartialHonesty } from "@/components/infra-evidence/ResourceHubFindingsArchitectureScopeAndSeverityEmptyPartialHonesty";
 import { RESOURCE_HUB_FINDINGS_ARCHITECTURE_SCOPE_AND_SEVERITY_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-architecture-scope-and-severity-empty-copy";
@@ -2081,14 +2084,22 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DRIFT_EMPTY_BODY}
                 testId="infra-resource-hub-drift-empty"
                 footer={
-                  isSecureNowProductLine(productLine) ? (
-                    <SecureNowInfraPartialCaptureStrip
-                      testId="infra-resource-hub-drift-empty-partial-capture"
-                      middleLine={RESOURCE_HUB_DRIFT_TAB_PARTIAL_CAPTURE_LINE}
-                      cloudConnectionsTestId="infra-resource-hub-drift-empty-partial-cloud"
-                      extractUploadTestId="infra-resource-hub-drift-empty-partial-extract"
-                    />
-                  ) : undefined
+                  <div className="space-y-2">
+                    <p
+                      className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="resource-hub-drift-stored-empty-not-load-failure"
+                    >
+                      {RESOURCE_HUB_DRIFT_STORED_EMPTY_NOT_LOAD_FAILURE_LINE}
+                    </p>
+                    {isSecureNowProductLine(productLine) ? (
+                      <SecureNowInfraPartialCaptureStrip
+                        testId="infra-resource-hub-drift-empty-partial-capture"
+                        middleLine={RESOURCE_HUB_DRIFT_TAB_PARTIAL_CAPTURE_LINE}
+                        cloudConnectionsTestId="infra-resource-hub-drift-empty-partial-cloud"
+                        extractUploadTestId="infra-resource-hub-drift-empty-partial-extract"
+                      />
+                    ) : null}
+                  </div>
                 }
               />
             )}
@@ -2217,6 +2228,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_TITLE}
                   description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_BODY}
                   testId="infra-resource-hub-diagram-empty"
+                  footer={
+                    <p
+                      className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="resource-hub-diagram-stored-empty-not-load-failure"
+                    >
+                      {RESOURCE_HUB_DIAGRAM_STORED_EMPTY_NOT_LOAD_FAILURE_LINE}
+                    </p>
+                  }
                 />
               </>
             )}
@@ -2614,14 +2633,22 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_BODY}
                 testId="infra-resource-hub-remediation-empty"
                 footer={
-                  isSecureNowProductLine(productLine) ? (
-                    <SecureNowInfraPartialCaptureStrip
-                      testId="infra-resource-hub-remediation-empty-partial-capture"
-                      middleLine={RESOURCE_HUB_REMEDIATION_TAB_PARTIAL_CAPTURE_LINE}
-                      cloudConnectionsTestId="infra-resource-hub-remediation-empty-partial-cloud"
-                      extractUploadTestId="infra-resource-hub-remediation-empty-partial-extract"
-                    />
-                  ) : undefined
+                  <div className="space-y-2">
+                    <p
+                      className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="resource-hub-remediation-stored-empty-not-load-failure"
+                    >
+                      {RESOURCE_HUB_REMEDIATION_STORED_EMPTY_NOT_LOAD_FAILURE_LINE}
+                    </p>
+                    {isSecureNowProductLine(productLine) ? (
+                      <SecureNowInfraPartialCaptureStrip
+                        testId="infra-resource-hub-remediation-empty-partial-capture"
+                        middleLine={RESOURCE_HUB_REMEDIATION_TAB_PARTIAL_CAPTURE_LINE}
+                        cloudConnectionsTestId="infra-resource-hub-remediation-empty-partial-cloud"
+                        extractUploadTestId="infra-resource-hub-remediation-empty-partial-extract"
+                      />
+                    ) : null}
+                  </div>
                 }
               />
             ) : (
