@@ -36,7 +36,7 @@ internal static class GoldenManifestReadSql
                                                                   AND WorkspaceId = @WorkspaceId
                                                                   AND ProjectId = @ProjectId
                                                                   AND ContractManifestVersion COLLATE Latin1_General_CI_AI = @ManifestVersion
-                                                                ORDER BY CreatedUtc DESC;
+                                                                ORDER BY CreatedUtc DESC, ManifestId DESC;
                                                                 """;
 
     /// <summary>
@@ -56,6 +56,6 @@ internal static class GoldenManifestReadSql
                                                              AND ProjectId = @ProjectId
                                                              AND RunId <> @ExcludeRunId
                                                              AND (ArchivedUtc IS NULL)
-                                                           ORDER BY CreatedUtc DESC;
+                                                           ORDER BY CreatedUtc DESC, ManifestId DESC;
                                                            """;
 }
