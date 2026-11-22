@@ -100,8 +100,7 @@ public sealed class SqlDependencyRecoveryDrillTests(SqlServerPersistenceFixture 
             }
             finally
             {
-                // Rollback is idempotent only while active; a completed rollback
-                // has already ended this transaction.
+                // Transaction disposal rolls back if an assertion or SQL operation fails.
             }
         }
         finally
