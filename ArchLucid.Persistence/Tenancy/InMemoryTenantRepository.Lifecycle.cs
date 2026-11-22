@@ -24,7 +24,7 @@ public sealed partial class InMemoryTenantRepository
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
 
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         string slugKey = TenantRepositoryCore.NormalizeSlug(slug);
 
@@ -72,35 +72,31 @@ public sealed partial class InMemoryTenantRepository
             TenantErasureApprovedByUserId = null
         };
 
+        // Tenant, slug and Entra indexes form a single logical registry.
+        // Do not expose a half-inserted tenant or permit a competing Entra
+        // binding to overwrite a winner between dictionary operations.
         lock (_trialGate)
         {
+            ct.ThrowIfCancellationRequested();
+
             if (!_byId.TryAdd(tenantId, record))
                 throw new InvalidOperationException($"Tenant id '{tenantId:D}' already exists.");
-        }
 
-        if (!_slugToId.TryAdd(slugKey, tenantId))
-        {
-            lock (_trialGate)
+            if (!_slugToId.TryAdd(slugKey, tenantId))
             {
                 _byId.TryRemove(tenantId, out _);
+                throw new InvalidOperationException($"Tenant slug '{slugKey}' already exists.");
             }
 
-            throw new InvalidOperationException($"Tenant slug '{slugKey}' already exists.");
-        }
-
-        if (entraTenantId.HasValue)
-
-            if (!_entraTenantIdToTenantId.TryAdd(entraTenantId.Value, tenantId))
+            if (entraTenantId is { } entraId && !_entraTenantIdToTenantId.TryAdd(entraId, tenantId))
             {
                 _slugToId.TryRemove(slugKey, out _);
-                lock (_trialGate)
-                {
-                    _byId.TryRemove(tenantId, out _);
-                }
-                throw new InvalidOperationException($"Entra tenant id '{entraTenantId.Value:D}' is already linked.");
+                _byId.TryRemove(tenantId, out _);
+                throw new InvalidOperationException($"Entra tenant id '{entraId:D}' is already linked.");
             }
 
-        _workspacesByTenant.TryAdd(tenantId, []);
+            _workspacesByTenant.TryAdd(tenantId, []);
+        }
 
         return Task.CompletedTask;
     }
@@ -232,74 +228,34 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task<bool> UpdateEntraTenantIdAsync(Guid tenantId, Guid entraTenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
-        TenantRecord? tenant;
-
+        // The registry binding and the tenant row must change atomically.
+        // A stale row reconstructed outside the lock can erase recent trial,
+        // erasure, seat, or residency metadata; dictionary index assignment
+        // can also steal another tenant's Entra directory under concurrency.
         lock (_trialGate)
         {
-
-            if (!_byId.TryGetValue(tenantId, out tenant))
+            ct.ThrowIfCancellationRequested();
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? tenant))
                 return Task.FromResult(false);
-        }
 
-        if (tenant.EntraTenantId is { } existing && existing != entraTenantId)
-            return Task.FromResult(false);
+            if (tenant.EntraTenantId is { } existing)
+                return Task.FromResult(existing == entraTenantId);
 
-        if (tenant.EntraTenantId == entraTenantId)
+            if (_entraTenantIdToTenantId.TryGetValue(entraTenantId, out Guid holderTenantId)
+                && holderTenantId != tenantId)
+                return Task.FromResult(false);
+
+            if (!_entraTenantIdToTenantId.TryAdd(entraTenantId, tenantId)
+                && (!_entraTenantIdToTenantId.TryGetValue(entraTenantId, out Guid holder)
+                    || holder != tenantId))
+                return Task.FromResult(false);
+
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(
+                tenant, entraTenantIdOverride: entraTenantId);
             return Task.FromResult(true);
-
-        if (_entraTenantIdToTenantId.TryGetValue(entraTenantId, out Guid holderTenantId) && holderTenantId != tenantId)
-            return Task.FromResult(false);
-
-        _entraTenantIdToTenantId[entraTenantId] = tenantId;
-
-        lock (_trialGate)
-        {
-            _byId[tenantId] = new TenantRecord
-            {
-                Id = tenant.Id,
-                Name = tenant.Name,
-                Slug = tenant.Slug,
-                Tier = tenant.Tier,
-                EntraTenantId = entraTenantId,
-                CreatedUtc = tenant.CreatedUtc,
-                SuspendedUtc = tenant.SuspendedUtc,
-                TrialStartUtc = tenant.TrialStartUtc,
-                TrialExpiresUtc = tenant.TrialExpiresUtc,
-                TrialRunsLimit = tenant.TrialRunsLimit,
-                TrialRunsUsed = tenant.TrialRunsUsed,
-                TrialSeatsLimit = tenant.TrialSeatsLimit,
-                TrialSeatsUsed = tenant.TrialSeatsUsed,
-                TrialStatus = tenant.TrialStatus,
-                TrialSampleRunId = tenant.TrialSampleRunId,
-                TrialArchitecturePreseedEnqueuedUtc = tenant.TrialArchitecturePreseedEnqueuedUtc,
-                TrialWelcomeRunId = tenant.TrialWelcomeRunId,
-                TrialFirstManifestCommittedUtc = tenant.TrialFirstManifestCommittedUtc,
-                BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
-                BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
-                BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
-                BaselineManualPrepHoursPerReview = tenant.BaselineManualPrepHoursPerReview,
-                BaselinePeoplePerReview = tenant.BaselinePeoplePerReview,
-                BaselineManualPrepCapturedUtc = tenant.BaselineManualPrepCapturedUtc,
-                CompanySize = tenant.CompanySize,
-                ArchitectureTeamSize = tenant.ArchitectureTeamSize,
-                IndustryVertical = tenant.IndustryVertical,
-                IndustryVerticalOther = tenant.IndustryVerticalOther,
-                EnterpriseSeatsLimit = tenant.EnterpriseSeatsLimit,
-                EnterpriseSeatsUsed = tenant.EnterpriseSeatsUsed,
-                OffboardedUtc = tenant.OffboardedUtc,
-                ErasureEligibleUtc = tenant.ErasureEligibleUtc,
-                LegalHoldUntilUtc = tenant.LegalHoldUntilUtc,
-                LegalHoldReason = tenant.LegalHoldReason,
-                LegalHoldSetByUserId = tenant.LegalHoldSetByUserId,
-                LegalHoldSetUtc = tenant.LegalHoldSetUtc,
-                TenantErasureRequestedUtc = tenant.TenantErasureRequestedUtc,
-                TenantErasureApprovedUtc = tenant.TenantErasureApprovedUtc,
-                TenantErasureApprovedByUserId = tenant.TenantErasureApprovedByUserId
-            };
         }
-
-        return Task.FromResult(true);
     }
+
 }
