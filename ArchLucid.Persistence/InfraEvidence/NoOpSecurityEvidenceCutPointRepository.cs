@@ -8,18 +8,30 @@ public sealed class NoOpSecurityEvidenceCutPointRepository : ISecurityEvidenceCu
     public Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListBySnapshotAsync(
         ProjectSnapshotScopeKey scope,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>([]);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>([]);
+    }
 
     public Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListByPathIdAsync(
         Guid tenantId,
         Guid pathId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>([]);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>([]);
+    }
 
     public Task ReplaceCutPointsForSnapshotAsync(
         Guid tenantId,
         Guid snapshotId,
         IReadOnlyList<SecurityEvidenceCutPointRecord> cutPoints,
         CancellationToken cancellationToken = default)
-        => Task.CompletedTask;
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 }

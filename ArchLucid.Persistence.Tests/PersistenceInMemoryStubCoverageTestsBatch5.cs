@@ -62,6 +62,7 @@ public sealed class PersistenceInMemoryStubCoverageTestsBatch5
         await sut.AssignAsync(
             new UserCustomRoleAssignmentRecord
             {
+                TenantId = tenantId,
                 UserId = userId,
                 CustomRoleId = custom.Id,
                 AssignedUtc = DateTimeOffset.UtcNow,
@@ -77,6 +78,64 @@ public sealed class PersistenceInMemoryStubCoverageTestsBatch5
         await sut.DeleteAsync(tenantId, custom.Id, CancellationToken.None);
 
         (await sut.TryGetAsync(tenantId, custom.Id, CancellationToken.None)).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task InMemoryCustomRoleRepository_isolates_assignments_by_tenant()
+    {
+        InMemoryCustomRoleRepository sut = new();
+        Guid tenantA = Guid.NewGuid();
+        Guid tenantB = Guid.NewGuid();
+        Guid userId = Guid.NewGuid();
+        Guid sharedRoleId = Guid.NewGuid();
+
+        CustomRoleRecord roleA = await sut.CreateAsync(
+            new CustomRoleRecord
+            {
+                Id = sharedRoleId,
+                TenantId = tenantA,
+                Name = "Tenant A reviewer",
+                Permissions = ["findings.read"],
+            },
+            CancellationToken.None);
+        CustomRoleRecord roleB = await sut.CreateAsync(
+            new CustomRoleRecord
+            {
+                Id = sharedRoleId,
+                TenantId = tenantB,
+                Name = "Tenant B reviewer",
+                Permissions = ["findings.read"],
+            },
+            CancellationToken.None);
+
+        await sut.AssignAsync(
+            new UserCustomRoleAssignmentRecord
+            {
+                TenantId = tenantA,
+                UserId = userId,
+                CustomRoleId = sharedRoleId,
+            },
+            CancellationToken.None);
+
+        (await sut.ListAssignmentsForUserAsync(tenantA, userId, CancellationToken.None))
+            .Should().ContainSingle(a => a.Role.Name == roleA.Name);
+        (await sut.ListAssignmentsForUserAsync(tenantB, userId, CancellationToken.None))
+            .Should().BeEmpty();
+
+        await sut.AssignAsync(
+            new UserCustomRoleAssignmentRecord
+            {
+                TenantId = tenantB,
+                UserId = userId,
+                CustomRoleId = sharedRoleId,
+            },
+            CancellationToken.None);
+        await sut.RemoveAssignmentAsync(tenantA, userId, sharedRoleId, CancellationToken.None);
+
+        (await sut.ListAssignmentsForUserAsync(tenantA, userId, CancellationToken.None))
+            .Should().BeEmpty();
+        (await sut.ListAssignmentsForUserAsync(tenantB, userId, CancellationToken.None))
+            .Should().ContainSingle(a => a.Role.Name == roleB.Name);
     }
 
     [Fact]

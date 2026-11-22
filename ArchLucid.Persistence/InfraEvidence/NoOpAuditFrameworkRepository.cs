@@ -12,17 +12,29 @@ public sealed class NoOpAuditFrameworkRepository : IAuditFrameworkRepository
         IReadOnlyDictionary<Guid, IReadOnlyDictionary<string, string>> metadataByControlId,
         IReadOnlyList<AuditEvidenceRequirementRecord> requirements,
         CancellationToken cancellationToken = default)
-        => Task.FromResult(new AuditFrameworkImportResult { Succeeded = true, FrameworkId = framework.FrameworkId });
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(new AuditFrameworkImportResult { Succeeded = true, FrameworkId = framework.FrameworkId });
+    }
 
     public Task<AuditFrameworkRecord?> TryGetByIdAsync(
         Guid tenantId,
         Guid frameworkId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<AuditFrameworkRecord?>(null);
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<AuditFrameworkRecord?>(null);
+    }
 
     public Task<IReadOnlyList<AuditControlRecord>> ListControlsAsync(
         Guid tenantId,
         Guid frameworkId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<AuditControlRecord>>(Array.Empty<AuditControlRecord>());
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<AuditControlRecord>>(Array.Empty<AuditControlRecord>());
+    }
 }

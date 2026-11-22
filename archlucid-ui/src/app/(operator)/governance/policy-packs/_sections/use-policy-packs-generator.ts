@@ -47,25 +47,17 @@ export function usePolicyPacksGenerator(
   );
 
   const setAuthoringAdvancedOpen = useCallback(
-    (value: boolean | ((prev: boolean) => boolean)) => {
-      setAuthoringAdvancedOpenState((prev) => {
-        const resolved = typeof value === "function" ? value(prev) : value;
-        syncAuthoringDisclosuresToUrl({ advancedOpen: resolved });
-
-        return resolved;
-      });
+    (open: boolean) => {
+      setAuthoringAdvancedOpenState(open);
+      syncAuthoringDisclosuresToUrl({ advancedOpen: open });
     },
     [syncAuthoringDisclosuresToUrl],
   );
 
   const setAuthoringToolsOpen = useCallback(
-    (value: boolean | ((prev: boolean) => boolean)) => {
-      setAuthoringToolsOpenState((prev) => {
-        const resolved = typeof value === "function" ? value(prev) : value;
-        syncAuthoringDisclosuresToUrl({ toolsOpen: resolved });
-
-        return resolved;
-      });
+    (open: boolean) => {
+      setAuthoringToolsOpenState(open);
+      syncAuthoringDisclosuresToUrl({ toolsOpen: open });
     },
     [syncAuthoringDisclosuresToUrl],
   );

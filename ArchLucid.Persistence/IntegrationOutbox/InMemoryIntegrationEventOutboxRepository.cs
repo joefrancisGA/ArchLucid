@@ -19,6 +19,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         Guid projectId,
         CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         return EnqueueCoreAsync(runId, eventType, messageId, payloadUtf8, tenantId, workspaceId, projectId);
     }
 
@@ -35,6 +37,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         IDbTransaction transaction,
         CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentNullException.ThrowIfNull(transaction);
 
@@ -69,6 +73,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     /// <inheritdoc />
     public Task<IReadOnlyList<IntegrationEventOutboxEntry>> DequeuePendingAsync(int maxBatch, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         int take = IntegrationEventOutboxRepositoryCore.ClampDequeueBatch(maxBatch);
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
@@ -86,6 +92,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     /// <inheritdoc />
     public Task MarkProcessedAsync(Guid outboxId, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         lock (_gate)
             _rows.RemoveAll(entry => entry.OutboxId == outboxId);
 
@@ -101,6 +109,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         string? lastErrorMessage,
         CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         lock (_gate)
         {
             int idx = _rows.FindIndex(entry => entry.OutboxId == outboxId);
@@ -122,6 +132,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     /// <inheritdoc />
     public Task<long> CountIntegrationOutboxPublishPendingAsync(CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         lock (_gate)
         {
             long count = _rows.LongCount(IntegrationEventOutboxRepositoryCore.IsPublishPending);
@@ -132,6 +144,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     /// <inheritdoc />
     public Task<long> CountIntegrationOutboxDeadLetterAsync(CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         lock (_gate)
         {
             long count = _rows.LongCount(IntegrationEventOutboxRepositoryCore.IsDeadLetter);
@@ -146,6 +160,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         int skip,
         CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         int take = IntegrationEventOutboxRepositoryCore.ClampDeadLetterRows(maxRows);
         int offset = IntegrationEventOutboxRepositoryCore.ClampDeadLetterSkip(skip);
 
@@ -166,6 +182,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     /// <inheritdoc />
     public Task<bool> ResetDeadLetterForRetryAsync(Guid outboxId, Guid? tenantId, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         lock (_gate)
         {
             int idx = _rows.FindIndex(
@@ -184,6 +202,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     /// <inheritdoc />
     public Task<bool> AcknowledgeDeadLetterAsync(Guid outboxId, Guid? tenantId, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         lock (_gate)
         {
             int idx = _rows.FindIndex(
@@ -206,6 +226,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         int maxRows,
         CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         int take = IntegrationEventOutboxRepositoryCore.ClampDeadLetterRows(maxRows);
         string? normalizedEventType = IntegrationEventOutboxRepositoryCore.NormalizeEventTypeFilter(eventType);
 
@@ -246,6 +268,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         Guid? tenantId,
         CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         lock (_gate)
         {
             IntegrationEventOutboxEntry? entry = _rows.FirstOrDefault(

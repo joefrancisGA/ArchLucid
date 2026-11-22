@@ -8,6 +8,8 @@ public sealed class InMemoryOutboxOperationalMetricsReader : IOutboxOperationalM
     /// <inheritdoc />
     public Task<OutboxOperationalMetricsSnapshot> ReadSnapshotAsync(CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         return Task.FromResult(Empty);
     }
 }

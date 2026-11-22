@@ -6,6 +6,7 @@ import { OperatorHomeContinueLastArchitectureSection } from "@/components/operat
 import { OperatorHomeContinueLastReviewPackageSection } from "@/components/operator-home/OperatorHomeContinueLastReviewPackageSection";
 import { OperatorHomeInFlightReviewsSection } from "@/components/operator-home/OperatorHomeInFlightReviewsSection";
 import { OperatorHomeWorkingOpenGateLine } from "@/components/operator-home/OperatorHomeWorkingOpenGateLine";
+import { OperatorHomeSecureNowCollectionBlockerStrip } from "@/components/operator-home/OperatorHomeSecureNowCollectionBlockerStrip";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { listIncompleteWizardSignals } from "@/lib/unfinished-work-rail";
@@ -61,6 +62,7 @@ export function OperatorHomeInFlightSection(props: OperatorHomeInFlightSectionPr
 
   return (
     <div className={OPERATOR_LAYOUT.sectionStack}>
+      <OperatorHomeSecureNowCollectionBlockerStrip workingMode={isWorkingMode} />
       <OperatorHomeWorkingOpenGateLine workingMode={isWorkingMode} />
       {resumePlan.showContinueLast && resumePlan.continueLastKind === "architecture" ? (
         <OperatorHomeContinueLastArchitectureSection buttonVariant={resumePlan.continueLastVariant} />

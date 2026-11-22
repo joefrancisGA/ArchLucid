@@ -82,6 +82,13 @@ import { REMEDIATION_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra
 import { REMEDIATION_WORKBENCH_WORKFLOW_HONESTY_LINE } from "@/lib/infra-evidence/remediation-workbench-workflow-honesty-copy";
 import { REMEDIATION_WORKBENCH_EXECUTE_ADVISORY_HONESTY_LINE } from "@/lib/infra-evidence/remediation-workbench-execute-advisory-honesty-copy";
 import { RemediationWorkbenchWavesEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchWavesEmptyPartialHonesty";
+import { RemediationWorkbenchStatusFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchStatusFilterEmptyPartialHonesty";
+import { RemediationWorkbenchWaveFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchWaveFilterEmptyPartialHonesty";
+import { RemediationWorkbenchCombinedFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchCombinedFilterEmptyPartialHonesty";
+import { RemediationWorkbenchActiveFiltersSummaryLine } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchActiveFiltersSummaryLine";
+import { REMEDIATION_WORKBENCH_STATUS_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/remediation-workbench-status-filter-empty-partial-capture-copy";
+import { REMEDIATION_WORKBENCH_WAVE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/remediation-workbench-wave-filter-empty-not-load-failure-copy";
+import { REMEDIATION_WORKBENCH_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/remediation-workbench-combined-filter-empty-not-load-failure-copy";
 import { REMEDIATION_WORKBENCH_EXECUTE_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/remediation-workbench-partial-capture-honesty-copy";
 import { SecureNowRemediationWorkbenchPartialCaptureStrip } from "@/components/product-line/SecureNowRemediationWorkbenchPartialCaptureStrip";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
@@ -115,7 +122,6 @@ import {
   canAttestChangeImplemented,
   canCloseRemediationInstance,
   canExecuteRemediationInstance,
-  canRunRemediationPreflight,
   canVerifyRemediationInstance,
   isRemediationTransitionBlocked,
   mapRemediationInstanceStatusToColumn,
@@ -138,6 +144,7 @@ import {
   REMEDIATION_WORKBENCH_RUN_ID_PARAM,
   REMEDIATION_WORKBENCH_SNAPSHOT_ID_PARAM,
   REMEDIATION_WORKBENCH_STATUS_PARAM,
+  REMEDIATION_WORKBENCH_WAVE_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { remediationInstanceMutationBlockedReason } from "@/lib/infra-evidence/remediation-instance-mutation-blocked-reason";
 import {
@@ -345,6 +352,7 @@ export function RemediationWorkbenchClient() {
     searchParams.get(REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM),
   );
   const urlStatus = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_STATUS_PARAM));
+  const urlWaveId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_WAVE_PARAM));
 
   const [instances, setInstances] = useState<RemediationInstanceSummary[]>([]);
   const [selectedInstanceId, setSelectedInstanceId] = useState(urlInstanceId);
@@ -354,6 +362,7 @@ export function RemediationWorkbenchClient() {
   } | null>(null);
   const detail = loadedDetail?.instanceId === selectedInstanceId ? loadedDetail.data : null;
   const detailRequestVersion = useRef(0);
+  const workbenchRequestVersion = useRef(0);
   const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState("");
   const [waves, setWaves] = useState<Array<{ waveId: string; name: string }>>([]);
@@ -373,10 +382,21 @@ export function RemediationWorkbenchClient() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
-  const visibleInstances = useMemo(
-    () => (urlStatus.length === 0 ? instances : instances.filter((instance) => instance.status === urlStatus)),
-    [instances, urlStatus],
-  );
+  const instancesAfterStatusFilter = useMemo(() => {
+    if (urlStatus.length === 0) {
+      return instances;
+    }
+
+    return instances.filter((instance) => instance.status === urlStatus);
+  }, [instances, urlStatus]);
+
+  const visibleInstances = useMemo(() => {
+    if (urlWaveId.length === 0) {
+      return instancesAfterStatusFilter;
+    }
+
+    return instancesAfterStatusFilter.filter((instance) => instance.waveId === urlWaveId);
+  }, [instancesAfterStatusFilter, urlWaveId]);
 
   const findingScopedInstance = useMemo(
     () => (urlFindingId.length > 0 ? visibleInstances[0] ?? null : null),
@@ -460,6 +480,7 @@ export function RemediationWorkbenchClient() {
   }, [auditScope, urlCloudResourceId, urlCorrespondenceId, urlReconcileRunId, urlReconcileSnapshotId]);
 
   const loadWorkbench = useCallback(async () => {
+    const requestVersion = ++workbenchRequestVersion.current;
     setLoading(true);
     setLoadError(null);
 
@@ -474,6 +495,10 @@ export function RemediationWorkbenchClient() {
         fetchRemediationWaves(),
         fetchInfraEvidenceSnapshots(1, 20),
       ]);
+
+      if (requestVersion !== workbenchRequestVersion.current) {
+        return;
+      }
 
       setInstances(instanceRows);
       setSummaryOpenFindings(summary.factoryMetrics.openFindings);
@@ -506,9 +531,13 @@ export function RemediationWorkbenchClient() {
 
       setLastRefreshedAt(new Date());
     } catch (error: unknown) {
-      setLoadError(formatRemediationWorkbenchApiError(error));
+      if (requestVersion === workbenchRequestVersion.current) {
+        setLoadError(formatRemediationWorkbenchApiError(error));
+      }
     } finally {
-      setLoading(false);
+      if (requestVersion === workbenchRequestVersion.current) {
+        setLoading(false);
+      }
     }
   }, [selectedSnapshotId, selectedWaveId, urlCloudResourceId, urlFindingId]);
 
@@ -1222,6 +1251,20 @@ export function RemediationWorkbenchClient() {
         </p>
       ) : (
         <>
+          {urlStatus.length > 0 && urlWaveId.length > 0 ? (
+            <RemediationWorkbenchActiveFiltersSummaryLine
+              statusLabel={(() => {
+                const parsedStatus = parseRemediationInstanceStatusFilter(urlStatus);
+
+                if (parsedStatus == null) {
+                  return urlStatus;
+                }
+
+                return remediationInstanceStatusLabel(parsedStatus);
+              })()}
+              waveId={urlWaveId}
+            />
+          ) : null}
           {urlStatus.length > 0 ? (
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-status-filter">
               {(() => {
@@ -1234,6 +1277,62 @@ export function RemediationWorkbenchClient() {
                 return `Showing remediation instances with status: ${remediationInstanceStatusLabel(parsedStatus)}.`;
               })()}
             </p>
+          ) : null}
+          {urlStatus.length > 0 && instances.length > 0 && instancesAfterStatusFilter.length === 0 ? (
+            <div className="space-y-2" data-testid="infra-remediation-status-filter-empty">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-status-filter-empty-not-failure">
+                {REMEDIATION_WORKBENCH_STATUS_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+              </p>
+              <Link
+                className="text-al-link hover:underline"
+                href={remediationWorkbenchHrefFromSearch(searchParams, { status: null })}
+                data-testid="infra-remediation-status-filter-clear"
+              >
+                Clear status filter
+              </Link>
+              {isSecureNowProductLine(productLine) ? <RemediationWorkbenchStatusFilterEmptyPartialHonesty /> : null}
+            </div>
+          ) : null}
+          {urlWaveId.length > 0 ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-wave-filter">
+              Showing remediation instances in wave {urlWaveId}.
+            </p>
+          ) : null}
+          {urlStatus.length > 0
+          && urlWaveId.length > 0
+          && instances.length > 0
+          && visibleInstances.length === 0 ? (
+            <div className="space-y-2" data-testid="infra-remediation-combined-filter-empty">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-combined-filter-empty-not-failure">
+                {REMEDIATION_WORKBENCH_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+              </p>
+              <Link
+                className="text-al-link hover:underline"
+                href={remediationWorkbenchHrefFromSearch(searchParams, { status: null, waveId: null })}
+                data-testid="infra-remediation-combined-filter-clear"
+              >
+                Clear status and wave filters
+              </Link>
+              {isSecureNowProductLine(productLine) ? <RemediationWorkbenchCombinedFilterEmptyPartialHonesty /> : null}
+            </div>
+          ) : null}
+          {urlWaveId.length > 0
+          && urlStatus.length === 0
+          && instancesAfterStatusFilter.length > 0
+          && visibleInstances.length === 0 ? (
+            <div className="space-y-2" data-testid="infra-remediation-wave-filter-empty">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-wave-filter-empty-not-failure">
+                {REMEDIATION_WORKBENCH_WAVE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+              </p>
+              <Link
+                className="text-al-link hover:underline"
+                href={remediationWorkbenchHrefFromSearch(searchParams, { waveId: null })}
+                data-testid="infra-remediation-wave-filter-clear"
+              >
+                Clear wave filter
+              </Link>
+              {isSecureNowProductLine(productLine) ? <RemediationWorkbenchWaveFilterEmptyPartialHonesty /> : null}
+            </div>
           ) : null}
           <section
             className="grid gap-3 xl:grid-cols-8"
@@ -1457,7 +1556,7 @@ export function RemediationWorkbenchClient() {
                   size="sm"
                   variant="primary"
                   data-testid="infra-remediation-preflight"
-                  disabled={actionBusy || transitionsBlocked || selectedStatus == null || !canRunRemediationPreflight(selectedStatus)}
+                  disabled={preflightBlockedReason !== null}
                   aria-describedby={preflightBlockedReason ? "infra-remediation-preflight-blocked-reason" : undefined}
                   onClick={() =>
                     void runLifecycleAction("preflight", () =>
@@ -1659,7 +1758,14 @@ export function RemediationWorkbenchClient() {
             {wavePlanner.map((wave) => (
               <li key={wave.waveId}>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  {formatRemediationWaveMembershipLine(wave.name, wave.memberCount)}
+                  {formatRemediationWaveMembershipLine(wave.name, wave.memberCount)}{" "}
+                  <Link
+                    className="text-al-link hover:underline"
+                    href={remediationWorkbenchHrefFromSearch(searchParams, { waveId: wave.waveId })}
+                    data-testid={`infra-remediation-wave-filter-link-${wave.waveId}`}
+                  >
+                    Filter board to this wave
+                  </Link>
                 </p>
                 {wave.targetSize != null ? (
                   <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{formatRemediationWaveCapLine(wave.targetSize)}</p>

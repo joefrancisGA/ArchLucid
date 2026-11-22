@@ -79,6 +79,24 @@ export function standardsRulesClearSearchHrefFromSearch(
   return standardsRulesSearchHrefFromSearch(currentSearch, "", pathname);
 }
 
+export function standardsRulesResetFiltersHrefFromSearch(
+  currentSearch: string,
+  pathname: string = GOVERNANCE_STANDARDS_AND_RULES_PATH,
+): string {
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+      params.delete(STANDARDS_RULES_SEARCH_PARAM);
+      params.delete(STANDARDS_RULES_SEVERITY_PARAM);
+      params.delete(STANDARDS_RULES_LINKED_FINDINGS_PARAM);
+      params.delete(STANDARDS_RULES_EVIDENCE_COVERAGE_PARAM);
+      params.delete(STANDARDS_RULES_ENFORCEMENT_PARAM);
+      params.delete(STANDARDS_RULES_FRAMEWORK_PARAM);
+      params.delete(STANDARDS_RULES_PACK_PARAM);
+    },
+  });
+}
+
 export function standardsRulesLinkedFindingsHrefFromSearch(
   currentSearch: string,
   linkedFindings: StandardsRulesLinkedFindingsFilter,

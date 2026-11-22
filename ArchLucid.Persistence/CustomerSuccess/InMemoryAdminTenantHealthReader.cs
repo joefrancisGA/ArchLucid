@@ -6,7 +6,7 @@ public sealed class InMemoryAdminTenantHealthReader : IAdminTenantHealthReader
 {
     public Task<IReadOnlyList<AdminTenantHealthSummaryRow>> ListSummariesAsync(CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult<IReadOnlyList<AdminTenantHealthSummaryRow>>([]);
     }

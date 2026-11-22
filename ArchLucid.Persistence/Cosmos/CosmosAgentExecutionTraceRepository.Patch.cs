@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
@@ -12,6 +13,8 @@ namespace ArchLucid.Persistence.Cosmos;
 
 public sealed partial class CosmosAgentExecutionTraceRepository
 {
+    private const int MaxTracePatchAttempts = 3;
+
     /// <inheritdoc />
     public async Task PatchBlobStorageFieldsAsync(
         string traceId,
@@ -84,58 +87,81 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         string definitionContentHashSha256,
         string gateMode,
         QualityGateRecordedEvaluationSnapshot? evaluationSnapshot,
-        CancellationToken cancellationToken = default)
-    {
-        AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
+        CancellationToken cancellationToken = default) =>
+        await PatchLoadedTraceIfChangedAsync(
+            traceId,
+            trace => AgentExecutionTraceQueryPatchCore.TryApplyQualityGateRecordedSnapshotPatch(
+                trace, recordedOutcome, definitionVersion, definitionContentHashSha256, gateMode, evaluationSnapshot),
+            cancellationToken);
 
-        if (trace is null)
-            return;
-
-        if (!AgentExecutionTraceQueryPatchCore.TryApplyQualityGateRecordedSnapshotPatch(
-                trace,
-                recordedOutcome,
-                definitionVersion,
-                definitionContentHashSha256,
-                gateMode,
-                evaluationSnapshot))
-        {
-            return;
-        }
-
-        await ReplaceTraceAsync(trace, cancellationToken);
-    }
-
-    private async Task PatchLoadedTraceAsync(
+    private Task PatchLoadedTraceAsync(
         string traceId,
         Action<AgentExecutionTrace> patch,
-        CancellationToken cancellationToken)
-    {
-        AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
+        CancellationToken cancellationToken) =>
+        PatchLoadedTraceIfChangedAsync(
+            traceId,
+            trace =>
+            {
+                patch(trace);
+                return true;
+            },
+            cancellationToken);
 
-        if (trace is null)
+    private async Task PatchLoadedTraceIfChangedAsync(
+        string traceId, Func<AgentExecutionTrace, bool> patch, CancellationToken ct)
+    {
+        AgentTraceDocument? located = await FindDocumentByTraceIdAsync(traceId, ct);
+
+        if (located is null)
             return;
-
-        patch(trace);
-        await ReplaceTraceAsync(trace, cancellationToken);
-    }
-
-    private async Task ReplaceTraceAsync(AgentExecutionTrace trace, CancellationToken ct)
-    {
-        ArgumentNullException.ThrowIfNull(trace);
 
         Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
         CosmosDbOptions opts = _optionsMonitor.CurrentValue;
         int? ttl = opts.AgentTraceTtlSeconds > 0 ? opts.AgentTraceTtlSeconds : null;
-        string json = JsonSerializer.Serialize(trace, ContractJson.Default);
-        AgentTraceDocument doc = CosmosAgentTraceDocumentMapper.BuildDocument(trace, json, ttl);
 
-        await container.ReplaceItemAsync(doc, trace.TraceId, new PartitionKey(trace.RunId), cancellationToken: ct);
+        await PatchDocumentAsync(container, located.Id, new PartitionKey(located.RunId), ttl, patch, ct);
     }
 
-    private async Task<AgentExecutionTrace?> LoadTraceAsync(string traceId, CancellationToken ct)
+    internal static async Task PatchDocumentAsync(
+        Container container,
+        string id,
+        PartitionKey partitionKey,
+        int? ttl,
+        Func<AgentExecutionTrace, bool> patch,
+        CancellationToken ct)
     {
-        AgentTraceDocument? doc = await FindDocumentByTraceIdAsync(traceId, ct);
+        for (int attempt = 1; ; attempt++)
+        {
+            ItemResponse<AgentTraceDocument> current;
 
-        return doc is null ? null : CosmosAgentTraceDocumentMapper.Deserialize(doc);
+            try
+            {
+                current = await container.ReadItemAsync<AgentTraceDocument>(id, partitionKey, cancellationToken: ct);
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                return;
+            }
+
+            AgentExecutionTrace trace = CosmosAgentTraceDocumentMapper.Deserialize(current.Resource);
+
+            if (!patch(trace))
+                return;
+
+            string json = JsonSerializer.Serialize(trace, ContractJson.Default);
+            AgentTraceDocument updated = CosmosAgentTraceDocumentMapper.BuildDocument(trace, json, ttl);
+
+            try
+            {
+                await container.ReplaceItemAsync(
+                    updated, id, partitionKey, new ItemRequestOptions { IfMatchEtag = current.ETag }, ct);
+                return;
+            }
+            catch (CosmosException ex) when (
+                ex.StatusCode == HttpStatusCode.PreconditionFailed && attempt < MaxTracePatchAttempts)
+            {
+                // Reapply this patch to the document written by the competing update.
+            }
+        }
     }
 }

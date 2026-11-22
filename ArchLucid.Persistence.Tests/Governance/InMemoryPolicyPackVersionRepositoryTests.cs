@@ -7,6 +7,29 @@ namespace ArchLucid.Persistence.Tests.Governance;
 public sealed class InMemoryPolicyPackVersionRepositoryTests
 {
     [SkippableFact]
+    public async Task Mutating_input_or_read_result_does_not_modify_storage()
+    {
+        InMemoryPolicyPackVersionRepository repository = new();
+        PolicyPackVersion version = new()
+        {
+            PolicyPackId = Guid.NewGuid(),
+            Version = "1.0.0",
+            ContentJson = "{}",
+        };
+
+        await repository.CreateAsync(version, CancellationToken.None);
+        version.ContentJson = "changed input";
+        PolicyPackVersion? fetched = await repository.GetByPackAndVersionAsync(
+            version.PolicyPackId, version.Version, CancellationToken.None);
+        fetched!.ContentJson.Should().Be("{}");
+
+        fetched.ContentJson = "changed result";
+        PolicyPackVersion? reread = await repository.GetByPackAndVersionAsync(
+            version.PolicyPackId, version.Version, CancellationToken.None);
+        reread!.ContentJson.Should().Be("{}");
+    }
+
+    [SkippableFact]
     public async Task CreateAsync_null_throws()
     {
         InMemoryPolicyPackVersionRepository sut = new();
@@ -192,5 +215,36 @@ public sealed class InMemoryPolicyPackVersionRepositoryTests
         list[0].ContentJson.Should().BeEmpty();
         detail.Should().NotBeNull();
         detail!.ContentJson.Should().Be(body);
+    }
+    [SkippableFact]
+    public async Task UpdateAsync_preserves_version_identity_and_creation_time()
+    {
+        InMemoryPolicyPackVersionRepository sut = new();
+        Guid packId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        PolicyPackVersion stored = new()
+        {
+            PolicyPackId = packId,
+            Version = "1.0.0",
+            ContentJson = "{}",
+            CreatedUtc = createdUtc,
+        };
+        await sut.CreateAsync(stored, CancellationToken.None);
+
+        await sut.UpdateAsync(new PolicyPackVersion
+        {
+            PolicyPackVersionId = stored.PolicyPackVersionId,
+            PolicyPackId = Guid.NewGuid(),
+            Version = "2.0.0",
+            ContentJson = "{\"updated\":true}",
+            CreatedUtc = createdUtc.AddDays(1),
+            IsPublished = true,
+        }, CancellationToken.None);
+
+        PolicyPackVersion? found = await sut.GetByPackAndVersionAsync(packId, "1.0.0", CancellationToken.None);
+        found.Should().NotBeNull();
+        found!.CreatedUtc.Should().Be(createdUtc);
+        found.ContentJson.Should().Be("{\"updated\":true}");
+        found.IsPublished.Should().BeTrue();
     }
 }

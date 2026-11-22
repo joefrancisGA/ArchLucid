@@ -178,6 +178,7 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
             .OrderBy(change => change.AzureResourceId, StringComparer.Ordinal)
             .ThenBy(change => change.ChangeType)
             .ThenBy(change => change.Property, StringComparer.Ordinal)
+            .ThenBy(change => change.ChangeId)
             .ToList();
 
         return PagedResponseBuilder.Build(orderedChanges, page, pageSize);

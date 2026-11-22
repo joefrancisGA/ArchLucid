@@ -84,6 +84,10 @@ public static class WebhookSecrets
         if (!TryParseWholeNumberLong(unixSecondsRaw.Trim(), out long unix))
             return false;
 
+        if (unix < DateTimeOffset.MinValue.ToUnixTimeSeconds()
+            || unix > DateTimeOffset.MaxValue.ToUnixTimeSeconds())
+            return false;
+
         DateTimeOffset payload = DateTimeOffset.FromUnixTimeSeconds(unix);
         double deltaSeconds = Math.Abs((utcNow - payload).TotalSeconds);
 

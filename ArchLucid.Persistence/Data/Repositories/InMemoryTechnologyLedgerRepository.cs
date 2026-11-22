@@ -79,7 +79,10 @@ public sealed class InMemoryTechnologyLedgerRepository : ITechnologyLedgerReposi
             if (i < 0)
                 return Task.CompletedTask;
 
-            _items[i] = Clone(entry);
+            TechnologyLedgerEntry updated = Clone(entry);
+            updated.RunId = _items[i].RunId;
+            updated.CreatedUtc = _items[i].CreatedUtc;
+            _items[i] = updated;
         }
 
         return Task.CompletedTask;

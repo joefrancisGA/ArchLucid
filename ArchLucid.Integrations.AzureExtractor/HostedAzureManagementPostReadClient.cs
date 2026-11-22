@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Integrations.AzureExtractor;
 
-public sealed class HostedAzureManagementPostReadClient(
+public sealed partial class HostedAzureManagementPostReadClient(
     HttpClient httpClient,
     ILogger<HostedAzureManagementPostReadClient> logger) : IHostedAzureManagementPostReadClient
 {

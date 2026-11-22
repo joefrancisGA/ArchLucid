@@ -24,6 +24,29 @@ public sealed class InMemoryAlertRecordRepositoryTests
         ProjectId = ProjectId,
     };
 
+    [Fact]
+    public async Task Alert_actions_change_saved_state_only_after_update()
+    {
+        InMemoryAlertRecordRepository repo = new();
+        Guid alertId = Guid.NewGuid();
+        AlertRecord alert = BuildAlert(alertId, AlertStatus.Open, BaseUtc, "dedup");
+        await repo.CreateAsync(alert, CancellationToken.None);
+        alert.Status = AlertStatus.Resolved;
+
+        AlertRecord pending = (await repo.GetByIdAsync(Scope, alertId, CancellationToken.None))!;
+        Assert.Equal(AlertStatus.Open, pending.Status);
+        pending.Status = AlertStatus.Acknowledged;
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            repo.UpdateAsync(pending, new CancellationToken(canceled: true)));
+        Assert.Equal(AlertStatus.Open, (await repo.GetByIdAsync(Scope, alertId, CancellationToken.None))?.Status);
+
+        await repo.ArchiveAsync(Scope, alertId, CancellationToken.None);
+        await repo.UpdateAsync(pending, CancellationToken.None);
+        AlertRecord saved = (await repo.GetByIdAsync(Scope, alertId, CancellationToken.None))!;
+        Assert.Equal(AlertStatus.Acknowledged, saved.Status);
+        Assert.True(saved.IsArchived);
+    }
+
     [SkippableFact]
     public async Task CreateAsync_then_GetByIdAsync_returns_same_row()
     {
@@ -85,7 +108,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
     }
 
     [SkippableFact]
-    public async Task UpdateAsync_replaces_existing_alert_by_AlertId()
+    public async Task UpdateAsync_changes_only_lifecycle_fields()
     {
         InMemoryAlertRecordRepository repo = new();
         Guid alertId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
@@ -100,7 +123,8 @@ public sealed class InMemoryAlertRecordRepositoryTests
         AlertRecord? loaded = await repo.GetByIdAsync(Scope, alertId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Status.Should().Be(AlertStatus.Resolved);
-        loaded.Title.Should().Be("updated");
+        loaded.Title.Should().Be(original.Title);
+        loaded.CreatedUtc.Should().Be(original.CreatedUtc);
     }
 
     [SkippableFact]

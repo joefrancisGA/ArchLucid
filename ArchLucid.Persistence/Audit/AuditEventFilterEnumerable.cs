@@ -1,3 +1,5 @@
+using System.Data.SqlTypes;
+
 using ArchLucid.Core.Audit;
 
 namespace ArchLucid.Persistence.Audit;
@@ -56,7 +58,7 @@ public static class AuditEventFilterEnumerable
                 Guid beforeEid = filter.BeforeEventId.Value;
                 query = query.Where(x =>
                     x.OccurredUtc < beforeUtc
-                    || (x.OccurredUtc == beforeUtc && x.EventId.CompareTo(beforeEid) < 0));
+                    || (x.OccurredUtc == beforeUtc && new SqlGuid(x.EventId).CompareTo(new SqlGuid(beforeEid)) < 0));
             }
             else
             {

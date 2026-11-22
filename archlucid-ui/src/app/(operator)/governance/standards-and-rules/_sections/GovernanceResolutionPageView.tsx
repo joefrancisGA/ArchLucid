@@ -51,7 +51,6 @@ import { buildPolicyPacksImpactPreviewHref } from "@/lib/policy-packs-review-han
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { STANDARDS_RULES_CLAIM_DISCIPLINE } from "@/lib/standards-rules-evidence-copy";
-import { EMPTY_STANDARDS_RULES_FILTER_STATE } from "@/lib/standards-rules-rows";
 import {
   STANDARDS_RULES_FILTER_NO_MATCH_BODY,
   STANDARDS_RULES_FILTER_NO_MATCH_TITLE,
@@ -73,10 +72,12 @@ import { GovernanceStandardsRulesNextReviewFooterClient } from "./GovernanceStan
 import { StandardsRulesPickReviewBeforeResolvingStrip } from "./StandardsRulesPickReviewBeforeResolvingStrip";
 import { StandardsRulesReviewContextRow } from "./StandardsRulesReviewContextRow";
 import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
+import { StandardsRulesFilterPartialHonesty } from "./StandardsRulesFilterPartialHonesty";
 import { StandardsRulesTable } from "./StandardsRulesTable";
 import { StandardsRulesTableSkeleton } from "./StandardsRulesTableSkeleton";
 import { StandardsRulesBuyerChrome } from "./StandardsRulesBuyerChrome";
 import { StandardsRulesContextStrip } from "./StandardsRulesContextStrip";
+import { StandardsRulesWorkingRulesSection } from "./StandardsRulesWorkingRulesSection";
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
 import { useGovernanceResolutionRows } from "./use-governance-resolution-rows";
 
@@ -266,9 +267,7 @@ export function GovernanceResolutionPageView(props: Props) {
               totalCount={rows.allRuleRows.length}
               options={rows.filterOptions}
               onChange={rows.setFilters}
-              onReset={() => {
-                rows.setFilters(EMPTY_STANDARDS_RULES_FILTER_STATE);
-              }}
+              onReset={rows.resetFilters}
               onRefresh={() => {
                 void m.load();
               }}
@@ -297,12 +296,11 @@ export function GovernanceResolutionPageView(props: Props) {
                       variant="outline"
                       size="sm"
                       data-testid="standards-rules-clear-filters"
-                      onClick={() => {
-                        rows.setFilters(EMPTY_STANDARDS_RULES_FILTER_STATE);
-                      }}
+                      onClick={rows.resetFilters}
                     >
                       {STANDARDS_RULES_RESET_FILTERS}
                     </Button>
+                    <StandardsRulesFilterPartialHonesty />
                   </div>
                 }
               />
@@ -475,8 +473,18 @@ export function GovernanceResolutionPageView(props: Props) {
               {STANDARDS_RULES_LOAD_RETRY_LABEL}
             </Button>
             <OperatorErrorRecoveryContract presentation={loadRecovery} />
+            {productLine === "security" ? (
+              <FatalPageReportProblemSupportRow
+                surfaceId="compliance-standards-rules-hard-failure"
+                errorTitle={standardsPageTitle}
+                errorCode="standards-rules-load-failed"
+                correlationId={null}
+                httpStatus={null}
+              />
+            ) : null}
           </div>
         ) : null}
+        {m.failure === null ? <StandardsRulesWorkingRulesSection model={m} rows={rows} /> : null}
         {m.failure === null ? <GovernanceResolutionOperatorDiagnostics model={m} /> : null}
         {rows.scopedRunFilterActive ? (
           <GovernanceStandardsRulesNextReviewFooterClient runId={rows.scopedRunId} />

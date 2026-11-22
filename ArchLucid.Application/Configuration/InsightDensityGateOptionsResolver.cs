@@ -135,6 +135,7 @@ public sealed class InsightDensityGateOptionsResolver(
             PreferHighVerificationEngines = source.PreferHighVerificationEngines,
             VerificationPriorMinSample = source.VerificationPriorMinSample,
             VerificationPriorWindowDays = source.VerificationPriorWindowDays,
+            PreferHighHumanAcceptResidual = source.PreferHighHumanAcceptResidual,
         };
     }
 }

@@ -143,6 +143,25 @@ describe("RiskExceptionsClient", () => {
     expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
   });
 
+  it("renders an empty state when the selected review has no matching exceptions", async () => {
+    vi.mocked(governanceApi.listRiskExceptions).mockResolvedValue([
+      {
+        riskExceptionId: "11111111-1111-1111-1111-111111111111",
+        findingId: "finding-other-review",
+        ownerUserId: "owner@contoso.com",
+        rationale: "Exception belongs to a different review.",
+        expiresAtUtc: laterExpiry,
+        status: "Active",
+        runId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      },
+    ]);
+
+    render(<RiskExceptionsClient />);
+
+    expect(await screen.findByTestId("risk-exceptions-empty-state")).toBeInTheDocument();
+    expect(screen.queryByRole("table", { name: "Risk exceptions" })).not.toBeInTheDocument();
+  });
+
   it("renders layer guidance outside buyer shell", async () => {
     vi.mocked(governanceApi.listRiskExceptions).mockResolvedValue([]);
 

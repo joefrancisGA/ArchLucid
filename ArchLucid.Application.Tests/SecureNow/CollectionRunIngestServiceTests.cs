@@ -258,8 +258,10 @@ public sealed class CollectionRunIngestServiceTests
         importer.Invocations.Should().BeEmpty();
     }
 
-    [Fact]
-    public async Task RunningManifestRejectsWithoutImport()
+    [Theory]
+    [InlineData("Running")]
+    [InlineData(null)]
+    public async Task NonterminalOrMissingManifestStatusRejectsWithoutImport(string? status)
     {
         Guid runId = Guid.NewGuid();
         Mock<ICollectionRunRepository> repository = CreateRepository(false);
@@ -276,7 +278,7 @@ public sealed class CollectionRunIngestServiceTests
                 RunId = runId,
                 AgentVersion = "test",
                 StartedUtc = DateTime.UtcNow,
-                Status = "Running",
+                Status = status!,
                 SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
             },
             ZipBytes = [1, 2, 3],
@@ -287,6 +289,7 @@ public sealed class CollectionRunIngestServiceTests
         result.Status.Should().Be(CollectionRunStatus.Rejected);
         result.ErrorSummary.Should().Contain("importable terminal status");
         importer.Invocations.Should().BeEmpty();
+        repository.Verify(store => store.UpsertAsync(result, CancellationToken.None), Times.Once);
     }
 
     [Fact]

@@ -80,6 +80,13 @@ public sealed class ProjectScopedRemediationInstanceRepositoryAdapter(
     public Task InsertEvidenceInScopeAsync(ProjectScopeKey scope, RemediationEvidenceRecord evidence, CancellationToken cancellationToken = default) =>
         inner.InsertEvidenceInScopeAsync(scope, evidence, cancellationToken);
 
+    public Task CommitVerificationInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceMutation mutation,
+        RemediationEvidenceRecord evidence,
+        CancellationToken cancellationToken = default) =>
+        inner.CommitVerificationInScopeAsync(scope, mutation, evidence, cancellationToken);
+
     public Task UpdateInScopeAsync(ProjectScopeKey scope, RemediationInstanceMutation mutation, CancellationToken cancellationToken = default) =>
         inner.UpdateInstanceInScopeAsync(scope, mutation, cancellationToken);
 

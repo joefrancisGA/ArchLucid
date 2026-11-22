@@ -69,6 +69,10 @@ public sealed class QuickScanSafetyOperationalStateProvider(
 
             return BuildSnapshot(options, runtimeOverride, storeHealthy: true);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Quick Scan operational override store is unavailable.");

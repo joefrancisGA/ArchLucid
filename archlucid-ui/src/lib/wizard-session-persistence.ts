@@ -85,6 +85,7 @@ export function writeWizardSessionSnapshot<TState>(
     readonly stepIndex: number;
     readonly state: TState;
   },
+  options?: { readonly requireSessionStorage?: boolean },
 ): string {
   const savedAtUtc = new Date().toISOString();
   const snapshot: WizardSessionSnapshot<TState> = {
@@ -94,11 +95,15 @@ export function writeWizardSessionSnapshot<TState>(
     savedAtUtc,
   };
 
-  if (typeof window !== "undefined") {
-    try {
-      window.sessionStorage.setItem(buildWizardSessionStorageKey(wizardId), JSON.stringify(snapshot));
-    } catch {
-      /* private/restricted storage */
+  try {
+    if (typeof window === "undefined") {
+      throw new Error("Browser session storage is unavailable.");
+    }
+
+    window.sessionStorage.setItem(buildWizardSessionStorageKey(wizardId), JSON.stringify(snapshot));
+  } catch (error) {
+    if (options?.requireSessionStorage === true) {
+      throw error;
     }
   }
 

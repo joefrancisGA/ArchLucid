@@ -95,4 +95,23 @@ describe("AWS connection live panels (TB-1762)", () => {
     expect(within(connectionSection).getByRole("status")).toBeInTheDocument();
     expect(screen.getAllByRole("status")).toHaveLength(1);
   });
+
+  it("keeps the successful collection result when connection details cannot refresh", async () => {
+    const { listAwsTier2Connections } = await import("@/lib/api/aws-cloud-connections-api");
+
+    render(
+      <AwsConnectionDataProvider>
+        <AwsConnectionSection embedded />
+      </AwsConnectionDataProvider>,
+    );
+
+    const repoll = await screen.findByTestId("aws-repoll-conn-1");
+    vi.mocked(listAwsTier2Connections).mockRejectedValueOnce(new Error("refresh unavailable"));
+    fireEvent.click(repoll);
+
+    const section = within(screen.getByTestId("cloud-connections-available-aws"));
+    expect(await section.findByRole("status")).toHaveTextContent("pkg-1");
+    expect(await section.findByRole("alert")).toHaveTextContent(/could not refresh connection details/i);
+    expect(repoll).toBeEnabled();
+  });
 });

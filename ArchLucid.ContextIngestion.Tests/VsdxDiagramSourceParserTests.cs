@@ -96,6 +96,24 @@ public sealed class VsdxDiagramSourceParserTests
         result.Model.Edges.Should().BeEmpty();
     }
 
+    [Fact]
+    public void Parse_OversizedPageXml_IsRejectedBeforeMaterialization()
+    {
+        string oversizedPageXml = new('x', 4_000_001);
+        byte[] packageBytes = BuildMinimalVsdxPackage(oversizedPageXml);
+
+        DiagramParseResult result = this.parser.Parse(new DiagramSourceReference
+        {
+            Name = "oversized.vsdx",
+            Format = DiagramSourceFormats.Vsdx,
+            Content = Convert.ToBase64String(packageBytes),
+        });
+
+        result.Model.Nodes.Should().BeEmpty();
+        result.Warnings.Should().Contain(warning =>
+            warning.Contains("Rejected oversized Visio page XML entry", StringComparison.Ordinal));
+    }
+
     private static byte[] BuildMinimalVsdxPackage(string pageXml)
     {
         using MemoryStream stream = new();

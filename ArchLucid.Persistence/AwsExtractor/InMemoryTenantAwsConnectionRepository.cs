@@ -12,6 +12,8 @@ public sealed class InMemoryTenantAwsConnectionRepository : ITenantAwsConnection
     private readonly ConcurrentDictionary<(Guid TenantId, string AccountId), Guid> _connectionIdByAccount =
         new();
 
+    private readonly Lock _sync = new();
+
     public Task<TenantAwsConnectionRecord?> TryGetAsync(
         Guid tenantId,
         Guid connectionId,
@@ -31,37 +33,54 @@ public sealed class InMemoryTenantAwsConnectionRepository : ITenantAwsConnection
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_connectionIdByAccount.TryGetValue((tenantId, accountId.Trim()), out Guid connectionId))
-            return Task.FromResult<TenantAwsConnectionRecord?>(null);
+        lock (_sync)
+        {
+            if (!_connectionIdByAccount.TryGetValue((tenantId, accountId.Trim()), out Guid connectionId))
+                return Task.FromResult<TenantAwsConnectionRecord?>(null);
 
-        _byConnection.TryGetValue((tenantId, connectionId), out TenantAwsConnectionRecord? record);
+            _byConnection.TryGetValue((tenantId, connectionId), out TenantAwsConnectionRecord? record);
 
-        return Task.FromResult(record);
+            return Task.FromResult(record);
+        }
     }
 
     public Task UpsertAsync(TenantAwsConnectionRecord record, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        Guid connectionId = record.ConnectionId == Guid.Empty ? Guid.NewGuid() : record.ConnectionId;
         string accountId = record.AccountId.Trim();
+        var accountKey = (record.TenantId, accountId);
 
-        TenantAwsConnectionRecord stored = new()
+        lock (_sync)
         {
-            ConnectionId = connectionId,
-            TenantId = record.TenantId,
-            AccountId = accountId,
-            Region = record.Region.Trim(),
-            RoleArn = record.RoleArn.Trim(),
-            Status = record.Status,
-            LastPolledUtc = record.LastPolledUtc,
-            CreatedUtc = record.CreatedUtc == default ? TimeProvider.System.GetUtcNow() : record.CreatedUtc,
-            UpdatedUtc = TimeProvider.System.GetUtcNow(),
-            UpdatedByActorId = record.UpdatedByActorId
-        };
+            TenantAwsConnectionRecord? existing = null;
+            if (_connectionIdByAccount.TryGetValue(accountKey, out Guid existingId))
+                _byConnection.TryGetValue((record.TenantId, existingId), out existing);
 
-        _byConnection[(record.TenantId, connectionId)] = stored;
-        _connectionIdByAccount[(record.TenantId, accountId)] = connectionId;
+            Guid connectionId = existing?.ConnectionId
+                ?? (record.ConnectionId == Guid.Empty ? Guid.NewGuid() : record.ConnectionId);
+            var connectionKey = (record.TenantId, connectionId);
+            if (existing is null && _byConnection.ContainsKey(connectionKey))
+                throw new InvalidOperationException($"AWS connection '{connectionId}' already belongs to another account.");
+
+            DateTimeOffset now = TimeProvider.System.GetUtcNow();
+            TenantAwsConnectionRecord stored = new()
+            {
+                ConnectionId = connectionId,
+                TenantId = record.TenantId,
+                AccountId = accountId,
+                Region = record.Region.Trim(),
+                RoleArn = record.RoleArn.Trim(),
+                Status = record.Status,
+                LastPolledUtc = record.LastPolledUtc,
+                CreatedUtc = existing?.CreatedUtc ?? (record.CreatedUtc == default ? now : record.CreatedUtc),
+                UpdatedUtc = now,
+                UpdatedByActorId = record.UpdatedByActorId
+            };
+
+            _byConnection[connectionKey] = stored;
+            _connectionIdByAccount[accountKey] = connectionId;
+        }
 
         return Task.CompletedTask;
     }
@@ -76,27 +95,30 @@ public sealed class InMemoryTenantAwsConnectionRepository : ITenantAwsConnection
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byConnection.TryGetValue((tenantId, connectionId), out TenantAwsConnectionRecord? existing)
-            || existing is null)
+        lock (_sync)
         {
-            return Task.CompletedTask;
+            if (!_byConnection.TryGetValue((tenantId, connectionId), out TenantAwsConnectionRecord? existing)
+                || existing is null)
+            {
+                return Task.CompletedTask;
+            }
+
+            TenantAwsConnectionRecord updated = new()
+            {
+                ConnectionId = existing.ConnectionId,
+                TenantId = existing.TenantId,
+                AccountId = existing.AccountId,
+                Region = existing.Region,
+                RoleArn = existing.RoleArn,
+                Status = status,
+                LastPolledUtc = lastPolledUtc ?? existing.LastPolledUtc,
+                CreatedUtc = existing.CreatedUtc,
+                UpdatedUtc = TimeProvider.System.GetUtcNow(),
+                UpdatedByActorId = updatedByActorId
+            };
+
+            _byConnection[(tenantId, connectionId)] = updated;
         }
-
-        TenantAwsConnectionRecord updated = new()
-        {
-            ConnectionId = existing.ConnectionId,
-            TenantId = existing.TenantId,
-            AccountId = existing.AccountId,
-            Region = existing.Region,
-            RoleArn = existing.RoleArn,
-            Status = status,
-            LastPolledUtc = lastPolledUtc ?? existing.LastPolledUtc,
-            CreatedUtc = existing.CreatedUtc,
-            UpdatedUtc = TimeProvider.System.GetUtcNow(),
-            UpdatedByActorId = updatedByActorId
-        };
-
-        _byConnection[(tenantId, connectionId)] = updated;
 
         return Task.CompletedTask;
     }
@@ -105,10 +127,13 @@ public sealed class InMemoryTenantAwsConnectionRepository : ITenantAwsConnection
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (_byConnection.TryRemove((tenantId, connectionId), out TenantAwsConnectionRecord? removed)
-            && removed is not null)
+        lock (_sync)
         {
-            _connectionIdByAccount.TryRemove((tenantId, removed.AccountId), out _);
+            if (_byConnection.TryRemove((tenantId, connectionId), out TenantAwsConnectionRecord? removed)
+                && removed is not null)
+            {
+                _connectionIdByAccount.TryRemove((tenantId, removed.AccountId), out _);
+            }
         }
 
         return Task.CompletedTask;

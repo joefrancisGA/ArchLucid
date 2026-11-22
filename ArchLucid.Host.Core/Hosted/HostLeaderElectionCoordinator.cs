@@ -165,11 +165,21 @@ public sealed class HostLeaderElectionCoordinator(
                 if (leaderCts.IsCancellationRequested)
                     return;
 
-                bool renewed = await _leaseRepository.TryAcquireOrRenewAsync(
-                    leaseName,
-                    id,
-                    leaseDurationSeconds,
-                    applicationStoppingToken);
+                bool renewed;
+
+                try
+                {
+                    renewed = await _leaseRepository.TryAcquireOrRenewAsync(
+                        leaseName,
+                        id,
+                        leaseDurationSeconds,
+                        applicationStoppingToken);
+                }
+                catch (Exception) when (!applicationStoppingToken.IsCancellationRequested)
+                {
+                    // A failed renewal cannot establish continued ownership.
+                    renewed = false;
+                }
 
                 if (renewed)
                     continue;

@@ -119,6 +119,9 @@ internal static partial class GraphSnapshotRelationalRead
                     && !string.IsNullOrWhiteSpace(fromJson.ReasoningTrace))
                     edge.ReasoningTrace = fromJson.ReasoningTrace;
 
+                edge.ProvenanceKind = fromJson.ProvenanceKind;
+                edge.DeclaredConnectionId = fromJson.DeclaredConnectionId;
+
                 if (edge.Properties.Count == 0 && fromJson.Properties.Count > 0)
                     edge.Properties = new Dictionary<string, string>(fromJson.Properties, StringComparer.OrdinalIgnoreCase);
             }

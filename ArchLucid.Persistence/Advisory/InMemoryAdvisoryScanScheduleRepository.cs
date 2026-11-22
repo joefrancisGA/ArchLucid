@@ -20,10 +20,13 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            if (_items.Exists(item => item.ScheduleId == schedule.ScheduleId))
+                throw new InvalidOperationException($"The advisory scan schedule '{schedule.ScheduleId}' already exists.");
+
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 
-            _items.Add(schedule);
+            _items.Add(Copy(schedule));
         }
 
         return Task.CompletedTask;
@@ -37,7 +40,11 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
         {
             int i = _items.FindIndex(x => x.ScheduleId == schedule.ScheduleId && SameScope(x, schedule));
             if (i >= 0)
-                _items[i] = schedule;
+            {
+                AdvisoryScanSchedule updated = Copy(schedule);
+                updated.CreatedUtc = _items[i].CreatedUtc;
+                _items[i] = updated;
+            }
         }
 
         return Task.CompletedTask;
@@ -59,6 +66,7 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
                     s.NextRunUtc <= utcNow)
                 .OrderBy(s => s.NextRunUtc)
                 .Take(n)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<AdvisoryScanSchedule>>(result);
@@ -81,6 +89,8 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
                     s.WorkspaceId == workspaceId &&
                     s.ProjectId == projectId)
                 .OrderByDescending(s => s.CreatedUtc)
+                .Take(200)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<AdvisoryScanSchedule>>(result);
@@ -93,8 +103,26 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x => x.ScheduleId == scheduleId && MatchesScope(x, scope)));
+        {
+            AdvisoryScanSchedule? schedule = _items.FirstOrDefault(x => x.ScheduleId == scheduleId && MatchesScope(x, scope));
+            return Task.FromResult(schedule is null ? null : Copy(schedule));
+        }
     }
+
+    private static AdvisoryScanSchedule Copy(AdvisoryScanSchedule schedule) => new()
+    {
+        ScheduleId = schedule.ScheduleId,
+        TenantId = schedule.TenantId,
+        WorkspaceId = schedule.WorkspaceId,
+        ProjectId = schedule.ProjectId,
+        RunProjectSlug = schedule.RunProjectSlug,
+        Name = schedule.Name,
+        CronExpression = schedule.CronExpression,
+        IsEnabled = schedule.IsEnabled,
+        CreatedUtc = schedule.CreatedUtc,
+        LastRunUtc = schedule.LastRunUtc,
+        NextRunUtc = schedule.NextRunUtc,
+    };
 
     private static bool MatchesScope(AdvisoryScanSchedule schedule, ScopeContext scope) =>
         schedule.TenantId == scope.TenantId &&

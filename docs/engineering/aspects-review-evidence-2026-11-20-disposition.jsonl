@@ -1,0 +1,1 @@
+{"baseline":"d9eba923849793e71ea3c23086b5d69d2c4700ec","blob":"d805c4c1b8d76c0487a47edf79757d0e54ddf8dd","path":"ArchLucid.Application/Governance/RiskExceptionDispositionGuard.cs","spans":[[1,3],[5,5],[7,7],[9,19],[21,22],[24,25],[27,30],[32,32],[34,40],[42,48],[50,52]],"defect_id":"ASPECTS-7444","verified":true}

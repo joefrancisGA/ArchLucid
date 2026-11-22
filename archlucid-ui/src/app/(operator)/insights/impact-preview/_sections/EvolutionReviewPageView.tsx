@@ -127,11 +127,7 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
   }
 
   const selectedRun =
-    m.detail !== null
-      ? (m.detail.simulationRuns ?? []).find((run) => run.baselineArchitectureRunId === m.selectedBaselineId) ??
-        (m.detail.simulationRuns ?? [])[0] ??
-        null
-      : null;
+    m.detail?.simulationRuns?.find((run) => run.baselineArchitectureRunId === m.selectedBaselineId) ?? null;
 
   const hasSimulationResults = selectedRun !== null;
   const summaryMetrics = resolveImpactPreviewSummaryMetrics(selectedRun, m.planSnapshot);

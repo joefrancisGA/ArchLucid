@@ -166,6 +166,21 @@ describe("buildRecurrenceLocalTimeSummary (TB-2210)", () => {
     });
   });
 
+  it.each([
+    ["0 1 1 * *", "2026-08-01T01:00:00Z", "Monthly", "July 31"],
+    ["0 1 1 */3 *", "2026-10-01T01:00:00Z", "Quarterly", "September 30"],
+    ["0 1 1 1 *", "2027-01-01T01:00:00Z", "Annually", "December 31"],
+  ])("shows the local date when %s crosses midnight UTC", (cronExpression, nextRunUtc, cadence, localDate) => {
+    const summary = buildRecurrenceLocalTimeSummary({
+      cronExpression,
+      nextRunUtc,
+      ianaTimeZoneId: "America/New_York",
+    });
+
+    expect(summary.localPrimary).toContain(`${cadence} — local occurrence on ${localDate}`);
+    expect(summary.utcSecondary).toMatch(/at 01:00 UTC$/);
+  });
+
   it("notes browser-sniffed zones in the local cadence label", () => {
     const summary = buildRecurrenceLocalTimeSummary({
       cronExpression: "0 8 1 * *",

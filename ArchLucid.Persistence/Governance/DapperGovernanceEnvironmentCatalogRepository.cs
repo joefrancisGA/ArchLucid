@@ -183,9 +183,20 @@ public sealed class DapperGovernanceEnvironmentCatalogRepository(ISqlConnectionF
 
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
         }
-        catch
+        catch (Exception operationFailure)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
+            }
+            catch (Exception rollbackFailure)
+            {
+                throw new AggregateException(
+                    "Environment catalog replacement and transaction rollback both failed.",
+                    operationFailure,
+                    rollbackFailure);
+            }
+
             throw;
         }
     }

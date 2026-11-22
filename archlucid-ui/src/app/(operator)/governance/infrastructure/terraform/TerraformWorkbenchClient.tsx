@@ -163,8 +163,11 @@ export function TerraformWorkbenchClient() {
     : null;
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [exportBusy, setExportBusy] = useState(false);
-  const [exportError, setExportError] = useState<string | null>(null);
+  const [exportRequest, setExportRequest] = useState<{
+    cloudResourceId: string;
+    snapshotId: string;
+    error: string | null;
+  } | null>(null);
   const [hubReloadNonce, setHubReloadNonce] = useState(0);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [terraformResourceIdOpen, setTerraformResourceIdOpen] = useState(false);
@@ -194,6 +197,14 @@ export function TerraformWorkbenchClient() {
 
     return hub?.currentConfiguration?.snapshotId?.trim() ?? "";
   }, [hub, urlSnapshotId]);
+  const scopedExportRequest =
+    exportRequest !== null
+    && exportRequest.cloudResourceId === urlCloudResourceId
+    && exportRequest.snapshotId === resolvedSnapshotId
+      ? exportRequest
+      : null;
+  const exportBusy = scopedExportRequest !== null && scopedExportRequest.error === null;
+  const exportError = scopedExportRequest?.error ?? null;
 
   const workbenchHubScopePatch = useMemo(
     () => mergeWorkbenchHubScopePatch(resolvedSnapshotId, auditScope),
@@ -318,7 +329,7 @@ export function TerraformWorkbenchClient() {
 
   useEffect(() => {
     setCopyMessage(null);
-    setExportError(null);
+    setExportRequest(null);
   }, [urlCloudResourceId, urlSnapshotId]);
 
   useEffect(() => {
@@ -431,15 +442,15 @@ export function TerraformWorkbenchClient() {
       return;
     }
 
-    setExportBusy(true);
-    setExportError(null);
+    const request = { cloudResourceId: urlCloudResourceId, snapshotId: resolvedSnapshotId, error: null };
+    setExportRequest(request);
 
     try {
       await downloadInfraEvidenceTerraformAdvisoryZip(resolvedSnapshotId);
+      setExportRequest((current) => current === request ? null : current);
     } catch (error: unknown) {
-      setExportError(formatInfraEvidenceHubApiError(error));
-    } finally {
-      setExportBusy(false);
+      const failure = { ...request, error: formatInfraEvidenceHubApiError(error) };
+      setExportRequest((current) => current === request ? failure : current);
     }
   };
 
@@ -506,6 +517,13 @@ export function TerraformWorkbenchClient() {
         metadata={<TerraformBreadcrumb />}
         actions={headerActions}
       />
+
+      <p
+        className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="infra-terraform-advisory-not-apply-line"
+      >
+        {TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE}
+      </p>
 
       <main
         id={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PRIMARY_CONTENT_ID}

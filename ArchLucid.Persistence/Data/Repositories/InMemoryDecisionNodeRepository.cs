@@ -23,9 +23,15 @@ public sealed class InMemoryDecisionNodeRepository : IDecisionNodeRepository
         if (decisions.Count == 0)
             return Task.CompletedTask;
 
+        List<DecisionNodeRecord> batch = decisions.Select(Clone).ToList();
+        foreach (DecisionNodeRecord decision in batch)
+            ArgumentNullException.ThrowIfNull(decision.RunId);
+
+        cancellationToken.ThrowIfCancellationRequested();
+
         lock (_gate)
 
-            foreach (DecisionNodeRecord decision in decisions)
+            foreach (DecisionNodeRecord decision in batch)
             {
                 if (!_byRunId.TryGetValue(decision.RunId, out List<DecisionNodeRecord>? list))
                 {
@@ -33,7 +39,7 @@ public sealed class InMemoryDecisionNodeRepository : IDecisionNodeRepository
                     _byRunId[decision.RunId] = list;
                 }
 
-                list.Add(Clone(decision));
+                list.Add(decision);
             }
 
         return Task.CompletedTask;

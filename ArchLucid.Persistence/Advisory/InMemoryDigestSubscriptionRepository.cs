@@ -20,7 +20,10 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            _items.Add(subscription);
+            if (_items.Exists(item => item.SubscriptionId == subscription.SubscriptionId))
+                throw new InvalidOperationException("A digest subscription with this ID already exists.");
+
+            _items.Add(Copy(subscription));
             if (_items.Count > MaxEntries)
                 _items.RemoveRange(0, _items.Count - MaxEntries);
         }
@@ -33,9 +36,19 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.SubscriptionId == subscription.SubscriptionId && SameScope(x, subscription));
-            if (i >= 0)
-                _items[i] = subscription;
+            DigestSubscription? stored = _items.Find(x =>
+                x.SubscriptionId == subscription.SubscriptionId && SameScope(x, subscription));
+            if (stored is not null)
+            {
+                stored.Name = subscription.Name;
+                stored.ChannelType = subscription.ChannelType;
+                stored.Destination = subscription.Destination;
+                stored.IsEnabled = subscription.IsEnabled;
+                stored.MetadataJson = subscription.MetadataJson;
+
+                if (stored.LastDeliveredUtc is null || subscription.LastDeliveredUtc > stored.LastDeliveredUtc)
+                    stored.LastDeliveredUtc = subscription.LastDeliveredUtc;
+            }
         }
 
         return Task.CompletedTask;
@@ -61,7 +74,11 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x => x.SubscriptionId == subscriptionId && MatchesScope(x, scope)));
+        {
+            DigestSubscription? stored = _items.FirstOrDefault(x =>
+                x.SubscriptionId == subscriptionId && MatchesScope(x, scope));
+            return Task.FromResult(stored is null ? null : Copy(stored));
+        }
     }
 
     public Task<IReadOnlyList<DigestSubscription>> ListByScopeAsync(
@@ -79,6 +96,8 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
                     x.WorkspaceId == workspaceId &&
                     x.ProjectId == projectId)
                 .OrderByDescending(x => x.CreatedUtc)
+                .Take(200)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<DigestSubscription>>(result);
@@ -101,11 +120,27 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
                     x.ProjectId == projectId &&
                     x.IsEnabled)
                 .OrderByDescending(x => x.CreatedUtc)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<DigestSubscription>>(result);
         }
     }
+
+    private static DigestSubscription Copy(DigestSubscription subscription) => new()
+    {
+        SubscriptionId = subscription.SubscriptionId,
+        TenantId = subscription.TenantId,
+        WorkspaceId = subscription.WorkspaceId,
+        ProjectId = subscription.ProjectId,
+        Name = subscription.Name,
+        ChannelType = subscription.ChannelType,
+        Destination = subscription.Destination,
+        IsEnabled = subscription.IsEnabled,
+        CreatedUtc = subscription.CreatedUtc,
+        LastDeliveredUtc = subscription.LastDeliveredUtc,
+        MetadataJson = subscription.MetadataJson,
+    };
 
     private static bool MatchesScope(DigestSubscription subscription, ScopeContext scope) =>
         subscription.TenantId == scope.TenantId &&

@@ -53,7 +53,7 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
                 DigestId, TenantId, WorkspaceId, ProjectId,
                 RunId, ComparedToRunId, GeneratedUtc,
                 Title, Summary, ContentMarkdown, MetadataJson, ArchivedUtc
-            FROM dbo.ArchitectureDigests WITH (NOLOCK)
+            FROM dbo.ArchitectureDigests
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
@@ -70,7 +70,7 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
                     ProjectId = projectId,
-                    Take = Math.Clamp(take, 1, 200)
+                    Take = Math.Clamp(take <= 0 ? 20 : take, 1, 200)
                 },
                 cancellationToken: ct));
 

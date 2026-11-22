@@ -68,7 +68,7 @@ public static class AzureInventoryDiagnosticDestinationParser
 
     private static string? TryReadJsonString(JsonElement element, string propertyName)
     {
-        if (!element.TryGetProperty(propertyName, out JsonElement value))
+        if (!element.TryGetProperty(propertyName, out JsonElement value) || value.ValueKind is JsonValueKind.Null)
         {
             return null;
         }

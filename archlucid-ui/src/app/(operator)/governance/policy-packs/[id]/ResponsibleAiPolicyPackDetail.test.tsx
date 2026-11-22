@@ -1,7 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { ResponsibleAiPolicyPackDetail } from "@/app/(operator)/governance/policy-packs/[id]/ResponsibleAiPolicyPackDetail";
+import {
+  formatPackTimestamp,
+  ResponsibleAiPolicyPackDetail,
+} from "@/app/(operator)/governance/policy-packs/[id]/ResponsibleAiPolicyPackDetail";
+import { formatPackDate } from "@/app/(operator)/governance/policy-packs/[id]/PolicyPackGenericDetail";
 import { BUNDLED_RESPONSIBLE_AI_POLICY_PACK_ID } from "@/lib/policy/policy-pack-detail-resolver";
 
 vi.mock("next/link", () => ({
@@ -13,6 +17,15 @@ vi.mock("next/link", () => ({
 }));
 
 describe("ResponsibleAiPolicyPackDetail", () => {
+  it("treats offset-less API UTC timestamps as UTC before formatting", () => {
+    const expected = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(
+      new Date("2026-06-01T00:00:00.000Z"),
+    );
+
+    expect(formatPackTimestamp("2026-06-01T00:00:00.000")).toBe(expected);
+    expect(formatPackDate("2026-06-01T00:00:00.000")).toBe(expected);
+  });
+
   it("shows bundled default provenance (not Sample) when pack record is not yet loaded", () => {
     render(
       <ResponsibleAiPolicyPackDetail

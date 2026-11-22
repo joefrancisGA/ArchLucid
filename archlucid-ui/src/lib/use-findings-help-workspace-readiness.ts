@@ -171,30 +171,24 @@ export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadin
   const [snapshot, setSnapshot] = useState<Omit<FindingsHelpWorkspaceReadinessSnapshot, "reload">>(() =>
     buildInitialSnapshot(productLine),
   );
-  // Vitest tears down jsdom before late governance-register fetches settle — skip setState then.
-  const mountedRef = useRef(true);
-
-  useEffect(() => {
-    mountedRef.current = true;
-
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
+  const requestGeneration = useRef(0);
 
   const load = useCallback(async (): Promise<void> => {
-    if (mountedRef.current) {
-      setSnapshot((prev) => ({
-        ...prev,
-        loading: true,
-        loadFailed: false,
-        loadForbidden: false,
-        workspaceScopeLabel: null,
-      }));
-    }
+    const generation = ++requestGeneration.current;
+    setSnapshot((prev) => ({
+      ...prev,
+      loading: true,
+      loadFailed: false,
+      loadForbidden: false,
+      workspaceScopeLabel: null,
+    }));
 
     try {
       const bundle = await fetchGovernanceFindingsRegistersBundle();
+      if (generation !== requestGeneration.current) {
+        return;
+      }
+
       const riskRegister = bundle.riskRegister;
       const decisionRegister = bundle.decisionRegister;
       const rows = dedupeGovernanceFindingRows([
@@ -202,10 +196,6 @@ export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadin
         ...decisionRegisterRows(decisionRegister.decisions ?? []),
       ]);
       const summary = summarizeFindingsRows(rows, productLine);
-
-      if (!mountedRef.current) {
-        return;
-      }
 
       setSnapshot({
         loading: false,
@@ -216,7 +206,7 @@ export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadin
         loadedAtUtc: new Date().toISOString(),
       });
     } catch (error) {
-      if (!mountedRef.current) {
+      if (generation !== requestGeneration.current) {
         return;
       }
 
@@ -254,6 +244,9 @@ export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadin
 
   useEffect(() => {
     void load();
+    return () => {
+      requestGeneration.current += 1;
+    };
   }, [load]);
 
   return {

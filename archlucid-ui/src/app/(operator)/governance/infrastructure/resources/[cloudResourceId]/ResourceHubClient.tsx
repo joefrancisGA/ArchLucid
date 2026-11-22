@@ -36,10 +36,15 @@ import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-
 import { RESOURCE_HUB_INVENTORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-evidence/resource-hub-inventory-snapshot-honesty-copy";
 import { formatResourceHubFindingsStoredEmptyLine } from "@/lib/infra-evidence/resource-hub-findings-empty-honesty-copy";
 import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
+import { RESOURCE_HUB_FINDINGS_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/resource-hub-findings-stored-empty-not-load-failure-copy";
 import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
 import { RESOURCE_HUB_AUDIT_TAB_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-hub-audit-tab-partial-capture-copy";
 import { RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-config-partial-capture-copy";
 import { RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-partial-capture-copy";
+import { ResourceHubFindingsArchitectureScopeAndSeverityEmptyPartialHonesty } from "@/components/infra-evidence/ResourceHubFindingsArchitectureScopeAndSeverityEmptyPartialHonesty";
+import { RESOURCE_HUB_FINDINGS_ARCHITECTURE_SCOPE_AND_SEVERITY_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-architecture-scope-and-severity-empty-copy";
+import { ResourceHubFindingsOperationalSecurityStreamEmptyPartialHonesty } from "@/components/infra-evidence/ResourceHubFindingsOperationalSecurityStreamEmptyPartialHonesty";
+import { RESOURCE_HUB_FINDINGS_OPERATIONAL_SECURITY_STREAM_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-operational-security-stream-empty-copy";
 import {
   RESOURCE_HUB_DIAGRAM_TAB_PARTIAL_CAPTURE_LINE,
   RESOURCE_HUB_DRIFT_TAB_PARTIAL_CAPTURE_LINE,
@@ -539,11 +544,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     }
   }, [cloudResourceId, runId, snapshotId]);
 
+  const snapshotPinned = snapshotId.length > 0 && (
+    urlSnapshotPinForCloudResourceIdRef.current === cloudResourceId
+    || (
+      urlSnapshotPinBootstrappedForResourceRef.current === cloudResourceId
+      && snapshotId !== committedUrlSnapshotPinRef.current
+    )
+  );
+
   const resolvedSnapshotId = useMemo(() => {
-    if (
-      snapshotId.length > 0
-      && urlSnapshotPinForCloudResourceIdRef.current === cloudResourceId
-    ) {
+    if (snapshotPinned) {
       return snapshotId;
     }
 
@@ -556,7 +566,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     }
 
     return lastResolvedHubSnapshotIdRef.current;
-  }, [cloudResourceId, hub?.cloudResourceId, hub?.currentConfiguration?.snapshotId, snapshotId]);
+  }, [cloudResourceId, hub?.cloudResourceId, hub?.currentConfiguration?.snapshotId, snapshotId, snapshotPinned]);
 
   useEffect(() => {
     const hubMatchesResource = hub?.cloudResourceId?.trim() === cloudResourceId;
@@ -583,13 +593,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
     return "";
   }, [cloudResourceId, runId]);
-
-  const snapshotPinned = useMemo(
-    () =>
-      snapshotId.length > 0
-      && urlSnapshotPinForCloudResourceIdRef.current === cloudResourceId,
-    [cloudResourceId, hub?.currentConfiguration?.snapshotId, snapshotId],
-  );
 
   useEffect(() => {
     const tabParams = searchParams.getAll(RESOURCE_HUB_TAB_PARAM);
@@ -1330,8 +1333,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         },
       }));
     } finally {
-      setFindingActionBusyId(null);
-      setPendingRemediationFinding(null);
+      if (isHubScopeStillCurrent()) {
+        setFindingActionBusyId(null);
+        setPendingRemediationFinding(null);
+      }
     }
   };
 
@@ -2346,9 +2351,36 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         >
                           {formatResourceHubFindingsStoredEmptyLine(resolvedSnapshotId)}
                         </p>
+                        <p
+                          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                          data-testid="resource-hub-findings-stored-empty-not-load-failure"
+                        >
+                          {RESOURCE_HUB_FINDINGS_STORED_EMPTY_NOT_LOAD_FAILURE_LINE}
+                        </p>
                         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid={`infra-resource-hub-findings-empty-not-failure-${stream.streamKind}`}>
                           {RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE}
                         </p>
+                        {stream.streamKind === "ArchitectureReview" ? (
+                          <>
+                            <p
+                              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                              data-testid="infra-resource-hub-findings-architecture-scope-and-severity-empty"
+                            >
+                              {RESOURCE_HUB_FINDINGS_ARCHITECTURE_SCOPE_AND_SEVERITY_EMPTY_LINE}
+                            </p>
+                            <ResourceHubFindingsArchitectureScopeAndSeverityEmptyPartialHonesty />
+                          </>
+                        ) : (
+                          <>
+                            <p
+                              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                              data-testid="infra-resource-hub-findings-operational-security-stream-empty"
+                            >
+                              {RESOURCE_HUB_FINDINGS_OPERATIONAL_SECURITY_STREAM_EMPTY_LINE}
+                            </p>
+                            <ResourceHubFindingsOperationalSecurityStreamEmptyPartialHonesty />
+                          </>
+                        )}
                         <SecureNowInfraPartialCaptureStrip
                           testId={`infra-resource-hub-findings-empty-partial-capture-${stream.streamKind}`}
                           middleLine={RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE}

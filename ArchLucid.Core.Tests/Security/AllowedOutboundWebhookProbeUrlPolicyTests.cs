@@ -50,6 +50,15 @@ public sealed class AllowedOutboundWebhookProbeUrlPolicyTests
     }
 
     [Fact]
+    public void FormatTargetAuthorityForAudit_strips_embedded_userinfo()
+    {
+        Uri target = new("https://user:pass@subscriber.example/webhook");
+
+        AllowedOutboundWebhookProbeUrlPolicy.FormatTargetAuthorityForAudit(target)
+            .Should().Be("https://subscriber.example");
+    }
+
+    [Fact]
     public async Task TryGetRejectionReasonAfterDnsResolveAsync_WhenSyncGuardRejects_SkipsDnsLookup()
     {
         string? reason = await AllowedOutboundWebhookProbeUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync(

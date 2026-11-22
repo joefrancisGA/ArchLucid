@@ -291,10 +291,16 @@ public static class AzureInventoryAdfLinkedServiceTargetResolver
             && resource.Properties.TryGetValue("workspaceUrl", out string? workspaceUrl)
             && !string.IsNullOrWhiteSpace(workspaceUrl))
         {
-            if (Uri.TryCreate(workspaceUrl.Trim(), UriKind.Absolute, out Uri? parsedUri)
+            string normalizedWorkspaceUrl = workspaceUrl.Trim();
+            if (Uri.TryCreate(normalizedWorkspaceUrl, UriKind.Absolute, out Uri? parsedUri)
                 && !string.IsNullOrWhiteSpace(parsedUri.Host))
             {
                 yield return parsedUri.Host.ToLowerInvariant();
+            }
+            else if (Uri.CheckHostName(normalizedWorkspaceUrl) == UriHostNameType.Dns)
+            {
+                // Azure's ARM API returns workspaceUrl as a bare DNS hostname.
+                yield return normalizedWorkspaceUrl.ToLowerInvariant();
             }
         }
 

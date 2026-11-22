@@ -55,9 +55,6 @@ export function AzureConnectionRecentActivityPanel(): React.ReactElement {
   }
 
   const hasConnection = connections.length > 0;
-  const hasSuccessfulPull = connections.some(
-    (connection) => (connection.updatedUtc?.trim() ?? "").length > 0,
-  );
 
   if (!hasConnection) {
     return (
@@ -78,7 +75,7 @@ export function AzureConnectionRecentActivityPanel(): React.ReactElement {
 
   return (
     <div className="space-y-3" data-testid="azure-connection-recent-activity-panel">
-      <CloudFirstInventoryCoach hasConnection={hasConnection} hasSuccessfulPull={hasSuccessfulPull} />
+      <CloudFirstInventoryCoach hasConnection={hasConnection} hasSuccessfulPull={false} />
       <EnterpriseTable ariaLabel="Azure connection collection activity">
         <EnterpriseTableHead>
           <EnterpriseTableRow>

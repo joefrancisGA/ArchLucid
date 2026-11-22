@@ -23,6 +23,8 @@ import {
   resolveArchitectureManifestJsonForDiff,
 } from "@/lib/resolve-architecture-manifest-json-for-diff";
 import { compareManifestDiffBlockedReason } from "@/lib/compare/compare-manifest-diff-blocked-reason";
+import { COMPARE_RAW_MANIFEST_DIFF_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-raw-manifest-diff-empty-not-load-failure-copy";
+import { COMPARE_RAW_MANIFEST_DIFF_BLOCKED_NOT_LOAD_FAILURE_LINE } from "@/lib/architecture/compare-raw-manifest-diff-blocked-not-load-failure-copy";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { RunSummary } from "@/types/authority";
 import {
@@ -165,12 +167,23 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
         ) : null}
 
         {errorMessage !== null ? (
-          <p className={cn("m-0 text-red-800 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
-            {errorMessage}
+          <div>
+            <p className={cn("m-0 text-red-800 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
+              {errorMessage}
+            </p>
+            <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-raw-manifest-diff-blocked-not-load-failure">
+              {COMPARE_RAW_MANIFEST_DIFF_BLOCKED_NOT_LOAD_FAILURE_LINE}
+            </p>
+          </div>
+        ) : null}
+
+        {beforeText !== null && afterText !== null && beforeText === afterText && !loading ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-raw-manifest-diff-empty-not-load-failure">
+            {COMPARE_RAW_MANIFEST_DIFF_EMPTY_NOT_LOAD_FAILURE_LINE}
           </p>
         ) : null}
 
-        {beforeText !== null && afterText !== null && !loading ? (
+        {beforeText !== null && afterText !== null && beforeText !== afterText && !loading ? (
           <ArchitectureManifestUnifiedDiffView
             baselineLabel={baselineLabel}
             updatedLabel={updatedLabel}

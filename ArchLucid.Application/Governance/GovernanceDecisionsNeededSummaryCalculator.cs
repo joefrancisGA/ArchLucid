@@ -57,16 +57,15 @@ public static class GovernanceDecisionsNeededSummaryCalculator
             distinctFindingWork.Add(reviewEvent.FindingId);
         }
 
+        DateTimeOffset waiverWindowEnd = nowUtc.AddDays(GovernanceWaiverExpiryWindow.DefaultExpiringWithinDays);
         foreach (RiskExceptionRecord waiver in activeWaivers)
         {
-            if (string.IsNullOrWhiteSpace(waiver.FindingId))
+            if (waiver.Status != RiskExceptionStatus.Active || string.IsNullOrWhiteSpace(waiver.FindingId))
             {
                 continue;
             }
 
-            DateTimeOffset windowEnd = nowUtc.AddDays(GovernanceWaiverExpiryWindow.DefaultExpiringWithinDays);
-
-            if (waiver.ExpiresAtUtc >= nowUtc && waiver.ExpiresAtUtc <= windowEnd)
+            if (waiver.ExpiresAtUtc >= nowUtc && waiver.ExpiresAtUtc <= waiverWindowEnd)
             {
                 distinctFindingWork.Add(waiver.FindingId);
             }
@@ -81,7 +80,9 @@ public static class GovernanceDecisionsNeededSummaryCalculator
         if (string.IsNullOrWhiteSpace(severity))
             return false;
 
-        return severity.Contains("high", StringComparison.OrdinalIgnoreCase)
-               || severity.Contains("critical", StringComparison.OrdinalIgnoreCase);
+        string normalized = severity.Trim();
+        return string.Equals(normalized, "High", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(normalized, "Critical", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(normalized, "Error", StringComparison.OrdinalIgnoreCase);
     }
 }

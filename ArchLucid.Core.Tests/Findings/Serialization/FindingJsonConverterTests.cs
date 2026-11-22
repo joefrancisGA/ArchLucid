@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Findings;
@@ -10,6 +11,45 @@ namespace ArchLucid.Core.Tests.Findings.Serialization;
 [Trait("Category", "Unit")]
 public sealed class FindingJsonConverterTests
 {
+    [Theory]
+    [InlineData("9223372036854775807", null)]
+    [InlineData("\"9223372036854775807\"", null)]
+    [InlineData("-9223372036854775808", null)]
+    [InlineData("\"2026-11-21T18:20:00\"", "2026-11-21T18:20:00.0000000+00:00")]
+    [InlineData("\"2026-11-21T18:20:00Z\"", "2026-11-21T18:20:00.0000000+00:00")]
+    [InlineData("\"2026-11-21T13:20:00-05:00\"", "2026-11-21T13:20:00.0000000-05:00")]
+    public void Deserialize_reviewedAtUtc_handles_missing_offsets_and_out_of_range_values(
+        string timestamp,
+        string? expected)
+    {
+        string json = """
+                      {
+                        "findingSchemaVersion": 2,
+                        "findingId": "timestamp-guard",
+                        "findingType": "TopologyGap",
+                        "category": "Topology",
+                        "engineType": "TopologyCoverage",
+                        "severity": "Warning",
+                        "title": "Timestamp boundary",
+                        "rationale": "External timestamp may be malformed.",
+                        "relatedNodeIds": [],
+                        "recommendedActions": [],
+                        "properties": {},
+                        "payloadType": null,
+                        "payload": null,
+                        "trace": {},
+                        "humanReviewStatus": "Pending",
+                        "enforcementTier": "Advisory",
+                        "reviewedAtUtc": __TIMESTAMP__
+                      }
+                      """.Replace("__TIMESTAMP__", timestamp);
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, CreateOptions());
+        finding.Should().NotBeNull();
+        string? actual = finding!.ReviewedAtUtc?.ToString("O", CultureInfo.InvariantCulture);
+        actual.Should().Be(expected);
+    }
+
     [Fact]
     public void Deserialize_withoutInsightDensityFields_leavesThemNull()
     {
@@ -1466,6 +1506,40 @@ public sealed class FindingJsonConverterTests
 
         finding.Should().NotBeNull();
         finding!.RunIdRef.Should().Be("42");
+    }
+
+    [Fact]
+    public void Deserialize_whole_number_above_int64_range_does_not_coerce_to_min_value()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingId": "abc123",
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": { "oversized": 9223372036854775808 },
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "enforcementTier": "Advisory",
+                              "humanReviewStatus": "Pending",
+                              "runIdRef": 9223372036854775808
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.RunIdRef.Should().BeNull();
+        finding.Properties["oversized"].Should().BeEmpty();
     }
 
     [Fact]

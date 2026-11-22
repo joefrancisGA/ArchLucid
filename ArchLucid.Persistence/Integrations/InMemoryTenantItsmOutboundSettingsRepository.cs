@@ -9,7 +9,7 @@ public sealed class InMemoryTenantItsmOutboundSettingsRepository : ITenantItsmOu
 
     public Task<TenantItsmOutboundSettings?> TryGetAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         return tenantId == Guid.Empty
             ? throw new ArgumentException("tenantId is required.", nameof(tenantId))
@@ -18,7 +18,7 @@ public sealed class InMemoryTenantItsmOutboundSettingsRepository : ITenantItsmOu
 
     public Task<TenantItsmOutboundSettings> UpsertAsync(Guid tenantId, TenantItsmOutboundSettings settings, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         if (tenantId == Guid.Empty)
             throw new ArgumentException("tenantId is required.", nameof(tenantId));

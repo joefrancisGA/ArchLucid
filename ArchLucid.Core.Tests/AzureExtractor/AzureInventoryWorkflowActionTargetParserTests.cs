@@ -92,6 +92,22 @@ public sealed class AzureInventoryWorkflowActionTargetParserTests
             .Be(ArmResourceIdNormalizer.Normalize(StorageArmId));
     }
 
+    [Theory]
+    [InlineData("[]")]
+    [InlineData("null")]
+    [InlineData("true")]
+    [InlineData("7")]
+    [InlineData("\"placeholder\"")]
+    public void Parse_ignores_non_object_definitions(string definition)
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["definition"] = definition,
+        };
+
+        AzureInventoryWorkflowActionTargetParser.Parse(properties).Should().BeEmpty();
+    }
+
     [Fact]
     public void Parse_ignores_display_name_only_actions()
     {

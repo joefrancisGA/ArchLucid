@@ -1,3 +1,4 @@
+using System.Data.SqlTypes;
 using System.Data;
 using System.Runtime.CompilerServices;
 
@@ -56,7 +57,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                     x.WorkspaceId == workspaceId &&
                     x.ProjectId == projectId)
                 .OrderByDescending(x => x.OccurredUtc)
-                .ThenByDescending(x => x.EventId)
+                .ThenByDescending(x => new SqlGuid(x.EventId))
                 .Take(n)
                 .ToList();
 
@@ -79,7 +80,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         {
             snapshot = AuditEventFilterEnumerable.WhereMatches(_events, tenantId, workspaceId, projectId, filter)
                 .OrderByDescending(x => x.OccurredUtc)
-                .ThenByDescending(x => x.EventId)
+                .ThenByDescending(x => new SqlGuid(x.EventId))
                 .Take(take)
                 .ToList();
         }
@@ -120,7 +121,10 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        int take = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
+        int take = Math.Clamp(
+            maxRows <= 0 ? IAuditRepository.BulkExportRowLimit : maxRows,
+            1,
+            IAuditRepository.BulkExportRowLimit + 1);
         List<AuditEvent> result;
 
         lock (_gate)
@@ -133,7 +137,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                     && x.OccurredUtc >= fromUtc
                     && x.OccurredUtc < toUtc)
                 .OrderBy(x => x.OccurredUtc)
-                .ThenBy(x => x.EventId)
+                .ThenBy(x => new SqlGuid(x.EventId))
                 .Take(take)
                 .ToList();
 
@@ -179,7 +183,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
 
             snapshot = AuditEventFilterEnumerable.WhereMatches(_events, tenantId, workspaceId, projectId, filter)
                 .OrderBy(x => x.OccurredUtc)
-                .ThenBy(x => x.EventId)
+                .ThenBy(x => new SqlGuid(x.EventId))
                 .Take(take)
                 .ToList();
 

@@ -59,6 +59,75 @@ public sealed class InMemoryArchitectureReviewRecurrenceScheduleRepositoryCovera
     }
 
     [Fact]
+    public async Task Duplicate_schedule_id_does_not_create_a_second_due_review()
+    {
+        InMemoryArchitectureReviewRecurrenceScheduleRepository sut = new();
+        DateTime dueUtc = new(2026, 7, 10, 8, 0, 0, DateTimeKind.Utc);
+        ArchitectureReviewRecurrenceSchedule schedule = new()
+        {
+            ScheduleId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            SourceRunId = Guid.NewGuid(),
+            IsEnabled = true,
+            NextRunUtc = dueUtc
+        };
+
+        await sut.CreateAsync(schedule, CancellationToken.None);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.CreateAsync(schedule, CancellationToken.None));
+
+        IReadOnlyList<ArchitectureReviewRecurrenceSchedule> due =
+            await sut.ListDueAsync(dueUtc, take: 10, CancellationToken.None);
+        due.Should().ContainSingle().Which.ScheduleId.Should().Be(schedule.ScheduleId);
+    }
+
+    [Fact]
+    public async Task Scheduler_changes_are_visible_only_after_update()
+    {
+        InMemoryArchitectureReviewRecurrenceScheduleRepository sut = new();
+        DateTime dueUtc = new(2026, 7, 10, 8, 0, 0, DateTimeKind.Utc);
+        ArchitectureReviewRecurrenceSchedule schedule = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            NextRunUtc = dueUtc,
+        };
+
+        await sut.CreateAsync(schedule, CancellationToken.None);
+        schedule.IsEnabled = false;
+
+        IReadOnlyList<ArchitectureReviewRecurrenceSchedule> due =
+            await sut.ListDueAsync(dueUtc, take: 1, CancellationToken.None);
+        ArchitectureReviewRecurrenceSchedule checkpoint = due.Should().ContainSingle().Subject;
+        checkpoint.NextRunUtc = dueUtc.AddDays(7);
+        checkpoint.LastTriggeredRunId = Guid.NewGuid();
+
+        IReadOnlyList<ArchitectureReviewRecurrenceSchedule> scoped = await sut.ListByScopeAsync(
+            schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, CancellationToken.None);
+        ArchitectureReviewRecurrenceSchedule listed = scoped.Should().ContainSingle().Subject;
+        listed.NextRunUtc.Should().Be(dueUtc);
+        listed.LastTriggeredRunId.Should().BeNull();
+        listed.IsEnabled = false;
+
+        ArchitectureReviewRecurrenceSchedule? loaded = await sut.GetByIdAsync(schedule.ScheduleId, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.IsEnabled.Should().BeTrue();
+        loaded.IsEnabled = false;
+
+        await sut.UpdateAsync(checkpoint, CancellationToken.None);
+        checkpoint.NextRunUtc = dueUtc;
+
+        (await sut.ListDueAsync(dueUtc, take: 1, CancellationToken.None)).Should().BeEmpty();
+        loaded = await sut.GetByIdAsync(schedule.ScheduleId, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.IsEnabled.Should().BeTrue();
+        loaded.NextRunUtc.Should().Be(dueUtc.AddDays(7));
+        loaded.LastTriggeredRunId.Should().Be(checkpoint.LastTriggeredRunId);
+    }
+
+    [Fact]
     public async Task ListDueAsync_clamps_take_and_ignores_disabled_or_future_schedules()
     {
         InMemoryArchitectureReviewRecurrenceScheduleRepository sut = new();

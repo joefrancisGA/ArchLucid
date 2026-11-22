@@ -169,6 +169,40 @@ describe("AuditEvidenceControlLineageClient", () => {
     });
   });
 
+  it("ignores repeated package download shortcuts while a download is in flight", async () => {
+    let finishDownload!: (result: undefined) => void;
+    downloadAuditEvidencePackageZipMock.mockClear();
+    downloadAuditEvidencePackageZipMock.mockReturnValueOnce(
+      new Promise<undefined>((resolve) => { finishDownload = resolve; }),
+    );
+    useAuditEvidenceLineageQueryMock.mockReturnValue({
+      data: {
+        controlNumber: "AC-1",
+        controlTitle: "Access control",
+        readyForPositiveCheckbox: true,
+        snapshotHashVerified: true,
+        brokenLinkReasons: [],
+        requirementChains: [],
+      },
+      isError: false,
+      isPending: false,
+      refetch: refetchMock,
+    });
+
+    render(<AuditEvidenceControlLineageClient {...ids} />);
+    const button = screen.getByTestId("audit-evidence-package-download");
+    fireEvent.click(button);
+
+    expect(button).toBeDisabled();
+    fireEvent.keyDown(window, { altKey: true, key: "3" });
+    expect(downloadAuditEvidencePackageZipMock).toHaveBeenCalledTimes(1);
+
+    finishDownload(undefined);
+    await waitFor(() => expect(button).toBeEnabled());
+    fireEvent.keyDown(window, { altKey: true, key: "3" });
+    await waitFor(() => expect(downloadAuditEvidencePackageZipMock).toHaveBeenCalledTimes(2));
+  });
+
   it("announces clipboard copy failures in the live region", async () => {
     const writeText = vi.fn(async () => {
       throw new Error("denied");

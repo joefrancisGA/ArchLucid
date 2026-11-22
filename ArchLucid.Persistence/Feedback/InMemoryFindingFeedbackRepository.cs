@@ -7,6 +7,7 @@ public sealed class InMemoryFindingFeedbackRepository : IFindingFeedbackReposito
     public Task InsertAsync(FindingFeedbackSubmission submission, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(submission);
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.CompletedTask;
     }

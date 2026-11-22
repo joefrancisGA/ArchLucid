@@ -136,10 +136,12 @@ public sealed class TenantBrandingService(
         {
             TenantBrandingProfileRecord? active =
                 await brandingProfileRepository.TryGetActiveAsync(tenantId, ct);
-            TenantBrandingProfileRecord? defaultProfile =
-                await brandingProfileRepository.TryGetDefaultAsync(tenantId, ct);
-            TenantFirstValueReportBrandingRow? legacy =
-                await legacyBrandingRepository.TryGetAsync(tenantId, ct);
+            TenantBrandingProfileRecord? defaultProfile = active is null
+                ? await brandingProfileRepository.TryGetDefaultAsync(tenantId, ct)
+                : null;
+            TenantFirstValueReportBrandingRow? legacy = active is null && defaultProfile is null
+                ? await legacyBrandingRepository.TryGetAsync(tenantId, ct)
+                : null;
             return TenantBrandingResolver.Resolve(tenantId, active, defaultProfile, legacy);
         }, cancellationToken);
 }

@@ -36,7 +36,9 @@ type OperatorApiProblemManual = {
   variant?: "error" | "warning";
 };
 
-export type OperatorApiProblemProps = OperatorApiProblemFromFailure | OperatorApiProblemManual;
+export type OperatorApiProblemProps = (OperatorApiProblemFromFailure | OperatorApiProblemManual) & {
+  readonly onRetry?: () => void;
+};
 
 function isFromFailure(props: OperatorApiProblemProps): props is OperatorApiProblemFromFailure {
   return "failure" in props;
@@ -146,7 +148,7 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
           errorTitle={heading}
         />
       </div>
-      <OperatorErrorRecoveryActions helpSlug="troubleshooting" />
+      <OperatorErrorRecoveryActions helpSlug="troubleshooting" onRetry={props.onRetry} />
       <p className={cn("mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         {problem?.errorCode ? (
           <>

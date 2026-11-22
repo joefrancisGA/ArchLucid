@@ -24,13 +24,17 @@ namespace ArchLucid.Application.Tests.Runs.ExecuteOwnership;
 public sealed class RunExecuteOwnershipReconciliationServiceTests
 {
     [Fact]
-    public async Task ReconcileExpiredLeasesAsync_marks_interrupted_run_partial_and_deletes_lease()
+    public async Task ReconcileExpiredLeasesAsync_marks_interrupted_run_partial_and_releases_claim()
     {
         Guid runId = Guid.NewGuid();
         Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
         leases
             .Setup(l => l.ListExpiredRunIdsAsync(It.IsAny<DateTimeOffset>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([runId]);
+        string? claimedHolder = null;
+        leases.Setup(l => l.TryAcquireOrRenewAsync(runId, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Callback<Guid, string, int, CancellationToken>((_, holder, _, _) => claimedHolder = holder)
+            .ReturnsAsync(true);
 
         RunRecord header = new()
         {
@@ -79,7 +83,51 @@ public sealed class RunExecuteOwnershipReconciliationServiceTests
         report.ReconciledCount.Should().Be(1);
         header.LegacyRunStatus.Should().Be(nameof(ArchitectureRunStatus.FailedPartial));
         header.LastFailureReason.Should().Contain(AgentExecutionTraceFailureReasonCodes.ExecuteOwnershipLeaseExpired);
-        leases.Verify(l => l.TryDeleteAsync(runId, It.IsAny<CancellationToken>()), Times.Once);
+        claimedHolder.Should().NotBeNullOrWhiteSpace();
+        leases.Verify(l => l.TryReleaseAsync(runId, claimedHolder!, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ReconcileExpiredLeasesAsync_skips_a_lease_reacquired_after_listing()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        MockSequence listThenClaim = new();
+        leases.InSequence(listThenClaim)
+            .Setup(l => l.ListExpiredRunIdsAsync(It.IsAny<DateTimeOffset>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([runId]);
+        leases.InSequence(listThenClaim)
+            .Setup(l => l.TryAcquireOrRenewAsync(runId, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        Mock<IRunRepository> runs = new();
+        Mock<IAgentResultRepository> results = new();
+        Mock<IArchLucidStorageMode> storage = new();
+        storage.Setup(s => s.IsInMemory).Returns(false);
+        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new RunExecuteOwnershipLeaseOptions { Enabled = true });
+
+        RunExecuteOwnershipReconciliationService sut = new(
+            leases.Object,
+            runs.Object,
+            results.Object,
+            new RunStateTransitionService(),
+            storage.Object,
+            options.Object,
+            NullLogger<RunExecuteOwnershipReconciliationService>.Instance);
+
+        RunExecuteOwnershipReconciliationReport report =
+            await sut.ReconcileExpiredLeasesAsync(CancellationToken.None);
+
+        report.ExpiredLeaseCount.Should().Be(1);
+        report.ReconciledCount.Should().Be(0);
+        report.SkippedCount.Should().Be(1);
+        leases.Verify(l => l.TryAcquireOrRenewAsync(runId, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        leases.Verify(l => l.TryReleaseAsync(runId, It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        leases.Verify(l => l.TryDeleteAsync(runId, It.IsAny<CancellationToken>()), Times.Never);
+        runs.VerifyNoOtherCalls();
+        results.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -93,6 +141,8 @@ public sealed class RunExecuteOwnershipReconciliationServiceTests
         leases
             .Setup(l => l.ListExpiredRunIdsAsync(It.IsAny<DateTimeOffset>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([runId]);
+        leases.Setup(l => l.TryAcquireOrRenewAsync(runId, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         RunRecord header = new()
         {

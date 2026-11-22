@@ -491,7 +491,7 @@ export function troubleshootingCommonIssues(productLineId: ProductLineId = "arch
           whatYouSee: "Inventory ZIP upload fails from Extract and upload.",
           tryFirst: "Read the inline error, confirm file type and size, then retry the upload.",
           nextSteps: [
-            { label: "Open extract and upload", href: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH },
+            { label: "Open extract and upload", href: SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH },
             { label: "Azure connections help", href: inAppHelpHref("cloud-connections") },
             ...supportEscalationLinks(),
           ],

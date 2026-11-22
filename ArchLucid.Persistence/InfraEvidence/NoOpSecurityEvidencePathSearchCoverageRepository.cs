@@ -11,6 +11,7 @@ public sealed class NoOpSecurityEvidencePathSearchCoverageRepository : ISecurity
         IReadOnlyList<SecurityEvidencePathSearchCoverageRecord> rows,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(rows);
 
@@ -22,6 +23,7 @@ public sealed class NoOpSecurityEvidencePathSearchCoverageRepository : ISecurity
         Guid snapshotId,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(scope);
 
         return Task.FromResult<IReadOnlyList<SecurityEvidencePathSearchCoverageRecord>>([]);

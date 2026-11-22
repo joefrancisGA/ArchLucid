@@ -39,7 +39,11 @@ public static class RunHeaderCreateTimePinCommitmentFactory
     {
         if (string.IsNullOrWhiteSpace(pinnedPolicyPackIdsJson)
             && string.IsNullOrWhiteSpace(pinnedEvidencePackagePinsJson)
-            && (pinnedEvidencePackagePinsHashSha256 is null || pinnedEvidencePackagePinsHashSha256.Length == 0))
+            && (pinnedEvidencePackagePinsHashSha256 is null || pinnedEvidencePackagePinsHashSha256.Length == 0)
+            && (pinnedArchitectureVersionContentHashSha256 is null || pinnedArchitectureVersionContentHashSha256.Length == 0)
+            && (pinnedKnowledgeModelContentHashSha256 is null || pinnedKnowledgeModelContentHashSha256.Length == 0)
+            && pinnedFocusedPilotModeEnabled is null
+            && pinnedFocusedPilotCloudProvider is null)
         {
             return null;
         }

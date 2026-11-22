@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import { GOVERNANCE_FINDINGS_PATH, SECURENOW_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 import {
   GOVERNANCE_OVERVIEW_BLOCKING_FINDINGS_LABEL,
@@ -37,7 +39,9 @@ describe("governance overview findings naming guard (GOP P0-3)", () => {
 
     expect(panelSource).toContain("GOVERNANCE_OVERVIEW_FINDINGS_ACTION");
     expect(panelSource).toContain("GOVERNANCE_OVERVIEW_BLOCKING_FINDINGS_LABEL");
-    expect(panelSource).toContain("GOVERNANCE_FINDINGS_PATH");
+    expect(panelSource).toContain("findingsPathForProductLine");
+    expect(findingsPathForProductLine("architecture")).toBe(GOVERNANCE_FINDINGS_PATH);
+    expect(findingsPathForProductLine("security")).toBe(SECURENOW_FINDINGS_PATH);
     expect(panelSource).not.toMatch(/risk register/i);
     expect(panelSource).not.toMatch(/Blocking approval alerts/i);
     expect(copySource).not.toMatch(/GOVERNANCE_OVERVIEW_RISK_REGISTER_ACTION/);

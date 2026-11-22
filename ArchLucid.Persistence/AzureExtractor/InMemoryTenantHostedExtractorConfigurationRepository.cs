@@ -17,7 +17,7 @@ public sealed class InMemoryTenantHostedExtractorConfigurationRepository
         string subscriptionId,
         CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         string normalizedSubscriptionId = NormalizeSubscriptionId(subscriptionId);
 
@@ -28,7 +28,7 @@ public sealed class InMemoryTenantHostedExtractorConfigurationRepository
 
     public Task UpsertAsync(TenantHostedExtractorConfigurationRecord record, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         string normalizedSubscriptionId = NormalizeSubscriptionId(record.SubscriptionId);
 
@@ -50,7 +50,7 @@ public sealed class InMemoryTenantHostedExtractorConfigurationRepository
         Guid tenantId,
         CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         List<TenantHostedExtractorConfigurationRecord> records = _rows.Values
             .Where(record => record.TenantId == tenantId)

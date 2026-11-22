@@ -332,6 +332,36 @@ public sealed class OutboundWebhookDryRunControllerTests
     }
 
     [Fact]
+    public async Task DryRunAsync_returns_empty_reason_phrase_when_probe_returns_null_reason_phrase()
+    {
+        Uri target = new("https://example.com/webhook");
+        Mock<IOutboundWebhookDryRunService> probe = new();
+        probe
+            .Setup(p => p.ProbeAsync(target, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OutboundWebhookDryRunResult
+            {
+                TransportSucceeded = true,
+                StatusCode = 200,
+                ReasonPhrase = null,
+            });
+
+        OutboundWebhookDryRunController controller = new(probe.Object, Mock.Of<IAuditService>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult action = await controller.DryRunAsync(
+            new OutboundWebhookDryRunRequest { TargetUrl = target },
+            CancellationToken.None);
+
+        OutboundWebhookDryRunResponse response =
+            action.Should().BeOfType<OkObjectResult>().Subject.Value.Should()
+                .BeOfType<OutboundWebhookDryRunResponse>().Subject;
+
+        response.ReasonPhrase.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task DryRunAsync_audit_omits_query_string_from_target_metadata()
     {
         Uri target = new("https://example.com/webhook?token=secret-token");

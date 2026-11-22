@@ -9,6 +9,7 @@ const productLine = vi.hoisted(() => ({ value: "archlucid" as "archlucid" | "sec
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/governance/findings",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
@@ -104,6 +105,7 @@ function buildProps(
     assignedToMeOldestFindingTarget: null,
     firstFindingTriageTarget: null,
     hideGenericLowDensity: false,
+    genericFilterEmptiedResults: false,
     onHideGenericLowDensityChange: () => undefined,
     showInsightDensityScore: false,
     selectedFindingIds: new Set(),
@@ -126,6 +128,38 @@ function buildProps(
 describe("GovernanceFindingsQueueResultsSection", () => {
   afterEach(() => {
     productLine.value = "archlucid";
+  });
+
+  it("does not attribute an empty search result to the generic-density filter", () => {
+    render(
+      <GovernanceFindingsQueueResultsSection
+        {...buildProps({
+          activeFiltersSummary: "Search: no matches",
+          displayedRows: [],
+          hideGenericLowDensity: true,
+          isWorkingMode: true,
+          showInsightDensityScore: true,
+        })}
+      />,
+    );
+
+    expect(screen.queryByTestId("governance-findings-hide-generic-filter-empty")).toBeNull();
+  });
+
+  it("explains when hiding generic findings removed the remaining results", () => {
+    render(
+      <GovernanceFindingsQueueResultsSection
+        {...buildProps({
+          displayedRows: [],
+          hideGenericLowDensity: true,
+          genericFilterEmptiedResults: true,
+          isWorkingMode: true,
+          showInsightDensityScore: true,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("governance-findings-hide-generic-filter-empty")).toBeInTheDocument();
   });
 
   it("routes SecureNow policy assignment to the compliance policy packs hub", () => {

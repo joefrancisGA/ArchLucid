@@ -34,12 +34,12 @@ public sealed partial class SqlTenantItsmConnectorConnectionRepository
         if (tenantCount == 0)
             return null;
 
-        bool isEnabled = TenantItsmConnectorConnectionRepositoryCore.ResolveIsEnabled(command);
         ItsmConnectorAuthMode authMode =
             TenantItsmConnectorConnectionRepositoryCore.NormalizeAuthModeForProvider(provider, command.AuthMode);
+        bool isEnabled = TenantItsmConnectorConnectionRepositoryCore.ResolveIsEnabled(command, authMode);
 
         const string mergeSql = """
-                                MERGE dbo.TenantItsmConnectorConnections AS t
+                                MERGE dbo.TenantItsmConnectorConnections WITH (HOLDLOCK) AS t
                                 USING (
                                     SELECT
                                         @TenantId AS TenantId,

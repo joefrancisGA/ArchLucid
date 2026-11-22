@@ -24,11 +24,12 @@ public sealed class InMemoryImmutableSourceStore : IImmutableSourceStore
             throw new ArgumentException("TenantId is required.", nameof(artifact));
         }
 
-        string contentSha256 = ComputeSha256Hex(content);
+        byte[] storedContent = content.ToArray();
+        string contentSha256 = ComputeSha256Hex(storedContent);
         ImmutableSourceArtifact stored = CloneArtifact(artifact, contentSha256);
-        _artifacts[stored.ArtifactId] = new StoredArtifact(stored, content);
+        _artifacts[stored.ArtifactId] = new StoredArtifact(stored, storedContent);
 
-        return stored;
+        return CloneArtifact(stored, contentSha256);
     }
 
     public ImmutableSourceArtifact? GetById(string artifactId)
@@ -144,7 +145,7 @@ public sealed class InMemoryImmutableSourceStore : IImmutableSourceStore
         }
 
         return _artifacts.TryGetValue(artifactId, out StoredArtifact? stored)
-            ? stored.Content
+            ? stored.Content.ToArray()
             : null;
     }
 

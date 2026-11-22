@@ -34,7 +34,7 @@ describe("showcase-sample-review-registry", () => {
       "/architecture/reviews/customer-intake-modernization?reviewTab=findings",
     );
     expect(showcasePrimaryFindingDetailHref()).toBe(
-      "/architecture/reviews/customer-intake-modernization/findings/sensitive-data-minimization-risk",
+      "/architecture/reviews/customer-intake-modernization?reviewTab=findings&findingId=sensitive-data-minimization-risk#run-detail-first-review-spine-findings",
     );
   });
 

@@ -7,6 +7,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { createPolicyPack, getPolicyPackCatalogEntry, listPolicyPackCatalog } from "@/lib/api";
 import { showSuccess } from "@/lib/toast";
+import { readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { PolicyPack, PolicyPackCatalogListItem } from "@/types/policy-packs";
 import { usePolicyPacksHubPath } from "@/lib/product-line/use-policy-packs-hub-path";
 import {
@@ -50,11 +51,11 @@ export function usePolicyPacksCatalog(controls: PolicyPacksCatalogControls): Pol
 
   const syncCatalogEntryToUrl = useCallback(
     (catalogEntryId: string) => {
-      router.replace(policyPackCatalogEntryHrefFromSearch(searchParams.toString(), catalogEntryId, pathname), {
+      router.replace(policyPackCatalogEntryHrefFromSearch(readWindowLocationSearch(), catalogEntryId, pathname), {
         scroll: false,
       });
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   const setSelectedCatalogEntryId = useCallback(
@@ -97,7 +98,7 @@ export function usePolicyPacksCatalog(controls: PolicyPacksCatalogControls): Pol
     } finally {
       setCatalogLoading(false);
     }
-  }, []);
+  }, [setSelectedCatalogEntryId]);
 
   useEffect(() => {
     if (controls.pageTab !== "catalog") {

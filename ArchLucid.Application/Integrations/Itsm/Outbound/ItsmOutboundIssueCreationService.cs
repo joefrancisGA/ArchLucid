@@ -133,7 +133,7 @@ public sealed class ItsmOutboundIssueCreationService(
             .ConfigureAwait(false);
         ItsmOutboundCareerHonestyStamp careerHonesty = runSummary is not null
             ? ItsmOutboundCareerHonestyPresenter.Resolve(runSummary)
-            : ItsmOutboundCareerHonestyStamp.CareerReal;
+            : ItsmOutboundCareerHonestyStamp.CareerReal with { IncludeCareerCompleteCustomField = false };
         (summary, description) = ItsmOutboundCareerHonestyPresenter.Apply(summary, description, careerHonesty);
 
         ExternalTicketCreateContext createContext = new(

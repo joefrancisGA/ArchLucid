@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RecommendationLearningOpsPageClient } from "@/app/(operator)/internal/recommendation-learning/_sections/RecommendationLearningOpsPageClient";
@@ -7,6 +7,7 @@ import type { LearningProfile } from "@/types/recommendation-learning";
 
 const reloadBundle = vi.fn();
 const reloadPersistedOnly = vi.fn();
+const routerRefresh = vi.hoisted(() => vi.fn());
 const operateCapabilityMocks = vi.hoisted(() => ({
   canMutate: true,
 }));
@@ -21,7 +22,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
-    refresh: vi.fn(),
+    refresh: routerRefresh,
   }),
   usePathname: () => "/internal/recommendation-learning",
   useSearchParams: () => new URLSearchParams(),
@@ -76,6 +77,7 @@ const baseProfile: LearningProfile = {
 
 describe("RecommendationLearningOpsPageClient TB-1788 toolbar honesty", () => {
   beforeEach(() => {
+    routerRefresh.mockClear();
     reloadBundle.mockReset();
     reloadPersistedOnly.mockReset();
     reloadBundle.mockResolvedValue({
@@ -120,6 +122,7 @@ describe("RecommendationLearningOpsPageClient TB-1788 toolbar honesty", () => {
       expect(reloadBundle).toHaveBeenCalledTimes(1);
     });
     expect(reloadPersistedOnly).not.toHaveBeenCalled();
+    expect(routerRefresh).not.toHaveBeenCalled();
   });
 
   it("load persisted profile fetches stored weights without refreshing eligibility counts", async () => {
@@ -285,6 +288,55 @@ describe("RecommendationLearningOpsPageClient TB-1790 preview/rebuild/rollback +
       expect(executeRebuild).toHaveBeenCalledTimes(1);
       expect(reloadBundle).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("keeps the post-rebuild profile history when an older manual refresh finishes later", async () => {
+    let finishRebuild!: (profile: LearningProfile) => void;
+    let finishManualRefresh!: (bundle: {
+      status: RecommendationLearningOperationalStatus;
+      profile: LearningProfile;
+      history: [];
+    }) => void;
+    executeRebuild.mockReturnValueOnce(new Promise<LearningProfile>((resolve) => {
+      finishRebuild = resolve;
+    }));
+    reloadBundle.mockReturnValueOnce(new Promise((resolve) => {
+      finishManualRefresh = resolve;
+    }));
+    reloadBundle.mockResolvedValueOnce({
+      status: baseStatus,
+      profile: baseProfile,
+      history: [{
+        profileId: "rebuilt-profile",
+        generatedUtc: baseProfile.generatedUtc,
+        outcomeCount: 12,
+        isActive: true,
+      }],
+    });
+
+    render(
+      <RecommendationLearningOpsPageClient
+        initialStatus={baseStatus}
+        initialProfile={baseProfile}
+        initialHistory={[]}
+        initialFailure={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Rebuild from historical outcomes" }));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
+    expect(reloadBundle).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      finishRebuild(baseProfile);
+    });
+    expect(reloadBundle).toHaveBeenCalledTimes(2);
+    expect(screen.getByText("rebuilt-profile")).toBeInTheDocument();
+
+    await act(async () => {
+      finishManualRefresh({ status: baseStatus, profile: baseProfile, history: [] });
+    });
+    expect(screen.getByText("rebuilt-profile")).toBeInTheDocument();
   });
 
   it("requires ExecuteAuthority before preview, rebuild, and rollback actions", () => {

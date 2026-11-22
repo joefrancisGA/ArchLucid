@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Security;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Finalization;
@@ -11,6 +12,7 @@ using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Planning;
@@ -30,10 +32,20 @@ public sealed partial class GraphController
     public async Task<IActionResult> GetArchitectureGraphTemporalSnapshot(
         [FromQuery] Guid runId,
         [FromQuery] DateTimeOffset? asOf,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        [FromQuery] bool secureNowExchange = false)
     {
         try
         {
+            // The optional exchange format is hidden unless a server-side feature gate explicitly enables it.
+            // Resolve from DI fail-closed: absence of the provider must never enable the capability.
+            if (secureNowExchange)
+            {
+                IFeatureFlags? flags = HttpContext.RequestServices.GetService<IFeatureFlags>();
+                if (flags is null || !await flags.IsEnabledAsync("SecureNow.ReadOnlySnapshotExchange", ct))
+                    return NotFound();
+            }
+
             if (runId == Guid.Empty)
                 return this.BadRequestProblem("Query parameter \"runId\" is required.");
 
@@ -41,6 +53,21 @@ public sealed partial class GraphController
                 return this.BadRequestProblem("Query parameter \"asOf\" is required.");
 
             ScopeContext scope = scopeProvider.GetCurrentScope();
+
+            // FND-010: authorize the SecureNow evidence exchange before any run/evidence read.
+            // The requested run ID is the scoped anchor resource, not a claim that
+            // the resolved graph snapshot has already been authorized.
+            if (secureNowExchange)
+            {
+                EvidenceReadAuthorizationGate? gate =
+                    HttpContext.RequestServices.GetService<EvidenceReadAuthorizationGate>();
+                if (gate is null)
+                    return NotFound();
+                EvidenceReadDecision access = await gate.AuthorizeAsync(
+                    User, scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId, ct);
+                if (!access.Allowed)
+                    return NotFound();
+            }
 
             RunRecord? anchor = await runRepository.GetByIdAsync(scope, runId, ct);
 
@@ -57,6 +84,24 @@ public sealed partial class GraphController
                 return this.NotFoundProblem(
                     $"No persisted architecture graph exists for project '{anchor.ProjectId}' at or before the requested instant.",
                     ProblemTypes.ResourceNotFound);
+            }
+
+            // FND-010: the temporal resolver may select a different run than the
+            // anchor. Reauthorize the actual resolved resource before reading
+            // any graph details, and reject cross-project resolution.
+            if (secureNowExchange)
+            {
+                if (resolved.ProjectId != anchor.ProjectId)
+                    return NotFound();
+
+                EvidenceReadAuthorizationGate? resolvedGate =
+                    HttpContext.RequestServices.GetService<EvidenceReadAuthorizationGate>();
+                if (resolvedGate is null)
+                    return NotFound();
+                EvidenceReadDecision resolvedAccess = await resolvedGate.AuthorizeAsync(
+                    User, scope.TenantId, scope.WorkspaceId, scope.ProjectId, resolved.RunId, ct);
+                if (!resolvedAccess.Allowed)
+                    return NotFound();
             }
 
             RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, resolved.RunId, ct);
@@ -115,6 +160,21 @@ public sealed partial class GraphController
                     + $"{limits.FullGraphResponseMaxNodes} for resolved run '{resolved.RunId:D}'. Use GET /v1/evidence-graph/reviews/{resolved.RunId:D}/nodes with page/pageSize (resolvedRunId returned in this problem).",
                     ProblemTypes.GraphTooLargeForFullResponse,
                     extensions: new Dictionary<string, object?> { ["resolvedRunId"] = resolved.RunId });
+            }
+
+            if (secureNowExchange)
+            {
+                try
+                {
+                    SecureNowSnapshotEnvelope exchange = SecureNowSnapshotProjection.Project(
+                        detail.GraphSnapshot, scope, resolved.RunId, TimeProvider.System.GetUtcNow());
+                    return Ok(exchange);
+                }
+                catch (ArgumentException)
+                {
+                    // A malformed persisted graph must not be exposed through the SecureNow exchange.
+                    return Conflict();
+                }
             }
 
             GraphViewModel graph = MapArchitectureGraph(detail.GraphSnapshot);

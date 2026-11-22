@@ -24,6 +24,8 @@ import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { COMPARE_FINDING_LIFECYCLE_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/compare/compare-finding-lifecycle-empty-not-load-failure-copy";
+import { COMPARE_FINDING_LIFECYCLE_STATUS_FILTER_EMPTY_LINE } from "@/lib/compare/compare-finding-lifecycle-status-filter-empty-copy";
 import { cn } from "@/lib/utils";
 
 export type CompareFindingLifecycleBlockProps = {
@@ -58,6 +60,12 @@ export function CompareFindingLifecycleBlock(props: CompareFindingLifecycleBlock
   const filteredRecords =
     activeStatus === null ? records : records.filter((record) => record.state === activeStatus);
   const showRecords = filteredRecords.length > 0 && prior.length > 0 && later.length > 0;
+  const lifecycleCountTotal =
+    summary.newlyIdentifiedCount +
+    summary.previouslyIdentifiedStillPresentCount +
+    summary.confirmedResolvedCount +
+    summary.unverifiedResolvedCount +
+    summary.absenceNotInformativeCount;
 
   return (
     <div
@@ -129,11 +137,28 @@ export function CompareFindingLifecycleBlock(props: CompareFindingLifecycleBlock
       ) : null}
 
       {activeStatus !== null && records.length > 0 && filteredRecords.length === 0 ? (
-        <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          No findings match {lifecycleStatusChipLabel(activeStatus).toLowerCase()}.{" "}
-          <Link href={compareFindingLifecycleStatusHrefFromSearch(currentSearch, null, pathname)} className="underline">
-            Clear lifecycle filter
-          </Link>
+        <div className="mt-3 space-y-1">
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-finding-lifecycle-status-filter-empty"
+          >
+            {COMPARE_FINDING_LIFECYCLE_STATUS_FILTER_EMPTY_LINE}
+          </p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            No findings match {lifecycleStatusChipLabel(activeStatus).toLowerCase()}.{" "}
+            <Link href={compareFindingLifecycleStatusHrefFromSearch(currentSearch, null, pathname)} className="underline">
+              Clear lifecycle filter
+            </Link>
+          </p>
+        </div>
+      ) : null}
+
+      {activeStatus === null && records.length === 0 && lifecycleCountTotal === 0 ? (
+        <p
+          className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="compare-finding-lifecycle-empty-not-load-failure"
+        >
+          {COMPARE_FINDING_LIFECYCLE_EMPTY_NOT_LOAD_FAILURE_LINE}
         </p>
       ) : null}
     </div>

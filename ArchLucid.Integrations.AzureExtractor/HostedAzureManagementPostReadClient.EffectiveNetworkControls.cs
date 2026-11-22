@@ -10,22 +10,18 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Integrations.AzureExtractor;
 
-public sealed partial class GetOnlyHostedAzureArmReadClient
+public sealed partial class HostedAzureManagementPostReadClient
 {
+    private const int MaxEffectiveNetworkControlPolls = 15;
+    private static readonly TimeSpan DefaultEffectiveNetworkControlPollDelay = TimeSpan.FromSeconds(1);
+
     public async Task<IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord>> ListEffectiveNetworkControlsForNicAsync(
         string accessToken,
         string nicResourceId,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(accessToken))
-        {
-            throw new ArgumentException("Access token is required.", nameof(accessToken));
-        }
-
-        if (string.IsNullOrWhiteSpace(nicResourceId))
-        {
-            throw new ArgumentException("NIC resource id is required.", nameof(nicResourceId));
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        ArgumentException.ThrowIfNullOrWhiteSpace(nicResourceId);
 
         string trimmedNicId = nicResourceId.Trim();
         List<HostedAzureArmEffectiveNetworkControlRecord> rows =
@@ -58,28 +54,109 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         CancellationToken cancellationToken)
     {
         string requestUri =
-            $"https://management.azure.com/{nicResourceId.TrimStart('/')}/{relativePath}?api-version={HostedAzureArmNetworkTypeListDescriptors.NetworkApiVersion}";
+            $"https://management.azure.com/{nicResourceId.TrimStart('/')}/{relativePath}"
+            + $"?api-version={HostedAzureArmNetworkTypeListDescriptors.NetworkApiVersion}";
 
-        using HttpRequestMessage request = new(HttpMethod.Get, requestUri);
+        using HttpRequestMessage request = new(HttpMethod.Post, requestUri);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         using HttpResponseMessage response =
             await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-        if (response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.Forbidden)
+        if (response.StatusCode is HttpStatusCode.Accepted)
         {
-            if (_logger.IsEnabled(LogLevel.Debug))
-            {
-                _logger.LogDebug(
-                    "Hosted Azure extractor skipped {Kind} for NIC {NicResourceId}; HTTP {StatusCode}.",
-                    kind,
+            return await PollEffectiveControlAsync(
+                    accessToken,
                     nicResourceId,
-                    (int)response.StatusCode);
-            }
-
-            return SkippedRow(nicResourceId, kind);
+                    kind,
+                    resolveEffectiveResourceId,
+                    response,
+                    cancellationToken)
+                .ConfigureAwait(false);
         }
 
+        return await ReadEffectiveControlResponseAsync(
+                nicResourceId,
+                kind,
+                resolveEffectiveResourceId,
+                response,
+                cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    private async Task<HostedAzureArmEffectiveNetworkControlRecord> PollEffectiveControlAsync(
+        string accessToken,
+        string nicResourceId,
+        string kind,
+        Func<JsonElement, string?> resolveEffectiveResourceId,
+        HttpResponseMessage acceptedResponse,
+        CancellationToken cancellationToken)
+    {
+        Uri? location = acceptedResponse.Headers.Location;
+
+        if (location is null)
+        {
+            return SkippedEffectiveControlRow(nicResourceId, kind);
+        }
+
+        string pollUri = location.IsAbsoluteUri
+            ? location.AbsoluteUri
+            : new Uri(new Uri("https://management.azure.com/"), location).AbsoluteUri;
+        HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+            pollUri,
+            ResolveSubscriptionScope(nicResourceId));
+
+        TimeSpan delay = ResolvePollDelay(acceptedResponse.Headers.RetryAfter);
+
+        for (int poll = 0; poll < MaxEffectiveNetworkControlPolls; poll++)
+        {
+            if (delay > TimeSpan.Zero)
+            {
+                await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+            }
+
+            using HttpRequestMessage pollRequest = new(HttpMethod.Get, pollUri);
+            pollRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage pollResponse =
+                await _httpClient.SendAsync(pollRequest, cancellationToken).ConfigureAwait(false);
+
+            if (pollResponse.StatusCode is HttpStatusCode.Accepted)
+            {
+                if (pollResponse.Headers.Location is { } nextLocation)
+                {
+                    string nextPollUri = nextLocation.IsAbsoluteUri
+                        ? nextLocation.AbsoluteUri
+                        : new Uri(new Uri(pollUri), nextLocation).AbsoluteUri;
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        nextPollUri,
+                        ResolveSubscriptionScope(nicResourceId));
+                    pollUri = nextPollUri;
+                }
+
+                delay = ResolvePollDelay(pollResponse.Headers.RetryAfter);
+                continue;
+            }
+
+            return await ReadEffectiveControlResponseAsync(
+                    nicResourceId,
+                    kind,
+                    resolveEffectiveResourceId,
+                    pollResponse,
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        return SkippedEffectiveControlRow(nicResourceId, kind);
+    }
+
+    private async Task<HostedAzureArmEffectiveNetworkControlRecord> ReadEffectiveControlResponseAsync(
+        string nicResourceId,
+        string kind,
+        Func<JsonElement, string?> resolveEffectiveResourceId,
+        HttpResponseMessage response,
+        CancellationToken cancellationToken)
+    {
         if (!response.IsSuccessStatusCode)
         {
             if (_logger.IsEnabled(LogLevel.Debug))
@@ -91,7 +168,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
                     (int)response.StatusCode);
             }
 
-            return SkippedRow(nicResourceId, kind);
+            return SkippedEffectiveControlRow(nicResourceId, kind);
         }
 
         string payload = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
@@ -103,7 +180,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
             if (string.IsNullOrWhiteSpace(effectiveResourceId))
             {
-                return SkippedRow(nicResourceId, kind);
+                return SkippedEffectiveControlRow(nicResourceId, kind);
             }
 
             return new HostedAzureArmEffectiveNetworkControlRecord(
@@ -124,11 +201,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
                     nicResourceId);
             }
 
-            return SkippedRow(nicResourceId, kind);
+            return SkippedEffectiveControlRow(nicResourceId, kind);
         }
     }
 
-    private static HostedAzureArmEffectiveNetworkControlRecord SkippedRow(string nicResourceId, string kind)
+    private static HostedAzureArmEffectiveNetworkControlRecord SkippedEffectiveControlRow(string nicResourceId, string kind)
     {
         return new HostedAzureArmEffectiveNetworkControlRecord(
             NicResourceId: nicResourceId,
@@ -186,10 +263,37 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         return null;
     }
 
+    private static string ResolveSubscriptionScope(string nicResourceId)
+    {
+        string[] segments = nicResourceId.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        if (segments.Length < 2 || !segments[0].Equals("subscriptions", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException("NIC resource id must be scoped to an Azure subscription.", nameof(nicResourceId));
+        }
+
+        return $"subscriptions/{segments[1]}";
+    }
+
+    private static TimeSpan ResolvePollDelay(RetryConditionHeaderValue? retryAfter)
+    {
+        if (retryAfter?.Delta is { } delta)
+        {
+            return delta < TimeSpan.Zero ? TimeSpan.Zero : delta;
+        }
+
+        if (retryAfter?.Date is { } date)
+        {
+            TimeSpan remaining = date - TimeProvider.System.GetUtcNow();
+            return remaining < TimeSpan.Zero ? TimeSpan.Zero : remaining;
+        }
+
+        return DefaultEffectiveNetworkControlPollDelay;
+    }
+
     private static string ComputePayloadHash(string payload)
     {
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(payload));
-
         return Convert.ToHexStringLower(hash);
     }
 }

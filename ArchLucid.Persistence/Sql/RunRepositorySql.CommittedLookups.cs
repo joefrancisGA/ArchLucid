@@ -2,8 +2,13 @@ namespace ArchLucid.Persistence.Sql;
 
 internal static partial class RunRepositorySql
 {
-    private const string CommittedRunLookupStatusFilter = """
-                                                           AND r.LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)
+    private const string CommitLookupExcludeFailedStatus = """
+                                                           AND (r.LegacyRunStatus IS NULL
+                                                                OR r.LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus))
+                                                           """;
+
+    private const string CommittedRunLookupStatusFilter = $"""
+                                                           {CommitLookupExcludeFailedStatus}
                                                            AND (
                                                                 r.LegacyRunStatus = @CommittedStatus
                                                                 OR NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
@@ -11,8 +16,8 @@ internal static partial class RunRepositorySql
                                                            )
                                                            """;
 
-    private const string CommittedRunLookupStatusFilterWithoutManifestSignal = """
-                                                                               AND r.LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)
+    private const string CommittedRunLookupStatusFilterWithoutManifestSignal = $"""
+                                                                               {CommitLookupExcludeFailedStatus}
                                                                                AND (
                                                                                     r.LegacyRunStatus = @CommittedStatus
                                                                                     OR NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL

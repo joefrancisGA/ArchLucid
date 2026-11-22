@@ -156,8 +156,15 @@ public sealed class InMemoryLlmTenantWalletRepository : ILlmTenantWalletReposito
         if (amountUsd <= 0m)
             return Task.FromResult(LlmTenantWalletCreditResult.Ok(0m));
 
-        if (!string.IsNullOrWhiteSpace(stripePaymentIntentId) && _paymentIntentIds.ContainsKey(stripePaymentIntentId))
-            return Task.FromResult(LlmTenantWalletCreditResult.Duplicate());
+        bool reservedPaymentIntent = false;
+
+        if (!string.IsNullOrWhiteSpace(stripePaymentIntentId))
+        {
+            reservedPaymentIntent = _paymentIntentIds.TryAdd(stripePaymentIntentId, 0);
+
+            if (!reservedPaymentIntent)
+                return Task.FromResult(LlmTenantWalletCreditResult.Duplicate());
+        }
 
         object gate = _locks.GetOrAdd(tenantId, _ => new object());
 
@@ -166,7 +173,12 @@ public sealed class InMemoryLlmTenantWalletRepository : ILlmTenantWalletReposito
             Row row = _rows.GetOrAdd(tenantId, _ => new Row());
 
             if (!RowVersionMatches(row, expectedRowVersion))
+            {
+                if (reservedPaymentIntent)
+                    _paymentIntentIds.TryRemove(stripePaymentIntentId!, out _);
+
                 return Task.FromResult(LlmTenantWalletCreditResult.Conflict());
+            }
 
             if (incrementMonthlyAutoRefillCount)
             {
@@ -186,9 +198,6 @@ public sealed class InMemoryLlmTenantWalletRepository : ILlmTenantWalletReposito
             row.Version++;
 
             AppendLedger(tenantId, LlmTenantWalletLedgerEntryTypes.Refill, amountUsd, row.BalanceUsd, stripePaymentIntentId, correlationId);
-
-            if (!string.IsNullOrWhiteSpace(stripePaymentIntentId))
-                _paymentIntentIds.TryAdd(stripePaymentIntentId, 0);
 
             return Task.FromResult(LlmTenantWalletCreditResult.Ok(row.BalanceUsd));
         }

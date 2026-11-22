@@ -94,7 +94,8 @@ public static class AzureInventoryWorkflowActionTargetParser
                 root = nestedDefinition;
             }
 
-            if (!root.TryGetProperty("actions", out JsonElement actionsElement)
+            if (root.ValueKind is not JsonValueKind.Object
+                || !root.TryGetProperty("actions", out JsonElement actionsElement)
                 || actionsElement.ValueKind is not JsonValueKind.Object)
             {
                 return targets;

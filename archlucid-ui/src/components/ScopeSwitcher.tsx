@@ -88,6 +88,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   const openRef = useRef(open);
   openRef.current = open;
   const stored = useOperatorScopeRecord();
+  const workspaceListRequest = useRef(0);
   const [listLoading, setListLoading] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
   const [workspaces, setWorkspaces] = useState<ScopeSwitcherWorkspaceOption[] | null>(null);
@@ -192,12 +193,17 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   }, []);
 
   const refreshList = useCallback(async () => {
+    const request = ++workspaceListRequest.current;
     setListLoading(true);
     setListError(null);
     const useSampleFallback = shouldUseSampleWorkspaceFallback(workspaceId, projectId);
 
     try {
       const res = await fetch(WORKSPACES_PATH, mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }));
+      if (request !== workspaceListRequest.current) {
+        return;
+      }
+
       if (!res.ok) {
         if (useSampleFallback) {
           applySampleWorkspaceFallback();
@@ -211,6 +217,10 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
         return;
       }
       const json: unknown = await res.json();
+      if (request !== workspaceListRequest.current) {
+        return;
+      }
+
       const parsed = parseWorkspacesList(json);
 
       if (parsed.length === 0) {
@@ -229,6 +239,10 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
       setWorkspaces(parsed);
       setListError(null);
     } catch (e) {
+      if (request !== workspaceListRequest.current) {
+        return;
+      }
+
       if (useSampleFallback) {
         applySampleWorkspaceFallback();
 
@@ -238,14 +252,22 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
       setWorkspaces(null);
       setListError(e instanceof Error ? e.message : BUYER_SCOPE_SWITCHER_LOAD_ERROR);
     } finally {
-      setListLoading(false);
+      if (request === workspaceListRequest.current) {
+        setListLoading(false);
+      }
     }
   }, [applySampleWorkspaceFallback, projectId, workspaceId]);
 
   useEffect(() => {
-    if (open) {
-      void refreshList();
+    if (!open) {
+      return;
     }
+
+    void refreshList();
+
+    return () => {
+      workspaceListRequest.current++;
+    };
   }, [open, refreshList]);
 
   const panelMode: ScopePanelMode = useMemo(() => {

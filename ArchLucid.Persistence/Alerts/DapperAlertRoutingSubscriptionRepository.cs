@@ -53,7 +53,10 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
                 IsEnabled = @IsEnabled,
                 LastModifiedByActor = @LastModifiedByActor,
                 LastModifiedUtc = @LastModifiedUtc,
-                LastDeliveredUtc = @LastDeliveredUtc,
+                LastDeliveredUtc = CASE
+                    WHEN LastDeliveredUtc IS NULL OR @LastDeliveredUtc > LastDeliveredUtc THEN @LastDeliveredUtc
+                    ELSE LastDeliveredUtc
+                END,
                 MetadataJson = @MetadataJson
             WHERE RoutingSubscriptionId = @RoutingSubscriptionId
               AND TenantId = @TenantId

@@ -47,6 +47,20 @@ describe("formatFeasibilityVerdictMarkdownSection (FC-30 / FC-31)", () => {
     expect(markdown).toContain("INV-AVAIL-001");
   });
 
+  it.each([undefined, null])("includes the stored unsat core when authority citations are %s", (hardCitations) => {
+    const verdict: ManifestFeasibilityVerdict = {
+      kind: "HardInfeasible",
+      summary: "Required controls cannot be satisfied.",
+      hardCitations,
+      unsatCoreInvariantKeys: ["INV-AVAIL-001"],
+    };
+
+    expect(resolveHardInfeasibleCitationExportBlockedReason(verdict)).toBeNull();
+    const markdown = formatFeasibilityVerdictMarkdownSection(verdict);
+    expect(markdown).toContain("Authority citations were not stored.");
+    expect(markdown).toContain("**Unsat core:** INV-AVAIL-001");
+  });
+
   it("shows soft envelope copy instead of failed-review framing", () => {
     const verdict: ManifestFeasibilityVerdict = {
       kind: "SoftInfeasible",
@@ -187,6 +201,24 @@ describe("formatFeasibilityVerdictMarkdownSection (FC-30 / FC-31)", () => {
     expect(storedEmpty).not.toContain("Verdict summary was not stored.");
     expect(storedEmpty).not.toContain("Citation reference was not stored.");
     expect(storedEmpty).not.toContain("Citation kind was not stored.");
+  });
+
+  it.each([null, "  "])("includes stored citation details when the reference is %j", (reference) => {
+    const markdown = formatFeasibilityVerdictMarkdownSection({
+      kind: "HardInfeasible",
+      summary: "Required controls cannot be satisfied.",
+      hardCitations: [{ kind: "NamedLaw", reference, invariantKeys: ["INV-CITATION-1"] }],
+      unsatCoreInvariantKeys: ["INV-CORE-1"],
+    });
+
+    expect(markdown).toContain(
+      reference === null
+        ? "Citation reference was not stored."
+        : "Citation reference was stored empty.",
+    );
+    expect(markdown).toContain("Citation kind: NamedLaw");
+    expect(markdown).toContain("Citation invariant keys: INV-CITATION-1");
+    expect(markdown).toContain("**Unsat core:** INV-CORE-1");
   });
 
   it("distinguishes missing authority citations from a stored empty collection", () => {

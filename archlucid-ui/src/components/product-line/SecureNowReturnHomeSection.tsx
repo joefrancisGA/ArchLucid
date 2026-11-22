@@ -158,9 +158,18 @@ export function SecureNowReturnHomeSection(): React.JSX.Element {
           {SECURENOW_RETURN_HOME_SECTION_HEADING}
         </h2>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_RETURN_HOME_SECTION_LEAD}</p>
-        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)} data-testid="securenow-return-home-empty">
-          {SECURENOW_RETURN_HOME_EMPTY}
-        </p>
+        {instancesQuery.isError ? (
+          <div className="mt-2">
+            <SecureNowWorkspaceApiUnreachableNotice
+              message="Unfinished remediation work could not be checked."
+              testId="securenow-return-home-remediation-unavailable"
+            />
+          </div>
+        ) : (
+          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)} data-testid="securenow-return-home-empty">
+            {SECURENOW_RETURN_HOME_EMPTY}
+          </p>
+        )}
       </section>
     );
   }

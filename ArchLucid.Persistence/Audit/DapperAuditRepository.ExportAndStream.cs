@@ -24,7 +24,10 @@ public sealed partial class DapperAuditRepository
         int maxRows,
         CancellationToken ct)
     {
-        int take = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
+        int take = Math.Clamp(
+            maxRows <= 0 ? IAuditRepository.BulkExportRowLimit : maxRows,
+            1,
+            IAuditRepository.BulkExportRowLimit + 1);
 
         // Export uses the same committed-read semantics as list/filter (RCSI when enabled).
         const string sql = """
@@ -40,7 +43,7 @@ public sealed partial class DapperAuditRepository
                              AND ProjectId = @ProjectId
                              AND OccurredUtc >= @FromUtc
                              AND OccurredUtc < @ToUtc
-                           ORDER BY OccurredUtc ASC;
+                           ORDER BY OccurredUtc ASC, EventId ASC;
                            """;
 
         await using SqlConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(ct);

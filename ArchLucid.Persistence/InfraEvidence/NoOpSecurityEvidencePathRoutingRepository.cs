@@ -5,13 +5,21 @@ public sealed class NoOpSecurityEvidencePathRoutingRepository : ISecurityEvidenc
     public Task<IReadOnlyList<SecurityEvidencePathRoutingRecord>> ListByPathIdAsync(
         Guid tenantId,
         Guid pathId,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<SecurityEvidencePathRoutingRecord>>([]);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<SecurityEvidencePathRoutingRecord>>([]);
+    }
 
     public Task ReplaceRoutingForPathAsync(
         Guid tenantId,
         Guid pathId,
         IReadOnlyList<SecurityEvidencePathRoutingRecord> routingRows,
-        CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 }

@@ -12,13 +12,13 @@ public static class HostedAzureEffectiveNetworkControlCollector
     public const int MaxNicCount = 200;
 
     public static async Task<HostedAzureEffectiveNetworkControlCollectResult> CollectAsync(
-        IHostedAzureArmReadClient armReadClient,
+        IHostedAzureManagementPostReadClient postReadClient,
         string accessToken,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         ILogger logger,
         CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(armReadClient);
+        ArgumentNullException.ThrowIfNull(postReadClient);
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(logger);
 
@@ -53,7 +53,7 @@ public static class HostedAzureEffectiveNetworkControlCollector
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord> nicRows = await armReadClient
+            IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord> nicRows = await postReadClient
                 .ListEffectiveNetworkControlsForNicAsync(accessToken, nicResourceId, cancellationToken)
                 .ConfigureAwait(false);
 

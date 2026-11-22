@@ -17,6 +17,23 @@ describe("remediationLifecycleActionBlockedReason", () => {
     ).toMatch(/finding id/i);
   });
 
+  it("requires an inventory snapshot for preflight on a classified instance", () => {
+    const context = {
+      actionBusy: false,
+      selectedStatus: "Classified" as const,
+      transitionsBlocked: false,
+      findingIdInput: "",
+      selectedWaveId: "",
+      selectedSnapshotId: "",
+    };
+
+    expect(remediationLifecycleActionBlockedReason("preflight", context)).toMatch(/inventory snapshot/i);
+    expect(remediationLifecycleActionBlockedReason("preflight", {
+      ...context,
+      selectedSnapshotId: "snapshot-1",
+    })).toBeNull();
+  });
+
   it("blocks approve when preflight has not passed", () => {
     expect(
       remediationLifecycleActionBlockedReason("approve", {

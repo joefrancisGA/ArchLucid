@@ -13,20 +13,10 @@ public sealed partial class InMemoryArchitectureIdentityRepository
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? record))
-            return Task.FromResult(false);
-
-        if (record.TenantId != scope.TenantId ||
-            record.WorkspaceId != scope.WorkspaceId ||
-            record.ScopeProjectId != scope.ProjectId)
-            return Task.FromResult(false);
-
-        record.RestrictToShares = restrictToShares;
-        record.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-
-        return Task.FromResult(true);
+        return Task.FromResult(UpdateScopedRecord(
+            scope, architectureId, null, record => record.RestrictToShares = restrictToShares));
     }
 
     private async Task<List<ArchitectureIdentityRecord>> FilterByShareVisibilityAsync(

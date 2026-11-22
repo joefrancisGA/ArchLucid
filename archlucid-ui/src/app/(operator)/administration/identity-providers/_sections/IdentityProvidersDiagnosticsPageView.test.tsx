@@ -227,6 +227,11 @@ describe("IdentityProvidersDiagnosticsPageView", () => {
       />,
     );
 
-    expect(screen.getByTestId("identity-providers-diagnostics-protocol-details")).toHaveAttribute("open");
+    const disclosure = screen.getByTestId("identity-providers-diagnostics-protocol-details");
+    expect(disclosure).toHaveAttribute("open");
+
+    fireEvent(disclosure, new Event("toggle"));
+
+    expect(disclosure).toHaveAttribute("open");
   });
 });

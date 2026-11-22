@@ -74,21 +74,15 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
   );
 
   useEffect(() => {
-    if (urlDisconnectId.length === 0) {
+    const connection = urlDisconnectId.length > 0
+      ? connections.find((row) => row.connectionId === urlDisconnectId)
+      : undefined;
+
+    if (connection === undefined) {
       if (disconnectTarget !== null) {
         setDisconnectTargetState(null);
       }
 
-      return;
-    }
-
-    if (connections.length === 0) {
-      return;
-    }
-
-    const connection = connections.find((row) => row.connectionId === urlDisconnectId);
-
-    if (connection === undefined) {
       return;
     }
 

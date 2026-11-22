@@ -8,6 +8,7 @@ namespace ArchLucid.Persistence.Data.Repositories;
 public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepository
 {
     private readonly ConcurrentDictionary<Guid, OperatorSavedViewStoredRow> _views = new();
+    private readonly Lock _createGate = new();
 
     /// <inheritdoc />
     public Task<IReadOnlyList<OperatorSavedViewResponse>> ListAsync(
@@ -16,6 +17,8 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
         string? surface,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IEnumerable<OperatorSavedViewStoredRow> query = _views.Values.Where(view =>
             OperatorSavedViewRepositoryCore.IsVisibleToUser(
                 tenantId,
@@ -44,10 +47,7 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
         bool isShared,
         CancellationToken cancellationToken)
     {
-        if (OperatorSavedViewRepositoryCore.IsDuplicateName(_views.Values, tenantId, userId, surface, name))
-        {
-            throw OperatorSavedViewRepositoryCore.CreateDuplicateNameException(name, surface);
-        }
+        cancellationToken.ThrowIfCancellationRequested();
 
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
         OperatorSavedViewStoredRow stored = new()
@@ -64,7 +64,13 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
             UpdatedUtc = now,
         };
 
-        _views[stored.Id] = stored;
+        lock (_createGate)
+        {
+            if (OperatorSavedViewRepositoryCore.IsDuplicateName(_views.Values, tenantId, userId, surface, name))
+                throw OperatorSavedViewRepositoryCore.CreateDuplicateNameException(name, surface);
+
+            _views[stored.Id] = stored;
+        }
 
         return Task.FromResult<OperatorSavedViewResponse?>(
             OperatorSavedViewRepositoryCore.MapToResponse(stored, userId));
@@ -77,6 +83,8 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
         Guid viewId,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!_views.TryGetValue(viewId, out OperatorSavedViewStoredRow? stored))
             return Task.FromResult(false);
 

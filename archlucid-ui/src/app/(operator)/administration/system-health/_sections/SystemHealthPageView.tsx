@@ -52,6 +52,8 @@ import {
   parseSystemHealthClaimScopeOpenFromSearch,
   systemHealthClaimScopeHrefFromSearch,
 } from "@/lib/administration/system-health-claim-scope-url";
+import { SYSTEM_HEALTH_SUMMARY_TILES_POINT_IN_TIME_NOT_LOAD_FAILURE_LINE } from "@/lib/administration/system-health-summary-tiles-point-in-time-not-load-failure-copy";
+import { SYSTEM_HEALTH_SUMMARY_TILE_POINT_IN_TIME_NOT_LOAD_FAILURE_LINE } from "@/lib/administration/system-health-summary-tile-point-in-time-not-load-failure-copy";
 
 type Props = {
   readonly model: SystemHealthPageViewModel;
@@ -178,7 +180,13 @@ export function SystemHealthPageView(props: Props) {
         testId="system-health-needs-attention"
       />
 
-      <HealthSummaryTileGrid tiles={summaryTiles} testId="system-health-summary-tiles" />
+            <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="system-health-summary-tiles-point-in-time-not-load-failure"
+      >
+        {SYSTEM_HEALTH_SUMMARY_TILES_POINT_IN_TIME_NOT_LOAD_FAILURE_LINE}
+      </p>
+      <HealthSummaryTileGrid tiles={summaryTiles} testId="system-health-summary-tiles" perTilePointInTimeHonestyLine={SYSTEM_HEALTH_SUMMARY_TILE_POINT_IN_TIME_NOT_LOAD_FAILURE_LINE} />
       <HealthBuildDetailsDisclosure
         version={m.version}
         testId="system-health-build-identity"

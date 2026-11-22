@@ -10,6 +10,47 @@ namespace ArchLucid.Persistence.Tests.AwsExtractor;
 public sealed class InMemoryTenantAwsConnectionRepositoryTests
 {
     [Fact]
+    public async Task Repeated_account_registration_preserves_connection_identity_and_creation_time()
+    {
+        InMemoryTenantAwsConnectionRepository sut = new();
+        Guid tenantId = Guid.NewGuid();
+        Guid originalId = Guid.NewGuid();
+        DateTimeOffset createdUtc = new(2026, 11, 1, 0, 0, 0, TimeSpan.Zero);
+
+        await sut.UpsertAsync(new TenantAwsConnectionRecord
+        {
+            ConnectionId = originalId,
+            TenantId = tenantId,
+            AccountId = "123456789012",
+            Region = "us-east-1",
+            RoleArn = "arn:aws:iam::123456789012:role/Original",
+            Status = AwsConnectionStatus.Connected,
+            CreatedUtc = createdUtc,
+            UpdatedByActorId = "first"
+        }, CancellationToken.None);
+
+        // A second caller may have looked up the account before the first registration.
+        await sut.UpsertAsync(new TenantAwsConnectionRecord
+        {
+            TenantId = tenantId,
+            AccountId = " 123456789012 ",
+            Region = "us-west-2",
+            RoleArn = "arn:aws:iam::123456789012:role/Updated",
+            Status = AwsConnectionStatus.Connected,
+            CreatedUtc = createdUtc.AddDays(1),
+            UpdatedByActorId = "second"
+        }, CancellationToken.None);
+
+        TenantAwsConnectionRecord stored =
+            (await sut.ListByTenantAsync(tenantId, CancellationToken.None)).Should().ContainSingle().Subject;
+        stored.ConnectionId.Should().Be(originalId);
+        stored.CreatedUtc.Should().Be(createdUtc);
+        stored.Region.Should().Be("us-west-2");
+        (await sut.TryGetByAccountAsync(tenantId, "123456789012", CancellationToken.None))!.ConnectionId
+            .Should().Be(originalId);
+    }
+
+    [Fact]
     public async Task Upsert_get_list_update_and_delete_round_trip()
     {
         InMemoryTenantAwsConnectionRepository sut = new();

@@ -84,12 +84,12 @@ public sealed class AzureExtractorPreparedZipPersistStage(
 
                 if (headerResult.Succeeded && headerResult.SnapshotId is Guid createdSnapshotId)
                 {
-                    AzureInventoryCaptureMethod captureMethod = manifest.RawJson.Contains(
-                        "\"captureMethod\":\"HostedReader\"",
-                        StringComparison.OrdinalIgnoreCase)
-                        || manifest.RawJson.Contains(
-                            "\"captureMethod\": \"HostedReader\"",
-                            StringComparison.OrdinalIgnoreCase)
+                    using JsonDocument manifestDocument = JsonDocument.Parse(manifest.RawJson);
+                    bool usesHostedReader = manifestDocument.RootElement.EnumerateObject().Any(property =>
+                        string.Equals(property.Name, "captureMethod", StringComparison.OrdinalIgnoreCase)
+                        && property.Value.ValueKind == JsonValueKind.String
+                        && string.Equals(property.Value.GetString(), "HostedReader", StringComparison.OrdinalIgnoreCase));
+                    AzureInventoryCaptureMethod captureMethod = usesHostedReader
                         ? AzureInventoryCaptureMethod.HostedReader
                         : AzureInventoryCaptureMethod.CustomerScript;
 

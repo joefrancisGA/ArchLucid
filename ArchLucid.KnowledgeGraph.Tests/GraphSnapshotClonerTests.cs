@@ -27,6 +27,8 @@ public sealed class GraphSnapshotClonerTests
             EdgeType = "contains",
             Weight = 0.75,
             InferenceSource = GraphEdgeInferenceSources.ContextMembership,
+            ProvenanceKind = "HumanAssertion",
+            DeclaredConnectionId = "declared-1",
             ReasoningTrace = "cloned trace",
             Properties = new Dictionary<string, string> { ["k"] = "v" }
         };
@@ -72,6 +74,8 @@ public sealed class GraphSnapshotClonerTests
         clone.Edges[0].ToNodeId.Should().Be("b");
         clone.Edges[0].Weight.Should().Be(0.75);
         clone.Edges[0].InferenceSource.Should().Be(GraphEdgeInferenceSources.ContextMembership);
+        clone.Edges[0].ProvenanceKind.Should().Be("HumanAssertion");
+        clone.Edges[0].DeclaredConnectionId.Should().Be("declared-1");
         clone.Edges[0].ReasoningTrace.Should().Be("cloned trace");
         clone.Edges[0].Properties["k"].Should().Be("v");
     }

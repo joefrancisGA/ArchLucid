@@ -33,7 +33,7 @@ public sealed class InMemoryValueReportMetricsReader : IValueReportMetricsReader
         _ = projectId;
         _ = fromUtcInclusive;
         _ = toUtcExclusive;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult(Empty);
     }

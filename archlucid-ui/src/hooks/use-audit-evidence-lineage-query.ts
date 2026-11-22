@@ -19,9 +19,9 @@ export function useAuditEvidenceLineageQuery(
   controlId: string | null,
 ) {
   const enabled =
-    assessmentId !== null && assessmentId.length > 0
-    && snapshotId !== null && snapshotId.length > 0
-    && controlId !== null && controlId.length > 0;
+    assessmentId !== null && assessmentId.trim().length > 0
+    && snapshotId !== null && snapshotId.trim().length > 0
+    && controlId !== null && controlId.trim().length > 0;
 
   return useQuery({
     queryKey: enabled

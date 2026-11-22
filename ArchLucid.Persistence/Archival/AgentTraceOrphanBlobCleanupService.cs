@@ -62,10 +62,17 @@ public sealed class AgentTraceOrphanBlobCleanupService(
         DateTimeOffset cutoff,
         CancellationToken cancellationToken)
     {
+        string root = string.IsNullOrWhiteSpace(blobOpts.LocalRootPath)
+            ? Path.Combine(AppContext.BaseDirectory, "blob-store")
+            : blobOpts.LocalRootPath;
+        string containerDir = Path.Combine(
+            Path.GetFullPath(root),
+            AgentTraceOrphanBlobPathParser.SanitizeFileToken(AgentTraceOrphanBlobPathParser.AgentTracesContainer));
         Dictionary<string, List<string>> filesByRunPrefix =
-            AgentTraceOrphanBlobEnumerator.EnumerateLocalBlobsByRunPrefix(blobOpts, cutoff, cancellationToken);
+            AgentTraceOrphanBlobEnumerator.EnumerateLocalBlobsByRunPrefix(containerDir, cutoff, cancellationToken);
 
-        return await DeleteOrphanedRunPrefixesAsync(filesByRunPrefix, cancellationToken).ConfigureAwait(false);
+        return await DeleteOrphanedRunPrefixesAsync(containerDir, filesByRunPrefix, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     private async Task<int> DeleteOrphanedAzureBlobsAsync(
@@ -111,6 +118,7 @@ public sealed class AgentTraceOrphanBlobCleanupService(
     }
 
     private async Task<int> DeleteOrphanedRunPrefixesAsync(
+        string containerDir,
         Dictionary<string, List<string>> filesByRunPrefix,
         CancellationToken cancellationToken)
     {
@@ -124,7 +132,7 @@ public sealed class AgentTraceOrphanBlobCleanupService(
                     .ConfigureAwait(false))
                 continue;
 
-            deleted += AgentTraceOrphanBlobDeleter.DeleteLocalOrphanFiles(filePaths);
+            deleted += AgentTraceOrphanBlobDeleter.DeleteLocalOrphanFiles(containerDir, filePaths);
         }
 
         AgentTraceOrphanBlobDeleter.LogLocalDeletion(_logger, deleted);

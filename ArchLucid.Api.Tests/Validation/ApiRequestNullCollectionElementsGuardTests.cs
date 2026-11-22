@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Controllers.OperationalSecurity;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Api.Validation;
@@ -125,6 +126,88 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
         };
 
         ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_metadata_dictionary_on_operational_security_ingest_item()
+    {
+        OperationalSecurityFindingIngestRequest request = new()
+        {
+            Items =
+            [
+                new OperationalSecurityFindingIngestRequestItem
+                {
+                    Metadata = null!,
+                },
+            ],
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_allows_null_dictionary_values_on_operational_security_ingest_item_metadata()
+    {
+        OperationalSecurityFindingIngestRequest request = new()
+        {
+            Items =
+            [
+                new OperationalSecurityFindingIngestRequestItem
+                {
+                    Metadata = new Dictionary<string, string?>(StringComparer.Ordinal) { ["k"] = null },
+                },
+            ],
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_rejects_null_elements_when_calls_overlap()
+    {
+        PutRunCoverageAcknowledgementRequest invalidCoverage = new()
+        {
+            Entries = new RunCoverageAcknowledgementEntryRequest[] { null! },
+        };
+
+        OperationalSecurityFindingIngestRequest invalidIngest = new()
+        {
+            Items =
+            [
+                new OperationalSecurityFindingIngestRequestItem
+                {
+                    Metadata = null!,
+                },
+            ],
+        };
+
+        ParallelOptions parallelOptions = new() { MaxDegreeOfParallelism = 8 };
+        Exception? caught = null;
+
+        Parallel.For(
+            0,
+            256,
+            parallelOptions,
+            _ =>
+            {
+                try
+                {
+                    bool coverageInvalid =
+                        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(invalidCoverage);
+
+                    bool ingestInvalid =
+                        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(invalidIngest);
+
+                    coverageInvalid.Should().BeTrue();
+                    ingestInvalid.Should().BeTrue();
+                }
+                catch (Exception ex)
+                {
+                    Interlocked.CompareExchange(ref caught, ex, null);
+                }
+            });
+
+        caught.Should().BeNull();
     }
 
     [Fact]

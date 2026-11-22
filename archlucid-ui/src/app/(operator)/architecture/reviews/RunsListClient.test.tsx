@@ -477,6 +477,27 @@ describe("RunsListClient inspector", () => {
     expect(screen.queryByLabelText(/Search reviews by title or description/i)).toBeNull();
   });
 
+  it.each([
+    ["a search", "q=unmatched"],
+    ["a package scope", "scope=finalized"],
+  ])("buyer-polished: keeps the filters accessible when %s hides the only review", (_label, search) => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      search,
+    );
+
+    expect(screen.queryByTestId(`runs-row-${sampleRun.runId}`)).toBeNull();
+    const filterDisclosure = screen.getByText("Filter reviews", { selector: "summary" });
+    expect(filterDisclosure).toBeVisible();
+    expect(filterDisclosure.closest("details")).toContainElement(
+      screen.getByLabelText(/Search reviews by title or description/i),
+    );
+    expect(screen.getByLabelText("Show: All")).toHaveAttribute("href", expect.not.stringContaining("scope="));
+  });
+
   it("narrows text filter closes inspector when selected run is filtered out", () => {
     const secondRun: RunSummary = {
       ...sampleRun,
@@ -748,6 +769,28 @@ describe("RunsListClient inspector", () => {
     );
 
     expect(screen.queryByTestId("runs-list-orphan-candidates-filter-banner")).toBeNull();
+  });
+
+  it.each([
+    ["q=unmatched", "search"],
+    ["q=unmatched&scope=finalized", "search-and-package-scope"],
+    ["q=unmatched&filter=recent-failures", "list-context-and-search"],
+    ["q=unmatched&scope=finalized&filter=orphan-candidates", "orphan-candidates-and-search"],
+  ])("shows only the applicable search recovery notice for %s", (search, expectedNotice) => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      search,
+    );
+
+    const searchNotices = screen.queryAllByTestId(
+      /^reviews-hub-(search|search-and-package-scope|list-context-and-search|orphan-candidates-and-search)-filter-empty$/,
+    );
+
+    expect(searchNotices).toHaveLength(1);
+    expect(searchNotices[0]).toHaveAttribute("data-testid", `reviews-hub-${expectedNotice}-filter-empty`);
   });
 
   it("shows an empty-table message when the text filter matches no reviews", () => {

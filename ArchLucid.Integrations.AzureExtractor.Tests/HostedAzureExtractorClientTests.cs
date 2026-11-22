@@ -498,6 +498,13 @@ public sealed class HostedAzureExtractorClientTests
         Mock<IHostedAzureManagementPostReadClient> postClient = new();
 
         postClient
+            .Setup(c => c.ListEffectiveNetworkControlsForNicAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        postClient
             .Setup(c => c.TryQueryActualCostSummaryAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),

@@ -23,7 +23,7 @@ const IMAGE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp"]);
 
 export const StoredEvidenceFileContentSafety = {
   mustForceAttachmentDisposition(contentType: string, fileName: string): boolean {
-    const normalizedType = contentType.trim().toLowerCase();
+    const normalizedType = normalizeContentType(contentType);
     const extension = extractExtension(fileName);
 
     if (UNSAFE_INLINE_CONTENT_TYPES.has(normalizedType)) {
@@ -38,7 +38,7 @@ export const StoredEvidenceFileContentSafety = {
       return "download-only";
     }
 
-    const normalizedType = contentType.trim().toLowerCase();
+    const normalizedType = normalizeContentType(contentType);
     const extension = extractExtension(fileName);
 
     if (IMAGE_CONTENT_TYPES.has(normalizedType) || IMAGE_EXTENSIONS.has(extension)) {
@@ -56,6 +56,10 @@ export const StoredEvidenceFileContentSafety = {
     return "download-only";
   },
 };
+
+function normalizeContentType(contentType: string): string {
+  return contentType.split(";", 1)[0]?.trim().toLowerCase() ?? "";
+}
 
 function extractExtension(fileName: string): string {
   const trimmed = fileName.trim().toLowerCase();

@@ -206,7 +206,10 @@ public sealed class CutPointAnalysisEngineTests
 
     private sealed class InMemoryPatternRepository : IRemediationPatternRepository
     {
-        public Task InsertPatternAsync(RemediationPatternRecord pattern, CancellationToken cancellationToken = default)
+        public Task InsertDraftWithVersionAsync(
+            RemediationPatternRecord pattern,
+            RemediationPatternVersionRecord firstVersion,
+            CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 
         public Task InsertVersionAsync(RemediationPatternVersionRecord version, CancellationToken cancellationToken = default)

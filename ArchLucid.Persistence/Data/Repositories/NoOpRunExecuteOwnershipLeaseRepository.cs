@@ -10,25 +10,45 @@ public sealed class NoOpRunExecuteOwnershipLeaseRepository : IRunExecuteOwnershi
         Guid runId,
         string holderInstanceId,
         int leaseDurationSeconds,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult(true);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(true);
+    }
 
     /// <inheritdoc />
-    public Task TryReleaseAsync(Guid runId, string holderInstanceId, CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+    public Task TryReleaseAsync(Guid runId, string holderInstanceId, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 
     /// <inheritdoc />
-    public Task<int> ReleaseAllHeldByInstanceAsync(string holderInstanceId, CancellationToken cancellationToken = default) =>
-        Task.FromResult(0);
+    public Task<int> ReleaseAllHeldByInstanceAsync(string holderInstanceId, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(0);
+    }
 
     /// <inheritdoc />
     public Task<IReadOnlyList<Guid>> ListExpiredRunIdsAsync(
         DateTimeOffset asOfUtc,
         int maxRows,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<Guid>>([]);
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<Guid>>([]);
+    }
 
     /// <inheritdoc />
-    public Task TryDeleteAsync(Guid runId, CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+    public Task TryDeleteAsync(Guid runId, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.CompletedTask;
+    }
 }

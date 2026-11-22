@@ -15,7 +15,7 @@ internal static class FindingJsonDateReaders
                 && DateTimeOffset.TryParse(
                     raw,
                     CultureInfo.InvariantCulture,
-                    DateTimeStyles.RoundtripKind,
+                    DateTimeStyles.AssumeUniversal,
                     out value))
             {
                 return true;
@@ -24,9 +24,7 @@ internal static class FindingJsonDateReaders
             if (!string.IsNullOrWhiteSpace(raw)
                 && long.TryParse(raw.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out long unixMilliseconds))
             {
-                value = DateTimeOffset.FromUnixTimeMilliseconds(unixMilliseconds);
-
-                return true;
+                return TryFromUnixMilliseconds(unixMilliseconds, out value);
             }
 
             value = default;
@@ -36,13 +34,25 @@ internal static class FindingJsonDateReaders
 
         if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long numericUnixMilliseconds))
         {
-            value = DateTimeOffset.FromUnixTimeMilliseconds(numericUnixMilliseconds);
-
-            return true;
+            return TryFromUnixMilliseconds(numericUnixMilliseconds, out value);
         }
 
         value = default;
 
         return false;
+    }
+    // Untrusted external timestamps must never escape the TryRead contract as an
+    // ArgumentOutOfRangeException. Both numeric and string paths share this guard.
+    private static bool TryFromUnixMilliseconds(long milliseconds, out DateTimeOffset value)
+    {
+        if (milliseconds < DateTimeOffset.MinValue.ToUnixTimeMilliseconds()
+            || milliseconds > DateTimeOffset.MaxValue.ToUnixTimeMilliseconds())
+        {
+            value = default;
+            return false;
+        }
+
+        value = DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);
+        return true;
     }
 }

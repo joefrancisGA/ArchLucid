@@ -15,6 +15,8 @@ public sealed class InMemoryTenantItsmConnectorConnectionRepository : ITenantIts
 
     public Task<IReadOnlyList<TenantItsmConnectorConnectionRecord>> ListAsync(Guid tenantId, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IReadOnlyList<TenantItsmConnectorConnectionRecord> rows = _store.Values
             .Where(r => r.TenantId == tenantId)
             .OrderBy(r => r.Provider)
@@ -28,6 +30,8 @@ public sealed class InMemoryTenantItsmConnectorConnectionRepository : ITenantIts
         TenantItsmConnectorProvider provider,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         _store.TryGetValue((tenantId, provider), out TenantItsmConnectorConnectionRecord? row);
 
         return Task.FromResult(row);
@@ -39,6 +43,8 @@ public sealed class InMemoryTenantItsmConnectorConnectionRepository : ITenantIts
         TenantItsmConnectorConnectionUpsertCommand command,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ArgumentNullException.ThrowIfNull(command);
 
         TenantItsmConnectorConnectionRecord row = TenantItsmConnectorConnectionRepositoryCore.CreateFromUpsert(
@@ -54,6 +60,8 @@ public sealed class InMemoryTenantItsmConnectorConnectionRepository : ITenantIts
 
     public Task<bool> DeleteAsync(Guid tenantId, TenantItsmConnectorProvider provider, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         return Task.FromResult(_store.TryRemove((tenantId, provider), out _));
     }
 }

@@ -22,6 +22,8 @@ public static class AuditInventoryChangeEvidenceImpactClassifier
             AzureInventoryChangeType.NetworkExposureChanged => EvidenceTypeSet(AuditEvidenceTypeNames.Network),
             AzureInventoryChangeType.ResourceAdded when IsPublicIpResource(change) =>
                 EvidenceTypeSet(AuditEvidenceTypeNames.Network),
+            AzureInventoryChangeType.ResourceAdded when IsNetworkResource(change) =>
+                EvidenceTypeSet(AuditEvidenceTypeNames.Network, AuditEvidenceTypeNames.Inventory),
             AzureInventoryChangeType.ResourceRemoved when IsNetworkResource(change) =>
                 EvidenceTypeSet(AuditEvidenceTypeNames.Network),
             AzureInventoryChangeType.PermissionChanged or AzureInventoryChangeType.IdentityChanged =>

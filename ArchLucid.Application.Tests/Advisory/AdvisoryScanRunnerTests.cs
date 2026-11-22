@@ -100,8 +100,10 @@ public sealed class AdvisoryScanRunnerTests
         schedules.Verify(x => x.UpdateAsync(It.IsAny<AdvisoryScanSchedule>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
-    public async Task RunScheduleAsync_WhenNoRuns_FailsExecutionAndAdvancesSchedule()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RunScheduleAsync_WhenNoRuns_FailsExecutionAndAdvancesSchedule(bool auditUnavailable)
     {
         Mock<IAuthorityQueryService> authority = new();
         authority
@@ -126,10 +128,11 @@ public sealed class AdvisoryScanRunnerTests
             .Setup(x => x.ComputeNextRunUtc(It.IsAny<string>(), It.IsAny<DateTime>()))
             .Returns(TimeProvider.System.UtcNowDateTime().AddDays(1));
 
+        InvalidOperationException auditFailure = new("Audit sink unavailable.");
         Mock<IAuditService> audit = new();
         audit
             .Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .Returns(() => auditUnavailable ? Task.FromException(auditFailure) : Task.CompletedTask);
 
         AdvisoryScanRunner sut = new(
             authority.Object,
@@ -162,7 +165,16 @@ public sealed class AdvisoryScanRunnerTests
             RunProjectSlug = "default"
         };
 
-        await sut.RunScheduleAsync(schedule, CancellationToken.None);
+        if (auditUnavailable)
+        {
+            Func<Task> run = () => sut.RunScheduleAsync(schedule, CancellationToken.None);
+            var failure = await run.Should().ThrowAsync<InvalidOperationException>();
+            failure.Which.Should().BeSameAs(auditFailure);
+        }
+        else
+        {
+            await sut.RunScheduleAsync(schedule, CancellationToken.None);
+        }
 
         executions.Verify(
             x => x.UpdateAsync(
@@ -171,7 +183,7 @@ public sealed class AdvisoryScanRunnerTests
                     e.ErrorMessage == AdvisoryScheduleEligibilityGuard.NoFinalizedReviewMessage),
                 It.IsAny<CancellationToken>()),
             Times.Once);
-        schedules.Verify(x => x.UpdateAsync(It.IsAny<AdvisoryScanSchedule>(), It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        schedules.Verify(x => x.UpdateAsync(It.IsAny<AdvisoryScanSchedule>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

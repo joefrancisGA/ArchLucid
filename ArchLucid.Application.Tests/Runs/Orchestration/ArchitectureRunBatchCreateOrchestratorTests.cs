@@ -120,6 +120,27 @@ public sealed class ArchitectureRunBatchCreateOrchestratorTests
     }
 
     [Fact]
+    public async Task CreateBatchAsync_reports_a_rejected_item_and_continues_to_the_next_item()
+    {
+        ArchitectureRunBatchCreateOrchestrator sut = CreateSut(out Mock<IArchitectureRunCreateOrchestrator> createOrchestrator, out _, out _);
+
+        createOrchestrator
+            .SetupSequence(o => o.CreateRunAsync(It.IsAny<ArchitectureRequest>(), null, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new RequestContentSafetyRejectedException(["Internal validation detail"]))
+            .ReturnsAsync(new CreateRunResult { Run = new ArchitectureRun { RunId = "run-b" } });
+
+        BatchCreateRunOrchestrationResult result = await sut.CreateBatchAsync(
+            [Request("req-a"), Request("req-b")], null, "corr-1", CancellationToken.None);
+
+        result.Outcome.Should().Be(BatchCreateRunOutcome.Accepted);
+        result.Items[0].FailureKind.Should().Be(BatchCreateRunItemFailureKind.InvalidRequest);
+        result.Items[0].Succeeded.Should().BeFalse();
+        result.Items[0].ErrorMessage.Should().Be("Request did not pass validation.");
+        result.Items[1].Succeeded.Should().BeTrue();
+        result.Items[1].RunId.Should().Be("run-b");
+    }
+
+    [Fact]
     public async Task CreateBatchAsync_logs_one_acceptance_audit_event_with_counts()
     {
         ArchitectureRunBatchCreateOrchestrator sut = CreateSut(

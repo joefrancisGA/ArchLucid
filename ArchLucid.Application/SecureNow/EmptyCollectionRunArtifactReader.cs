@@ -4,10 +4,14 @@ public sealed class EmptyCollectionRunArtifactReader : ICollectionRunArtifactRea
 {
     public Task<IReadOnlyList<CollectionRunManifest>> ListManifestsAsync(
         CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<CollectionRunManifest>>([]);
+        cancellationToken.IsCancellationRequested
+            ? Task.FromCanceled<IReadOnlyList<CollectionRunManifest>>(cancellationToken)
+            : Task.FromResult<IReadOnlyList<CollectionRunManifest>>([]);
 
     public Task<CollectionRunArtifact?> ReadArtifactAsync(
         CollectionRunManifest manifest,
         CancellationToken cancellationToken = default) =>
-        Task.FromResult<CollectionRunArtifact?>(null);
+        cancellationToken.IsCancellationRequested
+            ? Task.FromCanceled<CollectionRunArtifact?>(cancellationToken)
+            : Task.FromResult<CollectionRunArtifact?>(null);
 }

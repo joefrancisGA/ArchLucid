@@ -61,7 +61,7 @@ def build_report(*, needs: dict[str, Any], log_excerpt: str | None) -> dict[str,
         result = str(entry.get("result") or "not_run").lower()
         failure_class = "none"
 
-        if result in {"failure", "canceled", "timed_out"}:
+        if result in {"failure", "canceled", "cancelled", "timed_out", "timed-out"}:
             failure_class = classify_failure(log_excerpt or result)
 
         rows.append(
@@ -73,18 +73,27 @@ def build_report(*, needs: dict[str, Any], log_excerpt: str | None) -> dict[str,
             }
         )
 
-    failed = [row for row in rows if row["result"] not in {"success", "skipped", "not_run"}]
+    failed = [
+        row for row in rows
+        if row["result"] in {"failure", "canceled", "cancelled", "timed_out", "timed-out"}
+    ]
+    degraded = [row for row in rows if row["result"] != "success"]
 
     return {
         "schema": _SCHEMA,
         "generatedUtc": datetime.now(timezone.utc).isoformat(),
         "criticalJobCount": len(CRITICAL_JOBS),
         "failedCount": len(failed),
+        "degradedCount": len(degraded),
+        "evidenceSource": "github-actions-needs",
+        "releaseAcceptance": "NOT_ASSESSED",
         "rows": rows,
         "summary": (
-            "All tracked release-signal jobs succeeded or were skipped."
-            if not failed
-            else f"{len(failed)} critical job(s) need triage — see failureClass buckets."
+            f"Needs-only advisory: {len(failed)} failed/cancelled/timed-out and "
+            f"{len(degraded) - len(failed)} skipped/not-run/unknown among {len(rows)} tracked jobs. "
+            "A job configured continue-on-error can have failing steps even when needs.result "
+            "says success. Exact-head job and step conclusions, required skips, and SQL hang "
+            "evidence must be checked independently before release acceptance."
         ),
     }
 
@@ -96,6 +105,8 @@ def render_markdown(payload: dict[str, Any]) -> str:
         f"Generated UTC: **{payload['generatedUtc']}**",
         "",
         f"**Summary:** {payload['summary']}",
+        "",
+        f"**Release acceptance:** `{payload['releaseAcceptance']}` (needs-only advisory; not a CI gate).",
         "",
         "| Job | Result | Failure class |",
         "| --- | --- | --- |",

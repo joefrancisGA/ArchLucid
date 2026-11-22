@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.archlucid.com/evidence/canonical-record/1.0.0.json",
+  "title": "FND-005 Canonical Evidence Record v1.0.0 (proposed)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "evidenceId",
+    "tenantId",
+    "source",
+    "capturedAt",
+    "provenanceKind",
+    "integrity",
+    "verificationStatus"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "evidenceId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "system",
+        "reference",
+        "collectorVersion"
+      ],
+      "properties": {
+        "system": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "collectorVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "collectedBy": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "capturedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "provenanceKind": {
+      "enum": [
+        "ObservedFact",
+        "DerivedFact",
+        "DeterministicInference",
+        "AiInference",
+        "HumanAssertion"
+      ]
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "digest"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "verificationStatus": {
+      "enum": [
+        "unverified",
+        "verified",
+        "rejected"
+      ]
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "verifiedAt"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verifiedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "verifierRef": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "retentionUntil": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "parentEvidenceIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      }
+    },
+    "findingRefs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "verificationStatus": {
+            "const": "verified"
+          }
+        },
+        "required": [
+          "verificationStatus"
+        ]
+      },
+      "then": {
+        "required": [
+          "verification"
+        ]
+      }
+    }
+  ]
+}

@@ -259,7 +259,11 @@ public static class TopologyProposalRelationshipEdgeMapper
                 }
                 else
                 {
-                    endpointKeyToNodeId.TryAdd(trimmedKey, resolvedNodeId);
+                    // Declared aliases override inferred labels, but cannot remap a real topology node ID.
+
+                    if (!topologyNodes.Any(node =>
+                            string.Equals(node.NodeId, trimmedKey, StringComparison.OrdinalIgnoreCase)))
+                        endpointKeyToNodeId[trimmedKey] = resolvedNodeId;
 
                     string canonicalTerraformKey =
                         TopologyProposalRelationshipEndpointIndex.CanonicalizeTerraformEndpointReferenceForLookup(trimmedKey);
@@ -278,6 +282,7 @@ public static class TopologyProposalRelationshipEdgeMapper
 
         // The shared leaf stays in the ambiguous fan-out map. Leaving it as a unique key
         // made a different module prefix resolve to whichever module was indexed first.
+
         foreach (string sharedLeaf in ambiguousSharedTerraformLeafNodeIds.Keys)
             endpointKeyToNodeId.Remove(sharedLeaf);
 
@@ -385,6 +390,15 @@ public static class TopologyProposalRelationshipEdgeMapper
                 GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(trimmedCandidate),
                 endpointKeyToNodeId,
                 out nodeId))
+        {
+            return true;
+        }
+
+        string normalizedCandidate =
+            TopologyProposalRequiredControlKeys.NormalizeManifestEndpointIdentity(trimmedCandidate);
+
+        if (!string.Equals(normalizedCandidate, trimmedCandidate, StringComparison.Ordinal)
+            && TryResolveMappedNodeId(normalizedCandidate, endpointKeyToNodeId, out nodeId))
         {
             return true;
         }

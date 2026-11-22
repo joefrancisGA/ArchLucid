@@ -67,7 +67,8 @@
         "api-tenancy-workspaces",
         "application-governance-policy",
         "application-tenancy-lifecycle",
-        "api-request-null-collection-elements"
+        "api-request-null-collection-elements",
+        "persistence-migrations"
       ]
     },
     {
@@ -101,7 +102,13 @@
         "ui-claim-discipline-policy",
         "securenow-question-queue",
         "infra-evidence-diagrams",
-        "ui-architecture-diagram"
+        "ui-architecture-diagram",
+        "ui-lib-governance",
+        "ui-lib-product-line",
+        "ui-lib-api",
+        "ui-lib-infra-evidence",
+        "ui-lib-remediation-factory",
+        "ui-hooks-shared"
       ]
     },
     {
@@ -136,7 +143,9 @@
         "cloud-extractors",
         "host-core-coordination",
         "chatops-delivery",
-        "host-infra-evidence-composition"
+        "host-infra-evidence-composition",
+        "application-infra-evidence",
+        "persistence-infra-evidence"
       ]
     }
   ]

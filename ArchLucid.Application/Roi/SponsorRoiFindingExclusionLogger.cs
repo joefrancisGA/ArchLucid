@@ -27,24 +27,9 @@ internal static class SponsorRoiFindingExclusionLogger
 
     internal static IEnumerable<ArchitectureFinding> DeduplicateWithLogging(
         ILogger logger,
-        IEnumerable<ArchitectureFinding> findings)
-    {
-        HashSet<string> seenFindingIds = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (ArchitectureFinding finding in findings)
+        IEnumerable<ArchitectureFinding> findings) =>
+        SponsorRoiFindingDeduplicator.DeduplicateByStableIdentity(findings, finding =>
         {
-            if (string.IsNullOrWhiteSpace(finding.FindingId))
-            {
-                yield return finding;
-                continue;
-            }
-
-            if (seenFindingIds.Add(finding.FindingId))
-            {
-                yield return finding;
-                continue;
-            }
-
             if (logger.IsEnabled(LogLevel.Information))
             {
                 logger.LogInformation(
@@ -52,6 +37,5 @@ internal static class SponsorRoiFindingExclusionLogger
                     finding.FindingId,
                     finding.EstimatedUsdSavings);
             }
-        }
-    }
+        });
 }

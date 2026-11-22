@@ -56,6 +56,8 @@ public static class GraphSnapshotCloner
             Label = edge.Label,
             Weight = edge.Weight,
             InferenceSource = edge.InferenceSource,
+            ProvenanceKind = edge.ProvenanceKind,
+            DeclaredConnectionId = edge.DeclaredConnectionId,
             ReasoningTrace = edge.ReasoningTrace,
             Properties = new Dictionary<string, string>(edge.Properties, StringComparer.OrdinalIgnoreCase)
         };

@@ -40,6 +40,13 @@ public interface IGoldenManifestRepository
     Task<ManifestDocument?> GetByContractManifestVersionAsync(ScopeContext scope, string manifestVersion,
         CancellationToken ct);
 
+    /// <summary>Resolves the newest manifest matching the version for the specified run within the caller's scope.</summary>
+    Task<ManifestDocument?> GetByRunAndContractManifestVersionAsync(
+        ScopeContext scope,
+        Guid runId,
+        string manifestVersion,
+        CancellationToken ct);
+
     /// <summary>
     ///     Lists prior committed golden manifests in scope for cross-run prior-manifest retrieval indexing
     ///     (excludes <paramref name="excludeRunId" />).

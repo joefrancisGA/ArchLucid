@@ -111,6 +111,10 @@ if [ "${create_run_code}" != "200" ] && [ "${create_run_code}" != "201" ]; then
   echo "::error::POST /v1/architecture/request (smoke) returned HTTP ${create_run_code} — check API log for auth/trial/validation errors"
   head -c 500 "${LOG_FILE}.create-run-smoke.json" 2>/dev/null || true
   echo ""
+  # The OpenTelemetry SQL trace may bury the findings failure before the last 200 lines.
+  # Only emit sanitized engine identity records; do not print evidence or failure messages.
+  echo "Sanitized authority findings failure identities:"
+  grep -F "Authority findings incomplete:" "${LOG_FILE}" | tail -n 40 || true
   tail -n 200 "${LOG_FILE}" || true
   exit 1
 fi

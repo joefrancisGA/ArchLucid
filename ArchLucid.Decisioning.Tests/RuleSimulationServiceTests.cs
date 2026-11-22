@@ -17,6 +17,47 @@ namespace ArchLucid.Decisioning.Tests;
 public sealed class RuleSimulationServiceTests
 {
     [Fact]
+    public async Task CompareCandidatesAsync_UsesInitialRunWindowForBothCandidates()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        AlertEvaluationContext initialRun = new() { RunId = Guid.NewGuid() };
+        AlertEvaluationContext laterRun = new() { RunId = Guid.NewGuid() };
+        Mock<IAlertSimulationContextProvider> provider = new();
+        provider.SetupSequence(x => x.GetContextsAsync(
+                tenantId, workspaceId, projectId, null, null, 1, "test", CancellationToken.None))
+            .ReturnsAsync([initialRun])
+            .ReturnsAsync([laterRun]);
+        Mock<IAlertEvaluator> evaluator = new();
+        evaluator.Setup(x => x.Evaluate(It.IsAny<IReadOnlyList<AlertRule>>(), It.IsAny<AlertEvaluationContext>()))
+            .Returns(Array.Empty<AlertRecord>());
+        RuleSimulationService sut = CreateSut(
+            evaluator.Object,
+            Mock.Of<IAlertMetricSnapshotBuilder>(),
+            Mock.Of<ICompositeAlertRuleEvaluator>(),
+            Mock.Of<IAlertSuppressionPolicy>(),
+            provider.Object);
+
+        RuleCandidateComparisonRequest request = new()
+        {
+            RuleKind = RuleKindConstants.Simple,
+            CandidateASimpleRule = new AlertRule { Name = "A" },
+            CandidateBSimpleRule = new AlertRule { Name = "B" },
+            RecentRunCount = 1,
+            RunProjectSlug = "test",
+        };
+
+        RuleCandidateComparisonResult result = await sut.CompareCandidatesAsync(
+            tenantId, workspaceId, projectId, request, CancellationToken.None);
+
+        result.CandidateA.Outcomes.Should().ContainSingle().Which.RunId.Should().Be(initialRun.RunId);
+        result.CandidateB.Outcomes.Should().ContainSingle().Which.RunId.Should().Be(initialRun.RunId);
+        provider.Verify(x => x.GetContextsAsync(
+            tenantId, workspaceId, projectId, null, null, 1, "test", CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
     public async Task SimulateAsync_WhenUseHistoricalWindowFalseAndNoRunId_ReturnsZeroEvaluationsWithNote()
     {
         RuleSimulationService sut = CreateSut(

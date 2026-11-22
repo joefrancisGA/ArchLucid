@@ -1,5 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { extendNextNavigationVitestMock } from "@/testing/next-navigation-vitest-mock";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -48,6 +49,11 @@ vi.mock("@/app/(operator)/insights/ask-review-questions/_sections/AskNextReviewF
 }));
 
 const useAskPageMock = vi.fn();
+const useWorkspaceModeMock = vi.fn();
+
+vi.mock("next/navigation", async (importOriginal) =>
+  extendNextNavigationVitestMock(importOriginal, { usePathname: () => ASK_REVIEW_QUESTIONS_PATH }),
+);
 
 vi.mock("@/app/(operator)/insights/ask-review-questions/_sections/use-ask-page", () => ({
   useAskPage: (): ReturnType<typeof useAskPageMock> => useAskPageMock(),
@@ -123,6 +129,16 @@ function buildAskPageState(
 }
 
 describe("AskPageContent buyer-polished shell (ASK)", () => {
+  beforeEach(() => {
+    useWorkspaceModeMock.mockReturnValue({
+      mode: "guided",
+      mounted: true,
+      accountSyncState: "synced",
+      isWorkingMode: false,
+      setAndPersist: vi.fn(),
+    });
+  });
+
   it("renders skip link, first-viewport pick-review panel, header claim discipline, and sources-only orientation", () => {
     useAskPageMock.mockReturnValue(buildAskPageState());
 
@@ -169,22 +185,32 @@ describe("AskPageContent buyer-polished shell (ASK)", () => {
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
+
+  it("keeps the ask workspace skip target in the unscoped working state", () => {
+    useWorkspaceModeMock.mockReturnValue({
+      mode: "working",
+      mounted: true,
+      accountSyncState: "synced",
+      isWorkingMode: true,
+      setAndPersist: vi.fn(),
+    });
+    useAskPageMock.mockReturnValue(buildAskPageState());
+
+    render(<AskPageContent />);
+
+    const skip = screen.getByRole<HTMLAnchorElement>("link", { name: ASK_REVIEW_QUESTIONS_SKIP_LINK_LABEL });
+    const target = document.getElementById(skip.hash.slice(1));
+    expect(target).toHaveAttribute("tabindex", "-1");
+    expect(target).toContainElement(screen.getByTestId("working-ask-pick-architecture-empty-state"));
+  });
 });
 
 vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
-  const guidedWorkspace = {
-    mode: "guided" as const,
-    mounted: true,
-    accountSyncState: "synced" as const,
-    isWorkingMode: false,
-    setAndPersist: vi.fn(),
-  };
-
   return {
     ...actual,
-    useWorkspaceMode: () => guidedWorkspace,
-    useWorkspaceModeOrDefault: () => guidedWorkspace,
+    useWorkspaceMode: () => useWorkspaceModeMock(),
+    useWorkspaceModeOrDefault: () => useWorkspaceModeMock(),
   };
 });
 

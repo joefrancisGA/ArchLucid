@@ -1,3 +1,4 @@
+using System.Net.Mail;
 using ArchLucid.Contracts.Governance;
 
 namespace ArchLucid.Application.Governance;
@@ -37,9 +38,10 @@ public static class WaiverExpiryReminderRecipients
 
         string trimmed = candidate.Trim();
 
-        if (!trimmed.Contains('@', StringComparison.Ordinal))
+        if (!MailAddress.TryCreate(trimmed, out MailAddress? parsed)
+            || !string.Equals(parsed.Address, trimmed, StringComparison.Ordinal))
             return;
 
-        mailboxes.Add(trimmed);
+        mailboxes.Add(parsed.Address);
     }
 }
