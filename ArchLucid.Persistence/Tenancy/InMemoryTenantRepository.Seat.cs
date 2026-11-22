@@ -14,7 +14,7 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task<bool> TryIncrementEnterpriseScimSeatAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
@@ -31,7 +31,7 @@ public sealed partial class InMemoryTenantRepository
     /// <inheritdoc />
     public Task DecrementEnterpriseScimSeatAsync(Guid tenantId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
 
         lock (_trialGate)
         {
