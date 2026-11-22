@@ -15,6 +15,8 @@ on:
       - scripts/aspects_validate_historical_pins.py
       - scripts/aspects_recover_unpinned_historical_sources.py
       - scripts/tests/test_aspects_recover_unpinned_historical_sources.py
+      - scripts/aspects_reconcile_recovered_candidates.py
+      - scripts/tests/test_aspects_reconcile_recovered_candidates.py
       - scripts/aspects_reconcile_historical_lineage.py
       - scripts/tests/test_aspects_reconcile_historical_lineage.py
       - scripts/tests/test_aspects_validate_historical_pins.py
@@ -123,6 +125,30 @@ jobs:
               )
           PY
 
+      - name: Reconcile exact identity overlap between derived candidates and original pinned reviews
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_recovered_candidates.py' -v
+          python scripts/aspects_reconcile_recovered_candidates.py \
+            --pin-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --pin-report artifacts/aspects/historical-git-pin-audit.json \
+            --candidate-rows artifacts/aspects/historical-unpinned-source-candidates.jsonl \
+            --candidate-report artifacts/aspects/historical-unpinned-source-candidates.json \
+            --state docs/engineering/aspects-historical-restoration-state.json \
+            --json-out artifacts/aspects/historical-recovered-vs-pinned-overlap.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path("artifacts/aspects/historical-recovered-vs-pinned-overlap.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
+              output.write(
+                  f"900-window candidate/pinned exact identity overlap: "
+                  f"**{report['candidate_exact_line_overlap_with_original_pins']:,}** exact repeat lines; "
+                  f"**{report['candidate_exact_path_blob_line_identities_not_in_original_pins']:,}** "
+                  "candidate-only identities, neither independently verified review LOC "
+                  "nor eligible for the published historical denominator.\\n\\n"
+              )
+          PY
+
       - name: Reconcile provisional cross-revision unchanged-line identity in the exact historical window
         run: |
           python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_historical_lineage.py' -v
@@ -204,6 +230,7 @@ jobs:
             artifacts/aspects/historical-git-pin-rows.jsonl
             artifacts/aspects/historical-unpinned-source-candidates.json
             artifacts/aspects/historical-unpinned-source-candidates.jsonl
+            artifacts/aspects/historical-recovered-vs-pinned-overlap.json
             artifacts/aspects/historical-900-cross-revision-lineage.json
             artifacts/aspects/aspects-historical-exact-overlap.json
           if-no-files-found: error
