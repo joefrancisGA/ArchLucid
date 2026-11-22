@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_5741_imported_multifile_integrity_guard_and_unpinned_source_triage_PR_pending",
-  "next_priority": "Check the latest PR #7822 head's historical Git-pin, inferred-at-commit candidate and lineage workflow artifacts; repair actual failing tests/gates. Compare derived candidate spans with 4511 independent original pins without summing evidence populations, then reconcile verified distinct defect identities and fix PR statuses. Do not merge before required CI and merge-protection checks pass.",
+  "state": "historical_5741_imported_atomic_multi_pin_audit_unpinned_recovery_and_cross_population_exact_overlap_CI_pending",
+  "next_priority": "Inspect current PR #7822 head Aspects-source, CI and Merge Protection jobs and published 34-blob multi-file audit, commit-derived candidate report and SHA-256 checked exact-overlap artifact. Repair any real test failures; only then merge if all required checks pass. Next independent stage: prove or quarantine defect IDs and per-PR fixing states, and reconcile 600/700 series without asserting invented points.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -116,6 +116,20 @@
       },
       "coverage_count_status": "pending_GitHub_CI_on_new_head_not_in_verified_density",
       "counting_contract": "Do not add candidate lines to independently pinned exact path/blob union or to workbook 463/343492. Missing/conflicting full paths and nonblank mismatches get zero candidate coverage; all rows remain in immutable corpus."
+    },
+    "cross_population_reconciliation": {
+      "source_pin_audit": "artifacts/aspects/historical-git-pin-rows.jsonl",
+      "source_pin_summary": "artifacts/aspects/historical-git-pin-audit.json",
+      "candidate_rows": "artifacts/aspects/historical-unpinned-source-candidates.jsonl",
+      "candidate_summary": "artifacts/aspects/historical-unpinned-source-candidates.json",
+      "exact_overlap_report": "artifacts/aspects/historical-recovered-vs-pinned-overlap.json",
+      "code": "scripts/aspects_reconcile_recovered_candidates.py",
+      "tests": "scripts/tests/test_aspects_reconcile_recovered_candidates.py",
+      "status": "implemented_on_PR_7822_current_head_CI_pending",
+      "digests": "canonical_row_level_sha256_on_both_pinned_and_derived_candidate_rows; matching first_parent_head_oldest_count_and_member_classifications_required",
+      "dedup_policy": "exact_path_blob_line_overlap_only_inside_same_900_SHA_window; candidate-only identities are NOT verified reviewed LOC or additive to 463/343492; cross-revision mapping pending",
+      "new_verified_lines_added": 0,
+      "defect_ids_reconciled_this_stage": 0
     }
   }
 }
