@@ -9,6 +9,9 @@ on:
     branches: [master]
     paths:
       - docs/engineering/aspects-review-ledger.jsonl
+      - docs/engineering/aspects-historical-restoration-state.json
+      - scripts/aspects_import_historical_workbook.py
+      - scripts/tests/test_aspects_import_historical_workbook.py
       - scripts/aspects_review_evidence.py
       - scripts/aspects_density_snapshot.py
       - scripts/tests/test_aspects_review_evidence.py
@@ -41,6 +44,22 @@ jobs:
 
       - name: Verify snapshot freshness and window regressions
         run: python -m unittest discover -s scripts/tests -p 'test_aspects_density_snapshot.py' -v
+
+      - name: Verify legacy workbook importer and clean review invariants
+        run: python -m unittest discover -s scripts/tests -p 'test_aspects_import_historical_workbook.py' -v
+
+      - name: Validate historical workbook import when migration source is staged
+        shell: bash
+        run: |
+          workbook="docs/engineering/input/ArchLucid_Defect_Density_Trend_repaired.xlsx"
+          if [ -f "$workbook" ]; then
+            python scripts/aspects_import_historical_workbook.py \\
+              --workbook "$workbook" \\
+              --new-ledger docs/engineering/aspects-review-ledger.jsonl \\
+              --output-dir artifacts/aspects/historical
+          else
+            echo '::notice::Historical baseline is preserved from source workbook, but full per-row corpus is not in this checkout. Git-backed cross-revision reconciliation remains pending.'
+          fi
 
       - name: Locate latest comparable master snapshot
         if: github.event_name != 'pull_request'
