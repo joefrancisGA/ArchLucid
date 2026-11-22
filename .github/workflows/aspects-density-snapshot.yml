@@ -62,8 +62,7 @@ jobs:
           from pathlib import Path
           report = json.loads(Path("artifacts/aspects/historical-corpus-validation.json").read_text())
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
-              f.write(f"Historical records Git-staged and checksum-validated: **{report['observations_imported']:,}**, ")
-              f"continuing clean reviews: **{report['zero_defect_observations']:,}**.\n\n")
+              f.write(f"Historical records Git-staged and checksum-validated: **{report['observations_imported']:,}**, clean reviews: **{report['zero_defect_observations']:,}**.\n\n")
               f.write("**Historical review spans are workbook-provenanced, not cross-revision Git-verified.**\n\n")
           PY
 
