@@ -32,7 +32,7 @@ public sealed class InMemoryFindingSemanticSupportBandOverlayRepositoryTests
         Func<Task> act = () => repository.UpsertAsync(Guid.NewGuid(), scope, overlay, CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>()
-            .WithParameterName(nameof(overlay.ScorerVersion));
+            .WithParameterName("overlay.ScorerVersion");
     }
 
     [Fact]
