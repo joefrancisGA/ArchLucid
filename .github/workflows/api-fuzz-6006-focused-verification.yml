@@ -6,6 +6,7 @@ on:
       - fix/api-fuzz-6006-20261122-reviewed
     paths:
       - "ArchLucid.Api.Tests/PilotsFirstValueReportBlockReasonTests.cs"
+      - "ArchLucid.Analyzers/AnalyzerReleases.Unshipped.md"
       - ".github/workflows/api-fuzz-6006-focused-verification.yml"
   workflow_dispatch:
 
@@ -39,3 +40,8 @@ jobs:
           name: api-fuzz-6006-focused-results
           path: ${{ runner.temp }}/api-fuzz-6006/*.trx
           if-no-files-found: ignore
+  scheduled-fuzz-after-focused-tests:
+    needs: focused-dotnet
+    uses: ./.github/workflows/schemathesis-scheduled.yml
+    permissions:
+      contents: read
