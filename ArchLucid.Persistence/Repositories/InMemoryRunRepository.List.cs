@@ -20,6 +20,7 @@ public sealed partial class InMemoryRunRepository
             .OrderByDescending(r => r.CreatedUtc)
             .ThenByDescending(r => r.RunId)
             .Take(n)
+            .Select(CopyRunRecord)
             .ToList();
         return Task.FromResult<IReadOnlyList<RunRecord>>(list);
     }
@@ -50,6 +51,7 @@ public sealed partial class InMemoryRunRepository
             .OrderByDescending(r => r.CreatedUtc)
             .ThenByDescending(r => r.RunId)
             .Take(fetch)
+            .Select(CopyRunRecord)
             .ToList();
 
         return Task.FromResult(RunListPageAssembler.FromProbedRows(filtered, safeTake));
@@ -67,6 +69,7 @@ public sealed partial class InMemoryRunRepository
             .OrderByDescending(r => r.CreatedUtc)
             .ThenByDescending(r => r.RunId)
             .Take(n)
+            .Select(CopyRunRecord)
             .ToList();
 
         return Task.FromResult<IReadOnlyList<RunRecord>>(list);
@@ -97,6 +100,7 @@ public sealed partial class InMemoryRunRepository
             .OrderByDescending(r => r.CreatedUtc)
             .ThenByDescending(r => r.RunId)
             .Take(fetch)
+            .Select(CopyRunRecord)
             .ToList();
 
         return Task.FromResult(RunListPageAssembler.FromProbedRows(filtered, safeTake));
@@ -122,6 +126,7 @@ public sealed partial class InMemoryRunRepository
             .ThenByDescending(r => r.RunId)
             .Skip(safeOffset)
             .Take(fetch)
+            .Select(CopyRunRecord)
             .ToList();
 
         return Task.FromResult(RunListPageAssembler.FromProbedRows(filtered, safeLimit));
