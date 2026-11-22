@@ -1,0 +1,22 @@
+name: FND-005-010-014-015 Consolidated Reference Verification
+on:
+  pull_request:
+    branches: [master, main, architecture/fnd014-isolated-dry-run-runner]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reference-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify evidence, authorization, simulation and rollback
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_fnd005_*.py' -v
+          python -m unittest discover -s scripts/tests -p 'test_fnd010_*.py' -v
+          python -m unittest discover -s scripts/tests -p 'test_fnd014_*.py' -v
+          python -m unittest discover -s scripts/tests -p 'test_fnd015_rollback_planner.py' -v
