@@ -111,7 +111,7 @@ class HistoricalPinVerificationTests(unittest.TestCase):
         self.assertEqual(report["verified_nonblank_line_occurrences"], 5)
 
     def test_verified_checkpoint_membership_never_substitutes_legacy_density(self):
-        (self.repo / "a.cs").write_text("one\\n\\ntwo\\nthree\\nfour\\n", encoding="utf-8")
+        (self.repo / "a.cs").write_text("one\n\ntwo\nthree\nfour\n", encoding="utf-8")
         run(self.repo, "add", "a.cs")
         run(self.repo, "commit", "-qm", "new revision")
         newer = run(self.repo, "rev-parse", "HEAD")
