@@ -385,12 +385,20 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         </Button>
         <ExportFormatWhenToUseHint format="markdown" />
         {manifestFinalizeExportBlocked ? (
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="golden-manifest-markdown-export-finalize-not-load-failure"
-          >
-            {GOLDEN_MANIFEST_MARKDOWN_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE}
-          </p>
+          <>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="golden-manifest-markdown-export-finalize-not-load-failure"
+            >
+              {GOLDEN_MANIFEST_MARKDOWN_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE}
+            </p>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="golden-manifest-server-markdown-export-finalize-not-load-failure"
+            >
+              {GOLDEN_MANIFEST_SERVER_MARKDOWN_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE}
+            </p>
+          </>
         ) : null}
         {sponsorExportBlocked ? (
           <>

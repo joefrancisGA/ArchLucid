@@ -215,7 +215,10 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
               description={DIGESTS_BROWSE_SETUP_UNKNOWN_DESCRIPTION}
               footer={
                 <div className="space-y-2" data-testid="digests-browse-subscription-list-only-empty">
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  <p
+                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="digests-browse-subscription-list-only-empty-not-load-failure"
+                  >
                     {DIGESTS_BROWSE_SUBSCRIPTION_LIST_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE}
                   </p>
                   <DigestsBrowseSubscriptionListOnlyEmptyPartialHonesty />
@@ -228,7 +231,10 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
               <DigestsBrowseSetupEmptyPartialHonesty />
               {subscriptionListOnlyEmpty ? (
                 <div className="space-y-2" data-testid="digests-browse-subscription-list-only-empty">
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  <p
+                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="digests-browse-subscription-list-only-empty-not-load-failure"
+                  >
                     {DIGESTS_BROWSE_SUBSCRIPTION_LIST_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE}
                   </p>
                   <DigestsBrowseSubscriptionListOnlyEmptyPartialHonesty />

@@ -47,6 +47,7 @@ import { RESOURCE_HUB_REMEDIATION_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/l
 import { RESOURCE_HUB_AUDIT_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-audit-stored-empty-not-load-failure-copy";
 import { RESOURCE_HUB_TERRAFORM_NOT_MAPPED_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-terraform-not-mapped-stored-empty-not-load-failure-copy";
 import { RESOURCE_HUB_OVERVIEW_AUDIT_UNAVAILABLE_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-overview-audit-unavailable-not-load-failure-copy";
+import { RESOURCE_HUB_OVERVIEW_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-overview-partial-capture-not-load-failure-copy";
 import { RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-partial-capture-copy";
 import { ResourceHubFindingsArchitectureScopeAndSeverityEmptyPartialHonesty } from "@/components/infra-evidence/ResourceHubFindingsArchitectureScopeAndSeverityEmptyPartialHonesty";
 import { RESOURCE_HUB_FINDINGS_ARCHITECTURE_SCOPE_AND_SEVERITY_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-architecture-scope-and-severity-empty-copy";
@@ -1584,12 +1585,20 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               Overview combines the selected resource&apos;s captured configuration, findings, and recent changes.
             </p>
             {isSecureNowProductLine(productLine) ? (
-              <SecureNowInfraPartialCaptureStrip
-                testId="infra-resource-hub-overview-partial-capture"
-                middleLine={RESOURCE_HUB_OVERVIEW_PARTIAL_CAPTURE_LINE}
-                cloudConnectionsTestId="infra-resource-hub-overview-partial-capture-cloud"
-                extractUploadTestId="infra-resource-hub-overview-partial-capture-extract"
-              />
+              <div className="space-y-2">
+                <SecureNowInfraPartialCaptureStrip
+                  testId="infra-resource-hub-overview-partial-capture"
+                  middleLine={RESOURCE_HUB_OVERVIEW_PARTIAL_CAPTURE_LINE}
+                  cloudConnectionsTestId="infra-resource-hub-overview-partial-capture-cloud"
+                  extractUploadTestId="infra-resource-hub-overview-partial-capture-extract"
+                />
+                <p
+                  className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="resource-hub-overview-partial-capture-not-load-failure"
+                >
+                  {RESOURCE_HUB_OVERVIEW_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE}
+                </p>
+              </div>
             ) : null}
             {hub.auditLineageLink.available !== true ? (
               <div className="space-y-2">

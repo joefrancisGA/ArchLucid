@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+## 2026-11-22 - Score lift round 114 (batch 79): Hub overview partial, golden primary, explorer combined, digests subscription
+
+**Outcome.** Resource hub overview partial-capture band names thin capture versus failed hub read. Golden manifest buyer-primary button carries server Markdown finalize discipline. Infrastructure explorer combined category and name-prefix filter exposes mounted not-load-failure test id. Digests browse subscription-list-only empty mounts not-load-failure test id.
+
+**Surfaces.** Resource hub client, golden manifest export menu, resources explorer, digests browse content, honesty and mounted contract tests.
+
 ## 2026-11-22 - Score lift round 113 (batch 78): Hub audit/terraform/overview, digests setup empty
 
 **Outcome.** Resource hub audit degraded, terraform not mapped, and overview audit unavailable name stored snapshot gaps versus hub load failure. Digests browse setup empty exposes mounted not-load-failure test id.
