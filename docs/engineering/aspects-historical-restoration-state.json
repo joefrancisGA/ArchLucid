@@ -29,10 +29,10 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "all_5741_historical_records_and_900_snapshots_committed_to_PR_validation_and_git_lineage_pending",
-  "next_priority": "Run CI integrity checks against full data corpus, reconcile current GitHub reviews against historical pins by exact identity and distinguish historical 900-commit window from recent verified subset; do not splice unverified measurements.",
+  "state": "all_5741_historical_rows_in_master_row_level_git_pin_quarantine_and_checkpoint_membership_in_PR_awaiting_CI",
+  "next_priority": "Examine full 5741-row CI pin audit artifact, triage missing paths/blobs and out-of-range spans; only then derive carefully bounded cross-revision unchanged-line lineage from verified pins and reconcile historical defect identities. Keep historical 463/343492 partial checkpoint separate.",
   "corpus_import": {
-    "status": "all_shards_committed_CI_integrity_validation_pending",
+    "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
     "source_workbook_sha256": "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787",
     "expected_excel_rows": [
@@ -42,9 +42,13 @@
     "expected_records": 5741,
     "expected_shards": 24,
     "expected_clean_reviews": 4864,
-    "source_span_verification": "not_yet_complete",
+    "source_span_verification": "full_row_diagnostics_and_first_parent_membership_implemented_in_pr_not_yet_CI_validated",
     "validation_entrypoint": "scripts/aspects_validate_historical_corpus.py",
     "historical_snapshots": 79,
-    "independent_600_and_700_series_staged": true
+    "independent_600_and_700_series_staged": true,
+    "git_pin_audit_script": "scripts/aspects_validate_historical_pins.py",
+    "git_pin_audit_confidence": "source_blob_nonblank_interval_and_window_membership_only_not_cross_revision_lineage",
+    "git_pin_rows_artifact": "artifacts/aspects/historical-git-pin-rows.jsonl",
+    "git_pin_checkpoint_validation": "900 first-parent SHA chain must match historical oldest SHA; unverified on mismatch; no density overwrite"
   }
 }

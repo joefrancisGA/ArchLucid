@@ -12,6 +12,8 @@ on:
       - docs/engineering/aspects-historical-restoration-state.json
       - scripts/aspects_import_historical_workbook.py
       - scripts/aspects_validate_historical_corpus.py
+      - scripts/aspects_validate_historical_pins.py
+      - scripts/tests/test_aspects_validate_historical_pins.py
       - scripts/aspects_reconcile_historical_corpus.py
       - scripts/tests/test_aspects_reconcile_historical_corpus.py
       - docs/engineering/aspects-historical/**
@@ -66,6 +68,31 @@ jobs:
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
               f.write(f"Historical records Git-staged and checksum-validated: **{report['observations_imported']:,}**, clean reviews: **{report['zero_defect_observations']:,}**.\n\n")
               f.write("**Historical review spans are workbook-provenanced, not cross-revision Git-verified.**\n\n")
+          PY
+
+      - name: Independently check legacy source pins against historical Git blobs
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_validate_historical_pins.py' -v
+          python scripts/aspects_validate_historical_pins.py \
+            --repo . \
+            --historical-root docs/engineering/aspects-historical \
+            --json-out artifacts/aspects/historical-git-pin-audit.json \
+            --row-jsonl-out artifacts/aspects/historical-git-pin-rows.jsonl
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path("artifacts/aspects/historical-git-pin-audit.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write(
+                  f"Historical Git pin audit: **{report['verified_pin_rows']:,}/"
+                  f"{report['candidate_pin_count']:,}** parseable rows; "
+                  f"exact-blob nonblank union **{report['verified_unique_exact_path_blob_lines']:,} LOC**, "
+                  f"repeat **{report['verified_repeated_exact_path_blob_lines']:,} LOC**.\n\n"
+              )
+              f.write(f"Quarantined or ambiguous: **{report['quarantined_or_ambiguous_total']:,}**; full row-level evidence attached.\n\n")
+              window = report["first_parent_checkpoint"]
+              f.write(f"900-first-parent anchor: **{window['status']}**; exact-path/blob window subset: **{window['verified_nonblank_exact_path_blob_unique_loc_subset']} LOC**. This does not replace the historical denominator.\n\n")
+              f.write("Cross-revision line identity and historical distinct-defect reconciliation remain unresolved.\n\n")
           PY
 
       - name: Validate historical workbook import when migration source is staged
@@ -125,6 +152,8 @@ jobs:
             artifacts/aspects/aspects-density-snapshot.json
             artifacts/aspects/aspects-density-snapshot.md
             artifacts/aspects/historical-corpus-validation.json
+            artifacts/aspects/historical-git-pin-audit.json
+            artifacts/aspects/historical-git-pin-rows.jsonl
             artifacts/aspects/aspects-historical-exact-overlap.json
           if-no-files-found: error
 
