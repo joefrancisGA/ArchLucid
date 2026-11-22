@@ -91,7 +91,7 @@ public sealed partial class GraphController
             // any graph details, and reject cross-project resolution.
             if (secureNowExchange)
             {
-                if (resolved.ProjectId != anchor.ProjectId || resolved.ProjectId != scope.ProjectId)
+                if (resolved.ProjectId != anchor.ProjectId)
                     return NotFound();
 
                 EvidenceReadAuthorizationGate? resolvedGate =
