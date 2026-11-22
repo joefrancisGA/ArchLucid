@@ -202,7 +202,20 @@ public sealed class CloudResourceEvidenceHubServiceTests
                             FindingId = "arch-finding-2",
                             Title = "Zone coverage gap",
                             Severity = FindingSeverity.Warning,
-                            RelatedNodeIds = ["node-vm-1"],
+                            Rationale = $"Check zone coverage for {externalResourceId}.",
+                        },
+                        new Finding
+                        {
+                            FindingId = "arch-finding-other-node",
+                            Title = "Availability gap on the other VM",
+                            Severity = FindingSeverity.Warning,
+                            RelatedNodeIds = ["node-vm-10"],
+                        },
+                        new Finding
+                        {
+                            FindingId = "arch-finding-other-text",
+                            Title = $"Review scaling for {externalResourceId}0",
+                            Severity = FindingSeverity.Warning,
                         },
                     ],
                 },
@@ -216,6 +229,13 @@ public sealed class CloudResourceEvidenceHubServiceTests
                             NodeType = "Compute",
                             Label = "vm-1",
                             SourceId = externalResourceId,
+                        },
+                        new GraphNode
+                        {
+                            NodeId = "node-vm-10",
+                            NodeType = "Compute",
+                            Label = "vm-10",
+                            Properties = new() { ["armResourceId"] = externalResourceId + "0" },
                         },
                     ],
                 },
