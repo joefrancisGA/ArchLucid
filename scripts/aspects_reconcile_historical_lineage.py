@@ -14,7 +14,7 @@ from difflib import SequenceMatcher
 import json
 from pathlib import Path
 
-from aspects_validate_historical_pins import git, first_parent_checkpoint, VERIFIED
+from aspects_validate_historical_pins import git, first_parent_checkpoint, audited_rows_sha256, VERIFIED
 
 
 class UnionFind:
@@ -68,7 +68,8 @@ def unique_unchanged_pairs(before: list[str], after: list[str]):
 
 def reconcile(repo: Path, rows: list[dict], checkpoint: dict,
               pin_report: dict, max_blob_lines: int = 4000,
-              expected_records: int = 5741) -> dict:
+              expected_records: int = 5741,
+              expected_first_excel_row: int | None = None) -> dict:
     result = {
         "status": "blocked_on_pin_window_validation",
         "confidence": "historical_workbook_plus_git_pins; cross_revision_candidates_provisional",
@@ -77,6 +78,19 @@ def reconcile(repo: Path, rows: list[dict], checkpoint: dict,
         "recent_git_ledger_merged": False,
         "source_population": "Git-pin-verified rows with exact pinned 900-first-parent membership only",
     }
+    # Fail closed if the aggregate pin classifications and the row-level
+    # evidence come from different runs, or any audited span was modified.
+    audit_digest = pin_report.get("audited_rows_sha256")
+    if not isinstance(audit_digest, str) or audited_rows_sha256(rows) != audit_digest:
+        result["blocking_reason"] = "Missing or mismatched row-level source-pin audit SHA-256"
+        return result
+    if expected_first_excel_row is not None:
+        excel_rows = [row.get("excel_row") for row in rows]
+        if (any(type(n) is not int for n in excel_rows) or
+                sorted(excel_rows) !=
+                list(range(expected_first_excel_row, expected_first_excel_row + expected_records))):
+            result["blocking_reason"] = "Historical Excel row range missing, duplicated, or inconsistent"
+            return result
     anchor, members = first_parent_checkpoint(repo, checkpoint)
     old_anchor = pin_report.get("first_parent_checkpoint", {})
     if (members is None or old_anchor.get("status") != "verified_first_parent_sha_membership"
@@ -215,10 +229,13 @@ def main():
                         default=Path("docs/engineering/aspects-historical-restoration-state.json"))
     parser.add_argument("--json-out", type=Path)
     args = parser.parse_args()
-    checkpoint = json.loads(args.state.read_text())["last_900_first_parent_snapshot"]
+    state = json.loads(args.state.read_text())
+    checkpoint = state["last_900_first_parent_snapshot"]
     rows = [json.loads(line) for line in args.rows.read_text().splitlines() if line.strip()]
     pin_report = json.loads(args.pin_report.read_text())
-    report = reconcile(args.repo, rows, checkpoint, pin_report)
+    report = reconcile(args.repo, rows, checkpoint, pin_report,
+                       expected_records=state["corpus_import"]["expected_records"],
+                       expected_first_excel_row=state["source"]["first_excel_row"])
     payload = json.dumps(report, sort_keys=True, indent=2) + "\n"
     if args.json_out:
         args.json_out.parent.mkdir(parents=True, exist_ok=True)

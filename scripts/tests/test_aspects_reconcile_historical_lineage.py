@@ -9,7 +9,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import aspects_reconcile_historical_lineage as sut
-from aspects_validate_historical_pins import VERIFIED
+from aspects_validate_historical_pins import VERIFIED, audited_rows_sha256
 
 
 def run(repo: Path, *args: str) -> str:
@@ -49,15 +49,16 @@ class HistoricalLineageTests(unittest.TestCase):
                 "oldest_included_sha": self.old_head if window == 2 else self.new_head,
                 "window_first_parent_commits": window}
 
-    def pin_report(self, n):
+    def pin_report(self, rows):
         return {"first_parent_checkpoint": {
                     "status": "verified_first_parent_sha_membership",
                     "head_sha": self.new_head},
-                "review_events_present": n}
+                "review_events_present": len(rows),
+                "audited_rows_sha256": audited_rows_sha256(rows)}
 
     def reconcile(self, rows, window=2):
         return sut.reconcile(self.repo, rows, self.checkpoint(window),
-                             self.pin_report(len(rows)), expected_records=len(rows))
+                             self.pin_report(rows), expected_records=len(rows))
 
     def test_cross_revision_unique_unchanged_lines_are_provisional_only(self):
         rows = [self.event(7, self.old_head, self.old_blob, [[1, 1], [3, 3]]),
@@ -112,7 +113,7 @@ class HistoricalLineageTests(unittest.TestCase):
         rows = [self.event(7, self.old_head, self.old_blob, [[1, 1]])]
         checkpoint = self.checkpoint()
         checkpoint["oldest_included_sha"] = "f" * 40
-        report = sut.reconcile(self.repo, rows, checkpoint, self.pin_report(1),
+        report = sut.reconcile(self.repo, rows, checkpoint, self.pin_report(rows),
                                expected_records=1)
         self.assertEqual(report["status"], "blocked_on_pin_window_validation")
         self.assertNotIn("provisionally_mapped_unique_loc", report)
@@ -128,10 +129,49 @@ class HistoricalLineageTests(unittest.TestCase):
         rows = [self.event(7, self.old_head, self.old_blob, [[1, 1]]),
                 self.event(8, self.new_head, self.new_blob, [[1, 1]])]
         report = sut.reconcile(self.repo, rows, self.checkpoint(),
-                               self.pin_report(len(rows)), max_blob_lines=1,
+                               self.pin_report(rows), max_blob_lines=1,
                                expected_records=len(rows))
         self.assertEqual(report["adjacent_reviewed_revision_pairs_skipped"], 1)
         self.assertEqual(report["provisionally_mapped_unique_loc"], 2)
+
+
+    def test_mismatched_aggregate_and_row_level_audit_fails_closed(self):
+        rows = [self.event(7, self.old_head, self.old_blob, [[1, 1]])]
+        pin_report = self.pin_report(rows)
+        rows[0]["spans"] = [[3, 3]]  # Same LOC count: naive checks cannot catch this.
+        result = sut.reconcile(self.repo, rows, self.checkpoint(), pin_report,
+                               expected_records=len(rows))
+        self.assertEqual(result["status"], "blocked_on_pin_window_validation")
+        self.assertIn("SHA-256", result["blocking_reason"])
+
+    def test_missing_audit_digest_does_not_promote_unverified_source(self):
+        rows = [self.event(7, self.old_head, self.old_blob, [[1, 1]])]
+        pin_report = self.pin_report(rows)
+        del pin_report["audited_rows_sha256"]
+        result = sut.reconcile(self.repo, rows, self.checkpoint(), pin_report,
+                               expected_records=len(rows))
+        self.assertEqual(result["status"], "blocked_on_pin_window_validation")
+        self.assertNotIn("provisionally_mapped_unique_loc", result)
+
+    def test_contiguous_excel_row_range_required_for_full_corpus(self):
+        rows = [self.event(7, self.old_head, self.old_blob, [[1, 1]]),
+                self.event(9, self.new_head, self.new_blob, [[5, 5]])]
+        result = sut.reconcile(self.repo, rows, self.checkpoint(),
+                               self.pin_report(rows), expected_records=2,
+                               expected_first_excel_row=7)
+        self.assertEqual(result["status"], "blocked_on_pin_window_validation")
+        self.assertIn("Excel row range", result["blocking_reason"])
+
+
+    def test_noninteger_excel_id_is_quarantined_without_exception(self):
+        rows = [self.event(7, self.old_head, self.old_blob, [[1, 1]]),
+                self.event(8, self.new_head, self.new_blob, [[5, 5]])]
+        rows[1]["excel_row"] = None
+        result = sut.reconcile(self.repo, rows, self.checkpoint(),
+                               self.pin_report(rows), expected_records=2,
+                               expected_first_excel_row=7)
+        self.assertEqual(result["status"], "blocked_on_pin_window_validation")
+        self.assertIn("Excel row range", result["blocking_reason"])
 
 
 if __name__ == "__main__":

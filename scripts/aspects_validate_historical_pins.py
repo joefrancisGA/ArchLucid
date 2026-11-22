@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter, defaultdict
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -212,6 +213,18 @@ def verify_pins(
     }
 
 
+def audited_rows_sha256(rows: list[dict]) -> str:
+    """Digest the exact canonical UTF-8 JSONL audit consumed by lineage.
+
+    This binds the aggregate pin report to its 5,741 row-level decisions and
+    detects stale/mispaired artifacts. It does not authenticate the workbook.
+    """
+    digest = hashlib.sha256()
+    for row in rows:
+        digest.update((json.dumps(row, sort_keys=True) + "\n").encode("utf-8"))
+    return digest.hexdigest()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=Path, default=Path("."))
@@ -232,6 +245,8 @@ def main() -> None:
     report = verify_pins(args.repo, rows, checkpoint=checkpoint, audit_rows=row_details)
     if len(row_details) != len(rows):
         raise RuntimeError("Incomplete row-level pin audit; refusing partial artifact")
+    report["audited_rows_sha256"] = audited_rows_sha256(row_details)
+    report["audited_rows_digest_method"] = "sha256_canonical_sorted_keys_jsonl_v1"
     result = json.dumps(report, sort_keys=True, indent=2) + "\n"
     if args.json_out:
         args.json_out.parent.mkdir(parents=True, exist_ok=True)
