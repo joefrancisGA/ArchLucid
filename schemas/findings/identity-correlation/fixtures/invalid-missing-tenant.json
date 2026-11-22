@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "runId": "22222222-2222-4222-8222-222222222222",
+  "findingId": "finding-example-1",
+  "correlationMethod": "normalized-message-fuzzy",
+  "correlationKey": "security|public ip exposure",
+  "confidenceClass": "possible-match",
+  "lifecycleStatus": "unknown",
+  "evidenceRefs": []
+}
