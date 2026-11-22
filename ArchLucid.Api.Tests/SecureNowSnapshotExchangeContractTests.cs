@@ -54,6 +54,7 @@ public sealed class SecureNowSnapshotExchangeContractTests
             .AddSingleton(scope.Object)
             .AddSingleton(authorization.Object)
             .AddSingleton(entitlements.Object)
+            .AddScoped<ICentralAuthorizationDecisions, CentralAuthorizationDecisions>()
             .AddScoped<EvidenceReadAuthorizationGate>()
             .BuildServiceProvider();
         Mock<IRunRepository> runs = new();
