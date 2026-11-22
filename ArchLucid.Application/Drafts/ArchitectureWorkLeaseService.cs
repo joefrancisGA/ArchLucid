@@ -193,12 +193,7 @@ public sealed class ArchitectureWorkLeaseService(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(actorId);
 
-        DraftRequestResponse? draft = await _draftRepository.GetAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            draftId,
-            cancellationToken);
+        DraftRequestResponse? draft = await LoadMutableDraftAsync(scope, draftId, cancellationToken);
 
         if (draft is null)
         {
