@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "all_5741_imported_pin_audit_in_master_conservative_window_lineage_reconciliation_in_PR",
-  "next_priority": "Wait for Git pin CI artifact if still queued; inspect all row-level quarantines, validate historical 900 first-parent anchor, triage actual mismatches, review candidate unchanged-line mappings and then reconcile historical defect IDs with recent ledger fixing PR statuses. Do not claim verified cross-revision LOC or recompute 463/343492 until evidence establishes it.",
+  "state": "historical_5741_rows_in_master_git_pin_and_lineage_code_integrated_ci_backlogged_audit_row_integrity_followup_in_pr",
+  "next_priority": "Inspect source-pin CI artifact when GitHub Actions begins; triage actual row-level mismatches, missing path/blobs and first-parent anchor, then validate lineage output. Check why PR #7809 merged before CI; do not merge the audit-row integrity follow-up before required checks pass. Reconcile historical defect IDs and recent ledger only after source evidence is verified.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -42,7 +42,7 @@
     "expected_records": 5741,
     "expected_shards": 24,
     "expected_clean_reviews": 4864,
-    "source_span_verification": "full_row_diagnostics_and_first_parent_membership_implemented_in_pr_not_yet_CI_validated",
+    "source_span_verification": "source_pin_audit_queued_no_results_as_of_this_run",
     "validation_entrypoint": "scripts/aspects_validate_historical_corpus.py",
     "historical_snapshots": 79,
     "independent_600_and_700_series_staged": true,
@@ -53,6 +53,12 @@
     "cross_revision_lineage_script": "scripts/aspects_reconcile_historical_lineage.py",
     "cross_revision_lineage_artifact": "artifacts/aspects/historical-900-cross-revision-lineage.json",
     "cross_revision_lineage_confidence": "provisional_same_path_unique_unchanged_lines_not_verified_historical_review_or_window_density",
-    "cross_revision_lineage_status": "in_pull_request_awaiting_CI"
+    "cross_revision_lineage_status": "merged_to_master_but_CI_pending",
+    "audit_row_digest_contract": "SHA-256 over canonical sorted-key UTF-8 JSONL; aggregate audit and 5741 row artifact must match; missing/altered rows block lineage; not an authentication of workbook origin",
+    "audit_row_integrity_status": "in_followup_pull_request_CI_pending",
+    "audit_row_expected_complete_excel_range": [
+      7,
+      5747
+    ]
   }
 }
