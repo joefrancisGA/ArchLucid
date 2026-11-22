@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
@@ -225,9 +227,17 @@ public sealed class TechnologyConsistencyFindingEngine : ITechnologyConsistencyF
         string detail)
     {
         string roleKey = role.ToString();
+        // Per-entry violations must not share an identity with sibling ledger rows.
+        // Preserve legacy IDs for aggregate role-level violations.
+        string entrySuffix = title is "CloudNeutralProviderLeak"
+            or "ConflictingChosenProviderFamily"
+            or "LockedChosenOverriddenByAssumed"
+            ? "-" + Convert.ToHexString(
+                SHA256.HashData(Encoding.UTF8.GetBytes(entryIds)))[..16]
+            : string.Empty;
         Finding finding = new()
         {
-            FindingId = $"tech-consistency-{title}-{roleKey}-{runId}",
+            FindingId = $"tech-consistency-{title}-{roleKey}-{runId}{entrySuffix}",
             FindingType = "TechnologyConsistency",
             Category = "TechnologyLedger",
             EngineType = "TechnologyConsistencyFindingEngine",
