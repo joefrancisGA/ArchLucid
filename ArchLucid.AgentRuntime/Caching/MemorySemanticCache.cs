@@ -36,7 +36,7 @@ public sealed class MemorySemanticCache : ISemanticCache, IDisposable
     public Task<string?> GetCachedResponseAsync(string promptHash, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(promptHash);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         string key = KeyPrefix + promptHash;
 
@@ -51,7 +51,7 @@ public sealed class MemorySemanticCache : ISemanticCache, IDisposable
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(promptHash);
         ArgumentNullException.ThrowIfNull(response);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         LlmCompletionCacheOptions options = _optionsMonitor.CurrentValue;
         TimeSpan ttl = LlmCompletionResponseCache.ResolveTtl(options);
@@ -71,7 +71,7 @@ public sealed class MemorySemanticCache : ISemanticCache, IDisposable
     public Task RemoveCachedResponseAsync(string promptHash, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(promptHash);
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         string key = KeyPrefix + promptHash;
         _cache.Remove(key);
