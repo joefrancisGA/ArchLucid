@@ -57,9 +57,6 @@ public sealed class ScimProjectEvidenceEntitlementAuthority(
         // GetByIdAsync is explicitly tenant/workspace/project-scoped.
         var run = await runs.GetByIdAsync(scope, resource.EvidenceId, cancellationToken)
             .ConfigureAwait(false);
-        return run is not null &&
-               run.RunId == resource.EvidenceId &&
-               string.Equals(run.ProjectId, scope.ProjectId.ToString("D"),
-                   StringComparison.OrdinalIgnoreCase);
+        return run is not null && run.RunId == resource.EvidenceId;
     }
 }
