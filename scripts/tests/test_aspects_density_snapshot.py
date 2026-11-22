@@ -89,7 +89,7 @@ class DensitySnapshotTests(unittest.TestCase):
                                    {PREV, OLD}, PREV, 900)
         current = mod.build_snapshot([observation("D1", baseline=OLD)],
                                      {HEAD, PREV}, HEAD, 900, first)
-        self.assertEqual(current["freshness"], "unavailable" if False else "prior_not_comparable")
+        self.assertEqual(current["freshness"], "rolling_window_membership_changed")
         self.assertIsNone(current["density"]["signed_delta"])
 
     def test_revalidate_rejects_false_verified_flag_when_git_blob_differs(self):
