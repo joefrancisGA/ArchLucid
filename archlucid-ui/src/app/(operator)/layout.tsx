@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import { SampleReviewsOnOverviewPreferenceProvider } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { WhereToGoNextPreferenceProvider } from "@/components/WhereToGoNextPreferenceProvider";
 import { OperatorLayoutClient } from "./OperatorLayoutClient";
@@ -11,10 +12,12 @@ import { OperatorLayoutClient } from "./OperatorLayoutClient";
  */
 export default function OperatorLayout({ children }: { children: ReactNode }) {
   return (
-    <WhereToGoNextPreferenceProvider>
-      <SampleReviewsOnOverviewPreferenceProvider>
-        <OperatorLayoutClient>{children}</OperatorLayoutClient>
-      </SampleReviewsOnOverviewPreferenceProvider>
-    </WhereToGoNextPreferenceProvider>
+    <OperatorQueryProvider>
+      <WhereToGoNextPreferenceProvider>
+        <SampleReviewsOnOverviewPreferenceProvider>
+          <OperatorLayoutClient>{children}</OperatorLayoutClient>
+        </SampleReviewsOnOverviewPreferenceProvider>
+      </WhereToGoNextPreferenceProvider>
+    </OperatorQueryProvider>
   );
 }
