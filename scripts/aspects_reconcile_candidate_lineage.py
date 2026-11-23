@@ -16,7 +16,8 @@ from pathlib import Path
 from aspects_reconcile_recovered_candidates import reconcile as reconcile_exact, intervals
 from aspects_reconcile_historical_lineage import blob_lines, unique_unchanged_pairs
 from aspects_verify_first_parent_lineage import (trace_unique_first_parent_lines,
-                                                git_verified_changed_first_parent_orders)
+                                                git_verified_changed_first_parent_orders,
+                                                bounded_unique_unchanged_pairs)
 from aspects_validate_historical_pins import git, VERIFIED
 
 
@@ -127,6 +128,7 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
     path_history_cache = {}
     compared = skipped = 0
     skipped_reasons = defaultdict(int)
+    bounded_pair_count = bounded_mapped_line_count = 0
     def tree_blob_at_commit(commit_sha: str, path: str) -> str | None:
         key = (commit_sha, path)
         if key not in derived_tree_cache:
@@ -154,16 +156,23 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 skipped += 1
                 skipped_reasons["missing_or_non_utf8_blob"] += 1
                 continue
-            if (max(len(source), len(candidate_source)) > max_blob_lines
-                    or len(source) * len(candidate_source) > 2_000_000):
+            candidate_is_older = first_derived[(path, candidate_blob)] < original_order
+            before, after = ((candidate_source, source)
+                             if candidate_is_older else (source, candidate_source))
+            line_map, alignment = bounded_unique_unchanged_pairs(
+                before, after, max_blob_lines=max_blob_lines)
+            if line_map is None:
                 skipped += 1
-                skipped_reasons["complexity_cap"] += 1
+                skipped_reasons[alignment] += 1
                 continue
             compared += 1
-            if first_derived[(path, candidate_blob)] < original_order:
-                pairs = ((a, b) for a, b in unique_unchanged_pairs(candidate_source, source))
+            if alignment == "unique_prefix_suffix_only":
+                bounded_pair_count += 1
+                bounded_mapped_line_count += len(line_map)
+            if candidate_is_older:
+                pairs = line_map.items()
             else:
-                pairs = ((b, a) for a, b in unique_unchanged_pairs(source, candidate_source))
+                pairs = ((b, a) for a, b in line_map.items())
             comparable_pairs = []
             for candidate_line, original_line in pairs:
                 if candidate_line in selected and original_line in original_lines:
@@ -213,6 +222,8 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
         "candidate_exact_only_line_identities": expected_only,
         "derived_git_tree_source_components_attested": derived_components_attested,
         "derived_git_tree_nonblank_occurrences_attested": derived_nonblank_occurrences_attested,
+        "bounded_unique_prefix_suffix_revision_pairs_examined": bounded_pair_count,
+        "bounded_unique_prefix_suffix_line_mappings": bounded_mapped_line_count,
         "candidate_only_matching_adjacent_first_parent_unchanged_unique_lines": len(adjacent_matches),
         "candidate_only_proven_same_path_first_parent_lineage_to_original_pin": len(first_parent_proven_matches),
         "candidate_only_provisional_equal_hunk_without_full_first_parent_proof": len(matches - first_parent_proven_matches),
