@@ -51,6 +51,7 @@ on:
       - scripts/tests/test_aspects_validate_historical_corpus.py
       - scripts/tests/test_aspects_import_historical_workbook.py
       - scripts/aspects_review_evidence.py
+      - scripts/aspects_historical_pinned_coverage.py
       - scripts/aspects_accounting_report.py
       - scripts/tests/test_aspects_accounting_report.py
       - scripts/aspects_density_snapshot.py
@@ -890,6 +891,8 @@ jobs:
           from pathlib import Path
           r=json.loads(Path("artifacts/aspects/aspects-accounting-report.json").read_text())
           assert r["publication_contract"] == "three_disjoint_accounting_populations_no_splicing"
+          assert r["historical_original_source_pin_coverage"]["unique_exact_path_blob_source_loc"] == 232219
+          assert r["historical_original_source_pin_coverage"]["defects_per_kloc_for_this_population"] is None
           assert r["historical_900"]["actual_snapshots"] == 79
           assert r["provisional_700"]["observations"] == 700
           assert r["provisional_700"]["backprojected_observations"] == 100
