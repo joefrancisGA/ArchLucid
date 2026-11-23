@@ -31,6 +31,9 @@ export const SECURENOW_DRAFT_MARKETING_PATH = "/why-securenow" as const;
 /** Exact path for the indexed SecureNow sample page (not matched by blocked prefixes). */
 export const SECURENOW_SAMPLE_MARKETING_PATH = "/securenow-sample" as const;
 
+/** Exact path for the public SecureNow SKU card (linked from Why SecureNow and operator home). */
+export const SECURENOW_SKU_MARKETING_PATH = "/securenow-sku" as const;
+
 /** Set by `proxy.ts` on pass-through requests for marketing layout routing. */
 export const ARCHLUCID_PATHNAME_REQUEST_HEADER = "x-archlucid-pathname" as const;
 
@@ -64,9 +67,15 @@ export function isSecureNowSampleMarketingPath(pathnameOrHref: string): boolean 
   return normalizeMarketingRoutePath(pathnameOrHref) === SECURENOW_SAMPLE_MARKETING_PATH;
 }
 
+export function isSecureNowSkuMarketingPath(pathnameOrHref: string): boolean {
+  return normalizeMarketingRoutePath(pathnameOrHref) === SECURENOW_SKU_MARKETING_PATH;
+}
+
 export function isSecureNowSecurityShellMarketingPath(pathnameOrHref: string): boolean {
   return (
-    isSecureNowDraftMarketingPath(pathnameOrHref) || isSecureNowSampleMarketingPath(pathnameOrHref)
+    isSecureNowDraftMarketingPath(pathnameOrHref)
+    || isSecureNowSampleMarketingPath(pathnameOrHref)
+    || isSecureNowSkuMarketingPath(pathnameOrHref)
   );
 }
 

@@ -43,6 +43,10 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the SKU card redirect: `shouldRedirectMarketingLayout` kept only Why SecureNow and the sample page on the security shell, so `/securenow-sku` redirected home. Operator home and Why SecureNow both link to that card. The SKU path is now a security-shell marketing path, and the marketing layout uses a SKU shell test id instead of the Why shell. Regression `keeps the SecureNow SKU card on the security shell`; marketing policy and layout source vitest **10/10**. Private beta: an invited SecureNow operator who opens the SKU and meter card from home or from Why SecureNow sees that card. The security shell no longer sends that link back to the workspace home.
+
+- [x] (proven) `shouldRedirectMarketingLayout` — `/securenow-sku` redirected home on the security shell — **hit 2026-11-23 seed hunt:** SKU path joins the security-shell marketing allowlist; regression above.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted unlisted SecureNow administration routes: `/administration/securenow-sponsor-path` and `/administration/securenow-accelerator-index` are operator pages, but they were absent from `PRODUCT_LINE_EXTRA_ASSIGNMENTS`. Unlisted paths default to architecture, so the security shell blocked them. Path inspect links to sponsor path with `pathId`, and reviewer home links to the accelerator index. Both routes are now `security`. Regression `lets the security shell open sponsor path and the accelerator index`; catalog, route gate, and administration access vitest **19/19**. Private beta: an invited SecureNow operator who opens Sponsor path from Path inspect, or Accelerator index from reviewer home, reaches that page. The security shell no longer treats those administration routes as architecture-only.
 
 - [x] (proven) `PRODUCT_LINE_EXTRA_ASSIGNMENTS` — sponsor path and accelerator index defaulted to architecture — **hit 2026-11-23 seed hunt:** assigned `security`; regression above.
@@ -102,8 +106,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 8
-- **bugs-found:** 8
+- **hunts:** 9
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
