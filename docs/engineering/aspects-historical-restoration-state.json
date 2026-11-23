@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "current_master_900_discovery_candidate_census_committed_pending_PR_validation",
-  "next_priority": "On next run inspect exact-head Aspects PR CI for current master-base 900 discovery candidate census and source eligibility. Resolve actual failures without bypassing security gates. Independently establish typed distinct discovery identities, candidate-only review source coverage and full cross-revision dedup in a single as-of current 900-first-parent cohort before a fresh rate or 600/700 SMA25. The past fixing-PR checkpoint timestamp must never be presented as current.",
+  "state": "current_master_900_git_proven_continuity_submitted_to_feature_validation",
+  "next_priority": "Validate new exact-head current-master-base first-parent continuity artifact and eight regression tests. If CI fails, repair evidence or code without weakening any FND/Gitleaks/.NET or SQL checks. Previous #7877 was merged concurrently without completed PR checks: do not infer that its census passed. Next reconcile candidate-only historical provenance and verified distinct discovery identities in the same contemporaneous current 900 cohort; no comparable rate or 600/700 SMA25 until coverage and numerator are complete.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -697,6 +697,29 @@
       "prior_original_pinned_historical_900_exact_repeats": 6020,
       "current_candidate_counts": "not measured until source CI artifact is available",
       "safeguards": "No current density or signed delta; no merging without required checks; no intentional master full CI dispatch; no changes to PR #7702"
+    },
+    "current_900_proven_source_lineage": {
+      "status": "code_8_unit_tests_and_CI_workflow_committed_pending_PR_exact_head_CI",
+      "implementation": "scripts/aspects_current_900_proven_source_lineage.py",
+      "tests": "scripts/tests/test_aspects_current_900_proven_source_lineage.py",
+      "workflow": ".github/workflows/aspects-density-snapshot.yml",
+      "artifact": "artifacts/aspects/aspects-current-master-base-900-proven-continuity.json",
+      "scope": "current actual master-base first-parent SHA cohort, never synthetic PR merge; only original workbook rows with independent original Git-pin audit and narrow follow-on rows reverified against Git",
+      "method": "source-line identity keyed by reviewed SHA+path+line; union only when unchanged unique mapping is proven on every intervening first-parent changed path edge; detect intermediate edits/reverts and preserve skipped comparisons",
+      "safeguards": "exact path/blob union reconciled with current eligibility report SHA cohort/digest; ambiguous revisional paths not guessed; candidate-only original workbook reviews and renames not considered reviewed LOC",
+      "historical_observations_imported": 5741,
+      "historical_clean_review_observations": 4864,
+      "historical_original_pin_exact_lines_previous_900": 232219,
+      "historical_original_pin_exact_repeated_occurrences_previous_900": 6020,
+      "previous_proven_original_cross_revision_source_line_identities": 1014,
+      "new_continuity_proof_in_current_cohort": "not measured until exact-head CI artifact",
+      "newly_independently_reviewed_source_loc_this_run": 0,
+      "new_reviewed_loc_this_run": 0,
+      "repeated_reviewed_loc_this_run": 0,
+      "newly_verified_distinct_defects_this_run": 0,
+      "new_comparable_rate": null,
+      "full_master_build_initiated": false,
+      "PR7702_untouched": true
     }
   },
   "latest_restoration_run": {
