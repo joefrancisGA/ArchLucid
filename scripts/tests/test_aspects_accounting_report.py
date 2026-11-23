@@ -135,7 +135,7 @@ class AccountingReportTests(unittest.TestCase):
             "schema_version":2,
             "method":"first_parent_verified_path_blob_span_union_v2",
             "scope":"narrow_incremental_review_ledger_subset",
-            "cohort":{"status":"complete","actual_commits":900,"head_sha":"a"*40},
+            "cohort":{"status":"complete","actual_commits":900,"head_sha":"a"*40,"oldest_included_sha":"b"*40},
             "status":"source_verified_subset",
             "head":"a"*40,"captured_utc":"2026-11-23T17:00:00+00:00",
             "freshness":"no_prior_snapshot",
@@ -156,6 +156,8 @@ class AccountingReportTests(unittest.TestCase):
         self.assertEqual(r["status"],"source_verified_subset")
         self.assertEqual(r["distinct_defect_ids"],45)
         self.assertEqual(r["exact_path_blob_unique_reviewed_loc"],2528)
+        self.assertEqual(r["oldest_900_first_parent_sha"],"b"*40)
+        self.assertEqual(r["captured_utc"],"2026-11-23T17:00:00+00:00")
         self.assertIsNone(r["new_reviewed_loc"])
         self.assertIsNone(r["new_distinct_defect_ids"])
         self.assertIsNone(r["signed_rate_delta"])
@@ -166,8 +168,8 @@ class AccountingReportTests(unittest.TestCase):
             "schema_version":2,
             "method":"first_parent_verified_path_blob_span_union_v2",
             "scope":"narrow_incremental_review_ledger_subset",
-            "cohort":{"status":"complete","actual_commits":900,"head_sha":"a"*40},
-            "status":"source_verified_subset","head":"a"*40,
+            "cohort":{"status":"complete","actual_commits":900,"head_sha":"a"*40,"oldest_included_sha":"b"*40},
+            "status":"source_verified_subset","head":"a"*40,"captured_utc":"2026-11-23T17:00:00+00:00",
             "comparison":{"status":"comparable"},"freshness":"new_verified_evidence",
             "density":{"distinct_confirmed_defects":2,
                        "unique_path_blob_reviewed_lines":1000,
@@ -200,8 +202,8 @@ class AccountingReportTests(unittest.TestCase):
             "schema_version":2,
             "method":"first_parent_verified_path_blob_span_union_v2",
             "scope":"narrow_incremental_review_ledger_subset",
-            "cohort":{"status":"complete","actual_commits":900,"head_sha":"a"*40},
-            "status":"source_verified_subset","head":"a"*40,
+            "cohort":{"status":"complete","actual_commits":900,"head_sha":"a"*40,"oldest_included_sha":"b"*40},
+            "status":"source_verified_subset","head":"a"*40,"captured_utc":"2026-11-23T17:00:00+00:00",
             "density":{"distinct_confirmed_defects":1,
                        "unique_path_blob_reviewed_lines":1000,
                        "defects_per_kloc":1.0},
@@ -224,8 +226,8 @@ class AccountingReportTests(unittest.TestCase):
             "method":"first_parent_verified_path_blob_span_union_v2",
             "scope":"narrow_incremental_review_ledger_subset",
             "cohort":{"status":"complete","actual_commits":900,
-                      "head_sha":"a"*40},
-            "status":"source_verified_subset","head":"a"*40,
+                      "head_sha":"a"*40,"oldest_included_sha":"b"*40},
+            "status":"source_verified_subset","head":"a"*40,"captured_utc":"2026-11-23T17:00:00+00:00",
             "density":{"distinct_confirmed_defects":1,
                        "unique_path_blob_reviewed_lines":1000,
                        "defects_per_kloc":1.0},
@@ -248,8 +250,8 @@ class AccountingReportTests(unittest.TestCase):
             "method":"first_parent_verified_path_blob_span_union_v2",
             "scope":"narrow_incremental_review_ledger_subset",
             "cohort":{"status":"complete","actual_commits":900,
-                      "head_sha":"a"*40},
-            "status":"source_verified_subset","head":"a"*40,
+                      "head_sha":"a"*40,"oldest_included_sha":"b"*40},
+            "status":"source_verified_subset","head":"a"*40,"captured_utc":"2026-11-23T17:00:00+00:00",
             "comparison":{"status":"comparable"},
             "freshness":"stale_no_new_verified_evidence",
             "density":{"distinct_confirmed_defects":2,
@@ -281,12 +283,55 @@ class AccountingReportTests(unittest.TestCase):
                     ValueError,"stale verified evidence"):
                 sut.verified_subset(altered)
 
+    def test_verified_subset_requires_900_cohort_end_and_source_capture_time(self):
+        snap={
+            "schema_version":2,
+            "method":"first_parent_verified_path_blob_span_union_v2",
+            "scope":"narrow_incremental_review_ledger_subset",
+            "cohort":{"status":"complete","actual_commits":900,
+                      "head_sha":"a"*40,"oldest_included_sha":"b"*40},
+            "status":"source_verified_subset",
+            "head":"a"*40,"captured_utc":"2026-11-23T17:00:00+00:00",
+            "density":{"distinct_confirmed_defects":1,
+                       "unique_path_blob_reviewed_lines":1000,
+                       "defects_per_kloc":1.0},
+            "review":{"verified_rows":1,
+                      "distinct_verified_observations":1,
+                      "distinct_reviewed_files":1},
+        }
+        result=sut.verified_subset(snap,expected_head="a"*40)
+        self.assertEqual(result["oldest_900_first_parent_sha"],"b"*40)
+        self.assertEqual(result["captured_utc"],"2026-11-23T17:00:00+00:00")
+        self.assertIn("Source-verified as-of UTC",sut.markdown({
+            "historical_900":{"actual_snapshots":79,
+              "latest_as_of_utc":"2026-11-22T14:43:00+00:00",
+              "latest_head_sha":"a"*40,"reported_defect_observations":463,
+              "reported_unique_reviewed_loc":343492,
+              "recomputed_defects_per_kloc":1.3479207667,
+              "recomputed_sma25":1.3431066973},
+            "provisional_700":{"observations":700,"backprojected_observations":100,
+              "workbook_observations":600,"latest_reported_defect_observations":491,
+              "latest_reported_cumulative_new_loc":343818,
+              "latest_provisional_defects_per_kloc":1.42808113,
+              "recomputed_sma25":1.39402217},
+            "current_verified_subset":result,"captured_utc":"2026-11-23T17:00:00+00:00"
+        }))
+        missing_end=deepcopy(snap)
+        del missing_end["cohort"]["oldest_included_sha"]
+        with self.assertRaisesRegex(ValueError,"oldest 900 first-parent SHA"):
+            sut.verified_subset(missing_end)
+        missing_time=deepcopy(snap)
+        missing_time["captured_utc"]="2026-11-23T17:00:00"
+        with self.assertRaisesRegex(ValueError,"as-of must be UTC"):
+            sut.verified_subset(missing_time)
+
     def test_bad_live_density_never_accepted(self):
         snapshot={
             "schema_version":2,"method":"first_parent_verified_path_blob_span_union_v2",
             "scope":"narrow_incremental_review_ledger_subset",
-            "cohort":{"status":"complete","actual_commits":900,"head_sha":"a"*40},
+            "cohort":{"status":"complete","actual_commits":900,"head_sha":"a"*40,"oldest_included_sha":"b"*40},
             "status":"source_verified_subset",
+            "head":"a"*40,"captured_utc":"2026-11-23T17:00:00+00:00",
             "density":{"distinct_confirmed_defects":2,
                        "unique_path_blob_reviewed_lines":1000,
                        "defects_per_kloc":20.0},
