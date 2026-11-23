@@ -34,6 +34,23 @@ class DryRunTests(unittest.TestCase):
         self.assertEqual("rejected", result.status)
         self.assertEqual(self.before, self.source)
 
+    def test_truthy_nonboolean_approvals_never_authorize_simulation(self):
+        for untrusted in ("false", "true", 1, 2, None):
+            with self.subTest(untrusted=untrusted):
+                result = self.run_plan(decision=replace(self.decision, allowed=untrusted))
+                self.assertEqual("rejected", result.status)
+                self.assertEqual(("not_authorized",), result.reasons)
+                self.assertEqual((), result.changes)
+                self.assertEqual(self.before, self.source)
+
+    def test_exact_boolean_approval_still_simulates(self):
+        self.assertEqual("simulated", self.run_plan(
+            decision=replace(self.decision, allowed=True)).status)
+
+    def test_exact_boolean_denial_still_rejects(self):
+        self.assertEqual("rejected", self.run_plan(
+            decision=replace(self.decision, allowed=False)).status)
+
     def test_foreign_tenant_denied(self):
         self.assertEqual("rejected", self.run_plan(
             decision=replace(self.decision, tenant_id="tenant-b")).status)
