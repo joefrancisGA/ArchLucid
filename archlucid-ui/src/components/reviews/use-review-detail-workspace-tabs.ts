@@ -126,6 +126,10 @@ export function useReviewDetailWorkspaceTabs(
       return null;
     }
 
+    if (!isWorkbenchTab(searchParamTab)) {
+      return null;
+    }
+
     const fromParam = resolveReviewWorkbenchFocusColumn(
       searchParams.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
     );
@@ -134,7 +138,7 @@ export function useReviewDetailWorkspaceTabs(
       return fromParam;
     }
 
-    return isWorkbenchTab(searchParamTab) ? searchParamTab : null;
+    return searchParamTab;
   }, [props.tabLifecycle, searchParams, searchParamTab]);
   const [activeTab, setActiveTab] = useState<ReviewDetailTabId>(searchParamTab);
   const [workbenchFocusColumn, setWorkbenchFocusColumnState] =
@@ -229,6 +233,34 @@ export function useReviewDetailWorkspaceTabs(
   }, [searchParamWorkbenchFocus]);
 
   useEffect(() => {
+    if (typeof window === "undefined" || props.tabLifecycle === undefined) {
+      return;
+    }
+
+    if (isWorkbenchTab(activeTab)) {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (!params.has(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM)) {
+      return;
+    }
+
+    const hash = window.location.hash.slice(1);
+
+    writeReviewDetailTabToUrl(activeTab, {
+      hash: hash.length > 0 ? hash : null,
+      workbenchFocus: null,
+      presenter: presenterModeRef.current ? true : null,
+      runId: props.runId,
+      architectureId: props.parentArchitectureId,
+    });
+    workbenchFocusColumnRef.current = null;
+    setWorkbenchFocusColumnState(null);
+  }, [activeTab, props.parentArchitectureId, props.runId, props.tabLifecycle]);
+
+  useEffect(() => {
     // Next.js client navigations update useSearchParams without a popstate event.
     if (presenterModeRef.current === searchParamPresenter) {
       return;
@@ -267,7 +299,9 @@ export function useReviewDetailWorkspaceTabs(
       const nextWorkbenchFocus = resolveReviewWorkbenchFocusColumn(
         new URLSearchParams(window.location.search).get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
       );
-      const normalizedFocus = nextWorkbenchFocus ?? (isWorkbenchTab(nextTab) ? nextTab : null);
+      const normalizedFocus = isWorkbenchTab(nextTab)
+        ? (nextWorkbenchFocus ?? nextTab)
+        : null;
 
       if (workbenchFocusColumnRef.current !== normalizedFocus) {
         workbenchFocusColumnRef.current = normalizedFocus;
@@ -378,8 +412,9 @@ export function useReviewDetailWorkspaceTabs(
       // A section hash names the tab. Do not keep a stale workbenchFocus query on a non-workbench tab.
       const normalizedFocus = tabFromHash !== null
         ? (isWorkbenchTab(nextTab) ? nextTab : null)
-        : (resolveReviewWorkbenchFocusColumn(params.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM))
-          ?? (isWorkbenchTab(nextTab) ? nextTab : null));
+        : (isWorkbenchTab(nextTab)
+          ? (resolveReviewWorkbenchFocusColumn(params.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM)) ?? nextTab)
+          : null);
 
       if (workbenchFocusColumnRef.current !== normalizedFocus) {
         workbenchFocusColumnRef.current = normalizedFocus;

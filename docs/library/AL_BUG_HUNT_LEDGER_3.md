@@ -115,9 +115,13 @@
 
 - [x] (proven) `resolveSecureNowReturnPathFromSearch` — protocol-relative `securenowReturnPath` rendered as the return link — **hit 2026-11-23 seed hunt:** `canonicalSafeReturnPath`; regression above.
 
+## Zone: ui-review-detail-workspace
+
 2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the open cookie candidate. `readProductLineCookie` passed the raw cookie to `isProductLineId`, so ` security` and `Security` returned null, while `resolveProductLineIdForServer` and `resolveProductLineIdFromRequest` trim and lowercase first. The browser reader now uses that same normalization. Regression `accepts a padded or mixed-case product-line cookie the same way the server reader does`; product-line storage vitest **2/2**. Private beta: an invited operator whose product-line cookie has extra spaces or different casing now sees the same shell the server gate already chose, instead of the build default.
 
 - [x] (proven) `readProductLineCookie` — padded or mixed-case `archlucid_product_line_v1` was ignored — **hit 2026-11-23 thorough hunt:** trim and lowercase before `isProductLineId`; regression above.
+
+## Zone: ui-review-detail-workspace
 
 2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). The reseed stub had no locus and is `(invalid)`. Promoted assigned-to-me queue remap: `findingsQueuePathFromPathname` treated `/governance/findings/assigned-to-me` as a child of `/compliance/findings`, and `/security/assigned-to-me` was not a findings route so it fell through to the general findings hub. The helper now swaps those two queue paths and keeps the query string; `useFindingsQueuePath` calls that helper. Regression `remaps assigned-to-me between the governance and SecureNow queues`; securenow-compliance-routes vitest **9/9**. Cheap-disproof closed nested href, trailing-slash, and admin-merge monitors. Private beta: an invited operator on the SecureNow assigned-to-me findings queue keeps triage and scope links on that queue instead of being sent to the general findings list.
 
@@ -11533,6 +11537,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted stale `workbenchFocus` on non-workbench tabs: `reviewTab=overview` with leftover `workbenchFocus=findings` kept column focus in hook state. Query parsing, popstate sync, hashchange fallback, and a mount effect now clear focus and rewrite the URL. Regression `clears workbench focus on initial load when reviewTab is a non-workbench tab`. URL-sync vitest **9/9**. Cheap-disproof closed hunt **#122** `(candidate)` monitors for workbench findings unmount selection sync and stale-banner visibility refetch baseline. Private beta: When an invited operator opens a review on the summary tab with a leftover workbench column in the query string, the workspace no longer keeps that column focused or leaves the stale parameter in the address bar.
+
+- [x] (proven) `useReviewDetailWorkspaceTabs` — `workbenchFocus` query survived on non-workbench `reviewTab` values — **hit 2026-11-23 thorough hunt:** normalize focus for non-workbench tabs and strip stale query on mount; regression above. Private beta: When an invited operator opens a review on the summary tab with a leftover workbench column in the query string, the workspace no longer keeps that column focused or leaves the stale parameter in the address bar.
+- [x] (valid-no-repro) `ReviewDetailWorkspaceTabShell.renderTabPanel` — workbench toggle may unmount tab findings while `WorkbenchFindingSelectionSync` stays enabled — **cheap-disproof 2026-11-23 thorough hunt:** sync queries all `[data-finding-id]` nodes and LI-13 stale clear; hunt #122 monitor.
+- [x] (valid-no-repro) `ReviewWorkspaceStaleBanner` — visibility refetch may advance baseline before operator reads warning — **cheap-disproof 2026-11-23 thorough hunt:** baseline advances only on first summary or explicit Refresh; refetch compares live fingerprint; hunt #122 monitor.
+
 2026-11-22 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted initial hash hydration: a section hash that selects a non-workbench tab on first load left `workbenchFocus` from the query; the mount effect now follows the hash tab and rewrites the URL. Regression `clears workbench focus on initial load when a section hash selects a non-workbench tab`. URL-sync vitest **8/8**. Private beta: When an invited operator opens a review link that already points at a section such as the summary while a workbench column is still in the query, the workspace follows that section and drops the leftover column focus on first load.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs` hash hydration — a section hash that selects a non-workbench tab on first load kept `workbenchFocus` from the query — **hit 2026-11-22 seed hunt:** mount effect follows the hash tab and URL rewrite clears focus; regression `clears workbench focus on initial load when a section hash selects a non-workbench tab`.
@@ -12225,13 +12235,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-22
-- **last-bug:** 2026-11-22
+- **last-hunt:** 2026-11-23
+- **last-bug:** 2026-11-23
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read the review-detail route tree, page model, workspace presentation, findings workspace, and header state; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering remount restore guards, run-transition filter state, list-view state, persistence races, and same-document metadata URL synchronization.
