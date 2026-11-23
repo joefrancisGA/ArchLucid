@@ -69,7 +69,9 @@ def simulate_remediation(
                             original, None, ())
     if not all((principal_id, tenant_id, project_id, proposal_id)):
         return reject("missing_scope")
-    if (not decision.allowed or decision.action != "remediation.simulate"
+    # Caller-supplied decisions are reference facts, not a verified runtime PDP.
+    # A truthy string/number cannot stand in for an explicit Boolean allow.
+    if (decision.allowed is not True or decision.action != "remediation.simulate"
         or not decision.decision_id or decision.principal_id != principal_id
         or decision.tenant_id != tenant_id or decision.project_id != project_id
         or decision.proposal_id != proposal_id):

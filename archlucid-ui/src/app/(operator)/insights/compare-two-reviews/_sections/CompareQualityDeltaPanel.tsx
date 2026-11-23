@@ -94,7 +94,10 @@ export function CompareQualityDeltaPanel(props: CompareQualityDeltaPanelProps): 
       ) : null}
       {showZeroCountsUnsealedHonesty ? (
         <div className="mt-3 space-y-2" data-testid="compare-quality-delta-zero-counts-one-unsealed">
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-quality-delta-zero-counts-one-unsealed-not-load-failure"
+          >
             {COMPARE_QUALITY_DELTA_ZERO_COUNTS_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE}
           </p>
           <CompareQualityDeltaZeroCountsOneUnsealedPartialHonesty />

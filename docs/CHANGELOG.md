@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-23 - Score lift round 126 (batch 91): Compare empty ids, terraform and diagram family
+
+**Outcome.** Compare quality-delta and classification-band zero-count paragraphs expose not-load-failure test ids beside the existing parent ids. Terraform mapping empty names a successful catalog read with no row versus a failed Terraform load. Diagram evidence-family empty names a loaded diagram with no relationships in the selected family versus a failed diagram read.
+
+**Surfaces.** Compare quality delta, compare classification band, Terraform workbench, diagrams workbench, honesty and mounted contract tests.
+
 ## 2026-11-23 - Score lift round 125 (batch 90): Attack-path vulnerable empty, digest failure
 
 **Outcome.** Attack-path vulnerable empty names a successful report read with zero vulnerable rows versus a failed report load. The retry panel and the table empty stay in separate branches. Digest browse names a hard failure apart from empty filter bands, and the scoped-plus-subscription empty uses the not-load-failure test id.

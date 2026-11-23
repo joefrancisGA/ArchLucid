@@ -182,6 +182,11 @@ internal static class TenantTrialLifecycleCore
             TrialStatus = existing.TrialStatus,
             TrialSampleRunId = existing.TrialSampleRunId,
             TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
+            // Updating signup baseline metrics must not silently reset
+            // preseed worker diagnostics already stored on this tenant.
+            TrialArchitecturePreseedAttemptCount = existing.TrialArchitecturePreseedAttemptCount,
+            TrialArchitecturePreseedFailedUtc = existing.TrialArchitecturePreseedFailedUtc,
+            TrialArchitecturePreseedLastError = existing.TrialArchitecturePreseedLastError,
             TrialWelcomeRunId = existing.TrialWelcomeRunId,
             TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
             BaselineReviewCycleHours = mutation.BaselineReviewCycleHours,
