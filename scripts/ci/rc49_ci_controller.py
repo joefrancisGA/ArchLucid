@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """RC49 CI decision engine. Dry-run by default; never merges unverified PRs.
 
-Run from a trusted GitHub Actions workflow with Actions:write permission.
-An external scheduler/webhook must invoke this controller: workflows on RC49
-cannot receive workflow_run or schedule events until installed on default branch.
+Run from an explicitly manually dispatched GitHub Actions workflow with Actions:write
+permission. A full build requires a reviewed exact RC49 SHA and --apply;
+commit-message markers must never trigger a build automatically.
 """
 import argparse
 import json
@@ -51,15 +51,10 @@ def main():
     parser.add_argument("--repo", default="joefrancisGA/ArchLucid")
     parser.add_argument("--ready-sha", default="", help="Reviewed corrected commit, not current run SHA")
     parser.add_argument("--apply", action="store_true", help="Permit cancellation/dispatch (default dry-run)")
-    parser.add_argument("--auto-ready", action="store_true", help="Require RC49-CI-Ready: true in HEAD commit message")
     args = parser.parse_args()
     branch = request(f"/repos/{args.repo}/branches/RC49")
     head_sha = branch["commit"]["sha"]
     ready_sha = args.ready_sha
-    if args.auto_ready and not ready_sha:
-        commit = request(f"/repos/{args.repo}/commits/{head_sha}")
-        if "RC49-CI-Ready: true" in commit.get("commit", {}).get("message", "").splitlines():
-            ready_sha = head_sha
     runs = request(f"/repos/{args.repo}/actions/workflows/ci.yml/runs?branch=RC49&event=workflow_dispatch&per_page=100").get("workflow_runs", [])
     active = next((r for r in runs if r.get("status") == "in_progress"), None)
     jobs = []

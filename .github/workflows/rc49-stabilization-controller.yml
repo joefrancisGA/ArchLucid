@@ -1,13 +1,19 @@
 name: RC49 Stabilization Controller
-# Lightweight decision-only controller. Runs on default branch; checks out RC49.
-# Only RC49 commits explicitly tagged RC49-CI-Ready: true can authorize a full run.
+# Manual-only RC49 CI decision workflow. No schedule, workflow_run, or commit-marker
+# automation may launch comprehensive RC49 CI without an explicit user dispatch.
 on:
-  schedule:
-    - cron: '*/10 * * * *'
-  workflow_run:
-    workflows: ["CI"]
-    types: [completed]
   workflow_dispatch:
+    inputs:
+      ready_sha:
+        description: "Exact reviewed RC49 HEAD SHA to authorize (required for a build)"
+        required: true
+        type: string
+      apply:
+        description: "Explicitly permit dispatch/cancel actions; unchecked is dry-run"
+        required: false
+        default: false
+        type: boolean
+
 permissions:
   contents: read
   actions: write
@@ -28,7 +34,12 @@ jobs:
           python-version: '3.12'
       - name: Validate controller
         run: python -m unittest discover -s scripts/ci/tests -p test_rc49_ci_controller.py
-      - name: Inspect and apply RC49 policy
+      - name: Observe or explicitly apply RC49 policy
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: python scripts/ci/rc49_ci_controller.py --repo "${{ github.repository }}" --auto-ready --apply
+          READY_SHA: ${{ inputs.ready_sha }}
+          APPLY: ${{ inputs.apply }}
+        run: |
+          args=(--repo "${{ github.repository }}" --ready-sha "$READY_SHA")
+          if [[ "$APPLY" == "true" ]]; then args+=(--apply); fi
+          python scripts/ci/rc49_ci_controller.py "${args[@]}"
