@@ -14,12 +14,14 @@ public sealed class SecureNowActualEndpointSourceTests
     private static MethodDeclarationSyntax LoadEndpoint()
     {
         const string path = "ArchLucid.Api/Controllers/Planning/GraphController.Snapshot.cs";
+
         foreach (var start in new[] { Directory.GetCurrentDirectory(), AppContext.BaseDirectory })
         {
             for (DirectoryInfo? directory = new(start); directory is not null;
                  directory = directory.Parent)
             {
                 string file = Path.Combine(directory.FullName, path);
+
                 if (!File.Exists(file))
                     continue;
                 var root = CSharpSyntaxTree.ParseText(File.ReadAllText(file)).GetRoot();
@@ -59,6 +61,7 @@ public sealed class SecureNowActualEndpointSourceTests
         Assert.Equal("runId", gates[0].ArgumentList.Arguments[4].Expression.ToString());
         Assert.Equal("resolved.RunId",
             gates[1].ArgumentList.Arguments[4].Expression.ToString());
+
         foreach (var gate in gates)
         {
             var args = gate.ArgumentList.Arguments.Select(x => x.Expression.ToString()).ToArray();

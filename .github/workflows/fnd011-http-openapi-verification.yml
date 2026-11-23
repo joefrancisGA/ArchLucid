@@ -18,8 +18,8 @@ jobs:
   http-and-contract:
     runs-on: ubuntu-latest
     timeout-minutes: 35
-    # The persisted-tenant HTTP tests construct a SQL-backed API factory.
-    # Provision an actual SQL Server rather than silently skipping those tests.
+    # The persisted tenant HTTP cases create SQL-backed API factories; do not skip them.
+    # Match the disposable SQL Server provisioning used by FND-011 projection tests.
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
