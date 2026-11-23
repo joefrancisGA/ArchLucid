@@ -43,6 +43,10 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the second-capture return path: `buildSecureNowSecondCaptureHrefWithReturnPath` and `resolveSecureNowReturnPathFromSearch` accepted any trimmed value that starts with `/`, so `//evil.example` was written into the query and rendered as the return link on cloud connections and extract upload. Both now use `canonicalSafeReturnPath`. Regression `rejects a protocol-relative return path the same way sign-in return paths do`; return-path vitest **4/4**. Private beta: an invited operator who follows a second-capture return link stays on ArchLucid. A protocol-relative address is dropped instead of being offered as the return link.
+
+- [x] (proven) `resolveSecureNowReturnPathFromSearch` — protocol-relative `securenowReturnPath` rendered as the return link — **hit 2026-11-23 seed hunt:** `canonicalSafeReturnPath`; regression above.
+
 2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the open cookie candidate. `readProductLineCookie` passed the raw cookie to `isProductLineId`, so ` security` and `Security` returned null, while `resolveProductLineIdForServer` and `resolveProductLineIdFromRequest` trim and lowercase first. The browser reader now uses that same normalization. Regression `accepts a padded or mixed-case product-line cookie the same way the server reader does`; product-line storage vitest **2/2**. Private beta: an invited operator whose product-line cookie has extra spaces or different casing now sees the same shell the server gate already chose, instead of the build default.
 
 - [x] (proven) `readProductLineCookie` — padded or mixed-case `archlucid_product_line_v1` was ignored — **hit 2026-11-23 thorough hunt:** trim and lowercase before `isProductLineId`; regression above.
@@ -78,8 +82,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
