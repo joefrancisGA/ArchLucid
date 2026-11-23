@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-23 - Score lift round 130 (batch 95): Upload pending, collection parity, health tiles
+
+**Outcome.** Extract-upload zip success names an accepted package that is still short of evaluation, using the same pending line as the accepted-package panel. Operator home and the reviews hub share the collection-missing strip. System-health demo summary tiles carry the same point-in-time refresh line as the live tiles. Each workspace-health KPI card names a point-in-time rollup versus a failed health load.
+
+**Surfaces.** Extract upload zip drop, operator home, reviews hub, system health, workspace health KPIs, honesty and mounted contract tests.
+
 ## 2026-11-23 - Score lift round 128 (batch 93): Hub findings streams, terraform and compare contracts
 
 **Outcome.** Resource hub architecture-review and operational-security findings streams expose not-load-failure lines beside the existing empty ids. Terraform hub load failure renders only when a resource scope is pinned, exclusive of the unscoped panel. A mounted contract keeps compare governance-diff loading and empty honesty on separate branches.
