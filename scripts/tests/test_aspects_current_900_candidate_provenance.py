@@ -43,7 +43,9 @@ class CandidateProvenanceTests(unittest.TestCase):
              "defects_recorded": 0},
             {"excel_row": 8, "reviewed_master_sha": self.head,
              "review_id": "fix", "reviewed_loc_reported": 2,
-             "defects_recorded": 1},
+             "defects_recorded": 1,
+             "reviewed_file_spans_raw": "Reviewed spans (inclusive): src/a.cs 2-3",
+             "parsed_pin": None},
         ]
         pins = [
             dict(events[0], pin_status=VERIFIED, window_membership="in_window",
@@ -63,6 +65,7 @@ class CandidateProvenanceTests(unittest.TestCase):
             "candidate_nonblank_loc": 2,
             "sources": [{
                 "path": "src/a.cs", "blob_derived_at_reviewed_commit": self.blob,
+                "reported_inclusive_intervals": [[2, 3]],
                 "nonblank_intervals_at_reviewed_commit": [[2, 3]],
                 "nonblank_loc": 2,
             }],
@@ -133,11 +136,12 @@ class CandidateProvenanceTests(unittest.TestCase):
         args[3][0]["sources"].append({
             "path": "src/missing.cs",
             "blob_derived_at_reviewed_commit": "a" * 40,
+            "reported_inclusive_intervals": [[1, 1]],
             "nonblank_intervals_at_reviewed_commit": [[1, 1]],
             "nonblank_loc": 1,
         })
         args[4]["candidate_rows_sha256"] = audited_rows_sha256(args[3])
-        with self.assertRaisesRegex(ValueError, "source blob disagrees"):
+        with self.assertRaisesRegex(ValueError, "source paths/intervals differ"):
             self.run_audit(args)
 
     def test_duplicate_candidate_excel_id_quarantined(self):
@@ -153,6 +157,39 @@ class CandidateProvenanceTests(unittest.TestCase):
         args[3][0]["review_id"] = "pretend-new-discovery"
         args[4]["candidate_rows_sha256"] = audited_rows_sha256(args[3])
         with self.assertRaisesRegex(ValueError, "provenance identity mismatch"):
+            self.run_audit(args)
+
+    def test_candidate_scope_forgery_rejected_even_with_same_loc_and_rehashed_report(self):
+        args = self.data()
+        # Both line ranges exist in Git and each has two nonblank LOC, but
+        # only 2-3 was reported in the original workbook observation.
+        args[3][0]["sources"][0]["reported_inclusive_intervals"] = [[1, 2]]
+        args[3][0]["sources"][0]["nonblank_intervals_at_reviewed_commit"] = [[1, 2]]
+        args[4]["candidate_rows_sha256"] = audited_rows_sha256(args[3])
+        with self.assertRaisesRegex(ValueError, "source paths/intervals differ"):
+            self.run_audit(args)
+
+    def test_substituted_nonblank_span_with_same_count_rejected(self):
+        args = self.data()
+        # A rehashed candidate may not substitute other nonblank source
+        # lines while leaving the workbook's reported scope untouched.
+        args[3][0]["sources"][0]["nonblank_intervals_at_reviewed_commit"] = [[1, 2]]
+        args[4]["candidate_rows_sha256"] = audited_rows_sha256(args[3])
+        with self.assertRaisesRegex(ValueError, "differ from original workbook/Git"):
+            self.run_audit(args)
+
+    def test_candidate_review_cannot_also_have_original_blob_pin(self):
+        args = self.data()
+        args[0][1]["parsed_pin"] = {
+            "path": "src/a.cs", "blob": self.blob, "spans": [[2, 3]]}
+        with self.assertRaisesRegex(ValueError, "conflicts with an original"):
+            self.run_audit(args)
+
+    def test_modified_workbook_raw_span_never_reinterprets_existing_candidate(self):
+        args = self.data()
+        args[0][1]["reviewed_file_spans_raw"] = (
+            "Reviewed spans (inclusive): src/a.cs 1-2")
+        with self.assertRaisesRegex(ValueError, "source paths/intervals differ"):
             self.run_audit(args)
 
     def test_current_cohort_digest_tamper_fails(self):
