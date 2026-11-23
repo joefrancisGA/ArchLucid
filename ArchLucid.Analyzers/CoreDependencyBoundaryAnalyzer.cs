@@ -8,7 +8,8 @@ namespace ArchLucid.Analyzers;
 /// <summary>
 /// Semantic dependency guard for the pure core assembly. Unlike source-token
 /// scanning this resolves actual referenced symbols (including aliases).
-/// Advisory diagnostic until the repository baseline is reviewed.
+/// Its descriptor remains informational; ArchLucid.Core/.editorconfig upgrades
+/// FND017001 to an error only for production Core source files.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CoreDependencyBoundaryAnalyzer : DiagnosticAnalyzer

@@ -1,3 +1,5 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   governanceApprovalQueueHref,
@@ -12,29 +14,28 @@ export function governanceApprovalQueueFilterHrefFromSearch(
   searchParams: URLSearchParams,
   patch: { readonly approvalStatus?: GovernanceApprovalStatusFilter | null; readonly runId?: string | null } = {},
 ): string {
-  const params = new URLSearchParams(searchParams);
+  return buildOperatorHrefFromSearch(searchParams.toString(), GOVERNANCE_APPROVAL_QUEUE_PATH, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+      if (patch.runId !== undefined) {
+        const trimmedRunId = patch.runId?.trim() ?? "";
 
-  if (patch.runId !== undefined) {
-    const trimmedRunId = patch.runId?.trim() ?? "";
+        if (trimmedRunId.length === 0) {
+          params.delete("runId");
+        } else {
+          params.set("runId", trimmedRunId);
+        }
+      }
 
-    if (trimmedRunId.length === 0) {
-      params.delete("runId");
-    } else {
-      params.set("runId", trimmedRunId);
-    }
-  }
-
-  if (patch.approvalStatus !== undefined) {
-    if (patch.approvalStatus === null) {
-      params.delete(GOVERNANCE_APPROVAL_STATUS_FILTER_PARAM);
-    } else {
-      params.set(GOVERNANCE_APPROVAL_STATUS_FILTER_PARAM, patch.approvalStatus);
-    }
-  }
-
-  const query = params.toString();
-
-  return query.length === 0 ? GOVERNANCE_APPROVAL_QUEUE_PATH : `${GOVERNANCE_APPROVAL_QUEUE_PATH}?${query}`;
+      if (patch.approvalStatus !== undefined) {
+        if (patch.approvalStatus === null) {
+          params.delete(GOVERNANCE_APPROVAL_STATUS_FILTER_PARAM);
+        } else {
+          params.set(GOVERNANCE_APPROVAL_STATUS_FILTER_PARAM, patch.approvalStatus);
+        }
+      }
+    },
+  });
 }
 
 export function governanceApprovalQueueStatusFilterHref(

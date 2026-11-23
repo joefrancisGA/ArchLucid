@@ -1,0 +1,37 @@
+name: Azure HTTP retry reuse focused regression
+
+# PR-scoped validation only. Never dispatch the full build against master.
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Core/Http/AzureRmAndRetailPricesHttpRetryPolicy.cs'
+      - 'ArchLucid.Host.Core/Http/AzureRmAndRetailPricesHttpRetryPolicy.cs'
+      - 'ArchLucid.Host.Core.Tests/Http/AzureHttpRetryCanonicalReuseTests.cs'
+      - '.github/workflows/azure-http-retry-reuse-focused.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  azure-http-retry-reuse:
+    name: Canonical Core / Host.Core Azure retry reuse tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Core Azure retry status and transport regression
+        run: >-
+          dotnet test ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj
+          -c Release
+          --filter 'FullyQualifiedName~CoreSafetyNetworkPrivateNetworkHttpTransportTests'
+          --logger 'console;verbosity=normal'
+      - name: Host facade parity, Retry-After telemetry, breaker and source reuse regression
+        run: >-
+          dotnet test ArchLucid.Host.Core.Tests/ArchLucid.Host.Core.Tests.csproj
+          -c Release
+          --filter 'FullyQualifiedName~AzureHttpRetryCanonicalReuseTests|FullyQualifiedName~OutboundExternalHttpResiliencePolicyTests|FullyQualifiedName~HostCorePackageCoverageBatchRc28Tests'
+          --logger 'console;verbosity=normal'

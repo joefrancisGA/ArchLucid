@@ -74,7 +74,7 @@ export function useExtractUploadUpload(input: UseExtractUploadUploadInput = {}) 
       if (acceptedPackageId.length === 0) {
         setPackageId(null);
         setUploadError({
-          message: "The server response did not include an upload package ID. Check your inventory before retrying.",
+          message: "The server response did not include an upload reference. Check your inventory before retrying.",
           problem: null,
           correlationId,
         });

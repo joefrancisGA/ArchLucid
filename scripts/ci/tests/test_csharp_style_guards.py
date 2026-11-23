@@ -140,6 +140,8 @@ class TestNoConsoleWriteGuard(unittest.TestCase):
     def test_excludes_test_paths(self) -> None:
         self.assertFalse(no_console.should_scan_path("ArchLucid.Core.Tests/FooTests.cs"))
         self.assertFalse(no_console.should_scan_path("ArchLucid.Cli/Program.cs"))
+        self.assertFalse(no_console.should_scan_path("tools/ArchLucid.SqlSmokeBench/Program.cs"))
+        self.assertFalse(no_console.should_scan_path(r"tools\ArchLucid.SqlSmokeBench\Program.cs"))
         self.assertTrue(no_console.should_scan_path("ArchLucid.Api/Controllers/HealthController.cs"))
 
     def test_flags_console_write_line(self) -> None:

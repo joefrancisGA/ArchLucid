@@ -266,6 +266,9 @@ function PathHopsTable(props: {
                     {explainSecurityEvidenceProvenanceKind(hop.provenanceKind)}
                   </p>
                 ) : null}
+                <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                  Inference source: {securityEvidencePathStoredText(hop.inferenceSource, "Inference source was not stored.")}
+                </p>
                 <p
                   className={cn("m-0 mt-1 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}
                   data-testid="security-evidence-path-hop-evidence-reference"
