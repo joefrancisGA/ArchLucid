@@ -251,19 +251,3 @@ regexes = [
   # baseline lock. A 40-char hex git SHA, not a credential; sourcegraph-access-token false positive.
   "eda94855c62d5a1a91fd189bf2e4b8b4d0546397",
 ]
-
-# Four historical FND-010 test-blob commits contain the same static nonce,
-# paired with the synthetic "key-a" test key ID. They are not credentials.
-# This exception is scoped to the exact fixture line, path, AND rule;
-# scanning every other line/secret type over full history remains blocking.
-[[allowlists]]
-targetRules = ["generic-api-key"]
-condition = "AND"
-regexTarget = "line"
-description = "FND-010 test-only static key-a/nonce fixture; preserve full-history secret scanning"
-paths = [
-  '''(?:^|/)scripts/tests/test_fnd010_evidence_authorization\.py$''',
-]
-regexes = [
-  '''key_id="key-a", nonce="nonce-unique-123456789"''',
-]
