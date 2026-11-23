@@ -7,4 +7,6 @@ public enum RemediationEvidencePhase
     ExecuteRequest = 1,
     ExecuteResult = 2,
     Verify = 3,
+    /// <summary>Atomic instance-approval provenance; not an approved FND-015 execution plan.</summary>
+    Approval = 4,
 }

@@ -23,8 +23,9 @@ public static class CorrelationIdHeaderParser
 
         StringValues hv = requestHeaders[HeaderName];
 
-        if (hv.Count == 0)
-
+        // Multiple values are ambiguous across proxies and logging consumers.
+        // Never silently accept the first of several supplied correlation IDs.
+        if (hv.Count != 1)
             return false;
 
         string? raw = hv[0]?.Trim();

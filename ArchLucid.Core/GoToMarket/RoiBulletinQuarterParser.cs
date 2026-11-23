@@ -8,7 +8,7 @@ public static partial class RoiBulletinQuarterParser
 {
     private static readonly Regex QuarterRegex = QuarterRegexImpl();
 
-    [GeneratedRegex("^Q(?<q>[1-4])-(?<y>\\d{4})$", RegexOptions.CultureInvariant | RegexOptions.Compiled)]
+    [GeneratedRegex("^Q(?<q>[1-4])-(?<y>[0-9]{4})$", RegexOptions.CultureInvariant | RegexOptions.Compiled)]
     private static partial Regex QuarterRegexImpl();
 
     /// <summary>Parses <paramref name="quarter" /> as <c>Q1-2026</c> … <c>Q4-2026</c> (calendar quarters, UTC).</summary>
@@ -33,6 +33,15 @@ public static partial class RoiBulletinQuarterParser
 
         int q = int.Parse(m.Groups["q"].ValueSpan, CultureInfo.InvariantCulture);
         int year = int.Parse(m.Groups["y"].ValueSpan, CultureInfo.InvariantCulture);
+
+        // A valid-looking quarter label must not cause DateTimeOffset construction or AddMonths
+        // to throw (e.g. year 0000, or the exclusive end of Q4-9999).
+        if (year == 0 || (year == 9999 && q == 4))
+        {
+            window = new RoiBulletinQuarterWindow(string.Empty, default, default);
+            error = $"Quarter '{trimmed}' is outside the supported UTC date range.";
+            return false;
+        }
 
         int startMonth = q switch
         {
