@@ -2198,7 +2198,8 @@ export function DiagramReconcileWorkbenchClient() {
                       {diagramReconcilePinnedNotLatest
                       && (reconciliation.rows?.length ?? 0) > 0
                       && filteredRows.length === 0
-                      && !loadingModel ? (
+                      && !loadingModel
+                      && loadError == null ? (
                         <p
                           className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
                           data-testid="infra-diagram-reconcile-stale-snapshot-filter-empty-not-load-failure"
