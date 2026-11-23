@@ -51,6 +51,8 @@ on:
       - scripts/tests/test_aspects_validate_historical_corpus.py
       - scripts/tests/test_aspects_import_historical_workbook.py
       - scripts/aspects_review_evidence.py
+      - scripts/aspects_accounting_report.py
+      - scripts/tests/test_aspects_accounting_report.py
       - scripts/aspects_density_snapshot.py
       - scripts/tests/test_aspects_review_evidence.py
       - scripts/tests/test_aspects_density_snapshot.py
@@ -829,12 +831,45 @@ jobs:
             --markdown-out artifacts/aspects/aspects-density-snapshot.md
           cat artifacts/aspects/aspects-density-snapshot.md >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Publish one Aspects accounting report with separate historical and live source scopes
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_accounting_report.py' -v
+          python scripts/aspects_accounting_report.py \
+            --historical-900 docs/engineering/aspects-historical/aspects-historical-900-snapshots.jsonl \
+            --provisional-700 docs/engineering/aspects-historical/aspects-provisional-700-series.jsonl \
+            --historical-600 docs/engineering/aspects-historical/aspects-provisional-600-series.jsonl \
+            --verified-snapshot artifacts/aspects/aspects-density-snapshot.json \
+            --json-out artifacts/aspects/aspects-accounting-report.json \
+            --markdown-out artifacts/aspects/aspects-accounting-report.md \
+            --700-csv-out artifacts/aspects/aspects-provisional-700-sma25.csv \
+            --900-csv-out artifacts/aspects/aspects-historical-900-sma25.csv \
+            --700-svg-out artifacts/aspects/aspects-provisional-700-sma25.svg
+          cat artifacts/aspects/aspects-accounting-report.md >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("artifacts/aspects/aspects-accounting-report.json").read_text())
+          assert r["publication_contract"] == "three_disjoint_accounting_populations_no_splicing"
+          assert r["historical_900"]["actual_snapshots"] == 79
+          assert r["provisional_700"]["observations"] == 700
+          assert r["provisional_700"]["backprojected_observations"] == 100
+          assert r["provisional_700"]["workbook_observations"] == 600
+          assert r["current_verified_subset"]["scope"] == "narrow_incremental_review_ledger_subset"
+          assert r["current_verified_subset"]["cross_revision_dedup_complete"] is False
+          assert Path("artifacts/aspects/aspects-provisional-700-sma25.svg").stat().st_size > 1000
+          PY
+
       - name: Upload source-verified evidence snapshot
         uses: actions/upload-artifact@v7
         with:
           name: aspects-900-density-snapshot
           path: |
             artifacts/aspects/aspects-density-snapshot.json
+            artifacts/aspects/aspects-accounting-report.json
+            artifacts/aspects/aspects-accounting-report.md
+            artifacts/aspects/aspects-provisional-700-sma25.csv
+            artifacts/aspects/aspects-historical-900-sma25.csv
+            artifacts/aspects/aspects-provisional-700-sma25.svg
             artifacts/aspects/aspects-density-snapshot.md
             artifacts/aspects/historical-corpus-validation.json
             artifacts/aspects/historical-git-pin-audit.json
