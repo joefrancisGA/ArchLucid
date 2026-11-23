@@ -1,4 +1,5 @@
 # Focused, non-deploying RC49 brand copy regression guard.
+# Run the strict name-leak scan on the repair pull request before release integration.
 name: RC49 SecureNow product-name leak guard
 
 on:
