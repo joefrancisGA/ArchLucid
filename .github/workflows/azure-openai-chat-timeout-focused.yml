@@ -1,0 +1,42 @@
+name: Azure OpenAI chat timeout focused tests
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.AgentRuntime/AzureOpenAiCompletionClient.cs'
+      - 'ArchLucid.AgentRuntime/AzureOpenAiOptionsValidator.cs'
+      - 'ArchLucid.AgentRuntime.Tests/Configuration/AzureOpenAiCompletionNetworkTimeoutTests.cs'
+      - 'ArchLucid.AgentRuntime.Tests/Configuration/AzureOpenAiOptionsValidatorTests.cs'
+      - 'ArchLucid.Core/Configuration/AzureOpenAiOptions.cs'
+      - 'ArchLucid.Core.Tests/Configuration/AzureOpenAiOptionsTests.cs'
+      - 'ArchLucid.Host.Composition/AzureOpenAI/TenantAzureOpenAiCompletionClientFactory.cs'
+      - 'ArchLucid.Host.Composition/Startup/Modules/Agents/AgentAzureOpenAiExecutorRegistrar.*'
+      - 'ArchLucid.Host.Composition/Startup/Modules/Agents/AgentCompletionJudgeChainRegistrar.cs'
+      - '.github/workflows/azure-openai-chat-timeout-focused.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  completion-timeout-focused:
+    name: Azure OpenAI completion timeout focused .NET tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Core configuration default and bounds
+        run: >-
+          dotnet test ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj
+          --configuration Release
+          --filter 'FullyQualifiedName~AzureOpenAiOptionsTests'
+          --logger 'console;verbosity=normal'
+      - name: Agent configuration validator and SDK options
+        run: >-
+          dotnet test ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
+          --configuration Release
+          --filter 'FullyQualifiedName~AzureOpenAiOptionsValidatorTests|FullyQualifiedName~AzureOpenAiCompletionNetworkTimeoutTests'
+          --logger 'console;verbosity=normal'
