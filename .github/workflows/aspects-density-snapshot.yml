@@ -31,6 +31,8 @@ on:
       - scripts/tests/test_aspects_validate_historical_pins.py
       - scripts/aspects_reconcile_historical_corpus.py
       - scripts/tests/test_aspects_reconcile_historical_corpus.py
+      - scripts/aspects_reconcile_followon_900.py
+      - scripts/tests/test_aspects_reconcile_followon_900.py
       - docs/engineering/aspects-historical/**
       - scripts/tests/test_aspects_validate_historical_corpus.py
       - scripts/tests/test_aspects_import_historical_workbook.py
@@ -378,6 +380,37 @@ jobs:
             --json-out artifacts/aspects/aspects-historical-exact-overlap.json
           echo 'Historical-vs-new exact blob overlaps computed; cross-revision mappings remain explicitly unresolved.' >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Audit follow-on reviews against the original-pinned historical 900 cohort
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_followon_900.py' -v
+          python scripts/aspects_reconcile_followon_900.py \
+            --repo . \
+            --pin-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --pin-report artifacts/aspects/historical-git-pin-audit.json \
+            --ledger docs/engineering/aspects-review-ledger.jsonl \
+            --json-out artifacts/aspects/historical-900-followon-pinned-overlap.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          data = json.loads(Path("artifacts/aspects/historical-900-followon-pinned-overlap.json").read_text())
+          assert data["status"] == "source_audited_original_pins_vs_git_verified_followon_exact_only"
+          assert data["historical_rows_imported"] == 5741
+          assert data["new_comparable_900_density"] is None
+          assert data["merged_historical_and_followon_denominator"] is None
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(
+                  f"Historical 900 first-parent original-pin/follow-on comparison: "
+                  f"**{data['followon_records_with_baseline_inside_historical_cohort']}** "
+                  f"verified follow-on records inside historical cohort, "
+                  f"**{data['followon_records_with_baseline_outside_historical_cohort']}** "
+                  f"outside (not silently spliced); exact duplicate lines "
+                  f"**{data['followon_exact_repeat_with_original_pins']}**, "
+                  f"same-blob unmatched candidate lines "
+                  f"**{data['followon_exact_identities_not_in_original_pins']}**. "
+                  "No cross-revision or comparable density promotion.\\n\\n"
+              )
+          PY
+
       - name: Locate latest comparable master snapshot
         if: github.event_name != 'pull_request'
         env:
@@ -427,6 +460,7 @@ jobs:
             artifacts/aspects/historical-numeric-range-nine.json
             artifacts/aspects/historical-900-cross-revision-lineage.json
             artifacts/aspects/aspects-historical-exact-overlap.json
+            artifacts/aspects/historical-900-followon-pinned-overlap.json
           if-no-files-found: error
 
       - name: Require anchored, nonempty historical lineage cohort
