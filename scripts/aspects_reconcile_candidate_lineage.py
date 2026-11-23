@@ -54,7 +54,10 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
     chronological_commits = list(reversed(commits))
     original: dict[tuple[str, str], set[int]] = defaultdict(set)
     derived: dict[tuple[str, str], set[int]] = defaultdict(set)
-    first_original: dict[tuple[str, str], int] = {}
+    # A blob can be reviewed in different commits with DIFFERENT line spans.
+    # Cross-revision proof must terminate at a real pinned review event that
+    # included the line, not at the earliest occurrence of that blob.
+    original_review_anchors: dict[tuple[int, str, str], set[int]] = defaultdict(set)
     first_derived: dict[tuple[str, str], int] = {}
     # An artifact digest detects cross-run changes, but cannot authenticate the
     # blob chosen by a candidate. Recheck every in-window derived source
@@ -72,8 +75,10 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 raise ValueError("Original source row absent from independently checked window")
             for s in row.get("pinned_sources") or [row]:
                 key = (s["path"], s["blob"])
-                original[key].update(intervals(s, "spans"))
-                first_original[key] = min(first_original.get(key, order[sha]), order[sha])
+                reviewed_lines = intervals(s, "spans")
+                original[key].update(reviewed_lines)
+                original_review_anchors[(order[sha], s["path"], s["blob"])].update(
+                    reviewed_lines)
         for row in candidates:
             if (row.get("status") != "git_source_at_review_commit_candidate_only"
                     or row.get("window_membership") != "in_900_first_parent_window"):
@@ -115,8 +120,8 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
         return result
 
     path_sources: dict[str, list[tuple[int, str, set[int]]]] = defaultdict(list)
-    for (path, blob), lines in original.items():
-        path_sources[path].append((first_original[(path, blob)], blob, lines))
+    for (review_order, path, blob), reviewed_lines in original_review_anchors.items():
+        path_sources[path].append((review_order, blob, reviewed_lines))
     matches = set()
     cache = blob_cache
     adjacent_matches = set()
@@ -301,6 +306,7 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
         "oldest_sha": anchor["oldest_sha"],
         "first_parent_commits": length,
         "candidate_exact_only_line_identities": expected_only,
+        "original_source_pin_review_commit_anchors": len(original_review_anchors),
         "derived_git_tree_source_components_attested": derived_components_attested,
         "derived_git_tree_nonblank_occurrences_attested": derived_nonblank_occurrences_attested,
         "bounded_unique_prefix_suffix_revision_pairs_examined": bounded_pair_count,
