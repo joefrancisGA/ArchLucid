@@ -15,7 +15,7 @@ public sealed class SecureNowPersistedTenantHttpTests(ArchLucidApiFactory factor
     : IClassFixture<ArchLucidApiFactory>
 {
     [SkippableFact]
-    public async Task Seeded_default_scope_graph_is_not_visible_to_foreign_tenant()
+    public async Task Disabled_exchange_hides_seeded_graph_from_owner_and_foreign_tenant()
     {
         using HttpClient owner = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(owner);
@@ -26,10 +26,12 @@ public sealed class SecureNowPersistedTenantHttpTests(ArchLucidApiFactory factor
         string url = $"/v1/evidence-graph/snapshot?runId={run:D}&asOf={Uri.EscapeDataString(DateTimeOffset.UtcNow.AddMinutes(1).ToString("O"))}";
         using HttpResponseMessage ownerResponse = await owner.GetAsync(url);
 
-        // A seeded graph may still be rejected by sealed-manifest/pin guards.
-        // It must never be misrepresented as a successful authorized read.
-        ownerResponse.StatusCode.Should().BeOneOf(
-            HttpStatusCode.OK, HttpStatusCode.Conflict);
+        // This factory uses production-default feature flags. A seeded
+        // authority graph must remain completely undiscoverable while
+        // SecureNow.ReadOnlySnapshotExchange is disabled. The separate
+        // SecureNowEnabledPersistedHttpTests factory explicitly enables
+        // exchange and REQUIRES owner 200 / cross-tenant 404.
+        ownerResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
         GreenfieldIntegrationTenantScope.Scope foreignScope = GreenfieldIntegrationTenantScope.CreateUniqueScope();
         await GreenfieldIntegrationTenantScope.EnsureScopeAsync(factory.SqlConnectionString, foreignScope);
