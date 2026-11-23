@@ -7,9 +7,11 @@ on:
       - 'ArchLucid.Persistence/Migrations/426_RemediationRoleWritePermissions.sql'
       - 'ArchLucid.Persistence/Scripts/ArchLucid.sql'
       - 'ArchLucid.Host.Core/Startup/Validation/Rules/SqlSealedEvidenceImmutabilityRules.cs'
+      - 'ArchLucid.Host.Core/Startup/Validation/Rules/SqlDatabaseImmutabilityProbeHelpers.cs'
       - 'ArchLucid.Persistence/InfraEvidence/SqlAzureInventorySnapshotRepository.Delete.cs'
       - 'ArchLucid.Persistence.Tests/Sql/RemediationSqlRolePrivilegesTests.cs'
       - 'scripts/ci/tests/test_remediation_sql_role_permissions.py'
+      - 'scripts/ci/tests/test_remediation_atomic_update_contract.py'
       - '.github/workflows/remediation-sql-role-permissions.yml'
   workflow_dispatch:
 
@@ -26,3 +28,4 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m unittest discover -s scripts/ci/tests -p test_remediation_sql_role_permissions.py -v
+      - run: python -m unittest discover -s scripts/ci/tests -p test_remediation_atomic_update_contract.py -v
