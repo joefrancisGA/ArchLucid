@@ -14,7 +14,7 @@ def trace_unique_first_parent_lines(
     candidate_order: int, original_blob: str, original_order: int,
     candidate_lines: set[int], tree_blob: Callable[[str, str], str | None],
     source_lines: Callable[[str], list[str] | None],
-    max_edges: int = 16, max_blob_lines: int = 4000,
+    max_edges: int = 128, max_blob_lines: int = 4000,
 ) -> tuple[dict[int, int], str | None, int]:
     """Trace unique exact equal-hunk nonblank lines across every Git parent edge.
 
@@ -29,6 +29,9 @@ def trace_unique_first_parent_lines(
     edges = abs(candidate_order - original_order)
     if edges == 0:
         return {}, "same_commit_without_distinct_revision", 0
+    # Bounded expansion from the initial 16 edges: check EACH intermediate
+    # first-parent blob, never infer continuity from matching endpoints.
+    # Longer gaps remain unresolved rather than being treated as repeats.
     if edges > max_edges:
         return {}, "distance_cap", edges
     if (tree_blob(ordered_shas[candidate_order], path) != candidate_blob
