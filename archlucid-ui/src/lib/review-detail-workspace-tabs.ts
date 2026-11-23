@@ -213,13 +213,16 @@ export function writeReviewDetailTabToUrl(
 
   if (options?.findingId === null) {
     url.searchParams.delete(REVIEW_DETAIL_FINDING_PARAM);
+    url.searchParams.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
   } else if (options?.findingId !== undefined) {
     const trimmed = options.findingId.trim();
 
     if (trimmed.length > 0) {
       url.searchParams.set(REVIEW_DETAIL_FINDING_PARAM, trimmed);
+      url.searchParams.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
     } else {
       url.searchParams.delete(REVIEW_DETAIL_FINDING_PARAM);
+      url.searchParams.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
     }
   }
 

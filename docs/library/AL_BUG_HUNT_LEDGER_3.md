@@ -11705,6 +11705,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the legacy `diagramFindingId` monitor. `writeReviewDetailTabToUrl` dropped `findingId` on package-tab navigation but left the LS-01 alias, so a shared summary link could still name a finding. Clearing or replacing finding selection now deletes `diagramFindingId` too. Regression `clears legacy diagramFindingId when tab navigation clears finding selection` failed first, then tab URL tests 13/13 and URL-sync 14/14. Private beta: when an invited operator leaves findings for summary on a review that still uses the older diagram finding query name, the address bar drops that alias instead of leaving it on the link.
+
 2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the hash candidate. `onHashChange` and the first-paint hash writer called `writeReviewDetailTabToUrl` without `findingId`, so `#review-summary` switched the tab to overview and cleared workbench focus but left `findingId` in the query. Tab-strip navigation already clears that id. Both hash writers now use `findingIdClearedWhenLeavingFindings`. Regression `clears findingId when a section hash moves to a non-findings tab` failed first (`findingId` still present), then URL-sync vitest 14/14. Cheap-disproof: keyboard and pointer tab changes share `onValueChange` into `navigateTab`; no caller passes an explicit `findingId` on a package-tab `navigateTab`. `diagramFindingId` on `writeReviewDetailTabToUrl` and a bookmarked overview `findingId` stay open. Private beta: when an invited operator follows an in-page link from a selected finding to the review summary, the address bar drops that finding id, the same way the tab strip does. A link that stays on findings still keeps the selected finding.
 2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted open `(candidate)` row: `navigateTab("overview")` kept a `findingId` query because `writeReviewDetailTabToUrl` treats omitted `findingId` as leave-unchanged. Package tabs now pass `findingId: null` unless the destination is findings or a workbench column. Regression `clears findingId from the URL when navigating to overview from findings`. URL-sync vitest **11/11**. Cheap-disproof closed four remaining reseed monitors (`tabLifecycle` undefined guard — production shell always passes `tabLifecycle`; stale-banner visibility timing — baseline unchanged on refetch-only; lifecycle hash honesty — requires `activeTab` and hash both activity; presenter URL — `useSearchParams` already drives enter/exit). Reseeded five `(candidate)` monitors below. Private beta: When an invited operator leaves the findings tab for summary or another package tab via the strip, the shared review link no longer keeps a stale finding id in the query string.
 
@@ -12428,8 +12430,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 10
-- **bugs-found:** 9
+- **hunts:** 11
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

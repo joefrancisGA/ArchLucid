@@ -115,6 +115,22 @@ describe("review-detail-workspace-tabs", () => {
     expect(dispatchEventSpy).not.toHaveBeenCalled();
   });
 
+
+  it("clears legacy diagramFindingId when tab navigation clears finding selection", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-1?reviewTab=findings&diagramFindingId=stale-alias",
+    );
+    const replaceStateSpy = vi.spyOn(window.history, "replaceState");
+
+    writeReviewDetailTabToUrl("overview", { findingId: null });
+
+    expect(replaceStateSpy).toHaveBeenCalled();
+    expect(window.location.search).toContain("reviewTab=overview");
+    expect(window.location.search).not.toContain("diagramFindingId=");
+    expect(window.location.search).not.toContain("findingId=");
+  });
   it("prefers hash-mapped tabs when reading from window location", () => {
     window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=overview#run-explanation");
 

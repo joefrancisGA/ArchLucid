@@ -83,3 +83,4 @@
 {"at":"2026-11-23T21:52:38.6513156Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: runs list dropped createdUtc with surrounding whitespace"}
 {"at":"2026-11-23T21:58:10.8861970Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: archive merge missed a list run id with surrounding whitespace"}
 {"at":"2026-11-23T22:04:52.5775737Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: section hash left findingId when leaving findings"}
+{"at":"2026-11-23T23:54:18.9573891Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: diagramFindingId survived tab navigation clear"}
