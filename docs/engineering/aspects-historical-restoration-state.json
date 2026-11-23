@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_import_complete_bounded_large_source_lineage_fallback_submitted",
-  "next_priority": "Validate exact-head CI including large-file fallback tests and inspect whether the two complexity-capped historical candidate comparisons can be safely mapped. Investigate separate FND-017 semantic boundary and FND-011 HTTP tenant isolation failures without weakening gates; then reconcile historical distinct discovery IDs, follow-on ledger, and anchored 900-first-parent source coverage before a comparable density.",
+  "state": "historical_5741_import_complete_followon_original_pin_900_reconciliation_submitted",
+  "next_priority": "Validate exact PR-head Aspects CI for original-pinned 900-cohort vs independently Git-verified follow-on ledger reconciliation (new artifact historical-900-followon-pinned-overlap.json); fix any schema, test, Git span, first-parent mismatch or CI errors narrowly. Then handle remaining Gitleaks/SQL and distinct discovery identity plus full cross-revision 900-window mapping before publishing any comparable rate or 600/700 SMA.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -391,6 +391,22 @@
       "full_900_distinct_defect_recomputed": false,
       "provenance": "one explicit self-reported duplicate fix PR association; not a global one-to-one mapping between fixing PR and defect identity",
       "new_or_repeated_loc_to_global_900_window": null
+    },
+    "followon_original_pin_900_reconciliation": {
+      "status": "code_and_ten_tests_committed_pending_exact_head_CI",
+      "script": "scripts/aspects_reconcile_followon_900.py",
+      "tests": "scripts/tests/test_aspects_reconcile_followon_900.py",
+      "workflow": ".github/workflows/aspects-density-snapshot.yml",
+      "artifact": "artifacts/aspects/historical-900-followon-pinned-overlap.json",
+      "scope": "legacy_historical_900_first_parent_cohort_only; only independently source-attested original workbook Git pins and follow-on source records with a baseline SHA in the same cohort",
+      "confidence": "exact_path_blob_line_overlap; no changed-blob source lineage inference",
+      "all_history_records_kept_separate": true,
+      "verified_reviewed_loc_new_from_reconciliation": 0,
+      "candidate_new_and_repeated_loc_this_step": "not_measured_until_new_ci_artifact",
+      "new_distinct_defect_ids_reconciled": 0,
+      "new_comparable_rate": null,
+      "no_legacy_checkpoint_promotion": true,
+      "note": "The narrow ledger includes a newly source-verified clean review, but it is not automatically eligible for the older historical 900-first-parent cohort. This job explicitly reports excluded out-of-window records."
     }
   },
   "latest_restoration_run": {
