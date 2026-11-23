@@ -176,6 +176,10 @@ export async function downloadValueReportDocx(fromIso: string, toIso: string): P
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
+  assertBinaryDownloadContentType(response, [
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ]);
+
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
     "ArchLucid-value-report.docx";

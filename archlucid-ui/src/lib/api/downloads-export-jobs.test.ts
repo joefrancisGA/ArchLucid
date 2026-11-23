@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { downloadComparisonReplayPdf } from "./downloads-export-jobs";
+import { downloadComparisonReplayPdf, downloadValueReportDocx } from "./downloads-export-jobs";
 
 vi.mock("./http", async (importOriginal) => ({
   ...await importOriginal<typeof import("./http")>(),
@@ -53,5 +53,37 @@ describe("downloadComparisonReplayPdf", () => {
     await downloadComparisonReplayPdf("comparison-1");
     expect(clickDownload).toHaveBeenCalledOnce();
     expect(clickDownload.mock.contexts[0].download).toBe("comparison-report-comparison-1.pdf");
+  });
+});
+
+describe("downloadValueReportDocx", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubGlobal("fetch", fetchResponse);
+    const originalUrl = URL;
+    vi.stubGlobal("URL", class extends originalUrl {
+      static override createObjectURL = () => "blob:http://localhost/docx";
+      static override revokeObjectURL = () => {};
+    });
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(clickDownload);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("rejects a successful response that returned HTML instead of a DOCX", async () => {
+    fetchResponse.mockResolvedValueOnce(
+      new Response("<!doctype html><html></html>", {
+        status: 200,
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      }),
+    );
+
+    await expect(downloadValueReportDocx("2026-01-01T00:00:00Z", "2026-01-31T23:59:59Z")).rejects.toThrow(
+      /unexpected content type|problem response/i,
+    );
+    expect(clickDownload).not.toHaveBeenCalled();
   });
 });
