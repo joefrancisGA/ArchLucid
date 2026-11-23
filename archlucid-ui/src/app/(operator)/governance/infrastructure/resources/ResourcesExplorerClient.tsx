@@ -33,6 +33,10 @@ import { RESOURCES_EXPLORER_SNAPSHOT_SCOPE_HONESTY_LINE } from "@/lib/infra-evid
 import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
 import { RESOURCE_EXPLORER_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-partial-capture-copy";
 import { ResourcesExplorerFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/resources/ResourcesExplorerFilterEmptyPartialHonesty";
+import { ResourcesExplorerCategoryOnlyFilterEmptyPartialHonesty } from "@/components/infra-evidence/ResourcesExplorerCategoryOnlyFilterEmptyPartialHonesty";
+import { ResourcesExplorerNamePrefixOnlyFilterEmptyPartialHonesty } from "@/components/infra-evidence/ResourcesExplorerNamePrefixOnlyFilterEmptyPartialHonesty";
+import { RESOURCE_EXPLORER_CATEGORY_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-category-only-filter-empty-not-load-failure-copy";
+import { RESOURCE_EXPLORER_NAME_PREFIX_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-name-prefix-only-filter-empty-not-load-failure-copy";
 import { ResourcesExplorerCategoryAndNamePrefixCombinedFilterEmptyPartialHonesty } from "@/components/infra-evidence/ResourcesExplorerCategoryAndNamePrefixCombinedFilterEmptyPartialHonesty";
 import { RESOURCE_EXPLORER_CATEGORY_AND_NAME_PREFIX_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-category-and-name-prefix-combined-filter-empty-not-load-failure-copy";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";

@@ -41,7 +41,12 @@ public sealed partial class CircuitBreakerGate
             // HalfOpen: only the probing thread holds the slot; others wait out.
 
             if (!_probeInFlight)
+            {
+                // After a successful probe below the configured success threshold,
+                // atomically reserve the next slot before admitting another caller.
+                _probeInFlight = true;
                 return;
+            }
 
             EmitRejection();
 
