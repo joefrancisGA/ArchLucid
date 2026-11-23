@@ -50,4 +50,21 @@ describe("deriveReviewsWorkspaceSummary", () => {
     expect(summary.findings).toBe(2);
     expect(summary.openRisks).toBe(0);
   });
+  it("does not mark open risks omitted when warning count and warning flags are absent", () => {
+    const summary = deriveReviewsWorkspaceSummary([
+      run({ runId: "live-in-flight", hasFindingsSnapshot: true, findingCount: 2 }),
+    ]);
+
+    expect(summary.openRisks).toBe(0);
+    expect(summary.openRisksTotalOmitted).toBe(false);
+  });
+
+  it("marks open risks omitted when a review flags warnings without a stored count", () => {
+    const summary = deriveReviewsWorkspaceSummary([
+      run({ runId: "flagged", hasFindingsSnapshot: true, findingCount: 1, hasWarnings: true }),
+    ]);
+
+    expect(summary.openRisks).toBe(0);
+    expect(summary.openRisksTotalOmitted).toBe(true);
+  });
 });

@@ -52,8 +52,7 @@ export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): Revi
     if (warningCount !== null) {
       openRisks += warningCount;
     } else if (run.hasWarnings === true || run.hasGovernanceWarnings === true) {
-      openRisksTotalOmitted = true;
-    } else {
+      // A missing count is an incomplete total only when the review says warnings exist.
       openRisksTotalOmitted = true;
     }
   }
