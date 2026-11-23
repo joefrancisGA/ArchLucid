@@ -90,7 +90,12 @@ def verify_reports(source: dict, discovery: dict, lineage: dict,
                != candidate.get("candidate_rows_total_all_history")
             or candidate_clean > original_clean
             or candidate_positive > original_positive
-            or candidate_current + source["original_git_pinned_rows_eligible_in_current_900"]
+            # Some original-pin-verified multi-file workbook rows also appear
+            # in the unparsed/deferred candidate audit. Their unresolved rows
+            # overlap source pins by design; only *recovered derived* rows
+            # must be disjoint from originally verified pins.
+            or candidate_current > original_current
+            or candidate_verified + source["original_git_pinned_rows_eligible_in_current_900"]
                > original_current):
         raise ValueError("derived candidate partition inconsistent with original reviews")
     candidate_exact = candidate.get("candidate_unique_exact_path_blob_line_identities")
