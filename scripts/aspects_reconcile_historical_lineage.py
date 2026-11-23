@@ -111,6 +111,8 @@ def reconcile(repo: Path, rows: list[dict], checkpoint: dict,
         return result
     chronological = {commit: window_size - 1 - i for i, commit in enumerate(history)}
     groups: dict[tuple[str, str], set[int]] = defaultdict(set)
+    single_source_groups: dict[tuple[str, str], set[int]] = defaultdict(set)
+    multi_source_groups: dict[tuple[str, str], set[int]] = defaultdict(set)
     first_seen = {}
     excluded = Counter()
     eligible = 0
@@ -153,6 +155,12 @@ def reconcile(repo: Path, rows: list[dict], checkpoint: dict,
                 selected.update(range(pair[0], pair[1] + 1))
             row_occurrences += len(selected)
             groups[key].update(selected)
+            # The original review is atomic: one multi-file row supplies
+            # several independently pinned path/blob sources. Track it in a
+            # separate population to measure overlap against historical
+            # single-file reviews without pretending new source was reviewed.
+            (multi_source_groups if row.get("pinned_sources") is not None
+             else single_source_groups)[key].update(selected)
             first_seen[key] = min(first_seen.get(key, chronological[sha]), chronological[sha])
         if row_occurrences != row.get("nonblank_reviewed_loc"):
             result["blocking_reason"] = f"Audited LOC disagrees at row {row['excel_row']}"
@@ -176,6 +184,14 @@ def reconcile(repo: Path, rows: list[dict], checkpoint: dict,
         files[path].append(blob)
     upper = sum(map(len, groups.values()))
     same_revision_repeats = total_occurrences - upper
+    single_unique = sum(map(len, single_source_groups.values()))
+    multi_unique = sum(map(len, multi_source_groups.values()))
+    multi_repeated_against_singles = sum(
+        len(lines & single_source_groups.get(key, set()))
+        for key, lines in multi_source_groups.items())
+    multi_new_against_singles = multi_unique - multi_repeated_against_singles
+    if single_unique + multi_new_against_singles != upper:
+        raise RuntimeError("Exact pinned-source population partition invariant violated")
     # Per-path maximum across one pinned blob is a descriptive floor only
     # under fixed-path identity (renames/copies have not been reconciled).
     pathwise_max = sum(max(len(groups[(path, blob)]) for blob in blobs)
@@ -215,6 +231,12 @@ def reconcile(repo: Path, rows: list[dict], checkpoint: dict,
         "verified_pin_line_occurrences_in_window": total_occurrences,
         "verified_unique_exact_path_blob_lines_in_window": upper,
         "verified_repeated_exact_path_blob_lines_in_window": same_revision_repeats,
+        "single_file_original_pin_unique_exact_loc_in_window": single_unique,
+        "multi_file_original_pin_unique_exact_loc_in_window": multi_unique,
+        "multi_file_original_pin_exact_overlap_with_single_file_loc_in_window": multi_repeated_against_singles,
+        "multi_file_original_pin_new_exact_loc_vs_single_file_loc_in_window": multi_new_against_singles,
+        "multi_vs_single_scope": "Exact identical path/blob/line identities on anchored 900-first-parent Git-pin-verified reviews only. Not cross-revision unique LOC or a new density.",
+        "audited_rows_sha256": audit_digest,
         "per_path_max_one_revision_loc_descriptive_not_rename_safe": pathwise_max,
         "provisionally_mapped_unique_loc": mapped_union,
         "provisionally_mapped_additional_repeated_loc": upper - mapped_union,
