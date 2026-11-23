@@ -6,7 +6,12 @@ public static class IdentityIssuerNormalizer
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(issuer);
 
-        return issuer.Trim().TrimEnd('/').ToLowerInvariant();
+        string normalized = issuer.Trim().TrimEnd('/');
+        // Slash-only values are nonblank before normalization but collapse to
+        // an empty identity issuer and must never become a persisted key.
+        ArgumentException.ThrowIfNullOrWhiteSpace(normalized, nameof(issuer));
+
+        return normalized.ToLowerInvariant();
     }
 
     public static string NormalizeMicrosoftEntraIssuer(Guid entraTenantId)
