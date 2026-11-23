@@ -14,6 +14,8 @@ def _summary() -> dict:
     return {"metrics": {
         "http_req_failed": {"values": {"rate": 0.001}, "thresholds": {"rate<0.01": {"ok": True}}},
         "http_req_duration": {"values": {"p(95)": 1100}, "thresholds": {"p(95)<3000": {"ok": True}}},
+        "http_req_duration{name:snapshot_list}": {"values": {"p(95)": 900}, "thresholds": {"p(95)<3000": {"ok": True}}},
+        "http_req_duration{name:ranked_paths}": {"values": {"p(95)": 1100}, "thresholds": {"p(95)<3000": {"ok": True}}},
         "checks": {"values": {"rate": 1.0}, "thresholds": {"rate>0.99": {"ok": True}}},
         "http_reqs": {"values": {"count": 200}},
     }}
@@ -29,6 +31,14 @@ def test_qualified_synthetic_run_has_explicit_limitations() -> None:
     assert result["status"] == "PASS"
     assert result["evidenceClass"] == "synthetic-multitenant"
     assert "does not prove production" in result["limitations"]
+
+
+def test_missing_endpoint_metrics_and_threshold_fail_closed() -> None:
+    summary = _summary()
+    del summary["metrics"]["http_req_duration{name:ranked_paths}"]["thresholds"]
+    result = module.evaluate(summary, _run())
+    assert result["status"] == "HOLD"
+    assert "missing or failed endpoint threshold: ranked_paths" in result["errors"]
 
 
 def test_missing_metrics_failed_threshold_and_one_tenant_hold() -> None:

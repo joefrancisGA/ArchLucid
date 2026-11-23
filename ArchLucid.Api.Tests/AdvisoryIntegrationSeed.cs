@@ -61,8 +61,12 @@ public static class AdvisoryIntegrationSeed
             RunId = runId,
             ProjectId = projectSlug,
             CreatedUtc = createdUtc,
-            // In the temporal HTTP fixture, delay the manifest header anchor
-            // until source snapshots exist. After sealing it is immutable.
+            // Persist the full seeded authority lineage on the run header unless the
+            // temporal HTTP fixture defers anchors until child snapshots exist.
+            ContextSnapshotId = pinTemporalSnapshotChain ? null : contextSnapshotId,
+            GraphSnapshotId = pinTemporalSnapshotChain ? null : graphSnapshotId,
+            FindingsSnapshotId = pinTemporalSnapshotChain ? null : findingsSnapshotId,
+            DecisionTraceId = pinTemporalSnapshotChain ? null : decisionTraceId,
             GoldenManifestId = pinTemporalSnapshotChain ? null : manifestId
         };
 

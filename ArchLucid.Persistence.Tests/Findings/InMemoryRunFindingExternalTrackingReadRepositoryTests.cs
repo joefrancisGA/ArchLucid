@@ -1,3 +1,4 @@
+using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Integrations;
 

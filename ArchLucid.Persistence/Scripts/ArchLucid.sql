@@ -13510,11 +13510,10 @@ BEGIN
 
     IF @PrimaryKeyName IS NOT NULL
     BEGIN
-        -- T-SQL EXEC(<expression>) does not accept QUOTENAME() directly in the
-        -- concatenation; materialize the identifier-quoted statement first.
-        DECLARE @DropSentEmailsPrimaryKeySql NVARCHAR(MAX) =
-            N'ALTER TABLE dbo.SentEmails DROP CONSTRAINT ' + QUOTENAME(@PrimaryKeyName) + N';';
-        EXEC sys.sp_executesql @DropSentEmailsPrimaryKeySql;
+        DECLARE @DropPrimaryKeySql NVARCHAR(MAX);
+        SET @DropPrimaryKeySql = N'ALTER TABLE dbo.SentEmails DROP CONSTRAINT '
+            + QUOTENAME(@PrimaryKeyName) + N';';
+        EXEC sys.sp_executesql @DropPrimaryKeySql;
     END;
 
     ALTER TABLE dbo.SentEmails

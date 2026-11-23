@@ -1,8 +1,20 @@
 import type { ReactNode } from "react";
 
+import { SampleReviewsOnOverviewPreferenceProvider } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
+import { WhereToGoNextPreferenceProvider } from "@/components/WhereToGoNextPreferenceProvider";
 import { OperatorLayoutClient } from "./OperatorLayoutClient";
 
-/** Shell is client-driven; child routes opt into request-time rendering only when needed. */
+/**
+ * Keep operator-only preferences inside the operator route group, not the root
+ * layout: public marketing pages must not hydrate account preference clients.
+ * Their original wrapper order is retained within the root workspace/query providers.
+ */
 export default function OperatorLayout({ children }: { children: ReactNode }) {
-  return <OperatorLayoutClient>{children}</OperatorLayoutClient>;
+  return (
+    <WhereToGoNextPreferenceProvider>
+      <SampleReviewsOnOverviewPreferenceProvider>
+        <OperatorLayoutClient>{children}</OperatorLayoutClient>
+      </SampleReviewsOnOverviewPreferenceProvider>
+    </WhereToGoNextPreferenceProvider>
+  );
 }

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Execute rehearsal in disposable network-isolated container
         run: |
           docker run --rm --network none --read-only --cap-drop ALL \

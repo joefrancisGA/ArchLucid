@@ -25,6 +25,19 @@ public sealed class SqlTenantSettingsRepository(
     private readonly SqlResilientOperationExecutor _sqlOperations =
         sqlOperations ?? throw new ArgumentNullException(nameof(sqlOperations));
 
+    // MERGE must hold the key-range lock until the write completes: two requests may
+    // otherwise both observe a missing (TenantId, SettingKey) and collide on the PK.
+    internal const string UpsertSql = """
+                                      MERGE dbo.TenantSettings WITH (HOLDLOCK) AS target
+                                      USING (SELECT @TenantId AS TenantId, @SettingKey AS SettingKey) AS source
+                                      ON target.TenantId = source.TenantId AND target.SettingKey = source.SettingKey
+                                      WHEN MATCHED THEN
+                                          UPDATE SET SettingValue = @SettingValue, UpdatedUtc = SYSUTCDATETIME()
+                                      WHEN NOT MATCHED THEN
+                                          INSERT (TenantId, SettingKey, SettingValue, UpdatedUtc)
+                                          VALUES (@TenantId, @SettingKey, @SettingValue, SYSUTCDATETIME());
+                                      """;
+
     public Task<string?> TryGetAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken) =>
         _sqlOperations.ExecuteAsync(
             ct => TryGetCoreAsync(tenantId, settingKey, ct),
@@ -84,22 +97,11 @@ public sealed class SqlTenantSettingsRepository(
 
         TenantSettingsWriteGuard.EnsureSettingValueLength(settingValue);
 
-        const string sql = """
-                             MERGE dbo.TenantSettings AS target
-                             USING (SELECT @TenantId AS TenantId, @SettingKey AS SettingKey) AS source
-                             ON target.TenantId = source.TenantId AND target.SettingKey = source.SettingKey
-                             WHEN MATCHED THEN
-                                 UPDATE SET SettingValue = @SettingValue, UpdatedUtc = SYSUTCDATETIME()
-                             WHEN NOT MATCHED THEN
-                                 INSERT (TenantId, SettingKey, SettingValue, UpdatedUtc)
-                                 VALUES (@TenantId, @SettingKey, @SettingValue, SYSUTCDATETIME());
-                             """;
-
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(
                 new CommandDefinition(
-                    sql,
+                    UpsertSql,
                     new
                     {
                         TenantId = tenantId,

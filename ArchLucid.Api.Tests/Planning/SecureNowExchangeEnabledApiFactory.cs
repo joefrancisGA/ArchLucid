@@ -7,17 +7,21 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchLucid.Api.Tests.Planning;
 
-/// <summary>Isolated host enables exchange solely in this test process.</summary>
+/// <summary>
+/// Isolated API factory enables the SecureNow exchange only inside this test host.
+/// Production feature configuration is untouched.
+/// </summary>
 public sealed class SecureNowExchangeEnabledApiFactory : ArchLucidApiFactory
 {
     // A real host has a deny-all evidence entitlement authority until a trusted
     // issuer is deployed. Only this isolated fixture knows the seeded run ID.
-    // Do not replace the central authorization service or the production default.
     private readonly SeededTestEvidenceEntitlementAuthority _testEntitlements = new();
 
     public void GrantSeededTestRun(Guid runId) => _testEntitlements.Allow(runId);
 
     public string TestEntitlementDiagnosticCounts => _testEntitlements.DiagnosticCounts;
+
+  public SecureNowExchangeEnabledApiFactory() : base(sqlAuthorityStorage: true) { }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -35,4 +39,3 @@ public sealed class SecureNowExchangeEnabledApiFactory : ArchLucidApiFactory
         settings["FeatureManagement:SecureNow.ReadOnlySnapshotExchange"] = "true";
     }
 }
-

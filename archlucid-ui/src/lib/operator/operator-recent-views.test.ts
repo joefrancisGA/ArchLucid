@@ -33,6 +33,23 @@ describe("operator-recent-views", () => {
     expect(twice.entries).toHaveLength(2);
   });
 
+  it("keeps separately visited Terraform resources when recents are normalized", () => {
+    const raw = JSON.stringify({
+      schemaVersion: 2,
+      entries: [
+        { href: "/infrastructure/terraform?cloudResourceId=resource-a", label: "A",
+          kind: "page", visitedAtUtc: "2026-11-22T18:00:00Z" },
+        { href: "/infrastructure/terraform?cloudResourceId=resource-b", label: "B",
+          kind: "page", visitedAtUtc: "2026-11-22T17:00:00Z" },
+        { href: "/infrastructure/terraform?cloudResourceId=resource-a&snapshotId=s2",
+          label: "A again", kind: "page", visitedAtUtc: "2026-11-22T16:00:00Z" },
+      ],
+    });
+    const parsed = parseStoredRecentViews(raw);
+    expect(parsed.entries).toHaveLength(2);
+    expect(parsed.entries.map((entry) => entry.label)).toEqual(["A", "B"]);
+  });
+
   it("dedupes recent views when hrefs differ only by a trailing slash", () => {
     const once = recordRecentView(parseStoredRecentViews(null), {
       href: "/architecture/reviews/abc",

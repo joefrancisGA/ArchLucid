@@ -24,18 +24,12 @@ public sealed class SecureNowSnapshotTwoTenantHttpTests(GreenfieldSqlApiFactory 
         Guid projectA = Guid.Parse("aaaaaaaa-3333-4333-8333-aaaaaaaaaaaa");
         Guid projectB = Guid.Parse("bbbbbbbb-4444-4444-8444-bbbbbbbbbbbb");
         Guid unknownRun = HarnessWellKnownGuids.UnknownRunForStoredEvidenceFiles;
-        // This GET-only negative-isolation test must not depend on an
-        // unrelated POST /v1/architecture/request warmup returning 2xx.
-        // CreateClient starts/migrates the greenfield host; explicitly insert
-        // both real SQL tenant scopes before issuing authenticated HTTP GETs.
+        // This is a read-only unknown-run denial test. The shared tenant scenario's
+        // create-run primer posts an unrelated architecture request; its HTTP 400
+        // prevented this fail-closed contract from being exercised on SQL CI.
+        // GreenfieldSqlApiFactory already verifies /health/ready on host startup.
         using HttpClient clientA = factory.CreateClient();
         using HttpClient clientB = factory.CreateClient();
-        await GreenfieldIntegrationTenantScope.EnsureScopeAsync(
-            factory.SqlConnectionString,
-            new GreenfieldIntegrationTenantScope.Scope(tenantA, workspaceA, projectA));
-        await GreenfieldIntegrationTenantScope.EnsureScopeAsync(
-            factory.SqlConnectionString,
-            new GreenfieldIntegrationTenantScope.Scope(tenantB, workspaceB, projectB));
         GreenfieldIntegrationTenantScope.WireScope(clientA, tenantA, workspaceA, projectA);
         GreenfieldIntegrationTenantScope.WireScope(clientB, tenantB, workspaceB, projectB);
 

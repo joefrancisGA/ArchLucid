@@ -59,7 +59,7 @@ public static class ScimTokenRotationReminderIteration
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 if (logger.IsEnabled(LogLevel.Error))
-                    logger.LogError(ex, "SCIM rotation reminder notification write failed.");
+                    logger.LogError(ex, "SCIM rotation reminder write failed for tenant {TenantId}.", row.TenantId);
             }
         }
     }

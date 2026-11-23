@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 423_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 425_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -4949,12 +4949,13 @@ IF OBJECT_ID(N'dbo.SentEmails', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.SentEmails
     (
-        IdempotencyKey     NVARCHAR(450)    NOT NULL CONSTRAINT PK_SentEmails2 PRIMARY KEY,
+        IdempotencyKey     NVARCHAR(450)    NOT NULL,
         TenantId           UNIQUEIDENTIFIER NOT NULL,
         TemplateId         NVARCHAR(128)    NOT NULL,
         SentUtc            DATETIMEOFFSET   NOT NULL CONSTRAINT DF_SentEmails_SentUtc2 DEFAULT SYSUTCDATETIME(),
         Provider           NVARCHAR(64)     NOT NULL,
-        ProviderMessageId  NVARCHAR(256)    NULL
+        ProviderMessageId  NVARCHAR(256)    NULL,
+        CONSTRAINT PK_SentEmails2 PRIMARY KEY NONCLUSTERED (TenantId, IdempotencyKey)
     );
 
     CREATE NONCLUSTERED INDEX IX_SentEmails_TenantTemplate2
@@ -11646,4 +11647,31 @@ IF COL_LENGTH(N'dbo.SecurityEvidencePathRouting', N'SourceReference') = 1024
 BEGIN
     ALTER TABLE dbo.SecurityEvidencePathRouting
         ALTER COLUMN SourceReference NVARCHAR(1285) NOT NULL;
+END;
+
+GO
+
+/*
+  424: Scope sent-email idempotency to each tenant.
+*/
+IF OBJECT_ID(N'dbo.SentEmails', N'U') IS NOT NULL
+BEGIN
+    DECLARE @PrimaryKeyName SYSNAME;
+
+    SELECT @PrimaryKeyName = kc.name
+    FROM sys.key_constraints kc
+    WHERE kc.parent_object_id = OBJECT_ID(N'dbo.SentEmails')
+      AND kc.[type] = N'PK';
+
+    IF @PrimaryKeyName IS NOT NULL
+    BEGIN
+        DECLARE @DropPrimaryKeySql NVARCHAR(MAX);
+        SET @DropPrimaryKeySql = N'ALTER TABLE dbo.SentEmails DROP CONSTRAINT '
+            + QUOTENAME(@PrimaryKeyName) + N';';
+        EXEC sys.sp_executesql @DropPrimaryKeySql;
+    END;
+
+    ALTER TABLE dbo.SentEmails
+        ADD CONSTRAINT PK_SentEmails_TenantId_IdempotencyKey
+            PRIMARY KEY NONCLUSTERED (TenantId, IdempotencyKey);
 END;
