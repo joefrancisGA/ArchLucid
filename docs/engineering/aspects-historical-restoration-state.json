@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_5741_imported_34_multisource_blobs_independently_verified_regression_CI_pending",
-  "next_priority": "Inspect current head PR #7822 required CI and Aspects artifact (34 pinned components, derived candidate report, exact-overlap SHA-256, provisional cross-revision lineage). Repair failures; calculate comparable new 900-window density only after deduplicated cohort and distinct defect IDs/fix-PR states are independently reconciled. Preserve all 600/700 points and source confidence; never splice partial denominators. Merge only once required checks pass.",
+  "state": "historical_5741_imported_34_multifile_source_verified_discovery_fix_identity_checkpoint_and_CI_pending",
+  "next_priority": "Validate current-head #7822 historical pin and 34-source audit, cross-revision source-overlap, derived candidates, and NEW discovery/fix reconciliation artifacts. Correct failed targeted tests/CI; expand independently checked fixing-PR status coverage without treating a merged fix as a discovery. Calculate a fresh rate only when distinct 900-first-parent defects and deduped LOC are mutually verifiable, otherwise state unavailable. Do not dispatch a comprehensive master build or merge before checks.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -148,6 +148,31 @@
       "comparable_900_rate_computed": false,
       "regression_test": "scripts/tests/test_aspects_historical_multisource_checkpoint.py",
       "ci_status": "current_head_queued_not_passed"
+    },
+    "discovery_fix_reconciliation": {
+      "implementation": "scripts/aspects_reconcile_historical_defect_ids.py",
+      "unit_tests": "scripts/tests/test_aspects_reconcile_historical_defect_ids.py",
+      "independent_pr_checkpoint": "docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-nine-merged.json",
+      "snapshot_reviewed_prs": [
+        7474,
+        7558,
+        7601,
+        7650,
+        7681,
+        7695,
+        7696,
+        7704,
+        7709
+      ],
+      "github_checked_fix_pr_merges": 9,
+      "source_row_identity": "original Excel row and review_id preserved, positive workbook row IDs deduped only as candidate exact-string IDs",
+      "historical_status_caveat": "Workbook 'open' is a point-in-time label and cannot overrule GitHub; all unchecked PRs remain unknown.",
+      "separate_discovery_and_fix_contract": "a fix PR merge is not a newly discovered defect; do not promote unique workbook IDs or row counts to 463 numerator without full distinct-ID lineage",
+      "ci_summary": "artifacts/aspects/historical-discovery-fix-reconciliation.json",
+      "ci_row_evidence": "artifacts/aspects/historical-discovery-fix-reconciliation.jsonl",
+      "current_status": "code tests and CI step committed to PR #7822; current-head required checks pending",
+      "new_distinct_defects_reconciled_against_463": 0,
+      "new_comparable_rate_computed": false
     }
   }
 }
