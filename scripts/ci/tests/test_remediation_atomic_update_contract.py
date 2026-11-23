@@ -61,13 +61,15 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
 
     def test_real_sql_regression_impersonates_non_owner_app_user(self):
         test = (ROOT / "ArchLucid.Persistence.Tests/Sql/"
-                "RemediationRoleWritePermissionsSqlIntegrationTests.cs").read_text()
+                "RemediationSqlRolePrivilegesTests.cs").read_text()
         self.assertIn("SqlServerPersistenceFixture", test)
         self.assertIn('InitialCatalog.Should().Contain("Test"', test)
         self.assertIn("426_RemediationRoleWritePermissions.sql", test)
         self.assertIn("EXECUTE AS USER =", test)
-        self.assertIn('("dbo.RemediationInstances", "UPDATE")', test)
-        self.assertIn('("dbo.RemediationEvidence", "INSERT")', test)
+        self.assertIn("the existing rowversion-protected repository still requires UPDATE", test)
+        self.assertIn("approval and verification evidence remains appendable", test)
+        self.assertIn("ThrowAsync<SqlException>", test)
+        self.assertIn("Enumerable.Range(0, 2)", test)
         self.assertIn("REVERT;", test)
 
     def test_sql_implements_scoped_update(self):
