@@ -112,6 +112,7 @@ def reconcile(pins: list[dict], report: dict, recent: list[dict],
     narrowed = defaultdict(set)
     excluded = 0
     in_window_records = 0
+    in_window_line_occurrences = 0
     in_window_clean_records = 0
     in_window_defect_ids = set()
     for row in recent:
@@ -123,7 +124,9 @@ def reconcile(pins: list[dict], report: dict, recent: list[dict],
         path, blob = row.get("path"), row.get("blob")
         if not isinstance(path, str) or not path or not isinstance(blob, str) or len(blob) != 40:
             raise ValueError("invalid follow-on Git source identity")
-        narrowed[(path, blob)].update(intervals(row, "spans"))
+        selected = intervals(row, "spans")
+        narrowed[(path, blob)].update(selected)
+        in_window_line_occurrences += len(selected)
         in_window_records += 1
         if row.get("defect_id"):
             in_window_defect_ids.add(row["defect_id"])
@@ -136,8 +139,8 @@ def reconcile(pins: list[dict], report: dict, recent: list[dict],
     shared_labels = sorted(in_window_defect_ids & set(historical_positive_labels))
     followon_labels_without_verbatim_match = sorted(
         in_window_defect_ids - set(historical_positive_labels))
-    if exact_overlap > recent_unique:
-        raise ValueError("exact source-line overlap exceeds follow-on coverage")
+    if exact_overlap > recent_unique or in_window_line_occurrences < recent_unique:
+        raise ValueError("follow-on exact source-line population invariant violated")
     return {
         "status": "source_audited_original_pins_vs_git_verified_followon_exact_only",
         "confidence": "source_audited_but_cross_revision_lineage_unresolved",
@@ -171,10 +174,19 @@ def reconcile(pins: list[dict], report: dict, recent: list[dict],
             "candidate label repeat, NOT independently verified same defect. "
             "No mapping through fixing PRs, numeric suffixes or fuzzy names."
         ),
+        "followon_line_occurrences_in_historical_cohort": in_window_line_occurrences,
         "followon_unique_exact_path_blob_lines_in_historical_cohort": recent_unique,
+        "followon_exact_repeated_occurrences_among_in_window_reviews": (
+            in_window_line_occurrences - recent_unique
+        ),
         "followon_exact_repeat_with_original_pins": exact_overlap,
         "followon_exact_identities_not_in_original_pins": recent_unique - exact_overlap,
         "followon_outside_pinned_lines_not_proven_cross_revision_new": True,
+        "followon_repeat_scope": (
+            "Occurrence-minus-union identifies duplicate reviewed line occurrences "
+            "inside follow-on events, independent of the union intersection with "
+            "original pinned reviews. Neither number proves cross-revision uniqueness."
+        ),
         "newly_verified_reviewed_loc_from_this_reconciliation": 0,
         "new_comparable_900_density": None,
         "new_verified_distinct_defects": None,
