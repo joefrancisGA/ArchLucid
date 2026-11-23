@@ -1,4 +1,4 @@
-"""FND-016 independently issued, evidence-bound recovery attestation v2.
+"""FND-016 independently issued, ordered-input-bound recovery attestation v3.
 
 The rehearsal process cannot sign. A separate authority must inspect the
 rehearsal evidence and sign its canonical digest with an external key.
