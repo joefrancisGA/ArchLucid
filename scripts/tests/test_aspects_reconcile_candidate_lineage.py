@@ -157,9 +157,9 @@ class CandidateLineageTests(unittest.TestCase):
         # "unique" references the SAME blob after an intervening mutation
         # and reversion. A candidate line at the middle SHA must not inherit
         # the early source blob's uninterrupted history for the later review.
-        self.commit("alpha\\nmutated\\nrepeat\\nrepeat\\nnovel\\n",
+        self.commit("alpha\nmutated\nrepeat\nrepeat\nnovel\n",
                     "mutate before later reviewed pin")
-        self.commit("alpha\\nunique\\nrepeat\\nrepeat\\n",
+        self.commit("alpha\nunique\nrepeat\nrepeat\n",
                     "restore old blob for later original pin")
         restored_sha = git(self.repo, "rev-parse", "HEAD")
         self.assertEqual(git(self.repo, "rev-parse", "HEAD:a.cs"), self.old_blob)
@@ -188,9 +188,9 @@ class CandidateLineageTests(unittest.TestCase):
         self.assertEqual(review["newly_independently_verified_reviewed_loc"], 0)
 
     def test_cohort_proof_is_not_reused_for_later_review_of_reverted_same_blob(self):
-        self.commit("alpha\\nmutated\\nrepeat\\nrepeat\\nnovel\\n",
+        self.commit("alpha\nmutated\nrepeat\nrepeat\nnovel\n",
                     "intermediate changed line")
-        self.commit("alpha\\nunique\\nrepeat\\nrepeat\\nnovel\\n",
+        self.commit("alpha\nunique\nrepeat\nrepeat\nnovel\n",
                     "restore identical candidate blob")
         reverted_sha = git(self.repo, "rev-parse", "HEAD")
         self.assertEqual(git(self.repo, "rev-parse", "HEAD:a.cs"), self.new_blob)
