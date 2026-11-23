@@ -55,6 +55,85 @@ public sealed class CentralAuthorizationAuditWorkerTests
     }
 
     [Fact]
+    public async Task Worker_with_unauthenticated_principal_is_denied_before_policy()
+    {
+        ClaimsPrincipal principal = new(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, "worker")]));
+        Mock<ITrustedWorkerIdentity> identity = new();
+        identity.Setup(x => x.ResolveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(principal);
+        Mock<ICentralAuthorizationDecisions> decisions = new();
+
+        CentralAuthorizationDecision result = await new WorkerAuthorizationAdapter(
+            identity.Object, decisions.Object).DecideAsync(
+            new CentralAuthorizationRequest("evidence.read", Guid.NewGuid(),
+                Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
+
+        result.Allowed.Should().BeFalse();
+        result.Reason.Should().Be("worker_identity_unavailable");
+        decisions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Worker_identity_resolution_failure_is_denied_before_policy()
+    {
+        Mock<ITrustedWorkerIdentity> identity = new();
+        identity.Setup(x => x.ResolveAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("identity provider unavailable"));
+        Mock<ICentralAuthorizationDecisions> decisions = new();
+
+        CentralAuthorizationDecision result = await new WorkerAuthorizationAdapter(
+            identity.Object, decisions.Object).DecideAsync(
+            new CentralAuthorizationRequest("evidence.read", Guid.NewGuid(),
+                Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
+
+        result.Allowed.Should().BeFalse();
+        result.Reason.Should().Be("worker_authorization_unavailable");
+        decisions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Worker_caller_cancellation_does_not_become_authorization_denial()
+    {
+        using CancellationTokenSource cancellation = new();
+        cancellation.Cancel();
+        Mock<ITrustedWorkerIdentity> identity = new();
+        identity.Setup(x => x.ResolveAsync(cancellation.Token))
+            .ThrowsAsync(new OperationCanceledException(cancellation.Token));
+        Mock<ICentralAuthorizationDecisions> decisions = new();
+
+        Func<Task> action = () => new WorkerAuthorizationAdapter(
+            identity.Object, decisions.Object).DecideAsync(
+            new CentralAuthorizationRequest("evidence.read", Guid.NewGuid(),
+                Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()), cancellation.Token);
+
+        await action.Should().ThrowAsync<OperationCanceledException>();
+        decisions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Worker_central_authorization_unavailable_is_denied()
+    {
+        ClaimsPrincipal principal = new(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, "worker")], "trusted-worker"));
+        Mock<ITrustedWorkerIdentity> identity = new();
+        identity.Setup(x => x.ResolveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(principal);
+        Mock<ICentralAuthorizationDecisions> decisions = new();
+        decisions.Setup(x => x.DecideAsync(principal,
+                It.IsAny<CentralAuthorizationRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("central service unavailable"));
+
+        CentralAuthorizationDecision result = await new WorkerAuthorizationAdapter(
+            identity.Object, decisions.Object).DecideAsync(
+            new CentralAuthorizationRequest("evidence.read", Guid.NewGuid(),
+                Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
+
+        result.Allowed.Should().BeFalse();
+        result.Reason.Should().Be("worker_authorization_unavailable");
+        decisions.Verify(x => x.DecideAsync(principal,
+            It.IsAny<CentralAuthorizationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task Worker_uses_central_service_when_trusted_identity_exists()
     {
         ClaimsPrincipal principal = new(new ClaimsIdentity(
