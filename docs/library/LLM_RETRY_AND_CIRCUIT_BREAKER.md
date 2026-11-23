@@ -108,13 +108,15 @@ Configured via **`ArchLucid:FallbackLlm`** (see **`docs/RESILIENCE_CONFIGURATION
 | `ArgumentException` | No | Invalid request shape — semantic-terminal (TB-944). |
 | `CircuitBreakerOpenException` | No | Circuit already open. |
 
-Canonical classifier: `LlmCompletionFailureClassifier` in `ArchLucid.AgentRuntime` (TB-944). **Semantic-terminal** failures do not Polly-retry and do not tick `RecordFailure` on the circuit breaker decorator.
+Canonical provider fault policy: `ProviderHttpFailurePolicy.ShouldRecordProviderFailure` in `ArchLucid.Core`; `LlmCompletionFailureClassifier` in `ArchLucid.AgentRuntime` maps the shared policy into retry/cancel/semantic-terminal kinds (TB-944). Both completion and embedding decorators use that shared provider policy. **Semantic-terminal** failures do not Polly-retry or tick `RecordFailure`. A semantic-terminal error during a half-open recovery probe releases the probe via `RecordCallCancelled`, so the gate can admit another probe without falsely counting a transport failure.
 
 ### Circuit breaker interaction
 
-- **One logical call** that exhausts all retries on a **transport-retryable** fault produces **one** `RecordFailure` (one step toward open).
+- While **Closed**, one logical call that exhausts all retries on a **transport-retryable** fault produces **one** `RecordFailure` (one step toward open).
+- While **HalfOpen**, completion and embedding decorators bypass Polly retries and send **one provider request per recovery probe**. A transient failure reopens the circuit rather than issuing multiple attempts during a fragile recovery window.
+- When `HalfOpenSuccessThreshold` is greater than one, the gate atomically reserves **each successive probe slot**, rejecting concurrent probes until the in-flight call completes.
 - **Semantic-terminal** failures (empty assistant, schema parse, non-429 4xx, etc.) surface to the caller **without** ticking the breaker (TB-944).
-- A call that eventually succeeds after retries produces **one** `RecordSuccess` (helps half-open recovery).
+- A call that eventually succeeds after retries while Closed produces **one** `RecordSuccess`; a half-open probe success advances the configured recovery streak.
 
 State machine (simplified):
 

@@ -33,6 +33,12 @@ import { RESOURCES_EXPLORER_SNAPSHOT_SCOPE_HONESTY_LINE } from "@/lib/infra-evid
 import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
 import { RESOURCE_EXPLORER_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-partial-capture-copy";
 import { ResourcesExplorerFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/resources/ResourcesExplorerFilterEmptyPartialHonesty";
+import { ResourcesExplorerResourceGroupOnlyFilterEmptyPartialHonesty } from "@/components/infra-evidence/ResourcesExplorerResourceGroupOnlyFilterEmptyPartialHonesty";
+import { RESOURCE_EXPLORER_RESOURCE_GROUP_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-resource-group-only-filter-empty-not-load-failure-copy";
+import { ResourcesExplorerCategoryOnlyFilterEmptyPartialHonesty } from "@/components/infra-evidence/ResourcesExplorerCategoryOnlyFilterEmptyPartialHonesty";
+import { ResourcesExplorerNamePrefixOnlyFilterEmptyPartialHonesty } from "@/components/infra-evidence/ResourcesExplorerNamePrefixOnlyFilterEmptyPartialHonesty";
+import { RESOURCE_EXPLORER_CATEGORY_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-category-only-filter-empty-not-load-failure-copy";
+import { RESOURCE_EXPLORER_NAME_PREFIX_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-name-prefix-only-filter-empty-not-load-failure-copy";
 import { ResourcesExplorerCategoryAndNamePrefixCombinedFilterEmptyPartialHonesty } from "@/components/infra-evidence/ResourcesExplorerCategoryAndNamePrefixCombinedFilterEmptyPartialHonesty";
 import { RESOURCE_EXPLORER_CATEGORY_AND_NAME_PREFIX_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-category-and-name-prefix-combined-filter-empty-not-load-failure-copy";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
@@ -666,6 +672,39 @@ export function ResourcesExplorerClient() {
                         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-resource-explorer-empty-partial-capture">
                           {RESOURCE_EXPLORER_EMPTY_PARTIAL_CAPTURE_LINE}
                         </p>
+                      ) : null}
+                      {urlResourceType.length > 0 && urlNamePrefix.length === 0 && urlResourceGroup.length === 0 ? (
+                        <>
+                          <p
+                            className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+                            data-testid="resource-explorer-category-only-filter-empty-not-load-failure"
+                          >
+                            {RESOURCE_EXPLORER_CATEGORY_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                          </p>
+                          <ResourcesExplorerCategoryOnlyFilterEmptyPartialHonesty />
+                        </>
+                      ) : null}
+                      {urlNamePrefix.length > 0 && urlResourceType.length === 0 && urlResourceGroup.length === 0 ? (
+                        <>
+                          <p
+                            className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+                            data-testid="resource-explorer-name-prefix-only-filter-empty-not-load-failure"
+                          >
+                            {RESOURCE_EXPLORER_NAME_PREFIX_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                          </p>
+                          <ResourcesExplorerNamePrefixOnlyFilterEmptyPartialHonesty />
+                        </>
+                      ) : null}
+                      {urlResourceGroup.length > 0 && urlResourceType.length === 0 && urlNamePrefix.length === 0 ? (
+                        <>
+                          <p
+                            className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+                            data-testid="resource-explorer-resource-group-only-filter-empty-not-load-failure"
+                          >
+                            {RESOURCE_EXPLORER_RESOURCE_GROUP_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                          </p>
+                          <ResourcesExplorerResourceGroupOnlyFilterEmptyPartialHonesty />
+                        </>
                       ) : null}
                       {urlResourceType.length > 0 && urlNamePrefix.length > 0 ? (
                         <>

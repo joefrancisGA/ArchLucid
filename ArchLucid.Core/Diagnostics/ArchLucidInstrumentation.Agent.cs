@@ -60,6 +60,24 @@ public static partial class ArchLucidInstrumentation
 
     
     /// <summary>
+    ///     FND-018 observation-only handler outcomes (labels: agent_type enum, outcome=success|failure|cancelled).
+    ///     Cancelled calls do not consume a failure-budget sample.
+    /// </summary>
+    public static readonly Counter<long> AgentHandlerFailureBudgetObservationsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_agent_handler_failure_budget_observations_total",
+            description: "Observed handler outcomes without changing retry, admission, or circuit behavior.");
+
+    /// <summary>
+    ///     FND-018 handler failure budgets crossing their reference threshold once per window
+    ///     (label: agent_type enum). This is a diagnostic alert, not an execution gate.
+    /// </summary>
+    public static readonly Counter<long> AgentHandlerFailureBudgetExhaustionsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_agent_handler_failure_budget_exhaustions_total",
+            description: "Observation-only handler failure-budget threshold crossings.");
+
+    /// <summary>
     ///     AgentResult embedding faithfulness mean cosine vs evidence (clamped 0–1 for telemetry; label <c>agent_type</c>) when
     ///     embedding scorer runs.
     /// </summary>

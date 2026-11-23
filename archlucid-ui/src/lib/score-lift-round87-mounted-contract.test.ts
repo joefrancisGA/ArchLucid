@@ -10,6 +10,9 @@ describe("score-lift round87 mounted contract", () => {
     expect(readUiSource("app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersSection.tsx")).toContain('data-testid="compare-run-pickers-first-selected-second-empty"');
     expect(readUiSource("app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel.tsx")).toContain('data-testid="compare-quality-delta-zero-counts-one-unsealed"');
     expect(readUiSource("components/digests/DigestsBrowseContent.tsx")).toContain('data-testid="digests-browse-subscription-list-only-empty"');
-    expect(readUiSource("app/(operator)/governance/findings/_sections/GovernanceFindingsQueueResultsSection.tsx")).toContain('data-testid="governance-findings-architecture-scope-only-filter-empty"');
+    const findings = readUiSource("app/(operator)/governance/findings/_sections/GovernanceFindingsQueueResultsSection.tsx");
+    expect(findings).toContain('data-testid={');
+    expect(findings).toContain('"governance-findings-architecture-scope-only-filter-empty"');
+    expect(findings).toContain('"governance-findings-assigned-to-me-architecture-scope-only-filter-empty"');
   });
 });

@@ -1,0 +1,39 @@
+# Focused RC49 repair validation for distinct Terraform resource mapping recents.
+# Does not dispatch a comprehensive RC49 or master build.
+name: RC49 Terraform recent resource identity regression
+
+on:
+  pull_request:
+    branches: [RC49]
+    paths:
+      - "archlucid-ui/src/lib/operator/operator-home-hero-resume-target.ts"
+      - "archlucid-ui/src/lib/operator/operator-home-hero-resume-target.test.ts"
+      - "archlucid-ui/src/lib/operator/operator-recent-views.test.ts"
+      - "archlucid-ui/src/lib/resolve-continue-last-infra-evidence-terraform-workbench.test.ts"
+      - ".github/workflows/rc49-terraform-recents-regression.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  terraform-recent-identity:
+    name: "RC49: Terraform distinct-resource recents and Continue Last"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+      - name: Run focused URL deduplication and Terraform Continue Last tests
+        working-directory: archlucid-ui
+        env:
+          CI: "true"
+        run: |
+          npm ci
+          npm run test:vitest-single-worker -- \
+            src/lib/operator/operator-home-hero-resume-target.test.ts \
+            src/lib/operator/operator-recent-views.test.ts \
+            src/lib/resolve-continue-last-infra-evidence-terraform-workbench.test.ts

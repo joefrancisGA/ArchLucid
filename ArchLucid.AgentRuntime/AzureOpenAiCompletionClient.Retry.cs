@@ -23,6 +23,8 @@ public sealed partial class AzureOpenAiCompletionClient
         int tooManyRequestsAttempt,
         CancellationToken cancellationToken)
     {
+        // Do not schedule another rate-limit retry when the operation is already canceled.
+        cancellationToken.ThrowIfCancellationRequested();
         TimeSpan wait = AzureOpenAiTooManyRequestsRetry.GetDelayBeforeRetry(
             ex,
             tooManyRequestsAttempt,

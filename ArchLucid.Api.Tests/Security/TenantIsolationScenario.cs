@@ -11,7 +11,12 @@ public static class TenantIsolationScenario
         using HttpClient primer = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
 
-        await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer)
+        // This scenario verifies HTTP tenant isolation for an unknown run. Warming
+        // SQL host readiness and list-runs is necessary, but POST create-run is not
+        // part of the assertion and can fail due to unrelated request validation.
+        // Keep the actual tenant-scoped HTTP checks intact.
+        await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
+                primer, includePostCreateRunWarmup: false)
             .ConfigureAwait(false);
 
         await exercise().ConfigureAwait(false);

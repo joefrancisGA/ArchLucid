@@ -10,7 +10,7 @@ import { SecureNowInvestigationEffortSyntheticExamplePanel } from "@/components/
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL,
   SECURENOW_INVESTIGATION_EFFORT_HEADING,
@@ -117,7 +117,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
       <div className="mt-6 max-w-3xl space-y-6">
         {partialCapture ? (
           <div
-            className="space-y-1 rounded border border-amber-500/30 bg-amber-50/30 p-3 dark:bg-amber-950/20"
+            className={`${DESIGN_TOKENS.callout.warn} space-y-1 p-3`}
             data-testid="securenow-investigation-effort-partial-capture"
           >
             <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_INVESTIGATION_EFFORT_PARTIAL_CAPTURE_CONTEXT_LINE}</p>
@@ -140,7 +140,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
         </p>
         {resultState.kind === "incomplete" ? (
           <div
-            className="rounded border border-amber-500/40 bg-amber-50/40 p-3 dark:bg-amber-950/20"
+            className={`${DESIGN_TOKENS.callout.warn} p-3`}
             role="status"
             data-testid="securenow-investigation-effort-blocking-banner"
           >

@@ -22,8 +22,6 @@ import { resolveAuthorityThemeFromEnv } from "@/lib/ui-authority-theme";
 
 import { ColorModePreferenceProvider } from "@/components/ColorModePreferenceProvider";
 import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
-import { SampleReviewsOnOverviewPreferenceProvider } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
-import { WhereToGoNextPreferenceProvider } from "@/components/WhereToGoNextPreferenceProvider";
 import { WorkspaceModeProvider } from "@/components/WorkspaceModeProvider";
 import { WorkingCareerRehearsalIntentProvider } from "@/components/governance/WorkingCareerRehearsalIntentProvider";
 
@@ -88,11 +86,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ColorModePreferenceProvider>
           <WorkspaceModeProvider>
             <OperatorQueryProvider>
-              <WorkingCareerRehearsalIntentProvider>
-                <WhereToGoNextPreferenceProvider>
-                  <SampleReviewsOnOverviewPreferenceProvider>{children}</SampleReviewsOnOverviewPreferenceProvider>
-                </WhereToGoNextPreferenceProvider>
-              </WorkingCareerRehearsalIntentProvider>
+              <WorkingCareerRehearsalIntentProvider>{children}</WorkingCareerRehearsalIntentProvider>
             </OperatorQueryProvider>
           </WorkspaceModeProvider>
         </ColorModePreferenceProvider>

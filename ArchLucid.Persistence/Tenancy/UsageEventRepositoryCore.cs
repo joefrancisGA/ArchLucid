@@ -1,4 +1,5 @@
 using ArchLucid.Core.Metering;
+using System.Data.SqlTypes;
 
 namespace ArchLucid.Persistence.Tenancy;
 
@@ -108,6 +109,7 @@ internal static class UsageEventRepositoryCore
 
         return query
             .OrderByDescending(static e => e.RecordedUtc)
+            .ThenByDescending(static e => new SqlGuid(e.Id))
             .Take(ClampListTake(take))
             .ToList();
     }

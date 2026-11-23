@@ -12,9 +12,11 @@ describe("score-lift round58 mounted contract", () => {
   it("remediation factory partial-capture links use return path builders", () => {
     const source = readUiSource("app/(operator)/governance/remediation-factory/RemediationFactoryClient.tsx");
 
+    const sharedLinks = readUiSource("components/product-line/SecureNowPartialCaptureRecoveryLinks.tsx");
     expect(source).toContain("remediation-partial-capture-cloud-connections");
-    expect(source).toContain("buildSecureNowSecondCaptureCloudConnectionsHref");
-    expect(source).toContain("buildSecureNowSecondCaptureExtractUploadHref");
+    expect(source).toContain("SecureNowPartialCaptureRecoveryParagraph");
+    expect(sharedLinks).toContain("buildSecureNowSecondCaptureCloudConnectionsHref");
+    expect(sharedLinks).toContain("buildSecureNowSecondCaptureExtractUploadHref");
   });
 
   it("pilot decision and investigation effort expose partial-capture test ids", () => {
@@ -25,7 +27,7 @@ describe("score-lift round58 mounted contract", () => {
       "app/(operator)/administration/securenow-investigation-effort/SecureNowInvestigationEffortPageView.tsx",
     );
 
-    expect(pilotDecision).toContain('data-testid="securenow-pilot-decision-partial-capture"');
+    expect(pilotDecision).toContain('testId="securenow-pilot-decision-partial-capture"');
     expect(investigationEffort).toContain('data-testid="securenow-investigation-effort-partial-capture"');
   });
 
