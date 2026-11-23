@@ -90,5 +90,15 @@
     }
   ],
   "workbook_original_reviewed_source_text_preserved_in_immutable_historical_corpus": true,
-  "no_new_comparable_rate": true
+  "no_new_comparable_rate": true,
+  "exact_overlap_reconciliation": {
+    "source": "Anchored 900-first-parent Git pin rows and prior derived candidate rows from passing Aspects run 45127163301, plus separately matched six raw Git blob SHAs",
+    "baseline_artifact_id": 14796158537,
+    "candidate_exact_new_vs_preexisting_pins_and_candidates": 195,
+    "exact_repeated_line_occurrences": 0,
+    "exact_overlap_with_original_pins": 0,
+    "verification_status": "locally_reconciled_against_passed_prior_artifact_pending_new_head_CI",
+    "cross_revision_unique_loc": "not_verified",
+    "verified_reviewed_loc_increment": 0
+  }
 }
