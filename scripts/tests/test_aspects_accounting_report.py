@@ -75,6 +75,26 @@ class AccountingReportTests(unittest.TestCase):
         self.assertIsNone(result["current_verified_subset"]["new_distinct_defect_ids"])
         self.assertIn("Historical 700-observation chart",sut.markdown(result))
 
+    def test_real_repository_historical_and_provisional_evidence_checkpoints(self):
+        root = Path(__file__).resolve().parents[2] / "docs" / "engineering" / "aspects-historical"
+        h,_ = sut.rows_from(root / "aspects-historical-900-snapshots.jsonl")
+        p,_ = sut.rows_from(root / "aspects-provisional-700-series.jsonl")
+        w,_ = sut.rows_from(root / "aspects-provisional-600-series.jsonl")
+        report, actual79, actual700 = sut.build_report(h,p,w,None)
+        self.assertEqual((len(actual79),len(actual700)),(79,700))
+        self.assertAlmostEqual(report["historical_900"]["recomputed_defects_per_kloc"],
+                               1.3479207667136353,places=10)
+        self.assertAlmostEqual(report["historical_900"]["recomputed_sma25"],
+                               1.343106697337923,places=10)
+        self.assertAlmostEqual(report["provisional_700"]["latest_provisional_defects_per_kloc"],
+                               1.428081135949834,places=10)
+        self.assertAlmostEqual(report["provisional_700"]["recomputed_sma25"],
+                               1.3940221717423011,places=10)
+        self.assertNotAlmostEqual(
+            report["historical_900"]["recomputed_sma25"],
+            h[-1]["sma_25_reported"],places=4)
+        self.assertIsNone(report["current_verified_subset"]["new_reviewed_loc"])
+
     def test_full_historical_900_series_requires_actual_snapshot_count(self):
         h,p,w=fixture()
         with self.assertRaisesRegex(ValueError,"expected 79 actual"):
