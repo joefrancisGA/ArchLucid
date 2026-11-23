@@ -1,3 +1,4 @@
+import base64
 import copy
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
@@ -5,6 +6,7 @@ import unittest
 from unittest.mock import Mock
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from scripts.integration.fnd016_signed_recovery_attestation import canonical
 from scripts.integration.fnd014_isolated_dry_run import (
     DryRunAuthorization, RemediationStep, simulate_remediation,
 )
@@ -164,10 +166,7 @@ class EvidenceBoundAttestationTests(unittest.TestCase):
             with self.subTest(bad_payload=bad_payload):
                 signed = {
                     "payload": bad_payload,
-                    "signature": __import__("base64").b64encode(
-                        self.key.sign(__import__(
-                            "scripts.integration.fnd016_signed_recovery_attestation",
-                            fromlist=["canonical"]).canonical(bad_payload))).decode("ascii"),
+                    "signature": base64.b64encode(self.key.sign(canonical(bad_payload))).decode("ascii"),
                 }
                 with self.assertRaises(ValueError):
                     verify_against_authoritative_plan(
