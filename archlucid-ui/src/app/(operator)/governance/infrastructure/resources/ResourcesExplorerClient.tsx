@@ -33,6 +33,8 @@ import { RESOURCES_EXPLORER_SNAPSHOT_SCOPE_HONESTY_LINE } from "@/lib/infra-evid
 import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
 import { RESOURCE_EXPLORER_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-partial-capture-copy";
 import { ResourcesExplorerFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/resources/ResourcesExplorerFilterEmptyPartialHonesty";
+import { ResourcesExplorerResourceGroupOnlyFilterEmptyPartialHonesty } from "@/components/infra-evidence/ResourcesExplorerResourceGroupOnlyFilterEmptyPartialHonesty";
+import { RESOURCE_EXPLORER_RESOURCE_GROUP_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-resource-group-only-filter-empty-not-load-failure-copy";
 import { ResourcesExplorerCategoryOnlyFilterEmptyPartialHonesty } from "@/components/infra-evidence/ResourcesExplorerCategoryOnlyFilterEmptyPartialHonesty";
 import { ResourcesExplorerNamePrefixOnlyFilterEmptyPartialHonesty } from "@/components/infra-evidence/ResourcesExplorerNamePrefixOnlyFilterEmptyPartialHonesty";
 import { RESOURCE_EXPLORER_CATEGORY_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-category-only-filter-empty-not-load-failure-copy";
