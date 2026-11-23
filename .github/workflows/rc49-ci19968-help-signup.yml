@@ -28,4 +28,4 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
           npm ci
-          npm run test:vitest-single-worker -- 'src/app/(operator)/help/HelpDocsClient.test.tsx' 'src/components/marketing/SignupForm.test.tsx' 'src/lib/marketing-first-touch.test.ts'
+          npm run test:vitest-single-worker -- 'src/app/(operator)/help/HelpDocsClient.test.tsx' 'src/components/marketing/SignupForm.test.tsx' 'src/lib/marketing-first-touch.test.ts' 'src/components/infra-evidence/SecureNowQuestionQueue.test.tsx'
