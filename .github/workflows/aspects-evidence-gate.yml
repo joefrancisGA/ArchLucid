@@ -68,6 +68,7 @@ jobs:
               'docs/engineering/aspects-historical-restoration-state.json',
               'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-900-pin-partition.json',
               'docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row908-utf8-bom.json',
+              'docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row22-prefixed-paths.json',
               'docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-numeric-range-nine.json',
               'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-git-pin-45074611128.json',
               'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-github-multisource-34.json',

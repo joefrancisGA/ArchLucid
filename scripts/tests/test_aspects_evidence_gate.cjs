@@ -54,6 +54,7 @@ test('full historical restoration change set needs accounting validation, not in
     'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-github-multisource-34.json',
     'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-900-pin-partition.json',
     'docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row908-utf8-bom.json',
+    'docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row22-prefixed-paths.json',
     'docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-nine-merged.json',
     'docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-duplicate-6702-of-6701.json',
     'docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-23-all-referenced.json',
@@ -134,6 +135,18 @@ test('checkpoint exception permits only explicitly enumerated restoration eviden
     'docs/engineering/aspects-historical/other/2026-11-22-review.json',
   ]) {
     assert.equal((await decision([changed(name)])).errors.length, 1, name);
+  }
+});
+
+test('Excel row22 golden is scoped exactly and cannot hide product code', async () => {
+  const permitted = 'docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row22-prefixed-paths.json';
+  assert.deepEqual((await decision([changed(permitted, 'added')])).errors, []);
+  for (const untrusted of [
+    'docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row22-other.json',
+    'docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row22-prefixed-paths.json/../unreviewed.cs',
+    productPath,
+  ]) {
+    assert.equal((await decision([changed(permitted), changed(untrusted)])).errors.length, 1, untrusted);
   }
 });
 
