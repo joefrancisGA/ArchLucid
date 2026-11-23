@@ -13509,7 +13509,13 @@ BEGIN
       AND kc.[type] = N'PK';
 
     IF @PrimaryKeyName IS NOT NULL
-        EXEC(N'ALTER TABLE dbo.SentEmails DROP CONSTRAINT ' + QUOTENAME(@PrimaryKeyName) + N';');
+    BEGIN
+        -- T-SQL EXEC(<expression>) does not accept QUOTENAME() directly in the
+        -- concatenation; materialize the identifier-quoted statement first.
+        DECLARE @DropSentEmailsPrimaryKeySql NVARCHAR(MAX) =
+            N'ALTER TABLE dbo.SentEmails DROP CONSTRAINT ' + QUOTENAME(@PrimaryKeyName) + N';';
+        EXEC sys.sp_executesql @DropSentEmailsPrimaryKeySql;
+    END;
 
     ALTER TABLE dbo.SentEmails
         ADD CONSTRAINT PK_SentEmails_TenantId_IdempotencyKey
