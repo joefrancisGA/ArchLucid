@@ -27,6 +27,15 @@ internal static class SqlSealedEvidenceImmutabilityRules
         ("dbo.RemediationEvidence", "DELETE"),
     ];
 
+    private static readonly (string TableName, string Permission)[] RemediationRequiredPermissions =
+    [
+        ("dbo.RemediationInstances", "SELECT"),
+        ("dbo.RemediationInstances", "INSERT"),
+        ("dbo.RemediationInstances", "UPDATE"),
+        ("dbo.RemediationEvidence", "SELECT"),
+        ("dbo.RemediationEvidence", "INSERT"),
+    ];
+
     internal static bool ShouldValidate(
         IHostEnvironment environment,
         IConfiguration configuration,
@@ -59,6 +68,14 @@ internal static class SqlSealedEvidenceImmutabilityRules
             }
             else
             {
+                if (!SqlDatabaseImmutabilityProbeHelpers.IsCurrentPrincipalRoleMember(
+                        connection, SqlDatabaseImmutabilityProbeHelpers.ApplicationDatabaseRoleName))
+                {
+                    errors.Add(
+                        "Remediation SQL permissions: the connected runtime SQL principal is not a member "
+                        + "of [ArchLucidApp]. Migrations must use a separately elevated identity.");
+                }
+
                 foreach ((string tableName, string permissionName) in SqlDatabaseImmutabilityProbeHelpers.CollectMissingDenyPermissions(
                              connection,
                              SealedEvidenceTableRegistry.SealedTableNames,
@@ -105,6 +122,18 @@ internal static class SqlSealedEvidenceImmutabilityRules
                         + "use a least-privilege member of [ArchLucidApp], not dbo/db_owner.");
                 }
             }
+
+            foreach ((string tableName, string permissionName) in RemediationRequiredPermissions)
+            {
+                if (SqlDatabaseImmutabilityProbeHelpers.ObjectExists(connection, tableName)
+                    && !SqlDatabaseImmutabilityProbeHelpers.HasEffectivePermission(
+                        connection, tableName, permissionName))
+                {
+                    errors.Add(
+                        $"Remediation SQL permissions: the runtime principal lacks required {permissionName} on {tableName}. "
+                        + "Preserve the existing repository INSERT/UPDATE/SELECT operations with a least-privilege role.");
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -114,8 +143,9 @@ internal static class SqlSealedEvidenceImmutabilityRules
         if (errors.Count == 0)
         {
             logger.LogInformation(
-                "Startup: sealed evidence immutability probe passed ({TableCount} tables append-only for runtime principal).",
-                SealedEvidenceTableRegistry.SealedTableNames.Count);
+                "Startup: sealed evidence immutability probe passed ({SealedTableCount} sealed tables, {RemediationDenyCount} remediation role DENYs).",
+                SealedEvidenceTableRegistry.SealedTableNames.Count,
+                RemediationDenyPermissions.Length);
 
             return;
         }
