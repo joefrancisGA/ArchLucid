@@ -70,10 +70,15 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
             .GetManifestResourceStream(resource)!;
         using StreamReader reader = new(migrationStream);
         string migrationSql = await reader.ReadToEndAsync();
-        foreach (string batch in Regex.Split(migrationSql, @"(?im)^\s*GO\s*$"))
+        // The role may be provisioned after a journaled DbUp migration.
+        // A privileged operator must be able to replay this script safely.
+        foreach (int replay in Enumerable.Range(0, 2))
         {
-            if (!string.IsNullOrWhiteSpace(batch))
-                await connection.ExecuteAsync(batch);
+            foreach (string batch in Regex.Split(migrationSql, @"(?im)^\s*GO\s*$"))
+            {
+                if (!string.IsNullOrWhiteSpace(batch))
+                    await connection.ExecuteAsync(batch);
+            }
         }
 
         foreach ((string table, string permission) in new[]
