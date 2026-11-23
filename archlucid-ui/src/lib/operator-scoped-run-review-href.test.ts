@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const deskFixture = vi.hoisted(() => ({ id: "architecture-alerts-001", reads: 0 }));
 import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
+
+const deskFixture = vi.hoisted(() => ({ id: "architecture-alerts-001", reads: 0 }));
 
 vi.mock("@/lib/desk-continuity-preference", () => ({
   readCachedLastOpenArchitectureId: () => {
