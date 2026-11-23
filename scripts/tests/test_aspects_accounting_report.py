@@ -143,7 +143,11 @@ class AccountingReportTests(unittest.TestCase):
             "density":{"distinct_confirmed_defects":45,
                        "unique_path_blob_reviewed_lines":2528,
                        "defects_per_kloc":17.800633},
-            "review":{"new_unique_path_blob_lines_since_prior":None,
+            "review":{"verified_rows":60,
+                      "distinct_verified_observations":58,
+                      "distinct_reviewed_files":12,
+                      "new_observations_since_prior":None,
+                      "new_unique_path_blob_lines_since_prior":None,
                       "new_line_occurrences_since_prior":None,
                       "repeated_line_occurrences_since_prior":None,
                       "new_defects_since_prior":None},
@@ -168,12 +172,20 @@ class AccountingReportTests(unittest.TestCase):
             "density":{"distinct_confirmed_defects":2,
                        "unique_path_blob_reviewed_lines":1000,
                        "defects_per_kloc":2.0,"signed_delta":0.25},
-            "review":{"new_unique_path_blob_lines_since_prior":35,
+            "review":{"verified_rows":6,
+                      "distinct_verified_observations":5,
+                      "distinct_reviewed_files":3,
+                      "new_observations_since_prior":2,
+                      "new_unique_path_blob_lines_since_prior":35,
                       "new_line_occurrences_since_prior":50,
                       "repeated_line_occurrences_since_prior":15,
                       "new_defects_since_prior":1},
         }
         r=sut.verified_subset(snapshot)
+        self.assertEqual(r["verified_review_rows"],6)
+        self.assertEqual(r["distinct_review_observations"],5)
+        self.assertEqual(r["distinct_reviewed_files"],3)
+        self.assertEqual(r["new_observations_since_prior"],2)
         self.assertEqual(r["new_reviewed_loc"],35)
         self.assertEqual(r["new_line_occurrences"],50)
         self.assertEqual(r["repeated_reviewed_loc"],15)
@@ -193,7 +205,9 @@ class AccountingReportTests(unittest.TestCase):
             "density":{"distinct_confirmed_defects":1,
                        "unique_path_blob_reviewed_lines":1000,
                        "defects_per_kloc":1.0},
-            "review":{},
+            "review":{"verified_rows":3,
+                      "distinct_verified_observations":3,
+                      "distinct_reviewed_files":2},
         }
         with self.assertRaisesRegex(ValueError,"Git head differs"):
             sut.verified_subset(snap,expected_head="b"*40)
@@ -203,6 +217,30 @@ class AccountingReportTests(unittest.TestCase):
         snap["cohort"]["head_sha"]="a"*40
         self.assertEqual(sut.verified_subset(snap,expected_head="a"*40)["current_head"],
                          "a"*40)
+
+    def test_duplicate_review_rows_never_inflate_distinct_observations(self):
+        snap={
+            "schema_version":2,
+            "method":"first_parent_verified_path_blob_span_union_v2",
+            "scope":"narrow_incremental_review_ledger_subset",
+            "cohort":{"status":"complete","actual_commits":900,
+                      "head_sha":"a"*40},
+            "status":"source_verified_subset","head":"a"*40,
+            "density":{"distinct_confirmed_defects":1,
+                       "unique_path_blob_reviewed_lines":1000,
+                       "defects_per_kloc":1.0},
+            "review":{"verified_rows":7,
+                      "distinct_verified_observations":3,
+                      "distinct_reviewed_files":2},
+        }
+        report=sut.verified_subset(snap)
+        self.assertEqual(report["verified_review_rows"],7)
+        self.assertEqual(report["distinct_review_observations"],3)
+        self.assertEqual(report["distinct_reviewed_files"],2)
+        self.assertIsNone(report["new_observations_since_prior"])
+        snap["review"]["distinct_verified_observations"]=8
+        with self.assertRaisesRegex(ValueError,"distinct verified observations exceed"):
+            sut.verified_subset(snap)
 
     def test_bad_live_density_never_accepted(self):
         snapshot={
