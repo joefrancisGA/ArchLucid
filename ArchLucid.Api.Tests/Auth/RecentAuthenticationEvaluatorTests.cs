@@ -562,6 +562,51 @@ public sealed class RecentAuthenticationEvaluatorTests
         Assert.True(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
     }
 
+    [Theory]
+    [InlineData("auth_time", "9223372036854775807")]
+    [InlineData("auth_time", "-9223372036854775808")]
+    [InlineData("auth_time", "253402300800")]
+    [InlineData("auth_time", "-62135596801")]
+    [InlineData("iat", "9223372036854775807")]
+    [InlineData("iat", "-9223372036854775808")]
+    [InlineData("iat", "253402300800")]
+    [InlineData("iat", "-62135596801")]
+    public void TryGetAuthenticationInstant_ignores_out_of_range_unix_timestamp(
+        string claimType, string value)
+    {
+        ClaimsPrincipal principal = new(new ClaimsIdentity([new Claim(claimType, value)], "Bearer"));
+
+        Assert.Null(RecentAuthenticationEvaluator.TryGetAuthenticationInstant(principal));
+        Assert.False(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
+
+    [Theory]
+    [InlineData("auth_time")]
+    [InlineData("iat")]
+    public void TryGetAuthenticationInstant_skips_out_of_range_value_and_uses_valid_peer(string claimType)
+    {
+        long fresh = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim(claimType, long.MaxValue.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+        identity.AddClaim(new Claim(claimType, fresh.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+
+        ClaimsPrincipal principal = new(identity);
+
+        Assert.Equal(fresh, RecentAuthenticationEvaluator.TryGetAuthenticationInstant(principal)?.ToUnixTimeSeconds());
+        Assert.True(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_does_not_fall_back_to_iat_when_auth_time_out_of_range()
+    {
+        long fresh = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim("auth_time", long.MaxValue.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+        identity.AddClaim(new Claim(JwtRegisteredClaimNames.Iat, fresh.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+
+        Assert.False(RecentAuthenticationEvaluator.HasRecentAuthentication(new ClaimsPrincipal(identity), TimeProvider.System));
+    }
+
     private sealed class FixedUtcTimeProvider(DateTimeOffset utcNow) : TimeProvider
     {
         public override DateTimeOffset GetUtcNow() => utcNow;
