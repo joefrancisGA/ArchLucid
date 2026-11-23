@@ -69,6 +69,7 @@ BEGIN
               AND RowVersion = @ExpectedRowVersion
       AND (
            (Status = 0 AND @Status IN (1, 2))
+        OR (Status = 1 AND @Status = 2)
         OR (Status = 3 AND @Status = 4)
         OR (Status = 4 AND @Status = 5)
         OR (Status = 5 AND @Status = 9)
@@ -106,6 +107,7 @@ BEGIN
        OR NULLIF(LTRIM(RTRIM(@ActorKey)), N'') IS NULL
        OR NULLIF(LTRIM(RTRIM(@CorrelationId)), N'') IS NULL
        OR NULLIF(LTRIM(RTRIM(@PayloadJson)), N'') IS NULL
+       OR @CreatedUtc IS NULL OR @ApprovedUtc IS NULL
        OR @CreatedUtc <> @ApprovedUtc OR @ActorKey <> @ApprovedByActorKey
         THROW 50427, N'Invalid scoped approval provenance.', 1;
 
@@ -127,7 +129,11 @@ BEGIN
           AND LEN(LTRIM(RTRIM(PreflightResultJson))) > 0
           AND LOWER(LTRIM(RTRIM(CreatedByActorKey))) <> LOWER(@ApprovedByActorKey);
         IF @@ROWCOUNT <> 1
-            THROW 50427, N'Scoped approval was stale, foreign or not preflight-passed.', 1;
+        BEGIN
+            ROLLBACK TRANSACTION;
+            SELECT CAST(0 AS INT) AS UpdatedCount;
+            RETURN;
+        END;
 
         INSERT INTO dbo.RemediationEvidence
             (EvidenceId, InstanceId, TenantId, Phase, PayloadJson, ActorKey, CorrelationId, CreatedUtc)
@@ -167,7 +173,7 @@ BEGIN
     IF @ExpectedRowVersion IS NULL OR DATALENGTH(@ExpectedRowVersion) <> 8
        OR @Status NOT IN (6, 7)
        OR @VerificationSnapshotId IS NULL
-       OR @VerifiedUtc IS NULL OR @CreatedUtc <> @VerifiedUtc
+       OR @VerifiedUtc IS NULL OR @CreatedUtc IS NULL OR @CreatedUtc <> @VerifiedUtc
        OR @EvidenceId IS NULL OR @EvidenceId = '00000000-0000-0000-0000-000000000000'
        OR NULLIF(LTRIM(RTRIM(@ActorKey)), N'') IS NULL
        OR NULLIF(LTRIM(RTRIM(@CorrelationId)), N'') IS NULL
@@ -191,7 +197,11 @@ BEGIN
               AND RowVersion = @ExpectedRowVersion
           AND Status = 9;
         IF @@ROWCOUNT <> 1
-            THROW 50427, N'Scoped verification was stale, foreign or not change-implemented.', 1;
+        BEGIN
+            ROLLBACK TRANSACTION;
+            SELECT CAST(0 AS INT) AS UpdatedCount;
+            RETURN;
+        END;
 
         INSERT INTO dbo.RemediationEvidence
             (EvidenceId, InstanceId, TenantId, Phase, PayloadJson, ActorKey, CorrelationId, CreatedUtc)
