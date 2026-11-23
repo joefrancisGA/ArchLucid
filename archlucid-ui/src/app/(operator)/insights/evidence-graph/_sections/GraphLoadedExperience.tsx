@@ -37,6 +37,10 @@ import { BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS } from "@/app/(operator)/insigh
 import { GraphInteractiveCanvas } from "@/app/(operator)/insights/evidence-graph/_sections/GraphInteractiveCanvas";
 import { GraphLoadedZeroNodesPartialCaptureHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphLoadedZeroNodesPartialCaptureHonesty";
 import { GraphTypeFilterEmptyPartialCaptureHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphTypeFilterEmptyPartialCaptureHonesty";
+import { GraphEdgeFocusOnlyEmptyPartialCaptureHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphEdgeFocusOnlyEmptyPartialCaptureHonesty";
+import { EVIDENCE_GRAPH_TYPE_FILTER_AND_SCOPE_COMBINED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/evidence-graph-type-filter-and-scope-combined-empty-not-load-failure-copy";
+import { EVIDENCE_GRAPH_TYPE_FILTER_AND_PATH_ONLY_COMBINED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/evidence-graph-type-filter-and-path-only-combined-empty-not-load-failure-copy";
+import { EVIDENCE_GRAPH_TYPE_FILTER_AND_EDGE_FOCUS_COMBINED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/evidence-graph-type-filter-and-edge-focus-combined-empty-not-load-failure-copy";
 import { GraphTypeFilterAndNodeFocusCombinedEmptyPartialHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphTypeFilterAndNodeFocusCombinedEmptyPartialHonesty";
 import { EVIDENCE_GRAPH_TYPE_FILTER_AND_NODE_FOCUS_COMBINED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/evidence-graph-type-filter-and-node-focus-combined-empty-not-load-failure-copy";
 import { EVIDENCE_GRAPH_TYPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/evidence-graph-type-filter-empty-not-load-failure-copy";
@@ -190,6 +194,19 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
     );
   const showTypeFilterAndNodeFocusCombinedHonesty =
     showTypeFilterEmptyHonesty && graphNodeSearchActive;
+  const showTypeFilterAndPathOnlyCombinedHonesty =
+    showTypeFilterEmptyHonesty && pathOnlyActive && !graphNodeSearchActive;
+  const showTypeFilterAndEdgeFocusCombinedHonesty =
+    showTypeFilterEmptyHonesty
+    && graphEdgeIdTrim.length > 0
+    && !pathOnlyActive
+    && !graphNodeSearchActive;
+  const showTypeFilterAndScopeCombinedHonesty =
+    showTypeFilterEmptyHonesty
+    && mode !== "provenance-full"
+    && !graphNodeSearchActive
+    && !pathOnlyActive
+    && graphEdgeIdTrim.length === 0;
 
   function ensureGraphExportAllowed(): boolean {
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
@@ -220,12 +237,15 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
         </p>
       ) : null}
       {showEdgeFocusOnlyEmptyHonesty ? (
-        <p
-          className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="evidence-graph-edge-focus-only-empty-not-load-failure"
-        >
-          {EVIDENCE_GRAPH_EDGE_FOCUS_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE}
-        </p>
+        <div className="mb-3 space-y-2">
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="evidence-graph-edge-focus-only-empty-not-load-failure"
+          >
+            {EVIDENCE_GRAPH_EDGE_FOCUS_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE}
+          </p>
+          <GraphEdgeFocusOnlyEmptyPartialCaptureHonesty />
+        </div>
       ) : null}
       {showPathOnlyEmptyHonesty ? (
         <p
@@ -246,7 +266,31 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
           <GraphTypeFilterAndNodeFocusCombinedEmptyPartialHonesty />
         </div>
       ) : null}
-      {showTypeFilterEmptyHonesty && !showTypeFilterAndNodeFocusCombinedHonesty ? (
+      {showTypeFilterAndPathOnlyCombinedHonesty ? (
+        <p
+          className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="evidence-graph-type-filter-and-path-only-combined-empty-not-load-failure"
+        >
+          {EVIDENCE_GRAPH_TYPE_FILTER_AND_PATH_ONLY_COMBINED_EMPTY_NOT_LOAD_FAILURE_LINE}
+        </p>
+      ) : null}
+      {showTypeFilterAndEdgeFocusCombinedHonesty ? (
+        <p
+          className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="evidence-graph-type-filter-and-edge-focus-combined-empty-not-load-failure"
+        >
+          {EVIDENCE_GRAPH_TYPE_FILTER_AND_EDGE_FOCUS_COMBINED_EMPTY_NOT_LOAD_FAILURE_LINE}
+        </p>
+      ) : null}
+      {showTypeFilterAndScopeCombinedHonesty ? (
+        <p
+          className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="evidence-graph-type-filter-and-scope-combined-empty-not-load-failure"
+        >
+          {EVIDENCE_GRAPH_TYPE_FILTER_AND_SCOPE_COMBINED_EMPTY_NOT_LOAD_FAILURE_LINE}
+        </p>
+      ) : null}
+      {showTypeFilterEmptyHonesty && !showTypeFilterAndNodeFocusCombinedHonesty && !showTypeFilterAndPathOnlyCombinedHonesty && !showTypeFilterAndEdgeFocusCombinedHonesty && !showTypeFilterAndScopeCombinedHonesty ? (
         <div className="mb-3 space-y-2">
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
