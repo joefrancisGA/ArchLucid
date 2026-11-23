@@ -5,7 +5,8 @@ rehearsal evidence and sign its canonical digest with an external key.
 """
 from __future__ import annotations
 import base64
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from dataclasses import dataclass
 import hashlib
 import json
 from typing import Callable, Mapping, Sequence
@@ -109,6 +110,86 @@ def _validate_payload_binding(
     return issued
 
 
+@dataclass(frozen=True)
+class ReviewedPlanSnapshot:
+    """Reference DTO returned by a separate authoritative, scoped plan reader.
+
+    This frozen Python object is not immutable persistence or an approval
+    credential. The reader must enforce authorization, current revision and
+    independent integrity of the stored plan in a real integration.
+    """
+    tenant_id: str
+    project_id: str
+    proposal_id: str
+    revision: int
+    approved: bool
+    approved_at: datetime
+    expires_at: datetime
+    forward_steps: tuple[RemediationStep, ...]
+    inverse_steps: tuple[RemediationStep, ...]
+    content_sha256: str
+
+
+def reviewed_plan_content_sha256(plan: ReviewedPlanSnapshot) -> str:
+    """Canonical checksum of the scope, approval interval, revision and steps."""
+    if (not isinstance(plan.revision, int) or isinstance(plan.revision, bool)
+            or plan.revision < 1):
+        raise ValueError("Invalid reviewed plan revision")
+    for name in ("tenant_id", "project_id", "proposal_id"):
+        value = getattr(plan, name)
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("Invalid reviewed plan scope")
+    for value in (plan.approved_at, plan.expires_at):
+        if not isinstance(value, datetime) or value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("Invalid reviewed plan timestamp")
+    record = {
+        "tenantId": plan.tenant_id, "projectId": plan.project_id,
+        "proposalId": plan.proposal_id, "revision": plan.revision,
+        "approved": plan.approved is True,
+        "approvedAt": plan.approved_at.isoformat(),
+        "expiresAt": plan.expires_at.isoformat(),
+        "forwardStepsSha256": remediation_steps_sha256(plan.forward_steps),
+        "inverseStepsSha256": remediation_steps_sha256(plan.inverse_steps),
+    }
+    return hashlib.sha256(canonical(record)).hexdigest()
+
+
+def _read_current_reviewed_plan(
+    *, tenant_id: str, project_id: str, proposal_id: str,
+    min_revision: int, now: datetime,
+    read_current_plan: Callable[[str, str, str], ReviewedPlanSnapshot | None],
+) -> ReviewedPlanSnapshot:
+    """Resolve from the configured authority, never from the signing payload."""
+    if (not all(isinstance(value, str) and value.strip()
+                for value in (tenant_id, project_id, proposal_id))
+            or not isinstance(min_revision, int) or isinstance(min_revision, bool)
+            or min_revision < 1 or not isinstance(now, datetime)
+            or now.tzinfo is None or now.utcoffset() is None):
+        raise ValueError("Missing trusted plan lookup context")
+    # A missing, failing or unconfigured reader must not fall back to
+    # caller-provided expected steps or signed evidence.
+    if not callable(read_current_plan):
+        raise ValueError("Trusted plan reader unavailable")
+    plan = read_current_plan(tenant_id, project_id, proposal_id)
+    if not isinstance(plan, ReviewedPlanSnapshot):
+        raise ValueError("Authoritative reviewed plan unavailable")
+    if (plan.tenant_id != tenant_id or plan.project_id != project_id
+            or plan.proposal_id != proposal_id):
+        raise ValueError("Reviewed plan scope mismatch")
+    if plan.revision < min_revision:
+        raise ValueError("Reviewed plan revision stale")
+    if plan.approved is not True:
+        raise ValueError("Reviewed plan not approved")
+    if (plan.approved_at > now or now >= plan.expires_at
+            or plan.approved_at >= plan.expires_at):
+        raise ValueError("Reviewed plan expired or not yet approved")
+    expected_hash = reviewed_plan_content_sha256(plan)
+    if (not isinstance(plan.content_sha256, str)
+            or plan.content_sha256 != expected_hash):
+        raise ValueError("Reviewed plan content integrity mismatch")
+    return plan
+
+
 def issue_with_external_signer(
     payload: dict[str, object], signer: Callable[[bytes], bytes], *,
     evidence: Mapping[str, object],
@@ -123,6 +204,60 @@ def issue_with_external_signer(
     if not isinstance(signature, bytes) or len(signature) != 64:
         raise ValueError("External signer returned invalid Ed25519 signature")
     return {"payload": payload, "signature": base64.b64encode(signature).decode("ascii")}
+
+
+def issue_from_authoritative_plan(
+    payload: dict[str, object], signer: Callable[[bytes], bytes], *,
+    evidence: Mapping[str, object],
+    tenant_id: str, project_id: str, proposal_id: str,
+    min_revision: int, now: datetime,
+    read_current_plan: Callable[[str, str, str], ReviewedPlanSnapshot | None],
+) -> dict[str, object]:
+    """Reference signing adapter: fetch current reviewed steps independently.
+
+    Caller must supply an authenticated trusted scope and a separately
+    configured plan reader. Neither the evidence nor payload supplies steps.
+    """
+    plan = _read_current_reviewed_plan(
+        tenant_id=tenant_id, project_id=project_id, proposal_id=proposal_id,
+        min_revision=min_revision, now=now, read_current_plan=read_current_plan)
+    issued = _validate_payload_binding(
+        payload, evidence, plan.forward_steps, plan.inverse_steps)
+    if (payload["tenantId"] != tenant_id or payload["projectId"] != project_id
+            or payload["proposalId"] != proposal_id):
+        raise ValueError("Signing request scope differs from trusted scope")
+    if (issued < plan.approved_at or issued >= plan.expires_at
+            or not timedelta(0) <= now - issued <= timedelta(minutes=5)):
+        raise ValueError("Signing request outside reviewed plan freshness window")
+    return issue_with_external_signer(
+        payload, signer, evidence=evidence,
+        expected_forward_steps=plan.forward_steps,
+        expected_inverse_steps=plan.inverse_steps)
+
+
+def verify_against_authoritative_plan(
+    document: Mapping[str, object], evidence: Mapping[str, object],
+    pinned_key: Ed25519PublicKey, expected_key_id: str, *,
+    tenant_id: str, project_id: str, proposal_id: str,
+    min_revision: int, now: datetime,
+    read_current_plan: Callable[[str, str, str], ReviewedPlanSnapshot | None],
+) -> RecoveryAttestation:
+    """Verify v3 signature only against separately reread current plan."""
+    plan = _read_current_reviewed_plan(
+        tenant_id=tenant_id, project_id=project_id, proposal_id=proposal_id,
+        min_revision=min_revision, now=now, read_current_plan=read_current_plan)
+    attestation = verify_evidence_bound_attestation(
+        document, evidence, pinned_key, expected_key_id,
+        expected_forward_steps=plan.forward_steps,
+        expected_inverse_steps=plan.inverse_steps)
+    if (attestation.tenant_id != tenant_id or
+            attestation.project_id != project_id or
+            attestation.proposal_id != proposal_id or
+            attestation.issued_at < plan.approved_at or
+            attestation.issued_at >= plan.expires_at or
+            not timedelta(0) <= now - attestation.issued_at <= timedelta(minutes=5)):
+        raise ValueError("Attestation scope or reviewed plan freshness mismatch")
+    return attestation
 
 
 def verify_evidence_bound_attestation(
