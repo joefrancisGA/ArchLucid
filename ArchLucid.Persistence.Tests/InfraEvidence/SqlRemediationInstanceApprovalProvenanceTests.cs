@@ -165,7 +165,7 @@ public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerPersi
             InstanceId = secondId,
             Status = RemediationInstanceStatus.VerificationFailed,
             VerificationSnapshotId = Guid.NewGuid(),
-            VerificationResultJson = "{\\"passed\\":false}",
+            VerificationResultJson = "{\"passed\":false}",
             VerifiedUtc = now,
             UpdatedUtc = now,
         };
@@ -175,7 +175,7 @@ public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerPersi
             InstanceId = secondId,
             TenantId = scope.TenantId,
             Phase = RemediationEvidencePhase.Verify,
-            PayloadJson = "{\\"passed\\":false}",
+            PayloadJson = "{\"passed\":false}",
             ActorKey = "verifier",
             CorrelationId = "sql-rowversion-check",
             CreatedUtc = now,
