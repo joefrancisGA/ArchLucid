@@ -843,6 +843,7 @@ jobs:
             --provisional-700 docs/engineering/aspects-historical/aspects-provisional-700-series.jsonl \
             --historical-600 docs/engineering/aspects-historical/aspects-provisional-600-series.jsonl \
             --verified-snapshot artifacts/aspects/aspects-density-snapshot.json \
+            --expected-head "$MASTER_900_HEAD" \
             --json-out artifacts/aspects/aspects-accounting-report.json \
             --markdown-out artifacts/aspects/aspects-accounting-report.md \
             --700-csv-out artifacts/aspects/aspects-provisional-700-sma25.csv \
