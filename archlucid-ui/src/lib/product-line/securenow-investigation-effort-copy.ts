@@ -6,14 +6,18 @@ export const SECURENOW_INVESTIGATION_EFFORT_HEADING =
   "Investigation effort" as const;
 
 export const SECURENOW_INVESTIGATION_EFFORT_LEAD =
-  "Enter your own investigation minutes first. Baseline hours and after-product hours may be zero. Annual investigations, hourly rate, and annual cost must be greater than zero, and the five values must not be the fixture tuple. SecureNow beta remains NO_GO." as const;
+  "Enter your own investigation hours first. Baseline hours and after-product hours may be zero. Annual investigations, hourly rate, and annual cost must be greater than zero, and the five values must not be the fixture tuple. SecureNow beta remains NO_GO." as const;
 
 export const SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL =
   "This page does not start a timer, calculate ROI, or copy a fee. This page is not a savings claim." as const;
 
+/** Shown when this workspace has no successful capture yet. */
+export const SECURENOW_INVESTIGATION_EFFORT_NO_CAPTURE_LINE =
+  "No successful capture yet. Enter your own investigation hours below after collection succeeds." as const;
+
 /** Shown when the latest capture completed with gaps — worksheet math does not fix incomplete inventory. */
 export const SECURENOW_INVESTIGATION_EFFORT_PARTIAL_CAPTURE_CONTEXT_LINE =
-  "The latest capture completed with gaps. Investigation-effort ROI uses your entered minutes only — it does not infer missing hops or paths from a partial snapshot." as const;
+  "The latest capture completed with gaps. Investigation-effort ROI uses your entered hours only — it does not infer missing hops or paths from a partial snapshot." as const;
 
 export const SECURENOW_SPONSOR_PATH_INVESTIGATION_EFFORT_HINT =
   `${SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL} Enter your own inputs on Investigation effort before citing ROI in a sponsor readout.` as const;
