@@ -91,7 +91,7 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                     raise ValueError("Derived path/blob differs from Git tree at reported review commit")
                 source_lines = blob_lines(repo, blob, blob_cache)
                 if (source_lines is None or not selected or max(selected) > len(source_lines)
-                        or any(not source_lines[n - 1].lstrip("\\ufeff").strip()
+                        or any(not source_lines[n - 1].lstrip("\ufeff").strip()
                                for n in selected)):
                     raise ValueError("Derived nonblank intervals do not match Git source bytes")
                 derived_components_attested += 1
