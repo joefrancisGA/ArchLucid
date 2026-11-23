@@ -78,6 +78,9 @@ internal static class RealAgentExecutorSingleHandlerExecution
 
             Stopwatch stopwatch = Stopwatch.StartNew();
             AgentResult result;
+            // Admission can fail in the concurrency gate or Polly breaker before
+            // the handler delegate is reached; such failures are not handler attempts.
+            int handlerEntered = 0;
 
             using (Activity? activity = ArchLucidInstrumentation.AgentHandler.StartActivity("archlucid.agent.handle"))
             {
@@ -97,12 +100,16 @@ internal static class RealAgentExecutorSingleHandlerExecution
                         result = await dependencies.ConcurrencyGate.ExecuteAsync(
                             async ct =>
                                 await handlerPipeline.ExecuteAsync(
-                                    async (_, innerCt) => await handler.ExecuteAsync(
-                                        runId,
-                                        request,
-                                        evidence,
-                                        task,
-                                        innerCt),
+                                    async (_, innerCt) =>
+                                    {
+                                        Interlocked.Exchange(ref handlerEntered, 1);
+                                        return await handler.ExecuteAsync(
+                                            runId,
+                                            request,
+                                            evidence,
+                                            task,
+                                            innerCt);
+                                    },
                                     ct, ct),
                             cancellationToken);
                     }
@@ -124,10 +131,14 @@ internal static class RealAgentExecutorSingleHandlerExecution
                 }
                 catch (Exception ex)
                 {
-                    // One observation per handler outcome, before deciding between a degraded
-                    // placeholder and a terminal error. No effect on admission or recovery.
+                    // A pre-handler breaker/concurrency rejection did not invoke the handler:
+                    // observe it separately without consuming the handler failure budget.
+                    // Once the handler was entered, failures count even if later degraded.
+                    AgentHandlerFailureBudgetOutcome budgetOutcome = Volatile.Read(ref handlerEntered) == 0
+                        ? AgentHandlerFailureBudgetOutcome.NotAdmitted
+                        : AgentHandlerFailureBudgetOutcome.Failure;
                     RealAgentExecutorHandlerResiliencePipeline.ObserveOutcome(
-                        dispatchKey, task.AgentType, AgentHandlerFailureBudgetOutcome.Failure, activity);
+                        dispatchKey, task.AgentType, budgetOutcome, activity);
 
                     if (RealAgentExecutorHandlerResiliencePipeline.ShouldUseDegradedFallback(task, resilienceOptions)
                         && RealAgentExecutorHandlerResiliencePipeline.IsDegradableFailure(ex))
