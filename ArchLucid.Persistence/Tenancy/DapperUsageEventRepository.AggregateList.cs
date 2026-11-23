@@ -8,6 +8,9 @@ namespace ArchLucid.Persistence.Tenancy;
 
 public sealed partial class DapperUsageEventRepository
 {
+    // SQL and in-memory use the same deterministic uniqueidentifier tie-breaker.
+    internal const string ListOrderingSql = " ORDER BY RecordedUtc DESC, Id DESC;";
+
     public async Task<IReadOnlyList<TenantUsageSummary>> AggregateByKindAsync(
         Guid tenantId,
         DateTimeOffset periodStart,
@@ -81,7 +84,7 @@ public sealed partial class DapperUsageEventRepository
 
             parameters = new { Take = effectiveTake, TenantId = tenantId, PeriodStart = periodStart, PeriodEnd = periodEnd };
 
-        sql += " ORDER BY RecordedUtc DESC;";
+        sql += ListOrderingSql;
 
         IEnumerable<EventRow> rows = await connection.QueryAsync<EventRow>(
             new CommandDefinition(sql, parameters, cancellationToken: ct));
