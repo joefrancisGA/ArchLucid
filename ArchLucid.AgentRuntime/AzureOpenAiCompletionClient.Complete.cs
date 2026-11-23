@@ -58,6 +58,7 @@ public sealed partial class AzureOpenAiCompletionClient
             {
                 completion = await CompleteChatCoreAsync(messages, maxTokens, temperature, cancellationToken)
                     .ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
             }
             catch (Exception ex)
             {
@@ -125,6 +126,7 @@ public sealed partial class AzureOpenAiCompletionClient
             if (reasoningSnippet is not null)
                 AgentHandlerLlmReasoningTrace.AppendCompletionSnippet(reasoningSnippet);
 
+            cancellationToken.ThrowIfCancellationRequested();
             llmActivity?.SetStatus(ActivityStatusCode.Ok);
 
             completionSucceededForTelemetry = true;
@@ -169,6 +171,8 @@ public sealed partial class AzureOpenAiCompletionClient
         }
         catch (ClientResultException ex) when (ex.Status == 400)
         {
+            // Schema fallback must not create another request after caller cancellation.
+            cancellationToken.ThrowIfCancellationRequested();
             ILogger<AzureOpenAiCompletionClient>? log = _logger;
 
             if (log is not null && log.IsEnabled(LogLevel.Warning))
@@ -209,10 +213,12 @@ public sealed partial class AzureOpenAiCompletionClient
 
         for (int requestAttempt = 0; requestAttempt < 4; requestAttempt++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             AzureOpenAiMaxOutputTokenParameterPolicy.Apply(options, useMaxCompletionTokensProperty);
 
             for (int tooManyRequestsAttempt = 0; ; tooManyRequestsAttempt++)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 try
                 {
                     ClientResult<ChatCompletion> response = await _chatClient.CompleteChatAsync(
@@ -220,15 +226,19 @@ public sealed partial class AzureOpenAiCompletionClient
                         options,
                         cancellationToken).ConfigureAwait(false);
 
+                    // An SDK transport may return successfully after a deadline has elapsed.
+                    cancellationToken.ThrowIfCancellationRequested();
                     return response.Value;
                 }
                 catch (ClientResultException ex) when (ex.Status == 429)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     await HandleTooManyRequestsAsync(ex, tooManyRequestsAttempt, cancellationToken)
                         .ConfigureAwait(false);
                 }
                 catch (ClientResultException ex) when (ex.Status == 400)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     if (!temperatureOmitted && AzureOpenAiTemperatureParameterPolicy.TryOmitTemperature(ex))
                     {
                         AzureOpenAiTemperatureParameterPolicy.Omit(options);

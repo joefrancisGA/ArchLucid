@@ -41,6 +41,43 @@ public sealed class AgenticRetrievalCompletionClientTests
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
 
+    [Fact]
+    public async Task RewriteQueryAsync_when_provider_ignores_expansion_deadline_discards_late_completion()
+    {
+        AgenticRetrievalCompletionClient sut = CreateSut(
+            new IgnoringCancellationCompletionClient(async _ =>
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(1250));
+                return "provider-result-after-deadline";
+            }),
+            new AdvancedRetrievalOptions { ExpansionTimeoutSeconds = 1 });
+
+        string result = await sut.RewriteQueryAsync("topology services", CancellationToken.None);
+
+        result.Should().Be(AgenticRetrievalHeuristics.RewriteQuery("topology services"));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RewriteQueryAsync_when_provider_ignores_caller_cancellation_propagates_it(bool throwsLateError)
+    {
+        using CancellationTokenSource caller = new();
+        AgenticRetrievalCompletionClient sut = CreateSut(
+            new IgnoringCancellationCompletionClient(_ =>
+            {
+                caller.Cancel();
+                return throwsLateError
+                    ? Task.FromException<string>(new InvalidOperationException("late provider error"))
+                    : Task.FromResult("late provider result");
+            }),
+            new AdvancedRetrievalOptions { ExpansionTimeoutSeconds = 30 });
+
+        Func<Task> invoke = () => sut.RewriteQueryAsync("topology services", caller.Token);
+
+        await invoke.Should().ThrowAsync<OperationCanceledException>();
+    }
+
     private static AgenticRetrievalCompletionClient CreateSut(
         IAgentCompletionClient inner,
         AdvancedRetrievalOptions options)
@@ -52,6 +89,20 @@ public sealed class AgenticRetrievalCompletionClientTests
             router,
             new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
             NullLogger<AgenticRetrievalCompletionClient>.Instance);
+    }
+
+    private sealed class IgnoringCancellationCompletionClient(
+        Func<CancellationToken, Task<string>> completion) : IAgentCompletionClient
+    {
+        public LlmProviderDescriptor Descriptor => LlmProviderDescriptor.ForOffline("test", "noncooperative");
+
+        public Task<string> CompleteJsonAsync(
+            string systemPrompt,
+            string userPrompt,
+            int? maxTokens = null,
+            float? temperature = null,
+            CancellationToken cancellationToken = default) =>
+            completion(cancellationToken);
     }
 
     private sealed class DelayingCompletionClient(TimeSpan delay) : IAgentCompletionClient
