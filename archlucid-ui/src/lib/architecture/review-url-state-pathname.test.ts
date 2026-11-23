@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const deskFixture = vi.hoisted(() => ({ id: null as string | null }));
 import {
   parseNestedReviewDeskFromPathname,
   parsePeerReviewRunIdFromPathname,
@@ -8,6 +7,8 @@ import {
   resolveReviewUrlStatePathname,
   resolveScopedReviewPath,
 } from "@/lib/architecture/review-url-state-pathname";
+
+const deskFixture = vi.hoisted(() => ({ id: null as string | null }));
 
 vi.mock("@/lib/desk-continuity-preference", () => ({
   readCachedLastOpenArchitectureId: () => deskFixture.id,
