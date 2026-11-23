@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "exact_head_CI_guard_and_FND011_temporal_seed_repairs_submitted",
-  "next_priority": "Inspect PR #7822 newest head automatic CI: docs audience/scope and pre-corset control flow spacing guards, then FND-011 owner 200 / foreign 404 persisted SQL snapshot test. The prior failure was confirmed as an unpinned Runs.GraphSnapshotId despite a persisted GraphSnapshots row, so new isolated opt-in test seeding pins the snapshot chain BEFORE setting sealed GoldenManifestId; existing other seeding call sites unchanged. On any failure use exact head logs and repair narrowly without weakening tenant security. Then resume current 900-cohort distinct-defect discovery and reviewed source coverage mapping; do not compute density or SMA series until comparable cohort recomputed.",
+  "state": "exact_sql_temporal_resolver_fnd011_regression_submitted_awaiting_PR_CI",
+  "next_priority": "Verify latest exact PR #7822 head FND-011 owner 200/foreign 404 with real SQL: test now asserts seeded Runs.GraphSnapshotId is present and GetLatestWithGraphAtOrBeforeAsync returns seeded run before HTTP. If it fails, inspect exact-head test logs, SQL resolver schema/query, run write update, or sealed manifest guards; never bypass owner 200, foreign 404 or required gates. Then validate Aspects first-parent and defect identity CI, reconcile complete 900-first-parent population and current follow-on reviews before any current rate/SMA25.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -611,6 +611,21 @@
       "newly_verified_distinct_defects": 0,
       "new_comparable_rate": null,
       "master_full_build_dispatched": false
+    },
+    "fnd011_temporal_resolver_regression_20261123": {
+      "status": "committed_pending_exact_PR_head_validation",
+      "previous_failed_run_id": 45188326617,
+      "previous_failed_job_id": 137739691776,
+      "grounded_root_cause": "Ordinary snapshot returned RESOURCE_NOT_FOUND: no persisted architecture graph for project default before exchange authorization. SQL temporal query filters Runs.GraphSnapshotId IS NOT NULL; prior seed stored GraphSnapshots separately without pinning Runs.",
+      "prior_seed_fix": "AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(..., pinTemporalSnapshotChain:true) now pins run snapshot IDs prior to sealing GoldenManifestId; default other call sites unchanged.",
+      "regression": "ArchLucid.Api.Tests/Planning/SecureNowEnabledPersistedHttpTests.cs",
+      "validation": "Before HTTP requests, resolve scoped SQL IRunRepository, assert Runs.GraphSnapshotId nonnull, then GetLatestWithGraphAtOrBeforeAsync returns the exact seeded run; keep owner 200/foreign 404.",
+      "reviewed_LOC_added_this_step": 0,
+      "new_verified_distinct_defects_this_step": 0,
+      "newly_measured_repeated_reviewed_LOC_this_step": 0,
+      "comparable_900_rate": null,
+      "do_not_merge_until_required_CI_green": true,
+      "full_master_build_dispatched": false
     }
   },
   "latest_restoration_run": {
