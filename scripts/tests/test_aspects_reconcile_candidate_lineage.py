@@ -152,6 +152,41 @@ class CandidateLineageTests(unittest.TestCase):
         self.assertEqual(review["newly_independently_verified_reviewed_loc"], 0)
         self.assertIsNone(result["new_comparable_900_density"])
 
+    def test_original_blob_pin_only_proves_lines_reviewed_at_its_own_commit(self):
+        # At the old commit only alpha was reviewed. The later review of
+        # "unique" references the SAME blob after an intervening mutation
+        # and reversion. A candidate line at the middle SHA must not inherit
+        # the early source blob's uninterrupted history for the later review.
+        self.commit("alpha\\nmutated\\nrepeat\\nrepeat\\nnovel\\n",
+                    "mutate before later reviewed pin")
+        self.commit("alpha\\nunique\\nrepeat\\nrepeat\\n",
+                    "restore old blob for later original pin")
+        restored_sha = git(self.repo, "rev-parse", "HEAD")
+        self.assertEqual(git(self.repo, "rev-parse", "HEAD:a.cs"), self.old_blob)
+        pinned, pin_report, candidates, candidate_report = self.fixture()
+        pinned[0]["spans"] = [[1, 1]]
+        pinned[0]["nonblank_reviewed_loc"] = 1
+        pinned.append({
+            "excel_row": 9, "reviewed_master_sha": restored_sha,
+            "pin_status": VERIFIED, "window_membership": "in_window",
+            "path": "a.cs", "blob": self.old_blob,
+            "spans": [[2, 2]], "nonblank_reviewed_loc": 1,
+        })
+        self.anchor["head_sha"] = restored_sha
+        self.anchor["first_parent_commits"] = 4
+        pin_report["audited_rows_sha256"] = audited_rows_sha256(pinned)
+        pin_report["review_events_present"] = 3
+        result = sut.candidate_lineage(self.repo, pinned, pin_report, candidates,
+                                       candidate_report, expected_records=3)
+        self.assertEqual(result["status"], "provisional_cross_revision_candidate_lineage")
+        self.assertEqual(result["original_source_pin_review_commit_anchors"], 2)
+        self.assertEqual(result["candidate_only_proven_same_path_first_parent_lineage_to_original_pin"], 1)
+        review = result["candidate_review_source_lineage_by_excel_row"][0]
+        self.assertEqual(review["different_blob_full_first_parent_proven_repeat_with_original_pin"], 1)
+        self.assertEqual(review["different_blob_provisional_equal_hunk_only"], 1)
+        self.assertEqual(review["without_proven_original_pin_identity"], 4)
+        self.assertEqual(review["newly_independently_verified_reviewed_loc"], 0)
+
     def test_cohort_proof_is_not_reused_for_later_review_of_reverted_same_blob(self):
         self.commit("alpha\\nmutated\\nrepeat\\nrepeat\\nnovel\\n",
                     "intermediate changed line")
