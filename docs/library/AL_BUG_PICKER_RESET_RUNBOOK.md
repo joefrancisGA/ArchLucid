@@ -1,5 +1,7 @@
 # Bug hunt picker reset (option A)
 
+> **Scope:** Internal engineering operations runbook for preserving bug-hunt diaries while resetting picker state; not customer-facing guidance.
+
 When trunk has moved on and `/al-bug1`–`/al-bug4` show **exhaustedAll** or all zones parked, reset picker state while keeping hunt diaries.
 
 ## Command
