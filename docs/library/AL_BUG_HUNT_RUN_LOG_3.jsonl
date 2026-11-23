@@ -62,3 +62,4 @@
 {"at":"2026-11-23T19:26:20.6525547Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","set":3,"note":"seed-only: token with no scope claims has no issuer path; reseeded five candidates"}
 {"at":"2026-11-23T19:31:08.7028981Z","zoneId":"ui-architecture-diagram","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: SecureNow subject highlight matched unrelated node via substring id"}
 {"at":"2026-11-23T19:36:13.7317106Z","zoneId":"ui-architecture-diagram","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: viewport fit substring-matched unrelated Mermaid node ids"}
+{"at":"2026-11-23T19:40:39.9373544Z","zoneId":"ui-architecture-diagram","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: inventory click focus used Mermaid dom id instead of outline id"}

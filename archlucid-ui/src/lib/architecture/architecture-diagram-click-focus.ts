@@ -132,6 +132,32 @@ function containsPoint(rect: DiagramClickFocusRect, point: DiagramClickFocusPoin
     && point.y <= rect.y + rect.height;
 }
 
+export function resolveInventoryDiagramClickFocusId(
+  domNodeId: string,
+  titleText: string,
+  outline: InfraEvidenceMermaidOutline | null | undefined,
+): string {
+  const trimmedDomId = domNodeId.trim();
+
+  if (outline == null) {
+    return trimmedDomId;
+  }
+
+  const normalizedTitle = normalizeDiagramFocusToken(titleText);
+
+  if (normalizedTitle.length === 0) {
+    return trimmedDomId;
+  }
+
+  for (const node of outline.nodes) {
+    if (normalizeDiagramFocusToken(node.id) === normalizedTitle) {
+      return node.id;
+    }
+  }
+
+  return trimmedDomId;
+}
+
 export function normalizeDiagramFocusToken(value: string): string {
   return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
 }

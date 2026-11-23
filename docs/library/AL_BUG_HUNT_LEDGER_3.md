@@ -19329,6 +19329,10 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-architecture-diagram
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. Inventory diagram click focus passed Mermaid dom ids such as `flowchart-api-0` into `resolveDiagramClickFocus` while the outline stores logical ids such as `api`, so one-hop neighbors were dimmed. `resolveInventoryDiagramClickFocusId` maps the node title to the outline id on click and when applying dim classes. Regression `maps a flowchart node id to the outline id before resolving neighbors` failed first (received `flowchart-api-0`), then click-focus passed 4/4. Private beta: clicking an inventory diagram node with an outline loaded keeps its linked neighbors visible instead of dimming the whole plate.
+
+- [x] (proven) `resolveDiagramClickFocus` — Mermaid dom node id skips outline neighbors — **proven 2026-11-23 seed hunt:** click id `flowchart-api-0` left only `flowchartapi0` in `keptNodeIds`; title-to-outline mapping now resolves `api` and keeps `gateway`.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `inventoryNodeElementMatchesFocusIds` in `help-mermaid.ts` still substring-matched Mermaid node ids for viewport fit after the prior hit aligned subject highlight. `ArchitectureDiagramViewer` zoomed to a union that included `flowchart-apigateway-0` when focus was `api`. The helper now delegates to `inventoryDiagramNodeElementMatchesFocusId`. Regression `fits the viewport to the api node only when focus slug api is not a substring of apigateway` failed first (`baseWidthPx` 300), then help-mermaid and camera-focus passed 41/41. Private beta: when a SecureNow question focuses a short resource slug, the diagram viewport frames that node only instead of every node whose generated id contains the same substring.
 
 - [x] (proven) `inventoryNodeElementMatchesFocusIds` — viewport fit substring-matched unrelated longer node ids — **proven 2026-11-23 seed hunt:** focus `api` included `flowchart-apigateway-0` in the fit union; matching now reuses `diagramFocusTokensMatch`.
@@ -19363,8 +19367,8 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

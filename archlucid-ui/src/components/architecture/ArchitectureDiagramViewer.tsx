@@ -54,6 +54,7 @@ import {
 import {
   normalizeDiagramFocusToken,
   resolveDiagramClickFocus,
+  resolveInventoryDiagramClickFocusId,
   type DiagramClickFocusEdge,
   type DiagramClickFocusFacts,
   type DiagramClickFocusFrame,
@@ -1186,7 +1187,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       const result = resolveDiagramClickFocus(clickFocus.id, outline, readClickFocusFacts(svg));
 
       [...svg.querySelectorAll('g.node')].forEach((node) => {
-        const nodeId = normalizeDiagramFocusToken(node.getAttribute('id')?.replace(/^node-/u, '') ?? '');
+        const rawId = node.getAttribute('id')?.replace(/^node-/u, '') ?? '';
+        const title = node.querySelector('title')?.textContent ?? "";
+        const nodeId = normalizeDiagramFocusToken(resolveInventoryDiagramClickFocusId(rawId, title, outline));
         node.classList.toggle('diagram-click-dim', !result.keptNodeIds.has(nodeId));
       });
       [...svg.querySelectorAll('g.vnet-frame, g.rg-frame')].forEach((frame) => {
@@ -1256,14 +1259,14 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         return;
       }
 
-      const id = node.getAttribute('id')?.replace(/^node-/u, '') ?? '';
+      const rawId = node.getAttribute('id')?.replace(/^node-/u, '') ?? '';
+      const title = node.querySelector('title')?.textContent ?? "";
+      const id = resolveInventoryDiagramClickFocusId(rawId, title, outline);
 
       if (normalizeDiagramFocusToken(id) === normalizeDiagramFocusToken(clickFocus?.id ?? '')) {
         clearFocus();
         return;
       }
-
-      const title = node.querySelector('title')?.textContent ?? "";
       const memberNamesAttribute = node.getAttribute('data-member-names');
       const memberNames =
         memberNamesAttribute !== null

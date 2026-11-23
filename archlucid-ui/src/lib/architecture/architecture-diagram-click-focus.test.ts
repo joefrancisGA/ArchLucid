@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveDiagramClickFocus } from "@/lib/architecture/architecture-diagram-click-focus";
+import { resolveDiagramClickFocus, resolveInventoryDiagramClickFocusId } from "@/lib/architecture/architecture-diagram-click-focus";
 
 describe("resolveDiagramClickFocus", () => {
   it("keeps the clicked node and its one-hop outline neighbors", () => {
@@ -62,5 +62,29 @@ describe("resolveDiagramClickFocus", () => {
     expect([...result.keptNodeIds].sort()).toEqual(["vault", "vminvneta", "vneta"]);
     expect(result.keptFrameIds).toEqual(new Set(["vnet-vnet-a"]));
     expect(result.keptEdgeIndexes).toEqual(new Set([0]));
+  });
+
+  it("maps a flowchart node id to the outline id before resolving neighbors", () => {
+    const outline = {
+      nodes: [
+        { id: "api", label: "API", resourceType: null, resourceGroup: null },
+        { id: "gateway", label: "Gateway", resourceType: null, resourceGroup: null },
+      ],
+      edges: [
+        { from: "api", to: "gateway", label: null, source: "observed", declaredConnectionId: null },
+      ],
+    };
+    const focusId = resolveInventoryDiagramClickFocusId("flowchart-api-0", "api", outline);
+    const result = resolveDiagramClickFocus(focusId, outline, {
+      nodes: [
+        { id: "flowchart-api-0", center: { x: 10, y: 10 } },
+        { id: "flowchart-gateway-1", center: { x: 100, y: 10 } },
+      ],
+      frames: [],
+      edges: [],
+    });
+
+    expect(focusId).toBe("api");
+    expect([...result.keptNodeIds].sort()).toEqual(["api", "gateway"]);
   });
 });
