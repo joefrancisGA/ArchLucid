@@ -60,6 +60,22 @@ class SafetyControllerTests(unittest.TestCase):
         self.assertEqual(self.assess(facts_verified=False).reasons,
                          ("untrusted_or_foreign_facts",))
 
+    def test_boolean_like_verification_cannot_pass_review(self):
+        for untrusted in ("false", 1, None):
+            with self.subTest(untrusted=untrusted):
+                result = self.assess(facts_verified=untrusted)
+                self.assertEqual(result.status, "rejected")
+                self.assertEqual(result.reasons, ("untrusted_or_foreign_facts",))
+                self.assertFalse(result.eligible_for_execution)
+
+    def test_only_explicit_false_clears_emergency_stop(self):
+        for ambiguous in (None, 0, "", "false", "0"):
+            with self.subTest(ambiguous=ambiguous):
+                result = self.assess(emergency_stop_active=ambiguous)
+                self.assertEqual(result.status, "rejected")
+                self.assertEqual(result.reasons, ("emergency_stop_unverified",))
+                self.assertFalse(result.eligible_for_execution)
+
     def test_scope_mismatch(self):
         self.assertEqual(self.assess(tenant_id="other").reasons,
                          ("untrusted_or_foreign_facts",))
