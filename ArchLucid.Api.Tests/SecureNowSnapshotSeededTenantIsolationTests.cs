@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using ArchLucid.Api.Controllers.Planning;
+using ArchLucid.Api.Security;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -72,14 +74,35 @@ public sealed class SecureNowSnapshotSeededTenantIsolationTests
             Mock<IFeatureFlags> flags = new();
             flags.Setup(f => f.IsEnabledAsync("SecureNow.ReadOnlySnapshotExchange",
                 It.IsAny<CancellationToken>())).ReturnsAsync(true);
-            ServiceProvider services = new ServiceCollection().AddSingleton(flags.Object).BuildServiceProvider();
+            // Exercise repository tenant isolation behind a scoped, positive FND-010 decision.
+            // The actual central authorization policy and denial semantics are tested separately.
+            Mock<ICentralAuthorizationDecisions> decisions = new(MockBehavior.Strict);
+            decisions.Setup(d => d.DecideAsync(
+                It.IsAny<ClaimsPrincipal>(),
+                It.Is<CentralAuthorizationRequest>(request =>
+                    request.Action == "evidence.read" &&
+                    request.TenantId == scope.TenantId &&
+                    request.WorkspaceId == scope.WorkspaceId &&
+                    request.ProjectId == scope.ProjectId &&
+                    request.ResourceId == Run),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new CentralAuthorizationDecision(true, "test-authorized"));
+            ServiceProvider services = new ServiceCollection()
+                .AddSingleton(flags.Object)
+                .AddSingleton(new EvidenceReadAuthorizationGate(decisions.Object))
+                .BuildServiceProvider();
             return new GraphController(authority.Object, runs.Object, scopeProvider.Object,
                 Mock.Of<IManifestHashService>(),
                 Options.Create(new KnowledgeGraphLimitsOptions { FullGraphResponseMaxNodes = 500 }))
             {
                 ControllerContext = new ControllerContext
                 {
-                    HttpContext = new DefaultHttpContext { RequestServices = services }
+                    HttpContext = new DefaultHttpContext
+                    {
+                        RequestServices = services,
+                        User = new ClaimsPrincipal(new ClaimsIdentity(
+                            [new Claim(ClaimTypes.NameIdentifier, "snapshot-reader")], "test"))
+                    }
                 }
             };
         }
