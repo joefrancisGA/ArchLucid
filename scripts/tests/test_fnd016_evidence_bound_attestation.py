@@ -1,6 +1,7 @@
 import copy
 from datetime import datetime, timezone
 import unittest
+from unittest.mock import Mock
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from scripts.integration.fnd014_isolated_dry_run import (
@@ -38,7 +39,9 @@ class EvidenceBoundAttestationTests(unittest.TestCase):
         }
         self.payload = prepare_attestation(self.evidence, key_id="independent-v1",
                                            issued_at=datetime.now(timezone.utc))
-        self.signed = issue_with_external_signer(self.payload, self.key.sign)
+        self.signed = issue_with_external_signer(
+            self.payload, self.key.sign, evidence=self.evidence,
+            expected_forward_steps=self.forward, expected_inverse_steps=self.inverse)
 
     def verify(self, document=None, evidence=None, key=None, forward=None, inverse=None):
         return verify_evidence_bound_attestation(
@@ -50,6 +53,62 @@ class EvidenceBoundAttestationTests(unittest.TestCase):
 
     def test_valid_independently_signed_rehearsal(self):
         self.assertTrue(self.verify().signed_by_independent_authority)
+
+    def test_signer_is_not_called_for_unreviewed_forward_plan(self):
+        signer = Mock(return_value=b"x" * 64)
+        unreviewed = [
+            RemediationStep("set-property", "resource", "public", "true", "intermediate"),
+            RemediationStep("set-property", "resource", "public", "intermediate", "false"),
+        ]
+        with self.assertRaisesRegex(ValueError, "expected steps"):
+            issue_with_external_signer(
+                self.payload, signer, evidence=self.evidence,
+                expected_forward_steps=unreviewed,
+                expected_inverse_steps=self.inverse)
+        signer.assert_not_called()
+
+    def test_signer_is_not_called_for_unreviewed_inverse_or_evidence(self):
+        for invalid_evidence, invalid_inverse in (
+            (self.evidence, [
+                RemediationStep("set-property", "resource", "public", "false", "unsafe"),
+                RemediationStep("set-property", "resource", "public", "unsafe", "true"),
+            ]),
+            (dict(self.evidence, forwardDecisionId="substituted"), self.inverse),
+        ):
+            with self.subTest(invalid_evidence=invalid_evidence,
+                              invalid_inverse=invalid_inverse):
+                signer = Mock(return_value=b"x" * 64)
+                with self.assertRaises(ValueError):
+                    issue_with_external_signer(
+                        self.payload, signer, evidence=invalid_evidence,
+                        expected_forward_steps=self.forward,
+                        expected_inverse_steps=invalid_inverse)
+                signer.assert_not_called()
+
+    def test_signer_is_not_called_for_payload_scope_or_timestamp_mismatch(self):
+        for field, value in (
+            ("tenantId", "foreign"),
+            ("issuedAt", "not-a-timestamp"),
+            ("rehearsalPassed", False),
+        ):
+            with self.subTest(field=field):
+                payload = dict(self.payload, **{field: value})
+                signer = Mock(return_value=b"x" * 64)
+                with self.assertRaises(ValueError):
+                    issue_with_external_signer(
+                        payload, signer, evidence=self.evidence,
+                        expected_forward_steps=self.forward,
+                        expected_inverse_steps=self.inverse)
+                signer.assert_not_called()
+
+    def test_matching_verified_inputs_reach_external_signer_once(self):
+        signer = Mock(side_effect=self.key.sign)
+        signed = issue_with_external_signer(
+            self.payload, signer, evidence=self.evidence,
+            expected_forward_steps=self.forward,
+            expected_inverse_steps=self.inverse)
+        signer.assert_called_once()
+        self.assertTrue(self.verify(document=signed).signed_by_independent_authority)
 
     def test_alternate_forward_path_with_same_final_digest_is_rejected(self):
         # The supplied signed record is authentic, but it does not bind to
@@ -110,7 +169,9 @@ class EvidenceBoundAttestationTests(unittest.TestCase):
 
         signed = issue_with_external_signer(
             prepare_attestation(rehearsal.evidence, key_id="independent-v1",
-                                issued_at=datetime.now(timezone.utc)), self.key.sign)
+                                issued_at=datetime.now(timezone.utc)), self.key.sign,
+            evidence=rehearsal.evidence, expected_forward_steps=self.forward,
+            expected_inverse_steps=rollback.inverse_steps)
         verified = self.verify(document=signed, evidence=rehearsal.evidence,
                                forward=self.forward, inverse=rollback.inverse_steps)
         decision = assess_recovery_and_stop(

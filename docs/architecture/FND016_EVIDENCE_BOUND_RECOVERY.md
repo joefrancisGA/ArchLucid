@@ -43,3 +43,32 @@ remediation execution authorization. FND-016 exact inverse-sequence
 verification on separate draft #7900 is a related safeguard; its PR
 must be validated and reconciled before production use. No cloud
 execution worker, signing-key custody, or runtime admission gate was added.
+
+## Pre-sign attestation gate — FND-016 reuse audit (2026-11-23)
+
+The independent signer adapter previously checked only the payload field
+set and signature domain before invoking the external signing callback.
+That permitted malformed or incorrectly bound input to reach the signing
+boundary; the stronger evidence and independently expected forward/rollback
+plan checks existed **only in the downstream verifier**. A bad signature
+request might be rejected later, but should not be signed in the first place.
+
+The existing `_validate_payload_binding` helper is now shared between
+`issue_with_external_signer` and
+`verify_evidence_bound_attestation`. Both require the v3 evidence digest,
+exact tenant/project/proposal and model bindings, signed-domain claim,
+literal rehearsal success, valid issued-at timestamp, and SHA-256 hashes of
+the **independently supplied expected forward and inverse steps**. The
+signer callback is not invoked on rejected input. The external signer
+adapter now takes mandatory keyword-only `evidence`,
+`expected_forward_steps` and `expected_inverse_steps` arguments.
+This is a **breaking reference API adjustment**; only unit tests were
+found calling the adapter in the indexed `master` search.
+
+These checks **do not prove** that the expected plan came from an
+independent immutable authority: that provenance must be established by
+the real signing service and authenticated plan store. The arbitrary
+`signer` callback in this reference remains a test seam, not a deployed
+hardware-backed key or signing authority. The downstream verifier
+still checks the pinned Ed25519 public key and signature. The recovery
+stop gate continues to return review-required, never execution eligibility.
