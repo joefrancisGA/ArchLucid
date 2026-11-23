@@ -141,6 +141,8 @@ export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<
   "/administration/securenow-pilot-spine": "security",
   "/administration/securenow-reviewer-packet": "security",
   "/administration/securenow-readout-pack": "security",
+  "/administration/securenow-sponsor-path": "security",
+  "/administration/securenow-accelerator-index": "security",
 };
 
 /** Nested URL trees that inherit the parent catalog assignment. */

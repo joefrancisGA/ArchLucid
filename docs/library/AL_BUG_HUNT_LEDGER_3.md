@@ -43,6 +43,10 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted unlisted SecureNow administration routes: `/administration/securenow-sponsor-path` and `/administration/securenow-accelerator-index` are operator pages, but they were absent from `PRODUCT_LINE_EXTRA_ASSIGNMENTS`. Unlisted paths default to architecture, so the security shell blocked them. Path inspect links to sponsor path with `pathId`, and reviewer home links to the accelerator index. Both routes are now `security`. Regression `lets the security shell open sponsor path and the accelerator index`; catalog, route gate, and administration access vitest **19/19**. Private beta: an invited SecureNow operator who opens Sponsor path from Path inspect, or Accelerator index from reviewer home, reaches that page. The security shell no longer treats those administration routes as architecture-only.
+
+- [x] (proven) `PRODUCT_LINE_EXTRA_ASSIGNMENTS` — sponsor path and accelerator index defaulted to architecture — **hit 2026-11-23 seed hunt:** assigned `security`; regression above.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the pilot-disposition browser cache: `secureNowPilotDispositionStorageKey` used only the path id, and `loadSecureNowPilotDispositionForPath` falls back to that cache when the workspace audit returns nothing. A saved Extend in workspace A was still readable after switching to workspace B for `fixture-path-01`. When operator scope has a tenant and workspace, the key now includes both. Regression `does not return another workspace cache for the same path id`; disposition storage, sync, and stickiness vitest **16/16**. Private beta: an invited operator who switches workspace no longer sees another workspace's saved pilot disposition for the same path id when this workspace has no saved copy.
 
 - [x] (proven) `secureNowPilotDispositionStorageKey` — path-only browser cache reused another workspace's disposition — **hit 2026-11-23 seed hunt:** tenant and workspace prefix when operator scope is present; regression above.
@@ -98,8 +102,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
