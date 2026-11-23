@@ -5,6 +5,8 @@ on:
   pull_request:
     branches: [master]
     paths:
+      - 'scripts/aspects_historical_pinned_coverage.py'
+      - 'docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-original-900-source-pin-coverage.json'
       - 'scripts/aspects_accounting_report.py'
       - 'scripts/tests/test_aspects_accounting_report.py'
       - 'docs/engineering/aspects-historical/aspects-provisional-700-series.jsonl'
@@ -44,6 +46,12 @@ jobs:
           import json
           from pathlib import Path
           d=json.loads(Path('artifacts/aspects/aspects-accounting-report.json').read_text())
+          a=d['historical_original_source_pin_coverage']
+          assert a['unique_exact_path_blob_source_loc']==232219
+          assert a['pinned_source_line_occurrences']==238239
+          assert a['repeated_exact_path_blob_line_occurrences']==6020
+          assert a['defects_per_kloc_for_this_population'] is None
+          assert a['not_additive_to_incremental_live_ledger'] is True
           assert d['historical_900']['actual_snapshots']==79
           assert d['provisional_700']['observations']==700
           assert d['provisional_700']['backprojected_observations']==100
