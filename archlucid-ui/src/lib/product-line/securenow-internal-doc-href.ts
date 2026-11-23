@@ -8,7 +8,8 @@ const SECURENOW_INTERNAL_DOC_TO_OPERATOR_HREF: Readonly<Record<string, string>> 
   "control_evidence_responsibility.md":
     "/administration/securenow-compliance-notes#control-evidence-responsibility",
   "decision_cycle_log.md":
-    "/administration/securenow-pilot-decision#securenow-decision-cycle",
+    // The section id is decision-cycle. data-testid securenow-decision-cycle is not a fragment.
+    "/administration/securenow-pilot-decision#decision-cycle",
   "executive_packet_fill_guide.md":
     "/administration/securenow-sponsor-path#executive-packet-fill-guide",
   "framework_coverage.md": "/administration/securenow-compliance-notes#framework-coverage",

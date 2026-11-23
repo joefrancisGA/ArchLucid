@@ -50,8 +50,9 @@ export function restoreWizardFormWithDeeplinkPolicy(
  * Applies link-borne prefills to the form: accelerator pack, preset deep link, zero-config demo
  * package, and example-request template.
  *
- * Each one runs at most once. Accelerator and preset links also force the full wizard, because the
- * fields they fill are only visible there.
+ * Policy and demo links run at most once. Example templates, accelerator packs, and preset deeplinks
+ * apply again when their id changes. Accelerator and preset links also force the full wizard, because
+ * the fields they fill are only visible there.
  */
 export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void {
   const {
@@ -79,10 +80,10 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
   } = params;
 
   const zeroConfigAppliedRef = useRef(false);
-  const exampleTemplatePrefillAppliedRef = useRef(false);
+  const exampleTemplateAppliedIdRef = useRef<string | null>(null);
   const policyPackPrefillAppliedRef = useRef(false);
-  const acceleratorPrefillAppliedRef = useRef(false);
-  const presetPrefillAppliedRef = useRef(false);
+  const acceleratorPrefillAppliedIdRef = useRef<string | null>(null);
+  const presetPrefillAppliedIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (deeplinkPolicyPackId === null || policyPackPrefillAppliedRef.current) {
@@ -94,7 +95,12 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
   }, [deeplinkPolicyPackId, setValue]);
 
   useEffect(() => {
-    if (acceleratorPackId === null || acceleratorPrefillAppliedRef.current) {
+    if (acceleratorPackId === null) {
+      return;
+    }
+
+    // A boolean latch keeps the first pack after the operator opens another accelerator link.
+    if (acceleratorPrefillAppliedIdRef.current === acceleratorPackId) {
       return;
     }
 
@@ -104,7 +110,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
       return;
     }
 
-    acceleratorPrefillAppliedRef.current = true;
+    acceleratorPrefillAppliedIdRef.current = acceleratorPackId;
     reset(applyWizardPreset(buildDefaultWizardValues(), preset));
     applyPolicyPackPrefill(deeplinkPolicyPackId, setValue);
     goToStep(1);
@@ -115,7 +121,12 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
   }, [acceleratorPackId, baselineFirst, deeplinkPolicyPackId, goToStep, persistWizardMode, reset, setValue]);
 
   useEffect(() => {
-    if (presetDeeplinkToken === null || presetDeeplinkPresetId === null || presetPrefillAppliedRef.current) {
+    if (presetDeeplinkToken === null || presetDeeplinkPresetId === null) {
+      return;
+    }
+
+    // A boolean latch keeps the first preset after the operator opens another preset link.
+    if (presetPrefillAppliedIdRef.current === presetDeeplinkPresetId) {
       return;
     }
 
@@ -131,7 +142,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
       return;
     }
 
-    presetPrefillAppliedRef.current = true;
+    presetPrefillAppliedIdRef.current = presetDeeplinkPresetId;
     reset(applyWizardPreset(buildDefaultWizardValues(), presetValues));
     applyPolicyPackPrefill(deeplinkPolicyPackId, setValue);
     goToStep(1);
@@ -153,11 +164,12 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
       return;
     }
 
-    if (exampleTemplatePrefillAppliedRef.current) {
+    // A boolean latch drops a later sample opened on the same wizard. Guided intake keys this by id.
+    if (exampleTemplateAppliedIdRef.current === exampleTemplate.id) {
       return;
     }
 
-    exampleTemplatePrefillAppliedRef.current = true;
+    exampleTemplateAppliedIdRef.current = exampleTemplate.id;
     setValue("systemName", exampleTemplate.systemName, { shouldValidate: true, shouldDirty: true });
     setValue("description", exampleTemplate.briefText, { shouldValidate: true, shouldDirty: true });
 

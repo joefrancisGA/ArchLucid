@@ -1,4 +1,4 @@
-import { normalizeOidcConfigurationString } from "@/lib/oidc/oauth-callback-messages";
+import { normalizeOidcConfigurationString, normalizeOidcOAuthFormString } from "@/lib/oidc/oauth-callback-messages";
 
 export type OidcDiscoveryDocument = {
   issuer: string;
@@ -57,8 +57,8 @@ function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscov
   }
 
   const issuer = normalizeOidcConfigurationString(issuerRaw);
-  const authorizationEndpoint = normalizeOidcConfigurationString(authorizationEndpointRaw);
-  const tokenEndpoint = normalizeOidcConfigurationString(tokenEndpointRaw);
+  const authorizationEndpoint = normalizeOidcOAuthFormString(authorizationEndpointRaw);
+  const tokenEndpoint = normalizeOidcOAuthFormString(tokenEndpointRaw);
 
   if (issuer.length === 0 || authorizationEndpoint.length === 0 || tokenEndpoint.length === 0) {
     throw new Error(`OIDC discovery document missing required endpoints: ${discoveryUrl}`);
@@ -84,7 +84,7 @@ function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscov
   const endSessionEndpoint = record.end_session_endpoint;
 
   if (typeof endSessionEndpoint === "string") {
-    const trimmedEndSession = normalizeOidcConfigurationString(endSessionEndpoint);
+    const trimmedEndSession = normalizeOidcOAuthFormString(endSessionEndpoint);
 
     if (trimmedEndSession.length > 0) {
       try {

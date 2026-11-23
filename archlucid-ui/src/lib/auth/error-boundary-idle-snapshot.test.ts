@@ -57,6 +57,14 @@ describe("error-boundary-idle-snapshot (LW-095)", () => {
     ).toBe("Needs follow-up on data residency.");
   });
 
+  it("keeps the review-tab hash on the error-recovery desk restore path", () => {
+    window.history.pushState({}, "", "/architecture/reviews/run-1#review-summary");
+
+    persistLivelihoodIdleSnapshotsBeforeErrorRecovery();
+
+    expect(readIdleDeskRestorePayload()?.returnPath).toBe("/architecture/reviews/run-1#review-summary");
+  });
+
   it("flushLivelihoodIdleFormSnapshotBeforeUnmount merges before registry clear", () => {
     const returnPath = "/governance/workflow";
     const snapshotKey = buildLivelihoodIdleFormSnapshotKey("governance-approval-rationale", "approval-2");

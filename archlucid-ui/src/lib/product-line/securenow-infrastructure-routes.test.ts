@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 
+import { extractUploadSettingsPathForProductLine } from "@/lib/extract-upload-settings-route";
+import { isPathAllowedForProductLine } from "@/lib/product-line/product-line-path-access";
+
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
-  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
   SECURENOW_INFRASTRUCTURE_ASK_PATH,
@@ -43,7 +45,14 @@ describe("securenow-infrastructure-routes", () => {
       SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
     );
     expect(infrastructureExtractUploadPathForProductLine("architecture")).toBe(
-      GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+      extractUploadSettingsPathForProductLine("architecture"),
     );
+  });
+
+  it("sends architecture extract upload to the administration page the architecture shell allows", () => {
+    const href = infrastructureExtractUploadPathForProductLine("architecture");
+
+    expect(href).toBe(extractUploadSettingsPathForProductLine("architecture"));
+    expect(isPathAllowedForProductLine(href, "architecture")).toBe(true);
   });
 });

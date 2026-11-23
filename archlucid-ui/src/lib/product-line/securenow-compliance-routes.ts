@@ -230,6 +230,28 @@ export function resolvePolicyPacksHubPath(
 }
 
 /**
+ * SecureNow assigned-to-me lives at `/security/assigned-to-me`, not under `/compliance/findings`.
+ * Returns the suffix after that queue path, or null when the path is a different route.
+ */
+function assignedToMeFindingsSuffix(bare: string): string | null {
+  if (
+    bare === GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH
+    || bare.startsWith(`${GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH}/`)
+  ) {
+    return bare.slice(GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH.length);
+  }
+
+  if (
+    bare === SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH
+    || bare.startsWith(`${SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH}/`)
+  ) {
+    return bare.slice(SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH.length);
+  }
+
+  return null;
+}
+
+/**
  * Findings queue pathname for client URL sync: preserves query strings and remaps
  * cross-namespace bookmarks to the active product line.
  */
@@ -244,6 +266,11 @@ export function findingsQueuePathFromPathname(
   const queryIndex = pathname.indexOf("?");
   const bare = queryIndex >= 0 ? pathname.slice(0, queryIndex) : pathname;
   const querySuffix = queryIndex >= 0 ? pathname.slice(queryIndex) : "";
+  const assignedToMeSuffix = assignedToMeFindingsSuffix(bare);
+
+  if (assignedToMeSuffix !== null) {
+    return `${assignedToMeFindingsPathForProductLine(productLine)}${assignedToMeSuffix}${querySuffix}`;
+  }
 
   if (!isFindingsRoutePath(bare)) {
     return findingsPathForProductLine(productLine);

@@ -62,6 +62,7 @@ export function inventoryDiagramNodeElementMatchesFocusId(
 
   const id = element.getAttribute("id") ?? "";
   const title = element.querySelector("title")?.textContent?.trim() ?? "";
+  const nodeTokens = [id, title].map((token) => normalizeDiagramFocusToken(token));
 
   for (const focusId of focusNodeIds) {
     const trimmed = focusId.trim();
@@ -70,17 +71,17 @@ export function inventoryDiagramNodeElementMatchesFocusId(
       continue;
     }
 
-    if (id.includes(trimmed) || title.includes(trimmed)) {
-      return true;
+    const normalizedFocus = normalizeDiagramFocusToken(trimmed);
+
+    if (normalizedFocus.length === 0) {
+      continue;
     }
 
-    const normalizedFocus = normalizeDiagramFocusToken(trimmed);
-    const normalizedId = normalizeDiagramFocusToken(id);
-    const normalizedTitle = normalizeDiagramFocusToken(title);
+    const resourceLooksLikeQualifiedPath = trimmed.includes("/");
 
     if (
-      normalizedFocus.length > 0
-      && (normalizedId.includes(normalizedFocus) || normalizedTitle.includes(normalizedFocus))
+      nodeTokens.some((token) =>
+        diagramFocusTokensMatch(resourceLooksLikeQualifiedPath, normalizedFocus, token))
     ) {
       return true;
     }

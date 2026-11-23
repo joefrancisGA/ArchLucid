@@ -70,9 +70,22 @@ internal static class TenantIsolationNegativeTestCommand
             report = runner.RunOffline(repositoryRoot, options);
         }
 
-        string artifactKey = TenantIsolationNegativeTestOutputPaths.ResolveArtifactKey(report);
-        TenantIsolationNegativeTestOutputResolution outputPaths =
-            TenantIsolationNegativeTestOutputPaths.Resolve(options, repositoryRoot, artifactKey);
+        TenantIsolationNegativeTestOutputResolution outputPaths;
+
+        try
+        {
+            outputPaths = TenantIsolationNegativeTestOutputPaths.Resolve(
+                options,
+                repositoryRoot,
+                TenantIsolationNegativeTestOutputPaths.ResolveArtifactKey(report));
+        }
+        catch (ArgumentException ex)
+        {
+            await Console.Error.WriteLineAsync("[ArchLucid CLI] " + ex.Message);
+
+            return CliExitCode.ConfigurationError;
+        }
+
         TenantIsolationNegativeTestReport finalReport = report.WithOutputMetadata(
             outputPaths.JsonPath,
             outputPaths.MarkdownPath);

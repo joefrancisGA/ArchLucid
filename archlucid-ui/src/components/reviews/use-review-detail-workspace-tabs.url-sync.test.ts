@@ -201,4 +201,109 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
 
     expect(result.current.activeTab).toBe("overview");
   });
+
+  it("clears workbench focus on initial load when a section hash selects a non-workbench tab", () => {
+    searchParamsHarness.applyQuery("reviewTab=findings&workbenchFocus=findings");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&workbenchFocus=findings#review-summary",
+    );
+
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.activeTab).toBe("overview");
+    expect(result.current.workbenchFocusColumn).toBeNull();
+    expect(window.location.search).not.toContain("workbenchFocus");
+    expect(window.location.hash).toBe("#review-summary");
+  });
+
+  it("clears workbench focus from the URL on popstate when reviewTab stays on a non-workbench tab", () => {
+    searchParamsHarness.applyQuery("reviewTab=overview");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
+
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.activeTab).toBe("overview");
+    expect(result.current.workbenchFocusColumn).toBeNull();
+
+    act(() => {
+      window.history.pushState({}, "", "/architecture/reviews/run-abc?reviewTab=overview&workbenchFocus=findings");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    });
+
+    expect(result.current.activeTab).toBe("overview");
+    expect(result.current.workbenchFocusColumn).toBeNull();
+    expect(window.location.search).not.toContain("workbenchFocus");
+  });
+  it("clears workbench focus on initial load when reviewTab is a non-workbench tab", () => {
+    searchParamsHarness.applyQuery("reviewTab=overview&workbenchFocus=findings");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=overview&workbenchFocus=findings",
+    );
+
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.activeTab).toBe("overview");
+    expect(result.current.workbenchFocusColumn).toBeNull();
+    expect(window.location.search).not.toContain("workbenchFocus");
+  });
+  it("clears findingId from the URL when navigating to overview from findings", () => {
+    searchParamsHarness.applyQuery("reviewTab=findings&findingId=finding-queue-1");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-queue-1",
+    );
+
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.activeTab).toBe("findings");
+
+    act(() => {
+      result.current.navigateTab("overview");
+    });
+
+    expect(result.current.activeTab).toBe("overview");
+    expect(window.location.search).not.toContain("findingId=");
+  });
+  it("clears workbench focus when a section hash moves to a non-workbench tab", () => {
+    searchParamsHarness.applyQuery("reviewTab=findings&workbenchFocus=findings");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&workbenchFocus=findings",
+    );
+
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.activeTab).toBe("findings");
+    expect(result.current.workbenchFocusColumn).toBe("findings");
+
+    act(() => {
+      window.history.replaceState(
+        {},
+        "",
+        "/architecture/reviews/run-abc?reviewTab=findings&workbenchFocus=findings#review-summary",
+      );
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+
+    expect(result.current.activeTab).toBe("overview");
+    expect(result.current.workbenchFocusColumn).toBeNull();
+    expect(window.location.search).not.toContain("workbenchFocus");
+    expect(window.location.hash).toBe("#review-summary");
+  });
 });
