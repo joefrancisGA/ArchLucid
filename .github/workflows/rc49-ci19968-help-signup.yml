@@ -6,6 +6,7 @@ on:
     paths:
       - "archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx"
       - "archlucid-ui/src/components/marketing/SignupForm.test.tsx"
+      - "archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.test.tsx"
       - ".github/workflows/rc49-ci19968-help-signup.yml"
 permissions:
   contents: read
