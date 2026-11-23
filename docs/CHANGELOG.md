@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+## 2026-11-23 - Score lift round 119 (batch 84): Hub audit and terraform partial, explorer triple, lifecycle filter
+
+**Outcome.** Resource hub audit and terraform-not-mapped empties name thin capture versus a failed hub read only when the latest capture is partial. Infrastructure explorer names a type, prefix, and resource-group filter empty versus a failed catalog read. Compare finding lifecycle names a status-filter empty versus a failed compare load.
+
+**Surfaces.** Resource hub client, resources explorer, compare finding lifecycle block, honesty and mounted contract tests.
+
 ## 2026-11-23 - Score lift round 118 (batch 83): Hub remediation partial, explorer combined and queue
 
 **Outcome.** Resource hub remediation empty names thin capture versus a failed hub read only when the latest capture is partial. Infrastructure explorer names type-plus-group, prefix-plus-group, and work-queue-only empties versus a failed catalog read.
