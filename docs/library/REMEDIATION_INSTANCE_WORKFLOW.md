@@ -66,9 +66,9 @@ frozen pattern and version IDs, preflight snapshot, SHA-256 of the persisted
 preflight-result JSON, prior rowversion, approver and time. If the
 evidence insert fails, the approval update rolls back. A stale or
 foreign rowversion cannot produce an approval receipt. Unsupported
-repository adapters fail closed. Generic SQL `UpdateInstanceAsync` and
-`UpdateInstanceInScopeAsync` calls can no longer silently set status
-`Approved` without that atomic method.
+repository adapters fail closed. The generic scoped `UpdateInstanceInScopeAsync` cannot set status
+`Approved` without that atomic method. The former tenant-only
+`UpdateInstanceAsync` is subsequently removed by the legacy-write audit.
 
 The SQL Server-managed `RowVersion` column (migration 425) must never
 appear in INSERT column lists. The two remediation-instance INSERT
@@ -119,8 +119,37 @@ proof of SQL concurrency safety. SQL-backed tests must execute against a
 disposable test catalog; a skipped fixture does not validate this repair.
 
 **Scope of this pass:** the two protected SQL operations and the verified
-association-failure compensation path. The older `UpdateInstanceAsync`
-tenant-only legacy method still deserves a separate caller/deprecation
-audit because it does not itself require scoped CAS; do not treat this
-change as proof that all direct/administrative database writers have been
-eliminated. No FND-015 signing authority or cloud execution was enabled.
+association-failure compensation path. The tenant-only `UpdateInstanceAsync`
+method was identified as a separate residual risk and subsequently retired
+by the legacy-write audit below. This does not establish that external
+direct/administrative database writers have been eliminated. No FND-015
+signing authority or cloud execution was enabled.
+
+## Retire tenant-only legacy remediation UPDATE — 2026-11-23
+
+The reuse audit of `IRemediationInstanceRepository.UpdateInstanceAsync`
+found no production caller: indexed repository search located only its
+contract definition, SQL/no-op implementations, test doubles, and structural
+CI assertions. The legacy SQL update was limited to tenant/instance IDs,
+lacked workspace/project scope and a row-version predicate, and could
+mutate statuses without the dedicated approval/verification evidence
+transactions. Checking for `Approved` alone did not make the method safe
+for other state changes.
+
+The unused method has been **removed** from the repository interface,
+SQL implementation, no-op adapter and application test doubles. Existing
+production callers of `IProjectScopedRemediationInstanceRepository`
+continue to use `UpdateInScopeAsync` with exact project scope and strict
+row-version CAS, or `CommitApprovalInScopeAsync` /
+`CommitVerificationInScopeAsync` where state and evidence must commit
+together. No new persistence abstraction or alternative update method was
+introduced.
+
+An interface-reflection unit test and targeted Python source-contract tests
+now reject reintroduction of the tenant-only method. The existing scoped
+insert/read behavior and advisory-only `ExecuteAsync` remain unchanged.
+**This is an intentional breaking repository contract change** for any
+consumer outside the audited code tree; integration owners must migrate
+such consumers to a scoped operation. This is not proof of SQL database
+permissions or out-of-repository writers. Confirm the focused .NET and
+contract tests before describing it as runtime validated.
