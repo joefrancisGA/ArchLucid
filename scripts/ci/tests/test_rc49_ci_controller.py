@@ -37,6 +37,18 @@ class ControllerTests(unittest.TestCase):
     def test_never_dispatches_while_pending(self):
         self.assertEqual("wait", decide([{"id": 2, "status": "queued"}], [], "new", "new")["action"])
 
+    def test_rc49_stabilization_workflow_is_manual_only(self):
+        workflow = (Path(__file__).resolve().parents[3] / ".github" / "workflows"
+                    / "rc49-stabilization-controller.yml").read_text(encoding="utf-8")
+        event_config = workflow.split("\non:\n", 1)[1].split("\npermissions:\n", 1)[0]
+        self.assertIn("workflow_dispatch:", event_config)
+        self.assertIn("ready_sha:", event_config)
+        self.assertIn("required: true", event_config)
+        self.assertNotIn("schedule:", event_config)
+        self.assertNotIn("workflow_run:", event_config)
+        self.assertNotIn("--auto-ready", workflow)
+        self.assertIn('if [[ "$APPLY" == "true" ]]', workflow)
+
     def test_dispatches_new_reviewed_head_only(self):
         self.assertEqual("dispatch", decide([], [], "new", "new")["action"])
         self.assertEqual("wait", decide([{"id": 1, "status": "completed", "head_sha": "new", "conclusion": "failure"}], [], "new", "new")["action"])
