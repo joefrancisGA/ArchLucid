@@ -5,6 +5,7 @@ using System.Security.Claims;
 using ArchLucid.Api.Controllers.Planning;
 using ArchLucid.Api.Security;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Configuration;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -89,9 +90,19 @@ public sealed class SecureNowEnabledPersistedHttpTests(SecureNowExchangeEnabledA
             + $"&asOf={Uri.EscapeDataString(DateTimeOffset.UtcNow.AddMinutes(1).ToString("O"))}"
             + "&secureNowExchange=true";
 
+        // Validate feature visibility independently before exercising the HTTP
+        // authorization and temporal resolver chain. Neither this assertion
+        // nor the diagnostic response body changes a production security gate.
+        bool featureEnabled = await factory.Services.GetRequiredService<IFeatureFlags>()
+            .IsEnabledAsync("SecureNow.ReadOnlySnapshotExchange", CancellationToken.None);
+        featureEnabled.Should().BeTrue(
+            because: "the exchange is enabled only for this isolated integration host");
+
         using HttpResponseMessage allowed = await owner.GetAsync(url);
+        string responseBody = await allowed.Content.ReadAsStringAsync();
         allowed.StatusCode.Should().Be(HttpStatusCode.OK,
-            because: "the seeded sealed-manifest authority chain must support an authorized snapshot read");
+            because: "a seeded, authorized run must support an owner snapshot read; server response: {0}",
+            responseBody);
         SecureNowSnapshotEnvelope? envelope =
             await allowed.Content.ReadFromJsonAsync<SecureNowSnapshotEnvelope>();
         envelope.Should().NotBeNull();
