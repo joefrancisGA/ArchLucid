@@ -43,6 +43,10 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted pilot disposition URLs: `fetchSecureNowPilotPathDisposition` and `saveSecureNowPilotPathDisposition` interpolated `pathId` into the path, so `a/b` from the pilot-decision `pathId` query became two segments. Path inspect already encodes that id. Both requests now use `pilotDispositionPath`. Regression `encodes a slash in the path id before the disposition request`; disposition api vitest **1/1**. Private beta: an invited operator who opens pilot decision for a path id that contains a slash loads and saves that path's disposition. The id stays one URL segment instead of being split into a different request.
+
+- [x] (proven) `fetchSecureNowPilotPathDisposition` — slash in `pathId` split the disposition URL — **hit 2026-11-23 seed hunt:** `encodeURIComponent` in `pilotDispositionPath`; regression above.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted architecture extract upload: `infrastructureExtractUploadPathForProductLine("architecture")` returned `/governance/infrastructure/extract-upload`, which the architecture shell blocks, while `extractUploadSettingsPathForProductLine` returns `/administration/extract-upload`. Resource-explorer help uses the infrastructure helper. The helper now delegates to the settings path. Regression `sends architecture extract upload to the administration page the architecture shell allows`; infrastructure-routes vitest **2/2**. Private beta: an invited architecture operator who follows Extract and upload from resource-explorer help opens the administration extract-upload page. The governance extract-upload page, which the architecture shell blocks, is no longer that link.
 
 - [x] (proven) `infrastructureExtractUploadPathForProductLine` — architecture link targeted the security-only governance extract-upload path — **hit 2026-11-23 seed hunt:** delegates to `extractUploadSettingsPathForProductLine`; regression above.
@@ -90,8 +94,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
