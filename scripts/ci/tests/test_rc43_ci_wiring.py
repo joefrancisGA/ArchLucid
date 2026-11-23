@@ -11,10 +11,10 @@ class ReleaseCandidateCiWiringTests(unittest.TestCase):
     def test_full_non_deploying_ci_uses_explicit_dispatch_not_rc_pushes(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
         # A release-candidate push must never initiate a costly full CI run.
-        self.assertNotRegex(workflow, r"(?m)^  push:\\s*$")
-        self.assertRegex(workflow, r"(?m)^  workflow_dispatch:\\s*$")
-        self.assertRegex(workflow, r"(?m)^  pull_request:\\n    branches: \\[main, master\\]$")
-        self.assertRegex(workflow, r"(?m)^  merge_group:\\n    branches: \\[main, master\\]$")
+        self.assertNotRegex(workflow, r"(?m)^  push:\s*$")
+        self.assertRegex(workflow, r"(?m)^  workflow_dispatch:\s*$")
+        self.assertRegex(workflow, r"(?m)^  pull_request:\n    branches: \[main, master\]$")
+        self.assertRegex(workflow, r"(?m)^  merge_group:\n    branches: \[main, master\]$")
         # RC49 manual runs remain serial and uncancelled rather than silently skipped.
         self.assertIn("'rc49-dispatch'", workflow)
         self.assertIn("github.ref == 'refs/heads/RC49'", workflow)
