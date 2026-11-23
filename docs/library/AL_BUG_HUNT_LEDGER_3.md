@@ -19342,6 +19342,13 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-architecture-diagram
 
+2026-11-23 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown waived (empty hypothesis queue). Reread overrides, click-focus, connector visibility, node id allocation, and SVG sanitize after the bundle-filter hit. No row met hunt-ready: duplicate-label node overrides are order-ambiguous (same label, kind, and provenance), and first-title outline matches need a cited duplicate forest title. Seeded five `(candidate)` monitors. Private beta: n/a.
+
+- [ ] (candidate) `applyArchitectureDiagramOverrides` — node overrides keyed only by generated id — locus: `nodeOverrideMap`; input: two systems share a label, operator removes `system_queue_1`, then entity order swaps; wrong outcome: the other queue is removed; reachability: brief entities with duplicate labels and device-local overrides (monitor; identity is not unique).
+- [ ] (candidate) `outlineNodeMatchesDomFocus` — first outline node wins a shared title token — locus: outline walk; input: two nodes whose labels normalize to the same token; wrong outcome: click dimming uses the earlier node; reachability: forest outline with duplicate display names (monitor).
+- [ ] (candidate) `readEdgeEndpointTokens` — bundle attributes win over `data-from`/`data-to` when both exist — locus: `??` preference; input: edge with disagreeing bundle and single endpoints; wrong outcome: family filter shows the wrong line; reachability: bundled private-endpoint SVG (monitor).
+- [ ] (candidate) `resolveDiagramClickFocus` — bundled edge stays when any endpoint is kept — locus: `from.some` and `to.some`; input: bundle `vault vault-2` to `vnet-a` while focus is `vault-2` only; wrong outcome: unrelated vault stays undimmed; reachability: forest bundle edges (monitor).
+- [ ] (candidate) `sanitizeNodeId` — empty label uses `node_${index}` — locus: id fallback; input: unlabeled entity inserted before another unlabeled node; wrong outcome: stored removal applies to a different blank node; reachability: sections with missing labels (monitor).
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. Evidence-family filtering hid every bundled forest edge because `applyConnectorVisibility` read only `data-from`/`data-to` while the generator emits `data-bundle-from`/`data-bundle-to` for collapsed private-endpoint lines. Shared helper now token-matches bundle endpoints like click-focus and connector selection. Regression `keeps bundled edges visible when the family filter lists an endpoint pair`; connector-visibility + click-focus 6/6. Private beta: filtering the inventory diagram by evidence family keeps bundled connector lines on the canvas instead of hiding them all.
 
 - [x] (proven) `applyConnectorVisibility` — family filter ignored bundled edge endpoint attributes — **proven 2026-11-23 seed hunt:** bundle-only SVG edges were always `display:none` under family filter; bundle token matching now mirrors selection dimming.
@@ -19389,7 +19396,7 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23

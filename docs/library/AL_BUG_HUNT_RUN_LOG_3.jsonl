@@ -69,3 +69,4 @@
 {"at":"2026-11-23T19:55:25.7451798Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: BFF logout URL kept soft hyphens in hostname"}
 {"at":"2026-11-23T19:59:55.3728466Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: discovery endpoints kept soft hyphens in hostnames"}
 {"at":"2026-11-23T20:47:46.8063004Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared","set":3,"note":"seed hunt: no hunt-ready row after soft-hyphen discovery follow-ups"}
+{"at":"2026-11-23T20:51:51.1111603Z","zoneId":"ui-architecture-diagram","outcome":"seed-only","productLine":"archlucid-shared","set":3,"note":"seed hunt: node override identity and click-focus monitors only"}
