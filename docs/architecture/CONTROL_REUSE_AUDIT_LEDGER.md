@@ -11,7 +11,8 @@
 | FND-017 conformance | **FND017001 enforced in Core** (#7855 merged and targeted workflow passed); static-receiver blind spot corrected on new focused PR branch, validation pending | #7766–#7776, #7855, Core/API project wiring, Roslyn analyzers and tests, real SecureNow endpoint, CI 45167109380 | API FND017002–005 remain advisory; existing Core symbol rule missed forbidden types used only as static receivers. Default-branch Python scanner is separate advisory control and is not production enforcement | Validate static-receiver fix on PR checkout and keep FND017002–005 advisory; then begin FND-016 review |
 | FND-016 remediation safety | Input-bound v3 signing and pre-sign checks merged #7901/#7902; authoritative-plan reread integration proposed on focused PR branch, CI pending | FND-016 v3 signer/verifier, .NET immutable-source store, scoped governance approval repository, reference integration tests and audit | Request-supplied expected steps are not independent plan provenance; new reference adapter rereads current reviewed scope, revision, approved/expiry/checksum and fails closed without reader. .NET stores do not yet supply remediation-plan authority | Validate focused PR; production must supply authenticated current-plan store, monotonic revision and key custody before enabling anything |
 | FND-010 authorization / audit | Admin SQL same-transaction audit change **merged #7890** (CI confirmation separate); worker adapter reuse audited with targeted negative tests proposed | WorkerAuthorizationAdapter, CentralAuthorizationDecisions, Program SQL audit registration, worker tests, admin archive repositories, RequiredAuditEventTypes; #7890 | Worker adapter reuses central service and deny-default identity; no production job caller demonstrated. Separate SQL run-archive paths remain post-commit audited, with unscoped bulk archive mutation after scoped precheck | Validate worker PR tests; review SQL archives' required-audit classification, tenant scope and co-commit migration before changing them |
-| FND-014 / FND-015 simulation / rollback | Pending | Existing reference modules | Reuse requires source review | Inventory simulation and rollback implementations |
+| FND-014 / FND-015 simulation / rollback | FND-014 Python dry-run reference audited; literal Boolean approval guard fixed on focused branch, CI pending. FND-015 next | #7698/#7699 merged; FND-014 source/tests/docs, FND-015 reference, FND-016 rehearsal, production search results | FND-014 accepted truthy non-Boolean `DryRunAuthorization.allowed` values, despite no production PDP integration; simulate_remediation has only reference/test consumers confirmed | Validate targeted FND-014 PR workflow; then audit FND-015 independent planning decision binding and inverse steps |
+
 
 ## Audit acceptance criteria
 
@@ -155,6 +156,10 @@ This batch inspects **ten distinct mechanisms**, not ten claimed defects. All fi
 - **Decision:** no speculative new worker authority package, no global audit-classification change, and no new cloud remediation executor. Correct stale `docs/architecture/FND010_AUDIT_WORKER_BOUNDARY.md` which implied production authorization auditing was still log-only, even though `Program.cs` now chooses SQL journal/fail-closed fallback.
 - **Targeted validation (PR checkout only):** `dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --filter FullyQualifiedName~CentralAuthorizationAuditWorkerTests` via the existing FND-010 PR workflow. Keep this audit draft until focused and required checks pass. Do **not** explicitly dispatch a comprehensive/full `master` CI/build.
 - **Next:** inspect actual #7890 focused SQL/audit regression results; then evaluate a **separate** bounded archive co-commit design with explicit `ManifestArchived` policy, tenant-scoped resource reconciliation, and existing cache eviction semantics. Continue with FND-014/015 reference-reuse inventory once FND-010 scopes are recorded.
+
+
+
+
 
 ## FND-016 recovery rehearsal adoption — exact inverse binding (2026-11-23)
 
