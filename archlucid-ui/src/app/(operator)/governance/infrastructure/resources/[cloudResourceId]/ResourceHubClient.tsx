@@ -43,6 +43,9 @@ import { RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evid
 import { RESOURCE_HUB_CONFIG_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-config-stored-empty-not-load-failure-copy";
 import { RESOURCE_HUB_DRIFT_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-drift-stored-empty-not-load-failure-copy";
 import { RESOURCE_HUB_DIAGRAM_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-diagram-stored-empty-not-load-failure-copy";
+import { RESOURCE_HUB_DIAGRAM_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-diagram-partial-capture-not-load-failure-copy";
+import { RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-config-partial-capture-not-load-failure-copy";
+import { RESOURCE_HUB_DRIFT_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-drift-partial-capture-not-load-failure-copy";
 import { RESOURCE_HUB_REMEDIATION_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-remediation-stored-empty-not-load-failure-copy";
 import { RESOURCE_HUB_AUDIT_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-audit-stored-empty-not-load-failure-copy";
 import { RESOURCE_HUB_TERRAFORM_NOT_MAPPED_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-terraform-not-mapped-stored-empty-not-load-failure-copy";
@@ -1739,6 +1742,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         >
                           {RESOURCE_HUB_CONFIG_STORED_EMPTY_NOT_LOAD_FAILURE_LINE}
                         </p>
+                    {overviewPartialCapture ? (
+                      <p
+                        className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="resource-hub-config-partial-capture-not-load-failure"
+                      >
+                        {RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE}
+                      </p>
+                    ) : null}
                         {isSecureNowProductLine(productLine) ? (
                           <SecureNowInfraPartialCaptureStrip
                           testId="infra-resource-hub-config-empty-partial-capture"
@@ -2117,6 +2128,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     >
                       {RESOURCE_HUB_DRIFT_STORED_EMPTY_NOT_LOAD_FAILURE_LINE}
                     </p>
+                    {overviewPartialCapture ? (
+                      <p
+                        className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="resource-hub-drift-partial-capture-not-load-failure"
+                      >
+                        {RESOURCE_HUB_DRIFT_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE}
+                      </p>
+                    ) : null}
                     {isSecureNowProductLine(productLine) ? (
                       <SecureNowInfraPartialCaptureStrip
                         testId="infra-resource-hub-drift-empty-partial-capture"
@@ -2255,12 +2274,22 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_BODY}
                   testId="infra-resource-hub-diagram-empty"
                   footer={
+                    <>
                     <p
                       className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
                       data-testid="resource-hub-diagram-stored-empty-not-load-failure"
                     >
                       {RESOURCE_HUB_DIAGRAM_STORED_EMPTY_NOT_LOAD_FAILURE_LINE}
                     </p>
+                    {overviewPartialCapture ? (
+                      <p
+                        className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="resource-hub-diagram-partial-capture-not-load-failure"
+                      >
+                        {RESOURCE_HUB_DIAGRAM_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE}
+                      </p>
+                    ) : null}
+                    </>
                   }
                 />
               </>
