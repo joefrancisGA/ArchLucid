@@ -117,6 +117,32 @@ public sealed class DataConsistencyRemediationExecutorTests
     }
 
     [Fact]
+    public async Task ExecuteAsync_cancelled_after_audit_before_commit_rolls_back()
+    {
+        using CancellationTokenSource cancellation = new();
+        Mock<IDbConnectionFactory> factory = new();
+        Mock<IAuditService> audit = new();
+        ScriptedSqlSession session = new(factory);
+        session.EnqueueParameterizedReader(ReadResult.Strings("cmp-1"));
+        session.EnqueueParameterizedReader(ReadResult.Strings("cmp-1"));
+        SequencedCommandDbConnection connection = session.Activate();
+        RecordingDbTransaction transaction = AttachTransaction(connection);
+        audit.Setup(a => a.LogAsync(
+                It.IsAny<AuditEvent>(), It.IsAny<IArchLucidUnitOfWork>(), It.IsAny<CancellationToken>()))
+            .Callback(() => cancellation.Cancel())
+            .Returns(Task.CompletedTask);
+
+        DataConsistencyRemediationExecutor sut = new(session.Factory, audit.Object);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            sut.ExecuteAsync(DataConsistencyOrphanRemediationRegistry.ComparisonRecords,
+                dryRun: false, maxRows: 3, cancellation.Token));
+
+        Assert.Equal(0, transaction.CommitCalls);
+        Assert.Equal(1, transaction.RollbackCalls);
+    }
+
+    [Fact]
     public async Task ExecuteAsync_execute_fault_on_delete_rolls_back_transaction()
     {
         Mock<IDbConnectionFactory> factory = new();
