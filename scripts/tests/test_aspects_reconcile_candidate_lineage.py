@@ -132,10 +132,12 @@ class CandidateLineageTests(unittest.TestCase):
         r = self.case(mutate)
         self.assertIn("SHA-256", r["blocking_reason"])
 
-    def test_complexity_cap_leaves_all_candidate_lines_unresolved(self):
+    def test_quadratic_cap_retains_only_safe_unique_boundary_lines(self):
         r = self.case(cap=1)
-        self.assertEqual(r["candidate_only_matching_unique_unchanged_text_in_nearby_original_pins"], 0)
-        self.assertEqual(r["candidate_original_revision_pairs_skipped"], 1)
+        self.assertEqual(r["candidate_only_matching_unique_unchanged_text_in_nearby_original_pins"], 2)
+        self.assertEqual(r["bounded_unique_prefix_suffix_revision_pairs_examined"], 1)
+        self.assertEqual(r["candidate_original_revision_pairs_skipped"], 0)
+        self.assertEqual(r["new_original_pin_verified_loc"], 0)
 
 
     def test_intervening_mutation_and_revert_does_not_prove_same_line(self):
@@ -271,6 +273,54 @@ class SparseGitFirstParentLineageTests(unittest.TestCase):
                     blobs[shas[-1]], 130, {1}, tree_blob, source_lines,
                     changed_orders=missing)[1],
                 "review_commit_tree_mismatch")
+
+
+class BoundedLargeFileTests(unittest.TestCase):
+    def test_middle_edit_not_inferred_for_large_blob(self):
+        from aspects_verify_first_parent_lineage import bounded_unique_unchanged_pairs
+        old = ["head"] + [f"line-{i}" for i in range(2500)] + ["tail"]
+        new = old.copy()
+        new[1200] = "changed-middle"
+        mapped, strategy = bounded_unique_unchanged_pairs(old, new)
+        self.assertEqual(strategy, "unique_prefix_suffix_only")
+        self.assertEqual(mapped[1], 1)
+        self.assertEqual(mapped[len(old)], len(new))
+        self.assertNotIn(1201, mapped)
+        self.assertEqual(len(mapped), len(old) - 1)
+
+    def test_duplicate_boundary_text_is_excluded(self):
+        from aspects_verify_first_parent_lineage import bounded_unique_unchanged_pairs
+        old = ["repeat", "repeat", "stable", "changed", "tail"]
+        new = ["repeat", "repeat", "stable", "replacement", "tail"]
+        mapped, strategy = bounded_unique_unchanged_pairs(
+            old, new, max_blob_lines=1)
+        self.assertEqual(strategy, "unique_prefix_suffix_only")
+        self.assertEqual(mapped, {3: 3, 5: 5})
+
+    def test_linear_hard_cap_fails_closed(self):
+        from aspects_verify_first_parent_lineage import bounded_unique_unchanged_pairs
+        mapped, reason = bounded_unique_unchanged_pairs(
+            ["A"] * 101, ["A"] * 101,
+            max_blob_lines=1, max_linear_blob_lines=100)
+        self.assertIsNone(mapped)
+        self.assertEqual(reason, "complexity_cap")
+
+    def test_large_edge_proves_only_unchanged_boundaries(self):
+        from aspects_verify_first_parent_lineage import trace_unique_first_parent_lines
+        old = ["head"] + [f"line-{i}" for i in range(2500)] + ["tail"]
+        new = old.copy()
+        new[1200] = "changed-middle"
+        sha1, sha2 = "a" * 40, "b" * 40
+        traced, reason, edges = trace_unique_first_parent_lines(
+            [sha1, sha2], "a.cs", "old", 0, "new", 1,
+            {1, 1201, 2502},
+            lambda sha, path: "old" if sha == sha1 else "new",
+            lambda blob: {"old": old, "new": new}[blob],
+            changed_orders={1})
+        self.assertIsNone(reason)
+        self.assertEqual(edges, 1)
+        self.assertEqual(traced, {1: 1, 2502: 2502})
+
 
 if __name__ == "__main__":
     unittest.main()
