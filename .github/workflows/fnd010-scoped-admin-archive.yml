@@ -1,0 +1,51 @@
+name: FND-010 Scoped Admin Archive Regression
+
+# Validate the PR checkout only. Never dispatch a comprehensive master build.
+on:
+  pull_request:
+    branches: [master, RC49]
+    paths:
+      - 'ArchLucid.Api/Services/Admin/AdminRunArchiveDiagnosticsService.cs'
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/Interfaces/IRunRepository.cs'
+      - 'ArchLucid.Persistence/Repositories/SqlRunRepository.Write.Archive.cs'
+      - 'ArchLucid.Persistence/Repositories/InMemoryRunRepository.Write.cs'
+      - 'ArchLucid.Persistence/Repositories/CachingRunRepository.Archive.cs'
+      - 'ArchLucid.Persistence/Sql/RunRepositorySql.ArchiveAndExistence.cs'
+      - 'ArchLucid.Api.Tests/AdminDiagnosticsServiceNonSqlTests.cs'
+      - 'ArchLucid.Persistence.Tests/Repositories/InMemoryRunRepositoryAtomicArchiveTests.cs'
+      - 'ArchLucid.Persistence.Tests/CachingRunRepositoryArchiveInvalidationTests.cs'
+      - 'ArchLucid.Persistence.Tests/SqlRunRepositoryArchiveByIdsConcurrencyTests.cs'
+      - '.github/workflows/fnd010-scoped-admin-archive.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fnd010-scoped-archive-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scoped-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify admin facade uses scoped repository mutation
+        run: >-
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+          --configuration Release
+          --filter 'FullyQualifiedName~ArchiveRunsByIdsAsync_does_not_archive_runs_outside_current_scope'
+      - name: Verify in-memory and cache scope/cancellation behavior
+        run: >-
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj
+          --configuration Release
+          --filter 'FullyQualifiedName~Scoped_archive_by_ids|FullyQualifiedName~Scoped_archive_evicts_cached_rows'
+      - name: Verify SQL scope filtering when test SQL fixture is available
+        run: >-
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj
+          --configuration Release
+          --filter 'FullyQualifiedName~ArchiveRunsByIdsForScopeAsync_filters_foreign_rows'
+          --logger 'console;verbosity=normal'
