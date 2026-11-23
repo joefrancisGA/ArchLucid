@@ -47,8 +47,8 @@
     "goal": "Reject mixed head/oldest/ordered SHA digests, clean review loss, candidate overcount and premature rate promotion",
     "no_master_full_build_requested": true
   },
-  "state": "row12_path_split_with_review_commit_lineage_proof_attribution_guard_submitted_pending_PR_CI",
-  "next_priority": "Validate PR #7889 latest head exact Aspects source snapshot and regression suite, checking 79/203 path split and new guards against mixing actual reviewed line intervals across same-blob original or derived review commits or edit/revert source paths. If CI fails, repair only concrete failures; do not merge until required checks green. Then finish full current master 900-first-parent cross-revision source coverage and independently typed distinct discoveries before publishing a comparable rate or 600/700 SMA25.",
+  "state": "row12_original_pin_comparator_audit_attestation_added_pending_focused_CI",
+  "next_priority": "Validate focused row12 original pin comparator attestation against successful GitHub Actions run 45160219395 downloaded audit, matching all 5741 row SHA-256, three pinned Excel rows (3821 4446 4471), each reviewed commit and spans; then validate full first-parent source-line proof on exact PR head. Fix concrete CI issues without weakening security; do not promote original candidate sources as reviewed LOC. Continue independent discoveries and complete current master-base 900 unique reviewed LOC before any comparable density or 600/700 SMA25.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -873,6 +873,36 @@
         "first_parent_proven_lineage_recalculation": "not yet produced on current PR exact-head; do not reuse older cohort-wide counts as this iteration's measurement",
         "current_900_comparable_rate": null
       }
+    },
+    "row12_original_pinned_comparator_attestation": {
+      "status": "new_PR_branch_code_8_unit_tests_and_focused_CI_submitted_pending_validation",
+      "source_run_id": 45160219395,
+      "source_artifact_id": 14812729056,
+      "source_pin_audited_rows_sha256": "d890f8beecab68473e25bdb6c765c2a6baf5628435a4c5e87687e513a06ef432",
+      "original_historical_review_rows": 5741,
+      "original_pinned_three_review_excel_rows": [
+        3821,
+        4446,
+        4471
+      ],
+      "original_pin_review_line_occurrences_from_old_artifact": 74,
+      "unique_exact_path_blob_pinned_lines_in_these_reviews": 74,
+      "original_pinned_review_commits": 2,
+      "implementation": "scripts/aspects_attest_row12_original_pins.py",
+      "tests": "scripts/tests/test_aspects_attest_row12_original_pins.py (8 regression cases)",
+      "workflow": ".github/workflows/aspects-row12-first-parent.yml",
+      "artifact": "artifacts/aspects/row12-original-pin-provenance-attestation.json",
+      "input_source": "GitHub Actions successful artifact ZIP downloaded at runtime using GH_TOKEN actions:read; compare complete audited source rows and SHA-256 to hardcoded original-pin comparator golden before running lineage",
+      "new_measurement_produced_this_run": false,
+      "new_independently_verified_reviewed_loc_this_run": 0,
+      "new_new_or_repeated_reviewed_loc_this_run": [
+        0,
+        0
+      ],
+      "newly_reconciled_distinct_discoveries_this_run": 0,
+      "fresh_comparable_rate": null,
+      "full_master_build_dispatched": false,
+      "RC49_pr7702_untouched": true
     }
   },
   "latest_restoration_run": {
