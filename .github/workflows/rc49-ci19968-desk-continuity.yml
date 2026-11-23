@@ -1,0 +1,47 @@
+# Focused RC49 repeatable navigation checks; does not start comprehensive CI.
+name: RC49 desk continuity regression
+
+on:
+  pull_request:
+    branches: [RC49]
+    paths:
+      - "archlucid-ui/src/lib/global-search-desk-architecture-id.test.ts"
+      - "archlucid-ui/src/lib/graph-finding-deep-links.test.ts"
+      - "archlucid-ui/src/lib/operator-scoped-run-review-href.test.ts"
+      - "archlucid-ui/src/lib/showcase-operator-review-href.test.ts"
+      - "archlucid-ui/src/lib/architecture/review-url-state-pathname.test.ts"
+      - "archlucid-ui/src/lib/governance-scoped-review-open-href.test.ts"
+      - "archlucid-ui/src/components/governance/GovernanceBypassAuditPanel.test.tsx"
+      - ".github/workflows/rc49-ci19968-desk-continuity.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  desk-continuity:
+    name: "RC49: navigation cache regression"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+      - name: Retest precise RC49 #19968 desk-continuity failures
+        working-directory: archlucid-ui
+        env:
+          CI: "true"
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          npm ci
+          npm run test:vitest-single-worker -- \
+            'src/lib/global-search-desk-architecture-id.test.ts' \
+            'src/lib/graph-finding-deep-links.test.ts' \
+            'src/lib/operator-scoped-run-review-href.test.ts' \
+            'src/lib/showcase-operator-review-href.test.ts' \
+            'src/lib/architecture/review-url-state-pathname.test.ts' \
+            'src/lib/governance-scoped-review-open-href.test.ts' \
+            'src/components/governance/GovernanceBypassAuditPanel.test.tsx'
+          npm run typecheck
