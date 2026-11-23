@@ -4206,6 +4206,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `createPostAuthWorkspace`, `acceptPostAuthInvitation`, `selectPostAuthWorkspace`, and `initiatePostAuthAccessRequest` returned a failure result on HTTP errors, but a rejected `fetch` threw. `PostAuthBootstrapClient` awaits those helpers with no catch, so a dropped connection left the button pending and skipped the failure copy. `fetchBootstrapMutation` now returns null, and each helper maps that to the same failure as a non-OK response. Regressions `returns generic failure when workspace creation fetch rejects`, `returns null when invitation accept fetch rejects`, `returns null when workspace select fetch rejects`, and `returns false when access-request fetch rejects` failed first (promise rejected `TypeError: Failed to fetch`), then the file passed 21/21. Private beta: a dropped connection while creating a workspace, accepting an invitation, selecting a workspace, or requesting access now shows the existing failure copy and releases the button, instead of leaving the bootstrap page stuck pending.
+
+- [x] (proven) `fetchBootstrapMutation` — rejected bootstrap fetch throws and the page stays pending — **proven 2026-11-23 seed hunt:** `TypeError: Failed to fetch` rejected the four helpers; a rejected fetch now returns the same failure as a non-OK response.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `isBffSessionIdleExpired` treated a future `la` as recent activity, so `now - la` never reached the idle window and the proxy kept the HttpOnly session. Clamping `la` to the check time would restart that window on every request. A future `la` is now idle-expired. The shared reader had the same restart: returning `Date.now()` while storage stayed in 2099. It now returns `now - SESSION_IDLE_WORKING_TIMEOUT_MS`. Regression `expires a Guided session one idle window after a future last-activity instant` failed first (received false), then both idle files passed 8/8. Private beta: a future activity stamp on the HttpOnly session or the shared idle clock now ends the session instead of keeping an invited operator signed in.
 
 - [x] (proven) `isBffSessionIdleExpired` — future `la` never reaches the idle window — **proven 2026-11-23 seed hunt:** `la` of `2099-01-01` stayed unexpired; a future stamp now returns expired, and `readSharedSessionLastActivityAtMs` no longer restarts the window by returning now.
@@ -4661,8 +4665,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 7
-- **bugs-found:** 6
+- **hunts:** 8
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
