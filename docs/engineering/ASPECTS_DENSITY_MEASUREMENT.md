@@ -72,6 +72,37 @@ deduplicating cross-revision content lineage. Until then it is explicitly
 **historical, not a current verified metric**.
 
 
+## Important: recorded historical review LOC is NOT just the newer 2,528-line ledger
+
+The successful original historical-900 Git source-pin audit (Actions run
+45160219395, artifact 14812729056, source audit SHA-256
+6bd330eb81fa105ee2b48deb32be2b77885daa5d3a629fa54e1472ac975dd3c1)
+verified exact source at 4,514 of 5,741 historical review records:
+**238,239 source-line occurrences**, **6,020 repeated exact path/blob lines**,
+and **232,219 unique exact path/blob source identities** at the original
+900-first-parent historical head 15ac3b9abeff23e4fa8cb7a16027bf9b17211251.
+The immutable census, linked to its source artifact, is in
+docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-original-900-source-pin-coverage.json.
+
+The **2,528-line, 45-defect** successful source ledger measurement is a
+*separate narrow follow-on review population*, measured at its own old PR
+synthetic merge head 48689d5dde62a2c08097ef9733609773ffeacec1;
+**17.800633 defects/KLOC applies only to those 2,528 lines**, NEVER to the
+232,219 historically pinned lines. The 232,219 pinned source identities prove
+source/blob/span integrity, not all the original review events, not full
+cross-revision deduplication, and not a distinct-defect numerator; therefore
+do not calculate a rate by dividing the ledger's 45 defects or the workbook's
+463 by 232,219. The historical workbook's last **343,492** reported unique
+reviewed LOC and rate **1.347921 defects/KLOC** remain separately labeled
+partial workbook accounting; also do not splice them into a new verified rate.
+
+Every Aspects report MUST prominently display the original historical
+**232,219 Git-pinned candidate source lines** and its exact original cohort
+and provenance, not merely the small incremental ledger. A new run can
+accurately report the incremental source-verified density without implying it
+represents all prior code-review work. This reporting correction adds no
+independently verified new review LOC or confirmed distinct defects.
+
 ## Single consolidated update (historical, provisional and current)
 
 Run the consolidated command. It validates three distinct populations before
