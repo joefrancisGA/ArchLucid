@@ -1,4 +1,10 @@
-import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+import { resolveInfraEvidenceDiagramOutlineResourceName } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-outline-resource-name";
+import type {
+  InfraEvidenceMermaidOutline,
+  InfraEvidenceMermaidOutlineNode,
+} from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+
+const FLOWCHART_DOM_NODE_ID = /^flowchart-(.+)-\d+$/u;
 
 export type DiagramClickFocusPoint = {
   readonly x: number;
@@ -130,6 +136,102 @@ function containsPoint(rect: DiagramClickFocusRect, point: DiagramClickFocusPoin
     && point.x <= rect.x + rect.width
     && point.y >= rect.y
     && point.y <= rect.y + rect.height;
+}
+
+export function resolveInventoryDiagramClickFocusId(
+  domNodeId: string,
+  titleText: string,
+  outline: InfraEvidenceMermaidOutline | null | undefined,
+): string {
+  const trimmedDomId = domNodeId.trim();
+
+  if (outline == null) {
+    return trimmedDomId;
+  }
+
+  const domSlug = readMermaidFlowchartDomNodeSlug(trimmedDomId);
+  const titleTokens = readDiagramNodeTitleFocusTokens(titleText);
+
+  if (titleTokens.length === 0 && domSlug.trim().length === 0) {
+    return trimmedDomId;
+  }
+
+  for (const node of outline.nodes) {
+    if (outlineNodeMatchesDomFocus(node, domSlug, titleTokens)) {
+      return node.id;
+    }
+  }
+
+  return trimmedDomId;
+}
+
+function readMermaidFlowchartDomNodeSlug(domNodeId: string): string {
+  const match = FLOWCHART_DOM_NODE_ID.exec(domNodeId.trim());
+
+  if (match !== null) {
+    return match[1];
+  }
+
+  return domNodeId.trim();
+}
+
+function readDiagramNodeTitleFocusTokens(titleText: string): readonly string[] {
+  const trimmed = titleText.trim();
+  const tokens = new Set<string>();
+
+  const pushToken = (value: string): void => {
+    const normalized = normalizeDiagramFocusToken(value);
+
+    if (normalized.length > 0) {
+      tokens.add(normalized);
+    }
+  };
+
+  if (trimmed.length > 0) {
+    pushToken(trimmed);
+  }
+
+  const primarySegment = trimmed.split(" · ", 1)[0]?.trim() ?? "";
+
+  if (primarySegment.length > 0) {
+    pushToken(primarySegment);
+
+    const withoutTypeSuffix = primarySegment.replace(/\s\([^)]+\)\s*$/u, "").trim();
+
+    if (withoutTypeSuffix.length > 0) {
+      pushToken(withoutTypeSuffix);
+    }
+  }
+
+  return [...tokens];
+}
+
+function outlineNodeFocusTokens(node: InfraEvidenceMermaidOutlineNode): readonly string[] {
+  const values = [
+    node.id,
+    node.label,
+    node.seedNodeId ?? "",
+    resolveInfraEvidenceDiagramOutlineResourceName(node),
+  ];
+
+  return values
+    .map((value) => normalizeDiagramFocusToken(value))
+    .filter((token) => token.length > 0);
+}
+
+function outlineNodeMatchesDomFocus(
+  node: InfraEvidenceMermaidOutlineNode,
+  domSlug: string,
+  titleTokens: readonly string[],
+): boolean {
+  const nodeTokens = outlineNodeFocusTokens(node);
+  const normalizedDomSlug = normalizeDiagramFocusToken(domSlug);
+
+  if (normalizedDomSlug.length > 0 && nodeTokens.includes(normalizedDomSlug)) {
+    return true;
+  }
+
+  return titleTokens.some((token) => nodeTokens.includes(token));
 }
 
 export function normalizeDiagramFocusToken(value: string): string {

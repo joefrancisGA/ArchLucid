@@ -127,8 +127,9 @@ public sealed class SecureNowInvestigationEffortInputService(
         normalized = null;
         errorMessage = null;
 
-        if (!TryReadPositive(request.BaselineHours, "Baseline hours", out string baselineHours, out decimal baseline, out errorMessage)
-            || !TryReadPositive(request.AfterHours, "After-product hours", out string afterHours, out decimal after, out errorMessage)
+        // Hour fields use min 0. Zero after-product hours is a full reduction, not a blank input.
+        if (!TryReadNonNegative(request.BaselineHours, "Baseline hours", out string baselineHours, out decimal baseline, out errorMessage)
+            || !TryReadNonNegative(request.AfterHours, "After-product hours", out string afterHours, out decimal after, out errorMessage)
             || !TryReadPositive(request.AnnualInvestigations, "Annual investigations", out string annualInvestigations, out decimal annual, out errorMessage)
             || !TryReadPositive(request.HourlyRate, "Hourly rate", out string hourlyRate, out decimal rate, out errorMessage)
             || !TryReadPositive(request.AnnualCost, "Annual cost", out string annualCost, out decimal cost, out errorMessage))
@@ -153,6 +154,35 @@ public sealed class SecureNowInvestigationEffortInputService(
         return true;
     }
 
+    // HTML number inputs submit exponent form such as 1e2. The page calculator accepts that form.
+    private const NumberStyles EffortNumberStyle = NumberStyles.Number | NumberStyles.AllowExponent;
+
+    private static bool TryReadNonNegative(
+        string? raw,
+        string label,
+        out string stored,
+        out decimal value,
+        out string? errorMessage)
+    {
+        stored = raw?.Trim() ?? string.Empty;
+        value = 0m;
+        errorMessage = null;
+
+        if (stored.Length == 0 || stored.Length > 32)
+        {
+            errorMessage = $"{label} must be zero or greater.";
+            return false;
+        }
+
+        if (!decimal.TryParse(stored, EffortNumberStyle, CultureInfo.InvariantCulture, out value) || value < 0m)
+        {
+            errorMessage = $"{label} must be zero or greater.";
+            return false;
+        }
+
+        return true;
+    }
+
     private static bool TryReadPositive(
         string? raw,
         string label,
@@ -170,7 +200,7 @@ public sealed class SecureNowInvestigationEffortInputService(
             return false;
         }
 
-        if (!decimal.TryParse(stored, NumberStyles.Number, CultureInfo.InvariantCulture, out value) || value <= 0m)
+        if (!decimal.TryParse(stored, EffortNumberStyle, CultureInfo.InvariantCulture, out value) || value <= 0m)
         {
             errorMessage = $"{label} must be a positive number.";
             return false;

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { InvitationAuthSecondaryExitActions } from "@/app/(operator)/auth/invite/InvitationAuthSecondaryExitActions";
@@ -10,7 +10,7 @@ import {
 } from "@/lib/auth/invitation-auth-secondary-exit-copy";
 
 const clearInvitationToken = vi.fn();
-const clearOidcSession = vi.fn();
+const endOidcBrowserSession = vi.fn(async () => true);
 const signOutAndRedirectHome = vi.fn();
 
 vi.mock("@/lib/auth/email-otp-session", () => ({
@@ -18,14 +18,15 @@ vi.mock("@/lib/auth/email-otp-session", () => ({
 }));
 
 vi.mock("@/lib/oidc/session", () => ({
-  clearOidcSession: (...args: unknown[]) => clearOidcSession(...args),
+  endOidcBrowserSession: (...args: unknown[]) => endOidcBrowserSession(...args),
   signOutAndRedirectHome: (...args: unknown[]) => signOutAndRedirectHome(...args),
 }));
 
 describe("InvitationAuthSecondaryExitActions (TB-1476)", () => {
   beforeEach(() => {
     clearInvitationToken.mockReset();
-    clearOidcSession.mockReset();
+    endOidcBrowserSession.mockReset();
+    endOidcBrowserSession.mockResolvedValue(true);
     signOutAndRedirectHome.mockReset();
   });
 
@@ -55,7 +56,7 @@ describe("InvitationAuthSecondaryExitActions (TB-1476)", () => {
     expect(screen.getByTestId("invitation-secondary-public-exit")).toBeInTheDocument();
   });
 
-  it("clears OIDC session before sign-in again", () => {
+  it("clears OIDC session before sign-in again", async () => {
     const assign = vi.fn();
     Object.defineProperty(window, "location", {
       configurable: true,
@@ -64,9 +65,11 @@ describe("InvitationAuthSecondaryExitActions (TB-1476)", () => {
 
     render(<InvitationAuthSecondaryExitActions />);
 
-    fireEvent.click(screen.getByTestId("invitation-secondary-sign-in-again"));
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("invitation-secondary-sign-in-again"));
+    });
 
-    expect(clearOidcSession).toHaveBeenCalledTimes(1);
+    expect(endOidcBrowserSession).toHaveBeenCalledTimes(1);
     expect(assign).toHaveBeenCalledWith("/auth/signin");
   });
 

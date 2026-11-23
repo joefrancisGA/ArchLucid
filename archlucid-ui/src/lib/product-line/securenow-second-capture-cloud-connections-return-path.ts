@@ -1,23 +1,34 @@
-import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { infrastructureExtractUploadPathForProductLine } from "@/lib/product-line/securenow-infrastructure-routes";
 
-import { EXTRACT_UPLOAD_PATH } from "@/lib/administration/extract-upload-demo-scenario-url";
+import { canonicalSafeReturnPath } from "@/lib/navigation/safe-return-path";
 
 import { SECURENOW_SECOND_CAPTURE_CTA_HREFS } from "./securenow-second-capture-cta-copy";
 
 export const SECURENOW_RETURN_PATH_QUERY_PARAM = "securenowReturnPath" as const;
 
+function acceptedReturnPath(returnPath: string | null | undefined): string | null {
+  const trimmed = returnPath?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  // Same-origin check used by sign-in redirects. startsWith("/") still accepts //host and /\host.
+  return canonicalSafeReturnPath(trimmed);
+}
+
 function buildSecureNowSecondCaptureHrefWithReturnPath(
   basePath: string,
   returnPath: string | null | undefined,
 ): string {
-  const trimmed = returnPath?.trim() ?? "";
+  const accepted = acceptedReturnPath(returnPath);
 
-  if (trimmed.length === 0 || !trimmed.startsWith("/")) {
+  if (accepted === null) {
     return basePath;
   }
 
   const params = new URLSearchParams();
-  params.set(SECURENOW_RETURN_PATH_QUERY_PARAM, trimmed);
+  params.set(SECURENOW_RETURN_PATH_QUERY_PARAM, accepted);
 
   return `${basePath}?${params.toString()}`;
 }
@@ -30,15 +41,13 @@ export function buildSecureNowSecondCaptureCloudConnectionsHref(returnPath: stri
 }
 
 export function buildSecureNowSecondCaptureExtractUploadHref(returnPath: string | null | undefined): string {
-  return buildSecureNowSecondCaptureHrefWithReturnPath(EXTRACT_UPLOAD_PATH, returnPath);
+  // SecureNow partial-capture recovery. The administration extract-upload page is architecture-only.
+  return buildSecureNowSecondCaptureHrefWithReturnPath(
+    infrastructureExtractUploadPathForProductLine("security"),
+    returnPath,
+  );
 }
 
 export function resolveSecureNowReturnPathFromSearch(searchParams: URLSearchParams): string | null {
-  const value = searchParams.get(SECURENOW_RETURN_PATH_QUERY_PARAM)?.trim() ?? "";
-
-  if (value.length === 0 || !value.startsWith("/")) {
-    return null;
-  }
-
-  return value;
+  return acceptedReturnPath(searchParams.get(SECURENOW_RETURN_PATH_QUERY_PARAM));
 }

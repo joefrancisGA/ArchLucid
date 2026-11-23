@@ -50,4 +50,14 @@ describe("bff-session-idle (LK-07)", () => {
 
     expect(isBffSessionIdleExpired(payload, now)).toBe(false);
   });
+
+  it("expires a Guided session one idle window after a future last-activity instant", () => {
+    const now = Date.now();
+    const payload = buildPayload({
+      wm: 0,
+      la: Date.parse("2099-01-01T00:00:00.000Z"),
+    });
+
+    expect(isBffSessionIdleExpired(payload, now)).toBe(true);
+  });
 });

@@ -38,19 +38,33 @@ internal sealed class TenantIsolationNegativeTestOptions
 
     private static string? GetOptionValue(IReadOnlyList<string> args, string optionName)
     {
+        string? last = null;
+
         for (int index = 0; index < args.Count; index++)
         {
-            if (!string.Equals(args[index], optionName, StringComparison.OrdinalIgnoreCase))
-                continue;
 
-            if (index == args.Count - 1 || args[index + 1].StartsWith("--", StringComparison.Ordinal))
+            if (!string.Equals(args[index], optionName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (index == args.Count - 1)
             {
                 throw new ArgumentException($"Option '{optionName}' requires a value.", optionName);
             }
 
-            return args[index + 1];
+            // A blank token is not a value. Trimmed padding must not change which mode the command runs.
+            // The last repeated flag wins, matching the other CLI parsers, so an earlier id cannot hide the run named last.
+            string value = args[index + 1].Trim();
+
+            if (value.Length == 0 || value.StartsWith("--", StringComparison.Ordinal))
+            {
+                throw new ArgumentException($"Option '{optionName}' requires a value.", optionName);
+            }
+
+            last = value;
         }
 
-        return null;
+        return last;
     }
 }

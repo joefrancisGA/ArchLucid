@@ -36,7 +36,7 @@ import {
 } from "@/lib/cloud-connections-connect-checklist";
 import { resolveContinueLastCloudProvider } from "@/lib/resolve-continue-last-cloud-provider";
 import { isCloudProviderSummaryConfigured } from "@/app/(operator)/integrations/cloud-connections/_sections/is-cloud-provider-summary-configured";
-import { formatAzureSubscriptionSummary } from "@/lib/azure-connection-present";
+import { deriveAzureSubscriptionScopeFromConnections } from "@/lib/product-line/derive-securenow-collection-setup-input";
 
 function formatTimestamp(value: string | null | undefined): string {
   if (value === null || value === undefined || value.trim().length === 0) {
@@ -167,16 +167,9 @@ export function useCloudConnectionsPage() {
         }),
       );
 
-      const subscriptionIdsPresent = azureConnections.some(
-        (connection) => connection.subscriptionIds.trim().length > 0,
-      );
-      setAzureSubscriptionIdsPresent(subscriptionIdsPresent);
-      const firstSubscriptionIds =
-        azureConnections.find((connection) => connection.subscriptionIds.trim().length > 0)?.subscriptionIds
-        ?? "";
-      setAzureSubscriptionScopeLabel(
-        subscriptionIdsPresent ? formatAzureSubscriptionSummary(firstSubscriptionIds) : null,
-      );
+      const azureScope = deriveAzureSubscriptionScopeFromConnections(azureConnections);
+      setAzureSubscriptionIdsPresent(azureScope.azureSubscriptionIdsPresent);
+      setAzureSubscriptionScopeLabel(azureScope.azureSubscriptionScopeLabel);
       setSuccessfulPullByProvider((previous) => ({ ...previous, azure: azureIndicatesPull }));
       setProviderSummaries((previous) => ({
         ...previous,

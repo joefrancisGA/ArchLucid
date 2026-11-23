@@ -23,6 +23,11 @@ export function isBffSessionIdleExpired(
     return true;
   }
 
+  // A future la stays ahead of every later check, so the idle window never elapses.
+  if (lastActivityAtMs > nowMs) {
+    return true;
+  }
+
   const idleTimeoutMs = resolveBffSessionIdleTimeoutMs(payload);
 
   return nowMs - lastActivityAtMs >= idleTimeoutMs;

@@ -12,7 +12,9 @@ export function persistLivelihoodIdleSnapshotsBeforeErrorRecovery(): boolean {
   }
 
   try {
-    const returnPath = `${window.location.pathname}${window.location.search}`;
+    // Review tabs live in the URL hash. Error recovery used to store pathname and search only.
+    const locationHash = window.location.hash ?? "";
+    const returnPath = `${window.location.pathname}${window.location.search}${locationHash}`;
     persistIdleDeskRestoreBeforeSessionClear(returnPath);
 
     const payload = readIdleDeskRestorePayload();

@@ -358,6 +358,23 @@ export function consumeIdleDeskRestoreFormSnapshot(
   return snapshot;
 }
 
+function sameOperatorScope(left: OperatorScopeRecord, right: OperatorScopeRecord): boolean {
+  return left.tenantId === right.tenantId
+    && left.workspaceId === right.workspaceId
+    && left.projectId === right.projectId;
+}
+
+function chosenScopeReplacesIdleSnapshot(
+  currentScope: OperatorScopeRecord | null,
+  savedScope: OperatorScopeRecord | null,
+): currentScope is OperatorScopeRecord {
+  if (currentScope === null || savedScope === null) {
+    return false;
+  }
+
+  return !sameOperatorScope(currentScope, savedScope);
+}
+
 /** Restores workspace/project scope after re-auth; returns true when a payload was applied. */
 export function restoreIdleDeskScopeAfterSignIn(): boolean {
   const payload = readIdleDeskRestorePayload();
@@ -366,14 +383,19 @@ export function restoreIdleDeskScopeAfterSignIn(): boolean {
     return false;
   }
 
-  if (payload.scope !== null) {
+  const currentScope = readOperatorScopeFromStorage();
+  const keepChosenScope = chosenScopeReplacesIdleSnapshot(currentScope, payload.scope);
+
+  // Bootstrap writes the workspace from the new access token before this restore.
+  // The idle snapshot is older, so putting it back would scope later proxy calls to the previous tenant.
+  if (payload.scope !== null && !keepChosenScope) {
     writeOperatorScopeToStorage(payload.scope);
   }
 
   if (payload.formSnapshots !== undefined && Object.keys(payload.formSnapshots).length > 0) {
     writeIdleDeskRestorePayload({
       returnPath: payload.returnPath,
-      scope: payload.scope,
+      scope: keepChosenScope ? currentScope : payload.scope,
       savedAtUtc: payload.savedAtUtc,
       formSnapshots: payload.formSnapshots,
     });

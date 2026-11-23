@@ -1,4 +1,8 @@
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
+import {
+  parseSecureNowInvestigationEffortNonNegative,
+  parseSecureNowInvestigationEffortPositive,
+} from "@/lib/product-line/securenow-investigation-effort-missing-fields";
 
 export const SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_PREFIX =
   "securenow-investigation-effort-inputs:" as const;
@@ -104,33 +108,28 @@ export function secureNowInvestigationEffortInputStorageKeyForScope(
   return `${SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_PREFIX}${tenantId.trim()}:${workspaceId.trim()}:${projectId.trim()}`;
 }
 
-function positiveNumber(value: string): number | null {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-}
-
 export function isSecureNowInvestigationEffortFixtureWorksheet(
   fields: SecureNowInvestigationEffortInputFields,
 ): boolean {
-  return positiveNumber(fields.baselineHours) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_BASELINE_HOURS
-    && positiveNumber(fields.afterHours) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_AFTER_HOURS
-    && positiveNumber(fields.annualInvestigations) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_ANNUAL_INVESTIGATIONS
-    && positiveNumber(fields.hourlyRate) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_HOURLY_RATE
-    && positiveNumber(fields.annualCost) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_ANNUAL_COST;
+  return parseSecureNowInvestigationEffortPositive(fields.baselineHours) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_BASELINE_HOURS
+    && parseSecureNowInvestigationEffortPositive(fields.afterHours) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_AFTER_HOURS
+    && parseSecureNowInvestigationEffortPositive(fields.annualInvestigations) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_ANNUAL_INVESTIGATIONS
+    && parseSecureNowInvestigationEffortPositive(fields.hourlyRate) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_HOURLY_RATE
+    && parseSecureNowInvestigationEffortPositive(fields.annualCost) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_ANNUAL_COST;
 }
 
 /** Complete operator inputs eligible for both the ROI preview and audit autosave. */
 export function isSecureNowInvestigationEffortAuditCandidate(
   fields: SecureNowInvestigationEffortInputFields,
 ): boolean {
-  const baseline = positiveNumber(fields.baselineHours);
-  const after = positiveNumber(fields.afterHours);
+  const baseline = parseSecureNowInvestigationEffortNonNegative(fields.baselineHours);
+  const after = parseSecureNowInvestigationEffortNonNegative(fields.afterHours);
 
   return baseline !== null
     && after !== null
     && after <= baseline
-    && positiveNumber(fields.annualInvestigations) !== null
-    && positiveNumber(fields.hourlyRate) !== null
-    && positiveNumber(fields.annualCost) !== null
+    && parseSecureNowInvestigationEffortPositive(fields.annualInvestigations) !== null
+    && parseSecureNowInvestigationEffortPositive(fields.hourlyRate) !== null
+    && parseSecureNowInvestigationEffortPositive(fields.annualCost) !== null
     && !isSecureNowInvestigationEffortFixtureWorksheet(fields);
 }

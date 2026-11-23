@@ -1,8 +1,5 @@
 import { readNextPublicAuthMode } from "@/lib/legacy-arch-env";
-import {
-  normalizeOidcConfigurationString,
-  normalizeOidcOAuthFormString,
-} from "@/lib/oidc/oauth-callback-messages";
+import { normalizeOidcOAuthFormString } from "@/lib/oidc/oauth-callback-messages";
 
 /**
  * Public OIDC settings (Entra ID / any OIDC provider with PKCE + SPA CORS on the token endpoint).
@@ -22,7 +19,7 @@ export function getOidcAuthority(): string {
     return "";
   }
 
-  return normalizeOidcConfigurationString(authority);
+  return normalizeOidcOAuthFormString(authority);
 }
 
 export function getOidcClientId(): string {
@@ -95,7 +92,7 @@ export function getGoogleOidcAuthority(): string {
     return "";
   }
 
-  return normalizeOidcConfigurationString(authority);
+  return normalizeOidcOAuthFormString(authority);
 }
 
 export function getGoogleOidcClientId(): string {

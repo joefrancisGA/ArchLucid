@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH, SECURENOW_AUDIT_EVIDENCE_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   SECURENOW_FINDINGS_PATH,
   SECURENOW_POLICY_PACKS_PATH,
   SECURENOW_STANDARDS_AND_RULES_PATH,
@@ -111,6 +113,18 @@ describe("securenow-compliance-routes", () => {
     expect(findingsQueuePathFromPathname(SECURENOW_FINDINGS_PATH, "architecture")).toBe(GOVERNANCE_FINDINGS_PATH);
     expect(findingsQueuePathFromPathname(`${SECURENOW_FINDINGS_PATH}?facet=x`, "security")).toBe(
       `${SECURENOW_FINDINGS_PATH}?facet=x`,
+    );
+  });
+
+  it("remaps assigned-to-me between the governance and SecureNow queues", () => {
+    expect(
+      findingsQueuePathFromPathname(`${GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH}?q=phi`, "security"),
+    ).toBe(`${SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH}?q=phi`);
+    expect(
+      findingsQueuePathFromPathname(`${SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH}?q=phi`, "architecture"),
+    ).toBe(`${GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH}?q=phi`);
+    expect(findingsQueuePathFromPathname(SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH, "security")).toBe(
+      SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
     );
   });
 });

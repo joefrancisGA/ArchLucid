@@ -49,4 +49,24 @@ describe("applySecureNowQuestionSubjectHighlight", () => {
 
     expect(applySecureNowQuestionSubjectHighlight(svg, "missing-subject")).toBe(false);
   });
+
+  it("highlights only the api node when apigateway is also on the plate", () => {
+    const svg = parseSvg(`
+      <svg xmlns="http://www.w3.org/2000/svg">
+        <g class="node" id="flowchart-api-0">
+          <title>api</title>
+          <rect x="0" y="0" width="10" height="10" />
+        </g>
+        <g class="node" id="flowchart-apigateway-1">
+          <title>API Gateway</title>
+          <rect x="20" y="0" width="10" height="10" />
+        </g>
+      </svg>
+    `);
+
+    applySecureNowQuestionSubjectHighlight(svg, "api");
+
+    expect(svg.querySelector("#flowchart-api-0")?.getAttribute("data-securenow-question-subject")).toBe("true");
+    expect(svg.querySelector("#flowchart-apigateway-1")?.getAttribute("data-securenow-question-subject")).toBeNull();
+  });
 });
