@@ -59,6 +59,7 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
     # included the line, not at the earliest occurrence of that blob.
     original_review_anchors: dict[tuple[int, str, str], set[int]] = defaultdict(set)
     first_derived: dict[tuple[str, str], int] = {}
+    first_derived_reviewed_lines: dict[tuple[str, str], set[int]] = {}
     # An artifact digest detects cross-run changes, but cannot authenticate the
     # blob chosen by a candidate. Recheck every in-window derived source
     # against the tree of its own *reported review commit* before comparison.
@@ -106,7 +107,15 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 derived_components_attested += 1
                 derived_nonblank_occurrences_attested += len(selected)
                 derived[key].update(selected)
-                first_derived[key] = min(first_derived.get(key, order[sha]), order[sha])
+                # The earliest candidate review of a path/blob may have
+                # selected only a subset of its lines. Do not attach later
+                # source spans to an earlier review event on a matching blob.
+                candidate_order = order[sha]
+                if key not in first_derived or candidate_order < first_derived[key]:
+                    first_derived[key] = candidate_order
+                    first_derived_reviewed_lines[key] = set(selected)
+                elif candidate_order == first_derived[key]:
+                    first_derived_reviewed_lines[key].update(selected)
     except (KeyError, TypeError, ValueError) as exc:
         result["blocking_reason"] = f"Malformed source identity: {exc}"
         return result
@@ -147,7 +156,9 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
     # Compare at most the two closest original-pinned blob identities to each
     # derived candidate. Transitive historical source lineage is NOT asserted.
     for (path, candidate_blob), selected in sorted(only.items()):
-        if not selected or not path_sources.get(path):
+        anchor_reviewed = selected & first_derived_reviewed_lines[
+            (path, candidate_blob)]
+        if not anchor_reviewed or not path_sources.get(path):
             continue
         neighbors = sorted(path_sources[path],
                            key=lambda p: (abs(p[0] - first_derived[(path, candidate_blob)]),
@@ -180,7 +191,7 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 pairs = ((b, a) for a, b in line_map.items())
             comparable_pairs = []
             for candidate_line, original_line in pairs:
-                if candidate_line in selected and original_line in original_lines:
+                if candidate_line in anchor_reviewed and original_line in original_lines:
                     identity = (path, candidate_blob, candidate_line)
                     matches.add(identity)
                     comparable_pairs.append((candidate_line, original_line))
@@ -307,6 +318,11 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
         "first_parent_commits": length,
         "candidate_exact_only_line_identities": expected_only,
         "original_source_pin_review_commit_anchors": len(original_review_anchors),
+        "candidate_only_exact_lines_selected_at_first_candidate_commit": sum(
+            len(only[key] & first_derived_reviewed_lines[key]) for key in only),
+        "candidate_only_exact_lines_selected_only_at_later_candidate_commits": (
+            expected_only - sum(
+                len(only[key] & first_derived_reviewed_lines[key]) for key in only)),
         "derived_git_tree_source_components_attested": derived_components_attested,
         "derived_git_tree_nonblank_occurrences_attested": derived_nonblank_occurrences_attested,
         "bounded_unique_prefix_suffix_revision_pairs_examined": bounded_pair_count,
