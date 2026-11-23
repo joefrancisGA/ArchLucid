@@ -152,6 +152,58 @@ public sealed class CachingRunRepositoryArchiveInvalidationTests
         result.Should().BeSameAs(committed);
     }
 
+    [Fact]
+    public async Task Scoped_archive_evicts_cached_rows_after_caller_cancels()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+        };
+        RunRecord run = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+        };
+        Guid[] ids = [run.RunId];
+        RunArchiveByIdsResult committed = new()
+        {
+            SucceededRunIds = ids,
+            ArchivedRuns = [new ArchivedRunScopeRow
+            {
+                RunId = run.RunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
+            }]
+        };
+
+        using CancellationTokenSource caller = new();
+        bool archived = false;
+        Mock<IRunRepository> inner = new();
+        inner.Setup(r => r.GetByIdAsync(scope, run.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => archived ? null : run);
+        inner.Setup(r => r.ArchiveRunsByIdsForScopeAsync(scope, ids, caller.Token))
+            .Returns(() =>
+            {
+                archived = true;
+                caller.Cancel();
+                return Task.FromResult(committed);
+            });
+        CachingRunRepository repo = new(inner.Object,
+            HybridHotPathCacheTestFactory.Create(new HotPathCacheOptions()));
+
+        (await repo.GetByIdAsync(scope, run.RunId, CancellationToken.None)).Should().NotBeNull();
+        RunArchiveByIdsResult result = await repo.ArchiveRunsByIdsForScopeAsync(
+            scope, ids, caller.Token);
+
+        result.Should().BeSameAs(committed);
+        (await repo.GetByIdAsync(scope, run.RunId, CancellationToken.None)).Should().BeNull();
+        inner.Verify(r => r.ArchiveRunsByIdsAsync(
+            It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
