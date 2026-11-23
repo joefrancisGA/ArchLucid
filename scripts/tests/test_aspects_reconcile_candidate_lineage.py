@@ -214,5 +214,63 @@ class LongFirstParentLineageTests(unittest.TestCase):
         self.assertEqual(edges, 40)
 
 
+
+class SparseGitFirstParentLineageTests(unittest.TestCase):
+    """Sparse path history must see edits-and-reverts beyond the old 128 cap."""
+
+    def test_130_edge_gap_uses_real_git_change_index_and_detects_reversion(self):
+        from aspects_verify_first_parent_lineage import (
+            git_verified_changed_first_parent_orders, trace_unique_first_parent_lines)
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            git(repo, "init", "-q")
+            git(repo, "config", "user.email", "test@example.invalid")
+            git(repo, "config", "user.name", "Test")
+            shas = []
+            blobs = {}
+            for i in range(131):
+                if i == 0:
+                    source = "unique\\nstable\\n"
+                elif i == 40:
+                    source = "mutated\\nstable\\n"
+                elif i == 41:
+                    source = "unique\\nstable\\n"
+                elif i == 100:
+                    source = "unique\\nstable\\nnew\\n"
+                (repo / "a.cs").write_text(source, encoding="utf-8")
+                git(repo, "add", "a.cs")
+                git(repo, "commit", "--allow-empty", "-qm", f"commit {i}")
+                sha = git(repo, "rev-parse", "HEAD")
+                shas.append(sha)
+                blobs[sha] = git(repo, "rev-parse", "HEAD:a.cs")
+            changed, error = git_verified_changed_first_parent_orders(
+                repo, shas, "a.cs", 0, 130)
+            self.assertIsNone(error)
+            self.assertEqual(changed, {40, 41, 100})
+            tree_blob = lambda sha, path: blobs[sha] if path == "a.cs" else None
+            source_lines = lambda blob: git(repo, "show", blob).splitlines()
+            dense, dense_error, _ = trace_unique_first_parent_lines(
+                shas, "a.cs", blobs[shas[0]], 0, blobs[shas[-1]], 130,
+                {1, 2}, tree_blob, source_lines)
+            self.assertEqual(dense, {})
+            self.assertEqual(dense_error, "distance_cap")
+            traced, reason, edges = trace_unique_first_parent_lines(
+                shas, "a.cs", blobs[shas[0]], 0, blobs[shas[-1]], 130,
+                {1, 2}, tree_blob, source_lines, changed_orders=changed)
+            self.assertIsNone(reason)
+            self.assertEqual(edges, 130)
+            self.assertEqual(traced, {2: 2})
+            # A missing path is never accepted as an invented empty history.
+            missing, missing_error = git_verified_changed_first_parent_orders(
+                repo, shas, "does-not-exist.cs", 0, 130)
+            self.assertIsNone(missing_error)
+            self.assertEqual(missing, set())
+            self.assertEqual(
+                trace_unique_first_parent_lines(
+                    shas, "does-not-exist.cs", blobs[shas[0]], 0,
+                    blobs[shas[-1]], 130, {1}, tree_blob, source_lines,
+                    changed_orders=missing)[1],
+                "review_commit_tree_mismatch")
+
 if __name__ == "__main__":
     unittest.main()

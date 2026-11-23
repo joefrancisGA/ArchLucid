@@ -15,7 +15,8 @@ from pathlib import Path
 
 from aspects_reconcile_recovered_candidates import reconcile as reconcile_exact, intervals
 from aspects_reconcile_historical_lineage import blob_lines, unique_unchanged_pairs
-from aspects_verify_first_parent_lineage import trace_unique_first_parent_lines
+from aspects_verify_first_parent_lineage import (trace_unique_first_parent_lines,
+                                                git_verified_changed_first_parent_orders)
 from aspects_validate_historical_pins import git, VERIFIED
 
 
@@ -121,6 +122,9 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
     first_parent_proven_matches = set()
     first_parent_edges_checked = first_parent_pairs_checked = first_parent_pairs_skipped = 0
     first_parent_skip_reasons = defaultdict(int)
+    first_parent_changed_edges_checked = 0
+    first_parent_unchanged_edges_attested_by_git_history = 0
+    path_history_cache = {}
     compared = skipped = 0
     skipped_reasons = defaultdict(int)
     def tree_blob_at_commit(commit_sha: str, path: str) -> str | None:
@@ -169,17 +173,32 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                     if abs(first_derived[(path, candidate_blob)] - original_order) == 1:
                         adjacent_matches.add(identity)
             if comparable_pairs:
+                candidate_order = first_derived[(path, candidate_blob)]
+                path_history_key = (path, min(candidate_order, original_order),
+                                    max(candidate_order, original_order))
+                if path_history_key not in path_history_cache:
+                    path_history_cache[path_history_key] = git_verified_changed_first_parent_orders(
+                        repo, chronological_commits, path, candidate_order, original_order)
+                changed_orders, history_error = path_history_cache[path_history_key]
+                if history_error is not None:
+                    first_parent_pairs_skipped += 1
+                    first_parent_skip_reasons[history_error] += 1
+                    continue
                 traced, reason, edge_count = trace_unique_first_parent_lines(
                     chronological_commits, path, candidate_blob,
-                    first_derived[(path, candidate_blob)], original_blob,
+                    candidate_order, original_blob,
                     original_order, {a for a, _ in comparable_pairs},
-                    tree_blob_at_commit, source_lines, max_blob_lines=max_blob_lines)
+                    tree_blob_at_commit, source_lines, max_blob_lines=max_blob_lines,
+                    changed_orders=changed_orders)
                 if reason is not None:
                     first_parent_pairs_skipped += 1
                     first_parent_skip_reasons[reason] += 1
                 else:
                     first_parent_pairs_checked += 1
                     first_parent_edges_checked += edge_count
+                    first_parent_changed_edges_checked += len(changed_orders)
+                    first_parent_unchanged_edges_attested_by_git_history += (
+                        edge_count - len(changed_orders))
                     for candidate_line, original_line in comparable_pairs:
                         if traced.get(candidate_line) == original_line:
                             first_parent_proven_matches.add((path, candidate_blob, candidate_line))
@@ -200,6 +219,12 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
         "first_parent_lineage_revision_pairs_checked": first_parent_pairs_checked,
         "first_parent_lineage_revision_pairs_skipped": first_parent_pairs_skipped,
         "first_parent_lineage_intermediate_edges_checked": first_parent_edges_checked,
+        "first_parent_changed_path_edges_tree_verified": first_parent_changed_edges_checked,
+        "first_parent_unchanged_path_edges_git_history_attested":
+            first_parent_unchanged_edges_attested_by_git_history,
+        "first_parent_path_history_index": (
+            "git_log_first_parent_full_history_no_renames; all changed path edges "
+            "checked with exact Git tree blobs; no inferred renames"),
         "first_parent_lineage_skipped_reasons": dict(sorted(first_parent_skip_reasons.items())),
         "candidate_only_matching_unique_unchanged_text_in_nearby_original_pins": len(matches),
         "candidate_only_remaining_without_such_match": expected_only - len(matches),
@@ -209,8 +234,9 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
         "interpretation": (
             "Endpoint equal-hunk matches are provisional. Separately reported "
             "full first-parent proof requires same-path Git blob identity and unique "
-            "unchanged nonblank text through EVERY intermediate commit, subject to "
-            "strict caps. No renames or edits-and-reverts are inferred. Proven "
+            "unchanged nonblank text through EVERY first-parent path change "
+            "plus Git-attested unchanged edges, subject to strict caps. "
+            "No renames or edits-and-reverts are inferred. Proven "
             "line identity is not proof of a derived review, and changes no "
             "independently verified LOC, historical denominator or defect numerator."
         ),
