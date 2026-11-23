@@ -42,6 +42,21 @@ jobs:
               'scripts/aspects_density_snapshot.py',
               'scripts/aspects_validate_historical_corpus.py',
               'scripts/aspects_reconcile_historical_corpus.py',
+              'scripts/aspects_validate_historical_pins.py',
+              'scripts/aspects_reconcile_historical_lineage.py',
+              'scripts/aspects_reconcile_recovered_candidates.py',
+              'scripts/aspects_recover_unpinned_historical_sources.py',
+              'scripts/aspects_reconcile_historical_defect_ids.py',
+              'scripts/tests/test_aspects_validate_historical_pins.py',
+              'scripts/tests/test_aspects_reconcile_historical_lineage.py',
+              'scripts/tests/test_aspects_reconcile_recovered_candidates.py',
+              'scripts/tests/test_aspects_recover_unpinned_historical_sources.py',
+              'scripts/tests/test_aspects_reconcile_historical_defect_ids.py',
+              'scripts/tests/test_aspects_historical_multisource_checkpoint.py',
+              'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-git-pin-45074611128.json',
+              'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-github-multisource-34.json',
+              'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-900-pin-partition.json',
+              'docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-nine-merged.json',
               'scripts/tests/test_aspects_import_historical_workbook.py',
               'scripts/tests/test_aspects_density_snapshot.py',
               'scripts/tests/test_aspects_validate_historical_corpus.py',
@@ -50,7 +65,7 @@ jobs:
               '.github/workflows/aspects-density-snapshot.yml',
               '.github/workflows/aspects-evidence-gate.yml',
             ]);
-            // Only the specifically named historical review data and accounting
+            // This is an exact-path data/measurement allowlist, NOT an exception\n            // for product source. Keep every unrelated file under the source-evidence\n            // requirement, including when it is mixed into an accounting PR.\n            // Only the specifically named historical review data and accounting
             // scripts qualify. Product code remains subject to the normal source
             // evidence gate; this is not a broad bypass for arbitrary files.
             const historicalData = /^docs\/engineering\/aspects-historical\/(?:review-events\/[0-9]{4}-[0-9]{4}\.jsonl|aspects-historical-900-snapshots\.jsonl|aspects-provisional-(?:600|700)-series\.jsonl|aspects-historical-import-manifest\.json)$/;
