@@ -4206,6 +4206,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `clearOperatorSessionForExpiry` built the idle return path from `pathname` and `search` only, so `#review-summary` never reached `buildSessionExpiredHref`. `SessionIdleTimeoutGuard` calls that default. `isSafeReturnPath` accepts the hash. Regression `keeps the review-tab hash on the session-expired return path` failed first (return path stopped at `run-1`), then the file passed 2/2. Private beta: after an idle timeout on a review tab, sign-in returns the operator to that tab instead of the review with the hash dropped.
+
+- [x] (proven) `clearOperatorSessionForExpiry` — idle return path omits `location.hash` — **proven 2026-11-23 seed hunt:** default path was `/architecture/reviews/run-1` when the location hash was `#review-summary`; the return path now appends `window.location.hash`.
+
 2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). A sandbox GET of `v1/architecture/telemetry/roi` returned the mock before `appendProxyBffSlideCookieHeaders`, so a live BFF cookie did not receive a new `Set-Cookie` and the HttpOnly idle clock stayed put. Fix appends the guard slide headers on that early return. Regression `slides the HttpOnly session cookie when a sandbox GET returns before upstream fetch` failed first (no session cookie), then passed. Cheap-disproof: DELETE body is **valid-no-repro** (`forwards DELETE without body`; no in-zone caller sends a DELETE body); whitespace JSON is **valid-no-repro** (`text.trim().length === 0` is the blank-document branch, and three spaces are the same class); Idempotency CR is **valid-no-repro** (Fetch `Headers.set` rejects CR/LF, so that value cannot arrive on `request.headers` and then 500 the route). Private beta: with sandbox mocks on, browsing a mocked operator page now refreshes the HttpOnly idle cookie, so the operator is not signed out while that page is still in use.
 
 - [x] (proven) `forward` — sandbox GET returned the mock before `appendProxyBffSlideCookieHeaders` — **proven 2026-11-23 thorough hunt:** `slides the HttpOnly session cookie when a sandbox GET returns before upstream fetch` failed, then `appendProxyBffSlideCookieHeaders` runs on the sandbox return.
@@ -4645,8 +4649,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

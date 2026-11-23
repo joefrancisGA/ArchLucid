@@ -16,7 +16,10 @@ export function clearOperatorSessionForExpiry(
   router: AppRouterInstance,
   options?: ClearOperatorSessionForExpiryOptions,
 ): void {
-  const returnPath = options?.returnPath ?? `${window.location.pathname}${window.location.search}`;
+  // Review tabs live in the URL hash. Pathname and search alone drop that tab after idle expiry.
+  const locationHash = window.location.hash ?? "";
+  const returnPath =
+    options?.returnPath ?? `${window.location.pathname}${window.location.search}${locationHash}`;
 
   sessionStorage.setItem(SESSION_CLEARED_AT_STORAGE_KEY, new Date().toISOString());
   persistIdleDeskRestoreBeforeSessionClear(returnPath);
