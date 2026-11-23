@@ -32,6 +32,7 @@ import {
 } from "@/lib/governance-findings-page-copy";
 
 /** Mutable query string so tests can put the page in review scope (`?runId=`) without re-mocking the module. */
+const assignedCountEndpoint = vi.hoisted(() => vi.fn());
 const searchParamsState = vi.hoisted(() => ({ query: "" }));
 const routerReplaceMock = vi.hoisted(() => vi.fn());
 const searchParamsListeners = vi.hoisted(() => new Set<() => void>());
@@ -138,6 +139,11 @@ const governanceStickinessApiMocks = vi.hoisted(() => ({
     decisionRegister: await governanceStickinessApiMocks.getArchitectureDecisionRegister(),
   })),
 }));
+
+vi.mock("@/lib/api/governance-stickiness-api-registers", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/api/governance-stickiness-api-registers")>();
+  return { ...actual, getGovernanceAssignedToMeFindingsCount: () => assignedCountEndpoint() };
+});
 
 vi.mock("@/lib/api/governance-stickiness-api", () => governanceStickinessApiMocks);
 
@@ -467,6 +473,8 @@ describe("GovernanceFindingsQueueClient", () => {
 
 describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
   beforeEach(() => {
+    assignedCountEndpoint.mockReset();
+    assignedCountEndpoint.mockResolvedValue({ count: 0 });
     evalChromeMock.enabled = false;
     // Without this reset the cached success from the previous describe block satisfies the render,
     // so a rejecting mock never reaches the component.
@@ -583,13 +591,16 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
   });
 
   it("shows assigned queue status and header refresh while populated", async () => {
+    assignedCountEndpoint.mockResolvedValue({ count: 1 });
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
 
     renderGovernanceFindingsQueue("assigned-to-me");
 
-    expect(await screen.findByTestId("governance-assigned-to-me-queue-status")).toHaveTextContent(
-      "1 open finding assigned",
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId("governance-assigned-to-me-queue-status")).toHaveTextContent(
+        "1 open finding assigned",
+      );
+    });
     expect(screen.getByTestId("governance-assigned-to-me-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("governance-assigned-to-me-last-checked")).toBeInTheDocument();
   });

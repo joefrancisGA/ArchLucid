@@ -63,9 +63,13 @@ public sealed class CircuitBreakingAgentCompletionClient(
             // Snapshot after ThrowIfBroken (HalfOpen probes may transition Open → HalfOpen there).
             string stateBeforeOutcome = _gate.CurrentState;
 
-            string result = await _llmRetryPipeline.ExecuteAsync(
-                async ct => await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, ct),
-                cancellationToken);
+            // A half-open recovery probe must represent exactly one provider request.
+            // Normal retries remain enabled while the breaker is closed.
+            string result = stateBeforeOutcome.Equals("HalfOpen", StringComparison.Ordinal)
+                ? await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
+                : await _llmRetryPipeline.ExecuteAsync(
+                    async ct => await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, ct),
+                    cancellationToken);
 
             _gate.RecordSuccess();
 
@@ -109,6 +113,8 @@ public sealed class CircuitBreakingAgentCompletionClient(
             }
             else
             {
+                // Neutral errors must release a half-open recovery probe without ticking the breaker.
+                _gate.RecordCallCancelled();
                 _logger.LogWarning(ex, "LLM completion call failed with semantic-terminal error; circuit breaker not ticked.");
             }
 
@@ -123,6 +129,23 @@ public sealed class CircuitBreakingAgentCompletionClient(
         int? maxTokens = null,
         float? temperature = null,
         CancellationToken cancellationToken = default)
+    {
+        // Reserve a half-open recovery probe only when the stream is actually enumerated.
+        // An IAsyncEnumerable that is created but never consumed has no disposal callback.
+        return StreamJsonWithBreakerAsync(
+            systemPrompt,
+            userPrompt,
+            maxTokens,
+            temperature,
+            cancellationToken);
+    }
+
+    private async IAsyncEnumerable<string> StreamJsonWithBreakerAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens,
+        float? temperature,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         try
         {
@@ -141,21 +164,6 @@ public sealed class CircuitBreakingAgentCompletionClient(
             throw;
         }
 
-        return StreamJsonWithBreakerAsync(
-            systemPrompt,
-            userPrompt,
-            maxTokens,
-            temperature,
-            cancellationToken);
-    }
-
-    private async IAsyncEnumerable<string> StreamJsonWithBreakerAsync(
-        string systemPrompt,
-        string userPrompt,
-        int? maxTokens,
-        float? temperature,
-        [EnumeratorCancellation] CancellationToken cancellationToken)
-    {
         string stateBeforeOutcome = _gate.CurrentState;
         bool completed = false;
         Exception? streamFailure = null;

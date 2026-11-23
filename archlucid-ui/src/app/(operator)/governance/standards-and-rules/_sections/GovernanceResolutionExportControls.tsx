@@ -29,10 +29,13 @@ export function GovernanceResolutionExportControls(
   const compact = props.compact === true;
   const exportRows = props.exportRows ?? [];
   const canExportRules = exportRows.length > 0;
+  // Compact controls sit inside the labeled rules catalog; avoid a duplicate region landmark.
+  const Container = compact ? "div" : "section";
 
   return (
-    <section
-      aria-labelledby="governance-change-controls-heading"
+    <Container
+      role={compact ? "group" : undefined}
+      aria-labelledby={compact ? "governance-change-controls-heading-compact" : "governance-change-controls-heading"}
       className={cn(
         compact ? "mb-4" : "mb-7",
         !canMutateEnterprisePolicySurfaces &&
@@ -41,7 +44,7 @@ export function GovernanceResolutionExportControls(
       )}
     >
       <h3
-        id="governance-change-controls-heading"
+        id={compact ? "governance-change-controls-heading-compact" : "governance-change-controls-heading"}
         className={cn(compact ? "sr-only" : undefined, OPERATOR_TYPOGRAPHY.cardTitle)}
       >
         {governanceResolutionRefreshPolicySectionHeading}
@@ -101,6 +104,6 @@ export function GovernanceResolutionExportControls(
         </p>
       ) : null}
       <SponsorExportSendHonestyStrip className="mt-3 max-w-xl" testIdPrefix="governance-resolution-export" />
-    </section>
+    </Container>
   );
 }

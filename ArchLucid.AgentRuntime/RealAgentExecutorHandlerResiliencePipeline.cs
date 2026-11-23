@@ -1,6 +1,9 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Diagnostics;
 
 using Polly;
 using Polly.CircuitBreaker;
@@ -12,6 +15,51 @@ namespace ArchLucid.AgentRuntime;
 internal static class RealAgentExecutorHandlerResiliencePipeline
 {
     private static readonly ConcurrentDictionary<string, ResiliencePipeline<AgentResult>> Pipelines = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly AgentHandlerFailureBudgetObserver FailureBudget = new();
+
+    /// <summary>
+    ///     Observe a completed handler invocation against FND-018's bounded failure-budget
+    ///     contract. This does not affect the Polly pipeline or block new work.
+    ///     Only the known AgentType enum is used for metric labels (not arbitrary dispatch keys).
+    /// </summary>
+    internal static AgentHandlerFailureBudgetSnapshot ObserveOutcome(
+        string dispatchKey,
+        AgentType agentType,
+        AgentHandlerFailureBudgetOutcome outcome,
+        Activity? activity = null)
+    {
+        AgentHandlerFailureBudgetSnapshot snapshot =
+            FailureBudget.Observe(dispatchKey, outcome, TimeProvider.System.GetUtcNow());
+
+        string outcomeLabel = outcome switch
+        {
+            AgentHandlerFailureBudgetOutcome.Success => "success",
+            AgentHandlerFailureBudgetOutcome.Failure => "failure",
+            _ => "cancelled",
+        };
+
+        ArchLucidInstrumentation.AgentHandlerFailureBudgetObservationsTotal.Add(
+            1,
+            new KeyValuePair<string, object?>("agent_type", agentType.ToString()),
+            new KeyValuePair<string, object?>("outcome", outcomeLabel));
+
+        if (snapshot.NewlyExhausted)
+        {
+            ArchLucidInstrumentation.AgentHandlerFailureBudgetExhaustionsTotal.Add(
+                1,
+                new KeyValuePair<string, object?>("agent_type", agentType.ToString()));
+        }
+
+        if (snapshot.Counted)
+        {
+            activity?.SetTag("archlucid.agent.failure_budget.requests", snapshot.Requests);
+            activity?.SetTag("archlucid.agent.failure_budget.failures", snapshot.Failures);
+            activity?.SetTag("archlucid.agent.failure_budget.exhausted", snapshot.Exhausted);
+        }
+
+        // Caller cancellation is visible in metrics but never changes the window.
+        return snapshot;
+    }
 
     internal static ResiliencePipeline<AgentResult> Resolve(
         string dispatchKey,

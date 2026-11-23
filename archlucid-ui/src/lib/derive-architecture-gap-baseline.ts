@@ -119,5 +119,11 @@ export function formatParsedSubmittedArchitectureName(label: string): string {
     return trimmed;
   }
 
+  // A previously rendered/rehydrated actor label may already carry the
+  // provenance suffix. Preserve exactly one marker across repeat formatting.
+  if (trimmed.endsWith(ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX)) {
+    return trimmed;
+  }
+
   return `${trimmed}${ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX}`;
 }

@@ -32,6 +32,41 @@ public sealed class AgentRuntimePackageCoverageBatch18Tests
     }
 
     [Fact]
+    public async Task RealAgentExecutorHandlerResiliencePipeline_observation_does_not_change_handler_admission()
+    {
+        string key = "failure-budget-integration-" + Guid.NewGuid().ToString("N");
+        AgentExecutionResilienceOptions options = new()
+        {
+            HandlerCircuitBreakerFailureThreshold = 2,
+            HandlerCircuitBreakerBreakSeconds = 60,
+        };
+        var pipeline = RealAgentExecutorHandlerResiliencePipeline.Resolve(key, 0, options);
+
+        for (int i = 0; i < AgentHandlerFailureBudgetObserver.MaxFailures; i++)
+        {
+            AgentHandlerFailureBudgetSnapshot observation =
+                RealAgentExecutorHandlerResiliencePipeline.ObserveOutcome(
+                    key, AgentType.Topology, AgentHandlerFailureBudgetOutcome.Failure);
+            if (i == AgentHandlerFailureBudgetObserver.MaxFailures - 1)
+                observation.Exhausted.Should().BeTrue();
+        }
+
+        // The failure-budget monitor has no authority over Polly's circuit state:
+        // these are observations, not five actual execution failures.
+        AgentResult expected = new();
+        AgentResult actual = await pipeline.ExecuteAsync(
+            _ => ValueTask.FromResult(expected), CancellationToken.None);
+        actual.Should().BeSameAs(expected);
+
+        AgentHandlerFailureBudgetSnapshot cancelled =
+            RealAgentExecutorHandlerResiliencePipeline.ObserveOutcome(
+                key, AgentType.Topology, AgentHandlerFailureBudgetOutcome.CallerCancelled);
+        cancelled.Counted.Should().BeFalse();
+        cancelled.Requests.Should().Be(AgentHandlerFailureBudgetObserver.MaxFailures);
+        cancelled.Failures.Should().Be(AgentHandlerFailureBudgetObserver.MaxFailures);
+    }
+
+    [Fact]
     public async Task RealAgentExecutorHandlerResiliencePipeline_Cancellation_does_not_open_circuit()
     {
         AgentExecutionResilienceOptions options = new()
