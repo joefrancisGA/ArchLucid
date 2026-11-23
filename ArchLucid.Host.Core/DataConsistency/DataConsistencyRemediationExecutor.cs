@@ -80,6 +80,9 @@ public sealed class DataConsistencyRemediationExecutor(
                         cancellationToken).ConfigureAwait(false);
                 }
 
+                // This existing UoW commits synchronously; explicitly honor
+                // cancellation before committing the audited mutation.
+                cancellationToken.ThrowIfCancellationRequested();
                 await unitOfWork.CommitAsync(cancellationToken).ConfigureAwait(false);
 
                 return new DataConsistencyRemediationResult(false, deletedIds.Count, deletedIds);
