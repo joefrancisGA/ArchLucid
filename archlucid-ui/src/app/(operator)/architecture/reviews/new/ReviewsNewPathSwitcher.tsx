@@ -3,7 +3,7 @@
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
@@ -75,6 +75,7 @@ function ReviewsNewActiveWizard(props: { readonly activePath: ReviewsNewActivePa
  */
 export function ReviewsNewPathSwitcher() {
   const pathname = usePathname() ?? "/architecture/reviews/new";
+  const router = useRouter();
   const searchParams = useSearchParams();
   const searchParamsRef = useRef(searchParams);
   searchParamsRef.current = searchParams;
@@ -225,7 +226,13 @@ export function ReviewsNewPathSwitcher() {
       params.delete("demoScenario");
     }
 
-    commitHrefIfChanged(buildReviewsNewPathHref(pathname, path, params), { notify: false });
+    const nextHref = buildReviewsNewPathHref(pathname, path, params);
+    commitHrefIfChanged(nextHref, { notify: false });
+
+    // Silent replaceState leaves the App Router on the pack URL, so the same pack link does not navigate.
+    if (path === "quick-review") {
+      router.replace(nextHref, { scroll: false });
+    }
   };
 
   return (
