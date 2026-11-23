@@ -44,7 +44,19 @@ class RemediationSqlRolePermissionsTests(unittest.TestCase):
         ):
             with self.subTest(expression=expression):
                 self.assertIn(expression, code)
-        self.assertNotIn('("dbo.RemediationInstances", "UPDATE")', code)
+        # This tuple must exist in required DML, not in the DENY list:
+        # the production repository must retain scoped-CAS UPDATE access.
+        denied = code.split("RemediationDenyPermissions =", 1)[1].split(
+            "RemediationRequiredPermissions =", 1)[0]
+        allowed = code.split("RemediationRequiredPermissions =", 1)[1].split(
+            "internal static bool ShouldValidate(", 1)[0]
+        self.assertNotIn('("dbo.RemediationInstances", "UPDATE")', denied)
+        self.assertIn('("dbo.RemediationInstances", "UPDATE")', allowed)
+        self.assertIn('("dbo.RemediationEvidence", "INSERT")', allowed)
+        self.assertIn("SqlDatabaseImmutabilityProbeHelpers.IsCurrentPrincipalRoleMember(", code)
+        helper = (ROOT / "ArchLucid.Host.Core/Startup/Validation/Rules/"
+                  "SqlDatabaseImmutabilityProbeHelpers.cs").read_text()
+        self.assertIn("IS_ROLEMEMBER(@RoleName)", helper)
 
     def test_snapshot_delete_blocks_path_refs_instead_of_blind_instance_update(self):
         code = DELETE.read_text()
