@@ -28,6 +28,8 @@ on:
       - scripts/tests/test_aspects_reconcile_recovered_candidates.py
       - scripts/aspects_reconcile_historical_lineage.py
       - scripts/tests/test_aspects_reconcile_historical_lineage.py
+      - scripts/aspects_verify_original_pinned_first_parent.py
+      - scripts/tests/test_aspects_verify_original_pinned_first_parent.py
       - scripts/tests/test_aspects_validate_historical_pins.py
       - scripts/aspects_reconcile_historical_corpus.py
       - scripts/tests/test_aspects_reconcile_historical_corpus.py
@@ -360,6 +362,40 @@ jobs:
               output.write("Legacy 463/343,492 density remains independent and partial; source-line mappings do not verify reviewed events or distinct defects.\n\n")
           PY
 
+      - name: Independently prove unchanged original pin lines across every first-parent source change
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_verify_original_pinned_first_parent.py' -v
+          python scripts/aspects_verify_original_pinned_first_parent.py \
+            --repo . \
+            --audit-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --audit-report artifacts/aspects/historical-git-pin-audit.json \
+            --json-out artifacts/aspects/historical-original-pin-proven-first-parent.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          result = json.loads(Path("artifacts/aspects/historical-original-pin-proven-first-parent.json").read_text())
+          golden = json.loads(Path(
+              "docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-900-pin-partition.json"
+          ).read_text())
+          expected = golden["original_git_pin_exact_identities"]
+          assert result["status"] == "partial_original_pinned_first_parent_lineage_proved"
+          assert result["original_review_rows_imported"] == 5741
+          assert result["original_pinned_unique_exact_path_blob_lines_in_window"] == expected["unique_path_blob_line_loc"]
+          assert result["same_blob_repeated_occurrences_in_window"] == expected["repeated_path_blob_line_occurrences"]
+          assert result["historical_900_window"]["head_sha"] == golden["cohort"]["head_sha"]
+          assert result["new_comparable_900_density"] is None
+          assert result["new_independently_reviewed_loc"] == 0
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(
+                  f"Original reviewed-source first-parent proof: "
+                  f"**{result['proven_first_parent_mapped_repeated_exact_source_identities']:,}** "
+                  f"unchanged cross-revision source-line identities, "
+                  f"**{result['revision_pairs_checked_full_first_parent']:,}** pairs fully checked; "
+                  f"**{result['revision_pairs_unresolved']:,}** unresolved. "
+                  "Partial, not a new review or density measurement.\\n\\n"
+              )
+          PY
+
       - name: Validate historical workbook import when migration source is staged
         shell: bash
         run: |
@@ -471,6 +507,7 @@ jobs:
             artifacts/aspects/historical-candidate-cross-revision-lineage.json
             artifacts/aspects/historical-numeric-range-nine.json
             artifacts/aspects/historical-900-cross-revision-lineage.json
+            artifacts/aspects/historical-original-pin-proven-first-parent.json
             artifacts/aspects/aspects-historical-exact-overlap.json
             artifacts/aspects/historical-900-followon-pinned-overlap.json
           if-no-files-found: error
