@@ -272,7 +272,12 @@ public interface IRemediationInstanceRepository
 
 public sealed record RemediationInstanceMutation
 {
-    /// <summary>Expected SQL rowversion from the record originally read; required for protected writes.</summary>
+    /// <summary>
+    /// Expected SQL rowversion from the current authoritative scoped read.
+    /// Required as exactly eight bytes for ALL protected SQL updates and
+    /// verification commits; a null value never means skip concurrency checks.
+    /// Nullable only to preserve non-SQL/draft record construction.
+    /// </summary>
     public byte[]? ExpectedRowVersion { get; init; }
     public required Guid InstanceId { get; init; }
     public required RemediationInstanceStatus Status { get; init; }
@@ -295,7 +300,8 @@ public sealed record RemediationInstanceMutation
     public DateTime? VerifiedUtc { get; init; }
     public DateTime? ClosedUtc { get; init; }
 
-    public RemediationInstanceRecord ApplyTo(RemediationInstanceRecord source)
+    public RemediationInstanceRecord ApplyTo(
+        RemediationInstanceRecord source, byte[]? persistedRowVersion = null)
     {
         ArgumentNullException.ThrowIfNull(source);
 
@@ -329,6 +335,9 @@ public sealed record RemediationInstanceMutation
             CreatedByActorKey = source.CreatedByActorKey,
             ApprovedByActorKey = ApprovedByActorKey,
             CreatedUtc = source.CreatedUtc,
+            // A persisted SQL update generates a new token; in-memory
+            // implementations can supply the replacement to model the CAS.
+            RowVersion = persistedRowVersion ?? source.RowVersion,
             UpdatedUtc = UpdatedUtc,
             ApprovedUtc = ApprovedUtc,
             ExecutedUtc = ExecutedUtc,

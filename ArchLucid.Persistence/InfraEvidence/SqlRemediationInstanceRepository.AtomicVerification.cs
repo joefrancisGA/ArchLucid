@@ -18,6 +18,10 @@ public sealed partial class SqlRemediationInstanceRepository
         ArgumentNullException.ThrowIfNull(mutation);
         ArgumentNullException.ThrowIfNull(evidence);
 
+        if (mutation.ExpectedRowVersion is not { Length: 8 })
+            throw new InvalidOperationException(
+                "Scoped remediation mutation requires an eight-byte expected rowversion.");
+
         if (mutation.InstanceId != evidence.InstanceId || scope.TenantId != evidence.TenantId)
             throw new InvalidOperationException("Verification evidence and mutation must refer to the same scoped instance.");
 
@@ -32,7 +36,7 @@ public sealed partial class SqlRemediationInstanceRepository
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
               AND InstanceId = @InstanceId
-              AND (@ExpectedRowVersion IS NULL OR RowVersion = @ExpectedRowVersion);
+              AND RowVersion = @ExpectedRowVersion;
             """;
         const string evidenceSql = """
             INSERT INTO dbo.RemediationEvidence
