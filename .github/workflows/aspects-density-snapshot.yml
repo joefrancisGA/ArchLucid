@@ -346,6 +346,28 @@ jobs:
           import json, os
           from pathlib import Path
           data=json.loads(Path('artifacts/aspects/historical-candidate-cross-revision-lineage.json').read_text())
+          golden=json.loads(Path('docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row12-complete-connection-factories.json').read_text())
+          review=[r for r in data["candidate_review_source_lineage_by_excel_row"]
+                  if r["excel_row"] == golden["excel_row"]]
+          assert len(review) == 1, "Missing/duplicate row12 per-review lineage evidence"
+          review=review[0]
+          assert review["review_id"] == golden["review_id"] == "#6624"
+          assert review["reviewed_master_sha"] == golden["reviewed_master_sha"]
+          assert review["candidate_source_line_occurrences"] == golden["candidate_nonblank_loc_expected"] == 282
+          assert review["exact_repeat_with_original_pin_same_path_blob_line"] == 0
+          assert 0 <= review["different_blob_full_first_parent_proven_repeat_with_original_pin"] <= 282
+          assert (review["different_blob_full_first_parent_proven_repeat_with_original_pin"]
+                  + review["without_proven_original_pin_identity"] == 282)
+          assert review["newly_independently_verified_reviewed_loc"] == 0
+          assert data["new_comparable_900_density"] is None
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write(
+                  f"Excel row12 original #6624 282 Git-derived candidate lines: "
+                  f"**{review['different_blob_full_first_parent_proven_repeat_with_original_pin']:,}** "
+                  f"verified unchanged across first-parent revisions to an original pin, "
+                  f"**{review['without_proven_original_pin_identity']:,}** without such proof. "
+                  "This is candidate-only source ancestry, not fresh reviewed LOC or a density denominator.\\n\\n"
+              )
           with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
               out.write(
                   f"Derived candidate-only exact identities: **{data['candidate_exact_only_line_identities']:,}**; "
