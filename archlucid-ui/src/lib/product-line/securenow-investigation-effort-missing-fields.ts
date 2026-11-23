@@ -68,7 +68,7 @@ export function formatSecureNowInvestigationEffortMissingFieldsReason(
   missingLabels: readonly string[],
 ): string {
   if (missingLabels.length === 0) {
-    return "Enter all five inputs with positive numbers.";
+    return "Enter baseline and after-product hours (zero is allowed) and a positive investigations count, hourly rate, and annual cost.";
   }
 
   if (missingLabels.length === 1) {

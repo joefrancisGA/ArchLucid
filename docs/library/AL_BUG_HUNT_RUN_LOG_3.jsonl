@@ -19,3 +19,4 @@
 {"at":"2026-11-23T02:18:40.2568651Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"securenow","set":3,"note":"seed hunt: collection scope label counts every listed Azure subscription"}
 {"at":"2026-11-23T02:33:18.2557281Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"securenow","set":3,"note":"seed hunt: zero after-product hours calculates investigation-effort ROI"}
 {"at":"2026-11-23T02:39:48.3632098Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"securenow","set":3,"note":"seed hunt: tenant audit recorded line states UTC once"}
+{"at":"2026-11-23T02:46:33.6151685Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"securenow","set":3,"note":"seed hunt: investigation effort copy allows zero after-product hours"}

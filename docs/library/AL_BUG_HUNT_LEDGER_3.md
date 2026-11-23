@@ -43,6 +43,10 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the Investigation effort lead: zero after-product hours already calculates ROI, but the page lead, synthetic example, missing-field fallback, and blocking-banner fallback still said every input must be positive. Those lines now say hour fields may be zero and the other three inputs must be greater than zero. Regression `does not say zero after-product hours leaves ROI uncalculated`; investigation-effort copy, result-state, input-storage, and score-lift vitest **10/10**. Private beta: an invited SecureNow operator who enters zero after-product hours is no longer told that ROI stays uncalculated until every input is positive. The page lead matches the calculation.
+
+- [x] (proven) `SECURENOW_INVESTIGATION_EFFORT_LEAD` — page said zero after-product hours leaves ROI uncalculated — **hit 2026-11-23 seed hunt:** align the lead, synthetic example, and positive-number fallbacks; regression above.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the tenant audit clock: `formatSecureNowPilotDispositionTenantAuditRecordedLine` appended UTC after `formatIsoUtcForDisplay`, which already ends with UTC. Pilot decision and sponsor path showed the recorded time twice. The line now uses the clock label as returned. Regression `states UTC once when the clock label already includes UTC`; tenant-audit copy vitest **1/1**. Private beta: an invited SecureNow operator who saves a pilot disposition sees the tenant audit time with UTC stated once. The recorded line no longer says UTC twice.
 
 - [x] (proven) `formatSecureNowPilotDispositionTenantAuditRecordedLine` — recorded time said UTC twice — **hit 2026-11-23 seed hunt:** drop the extra UTC suffix; regression above.
@@ -126,8 +130,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 14
-- **bugs-found:** 14
+- **hunts:** 15
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
