@@ -10,6 +10,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>Unit tests for <see cref="FallbackAgentCompletionClient" />.</summary>
 [Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class FallbackAgentCompletionClientTests
 {
     private static readonly LlmProviderDescriptor PrimaryDescriptor =
