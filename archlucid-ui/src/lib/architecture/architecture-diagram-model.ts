@@ -558,18 +558,50 @@ export function buildArchitectureDiagramModel(
   };
 }
 
+function architectureDiagramEdgeOverrideMatches(
+  modelEdge: ArchitectureDiagramEdge,
+  override: ArchitectureDiagramEdge,
+): boolean {
+  return override.sourceId === modelEdge.sourceId
+    && override.targetId === modelEdge.targetId
+    && override.label === modelEdge.label
+    && override.provenance === modelEdge.provenance;
+}
+
+function resolveArchitectureDiagramEdgeOverride(
+  edge: ArchitectureDiagramEdge,
+  edgeOverrideById: ReadonlyMap<string, ArchitectureDiagramEdge>,
+  edgeOverrideByEndpoints: ReadonlyMap<string, ArchitectureDiagramEdge>,
+): ArchitectureDiagramEdge {
+  const byId = edgeOverrideById.get(edge.id);
+
+  if (byId !== undefined && architectureDiagramEdgeOverrideMatches(edge, byId)) {
+    return byId;
+  }
+
+  const byEndpoints = edgeOverrideByEndpoints.get(flowEdgeDedupeKey(edge));
+
+  if (byEndpoints !== undefined) {
+    return byEndpoints;
+  }
+
+  return edge;
+}
 export function applyArchitectureDiagramOverrides(
   model: ArchitectureDiagramModel,
   nodeOverrides: readonly ArchitectureDiagramNode[],
   edgeOverrides: readonly ArchitectureDiagramEdge[],
 ): ArchitectureDiagramModel {
   const nodeOverrideMap = new Map(nodeOverrides.map((node) => [node.id, node]));
-  const edgeOverrideMap = new Map(edgeOverrides.map((edge) => [edge.id, edge]));
+  const edgeOverrideById = new Map(edgeOverrides.map((edge) => [edge.id, edge]));
+  const edgeOverrideByEndpoints = new Map(
+    edgeOverrides.map((edge) => [flowEdgeDedupeKey(edge), edge]),
+  );
 
   return {
     nodes: model.nodes.map((node) => nodeOverrideMap.get(node.id) ?? node),
     edges: model.edges
-      .map((edge) => edgeOverrideMap.get(edge.id) ?? edge)
+      .map((edge) => resolveArchitectureDiagramEdgeOverride(edge, edgeOverrideById, edgeOverrideByEndpoints))
       .filter((edge) => !edge.removed),
     trustBoundaryLabels: model.trustBoundaryLabels,
     skippedUnlabeledEntityCount: model.skippedUnlabeledEntityCount,

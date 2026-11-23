@@ -3,7 +3,7 @@ export function formatSecureNowInvestigationEffortBlockingBanner(reason: string)
   const trimmed = reason.trim();
 
   if (trimmed.length === 0) {
-    return "ROI blocked until all worksheet inputs are complete with positive numbers.";
+    return "ROI blocked until baseline and after-product hours are entered (zero is allowed) and investigations, rate, and cost are greater than zero.";
   }
 
   return `ROI blocked until inputs are complete. ${trimmed}`;

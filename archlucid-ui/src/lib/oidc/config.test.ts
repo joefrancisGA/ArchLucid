@@ -32,6 +32,14 @@ describe("oidc config env normalization", () => {
     expect(getOidcRedirectUri()).toBe("https://app.example/callback");
   });
 
+  it("strips soft hyphens from OIDC and Google authority env overrides before discovery", () => {
+    vi.stubEnv("NEXT_PUBLIC_OIDC_AUTHORITY", "https://login.example\u00AD.com/tenant/v2.0");
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY", "https://accounts.google\u00AD.com");
+
+    expect(getOidcAuthority()).toBe("https://login.example.com/tenant/v2.0");
+    expect(getGoogleOidcAuthority()).toBe("https://accounts.google.com");
+  });
+
   it("strips zero-width padding from Google OIDC env values", () => {
     vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY", `\u200bhttps://accounts.google.com\u200b`);
     vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID", `\u200bgoogle-client\u200b`);

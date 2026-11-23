@@ -9,6 +9,7 @@ import {
   ARCHLUCID_PATHNAME_REQUEST_HEADER,
   isSecureNowSampleMarketingPath,
   isSecureNowSecurityShellMarketingPath,
+  isSecureNowSkuMarketingPath,
   shouldRedirectMarketingLayout,
   secureNowMarketingRedirectPath,
 } from "@/lib/product-line/securenow-marketing-route-policy";
@@ -47,7 +48,9 @@ export default async function MarketingLayout({ children }: { children: ReactNod
   if (productLine === "security" && isSecureNowSecurityShellMarketingPath(pathname)) {
     const shellTestId = isSecureNowSampleMarketingPath(pathname)
       ? "securenow-sample-security-shell"
-      : "why-securenow-security-shell";
+      : isSecureNowSkuMarketingPath(pathname)
+        ? "securenow-sku-security-shell"
+        : "why-securenow-security-shell";
 
     return (
       <ShellReadySurface

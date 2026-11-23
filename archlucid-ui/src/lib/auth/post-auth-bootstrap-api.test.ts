@@ -106,6 +106,20 @@ describe("createPostAuthWorkspace", () => {
     expect(result.customerMessage).toBe("Workspace creation could not be completed.");
   });
 
+  it("returns generic failure when workspace creation fetch rejects", async () => {
+    vi.mocked(fetch).mockRejectedValueOnce(new TypeError("Failed to fetch"));
+
+    const result = await createPostAuthWorkspace({
+      workspaceName: "Workspace",
+      organizationName: "Org",
+      termsAccepted: true,
+      includeDemoSeed: false,
+    });
+
+    expect(result.succeeded).toBe(false);
+    expect(result.customerMessage).toBe("Workspace creation could not be completed.");
+  });
+
   it("parses HTTP 200 bodies with succeeded false without treating the transport as an error", async () => {
     vi.mocked(fetch).mockResolvedValueOnce(
       new Response(
@@ -197,6 +211,12 @@ describe("initiatePostAuthAccessRequest", () => {
 
     await expect(initiatePostAuthAccessRequest("hello")).resolves.toBe(false);
   });
+
+  it("returns false when access-request fetch rejects", async () => {
+    vi.mocked(fetch).mockRejectedValueOnce(new TypeError("Failed to fetch"));
+
+    await expect(initiatePostAuthAccessRequest("hello")).resolves.toBe(false);
+  });
 });
 
 describe("acceptPostAuthInvitation", () => {
@@ -210,6 +230,12 @@ describe("acceptPostAuthInvitation", () => {
 
   it("returns null when the proxy responds with 403", async () => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 403 }));
+
+    await expect(acceptPostAuthInvitation("inv-1", null)).resolves.toBeNull();
+  });
+
+  it("returns null when invitation accept fetch rejects", async () => {
+    vi.mocked(fetch).mockRejectedValueOnce(new TypeError("Failed to fetch"));
 
     await expect(acceptPostAuthInvitation("inv-1", null)).resolves.toBeNull();
   });
@@ -277,6 +303,17 @@ describe("selectPostAuthWorkspace", () => {
 
   it("returns null when the proxy responds with 401", async () => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 401 }));
+
+    await expect(
+      selectPostAuthWorkspace(
+        "11111111-1111-1111-1111-111111111111",
+        "22222222-2222-2222-2222-222222222222",
+      ),
+    ).resolves.toBeNull();
+  });
+
+  it("returns null when workspace select fetch rejects", async () => {
+    vi.mocked(fetch).mockRejectedValueOnce(new TypeError("Failed to fetch"));
 
     await expect(
       selectPostAuthWorkspace(

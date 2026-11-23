@@ -106,6 +106,64 @@ public sealed class AgentHandlerFailureBudgetObserverTests
         failure.NewlyExhausted.Should().BeFalse();
     }
 
+    [Theory]
+    [InlineData(AgentHandlerFailureBudgetOutcome.CallerCancelled)]
+    [InlineData(AgentHandlerFailureBudgetOutcome.NotAdmitted)]
+    public void Neutral_outcome_after_window_expiry_does_not_report_stale_exhaustion(
+        AgentHandlerFailureBudgetOutcome neutral)
+    {
+        AgentHandlerFailureBudgetObserver observer = new();
+
+        for (int i = 0; i < AgentHandlerFailureBudgetObserver.MaxFailures; i++)
+            observer.Observe("topology", AgentHandlerFailureBudgetOutcome.Failure, Epoch.AddSeconds(i));
+
+        AgentHandlerFailureBudgetSnapshot withinWindow = observer.Observe(
+            "topology", neutral, Epoch.AddSeconds(10));
+        withinWindow.Exhausted.Should().BeTrue();
+        withinWindow.Counted.Should().BeFalse();
+
+        AgentHandlerFailureBudgetSnapshot expired = observer.Observe(
+            "topology", neutral, Epoch.AddSeconds(60));
+        expired.Counted.Should().BeFalse();
+        expired.Exhausted.Should().BeFalse();
+        expired.Requests.Should().Be(0);
+        expired.Failures.Should().Be(0);
+        expired.NewlyExhausted.Should().BeFalse();
+
+        // Ignoring a neutral outcome must not renew or create any observation
+        // window. The next completed handler starts a clean window.
+        observer.TrackedDispatchKeys.Should().Be(1);
+        AgentHandlerFailureBudgetSnapshot restarted = observer.Observe(
+            "topology", AgentHandlerFailureBudgetOutcome.Success, Epoch.AddSeconds(61));
+        restarted.Requests.Should().Be(1);
+        restarted.Failures.Should().Be(0);
+        restarted.Exhausted.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(AgentHandlerFailureBudgetOutcome.CallerCancelled)]
+    [InlineData(AgentHandlerFailureBudgetOutcome.NotAdmitted)]
+    public void Neutral_outcome_when_wall_clock_regresses_does_not_report_future_window(
+        AgentHandlerFailureBudgetOutcome neutral)
+    {
+        AgentHandlerFailureBudgetObserver observer = new();
+
+        for (int i = 0; i < AgentHandlerFailureBudgetObserver.MaxFailures; i++)
+            observer.Observe("critic", AgentHandlerFailureBudgetOutcome.Failure, Epoch.AddSeconds(30 + i));
+
+        AgentHandlerFailureBudgetSnapshot regression = observer.Observe(
+            "critic", neutral, Epoch.AddSeconds(10));
+        regression.Counted.Should().BeFalse();
+        regression.Exhausted.Should().BeFalse();
+        regression.Requests.Should().Be(0);
+        regression.Failures.Should().Be(0);
+
+        AgentHandlerFailureBudgetSnapshot reset = observer.Observe(
+            "critic", AgentHandlerFailureBudgetOutcome.Success, Epoch.AddSeconds(10));
+        reset.Requests.Should().Be(1);
+        reset.Failures.Should().Be(0);
+    }
+
     [Fact]
     public void Window_expires_at_sixty_seconds_and_clock_regression_starts_new_window()
     {

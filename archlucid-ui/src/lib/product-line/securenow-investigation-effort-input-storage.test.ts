@@ -81,5 +81,6 @@ describe("securenow-investigation-effort-input-storage", () => {
 
     expect(isSecureNowInvestigationEffortAuditCandidate(fields)).toBe(false);
     expect(isSecureNowInvestigationEffortAuditCandidate({ ...fields, afterHours: "2" })).toBe(true);
+    expect(isSecureNowInvestigationEffortAuditCandidate({ ...fields, afterHours: "0", baselineHours: "3" })).toBe(true);
   });
 });

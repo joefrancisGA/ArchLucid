@@ -12,11 +12,16 @@ import {
 } from "@/lib/auth/post-auth-bootstrap-exit-copy";
 import { sessionExpiredSecondaryExitLabel } from "@/lib/auth/session-expired-page-copy";
 import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
-import { clearOidcSession, signOutAndRedirectHome } from "@/lib/oidc/session";
+import { endOidcBrowserSession, signOutAndRedirectHome } from "@/lib/oidc/session";
 import { appSiteHref } from "@/lib/site-urls";
 
-function redirectToSignInAgain(): void {
-  clearOidcSession();
+async function redirectToSignInAgain(): Promise<void> {
+  const ended = await endOidcBrowserSession();
+
+  if (!ended) {
+    return;
+  }
+
   window.location.assign(POST_AUTH_BOOTSTRAP_SIGN_IN_PATH);
 }
 
