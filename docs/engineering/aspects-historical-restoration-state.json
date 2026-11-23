@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_followon_cross_blob_first_parent_proof_submitted",
-  "next_priority": "Validate PR #7822 exact-head Aspects source snapshot including new historical-followon-cross-blob-first-parent.json and seven regression tests, and FND-011 owner 200/foreign 404 SQL-backed test after master merge. Resolve exact logged failures without weakening gates. Do not reuse this candidate-only source proof as freshly reviewed LOC. Next reconcile all 900-first-parent original+candidate+follow-on path lineage and independently distinct discovery identities; only then publish timestamped rate and 600/700 observation SMA25.",
+  "state": "historical_restoration_PR7822_merged_current_master_base_cohort_followup_tests_submitted",
+  "next_priority": "PR #7822 was merged by a concurrent process before its newly committed current-cohort script regression tests existed. This follow-on branch adds those tests and a PR-based master-base (not synthetic merge) 900-first-parent source eligibility CI artifact. First validate current master 900 source subset, repair any failures and obtain exact-head FND-011/security results; then finish complete cross-revision reviewed LOC, distinct discovery identities, current comparable rate and 600/700 SMA25. Never interpret exact blob subset as cross-revision verified full density.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -650,6 +650,31 @@
       "new_comparable_rate": null,
       "no_master_full_build": true,
       "PR_merge_only_after_required_checks_pass": true
+    },
+    "current_master_base_900_eligibility": {
+      "status": "code_on_master_from_PR7822_tests_and_workflow_on_followup_branch_pending_PR_CI",
+      "provenance": "Feature PR #7822 merged into master at 1c59c5cb557aa4aa5059031198e457b7c0604a0b concurrently with creation of tests. Tests/workflow must pass separately before treating output as verified.",
+      "original_import_unchanged": 5741,
+      "original_clean_reviews_unchanged": 4864,
+      "current_window_definition": "current master SHA from GitHub pull_request.base.sha for PR or github.sha for master push; rev-list --first-parent max-count=900; never use synthetic PR merge commit",
+      "implementation": "scripts/aspects_current_master_900_eligibility.py",
+      "tests": "scripts/tests/test_aspects_current_master_900_eligibility.py",
+      "workflow": ".github/workflows/aspects-density-snapshot.yml",
+      "artifact": "artifacts/aspects/aspects-current-master-base-900-exact-subset.json",
+      "source_scope": "Previously Git-verified original path/blob pins joined to immutable workbook original rows; Git revalidated narrow ledger records independently in the NEW master base window",
+      "no_current_full_denominator": true,
+      "historical_original_pin_exact_loc_Nov22_unchanged": 232219,
+      "historical_original_pin_exact_repeats_Nov22_unchanged": 6020,
+      "current_exact_source_loc": "CI pending, not measured",
+      "contemporary_distinct_discoveries": "not reconciled",
+      "new_independently_reviewed_loc_this_step": 0,
+      "new_or_repeated_reviewed_loc_this_step": [
+        0,
+        0
+      ],
+      "newly_reconciled_distinct_defects_this_step": 0,
+      "new_comparable_density": null,
+      "master_full_build_initiated": false
     }
   },
   "latest_restoration_run": {
