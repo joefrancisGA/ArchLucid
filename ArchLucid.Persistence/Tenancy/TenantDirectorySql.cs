@@ -9,7 +9,7 @@ internal static class TenantDirectorySql
     /// <summary>Full directory projection used by id / slug / name / Entra / list lookups.</summary>
     public const string SelectColumns = """
                                         Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
-                                               TenantErasureRequestedUtc,
+                                               TenantErasureRequestedUtc, TenantErasureApprovedUtc, TenantErasureApprovedByUserId,
                                                OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                                TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                                TrialStatus, TrialSampleRunId,
