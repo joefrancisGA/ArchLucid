@@ -295,7 +295,8 @@ public sealed record RemediationInstanceMutation
     public DateTime? VerifiedUtc { get; init; }
     public DateTime? ClosedUtc { get; init; }
 
-    public RemediationInstanceRecord ApplyTo(RemediationInstanceRecord source)
+    public RemediationInstanceRecord ApplyTo(
+        RemediationInstanceRecord source, byte[]? persistedRowVersion = null)
     {
         ArgumentNullException.ThrowIfNull(source);
 
@@ -329,6 +330,9 @@ public sealed record RemediationInstanceMutation
             CreatedByActorKey = source.CreatedByActorKey,
             ApprovedByActorKey = ApprovedByActorKey,
             CreatedUtc = source.CreatedUtc,
+            // A persisted SQL update generates a new token; in-memory
+            // implementations can supply the replacement to model the CAS.
+            RowVersion = persistedRowVersion ?? source.RowVersion,
             UpdatedUtc = UpdatedUtc,
             ApprovedUtc = ApprovedUtc,
             ExecutedUtc = ExecutedUtc,
