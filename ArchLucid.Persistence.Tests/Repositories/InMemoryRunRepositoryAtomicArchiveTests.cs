@@ -96,6 +96,7 @@ public sealed class InMemoryRunRepositoryAtomicArchiveTests
 
             RunRecord current = (await repo.GetByIdIncludingArchivedAsync(
                 scope, input.RunId, CancellationToken.None))!;
+
             if (sealedRun)
             {
                 current.GoldenManifestId.Should().Be(manifestId);
