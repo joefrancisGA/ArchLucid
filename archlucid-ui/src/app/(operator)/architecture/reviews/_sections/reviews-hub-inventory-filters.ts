@@ -214,6 +214,13 @@ export function matchesFilter(
   return row.overallStatus === filter;
 }
 
+function inventoryRunKey(runId: string): string {
+  const trimmed = runId.trim();
+
+  // The archive cache stores a trimmed id. A padded list id is the same review.
+  return trimmed.length > 0 ? trimmed : runId;
+}
+
 export function mergeRunsWithArchivedCache(
   runs: readonly RunSummary[],
   archivedRuns: readonly RunSummary[],
@@ -221,15 +228,16 @@ export function mergeRunsWithArchivedCache(
   const byId = new Map<string, RunSummary>();
 
   for (const run of runs) {
-    byId.set(run.runId, run);
+    byId.set(inventoryRunKey(run.runId), run);
   }
 
   for (const archivedRun of archivedRuns) {
-    const existing = byId.get(archivedRun.runId);
+    const key = inventoryRunKey(archivedRun.runId);
+    const existing = byId.get(key);
 
     // The list can still hold the pre-archive row until refresh. The cache is the archived snapshot.
     if (existing === undefined || existing.isArchived !== true) {
-      byId.set(archivedRun.runId, archivedRun);
+      byId.set(key, archivedRun);
     }
   }
 

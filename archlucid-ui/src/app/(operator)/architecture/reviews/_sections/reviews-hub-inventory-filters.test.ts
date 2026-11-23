@@ -101,4 +101,13 @@ describe("mergeRunsWithArchivedCache", () => {
     expect(merged).toHaveLength(1);
     expect(merged[0]?.isArchived).toBe(true);
   });
+  it("replaces a still-listed active row when only the list run id has surrounding whitespace", () => {
+    const active = run({ runId: " run-1 ", isArchived: false });
+    const archived = run({ runId: "run-1", isArchived: true });
+    const merged = mergeRunsWithArchivedCache([active], [archived]);
+
+    expect(merged).toHaveLength(1);
+    expect(merged[0]?.runId).toBe("run-1");
+    expect(merged[0]?.isArchived).toBe(true);
+  });
 });

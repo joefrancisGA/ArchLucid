@@ -10257,6 +10257,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseeded archive merge after the runs-list timestamp fix. `mergeRunsWithArchivedCache` keyed rows by the raw `runId`, while the archive cache stores a trimmed id, so a list row with surrounding spaces stayed active and a second archived row appeared. The merge now keys both sides with the trimmed id. Regression `replaces a still-listed active row when only the list run id has surrounding whitespace` failed first (length 2), then inventory filter tests 9/9. Private beta: after an invited operator archives a review, the reviews hub treats that review as archived even when the list id has extra spaces, instead of showing both the old active row and a second archived row.
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseeded the reviews list after the archive-merge fix. `useRunsList` dropped a row when `Date.parse` rejected surrounding whitespace on `createdUtc`, while the hub parses that same timestamp. The list now uses `parseIsoUtcMs` for inclusion and newest-first order. Regression `keeps a review whose createdUtc has surrounding whitespace` failed first (row missing), then the invalid-timestamp omission test still passed. Private beta: a review whose created time has extra spaces stays on the reviews list and sorts by that time, instead of disappearing from the page.
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseeded reviews hub archive merge after the Archived chip-count fix. `mergeRunsWithArchivedCache` kept the server list row whenever the id was already present, so a review that had just been archived stayed active until refresh and did not appear from the local archived snapshot. The cached snapshot now replaces a list row that is not already archived. Regression `replaces a still-listed active row with the cached archived snapshot` failed first (isArchived false), then inventory filter tests 8/8. Private beta: after an invited operator archives a review, the reviews hub treats that review as archived immediately, instead of leaving the older active row in place until the list reloads.
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseeded reviews hub filter counts after the summary status fixes. Selecting Archived sets the visible pool to every run, and non-archived chips counted that pool, so All rose from the active reviews to include archived packages. `resolveInventoryFilterCountRuns` now drops archived runs for every chip except Archived. Regression `keeps the All count on active reviews when the archived view supplies every run` failed first (2), then inventory filter tests 7/7. Private beta: opening Archived on the reviews hub no longer changes the All count to include archived packages. The Archived count still lists those packages.
@@ -10280,6 +10281,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `resolveInventoryFilterCountRuns` — the Archived view made the All count include archived packages — **proven 2026-11-23 seed hunt:** All counted 2 when the visible pool held one active and one archived run; All now stays on the active run.
 - [x] (proven) `mergeRunsWithArchivedCache` — a cached archived snapshot lost to the still-listed active row — **proven 2026-11-23 seed hunt:** the merged row stayed `isArchived` false; the cache snapshot now replaces that row.
 - [x] (proven) `useRunsList` — surrounding whitespace on `createdUtc` dropped the review — **proven 2026-11-23 seed hunt:** the later padded row was absent; inclusion and sort now use `parseIsoUtcMs`.
+- [x] (proven) `mergeRunsWithArchivedCache` — padded list run id did not match the trimmed archive cache id — **proven 2026-11-23 seed hunt:** the merge returned both rows; both sides now share the trimmed id.
 2026-10-30 seed hunt #45 (seed-only): cheap-disproof confirmed the empty-evidence-scope candidate is already covered by `RunDetailEvidenceTabPanel.test.tsx` (`uses not-stored intro when findings snapshot was omitted`); retained the two untested candidates below for later repro.
 
 - [x] (valid-no-repro) `ReviewsHubReviewInventory` — `filterCounts` memo omits `visibilityFilteredRuns`; input: operator selects the Archived filter after the reviews hub has rendered the active-only pool; wrong outcome: non-Archived filter-chip counts can remain based on the prior visibility pool; mechanism: count calculation explicitly consumes `visibilityFilteredRuns` but the memo dependencies exclude it; reachability: reviews hub filter chips plus archived review cache.
@@ -10342,9 +10344,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 10
+- **hunts:** 11
 - **last-hunt:** 2026-11-23
-- **bugs-found:** 10
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-11-23
 - **related-pd-tb:** none
