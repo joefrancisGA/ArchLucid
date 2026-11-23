@@ -1,4 +1,5 @@
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
+import { resolveSecureNowEvidenceHref } from "@/lib/product-line/securenow-evidence-navigation";
 import { securenowInternalDocHref } from "@/lib/product-line/securenow-internal-doc-href";
 
 export const SECURENOW_SPONSOR_HOME_SECTION_HEADING = "For sponsors" as const;
@@ -41,7 +42,7 @@ export const SECURENOW_SPONSOR_HOME_ROWS: readonly SecureNowHomeDestinationRow[]
     summary: "Stage 6 facilitation. Not an approved offer and not customer evidence.",
   },
   {
-    href: "/trust#self-assessment",
+    href: resolveSecureNowEvidenceHref("security", "/trust#self-assessment"),
     label: "Trust Center",
     summary: "Owner self-assessment and diligence ZIP. Not CPA attestation or a published third-party pen test.",
   },

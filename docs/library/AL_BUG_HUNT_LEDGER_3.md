@@ -43,6 +43,10 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the sponsor Trust Center link: `SECURENOW_SPONSOR_HOME_ROWS` pointed at `/trust#self-assessment`, and `resolveSecureNowEvidenceHref` only rewrote the exact `/trust` path. The security marketing shell sends `/trust` home. The sponsor row now uses the resolver, and the resolver matches the path without the hash, so the link is `/administration/security-trust`. Regression `rewrites marketing hrefs for the security product line` and sponsor home copy; evidence navigation, sponsor home, and internal-doc vitest **9/9**. Private beta: an invited SecureNow operator who opens Trust Center from the sponsor section on home reaches Security and trust. That link no longer sends them back to the workspace home.
+
+- [x] (proven) `resolveSecureNowEvidenceHref` — `/trust#self-assessment` stayed on the public trust page — **hit 2026-11-23 seed hunt:** match `navHrefPathPart` before the marketing rewrite; regression above.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the SKU card redirect: `shouldRedirectMarketingLayout` kept only Why SecureNow and the sample page on the security shell, so `/securenow-sku` redirected home. Operator home and Why SecureNow both link to that card. The SKU path is now a security-shell marketing path, and the marketing layout uses a SKU shell test id instead of the Why shell. Regression `keeps the SecureNow SKU card on the security shell`; marketing policy and layout source vitest **10/10**. Private beta: an invited SecureNow operator who opens the SKU and meter card from home or from Why SecureNow sees that card. The security shell no longer sends that link back to the workspace home.
 
 - [x] (proven) `shouldRedirectMarketingLayout` — `/securenow-sku` redirected home on the security shell — **hit 2026-11-23 seed hunt:** SKU path joins the security-shell marketing allowlist; regression above.
@@ -106,8 +110,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 9
-- **bugs-found:** 9
+- **hunts:** 10
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

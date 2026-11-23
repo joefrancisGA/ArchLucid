@@ -11,6 +11,7 @@ import {
 describe("securenow-evidence-navigation", () => {
   it("rewrites marketing hrefs for the security product line", () => {
     expect(resolveSecureNowEvidenceHref("security", "/trust")).toBe(SETTINGS_SECURITY_TRUST_PATH);
+    expect(resolveSecureNowEvidenceHref("security", "/trust#self-assessment")).toBe(SETTINGS_SECURITY_TRUST_PATH);
     expect(resolveSecureNowEvidenceHref("security", "/faq")).toBe(inAppHelpHref("procurement"));
     expect(resolveSecureNowEvidenceHref("security", "/pricing")).toBe(inAppHelpHref("billing-and-plans"));
     expect(resolveSecureNowEvidenceHref("security", "/privacy")).toBe(inAppHelpHref("data-handling"));

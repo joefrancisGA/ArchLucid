@@ -1,3 +1,4 @@
+import { navHrefPathPart } from "@/lib/nav-href-path-part";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
@@ -12,7 +13,10 @@ export function resolveSecureNowEvidenceHref(productLineId: ProductLineId, href:
     return href;
   }
 
-  switch (href) {
+  // The security shell redirects the public trust page home. Match the path, not the hash.
+  const path = navHrefPathPart(href);
+
+  switch (path) {
     case "/trust":
     case "/assurance-status":
       return SECURENOW_OPERATOR_ASSURANCE_PATH;
