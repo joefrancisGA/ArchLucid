@@ -11,13 +11,6 @@ public sealed class NoOpRemediationInstanceRepository : IRemediationInstanceRepo
         return Task.CompletedTask;
     }
 
-    public Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        return Task.CompletedTask;
-    }
-
     public Task<RemediationInstanceRecord?> TryGetByIdAsync(
         Guid tenantId,
         Guid instanceId,
