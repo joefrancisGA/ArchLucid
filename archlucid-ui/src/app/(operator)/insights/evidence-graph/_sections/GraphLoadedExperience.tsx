@@ -37,6 +37,8 @@ import { BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS } from "@/app/(operator)/insigh
 import { GraphInteractiveCanvas } from "@/app/(operator)/insights/evidence-graph/_sections/GraphInteractiveCanvas";
 import { GraphLoadedZeroNodesPartialCaptureHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphLoadedZeroNodesPartialCaptureHonesty";
 import { GraphTypeFilterEmptyPartialCaptureHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphTypeFilterEmptyPartialCaptureHonesty";
+import { GraphNodeFocusOnlyEmptyPartialCaptureHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphNodeFocusOnlyEmptyPartialCaptureHonesty";
+import { GraphPathOnlyEmptyPartialCaptureHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPathOnlyEmptyPartialCaptureHonesty";
 import { GraphTypeFilterAndNodeFocusCombinedEmptyPartialHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphTypeFilterAndNodeFocusCombinedEmptyPartialHonesty";
 import { EVIDENCE_GRAPH_TYPE_FILTER_AND_NODE_FOCUS_COMBINED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/evidence-graph-type-filter-and-node-focus-combined-empty-not-load-failure-copy";
 import { EVIDENCE_GRAPH_TYPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/evidence-graph-type-filter-empty-not-load-failure-copy";
@@ -212,12 +214,15 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
         <GraphLoadedZeroNodesPartialCaptureHonesty />
       ) : null}
       {showNodeFocusOnlyEmptyHonesty ? (
-        <p
-          className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="evidence-graph-node-focus-only-empty-not-load-failure"
-        >
-          {EVIDENCE_GRAPH_NODE_FOCUS_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE}
-        </p>
+        <div className="mb-3 space-y-2">
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="evidence-graph-node-focus-only-empty-not-load-failure"
+          >
+            {EVIDENCE_GRAPH_NODE_FOCUS_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE}
+          </p>
+          <GraphNodeFocusOnlyEmptyPartialCaptureHonesty />
+        </div>
       ) : null}
       {showEdgeFocusOnlyEmptyHonesty ? (
         <p
@@ -228,12 +233,15 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
         </p>
       ) : null}
       {showPathOnlyEmptyHonesty ? (
-        <p
-          className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="evidence-graph-path-only-empty-not-load-failure"
-        >
-          {EVIDENCE_GRAPH_PATH_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE}
-        </p>
+        <div className="mb-3 space-y-2">
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="evidence-graph-path-only-empty-not-load-failure"
+          >
+            {EVIDENCE_GRAPH_PATH_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE}
+          </p>
+          <GraphPathOnlyEmptyPartialCaptureHonesty />
+        </div>
       ) : null}
       {showTypeFilterAndNodeFocusCombinedHonesty ? (
         <div className="mb-3 space-y-2">
