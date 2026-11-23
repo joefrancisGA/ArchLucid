@@ -2,7 +2,7 @@ name: Remediation SQL role permissions guard
 
 on:
   pull_request:
-    branches: [master]
+    branches: [master, audit/remediation-sql-role-permissions-20261123]
     paths:
       - 'ArchLucid.Persistence/Migrations/426_RemediationRoleWritePermissions.sql'
       - 'ArchLucid.Persistence/Migrations/427_RemediationProcedureOnlyUpdates.sql'
