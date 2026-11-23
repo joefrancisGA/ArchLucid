@@ -37,6 +37,10 @@ public sealed class DataConsistencyRemediationExecutorTests
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<IArchLucidUnitOfWork>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -137,6 +141,10 @@ public sealed class DataConsistencyRemediationExecutorTests
         Assert.Equal(1, transaction.RollbackCalls);
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<IArchLucidUnitOfWork>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
