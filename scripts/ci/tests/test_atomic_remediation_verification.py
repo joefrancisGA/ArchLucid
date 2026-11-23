@@ -33,6 +33,19 @@ class AtomicApprovalProvenanceTests(unittest.TestCase):
         self.assertLess(code.index("if (updated != 1)"), code.index("insertEvidenceSql,"))
         self.assertIn("CommitAsync(cancellationToken)", code)
 
+    def test_generic_sql_updates_cannot_replace_atomic_approval(self):
+        code = (ROOT / "ArchLucid.Persistence/InfraEvidence/"
+                "SqlRemediationInstanceRepository.cs").read_text()
+        for start, end, check in (
+            ("public async Task UpdateInstanceAsync(", "public async Task UpdateInstanceInScopeAsync(",
+             "instance.Status == RemediationInstanceStatus.Approved"),
+            ("public async Task UpdateInstanceInScopeAsync(", "public async Task<RemediationInstanceRecord?> TryGetByIdAsync(",
+             "mutation.Status == RemediationInstanceStatus.Approved"),
+        ):
+            segment = code.split(start, 1)[1].split(end, 1)[0]
+            self.assertIn(check, segment)
+            self.assertIn("atomic provenance commit", segment)
+
     def test_remediation_inserts_omit_sql_managed_rowversion_column(self):
         code = (ROOT / "ArchLucid.Persistence/InfraEvidence/"
                 "SqlRemediationInstanceRepository.cs").read_text()
