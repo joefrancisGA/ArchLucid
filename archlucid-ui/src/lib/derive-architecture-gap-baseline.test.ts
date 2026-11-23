@@ -36,6 +36,7 @@ Payment gateway, CRM sync, and legacy batch feed`);
       "Payment gateway, CRM sync, and legacy batch feed",
     ]);
   });
+
   it("is idempotent when an imported actor already carries submitted-text provenance", () => {
     const label = "Payment gateway";
     const once = formatParsedSubmittedArchitectureName(label);
@@ -43,7 +44,7 @@ Payment gateway, CRM sync, and legacy batch feed`);
 
     expect(once).toBe("Payment gateway (submitted text, not operator-asserted)");
     expect(twice).toBe(once);
-    expect(twice.match(/\\(submitted text, not operator-asserted\\)/gu)?.length).toBe(1);
+    expect(twice.match(/\(submitted text, not operator-asserted\)/gu)?.length).toBe(1);
   });
 
   it("does not mistake partial provenance text for an already completed marker", () => {
@@ -51,5 +52,4 @@ Payment gateway, CRM sync, and legacy batch feed`);
       "Payment gateway (submitted text (submitted text, not operator-asserted)",
     );
   });
-
 });
