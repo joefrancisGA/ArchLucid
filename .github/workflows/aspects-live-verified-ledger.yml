@@ -8,8 +8,11 @@ on:
     branches: [master]
     paths:
       - 'docs/engineering/aspects-review-ledger.jsonl'
+      - 'docs/engineering/aspects-historical/**'
+      - 'scripts/aspects_review_evidence.py'
       - 'scripts/aspects_density_snapshot.py'
       - 'scripts/aspects_accounting_report.py'
+      - 'scripts/tests/test_aspects_review_evidence.py'
       - 'scripts/tests/test_aspects_density_snapshot.py'
       - 'scripts/tests/test_aspects_accounting_report.py'
       - '.github/workflows/aspects-live-verified-ledger.yml'
@@ -17,8 +20,11 @@ on:
     branches: [master]
     paths:
       - 'docs/engineering/aspects-review-ledger.jsonl'
+      - 'docs/engineering/aspects-historical/**'
+      - 'scripts/aspects_review_evidence.py'
       - 'scripts/aspects_density_snapshot.py'
       - 'scripts/aspects_accounting_report.py'
+      - 'scripts/tests/test_aspects_review_evidence.py'
       - 'scripts/tests/test_aspects_density_snapshot.py'
       - 'scripts/tests/test_aspects_accounting_report.py'
       - '.github/workflows/aspects-live-verified-ledger.yml'
