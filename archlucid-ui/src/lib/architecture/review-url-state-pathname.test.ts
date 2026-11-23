@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import {
   parseNestedReviewDeskFromPathname,
   parsePeerReviewRunIdFromPathname,
@@ -9,13 +8,15 @@ import {
   resolveScopedReviewPath,
 } from "@/lib/architecture/review-url-state-pathname";
 
+const deskFixture = vi.hoisted(() => ({ id: null as string | null }));
+
 vi.mock("@/lib/desk-continuity-preference", () => ({
-  readCachedLastOpenArchitectureId: vi.fn(() => null),
+  readCachedLastOpenArchitectureId: () => deskFixture.id,
 }));
 
 describe("review-url-state-pathname", () => {
   beforeEach(() => {
-    vi.mocked(readCachedLastOpenArchitectureId).mockReturnValue(null);
+    deskFixture.id = null;
   });
   it("parseNestedReviewDeskFromPathname extracts architecture id and run id", () => {
     const desk = parseNestedReviewDeskFromPathname(
@@ -89,7 +90,7 @@ describe("review-url-state-pathname", () => {
   });
 
   it("resolveDeskAwareReviewOpenHref falls through to governance continuity when pathname targets a different run", () => {
-    vi.mocked(readCachedLastOpenArchitectureId).mockReturnValue("architecture-cached-002");
+    deskFixture.id = "architecture-cached-002";
 
     expect(
       resolveDeskAwareReviewOpenHref(

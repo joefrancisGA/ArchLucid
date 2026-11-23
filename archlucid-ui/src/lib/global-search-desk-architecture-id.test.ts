@@ -1,35 +1,30 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { resolveGlobalSearchDeskArchitectureId } from "@/lib/global-search-desk-architecture-id";
-import {
-  extractArchitectureIdentityIdFromPathname,
-  readCachedLastOpenArchitectureId,
-} from "@/lib/desk-continuity-preference";
-import { readRecentPrimaryReviewDeskTarget } from "@/lib/reviews/review-pin-run-url";
+// Pure fixture callbacks cannot be reset by the global restoreMocks lifecycle.
+const deskFixture = vi.hoisted(() => ({
+  pathId: null as string | null,
+  cachedId: "arch-cached" as string | null,
+  recent: {
+    primaryRunId: "run-recent",
+    architectureId: "arch-recent",
+  },
+}));
 
 vi.mock("@/lib/desk-continuity-preference", () => ({
-  extractArchitectureIdentityIdFromPathname: vi.fn(() => null),
-  readCachedLastOpenArchitectureId: vi.fn(() => "arch-cached"),
+  extractArchitectureIdentityIdFromPathname: () => deskFixture.pathId,
+  readCachedLastOpenArchitectureId: () => deskFixture.cachedId,
 }));
 
 vi.mock("@/lib/reviews/review-pin-run-url", () => ({
-  readRecentPrimaryReviewDeskTarget: vi.fn(() => ({
-    primaryRunId: "run-recent",
-    architectureId: "arch-recent",
-  })),
+  readRecentPrimaryReviewDeskTarget: () => deskFixture.recent,
 }));
 
 describe("resolveGlobalSearchDeskArchitectureId", () => {
-  // This suite shares the repository's restoreMocks:true Vitest setup.
-  // Re-seed factory mocks per case so preceding tests cannot leave a
-  // disabled/no-op cache or recent-review fixture.
   beforeEach(() => {
-    vi.mocked(extractArchitectureIdentityIdFromPathname).mockReturnValue(null);
-    vi.mocked(readCachedLastOpenArchitectureId).mockReturnValue("arch-cached");
-    vi.mocked(readRecentPrimaryReviewDeskTarget).mockReturnValue({
-      primaryRunId: "run-recent",
-      architectureId: "arch-recent",
-    });
+    deskFixture.pathId = null;
+    deskFixture.cachedId = "arch-cached";
+    deskFixture.recent = { primaryRunId: "run-recent", architectureId: "arch-recent" };
   });
 
   it("prefers wire architecture id", () => {

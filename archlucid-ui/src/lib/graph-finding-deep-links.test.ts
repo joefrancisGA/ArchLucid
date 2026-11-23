@@ -1,6 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { readRecentPrimaryReviewDeskTarget } from "@/lib/reviews/review-pin-run-url";
-
 import {
   graphFindingDetailHref,
   graphFindingInspectHref,
@@ -8,21 +6,17 @@ import {
   resolveGraphReviewDeskArchitectureId,
 } from "@/lib/graph-finding-deep-links";
 
+const recentDeskFixture = vi.hoisted(() => ({
+  value: { primaryRunId: "run-1", architectureId: "arch-recent" },
+}));
+
 vi.mock("@/lib/reviews/review-pin-run-url", () => ({
-  readRecentPrimaryReviewDeskTarget: vi.fn(() => ({
-    primaryRunId: "run-1",
-    architectureId: "arch-recent",
-  })),
+  readRecentPrimaryReviewDeskTarget: () => recentDeskFixture.value,
 }));
 
 describe("graph-finding-deep-links (desk continuity)", () => {
-  // The global Vitest suite enables restoreMocks: true. Reapply the
-  // canonical recent-review fixture after restoration for each test.
   beforeEach(() => {
-    vi.mocked(readRecentPrimaryReviewDeskTarget).mockReturnValue({
-      primaryRunId: "run-1",
-      architectureId: "arch-recent",
-    });
+    recentDeskFixture.value = { primaryRunId: "run-1", architectureId: "arch-recent" };
   });
 
   it("prefers explicit architecture id", () => {
