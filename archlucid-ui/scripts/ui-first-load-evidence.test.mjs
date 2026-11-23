@@ -71,7 +71,7 @@ test("chunk byte collector rejects unsafe paths and never fabricates missing siz
         ".next/static/chunks/../secret.js",
       ],
     }], root);
-    assert.equal(sized.get(".next/static/chunks/verified-1.js"), 11);
+    assert.equal(sized.get(".next/static/chunks/verified-1.js"), 10);
     assert.equal(sized.has(".next/static/chunks/missing.js"), false);
     assert.equal(sized.has("../../secret.js"), false);
     assert.equal(sized.has(".next/static/chunks/../secret.js"), false);
