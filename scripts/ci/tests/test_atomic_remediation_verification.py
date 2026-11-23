@@ -33,6 +33,18 @@ class AtomicApprovalProvenanceTests(unittest.TestCase):
         self.assertLess(code.index("if (updated != 1)"), code.index("insertEvidenceSql,"))
         self.assertIn("CommitAsync(cancellationToken)", code)
 
+    def test_remediation_inserts_omit_sql_managed_rowversion_column(self):
+        code = (ROOT / "ArchLucid.Persistence/InfraEvidence/"
+                "SqlRemediationInstanceRepository.cs").read_text()
+        for name, successor in (
+            ("public async Task InsertInstanceAsync(", "public async Task InsertInstanceInScopeAsync("),
+            ("public async Task InsertInstanceInScopeAsync(", "public async Task UpdateInstanceAsync("),
+        ):
+            statement = code.split(name, 1)[1].split(successor, 1)[0]
+            self.assertIn("INSERT INTO dbo.RemediationInstances", statement)
+            self.assertNotIn("ClosedUtc, RowVersion)", statement)
+            self.assertIn("ClosedUtc)", statement)
+
     def test_approval_service_writes_proof_with_atomic_method_not_two_writes(self):
         code = (ROOT / "ArchLucid.Application/InfraEvidence/RemediationInstances/"
                 "RemediationInstanceService.cs").read_text()
