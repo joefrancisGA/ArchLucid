@@ -191,10 +191,38 @@ jobs:
           import json, os
           from pathlib import Path
           report = json.loads(Path("artifacts/aspects/historical-900-cross-revision-lineage.json").read_text())
+          checkpoint = json.loads(Path(
+              "docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-900-pin-partition.json"
+          ).read_text())
+          # The checkpoint is tied to the immutable original 900-commit
+          # workbook cohort and the full Git pin-audit row SHA-256. Fail
+          # closed on audit drift; never silently publish a stale partition.
+          cohort = report["first_parent_checkpoint"]
+          pinned = checkpoint["original_git_pin_exact_identities"]
+          expected = {
+              "verified_pin_line_occurrences_in_window": pinned["line_occurrences"],
+              "verified_unique_exact_path_blob_lines_in_window": pinned["unique_path_blob_line_loc"],
+              "verified_repeated_exact_path_blob_lines_in_window": pinned["repeated_path_blob_line_occurrences"],
+              "single_file_original_pin_unique_exact_loc_in_window": pinned["single_file_rows_unique_path_blob_line_loc"],
+              "multi_file_original_pin_unique_exact_loc_in_window": pinned["multi_file_rows_unique_path_blob_line_loc"],
+              "multi_file_original_pin_exact_overlap_with_single_file_loc_in_window": pinned["multi_file_exact_path_blob_line_overlap_with_single_file_rows"],
+              "multi_file_original_pin_new_exact_loc_vs_single_file_loc_in_window": pinned["multi_file_new_exact_path_blob_line_loc_vs_single_file_rows"],
+              "eligible_verified_review_rows": checkpoint["source_review_rows"]["source_pin_verified_in_window_total"],
+              "audited_rows_sha256": checkpoint["git_pin_audited_rows_sha256"],
+          }
+          if (report["status"] != "provisional_same_path_unique_unchanged_lineage"
+                  or cohort["head_sha"] != checkpoint["cohort"]["head_sha"]
+                  or cohort["oldest_sha"] != checkpoint["cohort"]["oldest_included_sha"]):
+              raise SystemExit("::error::900-window pin partition cohort differs from checked-in golden")
+          for key, value in expected.items():
+              if report.get(key) != value:
+                  raise SystemExit(f"::error::900-window exact overlap golden mismatch for {key}: "
+                                   f"{report.get(key)} != {value}")
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
               output.write(f"Cross-revision historical pin reconciliation: **{report['status']}**.\n\n")
               if report["status"] == "provisional_same_path_unique_unchanged_lineage":
                   output.write(f"Exact path/blob union (window-eligible only): **{report['verified_unique_exact_path_blob_lines_in_window']:,} LOC**; provisional uniquely unchanged-line union: **{report['provisionally_mapped_unique_loc']:,} LOC**.\n\n")
+                  output.write(f"Of 3,693 already Git-verified original multi-file source occurrences, **{report['multi_file_original_pin_new_exact_loc_vs_single_file_loc_in_window']:,}** exact identities are absent from the 4,511 single-source reviews and **{report['multi_file_original_pin_exact_overlap_with_single_file_loc_in_window']:,}** repeat. This is newly reconciled overlap, not freshly reviewed LOC.\n\n")
               output.write("Legacy 463/343,492 density remains independent and partial; source-line mappings do not verify reviewed events or distinct defects.\n\n")
           PY
 
