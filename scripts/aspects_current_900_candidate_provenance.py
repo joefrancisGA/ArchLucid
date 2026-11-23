@@ -48,6 +48,17 @@ def audit_current(repo: Path, events: list[dict], pins: list[dict],
             or len(set(candidate_ids)) != len(candidate_ids)
             or not set(candidate_ids).issubset(source)):
         raise ValueError("candidate Excel row IDs missing, duplicated, or not in original workbook")
+    # A digest only proves an audit matches the report provided alongside it:
+    # it does NOT independently prove the report covers every original source
+    # row that lacked a parsed original blob pin. Recovery emits one record
+    # for each such Excel row, including verified multi-blob reviews marked
+    # "original_multi_blob_pins_deferred_to_main_audit"; those deferred rows
+    # must remain present but must not become derived candidates.
+    expected_unparsed = {
+        row["excel_row"] for row in events if row.get("parsed_pin") is None
+    }
+    if set(candidate_ids) != expected_unparsed:
+        raise ValueError("candidate original-unparsed Excel row coverage incomplete or extraneous")
     for row in events:
         pinned = original[row["excel_row"]]
         if (row.get("reviewed_master_sha") != pinned.get("reviewed_master_sha")
@@ -84,6 +95,8 @@ def audit_current(repo: Path, events: list[dict], pins: list[dict],
             unresolved += 1
             reasons[row.get("status") or "missing_status"] += 1
             continue
+        if original[excel].get("pin_status") == VERIFIED:
+            raise ValueError("derived candidate collides with independently original-pinned review")
         sources = row.get("sources")
         if not isinstance(sources, list) or not sources:
             raise ValueError("candidate reviewed source list unavailable")
