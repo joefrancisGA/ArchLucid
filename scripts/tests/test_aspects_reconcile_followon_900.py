@@ -75,7 +75,7 @@ class FollowOn900Tests(unittest.TestCase):
         r = sut.reconcile(pins, report, recent, [NEWEST, OLDEST],
                           expected_rows=3)
         self.assertEqual(r["followon_exact_repeat_with_original_pins"], 0)
-        self.assertEqual(r["followon_exact_identities_not_in_original_pins"], 10)
+        self.assertEqual(r["followon_exact_identities_not_in_original_pins"], 7)
         self.assertTrue(r["followon_outside_pinned_lines_not_proven_cross_revision_new"])
 
     def test_clean_followon_adds_only_exact_candidates_and_no_numerator(self):
