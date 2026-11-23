@@ -17,6 +17,7 @@ on:
       - scripts/tests/test_aspects_recover_unpinned_historical_sources.py
       - scripts/aspects_reconcile_recovered_candidates.py
       - scripts/aspects_reconcile_candidate_lineage.py
+      - scripts/aspects_verify_first_parent_lineage.py
       - scripts/tests/test_aspects_reconcile_candidate_lineage.py
       - scripts/aspects_reconcile_historical_defect_ids.py
       - scripts/aspects_verify_source_recovery_checkpoint.py

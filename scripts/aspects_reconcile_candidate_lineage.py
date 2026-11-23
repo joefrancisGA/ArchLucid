@@ -15,6 +15,7 @@ from pathlib import Path
 
 from aspects_reconcile_recovered_candidates import reconcile as reconcile_exact, intervals
 from aspects_reconcile_historical_lineage import blob_lines, unique_unchanged_pairs
+from aspects_verify_first_parent_lineage import trace_unique_first_parent_lines
 from aspects_validate_historical_pins import git, VERIFIED
 
 
@@ -48,6 +49,7 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
         result["blocking_reason"] = "Git first-parent chain not independently reproducible"
         return result
     order = {sha: length - 1 - i for i, sha in enumerate(commits)}
+    chronological_commits = list(reversed(commits))
     original: dict[tuple[str, str], set[int]] = defaultdict(set)
     derived: dict[tuple[str, str], set[int]] = defaultdict(set)
     first_original: dict[tuple[str, str], int] = {}
@@ -116,8 +118,21 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
     matches = set()
     cache = blob_cache
     adjacent_matches = set()
+    first_parent_proven_matches = set()
+    first_parent_edges_checked = first_parent_pairs_checked = first_parent_pairs_skipped = 0
+    first_parent_skip_reasons = defaultdict(int)
     compared = skipped = 0
     skipped_reasons = defaultdict(int)
+    def tree_blob_at_commit(commit_sha: str, path: str) -> str | None:
+        key = (commit_sha, path)
+        if key not in derived_tree_cache:
+            ok, payload = git(repo, "rev-parse", "--verify", f"{commit_sha}:{path}")
+            derived_tree_cache[key] = payload.decode("ascii", "replace").strip() if ok else None
+        return derived_tree_cache[key]
+
+    def source_lines(blob: str) -> list[str] | None:
+        return blob_lines(repo, blob, cache)
+
     # Compare at most the two closest original-pinned blob identities to each
     # derived candidate. Transitive historical source lineage is NOT asserted.
     for (path, candidate_blob), selected in sorted(only.items()):
@@ -145,14 +160,29 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 pairs = ((a, b) for a, b in unique_unchanged_pairs(candidate_source, source))
             else:
                 pairs = ((b, a) for a, b in unique_unchanged_pairs(source, candidate_source))
+            comparable_pairs = []
             for candidate_line, original_line in pairs:
                 if candidate_line in selected and original_line in original_lines:
                     identity = (path, candidate_blob, candidate_line)
                     matches.add(identity)
-                    # Exactly one first-parent edge between the two attested
-                    # review SHAs needs no intervening-commit lineage guess.
+                    comparable_pairs.append((candidate_line, original_line))
                     if abs(first_derived[(path, candidate_blob)] - original_order) == 1:
                         adjacent_matches.add(identity)
+            if comparable_pairs:
+                traced, reason, edge_count = trace_unique_first_parent_lines(
+                    chronological_commits, path, candidate_blob,
+                    first_derived[(path, candidate_blob)], original_blob,
+                    original_order, {a for a, _ in comparable_pairs},
+                    tree_blob_at_commit, source_lines, max_blob_lines=max_blob_lines)
+                if reason is not None:
+                    first_parent_pairs_skipped += 1
+                    first_parent_skip_reasons[reason] += 1
+                else:
+                    first_parent_pairs_checked += 1
+                    first_parent_edges_checked += edge_count
+                    for candidate_line, original_line in comparable_pairs:
+                        if traced.get(candidate_line) == original_line:
+                            first_parent_proven_matches.add((path, candidate_blob, candidate_line))
     if len(matches) > expected_only:
         raise RuntimeError("Provisional lineage exceeded candidate-only cohort")
     result.update({
@@ -165,17 +195,24 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
         "derived_git_tree_source_components_attested": derived_components_attested,
         "derived_git_tree_nonblank_occurrences_attested": derived_nonblank_occurrences_attested,
         "candidate_only_matching_adjacent_first_parent_unchanged_unique_lines": len(adjacent_matches),
+        "candidate_only_proven_same_path_first_parent_lineage_to_original_pin": len(first_parent_proven_matches),
+        "candidate_only_provisional_equal_hunk_without_full_first_parent_proof": len(matches - first_parent_proven_matches),
+        "first_parent_lineage_revision_pairs_checked": first_parent_pairs_checked,
+        "first_parent_lineage_revision_pairs_skipped": first_parent_pairs_skipped,
+        "first_parent_lineage_intermediate_edges_checked": first_parent_edges_checked,
+        "first_parent_lineage_skipped_reasons": dict(sorted(first_parent_skip_reasons.items())),
         "candidate_only_matching_unique_unchanged_text_in_nearby_original_pins": len(matches),
         "candidate_only_remaining_without_such_match": expected_only - len(matches),
         "candidate_original_revision_pairs_compared": compared,
         "candidate_original_revision_pairs_skipped": skipped,
         "skipped_reasons": dict(sorted(skipped_reasons.items())),
         "interpretation": (
-            "Unique unchanged equal-hunk text is a provisional SAME-PATH comparison "
-            "against at most two neighboring pinned revisions. It is not a source "
-            "lineage proof across intervening commits or renames (the adjacent "
-            "first-parent subset needs no intervening-commit inference), and cannot update "
-            "the independent verified LOC, legacy denominator or defect numerator."
+            "Endpoint equal-hunk matches are provisional. Separately reported "
+            "full first-parent proof requires same-path Git blob identity and unique "
+            "unchanged nonblank text through EVERY intermediate commit, subject to "
+            "strict caps. No renames or edits-and-reverts are inferred. Proven "
+            "line identity is not proof of a derived review, and changes no "
+            "independently verified LOC, historical denominator or defect numerator."
         ),
     })
     return result

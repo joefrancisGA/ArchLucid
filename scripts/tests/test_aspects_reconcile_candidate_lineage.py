@@ -87,6 +87,8 @@ class CandidateLineageTests(unittest.TestCase):
         self.assertEqual(r["candidate_only_matching_unique_unchanged_text_in_nearby_original_pins"], 2)
         self.assertEqual(r["candidate_only_remaining_without_such_match"], 3)
         self.assertEqual(r["candidate_only_matching_adjacent_first_parent_unchanged_unique_lines"], 2)
+        self.assertEqual(r["candidate_only_proven_same_path_first_parent_lineage_to_original_pin"], 2)
+        self.assertEqual(r["candidate_only_provisional_equal_hunk_without_full_first_parent_proof"], 0)
         self.assertEqual(r["derived_git_tree_source_components_attested"], 1)
         self.assertEqual(r["derived_git_tree_nonblank_occurrences_attested"], 5)
         self.assertEqual(r["new_original_pin_verified_loc"], 0)
@@ -114,6 +116,7 @@ class CandidateLineageTests(unittest.TestCase):
         self.assertEqual(result["status"], "provisional_cross_revision_candidate_lineage")
         self.assertEqual(result["candidate_only_matching_unique_unchanged_text_in_nearby_original_pins"], 2)
         self.assertEqual(result["candidate_only_matching_adjacent_first_parent_unchanged_unique_lines"], 0)
+        self.assertEqual(result["candidate_only_proven_same_path_first_parent_lineage_to_original_pin"], 2)
 
     def test_missing_chain_fails_closed(self):
         def mutate(pin, pr, cand, cr):
@@ -134,6 +137,39 @@ class CandidateLineageTests(unittest.TestCase):
         self.assertEqual(r["candidate_only_matching_unique_unchanged_text_in_nearby_original_pins"], 0)
         self.assertEqual(r["candidate_original_revision_pairs_skipped"], 1)
 
+
+    def test_intervening_mutation_and_revert_does_not_prove_same_line(self):
+        self.commit("alpha\nmutated\nrepeat\nrepeat\nnovel\n", "middle modification")
+        self.commit("alpha\nunique\nrepeat\nrepeat\nnovel\n", "restore text")
+        current = git(self.repo, "rev-parse", "HEAD")
+        def mutate(pin, pr, cand, cr):
+            pin[1]["reviewed_master_sha"] = current
+            cand[0]["reviewed_master_sha"] = current
+            self.anchor["head_sha"] = current
+            self.anchor["first_parent_commits"] = 4
+            pr["audited_rows_sha256"] = audited_rows_sha256(pin)
+            cr["candidate_rows_sha256"] = audited_rows_sha256(cand)
+        r = self.case(mutate)
+        self.assertEqual(r["status"], "provisional_cross_revision_candidate_lineage")
+        self.assertEqual(r["candidate_only_matching_unique_unchanged_text_in_nearby_original_pins"], 2)
+        self.assertEqual(r["candidate_only_proven_same_path_first_parent_lineage_to_original_pin"], 1)
+        self.assertEqual(r["candidate_only_provisional_equal_hunk_without_full_first_parent_proof"], 1)
+
+    def test_path_deletion_then_recreation_blocks_lineage(self):
+        git(self.repo, "rm", "-q", "a.cs")
+        git(self.repo, "commit", "-qm", "delete path")
+        self.commit("alpha\nunique\nrepeat\nrepeat\nnovel\n", "recreate path")
+        current = git(self.repo, "rev-parse", "HEAD")
+        def mutate(pin, pr, cand, cr):
+            pin[1]["reviewed_master_sha"] = current
+            cand[0]["reviewed_master_sha"] = current
+            self.anchor["head_sha"] = current
+            self.anchor["first_parent_commits"] = 4
+            pr["audited_rows_sha256"] = audited_rows_sha256(pin)
+            cr["candidate_rows_sha256"] = audited_rows_sha256(cand)
+        r = self.case(mutate)
+        self.assertEqual(r["candidate_only_proven_same_path_first_parent_lineage_to_original_pin"], 0)
+        self.assertEqual(r["first_parent_lineage_skipped_reasons"]["missing_intermediate_path"], 1)
 
 if __name__ == "__main__":
     unittest.main()

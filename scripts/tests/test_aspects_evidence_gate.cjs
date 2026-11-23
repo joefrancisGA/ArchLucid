@@ -176,6 +176,7 @@ test('existing non-Aspects and pre-enforcement behavior is preserved', async () 
 test('candidate lineage implementation and focused test remain accounting-only', async () => {
   const files = [
     changed('scripts/aspects_reconcile_candidate_lineage.py', 'added'),
+    changed('scripts/aspects_verify_first_parent_lineage.py', 'added'),
     changed('scripts/tests/test_aspects_reconcile_candidate_lineage.py', 'added'),
     changed('.github/workflows/aspects-density-snapshot.yml'),
   ];
