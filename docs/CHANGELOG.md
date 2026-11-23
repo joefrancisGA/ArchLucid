@@ -6,6 +6,30 @@
 # ArchLucid changelog
 
 
+## 2026-11-23 - Score lift round 119 (batch 84): Hub audit and terraform partial, explorer triple, lifecycle filter
+
+**Outcome.** Resource hub audit and terraform-not-mapped empties name thin capture versus a failed hub read only when the latest capture is partial. Infrastructure explorer names a type, prefix, and resource-group filter empty versus a failed catalog read. Compare finding lifecycle names a status-filter empty versus a failed compare load.
+
+**Surfaces.** Resource hub client, resources explorer, compare finding lifecycle block, honesty and mounted contract tests.
+
+## 2026-11-23 - Score lift round 118 (batch 83): Hub remediation partial, explorer combined and queue
+
+**Outcome.** Resource hub remediation empty names thin capture versus a failed hub read only when the latest capture is partial. Infrastructure explorer names type-plus-group, prefix-plus-group, and work-queue-only empties versus a failed catalog read.
+
+**Surfaces.** Resource hub client, resources explorer, honesty and mounted contract tests.
+
+## 2026-11-23 - Score lift round 117 (batch 82): Hub partial gates, manifest lineage menu
+
+**Outcome.** Resource hub diagram, configuration, and drift empty states name thin capture versus a failed hub read only when the latest capture is partial. Golden manifest More formats menu names lineage verify HTTP failure apart from commit-before-seal.
+
+**Surfaces.** Resource hub client, golden manifest export menu, honesty and mounted contract tests.
+
+## 2026-11-23 - Score lift round 116 (batch 81): Explorer filters, compare one finalized, hub findings partial
+
+**Outcome.** Infrastructure explorer restores category-only and name-prefix-only filter empty honesty and adds resource-group-only empty band. Compare insufficient-finalized one-review case mounts not-load-failure test id. Resource hub findings tab adds partial-capture not-load-failure when capture is thin.
+
+**Surfaces.** Resources explorer, compare insufficient finalized empty, resource hub findings tab, honesty and mounted contract tests.
+
 ## 2026-11-22 - Score lift round 115 (batch 80): Hub overview gate, explorer filters, buyer bundle
 
 **Outcome.** Resource hub overview partial-capture not-load-failure line mounts only when latest capture is partial. Infrastructure explorer category-only and name-prefix-only filter empties name successful filter reads versus catalog load failure. Manifest buyer bundle download names unsealed finalize gate beside blocked hint.

@@ -103,8 +103,15 @@ public sealed partial class CachingTenantRepository
     }
 
     /// <inheritdoc />
-    public Task TryClaimTrialSeatAsync(Guid tenantId, string principalKey, CancellationToken ct) =>
-        _inner.TryClaimTrialSeatAsync(tenantId, principalKey, ct);
+    public async Task TryClaimTrialSeatAsync(Guid tenantId, string principalKey, CancellationToken ct)
+    {
+        await _inner.TryClaimTrialSeatAsync(tenantId, principalKey, ct).ConfigureAwait(false);
+
+        // A successful claim can increment TrialSeatsUsed. The write may have
+        // committed even if the request was cancelled immediately afterward,
+        // so eviction must not reuse that potentially-cancelled token.
+        await InvalidateAsync(tenantId, CancellationToken.None).ConfigureAwait(false);
+    }
 
     /// <inheritdoc />
     public Task<IReadOnlyList<Guid>> ListTrialLifecycleAutomationTenantIdsAsync(CancellationToken ct) =>

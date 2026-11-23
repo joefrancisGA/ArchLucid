@@ -13,11 +13,30 @@ on:
       - scripts/aspects_import_historical_workbook.py
       - scripts/aspects_validate_historical_corpus.py
       - scripts/aspects_validate_historical_pins.py
+      - scripts/aspects_recover_unpinned_historical_sources.py
+      - scripts/tests/test_aspects_recover_unpinned_historical_sources.py
+      - scripts/aspects_reconcile_recovered_candidates.py
+      - scripts/aspects_reconcile_candidate_lineage.py
+      - scripts/aspects_verify_first_parent_lineage.py
+      - scripts/tests/test_aspects_reconcile_candidate_lineage.py
+      - scripts/aspects_reconcile_historical_defect_ids.py
+      - scripts/aspects_verify_source_recovery_checkpoint.py
+      - scripts/tests/test_aspects_verify_source_recovery_checkpoint.py
+      - scripts/aspects_verify_duplicate_fix_relationship.py
+      - scripts/tests/test_aspects_verify_duplicate_fix_relationship.py
+      - scripts/tests/test_aspects_reconcile_historical_defect_ids.py
+      - scripts/tests/test_aspects_reconcile_recovered_candidates.py
       - scripts/aspects_reconcile_historical_lineage.py
       - scripts/tests/test_aspects_reconcile_historical_lineage.py
+      - scripts/aspects_verify_original_pinned_first_parent.py
+      - scripts/tests/test_aspects_verify_original_pinned_first_parent.py
+      - scripts/aspects_verify_followon_historical_lineage.py
+      - scripts/tests/test_aspects_verify_followon_historical_lineage.py
       - scripts/tests/test_aspects_validate_historical_pins.py
       - scripts/aspects_reconcile_historical_corpus.py
       - scripts/tests/test_aspects_reconcile_historical_corpus.py
+      - scripts/aspects_reconcile_followon_900.py
+      - scripts/tests/test_aspects_reconcile_followon_900.py
       - docs/engineering/aspects-historical/**
       - scripts/tests/test_aspects_validate_historical_corpus.py
       - scripts/tests/test_aspects_import_historical_workbook.py
@@ -25,7 +44,9 @@ on:
       - scripts/aspects_density_snapshot.py
       - scripts/tests/test_aspects_review_evidence.py
       - scripts/tests/test_aspects_density_snapshot.py
+      - scripts/tests/test_aspects_evidence_gate.cjs
       - .github/workflows/aspects-density-snapshot.yml
+      - .github/workflows/aspects-evidence-gate.yml
   workflow_dispatch:
 
 permissions:
@@ -40,13 +61,20 @@ jobs:
   evidence-snapshot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify accounting classification preserves product-source evidence requirements
+        run: node --test scripts/tests/test_aspects_evidence_gate.cjs
 
       - name: Verify evidence recorder regressions
         run: python -m unittest discover -s scripts/tests -p 'test_aspects_review_evidence.py' -v
@@ -75,6 +103,7 @@ jobs:
       - name: Independently check legacy source pins against historical Git blobs
         run: |
           python -m unittest discover -s scripts/tests -p 'test_aspects_validate_historical_pins.py' -v
+          python -m unittest discover -s scripts/tests -p 'test_aspects_historical_multisource_checkpoint.py' -v
           python scripts/aspects_validate_historical_pins.py \
             --repo . \
             --historical-root docs/engineering/aspects-historical \
@@ -97,6 +126,196 @@ jobs:
               f.write("Cross-revision line identity and historical distinct-defect reconciliation remain unresolved.\n\n")
           PY
 
+      - name: Reconcile historical discovery identifiers with timestamped fixing-PR states
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_historical_defect_ids.py' -v
+          python scripts/aspects_reconcile_historical_defect_ids.py \
+            --historical-root docs/engineering/aspects-historical \
+            --audited-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --pin-report artifacts/aspects/historical-git-pin-audit.json \
+            --new-ledger docs/engineering/aspects-review-ledger.jsonl \
+            --pr-states docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-23-all-referenced.json \
+            --json-out artifacts/aspects/historical-discovery-fix-reconciliation.json \
+            --rows-out artifacts/aspects/historical-discovery-fix-reconciliation.jsonl
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          item = json.loads(Path("artifacts/aspects/historical-discovery-fix-reconciliation.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(
+                  f"All-history workbook candidate IDs **{item['candidate_discovery_id_scopes']['all_history']['unique_candidate_ids']:,}** "
+                  f"across **{item['positive_rows']:,}** positive workbook rows; "
+                  f"anchored historical 900-window candidates "
+                  f"**{item['candidate_discovery_id_scopes']['anchored_900_first_parent']['unique_candidate_ids']:,}**. "
+                  f"Fix PR statuses independently checked in GitHub "
+                  f"**{item['github_fix_pr_state_verified_rows']:,}** at "
+                  f"**{item['github_fix_pr_checkpoint_checked_at_utc']}**. "
+                  "Fix merges never change discovery counts; the 463-defect "
+                  "historical numerator remains unverified.\n\n"
+              )
+          PY
+
+      - name: Verify source-attested duplicate fixing-PR identities without dropping review events
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_verify_duplicate_fix_relationship.py' -v
+          python scripts/aspects_verify_duplicate_fix_relationship.py \
+            --historical-root docs/engineering/aspects-historical \
+            --audit-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --audit-report artifacts/aspects/historical-git-pin-audit.json \
+            --evidence docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-duplicate-6702-of-6701.json \
+            --json-out artifacts/aspects/historical-explicit-duplicate-review-relations.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          result = json.loads(Path("artifacts/aspects/historical-explicit-duplicate-review-relations.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(
+                  f"Explicit duplicate fix-review relationships verified: "
+                  f"**{result['explicit_duplicate_review_relationships']}**; "
+                  f"original review events retained: **{result['review_events_preserved_without_recount']}**. "
+                  "No new LOC or global distinct-defect count inferred.\\n\\n"
+              )
+          PY
+
+      - name: Classify unpinned workbook source references without inflating verified coverage
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_recover_unpinned_historical_sources.py' -v
+          python scripts/aspects_recover_unpinned_historical_sources.py \
+            --repo . \
+            --historical-root docs/engineering/aspects-historical \
+            --state docs/engineering/aspects-historical-restoration-state.json \
+            --json-out artifacts/aspects/historical-unpinned-source-candidates.json \
+            --rows-out artifacts/aspects/historical-unpinned-source-candidates.jsonl
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          golden = json.loads(Path("docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row908-utf8-bom.json").read_text())
+          rows = [json.loads(line) for line in Path("artifacts/aspects/historical-unpinned-source-candidates.jsonl").read_text().splitlines()]
+          matches = [row for row in rows if row["excel_row"] == golden["excel_row"]]
+          assert len(matches) == 1, "Missing/repeated original clean-review Excel row 908"
+          row = matches[0]
+          assert row["status"] == "git_source_at_review_commit_candidate_only"
+          assert row["original_blob_pinned"] is False
+          assert row["reviewed_master_sha"] == golden["reviewed_master_sha"]
+          assert row["review_id"] == golden["review_id"]
+          assert row["candidate_nonblank_loc"] == golden["reported_nonblank_loc"] == 673
+          keys = ("path", "blob_derived_at_reviewed_commit", "reported_inclusive_intervals", "nonblank_intervals_at_reviewed_commit", "nonblank_loc", "original_blob_pinned")
+          expected = [{key: source[key] for key in keys} for source in golden["sources"]]
+          assert row["sources"] == expected, "Original fifteen-blob candidate source evidence drift"
+          print("Clean Excel row 908: 673 nonblank source lines; UTF-8 markers excluded, candidate provenance retained")
+          PY
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          golden = json.loads(Path("docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row22-prefixed-paths.json").read_text())
+          audit = [json.loads(line) for line in Path("artifacts/aspects/historical-unpinned-source-candidates.jsonl").read_text().splitlines()]
+          selected = [row for row in audit if row["excel_row"] == golden["workbook_excel_row"]]
+          assert len(selected) == 1, "Missing or duplicated original Excel row22"
+          row = selected[0]
+          assert row["status"] == "git_source_at_review_commit_candidate_only"
+          assert row["window_membership"] == "in_900_first_parent_window"
+          assert row["original_blob_pinned"] is False
+          assert row["review_id"] == golden["review_id"] == "#6634"
+          assert row["reviewed_master_sha"] == golden["reviewed_master_sha"]
+          assert row["candidate_nonblank_loc"] == row["reviewed_loc_workbook_reported"] == golden["reported_nonblank_loc"] == 195
+          keys = ("path", "blob_derived_at_reviewed_commit", "reported_inclusive_intervals", "nonblank_loc")
+          actual = [{key: source[key] for key in keys} for source in row["sources"]]
+          expected = [{key: source[key] for key in keys} for source in golden["sources"]]
+          assert actual == expected, "Row22 six-file source-at-commit evidence drift"
+          assert len(actual) == 6 and sum(s["nonblank_loc"] for s in actual) == 195
+          assert not any(s["original_blob_pinned"] for s in row["sources"])
+          assert row["candidate_new_exact_path_blob_loc"] == golden["exact_overlap_reconciliation"]["candidate_exact_new_vs_preexisting_pins_and_candidates"] == 195
+          assert row["candidate_repeated_exact_path_blob_loc"] == golden["exact_overlap_reconciliation"]["exact_repeated_line_occurrences"] == 0
+          assert golden["newly_original_pinned_verified_loc"] == 0
+          assert golden["candidate_cross_revision_denominator_increment"] == 0
+          print("Excel row22: six explicitly scoped paths, 195 Git-attested candidate-only LOC; no original-pin promotion")
+          PY
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          data = json.loads(Path("artifacts/aspects/historical-unpinned-source-candidates.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
+              output.write(
+                  f"Unpinned workbook review triage (not independently pinned): "
+                  f"**{data.get('candidate_rows', 0):,}** Git-resolved candidate rows, "
+                  f"**{data.get('candidate_line_occurrences', 0):,}** candidate "
+                  f"nonblank line occurrences; candidate in-900-window rows "
+                  f"**{data.get('in_window_candidate_rows', 0):,}**. "
+                  "These are EXCLUDED from pinned-verified and legacy density.\\n\\n"
+              )
+          PY
+
+      - name: Reconcile exact identity overlap between derived candidates and original pinned reviews
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_recovered_candidates.py' -v
+          python scripts/aspects_reconcile_recovered_candidates.py \
+            --pin-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --pin-report artifacts/aspects/historical-git-pin-audit.json \
+            --candidate-rows artifacts/aspects/historical-unpinned-source-candidates.jsonl \
+            --candidate-report artifacts/aspects/historical-unpinned-source-candidates.json \
+            --state docs/engineering/aspects-historical-restoration-state.json \
+            --json-out artifacts/aspects/historical-recovered-vs-pinned-overlap.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path("artifacts/aspects/historical-recovered-vs-pinned-overlap.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
+              output.write(
+                  f"900-window candidate/pinned exact identity overlap: "
+                  f"**{report['candidate_exact_line_overlap_with_original_pins']:,}** exact repeat lines; "
+                  f"**{report['candidate_exact_path_blob_line_identities_not_in_original_pins']:,}** "
+                  "candidate-only identities, neither independently verified review LOC "
+                  "nor eligible for the published historical denominator.\\n\\n"
+              )
+          PY
+
+      - name: Reconcile provisional candidate-to-original source line identity without changing eligible LOC
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_candidate_lineage.py' -v
+          python scripts/aspects_reconcile_candidate_lineage.py \
+            --pin-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --pin-report artifacts/aspects/historical-git-pin-audit.json \
+            --candidate-rows artifacts/aspects/historical-unpinned-source-candidates.jsonl \
+            --candidate-report artifacts/aspects/historical-unpinned-source-candidates.json \
+            --json-out artifacts/aspects/historical-candidate-cross-revision-lineage.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          data=json.loads(Path('artifacts/aspects/historical-candidate-cross-revision-lineage.json').read_text())
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write(
+                  f"Derived candidate-only exact identities: **{data['candidate_exact_only_line_identities']:,}**; "
+                  f"provisional uniquely unchanged same-path mappings **{data['candidate_only_matching_unique_unchanged_text_in_nearby_original_pins']:,}**, "
+                  f"unresolved **{data['candidate_only_remaining_without_such_match']:,}**. "
+                  "No promotion to verified LOC or comparable density.\n\n"
+              )
+          PY
+
+      - name: Verify exact-commit numeric-range recovery golden and candidate-only overlap
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_verify_source_recovery_checkpoint.py' -v
+          python scripts/aspects_verify_source_recovery_checkpoint.py \
+            --golden docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-numeric-range-nine.json \
+            --pin-report artifacts/aspects/historical-git-pin-audit.json \
+            --pin-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --candidate-report artifacts/aspects/historical-unpinned-source-candidates.json \
+            --candidate-rows artifacts/aspects/historical-unpinned-source-candidates.jsonl \
+            --json-out artifacts/aspects/historical-numeric-range-nine.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          data=json.loads(Path('artifacts/aspects/historical-numeric-range-nine.json').read_text())
+          count=data['increments']
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write(
+                  f"Nine historical numeric-range reviews, source-at-original-commit only: "
+                  f"**{count['candidate_line_occurrences']} derived candidate LOC**, "
+                  f"**{count['candidate_new_exact_identities']} exact novel** and "
+                  f"**{count['candidate_repeated_line_occurrences']} repeated**. "
+                  "Verified original-pin denominator increment 0; no comparable historical 900-window density.\\n\\n"
+              )
+          PY
+
       - name: Reconcile provisional cross-revision unchanged-line identity in the exact historical window
         run: |
           python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_historical_lineage.py' -v
@@ -110,11 +329,73 @@ jobs:
           import json, os
           from pathlib import Path
           report = json.loads(Path("artifacts/aspects/historical-900-cross-revision-lineage.json").read_text())
+          checkpoint = json.loads(Path(
+              "docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-900-pin-partition.json"
+          ).read_text())
+          # The checkpoint is tied to the immutable original 900-commit
+          # workbook cohort and the full Git pin-audit row SHA-256. Fail
+          # closed on audit drift; never silently publish a stale partition.
+          cohort = report["first_parent_checkpoint"]
+          pinned = checkpoint["original_git_pin_exact_identities"]
+          expected = {
+              "verified_pin_line_occurrences_in_window": pinned["line_occurrences"],
+              "verified_unique_exact_path_blob_lines_in_window": pinned["unique_path_blob_line_loc"],
+              "verified_repeated_exact_path_blob_lines_in_window": pinned["repeated_path_blob_line_occurrences"],
+              "single_file_original_pin_unique_exact_loc_in_window": pinned["single_file_rows_unique_path_blob_line_loc"],
+              "multi_file_original_pin_unique_exact_loc_in_window": pinned["multi_file_rows_unique_path_blob_line_loc"],
+              "multi_file_original_pin_exact_overlap_with_single_file_loc_in_window": pinned["multi_file_exact_path_blob_line_overlap_with_single_file_rows"],
+              "multi_file_original_pin_new_exact_loc_vs_single_file_loc_in_window": pinned["multi_file_new_exact_path_blob_line_loc_vs_single_file_rows"],
+              "eligible_verified_review_rows": checkpoint["source_review_rows"]["source_pin_verified_in_window_total"],
+              "audited_rows_sha256": checkpoint["git_pin_audited_rows_sha256"],
+          }
+          if (report["status"] != "provisional_same_path_unique_unchanged_lineage"
+                  or cohort["head_sha"] != checkpoint["cohort"]["head_sha"]
+                  or cohort["oldest_sha"] != checkpoint["cohort"]["oldest_included_sha"]):
+              raise SystemExit("::error::900-window pin partition cohort differs from checked-in golden")
+          for key, value in expected.items():
+              if report.get(key) != value:
+                  raise SystemExit(f"::error::900-window exact overlap golden mismatch for {key}: "
+                                   f"{report.get(key)} != {value}")
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
               output.write(f"Cross-revision historical pin reconciliation: **{report['status']}**.\n\n")
               if report["status"] == "provisional_same_path_unique_unchanged_lineage":
                   output.write(f"Exact path/blob union (window-eligible only): **{report['verified_unique_exact_path_blob_lines_in_window']:,} LOC**; provisional uniquely unchanged-line union: **{report['provisionally_mapped_unique_loc']:,} LOC**.\n\n")
+                  output.write(f"Of 3,693 already Git-verified original multi-file source occurrences, **{report['multi_file_original_pin_new_exact_loc_vs_single_file_loc_in_window']:,}** exact identities are absent from the 4,511 single-source reviews and **{report['multi_file_original_pin_exact_overlap_with_single_file_loc_in_window']:,}** repeat. This is newly reconciled overlap, not freshly reviewed LOC.\n\n")
               output.write("Legacy 463/343,492 density remains independent and partial; source-line mappings do not verify reviewed events or distinct defects.\n\n")
+          PY
+
+      - name: Independently prove unchanged original pin lines across every first-parent source change
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_verify_original_pinned_first_parent.py' -v
+          python scripts/aspects_verify_original_pinned_first_parent.py \
+            --repo . \
+            --audit-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --audit-report artifacts/aspects/historical-git-pin-audit.json \
+            --json-out artifacts/aspects/historical-original-pin-proven-first-parent.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          result = json.loads(Path("artifacts/aspects/historical-original-pin-proven-first-parent.json").read_text())
+          golden = json.loads(Path(
+              "docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-900-pin-partition.json"
+          ).read_text())
+          expected = golden["original_git_pin_exact_identities"]
+          assert result["status"] == "partial_original_pinned_first_parent_lineage_proved"
+          assert result["original_review_rows_imported"] == 5741
+          assert result["original_pinned_unique_exact_path_blob_lines_in_window"] == expected["unique_path_blob_line_loc"]
+          assert result["same_blob_repeated_occurrences_in_window"] == expected["repeated_path_blob_line_occurrences"]
+          assert result["historical_900_window"]["head_sha"] == golden["cohort"]["head_sha"]
+          assert result["new_comparable_900_density"] is None
+          assert result["new_independently_reviewed_loc"] == 0
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(
+                  f"Original reviewed-source first-parent proof: "
+                  f"**{result['proven_first_parent_mapped_repeated_exact_source_identities']:,}** "
+                  f"unchanged cross-revision source-line identities, "
+                  f"**{result['revision_pairs_checked_full_first_parent']:,}** pairs fully checked; "
+                  f"**{result['revision_pairs_unresolved']:,}** unresolved. "
+                  "Partial, not a new review or density measurement.\\n\\n"
+              )
           PY
 
       - name: Validate historical workbook import when migration source is staged
@@ -136,6 +417,89 @@ jobs:
             --new-ledger docs/engineering/aspects-review-ledger.jsonl \
             --json-out artifacts/aspects/aspects-historical-exact-overlap.json
           echo 'Historical-vs-new exact blob overlaps computed; cross-revision mappings remain explicitly unresolved.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Audit follow-on reviews against the original-pinned historical 900 cohort
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_followon_900.py' -v
+          python scripts/aspects_reconcile_followon_900.py \
+            --repo . \
+            --historical-root docs/engineering/aspects-historical \
+            --pin-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --pin-report artifacts/aspects/historical-git-pin-audit.json \
+            --ledger docs/engineering/aspects-review-ledger.jsonl \
+            --json-out artifacts/aspects/historical-900-followon-pinned-overlap.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          data = json.loads(Path("artifacts/aspects/historical-900-followon-pinned-overlap.json").read_text())
+          assert data["status"] == "source_audited_original_pins_vs_git_verified_followon_exact_only"
+          assert data["historical_rows_imported"] == 5741
+          assert data["historical_clean_reviews_all_history"] == 4864
+          assert data["historical_positive_reviews_all_history_not_distinct_defects"] == 877
+          assert data["original_pinned_clean_review_rows_in_historical_cohort"] > 0
+          assert data["new_comparable_900_density"] is None
+          assert data["merged_historical_and_followon_denominator"] is None
+          assert data["new_verified_distinct_defects"] is None
+          assert set(data["followon_verbatim_candidate_labels_also_in_historical_window"]).isdisjoint(
+              data["followon_candidate_labels_without_verbatim_historical_match"])
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(
+                  f"Historical 900 first-parent original-pin/follow-on comparison: "
+                  f"**{data['original_pinned_clean_review_rows_in_historical_cohort']}** "
+                  "original pinned clean reviews (linked to immutable workbook), "
+                  f"**{data['followon_records_with_baseline_inside_historical_cohort']}** "
+                  f"verified follow-on records inside historical cohort, "
+                  f"**{data['followon_records_with_baseline_outside_historical_cohort']}** "
+                  f"outside (not silently spliced); exact duplicate lines "
+                  f"**{data['followon_exact_repeat_with_original_pins']}**, "
+                  f"same-blob unmatched candidate lines "
+                  f"**{data['followon_exact_identities_not_in_original_pins']}**; "
+                  f"exact duplicate candidate discovery labels "
+                  f"**{len(data['followon_verbatim_candidate_labels_also_in_historical_window'])}**. "
+                  "Labels are NOT verified distinct defects; no cross-revision "
+                  "or comparable density promotion.\\n\\n"
+              )
+          PY
+
+      - name: Verify follow-on cross-blob line matches against original pinned Git source
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_verify_followon_historical_lineage.py' -v
+          python scripts/aspects_verify_followon_historical_lineage.py \
+            --repo . \
+            --pin-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --pin-report artifacts/aspects/historical-git-pin-audit.json \
+            --ledger docs/engineering/aspects-review-ledger.jsonl \
+            --json-out artifacts/aspects/historical-followon-cross-blob-first-parent.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path(
+              "artifacts/aspects/historical-followon-cross-blob-first-parent.json"
+          ).read_text())
+          exact = json.loads(Path(
+              "artifacts/aspects/historical-900-followon-pinned-overlap.json"
+          ).read_text())
+          assert report["status"] == "partial_historical_followon_cross_blob_first_parent_proof"
+          assert report["original_rows_audited"] == exact["historical_rows_imported"] == 5741
+          assert report["cohort"]["head_sha"] == exact["historical_cohort"]["head_sha"]
+          assert report["cohort"]["oldest_included_sha"] == exact["historical_cohort"]["oldest_included_sha"]
+          assert report["followon_records_in_historical_cohort"] == exact["followon_records_with_baseline_inside_historical_cohort"]
+          assert report["followon_records_outside_historical_cohort"] == exact["followon_records_with_baseline_outside_historical_cohort"]
+          assert report["followon_exact_overlap_line_identities"] == exact["followon_exact_repeat_with_original_pins"]
+          assert report["followon_exact_unmatched_line_identities"] == exact["followon_exact_identities_not_in_original_pins"]
+          assert report["new_independently_reviewed_loc"] == 0
+          assert report["new_comparable_900_density"] is None
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
+              output.write(
+                  f"Follow-on cross-blob first-parent proof: "
+                  f"**{report['followon_cross_blob_proven_repeat_identities']:,}** "
+                  f"source identities matching original pins through checked history, "
+                  f"**{report['cross_blob_revision_pairs_checked']:,}** revision pairs checked; "
+                  f"**{report['followon_exact_unmatched_without_proven_lineage']:,}** "
+                  "exact-unmatched identities without such proof. Candidate-only, "
+                  "not new reviewed LOC or comparable density.\\n\\n"
+              )
+          PY
 
       - name: Locate latest comparable master snapshot
         if: github.event_name != 'pull_request'
@@ -167,7 +531,7 @@ jobs:
           cat artifacts/aspects/aspects-density-snapshot.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload source-verified evidence snapshot
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: aspects-900-density-snapshot
           path: |
@@ -176,8 +540,19 @@ jobs:
             artifacts/aspects/historical-corpus-validation.json
             artifacts/aspects/historical-git-pin-audit.json
             artifacts/aspects/historical-git-pin-rows.jsonl
+            artifacts/aspects/historical-discovery-fix-reconciliation.json
+            artifacts/aspects/historical-discovery-fix-reconciliation.jsonl
+            artifacts/aspects/historical-explicit-duplicate-review-relations.json
+            artifacts/aspects/historical-unpinned-source-candidates.json
+            artifacts/aspects/historical-unpinned-source-candidates.jsonl
+            artifacts/aspects/historical-recovered-vs-pinned-overlap.json
+            artifacts/aspects/historical-candidate-cross-revision-lineage.json
+            artifacts/aspects/historical-numeric-range-nine.json
             artifacts/aspects/historical-900-cross-revision-lineage.json
+            artifacts/aspects/historical-original-pin-proven-first-parent.json
             artifacts/aspects/aspects-historical-exact-overlap.json
+            artifacts/aspects/historical-900-followon-pinned-overlap.json
+            artifacts/aspects/historical-followon-cross-blob-first-parent.json
           if-no-files-found: error
 
       - name: Require anchored, nonempty historical lineage cohort
@@ -201,3 +576,4 @@ jobs:
               docs/engineering/aspects-review-ledger.jsonl | grep -q 'aspects-review-ledger.jsonl'; then
             echo '::warning::This Aspects PR has no source-verified review evidence. New code findings will not move defect density until exact reviewed spans are recorded.'
           fi
+

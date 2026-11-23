@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "repository": "joefrancisGA/ArchLucid",
+  "checked_at_utc": "2026-11-23T00:59:51Z",
+  "provenance": "Two independently fetched GitHub PR descriptions/states compared with immutable historical workbook review rows; snapshot, not a live CI GitHub query",
+  "confidence": "explicit_self_reported_duplicate_fix_pr_with_original_review_event_correspondence",
+  "duplicate_references": [
+    {
+      "primary_fix_pr": 6701,
+      "duplicate_review_pr": 6702,
+      "primary_review_excel_row": 36,
+      "duplicate_review_excel_row": 37,
+      "original_review_id": "#6701",
+      "reviewed_master_sha": "c21b578f95fa131db853346d0911a45621098067",
+      "primary_pr_url": "https://github.com/joefrancisGA/ArchLucid/pull/6701",
+      "duplicate_pr_url": "https://github.com/joefrancisGA/ArchLucid/pull/6702",
+      "primary_pr_title": "Bound persisted SecureNow cut-point keys",
+      "duplicate_pr_title": "Bound persisted SecureNow cut-point keys",
+      "primary_pr_state_at_check": "merged",
+      "duplicate_pr_state_at_check": "closed_unmerged",
+      "original_duplicate_pr_description_excerpt": "A parallel review opened #6701 for the same defect before this PR became visible. #6701 is the active fix.",
+      "interpretation": "One explicitly duplicated defect review pair, not two independent discoveries. Retain BOTH original review events and ALL their reviewed LOC. Do not reassign the second row's original PR link or infer any wider 900-commit distinct-defect total."
+    }
+  ],
+  "counting_contract": "No workbook row modified; no added reviewed LOC; this evidence resolves one original duplicate *discovery relationship* only. A fixing PR is not generally a defect ID; 463 legacy numerator remains unverified."
+}

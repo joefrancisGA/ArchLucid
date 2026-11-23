@@ -318,7 +318,6 @@ export function GovernanceFindingsQueueOutcomeSection(
                   {secureNowCollectionMissing ? (
                     <p
                       className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                      PARTIAL_CAPTURE_FIX_MARKER
                     >
                       {GOVERNANCE_FINDINGS_EMPTY_COLLECTION_BLOCKER_PREFACE_LINE}
                     </p>

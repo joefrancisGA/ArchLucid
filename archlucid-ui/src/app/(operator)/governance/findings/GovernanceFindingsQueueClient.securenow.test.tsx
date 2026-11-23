@@ -9,6 +9,7 @@ import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-cli
 import * as operatorScopeStorage from "@/lib/operator/operator-scope-storage";
 import * as facetsStorage from "@/lib/governance/governance-findings-queue-facets-storage";
 
+const assignedCountEndpoint = vi.hoisted(() => vi.fn());
 const searchParamsState = vi.hoisted(() => ({ query: "" }));
 const collectionSetupState = vi.hoisted(() => ({ missing: false }));
 
@@ -44,6 +45,11 @@ vi.mock("@/lib/api", () => ({
   getRunExplanationSummary: vi.fn().mockResolvedValue({ traces: [] }),
   listRunsByProjectPaged: vi.fn().mockResolvedValue({ items: [] }),
 }));
+
+vi.mock("@/lib/api/governance-stickiness-api-registers", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/api/governance-stickiness-api-registers")>();
+  return { ...actual, getGovernanceAssignedToMeFindingsCount: () => assignedCountEndpoint() };
+});
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   getArchitectureDecisionRegister: vi.fn().mockResolvedValue({ decisions: [] }),
@@ -216,6 +222,8 @@ const secureNowAssignedRiskRow = {
 
 describe("GovernanceFindingsQueueClient SecureNow /security/assigned-to-me", () => {
   beforeEach(() => {
+    assignedCountEndpoint.mockReset();
+    assignedCountEndpoint.mockResolvedValue({ count: 0 });
     searchParamsState.query = "";
     collectionSetupState.missing = false;
     pathInspectFindingIdRef.current = null;
@@ -283,6 +291,7 @@ describe("GovernanceFindingsQueueClient SecureNow /security/assigned-to-me", () 
   });
 
   it("renders path inspect on the assigned queue for SecureNow", async () => {
+    assignedCountEndpoint.mockResolvedValue({ count: 1 });
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockImplementation(async (options) => {
       if (options?.assignedToMe === true) {
         return { entries: [secureNowAssignedRiskRow] };
@@ -294,9 +303,11 @@ describe("GovernanceFindingsQueueClient SecureNow /security/assigned-to-me", () 
     renderSecureNowAssignedToMeQueue();
 
     expect(await screen.findByTestId("security-evidence-path-inspect-panel")).toBeInTheDocument();
-    expect(await screen.findByTestId("governance-assigned-to-me-queue-status")).toHaveTextContent(
-      "1 open finding assigned",
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId("governance-assigned-to-me-queue-status")).toHaveTextContent(
+        "1 open finding assigned",
+      );
+    });
     expect(pathInspectFindingIdRef.current).toBeNull();
   });
 

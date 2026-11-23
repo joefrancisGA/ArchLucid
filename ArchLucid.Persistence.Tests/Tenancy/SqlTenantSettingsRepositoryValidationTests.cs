@@ -17,6 +17,17 @@ public sealed class SqlTenantSettingsRepositoryValidationTests
     private const int MigrationSettingKeyMaxLength = 128;
 
     [Fact]
+    public void Tenant_settings_merge_holds_key_range_lock_for_concurrent_first_writes()
+    {
+        // The composite PK (TenantId, SettingKey) does not itself serialize the
+        // MERGE absence check. HOLDLOCK protects the first-insert race.
+        SqlTenantSettingsRepository.UpsertSql.Should()
+            .Contain("MERGE dbo.TenantSettings WITH (HOLDLOCK) AS target")
+            .And.Contain("ON target.TenantId = source.TenantId AND target.SettingKey = source.SettingKey")
+            .And.Contain("WHEN NOT MATCHED THEN");
+    }
+
+    [Fact]
     public void Longest_known_production_setting_key_fits_migration_nvarchar_128_limit()
     {
         int maxConstantLength = typeof(TenantSettingKeys)

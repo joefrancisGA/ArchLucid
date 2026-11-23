@@ -1,4 +1,5 @@
 using ArchLucid.Core.Metering;
+using System.Data.SqlTypes;
 
 namespace ArchLucid.Persistence.Tenancy;
 
@@ -10,6 +11,11 @@ internal static class UsageEventRepositoryCore
     public const int MinListTake = 1;
 
     public static int ClampListTake(int take) => Math.Max(MinListTake, take);
+
+    // A blank key represents an unkeyed event. Preserve nonblank keys verbatim.
+    // SQL inserts must use this same normalization so blank keys never suppress usage.
+    public static string? IdempotencyKeyOrNull(string? key) =>
+        string.IsNullOrWhiteSpace(key) ? null : key;
 
     public static bool MatchesTenantPeriod(
         UsageEvent usageEvent,
@@ -38,12 +44,11 @@ internal static class UsageEventRepositoryCore
         ArgumentNullException.ThrowIfNull(existingEvents);
         ArgumentNullException.ThrowIfNull(candidate);
 
-        if (string.IsNullOrWhiteSpace(candidate.IdempotencyKey))
-            return false;
+        string? key = IdempotencyKeyOrNull(candidate.IdempotencyKey);
 
-        return existingEvents.Any(existing =>
+        return key is not null && existingEvents.Any(existing =>
             existing.TenantId == candidate.TenantId
-            && string.Equals(existing.IdempotencyKey, candidate.IdempotencyKey, StringComparison.Ordinal));
+            && string.Equals(IdempotencyKeyOrNull(existing.IdempotencyKey), key, StringComparison.Ordinal));
     }
 
     public static List<UsageEvent> SelectDistinctIdempotencyKeysForBatchInsert(IReadOnlyList<UsageEvent> events)
@@ -55,9 +60,9 @@ internal static class UsageEventRepositoryCore
 
         foreach (UsageEvent usageEvent in events)
         {
-            if (!string.IsNullOrWhiteSpace(usageEvent.IdempotencyKey))
+            if (IdempotencyKeyOrNull(usageEvent.IdempotencyKey) is { } normalizedKey)
             {
-                (Guid TenantId, string IdempotencyKey) key = (usageEvent.TenantId, usageEvent.IdempotencyKey);
+                (Guid TenantId, string IdempotencyKey) key = (usageEvent.TenantId, normalizedKey);
 
                 if (!seenKeys.Add(key))
                     continue;
@@ -108,6 +113,7 @@ internal static class UsageEventRepositoryCore
 
         return query
             .OrderByDescending(static e => e.RecordedUtc)
+            .ThenByDescending(static e => new SqlGuid(e.Id))
             .Take(ClampListTake(take))
             .ToList();
     }

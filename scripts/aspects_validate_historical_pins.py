@@ -17,6 +17,7 @@ import re
 import subprocess
 
 from aspects_review_evidence import read_records
+from aspects_import_historical_workbook import _spans
 from aspects_validate_historical_corpus import verify
 
 SHA = re.compile(r"^[0-9a-f]{40}$")
@@ -32,6 +33,29 @@ def git(repo: Path, *args: str) -> tuple[bool, bytes]:
 
 
 VERIFIED = "git_blob_and_nonblank_intervals_verified"
+MULTI_SOURCE_BOUNDARY = re.compile(
+    r";\s+(?=[^;\[\]\n]+\s+\[blob [0-9a-f]{40}\b)"
+)
+
+
+def source_pins(row: dict) -> list[dict]:
+    """Keep the old single-source schema; parse only fully pinned multi-file rows.
+
+    All components must be unambiguous and blob-pinned. In particular, legacy
+    basename-only summaries are never silently resolved to a Git path.
+    """
+    if row.get("parsed_pin") is not None:
+        return [row["parsed_pin"]]
+    raw = row.get("reviewed_file_spans_raw")
+    if not isinstance(raw, str) or raw.count("[blob ") < 2:
+        return []
+    segments = MULTI_SOURCE_BOUNDARY.split(raw.strip())
+    if len(segments) < 2:
+        return []
+    result = [_spans(segment) for segment in segments]
+    return result if all(result) else []
+
+
 
 
 def first_parent_checkpoint(repo: Path, checkpoint: dict | None) -> tuple[dict, set[str] | None]:
@@ -133,7 +157,32 @@ def verify_pins(
     window_counts: Counter[str] = Counter()
     window_summary, eligible_shas = first_parent_checkpoint(repo, checkpoint)
     for row in rows:
-        status, covered = inspect_pin(repo, row, source_cache, lines_cache)
+        pins = source_pins(row)
+        reviewed = []
+        status = "not_parseable"
+        if pins:
+            checked = [
+                (pin, *inspect_pin(
+                    repo, {**row, "parsed_pin": pin}, source_cache, lines_cache
+                )) for pin in pins
+            ]
+            invalid = next((kind for _, kind, _ in checked if kind != VERIFIED), None)
+            if invalid is None:
+                status = VERIFIED
+                reviewed = [(pin, lines) for pin, _, lines in checked]
+            else:
+                # Multi-file rows are atomic: one bad segment quarantines the
+                # entire review, never silently counting the valid fragments.
+                status = invalid if len(pins) == 1 else "multisource_" + invalid
+        if status == VERIFIED and len(pins) > 1:
+            # Workbook provenance must agree with the COMPLETE atomic review.
+            # A parser that silently drops one multi-file component must never
+            # promote its surviving subset as a verified historical review.
+            reported = row.get("reviewed_loc_reported")
+            actual = sum(len(lines) for _, lines in reviewed)
+            if type(reported) is not int or reported != actual:
+                status = "multisource_reported_loc_mismatch"
+                reviewed = []
         counts[status] += 1
         membership = ("not_checked" if checkpoint is None else
                       "membership_unverified" if eligible_shas is None else
@@ -148,33 +197,35 @@ def verify_pins(
             "nonblank_reviewed_loc": 0,
             "provenance": "historical_workbook_reported; git_source_identity_only",
         }
-        pin = row.get("parsed_pin")
-        if pin is not None:
-            record["path"] = pin.get("path")
-            record["blob"] = pin.get("blob")
-            record["spans"] = pin.get("spans")
+        if len(pins) == 1:
+            record.update({"path": pins[0].get("path"), "blob": pins[0].get("blob"),
+                           "spans": pins[0].get("spans")})
+        elif len(pins) > 1:
+            record["pinned_sources"] = pins
         if status != VERIFIED:
-            # Preserve ALL unparseable and invalid historical rows by original
-            # Excel row. No failed row contributes to verified LOC.
             quarantined.append({"excel_row": row["excel_row"], "reason": status})
             if audit_rows is not None:
                 audit_rows.append(record)
             continue
-        content_key = (pin["path"], pin["blob"])
-        repeated = len(covered & by_content[content_key])
-        fresh = len(covered) - repeated
+        fresh = repeated = occurrences = 0
+        for pin, covered in reviewed:
+            content_key = (pin["path"], pin["blob"])
+            prior = by_content[content_key]
+            repeated += len(covered & prior)
+            fresh += len(covered - prior)
+            prior.update(covered)
+            occurrences += len(covered)
+            if membership == "in_window":
+                window_content[content_key].update(covered)
         record.update({"new_exact_path_blob_loc": fresh,
                        "repeated_exact_path_blob_loc": repeated,
-                       "nonblank_reviewed_loc": len(covered)})
+                       "nonblank_reviewed_loc": occurrences})
         duplicates += repeated
-        by_content[content_key].update(covered)
-        line_occurrences += len(covered)
+        line_occurrences += occurrences
         if row["defects_recorded"] == 0:
             clean_rows += 1
         else:
             positive_rows += 1
-        if membership == "in_window":
-            window_content[content_key].update(covered)
         if audit_rows is not None:
             audit_rows.append(record)
     exact_unique = sum(len(lines) for lines in by_content.values())
@@ -189,7 +240,7 @@ def verify_pins(
     return {
         "status": "git_blob_and_nonblank_intervals_subset_only_cross_revision_unresolved",
         "review_events_present": len(rows),
-        "candidate_pin_count": sum(1 for row in rows if row.get("parsed_pin") is not None),
+        "candidate_pin_count": sum(bool(source_pins(row)) for row in rows),
         "classifications": dict(sorted(counts.items())),
         "verified_pin_rows": counts[VERIFIED],
         "verified_clean_review_rows": clean_rows,
