@@ -1,13 +1,15 @@
+> **Scope:** For architecture maintainers, record the verified adoption status of existing controls; this ledger is not proof that reference-only controls are enforced in production.
+
 # Architectural control reuse audit ledger
 
 **Initiated:** 2026-11-22. **Scope:** existing architecture controls, audited one at a time. Do not introduce new control families until this audit establishes usage and duplication evidence.
 
 | Control | Status | Evidence reviewed | Preliminary finding | Next action |
 | --- | --- | --- | --- | --- |
-| FND-018 bounded retries / circuit breaker / failure budget | In progress | PR #7779 metadata; master code search for `fnd018_resilience_controls`; PR #7778 parent | #7779 is an unmerged draft stacked on unmerged #7778. Default-branch code search returned no matches for the new Python module. Therefore production adoption is **not established**; absence from master search does not prove no equivalent controls exist. | Inventory existing C# resilience libraries, policy registration, call sites and retry/circuit duplication; compare semantics; propose narrow reuse improvements with tests |
-| FND-018 failure containment | Pending | PR #7778 metadata | Reference-only integration status requires verification | Audit after retry/budget control |
-| FND-017 conformance | Pending | PRs #7766–#7776 | Existing queued verification work separate | Audit analyzer deployment, CI and rule coverage |
-| FND-016 remediation safety | Pending | PRs #7758–#7764 | Stacked reference modules; production wiring unverified | Inventory consumers and duplicate safety checks |
+| FND-018 bounded retries / circuit breaker / failure budget | Merged reference; production reuse audit ongoing | PR #7779 merged; `scripts/integration/fnd018_resilience_controls.py` and Python reference tests on master; existing C# `CircuitBreakerGate` / Polly implementations | Reference Python controls are present, but no C# production call-site adoption of the Python policy is demonstrated. Do not mistake reference integration for runtime wiring. | Reconcile retry, breaker and failure-budget semantics against C# consumers; retain existing C# controls unless a specific reuse defect is confirmed |
+| FND-018 failure containment | Merged reference; production integration unverified | PR #7778 merged; `scripts/integration/fnd018_failure_containment.py` and reference workflow on master | Reference-only containment state machine; no production execution gate established | Audit separately before connecting to runtime |
+| FND-017 conformance | Roslyn and Python components merged; narrow enforcement proposed | PRs #7766–#7776 merged; `ArchLucid.Core.csproj` references Roslyn analyzer; `.github/workflows/fnd017-dotnet-semantic-boundaries.yml` tests analyzers | FND017001 is scoped for error-level enforcement on Core in this audit PR; FND017002–005 remain advisory pending mode-aware baselines and CI | Obtain focused Core build + analyzer test results before merging rule enforcement |
+| FND-016 remediation safety | Merged non-executing reference; production wiring unverified | PRs #7758–#7764 merged; Python reference modules and `docs/architecture/FND016_REMEDIATION_SAFETY_CONTROLLER.md` | Reference controller is non-executing and returns review-required, not execution eligibility | Inventory real service consumers; never substitute reference decisions for an authorized execution gate |
 | FND-010 authorization / audit | Pending | Recent PR sequence | Production reuse requires source review | Trace endpoint/worker authorization paths |
 | FND-014 / FND-015 simulation / rollback | Pending | Existing reference modules | Reuse requires source review | Inventory simulation and rollback implementations |
 
@@ -15,9 +17,9 @@
 
 For each control: document branch and SHA, exact source files inspected, definition and consumer inventory, equivalent implementations, verified defects versus opportunities, change and test evidence, and whether it is production-wired. Avoid treating a zero-result default-branch search as a repository-wide proof. Preserve fail-closed security behavior. Merge only with evidence and approved integration policy.
 
-## First finding
+## First finding — reconciled 2026-11-23
 
-FND-018 resilience controls are currently staged in PR #7779 rather than verified on master. The first priority is **usage discovery and deduplication**, not new control development. No source-code changes or production integration are authorized solely by this preliminary finding.
+FND-018 Python reference controls have **merged** via PRs #7778 and #7779. They are not demonstrated production C# consumers. The first priority remains **usage discovery and deduplication**, not new control development. A merged reference implementation alone does not authorize production integration.
 
 
 ## Audit update — agent handler cancellation and circuit accounting (2026-11-22)

@@ -11,6 +11,7 @@ public static class TenantIsolationScenario
         using HttpClient primer = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
 
+        // Callers may skip POST create-run warmup when the assertion is read-only unknown-run denial.
         await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
             primer, includePostCreateRunWarmup: includePostCreateRunWarmup)
             .ConfigureAwait(false);

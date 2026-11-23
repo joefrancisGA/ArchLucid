@@ -50,6 +50,36 @@ describe("operator-home-hero-resume-target", () => {
     ).toBe(true);
   });
 
+  it("keeps distinct cloud resources in Terraform mapping recents", () => {
+    expect(
+      resumeHrefsEquivalentForDedupe(
+        "/infrastructure/terraform?cloudResourceId=resource-a",
+        "/infrastructure/terraform?cloudResourceId=resource-b",
+      ),
+    ).toBe(false);
+    expect(
+      resumeHrefsEquivalentForDedupe(
+        "/governance/infrastructure/terraform?cloudResourceId=resource-a",
+        "/governance/infrastructure/terraform?cloudResourceId=resource-b",
+      ),
+    ).toBe(false);
+  });
+
+  it("still deduplicates the same Terraform resource after snapshot-only changes", () => {
+    expect(
+      resumeHrefsEquivalentForDedupe(
+        "/infrastructure/terraform?cloudResourceId=resource-a&snapshotId=snapshot-1",
+        "/infrastructure/terraform/?snapshotId=snapshot-2&cloudResourceId=resource-a",
+      ),
+    ).toBe(true);
+    expect(
+      resumeHrefsEquivalentForDedupe(
+        "/infrastructure/terraform",
+        "/infrastructure/terraform?cloudResourceId=resource-a",
+      ),
+    ).toBe(false);
+  });
+
   it("collectResumeRunIdsForMatch ignores whitespace-only explicit run ids", () => {
     expect(collectResumeRunIdsForMatch("/architecture/reviews/run-hero", "   ")).toEqual(["run-hero"]);
     expect(collectResumeRunIdsForMatch("/architecture/first-review-guide", "   ")).toEqual([]);

@@ -7,6 +7,7 @@ on:
       - 'ArchLucid.AgentRuntime/AzureOpenAiCompletionClient.cs'
       - 'ArchLucid.AgentRuntime/AzureOpenAiOptionsValidator.cs'
       - 'ArchLucid.AgentRuntime.Tests/Configuration/AzureOpenAiCompletionNetworkTimeoutTests.cs'
+      - 'ArchLucid.AgentRuntime.Tests/Configuration/AzureOpenAiCompletionStalledTransportTests.cs'
       - 'ArchLucid.AgentRuntime.Tests/Configuration/AzureOpenAiOptionsValidatorTests.cs'
       - 'ArchLucid.Core/Configuration/AzureOpenAiOptions.cs'
       - 'ArchLucid.Core.Tests/Configuration/AzureOpenAiOptionsTests.cs'
@@ -38,5 +39,5 @@ jobs:
         run: >-
           dotnet test ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
           --configuration Release
-          --filter 'FullyQualifiedName~AzureOpenAiOptionsValidatorTests|FullyQualifiedName~AzureOpenAiCompletionNetworkTimeoutTests'
+          --filter 'FullyQualifiedName~AzureOpenAiOptionsValidatorTests|FullyQualifiedName~AzureOpenAiCompletionNetworkTimeoutTests|FullyQualifiedName~AzureOpenAiCompletionStalledTransportTests'
           --logger 'console;verbosity=normal'
