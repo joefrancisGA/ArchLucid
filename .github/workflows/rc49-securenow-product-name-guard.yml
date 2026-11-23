@@ -1,0 +1,35 @@
+# Focused, non-deploying RC49 brand copy regression guard.
+# Run the strict name-leak scan on the repair pull request before release integration.
+name: RC49 SecureNow product-name leak guard
+
+on:
+  pull_request:
+    branches: [RC49]
+    paths:
+      - "scripts/ci/data/securenow-archlucid-allowlist.json"
+      - "archlucid-ui/scripts/securenow-archlucid-leak-drift-guard.test.ts"
+      - "archlucid-ui/src/lib/product-line/securenow-archlucid-leak-scanner.ts"
+      - ".github/workflows/rc49-securenow-product-name-guard.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  product-copy-guard:
+    name: "RC49: SecureNow copy scan (strict exclusions)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+      - name: Run exact SecureNow product-name leak scan
+        working-directory: archlucid-ui
+        env:
+          CI: "true"
+        run: |
+          npm ci
+          npm run test:vitest-single-worker -- scripts/securenow-archlucid-leak-drift-guard.test.ts
