@@ -4206,6 +4206,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `replayLivelihoodPendingMutation` treated `policy_pack_save` with `autoReplay: false` as a finished no-op. That flag only makes `requiresConfirmBeforeLivelihoodReplay` ask before retry; `confirmReplay` then calls replay. A saved policy-pack publish therefore showed "Retry saved action" and, on confirm, never called `publishPolicyPackVersion`. Replay now publishes after that confirm. Regression `publishes a saved policy pack when replay runs after confirm` failed first (`publishPolicyPackVersion` was not called), then the replay and policy files passed 16/16. Private beta: after signing back in, confirming a saved policy-pack publish sends that publish instead of marking it finished without contacting the API.
+
+- [x] (proven) `replayLivelihoodPendingMutation` — confirmed policy-pack publish is a no-op when `autoReplay` is false — **proven 2026-11-23 seed hunt:** `publishPolicyPackVersion` was not called for `pack-1`; confirm replay now publishes the stored pack and body.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `restoreIdleDeskScopeAfterSignIn` always wrote the idle snapshot scope. `PostAuthBootstrapClient.applyBootstrapSession` applies the workspace from the new access token and then calls that restore, so a workspace chosen after idle expiry was replaced by the pre-timeout tenant. When storage already holds a different tenant, workspace, and project, the restore now leaves that scope in place. An empty scope store still receives the snapshot. Regression `keeps a workspace chosen after idle expiry instead of restoring the saved desk scope` failed first (received `tenant-a` / `project-c`), then the file passed 16/16. Private beta: after an idle timeout, choosing or creating a workspace keeps that workspace instead of snapping the operator back to the workspace they were in before the timeout.
 
 - [x] (proven) `restoreIdleDeskScopeAfterSignIn` — idle snapshot overwrites a workspace chosen after expiry — **proven 2026-11-23 seed hunt:** storage set to `tenant-new` was replaced by the saved `tenant-a` scope; a different current scope is now left in place.
@@ -4669,8 +4673,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 9
-- **bugs-found:** 8
+- **hunts:** 10
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
