@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "workbook_row12_explicit_whole_factory_Git_source_recovery_submitted",
-  "next_priority": "Validate PR feature-head Aspects source recovery tests and row12 five-factory Git-derived blob golden against original Excel row12; resolve any exact-head failures without weakening security. Recompute source candidate overlap and current master-base 900 SHA membership after CI, without promoting 282 Git-derived lines to independently reviewed original pins. Continue real missing source/defect identity work and fresh comparable rate only when a contemporaneous full 900 review+distinct-discovery cohort exists.",
+  "state": "row12_candidate_source_282_exact_no_repeat_and_test_fixture_fixed_pending_CI",
+  "next_priority": "Validate PR #7884 exact-head Aspects run including row12 five Git blobs and 282 nonblank whole-file candidate lines, 0 exact path/blob repeats against all original-pinned and other derived candidate source identities. Confirm fixed test strings contain real Python newlines, examine logs if any test or evidence fails; do not merge until all required checks are green. After CI, continue verified cross-revision original/derived source attribution, distinct defect discoveries, current 900-master-base comparable rate and 600/700 SMA25 only with complete population.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -757,7 +757,7 @@
       "new_validation": "Independently compare SHA-bound candidate Excel ID population to immutable source rows lacking parsed_pin; reject removed or extraneous candidate rows even if a matching revised digest is supplied; exclude original-pinned collisions without dropping multi-blob pin deferred records"
     },
     "row12_explicit_factory_source_recovery": {
-      "status": "5_real_Git_blobs_checked_manually_and_feature_code_tests_CI_submitted",
+      "status": "five_original_commit_Git_blobs_verified; exact_path_blob_overlap_checked_against_prior_successful_CI_artifact_and_new_head_CI_assertions_committed",
       "original_excel_row": 12,
       "original_review_id": "#6624",
       "original_reviewed_sha": "a50d94ad912a10009f47b1d2699f9a6ee998eaf5",
@@ -783,17 +783,33 @@
       "new_rows_imported": 0,
       "existing_zero_defect_reviews_preserved": 4864,
       "new_measurement_produced_this_run": true,
-      "new_measurement_scope": "282 newly Git-attested nonblank source candidate lines, not independently reviewed LOC or current 900 denominator",
+      "new_measurement_scope": "282 first-time source-at-commit Git-derived candidate exact path/blob/line identities with 0 exact repeats against earlier pinned and derived evidence; NOT newly independently reviewed LOC and NOT cross-revision unique LOC",
       "newly_independently_verified_reviewed_LOC_this_run": 0,
       "new_verified_reviewed_LOC_this_run": 0,
       "repeated_verified_reviewed_LOC_this_run": 0,
-      "candidate_exact_new_or_repeated_vs_prior": "CI artifact pending, not measured",
+      "candidate_exact_new_or_repeated_vs_prior": {
+        "new_candidate_exact_identities": 282,
+        "repeated_candidate_exact_identities": 0,
+        "source_run_id": 45160219395,
+        "source_artifact_id": 14812729056,
+        "confidence": "Git path/blob exact identity only; no reviewed denominator increment"
+      },
       "verified_distinct_defects_new_this_run": 0,
       "new_comparable_rate": null,
       "older_historical_900_original_pinned_exact_LOC_unchanged": 232219,
       "older_historical_900_original_pinned_repeats_unchanged": 6020,
       "full_master_CI_dispatched": false,
-      "RC49_diagnostic_PR7702_touched": false
+      "RC49_diagnostic_PR7702_touched": false,
+      "prior_successful_aspects_run_id": 45160219395,
+      "prior_successful_aspects_artifact_id": 14812729056,
+      "prior_original_pinned_exact_path_blob_keys": 2906,
+      "prior_other_derived_candidate_exact_path_blob_keys": 2690,
+      "row12_matching_existing_path_blob_keys": 0,
+      "candidate_new_exact_path_blob_line_identities_this_run": 282,
+      "candidate_exact_repeated_line_identities_this_run": 0,
+      "cross_revision_uniqueness_of_282_not_proven": true,
+      "workbook_new_unique_lines_claim_219_unverified": true,
+      "test_fixture_correction": "replaced ten accidental literal escaped backslash-n sequences with newline escapes for correct nonblank line assertions"
     }
   },
   "latest_restoration_run": {
