@@ -39,6 +39,7 @@ jobs:
             // Keep the evidence requirement for *all* actual Aspects source sweeps.
             const accountingOnly = new Set([
               'scripts/aspects_import_historical_workbook.py',
+              'scripts/aspects_accounting_report.py',
               'scripts/aspects_density_snapshot.py',
               'scripts/aspects_validate_historical_corpus.py',
               'scripts/aspects_reconcile_historical_corpus.py',
@@ -53,6 +54,7 @@ jobs:
               'scripts/aspects_verify_duplicate_fix_relationship.py',
               'scripts/aspects_verify_source_recovery_checkpoint.py',
               'scripts/tests/test_aspects_import_historical_workbook.py',
+              'scripts/tests/test_aspects_accounting_report.py',
               'scripts/tests/test_aspects_density_snapshot.py',
               'scripts/tests/test_aspects_validate_historical_corpus.py',
               'scripts/tests/test_aspects_reconcile_historical_corpus.py',
@@ -65,6 +67,7 @@ jobs:
               'scripts/tests/test_aspects_verify_source_recovery_checkpoint.py',
               'scripts/tests/test_aspects_historical_multisource_checkpoint.py',
               'scripts/tests/test_aspects_evidence_gate.cjs',
+              'docs/engineering/ASPECTS_DENSITY_MEASUREMENT.md',
               'docs/engineering/aspects-historical-restoration-state.json',
               'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-900-pin-partition.json',
               'docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row908-utf8-bom.json',
@@ -75,6 +78,7 @@ jobs:
               'docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-nine-merged.json',
               'docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-duplicate-6702-of-6701.json',
               'docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-23-all-referenced.json',
+              '.github/workflows/aspects-accounting-report.yml',
               '.github/workflows/aspects-density-snapshot.yml',
               '.github/workflows/aspects-evidence-gate.yml',
             ]);

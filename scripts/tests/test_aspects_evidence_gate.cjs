@@ -199,3 +199,20 @@ test('candidate lineage implementation and focused test remain accounting-only',
   assert.equal((await decision([changed(
     'scripts/aspects_reconcile_candidate_lineage.py/../../product.cs')])).errors.length, 1);
 });
+
+test('new consolidated accounting report files are exempt but product source is not', async () => {
+  const reportFiles = [
+    changed('scripts/aspects_accounting_report.py', 'added'),
+    changed('scripts/tests/test_aspects_accounting_report.py', 'added'),
+    changed('docs/engineering/ASPECTS_DENSITY_MEASUREMENT.md'),
+    changed('.github/workflows/aspects-accounting-report.yml', 'added'),
+    changed('.github/workflows/aspects-density-snapshot.yml'),
+    changed('.github/workflows/aspects-evidence-gate.yml'),
+    changed('scripts/tests/test_aspects_evidence_gate.cjs'),
+  ];
+  assert.deepEqual((await decision(reportFiles)).errors, []);
+  assert.equal((await decision([...reportFiles, changed(productPath)])).errors.length, 1);
+  // Neither similarly named scripts nor a path-traversal variant are allowed.
+  assert.equal((await decision([changed('scripts/aspects_accounting_report_unsafe.py')])).errors.length, 1);
+  assert.equal((await decision([changed('scripts/aspects_accounting_report.py/../../unsafe.cs')])).errors.length, 1);
+});
