@@ -51,11 +51,15 @@ def assess_remediation_safety(
         return SafetyDecision("rejected", (reason,))
     if not all((tenant_id, project_id, proposal_id)):
         return reject("missing_scope")
-    if (not facts.facts_verified or facts.tenant_id != tenant_id
+    # These values are supplied by an integration adapter, not guaranteed typed
+    # at runtime: never treat strings or integers as verification evidence.
+    if (facts.facts_verified is not True or facts.tenant_id != tenant_id
             or facts.project_id != project_id or facts.proposal_id != proposal_id):
         return reject("untrusted_or_foreign_facts")
-    if facts.emergency_stop_active:
-        return reject("emergency_stop")
+    # Only a literally cleared Boolean stop state is safe to review.
+    if facts.emergency_stop_active is not False:
+        return reject("emergency_stop" if facts.emergency_stop_active is True
+                      else "emergency_stop_unverified")
     if (not steps or len(steps) > policy.max_steps or
             policy.max_steps < 1 or policy.max_changed_resources < 1):
         return reject("step_limit")

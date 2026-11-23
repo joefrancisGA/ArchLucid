@@ -58,5 +58,24 @@
     "denominator_increment": 0,
     "confidence": "exact path/blob mismatch against prior proven source corpus; NOT unique source lines across different revisions"
   },
-  "original_workbook_new_unique_not_promoted": 219
+  "original_workbook_new_unique_not_promoted": 219,
+  "original_pinned_same_path_candidate_eligibility": {
+    "status": "source_path_population_attested_in_earlier_successful_Aspects_artifact",
+    "prior_source_run_id": 45160219395,
+    "prior_source_artifact_id": 14812729056,
+    "paths_with_original_git_pinned_reviews": [
+      "ArchLucid.Persistence/Connections/ReadOnlyDbConnectionFactory.cs"
+    ],
+    "paths_without_original_git_pinned_reviews": [
+      "ArchLucid.Persistence/Connections/DedicatedSystemSqlConnectionFactory.cs",
+      "ArchLucid.Persistence/Connections/ReadReplicaRoutedConnectionFactory.cs",
+      "ArchLucid.Persistence/Connections/ScopedRoutingSqlConnectionFactory.cs",
+      "ArchLucid.Persistence/Connections/SqlConnectionFactory.cs"
+    ],
+    "candidate_line_occurrences_on_path_with_original_git_pin": 79,
+    "candidate_line_occurrences_on_paths_without_original_git_pins": 203,
+    "original_git_pin_rows_on_shared_path": 3,
+    "same_path_different_blob_identity_necessarily_cross_revision": true,
+    "interpretation": "Four whole-file source components have no historical original source-pin path; fifth has three original-pin reviews at a different Git blob. No source-line identity across revisions is inferred until independent all-edge first-parent tracing is validated."
+  }
 }
