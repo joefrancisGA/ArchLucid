@@ -47,8 +47,8 @@
     "goal": "Reject mixed head/oldest/ordered SHA digests, clean review loss, candidate overcount and premature rate promotion",
     "no_master_full_build_requested": true
   },
-  "state": "row12_path_level_original_pin_eligibility_79_vs_203_committed_pending_CI",
-  "next_priority": "Validate exact PR-head Aspects tests and row12 candidate source path partition: one factory has an original Git-pinned review of different blob (79 candidate lines), four factories have no original pinned source path (203 candidate lines). First-parent source-line proven repeats may be 0..79 and must be measured only from full-history PR CI, with no independent reviewed LOC increment. Then reconcile complete 900 master-first-parent reviewed source and independently typed defect discoveries before rate or 600/700 SMA25.",
+  "state": "row12_path_split_with_review_commit_lineage_proof_attribution_guard_submitted_pending_PR_CI",
+  "next_priority": "Validate PR #7889 latest head exact Aspects source snapshot and regression suite, checking 79/203 path split and new guards against mixing actual reviewed line intervals across same-blob original or derived review commits or edit/revert source paths. If CI fails, repair only concrete failures; do not merge until required checks green. Then finish full current master 900-first-parent cross-revision source coverage and independently typed distinct discoveries before publishing a comparable rate or 600/700 SMA25.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -830,7 +830,7 @@
       "test_fixture_correction": "replaced ten accidental literal escaped backslash-n sequences with newline escapes for correct nonblank line assertions"
     },
     "row12_path_eligibility": {
-      "status": "source_path_evidence_from_successful_earlier_aspects_artifact; code_and_tests_submitted_exact_head_CI_pending",
+      "status": "79/203 source path partition and review-event-specific first-parent proof attribution tests/code committed, exact-head PR CI pending",
       "source_run_id": 45160219395,
       "source_artifact_id": 14812729056,
       "original_row": 12,
@@ -858,7 +858,21 @@
       "new_comparable_rate": null,
       "do_not_merge_before_required_checks_green": true,
       "full_master_build_dispatched": false,
-      "rc49_PR7702_touched": false
+      "rc49_PR7702_touched": false,
+      "lineage_provenance_guard": {
+        "purpose": "Prevent false cross-revision identity proof when the same path/blob exists at more than one original pin or derived candidate review commit with different source intervals, or after an edit-and-revert.",
+        "real_review_event_anchoring": "original pinned spans keyed by original review commit order/path/blob; derived candidate spans keyed to first reviewed commit order/path/blob; same-blob source lines selected only at later candidate reviews remain provisional",
+        "per_review_provenance": "Cohort-level verified ancestry can only be credited to the actual Excel review SHA traced; otherwise report cohort_lineage_proof_not_retraced_at_this_review_commit instead.",
+        "added_tests": [
+          "test_original_blob_pin_only_proves_lines_reviewed_at_its_own_commit",
+          "test_cohort_proof_is_not_reused_for_later_review_of_reverted_same_blob",
+          "test_later_candidate_review_spans_do_not_inherit_earlier_blob_anchor"
+        ],
+        "verified_distinct_defect_ids_new_this_run": 0,
+        "independently_verified_reviewed_loc_new_this_run": 0,
+        "first_parent_proven_lineage_recalculation": "not yet produced on current PR exact-head; do not reuse older cohort-wide counts as this iteration's measurement",
+        "current_900_comparable_rate": null
+      }
     }
   },
   "latest_restoration_run": {
