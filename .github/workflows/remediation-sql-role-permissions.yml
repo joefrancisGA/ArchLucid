@@ -29,3 +29,64 @@ jobs:
           python-version: '3.11'
       - run: python -m unittest discover -s scripts/ci/tests -p test_remediation_sql_role_permissions.py -v
       - run: python -m unittest discover -s scripts/ci/tests -p test_remediation_atomic_update_contract.py -v
+
+  sql-permissions-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 60s
+    env:
+      ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Wait for disposable SQL Server
+        uses: ./.github/actions/wait-for-sqlserver
+      - name: Prepare isolated SQL test catalog
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
+      - name: Execute actual SQL app-role permission test
+        run: |
+          mkdir -p "$RUNNER_TEMP/remediation-sql"
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj \
+            --configuration Release \
+            --filter "FullyQualifiedName~RemediationSqlRolePrivilegesTests" \
+            --logger "trx;LogFileName=remediation-permissions.trx" \
+            --results-directory "$RUNNER_TEMP/remediation-sql"
+      - name: Fail if SQL permission tests were skipped or not discovered
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          report = Path(os.environ["RUNNER_TEMP"]) / "remediation-sql/remediation-permissions.trx"
+          if not report.is_file():
+              raise SystemExit("FAIL: SQL permission TRX missing; no verified SQL pass")
+          root = ET.parse(report).getroot()
+          ns = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
+          counters = root.find(".//t:Counters", ns)
+          if counters is None:
+              raise SystemExit("FAIL: SQL permission test counters missing")
+          values = {k: int(v) for k, v in counters.attrib.items() if v.isdigit()}
+          if (values.get("passed", 0) < 1
+                  or values.get("failed", 0) != 0
+                  or values.get("notExecuted", 0) != 0
+                  or values.get("total", 0) != values.get("passed", 0)):
+              raise SystemExit(f"FAIL: SQL permissions tests did not all execute and pass: {values}")
+          print(f"Verified disposable SQL permissions: {values['passed']} test(s) passed, none skipped")
+          PY
