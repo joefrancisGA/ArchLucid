@@ -53,7 +53,23 @@
     "unique_named_discovery_id_candidates_all_history": 203,
     "missing_or_noncanonical_discovery_id_rows": 674,
     "fix_PR_states_GitHub_checked": 9,
-    "fresh_comparable_distinct_defect_count": null
+    "fresh_comparable_distinct_defect_count": null,
+    "positive_reviews_on_anchored_900_window": 464,
+    "distinct_fix_pr_number_references_on_anchored_window": 463,
+    "positive_rows_without_explicit_fix_pr_number": 1,
+    "unlinked_excel_rows": [
+      27
+    ],
+    "unlinked_original_record": {
+      "excel_row": 27,
+      "workbook_sheet": "Review evidence",
+      "defect_id_text": "Operational drain",
+      "recorded_defects": 1,
+      "source_reference": null,
+      "source_statement": "Simulated SQL failure reproduced record loss after three attempts. Fix PR pending at confirmation.",
+      "recorded_revision": "e810c4057170297b59abd9381b92c891f05aa5ce"
+    },
+    "warning": "463 distinct PR references plus one separately recorded positive row do NOT independently establish 463 distinct defects; fix PR is not discovery identity. Do not discard Excel row 27 to force historical numerator."
   },
   "accounting": {
     "new_comparable_rate_produced": false,
