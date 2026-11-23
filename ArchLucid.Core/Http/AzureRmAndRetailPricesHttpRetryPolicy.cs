@@ -26,7 +26,18 @@ public static class AzureRmAndRetailPricesHttpRetryPolicy
         Create(logger, ProductionSleepDurationProvider);
 
     /// <summary>Identical transient handling as the single-parameter overload; inject zero-delay backoff for deterministic tests.</summary>
-    public static IAsyncPolicy<HttpResponseMessage> Create(ILogger logger, Func<int, TimeSpan> sleepDurationProvider)
+    public static IAsyncPolicy<HttpResponseMessage> Create(ILogger logger, Func<int, TimeSpan> sleepDurationProvider) =>
+        Create(logger, sleepDurationProvider, onRetry: null);
+
+    /// <summary>
+    ///     Canonical Azure public HTTP retry pipeline. An optional callback replaces only retry logging,
+    ///     allowing compatibility facades to preserve telemetry without duplicating retry policies.
+    ///     Status classification, retry counts, cancellation, and delay generation remain shared.
+    /// </summary>
+    public static IAsyncPolicy<HttpResponseMessage> Create(
+        ILogger logger,
+        Func<int, TimeSpan> sleepDurationProvider,
+        Action<OnRetryArguments<HttpResponseMessage>>? onRetry)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(sleepDurationProvider);
@@ -46,7 +57,10 @@ public static class AzureRmAndRetailPricesHttpRetryPolicy
                 },
                 OnRetry = args =>
                 {
-                    TryLog(logger, args);
+                    if (onRetry is null)
+                        TryLog(logger, args);
+                    else
+                        onRetry(args);
 
                     return ValueTask.CompletedTask;
                 },
@@ -58,7 +72,8 @@ public static class AzureRmAndRetailPricesHttpRetryPolicy
 
     private static TimeSpan ProductionSleepDurationProvider(int attemptNumber) => TimeSpan.FromSeconds(Math.Pow(2, attemptNumber));
 
-    private static bool ShouldRetryHttpResponse(HttpResponseMessage response)
+    /// <summary>Shared retryable HTTP response classification for Azure public service calls.</summary>
+    public static bool ShouldRetryHttpResponse(HttpResponseMessage response)
     {
         HttpStatusCode code = response.StatusCode;
 
