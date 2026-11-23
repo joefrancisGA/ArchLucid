@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text.RegularExpressions;
 
 using ArchLucid.Persistence.InfraEvidence;
@@ -21,7 +20,6 @@ namespace ArchLucid.Persistence.Tests.Sql;
 public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixture fixture)
 {
     private const string RoleName = "ArchLucidApp";
-    private const string AppTestUser = "ArchLucidAppRemediationPermissionsTest";
 
     [SkippableFact]
     public async Task Role_denies_evidence_rewrite_and_direct_delete_but_preserves_required_instance_update()
