@@ -1,0 +1,38 @@
+# Focused PR validation remains independent of Tier-0's gitleaks dependency so
+# cancellation regressions can be diagnosed even when broader security gates fail.
+# This job does not replace, disable, or waive any required CI/security check.
+name: Provider cancellation targeted tests
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'ArchLucid.AgentRuntime/**'
+      - 'ArchLucid.AgentRuntime.Tests/**'
+      - '.github/workflows/pr-agent-provider-cancellation-focused.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-cancellation-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  focused:
+    name: LLM fallback and retry cancellation tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Validate cancellation, fallback and rate-limit retry tests
+        run: >-
+          dotnet test ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
+          --configuration Release
+          --filter 'FullyQualifiedName~FallbackCancellationBoundaryTests|FullyQualifiedName~FallbackAgentCompletionClientTests|FullyQualifiedName~AzureOpenAiTooManyRequestsRetryTests'
+          --logger 'console;verbosity=normal'
