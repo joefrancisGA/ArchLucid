@@ -36,6 +36,7 @@ vi.mock("@/lib/live-operator-shell-recovery", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews",
   useSearchParams: () => useSearchParams(),
   useRouter: () => useRouter(),
 }));

@@ -33,26 +33,6 @@ vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
   useArchitectureDraftRegistryEntries: () => [],
 }));
 
-vi.mock("@/lib/desk-continuity-preference", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/desk-continuity-preference")>();
-
-  return {
-    ...actual,
-    readCachedLastOpenArchitectureId: () => "architecture-identity-001",
-    readCachedDeskContinuity: () => ({
-      lastOpenArchitectureId: "architecture-identity-001",
-      lastOpenReviewId: null,
-      lastOpenDraftId: null,
-      lastVisitWatermarkUtc: null,
-    }),
-  };
-});
-
-vi.mock("@/lib/operations/in-flight-operations-store", () => ({
-  getInFlightOperations: () => [],
-  subscribeInFlightOperations: () => () => {},
-}));
-
 const { mockReadCachedLastOpenArchitectureId } = vi.hoisted(() => ({
   mockReadCachedLastOpenArchitectureId: vi.fn(() => null as string | null),
 }));

@@ -1,7 +1,7 @@
 /*
-  Rollback 425: Remove the additive SQL Server-managed RowVersion column.
-  This is idempotent; only remove the column when it exists.
-  Ensure no active consumers depend on optimistic concurrency before rolling back.
+  Rollback 425: Remove the SQL Server-managed optimistic concurrency token.
+  Only use after stopping writers that rely on RowVersion; values cannot be restored.
+  Idempotent no-op when the table or column is absent.
 */
 IF OBJECT_ID(N'dbo.RemediationInstances', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.RemediationInstances', N'RowVersion') IS NOT NULL

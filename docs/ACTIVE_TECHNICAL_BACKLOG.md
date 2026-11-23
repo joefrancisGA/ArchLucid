@@ -490,7 +490,7 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 | --- | --- | --- |
 | Extractor parity | Cost, Advisor, orphans, NIC/PE inventory depth | securenow/TECHNICAL_BACKLOG.md; Same extractor discipline; SecureNow inventory workbenches consume output. |
 | IDA / IDL / IDS / IDT | Inventory diagram layout and Graphviz forest | securenow/TECHNICAL_BACKLOG.md; Executive forest packing — see `.cursor/prompts/inventory-diagram-*-00-index.md`. Not a SecureNow-only codepath but blocks “all-day” diagram UX. |
-| IE-RF | Relationship-first topology (network associations) | securenow/TECHNICAL_BACKLOG.md; Catalog-driven associations; complements diagrams — see [`SecureNow technical backlog`](securenow/TECHNICAL_BACKLOG.md) for extractor follow-ups. |
+| IE-RF | Relationship-first topology (network associations) | securenow/TECHNICAL_BACKLOG.md; Catalog-driven associations; complements diagrams — see [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md) item 7. |
 | SA-19/SA-20 | Entra Graph + CI federated adapters fail-soft | securenow/TECHNICAL_BACKLOG.md; Inventory files exist; Graph forbidden → warnings. Deep adapter work only on owner row. |
 | SN-PE-regression | Golden fixtures for new association types | securenow/TECHNICAL_BACKLOG.md; Add AST tests when AX-DE catalog grows — do not reopen SN-PE collection. |
 | SN-RT-ops | Hosted auto-pull includes new companions by default | securenow/TECHNICAL_BACKLOG.md; When operators expect LAW/SQL principal companions without Tier-1 flags — document in runbook first. |

@@ -127,7 +127,7 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
 
     const primaryUsers = fields.find((field) => field.label === "Primary users")?.value ?? "";
 
-    expect(primaryUsers).toBe("Payment gateway (submitted text, not operator-asserted)");
+    expect(primaryUsers).toBe("Payment gateway (submitted text, not operator-asserted) — Actor kind was not stored.");
     expect(primaryUsers.match(/\(submitted text, not operator-asserted\)/gu)?.length).toBe(1);
   });
 
