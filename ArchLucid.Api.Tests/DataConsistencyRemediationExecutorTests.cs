@@ -2,6 +2,7 @@ using System.Data.Common;
 
 using ArchLucid.Api.Tests.Support;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -48,6 +49,16 @@ public sealed class DataConsistencyRemediationExecutorTests
         session.EnqueueParameterizedReader(ReadResult.Strings("cmp-1"));
         SequencedCommandDbConnection connection = session.Activate();
         RecordingDbTransaction transaction = AttachTransaction(connection);
+        audit.Setup(a => a.LogAsync(
+                It.IsAny<AuditEvent>(), It.IsAny<IArchLucidUnitOfWork>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, IArchLucidUnitOfWork, CancellationToken>((_, unitOfWork, _) =>
+            {
+                Assert.True(unitOfWork.SupportsExternalTransaction);
+                Assert.Same(connection, unitOfWork.Connection);
+                Assert.Same(transaction, unitOfWork.Transaction);
+                Assert.Equal(0, transaction.CommitCalls);
+            })
+            .Returns(Task.CompletedTask);
 
         DataConsistencyRemediationExecutor sut = new(session.Factory, audit.Object);
 
@@ -68,8 +79,37 @@ public sealed class DataConsistencyRemediationExecutorTests
                     e.EventType == AuditEventTypes.ComparisonRecordOrphansRemediated
                     && e.DataJson != null
                     && e.DataJson.Contains("cmp-1", StringComparison.Ordinal)),
+                It.IsAny<IArchLucidUnitOfWork>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_audit_failure_rolls_back_delete_and_does_not_commit()
+    {
+        Mock<IDbConnectionFactory> factory = new();
+        Mock<IAuditService> audit = new();
+        ScriptedSqlSession session = new(factory);
+        session.EnqueueParameterizedReader(ReadResult.Strings("cmp-1"));
+        session.EnqueueParameterizedReader(ReadResult.Strings("cmp-1"));
+        SequencedCommandDbConnection connection = session.Activate();
+        RecordingDbTransaction transaction = AttachTransaction(connection);
+        audit.Setup(a => a.LogAsync(
+                It.IsAny<AuditEvent>(), It.IsAny<IArchLucidUnitOfWork>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("durable audit unavailable"));
+
+        DataConsistencyRemediationExecutor sut = new(session.Factory, audit.Object);
+
+        InvalidOperationException failure = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            sut.ExecuteAsync(DataConsistencyOrphanRemediationRegistry.ComparisonRecords,
+                dryRun: false, maxRows: 3, CancellationToken.None));
+
+        Assert.Contains("durable audit unavailable", failure.Message);
+        Assert.Equal(0, transaction.CommitCalls);
+        Assert.Equal(1, transaction.RollbackCalls);
+        audit.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(),
+                It.IsAny<IArchLucidUnitOfWork>(), It.IsAny<CancellationToken>()), Times.Once);
+        audit.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
