@@ -673,6 +673,39 @@ export function ResourcesExplorerClient() {
                           {RESOURCE_EXPLORER_EMPTY_PARTIAL_CAPTURE_LINE}
                         </p>
                       ) : null}
+                      {urlResourceType.length > 0 && urlNamePrefix.length === 0 && urlResourceGroup.length === 0 ? (
+                        <>
+                          <p
+                            className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+                            data-testid="resource-explorer-category-only-filter-empty-not-load-failure"
+                          >
+                            {RESOURCE_EXPLORER_CATEGORY_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                          </p>
+                          <ResourcesExplorerCategoryOnlyFilterEmptyPartialHonesty />
+                        </>
+                      ) : null}
+                      {urlNamePrefix.length > 0 && urlResourceType.length === 0 && urlResourceGroup.length === 0 ? (
+                        <>
+                          <p
+                            className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+                            data-testid="resource-explorer-name-prefix-only-filter-empty-not-load-failure"
+                          >
+                            {RESOURCE_EXPLORER_NAME_PREFIX_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                          </p>
+                          <ResourcesExplorerNamePrefixOnlyFilterEmptyPartialHonesty />
+                        </>
+                      ) : null}
+                      {urlResourceGroup.length > 0 && urlResourceType.length === 0 && urlNamePrefix.length === 0 ? (
+                        <>
+                          <p
+                            className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+                            data-testid="resource-explorer-resource-group-only-filter-empty-not-load-failure"
+                          >
+                            {RESOURCE_EXPLORER_RESOURCE_GROUP_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                          </p>
+                          <ResourcesExplorerResourceGroupOnlyFilterEmptyPartialHonesty />
+                        </>
+                      ) : null}
                       {urlResourceType.length > 0 && urlNamePrefix.length > 0 ? (
                         <>
                           <p
