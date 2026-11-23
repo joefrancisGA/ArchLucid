@@ -232,7 +232,7 @@ public static class SecretsLifecycleInventoryParser
         string tail = resourceId[(secretIndex + suffix.Length)..];
         // AWS appends "-XXXXXX" to the full secret ARN, but user-defined
         // names can themselves contain hyphens. Only remove the final six-character suffix.
-        int dashIndex = tail.LastIndexOf('-', StringComparison.Ordinal);
+        int dashIndex = tail.LastIndexOf('-');
         if (dashIndex <= 0 || tail.Length - dashIndex != 7)
             return tail;
 
