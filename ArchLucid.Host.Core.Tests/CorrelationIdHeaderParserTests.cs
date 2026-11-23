@@ -33,6 +33,22 @@ public sealed class CorrelationIdHeaderParserTests
         id.Should().Be("abc-123.XY_");
     }
 
+    [Theory]
+    [InlineData("safe-one", "safe-two")]
+    [InlineData("safe-one", "unsafe;other")]
+    public void TryGetValidIncomingCorrelationId_rejects_duplicate_header_values(
+        string first, string second)
+    {
+        HeaderDictionary headers = new();
+        headers[CorrelationIdHeaderParser.HeaderName] =
+            new Microsoft.Extensions.Primitives.StringValues(new[] { first, second });
+
+        bool ok = CorrelationIdHeaderParser.TryGetValidIncomingCorrelationId(headers, out string? id);
+
+        ok.Should().BeFalse();
+        id.Should().BeNull();
+    }
+
     [Fact]
     public void TryGetValidIncomingCorrelationId_rejects_unsafe_characters()
     {
