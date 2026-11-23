@@ -102,10 +102,108 @@ public sealed class QuickScanServiceCoverageTests
         result.Findings[0].ReasoningTrace.Should().Be("Severity was not stored.");
     }
 
-    private static QuickScanService CreateService(IAgentCompletionClient completionClient) =>
+    [Fact]
+    public async Task ScanAsync_propagates_caller_cancellation_without_retrying()
+    {
+        using CancellationTokenSource caller = new();
+        int calls = 0;
+        Mock<IAgentCompletionClient> completionClient = new();
+        completionClient.Setup(client => client.CompleteJsonAsync(
+                It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, string _, int? _, float? _, CancellationToken ct) =>
+            {
+                Interlocked.Increment(ref calls);
+                caller.Cancel();
+                return Task.FromCanceled<string>(ct);
+            });
+
+        QuickScanService sut = CreateService(completionClient.Object,
+            new QuickScanOptions { MaxModelCallsPerScan = 1, MaxRetryCount = 2 });
+
+        Func<Task> invoke = () => sut.ScanAsync(new Dictionary<string, string>(), caller.Token);
+
+        await invoke.Should().ThrowAsync<OperationCanceledException>();
+        calls.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ScanAsync_reuses_one_linked_deadline_token_across_retries()
+    {
+        int calls = 0;
+        List<CancellationToken> tokens = [];
+        Mock<IAgentCompletionClient> completionClient = new();
+        completionClient.Setup(client => client.CompleteJsonAsync(
+                It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, string _, int? _, float? _, CancellationToken ct) =>
+            {
+                tokens.Add(ct);
+                return Interlocked.Increment(ref calls) < 3
+                    ? Task.FromException<string>(new HttpRequestException("transient"))
+                    : Task.FromResult("""{"summary":"recovered"}""");
+            });
+
+        QuickScanService sut = CreateService(completionClient.Object,
+            new QuickScanOptions { MaxModelCallsPerScan = 1, MaxRetryCount = 2 });
+
+        QuickScanResult result = await sut.ScanAsync(new Dictionary<string, string>(), CancellationToken.None);
+
+        result.Summary.Should().Be("recovered");
+        calls.Should().Be(3);
+        tokens.Distinct().Should().ContainSingle("all retries must share one processing deadline");
+    }
+
+    [Fact]
+    public async Task ScanAsync_global_deadline_stops_retry_loop_after_first_timeout()
+    {
+        int calls = 0;
+        Mock<IAgentCompletionClient> completionClient = new();
+        completionClient.Setup(client => client.CompleteJsonAsync(
+                It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns(async (string _, string _, int? _, float? _, CancellationToken ct) =>
+            {
+                Interlocked.Increment(ref calls);
+                await Task.Delay(Timeout.InfiniteTimeSpan, ct);
+                return "{}";
+            });
+
+        QuickScanService sut = CreateService(completionClient.Object,
+            new QuickScanOptions
+            {
+                MaxModelCallsPerScan = 1,
+                MaxRetryCount = 2,
+                MaxProcessingDurationSeconds = 5
+            });
+
+        QuickScanResult result = await sut.ScanAsync(new Dictionary<string, string>(), CancellationToken.None);
+
+        result.Summary.Should().Be("Quick scan timed out before a result could be produced.");
+        calls.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ScanAsync_provider_initiated_cancellation_is_not_a_processing_timeout()
+    {
+        Mock<IAgentCompletionClient> completionClient = new();
+        completionClient.Setup(client => client.CompleteJsonAsync(
+                It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException("provider canceled"));
+
+        QuickScanService sut = CreateService(completionClient.Object);
+        QuickScanResult result = await sut.ScanAsync(new Dictionary<string, string>(), CancellationToken.None);
+
+        result.Summary.Should().Be("Quick scan could not be completed.");
+    }
+
+    private static QuickScanService CreateService(
+        IAgentCompletionClient completionClient,
+        QuickScanOptions? options = null) =>
         new(
             completionClient,
-            new TestOptionsMonitor(new QuickScanOptions()),
+            new TestOptionsMonitor(options ?? new QuickScanOptions()),
             new TestSafetyOptionsMonitor(new QuickScanSafetyOptions { Enabled = false }),
             TimeProvider.System);
 

@@ -176,6 +176,7 @@ import { findingStatusTagKind } from "@/app/(operator)/architecture/reviews/[rev
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { cn } from "@/lib/utils";
 
 import { ResourceHubBreadcrumb } from "./ResourceHubBreadcrumb";
@@ -425,6 +426,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const { cloudResourceId } = props;
   const buyerPolishedShell = useProductionEvalChrome();
   const { productLine } = useProductLine();
+  const overviewPartialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const resourcesPath = infrastructureResourcesPathForProductLine(productLine);
   const router = useRouter();
   const pathname = usePathname() ?? "";
@@ -1592,12 +1594,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   cloudConnectionsTestId="infra-resource-hub-overview-partial-capture-cloud"
                   extractUploadTestId="infra-resource-hub-overview-partial-capture-extract"
                 />
-                <p
-                  className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="resource-hub-overview-partial-capture-not-load-failure"
-                >
-                  {RESOURCE_HUB_OVERVIEW_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE}
-                </p>
+                {overviewPartialCapture ? (
+                  <p
+                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="resource-hub-overview-partial-capture-not-load-failure"
+                  >
+                    {RESOURCE_HUB_OVERVIEW_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                ) : null}
               </div>
             ) : null}
             {hub.auditLineageLink.available !== true ? (

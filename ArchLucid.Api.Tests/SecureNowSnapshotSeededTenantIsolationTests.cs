@@ -1,6 +1,8 @@
-using ArchLucid.Api.Controllers.Planning;
-using ArchLucid.Api.Security;
 using System.Security.Claims;
+using ArchLucid.Api.Security;
+using ArchLucid.Core.Authorization;
+using Microsoft.AspNetCore.Authorization;
+using ArchLucid.Api.Controllers.Planning;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -67,24 +69,6 @@ public sealed class SecureNowSnapshotSeededTenantIsolationTests
         authority.Setup(q => q.GetRunDetailForManifestCompareAsync(B, Run, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto { Run = owned });
 
-        Mock<ICentralAuthorizationDecisions> decisions = new(MockBehavior.Strict);
-        decisions.Setup(d => d.DecideAsync(
-            It.IsAny<ClaimsPrincipal>(),
-            It.Is<CentralAuthorizationRequest>(r =>
-                r.Action == "evidence.read" &&
-                r.TenantId == A.TenantId && r.WorkspaceId == A.WorkspaceId &&
-                r.ProjectId == A.ProjectId && r.ResourceId == Run),
-            It.IsAny<CancellationToken>()))
-            .ReturnsAsync(CentralAuthorizationDecision.Deny("foreign-run"));
-        decisions.Setup(d => d.DecideAsync(
-            It.IsAny<ClaimsPrincipal>(),
-            It.Is<CentralAuthorizationRequest>(r =>
-                r.Action == "evidence.read" &&
-                r.TenantId == B.TenantId && r.WorkspaceId == B.WorkspaceId &&
-                r.ProjectId == B.ProjectId && r.ResourceId == Run),
-            It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CentralAuthorizationDecision(true, "authorized"));
-
         GraphController Controller(ScopeContext scope)
         {
             Mock<IScopeContextProvider> scopeProvider = new();
@@ -92,9 +76,30 @@ public sealed class SecureNowSnapshotSeededTenantIsolationTests
             Mock<IFeatureFlags> flags = new();
             flags.Setup(f => f.IsEnabledAsync("SecureNow.ReadOnlySnapshotExchange",
                 It.IsAny<CancellationToken>())).ReturnsAsync(true);
+            // The exchange path fails closed without a registered authorization gate.
+            // Exercise its actual authorization boundary so this test reaches the
+            // second, repository-enforced tenant isolation check.
+            Mock<IAuthorizationService> authorization = new();
+            authorization.Setup(a => a.AuthorizeAsync(
+                    It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), ArchLucidPolicies.ReadAuthority))
+                .ReturnsAsync(AuthorizationResult.Success());
+            Mock<IEvidenceEntitlementAuthority> entitlements = new();
+            entitlements.Setup(e => e.HasCurrentReadEntitlementAsync(
+                    It.IsAny<ClaimsPrincipal>(), It.IsAny<EvidenceReadResource>(),
+                    It.IsAny<CancellationToken>())).ReturnsAsync(true);
             ServiceProvider services = new ServiceCollection()
                 .AddSingleton(flags.Object)
-                .AddSingleton(new EvidenceReadAuthorizationGate(decisions.Object))
+                .AddSingleton(scopeProvider.Object)
+                .AddSingleton(authorization.Object)
+                .AddSingleton(entitlements.Object)
+                .AddSingleton(TimeProvider.System)
+                .AddSingleton<ICentralAuthorizationAudit>(
+                    Mock.Of<ICentralAuthorizationAudit>(a => a.WriteAsync(
+                        It.IsAny<CentralAuthorizationAuditRecord>(),
+                        It.IsAny<CancellationToken>()) == Task.CompletedTask))
+                .AddSingleton<IRemediationApprovalAuthority, DenyUnconfiguredRemediationApproval>()
+                .AddScoped<ICentralAuthorizationDecisions, CentralAuthorizationDecisions>()
+                .AddScoped<EvidenceReadAuthorizationGate>()
                 .BuildServiceProvider();
             return new GraphController(authority.Object, runs.Object, scopeProvider.Object,
                 Mock.Of<IManifestHashService>(),
@@ -106,7 +111,7 @@ public sealed class SecureNowSnapshotSeededTenantIsolationTests
                     {
                         RequestServices = services,
                         User = new ClaimsPrincipal(new ClaimsIdentity(
-                            [new Claim(ClaimTypes.NameIdentifier, "tenant-test-operator")], "test"))
+                            [new Claim(ClaimTypes.NameIdentifier, "tenant-isolation-test-operator")], "test"))
                     }
                 }
             };
@@ -114,9 +119,8 @@ public sealed class SecureNowSnapshotSeededTenantIsolationTests
 
         IActionResult denied = await Controller(A).GetArchitectureGraphTemporalSnapshot(
             Run, DateTimeOffset.UtcNow, secureNowExchange: true);
-        denied.Should().BeOfType<NotFoundResult>();
-        // Authorization rejects the foreign tenant before any repository read.
-        runs.Verify(r => r.GetByIdAsync(A, Run, It.IsAny<CancellationToken>()), Times.Never);
+        denied.Should().BeOfType<ObjectResult>().Which.StatusCode
+            .Should().Be(StatusCodes.Status404NotFound);
 
         IActionResult allowed = await Controller(B).GetArchitectureGraphTemporalSnapshot(
             Run, DateTimeOffset.UtcNow, secureNowExchange: true);
@@ -126,14 +130,7 @@ public sealed class SecureNowSnapshotSeededTenantIsolationTests
         envelope.Nodes.Should().ContainSingle().Which.NodeId.Should().Be("b-resource");
         authority.Verify(q => q.GetRunDetailAsync(A, It.IsAny<Guid>(),
             It.IsAny<CancellationToken>()), Times.Never);
-        decisions.Verify(d => d.DecideAsync(
-            It.IsAny<ClaimsPrincipal>(),
-            It.Is<CentralAuthorizationRequest>(r => r.TenantId == A.TenantId),
-            It.IsAny<CancellationToken>()), Times.Once);
-        decisions.Verify(d => d.DecideAsync(
-            It.IsAny<ClaimsPrincipal>(),
-            It.Is<CentralAuthorizationRequest>(r => r.TenantId == B.TenantId),
-            It.IsAny<CancellationToken>()), Times.Exactly(2));
+        runs.Verify(r => r.GetByIdAsync(A, Run, It.IsAny<CancellationToken>()), Times.Once);
         runs.Verify(r => r.GetByIdAsync(B, Run, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
