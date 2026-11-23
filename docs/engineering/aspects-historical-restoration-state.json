@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "current_master_900_derived_candidate_source_provenance_awaiting_PR_CI",
-  "next_priority": "Validate exact-head PR-branch Aspects CI for historical candidate source reclassification into current master-base 900 window, Git blob source, clean-review preservation and SHA-bound prior candidate report. Fix test or evidence failures narrowly, then continue first-parent exact complete lineage and independently typed discovery identity work. Do not promote candidate-only source to independent reviewed LOC or publish a new comparable density until full current cohort completed.",
+  "state": "current_master_900_candidate_provenance_raw_workbook_scope_attestation_awaiting_PR_CI",
+  "next_priority": "Validate exact-head PR #7881 Aspects candidate-provenance audit and 14 tests against immutable workbook original scope. Fail closed on any real discrepancy; do not rehash old candidate report to mask errors. After CI, reconcile current 900 first-parent cross-revision candidate-only lineage and confirmed typed distinct discovery identities before comparable density; no master full build.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -722,7 +722,7 @@
       "PR7702_untouched": true
     },
     "current_900_derived_candidate_provenance": {
-      "status": "code_10_regression_tests_and_workflow_committed_pending_CI",
+      "status": "code_14_regression_tests_and_workflow_committed_pending_exact_head_CI",
       "implementation": "scripts/aspects_current_900_candidate_provenance.py",
       "tests": "scripts/tests/test_aspects_current_900_candidate_provenance.py",
       "workflow": ".github/workflows/aspects-density-snapshot.yml",
@@ -750,7 +750,10 @@
       "new_measurement_produced_this_run": false,
       "new_comparable_rate": null,
       "no_master_full_CI_dispatched": true,
-      "RC49_PR7702_untouched": true
+      "RC49_PR7702_untouched": true,
+      "new_source_scope_attestation": "reparse immutable workbook reviewed_file_spans_raw with strict explicit-path grammar and require complete canonical path and reported inclusive ranges to agree exactly with old derived candidate audit; recompute nonblank span union directly within original workbook ranges against Git blob; reject rehashed candidate substitution even when total reviewed LOC is unchanged",
+      "regression_tests": 14,
+      "provenance_fix_this_run": "candidate audit previously accepted SHA-bound recovery report's substituted source intervals when Git lines and LOC total were plausible; now fail closed unless original Excel scope independently matches all paths and ranges"
     }
   },
   "latest_restoration_run": {
