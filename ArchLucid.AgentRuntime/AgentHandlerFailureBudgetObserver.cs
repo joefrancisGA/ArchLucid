@@ -32,8 +32,9 @@ internal sealed class AgentHandlerFailureBudgetObserver
 
         lock (_sync)
         {
-            // Caller cancellation never consumes the failure budget or opens a window.
-            if (outcome == AgentHandlerFailureBudgetOutcome.CallerCancelled)
+            // Caller cancellation and pre-handler admission rejection are neutral:
+            // neither represents a completed handler attempt.
+            if (outcome is AgentHandlerFailureBudgetOutcome.CallerCancelled or AgentHandlerFailureBudgetOutcome.NotAdmitted)
                 return _windows.TryGetValue(dispatchKey, out Window? prior)
                     ? Snapshot(prior, counted: false, newlyExhausted: false)
                     : default;
@@ -106,6 +107,7 @@ internal enum AgentHandlerFailureBudgetOutcome
     Success,
     Failure,
     CallerCancelled,
+    NotAdmitted,
 }
 
 internal readonly record struct AgentHandlerFailureBudgetSnapshot(

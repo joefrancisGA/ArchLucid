@@ -35,6 +35,7 @@ internal static class RealAgentExecutorHandlerResiliencePipeline
         {
             AgentHandlerFailureBudgetOutcome.Success => "success",
             AgentHandlerFailureBudgetOutcome.Failure => "failure",
+            AgentHandlerFailureBudgetOutcome.NotAdmitted => "not_admitted",
             _ => "cancelled",
         };
 
@@ -57,7 +58,7 @@ internal static class RealAgentExecutorHandlerResiliencePipeline
             activity?.SetTag("archlucid.agent.failure_budget.exhausted", snapshot.Exhausted);
         }
 
-        // Caller cancellation is visible in metrics but never changes the window.
+        // Cancellation and pre-handler rejection are visible in metrics but never change the window.
         return snapshot;
     }
 

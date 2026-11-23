@@ -65,6 +65,9 @@ internal static class AgentCompletionJudgeChainRegistrar
         ILlmCompletionOutputTruncationReporter truncationReporter =
             sp.GetRequiredService<ILlmCompletionOutputTruncationReporter>();
 
+        AzureOpenAiOptions azureOpenAiOptions = sp.GetRequiredService<IOptions<AzureOpenAiOptions>>().Value;
+        TimeSpan completionNetworkTimeout = azureOpenAiOptions.GetEffectiveCompletionNetworkTimeout();
+
         AzureOpenAiCompletionClient inner = useManagedIdentity
             ? AzureOpenAiCompletionClient.CreateWithManagedIdentity(
                 endpoint,
@@ -73,7 +76,8 @@ internal static class AgentCompletionJudgeChainRegistrar
                 structuredOutputAgentResultSchema: null,
                 completionLogger,
                 llmTelemetryOptions,
-                truncationReporter)
+                truncationReporter,
+                completionNetworkTimeout)
             : new AzureOpenAiCompletionClient(
                 endpoint,
                 apiKey,
@@ -82,7 +86,8 @@ internal static class AgentCompletionJudgeChainRegistrar
                 structuredOutputAgentResultSchema: null,
                 completionLogger,
                 llmTelemetryOptions,
-                truncationReporter);
+                truncationReporter,
+                completionNetworkTimeout);
 
         IContentSafetyGuard contentSafetyGuard = sp.GetRequiredService<IContentSafetyGuard>();
         IOptionsMonitor<ContentSafetyOptions> contentSafetyOpts =
@@ -145,7 +150,6 @@ internal static class AgentCompletionJudgeChainRegistrar
             sp.GetRequiredService<IOptions<AgentExecutionResilienceOptions>>().Value;
 
         resOpts.Normalize();
-        AzureOpenAiOptions azureOpenAiOptions = sp.GetRequiredService<IOptions<AzureOpenAiOptions>>().Value;
         int maxRetryAttempts = AgentCompletionResolutionHelper.ResolveLlmMaxRetryAttempts(azureOpenAiOptions, resOpts);
 
         ResiliencePipeline llmRetry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(

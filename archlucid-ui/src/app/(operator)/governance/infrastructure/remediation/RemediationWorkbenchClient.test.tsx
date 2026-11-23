@@ -4,6 +4,17 @@ import { describe, expect, it, vi } from "vitest";
 import { RemediationWorkbenchClient } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchClient";
 import { fetchRemediationInstances } from "@/lib/infra-evidence/infra-evidence-remediation-api";
 
+// A handoff URL is an exact scoped contract, but query serialization order is immaterial.
+function expectExactScopedHref(actualHref: string | null, expectedHref: string): void {
+  expect(actualHref).not.toBeNull();
+  const actual = new URL(actualHref ?? "", "https://archlucid.example");
+  const expected = new URL(expectedHref, "https://archlucid.example");
+  expect(actual.pathname).toBe(expected.pathname);
+  expect(actual.origin).toBe(expected.origin);
+  expect(actual.hash).toBe(expected.hash);
+  expect([...actual.searchParams.entries()].sort()).toEqual([...expected.searchParams.entries()].sort());
+}
+
 let searchParams = new URLSearchParams("");
 
 vi.mock("next/navigation", () => ({
@@ -237,8 +248,8 @@ describe("RemediationWorkbenchClient", () => {
       "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=terraform&runId=run-1&snapshotId=11111111-1111-1111-1111-111111111111",
     );
     await waitFor(() => {
-      expect(screen.getByTestId("infra-remediation-open-ask")).toHaveAttribute(
-        "href",
+      expectExactScopedHref(
+        screen.getByTestId("infra-remediation-open-ask").getAttribute("href"),
         "/governance/infrastructure/remediation?cloudResourceId=33333333-3333-3333-3333-333333333333&findingId=22222222-2222-2222-2222-222222222222&correspondenceId=corr-1&runId=run-1&snapshotId=11111111-1111-1111-1111-111111111111&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&tab=remediation&infrastructureAskOpen=1",
       );
     });

@@ -1,0 +1,57 @@
+# Focused RC49 regression validation for route-group client bundle boundaries.
+# This does NOT dispatch comprehensive master CI.
+name: RC49 operator preference first-load verification
+
+on:
+  pull_request:
+    branches: [RC49]
+    paths:
+      - "archlucid-ui/src/app/layout.tsx"
+      - "archlucid-ui/src/app/(operator)/layout.tsx"
+      - "archlucid-ui/src/lib/route-group-preferences-boundary.test.ts"
+      - ".github/workflows/rc49-first-load-regression.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  operator-preference-first-load:
+    name: "RC49: operator preference isolation and first-load budget"
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+      - name: Focused route-group regression and production budget
+        working-directory: archlucid-ui
+        env:
+          CI: "true"
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          npm ci
+          npm run test:vitest-single-worker -- src/lib/route-group-preferences-boundary.test.ts
+          npm run typecheck
+          npm run build
+          npm run check:first-load-js
+      - name: Generate route-size evidence even when budget fails
+        if: always()
+        working-directory: archlucid-ui
+        run: |
+          node --test scripts/ui-first-load-evidence.test.mjs
+          if test -f .next/diagnostics/route-bundle-stats.json; then
+            node scripts/ui-first-load-evidence.mjs
+          fi
+      - name: Upload first-load evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rc49-operator-preference-first-load-evidence
+          path: |
+            archlucid-ui/.next/diagnostics/route-bundle-stats.json
+            archlucid-ui/.next/diagnostics/first-load-evidence.json
+            archlucid-ui/performance/first-load-js-baseline.v1.json
+          if-no-files-found: warn

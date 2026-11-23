@@ -23,7 +23,7 @@ public sealed class InMemoryTenantTrialLifecycleAtomicityTests
                 tenantId, 48m, "parallel", stamp, CancellationToken.None));
 
             await Task.WhenAll(converted, baseline);
-            converted.Result.Should().BeTrue();
+            (await converted).Should().BeTrue();
 
             TenantRecord current = (await repository.GetByIdAsync(tenantId, CancellationToken.None))!;
             current.Tier.Should().Be(TenantTier.Enterprise);

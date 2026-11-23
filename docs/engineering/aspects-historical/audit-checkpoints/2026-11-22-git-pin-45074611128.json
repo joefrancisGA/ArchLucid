@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "source": "historical Git-pin audit produced by successful GitHub Actions run; first source-backed aggregate after workbook import",
+  "workflow_run_url": "https://github.com/joefrancisGA/ArchLucid/actions/runs/45074611128",
+  "artifact_id": 14776521618,
+  "artifact_name": "aspects-900-density-snapshot",
+  "snapshot_head_sha": "256cf58ab717129bdd6649158bb580b52a9f0a54",
+  "audited_review_rows": 5741,
+  "original_workbook_sha256": "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787",
+  "run_audit_json_sha256": "dbba0390fc8a4a4fabbb4a915b6bda5830db986838725d9c8fba5b31aef1aa35",
+  "run_rows_jsonl_raw_sha256": "f1b5ef9a567caf5f423f657e6df9a2539893ea037284d1df1bb4dc67df84ad09",
+  "audit_schema_note": "The earlier run predates the checked-in canonical audited_rows_sha256 contract; this is a SHA256 of raw JSONL bytes, not an equivalent canonical digest. Re-audit on the latest PR before promoting lineage.",
+  "parseable_single_source_pin_rows": 4511,
+  "git_source_validated_pin_rows": 4511,
+  "git_pin_failures_among_parseable": 0,
+  "unparsed_or_ambiguous_rows": 1230,
+  "unparsed_rows_in_900_window": 482,
+  "unparsed_rows_outside_900_window": 748,
+  "reviewed_loc_occurrences_from_verified_pins": 234546,
+  "new_exact_path_blob_loc_all_history_verified_subset": 228684,
+  "repeated_exact_path_blob_loc_all_history_verified_subset": 5862,
+  "verified_pinned_first_parent_sha_window": {
+    "head": "15ac3b9abeff23e4fa8cb7a16027bf9b17211251",
+    "oldest": "6252805a908f5bf0413bb40c68cb546013ff1843",
+    "commits": 900,
+    "eligible_rows": 4993,
+    "verified_single_source_rows": 4511,
+    "exact_path_blob_unique_loc_subset": 228684,
+    "status": "sha_membership_verified; independent distinct-defect/window line union unproven"
+  },
+  "historical_reported_checkpoint": {
+    "distinct_defects": 463,
+    "unique_loc": 343492,
+    "defects_per_kloc": 1.3479207667136353,
+    "provenance": "partial historical workbook; not recomputed by Git pin audit"
+  },
+  "anomaly_triage": {
+    "details": "479 of 482 unparseable in-window rows have no original pinned blob; three workbook rows have complete multi-file blob pins at Excel rows 1250, 1252, 1255",
+    "multi_file_excel_rows": [
+      1250,
+      1252,
+      1255
+    ],
+    "in_window_unparsed_reported_line_occurrences": 124736,
+    "guidance": "Unanchored rows are not Git-verified and never added to exact verified union. A conservative atomic multi-source parser is under review; Git must verify each file path/blob/span."
+  },
+  "review_vs_fix": "Recent Git ledger has a separate 58-row verified source subset and 44 distinct defect IDs in this run. It is NOT additive to the historical 900-workbook 463-defect figure.",
+  "provenance": "CI generated Git source pins; reported review occurrence itself is not independently authenticated",
+  "remaining": "Re-run updated auditor, validate three multi-source candidates, compare anchored cross-revision lineage, then reconcile historical defects and recent PR merge states"
+}
