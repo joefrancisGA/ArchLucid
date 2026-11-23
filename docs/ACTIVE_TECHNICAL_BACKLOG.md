@@ -1,3 +1,5 @@
+> **Scope:** Working triage of ArchLucid and SecureNow release blockers and proposed foundations; historical source backlogs remain authoritative and this document is not evidence of completed implementation.
+
 # Active technical backlog — ArchLucid 1.0, SecureNow 1.0, and 2.0 foundations
 
 **Created:** 2026-11-21  

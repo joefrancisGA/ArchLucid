@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+## 2026-11-23 - Score lift round 116 (batch 81): Explorer filters, compare one finalized, hub findings partial
+
+**Outcome.** Infrastructure explorer restores category-only and name-prefix-only filter empty honesty and adds resource-group-only empty band. Compare insufficient-finalized one-review case mounts not-load-failure test id. Resource hub findings tab adds partial-capture not-load-failure when capture is thin.
+
+**Surfaces.** Resources explorer, compare insufficient finalized empty, resource hub findings tab, honesty and mounted contract tests.
+
 ## 2026-11-22 - Score lift round 115 (batch 80): Hub overview gate, explorer filters, buyer bundle
 
 **Outcome.** Resource hub overview partial-capture not-load-failure line mounts only when latest capture is partial. Infrastructure explorer category-only and name-prefix-only filter empties name successful filter reads versus catalog load failure. Manifest buyer bundle download names unsealed finalize gate beside blocked hint.

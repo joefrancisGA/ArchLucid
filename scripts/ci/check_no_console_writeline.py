@@ -35,6 +35,8 @@ EXCLUDED_PATH_MARKERS = (
     "ArchLucid.Cli\\",
     "ArchLucid.Benchmarks/",
     "ArchLucid.Benchmarks\\",
+    "tools/ArchLucid.SqlSmokeBench/",
+    "tools/ArchLucid.SqlSmokeBench\\",
 )
 
 EXCLUDED_FILE_SUFFIXES = (

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Generate ephemeral SQL test password
         run: |
           password="Fnd010!$(openssl rand -hex 20)"
@@ -44,7 +44,7 @@ jobs:
           cp /tmp/fnd010-checkpoint.json ./fnd010-checkpoint.json
           cp /tmp/fnd010-test-verifying.pem ./fnd010-verifying.pem
       - name: Publish checkpoint outside SQL Server
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: fnd010-signed-checkpoint
           path: |
