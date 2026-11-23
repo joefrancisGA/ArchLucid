@@ -30,7 +30,7 @@
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
   "state": "5741_imported_4514_original_git_pins_900_window_exact_multifile_overlap_reconciled_new_CI_pending",
-  "next_priority": "Require new-head Aspects CI and evidence gate after exact accounting-only path classification. Inspect failed full CI gitleaks fixture history without suppressing detection; do not merge on failed required check. Compute fresh 900-window rate only after fixing historical defect-identity gaps (674 missing/noncanonical discovery IDs; 479 in-window unpinned reviews) and cross-revision denominator. Reconcile the 438 derived-at-commit reviews strictly as candidate evidence. Never dispatch comprehensive master build or alter RC49 PR #7702.",
+  "next_priority": "Validate refreshed #7822 Aspects/CI after explicit accounting-only evidence-gate fix and new 900 pinned source partition golden; inspect historical gitleaks findings in test fixtures without weakening security. Then reconcile Excel row 27 (separately positive but unlinked) and 463 distinct fixing-PR references to independent discovery IDs; do not assume matching count proves 463 distinct. Derive a new comparable rate only when 900-window numerator and cross-revision LOC denominator both verifiable.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -190,7 +190,15 @@
       "original_positive_rows_in_900_window": 464,
       "original_pin_verified_positive_rows_in_900_window": 200,
       "missing_or_noncanonical_discovery_id_rows_all_history": 674,
-      "exact_candidate_id_also_in_narrow_git_ledger_rows": 8
+      "exact_candidate_id_also_in_narrow_git_ledger_rows": 8,
+      "positive_reviews_in_anchored_900_window": 464,
+      "unique_fix_pr_numbers_in_anchored_900_window": 463,
+      "unlinked_positive_excel_rows_in_window": [
+        27
+      ],
+      "unlinked_excel_row_27_provenance": "Original repaired workbook, Review evidence row 27, defect ID 'Operational drain', defects 1, source reference empty, reported fix PR pending at confirmation; do not silently exclude to force 463.",
+      "fix_PR_numbers_cannot_be_used_as_distinct_defect_IDs": true,
+      "next_priority": "Reconcile Excel 27 to a uniquely evidenced discovery/fixing PR without assuming it duplicates any of the other 463 PR-linked observations. Independently prove 900-window discovery ID counts before computing density."
     },
     "source_pin_audit_20261123": {
       "evidence_run_id": 45088019526,
