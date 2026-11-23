@@ -65,6 +65,8 @@ test('full historical restoration change set needs accounting validation, not in
     'scripts/tests/test_aspects_verify_duplicate_fix_relationship.py',
     'scripts/aspects_reconcile_historical_lineage.py',
     'scripts/aspects_reconcile_recovered_candidates.py',
+    'scripts/aspects_reconcile_candidate_lineage.py',
+    'scripts/tests/test_aspects_reconcile_candidate_lineage.py',
     'scripts/aspects_recover_unpinned_historical_sources.py',
     'scripts/aspects_validate_historical_pins.py',
     'scripts/tests/test_aspects_historical_multisource_checkpoint.py',
@@ -169,4 +171,17 @@ test('removed or empty ledger changes cannot substitute for review evidence', as
 test('existing non-Aspects and pre-enforcement behavior is preserved', async () => {
   assert.deepEqual((await decision([changed(productPath)], { head: { ref: 'fix/ordinary' } })).errors, []);
   assert.deepEqual((await decision([changed(productPath)], { created_at: '2026-11-22T16:59:59Z' })).errors, []);
+});
+
+test('candidate lineage implementation and focused test remain accounting-only', async () => {
+  const files = [
+    changed('scripts/aspects_reconcile_candidate_lineage.py', 'added'),
+    changed('scripts/tests/test_aspects_reconcile_candidate_lineage.py', 'added'),
+    changed('.github/workflows/aspects-density-snapshot.yml'),
+  ];
+  assert.deepEqual((await decision(files)).errors, []);
+  // Neither an invented product file nor a path traversal is exempt.
+  assert.equal((await decision([...files, changed(productPath)])).errors.length, 1);
+  assert.equal((await decision([changed(
+    'scripts/aspects_reconcile_candidate_lineage.py/../../product.cs')])).errors.length, 1);
 });
