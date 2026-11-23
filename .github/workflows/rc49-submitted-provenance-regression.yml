@@ -1,0 +1,37 @@
+# Validate submitted-actor source provenance independently of broad RC49 builds.
+# Security, CI, release and performance thresholds are unchanged.
+name: RC49 submitted-actor provenance regression
+
+on:
+  pull_request:
+    branches: [RC49]
+    paths:
+      - "archlucid-ui/src/lib/derive-architecture-gap-baseline.ts"
+      - "archlucid-ui/src/lib/derive-architecture-gap-baseline.test.ts"
+      - "archlucid-ui/src/lib/architecture/architecture-created-home-summary.test.ts"
+      - ".github/workflows/rc49-submitted-provenance-regression.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  submitted-provenance-tests:
+    name: "RC49: submitted-actor provenance repeat-format regression"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+      - name: Run exact formatter and architecture summary regression suites
+        working-directory: archlucid-ui
+        env:
+          CI: "true"
+        run: |
+          npm ci
+          npm run test:vitest-single-worker -- \
+            src/lib/derive-architecture-gap-baseline.test.ts \
+            src/lib/architecture/architecture-created-home-summary.test.ts
