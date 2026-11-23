@@ -81,6 +81,31 @@ public sealed partial class SqlRunRepository
     }
 
     /// <inheritdoc />
+    public Task<RunArchiveByIdsResult> ArchiveRunsByIdsForScopeAsync(
+        ScopeContext scope, IReadOnlyList<Guid> runIds, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(runIds);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        if (runIds.Count == 0)
+            return Task.FromResult(new RunArchiveByIdsResult());
+
+        List<Guid> distinctOrdered = RunArchiveByIdsOutcome.DistinctInRequestOrder(runIds);
+        return ArchiveRunsByIdsCoreAsync(
+            distinctOrdered,
+            RunRepositorySql.ArchiveRunsByIdsInScope,
+            new
+            {
+                RunIds = distinctOrdered,
+                scope.TenantId,
+                scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
+            },
+            ct);
+    }
+
+    /// <inheritdoc />
     public Task<RunArchiveByIdsResult> ArchiveUnsealedRunAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
