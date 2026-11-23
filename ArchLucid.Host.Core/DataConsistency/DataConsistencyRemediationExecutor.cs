@@ -4,6 +4,7 @@ using System.Text.Json;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Transactions;
 
 namespace ArchLucid.Host.Core.DataConsistency;
 
@@ -29,52 +30,74 @@ public sealed class DataConsistencyRemediationExecutor(
 
         int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
         DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
-        await using DbConnection _ = connection;
-        await connection.OpenAsync(cancellationToken);
 
-        List<string> candidateIds = await SelectCandidateIdsAsync(
-            connection,
-            definition,
-            capped,
-            cancellationToken).ConfigureAwait(false);
-
-        if (dryRun)
-            return new DataConsistencyRemediationResult(true, candidateIds.Count, candidateIds);
-
-        if (candidateIds.Count == 0)
-            return new DataConsistencyRemediationResult(false, 0, []);
-
-        List<string> deletedIds = [];
-
-        await using DbTransaction transaction = await connection.BeginTransactionAsync(cancellationToken);
+        // Dry-run and zero-candidate paths own their connection directly. After
+        // a transaction starts, the existing Dapper UoW owns both connection
+        // and transaction, including rollback/disposal on failure.
+        bool handedOffToUnitOfWork = false;
 
         try
         {
-            deletedIds = await definition.ExecuteTransactionalDeletes(
+            await connection.OpenAsync(cancellationToken);
+
+            List<string> candidateIds = await SelectCandidateIdsAsync(
                 connection,
-                transaction,
+                definition,
                 capped,
-                candidateIds,
                 cancellationToken).ConfigureAwait(false);
 
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-        }
-        catch
-        {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-            throw;
-        }
+            if (dryRun)
+                return new DataConsistencyRemediationResult(true, candidateIds.Count, candidateIds);
 
-        if (deletedIds.Count > 0)
-            await _auditService.LogAsync(
-                new AuditEvent
+            if (candidateIds.Count == 0)
+                return new DataConsistencyRemediationResult(false, 0, []);
+
+            DbTransaction transaction = await connection.BeginTransactionAsync(cancellationToken);
+            await using DapperArchLucidUnitOfWork unitOfWork = new(connection, transaction);
+            handedOffToUnitOfWork = true;
+
+            try
+            {
+                List<string> deletedIds = await definition.ExecuteTransactionalDeletes(
+                    connection,
+                    transaction,
+                    capped,
+                    candidateIds,
+                    cancellationToken).ConfigureAwait(false);
+
+                if (deletedIds.Count > 0)
                 {
-                    EventType = definition.AuditEventType,
-                    DataJson = JsonSerializer.Serialize(definition.BuildAuditPayload(deletedIds))
-                },
-                cancellationToken).ConfigureAwait(false);
+                    // Reuse the existing audit UoW overload so the deletion and
+                    // durable audit row co-commit. If the append fails, roll back
+                    // both; never return a committed mutation without its audit.
+                    await _auditService.LogAsync(
+                        new AuditEvent
+                        {
+                            EventType = definition.AuditEventType,
+                            DataJson = JsonSerializer.Serialize(definition.BuildAuditPayload(deletedIds))
+                        },
+                        unitOfWork,
+                        cancellationToken).ConfigureAwait(false);
+                }
 
-        return new DataConsistencyRemediationResult(false, deletedIds.Count, deletedIds);
+                // This existing UoW commits synchronously; explicitly honor
+                // cancellation before committing the audited mutation.
+                cancellationToken.ThrowIfCancellationRequested();
+                await unitOfWork.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+                return new DataConsistencyRemediationResult(false, deletedIds.Count, deletedIds);
+            }
+            catch
+            {
+                await unitOfWork.RollbackAsync(cancellationToken).ConfigureAwait(false);
+                throw;
+            }
+        }
+        finally
+        {
+            if (!handedOffToUnitOfWork)
+                await connection.DisposeAsync().ConfigureAwait(false);
+        }
     }
 
     private static async Task<List<string>> SelectCandidateIdsAsync(
