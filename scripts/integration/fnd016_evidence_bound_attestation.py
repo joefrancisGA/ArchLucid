@@ -1,4 +1,4 @@
-"""FND-016 independently issued, evidence-bound recovery attestation v2.
+"""FND-016 independently issued, ordered-input-bound recovery attestation v3.
 
 The rehearsal process cannot sign. A separate authority must inspect the
 rehearsal evidence and sign its canonical digest with an external key.
@@ -8,31 +8,45 @@ import base64
 from datetime import datetime, timezone
 import hashlib
 import json
-from typing import Callable, Mapping
+from typing import Callable, Mapping, Sequence
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
 from scripts.integration.fnd016_signed_recovery_attestation import canonical
+from scripts.integration.fnd014_isolated_dry_run import RemediationStep
+from scripts.integration.fnd016_isolated_recovery_rehearsal import remediation_steps_sha256
 from scripts.integration.fnd016_recovery_stop_gate import RecoveryAttestation
 
-DOMAIN = "archlucid.fnd016.recovery-rehearsal.v2"
+# v3 is deliberately domain-separated: the old v2 record did not bind
+# the exact forward/rollback steps and must not silently gain that claim.
+DOMAIN = "archlucid.fnd016.recovery-rehearsal.v3"
 REQUIRED = {"domain", "tenantId", "projectId", "proposalId", "originalDigest",
             "rollbackDigest", "rehearsalEvidenceSha256", "rehearsalPassed",
-            "isolation", "issuedAt", "keyId"}
+            "isolation", "issuedAt", "keyId",
+            "forwardStepsSha256", "inverseStepsSha256"}
 EVIDENCE_FIELDS = {"schemaVersion", "tenantId", "projectId", "proposalId",
                    "originalDigest", "simulatedDigest", "rollbackDigest",
                    "forwardDecisionId", "reverseDecisionId",
-                   "rehearsalPassed", "isolation"}
+                   "rehearsalPassed", "isolation",
+                   "forwardStepsSha256", "inverseStepsSha256"}
 
 
 def evidence_digest(evidence: Mapping[str, object]) -> str:
     if not isinstance(evidence, dict) or set(evidence) != EVIDENCE_FIELDS:
         raise ValueError("Invalid rehearsal evidence")
-    if evidence["rehearsalPassed"] is not True or evidence["isolation"] != "in-memory-only":
+    if (evidence["schemaVersion"] != "1.1.0"
+            or evidence["rehearsalPassed"] is not True
+            or evidence["isolation"] != "in-memory-only"):
         raise ValueError("Unsuccessful or unrecognized rehearsal")
     for field in EVIDENCE_FIELDS - {"rehearsalPassed"}:
         if not isinstance(evidence[field], str) or not evidence[field]:
             raise ValueError("Invalid rehearsal evidence field")
+    for field in ("originalDigest", "simulatedDigest", "rollbackDigest",
+                  "forwardStepsSha256", "inverseStepsSha256"):
+        value = evidence[field]
+        if (len(value) != 64
+                or any(character not in "0123456789abcdef" for character in value)):
+            raise ValueError("Invalid SHA-256 evidence binding")
     if evidence["originalDigest"] != evidence["rollbackDigest"]:
         raise ValueError("Recovery did not restore original state")
     return hashlib.sha256(canonical(evidence)).hexdigest()
@@ -49,6 +63,8 @@ def prepare_attestation(evidence: Mapping[str, object], *, key_id: str,
         "originalDigest": evidence["originalDigest"],
         "rollbackDigest": evidence["rollbackDigest"],
         "rehearsalEvidenceSha256": digest, "rehearsalPassed": True,
+        "forwardStepsSha256": evidence["forwardStepsSha256"],
+        "inverseStepsSha256": evidence["inverseStepsSha256"],
         "isolation": "in-memory-only", "issuedAt": issued_at.isoformat(),
         "keyId": key_id,
     }
@@ -66,7 +82,9 @@ def issue_with_external_signer(payload: dict[str, object],
 
 def verify_evidence_bound_attestation(
     document: Mapping[str, object], evidence: Mapping[str, object],
-    pinned_key: Ed25519PublicKey, expected_key_id: str,
+    pinned_key: Ed25519PublicKey, expected_key_id: str, *,
+    expected_forward_steps: Sequence[RemediationStep],
+    expected_inverse_steps: Sequence[RemediationStep],
 ) -> RecoveryAttestation:
     if set(document) != {"payload", "signature"}:
         raise ValueError("Unexpected signed envelope")
@@ -78,9 +96,16 @@ def verify_evidence_bound_attestation(
     if payload["rehearsalPassed"] is not True or payload["isolation"] != "in-memory-only":
         raise ValueError("Invalid rehearsal claim")
     digest = evidence_digest(evidence)
+    # These inputs must originate independently of the signed envelope and
+    # its evidence snapshot (e.g. the authorized, pinned plan under review).
+    # Without them, a valid signature only proves a before/after digest.
+    if (evidence["forwardStepsSha256"] != remediation_steps_sha256(expected_forward_steps)
+            or evidence["inverseStepsSha256"] != remediation_steps_sha256(expected_inverse_steps)):
+        raise ValueError("Rehearsal inputs do not match independently expected steps")
     if payload["rehearsalEvidenceSha256"] != digest:
         raise ValueError("Rehearsal evidence digest mismatch")
-    for field in ("tenantId", "projectId", "proposalId", "originalDigest", "rollbackDigest"):
+    for field in ("tenantId", "projectId", "proposalId", "originalDigest",
+                  "rollbackDigest", "forwardStepsSha256", "inverseStepsSha256"):
         if payload[field] != evidence[field]:
             raise ValueError("Rehearsal scope or state mismatch")
     issued = datetime.fromisoformat(payload["issuedAt"].replace("Z", "+00:00"))

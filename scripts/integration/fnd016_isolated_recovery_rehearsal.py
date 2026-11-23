@@ -5,12 +5,42 @@ A separate signer must attest to the returned evidence after verification.
 """
 from __future__ import annotations
 from dataclasses import dataclass
+import hashlib
+import json
 from typing import Mapping, Sequence
 
 from scripts.integration.fnd014_isolated_dry_run import (
     DryRunAuthorization, DryRunResult, RemediationStep, simulate_remediation, _digest,
 )
 from scripts.integration.fnd015_rollback_planner import RollbackPlanResult
+
+
+def remediation_steps_sha256(steps: Sequence[RemediationStep]) -> str:
+    """Bind the exact ordered FND-014/FND-015 plan inputs to rehearsal evidence.
+
+    The same pure, stdlib-only digest is used by independent attestation
+    verification. It includes operation, resource, key and both property
+    values for every step; source/result model digests alone are insufficient.
+    """
+    if not steps:
+        raise ValueError("Missing remediation steps")
+    encoded_steps: list[list[str | None]] = []
+    for step in steps:
+        if (not isinstance(step, RemediationStep)
+                or any(not isinstance(value, str) or not value
+                       for value in (step.operation, step.resource_id, step.key))
+                or (step.expected_value is not None
+                    and not isinstance(step.expected_value, str))
+                or (step.new_value is not None
+                    and not isinstance(step.new_value, str))):
+            raise ValueError("Invalid remediation step")
+        encoded_steps.append([
+            step.operation, step.resource_id, step.key,
+            step.expected_value, step.new_value,
+        ])
+    encoded = json.dumps(encoded_steps, ensure_ascii=False, allow_nan=False,
+                         separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -89,10 +119,12 @@ def rehearse_recovery(
     return RecoveryRehearsalResult(
         "passed", (), dry_run.original_digest, reverse.simulated_digest,
         forward.simulated_digest,
-        {"schemaVersion": "1.0.0", "tenantId": tenant_id, "projectId": project_id,
+        {"schemaVersion": "1.1.0", "tenantId": tenant_id, "projectId": project_id,
          "proposalId": proposal_id, "originalDigest": dry_run.original_digest,
          "simulatedDigest": dry_run.simulated_digest,
          "rollbackDigest": reverse.simulated_digest,
+         "forwardStepsSha256": remediation_steps_sha256(steps),
+         "inverseStepsSha256": remediation_steps_sha256(rollback.inverse_steps),
          "forwardDecisionId": forward.decision_id,
          "reverseDecisionId": reverse.decision_id,
          "rehearsalPassed": True, "isolation": "in-memory-only"})
