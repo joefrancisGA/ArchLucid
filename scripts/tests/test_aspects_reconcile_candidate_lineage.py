@@ -230,13 +230,13 @@ class SparseGitFirstParentLineageTests(unittest.TestCase):
             blobs = {}
             for i in range(131):
                 if i == 0:
-                    source = "unique\\nstable\\n"
+                    source = "unique\nstable\n"
                 elif i == 40:
-                    source = "mutated\\nstable\\n"
+                    source = "mutated\nstable\n"
                 elif i == 41:
-                    source = "unique\\nstable\\n"
+                    source = "unique\nstable\n"
                 elif i == 100:
-                    source = "unique\\nstable\\nnew\\n"
+                    source = "unique\nstable\nnew\n"
                 (repo / "a.cs").write_text(source, encoding="utf-8")
                 git(repo, "add", "a.cs")
                 git(repo, "commit", "--allow-empty", "-qm", f"commit {i}")
