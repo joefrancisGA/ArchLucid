@@ -17,6 +17,15 @@ public sealed class ProjectScopeKeyRepositoryBoundaryTests
         yield return [typeof(IRemediationInstanceRepository)];
     }
 
+    [Fact]
+    public void Remediation_repository_does_not_expose_tenant_only_update_api()
+    {
+        typeof(IRemediationInstanceRepository).GetMethods()
+            .Select(method => method.Name)
+            .Should().NotContain("UpdateInstanceAsync",
+                "all remediation instance updates must use scoped, rowversion-protected methods");
+    }
+
     [Theory]
     [MemberData(nameof(ProjectScopedRepositoryInterfaces))]
     public void SecureNow_scoped_repository_methods_require_ProjectScopeKey(Type repositoryType)

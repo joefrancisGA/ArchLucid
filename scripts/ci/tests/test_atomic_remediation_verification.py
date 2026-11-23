@@ -33,25 +33,22 @@ class AtomicApprovalProvenanceTests(unittest.TestCase):
         self.assertLess(code.index("if (updated != 1)"), code.index("insertEvidenceSql,"))
         self.assertIn("CommitAsync(cancellationToken)", code)
 
-    def test_generic_sql_updates_cannot_replace_atomic_approval(self):
+    def test_legacy_tenant_only_sql_update_removed_and_scoped_approval_remains_atomic(self):
         code = (ROOT / "ArchLucid.Persistence/InfraEvidence/"
                 "SqlRemediationInstanceRepository.cs").read_text()
-        for start, end, check in (
-            ("public async Task UpdateInstanceAsync(", "public async Task UpdateInstanceInScopeAsync(",
-             "instance.Status == RemediationInstanceStatus.Approved"),
-            ("public async Task UpdateInstanceInScopeAsync(", "public async Task<RemediationInstanceRecord?> TryGetByIdAsync(",
-             "mutation.Status == RemediationInstanceStatus.Approved"),
-        ):
-            segment = code.split(start, 1)[1].split(end, 1)[0]
-            self.assertIn(check, segment)
-            self.assertIn("atomic provenance commit", segment)
+        self.assertNotIn("public async Task UpdateInstanceAsync(", code)
+        segment = code.split("public async Task UpdateInstanceInScopeAsync(", 1)[1]
+        segment = segment.split("public async Task<RemediationInstanceRecord?> TryGetByIdAsync(", 1)[0]
+        self.assertIn("mutation.Status == RemediationInstanceStatus.Approved", segment)
+        self.assertIn("atomic provenance commit", segment)
+        self.assertIn("RowVersion = @ExpectedRowVersion", segment)
 
     def test_remediation_inserts_omit_sql_managed_rowversion_column(self):
         code = (ROOT / "ArchLucid.Persistence/InfraEvidence/"
                 "SqlRemediationInstanceRepository.cs").read_text()
         for name, successor in (
             ("public async Task InsertInstanceAsync(", "public async Task InsertInstanceInScopeAsync("),
-            ("public async Task InsertInstanceInScopeAsync(", "public async Task UpdateInstanceAsync("),
+            ("public async Task InsertInstanceInScopeAsync(", "public async Task UpdateInstanceInScopeAsync("),
         ):
             statement = code.split(name, 1)[1].split(successor, 1)[0]
             self.assertIn("INSERT INTO dbo.RemediationInstances", statement)

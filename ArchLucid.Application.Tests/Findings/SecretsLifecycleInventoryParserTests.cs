@@ -7,6 +7,41 @@ namespace ArchLucid.Application.Tests.Findings;
 [Trait("Category", "Unit")]
 public sealed class SecretsLifecycleInventoryParserTests
 {
+    [Theory]
+    [InlineData(
+        "arn:aws:secretsmanager:us-east-1:111122223333:secret:prod-payment-key-AbC123",
+        "prod-payment-key")]
+    [InlineData(
+        "arn:aws:secretsmanager:us-east-1:111122223333:secret:prod-abcdef-ZyX987",
+        "prod-abcdef")]
+    [InlineData(
+        "arn:aws:secretsmanager:us-east-1:111122223333:secret:prod-payment-key",
+        "prod-payment-key")]
+    [InlineData(
+        "arn:aws:secretsmanager:us-east-1:111122223333:secret:prod-key-!!!!!!!",
+        "prod-key-!!!!!!!")]
+    public void ParseFromResourcesJson_preserves_hyphenated_aws_secret_names(
+        string resourceArn, string expectedName)
+    {
+        string json = System.Text.Json.JsonSerializer.Serialize(new[]
+        {
+            new
+            {
+                resourceType = "AWS::SecretsManager::Secret",
+                resourceId = resourceArn,
+                properties = new { LastChangedDate = "2026-11-01T00:00:00Z" },
+            },
+        });
+
+        SecretsLifecycleInventoryRow row =
+            SecretsLifecycleInventoryParser.ParseFromResourcesJson(json, "Aws")
+                .Should().ContainSingle().Subject;
+
+        row.SecretName.Should().Be(expectedName);
+        row.VaultName.Should().Be(expectedName);
+        row.InventoryResourceId.Should().Be(resourceArn);
+    }
+
     [Fact]
     public void ParseFromResourcesJson_parses_azure_secret_row()
     {

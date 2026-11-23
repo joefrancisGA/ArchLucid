@@ -884,6 +884,52 @@ public sealed class RemediationInstanceServiceTests
     }
 
     [Fact]
+    public async Task Failed_association_cannot_restore_over_a_newer_concurrent_remediation_state()
+    {
+        Guid controlId = Guid.NewGuid();
+        Mock<IVerifiedRemediationControlAssociationRepository> associations = new();
+        PassingVerifyHarness harness = ArrangePassingVerify(
+            controlId, assessmentId: null, associations: associations.Object);
+
+        associations.Setup(repository => repository.UpsertAsync(
+                It.IsAny<ProjectScopeKey>(),
+                It.IsAny<VerifiedRemediationControlAssociationRecord>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((ProjectScopeKey scope,
+                      VerifiedRemediationControlAssociationRecord ignoredAssociation,
+                      CancellationToken ignoredToken) =>
+            {
+                RemediationInstanceRecord current = harness.Instances.Instances.Single();
+                current.Status.Should().Be(RemediationInstanceStatus.Verified);
+                current.RowVersion.Should().HaveCount(8);
+
+                // Simulate a separate legitimate writer following verification:
+                // current-row CAS succeeds, but recovery must not clobber it.
+                harness.Instances.UpdateInstanceInScopeAsync(scope,
+                    new RemediationInstanceMutation
+                    {
+                        InstanceId = current.InstanceId,
+                        ExpectedRowVersion = current.RowVersion,
+                        Status = RemediationInstanceStatus.Closed,
+                        UpdatedUtc = current.UpdatedUtc.AddSeconds(1),
+                    }).GetAwaiter().GetResult();
+
+                return Task.FromException<VerifiedRemediationControlAssociationRecord>(
+                    new InvalidOperationException("Association insert unavailable."));
+            });
+
+        Func<Task> verify = () => harness.Service.VerifyAsync(
+            CreateScope(), harness.InstanceId, SnapshotB, "verifier");
+
+        AggregateException failure = (await verify.Should()
+            .ThrowAsync<AggregateException>()).Which;
+        failure.InnerExceptions.Should().HaveCount(2);
+        RemediationInstanceRecord latest = harness.Instances.Instances.Single();
+        latest.Status.Should().Be(RemediationInstanceStatus.Closed);
+        latest.RowVersion.Should().HaveCount(8);
+    }
+
+    [Fact]
     public async Task Passing_verify_saves_the_association_when_the_caller_cancels_after_verifying()
     {
         using CancellationTokenSource cancellation = new();
@@ -951,7 +997,8 @@ public sealed class RemediationInstanceServiceTests
             changeImplementedUtc: new DateTime(2026, 9, 27, 12, 0, 30, DateTimeKind.Utc),
             cloudResourceId: CloudResourceId,
             controlId: controlId,
-            assessmentId: assessmentId));
+            assessmentId: assessmentId,
+            rowVersion: new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }));
 
         InMemoryRemediationPatternRepository patternRepository = new();
         patternRepository.Versions.Add(CreateVersion(
@@ -1050,6 +1097,7 @@ public sealed class RemediationInstanceServiceTests
             {
                 InstanceId = current.InstanceId,
                 Status = RemediationInstanceStatus.ChangeImplemented,
+                ExpectedRowVersion = current.RowVersion,
                 CloudResourceId = current.CloudResourceId,
                 PathId = current.PathId,
                 PathNarrativeJson = current.PathNarrativeJson,
@@ -1288,16 +1336,6 @@ public sealed class RemediationInstanceServiceTests
             return Task.CompletedTask;
         }
 
-        public Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default)
-        {
-            int index = Instances.FindIndex(row => row.InstanceId == instance.InstanceId);
-
-            if (index >= 0)
-                Instances[index] = instance;
-
-            return Task.CompletedTask;
-        }
-
         public Task UpdateInstanceInScopeAsync(
             ProjectScopeKey scope,
             RemediationInstanceMutation mutation,
@@ -1309,7 +1347,15 @@ public sealed class RemediationInstanceServiceTests
                 && scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId));
             if (index < 0)
                 throw new InvalidOperationException("Scoped remediation instance was not found.");
-            Instances[index] = mutation.ApplyTo(Instances[index]);
+            RemediationInstanceRecord current = Instances[index];
+            // Existing legacy fixtures with no persisted token still model
+            // non-SQL behavior. SQL-mode fixtures enforce CAS and advance it.
+            if (current.RowVersion is { Length: 8 }
+                && (mutation.ExpectedRowVersion is not { Length: 8 }
+                    || !current.RowVersion.SequenceEqual(mutation.ExpectedRowVersion)))
+                throw new InvalidOperationException("Stale scoped remediation rowversion.");
+            Instances[index] = mutation.ApplyTo(
+                current, current.RowVersion is { Length: 8 } ? NextRowVersion(current.RowVersion) : null);
             return Task.CompletedTask;
         }
 
@@ -1364,10 +1410,27 @@ public sealed class RemediationInstanceServiceTests
             if (index < 0 || evidence.InstanceId != mutation.InstanceId || evidence.TenantId != scope.TenantId)
                 throw new InvalidOperationException("Scoped verification mismatch.");
 
-            RemediationInstanceRecord updated = mutation.ApplyTo(Instances[index]);
+            RemediationInstanceRecord current = Instances[index];
+            if (current.RowVersion is { Length: 8 }
+                && (mutation.ExpectedRowVersion is not { Length: 8 }
+                    || !current.RowVersion.SequenceEqual(mutation.ExpectedRowVersion)))
+                throw new InvalidOperationException("Stale scoped verification rowversion.");
+            RemediationInstanceRecord updated = mutation.ApplyTo(
+                current, current.RowVersion is { Length: 8 } ? NextRowVersion(current.RowVersion) : null);
             Instances[index] = updated;
             Evidence.Add(evidence);
             return Task.CompletedTask;
+        }
+
+        private static byte[] NextRowVersion(byte[] token)
+        {
+            byte[] next = token.ToArray();
+            for (int index = next.Length - 1; index >= 0; index--)
+            {
+                if (++next[index] != 0)
+                    break;
+            }
+            return next;
         }
 
         public Task<RemediationInstanceRecord?> TryGetByIdAsync(

@@ -230,9 +230,19 @@ public static class SecretsLifecycleInventoryParser
         }
 
         string tail = resourceId[(secretIndex + suffix.Length)..];
-        int dashIndex = tail.IndexOf('-', StringComparison.Ordinal);
+        // AWS appends "-XXXXXX" to the full secret ARN, but user-defined
+        // names can themselves contain hyphens. Only remove the final six-character suffix.
+        int dashIndex = tail.LastIndexOf('-');
+        if (dashIndex <= 0 || tail.Length - dashIndex != 7)
+            return tail;
 
-        return dashIndex > 0 ? tail[..dashIndex] : tail;
+        for (int i = dashIndex + 1; i < tail.Length; i++)
+        {
+            if (!char.IsAsciiLetterOrDigit(tail[i]))
+                return tail;
+        }
+
+        return tail[..dashIndex];
     }
 
     private static string? ExtractAwsVaultName(string resourceId)

@@ -70,43 +70,6 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
             new CommandDefinition(sql, MapInstanceParameters(instance), cancellationToken: cancellationToken));
     }
 
-    public async Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(instance);
-        if (instance.Status == RemediationInstanceStatus.Approved)
-            throw new InvalidOperationException(
-                "Approving a remediation instance requires an atomic provenance commit.");
-
-        const string sql = """
-                           UPDATE dbo.RemediationInstances
-                           SET Status = @Status,
-                               CloudResourceId = @CloudResourceId,
-                               PathId = @PathId,
-                               PathNarrativeJson = @PathNarrativeJson,
-                               AssessmentId = @AssessmentId,
-                               ControlId = @ControlId,
-                               PreflightSnapshotId = @PreflightSnapshotId,
-                               ExecutionSnapshotId = @ExecutionSnapshotId,
-                               VerificationSnapshotId = @VerificationSnapshotId,
-                               WaveId = @WaveId,
-                               PreflightResultJson = @PreflightResultJson,
-                               VerificationResultJson = @VerificationResultJson,
-                               ApprovedByActorKey = @ApprovedByActorKey,
-                               UpdatedUtc = @UpdatedUtc,
-                               ApprovedUtc = @ApprovedUtc,
-                               ExecutedUtc = @ExecutedUtc,
-                               ChangeImplementedUtc = @ChangeImplementedUtc,
-                               VerifiedUtc = @VerifiedUtc,
-                               ClosedUtc = @ClosedUtc
-                           WHERE TenantId = @TenantId AND InstanceId = @InstanceId;
-                           """;
-
-        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        await conn.ExecuteAsync(
-            new CommandDefinition(sql, MapInstanceParameters(instance), cancellationToken: cancellationToken));
-    }
-
     public async Task UpdateInstanceInScopeAsync(
         ProjectScopeKey scope,
         RemediationInstanceMutation mutation,
@@ -114,6 +77,10 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(mutation);
+        if (mutation.ExpectedRowVersion is not { Length: 8 })
+            throw new InvalidOperationException(
+                "Scoped remediation mutation requires an eight-byte expected rowversion.");
+
         if (mutation.Status == RemediationInstanceStatus.Approved)
             throw new InvalidOperationException(
                 "Approving a remediation instance requires an atomic provenance commit.");
@@ -143,7 +110,7 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                              AND WorkspaceId = @WorkspaceId
                              AND ProjectId = @ProjectId
                              AND InstanceId = @InstanceId
-                             AND (@ExpectedRowVersion IS NULL OR RowVersion = @ExpectedRowVersion);
+                             AND RowVersion = @ExpectedRowVersion;
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
