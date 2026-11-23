@@ -21,6 +21,14 @@ internal static class SqlDatabaseImmutabilityProbeHelpers
         return scalar is not null and not DBNull;
     }
 
+    internal static bool ProcedureExists(SqlConnection connection, string procedureName)
+    {
+        const string sql = "SELECT CASE WHEN OBJECT_ID(@ProcedureName, N'P') IS NULL THEN 0 ELSE 1 END;";
+        using SqlCommand command = new(sql, connection);
+        command.Parameters.Add(new SqlParameter("@ProcedureName", SqlDbType.NVarChar, 256) { Value = procedureName });
+        return Convert.ToInt32(command.ExecuteScalar()) == 1;
+    }
+
     internal static bool TriggerExists(SqlConnection connection, string triggerName)
     {
         const string sql = "SELECT CASE WHEN OBJECT_ID(@TriggerName, N'TR') IS NULL THEN 0 ELSE 1 END;";
@@ -40,6 +48,15 @@ internal static class SqlDatabaseImmutabilityProbeHelpers
         using SqlCommand command = new(sql, connection);
         command.Parameters.Add(new SqlParameter("@RoleName", SqlDbType.NVarChar, 128) { Value = roleName });
 
+        return Convert.ToInt32(command.ExecuteScalar()) == 1;
+    }
+
+    internal static bool IsCurrentPrincipalRoleMember(SqlConnection connection, string roleName)
+    {
+        const string sql = "SELECT ISNULL(IS_ROLEMEMBER(@RoleName), 0);";
+
+        using SqlCommand command = new(sql, connection);
+        command.Parameters.Add(new SqlParameter("@RoleName", SqlDbType.NVarChar, 128) { Value = roleName });
         return Convert.ToInt32(command.ExecuteScalar()) == 1;
     }
 
