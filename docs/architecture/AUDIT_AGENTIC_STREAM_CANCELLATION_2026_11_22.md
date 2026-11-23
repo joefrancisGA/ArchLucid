@@ -15,6 +15,7 @@ Review existing cancellation and deadline handling in agentic retrieval query re
 - Recheck both caller cancellation and linked expansion deadline immediately after agentic completion returns; preserve fallback heuristics on budget expiration, propagate caller cancellation, and distinguish provider cancellation from deadline expiration.
 - Make `AgentCompletionStreamingBridge` enforce cancellation at entry, before forwarding live chunks, after a live stream closes, and before each simulated chunk.
 - Add matching checks to `LlmCompletionAccountingClient.Stream` buffered replay and `ContentSafetyEnforcingAgentCompletionClient` post-verification replay.
+- Check cancellation before, between, and after content-safety input and output scans on both buffered and streaming paths, including when providers ignore cancellation. Cancellation must not permit a second content-safety request or stale returned completion; disabled-safety configuration remains disabled and does not weaken any configured safety decision.
 
 These repairs require no new retry, timeout, quota, or cancellation framework and do not modify existing content-safety admission decisions.
 
@@ -24,6 +25,8 @@ These repairs require no new retry, timeout, quota, or cancellation framework an
 - Streaming bridge: canceled buffered completion rejected before first chunk; canceled simulated streaming stops between chunks; non-cooperative live streaming stops after cancellation.
 - Content safety: cancellation during a successful output scan prevents buffered content from being replayed.
 - Accounting: cancellation during a non-streaming completion prevents subsequent simulated streaming output.
+- Content-safety completion: cancellation after system scan prevents user scan/LLM invocation; cancellation after the LLM returns prevents a second provider call for output scan; cancellation after an output scan returns prevents stale approval from being returned.
+- Content-safety streaming: cancellation after system scan prevents user scan and LLM invocation.
 
 ## Validation
 
