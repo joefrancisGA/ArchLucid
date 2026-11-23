@@ -31,12 +31,12 @@ jobs:
           --health-retries 30
           --health-start-period 60s
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Verify canonical SentEmails bootstrap migration parity
         run: python3 scripts/ci/verify_sentemails_bootstrap_parity.py
       - name: Wait for SQL Server to be ready
         uses: ./.github/actions/wait-for-sqlserver
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
       - name: Ensure SQL persistence test catalog

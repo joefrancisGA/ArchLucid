@@ -12,8 +12,9 @@ BEGIN
 
     IF @PrimaryKeyName IS NOT NULL
     BEGIN
-        DECLARE @DropPrimaryKeySql NVARCHAR(MAX) =
-            N'ALTER TABLE dbo.SentEmails DROP CONSTRAINT ' + QUOTENAME(@PrimaryKeyName) + N';';
+        DECLARE @DropPrimaryKeySql NVARCHAR(MAX);
+        SET @DropPrimaryKeySql = N'ALTER TABLE dbo.SentEmails DROP CONSTRAINT '
+            + QUOTENAME(@PrimaryKeyName) + N';';
         EXEC sys.sp_executesql @DropPrimaryKeySql;
     END;
 

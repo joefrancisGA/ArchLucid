@@ -1,0 +1,67 @@
+# Diagnostic current-RC49 regression recheck for exact files that failed in
+# completed full CI #19670 at older head 90c1612. No full CI or master build.
+name: RC49 historical Vitest failure recheck
+
+on:
+  pull_request:
+    branches: [RC49]
+    paths:
+      - ".github/workflows/rc49-historical-vitest-regression.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  historical-vitest-recheck:
+    name: "RC49: retest 33 previously failing Vitest files"
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+      - name: Validate exact old failure cohort against current RC49 source
+        working-directory: archlucid-ui
+        env:
+          CI: "true"
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          npm ci
+          echo "Testing 33 historically failed Vitest files on the PR merge ref" >> "$GITHUB_STEP_SUMMARY"
+          npm run test:vitest-single-worker -- \
+            'src/lib/score-lift-round59-mounted-contract.test.ts' \
+            'src/lib/product-line/securenow-investigation-effort-result-state.test.ts' \
+            'src/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient.test.tsx' \
+            'src/app/(operator)/architecture/reviews/_sections/ReviewsHubDisclosuresClient.url-sync.test.tsx' \
+            'src/lib/architecture/architecture-created-home-summary.test.ts' \
+            'src/app/(operator)/demo/explain/page.test.tsx' \
+            'src/lib/architecture/review-url-state-pathname.test.ts' \
+            'src/lib/resolve-continue-last-infra-evidence-terraform-workbench.test.ts' \
+            'src/lib/score-lift-round87-mounted-contract.test.ts' \
+            'src/lib/showcase-operator-review-href.test.ts' \
+            'src/app/(operator)/why-archlucid/page.test.tsx' \
+            'src/lib/global-search-desk-architecture-id.test.ts' \
+            'src/components/security/SecurityEvidencePathInspectPanel.test.tsx' \
+            'src/lib/operator/operator-inline-link-affordance-guard.test.ts' \
+            'src/lib/graph-finding-deep-links.test.ts' \
+            'src/app/(marketing)/demo/preview/DemoPreviewMarketingBody.test.tsx' \
+            'src/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory.test.tsx' \
+            'src/app/(marketing)/showcase/[runId]/ShowcaseQuickNav.test.tsx' \
+            'src/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchClient.test.tsx' \
+            'src/lib/operator/operator-url-query-writer-guard.test.ts' \
+            'src/app/(operator)/governance/infrastructure/drift/DriftWorkbenchClient.test.tsx' \
+            'src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.test.tsx' \
+            'src/lib/operator-scoped-run-review-href.test.ts' \
+            'src/components/digests/DigestsHubClient.test.tsx' \
+            'src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCreateHomeActivityPanel.test.tsx' \
+            'scripts/securenow-archlucid-leak-drift-guard.test.ts' \
+            'src/lib/governance-scoped-review-open-href.test.ts' \
+            'src/lib/score-lift-round57-mounted-contract.test.ts' \
+            'src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.securenow.test.tsx' \
+            'src/lib/notice-callout-surface-contract.test.ts' \
+            'src/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueScopeSection.test.tsx' \
+            'src/components/governance/GovernanceBypassAuditPanel.test.tsx' \
+            'src/components/digests/DigestsBrowseContent.test.tsx'

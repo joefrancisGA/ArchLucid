@@ -60,6 +60,13 @@ public static class AdvisoryIntegrationSeed
             RunId = runId,
             ProjectId = projectSlug,
             CreatedUtc = createdUtc,
+            // Persist the full seeded authority lineage on the run header. Temporal
+            // graph resolution and in-memory detail loading use these anchors;
+            // saving child snapshots alone does not populate the run's pointers.
+            ContextSnapshotId = contextSnapshotId,
+            GraphSnapshotId = graphSnapshotId,
+            FindingsSnapshotId = findingsSnapshotId,
+            DecisionTraceId = decisionTraceId,
             GoldenManifestId = manifestId
         };
 

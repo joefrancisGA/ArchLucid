@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
 
@@ -10,6 +10,7 @@ const pathnameMock = vi.hoisted(() => ({ value: "/governance/findings" }));
 
 vi.mock("next/navigation", () => ({
   usePathname: () => pathnameMock.value,
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 function buildProps(
@@ -105,6 +106,10 @@ function buildProps(
 }
 
 describe("GovernanceFindingsQueueScopeSection", () => {
+  beforeEach(() => {
+    pathnameMock.value = "/governance/findings";
+  });
+
   it("renders scoped run banner when a review is selected", () => {
     render(<GovernanceFindingsQueueScopeSection {...buildProps()} />);
     expect(screen.getByTestId("governance-findings-run-scope-banner")).toHaveTextContent("run-1");
