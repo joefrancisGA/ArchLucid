@@ -272,7 +272,12 @@ public interface IRemediationInstanceRepository
 
 public sealed record RemediationInstanceMutation
 {
-    /// <summary>Expected SQL rowversion from the record originally read; required for protected writes.</summary>
+    /// <summary>
+    /// Expected SQL rowversion from the current authoritative scoped read.
+    /// Required as exactly eight bytes for ALL protected SQL updates and
+    /// verification commits; a null value never means skip concurrency checks.
+    /// Nullable only to preserve non-SQL/draft record construction.
+    /// </summary>
     public byte[]? ExpectedRowVersion { get; init; }
     public required Guid InstanceId { get; init; }
     public required RemediationInstanceStatus Status { get; init; }
