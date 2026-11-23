@@ -23,6 +23,7 @@ PR_LINK = re.compile(
     r"^https://github\.com/joefrancisGA/ArchLucid/pull/([1-9][0-9]*)(?:/)?$"
 )
 PR_STATUS = re.compile(r"\bPR\s*#([1-9][0-9]*)\b", re.IGNORECASE)
+PR_ONLY_REVIEW_ID = re.compile(r"^#([1-9][0-9]*)$")
 
 
 def referenced_fix_pr(row: dict) -> tuple[int | None, str]:
@@ -40,6 +41,25 @@ def referenced_fix_pr(row: dict) -> tuple[int | None, str]:
     if hinted is not None:
         return hinted, "historical_status_text_only"
     return None, "no_explicit_fix_pr_reference"
+
+
+def fix_pr_reference_candidate(row: dict, fix_pr: int | None,
+                               evidence_type: str) -> tuple[str | None, str]:
+    """Preserve legacy '#123' row identities without inventing defect IDs.
+
+    A PR reference can be a useful candidate JOIN key for a workbook review,
+    but multiple defects may share a fix PR, and it cannot establish a unique
+    discovery on its own. Require the original canonical URL and number to
+    agree; a status-text hint alone is never sufficient.
+    """
+    raw = row.get("review_id")
+    match = PR_ONLY_REVIEW_ID.fullmatch(raw.strip()) if isinstance(raw, str) else None
+    if match is None:
+        return None, "not_a_pr_number_review_id"
+    number = int(match.group(1))
+    if fix_pr != number or evidence_type != "original_source_link":
+        return None, "review_id_pr_number_not_confirmed_by_matching_source_link"
+    return f"workbook_fix_pr:{number}", "matching_workbook_review_id_and_source_pr_url"
 
 
 def load_fix_state(checkpoint: dict) -> dict[int, dict]:
@@ -84,6 +104,7 @@ def reconcile(rows: list[dict], audit: list[dict], audit_report: dict,
                   if isinstance(r.get("defect_id"), str) and r.get("defect_id")}
     positive = []
     candidate_ids = defaultdict(list)
+    pr_reference_candidates = defaultdict(list)
     totals = Counter()
     unresolved = Counter()
     window_fix_pr_references: dict[int, list[int]] = defaultdict(list)
@@ -103,6 +124,8 @@ def reconcile(rows: list[dict], audit: list[dict], audit_report: dict,
         else:
             identifier = None
         number, evidence_type = referenced_fix_pr(row)
+        pr_candidate_key, pr_candidate_confidence = fix_pr_reference_candidate(
+            row, number, evidence_type)
         recorded_status = row.get("historical_status")
         resolved = status_by_pr.get(number) if number is not None else None
         if resolved is not None:
@@ -117,6 +140,9 @@ def reconcile(rows: list[dict], audit: list[dict], audit_report: dict,
         record = {
             "excel_row": excel, "review_id": row.get("review_id"),
             "named_discovery_id_candidate": identifier,
+            "fix_pr_reference_review_key_candidate": pr_candidate_key,
+            "fix_pr_reference_review_key_confidence": pr_candidate_confidence,
+            "fix_pr_key_is_distinct_defect_proof": False,
             "defect_observations_workbook_reported": row["defects_recorded"],
             "source_path": (row.get("parsed_pin") or {}).get("path"),
             "reviewed_master_sha": row["reviewed_master_sha"],
@@ -151,6 +177,13 @@ def reconcile(rows: list[dict], audit: list[dict], audit_report: dict,
                 totals["exact_candidate_id_also_in_narrow_ledger_rows"] += 1
         else:
             unresolved["missing_or_noncanonical_discovery_id"] += 1
+        if pr_candidate_key is not None:
+            pr_reference_candidates[pr_candidate_key].append(excel)
+            totals["rows_with_matching_workbook_pr_review_key"] += 1
+            if pin.get("window_membership") == "in_window":
+                totals["in_window_rows_with_matching_workbook_pr_review_key"] += 1
+        elif pr_candidate_confidence == "review_id_pr_number_not_confirmed_by_matching_source_link":
+            totals["review_id_pr_link_conflicts_or_missing_original_url"] += 1
 
     repeat_identifiers = {key: locations for key, locations in candidate_ids.items()
                           if len(locations) > 1}
@@ -163,6 +196,8 @@ def reconcile(rows: list[dict], audit: list[dict], audit_report: dict,
     if (sum(map(len, window_fix_pr_references.values())) +
             len(window_no_fix_pr_reference) != totals["positive_rows_on_900_first_parent"]):
         raise RuntimeError("First-parent positive review / fixing-PR partition mismatch")
+    repeated_pr_keys = {key: locations for key, locations in
+                        pr_reference_candidates.items() if len(locations) > 1}
     summary = {
         "schema_version": 1,
         "status": "historical_candidate_defect_ids_and_sampled_fix_states_reconciled",
@@ -172,6 +207,14 @@ def reconcile(rows: list[dict], audit: list[dict], audit_report: dict,
         "unique_named_discovery_id_candidates": len(candidate_ids),
         "repeated_named_discovery_id_candidates": len(repeat_identifiers),
         "repeated_named_ids_sample": dict(list(sorted(repeat_identifiers.items()))[:25]),
+        "positive_rows_with_matching_pr_reference_review_key": totals["rows_with_matching_workbook_pr_review_key"],
+        "unique_pr_reference_review_key_candidates": len(pr_reference_candidates),
+        "repeated_pr_reference_review_key_candidates": len(repeated_pr_keys),
+        "repeated_pr_reference_keys_sample": dict(list(sorted(repeated_pr_keys.items()))[:25]),
+        "pr_number_id_link_disagreement_or_missing_source_url_rows": totals["review_id_pr_link_conflicts_or_missing_original_url"],
+        "positive_rows_in_900_with_matching_pr_reference_review_key":
+            totals["in_window_rows_with_matching_workbook_pr_review_key"],
+        "pr_reference_keys_proven_distinct_defects": None,
         "positive_rows_in_anchored_900_first_parent": totals["positive_rows_on_900_first_parent"],
         "unique_fix_pr_reference_candidates_in_anchored_window": len(window_fix_pr_references),
         "positive_rows_without_fix_pr_reference_in_anchored_window": len(window_no_fix_pr_reference),
@@ -194,7 +237,10 @@ def reconcile(rows: list[dict], audit: list[dict], audit_report: dict,
         "current_vs_previous_delta": None,
         "interpretation": (
             "Review ID is only a candidate distinct discovery identity, not a "
-            "verified 463-count reconstruction. PR merge status is separate "
+            "verified 463-count reconstruction. Legacy #PR review IDs are "
+            "preserved as separate exact-link corroborated *review join keys*, "
+            "NOT distinct defect IDs: one PR can address multiple discoveries. "
+            "PR merge status is separate "
             "fix lifecycle data. Unknown GitHub statuses remain unknown; an "
             "original workbook 'open' label is not current state. No historical "
             "or recent defect counts or LOC are spliced together."
