@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_5741_import_complete_followon_original_pin_900_reconciliation_submitted",
-  "next_priority": "Validate exact PR-head Aspects CI for original-pinned 900-cohort vs independently Git-verified follow-on ledger reconciliation (new artifact historical-900-followon-pinned-overlap.json); fix any schema, test, Git span, first-parent mismatch or CI errors narrowly. Then handle remaining Gitleaks/SQL and distinct discovery identity plus full cross-revision 900-window mapping before publishing any comparable rate or 600/700 SMA.",
+  "state": "followon_original_pinned_900_overlap_validated_clean_workbook_provenance_fix_submitted",
+  "next_priority": "Validate exact-head CI for historical original-pinned clean/positive review counts correctly joined to immutable source, not the defect-label-free Git pin-audit rows. Then reconstruct full 900-first-parent cross-revision reviewed LOC and contemporaneous distinct discovery IDs; keep 600/700 series provisional until source-backed rates exist. Inspect unresolved FND HTTP/CI security failures without bypassing gates.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -393,7 +393,7 @@
       "new_or_repeated_loc_to_global_900_window": null
     },
     "followon_original_pin_900_reconciliation": {
-      "status": "code_and_ten_tests_committed_pending_exact_head_CI",
+      "status": "previous_exact_head_Aspects_run_45142505448_passed_10_tests_and_overlap; workbook_clean_event_join_fix_submitted_pending_new_ci",
       "script": "scripts/aspects_reconcile_followon_900.py",
       "tests": "scripts/tests/test_aspects_reconcile_followon_900.py",
       "workflow": ".github/workflows/aspects-density-snapshot.yml",
@@ -406,7 +406,24 @@
       "new_distinct_defect_ids_reconciled": 0,
       "new_comparable_rate": null,
       "no_legacy_checkpoint_promotion": true,
-      "note": "The narrow ledger includes a newly source-verified clean review, but it is not automatically eligible for the older historical 900-first-parent cohort. This job explicitly reports excluded out-of-window records."
+      "note": "The narrow ledger includes a newly source-verified clean review, but it is not automatically eligible for the older historical 900-first-parent cohort. This job explicitly reports excluded out-of-window records.",
+      "previous_passed_aspects_run_id": 45142505448,
+      "previous_passed_followon_summary": {
+        "original_pinned_unique_exact_loc": 232219,
+        "followon_git_verified_records_all_history": 59,
+        "followon_in_historical_900_cohort": 27,
+        "followon_outside_historical_900_cohort": 32,
+        "followon_unique_exact_loc_in_historical_cohort": 753,
+        "same_path_blob_line_exact_repeat_vs_original_pins": 538,
+        "unmatched_exact_line_identities_not_proven_cross_revision_new": 215,
+        "original_pinned_clean_rows_reported_pre_fix": 0,
+        "original_pinned_clean_rows_pre_fix_valid": false,
+        "source_validation": "CI artifact/log only, earlier PR head ea2d9a391caa929a8e29271a87ae18ee2c5a76ff"
+      },
+      "source_fix": "immutable Review evidence event source join by Excel row, original review ID, reviewed SHA and defects_recorded; records must match independently audited original pinned rows; zero-defect reviews cannot be inferred absent fields",
+      "source_fix_tests": "scripts/tests/test_aspects_reconcile_followon_900.py",
+      "verified_reviewed_loc_new_this_stage": 0,
+      "new_distinct_defects_this_stage": 0
     }
   },
   "latest_restoration_run": {
