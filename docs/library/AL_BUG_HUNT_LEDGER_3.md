@@ -11537,6 +11537,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted stale `workbenchFocus` on browser history: `popstate` could land on `reviewTab=overview` with a leftover `workbenchFocus` query while React tab state stayed on overview, so hook state was null but the address bar kept the stale column param. `syncActiveTabFromUrl` now rewrites the URL when a non-workbench tab carries `workbenchFocus`. Regression `clears workbench focus from the URL on popstate when reviewTab stays on a non-workbench tab`. URL-sync vitest **10/10**. Seeded five `(candidate)` monitors below. Private beta: When an invited operator uses browser back or forward on a review summary tab, a leftover workbench column query is stripped from the URL instead of lingering in the address bar.
+
+- [x] (proven) `useReviewDetailWorkspaceTabs` — `popstate` left `workbenchFocus` in the URL on non-workbench tabs — **hit 2026-11-23 seed hunt:** strip stale focus during `syncActiveTabFromUrl`; regression above. Private beta: When an invited operator uses browser back or forward on a review summary tab, a leftover workbench column query is stripped from the URL instead of lingering in the address bar.
+
+- [ ] (candidate) `useReviewDetailWorkspaceTabs.navigateTab` — `findingId` may persist in the URL when leaving the findings tab because `writeReviewDetailTabToUrl` treats `findingId` as omit-to-keep — locus: `navigateTab` / `writeReviewDetailTabToUrl`; input: findings tab with `findingId` then tab strip to overview; wrong outcome: overview URL still carries `findingId` while selection chrome is hidden (monitor; hunt 2026-11-23 reseed).
+- [ ] (candidate) `useReviewDetailWorkspaceTabs` — stale `workbenchFocus` cleanup effect skips when `tabLifecycle` is undefined — locus: mount effect guard; input: legacy review route without `tabLifecycle` props; wrong outcome: query param survives on non-workbench tabs (monitor; hunt 2026-11-23 reseed).
+- [ ] (candidate) `ReviewWorkspaceStaleBanner` — `visibilitychange` refetch does not compare fingerprint until `query.data` effect runs — locus: refetch vs baseline timing; input: hidden tab with authority change then foreground; wrong outcome: banner lags one paint (monitor; hunt 2026-11-23 reseed).
+- [ ] (candidate) `ReviewDetailWorkspaceTabShell.lifecycleHashHonesty` — honesty line may flash when `activeTab` is activity but hash maps to a different package tab — locus: `useEffect` hash read vs `activeTab`; input: deep link hash mismatch during tab transition; wrong outcome: misleading lifecycle copy (monitor; hunt 2026-11-23 reseed).
+- [ ] (candidate) `useReviewDetailWorkspacePresenter` — `enterPresenter` builds href from `useSearchParams` while `presenter` sync listens to `popstate` only — locus: dual presenter URL readers; input: soft navigation with stale search params; wrong outcome: presenter chrome disagrees with query (monitor; hunt 2026-11-23 reseed).
+
 2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted stale `workbenchFocus` on non-workbench tabs: `reviewTab=overview` with leftover `workbenchFocus=findings` kept column focus in hook state. Query parsing, popstate sync, hashchange fallback, and a mount effect now clear focus and rewrite the URL. Regression `clears workbench focus on initial load when reviewTab is a non-workbench tab`. URL-sync vitest **9/9**. Cheap-disproof closed hunt **#122** `(candidate)` monitors for workbench findings unmount selection sync and stale-banner visibility refetch baseline. Private beta: When an invited operator opens a review on the summary tab with a leftover workbench column in the query string, the workspace no longer keeps that column focused or leaves the stale parameter in the address bar.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs` — `workbenchFocus` query survived on non-workbench `reviewTab` values — **hit 2026-11-23 thorough hunt:** normalize focus for non-workbench tabs and strip stale query on mount; regression above. Private beta: When an invited operator opens a review on the summary tab with a leftover workbench column in the query string, the workspace no longer keeps that column focused or leaves the stale parameter in the address bar.
@@ -12235,8 +12245,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

@@ -307,6 +307,18 @@ export function useReviewDetailWorkspaceTabs(
         workbenchFocusColumnRef.current = normalizedFocus;
         setWorkbenchFocusColumnState(normalizedFocus);
       }
+
+      if (!isWorkbenchTab(nextTab) && params.has(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM)) {
+        const hash = window.location.hash.slice(1);
+
+        writeReviewDetailTabToUrl(nextTab, {
+          hash: hash.length > 0 ? hash : null,
+          workbenchFocus: null,
+          presenter: presenterModeRef.current ? true : null,
+          runId: props.runId,
+          architectureId: props.parentArchitectureId,
+        });
+      }
     };
 
     syncActiveTabFromUrl();

@@ -33,3 +33,4 @@
 {"at":"2026-11-23T15:30:03.3307991Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: 204 list capture passed on an HTTP 200 absent sentence"}
 {"at":"2026-11-23T15:40:32.3421294Z","zoneId":"cli-tenant-isolation","outcome":"seed-only","productLine":"archlucid-shared","set":3,"note":"seed hunt: no failing repro after status-mismatch probes"}
 {"at":"2026-11-23T15:47:41.4180847Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: workbenchFocus stuck on overview tab"}
+{"at":"2026-11-23T15:53:12.1080442Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: popstate left workbenchFocus on overview"}
