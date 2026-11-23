@@ -43,6 +43,10 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the Azure subscription scope label: `deriveAzureSubscriptionScopeFromConnections` and the cloud-connections page read only the first connection row. The list endpoint returns one row per subscription, so a second subscription was omitted from the collection scope line. The helper now collects, trims, and dedupes every row, and the page uses that label. Regression `counts every listed subscription row, not only the first connection`; collection-setup vitest **1/1**. Private beta: an invited SecureNow operator who has more than one Azure subscription sees the extra subscriptions on the collection scope line. The line no longer names only the first listed subscription.
+
+- [x] (proven) `deriveAzureSubscriptionScopeFromConnections` — scope label used only the first connection row — **hit 2026-11-23 seed hunt:** every listed subscription id is counted; regression above.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the decision cycle log fragment: `securenowInternalDocHref("DECISION_CYCLE_LOG.md")` and `resolveInAppDocHref` used `#securenow-decision-cycle`, which is the section `data-testid`. The section id is `decision-cycle`. Close and Decision cycle log on the pilot decision page, and the in-app doc link, now use that id. Regression `maps known internal docs to unique operator routes` and `maps the decision cycle log to the decision-cycle section`; internal-doc and in-app doc vitest **16/16**. Private beta: an invited SecureNow operator who opens Decision cycle log or Close on pilot decision reaches the Decision cycle section. That link no longer stops at the top of the page.
 
 - [x] (proven) `securenowInternalDocHref` — decision cycle log fragment was the data-testid — **hit 2026-11-23 seed hunt:** fragment is `#decision-cycle`; regression above.
@@ -114,8 +118,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 11
-- **bugs-found:** 11
+- **hunts:** 12
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
