@@ -119,6 +119,37 @@ class HistoricalDefectIdTests(unittest.TestCase):
         self.assertIsNone(rows[0]["fix_pr_reference_review_key_candidate"])
         self.assertEqual(report["unique_pr_reference_review_key_candidates"], 0)
 
+    def test_immutable_workbook_numeric_review_identity_population_golden(self):
+        # Inspect the actual 24 committed, checksum-guarded historical shards.
+        # 672 original '#PR' IDs agree with their exact same-repository links;
+        # one does not, and one other noncanonical positive ID is narrative.
+        import json
+        root = (Path(__file__).resolve().parents[2] /
+                "docs/engineering/aspects-historical/review-events")
+        events = [json.loads(line) for shard in sorted(root.glob("*.jsonl"))
+                  for line in shard.read_text(encoding="utf-8").splitlines()
+                  if line.strip()]
+        self.assertEqual(len(events), 5741)
+        positive = [row for row in events if row["defects_recorded"] > 0]
+        self.assertEqual(len(positive), 877)
+        matched = discordant = unrelated = 0
+        for row in positive:
+            number, confidence = sut.referenced_fix_pr(row)
+            key, reason = sut.fix_pr_reference_candidate(row, number, confidence)
+            if key is not None:
+                matched += 1
+                self.assertEqual(key, f"workbook_fix_pr:{number}")
+                self.assertEqual(reason, "matching_workbook_review_id_and_source_pr_url")
+            elif str(row.get("review_id", "")).strip().startswith("#"):
+                discordant += 1
+            elif not str(row.get("review_id", "")).strip().startswith("ASPECTS"):
+                unrelated += 1
+        self.assertEqual((matched, discordant, unrelated), (672, 1, 1))
+        by_row = {row["excel_row"]: row for row in positive}
+        self.assertEqual(by_row[37]["review_id"], "#6701")
+        self.assertEqual(by_row[37]["source_reference"].rsplit("/", 1)[-1], "6702")
+        self.assertEqual(by_row[27]["review_id"], "Operational drain")
+
     def test_merged_pr_overrides_stale_open_label_without_new_defect(self):
         report, rows = self.calculate()
         self.assertEqual(report["github_fix_pr_state_verified_rows"], 1)
