@@ -40,9 +40,11 @@ export function OperatorHomeSecureNowCollectionBlockerStrip(
       </p>
       <p
         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="operator-home-open-gate-collection-blocker-not-load-failure"
+        data-testid={
+          props.notLoadFailureTestId ?? "operator-home-open-gate-collection-blocker-not-load-failure"
+        }
       >
-        {OPERATOR_HOME_OPEN_GATE_COLLECTION_BLOCKER_NOT_LOAD_FAILURE_LINE}
+        {props.notLoadFailureLine ?? OPERATOR_HOME_OPEN_GATE_COLLECTION_BLOCKER_NOT_LOAD_FAILURE_LINE}
       </p>
       <SecureNowCollectionPrimaryBlockerLine input={collectionInput} testIdPrefix="operator-home-open-gate" />
     </div>

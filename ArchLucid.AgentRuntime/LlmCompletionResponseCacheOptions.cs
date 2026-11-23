@@ -63,4 +63,11 @@ public sealed class LlmCompletionResponseCacheOptions
         get;
         set;
     } = true;
+
+    /// <summary>Fail closed when the legacy shared completion cache is configured without scope isolation.</summary>
+    public void RequireScopePartitioning()
+    {
+        if (!PartitionByScope)
+            throw new InvalidOperationException("Enabled shared LLM completion caching requires tenant/workspace/project partitioning.");
+    }
 }

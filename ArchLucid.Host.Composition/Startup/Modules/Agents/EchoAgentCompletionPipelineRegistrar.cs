@@ -83,6 +83,7 @@ internal static class EchoAgentCompletionPipelineRegistrar
 
             string cacheDeploymentLabel = config["AzureOpenAI:DeploymentName"]?.Trim() ?? "echo";
 
+            cacheOptions.RequireScopePartitioning();
             TimeSpan ttl = TimeSpan.FromSeconds(Math.Max(1, cacheOptions.AbsoluteExpirationSeconds));
             ILlmCompletionResponseStore store = sp.GetRequiredService<ILlmCompletionResponseStore>();
             ILogger<CachingAgentCompletionClient> cacheLogger =

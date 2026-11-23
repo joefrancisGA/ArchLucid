@@ -32,6 +32,7 @@ import {
   parseReviewConsultingExportOpenFromSearch,
   reviewConsultingExportPanelsHrefFromSearch,
 } from "@/lib/reviews/review-consulting-export-panels-url";
+import { REVIEW_BOARD_WHITELABEL_CONSULTING_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE } from "@/lib/exports/review-board-whitelabel-consulting-export-finalize-not-load-failure-copy";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { resolveReviewUrlStatePathname } from "@/lib/architecture/review-url-state-pathname";
 
@@ -194,13 +195,21 @@ export function ReviewBoardWhitelabelConsultingExportButton(
           Firm-branded consulting export
         </Button>
         {sealedManifestBlockedReason !== null ? (
-          <p
-            role="alert"
-            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="whitelabel-consulting-export-blocked-reason"
-          >
-            {sealedManifestBlockedReason}
-          </p>
+          <>
+            <p
+              role="alert"
+              className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="whitelabel-consulting-export-blocked-reason"
+            >
+              {sealedManifestBlockedReason}
+            </p>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="whitelabel-consulting-export-finalize-not-load-failure"
+            >
+              {REVIEW_BOARD_WHITELABEL_CONSULTING_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE}
+            </p>
+          </>
         ) : null}
         <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="whitelabel-consulting-export" />
       </div>

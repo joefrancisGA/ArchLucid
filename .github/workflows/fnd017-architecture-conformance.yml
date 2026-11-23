@@ -1,0 +1,28 @@
+name: FND-017 Architecture Conformance Advisory
+on:
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  architecture-conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run scanner unit tests
+        run: python -m unittest discover -s scripts/tests -p 'test_fnd017_conformance.py' -v
+      - name: Generate advisory architecture drift report
+        run: python scripts/architecture/fnd017_conformance.py --output fnd017-conformance-report.json
+      - name: Publish advisory report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnd017-architecture-conformance
+          path: fnd017-conformance-report.json
+          if-no-files-found: warn
+          retention-days: 30

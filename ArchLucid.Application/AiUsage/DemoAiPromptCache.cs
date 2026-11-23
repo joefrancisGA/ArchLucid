@@ -19,16 +19,16 @@ public sealed class DemoAiPromptCache(IOptionsMonitor<AiUsageControlsOptions> ai
 
     public void Set(string cacheKey, string responseJson)
     {
-        int maxEntries = Math.Max(16, _aiUsageOptions.CurrentValue.DemoPromptCacheMaxEntries);
-
         lock (_writeLock)
         {
-            if (!_entries.ContainsKey(cacheKey))
+            int maxEntries = Math.Max(16, _aiUsageOptions.CurrentValue.DemoPromptCacheMaxEntries);
+            int entriesToRemove = _entries.Count - maxEntries + (_entries.ContainsKey(cacheKey) ? 0 : 1);
+
+            if (entriesToRemove > 0)
             {
-                while (_entries.Count >= maxEntries)
+                foreach (string key in _entries.Keys.Where(key => key != cacheKey).Take(entriesToRemove))
                 {
-                    string firstKey = _entries.Keys.First();
-                    _entries.TryRemove(firstKey, out _);
+                    _entries.TryRemove(key, out _);
                 }
             }
 

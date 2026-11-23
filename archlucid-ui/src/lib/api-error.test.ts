@@ -100,6 +100,18 @@ describe("buildApiRequestErrorFromParts", () => {
     }
   });
 
+  it("keeps the 429 status when Retry-After is an overflowing integer", () => {
+    const response = new Response("Rate limited", {
+      status: 429,
+      headers: { "Retry-After": "9".repeat(500) },
+    });
+
+    const err = buildApiRequestErrorFromParts(response, "Rate limited");
+
+    expect(err.httpStatus).toBe(429);
+    expect(err.retryAfterSeconds).toBeNull();
+  });
+
   it("parses Retry-After as seconds on 429", () => {
     const bodyText = JSON.stringify({ title: "Slow down", detail: "Rate limited" });
     const response = new Response(bodyText, {

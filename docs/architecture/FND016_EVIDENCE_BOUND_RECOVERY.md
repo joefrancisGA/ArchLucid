@@ -1,0 +1,7 @@
+# FND-016 evidence-bound recovery attestation and disposable rehearsal
+
+This increment binds an Ed25519 attestation to the complete canonical FND-016 in-memory rehearsal evidence via SHA-256. An independent signing authority receives the canonical payload and signs it; the rehearsal code has no signing key. Verification requires a separately pinned Ed25519 public key, exact key identifier, matching tenant/project/proposal, matching source/rollback digests and matching rehearsal evidence hash. Any alteration to the rehearsal's forward/reverse decision identifiers or simulated state digest invalidates the attestation.
+
+A dedicated GitHub Actions job runs the rehearsal regression suite inside a disposable Docker container with networking disabled, read-only filesystem, dropped Linux capabilities, no-new-privileges and resource limits. This exercises process isolation but **does not provision real cloud infrastructure or prove real infrastructure rollback**. The signed evidence contract explicitly records `isolation=in-memory-only` to prevent confusing a simulated rehearsal with live recovery evidence.
+
+Production gates: independent signing service with non-exportable keys; durable immutable evidence storage; authenticated provenance of rehearsal execution; real disposable cloud test environment with teardown and resource controls; independently measured restoration of infrastructure and dependent services; verified CI and safety review. No remediation execution is enabled.

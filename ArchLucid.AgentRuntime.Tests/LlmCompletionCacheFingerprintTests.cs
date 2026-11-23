@@ -7,6 +7,18 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Category", "Unit")]
 public sealed class LlmCompletionCacheFingerprintTests
 {
+    [Fact]
+    public void EnabledSharedCache_RequiresScopePartitioning()
+    {
+        LlmCompletionResponseCacheOptions safe = new() { PartitionByScope = true };
+        Action permitted = safe.RequireScopePartitioning;
+        permitted.Should().NotThrow();
+
+        LlmCompletionResponseCacheOptions unsafeOptions = new() { PartitionByScope = false };
+        Action rejected = unsafeOptions.RequireScopePartitioning;
+        rejected.Should().Throw<InvalidOperationException>();
+    }
+
     [SkippableFact]
     public void Compute_when_partitionByScope_differs_by_tenant_produces_different_keys()
     {

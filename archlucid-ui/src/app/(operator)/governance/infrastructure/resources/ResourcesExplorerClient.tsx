@@ -675,6 +675,12 @@ export function ResourcesExplorerClient() {
                           >
                             {RESOURCE_EXPLORER_CATEGORY_AND_NAME_PREFIX_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
                           </p>
+                          <p
+                            className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+                            data-testid="resource-explorer-category-and-name-prefix-combined-filter-empty-not-load-failure"
+                          >
+                            {RESOURCE_EXPLORER_CATEGORY_AND_NAME_PREFIX_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                          </p>
                           <ResourcesExplorerCategoryAndNamePrefixCombinedFilterEmptyPartialHonesty />
                         </>
                       ) : null}

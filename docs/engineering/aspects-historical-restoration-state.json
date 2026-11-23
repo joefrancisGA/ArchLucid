@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "source": {
+    "name": "ArchLucid_Defect_Density_Trend_repaired.xlsx",
+    "sha256": "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787",
+    "repository_copy_present": true,
+    "library_file_id": "file_00000000731081f58e9c07a7770f2925",
+    "review_sheet": "Review evidence",
+    "first_excel_row": 7,
+    "last_excel_row": 5747,
+    "repository_corpus_path": "docs/engineering/aspects-historical/review-events/"
+  },
+  "historical_review_observations": 5741,
+  "clean_review_observations": 4864,
+  "confirmed_defect_observations_not_distinct": 877,
+  "historical_incremental_loc_reported_known_sum": 402314,
+  "historical_reviewed_loc_occurrences": 443456,
+  "missing_incremental_loc_observations": 30,
+  "parseable_single_source_blob_pinned_observations": 4511,
+  "unparseable_or_multi_file_observations": 1230,
+  "last_900_first_parent_snapshot": {
+    "as_of_utc": "2026-11-22T14:43:27.293Z",
+    "as_of_et": "November 22, 2026, 9:43:27 AM EST",
+    "defects": 463,
+    "unique_loc": 343492,
+    "per_kloc": 1.3479207667136353,
+    "head_sha": "15ac3b9abeff23e4fa8cb7a16027bf9b17211251",
+    "oldest_included_sha": "6252805a908f5bf0413bb40c68cb546013ff1843",
+    "verification": "historical workbook partial"
+  },
+  "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
+  "state": "historical_5741_rows_in_master_git_pin_and_lineage_code_integrated_ci_backlogged_audit_row_integrity_followup_in_pr",
+  "next_priority": "Inspect source-pin CI artifact when GitHub Actions begins; triage actual row-level mismatches, missing path/blobs and first-parent anchor, then validate lineage output. Check why PR #7809 merged before CI; do not merge the audit-row integrity follow-up before required checks pass. Reconcile historical defect IDs and recent ledger only after source evidence is verified.",
+  "corpus_import": {
+    "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
+    "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
+    "source_workbook_sha256": "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787",
+    "expected_excel_rows": [
+      7,
+      5747
+    ],
+    "expected_records": 5741,
+    "expected_shards": 24,
+    "expected_clean_reviews": 4864,
+    "source_span_verification": "source_pin_audit_queued_no_results_as_of_this_run",
+    "validation_entrypoint": "scripts/aspects_validate_historical_corpus.py",
+    "historical_snapshots": 79,
+    "independent_600_and_700_series_staged": true,
+    "git_pin_audit_script": "scripts/aspects_validate_historical_pins.py",
+    "git_pin_audit_confidence": "source_blob_nonblank_interval_and_window_membership_only_not_cross_revision_lineage",
+    "git_pin_rows_artifact": "artifacts/aspects/historical-git-pin-rows.jsonl",
+    "git_pin_checkpoint_validation": "900 first-parent SHA chain must match historical oldest SHA; unverified on mismatch; no density overwrite",
+    "cross_revision_lineage_script": "scripts/aspects_reconcile_historical_lineage.py",
+    "cross_revision_lineage_artifact": "artifacts/aspects/historical-900-cross-revision-lineage.json",
+    "cross_revision_lineage_confidence": "provisional_same_path_unique_unchanged_lines_not_verified_historical_review_or_window_density",
+    "cross_revision_lineage_status": "merged_to_master_but_CI_pending",
+    "audit_row_digest_contract": "SHA-256 over canonical sorted-key UTF-8 JSONL; aggregate audit and 5741 row artifact must match; missing/altered rows block lineage; not an authentication of workbook origin",
+    "audit_row_integrity_status": "in_followup_pull_request_CI_pending",
+    "audit_row_expected_complete_excel_range": [
+      7,
+      5747
+    ]
+  }
+}

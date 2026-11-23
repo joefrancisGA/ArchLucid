@@ -35,7 +35,16 @@ export function buildFirstTouchFromSearchParams(params: URLSearchParams): Market
 }
 
 export function serializeFirstTouchHeader(payload: MarketingFirstTouchPayload): string {
-  return btoa(JSON.stringify(payload));
+  // btoa consumes Latin-1 bytes, whereas the registration API decodes Base64 as
+  // UTF-8. Encode the JSON first so non-ASCII UTM tags are not silently lost.
+  const utf8 = new TextEncoder().encode(JSON.stringify(payload));
+  let binary = "";
+
+  for (const byte of utf8) {
+    binary += String.fromCharCode(byte);
+  }
+
+  return btoa(binary);
 }
 
 export function readFirstTouchCookie(): MarketingFirstTouchPayload | null {

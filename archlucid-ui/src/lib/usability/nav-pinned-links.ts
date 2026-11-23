@@ -3,6 +3,7 @@
  */
 
 import { navHrefPathPart } from "@/lib/nav-href-path-part";
+import { canonicalSafeReturnPath } from "@/lib/navigation/safe-return-path";
 
 export const NAV_PINNED_LINKS_STORAGE_KEY = "archlucid.navPinnedLinks.v1";
 
@@ -10,6 +11,22 @@ export type NavPinnedLink = {
   readonly href: string;
   readonly label: string;
 };
+
+/** Reject malformed or externally edited browser storage before links reach Next navigation. */
+function isSafeNavPinnedLink(value: unknown): value is NavPinnedLink {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+
+  const row = value as Record<string, unknown>;
+
+  return (
+    typeof row.href === "string"
+    && canonicalSafeReturnPath(row.href) === row.href
+    && typeof row.label === "string"
+    && row.label.trim().length > 0
+  );
+}
 
 export function readNavPinnedLinks(): NavPinnedLink[] {
   if (typeof window === "undefined") {
@@ -23,19 +40,13 @@ export function readNavPinnedLinks(): NavPinnedLink[] {
       return [];
     }
 
-    const parsed = JSON.parse(raw) as NavPinnedLink[];
+    const parsed: unknown = JSON.parse(raw);
 
     if (!Array.isArray(parsed)) {
       return [];
     }
 
-    return parsed.filter(
-      (row): row is NavPinnedLink =>
-        typeof row?.href === "string"
-        && row.href.length > 0
-        && typeof row?.label === "string"
-        && row.label.length > 0,
-    ).slice(0, 6);
+    return parsed.filter(isSafeNavPinnedLink).slice(0, 6);
   }
   catch {
     return [];
@@ -48,7 +59,7 @@ export function writeNavPinnedLinks(links: NavPinnedLink[]): void {
   }
 
   try {
-    window.localStorage.setItem(NAV_PINNED_LINKS_STORAGE_KEY, JSON.stringify(links.slice(0, 6)));
+    window.localStorage.setItem(NAV_PINNED_LINKS_STORAGE_KEY, JSON.stringify(links.filter(isSafeNavPinnedLink).slice(0, 6)));
   }
   catch {
     /* ignore */
@@ -56,14 +67,22 @@ export function writeNavPinnedLinks(links: NavPinnedLink[]): void {
 }
 
 export function toggleNavPinnedLink(current: NavPinnedLink[], link: NavPinnedLink): NavPinnedLink[] {
-  const path = navHrefPathPart(link.href);
-  const exists = current.some((row) => navHrefPathPart(row.href) === path);
+  const safeCurrent = current.filter(isSafeNavPinnedLink).slice(0, 6);
 
-  if (exists) {
-    return current.filter((row) => navHrefPathPart(row.href) !== path);
+  // The hook publishes the next state before writing it to storage, so protect
+  // this in-memory path too. Empty labels are valid only for unpin actions.
+  if (typeof link.href !== "string" || canonicalSafeReturnPath(link.href) !== link.href) {
+    return safeCurrent;
   }
 
-  return [link, ...current].slice(0, 6);
+  const path = navHrefPathPart(link.href);
+  const exists = safeCurrent.some((row) => navHrefPathPart(row.href) === path);
+
+  if (exists) {
+    return safeCurrent.filter((row) => navHrefPathPart(row.href) !== path);
+  }
+
+  return isSafeNavPinnedLink(link) ? [link, ...safeCurrent].slice(0, 6) : safeCurrent;
 }
 
 export function isNavLinkPinned(pinned: NavPinnedLink[], href: string): boolean {

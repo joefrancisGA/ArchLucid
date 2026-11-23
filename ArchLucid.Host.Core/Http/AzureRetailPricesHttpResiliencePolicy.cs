@@ -1,5 +1,3 @@
-using System.Net;
-
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
@@ -71,16 +69,8 @@ public static class AzureRetailPricesHttpResiliencePolicy
         return pipeline.AsAsyncPolicy();
     }
 
-    private static bool CountsAsCircuitBreakerFailure(HttpResponseMessage response)
-    {
-        HttpStatusCode code = response.StatusCode;
-
-        if (code == HttpStatusCode.RequestTimeout)
-            return true;
-
-        if (code == HttpStatusCode.TooManyRequests)
-            return true;
-
-        return (int)code >= 500 && (int)code <= 599;
-    }
+    // Keep circuit-breaker failure classification aligned with the shared
+    // outbound retry policy rather than maintaining a second status allowlist.
+    private static bool CountsAsCircuitBreakerFailure(HttpResponseMessage response) =>
+        AzureRmAndRetailPricesHttpRetryPolicy.ShouldRetryHttpResponse(response);
 }

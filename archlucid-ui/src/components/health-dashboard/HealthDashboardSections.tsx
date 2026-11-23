@@ -161,6 +161,7 @@ export type HealthSummaryTileModel = {
 type HealthSummaryTileGridProps = {
   readonly tiles: readonly HealthSummaryTileModel[];
   readonly testId: string;
+  readonly perTilePointInTimeHonestyLine?: string;
 };
 
 /** Neutral card shell — status color belongs on the chip, not a pastel tile fill (UI design system). */
@@ -199,6 +200,14 @@ export function HealthSummaryTileGrid(props: HealthSummaryTileGridProps) {
             {tile.anchorId !== undefined ? (
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
                 <HealthSectionJumpLink targetId={tile.anchorId}>View checks</HealthSectionJumpLink>
+              </p>
+            ) : null}
+            {props.perTilePointInTimeHonestyLine !== undefined ? (
+              <p
+                className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid={`${props.testId}-${tile.id}-point-in-time-not-load-failure`}
+              >
+                {props.perTilePointInTimeHonestyLine}
               </p>
             ) : null}
           </div>

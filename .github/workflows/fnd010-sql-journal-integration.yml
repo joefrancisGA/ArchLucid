@@ -1,0 +1,64 @@
+name: FND-010 SQL Journal Integration
+on:
+  pull_request:
+    branches: [master, main, architecture/fnd010-durable-sql-audit, architecture/fnd010-scheduled-monitor-alerts]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sql-journal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate ephemeral SQL test password
+        run: |
+          password="Fnd010!$(openssl rand -hex 20)"
+          echo "::add-mask::$password"
+          echo "FND010_SQL_PASSWORD=$password" >> "$GITHUB_ENV"
+      - name: Provision isolated SQL Server
+        run: |
+          docker run -d --name fnd010-sql -e ACCEPT_EULA=Y \
+            -e MSSQL_SA_PASSWORD="$FND010_SQL_PASSWORD" \
+            -e MSSQL_PID=Developer -p 127.0.0.1:1433:1433 \
+            mcr.microsoft.com/mssql/server:2022-latest
+      - name: Verify SQL journal behavior
+        run: bash scripts/ci/run_fnd010_sql_journal_verify.sh
+      - name: Verify atomic hash-chain migration and concurrent appends
+        run: python3 scripts/ci/fnd010_hash_chain_verify.py
+      - name: Install checkpoint crypto dependency
+        run: python3 -m pip install 'cryptography>=44,<47'
+      - name: Run signed checkpoint negative tests
+        run: python3 -m unittest discover -s scripts/tests -p 'test_fnd010_signed_checkpoint.py' -v
+      - name: Issue and verify independent checkpoint
+        run: |
+          openssl genpkey -algorithm Ed25519 -out /tmp/fnd010-test-signing.pem
+          openssl pkey -in /tmp/fnd010-test-signing.pem -pubout -out /tmp/fnd010-test-verifying.pem
+          python3 scripts/ci/fnd010_signed_checkpoint.py issue \
+            --private-key /tmp/fnd010-test-signing.pem \
+            --public-key /tmp/fnd010-test-verifying.pem \
+            --checkpoint /tmp/fnd010-checkpoint.json
+          python3 scripts/ci/fnd010_signed_checkpoint.py verify \
+            --public-key /tmp/fnd010-test-verifying.pem \
+            --checkpoint /tmp/fnd010-checkpoint.json --compare-sql
+          cp /tmp/fnd010-checkpoint.json ./fnd010-checkpoint.json
+          cp /tmp/fnd010-test-verifying.pem ./fnd010-verifying.pem
+      - name: Publish checkpoint outside SQL Server
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnd010-signed-checkpoint
+          path: |
+            fnd010-checkpoint.json
+            fnd010-verifying.pem
+          retention-days: 30
+      - name: Remove ephemeral signing key
+        if: always()
+        run: rm -f /tmp/fnd010-test-signing.pem
+      - name: Verify live SQL chain with independent managed-signature monitor
+        run: python3 -m scripts.ci.fnd010_monitor_sql_e2e
+      - name: SQL container diagnostics on failure
+        if: failure()
+        run: docker logs --tail 60 fnd010-sql || true
+      - name: Remove disposable SQL Server
+        if: always()
+        run: docker rm -f fnd010-sql || true

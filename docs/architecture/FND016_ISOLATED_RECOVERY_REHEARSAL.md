@@ -1,0 +1,5 @@
+# FND-016 isolated recovery rehearsal
+
+The FND-016 rehearsal service replays an FND-014 approved simulation against an in-memory copy, verifies its resulting digest and changes against the original dry run, then applies FND-015 inverse steps to the simulated state. It accepts the rehearsal only when the rollback produces exactly the original model digest. It emits a structured evidence payload suitable for review by a **separate** signing authority. It does not sign its own evidence.
+
+This is a real executable **in-memory rehearsal**, not a cloud deployment, OS sandbox, isolated subscription or live infrastructure recovery test. It cannot establish that external side effects, permissions, databases, network routes or distributed dependencies will be restored. Before using rehearsal evidence to approve production execution, integrate a separately administered recovery authority, attestations bound to this evidence, realistic isolated infrastructure test environments, and independent recovery checks. Execution remains disabled.

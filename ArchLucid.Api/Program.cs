@@ -8,6 +8,8 @@ using ArchLucid.Api.Configuration;
 using ArchLucid.Api.Demo;
 using ArchLucid.Api.Hosting;
 using ArchLucid.Api.Startup;
+using ArchLucid.Api.Security;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Api.Workers;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Core.Configuration;
@@ -109,6 +111,22 @@ public partial class Program
         builder.Services.AddArchLucidAuth(builder.Configuration);
         builder.Services.AddArchLucidSaml2IfEnabled(builder.Configuration, builder.Environment);
         builder.Services.AddArchLucidAuthorization();
+        builder.Services.AddScoped<IEvidenceEntitlementAuthority, ScimProjectEvidenceEntitlementAuthority>();
+        builder.Services.AddSingleton(TimeProvider.System);
+        // FND-010: only a committed SQL journal write can satisfy the audit gate.
+        // Missing persistence fails closed instead of falling back to logging.
+        builder.Services.AddScoped<ICentralAuthorizationAudit>(provider =>
+        {
+            ISqlConnectionFactory? sql = provider.GetService<ISqlConnectionFactory>();
+            return sql is null
+                ? new UnavailableCentralAuthorizationAudit()
+                : new SqlCentralAuthorizationAudit(sql);
+        });
+        builder.Services.AddScoped<ITrustedWorkerIdentity, DenyUnconfiguredWorkerIdentity>();
+        builder.Services.AddScoped<WorkerAuthorizationAdapter>();
+        builder.Services.AddScoped<IRemediationApprovalAuthority, DenyUnconfiguredRemediationApproval>();
+        builder.Services.AddScoped<ICentralAuthorizationDecisions, CentralAuthorizationDecisions>();
+        builder.Services.AddScoped<EvidenceReadAuthorizationGate>();
 
         builder.Services.AddArchLucidOpenTelemetry(
             builder.Configuration,

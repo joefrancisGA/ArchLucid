@@ -45,8 +45,13 @@ public sealed class ResilientDistributedLlmCompletionResponseStore : ILlmComplet
                 async ct => await _distributed.TryGetAsync(key, ct),
                 cancellationToken);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (BrokenCircuitException ex)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (_logger.IsEnabled(LogLevel.Debug))
 
                 _logger.LogDebug(ex, "Distributed LLM completion cache circuit is open; reading from in-memory fallback.");
@@ -55,6 +60,7 @@ public sealed class ResilientDistributedLlmCompletionResponseStore : ILlmComplet
         }
         catch (Exception ex)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (_logger.IsEnabled(LogLevel.Debug))
 
                 _logger.LogDebug(ex, "Distributed LLM completion cache read failed; reading from in-memory fallback.");
@@ -85,6 +91,7 @@ public sealed class ResilientDistributedLlmCompletionResponseStore : ILlmComplet
         }
         catch (BrokenCircuitException ex)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (_logger.IsEnabled(LogLevel.Debug))
 
                 _logger.LogDebug(ex, "Distributed LLM completion cache circuit is open; writing to in-memory fallback only.");
@@ -93,6 +100,7 @@ public sealed class ResilientDistributedLlmCompletionResponseStore : ILlmComplet
         }
         catch (Exception ex)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (_logger.IsEnabled(LogLevel.Debug))
 
                 _logger.LogDebug(ex, "Distributed LLM completion cache write failed; writing to in-memory fallback only.");

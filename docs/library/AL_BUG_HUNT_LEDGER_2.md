@@ -24,7 +24,7 @@
 - **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ## Zone: tenant-settings-sql
 
 2026-10-21 seed hunt (seed-only, lane C): cheap-disproof five open cache/SQL candidates; one new regression; seeded five follow-on rows; 44 scoped tests passed.
@@ -107,13 +107,13 @@
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 57
-- **bugs-found:** 7
-- **consecutive-dry-hunts:** 14
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
-- **related-pd-tb:** PD-003
-- **code-changed-since:** unknown
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** yes
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded candidates; 38 scoped tests passed.
 
@@ -512,13 +512,13 @@
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 66
-- **bugs-found:** 15
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-10 — failed OTP delivery deleted a newer concurrent challenge
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-09 thorough hunt (hit): `VerifyAsync` advertised the clamped `Auth:EmailOtp:AccessTokenLifetimeMinutes` while `IssueAccessToken` stamped `exp` from `Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes`. A 2000-minute email OTP setting with a 60-minute trial TTL returned `ExpiresInSeconds` 86400 and a JWT that expired in 3600 seconds. The issuer now accepts the caller lifetime, and verify plus post-auth bootstrap pass the clamped email-OTP minutes. Trial password tokens still use the local-identity TTL. Padded invitation-token candidates are `(valid-no-repro)` because `EmailOtpInvitationTokenHasher.Hash` trims. Regressions `VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs` and `AcceptInvitationAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`. 12 focused API auth tests passed, and 45 scoped email-OTP service tests passed.
 
@@ -751,13 +751,13 @@
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 61
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-11-05
-- **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 **Hunts:** 61 · **Bugs found:** 22 · **Consecutive dry hunts:** 13
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed paragraph-separator and soft-hyphen handling, query-only protocol-relative scans, control-character rejection, and fragment `://` rejection; 196 scoped `AuthSignInReturnPathGuardTests` passed.
@@ -1552,11 +1552,11 @@
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 293
-- **bugs-found:** 496
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-11-18
-- **last-bug:** 2026-11-04 — clear legal hold audit retry after transient audit failure
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1572,7 +1572,7 @@
 2026-10-06 seed hunt (seed→hit): promoted quarantine-restore operator safe-retry parity with `TryClearLegalHoldAsync`; proved `TryRestoreQuarantineAsync` returned `false` on sequential retry after a successful restore (`OffboardedUtc` already null), surfacing admin `409 Conflict` instead of idempotent `204`; return success when quarantine is already cleared; regression `TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`; 45 scoped `TenantErasure` tests passed (18 Application + 23 Api + 4 Core).
 
 2026-10-05 seed hunt (seed→hit): proved `TenantErasureCommandService.NormalizeLegalHoldReason` trimmed surrounding whitespace only, so operator safe-retry with the same semantic reason but extra internal spaces duplicated `TenantErasureLegalHoldSet` audits; collapse internal whitespace runs when normalizing reasons; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_internal_whitespace`; 43 scoped `TenantErasure` tests passed (16 Application + 23 Api + 4 Core).
-- **last-bug:** 2026-10-05 — offboard safe-retry returned null (409) when tenant was already in erasure quarantine
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1716,13 +1716,13 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs; ArchLucid.Analyzers/TenantScopedSqlExpressionResolver.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests|FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerParityProbeTests
-- **hunts:** 61
-- **bugs-found:** 40
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-18
-- **last-bug:** 2026-11-18 — conditional scope-helper arm suppressed ARCH006 on sibling literal branch
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-11-08 thorough hunt (hit #363): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the `string.Format` factory monitor from hit **#362**: `: this(FormatRunSql(tenantId))` still missed ARCH006 when the factory returned `string.Format("SELECT … dbo.Runs … {0}", tenantId)`, because a non-static format argument made `TryResolveStringFormatInvocation` drop the format literal. The format literal is now kept. Regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_string_format_method_return`. Cheap-disproof closed three sibling monitors — **invalid** local function declared in the constructor body and called from `: this(...)` (the initializer cannot see that local function), **valid-no-repro** const string fields across partials (`IFieldSymbol.ConstantValue` is on the merged symbol), **valid-no-repro** `[TenantScopeExempt]` on a partial method declaration (attributes merge onto the symbol `TryGetExemption` reads). Left the direct `Query(FormatRunSql(tenantId))` interpolated call open. Reseeded five `(candidate)` rows; scoped analyzer tests **68/68** (`FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzer`; `RunAnalyzers=false`). Private beta: Persistence repositories that build tenant SQL through `: this(FormatRunSql(tenantId))` when the factory returns `string.Format` with a runtime argument now get ARCH006 in CI, so an unscoped `dbo.Runs` query is caught before it ships. No operator-visible change today.
 
@@ -2211,13 +2211,13 @@
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 75
-- **bugs-found:** 27
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-11-05
-- **last-bug:** 2026-10-07 — InMemory null-architecture backfill list exposed warning flags omitted by SQL backfill select
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 
 2026-09-27 seed hunt (seed→hit): reseeded sql-run-repository after LTRIM/RTRIM edge parity; proved `RunListQueryParameters` bound `@NormalizedArchitectureRequestId` / `@NormalizedSystemName` via `Normalize*` alone while InMemory paths use `RequireArchitectureRequestId` / `RequireSystemName` (Unicode trim) first, so tab-prefixed seeks missed active-run / existence / workspace collision SQL matches that InMemory counted; fixed parameter builders to require-then-normalize; regressions `ForActiveRunCountByArchitectureRequest_normalizes_tab_prefixed_seek_like_in_memory_require` and `ForActiveRunWithSystemNameInWorkspace_normalizes_tab_prefixed_seek_like_in_memory_require`; 158 scoped zone tests passed (1 SQL integration skipped).
@@ -2582,13 +2582,13 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 105
-- **bugs-found:** 29
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-31 — typed-payload JSON property names with surrounding whitespace ignored on inspect read
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-21 seed hunt (seed→hit, lane B): see ledger header.
 
@@ -3168,13 +3168,13 @@
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 59
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-11-01 — cap-only zero PUT persisted while auto-replenish stayed enabled
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ### Hypotheses
 
 2026-11-03 thorough hunt (dry #59): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`review-recurrence`** is **1/3** before this record). Attempted failing repro on five open `(candidate)` monitor rows from dry **#58** reseed (recycled dry **#57** queue); cheap-disproof closed all five **valid-no-repro** — pre-audit cancel propagates (`PutAsync_propagates_operation_canceled_from_update_wallet`; dry **#57** / **#55**); null PUT body **400** (`PutAsync_returns_bad_request_when_body_is_null`; dry **#57**); invalid cap step at consume (`UpdateWalletAsync_rejects_invalid_monthly_cap_step`; dry **#57**); reader PUT **403** / GET **200** by design (`PutAsync_returns_403_for_reader_role`, `GetAsync_returns_wallet_for_reader_role`; hit **2026-10-09**); stale `ExpectedRowVersion` **409** without server retry (intentional OCC; dry **#57** / **#55**). Reseeded five follow-on `(candidate)` rows below; scoped **52/52** `LlmTenantWalletServiceTests`, **8/8** `WalletControllerUnitTests` + `WalletControllerTests` filter (`RunAnalyzers=false`). Private beta: n/a.
@@ -3551,13 +3551,13 @@
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 58
-- **bugs-found:** 16
-- **consecutive-dry-hunts:** 16
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-11-01 seed hunt (seed-only #48): see zone header; **33/33** validation tests; five `(candidate)` rows seeded; no promotion.
 
@@ -3975,8 +3975,8 @@
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 56
-- **last-hunt:** 2026-11-03
+- **hunts:** 0
+- **last-hunt:** never
 
 - **id:** review-recurrence
 - **status:** open
@@ -3984,11 +3984,11 @@
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 23
-- **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ### Hypotheses
 
 2026-11-03 thorough hunt (dry #50): see zone diary above.
@@ -4546,11 +4546,11 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 67
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-11-18
-- **last-bug:** 2026-10-09 — second live user with the same userName was accepted
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
@@ -4838,13 +4838,13 @@
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 92
-- **bugs-found:** 55
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-21 — discover returned shared discovery service response instance
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 2026-10-20 seed hunt (seed-only): re-read activation/controller paths; cheap-disproof closed five `(candidate)` rows (discover/test-login HTTP 200 envelopes are intentional wizard contracts; GET partial canonicalization and audit summary shape match prior valid-no-repro notes; empty-string `keyVaultSecretName` is OpenAPI-only because SSO/SAML UIs send null); no new hunt-ready promotion; 66 scoped activation/controller tests passed.
 
 2026-10-20 seed hunt (seed-only): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService` after bugsmash merge; cheap-disproof closed empty-string `KeyVaultSecretName` preserve (wizard sends null via `trim() || null`), legacy PascalCase GET mapping (UI `parsePersistedClaimMappingJson`), and partial JWKS canonicalization on discover (discovery service already HTTP-validates `jwks_uri`); no row met hunt-ready bar; seeded five `(candidate)` rows; 66 scoped activation/controller tests passed.
@@ -5241,13 +5241,13 @@
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 20
-- **bugs-found:** 3
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-31 — wallet PUT could enable auto-replenish with Stripe customer id only (no payment method)
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-23 seed hunt (seed-only): re-read zone paths (`StripeWalletPaymentIdentifierGuard`, `StripeLinkedCustomerResolver`, `StripeWalletGateway`, `LlmTenantWalletConsumeStage`, `LlmTenantWalletRefillStage`, `WalletController`); no open hypotheses to cheap-disproof; no hunt-ready row promoted (guard/resolver fail closed on missing linked customer, Stripe API errors, and payment-method attachment mismatch; auto-refill re-validates persisted ids before charge). Seeded five `(candidate)` rows below; scoped Persistence guard tests 3/3 + Application wallet guard/refill regressions 2/2 (`RunAnalyzers=false`).
 
@@ -5480,13 +5480,13 @@
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 88
-- **bugs-found:** 11
-- **consecutive-dry-hunts:** 14
-- **last-hunt:** 2026-11-05
-- **last-bug:** 2026-11-01 — marketplace JWT-valid non-JSON webhook returned HTTP 500 instead of 400
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 2026-11-01 thorough hunt (dry #71): cheap-disproof closed five open `(candidate)` rows from 2026-10-31 thorough hunt (marketplace malformed JSON after JWT fails at `JsonDocument.Parse` ~28 before replay guard/ledger ~41–47 — same fail-closed class as missing-bearer regression; marketplace oversize payload returns `413` via `InboundWebhookBoundedBodyReader` before provider dispatch — TB-967 hostile-input contract parity with Stripe; invalid Stripe signature rejected in `ConstructEvent` `StripeException` catch ~44–46 before `TryInsertWebhookEventAsync` ~55 — complements `HandleWebhookAsync_without_signature_rejected`; marketplace in-memory `HasSeenAsync` before ledger insert is intentional per `BILLING_WEBHOOK_REPLAY_GUARD.md` — same class as Stripe regression `HandleWebhookAsync_when_replay_guard_has_seen_event_returns_replay_rejected`; non-positive wallet `payment_intent.succeeded` amounts skip provider throw when `amountCents <= 0` — regressions `ProcessPaymentIntentEventAsync_forwards_zero_amount_to_wallet_service_without_crediting` and `ProcessPaymentIntentEventAsync_forwards_negative_amount_cents_to_wallet_service_on_success`); seeded five follow-on `(candidate)` rows; scoped filter **39/39** billing webhook unit tests (24 Persistence + 15 Application, `RunAnalyzers=false`); Api SQL integration HTTP suites not run (no SQL Server on cloud VM). Private beta: n/a.
 
 - [x] (valid-no-repro) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — malformed JSON after JWT validation throws before `TryInsertWebhookEventAsync` — **cheap-disproof 2026-11-01 thorough hunt #71:** `JsonDocument.Parse` ~28 runs after JWT gate and before dedupe/ledger ~39–47; no ledger row on parse failure.
@@ -5767,11 +5767,35 @@
 
 ## Zone: api-key-auth
 
+2026-11-19 thorough hunt (dry #259): no rotation (`shouldRotate: false`; `api-request-null-collection-elements` is parked). Cheap-disproof closed the five pass-**257** `(candidate)` rows. **valid-no-repro** first matching comma segment returns immediately (a match is success; later segments are other keys). **valid-no-repro** appending onto a value that already ends with a comma yields an empty segment, and `MatchesAnyCommaSeparatedKey` ignores empty segments. **valid-no-repro** the development-bypass ticket receives test-actor overrides only when `AllowTestActorHeaders` is on, and Production throws before authenticate. **valid-no-repro** a null `ExpiresAt` means the slot does not expire (`expiresAt is not null`). **valid-no-repro** empty material returns false before the digest compare, so a header that normalizes to empty fails closed. Reseeded five pass-**259** `(candidate)` rows. Scoped filter **94/96** (`RunAnalyzers=false`, Release, `--no-build`); 2 `AdminApiKeySettingsEndpointTests` failed opening SQL Server. No production change. Private beta: n/a.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — returns on the first matching segment — **cheap-disproof 2026-11-19 thorough hunt #259:** match is success.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append onto a trailing comma — **cheap-disproof 2026-11-19 thorough hunt #259:** empty segments are ignored.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.BuildSuccessTicket` — development-bypass ticket receives test-actor overrides — **cheap-disproof 2026-11-19 thorough hunt #259:** Production rejects the flag.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.IsKeyExpired` — null `ExpiresAt` never expires a configured key — **cheap-disproof 2026-11-19 thorough hunt #259:** omitted expiry is optional.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — empty material returns false before the digest — **cheap-disproof 2026-11-19 thorough hunt #259:** fail closed.
+
+- [ ] (candidate) `AdminApiKeySettingsController.RotateAsync` — audit is awaited before the plaintext body, so cancellation drops the issued key — locus: `LogAsync` before `Ok`; input: cancel after `Rotate` returns (monitor **#259**).
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — `DevelopmentBypassAll` with `Enabled=false` succeeds with no `X-Api-Key` — locus: bypass branch before the header read; input: non-production host with bypass on (monitor **#259**).
+- [ ] (candidate) `ApiKeyMaterialNormalizer.Normalize` — `FormC` `ArgumentException` falls through to invisible stripping — locus: catch around `Normalize(FormC)`; input: ill-formed UTF-16 key paste (monitor **#259**).
+- [ ] (candidate) `ApiKeyAuthenticationHandler.BuildApiKeyClaims` — `Guid.Empty` tenant or workspace is omitted — locus: `tenantId != Guid.Empty`; input: configured empty scope ids (monitor **#259**).
+- [ ] (candidate) `AdminApiKeySettingsService.ParseSlot` — unknown slot throws `ArgumentException` — locus: slot parse; input: `POST /v1/admin/settings/api-keys/rotate` with slot `writer` (monitor **#259**).
+2026-11-19 thorough hunt (dry #257): no rotation (`shouldRotate: false`). Cheap-disproof closed the three open `(candidate)` rows. **valid-no-repro** comma-separated rotation segments share one slot expiry (`IsKeyExpired` reads `AdminKeyExpiresAt` for every segment; operators extend expiry when appending; regression `When_enabled_true_and_comma_separated_admin_keys_either_segment_authenticates`; hunt **#83**). **valid-no-repro** the first non-empty `X-Api-Key` wins (`ExtractProvidedApiKey` comment: joining duplicate headers with commas would break rotation-safe config keys). **valid-no-repro** a 32-character mixed-case hex test-actor name is hex-folded by `ApiKeyMaterialNormalizer` because `DefaultKeyByteLength` is 32; `AllowTestActorHeaders` throws in Production (`When_allow_test_actor_headers_in_production_throws_before_authenticate`). Reseeded five pass-**257** `(candidate)` rows. Scoped filter **94/96** (`RunAnalyzers=false`, Release); 2 `AdminApiKeySettingsEndpointTests` failed opening SQL Server. No production change. Private beta: n/a.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.IsKeyExpired` — comma-separated rotation segments share one slot expiry — **cheap-disproof 2026-11-19 thorough hunt #257:** one expiry per slot; hunt **#83**.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — first non-empty `X-Api-Key` wins when a later value is a stronger slot — **cheap-disproof 2026-11-19 thorough hunt #257:** first header value is intentional.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ApplyTestActorHeaderOverrides` — governance actor display name is passed through key-material normalize — **cheap-disproof 2026-11-19 thorough hunt #257:** Production rejects `AllowTestActorHeaders`.
+
+- [x] (superseded) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — returns on the first matching segment, so later segments are not compared — locus: `return true` inside the comma loop; input: provided key equals the first of two admin segments (monitor **#257**).
+- [x] (superseded) `AdminApiKeySettingsService.Rotate` — append suffix when the current value already ends with a comma — locus: `AppendConfigSuffix = $",{plaintextKey}"`; input: configured admin key `abc,` and `InvalidatePrevious` false (monitor **#257**).
+- [x] (superseded) `ApiKeyAuthenticationHandler.BuildSuccessTicket` — development-bypass ticket also receives test-actor name overrides — locus: `AllowTestActorHeaders` after synthetic admin claims; input: `Enabled=false`, `DevelopmentBypassAll=true`, and `X-ArchLucid-Test-Actor-Name` (monitor **#257**).
+- [x] (superseded) `ApiKeyAuthenticationHandler.IsKeyExpired` — null `ExpiresAt` never expires a configured key — locus: `expiresAt is not null`; input: admin key set and `AdminKeyExpiresAt` omitted (monitor **#257**).
+- [x] (superseded) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — empty provided or expected returns false before the digest compare — locus: `string.IsNullOrEmpty` guard; input: header that normalizes to empty after invisible stripping (monitor **#257**).
 2026-11-08 seed hunt (seed-only): **rotation at pick time** (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on 'api-request-null-collection-elements' (outcomes: seed-only, dry, seed-only).*; **`AvoidZoneId`** **`api-request-null-collection-elements`**; hunted **`pickResult.zoneId`** **`api-key-auth`**). Hypothesis list was empty after dry **#144**. Reread `ApiKeyAuthenticationHandler`, `AdminApiKeySettingsService`, and `AdminApiKeySettingsController`. Did not reseed the #144 monitors (test-actor normalization, inclusive expiry, FormC, snapshot `IsConfigured`, admin-before-reader). **valid-no-repro** `BuildSyntheticAdminClaims` omits `tenant_id` on the development-bypass ticket: `ScopeIdentityBindingValidator` forbids `x-tenant-id` for an ApiKey principal that has no tenant claim, and Production rejects `DevelopmentBypassAll`. **valid-no-repro** `Guid.Empty` `TenantId` is not emitted (`tenantId != Guid.Empty`) and `CollectProductionApiKeyScopeBinding` rejects null or empty `Authentication:ApiKey:TenantId` when mode is ApiKey. No row was promoted. Private beta: n/a.
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler.IsKeyExpired` — comma-separated rotation segments share one slot expiry — locus: `IsKeyExpired(keys.AdminKeyExpiresAt)` after `MatchesAnyCommaSeparatedKey`; input: `AdminKeyExpiresAt` in the past and `InvalidatePrevious` false so `AppendConfigSuffix` adds a new key; reachability: `POST /v1/admin/settings/api-keys/rotate`.
-- [ ] (candidate) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — first non-empty `X-Api-Key` wins when a later value is a stronger slot — locus: first normalized header value; input: duplicate headers, reader key then admin key; reachability: client or proxy sending two `X-Api-Key` values.
-- [ ] (candidate) `ApiKeyAuthenticationHandler.ApplyTestActorHeaderOverrides` — governance actor display name is passed through key-material normalize — locus: `ExtractProvidedApiKey` on `X-ArchLucid-Test-Actor-Name`; input: `AllowTestActorHeaders` and a 32-character mixed-case hex actor name; reachability: non-production CI header (production throws if the flag is on).
+- [x] (superseded) `ApiKeyAuthenticationHandler.IsKeyExpired` — comma-separated rotation segments share one slot expiry — locus: `IsKeyExpired(keys.AdminKeyExpiresAt)` after `MatchesAnyCommaSeparatedKey`; input: `AdminKeyExpiresAt` in the past and `InvalidatePrevious` false so `AppendConfigSuffix` adds a new key; reachability: `POST /v1/admin/settings/api-keys/rotate`.
+- [x] (superseded) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — first non-empty `X-Api-Key` wins when a later value is a stronger slot — locus: first normalized header value; input: duplicate headers, reader key then admin key; reachability: client or proxy sending two `X-Api-Key` values.
+- [x] (superseded) `ApiKeyAuthenticationHandler.ApplyTestActorHeaderOverrides` — governance actor display name is passed through key-material normalize — locus: `ExtractProvidedApiKey` on `X-ArchLucid-Test-Actor-Name`; input: `AllowTestActorHeaders` and a 32-character mixed-case hex actor name; reachability: non-production CI header (production throws if the flag is on).
 
 2026-11-08 thorough hunt (dry #144): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed the five open monitor rows — **valid-no-repro** test-actor names go through `ExtractProvidedApiKey` on purpose (`When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value`; production throws if `AllowTestActorHeaders` is on), **valid-no-repro** expiry at the exact instant is rejected (`When_admin_key_expiry_is_exactly_now_returns_failure`, `When_read_only_key_expiry_is_exactly_now_returns_failure`), **valid-no-repro** FormC runs before invisible stripping on both config and header (`Normalize_compose_nfd_key_material_to_nfc_before_invisible_char_stripping`), **valid-no-repro** snapshot `IsConfigured` uses the same normalizer as auth (`HasConfiguredKeyMaterial` → `ApiKeyMaterialMasker` → `Normalize`; `GetSnapshot_treats_*_as_unconfigured`), **valid-no-repro** admin slot is checked before reader when both contain the same unexpired material (admin branch ~88–104; expired-admin fallback `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`). No new row met the hunt-ready bar. Scoped Api filter **94/96** (`FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings`, `--no-build` after `ArchLucid.Api` pid 7672 locked a rebuild; 2 `AdminApiKeySettingsEndpointTests` failed opening SQL Server). Private beta: n/a.
 
@@ -6446,13 +6470,13 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 145
-- **bugs-found:** 31
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-10-30 — replacement character from ill-formed UTF-16 broke API key auth while admin snapshot showed configured
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-12 seed hunt #2007 (seed-only): reseeded api-key-auth after `-Refresh`; 44 scoped ApiKey auth/settings unit tests passed; no new hunt-ready rows.
 
@@ -6818,9 +6842,9 @@
 - [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — comma segment with only format-category paste — locus: per-segment normalize; input: `valid,sec\u200Bret`; reachability: rotation comma monitor.
 - [ ] (candidate) `ApiKeyAuthenticationHandler` — reader slot expiry evaluated after admin match — locus: `IsKeyExpired`; input: expired admin + valid reader; reachability: dual-slot expiry monitor.
 - [ ] (candidate) `AdminApiKeySettingsController` — rotation audit never stores plaintext key — locus: `CreateRotationAuditEvent`; input: rotate response; reachability: hunt #88 audit contract monitor.
-- **hunts:** 137
-- **bugs-found:** 26
-- **last-bug:** 2026-10-30 — combining grapheme joiner paste broke API key auth while admin snapshot showed configured
+- **hunts:** 0
+- **bugs-found:** 0
+- **last-bug:** never
 ## Zone: scope-binding-middleware
 
 2026-11-03 thorough hunt (dry #88): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`review-recurrence`** is **1/3** before this record — dry **`review-recurrence`** **#56** at run-log tail). Cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#87** (regression family dry **#86** / dry **#84**) — **invalid** mixed-case `/HEALTH/` trailing slash root aggregate miss (`IsRootHealthAggregateProbe` `TrimEnd('/')` plus `OrdinalIgnoreCase` — regressions `InvokeAsync_staging_host_skips_mixed_case_root_health_aggregate_path`, `InvokeAsync_staging_host_skips_trailing_slash_root_health_path`; dry **#84**); **valid-no-repro** SCIM path casing still enters reauthentication (`ApiPathSkipSafety.SafeStartsWithSegments` `/scim` ignore-case — regression `InvokeAsync_unauthenticated_scim_path_with_uppercase_prefix_authenticates_scim_bearer`; hit **2026-10-12**); **valid-no-repro** `AllowUnscopedRouteAttribute` skips route binding by contract while guard middleware honors the same metadata (`OnActionExecutionAsync_allow_unscoped_route_metadata_skips_binding`, `InvokeAsync_staging_host_skips_allow_unscoped_route_metadata`; dry **#84**); **invalid** mixed-case `/HEALTH/LIVE/` trailing slash misses live probe skip (regressions `InvokeAsync_staging_host_skips_trailing_slash_on_health_live_path`; seed **#220**); **invalid** duplicate parseable `x-workspace-id` with tenant-bound ApiKey (`ValidateHeaderOnlyScopeEscalation_rejects_duplicate_workspace_headers_without_claim_for_api_key`; dry **#80**). Reseeded five follow-on `(candidate)` monitor rows from dry **#87** closed themes; scoped filter **169/175** (`RunAnalyzers=false`; 6 SQL integration tests skipped without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: n/a.
@@ -6919,13 +6943,13 @@
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 88
-- **bugs-found:** 16
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-12 — authenticated non-SCIM principals bypassed SCIM rebinding on `/scim/v2/Users`
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 - [x] (proven) `ScopeIdentityBindingValidator.RequiresBoundScopeClaimsForHeaders` — lowercase `bearer` `AuthenticationType` skipped TB-072 header-only escalation so hostile `x-tenant-id` was accepted without a bound `tenant_id` claim — **hit 2026-10-06 seed hunt:** match scheme names with `OrdinalIgnoreCase`; regressions `ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_without_claim_for_lowercase_bearer_auth_type` and `InvokeAsync_lowercase_bearer_auth_type_rejects_x_tenant_id_header_without_claim`; 84 scoped Api unit tests passed (6 integration tests unavailable).
 
@@ -8894,11 +8918,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 168
-- **bugs-found:** 181
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-18
-- **last-bug:** 2026-11-18 — SCIM Bearer mix guard rejected U+26AB/U+2B50 placeholders before valid comma-folded token
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
@@ -9609,13 +9633,13 @@
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 971
-- **bugs-found:** 64
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-11-04 — board export used analysis evidence system name when stored manifest system name was whitespace-only
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-12 thorough hunt (dry): `tenant-data-export` — all five picker candidates were inspected; the `RunsExportController` career-block mapping candidate was plausible, but its focused repro could not execute because the API test build stopped on unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production change was made and all candidates remain unpromoted.
 
@@ -11993,13 +12017,13 @@
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 51
-- **bugs-found:** 32
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-10-29 — legacy non-tenant webhook route bypass under tenant-scope policy (#198)
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ### Hypotheses
 
 **Hunts:** 30 · **Bugs found:** 19 · **Consecutive dry hunts:** 8
@@ -13111,16 +13135,16 @@
 2026-10-27 thorough hunt (dry #379): cheap-disproof closed five recycled candidates (integration messageId without tenant prefix, ranker cost/token/run-id tie-break, checkout cancel propagation, negative unit rates guard, ChangeQuantity GA vs WebhookPlanMutationsEnabled); seventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 - **id:** application-billing-logic
-- **status:** cooling
+- **status:** open
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 327
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 283
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 
 2026-10-03 seed hunt (seed-only): re-read `ArchLucid.Application/Billing/` and the scoped Marketplace/BillingCheckout/TenantLlmCostReporting tests; no new reachable candidate emerged; 17 scoped tests passed.
@@ -16541,13 +16565,13 @@
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 942
-- **bugs-found:** 25
-- **consecutive-dry-hunts:** 11
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-21 — hourly OTP request rate limits ignored invalidated challenges
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed→hit): hourly verification SQL treated expired unused challenges as active replacements, so a later lockout was omitted from the hourly failure count; the active probe now requires `ExpiresUtc > @NowUtc`; regressions `Active_replacement_probe_ignores_expired_unused_challenges` and `CountRecentFailedVerifications_counts_lockout_when_only_other_challenge_is_expired`; 28 scoped AuthenticationIdentity, IdentityRepository, and EmailOtp tests passed (`RunAnalyzers=false`, 2 SQL integration skipped).
 
@@ -19464,16 +19488,16 @@
 - [x] (proven) `RunsController.RephraseClarificationAnswers` — JSON `"items": null` dereferenced `input.Items.Count` and threw `NullReferenceException` instead of `400 ValidationFailed` — **hit 2026-10-23 seed hunt:** null guard before count check (parity with `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers`); regression `RephraseClarificationAnswers_returns_bad_request_when_items_collection_is_null`
 
 - **id:** api-authority-admin-controllers
-- **status:** cooling
+- **status:** open
 - **impact:** high
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 415
-- **bugs-found:** 59
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — client-error telemetry null context value caused 500 instead of validation
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-16 seed hunt (seed→hit): promoted `AdminController.ArchiveRunsByIds` null `RunIds` collection gap; proved and fixed; reseeded five follow-on `(candidate)` rows.
@@ -19846,13 +19870,13 @@
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 353
-- **last-hunt:** 2026-11-03
-- **bugs-found:** 531
-- **consecutive-dry-hunts:** 11
-- **last-bug:** 2026-11-01 — batch/optional approval id max-length validation ignored invisible-prefix normalize
+- **hunts:** 0
+- **last-hunt:** never
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ### Hypotheses
 
 - [x] (valid-no-repro) `GovernanceController.GetComplianceDriftTrend` — bucket window overflow **400** before facade — **cheap-disproof 2026-11-02 thorough hunt #344:** see dry #344 diary.
@@ -21554,17 +21578,17 @@
 
 - **id:** api-policy-packs
 - **split-from:** api-governance-tenancy-controllers
-- **status:** cooling
+- **status:** open
 - **impact:** high
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 59
-- **bugs-found:** 24
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-27 — GetVersion scope failure mislabeled as pack not found
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
@@ -21806,16 +21830,16 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - **id:** api-governance-stickiness
 - **split-from:** api-governance-tenancy-controllers
-- **status:** cooling
+- **status:** open
 - **impact:** high
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 40
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-10-28
-- **last-bug:** 2026-10-27 — decisions-needed summary fail-open on pending approval runs
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21935,16 +21959,16 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - **id:** api-governance-stickiness
 - **split-from:** api-governance-tenancy-controllers
-- **status:** cooling
+- **status:** open
 - **impact:** high
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 40
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-10-28
-- **last-bug:** 2026-10-27 — decisions-needed summary fail-open on pending approval runs
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -22141,13 +22165,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 47
-- **bugs-found:** 12
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ### Hypotheses
 
 - [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` — coalesced empty inventory **404** vs empty shell — **cheap-disproof 2026-11-01 thorough hunt #39:** see zone hunt note; dry **#938**.
@@ -22598,13 +22622,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 64
-- **bugs-found:** 43
-- **consecutive-dry-hunts:** 5
-- **last-hunt:** 2026-11-05
-- **last-bug:** 2026-11-01 — un-normalized PolicyRuleId let a padded rule id containing an assigned compliance key match via substring
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -22797,6 +22821,423 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 
 ## Zone: application-tenancy-lifecycle
+## Zone: application-tenancy-lifecycle
+## Zone: application-tenancy-lifecycle
+2026-11-19 thorough hunt (dry #263, round-robin): rotation (Set 2 round-robin; `shouldRotate: true`; low-yield streak on `tenant-data-export` is **3/3**; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**262** reseed at hunt **#262**. Residual pass-**262** slug monitors already satisfied by hunt **#251** — **proven** `Tenant slug commuted`, `Tenant slug pardoned`, and `Tenant slug expunged` (regressions `IsDuplicateOrganization_does_not_match_tenant_slug_commuted_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_pardoned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_expunged_substring_in_already_exists_message`). Cheap-disproof closed two reseed monitors — **valid-no-repro** projection refresh while stage still `Verification` (`RunProjectionRefreshAsync_returns_wrong_stage_when_stage_still_verification`; hunt **#251**), **valid-no-repro** duplicate restore audit (`TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`; hunt **#251** / **#250**). Scoped filter **517/517** Application tenancy (`RunAnalyzers=false`, Release, `--no-build`). No production change this pass. Private beta: n/a.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug commuted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #263):** hunt **#251** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pardoned` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #263):** hunt **#251** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expunged` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #263):** hunt **#251** regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `Verification` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #263):** hunt **#251** regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — **cheap-disproof 2026-11-19 thorough hunt (tenancy #263):** hunt **#251** / **#250** regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug remitted` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug remitted elsewhere already exists` (monitor **#263**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug condoned` substring — locus: phrase scan; input: `Tenant slug condoned incorrectly already exists` (monitor **#263**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug acquitted` substring — locus: phrase scan; input: `Tenant slug acquitted automatically already exists` (monitor **#263**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `ProjectionRefresh` — locus: `WrongStage` gate ~23–28; input: verification before projection refresh completed (monitor reseed **#263**).
+- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — locus: idempotent offboard path; input: duplicate offboard on quarantined tenant (monitor reseed **#263**).
+
+- [x] (superseded) pass-**262** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #263:** see hunt **#263** header and pass **#263** reseed.
+
+2026-11-19 thorough hunt (dry #262, round-robin): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**261** reseed at hunt **#261**. Residual pass-**261** slug monitors already satisfied by hunt **#252** — **proven** `Tenant slug remitted`, `Tenant slug condoned`, and `Tenant slug acquitted` (regressions `IsDuplicateOrganization_does_not_match_tenant_slug_remitted_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_condoned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_acquitted_substring_in_already_exists_message`). Cheap-disproof closed two reseed monitors — **invalid** verify while stage still `ProjectionRefresh` (`RunVerificationAsync_accepts_first_attempt_when_stage_still_projection_refresh`; hunt **#252**), **valid-no-repro** duplicate offboard audit (`TryOffboardTenantAsync_returns_existing_quarantine_without_duplicate_audit_when_already_offboarded_retry`; hunt **#252**). Scoped filter **517/517** Application tenancy (`RunAnalyzers=false`, Release, `--no-build`). No production change this pass. Private beta: n/a.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug remitted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #262):** hunt **#252** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug condoned` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #262):** hunt **#252** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug acquitted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #262):** hunt **#252** regression above.
+- [x] (invalid) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `ProjectionRefresh` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #262):** hunt **#252** regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — **cheap-disproof 2026-11-19 thorough hunt (tenancy #262):** hunt **#252** regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug commuted` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug commuted elsewhere already exists` (monitor **#262**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pardoned` substring — locus: phrase scan; input: `Tenant slug pardoned incorrectly already exists` (monitor **#262**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expunged` substring — locus: phrase scan; input: `Tenant slug expunged automatically already exists` (monitor **#262**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `Verification` — locus: `WrongStage` gate ~25–26; input: projection refresh before verification completes (monitor reseed **#262**).
+- [ ] (candidate) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — locus: idempotent restore path; input: duplicate restore on active tenant (monitor reseed **#262**).
+
+- [x] (superseded) pass-**261** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #262:** see hunt **#262** header and pass **#262** reseed.
+
+2026-11-19 thorough hunt (dry #261, round-robin): rotation (Set 2 round-robin; `shouldRotate: true`; low-yield streak on `tenant-data-export` is **3/3**; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**260** reseed at hunt **#260**. Residual pass-**260** slug monitors already satisfied by hunt **#251** — **proven** `Tenant slug commuted`, `Tenant slug pardoned`, and `Tenant slug expunged` (regressions `IsDuplicateOrganization_does_not_match_tenant_slug_commuted_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_pardoned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_expunged_substring_in_already_exists_message`). Cheap-disproof closed two reseed monitors — **valid-no-repro** projection refresh while stage still `Verification` (`RunProjectionRefreshAsync_returns_wrong_stage_when_stage_still_verification`; hunt **#251**), **valid-no-repro** duplicate restore audit (`TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`; hunt **#251** / **#250**). Scoped filter **517/517** Application tenancy (`RunAnalyzers=false`, Release, `--no-build`). No production change this pass. Private beta: n/a.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug commuted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #261):** hunt **#251** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pardoned` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #261):** hunt **#251** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expunged` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #261):** hunt **#251** regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `Verification` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #261):** hunt **#251** regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — **cheap-disproof 2026-11-19 thorough hunt (tenancy #261):** hunt **#251** / **#250** regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug remitted` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug remitted elsewhere already exists` (monitor **#261**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug condoned` substring — locus: phrase scan; input: `Tenant slug condoned incorrectly already exists` (monitor **#261**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug acquitted` substring — locus: phrase scan; input: `Tenant slug acquitted automatically already exists` (monitor **#261**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `ProjectionRefresh` — locus: `WrongStage` gate ~23–28; input: verification before projection refresh completed (monitor reseed **#261**).
+- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — locus: idempotent offboard path; input: duplicate offboard on quarantined tenant (monitor reseed **#261**).
+
+- [x] (superseded) pass-**260** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #261:** see hunt **#261** header and pass **#261** reseed.
+
+2026-11-19 thorough hunt (dry #260, round-robin): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**259** reseed at hunt **#259**. Residual pass-**259** slug monitors already satisfied by hunt **#252** — **proven** `Tenant slug remitted`, `Tenant slug condoned`, and `Tenant slug acquitted` (regressions `IsDuplicateOrganization_does_not_match_tenant_slug_remitted_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_condoned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_acquitted_substring_in_already_exists_message`). Cheap-disproof closed two reseed monitors — **invalid** verify while stage still `ProjectionRefresh` (`RunVerificationAsync_accepts_first_attempt_when_stage_still_projection_refresh`; hunt **#252**), **valid-no-repro** duplicate offboard audit (`TryOffboardTenantAsync_returns_existing_quarantine_without_duplicate_audit_when_already_offboarded_retry`; hunt **#252**). Scoped filter **517/517** Application tenancy (`RunAnalyzers=false`, Release, `--no-build`). No production change this pass. Private beta: n/a.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug remitted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #260):** hunt **#252** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug condoned` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #260):** hunt **#252** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug acquitted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #260):** hunt **#252** regression above.
+- [x] (invalid) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `ProjectionRefresh` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #260):** hunt **#252** regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — **cheap-disproof 2026-11-19 thorough hunt (tenancy #260):** hunt **#252** regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug commuted` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug commuted elsewhere already exists` (monitor **#260**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pardoned` substring — locus: phrase scan; input: `Tenant slug pardoned incorrectly already exists` (monitor **#260**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expunged` substring — locus: phrase scan; input: `Tenant slug expunged automatically already exists` (monitor **#260**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `Verification` — locus: `WrongStage` gate ~25–26; input: projection refresh before verification completes (monitor reseed **#260**).
+- [ ] (candidate) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — locus: idempotent restore path; input: duplicate restore on active tenant (monitor reseed **#260**).
+
+- [x] (superseded) pass-**259** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #260:** see hunt **#260** header and pass **#260** reseed.
+2026-11-19 thorough hunt (dry #259, round-robin): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**258** reseed at hunt **#258**. Residual pass-**258** slug monitors already satisfied by hunt **#251** — **proven** `Tenant slug commuted`, `Tenant slug pardoned`, and `Tenant slug expunged` (regressions `IsDuplicateOrganization_does_not_match_tenant_slug_commuted_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_pardoned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_expunged_substring_in_already_exists_message`). Cheap-disproof closed two reseed monitors — **valid-no-repro** projection refresh while stage still `Verification` (`RunProjectionRefreshAsync_returns_wrong_stage_when_stage_still_verification`; hunt **#251**), **valid-no-repro** duplicate restore audit (`TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`; hunt **#251** / **#250**). Scoped filter **517/517** Application tenancy (`RunAnalyzers=false`, Release, `--no-build`). No production change this pass. Private beta: n/a.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug commuted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #259):** hunt **#251** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pardoned` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #259):** hunt **#251** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expunged` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #259):** hunt **#251** regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `Verification` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #259):** hunt **#251** regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — **cheap-disproof 2026-11-19 thorough hunt (tenancy #259):** hunt **#251** / **#250** regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug remitted` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug remitted elsewhere already exists` (monitor **#259**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug condoned` substring — locus: phrase scan; input: `Tenant slug condoned incorrectly already exists` (monitor **#259**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug acquitted` substring — locus: phrase scan; input: `Tenant slug acquitted automatically already exists` (monitor **#259**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `ProjectionRefresh` — locus: `WrongStage` gate ~23–28; input: verification before projection refresh completed (monitor reseed **#259**).
+- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — locus: idempotent offboard path; input: duplicate offboard on quarantined tenant (monitor reseed **#259**).
+
+- [x] (superseded) pass-**258** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #259:** see hunt **#259** header and pass **#259** reseed.
+2026-11-19 thorough hunt (dry #258, round-robin): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**257** reseed at hunt **#257**. Residual pass-**257** slug monitors already satisfied by hunt **#252** — **proven** `Tenant slug remitted`, `Tenant slug condoned`, and `Tenant slug acquitted` (regressions `IsDuplicateOrganization_does_not_match_tenant_slug_remitted_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_condoned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_acquitted_substring_in_already_exists_message`). Cheap-disproof closed two reseed monitors — **invalid** verify while stage still `ProjectionRefresh` (`RunVerificationAsync_accepts_first_attempt_when_stage_still_projection_refresh`; hunt **#252**), **valid-no-repro** duplicate offboard audit (`TryOffboardTenantAsync_returns_existing_quarantine_without_duplicate_audit_when_already_offboarded_retry`; hunt **#252**). Scoped filter **517/517** Application tenancy (`RunAnalyzers=false`, Release, `--no-build` on cached assembly). No production change this pass. Private beta: n/a.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug remitted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #258):** hunt **#252** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug condoned` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #258):** hunt **#252** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug acquitted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #258):** hunt **#252** regression above.
+- [x] (invalid) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `ProjectionRefresh` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #258):** hunt **#252** regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — **cheap-disproof 2026-11-19 thorough hunt (tenancy #258):** hunt **#252** regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug commuted` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug commuted elsewhere already exists` (monitor **#258**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pardoned` substring — locus: phrase scan; input: `Tenant slug pardoned incorrectly already exists` (monitor **#258**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expunged` substring — locus: phrase scan; input: `Tenant slug expunged automatically already exists` (monitor **#258**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `Verification` — locus: `WrongStage` gate ~25–26; input: projection refresh before verification completes (monitor reseed **#258**).
+- [ ] (candidate) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — locus: idempotent restore path; input: duplicate restore on active tenant (monitor reseed **#258**).
+
+- [x] (superseded) pass-**257** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #258:** see hunt **#258** header and pass **#258** reseed.
+2026-11-19 thorough hunt (dry #257, round-robin): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**256** reseed at hunt **#256**. Residual pass-**256** slug monitors already satisfied by hunt **#251** — **proven** `Tenant slug commuted`, `Tenant slug pardoned`, and `Tenant slug expunged` (regressions `IsDuplicateOrganization_does_not_match_tenant_slug_commuted_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_pardoned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_expunged_substring_in_already_exists_message`). Cheap-disproof closed two reseed monitors — **valid-no-repro** projection refresh while stage still `Verification` (`RunProjectionRefreshAsync_returns_wrong_stage_when_stage_still_verification`; hunt **#251**), **valid-no-repro** duplicate restore audit (`TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`; hunt **#251** / **#250**). Reseeded five pass-**257** `(candidate)` rows below. Scoped filter **517/517** Application tenancy (`RunAnalyzers=false`, Release). No production change this pass. Private beta: n/a.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug commuted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #257):** hunt **#251** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pardoned` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #257):** hunt **#251** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expunged` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #257):** hunt **#251** regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `Verification` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #257):** hunt **#251** regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — **cheap-disproof 2026-11-19 thorough hunt (tenancy #257):** hunt **#251** / **#250** regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug remitted` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug remitted elsewhere already exists` (monitor **#257**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug condoned` substring — locus: phrase scan; input: `Tenant slug condoned incorrectly already exists` (monitor **#257**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug acquitted` substring — locus: phrase scan; input: `Tenant slug acquitted automatically already exists` (monitor **#257**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `ProjectionRefresh` — locus: `WrongStage` gate ~23–28; input: verification before projection refresh completed (monitor reseed **#257**).
+- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — locus: idempotent offboard path; input: duplicate offboard on quarantined tenant (monitor reseed **#257**).
+
+- [x] (superseded) pass-**256** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #257:** see hunt **#257** header and pass **#257** reseed.
+2026-11-19 thorough hunt (dry #256, round-robin): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**255** reseed at hunt **#255**. Residual pass-**255** slug monitors already satisfied by hunt **#252** — **proven** `Tenant slug remitted`, `Tenant slug condoned`, and `Tenant slug acquitted` (regressions `IsDuplicateOrganization_does_not_match_tenant_slug_remitted_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_condoned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_acquitted_substring_in_already_exists_message`). Cheap-disproof closed two reseed monitors — **invalid** verify while stage still `ProjectionRefresh` (`RunVerificationAsync_accepts_first_attempt_when_stage_still_projection_refresh`; hunt **#252**), **valid-no-repro** duplicate offboard audit (`TryOffboardTenantAsync_returns_existing_quarantine_without_duplicate_audit_when_already_offboarded_retry`; hunt **#252**). Reseeded five pass-**256** `(candidate)` rows below. Scoped filter **517/517** Application tenancy (`RunAnalyzers=false`, Release). No production change this pass. Private beta: n/a.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug remitted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #256):** hunt **#252** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug condoned` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #256):** hunt **#252** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug acquitted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #256):** hunt **#252** regression above.
+- [x] (invalid) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `ProjectionRefresh` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #256):** hunt **#252** regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — **cheap-disproof 2026-11-19 thorough hunt (tenancy #256):** hunt **#252** regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug commuted` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug commuted elsewhere already exists` (monitor **#256**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pardoned` substring — locus: phrase scan; input: `Tenant slug pardoned incorrectly already exists` (monitor **#256**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expunged` substring — locus: phrase scan; input: `Tenant slug expunged automatically already exists` (monitor **#256**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `Verification` — locus: `WrongStage` gate ~25–26; input: projection refresh before verification completes (monitor reseed **#256**).
+- [ ] (candidate) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — locus: idempotent restore path; input: duplicate restore on active tenant (monitor reseed **#256**).
+
+- [x] (superseded) pass-**255** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #256:** see hunt **#256** header and pass **#256** reseed.
+2026-11-19 thorough hunt (dry #255, round-robin): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**254** reseed at hunt **#254**. Residual pass-**254** slug monitors already satisfied by hunt **#251** — **proven** `Tenant slug commuted`, `Tenant slug pardoned`, and `Tenant slug expunged` (regressions `IsDuplicateOrganization_does_not_match_tenant_slug_commuted_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_pardoned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_expunged_substring_in_already_exists_message`). Cheap-disproof closed two reseed monitors — **valid-no-repro** projection refresh while stage still `Verification` (`RunProjectionRefreshAsync_returns_wrong_stage_when_stage_still_verification`; hunt **#251**), **valid-no-repro** duplicate restore audit (`TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`; hunt **#251** / **#250**). Reseeded five pass-**255** `(candidate)` rows below. Scoped filter **517/517** Application tenancy (`RunAnalyzers=false`, Release). No production change this pass. Private beta: n/a.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug commuted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #255):** hunt **#251** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pardoned` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #255):** hunt **#251** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expunged` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #255):** hunt **#251** regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `Verification` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #255):** hunt **#251** regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — **cheap-disproof 2026-11-19 thorough hunt (tenancy #255):** hunt **#251** / **#250** regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug remitted` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug remitted elsewhere already exists` (monitor **#255**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug condoned` substring — locus: phrase scan; input: `Tenant slug condoned incorrectly already exists` (monitor **#255**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug acquitted` substring — locus: phrase scan; input: `Tenant slug acquitted automatically already exists` (monitor **#255**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `ProjectionRefresh` — locus: `WrongStage` gate ~23–28; input: verification before projection refresh completed (monitor reseed **#255**).
+- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — locus: idempotent offboard path; input: duplicate offboard on quarantined tenant (monitor reseed **#255**).
+
+- [x] (superseded) pass-**254** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #255:** see hunt **#255** header and pass **#255** reseed.
+2026-11-19 thorough hunt (dry #254): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**253** reseed at hunt **#253**. Residual pass-**253** slug monitors already satisfied by hunt **#252** — **proven** `Tenant slug remitted`, `Tenant slug condoned`, and `Tenant slug acquitted` (regressions `IsDuplicateOrganization_does_not_match_tenant_slug_remitted_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_condoned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_acquitted_substring_in_already_exists_message`). Cheap-disproof closed two reseed monitors — **invalid** verify while stage still `ProjectionRefresh` (`RunVerificationAsync_accepts_first_attempt_when_stage_still_projection_refresh`; hunt **#252**), **valid-no-repro** duplicate offboard audit (`TryOffboardTenantAsync_returns_existing_quarantine_without_duplicate_audit_when_already_offboarded_retry`; hunt **#252**). Reseeded five pass-**254** `(candidate)` rows below. Scoped filter **517/517** Application tenancy (`RunAnalyzers=false`, Release). No production change this pass. Private beta: n/a.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug remitted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #254):** hunt **#252** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug condoned` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #254):** hunt **#252** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug acquitted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #254):** hunt **#252** regression above.
+- [x] (invalid) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `ProjectionRefresh` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #254):** hunt **#252** regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — **cheap-disproof 2026-11-19 thorough hunt (tenancy #254):** hunt **#252** regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug commuted` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug commuted elsewhere already exists` (monitor **#254**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pardoned` substring — locus: phrase scan; input: `Tenant slug pardoned incorrectly already exists` (monitor **#254**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expunged` substring — locus: phrase scan; input: `Tenant slug expunged automatically already exists` (monitor **#254**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `Verification` — locus: `WrongStage` gate ~25–26; input: projection refresh before verification completes (monitor reseed **#254**).
+- [ ] (candidate) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — locus: idempotent restore path; input: duplicate restore on active tenant (monitor reseed **#254**).
+
+- [x] (superseded) pass-**253** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #254:** see hunt **#254** header and pass **#254** reseed.
+## Zone: application-tenancy-lifecycle
+2026-11-19 thorough hunt (dry #253): rotation (Set 2 round-robin; `shouldRotate: true`; low-yield streak on `tenant-data-export` is **3/3**; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**252** reseed at hunt **#252**. Residual pass-**252** slug monitors already satisfied by hunt **#251** — **proven** `Tenant slug commuted`, `Tenant slug pardoned`, and `Tenant slug expunged` (regressions `IsDuplicateOrganization_does_not_match_tenant_slug_commuted_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_pardoned_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_expunged_substring_in_already_exists_message`). Cheap-disproof closed two reseed monitors — **valid-no-repro** projection refresh while stage still `Verification` (`RunProjectionRefreshAsync_returns_wrong_stage_when_stage_still_verification`; hunt **#251**), **valid-no-repro** duplicate restore audit (`TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`; hunt **#251** / **#250**). Reseeded five pass-**253** `(candidate)` rows below. Scoped filter **517/517** Application tenancy (`RunAnalyzers=false`, Release). No production change this pass. Private beta: n/a.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug commuted` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #253):** hunt **#251** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pardoned` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #253):** hunt **#251** regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expunged` substring — **cheap-disproof 2026-11-19 thorough hunt (tenancy #253):** hunt **#251** regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `Verification` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #253):** hunt **#251** regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — **cheap-disproof 2026-11-19 thorough hunt (tenancy #253):** hunt **#251** regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug remitted` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug remitted elsewhere already exists` (monitor **#253**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug condoned` substring — locus: phrase scan; input: `Tenant slug condoned incorrectly already exists` (monitor **#253**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug acquitted` substring — locus: phrase scan; input: `Tenant slug acquitted automatically already exists` (monitor **#253**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `ProjectionRefresh` — locus: `WrongStage` gate ~23–28; input: verification before projection refresh completed (monitor reseed **#253**).
+- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — locus: idempotent offboard path; input: duplicate offboard on quarantined tenant (monitor reseed **#253**).
+
+- [x] (superseded) pass-**252** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #253:** see hunt **#253** header and pass **#253** reseed.
+## Zone: application-tenancy-lifecycle
+2026-11-19 thorough hunt (hit #252): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**251** reseed at hunt **#251**. Promoted `Tenant slug remitted`, `Tenant slug condoned`, and `Tenant slug acquitted` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `remitted`, `condoned`, and `acquitted`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_remitted_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_condoned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_acquitted_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **invalid** verify while stage still `ProjectionRefresh` (`RunVerificationAsync` treats `ProjectionRefresh` as first verification attempt by design ~23–28; regression `RunVerificationAsync_accepts_first_attempt_when_stage_still_projection_refresh`), **valid-no-repro** duplicate offboard audit (`TryOffboardTenantAsync_returns_existing_quarantine_without_duplicate_audit_when_already_offboarded_retry`; monitor reseed **#251**). Reseeded five pass-**252** `(candidate)` rows below. Scoped filter **517/517** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention remitted, condoned, or acquitted slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug remitted` substring — **hit 2026-11-19 thorough hunt (tenancy #252):** excluded slug phrase word `remitted`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug condoned` substring — **hit 2026-11-19 thorough hunt (tenancy #252):** excluded slug phrase word `condoned`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug acquitted` substring — **hit 2026-11-19 thorough hunt (tenancy #252):** excluded slug phrase word `acquitted`; regression above.
+- [x] (invalid) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `ProjectionRefresh` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #252):** first verification attempt at projection refresh; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — **cheap-disproof 2026-11-19 thorough hunt (tenancy #252):** idempotent offboard without duplicate audit; regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug commuted` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug commuted elsewhere already exists` (monitor **#252**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pardoned` substring — locus: phrase scan; input: `Tenant slug pardoned incorrectly already exists` (monitor **#252**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expunged` substring — locus: phrase scan; input: `Tenant slug expunged automatically already exists` (monitor **#252**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `Verification` — locus: `WrongStage` gate ~25–26; input: projection refresh before verification completes (monitor reseed **#252**).
+- [ ] (candidate) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — locus: idempotent restore path; input: duplicate restore on active tenant (monitor reseed **#252**).
+
+- [x] (superseded) pass-**251** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #252:** see hunt **#252** header and pass **#252** reseed.
+## Zone: application-tenancy-lifecycle
+2026-11-19 thorough hunt (hit #251): rotation (Set 2 round-robin; `shouldRotate: true`; low-yield streak on `tenant-data-export` is **3/3**; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**250** reseed at hunt **#250**. Promoted `Tenant slug commuted`, `Tenant slug pardoned`, and `Tenant slug expunged` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `commuted`, `pardoned`, and `expunged`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_commuted_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_pardoned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_expunged_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** projection refresh while stage still `Verification` (`RunProjectionRefreshAsync` returns `WrongStage` when `Stage != CatalogAttachDetach` ~25–26; regression `RunProjectionRefreshAsync_returns_wrong_stage_when_stage_still_verification`), **valid-no-repro** duplicate restore audit (`TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`; monitor reseed **#250**). Reseeded five pass-**251** `(candidate)` rows below. Scoped filter **513/513** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention commuted, pardoned, or expunged slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug commuted` substring — **hit 2026-11-19 thorough hunt (tenancy #251):** excluded slug phrase word `commuted`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pardoned` substring — **hit 2026-11-19 thorough hunt (tenancy #251):** excluded slug phrase word `pardoned`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expunged` substring — **hit 2026-11-19 thorough hunt (tenancy #251):** excluded slug phrase word `expunged`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `Verification` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #251):** `WrongStage` gate before catalog attach detach; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — **cheap-disproof 2026-11-19 thorough hunt (tenancy #251):** idempotent restore without duplicate audit; regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug remitted` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug remitted elsewhere already exists` (monitor **#251**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug condoned` substring — locus: phrase scan; input: `Tenant slug condoned incorrectly already exists` (monitor **#251**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug acquitted` substring — locus: phrase scan; input: `Tenant slug acquitted automatically already exists` (monitor **#251**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `ProjectionRefresh` — locus: `WrongStage` gate ~23–28; input: verification before projection refresh completed (monitor reseed **#251**).
+- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — locus: idempotent offboard path; input: duplicate offboard on quarantined tenant (monitor reseed **#251**).
+
+- [x] (superseded) pass-**250** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #251:** see hunt **#251** header and pass **#251** reseed.
+## Zone: application-tenancy-lifecycle
+2026-11-19 thorough hunt (hit #250): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**249** reseed at hunt **#249**. Promoted `Tenant slug countermanded`, `Tenant slug subverted`, and `Tenant slug waived` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `countermanded`, `subverted`, and `waived`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_countermanded_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_subverted_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_waived_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** acknowledge while stage still `ProjectionRefresh` (`AcknowledgeCatalogAttachDetachAsync` returns `WrongStage` when `Stage != ScopeFreeze` ~23–24; regression `AcknowledgeCatalogAttachDetachAsync_returns_wrong_stage_when_stage_still_projection_refresh`), **valid-no-repro** duplicate clear-hold audit (`TryClearLegalHoldAsync_returns_success_without_duplicate_audit_when_already_cleared_retry`; monitor reseed **#249**). Reseeded five pass-**250** `(candidate)` rows below. Scoped filter **509/509** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention countermanded, subverted, or waived slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug countermanded` substring — **hit 2026-11-19 thorough hunt (tenancy #250):** excluded slug phrase word `countermanded`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug subverted` substring — **hit 2026-11-19 thorough hunt (tenancy #250):** excluded slug phrase word `subverted`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug waived` substring — **hit 2026-11-19 thorough hunt (tenancy #250):** excluded slug phrase word `waived`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` — acknowledges migration when stage still `ProjectionRefresh` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #250):** regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryClearLegalHoldAsync` — clear-hold audit when hold already cleared — **cheap-disproof 2026-11-19 thorough hunt (tenancy #250):** regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug commuted` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug commuted elsewhere already exists` (monitor **#250**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pardoned` substring — locus: phrase scan; input: `Tenant slug pardoned incorrectly already exists` (monitor **#250**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expunged` substring — locus: phrase scan; input: `Tenant slug expunged automatically already exists` (monitor **#250**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `Verification` — locus: `WrongStage` gate ~25–26; input: projection refresh before verification completes (monitor reseed **#250**).
+- [ ] (candidate) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — locus: idempotent restore path; input: duplicate restore on active tenant (monitor reseed **#250**).
+
+- [x] (superseded) pass-**249** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #250:** see hunt **#250** header and pass **#250** reseed.
+2026-11-19 thorough hunt (hit #249): rotation (Set 2 round-robin; `shouldRotate: true`; low-yield streak on `tenant-data-export` is **3/3**; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**248** reseed at hunt **#248**. Promoted `Tenant slug repealed`, `Tenant slug overturned`, and `Tenant slug disallowed` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `repealed`, `overturned`, and `disallowed`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_repealed_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_overturned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_disallowed_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** verification while stage still `CatalogAttachDetach` (`RunVerificationAsync` returns `WrongStage` when stage is not projection refresh or verification retry ~23–28; regression `RunVerificationAsync_returns_wrong_stage_when_stage_still_catalog_attach_detach`), **valid-no-repro** duplicate offboard audit (`TryOffboardTenantAsync_returns_existing_quarantine_without_duplicate_audit_when_already_offboarded_retry`; monitor reseed **#248**). Reseeded five pass-**249** `(candidate)` rows below. Scoped filter **506/506** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention repealed, overturned, or disallowed slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug repealed` substring — **hit 2026-11-19 thorough hunt (tenancy #249):** excluded slug phrase word `repealed`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug overturned` substring — **hit 2026-11-19 thorough hunt (tenancy #249):** excluded slug phrase word `overturned`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug disallowed` substring — **hit 2026-11-19 thorough hunt (tenancy #249):** excluded slug phrase word `disallowed`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `CatalogAttachDetach` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #249):** `WrongStage` gate before projection refresh; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — **cheap-disproof 2026-11-19 thorough hunt (tenancy #249):** idempotent offboard without duplicate audit; regression above.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug countermanded` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug countermanded elsewhere already exists` (monitor **#249**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug subverted` substring — locus: phrase scan; input: `Tenant slug subverted incorrectly already exists` (monitor **#249**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug waived` substring — locus: phrase scan; input: `Tenant slug waived automatically already exists` (monitor **#249**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` — acknowledges migration when stage still `ProjectionRefresh` — locus: `WrongStage` gate ~23–24; input: acknowledge before scope freeze cleared (monitor reseed **#249**).
+- [ ] (candidate) `TenantErasureCommandService.TryClearLegalHoldAsync` — clear-hold audit when hold already cleared — locus: idempotent clear path; input: duplicate clear on released hold (monitor reseed **#249**).
+
+- [x] (superseded) pass-**248** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #249:** see hunt **#249** header and pass **#249** reseed.
+2026-11-19 thorough hunt (hit #248): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**247** reseed at hunt **#247**. Promoted `Tenant slug abrogated`, `Tenant slug vacated`, and `Tenant slug overruled` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `abrogated`, `vacated`, and `overruled`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_abrogated_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_vacated_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_overruled_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** projection refresh while stage still `ScopeFreeze` (`RunProjectionRefreshAsync` returns `WrongStage` when `Stage != CatalogAttachDetach` ~25–26; regression `RunProjectionRefreshAsync_returns_wrong_stage_until_catalog_attach_is_acknowledged`), **valid-no-repro** duplicate erasure-approval audit (`TryApproveErasureAsync_returns_success_without_duplicate_audit_when_already_approved_retry`; monitor reseed **#247** / ledger alias `TryApproveQuarantineAsync`). Reseeded five pass-**248** `(candidate)` rows below. Scoped filter **502/502** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention abrogated, vacated, or overruled slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug abrogated` substring — **hit 2026-11-19 thorough hunt (tenancy #248):** excluded slug phrase word `abrogated`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug vacated` substring — **hit 2026-11-19 thorough hunt (tenancy #248):** excluded slug phrase word `vacated`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug overruled` substring — **hit 2026-11-19 thorough hunt (tenancy #248):** excluded slug phrase word `overruled`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `ScopeFreeze` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #248):** `WrongStage` gate before catalog attach detach; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — approve audit when erasure already approved — **cheap-disproof 2026-11-19 thorough hunt (tenancy #248):** idempotent approve without duplicate audit; regression above (ledger monitor alias `TryApproveQuarantineAsync`).
+
+- [x] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug repealed` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug repealed elsewhere already exists` (monitor **#248**).
+- [x] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug overturned` substring — locus: phrase scan; input: `Tenant slug overturned incorrectly already exists` (monitor **#248**).
+- [x] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug disallowed` substring — locus: phrase scan; input: `Tenant slug disallowed automatically already exists` (monitor **#248**).
+- [x] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `CatalogAttachDetach` — locus: `WrongStage` gate ~23–28; input: verification before projection refresh succeeded (monitor reseed **#248**).
+- [x] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — locus: idempotent offboard path; input: duplicate offboard on quarantined tenant (monitor reseed **#248**).
+
+- [x] (superseded) pass-**247** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #248:** see hunt **#248** header and pass **#248** reseed.
+2026-11-19 thorough hunt (hit #247): rotation (Set 2 round-robin; `shouldRotate: true`; low-yield streak on `tenant-data-export` is **3/3**; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**246** reseed at hunt **#246**. Promoted `Tenant slug repudiated`, `Tenant slug retracted`, and `Tenant slug nullified` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `repudiated`, `retracted`, and `nullified`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_repudiated_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_retracted_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_nullified_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** acknowledge while stage still `ProjectionRefresh` (`AcknowledgeCatalogAttachDetachAsync` returns `WrongStage` when `Stage != ScopeFreeze` ~23–24; regression `AcknowledgeCatalogAttachDetachAsync_returns_wrong_stage_when_stage_still_projection_refresh`), **valid-no-repro** duplicate clear-hold audit (`TryClearLegalHoldAsync_returns_success_without_duplicate_audit_when_already_cleared_retry`; monitor reseed **#246**). Reseeded five pass-**247** `(candidate)` rows below. Scoped filter **499/499** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention repudiated, retracted, or nullified slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug repudiated` substring — **hit 2026-11-19 thorough hunt (tenancy #247):** excluded slug phrase word `repudiated`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug retracted` substring — **hit 2026-11-19 thorough hunt (tenancy #247):** excluded slug phrase word `retracted`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug nullified` substring — **hit 2026-11-19 thorough hunt (tenancy #247):** excluded slug phrase word `nullified`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` — acknowledges migration when stage still `ProjectionRefresh` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #247):** `WrongStage` gate before scope freeze; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryClearLegalHoldAsync` — clear-hold audit when hold already cleared — **cheap-disproof 2026-11-19 thorough hunt (tenancy #247):** idempotent clear without duplicate audit; regression above.
+
+- [x] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug abrogated` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug abrogated elsewhere already exists` (monitor **#247**).
+- [x] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug vacated` substring — locus: phrase scan; input: `Tenant slug vacated incorrectly already exists` (monitor **#247**).
+- [x] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug overruled` substring — locus: phrase scan; input: `Tenant slug overruled automatically already exists` (monitor **#247**).
+- [x] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — refreshes migration when stage still `ScopeFreeze` — locus: `WrongStage` gate ~25–26; input: projection refresh before catalog attach acknowledged (monitor reseed **#247**).
+- [x] (candidate) `TenantErasureCommandService.TryApproveQuarantineAsync` — approve audit when quarantine already approved — locus: idempotent approve path; input: duplicate approve on approved quarantine (monitor reseed **#247**).
+
+- [x] (superseded) pass-**246** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #247:** see hunt **#247** header and pass **#247** reseed.
+
+2026-11-19 thorough hunt (hit #246): rotation (Set 2 round-robin; `shouldRotate: true`; low-yield streak on `tenant-data-export` is **3/3**; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows from pass-**245** reseed at hunt **#245**. Promoted `Tenant slug extinguished`, `Tenant slug annulled`, and `Tenant slug rescinded` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `extinguished`, `annulled`, and `rescinded`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_extinguished_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_annulled_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_rescinded_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** verify while stage still `ScopeFreeze` (`RunVerificationAsync` allows only `ProjectionRefresh` first attempt or `Verification` retry ~23–28; regression `RunVerificationAsync_returns_wrong_stage_when_stage_still_scope_freeze`), **valid-no-repro** duplicate offboard audit (`TryOffboardTenantAsync_returns_existing_quarantine_without_duplicate_audit_when_already_offboarded_retry`; monitor reseed **#245**). Reseeded five pass-**246** `(candidate)` rows below. Scoped filter **496/496** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention extinguished, annulled, or rescinded slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug extinguished` substring — **hit 2026-11-19 thorough hunt (tenancy #246):** excluded slug phrase word `extinguished`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug annulled` substring — **hit 2026-11-19 thorough hunt (tenancy #246):** excluded slug phrase word `annulled`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug rescinded` substring — **hit 2026-11-19 thorough hunt (tenancy #246):** excluded slug phrase word `rescinded`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `ScopeFreeze` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #246):** `WrongStage` gate before projection refresh; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — **cheap-disproof 2026-11-19 thorough hunt (tenancy #246):** idempotent offboard without duplicate audit; regression above.
+
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` — acknowledges migration when stage still `ProjectionRefresh` — locus: `WrongStage` gate ~23–24; input: admin acknowledge before scope freeze cleared (monitor reseed **#246**).
+- [ ] (candidate) `TenantErasureCommandService.TryClearLegalHoldAsync` — clear-hold audit when hold already cleared — locus: idempotent clear path; input: duplicate clear on released hold (monitor reseed **#246**).
+
+- [x] (superseded) pass-**245** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #246:** see hunt **#246** header and pass **#246** reseed.
+
+2026-11-19 thorough hunt (hit #245): rotation (Set 2 round-robin; `shouldRotate: true`; low-yield streak on `tenant-data-export` is **3/3**; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows reseeded at hunt **#244**. Promoted `Tenant slug invalidated`, `Tenant slug obliterated`, and `Tenant slug purged` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `invalidated`, `obliterated`, and `purged`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_invalidated_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_obliterated_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_purged_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** acknowledge while stage still `CatalogAttachDetach` (`AcknowledgeCatalogAttachDetachAsync` returns `WrongStage` when `Stage != ScopeFreeze` ~23–24; regression `AcknowledgeCatalogAttachDetachAsync_returns_wrong_stage_when_stage_still_catalog_attach_detach`), **valid-no-repro** duplicate restore audit (`TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`; monitor reseed **#244**). Reseeded five pass-**245** `(candidate)` rows below. Scoped filter **492/492** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention invalidated, obliterated, or purged slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug invalidated` substring — **hit 2026-11-19 thorough hunt (tenancy #245):** excluded slug phrase word `invalidated`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug obliterated` substring — **hit 2026-11-19 thorough hunt (tenancy #245):** excluded slug phrase word `obliterated`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug purged` substring — **hit 2026-11-19 thorough hunt (tenancy #245):** excluded slug phrase word `purged`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` — acknowledges migration when stage still `CatalogAttachDetach` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #245):** `WrongStage` gate before scope freeze; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — **cheap-disproof 2026-11-19 thorough hunt (tenancy #245):** idempotent restore without duplicate audit; regression above.
+
+
+- [x] (superseded) pass-**244** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #245:** see hunt **#245** header and pass **#245** reseed.
+2026-11-19 thorough hunt (hit #244): rotation (Set 2 round-robin; `shouldRotate: true`; low-yield streak on `tenant-data-export` is **3/3**; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows reseeded at hunt **#243**. Promoted `Tenant slug eliminated`, `Tenant slug superseded`, and `Tenant slug voided` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `eliminated`, `superseded`, and `voided`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_eliminated_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_superseded_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_voided_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** complete while stage still `CatalogAttachDetach` (`CompleteAsync` returns `WrongStage` when `Stage != Verification` ~145–146; regression `CompleteAsync_returns_wrong_stage_when_stage_still_catalog_attach_detach`), **valid-no-repro** duplicate set-hold audit (`TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_identical_operator_retry`; monitor reseed **#243**). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **488/488** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention eliminated, superseded, or voided slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug eliminated` substring — **hit 2026-11-19 thorough hunt (tenancy #244):** excluded slug phrase word `eliminated`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug superseded` substring — **hit 2026-11-19 thorough hunt (tenancy #244):** excluded slug phrase word `superseded`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug voided` substring — **hit 2026-11-19 thorough hunt (tenancy #244):** excluded slug phrase word `voided`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when stage still `CatalogAttachDetach` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #244):** `WrongStage` gate before verification; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TrySetLegalHoldAsync` — set-hold audit when identical hold already active — **cheap-disproof 2026-11-19 thorough hunt (tenancy #244):** idempotent set without duplicate audit; regression above.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug invalidated` substring — **hit 2026-11-19 thorough hunt (tenancy #245):** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug obliterated` substring — **hit 2026-11-19 thorough hunt (tenancy #245):** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug purged` substring — **hit 2026-11-19 thorough hunt (tenancy #245):** see zone diary above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` — acknowledges migration when stage still `CatalogAttachDetach` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #245):** see zone diary above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant already restored — **cheap-disproof 2026-11-19 thorough hunt (tenancy #245):** see zone diary above.
+2026-11-19 thorough hunt (hit #243): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows reseeded at hunt **#242**. Promoted `Tenant slug dissolved`, `Tenant slug dismantled`, and `Tenant slug deprecated` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `dissolved`, `dismantled`, and `deprecated`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_dissolved_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_dismantled_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_deprecated_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** verify while stage still `CatalogAttachDetach` (`RunVerificationAsync` returns `WrongStage` when stage is not projection refresh or verification retry ~23–28; regression `RunVerificationAsync_returns_wrong_stage_before_projection_refresh_succeeds`), **valid-no-repro** duplicate clear-hold audit (`TryClearLegalHoldAsync_returns_success_without_duplicate_audit_when_already_cleared_retry`; monitor reseed **#242**). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **485/485** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention dissolved, dismantled, or deprecated slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug dissolved` substring — **hit 2026-11-19 thorough hunt (tenancy #243):** excluded slug phrase word `dissolved`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug dismantled` substring — **hit 2026-11-19 thorough hunt (tenancy #243):** excluded slug phrase word `dismantled`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug deprecated` substring — **hit 2026-11-19 thorough hunt (tenancy #243):** excluded slug phrase word `deprecated`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `CatalogAttachDetach` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #243):** `WrongStage` gate before projection refresh; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryClearLegalHoldAsync` — clear-hold audit when hold already cleared — **cheap-disproof 2026-11-19 thorough hunt (tenancy #243):** idempotent clear without duplicate audit; regression above.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug eliminated` substring — **hit 2026-11-19 thorough hunt (tenancy #244):** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug superseded` substring — **hit 2026-11-19 thorough hunt (tenancy #244):** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug voided` substring — **hit 2026-11-19 thorough hunt (tenancy #244):** see zone diary above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when stage still `CatalogAttachDetach` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #244):** see zone diary above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TrySetLegalHoldAsync` — set-hold audit when identical hold already active — **cheap-disproof 2026-11-19 thorough hunt (tenancy #244):** see zone diary above.
+2026-11-19 thorough hunt (hit #241): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`).
+2026-11-19 thorough hunt (hit #242): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows reseeded at hunt **#241**. Promoted `Tenant slug deprovisioned`, `Tenant slug inactive`, and `Tenant slug offline` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `deprovisioned`, `inactive`, and `offline`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_deprovisioned_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_inactive_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_offline_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** complete while stage still `ProjectionRefresh` (`CompleteAsync` returns `WrongStage` when `Stage != Verification` ~145–146; regression `CompleteAsync_returns_wrong_stage_when_stage_still_projection_refresh`), **valid-no-repro** duplicate approve audit (`TryApproveErasureAsync_returns_success_without_duplicate_audit_when_already_approved_retry`; monitor reseed **#241**). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **482/482** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention deprovisioned, inactive, or offline slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug deprovisioned` substring — **hit 2026-11-19 thorough hunt (tenancy #242):** excluded slug phrase word `deprovisioned`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug inactive` substring — **hit 2026-11-19 thorough hunt (tenancy #242):** excluded slug phrase word `inactive`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug offline` substring — **hit 2026-11-19 thorough hunt (tenancy #242):** excluded slug phrase word `offline`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when stage still `ProjectionRefresh` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #242):** `WrongStage` gate before verification; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — approve audit when erasure already approved — **cheap-disproof 2026-11-19 thorough hunt (tenancy #242):** idempotent approve without duplicate audit; regression above.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug dissolved` substring — **hit 2026-11-19 thorough hunt (tenancy #243):** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug dismantled` substring — **hit 2026-11-19 thorough hunt (tenancy #243):** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug deprecated` substring — **hit 2026-11-19 thorough hunt (tenancy #243):** see zone diary above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `CatalogAttachDetach` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #243):** see zone diary above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryClearLegalHoldAsync` — clear-hold audit when hold already cleared — **cheap-disproof 2026-11-19 thorough hunt (tenancy #243):** see zone diary above.
+2026-11-19 thorough hunt (hit #241): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows reseeded at hunt **#240**. Promoted `Tenant slug forfeited`, `Tenant slug relinquished`, and `Tenant slug surrendered` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `forfeited`, `relinquished`, and `surrendered`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_forfeited_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_relinquished_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_surrendered_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** acknowledge while stage still `ProjectionRefresh` (`AcknowledgeCatalogAttachDetachAsync` returns `WrongStage` when `Stage != ScopeFreeze` ~23–24; regression `AcknowledgeCatalogAttachDetachAsync_returns_wrong_stage_when_stage_still_projection_refresh`), **valid-no-repro** duplicate offboard audit (`TryOffboardTenantAsync_returns_existing_quarantine_without_duplicate_audit_when_already_offboarded_retry`; monitor reseed **#240**). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **478/478** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention forfeited, relinquished, or surrendered slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug forfeited` substring — **hit 2026-11-19 thorough hunt (tenancy #241):** excluded slug phrase word `forfeited`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug relinquished` substring — **hit 2026-11-19 thorough hunt (tenancy #241):** excluded slug phrase word `relinquished`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug surrendered` substring — **hit 2026-11-19 thorough hunt (tenancy #241):** excluded slug phrase word `surrendered`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` — acknowledges migration when stage still `ProjectionRefresh` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #241):** `WrongStage` gate before scope freeze; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard audit when tenant already offboarded — **cheap-disproof 2026-11-19 thorough hunt (tenancy #241):** idempotent offboard without duplicate audit; regression `TryOffboardTenantAsync_returns_existing_quarantine_without_duplicate_audit_when_already_offboarded_retry` (monitor reseed **#240**).
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug deprovisioned` substring — **hit 2026-11-19 thorough hunt (tenancy #242):** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug inactive` substring — **hit 2026-11-19 thorough hunt (tenancy #242):** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug offline` substring — **hit 2026-11-19 thorough hunt (tenancy #242):** see zone diary above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when stage still `ProjectionRefresh` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #242):** see zone diary above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — approve audit when erasure already approved — **cheap-disproof 2026-11-19 thorough hunt (tenancy #242):** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug dissolved` substring — **hit 2026-11-19 thorough hunt (tenancy #243):** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug dismantled` substring — **hit 2026-11-19 thorough hunt (tenancy #243):** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug deprecated` substring — **hit 2026-11-19 thorough hunt (tenancy #243):** see zone diary above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — runs verification when stage still `CatalogAttachDetach` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #243):** see zone diary above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryClearLegalHoldAsync` — clear-hold audit when hold already cleared — **cheap-disproof 2026-11-19 thorough hunt (tenancy #243):** see zone diary above.
+
+2026-11-19 thorough hunt (hit #240): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows reseeded at hunt **#239**. Promoted `Tenant slug withdrawn`, `Tenant slug discarded`, and `Tenant slug unavailable` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `withdrawn`, `discarded`, and `unavailable`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_withdrawn_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_discarded_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_unavailable_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** complete while stage still `ScopeFreeze` (`CompleteAsync` returns `WrongStage` when `Stage != Verification` ~145–146; regression `CompleteAsync_returns_wrong_stage_when_stage_still_scope_freeze`), **valid-no-repro** restore on active tenant (`TryRestoreQuarantineAsync` idempotent success without audit ~156–157; regression `TryRestoreQuarantineAsync_returns_success_without_audit_when_tenant_never_offboarded`). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **474/474** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention withdrawn, discarded, or unavailable slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug withdrawn` substring — **hit 2026-11-19 thorough hunt (tenancy #240):** excluded slug phrase word `withdrawn`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug discarded` substring — **hit 2026-11-19 thorough hunt (tenancy #240):** excluded slug phrase word `discarded`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug unavailable` substring — **hit 2026-11-19 thorough hunt (tenancy #240):** excluded slug phrase word `unavailable`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when stage still `ScopeFreeze` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #240):** `WrongStage` gate before verification; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit when tenant never offboarded — **cheap-disproof 2026-11-19 thorough hunt (tenancy #240):** idempotent success without audit; regression above.
+
+2026-11-19 thorough hunt (hit #239): no rotation (Set 2 round-robin; pinned `application-tenancy-lifecycle`). Cheap-disproof on five open `(candidate)` rows reseeded at hunt **#238**. Promoted `Tenant slug terminated`, `Tenant slug disabled`, and `Tenant slug decommissioned` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `terminated`, `disabled`, and `decommissioned`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_terminated_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_disabled_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_decommissioned_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** complete while stage still `CatalogAttachDetach` (`CompleteAsync` returns `WrongStage` when `Stage != Verification` ~145–146; regression `CompleteAsync_returns_wrong_stage_when_stage_still_catalog_attach_detach`), **valid-no-repro** restore without clearing offboard suspend (`TryRestoreQuarantineAsync_clears_suspend_set_during_offboard` ~112–145). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **469/469** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention terminated, disabled, or decommissioned slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug terminated` substring — **hit 2026-11-19 thorough hunt (tenancy #239):** excluded slug phrase word `terminated`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug disabled` substring — **hit 2026-11-19 thorough hunt (tenancy #239):** excluded slug phrase word `disabled`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug decommissioned` substring — **hit 2026-11-19 thorough hunt (tenancy #239):** excluded slug phrase word `decommissioned`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when stage still `CatalogAttachDetach` — **cheap-disproof 2026-11-19 thorough hunt (tenancy #239):** `WrongStage` gate before verification; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore without clearing suspend after offboard suspend — **cheap-disproof 2026-11-19 thorough hunt (tenancy #239):** restore clears suspend via repository; regression above.
+
+2026-11-18 thorough hunt (hit #238): no rotation (Set 2 round-robin). Cheap-disproof on five open `(candidate)` rows reseeded at hunt **#237**. Promoted `Tenant slug unsuspended`, `Tenant slug provisioned`, and `Tenant slug revoked` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `unsuspended`, `provisioned`, and `revoked`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_unsuspended_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_provisioned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_revoked_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** complete while stage still `ProjectionRefresh` (`CompleteAsync` returns `WrongStage` when `Stage != Verification` ~145–146), **valid-no-repro** offboard on active tenant (`TryOffboardTenantAsync` suspends after offboard marker by design ~80; regression `TryOffboardTenantAsync_resumes_suspend_and_audit_when_marker_exists_without_suspension`). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **465/465** Application tenancy (`RunAnalyzers=false`, Release). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention unsuspended, provisioned, or revoked slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug unsuspended` substring — **hit 2026-11-18 thorough hunt #238:** excluded slug phrase word `unsuspended`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug provisioned` substring — **hit 2026-11-18 thorough hunt #238:** excluded slug phrase word `provisioned`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug revoked` substring — **hit 2026-11-18 thorough hunt #238:** excluded slug phrase word `revoked`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when stage still `ProjectionRefresh` — **cheap-disproof 2026-11-18 thorough hunt #238:** `WrongStage` gate before verification.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard without suspend when migration scope-freeze expected — **cheap-disproof 2026-11-18 thorough hunt #238:** post-offboard suspend by design; regression above.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug terminated` substring — **hit 2026-11-19 thorough hunt #239:** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug disabled` substring — **hit 2026-11-19 thorough hunt #239:** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug decommissioned` substring — **hit 2026-11-19 thorough hunt #239:** see zone diary above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when stage still `CatalogAttachDetach` — **cheap-disproof 2026-11-19 thorough hunt #239:** see zone diary above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore without clearing suspend after offboard suspend — **cheap-disproof 2026-11-19 thorough hunt #239:** see zone diary above.
+2026-11-18 thorough hunt (hit #237): no rotation (`shouldRotate: false`). Cheap-disproof on five open `(candidate)` rows reseeded at hunt **#236**. Promoted `Tenant slug cancelled`, `Tenant slug released`, and `Tenant slug reactivated` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `cancelled`, `released`, and `reactivated`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_cancelled_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_released_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_reactivated_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** complete without verification pass stamp (`CompleteAsync` returns `VerificationRequired` when `VerificationPassedUtc` null ~148–149; regression `CompleteAsync_returns_verification_required_when_verification_stage_never_passed`), **valid-no-repro** erasure approve without offboard (`TryApproveErasureAsync` requires `OffboardedUtc` ~404–405; regression `TryApproveErasureAsync_returns_false_when_tenant_suspended_but_not_offboarded`). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **462/462** Application tenancy (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention cancelled, released, or reactivated slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug cancelled` substring — **hit 2026-11-18 thorough hunt #237:** excluded slug phrase word `cancelled`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug released` substring — **hit 2026-11-18 thorough hunt #237:** excluded slug phrase word `released`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug reactivated` substring — **hit 2026-11-18 thorough hunt #237:** excluded slug phrase word `reactivated`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when verification stage never entered — **cheap-disproof 2026-11-18 thorough hunt #237:** `VerificationRequired` gate; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — approval when tenant suspended but not offboarded — **cheap-disproof 2026-11-18 thorough hunt #237:** offboard prerequisite by design; regression above.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug unsuspended` substring — **hit 2026-11-18 thorough hunt #238:** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug provisioned` substring — **hit 2026-11-18 thorough hunt #238:** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug revoked` substring — **hit 2026-11-18 thorough hunt #238:** see zone diary above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when stage still `ProjectionRefresh` — **cheap-disproof 2026-11-18 thorough hunt #238:** see zone diary above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard without suspend when migration scope-freeze expected — **cheap-disproof 2026-11-18 thorough hunt #238:** see zone diary above.
+2026-11-18 thorough hunt (hit #236): no rotation (`shouldRotate: false`). Cheap-disproof on five open `(candidate)` rows reseeded at hunt **#235**. Promoted `Tenant slug expired`, `Tenant slug locked`, and `Tenant slug pending` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `expired`, `locked`, and `pending`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_expired_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_locked_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_pending_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **invalid** second `StartAsync` when prior migration row still active (`GetActiveByTenantIdAsync` ~24–28 returns `AlreadyActive`), **valid-no-repro** suspend audit during active catalog migration (`TrySuspendAsync` returns `AlreadyInDesiredState` when `SuspendedUtc` set ~37–38; regression `TrySuspendAsync_is_idempotent_when_already_suspended`). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **457/457** Application tenancy (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention expired, locked, or pending slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expired` substring — **hit 2026-11-18 thorough hunt #236:** excluded slug phrase word `expired`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug locked` substring — **hit 2026-11-18 thorough hunt #236:** excluded slug phrase word `locked`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pending` substring — **hit 2026-11-18 thorough hunt #236:** excluded slug phrase word `pending`; regression above.
+- [x] (invalid) `TenantCatalogMigrationOrchestrator.StartAsync` — starts second migration when prior migration row still active — **cheap-disproof 2026-11-18 thorough hunt #236:** active-row guard returns `AlreadyActive` before suspend/insert.
+- [x] (valid-no-repro) `TenantSuspendCommandService.TrySuspendAsync` — suspend audit during active catalog migration — **cheap-disproof 2026-11-18 thorough hunt #236:** migration scope-freeze suspend is idempotent; no duplicate audit.
+
+- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug cancelled` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug cancelled elsewhere already exists` (monitor **#236**).
+- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug released` substring — locus: phrase scan; input: `Tenant slug released incorrectly already exists` (monitor **#236**).
+- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug reactivated` substring — locus: phrase scan; input: `Tenant slug reactivated automatically already exists` (monitor **#236**).
+- (candidate) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when verification stage never entered — locus: `VerificationPassedUtc` gate; input: admin complete after failed projection only (monitor reseed **#236**).
+- (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — approval when tenant suspended but not offboarded — locus: offboard prerequisite ~388–389; input: suspend then approve API (monitor reseed **#236**).
+
+2026-11-18 thorough hunt (hit #235): no rotation (`shouldRotate: false`). Cheap-disproof on five open `(candidate)` rows from monitor **#234**. Promoted `Tenant slug abandoned`, `Tenant slug unassigned`, and `Tenant slug failed` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `abandoned`, `unassigned`, and `failed`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_abandoned_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_unassigned_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_failed_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** migration complete clears post-start suspend including admin re-suspend after verification (`CompleteAsync` unsuspend gate ~173–186; regression `CompleteAsync_unsuspends_when_migration_applied_scope_freeze_suspend`; `docs/operations/TENANT_MIGRATION_FANOUT.md`), **valid-no-repro** double unsuspend skips duplicate audit (`TryUnsuspendAsync` returns `AlreadyInDesiredState` when `SuspendedUtc` null ~98–99; parity **#233** suspend idempotency). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **454/454** (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention abandoned, unassigned, or failed slug lifecycle wording as duplicate organization collisions.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug abandoned` substring — **hit 2026-11-18 thorough hunt #235:** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug unassigned` substring — **hit 2026-11-18 thorough hunt #235:** see zone diary above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug failed` substring — **hit 2026-11-18 thorough hunt #235:** see zone diary above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when admin suspend set after verification pass — **cheap-disproof 2026-11-18 thorough hunt #235:** see zone diary above.
+- [x] (valid-no-repro) `TenantUnsuspendCommandService.TryUnsuspendAsync` — unsuspend audit when tenant not suspended — **cheap-disproof 2026-11-18 thorough hunt #235:** see zone diary above.
+
+- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expired` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug expired elsewhere already exists` (monitor **#235**).
+- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug locked` substring — locus: phrase scan; input: `Tenant slug locked incorrectly already exists` (monitor **#235**).
+- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pending` substring — locus: phrase scan; input: `Tenant slug pending automatically already exists` (monitor **#235**).
+- (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` — starts second migration when prior migration row still active — locus: active-row guard; input: concurrent start API (monitor reseed **#235**).
+- (candidate) `TenantSuspendCommandService.TrySuspendAsync` — suspend audit during active catalog migration — locus: suspend while migration row active; input: admin suspend mid-migration (monitor reseed **#235**).
+
 
 2026-11-18 seed hunt (seed→hit #234): no rotation (`shouldRotate: false`). Picker `seedHunt` with header `(candidate)` rows from hit **#233**. Promoted `Tenant slug rejected`, `Tenant slug denied`, and `Tenant slug missing` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `IsTenantSlugPhraseExcludedWord` now rejects leading `rejected`, `denied`, and `missing`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_rejected_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_denied_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_missing_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** migration start before suspend completes (`StartAsync` calls `TrySuspendAsync` before insert; regression `StartAsync_suspends_before_inserting_migration_record`), **valid-no-repro** erasure approve audit on retry (`TryApproveErasureAsync` returns `true` when `TenantErasureApprovedUtc` already set ~391–392; regression `TryApproveErasureAsync_returns_success_without_duplicate_audit_when_already_approved_retry`). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **449/449** (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention rejected, denied, or missing slug lifecycle wording as duplicate organization collisions.
 
@@ -22806,11 +23247,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.StartAsync` — starts migration when tenant suspended before atomic suspend completes — **cheap-disproof 2026-11-18 seed hunt #234:** scope-freeze suspend precedes migration insert.
 - [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — approval audit when erasure already approved — **cheap-disproof 2026-11-18 seed hunt #234:** idempotent approve short-circuit before audit append.
 
-- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug abandoned` substring — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug abandoned elsewhere already exists` (monitor **#234**).
-- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug unassigned` substring — locus: phrase scan; input: `Tenant slug unassigned incorrectly already exists` (monitor **#234**).
-- (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug failed` substring — locus: phrase scan; input: `Tenant slug failed automatically already exists` (monitor **#234**).
-- (candidate) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when admin suspend set after verification pass — locus: unsuspend gate ~173–186; input: admin suspend between verify and complete (monitor reseed **#234**).
-- (candidate) `TenantUnsuspendCommandService.TryUnsuspendAsync` — unsuspend audit when tenant not suspended — locus: idempotent unsuspend path; input: double unsuspend API call (monitor reseed **#234**).
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug abandoned` substring — **hit 2026-11-18 thorough hunt #235:** excluded slug phrase word `abandoned`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug unassigned` substring — **hit 2026-11-18 thorough hunt #235:** excluded slug phrase word `unassigned`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug failed` substring — **hit 2026-11-18 thorough hunt #235:** excluded slug phrase word `failed`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when admin suspend set after verification pass — **cheap-disproof 2026-11-18 thorough hunt #235:** post-`StartedUtc` suspend cleared on complete by design; regression `CompleteAsync_unsuspends_when_migration_applied_scope_freeze_suspend`.
+- [x] (valid-no-repro) `TenantUnsuspendCommandService.TryUnsuspendAsync` — unsuspend audit when tenant not suspended — **cheap-disproof 2026-11-18 thorough hunt #235:** `AlreadyInDesiredState` when `SuspendedUtc` null ~98–99; parity **#233** suspend idempotency.
 
 2026-11-18 seed hunt (seed→hit #233): no rotation (`shouldRotate: false`). Picker `seedHunt` with ledger header `(candidate)` rows not in picker JSON. Promoted `Tenant slug unknown`, `Tenant slug invalid`, and `Tenant slug orphaned` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#232**); `IsTenantSlugPhraseExcludedWord` now rejects leading `unknown`, `invalid`, and `orphaned`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_unknown_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_invalid_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_orphaned_substring_in_already_exists_message`. Cheap-disproof closed two reseed monitors — **valid-no-repro** catalog attach acknowledge without projection refresh (`AcknowledgeCatalogAttachDetachAsync` gates on `ScopeFreeze`, not `ProjectionRefresh`; monitor misnamed `AcknowledgeAsync`), **valid-no-repro** repeat suspend audit (`TrySuspendAsync` returns `AlreadyInDesiredState` when `SuspendedUtc` set ~37–38; regression `TrySuspendAsync_is_idempotent_when_already_suspended`). Reseeded five follow-on `(candidate)` monitor rows below. Scoped filter **446/446** (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies generic already-exists errors that mention unknown, invalid, or orphaned slug lifecycle wording as duplicate organization collisions.
 
@@ -22941,7 +23382,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug deactivated` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug deactivated elsewhere already exists` (monitor hit **#225**).
 - [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug validated` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug validated incorrectly already exists` (monitor hit **#225**).
 - [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug converted` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug converted automatically already exists` (monitor hit **#225**).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — advances stage before `RefreshAsync` completes — locus: stage update ordering; input: refresh throws mid-call (monitor hit **#225** / proven ledger **2026-08-23**).
+- [x] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — advances stage before `RefreshAsync` completes — locus: stage update ordering; input: refresh throws mid-call (monitor hit **#225** / proven ledger **2026-08-23**).
 - [ ] (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — approval succeeds when tenant already offboarded — locus: quarantine guards; input: offboard then approve API (monitor hit **#225**).
 
 
@@ -23002,7 +23443,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug deleted` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug deleted incorrectly already exists` (monitor hit **#221**).
 - [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug duplicated` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug duplicated automatically already exists` (monitor hit **#221**).
 - [ ] (candidate) `TenantSuspendCommandService.TrySuspendAsync` — suspend on already-suspended tenant throws instead of idempotent outcome — locus: suspend guards; input: double suspend API call (monitor hit **#221**).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh proceeds when tenant offboarded mid-run — locus: offboard quarantine; input: erasure between stage update and refresh (monitor hit **#221** / hit **#215**).
+- [x] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh proceeds when tenant offboarded mid-run — locus: offboard quarantine; input: erasure between stage update and refresh (monitor hit **#221** / hit **#215**).
 
 
 2026-11-05 thorough hunt (hit #220): promoted `Tenant slug registered`, `Tenant slug updated`, and `Tenant slug imported` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#219**); `IsTenantSlugPhraseExcludedWord` now rejects leading `registered`, `updated`, and `imported`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_registered_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_updated_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_imported_substring_in_already_exists_message`; cheap-disproof closed two remaining open `(candidate)` rows from hit **#219** — **invalid** verification audit untrimmed failure text (`AppendPlatformAuditAsync` uses trimmed `normalizedError` from `publicProbe` ~63–66 / ~101), **invalid** provision preflight skips normalized organization match (`ResolveExistingTenantForProvisionAsync` queries `GetByNormalizedOrganizationNameAsync` with normalized key ~65–70 / ~266–277); reseeded five follow-on `(candidate)` monitor rows; scoped filter **414/414** Application + **9/9** Core `TenantTrialSeatPolicy` (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug registered/updated/imported phrasing as duplicate slug SQL conflicts when the message also contains already exists.
@@ -23518,11 +23959,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 224
-- **bugs-found:** 210
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-18
-- **last-bug:** 2026-11-18 — Tenant slug rejected/denied/missing prose duplicate-detector false positive
+- **last-hunt:** never
+- **last-bug:** never
 
 ### Hypotheses
 
@@ -23541,7 +23982,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-21 seed hunt (seed-only): re-read tenancy zone after provision guard series; cheap-disproof closed `TenantWorkspaceScopeGuard` offboard success (`TenantErasureQuarantineMiddleware` blocks authenticated tenant APIs); no new hunt-ready row promoted (`state-machine-gap` saturated); added five `(candidate)` rows for next passes.
 
 2026-10-21 seed hunt (seed→hit): promoted marketing first-touch after nav settings without erasure re-read; pre-marketing `GetByIdAsync` guard; regression `ProvisionAsync_skips_first_touch_persist_when_offboard_completes_after_nav_settings_before_marketing`; cheap-disproof closed migration complete audit and bootstrap catch metric/audit ordering candidates; 238 scoped tenancy tests passed.
-- **last-bug:** 2026-10-21 — trial signup failure audit after failure metric without post-metric erasure re-read
+- **last-bug:** never
 
 2026-10-21 seed hunt (seed→hit): promoted nav settings upsert race after policy pack seed; pre-settings erasure re-read; regression `ProvisionAsync_skips_nav_settings_when_offboard_completes_after_policy_pack_seed_before_settings`; 237 scoped tenancy tests passed.
 
@@ -24116,20 +24557,58 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
-**Hunts:** 22 · **Bugs found:** 12 · **Consecutive dry hunts:** 1
+**Hunts:** 23 · **Bugs found:** 12 · **Consecutive dry hunts:** 2
 
+2026-11-19 thorough hunt (dry #255): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five open `(candidate)` rows from hunt **#242**. **invalid** null nested collection on `OperationalSecurityFindingIngestRequestItem` beyond `Metadata` (the item type has no other collection property). **valid-no-repro** concurrent catalog nullability walks (`ApiRequestBodyTypeCatalog` and the guard each keep a thread-local `NullabilityInfoContext`; regression `ContainsNullCollectionElement_rejects_null_elements_when_calls_overlap`). **valid-no-repro** empty findings `items` array (the filter still walks the list; an empty enumerator has no null element). **invalid** dictionary-of-lists on a cataloged `[FromBody]` DTO (no such property under `ArchLucid.Api`). **invalid** `ImmutableArray<T>` list property (no cataloged immutable-array body property; `VisitCollection` already walks `IEnumerable`). Reseeded five pass-**255** `(candidate)` rows on different mechanisms. Scoped filter **41/41** (`RunAnalyzers=false`, Release). No production change this pass. Private beta: n/a.
 
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitObject` — null nested collection inside ingest item beyond `Metadata` — **cheap-disproof 2026-11-19 thorough hunt #255:** only `Metadata` is a collection on the ingest item.
+- [x] (valid-no-repro) `ApiRequestBodyTypeCatalog.CollectionPropertyAllowsNull` — concurrent catalog walks during startup plus live guard — **cheap-disproof 2026-11-19 thorough hunt #255:** thread-local nullability context; regression above.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — ingest item with empty `items` array skips element walk — **cheap-disproof 2026-11-19 thorough hunt #255:** empty list is walked and accepted.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — dictionary-of-lists property on cataloged DTO — **cheap-disproof 2026-11-19 thorough hunt #255:** no cataloged dictionary-of-collection body property.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ImmutableArray<T>` element null in list property — **cheap-disproof 2026-11-19 thorough hunt #255:** no cataloged immutable-array body property.
+
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.IsLeafType` — `JsonElement` saved-view `Filters` is reflected instead of treated as a leaf — locus: `IsLeafType`; input: create saved view whose `filters` document is a JSON object (monitor **#255**).
+- [ ] (candidate) `ApiRequestNullCollectionProbeFactory.TryCreateWithNullCollectionElement` — `[FromBody]` types with no public parameterless constructor are omitted from the architecture probe — locus: `GetConstructor(Type.EmptyTypes)`; input: primary-constructor request record (monitor **#255**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — nested enumerable element skipped when nullability has no element type and no generic arguments — locus: nested-collection branch ~258–271; input: non-generic `IEnumerable` property whose elements are lists (monitor **#255**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — first invalid `[FromBody]` returns before a second body parameter is checked — locus: return after `context.Result`; input: action with two body parameters (monitor **#255**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.AllowsNullElements` — any nullable generic argument allows null elements — locus: `GenericTypeArguments` loop; input: `List<KeyValuePair<string, string?>>` body property if one is cataloged (monitor **#255**).
+
+- [x] (superseded) pass-**242** `(candidate)` queue — **superseded 2026-11-19 thorough hunt #255:** see hunt **#255** header and pass **#255** reseed.
+## Zone: api-request-null-collection-elements
+
+**Hunts:** 25 · **Bugs found:** 12 · **Consecutive dry hunts:** 3
+
+2026-11-19 thorough hunt (dry #258): no rotation (`shouldRotate: false`). Cheap-disproof closed the five pass-**256** `(candidate)` rows. **valid-no-repro** `JsonElement` saved-view `Filters` is reflected and only exposes `ValueKind` (controller still requires the element to be present). **invalid** architecture probe skips types with no public parameterless constructor (no primary-constructor `[FromBody]` request record in `ArchLucid.Api`). **invalid** nested enumerable skip when nullability has no element type (no non-generic `IEnumerable` body property). **invalid** dictionary value passed to `VisitObject` (no cataloged dictionary whose value type is a collection). **invalid** `AllowsNullElements` on `List<KeyValuePair<string, string?>>` (no such body property). Reseeded five pass-**258** `(candidate)` rows. Scoped filter **41/41** (`RunAnalyzers=false`, Release, `--no-build`). No production change. Private beta: n/a.
+
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.IsLeafType` — `JsonElement` saved-view `Filters` is reflected instead of treated as a leaf — **cheap-disproof 2026-11-19 thorough hunt #258:** `ValueKind` only.
+- [x] (invalid) `ApiRequestNullCollectionProbeFactory.TryCreateWithNullCollectionElement` — `[FromBody]` types with no public parameterless constructor are omitted from the architecture probe — **cheap-disproof 2026-11-19 thorough hunt #258:** no primary-constructor request record.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — nested enumerable element skipped when nullability has no element type and no generic arguments — **cheap-disproof 2026-11-19 thorough hunt #258:** no non-generic `IEnumerable` body property.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — dictionary value whose runtime type is a collection is passed to `VisitObject` — **cheap-disproof 2026-11-19 thorough hunt #258:** no cataloged dictionary-of-collection property.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.AllowsNullElements` — any nullable generic argument allows null elements — **cheap-disproof 2026-11-19 thorough hunt #258:** no cataloged `List<KeyValuePair<string, string?>>` property.
+
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.IsLeafType` — `JsonNode` / `JsonArray` is not a leaf, so a `JsonArray` runtime value is enumerated — locus: `IsLeafType` and `IsEnumerableCollection`; input: `[FromBody]` property typed `JsonNode` whose JSON value is an array (monitor **#258**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitObject` — `SkipNullCollectionElementValidationAttribute` skips a collection property — locus: attribute check before `GetValue`; input: a cataloged body property that carries the attribute (monitor **#258**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement` — null root returns false before the filter's null-body skip — locus: `if (root is null) return false`; input: `[FromBody]` parameter bound as null (monitor **#258**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitObject` — public fields are not walked — locus: `GetProperties` only; input: a `[FromBody]` type with a public collection field (monitor **#258**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.IsEnumerableCollection` — `ReadOnlyMemory<T>` and `Memory<T>` are not treated as collections — locus: `IEnumerable` assignability; input: a body property of type `ReadOnlyMemory<byte>` (monitor **#258**).
+2026-11-19 seed hunt (seed-only #256): no rotation (`shouldRotate: false`). The picker `seedHunt` flag was true because the pass-**255** candidate rows sat in a `## Zone:` block that does not contain `- **id:**`, so they were not loaded. Reread the filter, guard, and catalog. No row met the hunt-ready bar. `OperationalSecurityFindingIngestRequestItem` still has only `Metadata` as a collection. No `[FromBody]` action takes two body parameters. No cataloged dictionary-of-collection, `ImmutableArray<T>`, non-generic `IEnumerable`, or `List<KeyValuePair<string, string?>>` property. `JsonElement` saved-view filters are reflected (not a leaf) and only expose `ValueKind`. Seeded five `(candidate)` rows in this id-bearing section. Scoped filter **41/41** on this tree in hunt **#255** (`RunAnalyzers=false`, Release); no production change. Private beta: n/a.
+
+- [x] (superseded) `ApiRequestNullCollectionElementsGuard.IsLeafType` — `JsonElement` saved-view `Filters` is reflected instead of treated as a leaf — locus: `IsLeafType`; input: create saved view whose `filters` document is a JSON object (monitor **#256**).
+- [x] (superseded) `ApiRequestNullCollectionProbeFactory.TryCreateWithNullCollectionElement` — `[FromBody]` types with no public parameterless constructor are omitted from the architecture probe — locus: `GetConstructor(Type.EmptyTypes)`; input: primary-constructor request record (monitor **#256**).
+- [x] (superseded) `ApiRequestNullCollectionElementsGuard.VisitCollection` — nested enumerable element skipped when nullability has no element type and no generic arguments — locus: nested-collection branch ~258–271; input: non-generic `IEnumerable` property whose elements are lists (monitor **#256**).
+- [x] (superseded) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — dictionary value whose runtime type is a collection is passed to `VisitObject` — locus: `VisitObject(entryValue)`; input: cataloged dictionary whose value type implements `IEnumerable` and is not `string` or `byte[]` (monitor **#256**).
+- [x] (superseded) `ApiRequestNullCollectionElementsGuard.AllowsNullElements` — any nullable generic argument allows null elements — locus: `GenericTypeArguments` loop; input: `List<KeyValuePair<string, string?>>` body property if one is cataloged (monitor **#256**).
 2026-11-18 thorough hunt (hit #242): no rotation (`shouldRotate: false`). Failing repro on seed **#137** monitor plus rediscovered hit **#66** regression — shared static `NullabilityInfoContext` threw `ArgumentException` when overlapping `[FromBody]` guard walks hit different members concurrently (`ContainsNullCollectionElement_rejects_null_elements_when_calls_overlap`); restored thread-local context on `ApiRequestNullCollectionElementsGuard` and `ApiRequestBodyTypeCatalog`. Cheap-disproof closed two open `(candidate)` rows seeded at **#137** — **valid-no-repro** null `OperationalSecurityFindingIngestRequestItem.Metadata` dictionary rejected (`ContainsNullCollectionElement_returns_true_for_null_metadata_dictionary_on_operational_security_ingest_item`); **valid-no-repro** nullable dictionary values in ingest `Metadata` allowed (`ContainsNullCollectionElement_allows_null_dictionary_values_on_operational_security_ingest_item_metadata`; parity existing nullable-value test). Seeded five follow-on `(candidate)` monitor rows; scoped **41/41** picker filter tests (`RunAnalyzers=false`). Private beta: Concurrent JSON body requests no longer fail with HTTP 500 from the collection-null filter; bodies are validated and `metadata: null` on findings ingest is rejected as intended.
 
 - [x] (proven) `ApiRequestNullCollectionElementsGuard` — shared `NullabilityInfoContext` throws when overlapping requests read collection nullability — **hit 2026-11-18 thorough hunt #242:** thread-local context restored (re-hit **#66**); regression `ContainsNullCollectionElement_rejects_null_elements_when_calls_overlap`.
 - [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.VisitObject` — null `Metadata` dictionary on a list element — **cheap-disproof 2026-11-18 thorough hunt #242:** regression above; seed **#137**.
 - [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.DictionaryValueAllowsNull` — null value in `Metadata` (`Dictionary<string, string?>`) rejected — **cheap-disproof 2026-11-18 thorough hunt #242:** nullable value type allows null; regression above; seed **#137**.
 
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitObject` — null nested collection inside ingest item beyond `Metadata` — locus: element walk; input: future optional list property on `OperationalSecurityFindingIngestRequestItem` (monitor seed **#242**).
-- [ ] (candidate) `ApiRequestBodyTypeCatalog.CollectionPropertyAllowsNull` — concurrent catalog walks during startup plus live guard — locus: shared nullability context; input: parallel architecture test plus request (monitor seed **#242** / re-hit **#66**).
-- [ ] (candidate) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — ingest item with empty `items` array skips element walk — locus: empty collection; input: `{ "items": [] }` (monitor seed **#242**).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — dictionary-of-lists property on cataloged DTO — locus: KVP value walk; input: when catalog gains dictionary-of-collection body property (monitor seed **#242** / seed-only **#137**).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ImmutableArray<T>` element null in list property — locus: enumerable detection; input: catalog adds immutable collection DTO property (monitor seed **#242**).
+- [x] (superseded) `ApiRequestNullCollectionElementsGuard.VisitObject` — null nested collection inside ingest item beyond `Metadata` — locus: element walk; input: future optional list property on `OperationalSecurityFindingIngestRequestItem` (monitor seed **#242**). **Closed 2026-11-19 thorough hunt #255.**
+- [x] (superseded) `ApiRequestBodyTypeCatalog.CollectionPropertyAllowsNull` — concurrent catalog walks during startup plus live guard — locus: shared nullability context; input: parallel architecture test plus request (monitor seed **#242** / re-hit **#66**). **Closed 2026-11-19 thorough hunt #255.**
+- [x] (superseded) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — ingest item with empty `items` array skips element walk — locus: empty collection; input: `{ "items": [] }` (monitor seed **#242**). **Closed 2026-11-19 thorough hunt #255.**
+- [x] (superseded) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — dictionary-of-lists property on cataloged DTO — locus: KVP value walk; input: when catalog gains dictionary-of-collection body property (monitor seed **#242** / seed-only **#137**). **Closed 2026-11-19 thorough hunt #255.**
+- [x] (superseded) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ImmutableArray<T>` element null in list property — locus: enumerable detection; input: catalog adds immutable collection DTO property (monitor seed **#242**). **Closed 2026-11-19 thorough hunt #255.**
 2026-11-08 seed hunt (seed-only): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hypothesis list was empty after dry **#67**. Reread the filter, guard, and catalog. Did not reseed the three rows closed in **#67** (opaque `JsonElement` saved-view filters, coalesced `constraints` null, `[ApiController]` null body). No `[FromBody]` dictionary-of-collections, `JsonObject`, or positional request record turned up. One reachable shape is not in the architecture catalog because `EnumerateCollectionPropertyPaths` stops at a collection and does not enter the element type: `OperationalSecurityFindingIngestRequest.Items` (`POST` findings ingest) contains `OperationalSecurityFindingIngestRequestItem.Metadata` (`Dictionary<string, string?>`, init-only, no coalesce). No row was promoted. Private beta: n/a.
 
 
@@ -24333,13 +24812,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 22
-- **bugs-found:** 12
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-11-08 — shared nullability context threw when overlapping body checks ran
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 - [x] (proven) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null string inside nested `List<List<string>>` property — **hit 2026-10-27 seed hunt #343:** nested enumerable walk used `GenericTypeArguments[0]` when `ElementType` was null; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`.
 

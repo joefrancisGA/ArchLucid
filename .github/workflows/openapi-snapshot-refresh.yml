@@ -113,12 +113,12 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Install UI workspace toolchain (TypeScript and generator)
+      - name: Install pinned UI type-generation dependencies
         if: >-
           github.event_name != 'workflow_dispatch'
           || inputs.regenerate_ui_api_types
         working-directory: archlucid-ui
-        run: npm ci --no-audit --no-fund
+        run: npm ci --ignore-scripts
 
       - name: Regenerate OpenAPI snapshot (+ UI api-types)
         env:

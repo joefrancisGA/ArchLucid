@@ -21,6 +21,7 @@ import {
   buildRunScopedAuditExportParams,
   RUN_SCOPED_AUDIT_EXPORT_SCOPE_HELPER,
 } from "@/lib/runs/run-scoped-audit-export";
+import { RUN_SCOPED_AUDIT_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE } from "@/lib/runs/run-scoped-audit-export-finalize-not-load-failure-copy";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
@@ -162,13 +163,21 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
         {busy ? "Exporting audit trail…" : "Download audit trail (CSV)"}
       </Button>
       {sealedManifestBlockedReason !== null ? (
-        <p
-          role="alert"
-          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="run-scoped-audit-export-blocked-reason"
-        >
-          {sealedManifestBlockedReason}
-        </p>
+        <>
+          <p
+            role="alert"
+            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="run-scoped-audit-export-blocked-reason"
+          >
+            {sealedManifestBlockedReason}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="run-scoped-audit-export-finalize-not-load-failure"
+          >
+            {RUN_SCOPED_AUDIT_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE}
+          </p>
+        </>
       ) : blockedReason !== null ? (
         <p
           role="alert"

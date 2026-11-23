@@ -20,6 +20,7 @@ import { downloadTerraformAdvisoryExportZip } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { showError } from "@/lib/toast";
+import { EXPORT_TERRAFORM_ADVISORY_FINALIZE_NOT_LOAD_FAILURE_LINE } from "@/lib/exports/export-terraform-advisory-finalize-not-load-failure-copy";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { terraformAdvisoryExportMutationBlockedReason } from "@/lib/runs/terraform-advisory-export-mutation-blocked-reason";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -107,13 +108,21 @@ export function ExportTerraformAdvisoryButton(props: ExportTerraformAdvisoryButt
           Export to Terraform
         </Button>
         {sealedManifestBlockedReason !== null ? (
-          <p
-            role="alert"
-            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="export-terraform-advisory-blocked-reason"
-          >
-            {sealedManifestBlockedReason}
-          </p>
+          <>
+            <p
+              role="alert"
+              className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="export-terraform-advisory-blocked-reason"
+            >
+              {sealedManifestBlockedReason}
+            </p>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="export-terraform-advisory-finalize-not-load-failure"
+            >
+              {EXPORT_TERRAFORM_ADVISORY_FINALIZE_NOT_LOAD_FAILURE_LINE}
+            </p>
+          </>
         ) : null}
       </div>
       <AlertDialog

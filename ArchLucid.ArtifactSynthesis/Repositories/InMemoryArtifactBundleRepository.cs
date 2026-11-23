@@ -7,73 +7,56 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.ArtifactSynthesis.Repositories;
 
 public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
-
 {
     private const int MaxEntries = 500;
 
-
     private readonly Lock _lock = new();
-
-
     private readonly List<ArtifactBundle> _store = [];
-
 
     public Task SaveAsync(
         ArtifactBundle bundle,
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
-
     {
+        ArgumentNullException.ThrowIfNull(bundle);
         ct.ThrowIfCancellationRequested();
 
         _ = connection;
-
         _ = transaction;
 
         lock (_lock)
-
         {
-            _store.Add(bundle);
-
+            // Persist a detached snapshot rather than a caller-owned mutable object.
+            _store.Add(CloneBundle(bundle, loadArtifactBodies: true));
             if (_store.Count > MaxEntries)
-
                 _store.RemoveRange(0, _store.Count - MaxEntries);
         }
 
         return Task.CompletedTask;
     }
 
-
     public Task<ArtifactBundle?> GetByManifestIdAsync(
         ScopeContext scope,
         Guid manifestId,
         bool loadArtifactBodies,
         CancellationToken ct)
-
     {
-        _ = ct;
-
-        ArtifactBundle? result;
+        ArgumentNullException.ThrowIfNull(scope);
+        ct.ThrowIfCancellationRequested();
 
         lock (_lock)
-
         {
-            result = _store
-                .Where(x => x.ManifestId == manifestId &&
-                    x.TenantId == scope.TenantId &&
-                    x.WorkspaceId == scope.WorkspaceId &&
-                    x.ProjectId == scope.ProjectId)
+            ArtifactBundle? result = _store
+                .Where(x => x.ManifestId == manifestId
+                    && x.TenantId == scope.TenantId
+                    && x.WorkspaceId == scope.WorkspaceId
+                    && x.ProjectId == scope.ProjectId)
                 .OrderBy(x => x.CreatedUtc)
                 .LastOrDefault();
+
+            return Task.FromResult(result is null ? null : CloneBundle(result, loadArtifactBodies));
         }
-
-        if (result is null)
-            return Task.FromResult<ArtifactBundle?>(null);
-
-        return loadArtifactBodies
-            ? Task.FromResult<ArtifactBundle?>(result)
-            : Task.FromResult<ArtifactBundle?>(WithBodiesStrippedSnapshot(result));
     }
 
     public Task<ArtifactBundle?> GetByBundleIdInScopeAsync(
@@ -85,22 +68,16 @@ public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
 
-        ArtifactBundle? result;
         lock (_lock)
         {
-            result = _store.LastOrDefault(x =>
-                x.BundleId == bundleId &&
-                x.TenantId == scope.TenantId &&
-                x.WorkspaceId == scope.WorkspaceId &&
-                x.ProjectId == scope.ProjectId);
+            ArtifactBundle? result = _store.LastOrDefault(x =>
+                x.BundleId == bundleId
+                && x.TenantId == scope.TenantId
+                && x.WorkspaceId == scope.WorkspaceId
+                && x.ProjectId == scope.ProjectId);
+
+            return Task.FromResult(result is null ? null : CloneBundle(result, loadArtifactBodies));
         }
-
-        if (result is null)
-            return Task.FromResult<ArtifactBundle?>(null);
-
-        return loadArtifactBodies
-            ? Task.FromResult<ArtifactBundle?>(result)
-            : Task.FromResult<ArtifactBundle?>(WithBodiesStrippedSnapshot(result));
     }
 
     public async Task<SynthesizedArtifact?> GetArtifactByIdAsync(
@@ -108,20 +85,13 @@ public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
         Guid manifestId,
         Guid artifactId,
         CancellationToken ct)
-
     {
         ArtifactBundle? bundle = await GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: true, ct);
-
         return bundle?.Artifacts.FirstOrDefault(x => x.ArtifactId == artifactId);
     }
 
-
-    /// <summary>
-    ///     Returns a detached copy whose artifact bodies are empty so callers never mutate stored bundles.
-    /// </summary>
-    private static ArtifactBundle WithBodiesStrippedSnapshot(ArtifactBundle source)
-    {
-        return new ArtifactBundle
+    private static ArtifactBundle CloneBundle(ArtifactBundle source, bool loadArtifactBodies) =>
+        new()
         {
             TenantId = source.TenantId,
             WorkspaceId = source.WorkspaceId,
@@ -130,26 +100,37 @@ public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
             RunId = source.RunId,
             ManifestId = source.ManifestId,
             CreatedUtc = source.CreatedUtc,
-            Trace = source.Trace,
-            Artifacts = source.Artifacts.ConvertAll(CloneArtifactWithEmptyBody)
+            Status = source.Status,
+            Trace = CloneTrace(source.Trace),
+            Artifacts = source.Artifacts.ConvertAll(artifact => CloneArtifact(artifact, loadArtifactBodies))
         };
-    }
 
-    private static SynthesizedArtifact CloneArtifactWithEmptyBody(SynthesizedArtifact a)
-    {
-        return new SynthesizedArtifact
+    private static SynthesisTrace CloneTrace(SynthesisTrace source) =>
+        new()
         {
-            ArtifactId = a.ArtifactId,
-            RunId = a.RunId,
-            ManifestId = a.ManifestId,
-            CreatedUtc = a.CreatedUtc,
-            ArtifactType = a.ArtifactType,
-            Name = a.Name,
-            Format = a.Format,
-            Content = string.Empty,
-            ContentHash = a.ContentHash,
-            Metadata = new Dictionary<string, string>(a.Metadata, StringComparer.Ordinal),
-            ContributingDecisionIds = [.. a.ContributingDecisionIds]
+            TraceId = source.TraceId,
+            RunId = source.RunId,
+            ManifestId = source.ManifestId,
+            CreatedUtc = source.CreatedUtc,
+            GeneratorsUsed = [.. source.GeneratorsUsed],
+            SourceDecisionIds = [.. source.SourceDecisionIds],
+            Notes = [.. source.Notes]
         };
-    }
+
+    private static SynthesizedArtifact CloneArtifact(SynthesizedArtifact source, bool loadArtifactBodies) =>
+        new()
+        {
+            ArtifactId = source.ArtifactId,
+            RunId = source.RunId,
+            ManifestId = source.ManifestId,
+            CreatedUtc = source.CreatedUtc,
+            ArtifactType = source.ArtifactType,
+            Name = source.Name,
+            Format = source.Format,
+            Content = loadArtifactBodies ? source.Content : string.Empty,
+            ContentHash = source.ContentHash,
+            Status = source.Status,
+            Metadata = new Dictionary<string, string>(source.Metadata, source.Metadata.Comparer),
+            ContributingDecisionIds = [.. source.ContributingDecisionIds]
+        };
 }

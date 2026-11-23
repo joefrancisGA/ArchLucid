@@ -22,7 +22,9 @@ export function parseRetryAfterHeader(headerValue: string | null): number | null
   if (/^\d+$/.test(trimmed)) {
     const asInt = Number.parseInt(trimmed, 10);
 
-    if (!Number.isNaN(asInt) && asInt >= 0) {
+    // Very large header values can overflow parseInt to Infinity or lose
+    // integer precision; never propagate nonfinite/rounded retry metadata.
+    if (Number.isSafeInteger(asInt) && asInt >= 0) {
       return asInt;
     }
 

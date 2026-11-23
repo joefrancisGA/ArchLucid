@@ -38,10 +38,7 @@ public sealed class TenantBrandingAdminService(
             await brandingProfileRepository.TryGetDraftAsync(scope.TenantId, cancellationToken);
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
-        Guid profileId = existingDraft?.BrandingProfileId ?? Guid.NewGuid();
-        int version = existingDraft?.Version ?? 1;
-
-        TenantBrandingProfileRecord draft = MapDraftPutRequest(scope.TenantId, profileId, version, request, actor, utcNow);
+        TenantBrandingProfileRecord draft = MapDraftPutRequest(scope.TenantId, existingDraft, request, actor, utcNow);
 
         await brandingProfileRepository.ReplaceDraftAsync(draft, cancellationToken);
 
@@ -242,14 +239,13 @@ public sealed class TenantBrandingAdminService(
 
     private static TenantBrandingProfileRecord MapDraftPutRequest(
         Guid tenantId,
-        Guid profileId,
-        int version,
+        TenantBrandingProfileRecord? existingDraft,
         TenantBrandingDraftPutRequest request,
         string actor,
         DateTime utcNow) =>
         new()
         {
-            BrandingProfileId = profileId,
+            BrandingProfileId = existingDraft?.BrandingProfileId ?? Guid.NewGuid(),
             TenantId = tenantId,
             CompanyDisplayName = SanitizeCompanyName(request.CompanyDisplayName),
             CompanyLegalName = SanitizeCompanyName(request.CompanyLegalName),
@@ -271,10 +267,10 @@ public sealed class TenantBrandingAdminService(
             WebsiteUrl = SanitizeHttpsUrl(request.WebsiteUrl),
             SupportUrl = SanitizeHttpsUrl(request.SupportUrl),
             BrandingStatus = BrandingProfileStatus.Draft,
-            Version = version,
-            CreatedUtc = utcNow,
+            Version = existingDraft?.Version ?? 1,
+            CreatedUtc = existingDraft?.CreatedUtc ?? utcNow,
             UpdatedUtc = utcNow,
-            CreatedBy = actor,
+            CreatedBy = existingDraft is null ? actor : existingDraft.CreatedBy,
             UpdatedBy = actor,
             CoBrandingEnabled = request.CoBrandingEnabled,
         };

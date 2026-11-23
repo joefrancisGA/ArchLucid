@@ -112,6 +112,11 @@ internal static class RealAgentExecutorSingleHandlerExecution
                         new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
                         new KeyValuePair<string, object?>("outcome", "success"));
                 }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    // Caller cancellation is not a handler failure or a degraded result.
+                    throw;
+                }
                 catch (Exception ex)
                 {
                     if (RealAgentExecutorHandlerResiliencePipeline.ShouldUseDegradedFallback(task, resilienceOptions)

@@ -1,0 +1,62 @@
+{
+  "caution": "No cross-revision line mapping; 900-commit historical baseline is preserved as PARTIAL, and new GitHub verified-subset numbers are not summable without reconciliation.",
+  "defect_observation_sum_not_distinct": 877,
+  "events": 5741,
+  "legacy_900_snapshot_count": 79,
+  "legacy_900_snapshot_last": {
+    "as_of_et": "Nov 22, 2026, 9:43:27 AM EST",
+    "as_of_utc": "2026-11-22 14:43:27.293000+00:00",
+    "coverage": "Partial. Git-verified evidence with earlier unrecorded review spans excluded.",
+    "defects_reported": 463,
+    "density_per_kloc_reported": 1.3479207667136353,
+    "evidence_reference": "/Aspects_2026-11-22_Manual_0932_Evidence.json",
+    "excel_row": 84,
+    "head_sha": "15ac3b9abeff23e4fa8cb7a16027bf9b17211251",
+    "oldest_sha": "6252805a908f5bf0413bb40c68cb546013ff1843",
+    "provenance": "historical_workbook_partial_snapshot",
+    "sma_25_reported": 1.3468285467463081,
+    "unique_loc_reported": 343492,
+    "window_first_parent_commits": 900
+  },
+  "missing_incremental_loc": 30,
+  "pinned_single_file_spans_parsed_not_git_verified": 4511,
+  "provisional_600_series_last": {
+    "cumulative_defects": 491,
+    "cumulative_loc": 343818,
+    "defects": 1,
+    "defects_per_kloc_reported": 1.428081135949834,
+    "new_unique_loc": 0,
+    "observation": 600,
+    "phase": "Fix pending merge",
+    "provenance": "provisional_600_series_workbook",
+    "review_or_defect_id": "ASPECTS-2026-11-22-ENTERPRISE-SEAT-IGNORED-CANCELLATION",
+    "sma_25_reported": 1.3940221717423011,
+    "source": "ArchLucid_Aspects_600_Updated_Evidence.xlsx",
+    "source_excel_row": 601,
+    "source_link": "https://github.com/joefrancisGA/ArchLucid/pull/7775"
+  },
+  "provisional_600_series_observations": 600,
+  "provisional_700_series_last": {
+    "cumulative_defects": 491,
+    "cumulative_loc": 343818,
+    "defects_per_kloc": 1.428081135949834,
+    "observation": 700,
+    "sma_25": 1.394022171742301
+  },
+  "provisional_700_series_observations": 700,
+  "provisional_700_source": "100 preceding historical workbook rows back-projected from the 600 workbook first series counter, followed by original 600 series. Provisional; 900-window membership cannot be inferred from these cumulative counters.",
+  "reported_incremental_loc_known_sum_not_union": 402314,
+  "reported_review_loc_occurrences": 443456,
+  "schema_version": 1,
+  "source": {
+    "library_file_id": "file_00000000731081f58e9c07a7770f2925",
+    "name": "ArchLucid_Defect_Density_Trend_repaired.xlsx",
+    "review_sheet": "Review evidence",
+    "rows": [
+      7,
+      5747
+    ],
+    "sha256": "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787"
+  },
+  "zero_defect_reviews": 4864
+}

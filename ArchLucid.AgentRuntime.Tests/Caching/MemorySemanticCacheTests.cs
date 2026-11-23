@@ -10,6 +10,26 @@ namespace ArchLucid.AgentRuntime.Tests.Caching;
 [Trait("Category", "Unit")]
 public sealed class MemorySemanticCacheTests
 {
+    [Fact]
+    public async Task Canceled_operations_do_not_read_write_or_remove()
+    {
+        MutableOptionsMonitor<LlmCompletionCacheOptions> options =
+            new(new LlmCompletionCacheOptions { TTLSeconds = 60, MaxEntries = 16 });
+        using MemorySemanticCache cache = new(
+            new MemoryCache(new MemoryCacheOptions { SizeLimit = 16 }), options);
+        await cache.SetCachedResponseAsync("key", "value", CancellationToken.None);
+        using CancellationTokenSource cancellation = new();
+        cancellation.Cancel();
+
+        Func<Task> read = async () => await cache.GetCachedResponseAsync("key", cancellation.Token);
+        Func<Task> write = () => cache.SetCachedResponseAsync("key", "changed", cancellation.Token);
+        Func<Task> remove = () => cache.RemoveCachedResponseAsync("key", cancellation.Token);
+        await read.Should().ThrowAsync<OperationCanceledException>();
+        await write.Should().ThrowAsync<OperationCanceledException>();
+        await remove.Should().ThrowAsync<OperationCanceledException>();
+        (await cache.GetCachedResponseAsync("key", CancellationToken.None)).Should().Be("value");
+    }
+
     [SkippableFact]
     public async Task Get_returns_null_when_missing()
     {

@@ -6,6 +6,62 @@
 # ArchLucid changelog
 
 
+## 2026-11-22 - Score lift round 114 (batch 79): Hub overview partial, golden primary, explorer combined, digests subscription
+
+**Outcome.** Resource hub overview partial-capture band names thin capture versus failed hub read. Golden manifest buyer-primary button carries server Markdown finalize discipline. Infrastructure explorer combined category and name-prefix filter exposes mounted not-load-failure test id. Digests browse subscription-list-only empty mounts not-load-failure test id.
+
+**Surfaces.** Resource hub client, golden manifest export menu, resources explorer, digests browse content, honesty and mounted contract tests.
+
+## 2026-11-22 - Score lift round 113 (batch 78): Hub audit/terraform/overview, digests setup empty
+
+**Outcome.** Resource hub audit degraded, terraform not mapped, and overview audit unavailable name stored snapshot gaps versus hub load failure. Digests browse setup empty exposes mounted not-load-failure test id.
+
+**Surfaces.** Resource hub client, digests browse content, honesty and mounted contract tests.
+
+## 2026-11-22 - Score lift round 112 (batch 77): Resource hub tabs, digests delivery empty
+
+**Outcome.** Resource hub drift, diagram, and remediation empty states name stored snapshot gaps versus hub load failure. Digests browse delivery attempts empty exposes mounted not-load-failure test id.
+
+**Surfaces.** Resource hub client, digests browse detail panel, honesty and mounted contract tests.
+
+## 2026-11-22 - Score lift round 111 (batch 76): Server manifest export, hub config, compare partial capture, connection scope
+
+**Outcome.** Golden manifest select menu names server Markdown finalize gate versus manifest read failure. Resource hub configuration empty names stored snapshot gap versus hub load failure. Compare quality-delta partial inventory names partial capture versus failed compare read. Connection status pinned subscription scope exposes mounted not-load-failure test id.
+
+**Surfaces.** Golden manifest export menu, resource hub client, compare quality delta footnote, connection status dashboard, honesty and mounted contract tests.
+
+## 2026-11-22 - Score lift round 110 (batch 75): Manifest bundle, review DOCX, Terraform advisory, connection category empty
+
+**Outcome.** Manifest bundle ZIP names unsealed finalize gate versus load failure. Architecture review DOCX blocked state adds format-specific finalize discipline beside primary export copy. Terraform advisory export names unsealed gate versus failed read. Connection status category filter empty exposes mounted not-load-failure test id in footer.
+
+**Surfaces.** Run detail deliverables exports, Terraform advisory export button, connection status dashboard, honesty and mounted contract tests.
+
+## 2026-11-22 - Score lift round 109 (batch 74): Evidence bundle, consulting exports, audit export, reviews hub collection
+
+**Outcome.** Evidence bundle download names unsealed finalize gate versus load failure. Consulting and whitelabel DOCX exports name finalize discipline beside blocked reasons. Run-scoped audit export names unsealed gate versus failed deliverables read. Reviews hub open-gate collection blocker uses reviews-specific not-load-failure copy.
+
+**Surfaces.** Run detail deliverables exports, consulting DOCX export button, whitelabel consulting export, run scoped audit export, reviews hub collection blocker host, honesty and mounted contract tests.
+
+## 2026-11-22 - Score lift round 108 (batch 73): Findings partial capture, deliverables exports, workspace KPI tiles
+
+**Outcome.** Main findings queue partial-capture empty names thin capture versus failed read. Request JSON and review export ZIP name unsealed finalize gates versus load failure. Workspace health KPI tiles state point-in-time rollup discipline.
+
+**Surfaces.** Governance findings empty, run detail deliverables exports, workspace health KPI blocks, honesty and mounted contract tests.
+
+
+## 2026-11-22 - Score lift round 107 (batch 72): Graph path-only, edge focus, assigned partial capture, golden manifest
+
+**Outcome.** Evidence graph path-only and edge-focus empty bands name successful load with no matching slice or edge pin. Assigned findings partial-capture empty names thin capture versus failed assignments read. Golden manifest Markdown export names unsealed finalize gate versus load failure.
+
+**Surfaces.** Evidence graph loaded experience, governance assigned-to-me empty, golden manifest export menu, honesty and mounted contract tests.
+
+
+## 2026-11-22 - Score lift round 106 (batch 71): Graph node focus, health tiles, secondary exports, assigned collection
+
+**Outcome.** Evidence graph node-focus-only empty names successful load with no matching pin. System health summary tiles carry per-tile point-in-time discipline. Deliverables blocked secondary exports name unsealed gate versus load failure. Assigned findings empty collection blocker names incomplete capture versus failed assignments read.
+
+**Surfaces.** Evidence graph loaded experience, system health summary tiles, run detail deliverables exports, governance assigned-to-me empty state, honesty and mounted contract tests.
+
 ## 2026-11-21 - Score lift round 105 (batch 70): Policy enforced, health tiles, deliverables export, investigation ROI
 
 **Outcome.** Policy enforced-rules empty names successful read with zero rules. System health summary tiles state point-in-time rollup discipline. Deliverables blocked primary export names unsealed gate versus load failure. Investigation-effort blocking banner names incomplete worksheet versus failed read.

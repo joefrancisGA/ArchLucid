@@ -138,6 +138,7 @@ internal static class AgentCompletionAzureScopedChainRegistrar
 
         if (cacheOptions.Enabled && !modernCompletionCacheEnabled)
         {
+            cacheOptions.RequireScopePartitioning();
             TimeSpan ttl = TimeSpan.FromSeconds(Math.Max(1, cacheOptions.AbsoluteExpirationSeconds));
             ILlmCompletionResponseStore store = sp.GetRequiredService<ILlmCompletionResponseStore>();
             ILogger<CachingAgentCompletionClient> cacheLogger =

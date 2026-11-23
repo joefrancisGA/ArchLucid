@@ -1,0 +1,203 @@
+name: Aspects source-verified density snapshot
+
+# Never substitute a cached workbook figure for live source-verified evidence.
+# This is a read-only measurement job: it does not commit or alter source code.
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+    paths:
+      - docs/engineering/aspects-review-ledger.jsonl
+      - docs/engineering/aspects-historical-restoration-state.json
+      - scripts/aspects_import_historical_workbook.py
+      - scripts/aspects_validate_historical_corpus.py
+      - scripts/aspects_validate_historical_pins.py
+      - scripts/aspects_reconcile_historical_lineage.py
+      - scripts/tests/test_aspects_reconcile_historical_lineage.py
+      - scripts/tests/test_aspects_validate_historical_pins.py
+      - scripts/aspects_reconcile_historical_corpus.py
+      - scripts/tests/test_aspects_reconcile_historical_corpus.py
+      - docs/engineering/aspects-historical/**
+      - scripts/tests/test_aspects_validate_historical_corpus.py
+      - scripts/tests/test_aspects_import_historical_workbook.py
+      - scripts/aspects_review_evidence.py
+      - scripts/aspects_density_snapshot.py
+      - scripts/tests/test_aspects_review_evidence.py
+      - scripts/tests/test_aspects_density_snapshot.py
+      - .github/workflows/aspects-density-snapshot.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: aspects-density-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  evidence-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify evidence recorder regressions
+        run: python -m unittest discover -s scripts/tests -p 'test_aspects_review_evidence.py' -v
+
+      - name: Verify snapshot freshness and window regressions
+        run: python -m unittest discover -s scripts/tests -p 'test_aspects_density_snapshot.py' -v
+
+      - name: Verify legacy workbook importer and clean review invariants
+        run: python -m unittest discover -s scripts/tests -p 'test_aspects_import_historical_workbook.py' -v
+
+      - name: Validate full Git-staged historical corpus and clean-review denominator
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_validate_historical_corpus.py' -v
+          python scripts/aspects_validate_historical_corpus.py \
+            --root docs/engineering/aspects-historical \
+            --json-out artifacts/aspects/historical-corpus-validation.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path("artifacts/aspects/historical-corpus-validation.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write(f"Historical records Git-staged and checksum-validated: **{report['observations_imported']:,}**, clean reviews: **{report['zero_defect_observations']:,}**.\n\n")
+              f.write("**Historical review spans are workbook-provenanced, not cross-revision Git-verified.**\n\n")
+          PY
+
+      - name: Independently check legacy source pins against historical Git blobs
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_validate_historical_pins.py' -v
+          python scripts/aspects_validate_historical_pins.py \
+            --repo . \
+            --historical-root docs/engineering/aspects-historical \
+            --json-out artifacts/aspects/historical-git-pin-audit.json \
+            --row-jsonl-out artifacts/aspects/historical-git-pin-rows.jsonl
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path("artifacts/aspects/historical-git-pin-audit.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write(
+                  f"Historical Git pin audit: **{report['verified_pin_rows']:,}/"
+                  f"{report['candidate_pin_count']:,}** parseable rows; "
+                  f"exact-blob nonblank union **{report['verified_unique_exact_path_blob_lines']:,} LOC**, "
+                  f"repeat **{report['verified_repeated_exact_path_blob_lines']:,} LOC**.\n\n"
+              )
+              f.write(f"Quarantined or ambiguous: **{report['quarantined_or_ambiguous_total']:,}**; full row-level evidence attached.\n\n")
+              window = report["first_parent_checkpoint"]
+              f.write(f"900-first-parent anchor: **{window['status']}**; exact-path/blob window subset: **{window['verified_nonblank_exact_path_blob_unique_loc_subset']} LOC**. This does not replace the historical denominator.\n\n")
+              f.write("Cross-revision line identity and historical distinct-defect reconciliation remain unresolved.\n\n")
+          PY
+
+      - name: Reconcile provisional cross-revision unchanged-line identity in the exact historical window
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_historical_lineage.py' -v
+          python scripts/aspects_reconcile_historical_lineage.py \
+            --repo . \
+            --rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --pin-report artifacts/aspects/historical-git-pin-audit.json \
+            --state docs/engineering/aspects-historical-restoration-state.json \
+            --json-out artifacts/aspects/historical-900-cross-revision-lineage.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path("artifacts/aspects/historical-900-cross-revision-lineage.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
+              output.write(f"Cross-revision historical pin reconciliation: **{report['status']}**.\n\n")
+              if report["status"] == "provisional_same_path_unique_unchanged_lineage":
+                  output.write(f"Exact path/blob union (window-eligible only): **{report['verified_unique_exact_path_blob_lines_in_window']:,} LOC**; provisional uniquely unchanged-line union: **{report['provisionally_mapped_unique_loc']:,} LOC**.\n\n")
+              output.write("Legacy 463/343,492 density remains independent and partial; source-line mappings do not verify reviewed events or distinct defects.\n\n")
+          PY
+
+      - name: Validate historical workbook import when migration source is staged
+        shell: bash
+        run: |
+          workbook="docs/engineering/input/ArchLucid_Defect_Density_Trend_repaired.xlsx"
+          if [ -f "$workbook" ]; then
+            python scripts/aspects_import_historical_workbook.py --workbook "$workbook" --new-ledger docs/engineering/aspects-review-ledger.jsonl --output-dir artifacts/aspects/historical
+          else
+            echo '::notice::Historical source workbook is not in this checkout; the full normalized review corpus is committed and validated separately. Cross-revision Git identity mapping remains pending.'
+          fi
+
+      - name: Reconcile exact Git source identity without combining densities
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_historical_corpus.py' -v
+          python scripts/aspects_reconcile_historical_corpus.py \
+            --repo . \
+            --historical-root docs/engineering/aspects-historical \
+            --new-ledger docs/engineering/aspects-review-ledger.jsonl \
+            --json-out artifacts/aspects/aspects-historical-exact-overlap.json
+          echo 'Historical-vs-new exact blob overlaps computed; cross-revision mappings remain explicitly unresolved.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Locate latest comparable master snapshot
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p .aspects-previous
+          prior_id="$(gh run list --workflow aspects-density-snapshot.yml --branch master --status success --limit 10 --json databaseId --jq '.[0].databaseId' || true)"
+          if [ -n "$prior_id" ] && [ "$prior_id" != "null" ]; then
+            gh run download "$prior_id" --name aspects-900-density-snapshot --dir .aspects-previous || echo 'No comparable historical artifact; delta unavailable.'
+          else
+            echo 'No prior snapshot yet; previous density and delta unavailable.'
+          fi
+          previous_file="$(find .aspects-previous -type f -name aspects-density-snapshot.json -print -quit)"
+          if [ -n "$previous_file" ]; then
+            cp "$previous_file" .aspects-previous/previous.json
+          fi
+
+      - name: Revalidate pinned source blobs and generate the 900-commit snapshot
+        run: |
+          python scripts/aspects_density_snapshot.py \
+            --repo . \
+            --ledger docs/engineering/aspects-review-ledger.jsonl \
+            --head "$(git rev-parse HEAD)" \
+            --window 900 \
+            --previous .aspects-previous/previous.json \
+            --json-out artifacts/aspects/aspects-density-snapshot.json \
+            --markdown-out artifacts/aspects/aspects-density-snapshot.md
+          cat artifacts/aspects/aspects-density-snapshot.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload source-verified evidence snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: aspects-900-density-snapshot
+          path: |
+            artifacts/aspects/aspects-density-snapshot.json
+            artifacts/aspects/aspects-density-snapshot.md
+            artifacts/aspects/historical-corpus-validation.json
+            artifacts/aspects/historical-git-pin-audit.json
+            artifacts/aspects/historical-git-pin-rows.jsonl
+            artifacts/aspects/historical-900-cross-revision-lineage.json
+            artifacts/aspects/aspects-historical-exact-overlap.json
+          if-no-files-found: error
+
+      - name: Require anchored, nonempty historical lineage cohort
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("artifacts/aspects/historical-900-cross-revision-lineage.json").read_text())
+          if report["status"] != "provisional_same_path_unique_unchanged_lineage":
+              raise SystemExit("::error::Historical first-parent cohort is not independently verifiable: "
+                               + report["status"] + "; see uploaded audit artifacts")
+          if report["eligible_verified_review_rows"] <= 0:
+              raise SystemExit("::error::No Git-pin-verified historical review lines in anchored cohort")
+          PY
+
+      - name: Signal missing review evidence for Aspects code PR
+        if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'aspects/')
+        run: |
+          git fetch --no-tags origin master
+          if ! git diff --name-only "$(git merge-base HEAD origin/master)" HEAD -- \
+              docs/engineering/aspects-review-ledger.jsonl | grep -q 'aspects-review-ledger.jsonl'; then
+            echo '::warning::This Aspects PR has no source-verified review evidence. New code findings will not move defect density until exact reviewed spans are recorded.'
+          fi

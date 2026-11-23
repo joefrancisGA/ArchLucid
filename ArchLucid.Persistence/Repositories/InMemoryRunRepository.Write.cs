@@ -23,19 +23,32 @@ public sealed partial class InMemoryRunRepository
         _ = connection;
         _ = transaction;
 
-        if (RunRepositoryCore.ShouldConsumeTrialRunAllowanceOnCreate(run))
-            await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction);
-
-        if (_store.Count >= MaxEntries && !_store.ContainsKey(run.RunId))
+        await _saveGate.WaitAsync(ct);
+        try
         {
-            RunRecord? oldest = _store.Values.OrderBy(r => r.CreatedUtc).FirstOrDefault();
+            // SQL uses INSERT and fails on an existing RunId. Do not overwrite a run or
+            // debit the trial allowance on duplicate creation attempts.
+            if (_store.ContainsKey(run.RunId))
+                throw new InvalidOperationException($"Run '{run.RunId:D}' already exists.");
 
-            if (oldest is not null)
-                _store.TryRemove(oldest.RunId, out _);
+            if (RunRepositoryCore.ShouldConsumeTrialRunAllowanceOnCreate(run))
+                await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction);
+
+            if (_store.Count >= MaxEntries)
+            {
+                RunRecord? oldest = _store.Values.OrderBy(r => r.CreatedUtc).FirstOrDefault();
+                if (oldest is not null)
+                    _store.TryRemove(oldest.RunId, out _);
+            }
+
+            run.RowVersion = NextFakeRowVersion();
+            if (!_store.TryAdd(run.RunId, CopyRunRecord(run)))
+                throw new InvalidOperationException($"Run '{run.RunId:D}' already exists.");
         }
-
-        run.RowVersion = NextFakeRowVersion();
-        _store[run.RunId] = run;
+        finally
+        {
+            _saveGate.Release();
+        }
     }
 
     public Task UpdateAsync(
@@ -53,15 +66,39 @@ public sealed partial class InMemoryRunRepository
             throw new InvalidOperationException(
                 string.Format(CultureInfo.InvariantCulture, "Run '{0:D}' was not found for update.", run.RunId));
 
-        CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(existing, run);
+        lock (existing)
+        {
+            // A concurrent update can replace the dictionary value while this caller
+            // waits to acquire the lock; reject stale writes rather than overwriting it.
+            if (!_store.TryGetValue(run.RunId, out RunRecord? current) ||
+                !ReferenceEquals(current, existing))
+                throw new RunConcurrencyConflictException(run.RunId);
 
-        if (run.RowVersion is not null &&
-            existing.RowVersion is not null &&
-            !existing.RowVersion.AsSpan().SequenceEqual(run.RowVersion))
-            throw new RunConcurrencyConflictException(run.RunId);
+            // SQL UPDATE is bound to the stored tenant/workspace/project identity.
+            // A mutable caller record must never move a run into another scope.
+            if (existing.TenantId != run.TenantId ||
+                existing.WorkspaceId != run.WorkspaceId ||
+                existing.ScopeProjectId != run.ScopeProjectId)
+                throw new RunConcurrencyConflictException(run.RunId);
 
-        run.RowVersion = NextFakeRowVersion();
-        _store[run.RunId] = run;
+            CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(existing, run);
+
+            if (run.RowVersion is not null &&
+                existing.RowVersion is not null &&
+                !existing.RowVersion.AsSpan().SequenceEqual(run.RowVersion))
+                throw new RunConcurrencyConflictException(run.RunId);
+
+            RunRecord replacement = CopyRunRecord(run);
+            replacement.RowVersion = NextFakeRowVersion();
+
+            if (!_store.TryUpdate(run.RunId, replacement, existing))
+                throw new RunConcurrencyConflictException(run.RunId);
+
+            // Preserve SQL semantics: the caller receives its new concurrency token,
+            // but must not retain a reference to the token stored in the dictionary.
+            run.RowVersion = replacement.RowVersion!.ToArray();
+        }
+
         return Task.CompletedTask;
     }
 
@@ -90,25 +127,30 @@ public sealed partial class InMemoryRunRepository
         DateTime stamp = TimeProvider.System.UtcNowDateTime();
         List<ArchivedRunScopeRow> archived = [];
 
-        foreach (KeyValuePair<Guid, RunRecord> kv in _store.ToArray())
+        foreach (Guid id in _store.Keys.ToArray())
         {
-            RunRecord r = kv.Value;
+            ArchiveTransition transition = TryArchiveCurrentRun(
+                id, stamp,
+                r => r.CreatedUtc < cutoff &&
+                     (scope is null || RunRepositoryCore.MatchesScope(r, scope)),
+                unsealedGuard: null,
+                ct, out ArchivedRunScopeRow? row);
 
-            if (!RunRepositoryCore.IsEligibleForCreatedBeforeArchive(r, cutoff, scope))
-                continue;
-
-            archived.Add(RunRepositoryCore.ToArchivedRunScopeRow(r));
-
-            r.ArchivedUtc = stamp;
-            _store[kv.Key] = r;
+            if (transition == ArchiveTransition.Archived)
+                archived.Add(row!);
         }
 
-        return Task.FromResult(new RunArchiveBatchResult { UpdatedCount = archived.Count, ArchivedRuns = archived });
+        return Task.FromResult(new RunArchiveBatchResult
+        {
+            UpdatedCount = archived.Count,
+            ArchivedRuns = archived
+        });
     }
 
     /// <inheritdoc />
     public Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(runIds);
         ct.ThrowIfCancellationRequested();
 
         if (runIds.Count == 0)
@@ -121,23 +163,18 @@ public sealed partial class InMemoryRunRepository
 
         foreach (Guid id in distinctOrdered)
         {
-            if (!_store.TryGetValue(id, out RunRecord? run))
-                continue;
+            ArchiveTransition transition = TryArchiveCurrentRun(
+                id, stamp, static _ => true, unsealedGuard: null,
+                ct, out ArchivedRunScopeRow? row);
 
-            if (run.ArchivedUtc.HasValue)
-            {
+            if (transition == ArchiveTransition.Archived)
+                archived.Add(row!);
+            else if (transition == ArchiveTransition.AlreadyArchived)
                 alreadyArchivedRunIds.Add(id);
-                continue;
-            }
-
-            archived.Add(RunRepositoryCore.ToArchivedRunScopeRow(run));
-
-            run.ArchivedUtc = stamp;
-            _store[id] = run;
         }
 
-        return Task.FromResult(
-            RunArchiveByIdsOutcome.Assemble(distinctOrdered, archived, alreadyArchivedRunIds, new RunArchiveChildCascadeCounts()));
+        return Task.FromResult(RunArchiveByIdsOutcome.Assemble(
+            distinctOrdered, archived, alreadyArchivedRunIds, new RunArchiveChildCascadeCounts()));
     }
 
     /// <inheritdoc />
@@ -146,21 +183,17 @@ public sealed partial class InMemoryRunRepository
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
 
-        if (!_store.TryGetValue(runId, out RunRecord? run) || !RunRepositoryCore.MatchesScope(run, scope))
-            return Task.FromResult(RunArchiveByIdsOutcome.Assemble([runId], [], [], new()));
+        ArchiveTransition transition = TryArchiveCurrentRun(
+            runId, TimeProvider.System.UtcNowDateTime(),
+            r => RunRepositoryCore.MatchesScope(r, scope),
+            r => !r.GoldenManifestId.HasValue,
+            ct, out ArchivedRunScopeRow? row);
 
-        lock (run)
-        {
-            if (run.ArchivedUtc is not null)
-                return Task.FromResult(RunArchiveByIdsOutcome.Assemble([runId], [], [runId], new()));
-
-            if (run.GoldenManifestId is not null)
-                return Task.FromResult(RunArchiveByIdsOutcome.Assemble([runId], [], [], new()));
-
-            run.ArchivedUtc = TimeProvider.System.UtcNowDateTime();
-            return Task.FromResult(RunArchiveByIdsOutcome.Assemble(
-                [runId], [RunRepositoryCore.ToArchivedRunScopeRow(run)], [], new()));
-        }
+        return Task.FromResult(RunArchiveByIdsOutcome.Assemble(
+            [runId],
+            transition == ArchiveTransition.Archived ? [row!] : [],
+            transition == ArchiveTransition.AlreadyArchived ? [runId] : [],
+            new RunArchiveChildCascadeCounts()));
     }
 
     /// <inheritdoc />
@@ -241,14 +274,22 @@ public sealed partial class InMemoryRunRepository
 
         lock (run)
         {
-            if (!RunRepositoryCore.IsActiveInScope(run, scope))
+            // An archive or update may replace this record while we wait.
+            if (!_store.TryGetValue(runId, out RunRecord? current) ||
+                !ReferenceEquals(current, run) ||
+                !RunRepositoryCore.IsActiveInScope(run, scope))
                 throw new RunConcurrencyConflictException(runId);
 
-            run.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
-            run.CompletedUtc ??= completedUtc;
+            RunRecord committed = CopyRunRecord(run);
+            committed.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
+            committed.CompletedUtc ??= completedUtc;
 
-            if (run.GoldenManifestId is null || run.GoldenManifestId == Guid.Empty)
-                run.GoldenManifestId = goldenManifestId;
+            if (committed.GoldenManifestId is null || committed.GoldenManifestId == Guid.Empty)
+                committed.GoldenManifestId = goldenManifestId;
+
+            committed.RowVersion = NextFakeRowVersion();
+            if (!_store.TryUpdate(runId, committed, run))
+                throw new RunConcurrencyConflictException(runId);
         }
 
         return Task.CompletedTask;
@@ -263,17 +304,36 @@ public sealed partial class InMemoryRunRepository
         DateTime occurredUtc,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
+        RunRepositoryCore.ValidateOperatorGovernanceDispositionArgs(runId, decision, actorUserId);
 
-        if (!_store.TryGetValue(runId, out RunRecord? run) || !RunRepositoryCore.IsActiveInScope(run, scope))
-            return Task.FromResult(false);
+        while (true)
+        {
+            ct.ThrowIfCancellationRequested();
+            if (!_store.TryGetValue(runId, out RunRecord? run))
+                return Task.FromResult(false);
 
-        run.OperatorGovernanceDecision = decision.Trim();
-        run.OperatorGovernanceDecisionRationale = rationale;
-        run.OperatorGovernanceDecisionUtc = occurredUtc;
-        run.OperatorGovernanceDecisionByUserId = actorUserId.Trim();
+            lock (run)
+            {
+                if (!_store.TryGetValue(runId, out RunRecord? current) ||
+                    !ReferenceEquals(current, run))
+                    continue;
 
-        return Task.FromResult(true);
+                if (!RunRepositoryCore.IsActiveInScope(run, scope))
+                    return Task.FromResult(false);
+
+                RunRecord updated = CopyRunRecord(run);
+                updated.OperatorGovernanceDecision = decision.Trim();
+                updated.OperatorGovernanceDecisionRationale = rationale;
+                updated.OperatorGovernanceDecisionUtc = occurredUtc;
+                updated.OperatorGovernanceDecisionByUserId = actorUserId.Trim();
+                updated.RowVersion = NextFakeRowVersion();
+
+                if (_store.TryUpdate(runId, updated, run))
+                    return Task.FromResult(true);
+            }
+        }
     }
 
     private byte[] NextFakeRowVersion()

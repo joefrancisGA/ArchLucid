@@ -25,6 +25,7 @@ public sealed class MemoryLlmCompletionResponseStore : ILlmCompletionResponseSto
     public Task<string?> TryGetAsync(string key, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (_cache.TryGetValue(key, out object? cached) && cached is string { Length: > 0 } hit)
             return Task.FromResult<string?>(hit);
@@ -40,6 +41,8 @@ public sealed class MemoryLlmCompletionResponseStore : ILlmCompletionResponseSto
 
         if (absoluteExpiration <= TimeSpan.Zero)
             throw new ArgumentOutOfRangeException(nameof(absoluteExpiration));
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         MemoryCacheEntryOptions options = new() { AbsoluteExpirationRelativeToNow = absoluteExpiration, Size = 1 };
 

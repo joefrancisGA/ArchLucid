@@ -208,6 +208,70 @@ public sealed class CircuitBreakingAgentCompletionClientTests
         calls.Should().Be(2);
     }
 
+    [Fact]
+    public async Task Early_stream_disposal_does_not_open_circuit()
+    {
+        Mock<IAgentStreamingCompletionClient> inner = new();
+        inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
+        inner.Setup(c => c.StreamJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, string _, int? _, float? _, CancellationToken _) => TwoChunks());
+
+        CircuitBreakerGate gate = new("stream-early-dispose",
+            new CircuitBreakerOptions { FailureThreshold = 1, DurationOfBreakSeconds = 60 });
+        CircuitBreakingAgentCompletionClient sut = new(
+            inner.Object, gate, ResiliencePipeline.Empty,
+            NullLogger<CircuitBreakingAgentCompletionClient>.Instance);
+
+        for (int i = 0; i < 2; i++)
+        {
+            await foreach (string chunk in sut.StreamJsonAsync("s", "u"))
+            {
+                chunk.Should().Be("first");
+                break;
+            }
+        }
+
+        gate.CurrentState.Should().Be("Closed");
+    }
+
+    [Fact]
+    public async Task Streaming_transport_failure_opens_circuit()
+    {
+        Mock<IAgentStreamingCompletionClient> inner = new();
+        inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
+        inner.Setup(c => c.StreamJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, string _, int? _, float? _, CancellationToken _) => FailingStream());
+
+        CircuitBreakerGate gate = new("stream-transport",
+            new CircuitBreakerOptions { FailureThreshold = 1, DurationOfBreakSeconds = 60 });
+        CircuitBreakingAgentCompletionClient sut = new(
+            inner.Object, gate, ResiliencePipeline.Empty,
+            NullLogger<CircuitBreakingAgentCompletionClient>.Instance);
+
+        Func<Task> run = async () =>
+        {
+            await foreach (string _ in sut.StreamJsonAsync("s", "u")) { }
+        };
+        await run.Should().ThrowAsync<HttpRequestException>();
+        gate.CurrentState.Should().Be("Open");
+    }
+
+    private static async IAsyncEnumerable<string> TwoChunks()
+    {
+        yield return "first";
+        await Task.Yield();
+        yield return "second";
+    }
+
+    private static async IAsyncEnumerable<string> FailingStream()
+    {
+        yield return "first";
+        await Task.Yield();
+        throw new HttpRequestException("upstream failed");
+    }
+
     private sealed class TestClock(DateTimeOffset start)
     {
         private DateTimeOffset _t = start;
