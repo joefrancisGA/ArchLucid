@@ -39,6 +39,8 @@ on:
       - scripts/tests/test_aspects_reconcile_followon_900.py
       - scripts/aspects_current_master_900_eligibility.py
       - scripts/tests/test_aspects_current_master_900_eligibility.py
+      - scripts/aspects_current_900_discovery_candidates.py
+      - scripts/tests/test_aspects_current_900_discovery_candidates.py
       - docs/engineering/aspects-historical/**
       - scripts/tests/test_aspects_validate_historical_corpus.py
       - scripts/tests/test_aspects_import_historical_workbook.py
@@ -547,6 +549,52 @@ jobs:
               )
           PY
 
+      - name: Census typed discovery candidates and fixing-PR states in CURRENT master-base cohort
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+        env:
+          MASTER_900_HEAD: ${{ github.event.pull_request.base.sha || github.sha }}
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_current_900_discovery_candidates.py' -v
+          python scripts/aspects_current_900_discovery_candidates.py \
+            --repo . \
+            --master-base-head "$MASTER_900_HEAD" \
+            --window 900 \
+            --historical-root docs/engineering/aspects-historical \
+            --ledger docs/engineering/aspects-review-ledger.jsonl \
+            --fix-pr-checkpoint docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-23-all-referenced.json \
+            --json-out artifacts/aspects/aspects-current-master-base-900-discovery-candidates.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          source = json.loads(Path(
+              "artifacts/aspects/aspects-current-master-base-900-exact-subset.json"
+          ).read_text())
+          census = json.loads(Path(
+              "artifacts/aspects/aspects-current-master-base-900-discovery-candidates.json"
+          ).read_text())
+          assert census["status"] == "current_master_base_900_provisional_discovery_identity_census"
+          assert census["historical_events_imported"] == source["original_historical_events_total"] == 5741
+          assert census["historical_clean_reviews_all_history"] == source["original_clean_events_all_history"] == 4864
+          assert census["cohort"]["head_sha"] == source["cohort"]["head_sha"] == os.environ["MASTER_900_HEAD"]
+          assert census["cohort"]["oldest_included_sha"] == source["cohort"]["oldest_included_sha"]
+          assert census["cohort"]["ordered_shas_sha256"] == source["cohort"]["ordered_shas_sha256"]
+          assert census["original_clean_reviews_in_current_900"] == source["original_clean_events_in_current_master_900"]
+          assert census["followon_records_in_current_900"] == source["followon_records_in_current_master_900"]
+          assert census["followon_records_outside_current_900"] == source["followon_records_outside_current_master_900"]
+          assert census["current_verified_distinct_defect_ids"] is None
+          assert census["new_comparable_900_density"] is None
+          assert census["fix_pr_state_checkpoint_is_current"] is False
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(
+                  f"Current 900-window candidate discoveries: "
+                  f"**{census['original_positive_review_rows_in_current_900']}** historical positive review rows, "
+                  f"**{census['original_unique_typed_candidate_labels_in_current_900']}** typed candidate labels; "
+                  f"**{census['followon_unique_named_candidate_labels_in_current_900']}** named follow-on candidates. "
+                  f"Fix states are historical as of `{census['fix_pr_state_checkpoint_as_of_utc']}`; "
+                  "no verified new distinct discoveries or comparable density.\\n\\n"
+              )
+          PY
+
       - name: Locate latest comparable master snapshot
         if: github.event_name != 'pull_request'
         env:
@@ -600,6 +648,7 @@ jobs:
             artifacts/aspects/historical-900-followon-pinned-overlap.json
             artifacts/aspects/historical-followon-cross-blob-first-parent.json
             artifacts/aspects/aspects-current-master-base-900-exact-subset.json
+            artifacts/aspects/aspects-current-master-base-900-discovery-candidates.json
           if-no-files-found: error
 
       - name: Require anchored, nonempty historical lineage cohort
