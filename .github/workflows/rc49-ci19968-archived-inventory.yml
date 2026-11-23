@@ -1,0 +1,32 @@
+# Targeted RC49 inventory regression; not full CI or a release build.
+name: RC49 archived inventory scope regression
+
+on:
+  pull_request:
+    branches: [RC49]
+    paths:
+      - "archlucid-ui/src/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory.test.tsx"
+      - ".github/workflows/rc49-ci19968-archived-inventory.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  archive-scope:
+    name: "RC49: archived review cache scope"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+      - name: Run scoped inventory unit tests
+        working-directory: archlucid-ui
+        env:
+          CI: "true"
+        run: |
+          npm ci
+          npm run test:vitest-single-worker -- 'src/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory.test.tsx'
