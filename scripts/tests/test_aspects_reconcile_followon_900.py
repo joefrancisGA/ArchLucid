@@ -52,11 +52,13 @@ def fixture():
 class FollowOn900Tests(unittest.TestCase):
     def test_reconcile_exact_same_blob_only_with_baseline_in_historical_cohort(self):
         pins, report, recent = fixture()
-        r = sut.reconcile(pins, report, recent, [NEWEST, OLDEST],
+        r = sut.reconcile(pins, report, recent, [NEWEST, OLDEST], pins,
                           expected_rows=3)
         self.assertEqual(r["historical_rows_imported"], 3)
         self.assertEqual(r["original_pinned_review_rows_in_historical_cohort"], 2)
         self.assertEqual(r["original_pinned_clean_review_rows_in_historical_cohort"], 1)
+        self.assertEqual(r["historical_clean_reviews_all_history"], 2)
+        self.assertEqual(r["historical_positive_reviews_all_history_not_distinct_defects"], 1)
         self.assertEqual(r["original_pinned_unique_exact_path_blob_lines"], 6)
         self.assertEqual(r["followon_git_verified_records_all_history"], 3)
         self.assertEqual(r["followon_records_with_baseline_outside_historical_cohort"], 1)
@@ -72,7 +74,7 @@ class FollowOn900Tests(unittest.TestCase):
     def test_change_of_blob_is_not_treated_as_exact_overlap(self):
         pins, report, recent = fixture()
         recent[0]["blob"] = CHANGED_BLOB
-        r = sut.reconcile(pins, report, recent, [NEWEST, OLDEST],
+        r = sut.reconcile(pins, report, recent, [NEWEST, OLDEST], pins,
                           expected_rows=3)
         self.assertEqual(r["followon_exact_repeat_with_original_pins"], 0)
         self.assertEqual(r["followon_exact_identities_not_in_original_pins"], 7)
@@ -81,41 +83,55 @@ class FollowOn900Tests(unittest.TestCase):
     def test_clean_followon_adds_only_exact_candidates_and_no_numerator(self):
         pins, report, recent = fixture()
         recent = [recent[0]]
-        r = sut.reconcile(pins, report, recent, [NEWEST, OLDEST],
+        r = sut.reconcile(pins, report, recent, [NEWEST, OLDEST], pins,
                           expected_rows=3)
         self.assertEqual(r["followon_clean_records_in_historical_cohort"], 1)
         self.assertEqual(r["followon_candidate_defect_ids_in_historical_cohort"], [])
         self.assertIsNone(r["new_verified_distinct_defects"])
 
+    def test_missing_original_review_labels_cannot_be_reported_as_zero_clean(self):
+        pins, report, recent = fixture()
+        with self.assertRaisesRegex(ValueError, "immutable historical review"):
+            sut.reconcile(pins, report, recent, [NEWEST, OLDEST], [],
+                          expected_rows=3)
+
+    def test_historical_source_identity_mismatch_fails_closed(self):
+        pins, report, recent = fixture()
+        originals = copy.deepcopy(pins)
+        originals[1]["reviewed_master_sha"] = OUTSIDE
+        with self.assertRaisesRegex(ValueError, "identity/defect count"):
+            sut.reconcile(pins, report, recent, [NEWEST, OLDEST],
+                          originals, expected_rows=3)
+
     def test_missing_zero_defect_original_row_blocks(self):
         pins, report, recent = fixture()
         del pins[0]
         with self.assertRaisesRegex(ValueError, "historical pin audit"):
-            sut.reconcile(pins, report, recent, [NEWEST, OLDEST], expected_rows=3)
+            sut.reconcile(pins, report, recent, [NEWEST, OLDEST], pins, expected_rows=3)
 
     def test_tampered_pin_span_blocks(self):
         pins, report, recent = fixture()
         pins[0]["spans"] = [[1, 4]]
         with self.assertRaisesRegex(ValueError, "historical pin audit"):
-            sut.reconcile(pins, report, recent, [NEWEST, OLDEST], expected_rows=3)
+            sut.reconcile(pins, report, recent, [NEWEST, OLDEST], pins, expected_rows=3)
 
     def test_membership_drift_blocks(self):
         pins, report, recent = fixture()
         pins[0]["window_membership"] = "not_on_first_parent_window"
         report["audited_rows_sha256"] = audited_rows_sha256(pins)
         with self.assertRaisesRegex(ValueError, "membership drift"):
-            sut.reconcile(pins, report, recent, [NEWEST, OLDEST], expected_rows=3)
+            sut.reconcile(pins, report, recent, [NEWEST, OLDEST], pins, expected_rows=3)
 
     def test_changed_first_parent_chain_blocks(self):
         pins, report, recent = fixture()
         with self.assertRaisesRegex(ValueError, "anchors differ"):
-            sut.reconcile(pins, report, recent, [OLDEST, NEWEST], expected_rows=3)
+            sut.reconcile(pins, report, recent, [OLDEST, NEWEST], pins, expected_rows=3)
 
     def test_false_verified_followon_flag_is_rejected(self):
         pins, report, recent = fixture()
         recent[0]["verified"] = False
         with self.assertRaisesRegex(ValueError, "independently Git-verified"):
-            sut.reconcile(pins, report, recent, [NEWEST, OLDEST], expected_rows=3)
+            sut.reconcile(pins, report, recent, [NEWEST, OLDEST], pins, expected_rows=3)
 
     @patch.object(sut, "git")
     def test_git_anchor_revalidation_rejects_missing_parent(self, git):
