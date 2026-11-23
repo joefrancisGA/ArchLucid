@@ -1083,13 +1083,19 @@ public sealed class RemediationInstanceServiceTests
         Guid? cloudResourceId = null,
         Guid? projectId = null,
         Guid? controlId = null,
-        Guid? assessmentId = null) =>
+        Guid? assessmentId = null,
+        Guid? preflightSnapshotId = null,
+        string? preflightResultJson = null,
+        byte[]? rowVersion = null) =>
         new()
         {
             InstanceId = instanceId,
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
             ProjectId = projectId ?? ProjectId,
+            PreflightSnapshotId = preflightSnapshotId,
+            PreflightResultJson = preflightResultJson,
+            RowVersion = rowVersion,
             FindingId = FindingId,
             PatternId = PatternId,
             PatternVersionId = VersionId,
@@ -1164,6 +1170,10 @@ public sealed class RemediationInstanceServiceTests
 
         public List<RemediationEvidenceRecord> Evidence { get; } = [];
 
+        public Action? BeforeApprovalCommit { get; set; }
+
+        public bool FailApprovalEvidenceInsert { get; set; }
+
         public Task InsertInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default)
         {
             Instances.Add(instance);
@@ -1195,6 +1205,44 @@ public sealed class RemediationInstanceServiceTests
             return Task.CompletedTask;
         }
 
+
+        public Task CommitApprovalInScopeAsync(
+            ProjectScopeKey scope,
+            RemediationInstanceMutation mutation,
+            RemediationEvidenceRecord evidence,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            BeforeApprovalCommit?.Invoke();
+            int index = Instances.FindIndex(row => row.InstanceId == mutation.InstanceId
+                && scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId));
+            if (index < 0 || mutation.ExpectedRowVersion is not { Length: 8 }
+                || evidence.InstanceId != mutation.InstanceId || evidence.TenantId != scope.TenantId
+                || evidence.Phase != RemediationEvidencePhase.Approval
+                || mutation.Status != RemediationInstanceStatus.Approved
+                || mutation.ApprovedByActorKey != evidence.ActorKey
+                || mutation.ApprovedUtc != evidence.CreatedUtc)
+                throw new InvalidOperationException("Approval evidence is not scoped to the instance.");
+
+            RemediationInstanceRecord current = Instances[index];
+            if (current.Status != RemediationInstanceStatus.PreflightPassed
+                || current.RowVersion is null
+                || !current.RowVersion.SequenceEqual(mutation.ExpectedRowVersion)
+                || current.PreflightSnapshotId is null
+                || string.IsNullOrWhiteSpace(current.PreflightResultJson)
+                || string.Equals(current.CreatedByActorKey, mutation.ApprovedByActorKey,
+                    StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Approval is stale or not authorized.");
+
+            // This fixture models one transaction: a failed evidence insert
+            // must leave the prior instance status and approval unchanged.
+            if (FailApprovalEvidenceInsert)
+                throw new InvalidOperationException("Approval evidence insert failed.");
+
+            Instances[index] = mutation.ApplyTo(current);
+            Evidence.Add(evidence);
+            return Task.CompletedTask;
+        }
 
         public Task CommitVerificationInScopeAsync(
             ProjectScopeKey scope,
