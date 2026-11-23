@@ -12,7 +12,7 @@ import {
   WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY,
   WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY,
 } from "./reviews-hub-copy";
-import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
+import { resolveReviewsHubRecencyInstant, toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
 import type { ReviewsHubOverallStatus } from "./reviews-hub-review-status";
 import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
@@ -288,8 +288,9 @@ function compareRunsForInventory(
     return leftPinned - rightPinned;
   }
 
-  const leftUpdated = new Date(left.createdUtc).getTime();
-  const rightUpdated = new Date(right.createdUtc).getTime();
+  // Row labels use completed time for a finalized package and created time otherwise.
+  const leftUpdated = new Date(resolveReviewsHubRecencyInstant(left).instantUtc).getTime();
+  const rightUpdated = new Date(resolveReviewsHubRecencyInstant(right).instantUtc).getTime();
 
   if (!Number.isNaN(leftUpdated) && !Number.isNaN(rightUpdated) && leftUpdated !== rightUpdated) {
     return rightUpdated - leftUpdated;

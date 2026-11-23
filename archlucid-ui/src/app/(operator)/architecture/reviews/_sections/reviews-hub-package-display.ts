@@ -131,7 +131,7 @@ function storedFiniteCount(value: number | null | undefined): number | null {
   return Math.max(0, Math.trunc(value));
 }
 
-function resolveReviewsHubRecencyInstant(run: RunSummary): { readonly kind: "created" | "finalized"; readonly instantUtc: string } {
+export function resolveReviewsHubRecencyInstant(run: RunSummary): { readonly kind: "created" | "finalized"; readonly instantUtc: string } {
   if (run.hasGoldenManifest === true) {
     const completedUtc = run.completedUtc?.trim() ?? "";
 
