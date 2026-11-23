@@ -34,6 +34,9 @@ import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evide
 import { RESOURCE_EXPLORER_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-partial-capture-copy";
 import { ResourcesExplorerFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/resources/ResourcesExplorerFilterEmptyPartialHonesty";
 import { ResourcesExplorerResourceGroupOnlyFilterEmptyPartialHonesty } from "@/components/infra-evidence/ResourcesExplorerResourceGroupOnlyFilterEmptyPartialHonesty";
+import { RESOURCE_EXPLORER_TYPE_AND_RESOURCE_GROUP_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-type-and-resource-group-combined-filter-empty-not-load-failure-copy";
+import { RESOURCE_EXPLORER_NAME_PREFIX_AND_RESOURCE_GROUP_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-name-prefix-and-resource-group-combined-filter-empty-not-load-failure-copy";
+import { RESOURCE_EXPLORER_WORK_QUEUE_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-work-queue-only-filter-empty-not-load-failure-copy";
 import { RESOURCE_EXPLORER_RESOURCE_GROUP_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-resource-group-only-filter-empty-not-load-failure-copy";
 import { ResourcesExplorerCategoryOnlyFilterEmptyPartialHonesty } from "@/components/infra-evidence/ResourcesExplorerCategoryOnlyFilterEmptyPartialHonesty";
 import { ResourcesExplorerNamePrefixOnlyFilterEmptyPartialHonesty } from "@/components/infra-evidence/ResourcesExplorerNamePrefixOnlyFilterEmptyPartialHonesty";
@@ -705,6 +708,30 @@ export function ResourcesExplorerClient() {
                           </p>
                           <ResourcesExplorerResourceGroupOnlyFilterEmptyPartialHonesty />
                         </>
+                      ) : null}
+                      {urlResourceType.length > 0 && urlResourceGroup.length > 0 && urlNamePrefix.length === 0 ? (
+                        <p
+                          className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+                          data-testid="resource-explorer-type-and-resource-group-combined-filter-empty-not-load-failure"
+                        >
+                          {RESOURCE_EXPLORER_TYPE_AND_RESOURCE_GROUP_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                        </p>
+                      ) : null}
+                      {urlNamePrefix.length > 0 && urlResourceGroup.length > 0 && urlResourceType.length === 0 ? (
+                        <p
+                          className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+                          data-testid="resource-explorer-name-prefix-and-resource-group-combined-filter-empty-not-load-failure"
+                        >
+                          {RESOURCE_EXPLORER_NAME_PREFIX_AND_RESOURCE_GROUP_COMBINED_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                        </p>
+                      ) : null}
+                      {urlWorkQueue !== "all" && urlResourceType.length === 0 && urlNamePrefix.length === 0 && urlResourceGroup.length === 0 ? (
+                        <p
+                          className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+                          data-testid="resource-explorer-work-queue-only-filter-empty-not-load-failure"
+                        >
+                          {RESOURCE_EXPLORER_WORK_QUEUE_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                        </p>
                       ) : null}
                       {urlResourceType.length > 0 && urlNamePrefix.length > 0 ? (
                         <>

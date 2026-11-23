@@ -47,6 +47,7 @@ import { RESOURCE_HUB_DIAGRAM_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE } from "@/li
 import { RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-config-partial-capture-not-load-failure-copy";
 import { RESOURCE_HUB_DRIFT_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-drift-partial-capture-not-load-failure-copy";
 import { RESOURCE_HUB_REMEDIATION_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-remediation-stored-empty-not-load-failure-copy";
+import { RESOURCE_HUB_REMEDIATION_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-remediation-partial-capture-not-load-failure-copy";
 import { RESOURCE_HUB_AUDIT_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-audit-stored-empty-not-load-failure-copy";
 import { RESOURCE_HUB_TERRAFORM_NOT_MAPPED_STORED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-terraform-not-mapped-stored-empty-not-load-failure-copy";
 import { RESOURCE_HUB_OVERVIEW_AUDIT_UNAVAILABLE_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-overview-audit-unavailable-not-load-failure-copy";
@@ -2711,6 +2712,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     >
                       {RESOURCE_HUB_REMEDIATION_STORED_EMPTY_NOT_LOAD_FAILURE_LINE}
                     </p>
+                    {overviewPartialCapture ? (
+                      <p
+                        className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="resource-hub-remediation-partial-capture-not-load-failure"
+                      >
+                        {RESOURCE_HUB_REMEDIATION_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE}
+                      </p>
+                    ) : null}
                     {isSecureNowProductLine(productLine) ? (
                       <SecureNowInfraPartialCaptureStrip
                         testId="infra-resource-hub-remediation-empty-partial-capture"
