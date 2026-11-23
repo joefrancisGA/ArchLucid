@@ -179,6 +179,10 @@
   ],
   "fileExclusions": [
     {
+      "path": "src/lib/buyer-copy/archlucid-commercial-order-acceptance-copy.ts",
+      "reason": "Architecture-only commercial acceptance constants; not SecureNow consumer shell copy. Shared brand copy must still be localized at actual render boundaries."
+    },
+    {
       "path": "src/lib/product-line/product-line-display-name.ts",
       "reason": "Canonical Architecture→ArchLucid display map (SN-01)"
     },
