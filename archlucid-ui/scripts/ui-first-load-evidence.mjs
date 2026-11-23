@@ -1,5 +1,5 @@
 /** Offline, non-gating evidence for investigating Next 16 First Load JS regressions. */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -9,12 +9,43 @@ import {
 
 const round = (value) => Math.round(value * 10) / 10;
 
+/** Only inspect build-owned JavaScript chunks; never follow arbitrary paths from diagnostics JSON. */
+const BUILD_CHUNK_PATH = /^\.next\/static\/chunks\/[A-Za-z0-9_-]+\.js$/;
+
+/**
+ * Observe bytes on disk for the exact hashed chunks referenced by Next's route stats.
+ * This is not a historical chunk delta and does not imply the files caused the regression.
+ * @param {unknown} stats
+ * @param {string} [buildRoot]
+ * @returns {Map<string, number>}
+ */
+export function collectFirstLoadChunkFileBytes(stats, buildRoot = process.cwd()) {
+  const bytesByPath = new Map();
+  if (!Array.isArray(stats)) return bytesByPath;
+
+  for (const entry of stats) {
+    if (!entry || !Array.isArray(entry.firstLoadChunkPaths)) continue;
+    for (const path of entry.firstLoadChunkPaths) {
+      if (typeof path !== "string" || !BUILD_CHUNK_PATH.test(path) || bytesByPath.has(path)) continue;
+      try {
+        const stat = statSync(resolve(buildRoot, path));
+        if (stat.isFile() && Number.isSafeInteger(stat.size) && stat.size >= 0) {
+          bytesByPath.set(path, stat.size);
+        }
+      } catch {
+        // A missing static file is not inferred to be zero bytes.
+      }
+    }
+  }
+  return bytesByPath;
+}
+
 /**
  * @param {unknown} stats Next.js .next/diagnostics/route-bundle-stats.json
  * @param {unknown} baseline Committed First Load JS budget
  * @returns {object} Source data only; never claims a performance gate passed on missing input.
  */
-export function summarizeFirstLoadEvidence(stats, baseline) {
+export function summarizeFirstLoadEvidence(stats, baseline, chunkFileBytesByPath = new Map()) {
   if (!Array.isArray(stats) || baseline === null || typeof baseline !== "object" ||
       !baseline.routes || typeof baseline.routes !== "object" ||
       typeof baseline.regressionToleranceKb !== "number" || !Number.isFinite(baseline.regressionToleranceKb) ||
@@ -62,8 +93,19 @@ export function summarizeFirstLoadEvidence(stats, baseline) {
   // this reporter deliberately does not invent contribution sizes.
   const commonChunks = [...chunksByRoute.entries()]
     .filter(([, routes]) => routes.size > 1)
-    .map(([path, routes]) => ({ path, routeCount: routes.size, routes: [...routes].sort() }))
-    .sort((a, b) => b.routeCount - a.routeCount || a.path.localeCompare(b.path))
+    .map(([path, routes]) => {
+      const fileBytes = chunkFileBytesByPath.get(path);
+      const measuredBytes = Number.isSafeInteger(fileBytes) && fileBytes >= 0 ? fileBytes : null;
+      return {
+        path,
+        routeCount: routes.size,
+        routes: [...routes].sort(),
+        ...(measuredBytes !== null ? { chunkFileBytes: measuredBytes, chunkFileKb: round(measuredBytes / 1024) } : {}),
+      };
+    })
+    .sort((a, b) => b.routeCount - a.routeCount
+      || (b.chunkFileBytes ?? -1) - (a.chunkFileBytes ?? -1)
+      || a.path.localeCompare(b.path))
     .slice(0, 40);
 
   return {
@@ -86,11 +128,13 @@ function main() {
   }
   const stats = JSON.parse(readFileSync(statsPath, "utf8"));
   const baseline = JSON.parse(readFileSync(baselinePath, "utf8"));
-  const report = summarizeFirstLoadEvidence(stats, baseline);
+  const report = summarizeFirstLoadEvidence(stats, baseline, collectFirstLoadChunkFileBytes(stats));
   mkdirSync(dirname(reportPath), { recursive: true });
   writeFileSync(reportPath, JSON.stringify(report, null, 2) + "\n");
   console.log("Route evidence: " + report.overBudgetRouteCount + " over budget, " +
-    report.missingRouteCount + " missing; " + report.commonChunks.length + " shared chunk paths. " + reportPath);
+    report.missingRouteCount + " missing; " + report.commonChunks.length + " shared chunk paths, " +
+    report.commonChunks.filter(chunk => chunk.chunkFileBytes !== undefined).length +
+    " with measured file bytes. " + reportPath);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
