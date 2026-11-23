@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "original_pinned_900_lineage_validated_FND011_two_tenant_GET_isolation_repaired_diagnostics_submitted",
-  "next_priority": "Check PR #7822 exact new head FND-011 .NET Projection Tests and HTTP & OpenAPI Verification. Prior failing projection run 45169147816 hit an unrelated architecture POST warmup HTTP 400 in GET-only unknown-run two-tenant test; new test provisions both real SQL scopes and exercises snapshot GET without POST warmup. Prior HTTP run 45169147847 still returned owner 404 despite seeded ACL; new test separately asserts feature flag and reports response body to isolate which fail-closed gate is involved. Fix only concrete failures without bypassing authorization/CI. Aspects 45169147900 succeeded with already verified 1014 original-pinned first-parent line identities. Next continue 900-window independent historical discovery identity and source coverage, no density until complete.",
+  "state": "original_pinned_lineage_passed_exact_head_CI_failure_remediation_submitted",
+  "next_priority": "Inspect exact PR #7822 head on automatic Aspects run 45188327546, FND-011 run 45188326617 and CI run 45188327966. Prior head d4773ecc failed FND-011 owner 200 requirement (returned 404) and several real CI guards. This run separated test helper classes, repaired library audience scope, removed a sensitive log token identifier and invalid TSX marker; added test-only read-only ordinary snapshot probe + seed ACL decision counts to isolate owner 404 without bypassing security. If owner still returns 404, compare ordinary snapshot response vs exchange ACL access count, resolve real root cause, preserve foreign 404. Do not merge until all required checks pass. Then continue full 900-source/defect identity reconciliation before reporting any new comparable rate.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -538,6 +538,38 @@
       "new_comparable_density": null,
       "previous_passed_aspects_run": 45169147900,
       "full_master_build_dispatched": false
+    },
+    "ci_20261123_run5": {
+      "source_failed_head": "d4773ecc7d8949daa0f3d0a103dcdc71dc679017",
+      "failing_http_run": 45178466180,
+      "failing_http_job": 137705767178,
+      "failing_http_observation": "Owner SecureNow exchange GET expected 200 but still returned generic 404 even with feature flag true and seeded server-side ACL. Foreign-tenant deny remains required; no policy bypass.",
+      "failed_ci_run": 45178466526,
+      "verified_ci_failures": [
+        "Pre-corset single-class-per-file guard: three top-level types in SecureNowEnabledPersistedHttpTests.cs",
+        "Docs/library audience scope gate: AL_BUG_PICKER_RESET_RUNBOOK.md missing Scope blockquote",
+        "Beta-readiness protected logging guard: ScimTokenRotationReminderIteration.cs included TokenId in structured exception log",
+        "Operator UI typecheck: invalid PARTIAL_CAPTURE_FIX_MARKER attribute",
+        "Inventory layout and operator smoke jobs also failed; investigate exact logs if still failing"
+      ],
+      "implemented_fixes": [
+        "Extracted SecureNowExchangeEnabledApiFactory and SeededTestEvidenceEntitlementAuthority to separate one-type source files, preserving production default deny and server-only test grant",
+        "Added explicit docs/library Scope blockquote",
+        "Removed structured SCIM token ID in exception log rather than weakening logging guard",
+        "Removed invalid TSX marker attribute",
+        "Extended existing seeded owner read test with non-exchange GET probe and test-only seeded ACL counts; security expected owner 200 and foreign 404 unchanged"
+      ],
+      "validation": "PR branch exact-head checks queued/pending; no successful claim for new code yet",
+      "expected_current_head_before_manifest": "8ec1ea805afbbe29745f8234c3b79d6da211d302",
+      "code_shipped": true,
+      "newly_independently_verified_reviewed_loc": 0,
+      "newly_verified_new_loc": 0,
+      "newly_verified_repeated_loc": 0,
+      "newly_reconciled_distinct_defects": 0,
+      "new_measurement_produced": false,
+      "new_comparable_rate": null,
+      "no_full_master_build": true,
+      "do_not_merge_before_required_green": true
     }
   },
   "latest_restoration_run": {
