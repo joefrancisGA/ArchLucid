@@ -82,7 +82,9 @@ public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionCli
 
         try
         {
-            return await _primary.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken);
+            string result = await _primary.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            return result;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -90,6 +92,8 @@ public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionCli
         }
         catch (Exception ex) when (AgentCompletionFallbackEligibility.IsFallbackEligible(ex))
         {
+            // The primary may report a transient error only after the caller's deadline expires.
+            cancellationToken.ThrowIfCancellationRequested();
             if (_logger.IsEnabled(LogLevel.Warning))
             {
                 _logger.LogWarning(
@@ -157,6 +161,7 @@ public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionCli
             }
             catch (Exception ex) when (AgentCompletionFallbackEligibility.IsFallbackEligible(ex))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 primaryFailure = ex;
 
                 if (_logger.IsEnabled(LogLevel.Warning))
@@ -170,6 +175,7 @@ public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionCli
                 break;
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
             if (!moved)
             {
                 yield break;
@@ -178,6 +184,7 @@ public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionCli
             yield return primaryEnumerator.Current;
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
         await foreach (string chunk in _fallbackChain.StreamWithFallbacksAsync(
                            systemPrompt,
                            userPrompt,
@@ -187,6 +194,7 @@ public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionCli
                            primaryFailure ?? new InvalidOperationException("Primary LLM streaming failed."))
                            .ConfigureAwait(false))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             yield return chunk;
         }
     }

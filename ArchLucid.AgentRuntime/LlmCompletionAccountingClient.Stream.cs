@@ -106,6 +106,7 @@ public sealed partial class LlmCompletionAccountingClient
 
             foreach (string chunk in AgentCompletionStreamingBridge.SimulateChunks(full))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 yield return chunk;
             }
 

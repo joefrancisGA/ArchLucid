@@ -1,6 +1,8 @@
 using System.Security.Claims;
-using ArchLucid.Api.Controllers.Planning;
 using ArchLucid.Api.Security;
+using ArchLucid.Core.Authorization;
+using Microsoft.AspNetCore.Authorization;
+using ArchLucid.Api.Controllers.Planning;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -74,22 +76,30 @@ public sealed class SecureNowSnapshotSeededTenantIsolationTests
             Mock<IFeatureFlags> flags = new();
             flags.Setup(f => f.IsEnabledAsync("SecureNow.ReadOnlySnapshotExchange",
                 It.IsAny<CancellationToken>())).ReturnsAsync(true);
-            // Exercise repository tenant isolation behind a scoped, positive FND-010 decision.
-            // The actual central authorization policy and denial semantics are tested separately.
-            Mock<ICentralAuthorizationDecisions> decisions = new(MockBehavior.Strict);
-            decisions.Setup(d => d.DecideAsync(
-                It.IsAny<ClaimsPrincipal>(),
-                It.Is<CentralAuthorizationRequest>(request =>
-                    request.Action == "evidence.read" &&
-                    request.TenantId == scope.TenantId &&
-                    request.WorkspaceId == scope.WorkspaceId &&
-                    request.ProjectId == scope.ProjectId &&
-                    request.ResourceId == Run),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new CentralAuthorizationDecision(true, "test-authorized"));
+            // The exchange path fails closed without a registered authorization gate.
+            // Exercise its actual authorization boundary so this test reaches the
+            // second, repository-enforced tenant isolation check.
+            Mock<IAuthorizationService> authorization = new();
+            authorization.Setup(a => a.AuthorizeAsync(
+                    It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), ArchLucidPolicies.ReadAuthority))
+                .ReturnsAsync(AuthorizationResult.Success());
+            Mock<IEvidenceEntitlementAuthority> entitlements = new();
+            entitlements.Setup(e => e.HasCurrentReadEntitlementAsync(
+                    It.IsAny<ClaimsPrincipal>(), It.IsAny<EvidenceReadResource>(),
+                    It.IsAny<CancellationToken>())).ReturnsAsync(true);
             ServiceProvider services = new ServiceCollection()
                 .AddSingleton(flags.Object)
-                .AddSingleton(new EvidenceReadAuthorizationGate(decisions.Object))
+                .AddSingleton(scopeProvider.Object)
+                .AddSingleton(authorization.Object)
+                .AddSingleton(entitlements.Object)
+                .AddSingleton(TimeProvider.System)
+                .AddSingleton<ICentralAuthorizationAudit>(
+                    Mock.Of<ICentralAuthorizationAudit>(a => a.WriteAsync(
+                        It.IsAny<CentralAuthorizationAuditRecord>(),
+                        It.IsAny<CancellationToken>()) == Task.CompletedTask))
+                .AddSingleton<IRemediationApprovalAuthority, DenyUnconfiguredRemediationApproval>()
+                .AddScoped<ICentralAuthorizationDecisions, CentralAuthorizationDecisions>()
+                .AddScoped<EvidenceReadAuthorizationGate>()
                 .BuildServiceProvider();
             return new GraphController(authority.Object, runs.Object, scopeProvider.Object,
                 Mock.Of<IManifestHashService>(),
@@ -101,7 +111,7 @@ public sealed class SecureNowSnapshotSeededTenantIsolationTests
                     {
                         RequestServices = services,
                         User = new ClaimsPrincipal(new ClaimsIdentity(
-                            [new Claim(ClaimTypes.NameIdentifier, "snapshot-reader")], "test"))
+                            [new Claim(ClaimTypes.NameIdentifier, "tenant-isolation-test-operator")], "test"))
                     }
                 }
             };
