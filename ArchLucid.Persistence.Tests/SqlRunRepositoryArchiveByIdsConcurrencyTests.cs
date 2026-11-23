@@ -22,6 +22,51 @@ namespace ArchLucid.Persistence.Tests;
 public sealed class SqlRunRepositoryArchiveByIdsConcurrencyTests(SqlServerPersistenceFixture fixture)
 {
     [SkippableFact]
+    public async Task ArchiveRunsByIdsForScopeAsync_filters_foreign_rows_at_the_sql_update()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory sqlFactory = new(fixture.ConnectionString);
+        TestAuthorityRunListConnectionFactory listFactory = new(sqlFactory);
+        SqlRunRepository repo = SqlRunRepositoryTestFactory.Create(sqlFactory, listFactory);
+
+        ScopeContext owner = new()
+        {
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+        };
+        ScopeContext foreign = new()
+        {
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+        };
+        RunRecord ownRun = new()
+        {
+            RunId = Guid.NewGuid(), TenantId = owner.TenantId,
+            WorkspaceId = owner.WorkspaceId, ScopeProjectId = owner.ProjectId,
+            ProjectId = "scoped_archive_" + Guid.NewGuid().ToString("N"),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
+        };
+        RunRecord foreignRun = new()
+        {
+            RunId = Guid.NewGuid(), TenantId = foreign.TenantId,
+            WorkspaceId = foreign.WorkspaceId, ScopeProjectId = foreign.ProjectId,
+            ProjectId = "scoped_archive_" + Guid.NewGuid().ToString("N"),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
+        };
+        await repo.SaveAsync(ownRun, CancellationToken.None);
+        await repo.SaveAsync(foreignRun, CancellationToken.None);
+
+        RunArchiveByIdsResult result = await repo.ArchiveRunsByIdsForScopeAsync(
+            owner, [ownRun.RunId, foreignRun.RunId], CancellationToken.None);
+
+        result.SucceededRunIds.Should().ContainSingle().Which.Should().Be(ownRun.RunId);
+        result.Failed.Should().ContainSingle(f => f.RunId == foreignRun.RunId
+            && f.Reason == "Run not found.");
+        (await repo.GetByIdAsync(owner, ownRun.RunId, CancellationToken.None)).Should().BeNull();
+        (await repo.GetByIdAsync(foreign, foreignRun.RunId, CancellationToken.None))
+            .Should().NotBeNull("foreign project run must not be archived");
+    }
+
+    [SkippableFact]
     public async Task ArchiveRunsByIdsAsync_four_parallel_calls_first_archives_others_see_already_archived()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
