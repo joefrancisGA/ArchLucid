@@ -401,6 +401,9 @@ jobs:
           assert data["original_pinned_clean_review_rows_in_historical_cohort"] > 0
           assert data["new_comparable_900_density"] is None
           assert data["merged_historical_and_followon_denominator"] is None
+          assert data["new_verified_distinct_defects"] is None
+          assert set(data["followon_verbatim_candidate_labels_also_in_historical_window"]).isdisjoint(
+              data["followon_candidate_labels_without_verbatim_historical_match"])
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
               out.write(
                   f"Historical 900 first-parent original-pin/follow-on comparison: "
@@ -412,8 +415,11 @@ jobs:
                   f"outside (not silently spliced); exact duplicate lines "
                   f"**{data['followon_exact_repeat_with_original_pins']}**, "
                   f"same-blob unmatched candidate lines "
-                  f"**{data['followon_exact_identities_not_in_original_pins']}**. "
-                  "No cross-revision or comparable density promotion.\\n\\n"
+                  f"**{data['followon_exact_identities_not_in_original_pins']}**; "
+                  f"exact duplicate candidate discovery labels "
+                  f"**{len(data['followon_verbatim_candidate_labels_also_in_historical_window'])}**. "
+                  "Labels are NOT verified distinct defects; no cross-revision "
+                  "or comparable density promotion.\\n\\n"
               )
           PY
 
