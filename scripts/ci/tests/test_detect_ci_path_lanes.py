@@ -93,10 +93,10 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertTrue(lanes["run_terraform"])
         self.assertTrue(lanes["run_infra_diagrams_layout"])
 
-    def test_legacy_rc_pushes_do_not_trigger_full_ci(self) -> None:
-        """Retired RC pushes must not enqueue full CI; manual dispatch remains."""
+    def test_rc49_dispatch_only_and_branch_scoped_concurrency(self) -> None:
+        """Retired RC pushes remain disabled; RC49 dispatch completes without cancellation."""
         workflow = (_REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
-        events = workflow.split("\non:\n", 1)[1].split("\n# PR and workflow_dispatch", 1)[0]
+        events = workflow.split("\non:\n", 1)[1].split("\nconcurrency:\n", 1)[0]
         self.assertNotRegex(events, r"(?m)^  push:")
         self.assertIn("  pull_request:", events)
         self.assertIn("  merge_group:", events)
@@ -104,6 +104,14 @@ class DetectCiPathLanesTests(unittest.TestCase):
         concurrency = workflow.split("\nconcurrency:\n", 1)[1].split("\n\n", 1)[0]
         self.assertIn("github.event.pull_request.number || github.ref", concurrency)
         self.assertIn("github.event_name != 'merge_group'", concurrency)
+        self.assertIn("github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/RC49'", concurrency)
+        self.assertIn("'rc49-dispatch'", concurrency)
+        self.assertIn("!(github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/RC49')", concurrency)
+
+    def test_rc49_pre_corset_guards_are_blocking(self) -> None:
+        workflow = (_REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        guard_section = workflow.split("\n  guards-pre-corset:\n", 1)[1].split("\n  dotnet-fast-core-build:\n", 1)[0]
+        self.assertIn("github.ref != 'refs/heads/RC49'", guard_section)
 
     def test_initial_rc_push_uses_first_parent_diff_for_guards(self) -> None:
         """An all-zero before SHA on the first branch push must never disable diff guards."""

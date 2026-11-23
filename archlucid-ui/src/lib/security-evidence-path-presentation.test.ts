@@ -107,6 +107,9 @@ describe("security-evidence-path-presentation", () => {
     expect(formatSecurityEvidencePathRelationshipLabel("CAN_READ")).toBe(
       "Role allows read. This is not observed use.",
     );
+    expect(formatSecurityEvidencePathRelationshipLabel("FutureRelationship")).toBe(
+      "Relationship type FutureRelationship was not recognized.",
+    );
     expect(formatSecurityEvidencePathRelationshipLabel("")).toBe(SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED);
     expect(formatSecurityEvidencePathRelationshipLabel(null)).toBe(
       SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED,

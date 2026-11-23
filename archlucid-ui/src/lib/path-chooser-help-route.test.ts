@@ -44,7 +44,8 @@ const HELP_TOPIC_VIEW_RESOLVER_OPERATE = join(
 
 const PRODUCT_PATH_CHOOSER_HELP_SURFACES = [
   "archlucid-ui/src/lib/in-app-doc-href.ts",
-  "archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx",
+  // HelpDocsClient renders resolveHelpDocsStaticEntries; test the owning source of the handoff.
+  "archlucid-ui/src/lib/help/help-docs-static-entries.ts",
   "archlucid-ui/src/lib/help/help-center-catalog.ts",
   "archlucid-ui/src/lib/getting-started-help-guide-content.ts",
 ] as const;
