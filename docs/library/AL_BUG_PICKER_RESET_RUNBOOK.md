@@ -1,5 +1,7 @@
 # Bug hunt picker reset (option A)
 
+> **Scope:** Internal bug-hunt state recovery runbook; not a production operations procedure.
+
 When trunk has moved on and `/al-bug1`–`/al-bug4` show **exhaustedAll** or all zones parked, reset picker state while keeping hunt diaries.
 
 ## Command
