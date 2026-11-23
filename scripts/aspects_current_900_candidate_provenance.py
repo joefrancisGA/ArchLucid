@@ -17,6 +17,7 @@ from pathlib import Path
 from aspects_current_master_900_eligibility import reconstruct_cohort
 from aspects_density_snapshot import cohort_identity
 from aspects_reconcile_historical_corpus import load_corpus
+from aspects_recover_unpinned_historical_sources import parse_explicit_unpinned
 from aspects_reconcile_recovered_candidates import intervals
 from aspects_review_evidence import SHA, read_records
 from aspects_validate_historical_pins import VERIFIED, audited_rows_sha256, git
@@ -86,6 +87,19 @@ def audit_current(repo: Path, events: list[dict], pins: list[dict],
         sources = row.get("sources")
         if not isinstance(sources, list) or not sources:
             raise ValueError("candidate reviewed source list unavailable")
+        # The candidate report's SHA-256 binds its own bytes, not independently
+        # the review scope stated in the immutable Excel observation. Parse
+        # those original text spans again and require EVERY path and range to
+        # match, not just a plausible line count at the reported Git commit.
+        if orig.get("parsed_pin") is not None:
+            raise ValueError("derived candidate conflicts with an original workbook blob pin")
+        reported = parse_explicit_unpinned(orig.get("reviewed_file_spans_raw"))
+        expected_scope = ([(item["path"], item["reported_inclusive_intervals"])
+                           for item in reported] if reported is not None else None)
+        actual_scope = [(item.get("path"), item.get("reported_inclusive_intervals"))
+                        for item in sources]
+        if not expected_scope or actual_scope != expected_scope:
+            raise ValueError("candidate source paths/intervals differ from immutable workbook scope")
         total = 0
         checked = []
         for s in sources:
@@ -111,10 +125,17 @@ def audit_current(repo: Path, events: list[dict], pins: list[dict],
                         source_lines[blob] = None
             text = source_lines[blob]
             chosen = intervals(s, "nonblank_intervals_at_reviewed_commit")
-            if (text is None or not chosen or max(chosen) > len(text)
-                    or any(not text[n - 1].strip() for n in chosen)
+            if text is None:
+                raise ValueError("candidate Git source unreadable")
+            expected = set()
+            for lo, hi in s["reported_inclusive_intervals"]:
+                if hi > len(text):
+                    raise ValueError("candidate workbook source interval outside Git file")
+                expected.update(n for n in range(lo, hi + 1)
+                                if text[n - 1].strip())
+            if (not chosen or chosen != expected
                     or len(chosen) != s.get("nonblank_loc")):
-                raise ValueError("candidate nonblank reviewed intervals differ from Git")
+                raise ValueError("candidate nonblank reviewed intervals differ from original workbook/Git")
             total += len(chosen)
             checked.append((path, blob, chosen))
         if (total != row.get("candidate_nonblank_loc")
