@@ -146,6 +146,15 @@ public sealed class TokenClaimsDiagnosticService(
         if (!long.TryParse(expRaw, out long expUnix))
             return;
 
+        // A JWT exp claim can fit Int64 while exceeding DateTimeOffset's supported range.
+        // Keep this untrusted-token diagnostics path non-throwing.
+        if (expUnix < DateTimeOffset.MinValue.ToUnixTimeSeconds()
+            || expUnix > DateTimeOffset.MaxValue.ToUnixTimeSeconds())
+        {
+            warnings.Add("Token exp claim is outside the supported date range.");
+            return;
+        }
+
         DateTimeOffset expires = DateTimeOffset.FromUnixTimeSeconds(expUnix);
 
         if (expires <= TimeProvider.System.GetUtcNow())
