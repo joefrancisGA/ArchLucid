@@ -1,10 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  readSharedSessionLastActivityAtMs,
   resolveSessionIdleTimeoutMs,
   remainingSessionIdleMs,
   SESSION_IDLE_TIMEOUT_MS,
   SESSION_IDLE_WORKING_TIMEOUT_MS,
+  SESSION_LAST_ACTIVITY_STORAGE_KEY,
 } from "@/lib/auth/session-idle-timeout";
 
 describe("session-idle-timeout", () => {
@@ -20,5 +22,19 @@ describe("session-idle-timeout", () => {
     expect(
       remainingSessionIdleMs(last, now, SESSION_IDLE_WORKING_TIMEOUT_MS),
     ).toBe(5_000);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    window.localStorage.removeItem(SESSION_LAST_ACTIVITY_STORAGE_KEY);
+  });
+
+  it("clamps a future last-activity timestamp to the current clock", () => {
+    const nowMs = Date.parse("2026-11-23T18:00:00.000Z");
+    vi.useFakeTimers();
+    vi.setSystemTime(nowMs);
+    window.localStorage.setItem(SESSION_LAST_ACTIVITY_STORAGE_KEY, "2099-01-01T00:00:00.000Z");
+
+    expect(readSharedSessionLastActivityAtMs()).toBe(nowMs);
   });
 });

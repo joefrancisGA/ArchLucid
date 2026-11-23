@@ -4206,6 +4206,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `readSharedSessionLastActivityAtMs` returned a future ISO timestamp unchanged, so `remainingSessionIdleMs` stayed past the idle window after the clock moved back. `writeSharedSessionLastActivityAt` stores `new Date(nowMs).toISOString()` in `archlucid.session.lastActivityAt`. Regression `clamps a future last-activity timestamp to the current clock` failed first (received the 2099 instant), then the file passed 3/3. Private beta: a clock that jumps ahead and then back no longer keeps an invited operator signed in past the idle window.
+
+- [x] (proven) `readSharedSessionLastActivityAtMs` — future last-activity extends the idle window — **proven 2026-11-23 seed hunt:** stored `2099-01-01T00:00:00.000Z` was returned as-is; a future instant is now clamped to `Date.now()`.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `persistLivelihoodIdleSnapshotsBeforeErrorRecovery` stored `pathname` and `search` only, so a review error page at `#review-summary` restored the desk without the tab. Callers are `app/error.tsx`, `global-error.tsx`, and the review `error.tsx`. Regression `keeps the review-tab hash on the error-recovery desk restore path` failed first (stored path stopped at `run-1`), then the file passed 4/4. Private beta: after an error on a review tab, sign-in restores that tab instead of the review with the hash dropped.
 
 - [x] (proven) `persistLivelihoodIdleSnapshotsBeforeErrorRecovery` — error-recovery desk path omits `location.hash` — **proven 2026-11-23 seed hunt:** stored return path was `/architecture/reviews/run-1` when the location hash was `#review-summary`; the stored path now appends `window.location.hash`.
@@ -4653,8 +4657,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 5
-- **bugs-found:** 4
+- **hunts:** 6
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
