@@ -56,6 +56,11 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
                 WHERE member.name = N'ArchLucidAppRemediationPermissionsTest'
                   AND role.name = N'db_datawriter')
                 ALTER ROLE [db_datawriter] ADD MEMBER [ArchLucidAppRemediationPermissionsTest];
+
+            -- db_datawriter does not confer SELECT. Model the runtime's required
+            -- read access on just these tables, for the disposable user only.
+            GRANT SELECT ON dbo.RemediationInstances TO [ArchLucidAppRemediationPermissionsTest];
+            GRANT SELECT ON dbo.RemediationEvidence TO [ArchLucidAppRemediationPermissionsTest];
             """);
 
         // Reapply the *actual embedded* DbUp migration after creating the
