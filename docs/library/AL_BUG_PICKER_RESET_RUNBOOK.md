@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — internal bug hunt picker reset procedure.
+> **Scope:** Internal engineering operations runbook for preserving bug-hunt diaries while resetting picker state; not customer-facing guidance.
 
 > **Spine doc:** [START_HERE.md](../START_HERE.md).
 
