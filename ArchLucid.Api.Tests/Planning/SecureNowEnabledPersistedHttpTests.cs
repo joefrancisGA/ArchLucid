@@ -18,6 +18,9 @@ namespace ArchLucid.Api.Tests.Planning;
 /// </summary>
 public sealed class SecureNowExchangeEnabledApiFactory : ArchLucidApiFactory
 {
+    // Exercise the real SQL-backed SCIM and project ACL repositories alongside the persisted run.
+    public SecureNowExchangeEnabledApiFactory() : base(sqlAuthorityStorage: true) { }
+
     protected override void ApplySqlCatalogCustomSettings(Dictionary<string, string?> settings)
     {
         base.ApplySqlCatalogCustomSettings(settings);
@@ -38,8 +41,8 @@ public sealed class SecureNowEnabledPersistedHttpTests(SecureNowExchangeEnabledA
         Guid run = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
             factory.Services, CancellationToken.None);
         // Test real FND-010 project entitlement, not a stub or a privileged role bypass.
-        // InMemory authority storage and the SQL-backed project role lookup both need
-        // the same test-only directory identity; the SQL row enforces the role FK.
+        // SQL authority storage ensures the SCIM user, project role, and run all use
+        // the same ephemeral catalog.
         string readerOid = $"fnd011-reader-{Guid.NewGuid():N}";
         owner.DefaultRequestHeaders.TryAddWithoutValidation(
             ArchLucidAuthOptions.TestActorIdHeader, readerOid);
@@ -59,8 +62,6 @@ public sealed class SecureNowEnabledPersistedHttpTests(SecureNowExchangeEnabledA
             await sql.OpenAsync();
             await using SqlCommand seed = new(
                 """
-                INSERT INTO dbo.ScimUsers (Id, TenantId, ExternalId, UserName, Active)
-                VALUES (@UserId, @TenantId, @Oid, @Oid, 1);
                 INSERT INTO dbo.ProjectRoleAssignments (TenantId, WorkspaceId, ProjectId, UserId, Role)
                 VALUES (@TenantId, @WorkspaceId, @ProjectId, @UserId, N'Reader');
                 """, sql);
@@ -68,8 +69,15 @@ public sealed class SecureNowEnabledPersistedHttpTests(SecureNowExchangeEnabledA
             seed.Parameters.AddWithValue("@TenantId", ScopeIds.DefaultTenant);
             seed.Parameters.AddWithValue("@WorkspaceId", ScopeIds.DefaultWorkspace);
             seed.Parameters.AddWithValue("@ProjectId", ScopeIds.DefaultProject);
-            seed.Parameters.AddWithValue("@Oid", readerOid);
             await seed.ExecuteNonQueryAsync();
+
+            // Confirm that the exact repository used by the central authorization
+            // gate sees the seeded Reader assignment before exercising the HTTP path.
+            ProjectScopedEffectiveRole assignedRole = await services.ServiceProvider
+                .GetRequiredService<ArchLucid.Persistence.Data.Repositories.IProjectRoleAssignmentRepository>()
+                .GetHighestRoleAsync(ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace,
+                    ScopeIds.DefaultProject, reader.Id, CancellationToken.None);
+            assignedRole.Should().Be(ProjectScopedEffectiveRole.Reader);
         }
         string url = $"/v1/evidence-graph/snapshot?runId={run:D}"
             + $"&asOf={Uri.EscapeDataString(DateTimeOffset.UtcNow.AddMinutes(1).ToString("O"))}"
