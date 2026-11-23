@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-23 - Score lift round 127 (batch 92): Attack-path unevaluated empty, digest failure gates
+
+**Outcome.** Unevaluated attack-path subsection empty names a successful report with zero unevaluated groups versus a failed report load. A mounted contract keeps the unevaluated-only banner in the success branch and off the retry panel. Digest browse setup checklist while digests exist stays hidden during a hard list load failure, alongside the existing empty-composition gate.
+
+**Surfaces.** Remediation factory attack-path report, digests browse, honesty and mounted contract tests.
+
 ## 2026-11-23 - Score lift round 126 (batch 91): Compare empty ids, terraform and diagram family
 
 **Outcome.** Compare quality-delta and classification-band zero-count paragraphs expose not-load-failure test ids beside the existing parent ids. Terraform mapping empty names a successful catalog read with no row versus a failed Terraform load. Diagram evidence-family empty names a loaded diagram with no relationships in the selected family versus a failed diagram read.

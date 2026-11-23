@@ -267,7 +267,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
         </div>
       ) : null}
 
-      {setupChecklist !== null && setupIncomplete && digests.length > 0 ? (
+      {setupChecklist !== null && setupIncomplete && digests.length > 0 && failure === null ? (
         <div className="mt-4">
           <DigestsBrowseSetupChecklist items={setupChecklist} />
         </div>
