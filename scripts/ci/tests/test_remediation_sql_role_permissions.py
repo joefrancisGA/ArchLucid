@@ -13,6 +13,7 @@ SCHEMA = ROOT / "ArchLucid.Persistence/Scripts/ArchLucid.sql"
 STARTUP = ROOT / "ArchLucid.Host.Core/Startup/Validation/Rules/SqlSealedEvidenceImmutabilityRules.cs"
 DELETE = ROOT / "ArchLucid.Persistence/InfraEvidence/SqlAzureInventorySnapshotRepository.Delete.cs"
 SQL_TEST = ROOT / "ArchLucid.Persistence.Tests/Sql/RemediationSqlRolePrivilegesTests.cs"
+PATH_FK_MIGRATION = ROOT / "ArchLucid.Persistence/Migrations/384_RemediationInstancePathNarrative.sql"
 
 
 class RemediationSqlRolePermissionsTests(unittest.TestCase):
@@ -71,6 +72,12 @@ class RemediationSqlRolePermissionsTests(unittest.TestCase):
         guard = code.index("const string remediationPathCountSql")
         cascade = code.index("private static async Task CascadeDeleteSnapshotRowsAsync(")
         self.assertLess(guard, cascade)
+
+    def test_existing_remediation_path_fk_prevents_orphan_deletions(self):
+        sql = PATH_FK_MIGRATION.read_text()
+        self.assertIn("FK_RemediationInstances_SecurityEvidencePaths", sql)
+        self.assertIn("FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId)", sql)
+        self.assertNotIn("ON DELETE CASCADE", sql)
 
     def test_sql_integration_uses_impersonated_broad_writer_and_real_migration(self):
         code = SQL_TEST.read_text()
