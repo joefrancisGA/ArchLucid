@@ -16,6 +16,8 @@ on:
       - scripts/aspects_recover_unpinned_historical_sources.py
       - scripts/tests/test_aspects_recover_unpinned_historical_sources.py
       - scripts/aspects_reconcile_recovered_candidates.py
+      - scripts/aspects_reconcile_historical_defect_ids.py
+      - scripts/tests/test_aspects_reconcile_historical_defect_ids.py
       - scripts/tests/test_aspects_reconcile_recovered_candidates.py
       - scripts/aspects_reconcile_historical_lineage.py
       - scripts/tests/test_aspects_reconcile_historical_lineage.py
@@ -100,6 +102,32 @@ jobs:
               window = report["first_parent_checkpoint"]
               f.write(f"900-first-parent anchor: **{window['status']}**; exact-path/blob window subset: **{window['verified_nonblank_exact_path_blob_unique_loc_subset']} LOC**. This does not replace the historical denominator.\n\n")
               f.write("Cross-revision line identity and historical distinct-defect reconciliation remain unresolved.\n\n")
+          PY
+
+      - name: Reconcile historical discovery identifiers and current sampled fixing-PR states
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_historical_defect_ids.py' -v
+          python scripts/aspects_reconcile_historical_defect_ids.py \
+            --historical-root docs/engineering/aspects-historical \
+            --audited-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --pin-report artifacts/aspects/historical-git-pin-audit.json \
+            --new-ledger docs/engineering/aspects-review-ledger.jsonl \
+            --pr-states docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-nine-merged.json \
+            --json-out artifacts/aspects/historical-discovery-fix-reconciliation.json \
+            --rows-out artifacts/aspects/historical-discovery-fix-reconciliation.jsonl
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          item = json.loads(Path("artifacts/aspects/historical-discovery-fix-reconciliation.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(
+                  f"Historical candidate discovery IDs **{item['unique_named_discovery_id_candidates']:,}** "
+                  f"across **{item['positive_rows']:,}** positive workbook rows; "
+                  f"fix PR statuses independently checked in GitHub "
+                  f"**{item['github_fix_pr_state_verified_rows']:,}**. "
+                  "Fix merges never change discovery counts; the 463-defect "
+                  "historical numerator remains unverified.\\n\\n"
+              )
           PY
 
       - name: Classify unpinned workbook source references without inflating verified coverage
@@ -229,6 +257,8 @@ jobs:
             artifacts/aspects/historical-corpus-validation.json
             artifacts/aspects/historical-git-pin-audit.json
             artifacts/aspects/historical-git-pin-rows.jsonl
+            artifacts/aspects/historical-discovery-fix-reconciliation.json
+            artifacts/aspects/historical-discovery-fix-reconciliation.jsonl
             artifacts/aspects/historical-unpinned-source-candidates.json
             artifacts/aspects/historical-unpinned-source-candidates.jsonl
             artifacts/aspects/historical-recovered-vs-pinned-overlap.json
