@@ -40,7 +40,9 @@ def plan_rollout_and_rollback(
         return RollbackPlanResult("rejected", (reason,), None, ())
     if not all((tenant_id, proposal_id, deployment_policy_ref)):
         return reject("missing_scope_or_policy")
-    if (not decision.allowed or decision.action != "remediation.plan"
+    # Caller-provided authorization facts must never be accepted by truthiness.
+    # These reference decisions are not a production identity or policy check.
+    if (decision.allowed is not True or decision.action != "remediation.plan"
         or decision.tenant_id != tenant_id or decision.proposal_id != proposal_id
         or not decision.decision_id):
         return reject("not_authorized")
@@ -51,10 +53,27 @@ def plan_rollout_and_rollback(
         return reject("missing_evidence")
     if not dry_run.changes:
         return reject("no_changes")
+    # Consecutive changes to the same property must form a coherent forward
+    # state chain. Reversing contradictory caller-supplied tuples would produce
+    # an inverse plan that cannot be safely replayed even in a reference model.
+    last_values: dict[tuple[str, str], str | None] = {}
+    for change in dry_run.changes:
+        if not isinstance(change, (tuple, list)) or len(change) != 4:
+            return reject("invalid_change")
+        resource, key, old, new = change
+        if (not isinstance(resource, str) or not resource
+                or not isinstance(key, str) or not key
+                or (old is not None and not isinstance(old, str))
+                or (new is not None and not isinstance(new, str))
+                or old == new):
+            return reject("invalid_change")
+        binding = (resource, key)
+        if binding in last_values and old != last_values[binding]:
+            return reject("inconsistent_change_chain")
+        last_values[binding] = new
+
     inverse: list[RemediationStep] = []
     for resource, key, old, new in reversed(dry_run.changes):
-        if not resource or not key or old == new:
-            return reject("invalid_change")
         if old is None:
             inverse.append(RemediationStep("remove-property", resource, key, new, None))
         else:

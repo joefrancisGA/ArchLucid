@@ -39,6 +39,7 @@ import { REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_ONLY_NOT_LOAD_FAILURE_LINE 
 import { REMEDIATION_FACTORY_ATTACK_PATH_REPORT_LOAD_FAILURE_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-report-load-failure-partial-capture-copy";
 import { REMEDIATION_FACTORY_ATTACK_PATH_DIAGRAM_FILTER_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-diagram-filter-empty-partial-capture-copy";
 import { ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/attack-path-report-diagram-filter-empty-not-load-failure-copy";
+import { ATTACK_PATH_REPORT_VULNERABLE_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/attack-path-report-vulnerable-empty-not-load-failure-copy";
 import {
   attackPathReportPathChipOverflowLine,
   formatAttackPathReportPathChipLabel,
@@ -124,7 +125,7 @@ export function RemediationFactoryAttackPathReportSection(props: {
       {props.reportQuery.isLoading ? (
         <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_ATTACK_PATH_LOADING}</p>
       ) : props.reportQuery.isError ? (
-        <>
+        <div className="space-y-2" data-testid="attack-path-report-load-failure">
           <OperatorErrorRecoveryContract
             presentation={remediationFactoryAttackPathReportErrorRecovery()}
             testId="attack-path-report-error-recovery"
@@ -152,7 +153,7 @@ export function RemediationFactoryAttackPathReportSection(props: {
                 extractUploadTestId="attack-path-report-load-failure-partial-extract"
               />
             ) : null}
-          </>
+        </div>
         ) : props.reportQuery.isSuccess && props.reportQuery.data ? (
         <>
                     {props.partialCapture === true ? (
@@ -216,6 +217,8 @@ export function RemediationFactoryAttackPathReportSection(props: {
             title={REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_TITLE}
             emptyTestId="attack-path-report-vulnerable-empty"
             emptyCopy={REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_EMPTY}
+            notLoadFailureTestId="attack-path-report-vulnerable-empty-not-load-failure"
+            notLoadFailureLine={ATTACK_PATH_REPORT_VULNERABLE_EMPTY_NOT_LOAD_FAILURE_LINE}
             isEmpty={props.reportQuery.data.vulnerableAttackPaths.length === 0}
           >
             <RemediationFactoryRankedPathsTable
@@ -281,6 +284,8 @@ function RemediationFactoryAttackPathReportSubsection(props: {
   readonly title: string;
   readonly emptyTestId: string;
   readonly emptyCopy: string;
+  readonly notLoadFailureTestId?: string;
+  readonly notLoadFailureLine?: string;
   readonly isEmpty: boolean;
   readonly children: ReactNode;
 }) {
@@ -288,9 +293,16 @@ function RemediationFactoryAttackPathReportSubsection(props: {
     <div className="space-y-2">
       <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{props.title}</h3>
       {props.isEmpty ? (
-        <p className={OPERATOR_TYPOGRAPHY.helper} data-testid={props.emptyTestId}>
-          {props.emptyCopy}
-        </p>
+        <div className="space-y-1">
+          <p className={OPERATOR_TYPOGRAPHY.helper} data-testid={props.emptyTestId}>
+            {props.emptyCopy}
+          </p>
+          {props.notLoadFailureLine !== undefined && props.notLoadFailureTestId !== undefined ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid={props.notLoadFailureTestId}>
+              {props.notLoadFailureLine}
+            </p>
+          ) : null}
+        </div>
       ) : (
         props.children
       )}
