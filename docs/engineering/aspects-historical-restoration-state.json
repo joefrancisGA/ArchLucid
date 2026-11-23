@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_full_first_parent_proof_CI_pending_with_FND011_feature_off_contract_correction",
-  "next_priority": "On exact newest PR #7822 head, validate historical-original-pin-proven-first-parent.json and the seven test goldens. Confirm FND-011 feature-OFF owner/foreign 404 plus separately mandatory feature-ON owner 200/foreign 404 and OpenAPI; investigate any new CI failures without disabling gates. PR is currently dirty versus master (106 ahead / 90 behind at 2026-11-23 10:46Z) and requires narrow conflict resolution before merge. Historical original pinned 900 first-parent cohort/source and discovery identities remain incomplete for a fresh density; no new comparable rate.",
+  "state": "original_pinned_900_first_parent_lineage_proven;FND011_SQL_and_seeded_test_entitlement_repair_submitted",
+  "next_priority": "On PR #7822 exact newest head, validate Aspects original-first-parent artifact, 7 passing regression tests, FND-011 .NET Projection and enabled HTTP owner=200/foreign=404 after narrowly correcting SQL bootstrap invalid EXEC(QUOTENAME) and installing a server-side test-only seeded entitlement authority. Do not weaken production default-deny entitlement or other security gates. If required checks pass, resume 900-window distinct discovery identity and unpinned original reviewed source reconciliation; do not publish new density or merge until all required checks pass.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -440,7 +440,7 @@
       }
     },
     "original_pinned_full_first_parent_lineage_proof": {
-      "status": "implementation_and_tests_committed_pending_CI_validation_at_newest_head",
+      "status": "validated_by_successful_PR_Aspects_snapshot_at_parent_head;latest_PR_awaiting_revalidation",
       "implementation": "scripts/aspects_verify_original_pinned_first_parent.py",
       "tests": "scripts/tests/test_aspects_verify_original_pinned_first_parent.py",
       "workflow": ".github/workflows/aspects-density-snapshot.yml",
@@ -460,7 +460,27 @@
       "newly_reconciled_verified_distinct_discoveries": 0,
       "full_900_comparable_density": null,
       "PR_merge_allowed_only_after_all_required_checks_pass": true,
-      "full_master_build_dispatched": false
+      "full_master_build_dispatched": false,
+      "validated_run_id": 45160219395,
+      "validated_job_id": 137655988455,
+      "validated_git_head": "d061556dc58873d414bdd3754ffe410c6920190a",
+      "first_parent_head_sha": "15ac3b9abeff23e4fa8cb7a16027bf9b17211251",
+      "oldest_included_sha": "6252805a908f5bf0413bb40c68cb546013ff1843",
+      "original_review_rows_imported": 5741,
+      "original_pinned_review_rows_in_window": 4514,
+      "original_pinned_line_occurrences_in_window": 238239,
+      "original_pinned_exact_unique_loc": 232219,
+      "same_blob_repeated_occurrences_in_window": 6020,
+      "proven_cross_revision_repeated_line_identities": 1014,
+      "proven_first_parent_connected_source_components": 231205,
+      "revision_pairs_checked_full_first_parent": 35,
+      "first_parent_edges_between_checked_original_revisions": 3849,
+      "revision_pairs_unresolved_in_checked_original_pins": 0,
+      "unresolved_coverage_qualification": "unresolved_pairs=0 only within 35 adjacent original-pinned reviewed-file version pairs; not full 900-commit reviewed corpus",
+      "newly_independently_reviewed_LOC_this_run": 0,
+      "new_distinct_defects_this_run": 0,
+      "new_comparable_rate": null,
+      "interpretation": "Newly independently verified unchanged cross-revision identity links, not newly reviewed LOC or proof of full denominator/defect discoveries; checked source pin population still partial."
     },
     "fnd011_feature_off_http_contract": {
       "reason": "GitHub FND-011 PR-head 509f5799 run 45151489473: SQL service ready; 17 projection/controller tests passed; persisted default-flag HTTP test owner expected 200/409, received 404. The separate enabled-exchange test requires owner 200 and foreign tenant 404 and must still execute.",
@@ -478,6 +498,24 @@
         "behind": 90
       },
       "limitation": "not an Aspects measurement; don't bypass required checks or trigger master full CI"
+    },
+    "current_feature_CI_unblock": {
+      "stage": "narrow_FIXES_committed_and_waiting_exact_head_CI",
+      "source_head_with_failures": "d061556dc58873d414bdd3754ffe410c6920190a",
+      "failing_projection_run_id": 45160219187,
+      "failing_projection_class": "SecureNowSnapshotTwoTenantHttpTests",
+      "root_cause": "ArchLucid.Persistence/Scripts/ArchLucid.sql had direct EXEC(expression + QUOTENAME(...)), which SQL Server rejected during schema bootstrap",
+      "fixed_sql_file": "ArchLucid.Persistence/Scripts/ArchLucid.sql",
+      "failing_enabled_http_run_id": 45160219174,
+      "failing_enabled_http_class": "SecureNowEnabledPersistedHttpTests",
+      "root_cause_enabled": "default production IEvidenceEntitlementAuthority intentionally denies; fixture expected owner 200 without server-side seeded entitlement",
+      "fixed_fixture": "ArchLucid.Api.Tests/Planning/SecureNowEnabledPersistedHttpTests.cs",
+      "fix_scope": "test-only server-side scoped ACL grants exact seeded run; central gate, platform policy, foreign-tenant denial and production default-deny remain mandatory",
+      "validation": "new-head PR checks not yet reported",
+      "newly_reviewed_LOC": 0,
+      "newly_reconciled_distinct_discoveries": 0,
+      "new_comparable_rate": null,
+      "full_master_build_dispatched": false
     }
   },
   "latest_restoration_run": {
