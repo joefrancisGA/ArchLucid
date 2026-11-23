@@ -896,8 +896,8 @@ public sealed class RemediationInstanceServiceTests
                 It.IsAny<VerifiedRemediationControlAssociationRecord>(),
                 It.IsAny<CancellationToken>()))
             .Returns((ProjectScopeKey scope,
-                      VerifiedRemediationControlAssociationRecord _,
-                      CancellationToken _) =>
+                      VerifiedRemediationControlAssociationRecord ignoredAssociation,
+                      CancellationToken ignoredToken) =>
             {
                 RemediationInstanceRecord current = harness.Instances.Instances.Single();
                 current.Status.Should().Be(RemediationInstanceStatus.Verified);
