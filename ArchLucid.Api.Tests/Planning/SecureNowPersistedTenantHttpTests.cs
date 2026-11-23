@@ -23,7 +23,9 @@ public sealed class SecureNowPersistedTenantHttpTests(ArchLucidApiFactory factor
         Guid run = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
             factory.Services, CancellationToken.None);
 
-        string url = $"/v1/evidence-graph/snapshot?runId={run:D}&asOf={Uri.EscapeDataString(DateTimeOffset.UtcNow.AddMinutes(1).ToString("O"))}";
+        // Request the exchange explicitly, so 404 must come from the
+        // feature-disabled boundary rather than a missing opt-in parameter.
+        string url = $"/v1/evidence-graph/snapshot?runId={run:D}&asOf={Uri.EscapeDataString(DateTimeOffset.UtcNow.AddMinutes(1).ToString("O"))}&secureNowExchange=true";
         using HttpResponseMessage ownerResponse = await owner.GetAsync(url);
 
         // This factory uses production-default feature flags. A seeded
