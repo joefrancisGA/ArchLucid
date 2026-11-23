@@ -54,6 +54,18 @@ def rehearse_recovery(
         return reject("forward_changes_mismatch")
     if len(rollback.inverse_steps) != len(dry_run.changes):
         return reject("inverse_steps_incomplete")
+    # A matching final digest alone cannot prove that every intermediate
+    # rollback change matches the reviewed forward change sequence. Reject
+    # a substituted inverse even if it would ultimately restore the source.
+    expected_inverse = tuple(
+        RemediationStep(
+            "remove-property" if old is None else "set-property",
+            resource, key, new, old,
+        )
+        for resource, key, old, new in reversed(forward.changes)
+    )
+    if tuple(rollback.inverse_steps) != expected_inverse:
+        return reject("inverse_steps_mismatch")
     # Materialize only a private in-memory copy of the forward state.
     working = {resource: dict(props) for resource, props in source.items()}
     for resource, key, old, new in forward.changes:
