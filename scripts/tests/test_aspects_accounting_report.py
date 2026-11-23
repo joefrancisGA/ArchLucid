@@ -242,6 +242,45 @@ class AccountingReportTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"distinct verified observations exceed"):
             sut.verified_subset(snap)
 
+    def test_repeated_measurement_does_not_masquerade_as_new_reviews(self):
+        snap={
+            "schema_version":2,
+            "method":"first_parent_verified_path_blob_span_union_v2",
+            "scope":"narrow_incremental_review_ledger_subset",
+            "cohort":{"status":"complete","actual_commits":900,
+                      "head_sha":"a"*40},
+            "status":"source_verified_subset","head":"a"*40,
+            "comparison":{"status":"comparable"},
+            "freshness":"stale_no_new_verified_evidence",
+            "density":{"distinct_confirmed_defects":2,
+                       "unique_path_blob_reviewed_lines":1000,
+                       "defects_per_kloc":2.0,"signed_delta":0.0},
+            "review":{"verified_rows":8,
+                      "distinct_verified_observations":6,
+                      "distinct_reviewed_files":2,
+                      "new_observations_since_prior":0,
+                      "new_unique_path_blob_lines_since_prior":0,
+                      "new_line_occurrences_since_prior":0,
+                      "repeated_line_occurrences_since_prior":0,
+                      "new_defects_since_prior":0},
+        }
+        report=sut.verified_subset(snap)
+        self.assertEqual(report["freshness"],"stale_no_new_verified_evidence")
+        self.assertEqual(report["new_reviewed_loc"],0)
+        self.assertEqual(report["new_distinct_defect_ids"],0)
+        self.assertEqual(report["new_observations_since_prior"],0)
+        for field,value in [
+            ("new_observations_since_prior",1),
+            ("new_unique_path_blob_lines_since_prior",1),
+            ("new_line_occurrences_since_prior",1),
+            ("new_defects_since_prior",1),
+        ]:
+            altered=deepcopy(snap)
+            altered["review"][field]=value
+            with self.subTest(field=field),self.assertRaisesRegex(
+                    ValueError,"stale verified evidence"):
+                sut.verified_subset(altered)
+
     def test_bad_live_density_never_accepted(self):
         snapshot={
             "schema_version":2,"method":"first_parent_verified_path_blob_span_union_v2",
