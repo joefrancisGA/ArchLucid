@@ -91,7 +91,12 @@ jobs:
           assert result["exact_same_blob_candidate_line_identities"] == 0
           proven = result["all_first_parent_proven_repeat_candidate_lines"]
           different = result["different_revision_all_first_parent_proven_repeat_candidate_lines"]
-          assert 0 <= proven == different <= 79
+          endpoint_ceiling = result["unique_text_endpoint_matching_candidates_not_lineage_proof"]
+          assert result["upper_bound_is_not_first_parent_proof"] is True
+          assert endpoint_ceiling == len(result["unique_text_endpoint_candidate_line_numbers"])
+          assert 0 <= proven == different <= endpoint_ceiling <= 79
+          assert set(result["candidate_line_numbers_with_proven_continuity"]).issubset(
+              result["unique_text_endpoint_candidate_line_numbers"])
           assert proven + result["candidate_lines_on_shared_path_without_full_proof"] == 79
           assert proven == len(result["candidate_line_numbers_with_proven_continuity"])
           assert result["candidate_lines_without_original_pinned_path"] == 203
@@ -100,7 +105,9 @@ jobs:
           assert result["new_comparable_900_density"] is None
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
               out.write(
-                  f"Excel row12 #6624: **{proven:,}** of 79 candidate source lines "
+                  f"Excel row12 #6624: **{proven:,}** fully proven first-parent links "
+                  f"(unique reviewed endpoint-text candidate ceiling **{endpoint_ceiling:,}**) "
+                  "out of 79 candidate source lines "
                   "have Git-proven unchanged first-parent continuity to at least "
                   "one of 3 original-blob-pinned review spans across 2 SHAs. "
                   f"**{result['candidate_lines_on_shared_path_without_full_proof']:,}** "
