@@ -1,9 +1,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-const src = fileURLToPath(new URL("../", import.meta.url));
+// Vitest/Vite transforms import.meta.url to a virtual scheme in CI. The focused
+// workflow runs with archlucid-ui as cwd, so read files from that root.
+const src = join(process.cwd(), "src");
 const read = (path: string) => readFileSync(join(src, path), "utf8");
 
 describe("operator-only preference provider route boundary (RC49 first-load budget)", () => {
