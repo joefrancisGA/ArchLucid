@@ -50,7 +50,14 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
         self.assertIn('("dbo.RemediationEvidence", "DELETE")', probe)
         self.assertIn("SqlDatabaseImmutabilityProbeHelpers.HasDenyPermission", probe)
         self.assertIn("SqlDatabaseImmutabilityProbeHelpers.HasEffectivePermission", probe)
+        self.assertIn("SqlDatabaseImmutabilityProbeHelpers.IsCurrentPrincipalRoleMember", probe)
+        self.assertIn('("dbo.RemediationInstances", "UPDATE")', probe)
+        self.assertIn('("dbo.RemediationEvidence", "INSERT")', probe)
+        self.assertIn("RemediationRequiredPermissions", probe)
         self.assertIn("migration 426", probe)
+        helpers = (ROOT / "ArchLucid.Host.Core/Startup/Validation/Rules/"
+                   "SqlDatabaseImmutabilityProbeHelpers.cs").read_text()
+        self.assertIn("IS_ROLEMEMBER(@RoleName)", helpers)
 
     def test_real_sql_regression_impersonates_non_owner_app_user(self):
         test = (ROOT / "ArchLucid.Persistence.Tests/Sql/"
