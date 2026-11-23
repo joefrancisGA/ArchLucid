@@ -63,7 +63,9 @@ class FollowOn900Tests(unittest.TestCase):
         self.assertEqual(r["followon_git_verified_records_all_history"], 3)
         self.assertEqual(r["followon_records_with_baseline_outside_historical_cohort"], 1)
         self.assertEqual(r["followon_records_with_baseline_inside_historical_cohort"], 2)
+        self.assertEqual(r["followon_line_occurrences_in_historical_cohort"], 7)
         self.assertEqual(r["followon_unique_exact_path_blob_lines_in_historical_cohort"], 5)
+        self.assertEqual(r["followon_exact_repeated_occurrences_among_in_window_reviews"], 2)
         self.assertEqual(r["followon_exact_repeat_with_original_pins"], 3)
         self.assertEqual(r["followon_exact_identities_not_in_original_pins"], 2)
         self.assertEqual(r["followon_candidate_defect_ids_in_historical_cohort"], ["D1"])
@@ -73,6 +75,22 @@ class FollowOn900Tests(unittest.TestCase):
         self.assertEqual(r["newly_verified_reviewed_loc_from_this_reconciliation"], 0)
         self.assertIsNone(r["merged_historical_and_followon_denominator"])
         self.assertIsNone(r["new_comparable_900_density"])
+
+    def test_repeated_clean_followon_event_increases_occurrences_not_unique_coverage(self):
+        pins, report, recent = fixture()
+        recent.append({"baseline": NEWEST, "verified": True,
+                       "path": "src/a.cs", "blob": BLOB,
+                       "spans": [[4, 5]], "defect_id": None})
+        result = sut.reconcile(pins, report, recent, [NEWEST, OLDEST],
+                               pins, expected_rows=3)
+        self.assertEqual(result["followon_line_occurrences_in_historical_cohort"], 9)
+        self.assertEqual(result["followon_unique_exact_path_blob_lines_in_historical_cohort"], 5)
+        self.assertEqual(result["followon_exact_repeated_occurrences_among_in_window_reviews"], 4)
+        self.assertEqual(result["followon_exact_repeat_with_original_pins"], 3)
+        self.assertEqual(result["followon_exact_identities_not_in_original_pins"], 2)
+        self.assertEqual(result["followon_clean_records_in_historical_cohort"], 2)
+        self.assertEqual(result["newly_verified_reviewed_loc_from_this_reconciliation"], 0)
+        self.assertIsNone(result["new_comparable_900_density"])
 
     def test_numeric_suffix_or_fix_pr_name_never_proves_discovery_alias(self):
         pins, report, recent = fixture()
@@ -113,6 +131,8 @@ class FollowOn900Tests(unittest.TestCase):
         r = sut.reconcile(pins, report, recent, [NEWEST, OLDEST], pins,
                           expected_rows=3)
         self.assertEqual(r["followon_clean_records_in_historical_cohort"], 1)
+        self.assertEqual(r["followon_line_occurrences_in_historical_cohort"], 5)
+        self.assertEqual(r["followon_exact_repeated_occurrences_among_in_window_reviews"], 0)
         self.assertEqual(r["followon_candidate_defect_ids_in_historical_cohort"], [])
         self.assertIsNone(r["new_verified_distinct_defects"])
 
