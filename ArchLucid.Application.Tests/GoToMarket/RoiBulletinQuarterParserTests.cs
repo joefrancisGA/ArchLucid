@@ -24,6 +24,43 @@ public sealed class RoiBulletinQuarterParserTests
         window.EndUtcExclusive.Should().Be(new DateTimeOffset(yEnd, moEnd, dEnd, 0, 0, 0, TimeSpan.Zero));
     }
 
+    [Theory]
+    [InlineData("Q1-0000")]
+    [InlineData("Q4-9999")]
+    public void TryParse_rejects_unrepresentable_utc_quarter_without_throwing(string label)
+    {
+        bool ok = RoiBulletinQuarterParser.TryParse(label, out RoiBulletinQuarterWindow window, out string? error);
+
+        ok.Should().BeFalse();
+        error.Should().Contain("outside the supported UTC date range");
+        window.StartUtcInclusive.Should().Be(default(DateTimeOffset));
+        window.EndUtcExclusive.Should().Be(default(DateTimeOffset));
+    }
+
+    [Fact]
+    public void TryParse_allows_last_representable_full_quarters()
+    {
+        RoiBulletinQuarterParser.TryParse("Q3-9999", out RoiBulletinQuarterWindow lastQuarter, out string? error)
+            .Should().BeTrue();
+        error.Should().BeNull();
+        lastQuarter.EndUtcExclusive.Should().Be(
+            new DateTimeOffset(9999, 10, 1, 0, 0, 0, TimeSpan.Zero));
+
+        RoiBulletinQuarterParser.TryParse("Q4-9998", out RoiBulletinQuarterWindow lastYear, out error)
+            .Should().BeTrue();
+        lastYear.EndUtcExclusive.Should().Be(
+            new DateTimeOffset(9999, 1, 1, 0, 0, 0, TimeSpan.Zero));
+    }
+
+    [Fact]
+    public void TryParse_rejects_unicode_digits_without_throwing()
+    {
+        bool ok = RoiBulletinQuarterParser.TryParse("Q1-٢٠٢٦", out _, out string? error);
+
+        ok.Should().BeFalse();
+        error.Should().Contain("Invalid quarter");
+    }
+
     [SkippableFact]
     public void TryParse_rejects_invalid_format()
     {
