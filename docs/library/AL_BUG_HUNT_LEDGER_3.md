@@ -4206,6 +4206,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `persistLivelihoodIdleSnapshotsBeforeErrorRecovery` stored `pathname` and `search` only, so a review error page at `#review-summary` restored the desk without the tab. Callers are `app/error.tsx`, `global-error.tsx`, and the review `error.tsx`. Regression `keeps the review-tab hash on the error-recovery desk restore path` failed first (stored path stopped at `run-1`), then the file passed 4/4. Private beta: after an error on a review tab, sign-in restores that tab instead of the review with the hash dropped.
+
+- [x] (proven) `persistLivelihoodIdleSnapshotsBeforeErrorRecovery` — error-recovery desk path omits `location.hash` — **proven 2026-11-23 seed hunt:** stored return path was `/architecture/reviews/run-1` when the location hash was `#review-summary`; the stored path now appends `window.location.hash`.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `clearOperatorSessionForExpiry` built the idle return path from `pathname` and `search` only, so `#review-summary` never reached `buildSessionExpiredHref`. `SessionIdleTimeoutGuard` calls that default. `isSafeReturnPath` accepts the hash. Regression `keeps the review-tab hash on the session-expired return path` failed first (return path stopped at `run-1`), then the file passed 2/2. Private beta: after an idle timeout on a review tab, sign-in returns the operator to that tab instead of the review with the hash dropped.
 
 - [x] (proven) `clearOperatorSessionForExpiry` — idle return path omits `location.hash` — **proven 2026-11-23 seed hunt:** default path was `/architecture/reviews/run-1` when the location hash was `#review-summary`; the return path now appends `window.location.hash`.
@@ -4649,8 +4653,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 4
-- **bugs-found:** 3
+- **hunts:** 5
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

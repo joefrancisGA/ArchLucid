@@ -52,3 +52,4 @@
 {"at":"2026-11-23T18:06:27.0594061Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: lookalike Referer prefix passed the BFF origin gate before the session cookie was issued"}
 {"at":"2026-11-23T18:13:48.7435651Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: sandbox GET dropped the BFF idle Set-Cookie"}
 {"at":"2026-11-23T18:18:42.8699598Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: idle expiry dropped the review-tab hash from the return path"}
+{"at":"2026-11-23T18:21:46.8828233Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: error recovery dropped the review-tab hash from desk restore"}
