@@ -47,8 +47,8 @@
     "goal": "Reject mixed head/oldest/ordered SHA digests, clean review loss, candidate overcount and premature rate promotion",
     "no_master_full_build_requested": true
   },
-  "state": "row12_original_pin_comparator_audit_attestation_added_pending_focused_CI",
-  "next_priority": "Validate focused row12 original pin comparator attestation against successful GitHub Actions run 45160219395 downloaded audit, matching all 5741 row SHA-256, three pinned Excel rows (3821 4446 4471), each reviewed commit and spans; then validate full first-parent source-line proof on exact PR head. Fix concrete CI issues without weakening security; do not promote original candidate sources as reviewed LOC. Continue independent discoveries and complete current master-base 900 unique reviewed LOC before any comparable density or 600/700 SMA25.",
+  "state": "row12_lineage_endpoint_text_ceiling_guard_submitted_pending_pr_CI",
+  "next_priority": "Validate focused PR-only row12 first-parent CI including separately reported unique endpoint text-match bound and fully proven all-edge source identity count; proven repeated source candidate lines must be subset of reviewed original-pin endpoint text and never exceed ceiling. Obtain exact-head proof artifact; correct genuine failures while keeping partial candidate review evidence and full current 900 defect-rate unavailable. No full master build.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -903,6 +903,36 @@
       "fresh_comparable_rate": null,
       "full_master_build_dispatched": false,
       "RC49_pr7702_untouched": true
+    },
+    "row12_lineage_endpoint_ceiling_guard": {
+      "status": "code_and_tests_committed_on_branch_pending_focused_PR_validation",
+      "source_candidate_excel_row": 12,
+      "source_candidate_original_review_sha": "a50d94ad912a10009f47b1d2699f9a6ee998eaf5",
+      "candidate_line_occurrences_all_factories": 282,
+      "candidate_lines_with_an_original_pinned_same_path": 79,
+      "candidate_lines_without_original_pinned_same_path": 203,
+      "original_pinned_comparator_excel_rows": [
+        3821,
+        4446,
+        4471
+      ],
+      "prior_source_audit_run_id": 45160219395,
+      "implementation": "scripts/aspects_verify_row12_pinned_lineage.py",
+      "focused_tests": "scripts/tests/test_aspects_verify_row12_pinned_lineage.py",
+      "workflow": ".github/workflows/aspects-row12-first-parent.yml",
+      "control": "Unique endpoint equal-hunk text matching is an explicitly NON-PROVEN ceiling, computed on candidate line coordinates against exact source intervals of each independently pinned review; all first-parent proven source repetitions must be a subset of this ceiling, not vice versa. A real-Git edit/revert fixture verifies three endpoint text candidates but only two continuous source identities.",
+      "current_real_row12_unique_endpoint_bound": "pending focused exact-PR-head Git run",
+      "current_real_row12_first_parent_repeat_count": "pending focused exact-PR-head Git run",
+      "newly_independently_verified_reviewed_LOC_this_run": 0,
+      "new_verified_new_or_repeated_LOC_this_run": [
+        0,
+        0
+      ],
+      "newly_verified_distinct_defects_this_run": 0,
+      "new_measurement_produced_this_run": false,
+      "new_comparable_rate": null,
+      "no_explicit_full_master_build": true,
+      "RC49_diagnostic_PR7702_untouched": true
     }
   },
   "latest_restoration_run": {
