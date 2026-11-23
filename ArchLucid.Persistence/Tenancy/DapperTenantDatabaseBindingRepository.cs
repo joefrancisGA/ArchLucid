@@ -83,8 +83,11 @@ public sealed class DapperTenantDatabaseBindingRepository(ISystemSqlConnectionFa
         await using SqlConnection connection =
             await _systemSqlConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
+        // Multiple provisioning workers can first-write the same tenant at once.
+        // HOLDLOCK protects the missing-key range through SQL MERGE matching so
+        // both callers cannot simultaneously choose the INSERT branch.
         const string sql = """
-                           MERGE dbo.TenantDatabaseBindings AS target
+                           MERGE dbo.TenantDatabaseBindings WITH (HOLDLOCK) AS target
                            USING (SELECT @TenantId AS TenantId) AS src
                            ON target.TenantId = src.TenantId
                            WHEN MATCHED THEN

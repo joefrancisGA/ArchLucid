@@ -73,6 +73,28 @@ hardware-backed key or signing authority. The downstream verifier
 still checks the pinned Ed25519 public key and signature. The recovery
 stop gate continues to return review-required, never execution eligibility.
 
+## Production remediation-instance approval provenance (2026-11-23)
+
+An existing real .NET consumer, `RemediationInstanceService.ApproveAsync`,
+previously used a generic scoped mutation to move a preflight-passed
+instance into Approved without co-committing which **frozen pattern and
+preflight** it approved. Its existing SQL rowversion guard could be
+bypassed when the expected token was null. A separate scoped
+approval/evidence transaction now requires the present token,
+preflight status and independent approver and appends a bounded
+`Approval` phase receipt with an SHA-256 preflight-result binding.
+Existing frozen-version lookups and matcher conflict handling are
+unchanged.
+
+This is an immediately usable persistence improvement for IE-13,
+but is **not** a trusted FND-015 plan store. No persisted source of
+approved `RemediationStep` forward/inverse arrays was identified in
+the reviewed instance schema; therefore no honest mapping from these
+approval receipts to the FND-016 `ReviewedPlanSnapshot` signer inputs
+has been created. Do not read `Approval` phase evidence as a signed
+remediation-plan authorization. A separate immutable, scoped plan
+approval/version domain and independently held signing key would
+still be required before production adoption.
 
 ## Existing production persistence review — current approved pattern version (2026-11-23)
 

@@ -101,6 +101,13 @@ public interface IProjectScopedRemediationInstanceRepository
         RemediationEvidenceRecord evidence,
         CancellationToken cancellationToken = default);
 
+    /// <summary>Atomic, scoped, rowversion-checked approval and evidence commit.</summary>
+    Task CommitApprovalInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceMutation mutation,
+        RemediationEvidenceRecord evidence,
+        CancellationToken cancellationToken = default);
+
     Task CommitVerificationInScopeAsync(
         ProjectScopeKey scope,
         RemediationInstanceMutation mutation,

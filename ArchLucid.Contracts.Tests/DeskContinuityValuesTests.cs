@@ -35,6 +35,46 @@ public sealed class DeskContinuityValuesTests
     }
 
     [Fact]
+    public void Default_returns_independent_mutable_instances()
+    {
+        DeskContinuityDto first = DeskContinuityValues.Default;
+        first.LastOpenArchitectureId = "one-user-architecture";
+        first.LastVisitWatermarkUtc = "2026-11-23T12:00:00Z";
+
+        DeskContinuityDto another = DeskContinuityValues.Default;
+
+        another.Should().NotBeSameAs(first);
+        another.LastOpenArchitectureId.Should().BeNull();
+        another.LastVisitWatermarkUtc.Should().BeNull();
+    }
+
+    [Fact]
+    public void NormalizeOrDefault_missing_or_invalid_settings_do_not_leak_between_requests()
+    {
+        DeskContinuityDto first = DeskContinuityValues.NormalizeOrDefault(null);
+        first.LastOpenReviewId = "first-user-review";
+
+        DeskContinuityDto second = DeskContinuityValues.NormalizeOrDefault(null);
+        DeskContinuityDto invalid = DeskContinuityValues.NormalizeOrDefault("{invalid");
+
+        second.Should().NotBeSameAs(first);
+        second.LastOpenReviewId.Should().BeNull();
+        invalid.LastOpenReviewId.Should().BeNull();
+    }
+
+    [Fact]
+    public void Default_continuity_on_request_and_response_is_not_shared()
+    {
+        SetDeskContinuityRequest request = new();
+        UserPreferencesResponse response = new();
+
+        request.Continuity.LastOpenDraftId = "request-draft";
+
+        response.DeskContinuity.LastOpenDraftId.Should().BeNull();
+        response.DeskContinuity.Should().NotBeSameAs(request.Continuity);
+    }
+
+    [Fact]
     public void NormalizeOrDefault_returns_default_when_unset()
     {
         DeskContinuityDto continuity = DeskContinuityValues.NormalizeOrDefault(null);

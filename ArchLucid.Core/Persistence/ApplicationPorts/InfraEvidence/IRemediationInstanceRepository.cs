@@ -34,6 +34,19 @@ public interface IRemediationInstanceRepository
         throw new NotSupportedException(
             "Scoped remediation updates require a repository-specific atomic implementation.");
 
+    /// <summary>
+    /// Atomically commit PreflightPassed → Approved and matching provenance
+    /// evidence within one scoped, rowversion-checked transaction. This is
+    /// not authorization of an FND-015 execution plan.
+    /// </summary>
+    Task CommitApprovalInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationInstanceMutation mutation,
+        RemediationEvidenceRecord evidence,
+        CancellationToken cancellationToken = default) =>
+        throw new NotSupportedException(
+            "Atomic scoped remediation approval provenance is required.");
+
     /// <summary>Persist verification evidence and the resulting instance state as one unit.</summary>
     Task CommitVerificationInScopeAsync(
         ProjectScopeKey scope,
