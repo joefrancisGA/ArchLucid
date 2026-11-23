@@ -49,10 +49,14 @@ internal static class ItsmInboundJsonElementReader
         if (element.TryGetInt64(out long whole))
             return NormalizeWholeNumberStatusText(whole);
 
-        if (element.TryGetDouble(out double numeric) && double.IsFinite(numeric))
-            return TryNormalizeWholeNumberStatusText(numeric) ?? element.GetRawText();
+        string raw = element.GetRawText();
+        if (IsOutsideInt64Range(raw))
+            return raw;
 
-        return element.GetRawText();
+        if (element.TryGetDouble(out double numeric) && double.IsFinite(numeric))
+            return TryNormalizeWholeNumberStatusText(numeric) ?? raw;
+
+        return raw;
     }
 
     internal static string NormalizeStatusText(string? raw)
@@ -65,6 +69,10 @@ internal static class ItsmInboundJsonElementReader
         if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out int whole))
             return NormalizeWholeNumberStatusText(whole);
 
+        // Double rounding can hide an out-of-range integer, especially just below Int64.MinValue.
+        if (IsOutsideInt64Range(trimmed))
+            return trimmed;
+
         if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
             && double.IsFinite(numeric))
             return TryNormalizeWholeNumberStatusText(numeric) ?? trimmed;
@@ -72,9 +80,20 @@ internal static class ItsmInboundJsonElementReader
         return trimmed;
     }
 
+    private static bool IsOutsideInt64Range(string value) =>
+        decimal.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out decimal exact)
+        && (exact < long.MinValue || exact > long.MaxValue);
+
     private static string? TryNormalizeWholeNumberStatusText(double numeric)
     {
         double rounded = Math.Round(numeric);
+
+        // Conversion from a finite double outside Int64's range is not a valid status ID.
+        // 2^63 is the first unrepresentable positive Int64 value (long.MaxValue rounds to it).
+        const double minInclusive = -9_223_372_036_854_775_808d;
+        const double maxExclusive = 9_223_372_036_854_775_808d;
+        if (rounded < minInclusive || rounded >= maxExclusive)
+            return null;
 
         if (Math.Abs(numeric - rounded) < 0.0000001d)
             return NormalizeWholeNumberStatusText((long)rounded);

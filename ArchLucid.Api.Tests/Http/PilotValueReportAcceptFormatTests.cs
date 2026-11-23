@@ -26,6 +26,12 @@ public sealed class PilotValueReportAcceptFormatTests
     [InlineData("*/*", true)]
     [InlineData("text/html", false)]
     [InlineData("text/markdown;q=0, application/json", false)]
+    [InlineData("text/markdown;q=0, */*;q=1", false)]
+    [InlineData("text/markdown;q=0, application/json;q=0", false)]
+    [InlineData("text/markdown;q=0.2, application/json;q=0.75, */*;q=1", false)]
+    [InlineData("application/json;q=0, text/markdown;q=0.5, */*;q=1", true)]
+    [InlineData("application/json;q=0, */*;q=1", true)]
+    [InlineData("text/markdown;q=0.9, text/*;q=0.1, application/json;q=0.5", true)]
     [InlineData("application/json;q=0.9, text/markdown;q=0.8", false)]
     [InlineData("text/html, application/json;q=0.8", false)]
     public void PrefersMarkdown_resolves_quality_and_order(string? acceptHeader, bool expected)

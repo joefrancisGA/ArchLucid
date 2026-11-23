@@ -1336,16 +1336,6 @@ public sealed class RemediationInstanceServiceTests
             return Task.CompletedTask;
         }
 
-        public Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default)
-        {
-            int index = Instances.FindIndex(row => row.InstanceId == instance.InstanceId);
-
-            if (index >= 0)
-                Instances[index] = instance;
-
-            return Task.CompletedTask;
-        }
-
         public Task UpdateInstanceInScopeAsync(
             ProjectScopeKey scope,
             RemediationInstanceMutation mutation,

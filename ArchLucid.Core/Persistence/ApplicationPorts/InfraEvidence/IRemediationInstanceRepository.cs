@@ -21,8 +21,6 @@ public interface IRemediationInstanceRepository
         return InsertInstanceAsync(instance, cancellationToken);
     }
 
-    Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default);
-
     /// <summary>
     /// Scoped updates must be implemented atomically by the repository.
     /// A read-then-unscoped-write fallback can overwrite concurrent changes.

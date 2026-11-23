@@ -5,11 +5,29 @@
 
 # ArchLucid changelog
 
+## 2026-11-23 - Score lift round 131 (batch 96): Diagram stale gate, export finalize contracts
+
+**Outcome.** Diagram reconcile stale-snapshot filter empty honesty renders only when the workbench load succeeded, not beside the load-error panel. Mounted contracts lock consulting and whitelabel DOCX finalize-not-load-failure ids, golden manifest Markdown finalize on buyer-primary and more-formats surfaces, and run-detail evidence or manifest ZIP finalize ids.
+
+**Surfaces.** Diagram reconcile, consulting DOCX, whitelabel consulting DOCX, golden manifest export menu, run detail deliverables exports, honesty and mounted contract tests.
+
+## 2026-11-23 - Score lift round 130 (batch 95): Upload pending, collection parity, health tiles
+
+**Outcome.** Extract-upload zip success names an accepted package that is still short of evaluation, using the same pending line as the accepted-package panel. Operator home and the reviews hub share the collection-missing strip. System-health demo summary tiles carry the same point-in-time refresh line as the live tiles. Each workspace-health KPI card names a point-in-time rollup versus a failed health load.
+
+**Surfaces.** Extract upload zip drop, operator home, reviews hub, system health, workspace health KPIs, honesty and mounted contract tests.
+
 ## 2026-11-23 - Score lift round 129 (batch 94): Lineage, share, ITSM, connection contracts
 
 **Outcome.** Golden manifest export documents lineage verify HTTP failure on buyer-primary and More formats in one mounted contract. Share review package commit-disabled and post-seal failure lines stay on separate gates. ITSM create names correlation load failure apart from connector-off empty create. Connection status category-only empty stays off the pinned subscription band.
 
 **Surfaces.** Golden manifest export menu, share review package, ITSM quick actions, connection status dashboard, honesty and mounted contract tests.
+
+## 2026-11-23 - Score lift round 128 (batch 93): Hub findings streams, terraform and compare contracts
+
+**Outcome.** Resource hub architecture-review and operational-security findings streams expose not-load-failure lines beside the existing empty ids. Terraform hub load failure renders only when a resource scope is pinned, exclusive of the unscoped panel. A mounted contract keeps compare governance-diff loading and empty honesty on separate branches.
+
+**Surfaces.** Resource hub findings tab, Terraform workbench, compare governance diff, honesty and mounted contract tests.
 
 ## 2026-11-23 - Score lift round 127 (batch 92): Attack-path unevaluated empty, digest failure gates
 
