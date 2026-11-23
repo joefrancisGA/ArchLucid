@@ -5,6 +5,11 @@
 
 # ArchLucid changelog
 
+## 2026-11-23 - Score lift round 124 (batch 89): Graph focus combinations
+
+**Outcome.** Evidence graph names path-only plus node focus, node focus plus edge focus, and path-only plus edge focus as combined empties versus a failed graph read. A type filter with node focus and path-only is a separate triple. Those bands stay exclusive of the matching single-filter lines.
+
+**Surfaces.** Evidence graph loaded experience, honesty and mounted contract tests.
 ## 2026-11-23 - Score lift round 123 (batch 88): Graph edge partial, type combinations
 
 **Outcome.** Evidence graph edge-focus empty mounts partial-capture recovery when inventory capture is thin. Type-filter empties combined with a narrowed graph scope, a path-only slice, or a pinned edge name a filter miss versus a failed graph read, and those bands stay exclusive of the type-only line.
