@@ -8549,7 +8549,7 @@ export interface components {
         /** @enum {string} */
         RemediationAutomationLevel: "Manual" | "Guided" | "SemiAutomated" | "Automated";
         /** @enum {string} */
-        RemediationEvidencePhase: "Before" | "ExecuteRequest" | "ExecuteResult" | "Verify";
+        RemediationEvidencePhase: "Before" | "ExecuteRequest" | "ExecuteResult" | "Verify" | "Approval";
         RemediationFactoryMetrics: {
             /** Format: double */
             automationPercent?: number | string;
