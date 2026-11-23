@@ -227,7 +227,7 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
                     ExecutionSnapshotId = (Guid?)null,
                     VerificationSnapshotId = (Guid?)null,
                     WaveId = (Guid?)null,
-                    PreflightResultJson = "{\\"passed\\":true}",
+                    PreflightResultJson = "{\"passed\":true}",
                     VerificationResultJson = (string?)null,
                     ApprovedByActorKey = (string?)null,
                     UpdatedUtc = now,
