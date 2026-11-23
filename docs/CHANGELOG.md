@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-23 - Score lift round 129 (batch 94): Lineage, share, ITSM, connection contracts
+
+**Outcome.** Golden manifest export documents lineage verify HTTP failure on buyer-primary and More formats in one mounted contract. Share review package commit-disabled and post-seal failure lines stay on separate gates. ITSM create names correlation load failure apart from connector-off empty create. Connection status category-only empty stays off the pinned subscription band.
+
+**Surfaces.** Golden manifest export menu, share review package, ITSM quick actions, connection status dashboard, honesty and mounted contract tests.
+
 ## 2026-11-23 - Score lift round 127 (batch 92): Attack-path unevaluated empty, digest failure gates
 
 **Outcome.** Unevaluated attack-path subsection empty names a successful report with zero unevaluated groups versus a failed report load. A mounted contract keeps the unevaluated-only banner in the success branch and off the retry panel. Digest browse setup checklist while digests exist stays hidden during a hard list load failure, alongside the existing empty-composition gate.
