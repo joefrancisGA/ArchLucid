@@ -1,7 +1,7 @@
 name: FND-017 .NET Semantic Architecture Boundaries
 on:
   pull_request:
-    branches: [master, main, architecture/fnd017-conformance-advisory, architecture/fnd017-dotnet-compiler-boundaries, architecture/fnd017-auth-before-access-advisory, architecture/fnd017-authorization-result-flow, architecture/fnd017-cfg-dominance, architecture/fnd017-resource-binding, architecture/fnd017-baseline-reconciliation]
+    branches: [RC49, master, main, architecture/fnd017-conformance-advisory, architecture/fnd017-dotnet-compiler-boundaries, architecture/fnd017-auth-before-access-advisory, architecture/fnd017-authorization-result-flow, architecture/fnd017-cfg-dominance, architecture/fnd017-resource-binding, architecture/fnd017-baseline-reconciliation]
   workflow_dispatch:
 permissions:
   contents: read
@@ -23,6 +23,14 @@ jobs:
             --filter 'FullyQualifiedName~CoreDependencyBoundaryAnalyzerTests|FullyQualifiedName~SecureNowSnapshotAuthorizationOrderAnalyzerTests|FullyQualifiedName~AuthorizationDecisionConsumptionAnalyzerTests|FullyQualifiedName~SnapshotAuthorizationDominanceAnalyzerTests|FullyQualifiedName~SnapshotAuthorizationResourceBindingAnalyzerTests|FullyQualifiedName~SecureNowExchangeModePatternTests|FullyQualifiedName~SecureNowActualEndpointSourceTests' \
             --logger 'trx;LogFileName=fnd017-analyzers.trx' \
             --results-directory fnd017-testresults
+      # Only FND017001 is enforcement-ready. The remaining FND017 rules are advisory.
+      - name: Enforce FND017001 against checked-in ArchLucid.Core
+        if: always()
+        run: >-
+          dotnet build ArchLucid.Core/ArchLucid.Core.csproj
+          --configuration Release
+          -p:RunAnalyzers=true
+          -p:RunAnalyzersDuringBuild=true
       - name: Run existing advisory conformance report
         if: always()
         run: python3 scripts/architecture/fnd017_conformance.py --output fnd017-conformance-report.json
