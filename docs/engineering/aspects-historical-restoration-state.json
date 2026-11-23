@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "followon_original_pinned_900_overlap_validated_clean_workbook_provenance_fix_submitted",
-  "next_priority": "Validate exact-head CI for historical original-pinned clean/positive review counts correctly joined to immutable source, not the defect-label-free Git pin-audit rows. Then reconstruct full 900-first-parent cross-revision reviewed LOC and contemporaneous distinct discovery IDs; keep 600/700 series provisional until source-backed rates exist. Inspect unresolved FND HTTP/CI security failures without bypassing gates.",
+  "state": "historical_900_followon_candidate_identity_reconciliation_and_sql_runner_submitted",
+  "next_priority": "Validate latest PR-head Aspects overlap, immutable workbook clean-row audit, exact verbatim historical/follow-on discovery candidate label matching, FND-011 SQL-backed persisted HTTP tests, and full PR CI; repair concrete failures without weakening gates. The historical 463/343492 snapshot remains unchanged partial provenance until as-of 900-first-parent distinct discovery and cross-revision reviewed LOC are recomputed. Then integrate current follow-on cohort and 600/700 SMA25, without inventing points.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -393,7 +393,7 @@
       "new_or_repeated_loc_to_global_900_window": null
     },
     "followon_original_pin_900_reconciliation": {
-      "status": "previous_exact_head_Aspects_run_45142505448_passed_10_tests_and_overlap; workbook_clean_event_join_fix_submitted_pending_new_ci",
+      "status": "code_submitted_waiting_exact_head_CI_for_clean_corpus_label_and_candidate_discovery_identity",
       "script": "scripts/aspects_reconcile_followon_900.py",
       "tests": "scripts/tests/test_aspects_reconcile_followon_900.py",
       "workflow": ".github/workflows/aspects-density-snapshot.yml",
@@ -423,7 +423,21 @@
       "source_fix": "immutable Review evidence event source join by Excel row, original review ID, reviewed SHA and defects_recorded; records must match independently audited original pinned rows; zero-defect reviews cannot be inferred absent fields",
       "source_fix_tests": "scripts/tests/test_aspects_reconcile_followon_900.py",
       "verified_reviewed_loc_new_this_stage": 0,
-      "new_distinct_defects_this_stage": 0
+      "new_distinct_defects_this_stage": 0,
+      "provenance_correctness_fix": "Prior passing run 45142505448 demonstrated 27 in-window follow-ons/32 out-of-window, 538 exact repeats and 215 same-blob unmatched identities. It misleadingly reported 0 original-pinned clean rows because Git audit rows omit defects_recorded. Now immutable verified 5741-row corpus is joined by Excel row, review ID, reviewed SHA, with strict 4864 clean/877 positive source goldens.",
+      "candidate_discovery_identity_reconciliation": {
+        "status": "committed_pending_CI",
+        "contract": "exact case-sensitive original workbook positive review_id matched with follow-on defect_id in same historical first-parent window; no PR or numeric-suffix aliases; labels only candidate identities not verified distinct discoveries",
+        "tests": "scripts/tests/test_aspects_reconcile_followon_900.py",
+        "newly_verified_distinct_defects": 0,
+        "new_rate": null
+      },
+      "fnd011_sql_environment": {
+        "status": "targeted_workflow_change_committed_pending_CI",
+        "workflow": ".github/workflows/fnd011-http-openapi-verification.yml",
+        "reason": "Previously missing SQL Server caused persisted tenant HTTP test to fail before security assertions. Reused existing CI SQL Server service pattern and explicit catalog readiness; no skipped test or weakened auth.",
+        "master_full_build_dispatched": false
+      }
     }
   },
   "latest_restoration_run": {
