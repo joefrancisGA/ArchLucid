@@ -89,6 +89,16 @@ public sealed partial class CachingRunRepository
     }
 
     /// <inheritdoc />
+    public async Task<RunArchiveByIdsResult> ArchiveRunsByIdsForScopeAsync(
+        ScopeContext scope, IReadOnlyList<Guid> runIds, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        RunArchiveByIdsResult result = await _inner.ArchiveRunsByIdsForScopeAsync(scope, runIds, ct);
+        await InvalidateArchiveByIdsAsync(result);
+        return result;
+    }
+
+    /// <inheritdoc />
     public async Task<RunArchiveByIdsResult> ArchiveUnsealedRunAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         RunArchiveByIdsResult result = await _inner.ArchiveUnsealedRunAsync(scope, runId, ct);

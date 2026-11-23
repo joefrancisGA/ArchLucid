@@ -39,7 +39,10 @@ export function CompareClassificationBandDeltaPanel(
         className="rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-950"
         data-testid="compare-classification-band-zero-counts-one-unsealed"
       >
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="compare-classification-band-zero-counts-one-unsealed-not-load-failure"
+        >
           {COMPARE_CLASSIFICATION_BAND_ZERO_COUNTS_ONE_UNSEALED_NOT_LOAD_FAILURE_LINE}
         </p>
         <div className="mt-2">

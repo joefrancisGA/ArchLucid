@@ -65,6 +65,17 @@ internal static partial class RunRepositorySql
         {ArchiveByIdCascade}
         """;
 
+    // Admin HTTP scope guard: enforce tenant/workspace/project in the UPDATE
+    // and the already-archived classification, not only during a prior read.
+    // Keep catalog-wide ArchiveRunsByIds unchanged for retention workers.
+    public const string ArchiveRunsByIdsInScope = $"""
+        {ArchiveByIdWrite}{ArchiveByIdScopeFilter};
+
+        {ArchiveByIdReport}{ArchiveByIdScopeFilter};
+
+        {ArchiveByIdCascade}
+        """;
+
     public const string ArchiveUnsealedRun = $"""
         {ArchiveByIdWrite}{ArchiveByIdScopeFilter} AND GoldenManifestId IS NULL;
 

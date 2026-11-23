@@ -40,6 +40,34 @@ public sealed class InMemoryRunRepositoryAtomicArchiveTests
     }
 
     [Fact]
+    public async Task Scoped_archive_by_ids_never_archives_foreign_run_or_discloses_archived_state()
+    {
+        InMemoryRunRepository repo = new();
+        ScopeContext owner = NewScope();
+        ScopeContext foreign = NewScope();
+        RunRecord ownRun = NewRun(owner);
+        RunRecord foreignRun = NewRun(foreign);
+        await repo.SaveAsync(ownRun, CancellationToken.None);
+        await repo.SaveAsync(foreignRun, CancellationToken.None);
+
+        RunArchiveByIdsResult result = await repo.ArchiveRunsByIdsForScopeAsync(
+            owner, [ownRun.RunId, foreignRun.RunId], CancellationToken.None);
+
+        result.SucceededRunIds.Should().ContainSingle().Which.Should().Be(ownRun.RunId);
+        result.Failed.Should().ContainSingle(f => f.RunId == foreignRun.RunId
+            && f.Reason == "Run not found.");
+        (await repo.GetByIdAsync(foreign, foreignRun.RunId, CancellationToken.None))
+            .Should().NotBeNull("an out-of-scope run is not eligible for mutation");
+
+        RunArchiveByIdsResult repeated = await repo.ArchiveRunsByIdsForScopeAsync(
+            owner, [ownRun.RunId, foreignRun.RunId], CancellationToken.None);
+        repeated.Failed.Should().Contain(f => f.RunId == ownRun.RunId
+            && f.Reason == "Run already archived.");
+        repeated.Failed.Should().Contain(f => f.RunId == foreignRun.RunId
+            && f.Reason == "Run not found.");
+    }
+
+    [Fact]
     public async Task Concurrent_cutoff_archives_count_a_run_once()
     {
         InMemoryRunRepository repo = new();
