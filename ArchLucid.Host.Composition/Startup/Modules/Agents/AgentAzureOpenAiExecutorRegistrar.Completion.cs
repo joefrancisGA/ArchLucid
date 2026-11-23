@@ -53,7 +53,7 @@ partial class AgentAzureOpenAiExecutorRegistrar
                         completionLogger,
                         llmTelemetryOptions,
                         truncationReporter,
-                    networkTimeout: ao.GetEffectiveCompletionNetworkTimeout());
+                        networkTimeout: ao.GetEffectiveCompletionNetworkTimeout());
                 }
 
                 if (string.IsNullOrWhiteSpace(apiKey))
@@ -125,7 +125,7 @@ partial class AgentAzureOpenAiExecutorRegistrar
                 completionLogger,
                 llmTelemetryOptions,
                 truncationReporter,
-                    networkTimeout: ao.GetEffectiveCompletionNetworkTimeout());
+                networkTimeout: ao.GetEffectiveCompletionNetworkTimeout());
         });
 
         services.AddSingleton<LlmTokenQuotaWindowTracker>();
