@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_import_complete_proven_sparse_lineage_row22_candidate_backfill_submitted",
-  "next_priority": "Verify new-head CI golden for workbook Excel row22's six source-at-review-commit blobs/195 nonblank candidate LOC and test the strict prefixed-path grammar. Then resolve the two candidate lineage complexity-cap pairs and reconstruct current cohort distinct-defect IDs and incremental reviewed LOC before any full rate.",
+  "state": "historical_import_complete_bounded_large_source_lineage_fallback_submitted",
+  "next_priority": "Validate exact-head CI including large-file fallback tests and inspect whether the two complexity-capped historical candidate comparisons can be safely mapped. Investigate separate FND-017 semantic boundary and FND-011 HTTP tenant isolation failures without weakening gates; then reconcile historical distinct discovery IDs, follow-on ledger, and anchored 900-first-parent source coverage before a comparable density.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -178,7 +178,24 @@
         "interpretation": "Every in-window derived path/blob must re-match its reviewed Git commit tree and its nonblank intervals before comparison; separate adjacent-first-parent identical unique lines from nonadjacent provisional equal-hunk matches; neither updates denominator or defects.",
         "newly_original_pin_verified_loc": 0,
         "newly_discovered_defect_ids": 0,
-        "comparable_rate_computed": false
+        "comparable_rate_computed": false,
+        "bounded_fallback": {
+          "status": "committed_pending_exact_head_CI",
+          "implementation": "scripts/aspects_verify_first_parent_lineage.py; scripts/aspects_reconcile_candidate_lineage.py",
+          "tests": "scripts/tests/test_aspects_reconcile_candidate_lineage.py",
+          "method": "Fall back from capped quadratic equal hunks to O(n) matching of only unique identical nonblank leading/trailing lines, then require every changed first-parent edge to be Git-verified; refuse to map repeated, interior altered, or ambiguous lines.",
+          "maximum_linear_blob_lines": 100000,
+          "original_pinned_reviewed_LOC_increment_this_step": 0,
+          "new_distinct_discoveries_this_step": 0,
+          "new_density_computed": false,
+          "historical_candidate_pair_improvement": "not yet measured; inspect new-head CI artifact",
+          "prior_source_checkpoint": "45133847115 passed for head 15b8cd8327c6fff78c85eaaceef9d108d443d547",
+          "previous_FND_failures": {
+            "semantic": "45133847063",
+            "http": "45133847062"
+          },
+          "caveat": "Candidate-only matching cannot be counted as newly reviewed LOC, even if lineage is verified."
+        }
       }
     },
     "multifile_34_source_checkpoint": {
