@@ -64,6 +64,9 @@ class HistoricalDefectIdTests(unittest.TestCase):
         self.assertEqual(report["unique_named_discovery_id_candidates"], 1)
         self.assertEqual(report["repeated_named_discovery_id_candidates"], 1)
         self.assertEqual(report["positive_rows_in_anchored_900_first_parent"], 2)
+        self.assertEqual(report["unique_fix_pr_reference_candidates_in_anchored_window"], 2)
+        self.assertEqual(report["positive_rows_without_fix_pr_reference_in_anchored_window"], 0)
+        self.assertEqual(report["repeated_fix_pr_numbers_in_anchored_window"], 0)
         self.assertEqual(report["exact_candidate_id_also_in_narrow_ledger_rows"], 2)
         self.assertEqual(len(row_audits), 2)
         self.assertIsNone(report["historical_463_distinct_defects_recomputed"])
@@ -90,6 +93,28 @@ class HistoricalDefectIdTests(unittest.TestCase):
                          "conflicting_original_fix_pr_references")
         self.assertEqual(rows[0]["fix_state"], "not_independently_checked")
         self.assertIsNone(rows[0]["fix_pr_number"])
+
+    def test_unlinked_confirmed_observation_is_not_erased_to_match_pr_count(self):
+        # Workbook may confirm a defect while its fix PR is still pending.
+        # The absence of a PR is not evidence that the discovery is a repeat.
+        self.rows[2]["source_reference"] = None
+        self.rows[2]["historical_status"] = "Measured — fixing PR pending"
+        report, positives = self.calculate()
+        self.assertEqual(report["positive_rows_in_anchored_900_first_parent"], 2)
+        self.assertEqual(report["unique_fix_pr_reference_candidates_in_anchored_window"], 1)
+        self.assertEqual(report["positive_rows_without_fix_pr_reference_in_anchored_window"], 1)
+        self.assertEqual(report["positive_unlinked_excel_rows_sample_in_anchored_window"], [9])
+        self.assertIsNone(positives[1]["fix_pr_number"])
+        self.assertIsNone(report["historical_463_distinct_defects_recomputed"])
+
+    def test_reused_fix_pr_does_not_prove_duplicate_discovery(self):
+        self.rows[2]["source_reference"] = self.rows[0]["source_reference"]
+        self.rows[2]["historical_status"] = "Confirmed · PR #123 open"
+        report, _ = self.calculate()
+        self.assertEqual(report["unique_fix_pr_reference_candidates_in_anchored_window"], 1)
+        self.assertEqual(report["repeated_fix_pr_numbers_in_anchored_window"], 1)
+        self.assertEqual(report["repeated_fix_pr_reference_rows_sample"], {"123": [7, 9]})
+        self.assertIsNone(report["historical_463_distinct_defects_recomputed"])
 
     def test_closed_unmerged_and_open_are_not_labeled_fixed(self):
         self.pr_statuses["pr_states"] = [
