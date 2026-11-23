@@ -160,3 +160,34 @@ source population lacks original review pins. This does not block reproducible
 historical/provisional charts or the narrower verified ledger report, but it
 does block claiming a complete current 900-commit defect density. The report
 makes that boundary explicit.
+
+## Required Aspects pass-to-pass SMA25 change (operator standard, Nov 23)
+
+Every time an Aspects review iteration completes, the operational workbook and
+user-visible summary **MUST** include all of these from the SAME accounting series:
+
+1. Actually inspected LOC, previously reviewed LOC, new unique LOC and newly
+   discovered distinct defect IDs. Repeated LOC do not raise the denominator.
+2. Previous pass cumulative defects, unique LOC and density; updated pass totals.
+3. **Previous 25-observation SMA**, **current 25-observation SMA**, **signed change
+   (current minus previous, defects/KLOC)** and **relative percent change**
+   (`(current - previous) / previous * 100`). Increases and decreases must
+   retain their signs; never report the delta as a new defect count.
+4. The operational trend's preceding row must be *frozen* before updating the
+   live summary, so recalculating the newest row does not rewrite historical
+   moving averages. Append the new observation, compute SMA25 from the last
+   25 compatible density observations and display the comparison prominently.
+5. Distinguish historical workbook provisional carry-forward from a fully
+   re-anchored 900-first-parent Git-verified rate; never silently blend those
+   series. If a previous comparable sample is absent, display unknown rather
+   than fabricating a zero delta.
+6. Link the newly reviewed Git source SHA, defect ID, fix PR, and relevant
+   workbook source spans. A pass that finds no defects still gets a new
+   observation when genuine LOC review occurred.
+
+For Nov 23 pass #3 (trial baseline preseed diagnostics), the accepted operational
+comparison is previous **1.3542275959012933** versus current
+**1.3597854672651855** SMA25 defects/KLOC, signed
+**+0.005557871363892186** /KLOC (**+0.410408957897%**). The pass inspected
+50 nonblank source lines, all present in historical workbook Excel source-pin
+rows 4725 and 4746, so 50 repeated LOC, 0 new unique LOC, +1 defect ID.
