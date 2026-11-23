@@ -1213,13 +1213,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-11-23 seed hunt (hit): the five open monitors repeat claims closed on 2026-11-02 (wrong-path artifact 404, live overall SKIP, empty 200 list body, conflicting hasMore, json exit code). Promoted offline replay: `EvaluateReplayProbe` treated captured list JSON as authoritative for `hasMore` but still passed `exclude-run-id` when that JSON contained the manifest primary run and the outcome said foreign runId absent. Replay now fails when a scannable evidence fragment contains the primary run. Regression `RunOffline_FailsExcludeRunIdProbeWhenEvidenceListContainsPrimaryRunIdDespiteAbsentOutcome`. Scoped TenantIsolationNegativeTestRunnerTests **61/61**. Private beta: An invited operator replaying a tenant-isolation fixture no longer gets a pass when the captured run list still contains the primary run. The check fails that captured leak.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner.EvaluateReplayProbe` — captured list JSON contains the primary run while the outcome says foreign runId absent — **hit 2026-11-23 seed hunt:** `EmbeddedEvidenceContainsPrimaryRunId`; regression above. Private beta: An invited operator replaying a tenant-isolation fixture no longer gets a pass when the captured run list still contains the primary run. The check fails that captured leak.
+
 2026-11-02 thorough hunt #217 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `ui-infra-resource-hub` (dry **#214**, **#215**, **#216** / run log). Picker applied **`-AvoidZoneId ui-infra-resource-hub`** and returned `cli-tenant-isolation` (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on 'ui-infra-resource-hub' (outcomes: dry, dry, dry).*). Attempted failing repro on five open monitor `(candidate)` rows from hunt **#213** reseed; cheap-disproof closed all five — **valid-no-repro** alternate-scope `/v1/runs` **204 No Content** → list-unavailable SKIP (`RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives204NoContent`; fail-closed live contract), **invalid** `nextCursor` while `hasMore:false` (`TryParseRunListContinuation` requires JSON `hasMore:true`; `RunListClaimsMorePages_DetectsHasMoreWhenNextCursorMissing`), **valid-no-repro** primary-scope sanity Fail → overall **Fail** not PASS (`RunLiveAsync_WhenPrimaryRunInvisible_SkipsCrossTenantProbesAndReportsFail`), **valid-no-repro** global `--json` default artifact writes unless `--no-write-artifacts` (`Resolve_WithNoWriteArtifactsFlag_SkipsDefaultOutputs`; intentional stdout/json split), **invalid** live run id path-segment traversal (GUID `--run-id` contract; hunt **#209** / **#59**). Reseeded five `(candidate)` monitor rows below; scoped **60/60** `TenantIsolationNegativeTestRunnerTests` passed (`RunAnalyzers=false`). Run-log low-yield streak on `cli-tenant-isolation` is **0/3** before this record (resource-hub dry **#214**–**#216** at tail). **This dry starts 1/3** on `cli-tenant-isolation` at run-log tail. Private beta: n/a.
 
-- [ ] (candidate) `TenantIsolationNegativeTestLiveRunner` — cross-tenant artifact probe may PASS on wrong-path 404 without exercising `GET /v1/architecture/runs/{runId}/artifacts` — locus: deny-status vs route selection; input: legacy export-only prefix; wrong outcome: false PASS on isolation (monitor; hunt **#217** reseed).
-- [ ] (candidate) `TenantIsolationNegativeTestAggregator.DeriveOverallVerdict` — live mode overall PASS when primary sanity Pass and every cross-tenant probe Skip — locus: overall merge when infra skips; input: primary visible + list/ deny SKIP; wrong outcome: ship gate PASS without verified isolation (monitor; hunt **#217** reseed).
-- [ ] (candidate) `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` — HTTP 200 with empty response body may false-pass exclude-run-id as verified absent — locus: body guard before scannable JSON; input: alternate-scope list returns 200 with zero-length body; wrong outcome: PASS without scanning items (monitor; hunt **#217** reseed).
-- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner` — embedded evidence with conflicting `hasMore` flags across fragments may false-pass when first fragment is `hasMore:false` — locus: `AnyEmbeddedRunListClaimsMorePages` scan order; input: decorative JSON then truncated page; wrong outcome: PASS on truncated list (monitor; hunt **#217** reseed).
-- [ ] (candidate) `TenantIsolationNegativeTestCommand.RunAsync` — non-Pass overall verdict may still exit success when `CliExecutionContext.JsonOutput` is set — locus: exit mapping after stdout json; input: overall Skip/Fail with `--json`; wrong outcome: CI parses success exit code (monitor; hunt **#217** reseed).
+- [x] (invalid) `TenantIsolationNegativeTestLiveRunner` — cross-tenant artifact probe PASS on wrong-path 404 — **already closed 2026-11-02 thorough hunt #213:** product route `GET /v1/architecture/runs/{runId}/artifacts` is registered.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestAggregator.DeriveOverallVerdict` — live overall PASS when every cross-tenant probe Skip — **already closed 2026-11-02 thorough hunt #213:** `DeriveOverallVerdict_LiveModeDowngradesPassWhenCrossTenantProbeSkipped`.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` — HTTP 200 empty body false-pass — **already closed 2026-11-02 thorough hunt #213:** `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives200WithoutItemsArray`.
+- [x] (invalid) `TenantIsolationNegativeTestOfflineRunner` — conflicting embedded hasMore flags false-pass — **already closed 2026-11-02 thorough hunt #213:** `AnyEmbeddedRunListClaimsMorePages`.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestCommand.RunAsync` — json mode success exit on Skip/Fail — **already closed 2026-11-02 thorough hunt #213:** non-Pass overall exits `OperationFailed`.
 
 - [x] (valid-no-repro) `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` — HTTP 204 NoContent classified as list-unavailable SKIP — **cheap-disproof 2026-11-02 thorough hunt #217:** `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives204NoContent` (hunt **#213** reseed).
 - [x] (invalid) `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` — continuation cursor while `hasMore` is false — **cheap-disproof 2026-11-02 thorough hunt #217:** `TryParseRunListContinuation` + `RunListClaimsMorePages_DetectsHasMoreWhenNextCursorMissing` (hunt **#213** reseed).
@@ -1405,11 +1409,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-23
+- **last-bug:** 2026-11-23
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

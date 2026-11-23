@@ -13,7 +13,7 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
         string manifestPath = ResolveManifestPath(repositoryRoot, options);
         TenantIsolationNegativeTestManifestDocument manifest = TenantIsolationNegativeTestManifestLoader.Load(manifestPath);
         List<TenantIsolationNegativeTestProbeResult> probes = manifest.Scenarios
-            .SelectMany(scenario => scenario.Probes.Select(probe => EvaluateReplayProbe(scenario.Name, probe)))
+            .SelectMany(scenario => scenario.Probes.Select(probe => EvaluateReplayProbe(scenario.Name, probe, manifest.PrimaryRunId)))
             .ToList();
 
         return new TenantIsolationNegativeTestOfflineRunResult(
@@ -26,7 +26,8 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
 
     private static TenantIsolationNegativeTestProbeResult EvaluateReplayProbe(
         string scenarioName,
-        TenantIsolationNegativeTestManifestProbe probe)
+        TenantIsolationNegativeTestManifestProbe probe,
+        string? primaryRunId)
     {
         TenantIsolationNegativeTestVerdict verdict;
 
@@ -35,6 +36,11 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             if (probe.ForeignRunIdVisible
                 || ObservedOutcomeIndicatesForeignRunIdPresent(probe.ObservedOutcome))
             {
+                verdict = TenantIsolationNegativeTestVerdict.Fail;
+            }
+            else if (EmbeddedEvidenceContainsPrimaryRunId(probe.Evidence, primaryRunId))
+            {
+                // Captured list JSON is already authoritative for hasMore. The same fragments must fail the probe when they still contain the primary run.
                 verdict = TenantIsolationNegativeTestVerdict.Fail;
             }
             else if (probe.RunListClaimsMorePages == true
@@ -67,6 +73,38 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
         };
     }
 
+    private static bool EmbeddedEvidenceContainsPrimaryRunId(string evidence, string? primaryRunId)
+    {
+        if (string.IsNullOrWhiteSpace(evidence) || string.IsNullOrWhiteSpace(primaryRunId))
+            return false;
+
+        string text = evidence.Trim();
+
+        if (ListFragmentContainsPrimaryRunId(text, primaryRunId))
+            return true;
+
+        for (int index = 0; index < text.Length; index++)
+        {
+
+            if (text[index] is not ('{' or '['))
+                continue;
+
+            string embedded = text[index..];
+
+            if (ListFragmentContainsPrimaryRunId(embedded, primaryRunId))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool ListFragmentContainsPrimaryRunId(string json, string primaryRunId)
+    {
+        if (!TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(json))
+            return false;
+
+        return TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList(json, primaryRunId);
+    }
     private static bool TryInferRunListClaimsMorePagesFromEvidence(string evidence)
     {
         if (string.IsNullOrWhiteSpace(evidence))
@@ -83,6 +121,7 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
 
         for (int index = 0; index < text.Length; index++)
         {
+
             if (text[index] is not ('{' or '['))
                 continue;
 

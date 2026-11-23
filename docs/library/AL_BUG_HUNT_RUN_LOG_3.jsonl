@@ -25,3 +25,4 @@
 {"at":"2026-11-23T03:05:26.7559157Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"securenow","set":3,"note":"seed hunt: investigation effort audit save accepts exponent notation"}
 {"at":"2026-11-23T03:11:25.8407495Z","zoneId":"ui-lib-product-line","outcome":"seed-only","productLine":"archlucid-shared","set":3,"note":"seed hunt: no hunt-ready row; five candidates"}
 {"at":"2026-11-23T03:20:40.8165096Z","zoneId":"ui-lib-api","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: unguarded HTML download saved as the file"}
+{"at":"2026-11-23T14:36:02.7390267Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: offline replay passed while captured list contained the primary run"}
