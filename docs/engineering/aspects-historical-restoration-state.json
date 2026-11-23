@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_original_pinned_full_first_parent_lineage_proof_submitted",
-  "next_priority": "Validate exact PR-head historical-original-pin-proven-first-parent.json artifact and new 7 regression tests, including changed-and-reverted source lines, plus existing Aspects/FND-011/CI gates. Record source-line identity proof counts only from an actual successful run, not as new reviewed LOC. Then reconcile other unpinned derived review coverage and contemporaneous typed distinct discovery IDs on a fresh as-of 900-first-parent cohort before any rate or 600/700-SMA25 publication.",
+  "state": "historical_full_first_parent_proof_CI_pending_with_FND011_feature_off_contract_correction",
+  "next_priority": "On exact newest PR #7822 head, validate historical-original-pin-proven-first-parent.json and the seven test goldens. Confirm FND-011 feature-OFF owner/foreign 404 plus separately mandatory feature-ON owner 200/foreign 404 and OpenAPI; investigate any new CI failures without disabling gates. PR is currently dirty versus master (106 ahead / 90 behind at 2026-11-23 10:46Z) and requires narrow conflict resolution before merge. Historical original pinned 900 first-parent cohort/source and discovery identities remain incomplete for a fresh density; no new comparable rate.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -440,7 +440,7 @@
       }
     },
     "original_pinned_full_first_parent_lineage_proof": {
-      "status": "new_code_tests_and_CI_committed_pending_exact_head_run",
+      "status": "implementation_and_tests_committed_pending_CI_validation_at_newest_head",
       "implementation": "scripts/aspects_verify_original_pinned_first_parent.py",
       "tests": "scripts/tests/test_aspects_verify_original_pinned_first_parent.py",
       "workflow": ".github/workflows/aspects-density-snapshot.yml",
@@ -461,6 +461,23 @@
       "full_900_comparable_density": null,
       "PR_merge_allowed_only_after_all_required_checks_pass": true,
       "full_master_build_dispatched": false
+    },
+    "fnd011_feature_off_http_contract": {
+      "reason": "GitHub FND-011 PR-head 509f5799 run 45151489473: SQL service ready; 17 projection/controller tests passed; persisted default-flag HTTP test owner expected 200/409, received 404. The separate enabled-exchange test requires owner 200 and foreign tenant 404 and must still execute.",
+      "correction": "ArchLucid.Api.Tests/Planning/SecureNowPersistedTenantHttpTests.cs: renamed disabled-exchange test and requires owner 404 and foreign tenant 404 while the original enabled exchange owner200/foreign404 suite remains mandatory; SQL service, security and OpenAPI gates unchanged.",
+      "pending": "validate on exact newest PR head; no confirmed passing job yet",
+      "failing_workflow_run": 45151489473,
+      "no_skips_or_weakened_authorization": true,
+      "full_master_build_dispatched": false
+    },
+    "pending_pr_merge_conflicts": {
+      "status": "unresolved_pr_reports_dirty",
+      "evidence": "PR #7822 GitHub REST mergeable=false mergeable_state=dirty",
+      "branch_compare_at_check": {
+        "ahead": 106,
+        "behind": 90
+      },
+      "limitation": "not an Aspects measurement; don't bypass required checks or trigger master full CI"
     }
   },
   "latest_restoration_run": {
